@@ -43,10 +43,10 @@ export function DashboardScreen() {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1] relative">
+    <div className="min-h-screen aurora-bg relative overflow-hidden">
       {/* ===== Top navigation strip ===== */}
       <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        className="glass-nav sticky top-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
@@ -104,7 +104,7 @@ export function DashboardScreen() {
             >
               Good morning,
               <br />
-              <span className="italic-display">{firstName}.</span>
+              <span className="italic-display holo-text-subtle">{firstName}.</span>
             </h1>
             <p
               className="mt-6 text-[#5C544A] max-w-md"
@@ -115,7 +115,18 @@ export function DashboardScreen() {
           </div>
 
           {/* Eye medallion centerpiece */}
-          <div className="lg:col-span-5 order-1 lg:order-2 flex justify-center">
+          <div className="lg:col-span-5 order-1 lg:order-2 flex justify-center relative">
+            {/* Light-leak glow behind medallion */}
+            <div
+              className="absolute pointer-events-none"
+              style={{
+                inset: "-20%",
+                background: "radial-gradient(circle, rgba(140,109,63,0.08) 0%, rgba(139,123,175,0.05) 40%, transparent 70%)",
+                animation: "light-leak 10s ease-in-out infinite",
+                borderRadius: "50%",
+                zIndex: 0,
+              }}
+            />
             <motion.div
               className="eye-medallion relative w-[280px] h-[280px] lg:w-[340px] lg:h-[340px]"
               initial={{ scale: 0.92, opacity: 0 }}
@@ -186,12 +197,12 @@ export function DashboardScreen() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {MODES.map(({ icon: Icon, label, description, path }, i) => (
               <motion.button
                 key={path}
                 onClick={() => navigate(path)}
-                className="text-left bg-white p-8 group transition-all hover:bg-[#8C6D3F]/[0.03]"
+                className="text-left glass-card iri-border p-8 group transition-all hover-shadow-holo"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.08 }}

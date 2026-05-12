@@ -43,10 +43,15 @@ export function XPBar({ currentXP, level, showLabel = true, size = "md" }: XPBar
       )}
       <div className={`w-full bg-[#1F1A12]/8 rounded-full overflow-hidden ${heights[size]} relative`}>
         <motion.div
-          className="absolute inset-y-0 left-0 bg-[#8C6D3F] rounded-full"
+          className="absolute inset-y-0 left-0 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.9, ease: "easeOut" }}
+          style={{
+            background: "linear-gradient(90deg, #8C6D3F 0%, #C4A57B 40%, #8C6D3F 60%, #9C7B1F 100%)",
+            backgroundSize: "200% 100%",
+            animation: "holo-shimmer 3s ease-in-out infinite",
+          }}
         />
       </div>
     </div>

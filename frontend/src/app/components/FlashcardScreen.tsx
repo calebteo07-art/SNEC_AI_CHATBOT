@@ -240,7 +240,7 @@ export function FlashcardScreen() {
 
       {/* ===== Top Bar ===== */}
       <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        className="glass-nav sticky top-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -354,7 +354,7 @@ export function FlashcardScreen() {
             >
               {/* Front — Question */}
               <motion.div
-                className="absolute inset-0 surface-card-lg flex flex-col p-12"
+                className="absolute inset-0 glass-card-lg iri-border flex flex-col p-12"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
@@ -397,11 +397,16 @@ export function FlashcardScreen() {
                       key={idx}
                       className={`h-[3px] rounded-full transition-all ${
                         idx === currentIndex
-                          ? "w-8 bg-[#8C6D3F]"
+                          ? "w-8"
                           : ratedCards[FLASHCARDS[idx].id]
                           ? "w-1.5 bg-[#4F6B3D]/50"
                           : "w-1.5 bg-[#1F1A12]/10"
                       }`}
+                      style={idx === currentIndex ? {
+                        background: "linear-gradient(90deg, #8C6D3F, #C4A57B, #8B7BAF, #8C6D3F)",
+                        backgroundSize: "200% 100%",
+                        animation: "holo-shimmer 2.5s ease-in-out infinite",
+                      } : undefined}
                     />
                   ))}
                 </div>
@@ -409,12 +414,14 @@ export function FlashcardScreen() {
 
               {/* Back — Answer */}
               <motion.div
-                className="absolute inset-0 surface-card-lg flex flex-col p-12 overflow-hidden"
+                className="absolute inset-0 glass-card-lg iri-border flex flex-col p-12 overflow-hidden"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
-                  background: "linear-gradient(135deg, rgba(79,107,61,0.03) 0%, transparent 60%), #FFFFFF",
+                  background: "linear-gradient(135deg, rgba(79,107,61,0.06) 0%, transparent 50%), rgba(255,255,255,0.6)",
+                  backdropFilter: "saturate(1.4) blur(12px)",
+                  WebkitBackdropFilter: "saturate(1.4) blur(12px)",
                 }}
               >
                 <div className="flex items-center justify-between mb-6">
@@ -491,7 +498,7 @@ export function FlashcardScreen() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="surface-card p-6">
+              <div className="glass-card p-6">
                 {aiChecking ? (
                   <div className="flex items-center gap-3 text-[#5C544A]" style={{ fontSize: "0.88rem" }}>
                     <div className="w-3 h-3 border-2 border-[#8C6D3F] border-t-transparent rounded-full animate-spin" />
@@ -535,7 +542,7 @@ export function FlashcardScreen() {
                   e.stopPropagation();
                   handleRating(rating.value);
                 }}
-                className="surface-card p-4 text-center group transition-all"
+                className="glass-card p-4 text-center group transition-all"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}

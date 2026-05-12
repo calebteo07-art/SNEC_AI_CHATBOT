@@ -1,3 +1,10 @@
+/* ===== Iridescent angle property — must be at file top-level ===== */
+@property --iri-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -45,6 +52,30 @@
   --shadow-md:       0 1px 2px rgba(31, 26, 18, 0.04), 0 8px 24px rgba(31, 26, 18, 0.06);
   --shadow-lg:       0 2px 4px rgba(31, 26, 18, 0.04), 0 16px 48px rgba(31, 26, 18, 0.08);
   --shadow-bronze:   0 1px 2px rgba(140, 109, 63, 0.08), 0 12px 32px rgba(140, 109, 63, 0.18);
+
+  /* ===== Glass / Holographic Tokens ===== */
+  --glass-nav:     rgba(251, 248, 241, 0.72);
+  --glass-card:    rgba(255, 255, 255, 0.60);
+  --glass-overlay: rgba(251, 248, 241, 0.50);
+
+  --blur-nav:   saturate(1.6) blur(18px);
+  --blur-card:  saturate(1.4) blur(12px);
+  --blur-heavy: saturate(1.8) blur(24px);
+
+  /* Aurora mesh anchors */
+  --aurora-bronze: rgba(140, 109, 63, 0.06);
+  --aurora-violet: rgba(139, 123, 175, 0.05);
+  --aurora-teal:   rgba(90, 158, 143, 0.045);
+
+  /* Glow accents */
+  --glow-bronze: rgba(140, 109, 63, 0.22);
+  --glow-teal:   rgba(90, 158, 143, 0.10);
+  --glow-violet: rgba(139, 123, 175, 0.08);
+
+  /* Glass-aware shadows */
+  --shadow-glass:    0 1px 1px rgba(31,26,18,0.02), 0 8px 32px rgba(31,26,18,0.06), 0 0 0 1px rgba(255,255,255,0.6) inset;
+  --shadow-glass-lg: 0 2px 4px rgba(31,26,18,0.04), 0 24px 64px rgba(31,26,18,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  --shadow-holo:     0 1px 2px rgba(140,109,63,0.08), 0 16px 48px rgba(140,109,63,0.14), 0 0 40px rgba(139,123,175,0.06);
 }
 
 @theme inline {
@@ -61,7 +92,7 @@
   --color-border: var(--border);
 }
 
-/* ===== Subtle Keyframes ===== */
+/* ===== Keyframes ===== */
 @keyframes gentle-float {
   0%, 100% { transform: translateY(0px); }
   50%      { transform: translateY(-4px); }
@@ -82,15 +113,45 @@
   to   { transform: scaleX(1); transform-origin: left; }
 }
 
+/* ===== Holographic Keyframes ===== */
+@keyframes iri-spin {
+  to { --iri-angle: 360deg; }
+}
+
+@keyframes aurora-drift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes holo-shimmer {
+  0%   { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+
+@keyframes text-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes light-leak {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes iri-spin      { to { --iri-angle: 0deg; } }
+  @keyframes aurora-drift  { 0%, 100% { background-position: 0% 50%; } }
+  @keyframes holo-shimmer  { 0%, 100% { background-position: -300% 0; } }
+  @keyframes text-shimmer  { 0%, 100% { background-position: 0% 50%; } }
+  @keyframes light-leak    { 0%, 100% { opacity: 0.7; } }
+}
+
 /* ===== Base ===== */
 @layer base {
-  * {
-    @apply border-border;
-  }
+  *, ::before, ::after { box-sizing: border-box; }
 
   body {
     @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
-    /* Subtle paper texture via noise — extremely faint */
     background-image:
       radial-gradient(circle at 20% 10%, rgba(140, 109, 63, 0.04) 0%, transparent 40%),
       radial-gradient(circle at 80% 90%, rgba(79, 107, 61, 0.025) 0%, transparent 40%);
@@ -111,6 +172,35 @@
     border-radius: var(--radius);
   }
 
+  /* ===== Glass Morphism Surfaces ===== */
+  .glass-nav {
+    background: var(--glass-nav);
+    -webkit-backdrop-filter: var(--blur-nav);
+    backdrop-filter: var(--blur-nav);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 1px 0 rgba(140,109,63,0.06), 0 4px 16px rgba(31,26,18,0.04);
+  }
+
+  .glass-card {
+    background: var(--glass-card);
+    -webkit-backdrop-filter: var(--blur-card);
+    backdrop-filter: var(--blur-card);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-glass);
+    border-radius: var(--radius);
+    isolation: isolate;
+  }
+
+  .glass-card-lg {
+    background: var(--glass-card);
+    -webkit-backdrop-filter: var(--blur-heavy);
+    backdrop-filter: var(--blur-heavy);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-glass-lg);
+    border-radius: var(--radius);
+    isolation: isolate;
+  }
+
   /* Hairline-rule horizontal divider */
   .rule {
     height: 1px;
@@ -118,11 +208,23 @@
     border: 0;
   }
 
-  /* Legacy alias — old glass-panel refs map to surface-card */
+  /* Shimmer divider */
+  .divider-shimmer {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #8C6D3F, #8B7BAF, #5A9E8F, #8C6D3F, transparent);
+    background-size: 200% 100%;
+    animation: holo-shimmer 4s ease-in-out infinite;
+    border: 0;
+  }
+
+  /* Legacy alias — glass-panel refs map to glass-card */
   .glass-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
+    background: var(--glass-card);
+    -webkit-backdrop-filter: var(--blur-card);
+    backdrop-filter: var(--blur-card);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: var(--shadow-glass);
+    isolation: isolate;
   }
 
   /* ===== Custom Scrollbar ===== */
@@ -138,8 +240,95 @@
 /* ===== Boutique Utilities ===== */
 
 /* Bronze accent shadow */
-.shadow-bronze { box-shadow: var(--shadow-bronze); }
+.shadow-bronze  { box-shadow: var(--shadow-bronze); }
 .shadow-hairline { box-shadow: var(--shadow-hairline); }
+.shadow-holo    { box-shadow: var(--shadow-holo); }
+
+/* ===== Iridescent Border Utilities ===== */
+
+/* For cards and rectangular elements */
+.iri-border {
+  position: relative;
+}
+.iri-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius) + 1px);
+  background: conic-gradient(
+    from var(--iri-angle),
+    #8C6D3F, #A67C6B, #8B7BAF, #6B8FAF, #5A9E8F, #8B7BAF, #C4A57B, #8C6D3F
+  );
+  animation: iri-spin 8s linear infinite;
+  z-index: -1;
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}
+.iri-border:hover::before { opacity: 0.6; }
+
+/* For pill buttons — padding-box / border-box technique */
+.iri-border-pill {
+  background:
+    linear-gradient(135deg, #8C6D3F, #6E5530) padding-box,
+    conic-gradient(
+      from var(--iri-angle),
+      #8C6D3F, #A67C6B, #8B7BAF, #5A9E8F, #C4A57B, #8C6D3F
+    ) border-box;
+  border: 1px solid transparent !important;
+  border-radius: 999px;
+  animation: iri-spin 8s linear infinite;
+  color: #FBF8F1;
+}
+
+/* ===== Aurora Mesh Background ===== */
+.aurora-bg {
+  background:
+    radial-gradient(ellipse 120% 80% at 15% 20%, var(--aurora-bronze), transparent 55%),
+    radial-gradient(ellipse 80%  60% at 85% 10%, var(--aurora-violet), transparent 50%),
+    radial-gradient(ellipse 90%  70% at 70% 85%, var(--aurora-teal),   transparent 55%),
+    radial-gradient(ellipse 60%  40% at 30% 80%, var(--aurora-violet), transparent 45%),
+    var(--background);
+  background-size: 400% 400%;
+  animation: aurora-drift 18s ease-in-out infinite;
+}
+
+/* ===== Holographic Text ===== */
+.holo-text {
+  background: linear-gradient(105deg, #8C6D3F 0%, #C4A57B 28%, #E8D5B0 42%, #C4A57B 56%, #8C6D3F 70%, #A67C6B 85%, #8C6D3F 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 6s ease-in-out infinite;
+}
+.holo-text-subtle {
+  background: linear-gradient(105deg, #8C6D3F 0%, #C4A57B 45%, #8C6D3F 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 8s ease-in-out infinite;
+}
+
+/* ===== Light-Leak Glow ===== */
+.light-leak {
+  position: relative;
+}
+.light-leak::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(circle at 30% 30%, var(--glow-bronze), transparent 50%),
+    radial-gradient(circle at 70% 70%, var(--glow-teal),   transparent 50%);
+  animation: light-leak 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+/* Hover shadow utility (Tailwind-style but static) */
+.hover-shadow-holo:hover { box-shadow: var(--shadow-holo); }
 
 /* Refined hairline underline (for elegant section labels) */
 .section-label {
@@ -158,7 +347,9 @@
   left: 0;
   width: 32px;
   height: 1px;
-  background: var(--primary);
+  background: linear-gradient(90deg, #8C6D3F, #8B7BAF);
+  background-size: 200% 100%;
+  animation: holo-shimmer 4s ease-in-out infinite;
 }
 
 /* Editorial circle frame — for the eye image */
@@ -172,12 +363,18 @@
     inset 0 0 60px rgba(31, 26, 18, 0.08),
     0 32px 80px rgba(31, 26, 18, 0.1);
 }
+/* Iridescent ring — baked into ::before directly (not via .iri-border to avoid pseudo conflict) */
 .eye-medallion::before {
   content: "";
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  border: 1px solid rgba(140, 109, 63, 0.18);
+  background: conic-gradient(
+    from var(--iri-angle),
+    rgba(140,109,63,0.35), rgba(139,123,175,0.20),
+    rgba(90,158,143,0.20), rgba(140,109,63,0.35)
+  );
+  animation: iri-spin 12s linear infinite;
   pointer-events: none;
 }
 .eye-medallion::after {
@@ -198,12 +395,14 @@
 }
 .progress-fill {
   height: 100%;
-  background: var(--primary);
+  background: linear-gradient(90deg, #8C6D3F 0%, #C4A57B 40%, #8C6D3F 60%, #9C7B1F 100%);
+  background-size: 200% 100%;
   border-radius: 999px;
+  animation: holo-shimmer 3s ease-in-out infinite;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Refined button (legacy compat for buttons that used the old "rim-sweep" or HUD style) */
+/* Bronze pill button */
 .btn-bronze {
   background: var(--primary);
   color: var(--primary-foreground);
@@ -217,11 +416,11 @@
 }
 .btn-bronze:hover {
   background: var(--primary-deep);
-  box-shadow: var(--shadow-bronze);
+  box-shadow: var(--shadow-holo);
   transform: translateY(-1px);
 }
 
-/* Italic display heading — for elegant emphasis */
+/* Italic display heading */
 .italic-display {
   font-family: var(--font-display);
   font-style: italic;
@@ -233,8 +432,7 @@
 .gentle-float { animation: gentle-float 6s ease-in-out infinite; }
 .soft-pulse { animation: soft-pulse 2.4s ease-in-out infinite; }
 
-/* ===== Legacy aliases — preserve so existing classes don't break visually ===== */
-/* These map cyberpunk utilities back to elegant equivalents, no glow, no neon */
+/* ===== Legacy aliases — preserve so existing classes don't break ===== */
 .glow-text-cyan,
 .glow-text-teal,
 .glow-text-emerald,
@@ -248,10 +446,13 @@
 .holo-slate,
 .holo-slate-front,
 .holo-slate-back {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--glass-card);
+  -webkit-backdrop-filter: var(--blur-card);
+  backdrop-filter: var(--blur-card);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--shadow-glass);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-md);
+  isolation: isolate;
 }
 .grid-pattern { background-image: none; }
 .scanline::before { display: none; }

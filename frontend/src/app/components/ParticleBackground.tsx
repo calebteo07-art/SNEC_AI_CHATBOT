@@ -8,6 +8,8 @@ interface Particle {
   size: number;
   alpha: number;
   color: string;
+  hueOffset: number;
+  hueSpeed: number;
 }
 
 interface ParticleBackgroundProps {
@@ -47,14 +49,18 @@ export function ParticleBackground({ density = 30, color = "#8C6D3F" }: Particle
         size: Math.random() * 2 + 0.5,
         alpha: Math.random() * 0.3 + 0.1,
         color: color,
+        hueOffset: Math.random() * 360,
+        hueSpeed: 0.15 + Math.random() * 0.25,
       });
     }
 
     let animationId: number;
+    let tick = 0;
 
     function animate() {
       if (!ctx || !canvas) return;
 
+      tick++;
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       particles.forEach((particle, i) => {
@@ -64,16 +70,18 @@ export function ParticleBackground({ density = 30, color = "#8C6D3F" }: Particle
         if (particle.x < 0 || particle.x > window.innerWidth) particle.vx *= -1;
         if (particle.y < 0 || particle.y > window.innerHeight) particle.vy *= -1;
 
+        // Hue cycles through warm palette: bronze (~25°) → violet (~260°) → teal (~175°)
+        const h = (particle.hueOffset + tick * particle.hueSpeed) % 360;
+        const mappedHue = 25 + Math.sin(h * Math.PI / 180) * 30
+                        + (h > 90 && h < 270 ? (Math.sin((h - 90) * Math.PI / 180) * 80) : 0);
+        const pColor = `hsla(${mappedHue}, 32%, 52%, `;
+
         const gradient = ctx.createRadialGradient(
-          particle.x,
-          particle.y,
-          0,
-          particle.x,
-          particle.y,
-          particle.size * 4
+          particle.x, particle.y, 0,
+          particle.x, particle.y, particle.size * 4
         );
-        gradient.addColorStop(0, `${particle.color}${Math.floor(particle.alpha * 255).toString(16).padStart(2, '0')}`);
-        gradient.addColorStop(1, `${particle.color}00`);
+        gradient.addColorStop(0, `${pColor}${particle.alpha})`);
+        gradient.addColorStop(1, `${pColor}0)`);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -88,7 +96,8 @@ export function ParticleBackground({ density = 30, color = "#8C6D3F" }: Particle
 
           if (distance < 150) {
             const opacity = (1 - distance / 150) * 0.15;
-            ctx.strokeStyle = `${color}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`;
+            const lineHue = 25 + Math.sin(tick * 0.005) * 25;
+            ctx.strokeStyle = `hsla(${lineHue}, 28%, 50%, ${opacity})`;
             ctx.lineWidth = 0.5;
             ctx.beginPath();
             ctx.moveTo(particle.x, particle.y);
@@ -115,7 +124,7 @@ export function ParticleBackground({ density = 30, color = "#8C6D3F" }: Particle
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.18 }}
+      style={{ opacity: 0.15 }}
     />
   );
 }

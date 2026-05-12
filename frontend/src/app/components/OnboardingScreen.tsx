@@ -109,11 +109,11 @@ export function OnboardingScreen() {
             an attentive tutor for the eye
           </p>
 
-          <div className="mt-6 h-px w-12 bg-[#8C6D3F]/40" />
+          <hr className="divider-shimmer w-16 mt-6" />
         </div>
 
         {/* ===== Form ===== */}
-        <div className="surface-card-lg p-10">
+        <div className="glass-card-lg iri-border p-10">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -182,15 +182,14 @@ export function OnboardingScreen() {
             <motion.button
               type="submit"
               disabled={submitting}
-              className="w-full mt-4 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#8C6D3F] text-[#FBF8F1] disabled:opacity-50 transition-all"
+              className="w-full mt-4 inline-flex items-center justify-center gap-2 px-8 py-4 iri-border-pill disabled:opacity-50 transition-all"
               style={{
                 fontFamily: "var(--font-body)",
                 fontWeight: 500,
                 fontSize: "0.95rem",
                 letterSpacing: "0.02em",
-                boxShadow: "0 1px 2px rgba(140,109,63,0.18), 0 8px 24px rgba(140,109,63,0.18)",
               }}
-              whileHover={{ y: -1, boxShadow: "0 2px 4px rgba(140,109,63,0.18), 0 16px 32px rgba(140,109,63,0.25)" }}
+              whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
             >
               {submitting ? (

@@ -34,12 +34,16 @@ export function AchievementToast({ achievementId, onClose }: AchievementToastPro
       transition={{ type: "spring", damping: 18, stiffness: 280 }}
       className="fixed top-6 right-6 z-50 max-w-sm"
     >
-      <div
-        className="surface-card-lg p-5 relative"
-        style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04), 0 16px 48px rgba(31,26,18,0.08)" }}
-      >
-        {/* Hairline bronze rule on top */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#8C6D3F]/60 to-transparent" />
+      <div className="glass-card-lg iri-border p-5 relative">
+        {/* Iridescent shimmer rule on top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1.5px] rounded-t-xl pointer-events-none"
+          style={{
+            background: "linear-gradient(90deg, transparent, #8C6D3F, #8B7BAF, #5A9E8F, #C4A57B, transparent)",
+            backgroundSize: "200% 100%",
+            animation: "holo-shimmer 4s ease-in-out infinite",
+          }}
+        />
 
         {/* Close */}
         <button
@@ -59,10 +63,9 @@ export function AchievementToast({ achievementId, onClose }: AchievementToastPro
 
         <div className="flex items-start gap-4">
           <motion.div
-            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
+            className="flex-shrink-0 w-12 h-12 rounded-full glass-card iri-border flex items-center justify-center"
             style={{
-              background: "rgba(140, 109, 63, 0.08)",
-              border: "1px solid rgba(140, 109, 63, 0.2)",
+              background: "rgba(255, 255, 255, 0.6)",
             }}
             animate={{ scale: [1, 1.06, 1] }}
             transition={{ duration: 0.6, ease: "easeOut" }}

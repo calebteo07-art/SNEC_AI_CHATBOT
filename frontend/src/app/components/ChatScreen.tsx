@@ -59,17 +59,22 @@ function AIBubble({ message }: { message: AIMessage }) {
         >
           Tutor
         </p>
-        <p
-          className="text-[#1F1A12]"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.08rem",
-            lineHeight: 1.65,
-            fontWeight: 400,
-          }}
+        <div
+          className="glass-card p-5 rounded-2xl"
+          style={{ background: "rgba(255,255,255,0.45)" }}
         >
-          {message.content}
-        </p>
+          <p
+            className="text-[#1F1A12]"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.08rem",
+              lineHeight: 1.65,
+              fontWeight: 400,
+            }}
+          >
+            {message.content}
+          </p>
+        </div>
       </div>
     </motion.div>
   );
@@ -203,7 +208,7 @@ export function ChatScreen() {
 
       {/* ===== Top navigation strip ===== */}
       <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        className="glass-nav sticky top-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -287,7 +292,8 @@ export function ChatScreen() {
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-[#8C6D3F]/60"
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: [`hsl(25, 35%, 52%)`, `hsl(260, 30%, 60%)`, `hsl(175, 30%, 52%)`][i] }}
                     animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.18 }}
                   />
@@ -303,8 +309,8 @@ export function ChatScreen() {
       <div className="fixed bottom-0 inset-x-0 bg-gradient-to-t from-[#FBF8F1] via-[#FBF8F1] to-transparent pt-10 pb-8 z-20">
         <div className="max-w-3xl mx-auto px-8">
           <div
-            className="relative bg-white rounded-3xl border border-[#1F1A12]/10 transition-all focus-within:border-[#8C6D3F]/40 focus-within:shadow-md"
-            style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04), 0 8px 24px rgba(31,26,18,0.05)" }}
+            className="relative glass-card iri-border rounded-3xl transition-all"
+            style={{ borderRadius: "1.5rem" }}
           >
             <div className="flex items-end gap-2 p-3">
               <textarea

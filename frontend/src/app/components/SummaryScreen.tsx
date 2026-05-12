@@ -102,10 +102,10 @@ export function SummaryScreen() {
   const topics = ["Pathophysiology", "Clinical staging", "Management", "Investigations"];
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1]">
+    <div className="min-h-screen aurora-bg">
       {/* ===== Top strip ===== */}
       <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        className="glass-nav sticky top-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -167,7 +167,7 @@ export function SummaryScreen() {
             }}
           >
             A quiet, considered{" "}
-            <span className="italic-display">hour</span> of study,
+            <span className="italic-display holo-text-subtle">hour</span> of study,
             <br />
             {firstName}.
           </h1>
@@ -191,14 +191,13 @@ export function SummaryScreen() {
 
         {/* ===== Stats row ===== */}
         <motion.section
-          className="mb-20 grid grid-cols-1 md:grid-cols-3 gap-0 bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-2xl overflow-hidden"
+          className="mb-20 grid grid-cols-1 md:grid-cols-3 gap-3"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          style={{ gap: "1px" }}
         >
           {realStats.map((stat, idx) => (
-            <div key={idx} className="bg-white p-8">
+            <div key={idx} className="glass-card p-8">
               <stat.icon size={18} strokeWidth={1.25} className="text-[#8C6D3F] mb-6" />
               <p
                 className="text-[#A39A8E] mb-2"
@@ -340,7 +339,7 @@ export function SummaryScreen() {
                 return (
                   <motion.div
                     key={achievementId}
-                    className="surface-card p-5 flex items-start gap-4"
+                    className="glass-card iri-border p-5 flex items-start gap-4"
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 + idx * 0.06 }}
@@ -393,7 +392,7 @@ export function SummaryScreen() {
               {previewCards.map((card, idx) => (
                 <motion.div
                   key={card.id}
-                  className="surface-card p-5 cursor-pointer group"
+                  className="glass-card iri-border p-5 cursor-pointer group"
                   onClick={() => navigate("/flashcards")}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -439,12 +438,11 @@ export function SummaryScreen() {
         >
           <motion.button
             onClick={() => navigate("/flashcards")}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#8C6D3F] text-[#FBF8F1]"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 iri-border-pill"
             style={{
               fontWeight: 500,
               fontSize: "0.95rem",
               letterSpacing: "0.02em",
-              boxShadow: "0 1px 2px rgba(140,109,63,0.18), 0 8px 24px rgba(140,109,63,0.18)",
             }}
             whileHover={{ y: -1 }}
             whileTap={{ y: 0 }}

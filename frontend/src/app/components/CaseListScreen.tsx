@@ -48,7 +48,7 @@ export function CaseListScreen() {
     <div className="min-h-screen bg-[#FBF8F1]">
       {/* Top strip */}
       <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        className="glass-nav sticky top-0 z-30"
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -136,14 +136,14 @@ export function CaseListScreen() {
         )}
 
         {/* List */}
-        <div className="mt-12 space-y-px bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-2xl overflow-hidden">
+        <div className="mt-12 space-y-3">
           {cases.map((c, i) => {
             const tone = difficultyTone(c.difficulty);
             return (
               <motion.button
                 key={c.case_id}
                 onClick={() => navigate(`/cases/${c.case_id}`)}
-                className="w-full text-left bg-white p-8 group transition-all hover:bg-[#8C6D3F]/[0.03]"
+                className="w-full text-left glass-card iri-border p-8 group transition-all hover-shadow-holo"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.4 }}
