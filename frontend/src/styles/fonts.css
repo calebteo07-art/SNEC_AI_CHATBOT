@@ -1,5 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Cyber-Medical Typography Stack
+ * - Orbitron       : Display / brand / HUD headlines (geometric sci-fi)
+ * - Rajdhani       : UI labels / buttons / section titles (futuristic, readable)
+ * - JetBrains Mono : Terminal text / data readouts / monospace UI
+ * - Inter          : Body copy (kept for long-form readability)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-display: 'Orbitron', 'Rajdhani', system-ui, sans-serif;
+  --font-ui: 'Rajdhani', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-body: 'Inter', 'Rajdhani', system-ui, sans-serif;
+}
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
+  font-feature-settings: 'ss01', 'cv01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Utility classes — works with or without Tailwind compilation */
+.font-display { font-family: var(--font-display); letter-spacing: 0.04em; }
+.font-ui      { font-family: var(--font-ui); }
+.font-mono    { font-family: var(--font-mono); }
+.font-body    { font-family: var(--font-body); }

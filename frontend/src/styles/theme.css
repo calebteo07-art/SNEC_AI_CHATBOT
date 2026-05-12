@@ -2,42 +2,45 @@
 
 :root {
   --font-size: 16px;
-  
-  /* Futuristic Sci-Fi Medical Palette */
+
+  /* ===== Futuristic Sci-Fi Medical Palette ===== */
   --background: #000000;
   --foreground: #F0F9FF;
-  
+
   --card: rgba(5, 8, 15, 0.8);
   --card-foreground: #F0F9FF;
-  
+
   --popover: #05080F;
   --popover-foreground: #F0F9FF;
-  
-  --primary: #00E5FF; /* Cyber-Teal */
+
+  --primary: #00E5FF;            /* Cyber-Teal */
   --primary-foreground: #000000;
-  
-  --secondary: #39FF14; /* Bioluminescent Green */
+
+  --secondary: #39FF14;          /* Bioluminescent Green */
   --secondary-foreground: #000000;
-  
+
   --muted: #1E293B;
   --muted-foreground: #94A3B8;
-  
-  --accent: #FFB300; /* Hazard Amber */
+
+  --accent: #FFB300;             /* Hazard Amber */
   --accent-foreground: #000000;
-  
+
   --destructive: #FF3D00;
   --destructive-foreground: #FFFFFF;
-  
+
   --border: rgba(255, 255, 255, 0.1);
   --input: transparent;
   --input-background: rgba(255, 255, 255, 0.05);
-  
+
   --radius: 0.75rem;
-  
-  /* Glow Effects */
-  --glow-teal: 0 0 20px rgba(0, 229, 255, 0.5);
+
+  /* ===== Glow Tokens ===== */
+  --glow-teal-sm: 0 0 8px rgba(0, 229, 255, 0.35);
+  --glow-teal-md: 0 0 20px rgba(0, 229, 255, 0.5);
+  --glow-teal-lg: 0 0 40px rgba(0, 229, 255, 0.6);
   --glow-green: 0 0 20px rgba(57, 255, 20, 0.5);
   --glow-amber: 0 0 20px rgba(255, 179, 0, 0.5);
+  --glow-red: 0 0 20px rgba(255, 61, 0, 0.5);
 }
 
 @theme inline {
@@ -52,29 +55,47 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
-  
-  /* Custom Animations */
+
   --animate-scanline: scanline 8s linear infinite;
-  --animate-hologram: hologram 2s ease-in-out infinite;
-  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-hologram: hologram 3.6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
+  --animate-rim-sweep: rim-sweep 6s linear infinite;
 }
 
+/* ===== Keyframes ===== */
 @keyframes scanline {
-  0% { transform: translateY(-100%); }
+  0%   { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
 }
 
 @keyframes hologram {
-  0%, 100% { opacity: 1; transform: scale(1); filter: brightness(1); }
-  50% { opacity: 0.8; transform: scale(1.005); filter: brightness(1.2); }
-  52% { opacity: 0.9; transform: scale(0.995); filter: brightness(0.8); }
+  0%, 100% { opacity: 1;    transform: scale(1);     filter: brightness(1)   hue-rotate(0deg); }
+  48%      { opacity: 0.92; transform: scale(1.003); filter: brightness(1.1) hue-rotate(2deg); }
+  50%      { opacity: 0.85; transform: scale(0.998); filter: brightness(0.85) hue-rotate(-2deg); }
+  52%      { opacity: 0.95; transform: scale(1.001); filter: brightness(1.05) hue-rotate(1deg); }
 }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(0, 229, 255, 0.6); }
+  50%      { box-shadow: 0 0 30px rgba(0, 229, 255, 0.6); }
 }
 
+@keyframes rim-sweep {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes hud-blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75%      { opacity: 0.3; }
+}
+
+@keyframes orbit-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ===== Base ===== */
 @layer base {
   * {
     @apply border-border;
@@ -82,28 +103,155 @@
 
   body {
     @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
-    background-image: 
+    background-image:
       radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
       linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
     background-size: 100% 100%, 100% 4px, 3px 100%;
   }
 
-  /* Glassmorphism Global Class */
+  /* ===== Glassmorphism Panel ===== */
   .glass-panel {
     @apply bg-card backdrop-blur-xl border border-white/10 shadow-2xl;
   }
 
-  /* Scanline Overlay */
+  /* ===== Scanline Overlay ===== */
   .scanline::before {
     content: "";
     @apply absolute inset-0 w-full h-full pointer-events-none z-50;
     background: linear-gradient(
       to bottom,
       transparent 0%,
-      rgba(0, 229, 255, 0.05) 50%,
+      rgba(0, 229, 255, 0.04) 50%,
       transparent 100%
     );
     animation: scanline 8s linear infinite;
   }
+
+  /* ===== Scrollbar (subtle cyber styling) ===== */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 229, 255, 0.2);
+    border-radius: 3px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.4); }
+}
+
+/* ===== HUD Utilities ===== */
+
+/* Corner brackets — adds 4 small L-shaped accents around any container */
+.hud-corners { position: relative; }
+.hud-corners::before,
+.hud-corners::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(0, 229, 255, 0.55);
+  border-style: solid;
+  pointer-events: none;
+}
+.hud-corners::before {
+  top: -1px; left: -1px;
+  border-width: 1.5px 0 0 1.5px;
+}
+.hud-corners::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 1.5px 1.5px 0;
+}
+.hud-corners > .hud-corner-tr,
+.hud-corners > .hud-corner-bl {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(0, 229, 255, 0.55);
+  border-style: solid;
+  pointer-events: none;
+}
+.hud-corners > .hud-corner-tr {
+  top: -1px; right: -1px;
+  border-width: 1.5px 1.5px 0 0;
+}
+.hud-corners > .hud-corner-bl {
+  bottom: -1px; left: -1px;
+  border-width: 0 0 1.5px 1.5px;
+}
+
+/* Holographic slate — for flashcards */
+.holo-slate {
+  background:
+    linear-gradient(135deg, rgba(0, 229, 255, 0.04) 0%, transparent 60%),
+    linear-gradient(45deg, rgba(57, 255, 20, 0.02) 0%, transparent 80%),
+    rgba(5, 8, 15, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 40px rgba(0, 229, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 229, 255, 0.12);
+}
+.holo-slate-front {
+  background:
+    linear-gradient(135deg, rgba(0, 229, 255, 0.06) 0%, transparent 50%),
+    rgba(5, 8, 15, 0.92);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+}
+.holo-slate-back {
+  background:
+    linear-gradient(135deg, rgba(57, 255, 20, 0.05) 0%, transparent 60%),
+    rgba(5, 8, 15, 0.94);
+  border: 1px solid rgba(57, 255, 20, 0.25);
+}
+
+/* Anatomical callout line — dashed neon connector */
+.callout-line {
+  stroke: rgba(0, 229, 255, 0.5);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  fill: none;
+}
+
+/* Glow text shortcuts */
+.glow-text-teal  { text-shadow: 0 0 12px rgba(0, 229, 255, 0.55); }
+.glow-text-green { text-shadow: 0 0 12px rgba(57, 255, 20, 0.55); }
+.glow-text-amber { text-shadow: 0 0 12px rgba(255, 179, 0, 0.55); }
+.glow-text-red   { text-shadow: 0 0 12px rgba(255, 61, 0, 0.55); }
+
+/* Hologram flicker — apply sparingly */
+.flicker { animation: hologram 3.6s ease-in-out infinite; }
+
+/* HUD blink (for status pips) */
+.hud-blink { animation: hud-blink 1.6s ease-in-out infinite; }
+
+/* Animated rim sweep border — for premium CTAs */
+.rim-sweep {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 229, 255, 0) 0%,
+    rgba(0, 229, 255, 0.6) 50%,
+    rgba(0, 229, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: rim-sweep 6s linear infinite;
+}
+
+/* Diagonal grid texture — useful as background pattern */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Radial vignette darkens edges to focus center content */
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+  z-index: 1;
 }

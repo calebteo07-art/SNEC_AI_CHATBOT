@@ -53,8 +53,8 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         const y = centerY + Math.sin(particle.angle + time) * particle.distance;
 
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, particle.size * 3);
-        gradient.addColorStop(0, `rgba(20, 184, 166, ${particle.alpha})`);
-        gradient.addColorStop(1, "rgba(20, 184, 166, 0)");
+        gradient.addColorStop(0, `rgba(0, 229, 255, ${particle.alpha})`);
+        gradient.addColorStop(1, "rgba(0, 229, 255, 0)");
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -62,13 +62,13 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         ctx.fill();
       });
 
-      ctx.strokeStyle = `rgba(20, 184, 166, ${0.15 + Math.sin(time * 2) * 0.05})`;
+      ctx.strokeStyle = `rgba(0, 229, 255, ${0.15 + Math.sin(time * 2) * 0.05})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(centerX, centerY, size * 0.35, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = `rgba(20, 184, 166, ${0.25 + Math.sin(time * 2 + 0.5) * 0.08})`;
+      ctx.strokeStyle = `rgba(0, 229, 255, ${0.25 + Math.sin(time * 2 + 0.5) * 0.08})`;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(centerX, centerY, size * 0.42, 0, Math.PI * 2);
@@ -111,8 +111,14 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
       >
         <defs>
           <radialGradient id="eyeGradient" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#14B8A6" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.4" />
+            <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.9" />
+            <stop offset="60%" stopColor="#00B8D4" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#006978" stopOpacity="0.4" />
+          </radialGradient>
+          <radialGradient id="irisGradient" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="#39FF14" stopOpacity="0.3" />
+            <stop offset="50%" stopColor="#00E5FF" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#00B8D4" stopOpacity="1" />
           </radialGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -123,6 +129,7 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
           </filter>
         </defs>
 
+        {/* Eye outline */}
         <motion.path
           d="M 15 50 Q 30 25, 50 20 Q 70 25, 85 50 Q 70 75, 50 80 Q 30 75, 15 50 Z"
           fill="none"
@@ -139,12 +146,13 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
           }}
         />
 
+        {/* Iris ring */}
         <motion.circle
           cx="50"
           cy="50"
           r="18"
           fill="none"
-          stroke="#14B8A6"
+          stroke="#00E5FF"
           strokeWidth="2"
           filter="url(#glow)"
           animate={animated ? {
@@ -158,11 +166,12 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
           }}
         />
 
+        {/* Iris fill */}
         <motion.circle
           cx="50"
           cy="50"
           r="8"
-          fill="#14B8A6"
+          fill="url(#irisGradient)"
           filter="url(#glow)"
           animate={animated ? {
             scale: [0.9, 1.1, 0.9],
@@ -175,11 +184,12 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
           }}
         />
 
+        {/* Pupil highlight */}
         <motion.circle
           cx="50"
           cy="50"
           r="3"
-          fill="white"
+          fill="#F0F9FF"
           animate={animated ? {
             x: [0, 2, 0, -2, 0],
             y: [0, -1, 0, 1, 0],
