@@ -6,6 +6,7 @@ import { XPBar } from "./XPBar";
 import { StreakDisplay } from "./StreakDisplay";
 import { AchievementManager } from "./AchievementToast";
 import { getUserProgress, addXP, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
+import { useAuth } from "./AuthContext";
 import {
   Send,
   Layers,
@@ -16,6 +17,9 @@ import {
   RotateCcw,
   ArrowRight,
   Zap,
+  Activity,
+  Cpu,
+  Terminal,
 } from "lucide-react";
 
 interface AIMessage {
@@ -32,34 +36,37 @@ interface UserMessage {
 
 type Message = AIMessage | UserMessage;
 
-const SAMPLE_TOPIC = "Ophthalmology";
+const SAMPLE_TOPIC = "Ophthalmology Neural Network";
 const INITIAL_MESSAGES: Message[] = [
   {
     type: "ai",
     id: "1",
-    content: "What are you working on today? Tell me a topic or ask me anything — we'll work through it together.",
+    content: "Neural link established. Cognitive exchange module ready. State your inquiry regarding ophthalmic protocols.",
   },
 ];
 
-const FALLBACK_CONTENT = "I didn't catch that — could you rephrase your question?";
+const FALLBACK_CONTENT = "Data corruption detected. Please re-verify inquiry syntax.";
 
 function AIMessageBubble({ message }: { message: AIMessage }) {
   return (
     <motion.div
-      className="flex gap-3 items-start"
+      className="flex gap-4 items-start"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center mt-1">
-        <Bot size={15} className="text-[#14B8A6]" />
+      <div className="flex-shrink-0 w-10 h-10 rounded-xl glass-panel border-[#00E5FF]/30 flex items-center justify-center mt-1 bg-[#00E5FF]/5 shadow-[0_0_10px_rgba(0,229,255,0.2)]">
+        <Bot size={20} className="text-[#00E5FF]" />
       </div>
-      <div className="flex-1 max-w-[calc(100%-3rem)]">
-        <div
-          className="bg-white rounded-2xl rounded-tl-sm border border-slate-200 shadow-sm px-4 py-3"
-          style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "#374151" }}
-        >
-          {message.content}
+      <div className="flex-1 max-w-[85%]">
+        <div className="glass-panel rounded-2xl rounded-tl-none border-l-4 border-l-[#00E5FF] px-6 py-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-2 opacity-20">
+            <Cpu size={12} className="text-[#00E5FF]" />
+          </div>
+          <p className="text-[#F0F9FF]/90 font-mono text-sm leading-relaxed tracking-tight">
+            <span className="text-[#00E5FF]/50 mr-2">[AI]:</span>
+            {message.content}
+          </p>
         </div>
       </div>
     </motion.div>
@@ -69,30 +76,29 @@ function AIMessageBubble({ message }: { message: AIMessage }) {
 function UserMessageBubble({ message }: { message: UserMessage }) {
   return (
     <motion.div
-      className="flex gap-3 items-start justify-end"
+      className="flex gap-4 items-start justify-end"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <motion.div
-        className="max-w-[75%] bg-gradient-to-br from-[#0D1B2A] to-[#0D2B3A] text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm"
-        style={{ fontSize: "0.9rem", lineHeight: 1.6 }}
-        whileHover={{ scale: 1.02 }}
-      >
-        {message.text}
-      </motion.div>
-      <motion.div
-        className="flex-shrink-0 w-8 h-8 rounded-full bg-[#0D1B2A] flex items-center justify-center mt-1"
-        whileHover={{ scale: 1.1 }}
-      >
-        <User size={15} className="text-white" />
-      </motion.div>
+      <div className="flex-1 max-w-[85%]">
+        <div className="glass-panel rounded-2xl rounded-tr-none border-r-4 border-r-indigo-500/50 px-6 py-4 bg-indigo-500/5">
+          <p className="text-[#F0F9FF]/90 font-mono text-sm leading-relaxed text-right">
+            {message.text}
+            <span className="text-indigo-400/50 ml-2">:[USER]</span>
+          </p>
+        </div>
+      </div>
+      <div className="flex-shrink-0 w-10 h-10 rounded-xl glass-panel border-indigo-500/30 flex items-center justify-center mt-1 bg-indigo-500/5 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+        <User size={20} className="text-indigo-400" />
+      </div>
     </motion.div>
   );
 }
 
 export function ChatScreen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -105,21 +111,11 @@ export function ChatScreen() {
   const [xpGained, setXpGained] = useState(0);
 
   useEffect(() => {
-    const streak = updateStreak();
-    const progress = getUserProgress();
-    setUserProgress(progress);
+    updateStreak();
+    setUserProgress(getUserProgress());
   }, []);
 
-  const userData = (() => {
-    try {
-      return JSON.parse(sessionStorage.getItem("eyeq_user") || "{}");
-    } catch {
-      return { fullName: "Student" };
-    }
-  })();
-
-  const studentName = userData.fullName || "Student";
-  const firstName = studentName.split(" ")[0];
+  const firstName = (user?.fullName || "Student").split(" ")[0].toUpperCase();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -152,9 +148,8 @@ export function ChatScreen() {
       setNewAchievements((prev) => [...prev, ...unlockedAchievements]);
     }
 
-    const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
+    const studentId = user?.studentId || "anonymous";
 
-    // Build conversation history for the API
     const apiMessages = messages
       .concat(userMsg)
       .map((m) => {
@@ -196,195 +191,181 @@ export function ChatScreen() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
-    // Auto-resize
     e.target.style.height = "auto";
     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
   };
 
   return (
-    <div className="h-screen flex bg-[#F8FAFC] overflow-hidden relative">
+    <div className="h-screen flex bg-black overflow-hidden relative scanline">
+      {/* Background Anatomy Backdrop */}
+      <div className="absolute inset-0 pointer-events-none opacity-10">
+        <img 
+          src="/images/sample_fundus_OD.png" 
+          alt="" 
+          className="w-full h-full object-cover blur-2xl"
+        />
+      </div>
+
       <AchievementManager
         achievements={newAchievements}
         onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
       />
 
-      {/* XP Gain Notification */}
+      {/* XP Gain HUD */}
       <AnimatePresence>
         {showXPGain && (
           <motion.div
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-2"
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 glass-panel border-[#FFB300]/40 text-[#FFB300] px-6 py-2 rounded-full shadow-[0_0_20px_rgba(255,179,0,0.3)] flex items-center gap-2"
             initial={{ opacity: 0, y: -50, scale: 0.8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -30, scale: 0.9 }}
           >
-            <Zap size={16} className="fill-white" />
-            <span className="font-bold">+{xpGained} XP</span>
+            <Zap size={14} className="fill-[#FFB300]" />
+            <span className="font-black text-sm tracking-widest">+{xpGained} XP</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Left Sidebar */}
+      {/* Left Interface Panel */}
       <motion.div
-        className="w-64 flex-shrink-0 bg-[#0D1B2A] flex flex-col"
-        initial={{ x: -264 }}
+        className="w-72 flex-shrink-0 glass-panel border-r border-white/5 flex flex-col z-20"
+        initial={{ x: -300 }}
         animate={{ x: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
-        {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <HolographicEyeLogo size={32} animated={true} />
+        {/* Terminal Header */}
+        <div className="px-6 py-8 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <HolographicEyeLogo size={40} animated={true} />
             <div>
-              <span className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700, letterSpacing: "-0.01em" }}>
-                EyeQ
+              <span className="text-[#00E5FF] font-black text-xl tracking-tighter drop-shadow-[0_0_10px_rgba(0,229,255,0.4)]">
+                EYEQ
               </span>
-              <div className="text-[#14B8A6]" style={{ fontSize: "0.6rem", letterSpacing: "0.12em", fontWeight: 500 }}>
-                MEDICAL EDUCATION
+              <div className="text-white/20 text-[0.5rem] tracking-[0.4em] font-mono mt-0.5">
+                NEURAL_LINK_v2
               </div>
             </div>
           </div>
         </div>
 
-        {/* Progress Stats */}
-        <div className="px-5 py-4 border-b border-white/10 space-y-3">
+        {/* Biometric Stats */}
+        <div className="px-6 py-6 border-b border-white/5 space-y-6">
           <XPBar currentXP={userProgress.xp} level={userProgress.level} size="sm" />
           <div className="flex justify-center">
             <StreakDisplay streak={userProgress.streak} size="sm" />
           </div>
         </div>
 
-        {/* Student Info */}
-        <div className="px-5 py-4 border-b border-white/10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center">
-              <User size={15} className="text-[#14B8A6]" />
+        {/* Subject Profiler */}
+        <div className="px-6 py-6 border-b border-white/5">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl glass-panel border-[#00E5FF]/20 flex items-center justify-center bg-[#00E5FF]/5">
+              <User size={18} className="text-[#00E5FF]" />
             </div>
             <div>
-              <p className="text-white" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>
+              <p className="text-[#00E5FF] font-black text-xs tracking-widest">
                 {firstName}
               </p>
-              <p className="text-slate-400" style={{ fontSize: "0.7rem" }}>
-                Medical Student
+              <p className="text-white/20 text-[0.6rem] font-mono uppercase">
+                Rank: Resident
               </p>
             </div>
           </div>
         </div>
 
-        {/* Session Topic */}
-        <div className="px-5 py-4 border-b border-white/10">
-          <p className="text-slate-400 mb-2" style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Current Topic
-          </p>
-          <div className="flex items-start gap-2">
-            <Stethoscope size={14} className="text-[#14B8A6] mt-0.5 flex-shrink-0" />
-            <span className="text-white" style={{ fontSize: "0.875rem", fontWeight: 500, lineHeight: 1.4 }}>
-              {SAMPLE_TOPIC}
+        {/* Active Protocol */}
+        <div className="px-6 py-6 border-b border-white/5 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex items-center gap-2 mb-4">
+            <Terminal size={14} className="text-[#00E5FF]" />
+            <span className="text-white/20 text-[0.6rem] font-mono uppercase tracking-[0.2em]">
+              Active_Protocol
             </span>
           </div>
-        </div>
+          <div className="glass-panel p-4 rounded-xl border-[#00E5FF]/10 bg-[#00E5FF]/5 mb-6">
+            <p className="text-white text-xs font-bold leading-relaxed">
+              {SAMPLE_TOPIC}
+            </p>
+          </div>
 
-        {/* Session Topics */}
-        <div className="px-5 py-4 flex-1 overflow-y-auto">
-          <p className="text-slate-400 mb-3" style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Topics Covered
-          </p>
-          <div className="space-y-1">
+          <div className="space-y-2">
+            <span className="text-white/10 text-[0.5rem] font-mono uppercase tracking-widest block mb-2">Node_History</span>
             {[
-              { label: "Introduction to DR", active: false },
-              { label: "Pathophysiology", active: true },
-              { label: "VEGF & Angiogenesis", active: false },
-              { label: "Clinical Staging", active: false },
-              { label: "Macular Edema", active: false },
+              { label: "Neural Init", active: false },
+              { label: "Retinal Mapping", active: true },
+              { label: "VEGF Synthesis", active: false },
+              { label: "Diagnostic Matrix", active: false },
             ].map((topic, idx) => (
               <div
                 key={idx}
-                className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all ${
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
                   topic.active
-                    ? "bg-[#14B8A6]/20 text-[#14B8A6]"
-                    : "text-slate-500 hover:text-slate-300 hover:bg-white/5"
+                    ? "bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/20 shadow-[0_0_15px_rgba(0,229,255,0.1)]"
+                    : "text-white/20 hover:text-white/40"
                 }`}
               >
-                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${topic.active ? "bg-[#14B8A6]" : "bg-slate-600"}`} />
-                <span style={{ fontSize: "0.8rem" }}>{topic.label}</span>
-                {topic.active && <ChevronRight size={12} className="ml-auto" />}
+                <div className={`w-1 h-1 rounded-full ${topic.active ? "bg-[#00E5FF] shadow-[0_0_5px_#00E5FF]" : "bg-white/10"}`} />
+                <span className="text-[0.7rem] font-mono uppercase tracking-tighter">{topic.label}</span>
+                {topic.active && <Activity size={10} className="ml-auto animate-pulse" />}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="px-5 py-4 border-t border-white/10 space-y-2">
+        {/* Session Control */}
+        <div className="p-6 border-t border-white/5 space-y-3">
           <button
             onClick={() => navigate("/flashcards")}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-[#14B8A6]/15 text-[#14B8A6] hover:bg-[#14B8A6]/25 transition-all"
+            className="w-full flex items-center gap-3 px-4 h-12 rounded-xl glass-panel border-[#00E5FF]/20 text-[#00E5FF] hover:bg-[#00E5FF]/10 transition-all font-black uppercase text-[0.65rem] tracking-widest"
           >
             <Layers size={14} />
-            <span style={{ fontSize: "0.8125rem", fontWeight: 500 }}>Flashcard Review</span>
-            <ArrowRight size={12} className="ml-auto" />
+            Memory Slates
           </button>
           <button
-            onClick={async () => {
-              const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
-              const apiMessages = messages.map((m) => {
-                if (m.type === "user") return { role: "user", content: m.text };
-                return { role: "assistant", content: m.content };
-              });
-              try {
-                const res = await fetch("/api/end-session", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    student_id: studentId,
-                    messages: apiMessages,
-                    topic: SAMPLE_TOPIC,
-                    token_count: 0,
-                  }),
-                });
-                const data = await res.json();
-                sessionStorage.setItem("eyeq_session_cards", JSON.stringify(data.cards));
-                sessionStorage.setItem("eyeq_session_id", data.session_id);
-              } catch {
-                // navigate even if the API fails
-              }
-              navigate("/flashcards");
-            }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all"
+            onClick={() => navigate("/dashboard")}
+            className="w-full flex items-center gap-3 px-4 h-12 rounded-xl text-white/20 hover:text-[#FF3D00] hover:border-[#FF3D00]/20 transition-all font-mono uppercase text-[0.65rem] tracking-widest"
           >
             <RotateCcw size={14} />
-            <span style={{ fontSize: "0.8125rem" }}>End Session</span>
+            End Protocol
           </button>
         </div>
       </motion.div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Chat Header */}
-        <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      {/* Main Terminal Area */}
+      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
+        {/* Terminal Header Bar */}
+        <div className="flex-shrink-0 glass-panel border-b border-white/5 px-8 h-20 flex items-center justify-between">
           <div>
-            <h2 className="text-[#0D1B2A]" style={{ fontSize: "1rem", fontWeight: 600 }}>
-              {SAMPLE_TOPIC}
-            </h2>
-            <p className="text-slate-500" style={{ fontSize: "0.8rem" }}>
-              AI Tutor Session • {messages.length} exchanges
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-2 h-2 rounded-full bg-[#39FF14] animate-pulse shadow-[0_0_8px_#39FF14]" />
+              <h2 className="text-white font-black uppercase tracking-tight text-sm">
+                Inquiry Node: {SAMPLE_TOPIC}
+              </h2>
+            </div>
+            <p className="text-white/20 text-[0.6rem] font-mono uppercase tracking-[0.2em]">
+              Exchanges: {messages.length} // Buffer: 1024KB
             </p>
           </div>
-          <div className="flex items-center gap-2 bg-[#14B8A6]/10 border border-[#14B8A6]/20 rounded-full px-3 py-1">
-            <div className="w-2 h-2 rounded-full bg-[#14B8A6] animate-pulse" />
-            <span className="text-[#0D9488]" style={{ fontSize: "0.75rem", fontWeight: 500 }}>
-              AI Active
-            </span>
+          
+          <div className="flex gap-4">
+            <div className="flex flex-col items-end">
+              <span className="text-white/20 text-[0.5rem] font-mono uppercase">Encryption</span>
+              <span className="text-[#39FF14] text-[0.7rem] font-mono">AES-256-GCM</span>
+            </div>
+            <div className="w-px h-8 bg-white/5" />
+            <div className="flex flex-col items-end">
+              <span className="text-white/20 text-[0.5rem] font-mono uppercase">Latency</span>
+              <span className="text-[#00E5FF] text-[0.7rem] font-mono">14ms</span>
+            </div>
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-          {/* Session start indicator */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-slate-400 bg-[#F8FAFC] px-2" style={{ fontSize: "0.7rem" }}>
-              Session started
+        {/* Conversation Stream */}
+        <div className="flex-1 overflow-y-auto px-8 py-10 space-y-8 custom-scrollbar">
+          <div className="flex flex-col items-center gap-4 mb-12">
+            <div className="h-px w-32 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+            <span className="text-white/10 text-[0.55rem] font-mono uppercase tracking-[0.5em]">
+              Data_Stream_Initialized
             </span>
-            <div className="flex-1 h-px bg-slate-200" />
           </div>
 
           {messages.map((msg) =>
@@ -395,70 +376,79 @@ export function ChatScreen() {
             )
           )}
 
-          {/* Typing indicator */}
+          {/* AI Thinking Interface */}
           {isTyping && (
-            <div className="flex gap-3 items-start">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center">
-                <Bot size={15} className="text-[#14B8A6]" />
+            <motion.div 
+              className="flex gap-4 items-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl glass-panel border-[#00E5FF]/30 flex items-center justify-center mt-1 bg-[#00E5FF]/5">
+                <Bot size={20} className="text-[#00E5FF] animate-pulse" />
               </div>
-              <div className="bg-white rounded-2xl rounded-tl-sm border border-slate-200 px-4 py-3 flex items-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-[#14B8A6]"
-                    style={{
-                      animation: "bounce 1.2s infinite",
-                      animationDelay: `${i * 0.2}s`,
-                    }}
-                  />
-                ))}
+              <div className="glass-panel rounded-2xl border-l-4 border-l-[#00E5FF] px-6 py-4 flex items-center gap-2">
+                <span className="text-[#00E5FF] font-mono text-xs uppercase tracking-[0.2em] animate-pulse">
+                  Processing_Neural_Response
+                </span>
+                <div className="flex gap-1 ml-2">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1 h-1 bg-[#00E5FF] rounded-full"
+                      animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="flex-shrink-0 bg-white border-t border-slate-200 px-6 py-4">
-          <div className="flex gap-3 items-end">
-            <div className="flex-1 bg-[#F8FAFC] border border-slate-200 rounded-xl overflow-hidden focus-within:border-[#14B8A6] focus-within:ring-2 focus-within:ring-[#14B8A6]/20 transition-all">
+        {/* Input Interface */}
+        <div className="flex-shrink-0 p-8">
+          <div className="max-w-4xl mx-auto relative group">
+            {/* Input Border Glow */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00E5FF]/0 via-[#00E5FF]/20 to-[#00E5FF]/0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+            
+            <div className="relative glass-panel rounded-2xl overflow-hidden flex items-end gap-2 p-2 border-white/5 bg-black/80">
               <textarea
                 ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about diabetic retinopathy, mechanisms, clinical presentations..."
+                placeholder="INPUT INQUIRY COMMAND..."
                 rows={1}
-                className="w-full px-4 py-3 bg-transparent text-[#0D1B2A] placeholder-slate-400 outline-none resize-none"
-                style={{ fontSize: "0.9rem", lineHeight: 1.5, minHeight: "48px", maxHeight: "120px" }}
+                className="flex-1 bg-transparent px-6 py-4 text-[#00E5FF] placeholder-[#00E5FF]/20 outline-none resize-none font-mono text-sm leading-relaxed min-h-[56px] max-h-[160px]"
               />
+              <motion.button
+                onClick={sendMessage}
+                disabled={!input.trim() || isTyping}
+                className={`w-14 h-12 rounded-xl flex items-center justify-center transition-all ${
+                  input.trim() && !isTyping
+                    ? "bg-[#00E5FF] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)]"
+                    : "bg-white/5 text-white/10 cursor-not-allowed"
+                }`}
+                whileHover={input.trim() && !isTyping ? { scale: 1.05 } : undefined}
+                whileTap={input.trim() && !isTyping ? { scale: 0.95 } : undefined}
+              >
+                <Send size={18} />
+              </motion.button>
             </div>
-            <motion.button
-              onClick={sendMessage}
-              disabled={!input.trim() || isTyping}
-              className={`flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
-                input.trim() && !isTyping
-                  ? "bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white shadow-lg shadow-[#14B8A6]/30"
-                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
-              }`}
-              whileHover={input.trim() && !isTyping ? { scale: 1.05, rotate: -5 } : undefined}
-              whileTap={input.trim() && !isTyping ? { scale: 0.95 } : undefined}
-            >
-              <Send size={17} />
-            </motion.button>
+            
+            <div className="flex justify-between mt-3 px-2">
+              <p className="text-white/10 text-[0.55rem] font-mono uppercase tracking-widest">
+                [ENTER] SEND // [SHIFT+ENTER] NEW_LINE
+              </p>
+              <div className="flex gap-4">
+                <span className="text-[#39FF14]/40 text-[0.55rem] font-mono uppercase">Vocal_Input: Disabled</span>
+                <span className="text-[#00E5FF]/40 text-[0.55rem] font-mono uppercase">Mode: Diagnostic</span>
+              </div>
+            </div>
           </div>
-          <p className="text-slate-400 mt-2" style={{ fontSize: "0.7rem" }}>
-            Press Enter to send • Shift+Enter for new line
-          </p>
         </div>
       </div>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-6px); }
-        }
-      `}</style>
     </div>
   );
 }

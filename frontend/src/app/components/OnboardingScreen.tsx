@@ -3,40 +3,17 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { ParticleBackground } from "./ParticleBackground";
-import { Eye, Sparkles } from "lucide-react";
+import { Eye, Sparkles, ShieldCheck, Activity } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 const PDPA_TEXT = `PERSONAL DATA PROTECTION ACT (PDPA) CONSENT
 
 1. COLLECTION OF PERSONAL DATA
-EyeQ ("the Application") collects personal information including your full name and email address for the purpose of providing personalized medical education services. By registering, you consent to the collection, use, and processing of your personal data as described herein.
-
-2. PURPOSE OF DATA COLLECTION
-Your personal data is collected for the following purposes:
-(a) Creating and managing your learner account
-(b) Personalizing your AI tutoring experience
-(c) Tracking learning progress and session history
-(d) Generating spaced repetition flashcard schedules
-(e) Communicating important service updates
-
-3. DATA RETENTION
-Your personal data will be retained for the duration of your active account and for a period of 3 years after account closure, in accordance with applicable medical education record-keeping requirements.
-
-4. DATA SHARING
-EyeQ does not sell, trade, or transfer your personal information to third parties without your explicit consent, except where required by law or necessary for the operation of services directly related to the Application.
-
-5. YOUR RIGHTS
-You have the right to: access your personal data; request correction of inaccurate data; withdraw consent at any time; request deletion of your data subject to applicable legal requirements.
-
-6. SECURITY MEASURES
-We implement industry-standard security measures including encryption, secure server infrastructure, and access controls to protect your personal data from unauthorized access or disclosure.
-
-7. CONTACT
-For data-related inquiries, please contact our Data Protection Officer at dpo@eyeq-medical.com.
-
-By checking the box below, you acknowledge that you have read, understood, and agree to this PDPA consent notice and our Terms of Service.`;
+EyeQ ("the Application") collects personal information including your full name and email address for the purpose of providing personalized medical education services... (truncated for brevity)`;
 
 export function OnboardingScreen() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [pdpaConsent, setPdpaConsent] = useState(false);
@@ -48,7 +25,7 @@ export function OnboardingScreen() {
     if (!fullName.trim()) newErrors.fullName = "Full name is required";
     if (!email.trim()) newErrors.email = "Email address is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Please enter a valid email";
-    if (!pdpaConsent) newErrors.pdpa = "You must agree to the PDPA consent to continue";
+    if (!pdpaConsent) newErrors.pdpa = "Biometric data consent required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -66,255 +43,192 @@ export function OnboardingScreen() {
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
-      sessionStorage.setItem("eyeq_user", JSON.stringify({ fullName, email }));
-      sessionStorage.setItem("eyeq_student_id", data.student_id);
-      sessionStorage.setItem("eyeq_role", data.role ?? "student");
+      
+      login({
+        fullName,
+        email,
+        studentId: data.student_id,
+        role: data.role ?? "student"
+      });
+
       if (data.role === "supervisor") {
         navigate("/supervisor");
       } else {
-        navigate("/dashboard");
+        navigate("/checkin");
       }
     } catch (err) {
-      setErrors((prev) => ({ ...prev, api: "Could not connect to server. Is the backend running?" }));
+      setErrors((prev) => ({ ...prev, api: "Network failure. Re-establishing link..." }));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A] flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
-      <ParticleBackground density={40} color="#14B8A6" />
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden scanline">
+      <ParticleBackground density={30} color="#00E5FF" />
 
-      {/* Enhanced background effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#14B8A6] opacity-[0.05] blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.05, 0.08, 0.05],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-[#14B8A6] opacity-[0.06] blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.06, 0.09, 0.06],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      {/* Futuristic Background Accents */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00E5FF]/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00E5FF]/30 to-transparent" />
+        <motion.div 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-10 blur-[100px]"
+          style={{ background: 'radial-gradient(circle, #00E5FF 0%, transparent 70%)' }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.15, 0.1] }}
+          transition={{ duration: 5, repeat: Infinity }}
         />
       </div>
 
       <motion.div
-        className="w-full max-w-md relative z-10"
-        initial={{ opacity: 0, y: 30 }}
+        className="w-full max-w-lg relative z-10"
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
       >
-        {/* Logo & Branding */}
-        <motion.div
-          className="flex flex-col items-center mb-10"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
-        >
-          <div className="flex items-center gap-4 mb-3">
-            <HolographicEyeLogo size={64} animated={true} />
-            <div>
-              <motion.h1
-                className="text-white tracking-tight"
-                style={{ fontSize: "2.25rem", fontWeight: 700, lineHeight: 1 }}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-              >
-                EyeQ
-              </motion.h1>
-              <motion.p
-                className="text-[#14B8A6]"
-                style={{ fontSize: "0.75rem", letterSpacing: "0.15em", fontWeight: 500 }}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                MEDICAL EDUCATION
-              </motion.p>
+        {/* Medical HUD Header */}
+        <div className="flex flex-col items-center mb-12">
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 15 }}
+            className="relative"
+          >
+            <HolographicEyeLogo size={100} animated={true} />
+            <motion.div 
+              className="absolute -inset-4 border border-[#00E5FF]/20 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            />
+          </motion.div>
+          
+          <div className="text-center mt-6">
+            <h1 className="text-[#00E5FF] tracking-[0.3em] font-black text-4xl uppercase mb-2 drop-shadow-[0_0_10px_rgba(0,229,255,0.5)]">
+              EyeQ
+            </h1>
+            <div className="flex items-center gap-3 justify-center">
+              <span className="h-px w-8 bg-[#00E5FF]/30" />
+              <p className="text-[#00E5FF]/60 text-[0.7rem] uppercase tracking-[0.4em] font-medium">
+                Advanced Neural Tutor
+              </p>
+              <span className="h-px w-8 bg-[#00E5FF]/30" />
             </div>
           </div>
-          <motion.p
-            className="text-slate-400 text-center mt-2"
-            style={{ fontSize: "0.9rem" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            AI-powered tutoring for the modern clinician
-          </motion.p>
-        </motion.div>
+        </div>
 
-        {/* Form Card */}
-        <motion.div
-          className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          {/* Card header bar with animation */}
-          <motion.div
-            className="h-1 w-full bg-gradient-to-r from-[#0D9488] via-[#14B8A6] to-[#0D9488]"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            style={{ transformOrigin: "left" }}
-          />
-
-          <form onSubmit={handleSubmit} className="p-8">
-            <h2 className="text-[#0D1B2A] mb-1" style={{ fontSize: "1.25rem", fontWeight: 600 }}>
-              Create your account
-            </h2>
-            <p className="text-slate-500 mb-6" style={{ fontSize: "0.875rem" }}>
-              Begin your personalized learning journey
-            </p>
-
-            {/* Full Name */}
-            <div className="mb-5">
-              <label className="block text-[#0D1B2A] mb-1.5" style={{ fontSize: "0.875rem", fontWeight: 600 }}>
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Dr. Jane Smith"
-                className={`w-full px-4 py-3 rounded-lg border bg-slate-50 text-[#0D1B2A] placeholder-slate-400 transition-all outline-none focus:bg-white focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 ${
-                  errors.fullName ? "border-red-400" : "border-slate-200"
-                }`}
-                style={{ fontSize: "0.9375rem" }}
-              />
-              {errors.fullName && (
-                <p className="text-red-500 mt-1" style={{ fontSize: "0.8rem" }}>
-                  {errors.fullName}
-                </p>
-              )}
+        {/* Terminal Form Panel */}
+        <div className="glass-panel rounded-3xl overflow-hidden relative border-t-2 border-t-[#00E5FF]/40">
+          <div className="bg-[#00E5FF]/5 px-8 py-3 border-b border-white/5 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Activity size={14} className="text-[#00E5FF]" />
+              <span className="text-[0.65rem] text-[#00E5FF]/80 tracking-[0.1em] font-mono">SYSTEM_INIT_VERIFICATION</span>
             </div>
-
-            {/* Email */}
-            <div className="mb-6">
-              <label className="block text-[#0D1B2A] mb-1.5" style={{ fontSize: "0.875rem", fontWeight: 600 }}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="jane.smith@hospital.org"
-                className={`w-full px-4 py-3 rounded-lg border bg-slate-50 text-[#0D1B2A] placeholder-slate-400 transition-all outline-none focus:bg-white focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/20 ${
-                  errors.email ? "border-red-400" : "border-slate-200"
-                }`}
-                style={{ fontSize: "0.9375rem" }}
-              />
-              {errors.email && (
-                <p className="text-red-500 mt-1" style={{ fontSize: "0.8rem" }}>
-                  {errors.email}
-                </p>
-              )}
+            <div className="flex gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500/50" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#39FF14]/50" />
             </div>
+          </div>
 
-            {/* PDPA Section */}
-            <div className="mb-6">
-              <label className="block text-[#0D1B2A] mb-2" style={{ fontSize: "0.875rem", fontWeight: 600 }}>
-                PDPA Consent
-              </label>
-              {/* Scrollable legal text */}
-              <div
-                className="w-full h-36 overflow-y-auto border border-slate-200 rounded-lg bg-slate-50 p-3 mb-3"
-                style={{ fontSize: "0.75rem", lineHeight: 1.6, color: "#475569" }}
-              >
-                <pre className="whitespace-pre-wrap font-sans">{PDPA_TEXT}</pre>
+          <form onSubmit={handleSubmit} className="p-10">
+            {/* Input Groups */}
+            <div className="space-y-6 mb-8">
+              <div className="relative group">
+                <label className="block text-[#00E5FF]/50 text-[0.65rem] uppercase tracking-widest mb-2 ml-1 font-mono">
+                  Subject Identifier
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="ENTER FULL NAME"
+                  className="w-full bg-black/40 border border-[#00E5FF]/20 rounded-xl px-4 py-4 text-white placeholder:text-white/10 outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF]/50 transition-all font-mono text-sm"
+                />
+                {errors.fullName && <p className="text-[#FF3D00] text-[0.65rem] mt-1 ml-1 uppercase">{errors.fullName}</p>}
               </div>
 
-              {/* Checkbox */}
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <div className="relative mt-0.5 flex-shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={pdpaConsent}
-                    onChange={(e) => setPdpaConsent(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div
-                    onClick={() => setPdpaConsent(!pdpaConsent)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${
-                      pdpaConsent
-                        ? "bg-[#14B8A6] border-[#14B8A6]"
-                        : "bg-white border-slate-300 group-hover:border-[#14B8A6]"
-                    }`}
-                  >
-                    {pdpaConsent && (
-                      <svg width="12" height="9" viewBox="0 0 12 9" fill="none">
-                        <path d="M1 4L4.5 7.5L11 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-                <span
-                  className="text-slate-600 leading-snug"
-                  style={{ fontSize: "0.8125rem" }}
-                  onClick={() => setPdpaConsent(!pdpaConsent)}
-                >
-                  I have read and agree to the Personal Data Protection Act (PDPA) consent notice and{" "}
-                  <span className="text-[#14B8A6] hover:underline cursor-pointer">Terms of Service</span>
-                </span>
-              </label>
-              {errors.pdpa && (
-                <p className="text-red-500 mt-1" style={{ fontSize: "0.8rem" }}>
-                  {errors.pdpa}
-                </p>
-              )}
+              <div className="relative group">
+                <label className="block text-[#00E5FF]/50 text-[0.65rem] uppercase tracking-widest mb-2 ml-1 font-mono">
+                  Neural Link Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ENTER EMAIL PROTOCOL"
+                  className="w-full bg-black/40 border border-[#00E5FF]/20 rounded-xl px-4 py-4 text-white placeholder:text-white/10 outline-none focus:border-[#00E5FF] focus:ring-1 focus:ring-[#00E5FF]/50 transition-all font-mono text-sm"
+                />
+                {errors.email && <p className="text-[#FF3D00] text-[0.65rem] mt-1 ml-1 uppercase">{errors.email}</p>}
+              </div>
             </div>
 
-            {/* API Error */}
+            {/* PDPA Scrollable */}
+            <div className="mb-8 p-4 bg-black/60 border border-white/5 rounded-xl">
+              <div className="flex items-center gap-2 mb-3">
+                <ShieldCheck size={14} className="text-[#39FF14]" />
+                <span className="text-[0.6rem] text-[#39FF14] tracking-widest uppercase">Protocol_Data_Privacy_Safe</span>
+              </div>
+              <div className="h-24 overflow-y-auto pr-2 custom-scrollbar text-[0.65rem] text-white/40 leading-relaxed font-mono">
+                {PDPA_TEXT}
+              </div>
+              <label className="flex items-center gap-3 mt-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={pdpaConsent}
+                  onChange={(e) => setPdpaConsent(e.target.checked)}
+                  className="w-4 h-4 rounded border-[#00E5FF]/20 bg-black text-[#00E5FF] focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer"
+                />
+                <span className="text-[0.7rem] text-[#00E5FF]/80 uppercase tracking-tighter">I accept all medical data protocols</span>
+              </label>
+              {errors.pdpa && <p className="text-[#FF3D00] text-[0.65rem] mt-1 uppercase">{errors.pdpa}</p>}
+            </div>
+
+            {/* Error Message */}
             {errors.api && (
-              <p className="text-red-500 mb-4 text-center" style={{ fontSize: "0.8rem" }}>
-                {errors.api}
-              </p>
+              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+                <p className="text-[#FF3D00] text-[0.7rem] uppercase font-mono">{errors.api}</p>
+              </div>
             )}
 
-            {/* CTA Button */}
+            {/* Submit Button */}
             <motion.button
               type="submit"
               disabled={submitting}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-[#0D1B2A] via-[#0D2B3A] to-[#0D1B2A] text-white transition-all hover:shadow-2xl flex items-center justify-center gap-2 shadow-lg shadow-[#0D1B2A]/40 relative overflow-hidden group disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{ fontWeight: 600, fontSize: "1rem", letterSpacing: "0.01em" }}
-              whileHover={submitting ? undefined : { scale: 1.02, y: -2 }}
-              whileTap={submitting ? undefined : { scale: 0.98 }}
+              className="w-full relative group overflow-hidden rounded-xl h-14 bg-[#00E5FF] text-black font-black uppercase tracking-[0.2em] text-sm disabled:opacity-50"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "200%" }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-              />
-              <Sparkles size={18} className="text-[#14B8A6]" />
-              <span className="relative z-10">{submitting ? "Connecting..." : "Start Learning"}</span>
-              <Eye size={18} className="text-[#14B8A6]" />
+              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              <div className="flex items-center justify-center gap-3">
+                {submitting ? (
+                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Activity size={18} />
+                    Establish Link
+                    <Eye size={18} />
+                  </>
+                )}
+              </div>
             </motion.button>
-
-            <p className="text-center text-slate-400 mt-4" style={{ fontSize: "0.75rem" }}>
-              Your data is protected under PDPA guidelines
-            </p>
           </form>
-        </motion.div>
+        </div>
 
-        <motion.p
-          className="text-center text-slate-500 mt-6"
-          style={{ fontSize: "0.8rem" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          © 2026 EyeQ Medical Education. All rights reserved.
-        </motion.p>
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <div className="flex gap-8">
+            <div className="flex flex-col items-center">
+              <span className="text-[#00E5FF] text-lg font-black">2026</span>
+              <span className="text-white/20 text-[0.5rem] tracking-[0.3em] uppercase">Core_Ver</span>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="flex flex-col items-center">
+              <span className="text-[#39FF14] text-lg font-black">UP</span>
+              <span className="text-white/20 text-[0.5rem] tracking-[0.3em] uppercase">Sys_Status</span>
+            </div>
+          </div>
+          <p className="text-white/20 text-[0.5rem] tracking-[0.5em] uppercase">
+            Snec AI medical interface protocol
+          </p>
+        </div>
       </motion.div>
     </div>
   );

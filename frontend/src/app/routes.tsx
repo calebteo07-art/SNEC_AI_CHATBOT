@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { OnboardingScreen } from "./components/OnboardingScreen";
 import { DashboardScreen } from "./components/DashboardScreen";
 import { ChatScreen } from "./components/ChatScreen";
@@ -8,6 +8,7 @@ import { FlashcardScreen } from "./components/FlashcardScreen";
 import { SummaryScreen } from "./components/SummaryScreen";
 import { DailyCheckInScreen } from "./components/DailyCheckInScreen";
 import { SupervisorDashboard } from "./components/SupervisorDashboard";
+import { CheckInGuard } from "./components/CheckInGuard";
 
 export const router = createBrowserRouter([
   {
@@ -15,35 +16,71 @@ export const router = createBrowserRouter([
     Component: OnboardingScreen,
   },
   {
-    path: "/dashboard",
-    Component: DashboardScreen,
+    path: "/checkin",
+    element: (
+      <CheckInGuard>
+        <DailyCheckInScreen />
+      </CheckInGuard>
+    ),
   },
   {
-    path: "/checkin",
-    Component: DailyCheckInScreen,
+    path: "/dashboard",
+    element: (
+      <CheckInGuard>
+        <DashboardScreen />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/supervisor",
-    Component: SupervisorDashboard,
+    element: (
+      <CheckInGuard>
+        <SupervisorDashboard />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/chat",
-    Component: ChatScreen,
+    element: (
+      <CheckInGuard>
+        <ChatScreen />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/cases",
-    Component: CaseListScreen,
+    element: (
+      <CheckInGuard>
+        <CaseListScreen />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/cases/:caseId",
-    Component: CaseSessionScreen,
+    element: (
+      <CheckInGuard>
+        <CaseSessionScreen />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/flashcards",
-    Component: FlashcardScreen,
+    element: (
+      <CheckInGuard>
+        <FlashcardScreen />
+      </CheckInGuard>
+    ),
   },
   {
     path: "/summary",
-    Component: SummaryScreen,
+    element: (
+      <CheckInGuard>
+        <SummaryScreen />
+      </CheckInGuard>
+    ),
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ]);
