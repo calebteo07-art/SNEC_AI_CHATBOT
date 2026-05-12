@@ -4,7 +4,7 @@ import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { CohortHeatmap } from "./CohortHeatmap";
 import { AtRiskTable } from "./AtRiskTable";
 import { StudentDrillDown } from "./StudentDrillDown";
-import { Users, AlertTriangle, Activity, LogOut, Sparkles } from "lucide-react";
+import { Users, AlertTriangle, Activity, LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
 
 const API = "";
@@ -45,7 +45,7 @@ export function SupervisorDashboard() {
         setLoading(false);
       })
       .catch(() => {
-        setError("Could not load supervisor data. Is the backend running?");
+        setError("We couldn't load the supervisor data.");
         setLoading(false);
       });
 
@@ -56,104 +56,173 @@ export function SupervisorDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0D1B2A] px-6 py-8 relative">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 max-w-5xl mx-auto">
-        <div className="flex items-center gap-3">
-          <HolographicEyeLogo size={36} animated />
-          <div>
-            <h1 className="text-white" style={{ fontSize: "1.25rem", fontWeight: 700 }}>
-              Supervisor Dashboard
-            </h1>
-            <p className="text-[#14B8A6]" style={{ fontSize: "0.7rem", letterSpacing: "0.12em" }}>
-              EYEQ MEDICAL EDUCATION
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => { sessionStorage.clear(); navigate("/"); }}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors"
-          style={{ fontSize: "0.8rem" }}
-        >
-          <LogOut size={14} />
-          Sign out
-        </button>
-      </div>
-
-      {loading && (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin" />
-        </div>
-      )}
-
-      {error && (
-        <p className="text-red-400 text-center py-20">{error}</p>
-      )}
-
-      {cohort && (
-        <div className="max-w-5xl mx-auto space-y-6">
-          {/* AI cohort narrative */}
-          {insights && (
-            <motion.div
-              className="flex items-start gap-3 px-5 py-4 rounded-2xl border"
-              style={{ background: "rgba(20,184,166,0.06)", borderColor: "rgba(20,184,166,0.2)" }}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+    <div className="min-h-screen bg-[#FBF8F1]">
+      {/* Top strip */}
+      <motion.div
+        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="max-w-5xl mx-auto px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <HolographicEyeLogo size={32} animated />
+            <span
+              className="text-[#1F1A12]"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.05rem",
+                fontWeight: 500,
+                letterSpacing: "-0.01em",
+              }}
             >
-              <Sparkles size={15} style={{ color: "#14B8A6", flexShrink: 0, marginTop: 2 }} />
-              <p className="text-slate-300" style={{ fontSize: "0.8125rem", lineHeight: 1.6 }}>
-                {insights}
-              </p>
-            </motion.div>
-          )}
-
-          {/* KPI row */}
-          <div className="grid grid-cols-3 gap-4">
-            {[
-              { icon: Users, label: "Total Students", value: cohort.total, color: "#14B8A6" },
-              { icon: Activity, label: "Active This Week", value: cohort.active_this_week, color: "#818CF8" },
-              { icon: AlertTriangle, label: "At Risk", value: cohort.at_risk_count, color: cohort.at_risk_count > 0 ? "#F87171" : "#4ADE80" },
-            ].map(({ icon: Icon, label, value, color }) => (
-              <motion.div
-                key={label}
-                className="px-5 py-5 rounded-2xl bg-white/[0.04] border border-white/10"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon size={16} style={{ color }} />
-                  <p className="text-slate-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>{label}</p>
-                </div>
-                <p className="text-white" style={{ fontSize: "2rem", fontWeight: 700, color }}>{value}</p>
-              </motion.div>
-            ))}
+              EyeQ
+            </span>
+            <span className="text-[#A39A8E]">·</span>
+            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
+              Supervisor
+            </span>
           </div>
-
-          {/* Heatmap */}
-          <div className="px-5 py-5 rounded-2xl bg-white/[0.04] border border-white/10">
-            <h2 className="text-white mb-4" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
-              Cohort Topic Weaknesses
-            </h2>
-            <CohortHeatmap
-              topics={cohort.weakest_topics}
-              retentionByTopic={{}}
-            />
-            {cohort.weakest_topics.length === 0 && (
-              <p className="text-slate-500 text-sm">No weak topics recorded yet.</p>
-            )}
-          </div>
-
-          {/* At-risk table */}
-          <div className="px-5 py-5 rounded-2xl bg-white/[0.04] border border-white/10">
-            <h2 className="text-white mb-4" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
-              At-Risk Students
-            </h2>
-            <AtRiskTable students={atRisk} onSelectStudent={setSelectedStudent} />
-          </div>
+          <button
+            onClick={() => {
+              sessionStorage.clear();
+              navigate("/");
+            }}
+            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
+          >
+            <LogOut size={14} strokeWidth={1.5} />
+            <span className="hidden sm:inline">Sign out</span>
+          </button>
         </div>
-      )}
+      </motion.div>
+
+      <div className="max-w-5xl mx-auto px-8 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          <p
+            className="text-[#8C6D3F] mb-3"
+            style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+          >
+            · Cohort overview
+          </p>
+          <h1
+            className="text-[#1F1A12]"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(2rem, 4vw, 3rem)",
+              fontWeight: 400,
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            How is your <span className="italic-display">cohort</span> doing?
+          </h1>
+        </motion.div>
+
+        {loading && (
+          <div className="flex justify-center py-24">
+            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+          </div>
+        )}
+
+        {error && (
+          <p className="text-[#8B2D2D] text-center py-24" style={{ fontSize: "0.95rem" }}>
+            {error}
+          </p>
+        )}
+
+        {cohort && (
+          <div className="mt-12 space-y-12">
+            {/* AI cohort narrative */}
+            {insights && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <blockquote
+                  className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6 max-w-3xl"
+                  style={{ fontSize: "1.2rem", lineHeight: 1.55, fontWeight: 400 }}
+                >
+                  "{insights}"
+                </blockquote>
+              </motion.div>
+            )}
+
+            {/* KPI row */}
+            <div className="grid grid-cols-3 gap-px bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-2xl overflow-hidden">
+              {[
+                { icon: Users, label: "Students", value: cohort.total, tone: "#8C6D3F" },
+                { icon: Activity, label: "Active this week", value: cohort.active_this_week, tone: "#4F6B3D" },
+                {
+                  icon: AlertTriangle,
+                  label: "At risk",
+                  value: cohort.at_risk_count,
+                  tone: cohort.at_risk_count > 0 ? "#8B2D2D" : "#4F6B3D",
+                },
+              ].map(({ icon: Icon, label, value, tone }, idx) => (
+                <motion.div
+                  key={label}
+                  className="bg-white px-8 py-7"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 + idx * 0.06 }}
+                >
+                  <Icon size={18} strokeWidth={1.25} style={{ color: tone }} className="mb-5" />
+                  <p
+                    className="text-[#A39A8E] mb-2"
+                    style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
+                  >
+                    {label}
+                  </p>
+                  <p
+                    className="text-[#1F1A12]"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "2.4rem",
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {value}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Heatmap */}
+            <div className="surface-card-lg p-8">
+              <p
+                className="text-[#8C6D3F] mb-6"
+                style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+              >
+                · Topic weaknesses
+              </p>
+              <CohortHeatmap topics={cohort.weakest_topics} retentionByTopic={{}} />
+              {cohort.weakest_topics.length === 0 && (
+                <p className="text-[#A39A8E]" style={{ fontSize: "0.92rem" }}>
+                  No weak topics recorded yet.
+                </p>
+              )}
+            </div>
+
+            {/* At-risk table */}
+            <div className="surface-card-lg p-8">
+              <p
+                className="text-[#8C6D3F] mb-6"
+                style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+              >
+                · Students needing attention
+              </p>
+              <AtRiskTable students={atRisk} onSelectStudent={setSelectedStudent} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Student drill-down modal */}
       <AnimatePresence>

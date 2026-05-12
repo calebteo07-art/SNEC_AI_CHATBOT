@@ -17,19 +17,26 @@ interface Props {
 export function AtRiskTable({ students, onSelectStudent }: Props) {
   if (students.length === 0) {
     return (
-      <p className="text-slate-500 text-sm">No at-risk students. All good.</p>
+      <p className="text-[#A39A8E]" style={{ fontSize: "0.92rem" }}>
+        Everyone is on track.
+      </p>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full">
         <thead>
-          <tr className="text-slate-500 text-left border-b border-white/10">
-            <th className="pb-2 pr-4 font-semibold" style={{ fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Student</th>
-            <th className="pb-2 pr-4 font-semibold" style={{ fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Days Inactive</th>
-            <th className="pb-2 pr-4 font-semibold" style={{ fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Last Active</th>
-            <th className="pb-2 font-semibold" style={{ fontSize: "0.7rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Weak Topics</th>
+          <tr className="text-left border-b border-[#1F1A12]/10">
+            {["Student", "Days inactive", "Last active", "Weak topics"].map((h) => (
+              <th
+                key={h}
+                className="pb-3 pr-4 text-[#A39A8E]"
+                style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
+              >
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -37,25 +44,42 @@ export function AtRiskTable({ students, onSelectStudent }: Props) {
             <tr
               key={s.student_id}
               onClick={() => onSelectStudent(s.student_id)}
-              className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition-colors"
+              className="border-b border-[#1F1A12]/6 hover:bg-[#8C6D3F]/4 cursor-pointer transition-colors"
             >
-              <td className="py-3 pr-4">
+              <td className="py-4 pr-4">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle size={13} className="text-red-400 flex-shrink-0" />
-                  <span className="text-white font-mono text-xs truncate max-w-[120px]">{s.student_id.slice(0, 8)}…</span>
+                  <AlertTriangle size={14} strokeWidth={1.5} className="text-[#8B2D2D] flex-shrink-0" />
+                  <span className="text-[#1F1A12] truncate max-w-[140px]" style={{ fontSize: "0.88rem", fontWeight: 500 }}>
+                    {s.student_id.slice(0, 8)}…
+                  </span>
                 </div>
               </td>
-              <td className="py-3 pr-4">
-                <span className="text-red-400 font-semibold">{s.days_inactive}d</span>
+              <td className="py-4 pr-4">
+                <span
+                  className="text-[#8B2D2D]"
+                  style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 400 }}
+                >
+                  {s.days_inactive}d
+                </span>
               </td>
-              <td className="py-3 pr-4 text-slate-400">{s.last_active}</td>
-              <td className="py-3">
-                <div className="flex flex-wrap gap-1">
+              <td className="py-4 pr-4 text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
+                {s.last_active}
+              </td>
+              <td className="py-4">
+                <div className="flex flex-wrap gap-1.5">
                   {s.weak_topics.slice(0, 3).map((t) => (
-                    <span key={t} className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-400 text-xs">{t}</span>
+                    <span
+                      key={t}
+                      className="px-2 py-0.5 rounded-full bg-[#8B2D2D]/8 text-[#8B2D2D] border border-[#8B2D2D]/20"
+                      style={{ fontSize: "0.7rem", fontWeight: 500 }}
+                    >
+                      {t}
+                    </span>
                   ))}
                   {s.weak_topics.length > 3 && (
-                    <span className="text-slate-600 text-xs">+{s.weak_topics.length - 3}</span>
+                    <span className="text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
+                      +{s.weak_topics.length - 3}
+                    </span>
                   )}
                 </div>
               </td>

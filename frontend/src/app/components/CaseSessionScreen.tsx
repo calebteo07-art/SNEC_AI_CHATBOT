@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import {
-  Send, User, Bot, ArrowLeft, CheckSquare, AlertCircle,
+  Send, User, ArrowLeft, CheckSquare, AlertCircle,
   Layers, ChevronDown, ChevronUp,
 } from "lucide-react";
 
@@ -35,10 +35,10 @@ interface DomainResult {
 }
 
 const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
-  { label: "History Taking",   scoreKey: "history_score",        feedbackKey: "history_feedback" },
-  { label: "Investigations",   scoreKey: "investigations_score",  feedbackKey: "investigations_feedback" },
-  { label: "Diagnosis",        scoreKey: "diagnosis_score",       feedbackKey: "diagnosis_feedback" },
-  { label: "Management",       scoreKey: "management_score",      feedbackKey: "management_feedback" },
+  { label: "History",        scoreKey: "history_score",        feedbackKey: "history_feedback" },
+  { label: "Investigations", scoreKey: "investigations_score",  feedbackKey: "investigations_feedback" },
+  { label: "Diagnosis",      scoreKey: "diagnosis_score",       feedbackKey: "diagnosis_feedback" },
+  { label: "Management",     scoreKey: "management_score",      feedbackKey: "management_feedback" },
 ];
 
 export function CaseSessionScreen() {
@@ -64,7 +64,6 @@ export function CaseSessionScreen() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Load case info from the cases list endpoint
   useEffect(() => {
     if (!caseId) return;
     fetch("/api/cases")
@@ -74,7 +73,7 @@ export function CaseSessionScreen() {
         if (found) setCaseInfo(found);
         else setLoadError(`Case "${caseId}" not found.`);
       })
-      .catch(() => setLoadError("Could not load case. Is the backend running?"));
+      .catch(() => setLoadError("Could not load case."));
   }, [caseId]);
 
   useEffect(() => {
@@ -103,7 +102,7 @@ export function CaseSessionScreen() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "(Error: could not reach the server.)" },
+        { role: "assistant", content: "(I'm having trouble reaching the service right now.)" },
       ]);
     } finally {
       setSending(false);
@@ -141,24 +140,26 @@ export function CaseSessionScreen() {
       setDebrief(data.debrief ?? null);
       setShowSubmitForm(false);
     } catch {
-      setSubmitError("Evaluation failed. Please try again.");
+      setSubmitError("We couldn't evaluate that. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
   const scoreColor = (s: number) =>
-    s >= 8 ? "#4ADE80" : s >= 5 ? "#F59E0B" : "#F87171";
+    s >= 8 ? "#4F6B3D" : s >= 5 ? "#9C7B1F" : "#8B2D2D";
 
   if (loadError) {
     return (
-      <div className="min-h-screen bg-[#0D1B2A] flex items-center justify-center p-8">
+      <div className="min-h-screen bg-[#FBF8F1] flex items-center justify-center p-8">
         <div className="text-center">
-          <AlertCircle size={40} className="text-red-400 mx-auto mb-4" />
-          <p className="text-red-400 mb-4">{loadError}</p>
+          <AlertCircle size={36} strokeWidth={1.25} className="text-[#8B2D2D] mx-auto mb-5" />
+          <p className="text-[#1F1A12] mb-5" style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>
+            {loadError}
+          </p>
           <button
             onClick={() => navigate("/cases")}
-            className="text-[#14B8A6] hover:underline text-sm"
+            className="text-[#8C6D3F] hover:underline text-sm"
           >
             ← Back to cases
           </button>
@@ -168,113 +169,137 @@ export function CaseSessionScreen() {
   }
 
   return (
-    <div className="h-screen bg-[#0D1B2A] flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#FBF8F1] flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="flex-shrink-0 flex items-center gap-4 px-5 py-3 border-b border-white/10">
+      <div className="flex-shrink-0 flex items-center gap-4 px-8 h-16 border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm">
         <button
           onClick={() => navigate("/cases")}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors"
-          style={{ fontSize: "0.8rem" }}
+          className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={15} strokeWidth={1.5} />
           Cases
         </button>
-        <div className="flex items-center gap-2.5 ml-auto">
-          <HolographicEyeLogo size={24} animated={false} />
-          <span className="text-white" style={{ fontSize: "0.9rem", fontWeight: 600 }}>
+        <div className="flex items-center gap-3 mx-auto">
+          <HolographicEyeLogo size={26} animated={false} />
+          <span
+            className="text-[#1F1A12]"
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "0.98rem",
+              fontWeight: 500,
+              letterSpacing: "-0.005em",
+            }}
+          >
             {caseInfo ? caseInfo.title : "Loading…"}
           </span>
         </div>
         {!result && (
           <button
             onClick={() => setShowSubmitForm((v) => !v)}
-            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#14B8A6]/15 text-[#14B8A6] hover:bg-[#14B8A6]/25 transition-all border border-[#14B8A6]/30"
-            style={{ fontSize: "0.8rem", fontWeight: 500 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6D3F]/8 border border-[#8C6D3F]/25 text-[#8C6D3F] hover:bg-[#8C6D3F]/12 transition-all"
+            style={{ fontSize: "0.82rem", fontWeight: 500 }}
           >
-            <CheckSquare size={13} />
-            Submit My Answer
-            {showSubmitForm ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            <CheckSquare size={13} strokeWidth={1.5} />
+            Submit answer
+            {showSubmitForm ? <ChevronUp size={12} strokeWidth={1.5} /> : <ChevronDown size={12} strokeWidth={1.5} />}
           </button>
         )}
       </div>
 
       <div className="flex flex-1 min-h-0">
-        {/* Left panel — patient info */}
-        <div className="w-64 flex-shrink-0 border-r border-white/10 flex flex-col overflow-y-auto">
-          <div className="p-5">
+        {/* Patient sidebar */}
+        <div className="w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex flex-col overflow-y-auto bg-white/40">
+          <div className="p-8">
             <p
-              className="text-slate-500 mb-3"
-              style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}
+              className="text-[#8C6D3F] mb-5"
+              style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
             >
-              Patient
+              · Patient
             </p>
             {caseInfo ? (
-              <div className="space-y-3">
+              <div className="space-y-5">
                 <div>
-                  <p className="text-white" style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
+                  <p
+                    className="text-[#1F1A12]"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.35rem",
+                      fontWeight: 400,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
                     {caseInfo.patient.name}
                   </p>
-                  <p className="text-slate-400" style={{ fontSize: "0.8rem" }}>
+                  <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>
                     {caseInfo.patient.age} years old
                   </p>
                 </div>
                 <div>
                   <p
-                    className="text-slate-500 mb-1"
-                    style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
+                    className="text-[#A39A8E] mb-2"
+                    style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
                   >
-                    Chief Complaint
+                    Presents with
                   </p>
-                  <p className="text-slate-300" style={{ fontSize: "0.8125rem", lineHeight: 1.5 }}>
-                    {caseInfo.patient.presenting_complaint}
+                  <p
+                    className="text-[#1F1A12] italic-display"
+                    style={{ fontSize: "0.98rem", lineHeight: 1.55 }}
+                  >
+                    "{caseInfo.patient.presenting_complaint}"
                   </p>
                 </div>
                 <div>
                   <p
-                    className="text-slate-500 mb-1"
-                    style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" }}
+                    className="text-[#A39A8E] mb-1"
+                    style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
                   >
                     Topic
                   </p>
-                  <p className="text-[#14B8A6]" style={{ fontSize: "0.8rem" }}>
+                  <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>
                     {caseInfo.topic}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {[80, 60, 90].map((w, i) => (
-                  <div key={i} className="h-3 rounded bg-white/10 animate-pulse" style={{ width: `${w}%` }} />
+                  <div key={i} className="h-3 rounded bg-[#1F1A12]/6 animate-pulse" style={{ width: `${w}%` }} />
                 ))}
               </div>
             )}
           </div>
 
-          <div className="mt-auto p-5 border-t border-white/10">
-            <p className="text-slate-600" style={{ fontSize: "0.72rem", lineHeight: 1.5 }}>
-              Ask questions to take a history. Request examinations and investigations by name. Submit your answer when ready.
+          <div className="mt-auto p-8 border-t border-[#1F1A12]/8">
+            <p className="text-[#5C544A]" style={{ fontSize: "0.78rem", lineHeight: 1.6, fontWeight: 300 }}>
+              Take a history, request examinations and investigations, then submit your diagnosis when ready.
             </p>
           </div>
         </div>
 
-        {/* Right — chat + submit/results */}
+        {/* Chat + results */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Submit form panel */}
           <AnimatePresence>
             {showSubmitForm && !result && (
               <motion.div
-                className="flex-shrink-0 border-b border-white/10 bg-[#0D2B3A] px-6 py-5"
+                className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-8 py-6"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                <h3 className="text-white mb-4" style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
-                  Submit Your Answer
-                </h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <p
+                  className="text-[#8C6D3F] mb-4"
+                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+                >
+                  · Submit answer
+                </p>
+                <div className="grid grid-cols-2 gap-6 mb-4">
                   <div>
-                    <label className="block text-slate-400 mb-1.5" style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    <label
+                      className="block text-[#A39A8E] mb-2"
+                      style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
+                    >
                       Diagnosis
                     </label>
                     <textarea
@@ -282,76 +307,85 @@ export function CaseSessionScreen() {
                       onChange={(e) => setDiagnosis(e.target.value)}
                       placeholder="State your diagnosis…"
                       rows={3}
-                      className="w-full px-3 py-2.5 rounded-lg bg-white/[0.06] border border-white/15 text-white placeholder-slate-600 outline-none focus:border-[#14B8A6]/50 resize-none"
-                      style={{ fontSize: "0.875rem" }}
+                      className="w-full px-0 py-2 bg-transparent border-0 border-b border-[#1F1A12]/12 text-[#1F1A12] placeholder-[#A39A8E] outline-none focus:border-[#8C6D3F] resize-none transition-colors"
+                      style={{ fontSize: "0.95rem", lineHeight: 1.55 }}
                     />
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1.5" style={{ fontSize: "0.75rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                      Management Plan
+                    <label
+                      className="block text-[#A39A8E] mb-2"
+                      style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
+                    >
+                      Management plan
                     </label>
                     <textarea
                       value={managementPlan}
                       onChange={(e) => setManagementPlan(e.target.value)}
                       placeholder="Outline your management plan…"
                       rows={3}
-                      className="w-full px-3 py-2.5 rounded-lg bg-white/[0.06] border border-white/15 text-white placeholder-slate-600 outline-none focus:border-[#14B8A6]/50 resize-none"
-                      style={{ fontSize: "0.875rem" }}
+                      className="w-full px-0 py-2 bg-transparent border-0 border-b border-[#1F1A12]/12 text-[#1F1A12] placeholder-[#A39A8E] outline-none focus:border-[#8C6D3F] resize-none transition-colors"
+                      style={{ fontSize: "0.95rem", lineHeight: 1.55 }}
                     />
                   </div>
                 </div>
                 {submitError && (
-                  <p className="text-red-400 mb-3" style={{ fontSize: "0.8rem" }}>{submitError}</p>
+                  <p className="text-[#8B2D2D] mb-3" style={{ fontSize: "0.82rem" }}>{submitError}</p>
                 )}
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || !diagnosis.trim() || !managementPlan.trim()}
-                  className="px-5 py-2.5 rounded-lg bg-[#14B8A6] text-white font-semibold hover:bg-[#0D9488] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ fontSize: "0.875rem" }}
+                  className="px-6 py-3 rounded-full bg-[#8C6D3F] text-[#FBF8F1] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  style={{ fontSize: "0.88rem", fontWeight: 500, letterSpacing: "0.02em" }}
                 >
-                  {submitting ? "Evaluating…" : "Submit for Evaluation"}
+                  {submitting ? "Evaluating…" : "Submit for evaluation"}
                 </button>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Results panel */}
+          {/* Results */}
           {result && (
             <motion.div
-              className="flex-shrink-0 border-b border-white/10 bg-[#0D2B3A] px-6 py-5 overflow-y-auto"
-              style={{ maxHeight: "50%" }}
-              initial={{ opacity: 0, y: -10 }}
+              className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-8 py-6 overflow-y-auto custom-scrollbar"
+              style={{ maxHeight: "55%" }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white" style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
-                  Evaluation Results
-                </h3>
-                <span className="text-white font-bold" style={{ fontSize: "1.1rem" }}>
-                  <span style={{ color: scoreColor(result.total_score / 4) }}>
-                    {result.total_score}
-                  </span>
-                  <span className="text-slate-500">/40</span>
+              <div className="flex items-baseline justify-between mb-6">
+                <p
+                  className="text-[#8C6D3F]"
+                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+                >
+                  · Evaluation
+                </p>
+                <span
+                  style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 400, color: scoreColor(result.total_score / 4) }}
+                >
+                  {result.total_score}
+                  <span className="text-[#A39A8E]">/40</span>
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-2 gap-4 mb-5">
                 {DOMAINS.map(({ label, scoreKey, feedbackKey }) => {
                   const score = result[scoreKey] as number;
                   return (
                     <div
                       key={label}
-                      className="px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10"
+                      className="px-5 py-4 rounded-xl border border-[#1F1A12]/8 bg-[#FBF8F1]/60"
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-slate-300" style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <p
+                          className="text-[#1F1A12]"
+                          style={{ fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 400 }}
+                        >
                           {label}
                         </p>
-                        <span style={{ fontSize: "0.875rem", fontWeight: 700, color: scoreColor(score) }}>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 500, color: scoreColor(score) }}>
                           {score}/10
                         </span>
                       </div>
-                      <p className="text-slate-500" style={{ fontSize: "0.75rem", lineHeight: 1.5 }}>
+                      <p className="text-[#5C544A]" style={{ fontSize: "0.82rem", lineHeight: 1.55 }}>
                         {result[feedbackKey] as string}
                       </p>
                     </div>
@@ -359,21 +393,27 @@ export function CaseSessionScreen() {
                 })}
               </div>
 
-              <div className="px-4 py-3 rounded-xl bg-[#14B8A6]/10 border border-[#14B8A6]/20 mb-4">
-                <p className="text-slate-300" style={{ fontSize: "0.8125rem", lineHeight: 1.6 }}>
+              <div className="px-5 py-4 rounded-xl bg-[#8C6D3F]/5 border border-[#8C6D3F]/15 mb-5">
+                <p className="text-[#1F1A12]" style={{ fontSize: "0.92rem", lineHeight: 1.65 }}>
                   {result.overall_feedback}
                 </p>
               </div>
 
               {debrief && (
-                <div className="px-4 py-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 mb-4">
-                  <p className="text-slate-400 mb-2" style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                <div className="px-5 py-5 rounded-xl border border-[#1F1A12]/8 bg-[#FBF8F1]/60 mb-5">
+                  <p
+                    className="text-[#A39A8E] mb-3"
+                    style={{ fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
+                  >
                     Debrief
                   </p>
-                  <div className="text-slate-300 whitespace-pre-wrap" style={{ fontSize: "0.8125rem", lineHeight: 1.7 }}>
+                  <div
+                    className="text-[#1F1A12] whitespace-pre-wrap"
+                    style={{ fontSize: "0.92rem", lineHeight: 1.7 }}
+                  >
                     {debrief.split(/\*\*(.*?)\*\*/g).map((part, i) =>
                       i % 2 === 1 ? (
-                        <strong key={i} className="text-white">{part}</strong>
+                        <strong key={i} className="text-[#1F1A12]">{part}</strong>
                       ) : (
                         <span key={i}>{part}</span>
                       )
@@ -389,72 +429,81 @@ export function CaseSessionScreen() {
                   }
                   navigate("/flashcards");
                 }}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500/25 transition-all"
-                style={{ fontSize: "0.875rem", fontWeight: 500 }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-all"
+                style={{ fontSize: "0.88rem", fontWeight: 500, letterSpacing: "0.02em" }}
               >
-                <Layers size={15} />
-                Generate Flashcards ({cards.length})
+                <Layers size={14} strokeWidth={1.5} />
+                Generate flashcards ({cards.length})
               </button>
             </motion.div>
           )}
 
           {/* Chat messages */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+          <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar">
             {messages.length === 0 && !sending && (
               <div className="flex items-center justify-center h-full">
-                <p className="text-slate-600 text-center" style={{ fontSize: "0.875rem" }}>
-                  Introduce yourself and start taking a history.
-                  <br />
-                  <span style={{ fontSize: "0.8rem" }}>Press Enter to send.</span>
-                </p>
+                <div className="text-center max-w-sm">
+                  <p
+                    className="text-[#1F1A12] italic-display mb-2"
+                    style={{ fontSize: "1.15rem" }}
+                  >
+                    Introduce yourself and begin the history.
+                  </p>
+                  <p className="text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>
+                    Press Enter to send · Shift + Enter for a new line
+                  </p>
+                </div>
               </div>
             )}
 
             {messages.map((m, i) => (
               <motion.div
                 key={i}
-                className={`flex gap-3 items-start ${m.role === "user" ? "flex-row-reverse" : ""}`}
-                initial={{ opacity: 0, x: m.role === "user" ? 16 : -16 }}
-                animate={{ opacity: 1, x: 0 }}
+                className="flex gap-4 items-start"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div
-                  className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ${
-                    m.role === "user"
-                      ? "bg-[#0D1B2A] border border-white/20"
-                      : "bg-[#14B8A6]/20 border border-[#14B8A6]/40"
-                  }`}
-                >
+                <div className="flex-shrink-0 mt-1">
                   {m.role === "user" ? (
-                    <User size={13} className="text-white" />
+                    <div className="w-7 h-7 rounded-full bg-[#8C6D3F]/12 flex items-center justify-center">
+                      <User size={13} strokeWidth={1.5} className="text-[#8C6D3F]" />
+                    </div>
                   ) : (
-                    <Bot size={13} className="text-[#14B8A6]" />
+                    <HolographicEyeLogo size={26} animated={false} />
                   )}
                 </div>
-                <div
-                  className={`max-w-[78%] px-4 py-3 rounded-2xl ${
-                    m.role === "user"
-                      ? "rounded-tr-sm bg-[#14B8A6]/15 border border-[#14B8A6]/25 text-white"
-                      : "rounded-tl-sm bg-white/[0.06] border border-white/10 text-slate-200"
-                  }`}
-                  style={{ fontSize: "0.875rem", lineHeight: 1.6 }}
-                >
-                  {m.content}
+                <div className="flex-1 max-w-[680px]">
+                  <p
+                    className="text-[#A39A8E] mb-1"
+                    style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
+                  >
+                    {m.role === "user" ? "You" : "Patient"}
+                  </p>
+                  <p
+                    className={m.role === "user" ? "text-[#5C544A]" : "text-[#1F1A12]"}
+                    style={{
+                      fontFamily: m.role === "user" ? "var(--font-body)" : "var(--font-display)",
+                      fontSize: m.role === "user" ? "1rem" : "1.05rem",
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    {m.content}
+                  </p>
                 </div>
               </motion.div>
             ))}
 
             {sending && (
-              <div className="flex gap-3 items-start">
-                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#14B8A6]/20 border border-[#14B8A6]/40 flex items-center justify-center">
-                  <Bot size={13} className="text-[#14B8A6]" />
-                </div>
-                <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-white/[0.06] border border-white/10 flex items-center gap-1.5">
+              <div className="flex gap-4 items-center">
+                <HolographicEyeLogo size={26} animated={true} />
+                <div className="flex gap-1 items-center">
                   {[0, 1, 2].map((i) => (
-                    <div
+                    <motion.div
                       key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]"
-                      style={{ animation: "bounce 1.2s infinite", animationDelay: `${i * 0.2}s` }}
+                      className="w-1.5 h-1.5 rounded-full bg-[#8C6D3F]/60"
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.18 }}
                     />
                   ))}
                 </div>
@@ -465,9 +514,11 @@ export function CaseSessionScreen() {
 
           {/* Input */}
           {!result && (
-            <div className="flex-shrink-0 border-t border-white/10 px-5 py-4">
-              <div className="flex gap-3 items-end">
-                <div className="flex-1 bg-white/[0.05] border border-white/15 rounded-xl overflow-hidden focus-within:border-[#14B8A6]/50 transition-all">
+            <div className="flex-shrink-0 border-t border-[#1F1A12]/8 px-8 py-6 bg-[#FBF8F1]">
+              <div className="flex gap-3 items-end max-w-3xl mx-auto">
+                <div className="flex-1 bg-white border border-[#1F1A12]/10 rounded-2xl overflow-hidden focus-within:border-[#8C6D3F]/40 transition-all"
+                  style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04)" }}
+                >
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -479,35 +530,28 @@ export function CaseSessionScreen() {
                     onKeyDown={handleKeyDown}
                     placeholder="Ask the patient a question…"
                     rows={1}
-                    className="w-full px-4 py-3 bg-transparent text-white placeholder-slate-600 outline-none resize-none"
-                    style={{ fontSize: "0.875rem", lineHeight: 1.5, minHeight: "44px", maxHeight: "120px" }}
+                    className="w-full px-5 py-3 bg-transparent text-[#1F1A12] placeholder-[#A39A8E] outline-none resize-none"
+                    style={{ fontSize: "0.95rem", lineHeight: 1.55, minHeight: "48px", maxHeight: "120px" }}
                   />
                 </div>
                 <motion.button
                   onClick={sendMessage}
                   disabled={!input.trim() || sending}
-                  className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                  className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${
                     input.trim() && !sending
-                      ? "bg-[#14B8A6] text-white shadow-lg shadow-[#14B8A6]/30"
-                      : "bg-white/10 text-slate-600 cursor-not-allowed"
+                      ? "bg-[#8C6D3F] text-[#FBF8F1]"
+                      : "bg-[#1F1A12]/5 text-[#A39A8E] cursor-not-allowed"
                   }`}
                   whileHover={input.trim() && !sending ? { scale: 1.05 } : undefined}
                   whileTap={input.trim() && !sending ? { scale: 0.95 } : undefined}
                 >
-                  <Send size={15} />
+                  <Send size={15} strokeWidth={1.5} />
                 </motion.button>
               </div>
             </div>
           )}
         </div>
       </div>
-
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); }
-          30% { transform: translateY(-5px); }
-        }
-      `}</style>
     </div>
   );
 }

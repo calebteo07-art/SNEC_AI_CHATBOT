@@ -3,44 +3,48 @@
 :root {
   --font-size: 16px;
 
-  /* ===== Futuristic Sci-Fi Medical Palette ===== */
-  --background: #000000;
-  --foreground: #F0F9FF;
+  /* ===== Boutique Cream + Bronze Palette ===== */
+  --background: #FBF8F1;            /* warm cream */
+  --foreground: #1F1A12;            /* warm charcoal */
 
-  --card: rgba(5, 8, 15, 0.8);
-  --card-foreground: #F0F9FF;
+  --card: #FFFFFF;                  /* pure white card on cream */
+  --card-foreground: #1F1A12;
 
-  --popover: #05080F;
-  --popover-foreground: #F0F9FF;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F1A12;
 
-  --primary: #00E5FF;            /* Cyber-Teal */
-  --primary-foreground: #000000;
+  --primary: #8C6D3F;               /* warm bronze */
+  --primary-foreground: #FBF8F1;
 
-  --secondary: #39FF14;          /* Bioluminescent Green */
-  --secondary-foreground: #000000;
+  --primary-deep: #6E5530;          /* deeper bronze for hover */
+  --primary-soft: rgba(140, 109, 63, 0.08);
 
-  --muted: #1E293B;
-  --muted-foreground: #94A3B8;
+  --secondary: #4F6B3D;             /* muted forest sage */
+  --secondary-foreground: #FBF8F1;
 
-  --accent: #FFB300;             /* Hazard Amber */
-  --accent-foreground: #000000;
+  --muted: #F4EFE3;                 /* warm muted bg */
+  --muted-foreground: #5C544A;      /* warm slate */
 
-  --destructive: #FF3D00;
-  --destructive-foreground: #FFFFFF;
+  --accent: #9C7B1F;                /* amber-bronze for highlights */
+  --accent-foreground: #FBF8F1;
 
-  --border: rgba(255, 255, 255, 0.1);
+  --destructive: #8B2D2D;           /* rust red */
+  --destructive-foreground: #FBF8F1;
+
+  --border:        rgba(31, 26, 18, 0.08);   /* hairline */
+  --border-strong: rgba(31, 26, 18, 0.16);
   --input: transparent;
-  --input-background: rgba(255, 255, 255, 0.05);
+  --input-background: #FFFFFF;
 
-  --radius: 0.75rem;
+  --radius: 1rem;
 
-  /* ===== Glow Tokens ===== */
-  --glow-teal-sm: 0 0 8px rgba(0, 229, 255, 0.35);
-  --glow-teal-md: 0 0 20px rgba(0, 229, 255, 0.5);
-  --glow-teal-lg: 0 0 40px rgba(0, 229, 255, 0.6);
-  --glow-green: 0 0 20px rgba(57, 255, 20, 0.5);
-  --glow-amber: 0 0 20px rgba(255, 179, 0, 0.5);
-  --glow-red: 0 0 20px rgba(255, 61, 0, 0.5);
+  /* ===== Layered Soft Shadows ===== */
+  --shadow-hairline: 0 0 0 1px rgba(31, 26, 18, 0.06);
+  --shadow-xs:       0 1px 2px rgba(31, 26, 18, 0.04);
+  --shadow-sm:       0 1px 2px rgba(31, 26, 18, 0.04), 0 2px 6px rgba(31, 26, 18, 0.03);
+  --shadow-md:       0 1px 2px rgba(31, 26, 18, 0.04), 0 8px 24px rgba(31, 26, 18, 0.06);
+  --shadow-lg:       0 2px 4px rgba(31, 26, 18, 0.04), 0 16px 48px rgba(31, 26, 18, 0.08);
+  --shadow-bronze:   0 1px 2px rgba(140, 109, 63, 0.08), 0 12px 32px rgba(140, 109, 63, 0.18);
 }
 
 @theme inline {
@@ -55,44 +59,27 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-border: var(--border);
-
-  --animate-scanline: scanline 8s linear infinite;
-  --animate-hologram: hologram 3.6s ease-in-out infinite;
-  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
-  --animate-rim-sweep: rim-sweep 6s linear infinite;
 }
 
-/* ===== Keyframes ===== */
-@keyframes scanline {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
+/* ===== Subtle Keyframes ===== */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-4px); }
 }
 
-@keyframes hologram {
-  0%, 100% { opacity: 1;    transform: scale(1);     filter: brightness(1)   hue-rotate(0deg); }
-  48%      { opacity: 0.92; transform: scale(1.003); filter: brightness(1.1) hue-rotate(2deg); }
-  50%      { opacity: 0.85; transform: scale(0.998); filter: brightness(0.85) hue-rotate(-2deg); }
-  52%      { opacity: 0.95; transform: scale(1.001); filter: brightness(1.05) hue-rotate(1deg); }
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-  50%      { box-shadow: 0 0 30px rgba(0, 229, 255, 0.6); }
+@keyframes shimmer-slow {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-@keyframes rim-sweep {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-@keyframes hud-blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75%      { opacity: 0.3; }
-}
-
-@keyframes orbit-rotate {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+@keyframes underline-grow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
 }
 
 /* ===== Base ===== */
@@ -103,155 +90,177 @@
 
   body {
     @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
+    /* Subtle paper texture via noise — extremely faint */
     background-image:
-      radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 50%),
-      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    background-size: 100% 100%, 100% 4px, 3px 100%;
+      radial-gradient(circle at 20% 10%, rgba(140, 109, 63, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(79, 107, 61, 0.025) 0%, transparent 40%);
   }
 
-  /* ===== Glassmorphism Panel ===== */
+  /* ===== Card / Surface ===== */
+  .surface-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
+  }
+
+  .surface-card-lg {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius);
+  }
+
+  /* Hairline-rule horizontal divider */
+  .rule {
+    height: 1px;
+    background: var(--border);
+    border: 0;
+  }
+
+  /* Legacy alias — old glass-panel refs map to surface-card */
   .glass-panel {
-    @apply bg-card backdrop-blur-xl border border-white/10 shadow-2xl;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
 
-  /* ===== Scanline Overlay ===== */
-  .scanline::before {
-    content: "";
-    @apply absolute inset-0 w-full h-full pointer-events-none z-50;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(0, 229, 255, 0.04) 50%,
-      transparent 100%
-    );
-    animation: scanline 8s linear infinite;
-  }
-
-  /* ===== Scrollbar (subtle cyber styling) ===== */
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+  /* ===== Custom Scrollbar ===== */
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 229, 255, 0.2);
+    background: rgba(31, 26, 18, 0.12);
     border-radius: 3px;
   }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.4); }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(31, 26, 18, 0.24); }
 }
 
-/* ===== HUD Utilities ===== */
+/* ===== Boutique Utilities ===== */
 
-/* Corner brackets — adds 4 small L-shaped accents around any container */
-.hud-corners { position: relative; }
-.hud-corners::before,
-.hud-corners::after {
+/* Bronze accent shadow */
+.shadow-bronze { box-shadow: var(--shadow-bronze); }
+.shadow-hairline { box-shadow: var(--shadow-hairline); }
+
+/* Refined hairline underline (for elegant section labels) */
+.section-label {
+  position: relative;
+  padding-bottom: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.section-label::after {
   content: "";
   position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(0, 229, 255, 0.55);
-  border-style: solid;
-  pointer-events: none;
-}
-.hud-corners::before {
-  top: -1px; left: -1px;
-  border-width: 1.5px 0 0 1.5px;
-}
-.hud-corners::after {
-  bottom: -1px; right: -1px;
-  border-width: 0 1.5px 1.5px 0;
-}
-.hud-corners > .hud-corner-tr,
-.hud-corners > .hud-corner-bl {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-color: rgba(0, 229, 255, 0.55);
-  border-style: solid;
-  pointer-events: none;
-}
-.hud-corners > .hud-corner-tr {
-  top: -1px; right: -1px;
-  border-width: 1.5px 1.5px 0 0;
-}
-.hud-corners > .hud-corner-bl {
-  bottom: -1px; left: -1px;
-  border-width: 0 0 1.5px 1.5px;
+  bottom: 0;
+  left: 0;
+  width: 32px;
+  height: 1px;
+  background: var(--primary);
 }
 
-/* Holographic slate — for flashcards */
-.holo-slate {
-  background:
-    linear-gradient(135deg, rgba(0, 229, 255, 0.04) 0%, transparent 60%),
-    linear-gradient(45deg, rgba(57, 255, 20, 0.02) 0%, transparent 80%),
-    rgba(5, 8, 15, 0.85);
-  border: 1px solid rgba(0, 229, 255, 0.18);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    0 0 40px rgba(0, 229, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 229, 255, 0.12);
-}
-.holo-slate-front {
-  background:
-    linear-gradient(135deg, rgba(0, 229, 255, 0.06) 0%, transparent 50%),
-    rgba(5, 8, 15, 0.92);
-  border: 1px solid rgba(0, 229, 255, 0.25);
-}
-.holo-slate-back {
-  background:
-    linear-gradient(135deg, rgba(57, 255, 20, 0.05) 0%, transparent 60%),
-    rgba(5, 8, 15, 0.94);
-  border: 1px solid rgba(57, 255, 20, 0.25);
-}
-
-/* Anatomical callout line — dashed neon connector */
-.callout-line {
-  stroke: rgba(0, 229, 255, 0.5);
-  stroke-width: 1;
-  stroke-dasharray: 4 4;
-  fill: none;
-}
-
-/* Glow text shortcuts */
-.glow-text-teal  { text-shadow: 0 0 12px rgba(0, 229, 255, 0.55); }
-.glow-text-green { text-shadow: 0 0 12px rgba(57, 255, 20, 0.55); }
-.glow-text-amber { text-shadow: 0 0 12px rgba(255, 179, 0, 0.55); }
-.glow-text-red   { text-shadow: 0 0 12px rgba(255, 61, 0, 0.55); }
-
-/* Hologram flicker — apply sparingly */
-.flicker { animation: hologram 3.6s ease-in-out infinite; }
-
-/* HUD blink (for status pips) */
-.hud-blink { animation: hud-blink 1.6s ease-in-out infinite; }
-
-/* Animated rim sweep border — for premium CTAs */
-.rim-sweep {
+/* Editorial circle frame — for the eye image */
+.eye-medallion {
   position: relative;
-  background: linear-gradient(
-    90deg,
-    rgba(0, 229, 255, 0) 0%,
-    rgba(0, 229, 255, 0.6) 50%,
-    rgba(0, 229, 255, 0) 100%
-  );
-  background-size: 200% 100%;
-  animation: rim-sweep 6s linear infinite;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(140, 109, 63, 0.04) 0%, transparent 70%);
+  box-shadow:
+    inset 0 0 0 1px rgba(31, 26, 18, 0.06),
+    inset 0 0 60px rgba(31, 26, 18, 0.08),
+    0 32px 80px rgba(31, 26, 18, 0.1);
+}
+.eye-medallion::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid rgba(140, 109, 63, 0.18);
+  pointer-events: none;
+}
+.eye-medallion::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  border: 1px solid rgba(140, 109, 63, 0.08);
+  pointer-events: none;
 }
 
-/* Diagonal grid texture — useful as background pattern */
-.grid-pattern {
-  background-image:
-    linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* Refined progress bar */
+.progress-rail {
+  background: rgba(31, 26, 18, 0.06);
+  border-radius: 999px;
+  height: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Radial vignette darkens edges to focus center content */
+/* Refined button (legacy compat for buttons that used the old "rim-sweep" or HUD style) */
+.btn-bronze {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 999px;
+  padding: 0.875rem 2rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-bronze:hover {
+  background: var(--primary-deep);
+  box-shadow: var(--shadow-bronze);
+  transform: translateY(-1px);
+}
+
+/* Italic display heading — for elegant emphasis */
+.italic-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100;
+}
+
+/* Gentle motion utilities */
+.gentle-float { animation: gentle-float 6s ease-in-out infinite; }
+.soft-pulse { animation: soft-pulse 2.4s ease-in-out infinite; }
+
+/* ===== Legacy aliases — preserve so existing classes don't break visually ===== */
+/* These map cyberpunk utilities back to elegant equivalents, no glow, no neon */
+.glow-text-cyan,
+.glow-text-teal,
+.glow-text-emerald,
+.glow-text-green,
+.glow-text-amber,
+.glow-text-red {
+  text-shadow: none;
+}
+.hud-corners { position: relative; }
+.hud-blink { animation: soft-pulse 2.4s ease-in-out infinite; }
+.holo-slate,
+.holo-slate-front,
+.holo-slate-back {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+.grid-pattern { background-image: none; }
+.scanline::before { display: none; }
 .vignette::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+  background: radial-gradient(circle at center, transparent 55%, rgba(31, 26, 18, 0.04) 100%);
   z-index: 1;
 }
+.rim-sweep { background: transparent; animation: none; }

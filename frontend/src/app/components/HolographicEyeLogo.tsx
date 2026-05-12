@@ -28,13 +28,13 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
 
     const particles: Array<{ angle: number; distance: number; speed: number; size: number; alpha: number }> = [];
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 8; i++) {
       particles.push({
-        angle: (i / 12) * Math.PI * 2,
-        distance: size * 0.35,
-        speed: 0.005 + Math.random() * 0.01,
-        size: 1.5 + Math.random() * 1.5,
-        alpha: 0.3 + Math.random() * 0.4,
+        angle: (i / 8) * Math.PI * 2,
+        distance: size * 0.38,
+        speed: 0.003 + Math.random() * 0.005,
+        size: 1 + Math.random() * 0.8,
+        alpha: 0.15 + Math.random() * 0.2,
       });
     }
 
@@ -42,7 +42,7 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
       if (!ctx || !canvas) return;
 
       ctx.clearRect(0, 0, size, size);
-      time += 0.015;
+      time += 0.01;
 
       const centerX = size / 2;
       const centerY = size / 2;
@@ -53,8 +53,8 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         const y = centerY + Math.sin(particle.angle + time) * particle.distance;
 
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, particle.size * 3);
-        gradient.addColorStop(0, `rgba(0, 229, 255, ${particle.alpha})`);
-        gradient.addColorStop(1, "rgba(0, 229, 255, 0)");
+        gradient.addColorStop(0, `rgba(140, 109, 63, ${particle.alpha})`);
+        gradient.addColorStop(1, "rgba(140, 109, 63, 0)");
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -62,14 +62,9 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         ctx.fill();
       });
 
-      ctx.strokeStyle = `rgba(0, 229, 255, ${0.15 + Math.sin(time * 2) * 0.05})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, size * 0.35, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.strokeStyle = `rgba(0, 229, 255, ${0.25 + Math.sin(time * 2 + 0.5) * 0.08})`;
-      ctx.lineWidth = 1.5;
+      // Single subtle outer ring
+      ctx.strokeStyle = `rgba(140, 109, 63, ${0.1 + Math.sin(time * 1.5) * 0.04})`;
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
       ctx.arc(centerX, centerY, size * 0.42, 0, Math.PI * 2);
       ctx.stroke();
@@ -100,47 +95,31 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         viewBox="0 0 100 100"
         fill="none"
         className="relative z-10"
-        animate={animated ? {
-          rotateY: [0, 360],
-        } : undefined}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "linear",
-        }}
       >
         <defs>
           <radialGradient id="eyeGradient" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.9" />
-            <stop offset="60%" stopColor="#00B8D4" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#006978" stopOpacity="0.4" />
+            <stop offset="0%" stopColor="#8C6D3F" stopOpacity="0.85" />
+            <stop offset="60%" stopColor="#6E5530" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#4A3920" stopOpacity="0.4" />
           </radialGradient>
           <radialGradient id="irisGradient" cx="50%" cy="50%">
-            <stop offset="0%" stopColor="#39FF14" stopOpacity="0.3" />
-            <stop offset="50%" stopColor="#00E5FF" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#00B8D4" stopOpacity="1" />
+            <stop offset="0%" stopColor="#C4A57B" stopOpacity="0.4" />
+            <stop offset="50%" stopColor="#8C6D3F" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#4A3920" stopOpacity="1" />
           </radialGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
-        {/* Eye outline */}
+        {/* Eye outline — almond shape */}
         <motion.path
           d="M 15 50 Q 30 25, 50 20 Q 70 25, 85 50 Q 70 75, 50 80 Q 30 75, 15 50 Z"
           fill="none"
           stroke="url(#eyeGradient)"
-          strokeWidth="2.5"
-          filter="url(#glow)"
+          strokeWidth="2"
           animate={animated ? {
-            strokeOpacity: [0.5, 0.9, 0.5],
+            strokeOpacity: [0.6, 0.85, 0.6],
           } : undefined}
           transition={{
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -150,17 +129,16 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         <motion.circle
           cx="50"
           cy="50"
-          r="18"
+          r="17"
           fill="none"
-          stroke="#00E5FF"
-          strokeWidth="2"
-          filter="url(#glow)"
+          stroke="#8C6D3F"
+          strokeWidth="1.5"
+          strokeOpacity="0.7"
           animate={animated ? {
-            r: [16, 19, 16],
-            strokeOpacity: [0.6, 1, 0.6],
+            r: [16, 18, 16],
           } : undefined}
           transition={{
-            duration: 2.5,
+            duration: 4,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -172,13 +150,11 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
           cy="50"
           r="8"
           fill="url(#irisGradient)"
-          filter="url(#glow)"
           animate={animated ? {
-            scale: [0.9, 1.1, 0.9],
-            opacity: [0.7, 1, 0.7],
+            scale: [0.95, 1.05, 0.95],
           } : undefined}
           transition={{
-            duration: 2,
+            duration: 3,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -188,14 +164,15 @@ export function HolographicEyeLogo({ size = 60, animated = true }: HolographicEy
         <motion.circle
           cx="50"
           cy="50"
-          r="3"
-          fill="#F0F9FF"
+          r="2.5"
+          fill="#FBF8F1"
+          fillOpacity="0.9"
           animate={animated ? {
-            x: [0, 2, 0, -2, 0],
-            y: [0, -1, 0, 1, 0],
+            x: [0, 1.5, 0, -1.5, 0],
+            y: [0, -0.8, 0, 0.8, 0],
           } : undefined}
           transition={{
-            duration: 4,
+            duration: 6,
             repeat: Infinity,
             ease: "easeInOut",
           }}

@@ -15,7 +15,7 @@ interface ParticleBackgroundProps {
   color?: string;
 }
 
-export function ParticleBackground({ density = 30, color = "#14B8A6" }: ParticleBackgroundProps) {
+export function ParticleBackground({ density = 30, color = "#8C6D3F" }: ParticleBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export function ParticleBackground({ density = 30, color = "#14B8A6" }: Particle
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.4 }}
+      style={{ opacity: 0.18 }}
     />
   );
 }
