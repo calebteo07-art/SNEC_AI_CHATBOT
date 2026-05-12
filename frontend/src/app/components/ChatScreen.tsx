@@ -41,7 +41,7 @@ const INITIAL_MESSAGES: Message[] = [
 
 const FALLBACK_CONTENT = "I'm having trouble reaching the service right now — please try again in a moment.";
 
-function AIBubble({ message }: { message: AIMessage }) {
+function AIBubble({ message, isStreaming }: { message: AIMessage; isStreaming?: boolean }) {
   return (
     <motion.div
       className="flex gap-5 items-start"
@@ -50,7 +50,7 @@ function AIBubble({ message }: { message: AIMessage }) {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="flex-shrink-0 mt-1">
-        <HolographicEyeLogo size={28} animated={false} />
+        <HolographicEyeLogo size={28} animated={isStreaming} />
       </div>
       <div className="flex-1 max-w-[680px]">
         <p
@@ -73,6 +73,12 @@ function AIBubble({ message }: { message: AIMessage }) {
             }}
           >
             {message.content}
+            {isStreaming && (
+              <span
+                className="inline-block w-[2px] h-[1.1em] bg-[#8C6D3F] ml-0.5 align-[-0.15em] animate-pulse"
+                aria-hidden="true"
+              />
+            )}
           </p>
         </div>
       </div>
@@ -115,6 +121,7 @@ export function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingId, setStreamingId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -135,7 +142,7 @@ export function ChatScreen() {
   }, [messages, isTyping]);
 
   const sendMessage = async () => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isTyping || streamingId) return;
     const userMsg: UserMessage = {
       type: "user",
       id: Date.now().toString(),
@@ -161,28 +168,69 @@ export function ChatScreen() {
       return { role: "assistant", content: m.content };
     });
 
+    const aiMsgId = `ai-${Date.now() + 1}`;
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: studentId, messages: apiMessages }),
       });
-      const data = await res.json();
-      const aiMsg: AIMessage = {
-        type: "ai",
-        id: (Date.now() + 1).toString(),
-        content: data.content || FALLBACK_CONTENT,
-      };
-      setMessages((prev) => [...prev, aiMsg]);
+
+      if (!res.ok || !res.body) {
+        throw new Error("Stream unavailable");
+      }
+
+      // Add empty AI message and switch from typing indicator to streaming cursor
+      setMessages((prev) => [...prev, { type: "ai", id: aiMsgId, content: "" }]);
+      setIsTyping(false);
+      setStreamingId(aiMsgId);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(data) as { text: string };
+            if (parsed.text) {
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last.type === "ai" && last.id === aiMsgId) {
+                  return [...prev.slice(0, -1), { ...last, content: last.content + parsed.text }];
+                }
+                return prev;
+              });
+              scrollToBottom();
+            }
+          } catch {
+            // skip malformed SSE lines
+          }
+        }
+      }
     } catch {
-      const aiMsg: AIMessage = {
-        type: "ai",
-        id: (Date.now() + 1).toString(),
-        content: FALLBACK_CONTENT,
-      };
-      setMessages((prev) => [...prev, aiMsg]);
+      setMessages((prev) => {
+        // If AI message was already added, update its content; otherwise append new one
+        const last = prev[prev.length - 1];
+        if (last.type === "ai" && last.id === aiMsgId) {
+          return [...prev.slice(0, -1), { ...last, content: FALLBACK_CONTENT }];
+        }
+        return [...prev, { type: "ai", id: aiMsgId, content: FALLBACK_CONTENT }];
+      });
     } finally {
       setIsTyping(false);
+      setStreamingId(null);
     }
   };
 
@@ -273,7 +321,7 @@ export function ChatScreen() {
         <div className="space-y-10">
           {messages.map((msg) =>
             msg.type === "ai" ? (
-              <AIBubble key={msg.id} message={msg} />
+              <AIBubble key={msg.id} message={msg} isStreaming={msg.id === streamingId} />
             ) : (
               <UserBubble key={msg.id} message={msg} />
             )
@@ -325,14 +373,14 @@ export function ChatScreen() {
               />
               <motion.button
                 onClick={sendMessage}
-                disabled={!input.trim() || isTyping}
+                disabled={!input.trim() || isTyping || !!streamingId}
                 className={`w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                  input.trim() && !isTyping
+                  input.trim() && !isTyping && !streamingId
                     ? "bg-[#8C6D3F] text-[#FBF8F1]"
                     : "bg-[#1F1A12]/5 text-[#A39A8E] cursor-not-allowed"
                 }`}
-                whileHover={input.trim() && !isTyping ? { scale: 1.05 } : undefined}
-                whileTap={input.trim() && !isTyping ? { scale: 0.95 } : undefined}
+                whileHover={input.trim() && !isTyping && !streamingId ? { scale: 1.05 } : undefined}
+                whileTap={input.trim() && !isTyping && !streamingId ? { scale: 0.95 } : undefined}
               >
                 <Send size={15} strokeWidth={1.5} />
               </motion.button>

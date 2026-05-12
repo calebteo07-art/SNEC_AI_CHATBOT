@@ -51,6 +51,7 @@ export function CaseSessionScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
 
   const [showSubmitForm, setShowSubmitForm] = useState(false);
   const [diagnosis, setDiagnosis] = useState("");
@@ -81,7 +82,7 @@ export function CaseSessionScreen() {
   }, [messages, sending]);
 
   const sendMessage = async () => {
-    if (!input.trim() || sending || !caseId) return;
+    if (!input.trim() || sending || isStreaming || !caseId) return;
     const content = input.trim();
     const newMsg: ChatMessage = { role: "user", content };
     const updated = [...messages, newMsg];
@@ -91,21 +92,68 @@ export function CaseSessionScreen() {
     setSending(true);
 
     const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
+
     try {
       const res = await fetch(`/api/cases/${caseId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: studentId, messages: updated }),
       });
-      const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.response }]);
+
+      if (!res.ok || !res.body) {
+        throw new Error("Stream unavailable");
+      }
+
+      // Add empty assistant message and switch to streaming mode
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      setSending(false);
+      setIsStreaming(true);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") break;
+          try {
+            const parsed = JSON.parse(data) as { text: string };
+            if (parsed.text) {
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last.role === "assistant") {
+                  return [...prev.slice(0, -1), { role: "assistant", content: last.content + parsed.text }];
+                }
+                return prev;
+              });
+              messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }
+          } catch {
+            // skip malformed SSE lines
+          }
+        }
+      }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "(I'm having trouble reaching the service right now.)" },
-      ]);
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        const fallback = "(I'm having trouble reaching the service right now.)";
+        if (last.role === "assistant") {
+          return [...prev.slice(0, -1), { role: "assistant", content: fallback }];
+        }
+        return [...prev, { role: "assistant", content: fallback }];
+      });
     } finally {
       setSending(false);
+      setIsStreaming(false);
     }
   };
 
@@ -456,43 +504,52 @@ export function CaseSessionScreen() {
               </div>
             )}
 
-            {messages.map((m, i) => (
-              <motion.div
-                key={i}
-                className="flex gap-4 items-start"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="flex-shrink-0 mt-1">
-                  {m.role === "user" ? (
-                    <div className="w-7 h-7 rounded-full bg-[#8C6D3F]/12 flex items-center justify-center">
-                      <User size={13} strokeWidth={1.5} className="text-[#8C6D3F]" />
-                    </div>
-                  ) : (
-                    <HolographicEyeLogo size={26} animated={false} />
-                  )}
-                </div>
-                <div className="flex-1 max-w-[680px]">
-                  <p
-                    className="text-[#A39A8E] mb-1"
-                    style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    {m.role === "user" ? "You" : "Patient"}
-                  </p>
-                  <p
-                    className={m.role === "user" ? "text-[#5C544A]" : "text-[#1F1A12]"}
-                    style={{
-                      fontFamily: m.role === "user" ? "var(--font-body)" : "var(--font-display)",
-                      fontSize: m.role === "user" ? "1rem" : "1.05rem",
-                      lineHeight: 1.65,
-                    }}
-                  >
-                    {m.content}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+            {messages.map((m, i) => {
+              const isLastAssistant = isStreaming && i === messages.length - 1 && m.role === "assistant";
+              return (
+                <motion.div
+                  key={i}
+                  className="flex gap-4 items-start"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="flex-shrink-0 mt-1">
+                    {m.role === "user" ? (
+                      <div className="w-7 h-7 rounded-full bg-[#8C6D3F]/12 flex items-center justify-center">
+                        <User size={13} strokeWidth={1.5} className="text-[#8C6D3F]" />
+                      </div>
+                    ) : (
+                      <HolographicEyeLogo size={26} animated={isLastAssistant} />
+                    )}
+                  </div>
+                  <div className="flex-1 max-w-[680px]">
+                    <p
+                      className="text-[#A39A8E] mb-1"
+                      style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
+                    >
+                      {m.role === "user" ? "You" : "Patient"}
+                    </p>
+                    <p
+                      className={m.role === "user" ? "text-[#5C544A]" : "text-[#1F1A12]"}
+                      style={{
+                        fontFamily: m.role === "user" ? "var(--font-body)" : "var(--font-display)",
+                        fontSize: m.role === "user" ? "1rem" : "1.05rem",
+                        lineHeight: 1.65,
+                      }}
+                    >
+                      {m.content}
+                      {isLastAssistant && (
+                        <span
+                          className="inline-block w-[2px] h-[1.05em] bg-[#8C6D3F] ml-0.5 align-[-0.15em] animate-pulse"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
 
             {sending && (
               <div className="flex gap-4 items-center">
@@ -536,14 +593,14 @@ export function CaseSessionScreen() {
                 </div>
                 <motion.button
                   onClick={sendMessage}
-                  disabled={!input.trim() || sending}
+                  disabled={!input.trim() || sending || isStreaming}
                   className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                    input.trim() && !sending
+                    input.trim() && !sending && !isStreaming
                       ? "bg-[#8C6D3F] text-[#FBF8F1]"
                       : "bg-[#1F1A12]/5 text-[#A39A8E] cursor-not-allowed"
                   }`}
-                  whileHover={input.trim() && !sending ? { scale: 1.05 } : undefined}
-                  whileTap={input.trim() && !sending ? { scale: 0.95 } : undefined}
+                  whileHover={input.trim() && !sending && !isStreaming ? { scale: 1.05 } : undefined}
+                  whileTap={input.trim() && !sending && !isStreaming ? { scale: 0.95 } : undefined}
                 >
                   <Send size={15} strokeWidth={1.5} />
                 </motion.button>

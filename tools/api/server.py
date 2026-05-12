@@ -15,16 +15,19 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.claude_client import ask, MOCK_MODE, MODEL
+from tools.shared.claude_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
 from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
@@ -85,7 +88,11 @@ The ophthalmology knowledge base below is your reference. Draw on it naturally, 
 """
 
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="EyeQ API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -93,6 +100,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-ID")):
+    """FastAPI dependency — verifies the caller is a registered supervisor."""
+    from tools.shared.gsheets import get_rows as _get_rows
+    try:
+        rows = _get_rows("snec_supervisors", filters={"student_id": x_supervisor_id})
+    except Exception:
+        raise HTTPException(status_code=503, detail="Could not verify supervisor access")
+    if not rows:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return x_supervisor_id
 
 
 # ── Request / Response models ──────────────────────────────────────────────
@@ -160,8 +179,9 @@ def onboard(body: OnboardRequest):
     return OnboardResponse(student_id=student_id, mock_mode=MOCK_MODE, role=role)
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-def chat(body: ChatRequest):
+@app.post("/api/chat")
+@limiter.limit("30/minute")
+def chat(request: Request, body: ChatRequest):
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     system_prompt = TUTOR_SYSTEM + "\n\n---\n\n" + _kb()
@@ -173,15 +193,21 @@ def chat(body: ChatRequest):
     except Exception:
         pass
 
-    content = ask(
-        system_prompt=system_prompt,
-        messages=messages,
-        max_tokens=2048,
-        feature="chatbot",
-        model=MODEL,
-    )
+    def sse_stream():
+        try:
+            for chunk in stream_ask(
+                system_prompt=system_prompt,
+                messages=messages,
+                max_tokens=2048,
+                feature="chatbot",
+                model=MODEL,
+            ):
+                yield f"data: {json.dumps({'text': chunk})}\n\n"
+        except Exception:
+            yield f"data: {json.dumps({'text': 'I\'m having trouble reaching the service right now — please try again in a moment.'})}\n\n"
+        yield "data: [DONE]\n\n"
 
-    return ChatResponse(content=content)
+    return StreamingResponse(sse_stream(), media_type="text/event-stream")
 
 
 @app.post("/api/end-session", response_model=EndSessionResponse)
@@ -295,29 +321,41 @@ def get_cases():
     return CasesResponse(cases=cases)
 
 
-@app.post("/api/cases/{case_id}/chat", response_model=CaseChatResponse)
-def case_chat(case_id: str, body: CaseChatRequest):
+@app.post("/api/cases/{case_id}/chat")
+@limiter.limit("30/minute")
+def case_chat(case_id: str, request: Request, body: CaseChatRequest):
     try:
         case = load_case(case_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid case ID")
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
-    response = ask(
-        system_prompt=patient_prompt,
-        messages=messages,
-        max_tokens=2048,
-        feature="case",
-    )
-    return CaseChatResponse(response=response)
+    def sse_stream():
+        try:
+            for chunk in stream_ask(
+                system_prompt=patient_prompt,
+                messages=messages,
+                max_tokens=2048,
+                feature="case",
+            ):
+                yield f"data: {json.dumps({'text': chunk})}\n\n"
+        except Exception:
+            yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(sse_stream(), media_type="text/event-stream")
 
 
 @app.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
 def case_submit(case_id: str, body: CaseSubmitRequest):
     try:
         case = load_case(case_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid case ID")
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
@@ -532,25 +570,25 @@ def checkin_answer(body: CheckinAnswerRequest):
 # ── Supervisor endpoints ───────────────────────────────────────────────────
 
 @app.get("/api/supervisor/cohort", response_model=CohortSummaryResponse)
-def supervisor_cohort():
+def supervisor_cohort(_: str = Depends(_require_supervisor)):
     try:
         result = _cohort_summary()
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch cohort data")
     return CohortSummaryResponse(**result)
 
 
 @app.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
-def supervisor_at_risk():
+def supervisor_at_risk(_: str = Depends(_require_supervisor)):
     try:
         students = _get_at_risk()
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch at-risk data")
     return AtRiskResponse(students=students)
 
 
 @app.get("/api/supervisor/student/{student_id}", response_model=StudentProfileResponse)
-def supervisor_student(student_id: str):
+def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
     import json as _json
     try:
         profile = get_profile(student_id)
@@ -668,12 +706,12 @@ class SupervisorInsightsResponse(BaseModel):
     narrative: str
 
 @app.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
-def supervisor_insights():
+def supervisor_insights(_: str = Depends(_require_supervisor)):
     try:
         cohort = _cohort_summary()
         at_risk = _get_at_risk()
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to fetch cohort insights")
 
     context = (
         f"Cohort size: {cohort.get('total', 0)} students\n"

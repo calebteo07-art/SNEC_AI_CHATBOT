@@ -97,6 +97,43 @@ def _to_gemini_history(messages: list[dict]) -> tuple[list[dict], str]:
     return history, messages[-1]["content"]
 
 
+def stream_ask(
+    system_prompt: str,
+    messages: list[dict],
+    max_tokens: int = 2048,
+    feature: str = "default",
+    model: str | None = None,
+):
+    """Stream a conversation to Gemini, yielding text chunks as they arrive.
+
+    In MOCK_MODE, yields the mock response word-by-word to simulate streaming.
+    """
+    if MOCK_MODE:
+        for word in _mock_response(feature).split(" "):
+            yield word + " "
+        return
+
+    from google import genai as _genai
+
+    history, last_message = _to_gemini_history(messages)
+    contents = [
+        {"role": h["role"], "parts": [{"text": p} if isinstance(p, str) else p for p in h["parts"]]}
+        for h in history
+    ]
+    contents.append({"role": "user", "parts": [{"text": last_message}]})
+
+    for chunk in _client.models.generate_content_stream(
+        model=model or MODEL,
+        config=_genai.types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            max_output_tokens=max_tokens,
+        ),
+        contents=contents,
+    ):
+        if chunk.text:
+            yield chunk.text
+
+
 def ask(
     system_prompt: str,
     messages: list[dict],

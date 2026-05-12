@@ -7,6 +7,7 @@ Usage (from run_case.py):
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -18,7 +19,7 @@ LOCAL_CASES_DIR = PROJECT_ROOT / "cases"
 
 def load_case(case_id: str) -> dict:
     """
-    Load a case by ID. Checks local .tmp/cases/ first, then Google Drive.
+    Load a case by ID. Checks local cases/ first, then Google Drive.
 
     Args:
         case_id: e.g. "case_001_poag"
@@ -26,6 +27,9 @@ def load_case(case_id: str) -> dict:
     Returns:
         Case dict parsed from JSON.
     """
+    if not re.match(r'^[a-zA-Z0-9_-]+$', case_id):
+        raise ValueError(f"Invalid case_id: '{case_id}'")
+
     local_path = LOCAL_CASES_DIR / f"{case_id}.json"
 
     if local_path.exists():
