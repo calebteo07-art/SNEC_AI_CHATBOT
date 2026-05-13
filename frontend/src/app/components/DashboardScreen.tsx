@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut } from "lucide-react";
 import { useAuth } from "./AuthContext";
@@ -42,6 +42,22 @@ export function DashboardScreen() {
         .catch(() => setSuggestion("Review your weakest topics today."));
     }
   }, [user]);
+
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const springX = useSpring(rawX, { stiffness: 60, damping: 25 });
+  const springY = useSpring(rawY, { stiffness: 60, damping: 25 });
+  const imgX = useTransform(springX, [-1, 1], [-16, 16]);
+  const imgY = useTransform(springY, [-1, 1], [-10, 10]);
+
+  React.useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      rawX.set((e.clientX / window.innerWidth) * 2 - 1);
+      rawY.set((e.clientY / window.innerHeight) * 2 - 1);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [rawX, rawY]);
 
   return (
     <div className="min-h-screen aurora-bg relative overflow-hidden">
@@ -136,11 +152,18 @@ export function DashboardScreen() {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
             >
-              <img
-                src="/images/sample_fundus_OD.png"
+              <motion.img
+                src="/anatomy/eye-hero.png"
                 alt=""
-                className="w-full h-full object-cover sepia brightness-105"
-                style={{ filter: "sepia(0.7) brightness(0.95) contrast(1.05) saturate(0.7)" }}
+                className="w-full h-full object-cover"
+                style={{
+                  x: imgX,
+                  y: imgY,
+                  scale: 1.15,
+                  filter: "sepia(0.45) brightness(0.88) contrast(1.12) saturate(0.75)",
+                }}
+                animate={{ scale: [1.15, 1.22, 1.15] }}
+                transition={{ scale: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
               />
               {/* Inner vignette */}
               <div
