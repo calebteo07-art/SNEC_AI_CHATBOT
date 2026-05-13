@@ -180,11 +180,24 @@ export function DashboardScreen() {
         {/* ===== AI Suggestion (if present) ===== */}
         {suggestion && (
           <motion.section
-            className="mb-16 max-w-2xl"
+            className="mb-16 max-w-2xl relative"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
+            <motion.img
+              src="/anatomy/eye-nerve.png"
+              alt="" aria-hidden="true"
+              style={{
+                position: "absolute", top: "50%", left: "-6rem",
+                transform: "translateY(-50%)",
+                width: "18rem", pointerEvents: "none", opacity: 0.08,
+                filter: "sepia(0.4) saturate(0.6)",
+                mixBlendMode: "multiply",
+              }}
+              animate={{ rotate: [0, 3, 0, -3, 0], scale: [1, 1.04, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            />
             <p className="annotation-label mb-3">Today's Directive</p>
             <blockquote
               className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6"

@@ -96,7 +96,35 @@ export function SummaryScreen() {
   }));
 
   return (
-    <div className="min-h-screen aurora-bg">
+    <div className="min-h-screen aurora-bg relative overflow-hidden">
+      {/* Fundus watermark — top right */}
+      <motion.img
+        src="/anatomy/eye-fundus.png"
+        alt="" aria-hidden="true"
+        style={{
+          position: "absolute", top: "5%", right: "-5%",
+          width: "45vw", maxWidth: 420,
+          pointerEvents: "none", opacity: 0.1,
+          filter: "sepia(0.4) saturate(0.7)",
+        }}
+        animate={{ y: [0, -14, 0], rotate: [0, 2, 0, -2, 0] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+      {/* Eye-hero watermark — bottom left */}
+      <motion.img
+        src="/anatomy/eye-hero.png"
+        alt="" aria-hidden="true"
+        style={{
+          position: "absolute", bottom: "10%", left: "-8%",
+          width: "35vw", maxWidth: 320,
+          pointerEvents: "none", opacity: 0.06,
+          filter: "sepia(0.3) saturate(0.5)",
+          mixBlendMode: "multiply",
+        }}
+        animate={{ scale: [1, 1.05, 1], x: [0, 6, 0] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       {/* ===== Top strip ===== */}
       <motion.div
         className="glass-nav sticky top-0 z-30"

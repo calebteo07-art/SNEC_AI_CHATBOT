@@ -49,7 +49,22 @@ export function CaseListScreen() {
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1]">
+    <div className="min-h-screen aurora-bg relative overflow-hidden">
+      {/* Anterior segment watermark */}
+      <motion.img
+        src="/anatomy/eye-anterior.png"
+        alt="" aria-hidden="true"
+        style={{
+          position: "absolute", top: "8rem", right: "-2rem",
+          width: "38vw", maxWidth: 360,
+          pointerEvents: "none", opacity: 0.09,
+          filter: "sepia(0.35) saturate(0.65)",
+          mixBlendMode: "multiply",
+        }}
+        animate={{ y: [0, -10, 0], rotate: [0, 1.5, 0, -1.5, 0] }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+      />
+
       {/* Top strip */}
       <motion.div
         className="glass-nav sticky top-0 z-30"

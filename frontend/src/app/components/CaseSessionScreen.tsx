@@ -452,11 +452,24 @@ export function CaseSessionScreen() {
               role="region"
               aria-label="Evaluation results"
               aria-live="polite"
-              className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6 overflow-y-auto custom-scrollbar"
+              className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6 overflow-y-auto custom-scrollbar relative"
               style={{ maxHeight: "55%" }}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
             >
+              <motion.img
+                src="/anatomy/eye-nerve.png"
+                alt="" aria-hidden="true"
+                style={{
+                  position: "absolute", top: "50%", right: "-4rem",
+                  transform: "translateY(-50%)",
+                  width: "24rem", pointerEvents: "none", opacity: 0.08,
+                  filter: "sepia(0.35) saturate(0.6)",
+                  mixBlendMode: "multiply",
+                }}
+                animate={{ y: [0, -8, 0], scale: [1, 1.04, 1] }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              />
               <div className="flex items-baseline justify-between mb-6">
                 <p className="annotation-label">Evaluation</p>
                 <span
