@@ -547,10 +547,8 @@ def checkin_question(student_id: str):
 def checkin_answer(body: CheckinAnswerRequest):
     system = (
         "You are an ophthalmology tutor evaluating a warm-up answer. "
-        "Respond in this exact format:\n"
-        "CORRECT: true or false\n"
-        "FEEDBACK: one sentence — confirm correct answer or correct the error, plus one line why it matters.\n"
-        "Do not use markdown."
+        "Return ONLY valid JSON with no other text:\n"
+        '{"correct": true or false, "feedback": "<one sentence confirming or correcting the answer, and one line on why it matters clinically>"}'
     )
     raw = ask(
         system_prompt=system,
@@ -565,9 +563,18 @@ def checkin_answer(body: CheckinAnswerRequest):
         feature="checkin",
     )
 
-    correct = "true" in raw.lower().split("correct:")[-1][:10]
-    feedback_parts = raw.split("FEEDBACK:")
-    feedback = feedback_parts[-1].strip() if len(feedback_parts) > 1 else raw.strip()
+    text = raw.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+    try:
+        parsed = json.loads(text)
+        correct = bool(parsed.get("correct", False))
+        feedback = str(parsed.get("feedback", raw.strip()))
+    except Exception:
+        correct = "true" in raw.lower().split("correct:")[-1][:10]
+        feedback_parts = raw.split("FEEDBACK:")
+        feedback = feedback_parts[-1].strip() if len(feedback_parts) > 1 else raw.strip()
 
     try:
         update_profile(body.student_id, checkin_done=True)
