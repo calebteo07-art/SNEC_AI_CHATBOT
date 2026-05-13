@@ -65,6 +65,13 @@ export function saveUserProgress(progress: UserProgress) {
   localStorage.setItem("eyeq_progress", JSON.stringify(progress));
 }
 
+export function syncStreakFromBackend(backendStreak: number): void {
+  const progress = getUserProgress();
+  if (backendStreak > progress.streak) {
+    saveUserProgress({ ...progress, streak: backendStreak });
+  }
+}
+
 export function addXP(amount: number): { newXP: number; leveledUp: boolean; newLevel: number } {
   const progress = getUserProgress();
   const oldLevel = progress.level;

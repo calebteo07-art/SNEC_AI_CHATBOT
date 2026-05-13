@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { Flame, Check, X, ArrowRight } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { syncStreakFromBackend } from "../utils/gamification";
 
 type Phase = "loading" | "question" | "result";
 
@@ -32,8 +33,10 @@ export function DailyCheckInScreen() {
       try {
         const statusRes = await fetch(`/api/checkin/status?student_id=${studentId}`);
         const status = await statusRes.json();
-        setStreak(status.streak ?? 0);
+        const backendStreak = status.streak ?? 0;
+        setStreak(backendStreak);
         setWeakTopic(status.weak_topic ?? null);
+        syncStreakFromBackend(backendStreak);
 
         const qRes = await fetch(`/api/checkin/question?student_id=${studentId}`);
         const q = await qRes.json();

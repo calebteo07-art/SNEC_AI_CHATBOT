@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -33,16 +33,20 @@ export function CaseListScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchCases = useCallback(() => {
+    setError(null);
+    setLoading(true);
     fetch("/api/cases")
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
       })
       .then((data) => setCases(data.cases))
-      .catch(() => setError("We couldn't load the cases. Please check that the service is running."))
+      .catch(() => setError("We couldn't load the cases. Please try again."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { fetchCases(); }, [fetchCases]);
 
   return (
     <div className="min-h-screen bg-[#FBF8F1]">
@@ -123,9 +127,18 @@ export function CaseListScreen() {
 
         {/* Error */}
         {error && (
-          <div className="mt-10 flex items-center gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]">
-            <AlertCircle size={16} strokeWidth={1.5} />
-            <span style={{ fontSize: "0.9rem" }}>{error}</span>
+          <div className="mt-10 flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]">
+            <div className="flex items-center gap-3">
+              <AlertCircle size={16} strokeWidth={1.5} aria-hidden="true" />
+              <span style={{ fontSize: "0.9rem" }}>{error}</span>
+            </div>
+            <button
+              onClick={fetchCases}
+              className="flex-shrink-0 text-[#8B2D2D] underline underline-offset-2 hover:opacity-70 transition-opacity"
+              style={{ fontSize: "0.88rem", fontWeight: 500 }}
+            >
+              Try again
+            </button>
           </div>
         )}
 
