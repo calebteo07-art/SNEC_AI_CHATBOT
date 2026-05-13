@@ -135,8 +135,8 @@ export function DailyCheckInScreen() {
 
           {/* Loading */}
           {phase === "loading" && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-10 h-10 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+            <div className="flex flex-col items-center justify-center py-20" role="status" aria-label="Loading question">
+              <div className="w-10 h-10 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" aria-hidden="true" />
               <p className="mt-5 text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>
                 Preparing your question…
               </p>
@@ -165,7 +165,9 @@ export function DailyCheckInScreen() {
                   {question.question}
                 </p>
 
+                <label htmlFor="checkin-answer" className="sr-only">Your answer</label>
                 <textarea
+                  id="checkin-answer"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="Write your answer here…"
@@ -181,17 +183,19 @@ export function DailyCheckInScreen() {
                   <motion.button
                     onClick={handleSubmit}
                     disabled={!answer.trim() || submitting}
+                    aria-busy={submitting}
+                    aria-label={submitting ? "Submitting answer" : "Submit answer"}
                     className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#1F1A12] text-[#FBF8F1] disabled:opacity-40 transition-all"
                     style={{ fontWeight: 500, fontSize: "0.95rem", letterSpacing: "0.02em" }}
                     whileHover={{ y: -1 }}
                     whileTap={{ y: 0 }}
                   >
                     {submitting ? (
-                      <div className="w-4 h-4 border-2 border-[#FBF8F1] border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-[#FBF8F1] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
                     ) : (
                       <>
                         Submit answer
-                        <ArrowRight size={16} strokeWidth={1.5} />
+                        <ArrowRight size={16} strokeWidth={1.5} aria-hidden="true" />
                       </>
                     )}
                   </motion.button>
@@ -228,11 +232,12 @@ export function DailyCheckInScreen() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", damping: 14 }}
+                  aria-label={correct ? "Correct" : "Incorrect"}
                 >
                   {correct ? (
-                    <Check size={26} strokeWidth={1.5} className="text-[#4F6B3D]" />
+                    <Check size={26} strokeWidth={1.5} className="text-[#4F6B3D]" aria-hidden="true" />
                   ) : (
-                    <X size={26} strokeWidth={1.5} className="text-[#8B2D2D]" />
+                    <X size={26} strokeWidth={1.5} className="text-[#8B2D2D]" aria-hidden="true" />
                   )}
                 </motion.div>
 

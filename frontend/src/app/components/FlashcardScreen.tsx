@@ -333,19 +333,24 @@ export function FlashcardScreen() {
           <button
             onClick={goToPrev}
             disabled={currentIndex === 0 || animating}
+            aria-label="Previous card"
             className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
               currentIndex === 0 || animating
                 ? "border-[#1F1A12]/8 text-[#A39A8E]/40 cursor-not-allowed"
                 : "border-[#1F1A12]/12 text-[#5C544A] hover:border-[#8C6D3F]/40 hover:text-[#8C6D3F] hover:bg-white"
             }`}
           >
-            <ChevronLeft size={16} strokeWidth={1.5} />
+            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
           </button>
 
           {/* The Card */}
           <div className="flex-1" style={{ perspective: "1800px" }}>
             <motion.div
               onClick={flipCard}
+              role="button"
+              tabIndex={0}
+              aria-label={isFlipped ? "Flip card back to question" : "Flip card to reveal answer"}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flipCard(); } }}
               className="relative cursor-pointer"
               style={{ transformStyle: "preserve-3d", minHeight: "440px" }}
               animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -456,13 +461,14 @@ export function FlashcardScreen() {
           <button
             onClick={goToNext}
             disabled={currentIndex === FLASHCARDS.length - 1 || animating}
+            aria-label="Next card"
             className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
               currentIndex === FLASHCARDS.length - 1 || animating
                 ? "border-[#1F1A12]/8 text-[#A39A8E]/40 cursor-not-allowed"
                 : "border-[#1F1A12]/12 text-[#5C544A] hover:border-[#8C6D3F]/40 hover:text-[#8C6D3F] hover:bg-white"
             }`}
           >
-            <ChevronRight size={16} strokeWidth={1.5} />
+            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
 
@@ -476,7 +482,9 @@ export function FlashcardScreen() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}
             >
+              <label htmlFor="recall-attempt" className="sr-only">Your answer (optional)</label>
               <textarea
+                id="recall-attempt"
                 value={userAttempt}
                 onChange={(e) => setUserAttempt(e.target.value)}
                 placeholder="Optional · think it through before revealing"
@@ -498,10 +506,10 @@ export function FlashcardScreen() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="glass-card p-6">
+              <div className="glass-card p-6" aria-live="polite" aria-atomic="true">
                 {aiChecking ? (
-                  <div className="flex items-center gap-3 text-[#5C544A]" style={{ fontSize: "0.88rem" }}>
-                    <div className="w-3 h-3 border-2 border-[#8C6D3F] border-t-transparent rounded-full animate-spin" />
+                  <div className="flex items-center gap-3 text-[#5C544A]" role="status" style={{ fontSize: "0.88rem" }}>
+                    <div className="w-3 h-3 border-2 border-[#8C6D3F] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
                     The tutor is reviewing your answer…
                   </div>
                 ) : aiFeedback ? (
@@ -542,6 +550,7 @@ export function FlashcardScreen() {
                   e.stopPropagation();
                   handleRating(rating.value);
                 }}
+                aria-label={`Rate recall: ${rating.label} — ${rating.caption}`}
                 className="glass-card p-4 text-center group transition-all"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}

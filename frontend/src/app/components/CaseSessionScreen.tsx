@@ -232,13 +232,16 @@ export function CaseSessionScreen() {
         {/* Mobile: patient info toggle */}
         <button
           onClick={() => setSidebarOpen((v) => !v)}
+          aria-expanded={sidebarOpen}
+          aria-controls="patient-panel"
+          aria-label={sidebarOpen ? "Hide patient information" : "Show patient information"}
           className="md:hidden inline-flex items-center gap-1.5 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
         >
-          {sidebarOpen ? <XIcon size={15} strokeWidth={1.5} /> : <Menu size={15} strokeWidth={1.5} />}
+          {sidebarOpen ? <XIcon size={15} strokeWidth={1.5} aria-hidden="true" /> : <Menu size={15} strokeWidth={1.5} aria-hidden="true" />}
           <span style={{ fontSize: "0.82rem" }}>Patient</span>
         </button>
         <div className="flex items-center gap-3 mx-auto">
-          <HolographicEyeLogo size={26} animated={false} />
+          <HolographicEyeLogo size={26} animated={false} aria-hidden="true" />
           <span
             className="text-[#1F1A12] truncate max-w-[140px] sm:max-w-none"
             style={{
@@ -269,6 +272,7 @@ export function CaseSessionScreen() {
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
+              id="patient-panel"
               className="md:hidden flex-shrink-0 border-b border-[#1F1A12]/8 bg-white/60 overflow-y-auto"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -399,12 +403,14 @@ export function CaseSessionScreen() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
                   <div>
                     <label
+                      htmlFor="case-diagnosis-input"
                       className="block text-[#A39A8E] mb-2"
                       style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
                     >
                       Diagnosis
                     </label>
                     <textarea
+                      id="case-diagnosis-input"
                       value={diagnosis}
                       onChange={(e) => setDiagnosis(e.target.value)}
                       placeholder="State your diagnosis…"
@@ -415,12 +421,14 @@ export function CaseSessionScreen() {
                   </div>
                   <div>
                     <label
+                      htmlFor="case-management-input"
                       className="block text-[#A39A8E] mb-2"
                       style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
                     >
                       Management plan
                     </label>
                     <textarea
+                      id="case-management-input"
                       value={managementPlan}
                       onChange={(e) => setManagementPlan(e.target.value)}
                       placeholder="Outline your management plan…"
@@ -448,6 +456,9 @@ export function CaseSessionScreen() {
           {/* Results */}
           {result && (
             <motion.div
+              role="region"
+              aria-label="Evaluation results"
+              aria-live="polite"
               className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6 overflow-y-auto custom-scrollbar"
               style={{ maxHeight: "55%" }}
               initial={{ opacity: 0, y: -8 }}
@@ -606,9 +617,9 @@ export function CaseSessionScreen() {
             })}
 
             {sending && (
-              <div className="flex gap-4 items-center">
-                <HolographicEyeLogo size={26} animated={true} />
-                <div className="flex gap-1 items-center">
+              <div className="flex gap-4 items-center" role="status" aria-label="Patient is responding">
+                <HolographicEyeLogo size={26} animated={true} aria-hidden="true" />
+                <div className="flex gap-1 items-center" aria-hidden="true">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
@@ -630,7 +641,9 @@ export function CaseSessionScreen() {
                 <div className="flex-1 bg-white border border-[#1F1A12]/10 rounded-2xl overflow-hidden focus-within:border-[#8C6D3F]/40 transition-all"
                   style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04)" }}
                 >
+                  <label htmlFor="case-chat-input" className="sr-only">Ask the patient a question</label>
                   <textarea
+                    id="case-chat-input"
                     ref={inputRef}
                     value={input}
                     onChange={(e) => {
@@ -648,6 +661,7 @@ export function CaseSessionScreen() {
                 <motion.button
                   onClick={sendMessage}
                   disabled={!input.trim() || sending || isStreaming}
+                  aria-label="Send question"
                   className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all ${
                     input.trim() && !sending && !isStreaming
                       ? "bg-[#8C6D3F] text-[#FBF8F1]"
@@ -656,7 +670,7 @@ export function CaseSessionScreen() {
                   whileHover={input.trim() && !sending && !isStreaming ? { scale: 1.05 } : undefined}
                   whileTap={input.trim() && !sending && !isStreaming ? { scale: 0.95 } : undefined}
                 >
-                  <Send size={15} strokeWidth={1.5} />
+                  <Send size={15} strokeWidth={1.5} aria-hidden="true" />
                 </motion.button>
               </div>
             </div>

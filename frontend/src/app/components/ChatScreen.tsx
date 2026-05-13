@@ -49,7 +49,7 @@ function AIBubble({ message, isStreaming }: { message: AIMessage; isStreaming?: 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex-shrink-0 mt-1">
+      <div className="flex-shrink-0 mt-1" aria-hidden="true">
         <HolographicEyeLogo size={28} animated={isStreaming} />
       </div>
       <div className="flex-1 max-w-[680px]">
@@ -318,7 +318,7 @@ export function ChatScreen() {
 
       {/* ===== Conversation stream ===== */}
       <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32">
-        <div className="space-y-10">
+        <div className="space-y-10" role="log" aria-live="polite" aria-atomic="false" aria-label="Conversation">
           {messages.map((msg) =>
             msg.type === "ai" ? (
               <AIBubble key={msg.id} message={msg} isStreaming={msg.id === streamingId} />
@@ -332,11 +332,13 @@ export function ChatScreen() {
               className="flex gap-5 items-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              aria-label="Tutor is typing"
+              role="status"
             >
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0" aria-hidden="true">
                 <HolographicEyeLogo size={28} animated={true} />
               </div>
-              <div className="flex gap-1 items-center">
+              <div className="flex gap-1 items-center" aria-hidden="true">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
@@ -364,7 +366,9 @@ export function ChatScreen() {
             style={{ borderRadius: "1.5rem" }}
           >
             <div className="flex items-end gap-2 p-3">
+              <label htmlFor="chat-message-input" className="sr-only">Message</label>
               <textarea
+                id="chat-message-input"
                 ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
@@ -377,6 +381,7 @@ export function ChatScreen() {
               <motion.button
                 onClick={sendMessage}
                 disabled={!input.trim() || isTyping || !!streamingId}
+                aria-label="Send message"
                 className={`w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
                   input.trim() && !isTyping && !streamingId
                     ? "bg-[#8C6D3F] text-[#FBF8F1]"
@@ -385,7 +390,7 @@ export function ChatScreen() {
                 whileHover={input.trim() && !isTyping && !streamingId ? { scale: 1.05 } : undefined}
                 whileTap={input.trim() && !isTyping && !streamingId ? { scale: 0.95 } : undefined}
               >
-                <Send size={15} strokeWidth={1.5} />
+                <Send size={15} strokeWidth={1.5} aria-hidden="true" />
               </motion.button>
             </div>
           </div>

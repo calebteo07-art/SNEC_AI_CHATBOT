@@ -159,12 +159,12 @@ export function DashboardScreen() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <p
+            <h2
               className="text-[#8C6D3F] mb-3"
               style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
             >
-              · A suggestion for today
-            </p>
+              A suggestion for today
+            </h2>
             <blockquote
               className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6"
               style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", lineHeight: 1.5 }}
@@ -209,11 +209,12 @@ export function DashboardScreen() {
                 whileHover={{ y: -1 }}
               >
                 <div className="flex items-start justify-between mb-10">
-                  <Icon size={22} strokeWidth={1.25} className="text-[#8C6D3F]" />
+                  <Icon size={22} strokeWidth={1.25} className="text-[#8C6D3F]" aria-hidden="true" />
                   <ArrowUpRight
                     size={16}
                     strokeWidth={1.25}
                     className="text-[#A39A8E] group-hover:text-[#8C6D3F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                    aria-hidden="true"
                   />
                 </div>
                 <h3
