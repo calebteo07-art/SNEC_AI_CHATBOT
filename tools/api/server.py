@@ -203,6 +203,11 @@ def chat(request: Request, body: ChatRequest):
                 model=MODEL,
             ):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
+        except RuntimeError as exc:
+            if "quota_exceeded" in str(exc):
+                yield f"data: {json.dumps({'text': 'API quota reached for today — the service resets at midnight. In the meantime, the tutor is running in practice mode.', 'quota_exceeded': True})}\n\n"
+            else:
+                yield f"data: {json.dumps({'text': 'I\'m having trouble reaching the service right now — please try again in a moment.'})}\n\n"
         except Exception:
             yield f"data: {json.dumps({'text': 'I\'m having trouble reaching the service right now — please try again in a moment.'})}\n\n"
         yield "data: [DONE]\n\n"
@@ -343,6 +348,11 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest):
                 feature="case",
             ):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
+        except RuntimeError as exc:
+            if "quota_exceeded" in str(exc):
+                yield f"data: {json.dumps({'text': '(API quota reached for today — case simulation will resume tomorrow.)', 'quota_exceeded': True})}\n\n"
+            else:
+                yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
         except Exception:
             yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
         yield "data: [DONE]\n\n"
@@ -592,8 +602,8 @@ def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
     import json as _json
     try:
         profile = get_profile(student_id)
-    except Exception as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=404, detail="Student not found")
 
     try:
         return StudentProfileResponse(
@@ -607,8 +617,8 @@ def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
             learning_velocity=profile.get("learning_velocity", "stable"),
             checkin_done_today=str(profile.get("checkin_done_today", "false")).lower() == "true",
         )
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # ── Flashcard AI check ─────────────────────────────────────────────────────

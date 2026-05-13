@@ -122,16 +122,22 @@ def stream_ask(
     ]
     contents.append({"role": "user", "parts": [{"text": last_message}]})
 
-    for chunk in _client.models.generate_content_stream(
-        model=model or MODEL,
-        config=_genai.types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            max_output_tokens=max_tokens,
-        ),
-        contents=contents,
-    ):
-        if chunk.text:
-            yield chunk.text
+    try:
+        for chunk in _client.models.generate_content_stream(
+            model=model or MODEL,
+            config=_genai.types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                max_output_tokens=max_tokens,
+            ),
+            contents=contents,
+        ):
+            if chunk.text:
+                yield chunk.text
+    except Exception as exc:
+        msg = str(exc)
+        if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
+            raise RuntimeError("quota_exceeded") from exc
+        raise
 
 
 def ask(
