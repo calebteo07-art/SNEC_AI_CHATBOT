@@ -6,6 +6,7 @@ import { AtRiskTable } from "./AtRiskTable";
 import { StudentDrillDown } from "./StudentDrillDown";
 import { Users, AlertTriangle, Activity, LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useAuth } from "./AuthContext";
 
 const API = "";
 
@@ -27,6 +28,7 @@ interface AtRiskStudent {
 
 export function SupervisorDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskStudent[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
@@ -35,9 +37,11 @@ export function SupervisorDashboard() {
   const [insights, setInsights] = useState<string | null>(null);
 
   useEffect(() => {
+    const supervisorHeaders = { "X-Supervisor-ID": user?.studentId || "" };
+
     Promise.all([
-      fetch(`${API}/api/supervisor/cohort`).then((r) => r.json()),
-      fetch(`${API}/api/supervisor/at-risk`).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/cohort`, { headers: supervisorHeaders }).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/at-risk`, { headers: supervisorHeaders }).then((r) => r.json()),
     ])
       .then(([cohortData, atRiskData]) => {
         setCohort(cohortData);
@@ -49,11 +53,11 @@ export function SupervisorDashboard() {
         setLoading(false);
       });
 
-    fetch(`${API}/api/supervisor/insights`)
+    fetch(`${API}/api/supervisor/insights`, { headers: supervisorHeaders })
       .then((r) => r.json())
       .then((data) => setInsights(data.narrative))
       .catch(() => null);
-  }, []);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-[#FBF8F1]">

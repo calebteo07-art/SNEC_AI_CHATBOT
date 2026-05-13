@@ -245,7 +245,7 @@ export function FlashcardScreen() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-4xl mx-auto px-8 h-16 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
           <button
             onClick={() => navigate("/dashboard")}
             className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
@@ -280,7 +280,7 @@ export function FlashcardScreen() {
       </motion.div>
 
       {/* ===== Topic + progress meta ===== */}
-      <div className="max-w-4xl w-full mx-auto px-8 pt-12 pb-2">
+      <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-8 sm:pt-12 pb-2">
         <div className="flex items-end justify-between mb-6">
           <div>
             <p

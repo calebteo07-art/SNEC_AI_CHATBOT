@@ -38,7 +38,7 @@ export function DashboardScreen() {
       fetch(`/api/study-suggestion?student_id=${user.studentId}`)
         .then((r) => r.json())
         .then((data) => setSuggestion(data.suggestion))
-        .catch(() => null);
+        .catch(() => setSuggestion("Review your weakest topics today."));
     }
   }, [user]);
 
@@ -51,7 +51,7 @@ export function DashboardScreen() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-6xl mx-auto px-8 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <HolographicEyeLogo size={32} animated />
             <span
@@ -77,7 +77,7 @@ export function DashboardScreen() {
         </div>
       </motion.div>
 
-      <div className="max-w-6xl mx-auto px-8 py-16 relative">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-16 relative">
         {/* ===== Editorial hero: greeting + eye medallion ===== */}
         <motion.section
           className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20 items-center"
@@ -167,7 +167,7 @@ export function DashboardScreen() {
             </p>
             <blockquote
               className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6"
-              style={{ fontSize: "1.4rem", lineHeight: 1.5 }}
+              style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", lineHeight: 1.5 }}
             >
               "{suggestion}"
             </blockquote>
@@ -239,7 +239,7 @@ export function DashboardScreen() {
         </motion.section>
 
         {/* ===== Quiet footer ===== */}
-        <div className="mt-24 pt-8 border-t border-[#1F1A12]/8 flex items-center justify-between text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
+        <div className="mt-16 sm:mt-24 pt-8 border-t border-[#1F1A12]/8 flex flex-wrap items-center justify-between gap-2 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
           <span style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
             Singapore National Eye Centre
           </span>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import {
   Send, User, ArrowLeft, CheckSquare, AlertCircle,
-  Layers, ChevronDown, ChevronUp,
+  Layers, ChevronDown, ChevronUp, Menu, X as XIcon,
 } from "lucide-react";
 
 interface CaseInfo {
@@ -61,6 +61,8 @@ export function CaseSessionScreen() {
   const [cards, setCards] = useState<unknown[]>([]);
   const [debrief, setDebrief] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -219,18 +221,26 @@ export function CaseSessionScreen() {
   return (
     <div className="h-screen bg-[#FBF8F1] flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="flex-shrink-0 flex items-center gap-4 px-8 h-16 border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm">
+      <div className="flex-shrink-0 flex items-center gap-2 sm:gap-4 px-4 sm:px-8 h-16 border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm">
         <button
           onClick={() => navigate("/cases")}
           className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
         >
           <ArrowLeft size={15} strokeWidth={1.5} />
-          Cases
+          <span className="hidden sm:inline">Cases</span>
+        </button>
+        {/* Mobile: patient info toggle */}
+        <button
+          onClick={() => setSidebarOpen((v) => !v)}
+          className="md:hidden inline-flex items-center gap-1.5 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
+        >
+          {sidebarOpen ? <XIcon size={15} strokeWidth={1.5} /> : <Menu size={15} strokeWidth={1.5} />}
+          <span style={{ fontSize: "0.82rem" }}>Patient</span>
         </button>
         <div className="flex items-center gap-3 mx-auto">
           <HolographicEyeLogo size={26} animated={false} />
           <span
-            className="text-[#1F1A12]"
+            className="text-[#1F1A12] truncate max-w-[140px] sm:max-w-none"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "0.98rem",
@@ -244,19 +254,63 @@ export function CaseSessionScreen() {
         {!result && (
           <button
             onClick={() => setShowSubmitForm((v) => !v)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6D3F]/8 border border-[#8C6D3F]/25 text-[#8C6D3F] hover:bg-[#8C6D3F]/12 transition-all"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full bg-[#8C6D3F]/8 border border-[#8C6D3F]/25 text-[#8C6D3F] hover:bg-[#8C6D3F]/12 transition-all flex-shrink-0"
             style={{ fontSize: "0.82rem", fontWeight: 500 }}
           >
             <CheckSquare size={13} strokeWidth={1.5} />
-            Submit answer
+            <span className="hidden sm:inline">Submit answer</span>
             {showSubmitForm ? <ChevronUp size={12} strokeWidth={1.5} /> : <ChevronDown size={12} strokeWidth={1.5} />}
           </button>
         )}
       </div>
 
-      <div className="flex flex-1 min-h-0">
-        {/* Patient sidebar */}
-        <div className="w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex flex-col overflow-y-auto bg-white/40">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+        {/* Mobile collapsible patient panel */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              className="md:hidden flex-shrink-0 border-b border-[#1F1A12]/8 bg-white/60 overflow-y-auto"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="px-4 py-5">
+                <p
+                  className="text-[#8C6D3F] mb-4"
+                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+                >
+                  · Patient
+                </p>
+                {caseInfo ? (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 400 }}>
+                        {caseInfo.patient.name}
+                      </p>
+                      <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>{caseInfo.patient.age} years old</p>
+                    </div>
+                    <div>
+                      <p className="text-[#A39A8E] mb-1" style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Presents with</p>
+                      <p className="text-[#1F1A12] italic-display" style={{ fontSize: "0.95rem", lineHeight: 1.5 }}>"{caseInfo.patient.presenting_complaint}"</p>
+                    </div>
+                    <div>
+                      <p className="text-[#A39A8E] mb-1" style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Topic</p>
+                      <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>{caseInfo.topic}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">{[80, 60, 90].map((w, i) => (
+                    <div key={i} className="h-3 rounded bg-[#1F1A12]/6 animate-pulse" style={{ width: `${w}%` }} />
+                  ))}</div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Desktop sidebar */}
+        <div className="hidden md:flex w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex-col overflow-y-auto bg-white/40">
           <div className="p-8">
             <p
               className="text-[#8C6D3F] mb-5"
@@ -330,7 +384,7 @@ export function CaseSessionScreen() {
           <AnimatePresence>
             {showSubmitForm && !result && (
               <motion.div
-                className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-8 py-6"
+                className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
@@ -342,7 +396,7 @@ export function CaseSessionScreen() {
                 >
                   · Submit answer
                 </p>
-                <div className="grid grid-cols-2 gap-6 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
                   <div>
                     <label
                       className="block text-[#A39A8E] mb-2"
@@ -394,7 +448,7 @@ export function CaseSessionScreen() {
           {/* Results */}
           {result && (
             <motion.div
-              className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-8 py-6 overflow-y-auto custom-scrollbar"
+              className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6 overflow-y-auto custom-scrollbar"
               style={{ maxHeight: "55%" }}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -414,7 +468,7 @@ export function CaseSessionScreen() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 {DOMAINS.map(({ label, scoreKey, feedbackKey }) => {
                   const score = result[scoreKey] as number;
                   return (
@@ -487,7 +541,7 @@ export function CaseSessionScreen() {
           )}
 
           {/* Chat messages */}
-          <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 sm:py-8 space-y-6 custom-scrollbar">
             {messages.length === 0 && !sending && (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center max-w-sm">
@@ -571,7 +625,7 @@ export function CaseSessionScreen() {
 
           {/* Input */}
           {!result && (
-            <div className="flex-shrink-0 border-t border-[#1F1A12]/8 px-8 py-6 bg-[#FBF8F1]">
+            <div className="flex-shrink-0 border-t border-[#1F1A12]/8 px-4 sm:px-8 py-4 sm:py-6 bg-[#FBF8F1]">
               <div className="flex gap-3 items-end max-w-3xl mx-auto">
                 <div className="flex-1 bg-white border border-[#1F1A12]/10 rounded-2xl overflow-hidden focus-within:border-[#8C6D3F]/40 transition-all"
                   style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04)" }}

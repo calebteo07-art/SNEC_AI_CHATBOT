@@ -261,7 +261,7 @@ export function ChatScreen() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-3xl mx-auto px-8 h-16 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
           <button
             onClick={() => navigate("/dashboard")}
             className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
@@ -299,7 +299,7 @@ export function ChatScreen() {
       </motion.div>
 
       {/* ===== Topic / context strip ===== */}
-      <div className="max-w-3xl w-full mx-auto px-8 pt-10 pb-2">
+      <div className="max-w-3xl w-full mx-auto px-4 sm:px-8 pt-10 pb-2">
         <div className="flex items-center justify-between">
           <p
             className="text-[#8C6D3F]"
@@ -317,7 +317,7 @@ export function ChatScreen() {
       </div>
 
       {/* ===== Conversation stream ===== */}
-      <div className="flex-1 max-w-3xl w-full mx-auto px-8 pt-8 pb-32">
+      <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32">
         <div className="space-y-10">
           {messages.map((msg) =>
             msg.type === "ai" ? (
@@ -354,8 +354,11 @@ export function ChatScreen() {
       </div>
 
       {/* ===== Composer ===== */}
-      <div className="fixed bottom-0 inset-x-0 bg-gradient-to-t from-[#FBF8F1] via-[#FBF8F1] to-transparent pt-10 pb-8 z-20">
-        <div className="max-w-3xl mx-auto px-8">
+      <div
+        className="fixed bottom-0 inset-x-0 bg-gradient-to-t from-[#FBF8F1] via-[#FBF8F1] to-transparent pt-10 z-20"
+        style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="max-w-3xl mx-auto px-4 sm:px-8">
           <div
             className="relative glass-card iri-border rounded-3xl transition-all"
             style={{ borderRadius: "1.5rem" }}

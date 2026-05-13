@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { toast } from "sonner";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { Flame, Check, X, ArrowRight } from "lucide-react";
 import { useAuth } from "./AuthContext";
@@ -65,7 +66,7 @@ export function DailyCheckInScreen() {
       setCheckInDone(true);
       setPhase("result");
     } catch {
-      setFeedback("We couldn't reach the service. Please try again.");
+      toast.error("Couldn't submit answer — please try again.");
     } finally {
       setSubmitting(false);
     }
