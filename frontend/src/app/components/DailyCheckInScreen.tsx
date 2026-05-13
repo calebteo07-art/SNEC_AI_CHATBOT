@@ -78,7 +78,18 @@ export function DailyCheckInScreen() {
   return (
     <div className="min-h-screen aurora-bg flex items-center justify-center px-6 py-16 relative overflow-hidden">
       {/* Anatomy watermark */}
-      <img src="/anatomy/eye-medallion.png" alt="" aria-hidden="true" className="anatomy-hero left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-w-sm" />
+      <motion.img
+        src="/anatomy/eye-medallion.png"
+        alt=""
+        aria-hidden="true"
+        className="anatomy-hero left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-w-sm"
+        style={{ pointerEvents: "none" }}
+        animate={{ rotate: [0, 360], y: [0, -8, 0] }}
+        transition={{
+          rotate: { duration: 60, repeat: Infinity, ease: "linear" },
+          y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+        }}
+      />
       <motion.div
         className="w-full max-w-xl relative z-10 screen-reveal"
         initial={{ opacity: 0, y: 20 }}

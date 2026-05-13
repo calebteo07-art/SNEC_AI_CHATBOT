@@ -198,11 +198,14 @@ export function DashboardScreen() {
         {/* ===== Practice modes ===== */}
         <section className="relative">
           {/* Anatomy watermark behind cards */}
-          <img
+          <motion.img
             src="/anatomy/eye-hero.png"
             alt=""
             aria-hidden="true"
             className="anatomy-hero right-0 top-1/2 -translate-y-1/2 w-[40%] max-w-xs"
+            style={{ pointerEvents: "none" }}
+            animate={{ y: [0, -10, 0], rotate: [0, 1.5, 0, -1.5, 0] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
           />
 
           <motion.div

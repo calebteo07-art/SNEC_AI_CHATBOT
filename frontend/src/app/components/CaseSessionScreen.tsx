@@ -318,12 +318,14 @@ export function CaseSessionScreen() {
           <div className="p-8">
             {/* Anatomy diagram */}
             <div className="relative h-32 mb-6 overflow-hidden rounded-xl">
-              <img
+              <motion.img
                 src="/anatomy/eye-labeled.png"
                 alt=""
                 aria-hidden="true"
                 className="w-full h-full object-cover anatomy-hero"
                 style={{ position: "relative", opacity: 0.28 }}
+                animate={{ scale: [1, 1.05, 1], y: [0, -5, 0] }}
+                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/70" />
             </div>

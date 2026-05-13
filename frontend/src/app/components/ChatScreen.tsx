@@ -312,7 +312,31 @@ export function ChatScreen() {
       {/* ===== Conversation stream ===== */}
       <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32 relative">
         {/* Anatomy watermark */}
-        <img src="/anatomy/eye-hero.png" alt="" aria-hidden="true" className="anatomy-hero right-0 top-1/2 -translate-y-1/2 w-1/2 max-w-[280px]" style={{ opacity: 0.07 }} />
+        <motion.img
+          src="/anatomy/eye-hero.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            width: "40vw",
+            maxWidth: 320,
+            opacity: 0.07,
+            pointerEvents: "none",
+            zIndex: 0,
+            top: "50%",
+            left: "50%",
+            translateX: "-50%",
+            translateY: "-50%",
+            filter: "sepia(0.3) saturate(0.6)",
+          }}
+          animate={{
+            x: ["0%", "35vw", "20vw", "-30vw", "-20vw", "0%"],
+            y: ["0%", "-25vh", "30vh", "20vh", "-30vh", "0%"],
+            rotate: [0, 8, -5, 12, -8, 0],
+            scale: [1, 1.08, 0.95, 1.05, 0.98, 1],
+          }}
+          transition={{ duration: 40, repeat: Infinity, ease: "easeInOut" }}
+        />
         <div className="space-y-10" role="log" aria-live="polite" aria-atomic="false" aria-label="Conversation">
           {messages.map((msg) =>
             msg.type === "ai" ? (

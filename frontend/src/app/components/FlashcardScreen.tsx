@@ -369,12 +369,14 @@ export function FlashcardScreen() {
 
                 {/* Anatomy header strip */}
                 <div className="relative h-24 my-4 overflow-hidden rounded-xl">
-                  <img
+                  <motion.img
                     src="/anatomy/eye-flashcard.png"
                     alt=""
                     aria-hidden="true"
                     className="w-full h-full object-cover anatomy-hero"
                     style={{ position: "relative", opacity: 0.22 }}
+                    animate={{ scale: [1, 1.06, 1], x: [0, 8, 0, -8, 0] }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60" />
                 </div>
