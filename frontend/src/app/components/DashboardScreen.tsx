@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { cardContainerVariants, cardItemVariants } from "../utils/motionVariants";
 
 const MODES = [
   {
@@ -53,9 +54,11 @@ export function DashboardScreen() {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <HolographicEyeLogo size={32} animated />
+            <div className="glass-editorial rounded-full p-1.5">
+              <HolographicEyeLogo size={28} animated />
+            </div>
             <span
-              className="text-[#1F1A12]"
+              className="holo-text-subtle"
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: "1.3rem",
@@ -159,12 +162,7 @@ export function DashboardScreen() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
           >
-            <h2
-              className="text-[#8C6D3F] mb-3"
-              style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              A suggestion for today
-            </h2>
+            <p className="annotation-label mb-3">Today's Directive</p>
             <blockquote
               className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6"
               style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", lineHeight: 1.5 }}
@@ -175,69 +173,81 @@ export function DashboardScreen() {
         )}
 
         {/* ===== Practice modes ===== */}
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-        >
-          <div className="flex items-baseline justify-between mb-8">
-            <h2
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.75rem",
-                fontWeight: 400,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Practice
-            </h2>
-            <p className="text-[#A39A8E]" style={{ fontSize: "0.78rem", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-              Three paths
-            </p>
-          </div>
+        <section className="relative">
+          {/* Anatomy watermark behind cards */}
+          <img
+            src="/anatomy/eye-hero.png"
+            alt=""
+            aria-hidden="true"
+            className="anatomy-hero right-0 top-1/2 -translate-y-1/2 w-[40%] max-w-xs"
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {MODES.map(({ icon: Icon, label, description, path }, i) => (
-              <motion.button
-                key={path}
-                onClick={() => navigate(path)}
-                className="text-left glass-card iri-border p-8 group transition-all hover-shadow-holo"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.08 }}
-                whileHover={{ y: -1 }}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            <div className="flex items-baseline justify-between mb-8">
+              <h2
+                className="text-[#1F1A12]"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1.75rem",
+                  fontWeight: 400,
+                  letterSpacing: "-0.01em",
+                }}
               >
-                <div className="flex items-start justify-between mb-10">
-                  <Icon size={22} strokeWidth={1.25} className="text-[#8C6D3F]" aria-hidden="true" />
-                  <ArrowUpRight
-                    size={16}
-                    strokeWidth={1.25}
-                    className="text-[#A39A8E] group-hover:text-[#8C6D3F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
-                    aria-hidden="true"
-                  />
-                </div>
-                <h3
-                  className="text-[#1F1A12] mb-2"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.35rem",
-                    fontWeight: 400,
-                    letterSpacing: "-0.01em",
-                  }}
+                Practice
+              </h2>
+              <p className="annotation-label">Three paths</p>
+            </div>
+
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-3 gap-3"
+              variants={cardContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {MODES.map(({ icon: Icon, label, description, path }) => (
+                <motion.button
+                  key={path}
+                  onClick={() => navigate(path)}
+                  className="text-left glass-editorial iri-border p-8 group card-hover-glow"
+                  variants={cardItemVariants}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  {label}
-                </h3>
-                <p
-                  className="text-[#5C544A]"
-                  style={{ fontSize: "0.88rem", lineHeight: 1.6, fontWeight: 300 }}
-                >
-                  {description}
-                </p>
-              </motion.button>
-            ))}
-          </div>
-        </motion.section>
+                  <div className="flex items-start justify-between mb-10">
+                    <Icon size={22} strokeWidth={1.25} className="text-[#8C6D3F]" aria-hidden="true" />
+                    <ArrowUpRight
+                      size={16}
+                      strokeWidth={1.25}
+                      className="text-[#A39A8E] group-hover:text-[#8C6D3F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <h3
+                    className="text-[#1F1A12] mb-2"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.35rem",
+                      fontWeight: 400,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    {label}
+                  </h3>
+                  <p
+                    className="text-[#5C544A]"
+                    style={{ fontSize: "0.88rem", lineHeight: 1.6, fontWeight: 300 }}
+                  >
+                    {description}
+                  </p>
+                </motion.button>
+              ))}
+            </motion.div>
+          </motion.div>
+        </section>
 
         {/* ===== Quiet footer ===== */}
         <div className="mt-16 sm:mt-24 pt-8 border-t border-[#1F1A12]/8 flex flex-wrap items-center justify-between gap-2 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>

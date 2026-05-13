@@ -46,6 +46,7 @@
   --radius: 1rem;
 
   /* ===== Layered Soft Shadows ===== */
+  --shadow-editorial: 0 2px 4px rgba(31,26,18,0.03), 0 32px 80px rgba(31,26,18,0.09), 0 0 0 1px rgba(255,255,255,0.65) inset, 0 0 50px rgba(140,109,63,0.07) inset;
   --shadow-hairline: 0 0 0 1px rgba(31, 26, 18, 0.06);
   --shadow-xs:       0 1px 2px rgba(31, 26, 18, 0.04);
   --shadow-sm:       0 1px 2px rgba(31, 26, 18, 0.04), 0 2px 6px rgba(31, 26, 18, 0.03);
@@ -93,6 +94,26 @@
 }
 
 /* ===== Keyframes ===== */
+@keyframes radial-reveal {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes stagger-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes line-draw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes particle-burst {
+  0%   { opacity: 1; transform: translate(0,0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+}
+
 @keyframes gentle-float {
   0%, 100% { transform: translateY(0px); }
   50%      { transform: translateY(-4px); }
@@ -213,7 +234,7 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, #8C6D3F, #8B7BAF, #5A9E8F, #8C6D3F, transparent);
     background-size: 200% 100%;
-    animation: holo-shimmer 4s ease-in-out infinite;
+    animation: holo-shimmer 10s ease-in-out infinite;
     border: 0;
   }
 
@@ -259,7 +280,7 @@
     from var(--iri-angle),
     #8C6D3F, #A67C6B, #8B7BAF, #6B8FAF, #5A9E8F, #8B7BAF, #C4A57B, #8C6D3F
   );
-  animation: iri-spin 8s linear infinite;
+  animation: iri-spin 20s linear infinite;
   z-index: -1;
   opacity: 0.3;
   transition: opacity 0.4s ease;
@@ -276,7 +297,7 @@
     ) border-box;
   border: 1px solid transparent !important;
   border-radius: 999px;
-  animation: iri-spin 8s linear infinite;
+  animation: iri-spin 20s linear infinite;
   color: #FBF8F1;
 }
 
@@ -289,7 +310,7 @@
     radial-gradient(ellipse 60%  40% at 30% 80%, var(--aurora-violet), transparent 45%),
     var(--background);
   background-size: 400% 400%;
-  animation: aurora-drift 18s ease-in-out infinite;
+  animation: aurora-drift 30s ease-in-out infinite;
 }
 
 /* ===== Holographic Text ===== */
@@ -299,7 +320,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: text-shimmer 6s ease-in-out infinite;
+  animation: text-shimmer 14s ease-in-out infinite;
 }
 .holo-text-subtle {
   background: linear-gradient(105deg, #8C6D3F 0%, #C4A57B 45%, #8C6D3F 100%);
@@ -307,7 +328,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: text-shimmer 8s ease-in-out infinite;
+  animation: text-shimmer 14s ease-in-out infinite;
 }
 
 /* ===== Light-Leak Glow ===== */
@@ -321,7 +342,7 @@
   background:
     radial-gradient(circle at 30% 30%, var(--glow-bronze), transparent 50%),
     radial-gradient(circle at 70% 70%, var(--glow-teal),   transparent 50%);
-  animation: light-leak 8s ease-in-out infinite;
+  animation: light-leak 16s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
   border-radius: 50%;
@@ -349,7 +370,7 @@
   height: 1px;
   background: linear-gradient(90deg, #8C6D3F, #8B7BAF);
   background-size: 200% 100%;
-  animation: holo-shimmer 4s ease-in-out infinite;
+  animation: holo-shimmer 10s ease-in-out infinite;
 }
 
 /* Editorial circle frame — for the eye image */
@@ -374,7 +395,7 @@
     rgba(140,109,63,0.35), rgba(139,123,175,0.20),
     rgba(90,158,143,0.20), rgba(140,109,63,0.35)
   );
-  animation: iri-spin 12s linear infinite;
+  animation: iri-spin 24s linear infinite;
   pointer-events: none;
 }
 .eye-medallion::after {
@@ -398,7 +419,7 @@
   background: linear-gradient(90deg, #8C6D3F 0%, #C4A57B 40%, #8C6D3F 60%, #9C7B1F 100%);
   background-size: 200% 100%;
   border-radius: 999px;
-  animation: holo-shimmer 3s ease-in-out infinite;
+  animation: holo-shimmer 8s ease-in-out infinite;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -465,3 +486,87 @@
   z-index: 1;
 }
 .rim-sweep { background: transparent; animation: none; }
+
+/* ===== Editorial Spectacle Utilities ===== */
+
+/* OCULARIUM-style annotation label */
+.annotation-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.annotation-label::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 1px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #8C6D3F, transparent);
+}
+
+/* Hero anatomy graphic container */
+.anatomy-hero {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: multiply;
+  opacity: 0.18;
+  filter: sepia(0.3) saturate(0.8);
+}
+
+/* Screen entrance animation */
+.screen-reveal {
+  animation: radial-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Deeper editorial glass surface */
+.glass-editorial {
+  background: rgba(255, 255, 255, 0.45);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  backdrop-filter: saturate(1.8) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.6) inset,
+    0 1px 1px rgba(140,109,63,0.04),
+    0 16px 48px rgba(31,26,18,0.08),
+    0 0 60px rgba(140,109,63,0.06) inset;
+  border-radius: var(--radius);
+}
+
+/* Warm amber hover glow for mode cards */
+.card-hover-glow {
+  transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover-glow:hover {
+  box-shadow: var(--shadow-glass-lg), 0 0 40px rgba(140,109,63,0.12) inset;
+  transform: translateY(-4px);
+}
+
+/* Particle burst — JS spawns <span> with --dx/--dy set inline */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #C4A57B, #8C6D3F);
+  pointer-events: none;
+  animation: particle-burst 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* SVG annotation line (used in CaseSession sidebar) */
+.annotation-line {
+  stroke: #8C6D3F;
+  stroke-width: 0.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: line-draw 0.3s ease-out forwards;
+  fill: none;
+  opacity: 0.5;
+}
+.annotation-line:nth-child(2) { animation-delay: 0.12s; }
+.annotation-line:nth-child(3) { animation-delay: 0.24s; }

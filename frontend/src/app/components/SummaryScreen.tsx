@@ -57,10 +57,14 @@ export function SummaryScreen() {
     checkAndUnlockAchievements();
 
     confetti({
-      particleCount: 60,
-      spread: 70,
-      origin: { y: 0.5 },
-      colors: ["#8C6D3F", "#C4A57B", "#4F6B3D", "#FBF8F1"],
+      particleCount: 28,
+      spread: 50,
+      startVelocity: 22,
+      gravity: 0.6,
+      ticks: 200,
+      origin: { y: 0.45 },
+      colors: ["#8C6D3F", "#C4A57B", "#9C7B1F", "#E8D5B0"],
+      shapes: ["circle"],
     });
   }, []);
 
@@ -140,12 +144,7 @@ export function SummaryScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <p
-            className="text-[#8C6D3F] mb-4"
-            style={{ fontSize: "0.72rem", letterSpacing: "0.24em", textTransform: "uppercase", fontWeight: 600 }}
-          >
-            · Session complete
-          </p>
+          <p className="annotation-label mb-4">Session Complete</p>
           <h1
             className="text-[#1F1A12] max-w-3xl"
             style={{
@@ -187,14 +186,9 @@ export function SummaryScreen() {
           transition={{ duration: 0.7, delay: 0.3 }}
         >
           {realStats.map((stat, idx) => (
-            <div key={idx} className="glass-card p-8">
+            <div key={idx} className="glass-editorial p-8">
               <stat.icon size={18} strokeWidth={1.25} className="text-[#8C6D3F] mb-6" />
-              <p
-                className="text-[#A39A8E] mb-2"
-                style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-              >
-                {stat.label}
-              </p>
+              <p className="annotation-label mb-2">{stat.label}</p>
               <p
                 className="text-[#1F1A12]"
                 style={{
@@ -224,14 +218,9 @@ export function SummaryScreen() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.5 }}
           >
-            <div className="flex items-baseline gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-6">
               <Award size={16} strokeWidth={1.25} className="text-[#8C6D3F]" />
-              <p
-                className="text-[#8C6D3F]"
-                style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-              >
-                · Earned
-              </p>
+              <p className="annotation-label">Earned this session</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -279,15 +268,8 @@ export function SummaryScreen() {
             transition={{ duration: 0.7, delay: 0.6 }}
           >
             <div className="flex items-baseline justify-between mb-6">
-              <p
-                className="text-[#8C6D3F]"
-                style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-              >
-                · Generated this session · {previewCards.length}
-              </p>
-              <p className="text-[#A39A8E]" style={{ fontSize: "0.75rem" }}>
-                Queued for spaced repetition
-              </p>
+              <p className="annotation-label">Generated this session · {previewCards.length}</p>
+              <p className="text-[#A39A8E]" style={{ fontSize: "0.75rem" }}>Queued for spaced repetition</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -346,8 +328,9 @@ export function SummaryScreen() {
               fontSize: "0.95rem",
               letterSpacing: "0.02em",
             }}
-            whileHover={{ y: -1 }}
-            whileTap={{ y: 0 }}
+            whileHover={{ y: -1, scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             Review cards now
             <ArrowRight size={15} strokeWidth={1.5} />
@@ -356,8 +339,9 @@ export function SummaryScreen() {
             onClick={() => navigate("/dashboard")}
             className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-transparent border border-[#1F1A12]/12 text-[#1F1A12] hover:bg-[#1F1A12]/4 transition-all"
             style={{ fontWeight: 500, fontSize: "0.95rem", letterSpacing: "0.02em" }}
-            whileHover={{ y: -1 }}
-            whileTap={{ y: 0 }}
+            whileHover={{ y: -1, scale: 1.01 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             <Home size={14} strokeWidth={1.5} />
             Return to dashboard

@@ -232,7 +232,7 @@ export function FlashcardScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1] flex flex-col">
+    <div className="min-h-screen aurora-bg flex flex-col">
       <AchievementManager
         achievements={newAchievements}
         onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
@@ -283,14 +283,9 @@ export function FlashcardScreen() {
       <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-8 sm:pt-12 pb-2">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p
-              className="text-[#8C6D3F]"
-              style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              · {card.tag}
-            </p>
+            <p className="annotation-label">{card.tag}</p>
             <h1
-              className="mt-1 text-[#1F1A12]"
+              className="mt-2 text-[#1F1A12]"
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: "1.6rem",
@@ -366,21 +361,25 @@ export function FlashcardScreen() {
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <p
-                    className="text-[#8C6D3F]"
-                    style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    · Question
-                  </p>
-                  <p
-                    className="text-[#A39A8E] italic-display"
-                    style={{ fontSize: "0.85rem" }}
-                  >
+                  <p className="annotation-label">Question</p>
+                  <p className="text-[#A39A8E] italic-display" style={{ fontSize: "0.85rem" }}>
                     Tap to reveal
                   </p>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center py-8">
+                {/* Anatomy header strip */}
+                <div className="relative h-24 my-4 overflow-hidden rounded-xl">
+                  <img
+                    src="/anatomy/eye-flashcard.png"
+                    alt=""
+                    aria-hidden="true"
+                    className="w-full h-full object-cover anatomy-hero"
+                    style={{ position: "relative", opacity: 0.22 }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60" />
+                </div>
+
+                <div className="flex-1 flex items-center justify-center py-4">
                   <p
                     className="text-[#1F1A12] text-center max-w-xl"
                     style={{
@@ -536,12 +535,7 @@ export function FlashcardScreen() {
             isFlipped ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
           }`}
         >
-          <p
-            className="text-center text-[#A39A8E] mb-4"
-            style={{ fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase" }}
-          >
-            How well did you recall this?
-          </p>
+          <p className="annotation-label justify-center mb-4">How well did you recall this?</p>
           <div className="grid grid-cols-4 gap-3">
             {RATINGS.map((rating, idx) => (
               <motion.button
@@ -560,7 +554,7 @@ export function FlashcardScreen() {
                   borderColor: `${rating.accent}40`,
                   boxShadow: `0 1px 2px rgba(31,26,18,0.04), 0 12px 24px ${rating.accent}15`,
                 }}
-                whileTap={{ y: 0 }}
+                whileTap={{ scale: 0.94 }}
               >
                 <p
                   className="text-[#1F1A12] mb-1"

@@ -76,9 +76,11 @@ export function DailyCheckInScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1] flex items-center justify-center px-6 py-16 relative">
+    <div className="min-h-screen aurora-bg flex items-center justify-center px-6 py-16 relative overflow-hidden">
+      {/* Anatomy watermark */}
+      <img src="/anatomy/eye-medallion.png" alt="" aria-hidden="true" className="anatomy-hero left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-w-sm" />
       <motion.div
-        className="w-full max-w-xl relative z-10"
+        className="w-full max-w-xl relative z-10 screen-reveal"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -87,19 +89,14 @@ export function DailyCheckInScreen() {
         <div className="flex flex-col items-center mb-10">
           <HolographicEyeLogo size={56} animated />
 
-          <p
-            className="mt-6 text-[#8C6D3F]"
-            style={{ fontSize: "0.72rem", letterSpacing: "0.24em", textTransform: "uppercase", fontWeight: 600 }}
-          >
-            · Daily check-in
-          </p>
+          <p className="annotation-label mt-6">Daily Calibration</p>
           <h1
-            className="mt-2 text-[#1F1A12] text-center"
+            className="mt-3 text-[#1F1A12] text-center"
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "2.2rem",
+              fontSize: "clamp(2rem, 5vw, 2.8rem)",
               fontWeight: 400,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
               lineHeight: 1.1,
             }}
           >
@@ -126,9 +123,7 @@ export function DailyCheckInScreen() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8 pb-5 border-b border-[#1F1A12]/8"
               >
-                <p className="text-[#A39A8E]" style={{ fontSize: "0.7rem", letterSpacing: "0.16em", textTransform: "uppercase" }}>
-                  Today's focus
-                </p>
+                <p className="annotation-label">Today's Focus</p>
                 <p className="mt-1 text-[#1F1A12] italic-display" style={{ fontSize: "1.1rem" }}>
                   {weakTopic}
                 </p>
@@ -157,11 +152,11 @@ export function DailyCheckInScreen() {
                 transition={{ duration: 0.4 }}
               >
                 <p
-                  className="text-[#1F1A12] mb-8"
+                  className="text-[#1F1A12] mb-8 italic-display"
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "1.3rem",
-                    lineHeight: 1.55,
+                    fontSize: "clamp(1.25rem, 3vw, 1.55rem)",
+                    lineHeight: 1.5,
                     fontWeight: 400,
                   }}
                 >
@@ -190,8 +185,9 @@ export function DailyCheckInScreen() {
                     aria-label={submitting ? "Submitting answer" : "Submit answer"}
                     className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#1F1A12] text-[#FBF8F1] disabled:opacity-40 transition-all"
                     style={{ fontWeight: 500, fontSize: "0.95rem", letterSpacing: "0.02em" }}
-                    whileHover={{ y: -1 }}
-                    whileTap={{ y: 0 }}
+                    whileHover={{ y: -1, scale: 1.01 }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
                   >
                     {submitting ? (
                       <div className="w-4 h-4 border-2 border-[#FBF8F1] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
@@ -269,8 +265,9 @@ export function DailyCheckInScreen() {
                     letterSpacing: "0.02em",
                     boxShadow: "0 1px 2px rgba(140,109,63,0.18), 0 8px 24px rgba(140,109,63,0.18)",
                   }}
-                  whileHover={{ y: -1 }}
-                  whileTap={{ y: 0 }}
+                  whileHover={{ y: -1, scale: 1.01 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 >
                   Continue to dashboard
                   <ArrowRight size={16} strokeWidth={1.5} />

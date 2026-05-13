@@ -219,9 +219,9 @@ export function CaseSessionScreen() {
   }
 
   return (
-    <div className="h-screen bg-[#FBF8F1] flex flex-col overflow-hidden">
+    <div className="h-screen aurora-bg flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="flex-shrink-0 flex items-center gap-2 sm:gap-4 px-4 sm:px-8 h-16 border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm">
+      <div className="flex-shrink-0 flex items-center gap-2 sm:gap-4 px-4 sm:px-8 h-16 border-b border-[#1F1A12]/8 glass-nav">
         <button
           onClick={() => navigate("/cases")}
           className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
@@ -314,14 +314,20 @@ export function CaseSessionScreen() {
         </AnimatePresence>
 
         {/* Desktop sidebar */}
-        <div className="hidden md:flex w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex-col overflow-y-auto bg-white/40">
+        <div className="hidden md:flex w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex-col overflow-y-auto glass-editorial rounded-none" style={{ borderRadius: 0 }}>
           <div className="p-8">
-            <p
-              className="text-[#8C6D3F] mb-5"
-              style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              · Patient
-            </p>
+            {/* Anatomy diagram */}
+            <div className="relative h-32 mb-6 overflow-hidden rounded-xl">
+              <img
+                src="/anatomy/eye-labeled.png"
+                alt=""
+                aria-hidden="true"
+                className="w-full h-full object-cover anatomy-hero"
+                style={{ position: "relative", opacity: 0.28 }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/70" />
+            </div>
+            <p className="annotation-label mb-5">Patient</p>
             {caseInfo ? (
               <div className="space-y-5">
                 <div>
@@ -341,12 +347,7 @@ export function CaseSessionScreen() {
                   </p>
                 </div>
                 <div>
-                  <p
-                    className="text-[#A39A8E] mb-2"
-                    style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    Presents with
-                  </p>
+                  <p className="annotation-label mb-2">Presents with</p>
                   <p
                     className="text-[#1F1A12] italic-display"
                     style={{ fontSize: "0.98rem", lineHeight: 1.55 }}
@@ -355,12 +356,7 @@ export function CaseSessionScreen() {
                   </p>
                 </div>
                 <div>
-                  <p
-                    className="text-[#A39A8E] mb-1"
-                    style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    Topic
-                  </p>
+                  <p className="annotation-label mb-1">Topic</p>
                   <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>
                     {caseInfo.topic}
                   </p>
@@ -394,12 +390,7 @@ export function CaseSessionScreen() {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                <p
-                  className="text-[#8C6D3F] mb-4"
-                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-                >
-                  · Submit answer
-                </p>
+                <p className="annotation-label mb-4">Submit Answer</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
                   <div>
                     <label
@@ -465,12 +456,7 @@ export function CaseSessionScreen() {
               animate={{ opacity: 1, y: 0 }}
             >
               <div className="flex items-baseline justify-between mb-6">
-                <p
-                  className="text-[#8C6D3F]"
-                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-                >
-                  · Evaluation
-                </p>
+                <p className="annotation-label">Evaluation</p>
                 <span
                   style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 400, color: scoreColor(result.total_score / 4) }}
                 >

@@ -59,10 +59,7 @@ function AIBubble({ message, isStreaming }: { message: AIMessage; isStreaming?: 
         >
           Tutor
         </p>
-        <div
-          className="glass-card p-5 rounded-2xl"
-          style={{ background: "rgba(255,255,255,0.45)" }}
-        >
+        <div className="glass-editorial p-5 rounded-2xl">
           <p
             className="text-[#1F1A12]"
             style={{
@@ -75,7 +72,8 @@ function AIBubble({ message, isStreaming }: { message: AIMessage; isStreaming?: 
             {message.content}
             {isStreaming && (
               <span
-                className="inline-block w-[2px] h-[1.1em] bg-[#8C6D3F] ml-0.5 align-[-0.15em] animate-pulse"
+                className="inline-block w-[3px] h-[1.1em] rounded-full bg-[#8C6D3F] ml-1 align-[-0.15em] soft-pulse"
+                style={{ boxShadow: "0 0 6px rgba(140,109,63,0.5)" }}
                 aria-hidden="true"
               />
             )}
@@ -248,7 +246,7 @@ export function ChatScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1] flex flex-col">
+    <div className="min-h-screen aurora-bg flex flex-col">
       <AchievementManager
         achievements={newAchievements}
         onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
@@ -301,12 +299,7 @@ export function ChatScreen() {
       {/* ===== Topic / context strip ===== */}
       <div className="max-w-3xl w-full mx-auto px-4 sm:px-8 pt-10 pb-2">
         <div className="flex items-center justify-between">
-          <p
-            className="text-[#8C6D3F]"
-            style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-          >
-            · Conversation · {TOPIC_LABEL}
-          </p>
+          <p className="annotation-label">AI Tutor · Socratic Mode · {TOPIC_LABEL}</p>
           <div className="flex items-center gap-3">
             <StreakDisplay streak={userProgress.streak} size="sm" />
           </div>
@@ -317,7 +310,9 @@ export function ChatScreen() {
       </div>
 
       {/* ===== Conversation stream ===== */}
-      <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32">
+      <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32 relative">
+        {/* Anatomy watermark */}
+        <img src="/anatomy/eye-hero.png" alt="" aria-hidden="true" className="anatomy-hero right-0 top-1/2 -translate-y-1/2 w-1/2 max-w-[280px]" style={{ opacity: 0.07 }} />
         <div className="space-y-10" role="log" aria-live="polite" aria-atomic="false" aria-label="Conversation">
           {messages.map((msg) =>
             msg.type === "ai" ? (

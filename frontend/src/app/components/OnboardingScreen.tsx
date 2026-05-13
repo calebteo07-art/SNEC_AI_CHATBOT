@@ -63,14 +63,15 @@ export function OnboardingScreen() {
 
   return (
     <div className="min-h-screen bg-[#FBF8F1] flex flex-col items-center justify-center px-6 py-16 relative">
-      {/* Editorial backdrop — fundus medallion ghosted in the corner */}
+      {/* Anatomy medallion watermark */}
       <motion.div
-        className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full overflow-hidden opacity-[0.05] pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
-        transition={{ duration: 2 }}
+        animate={{ opacity: 0.12 }}
+        transition={{ duration: 2.5 }}
+        aria-hidden="true"
       >
-        <img src="/images/sample_fundus_OD.png" alt="" className="w-full h-full object-cover sepia" />
+        <img src="/anatomy/eye-medallion.png" alt="" className="w-full h-full object-contain anatomy-hero" style={{ opacity: 1 }} />
       </motion.div>
 
       <motion.div
@@ -90,7 +91,7 @@ export function OnboardingScreen() {
           </motion.div>
 
           <h1
-            className="mt-8 text-[#1F1A12] text-center"
+            className="mt-8 text-center holo-text-subtle"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "3.25rem",
@@ -114,6 +115,7 @@ export function OnboardingScreen() {
 
         {/* ===== Form ===== */}
         <div className="glass-card-lg iri-border p-10">
+          <p className="annotation-label mb-6">Resident Registration · EyeQ Cohort</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -197,8 +199,9 @@ export function OnboardingScreen() {
                 fontSize: "0.95rem",
                 letterSpacing: "0.02em",
               }}
-              whileHover={{ y: -1 }}
-              whileTap={{ y: 0 }}
+              whileHover={{ y: -1, scale: 1.01 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
             >
               {submitting ? (
                 <div className="w-4 h-4 border-2 border-[#FBF8F1] border-t-transparent rounded-full animate-spin" />
