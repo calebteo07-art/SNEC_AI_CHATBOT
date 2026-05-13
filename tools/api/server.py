@@ -214,7 +214,9 @@ def chat(request: Request, body: ChatRequest):
                 yield f"data: {json.dumps({'text': 'API quota reached for today — the service resets at midnight. In the meantime, the tutor is running in practice mode.', 'quota_exceeded': True})}\n\n"
             else:
                 yield f"data: {json.dumps({'text': 'I\'m having trouble reaching the service right now — please try again in a moment.'})}\n\n"
-        except Exception:
+        except Exception as _exc:
+            import traceback; traceback.print_exc()
+            print(f"[chat-error] {type(_exc).__name__}: {_exc}", flush=True)
             yield f"data: {json.dumps({'text': 'I\'m having trouble reaching the service right now — please try again in a moment.'})}\n\n"
         yield "data: [DONE]\n\n"
 

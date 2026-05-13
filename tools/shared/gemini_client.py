@@ -97,6 +97,24 @@ def _to_gemini_history(messages: list[dict]) -> tuple[list[dict], str]:
     return history, messages[-1]["content"]
 
 
+def _build_contents(messages: list[dict]) -> tuple[list[dict], str]:
+    """Build Gemini REST contents list from Anthropic-format messages."""
+    history, last_message = _to_gemini_history(messages)
+    contents = [
+        {"role": h["role"], "parts": [{"text": p} if isinstance(p, str) else p for p in h["parts"]]}
+        for h in history
+    ]
+    contents.append({"role": "user", "parts": [{"text": last_message}]})
+    return contents, last_message
+
+
+def _quota_or_raise(exc: Exception) -> None:
+    msg = str(exc)
+    if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
+        raise RuntimeError("quota_exceeded") from exc
+    raise exc
+
+
 def stream_ask(
     system_prompt: str,
     messages: list[dict],
@@ -104,40 +122,44 @@ def stream_ask(
     feature: str = "default",
     model: str | None = None,
 ):
-    """Stream a conversation to Gemini, yielding text chunks as they arrive.
-
-    In MOCK_MODE, yields the mock response word-by-word to simulate streaming.
-    """
+    """Stream a conversation to Gemini via REST, yielding text chunks as they arrive."""
     if MOCK_MODE:
         for word in _mock_response(feature).split(" "):
             yield word + " "
         return
 
-    from google import genai as _genai
+    import httpx, json as _json
 
-    history, last_message = _to_gemini_history(messages)
-    contents = [
-        {"role": h["role"], "parts": [{"text": p} if isinstance(p, str) else p for p in h["parts"]]}
-        for h in history
-    ]
-    contents.append({"role": "user", "parts": [{"text": last_message}]})
+    _model = model or MODEL
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
+        f":streamGenerateContent?key={API_KEY}&alt=sse"
+    )
+    contents, _ = _build_contents(messages)
+    body = {
+        "systemInstruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": max_tokens},
+    }
 
     try:
-        for chunk in _client.models.generate_content_stream(
-            model=model or MODEL,
-            config=_genai.types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                max_output_tokens=max_tokens,
-            ),
-            contents=contents,
-        ):
-            if chunk.text:
-                yield chunk.text
-    except Exception as exc:
-        msg = str(exc)
-        if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
-            raise RuntimeError("quota_exceeded") from exc
+        resp = httpx.post(url, json=body, timeout=60)
+        if resp.status_code == 429:
+            raise RuntimeError("quota_exceeded")
+        resp.raise_for_status()
+        for line in resp.text.splitlines():
+            if line.startswith("data: "):
+                try:
+                    data = _json.loads(line[6:])
+                    text = data["candidates"][0]["content"]["parts"][0]["text"]
+                    if text:
+                        yield text
+                except (KeyError, IndexError, _json.JSONDecodeError):
+                    pass
+    except RuntimeError:
         raise
+    except Exception as exc:
+        _quota_or_raise(exc)
 
 
 def ask(
@@ -147,37 +169,35 @@ def ask(
     feature: str = "default",
     model: str | None = None,
 ) -> str:
-    """
-    Send a conversation to Gemini and return the response text.
-
-    max_tokens is set high by default (8192) because gemini-2.5-flash is a thinking
-    model — thinking tokens count against max_output_tokens. Low values cause
-    truncated responses. Callers can lower this for cost reasons but should keep
-    it above ~2048 to leave room for both thinking and the actual response.
-    """
+    """Send a conversation to Gemini via REST and return the full response text."""
     if MOCK_MODE:
         return _mock_response(feature)
 
-    from google import genai as _genai
+    import httpx, json as _json
 
-    history, last_message = _to_gemini_history(messages)
-
-    # Build full contents list in SDK format
-    contents = [
-        {"role": h["role"], "parts": [{"text": p} if isinstance(p, str) else p for p in h["parts"]]}
-        for h in history
-    ]
-    contents.append({"role": "user", "parts": [{"text": last_message}]})
-
-    response = _client.models.generate_content(
-        model=model or MODEL,
-        config=_genai.types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            max_output_tokens=max_tokens,
-        ),
-        contents=contents,
+    _model = model or MODEL
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
+        f":generateContent?key={API_KEY}"
     )
-    return response.text
+    contents, _ = _build_contents(messages)
+    body = {
+        "systemInstruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": max_tokens},
+    }
+
+    try:
+        resp = httpx.post(url, json=body, timeout=60)
+        if resp.status_code == 429:
+            raise RuntimeError("quota_exceeded")
+        resp.raise_for_status()
+        data = _json.loads(resp.text)
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        _quota_or_raise(exc)
 
 
 def ask_with_image(
