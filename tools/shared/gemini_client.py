@@ -6,10 +6,10 @@ structured fake responses so all features can be built and tested without an API
 Switch to live mode by adding GEMINI_API_KEY to .env.
 
 Usage (from other tools):
-    from tools.shared.claude_client import ask, ask_with_image
+    from tools.shared.gemini_client import ask, ask_with_image
 
 Self-test:
-    python tools/shared/claude_client.py
+    python tools/shared/gemini_client.py
 """
 
 import os

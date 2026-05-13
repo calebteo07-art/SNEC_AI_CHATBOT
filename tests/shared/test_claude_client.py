@@ -1,5 +1,5 @@
 import pytest
-import tools.shared.claude_client as cc
+import tools.shared.gemini_client as cc
 
 
 # --- _to_gemini_history ---

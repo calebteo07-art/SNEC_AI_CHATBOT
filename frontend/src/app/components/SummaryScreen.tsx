@@ -12,11 +12,9 @@ import {
   XP_REWARDS,
   ACHIEVEMENTS,
 } from "../utils/gamification";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import {
   BookOpen,
   Layers,
-  Check,
   ChevronRight,
   Home,
   ArrowRight,
@@ -92,14 +90,6 @@ export function SummaryScreen() {
     question: c.front,
     preview: c.back.slice(0, 100) + (c.back.length > 100 ? "…" : ""),
   }));
-
-  const performanceData = [
-    { name: "Easy", value: 2, color: "#4F6B3D" },
-    { name: "Good", value: 2, color: "#8C6D3F" },
-    { name: "Hard", value: 1, color: "#9C7B1F" },
-  ];
-
-  const topics = ["Pathophysiology", "Clinical staging", "Management", "Investigations"];
 
   return (
     <div className="min-h-screen aurora-bg">
@@ -224,94 +214,6 @@ export function SummaryScreen() {
               )}
             </div>
           ))}
-        </motion.section>
-
-        {/* ===== Performance + topics ===== */}
-        <motion.section
-          className="mb-20 grid md:grid-cols-2 gap-12"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-        >
-          {/* Pie */}
-          <div>
-            <p
-              className="text-[#8C6D3F] mb-6"
-              style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              · Recall quality
-            </p>
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={performanceData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={62}
-                  outerRadius={88}
-                  paddingAngle={2}
-                  dataKey="value"
-                  stroke="#FBF8F1"
-                  strokeWidth={3}
-                >
-                  {performanceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid rgba(31, 26, 18, 0.08)",
-                    borderRadius: "12px",
-                    color: "#1F1A12",
-                    fontFamily: "var(--font-body)",
-                    fontSize: "0.82rem",
-                    boxShadow: "0 8px 24px rgba(31,26,18,0.06)",
-                    padding: "8px 12px",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-4 flex justify-center gap-6">
-              {performanceData.map((d) => (
-                <div key={d.name} className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: d.color }} />
-                  <span className="text-[#5C544A]" style={{ fontSize: "0.78rem" }}>
-                    {d.name}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Topics */}
-          <div>
-            <p
-              className="text-[#8C6D3F] mb-6"
-              style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              · Topics covered
-            </p>
-            <ul className="space-y-3">
-              {topics.map((topic, idx) => (
-                <motion.li
-                  key={idx}
-                  className="flex items-center gap-3 py-3 border-b border-[#1F1A12]/6 last:border-0"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + idx * 0.08 }}
-                >
-                  <Check size={14} strokeWidth={1.5} className="text-[#4F6B3D]" />
-                  <span
-                    className="text-[#1F1A12]"
-                    style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 400 }}
-                  >
-                    {topic}
-                  </span>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
         </motion.section>
 
         {/* ===== Achievements ===== */}

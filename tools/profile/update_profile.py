@@ -84,20 +84,28 @@ def update_profile(
     old_retention = dict(retention)
 
     if topic and score is not None:
-        retention[topic] = round(float(score), 3)
+        old = float(retention.get(topic, score))
+        retention[topic] = round(0.3 * float(score) + 0.7 * old, 3)
 
     # Weak topics
     weak_topics = [t for t, s in retention.items() if s < WEAK_THRESHOLD]
 
-    # Missed findings
+    # Missed findings — deduplicate by word overlap, cap at 20 entries
     try:
         findings = json.loads(profile.get("missed_findings", "[]") or "[]")
     except (json.JSONDecodeError, TypeError):
         findings = []
+
+    def _is_near_duplicate(new: str, existing: list) -> bool:
+        new_words = set(new.lower().split())
+        return any(len(new_words & set(f.lower().split())) >= 3 for f in existing)
+
     if new_missed_findings:
         for f in new_missed_findings:
-            if f not in findings:
+            if not _is_near_duplicate(f, findings):
                 findings.append(f)
+        if len(findings) > 20:
+            findings = findings[-20:]
 
     # Learning velocity
     velocity = _calc_velocity(old_retention, retention)

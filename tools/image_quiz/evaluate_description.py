@@ -13,7 +13,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.claude_client import ask, ask_with_image
+from tools.shared.gemini_client import ask, ask_with_image
 
 EVAL_PROMPT = """You are an ophthalmology examiner evaluating a student's description of a retinal image.
 

@@ -11,6 +11,7 @@ Run:
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -19,7 +20,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
@@ -27,7 +28,7 @@ from slowapi.util import get_remote_address
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.claude_client import ask, stream_ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
 from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
@@ -94,9 +95,14 @@ app = FastAPI(title="EyeQ API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+_ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -126,19 +132,19 @@ class OnboardResponse(BaseModel):
     role: str = "student"
 
 class ChatMessage(BaseModel):
-    role: str   # "user" | "assistant"
-    content: str
+    role: str
+    content: str = Field(max_length=8000)
 
 class ChatRequest(BaseModel):
     student_id: str
-    messages: list[ChatMessage]
+    messages: list[ChatMessage] = Field(max_length=100)
 
 class ChatResponse(BaseModel):
     content: str
 
 class EndSessionRequest(BaseModel):
     student_id: str
-    messages: list[ChatMessage]
+    messages: list[ChatMessage] = Field(max_length=100)
     topic: str = "Ophthalmology"
     token_count: int = 0
 
@@ -216,7 +222,8 @@ def chat(request: Request, body: ChatRequest):
 
 
 @app.post("/api/end-session", response_model=EndSessionResponse)
-def end_session(body: EndSessionRequest):
+@limiter.limit("10/minute")
+def end_session(request: Request, body: EndSessionRequest):
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     model_name = "mock" if MOCK_MODE else MODEL
 
@@ -228,11 +235,17 @@ def end_session(body: EndSessionRequest):
         model=model_name,
     )
 
-    cards = generate_and_return_cards(
-        student_id=body.student_id,
-        session_id=session_id,
-        messages=messages,
-    )
+    try:
+        cards = generate_and_return_cards(
+            student_id=body.student_id,
+            session_id=session_id,
+            messages=messages,
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            cards = []
+        else:
+            raise
 
     try:
         update_profile(body.student_id)
@@ -245,6 +258,10 @@ def end_session(body: EndSessionRequest):
         mock_mode=MOCK_MODE,
     )
 
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "mock_mode": MOCK_MODE}
 
 @app.get("/api/status")
 def status():
@@ -271,14 +288,14 @@ class CasesResponse(BaseModel):
 
 class CaseChatRequest(BaseModel):
     student_id: str
-    messages: list[ChatMessage]
+    messages: list[ChatMessage] = Field(max_length=100)
 
 class CaseChatResponse(BaseModel):
     response: str
 
 class CaseSubmitRequest(BaseModel):
     student_id: str
-    messages: list[ChatMessage]
+    messages: list[ChatMessage] = Field(max_length=100)
     diagnosis: str
     management_plan: str
 
@@ -520,7 +537,8 @@ def checkin_status(student_id: str):
 
 
 @app.get("/api/checkin/question", response_model=CheckinQuestionResponse)
-def checkin_question(student_id: str):
+@limiter.limit("10/minute")
+def checkin_question(request: Request, student_id: str):
     try:
         profile = get_profile(student_id)
         import json as _json
@@ -534,34 +552,45 @@ def checkin_question(student_id: str):
         "Generate ONE concise clinical question targeting the given topic. "
         "Return only the question text — no preamble, no numbering."
     )
-    question = ask(
-        system_prompt=system,
-        messages=[{"role": "user", "content": f"Topic: {topic}"}],
-        max_tokens=2048,
-        feature="checkin",
-    )
+    try:
+        question = ask(
+            system_prompt=system,
+            messages=[{"role": "user", "content": f"Topic: {topic}"}],
+            max_tokens=2048,
+            feature="checkin",
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
     return CheckinQuestionResponse(question=question.strip(), topic=topic)
 
 
 @app.post("/api/checkin/answer", response_model=CheckinAnswerResponse)
-def checkin_answer(body: CheckinAnswerRequest):
+@limiter.limit("10/minute")
+def checkin_answer(request: Request, body: CheckinAnswerRequest):
     system = (
         "You are an ophthalmology tutor evaluating a warm-up answer. "
         "Return ONLY valid JSON with no other text:\n"
         '{"correct": true or false, "feedback": "<one sentence confirming or correcting the answer, and one line on why it matters clinically>"}'
     )
-    raw = ask(
-        system_prompt=system,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Question: {body.question}\n"
-                f"Student answer: {body.answer}"
-            ),
-        }],
-        max_tokens=2048,
-        feature="checkin",
-    )
+    try:
+        raw = ask(
+            system_prompt=system,
+            messages=[{
+                "role": "user",
+                "content": (
+                    f"Question: {body.question}\n"
+                    f"Student answer: {body.answer}"
+                ),
+            }],
+            max_tokens=2048,
+            feature="checkin",
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
 
     text = raw.strip()
     if text.startswith("```"):
@@ -642,26 +671,32 @@ class FlashcardCheckResponse(BaseModel):
     mock_mode: bool
 
 @app.post("/api/flashcards/check", response_model=FlashcardCheckResponse)
-def flashcard_check(body: FlashcardCheckRequest):
+@limiter.limit("10/minute")
+def flashcard_check(request: Request, body: FlashcardCheckRequest):
     system = (
         "You are an ophthalmology tutor evaluating a student's active recall attempt. "
         "Compare the student's answer to the correct answer. "
         "Return ONLY valid JSON with no other text:\n"
         '{"score": <0-10>, "feedback": "<2 concise sentences: what they got right, then what they missed or got wrong>"}'
     )
-    raw = ask(
-        system_prompt=system,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Question: {body.question}\n\n"
-                f"Correct answer: {body.correct_answer}\n\n"
-                f"Student answer: {body.student_answer}"
-            ),
-        }],
-        max_tokens=2048,
-        feature="flashcard",
-    )
+    try:
+        raw = ask(
+            system_prompt=system,
+            messages=[{
+                "role": "user",
+                "content": (
+                    f"Question: {body.question}\n\n"
+                    f"Correct answer: {body.correct_answer}\n\n"
+                    f"Student answer: {body.student_answer}"
+                ),
+            }],
+            max_tokens=2048,
+            feature="flashcard",
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
     text = raw.strip()
     if text.startswith("```"):
         lines = text.splitlines()
@@ -684,7 +719,8 @@ class StudySuggestionResponse(BaseModel):
     focus_topic: str | None = None
 
 @app.get("/api/study-suggestion", response_model=StudySuggestionResponse)
-def study_suggestion(student_id: str):
+@limiter.limit("10/minute")
+def study_suggestion(request: Request, student_id: str):
     import json as _json
     focus: str | None = None
     try:
@@ -708,12 +744,17 @@ def study_suggestion(student_id: str):
         "Give the student one specific, clinical, motivating sentence telling them exactly what to study today and why. "
         "Under 30 words. No preamble."
     )
-    suggestion = ask(
-        system_prompt=system,
-        messages=[{"role": "user", "content": context}],
-        max_tokens=2048,
-        feature="suggestion",
-    )
+    try:
+        suggestion = ask(
+            system_prompt=system,
+            messages=[{"role": "user", "content": context}],
+            max_tokens=2048,
+            feature="suggestion",
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
     return StudySuggestionResponse(suggestion=suggestion.strip(), focus_topic=focus)
 
 
@@ -723,7 +764,8 @@ class SupervisorInsightsResponse(BaseModel):
     narrative: str
 
 @app.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
-def supervisor_insights(_: str = Depends(_require_supervisor)):
+@limiter.limit("10/minute")
+def supervisor_insights(request: Request, _: str = Depends(_require_supervisor)):
     try:
         cohort = _cohort_summary()
         at_risk = _get_at_risk()
@@ -742,12 +784,17 @@ def supervisor_insights(_: str = Depends(_require_supervisor)):
         "Write 2-3 sentences summarising the cohort's current state and the single most important action the supervisor should take today. "
         "Be specific and direct. No preamble."
     )
-    narrative = ask(
-        system_prompt=system,
-        messages=[{"role": "user", "content": context}],
-        max_tokens=2048,
-        feature="supervisor",
-    )
+    try:
+        narrative = ask(
+            system_prompt=system,
+            messages=[{"role": "user", "content": context}],
+            max_tokens=2048,
+            feature="supervisor",
+        )
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
     return SupervisorInsightsResponse(narrative=narrative.strip())
 
 

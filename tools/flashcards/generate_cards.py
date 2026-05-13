@@ -20,7 +20,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.claude_client import ask, MODEL_SMALL
+from tools.shared.gemini_client import ask, MODEL_SMALL
 from tools.shared.gsheets import append_row
 from tools.shared.audit_log import log as audit_log
 from tools.flashcards.sm2 import due_date

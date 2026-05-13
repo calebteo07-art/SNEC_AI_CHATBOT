@@ -117,36 +117,44 @@ export function OnboardingScreen() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
+                htmlFor="onboard-name"
                 className="block text-[#5C544A] mb-2"
                 style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}
               >
                 Your name
               </label>
               <input
+                id="onboard-name"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder=""
+                aria-describedby={errors.fullName ? "onboard-name-error" : undefined}
+                aria-invalid={!!errors.fullName}
                 className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
               />
-              {errors.fullName && <p className="text-[#8B2D2D] text-xs mt-2">{errors.fullName}</p>}
+              {errors.fullName && <p id="onboard-name-error" role="alert" className="text-[#8B2D2D] text-xs mt-2">{errors.fullName}</p>}
             </div>
 
             <div>
               <label
+                htmlFor="onboard-email"
                 className="block text-[#5C544A] mb-2"
                 style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}
               >
                 Email
               </label>
               <input
+                id="onboard-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder=""
+                aria-describedby={errors.email ? "onboard-email-error" : undefined}
+                aria-invalid={!!errors.email}
                 className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
               />
-              {errors.email && <p className="text-[#8B2D2D] text-xs mt-2">{errors.email}</p>}
+              {errors.email && <p id="onboard-email-error" role="alert" className="text-[#8B2D2D] text-xs mt-2">{errors.email}</p>}
             </div>
 
             <div className="pt-2">
@@ -170,7 +178,7 @@ export function OnboardingScreen() {
                   I consent to the collection and use of my data as described above.
                 </span>
               </label>
-              {errors.pdpa && <p className="text-[#8B2D2D] text-xs mt-2">{errors.pdpa}</p>}
+              {errors.pdpa && <p id="onboard-pdpa-error" role="alert" className="text-[#8B2D2D] text-xs mt-2">{errors.pdpa}</p>}
             </div>
 
             {errors.api && (
