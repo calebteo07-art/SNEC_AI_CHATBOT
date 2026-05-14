@@ -261,11 +261,11 @@
   <!-- 3. DEVELOPMENT COST -->
   <h2>3. Development Tooling Cost — Claude AI (Anthropic)</h2>
   <p>
-    Development of the EyeQ platform is assisted by Claude Code, Anthropic's AI coding CLI tool, available under monthly subscription plans. Claude Code integrates directly into the developer's terminal and IDE, providing real-time code generation, debugging assistance, and architectural guidance. Two subscription tiers are evaluated below.
+    Development of the EyeQ platform is assisted by Claude Code, Anthropic's AI coding CLI tool, available under monthly subscription plans. Claude Code integrates directly into the developer's terminal and IDE, providing real-time code generation, debugging assistance, and architectural guidance.
   </p>
 
   <table>
-    <caption>Table 3.1 — Claude Subscription Plan Comparison</caption>
+    <caption>Table 3.1 — Claude Pro Subscription Cost</caption>
     <thead>
       <tr>
         <th>Plan</th>
@@ -276,23 +276,14 @@
     </thead>
     <tbody>
       <tr>
-        <td>Claude Pro (includes Claude Code)</td>
-        <td>$20.00 / month</td>
-        <td>4 months</td>
-        <td class="right">$80.00</td>
-      </tr>
-      <tr>
-        <td><strong>Claude Max 5× (includes Claude Code, 5× usage vs Pro)</strong></td>
-        <td><strong>$100.00 / month</strong></td>
+        <td><strong>Claude Pro (includes Claude Code)</strong></td>
+        <td><strong>$20.00 / month</strong></td>
         <td><strong>4 months</strong></td>
-        <td class="right bold">$400.00</td>
+        <td class="right bold">$80.00</td>
       </tr>
     </tbody>
   </table>
 
-  <div class="note-box">
-    <p><strong>Recommendation:</strong> Claude Max 5× at <strong>$400.00 total</strong>. Building an 8-screen medical education platform with complex multi-model AI orchestration, 28 Python backend modules, and full-stack integration benefits significantly from the 5× higher usage allowance of the Max plan. This minimises developer idle time caused by rate limits and accelerates the 4-month build timeline.</p>
-  </div>
   <p style="font-size:9.5pt; color:#444; margin-top:6px;"><em>Note: This is a one-time development cost. No Claude subscription is required once the platform is deployed to production.</em></p>
   <p style="font-size:9.5pt; color:#555; margin-top:4px;"><em>Source: claude.com/pricing — verified May 2026</em></p>
 
@@ -334,7 +325,7 @@
   <p style="font-size:9.5pt; color:#555;"><em>Source: ai.google.dev/gemini-api/docs/pricing — verified May 2026</em></p>
 
   <h3>4.2 Usage Assumptions</h3>
-  <p>Token counts are based on empirical measurement across a representative full-session run covering all application features. The following assumptions drive annual cost projections.</p>
+  <p>Token counts account for all application features across the full stack, including system prompt overhead and Gemini 2.5 Flash's internal reasoning (thinking) tokens, which are billed at the standard output rate. The following assumptions drive annual cost projections.</p>
 
   <table>
     <caption>Table 4.2 — Usage Assumptions</caption>
@@ -343,18 +334,18 @@
     </thead>
     <tbody>
       <tr><td>Target user cohort</td><td class="right">100 users</td></tr>
-      <tr><td>Average sessions per user per week</td><td class="right">2 sessions</td></tr>
+      <tr><td>Average sessions per user per week</td><td class="right">4 sessions</td></tr>
       <tr><td>Weeks per year</td><td class="right">52 weeks</td></tr>
-      <tr><td>Total sessions per year (all users)</td><td class="right">10,400 sessions</td></tr>
-      <tr><td>Flash input tokens per session</td><td class="right">~15,450 tokens</td></tr>
-      <tr><td>Flash output tokens per session</td><td class="right">~8,200 tokens</td></tr>
-      <tr><td>Flash-Lite input tokens per session</td><td class="right">~1,550 tokens</td></tr>
-      <tr><td>Flash-Lite output tokens per session</td><td class="right">~800 tokens</td></tr>
+      <tr><td>Total sessions per year (all users)</td><td class="right">20,800 sessions</td></tr>
+      <tr><td>Flash input tokens per session</td><td class="right">~28,000 tokens</td></tr>
+      <tr><td>Flash output tokens per session (incl. thinking tokens)</td><td class="right">~18,700 tokens</td></tr>
+      <tr><td>Flash-Lite input tokens per session</td><td class="right">~2,000 tokens</td></tr>
+      <tr><td>Flash-Lite output tokens per session</td><td class="right">~600 tokens</td></tr>
     </tbody>
   </table>
 
   <div class="note-box">
-    <p><strong>Session definition:</strong> One session covers a tutor chat exchange (10 turns), one clinical case simulation (5 turns + evaluation), one image quiz attempt, daily check-in (question + answer), and a study suggestion. Flash-Lite handles only the two lightweight tasks: flashcard generation (from conversation transcript) and case evaluation scoring.</p>
+    <p><strong>Token overhead notes:</strong> Input tokens are higher than a naive per-turn estimate because (a) each API call carries the full conversation history plus a detailed ophthalmology system prompt (~4,000–5,000 tokens), and (b) all 8 application features make API calls within a session. Output tokens include Gemini 2.5 Flash's chain-of-thought reasoning (thinking) tokens, which are billed at the standard output rate of $2.50/1M and are not visible in the final response but are charged. Flash-Lite is used only for flashcard generation and case scoring — shorter, simpler calls without extended reasoning.</p>
   </div>
 
   <h3>4.3 Annual Token Volume and Cost Calculation</h3>
@@ -374,35 +365,35 @@
     <tbody>
       <tr>
         <td>Gemini 2.5 Flash — Input</td>
-        <td class="right">10,400</td>
-        <td class="right">15,450</td>
-        <td class="right">160,680,000</td>
+        <td class="right">20,800</td>
+        <td class="right">28,000</td>
+        <td class="right">582,400,000</td>
         <td class="right">$0.30 / 1M</td>
-        <td class="right">$48.20</td>
+        <td class="right">$174.72</td>
       </tr>
       <tr>
-        <td>Gemini 2.5 Flash — Output</td>
-        <td class="right">10,400</td>
-        <td class="right">8,200</td>
-        <td class="right">85,280,000</td>
+        <td>Gemini 2.5 Flash — Output (incl. thinking tokens)</td>
+        <td class="right">20,800</td>
+        <td class="right">18,700</td>
+        <td class="right">388,960,000</td>
         <td class="right">$2.50 / 1M</td>
-        <td class="right">$213.20</td>
+        <td class="right">$972.40</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash-Lite — Input</td>
-        <td class="right">10,400</td>
-        <td class="right">1,550</td>
-        <td class="right">16,120,000</td>
+        <td class="right">20,800</td>
+        <td class="right">2,000</td>
+        <td class="right">41,600,000</td>
         <td class="right">$0.10 / 1M</td>
-        <td class="right">$1.61</td>
+        <td class="right">$4.16</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash-Lite — Output</td>
-        <td class="right">10,400</td>
-        <td class="right">800</td>
-        <td class="right">8,320,000</td>
+        <td class="right">20,800</td>
+        <td class="right">600</td>
+        <td class="right">12,480,000</td>
         <td class="right">$0.40 / 1M</td>
-        <td class="right">$3.33</td>
+        <td class="right">$4.99</td>
       </tr>
       <tr>
         <td>Supervisor Dashboard Overhead</td>
@@ -410,19 +401,19 @@
         <td class="right">—</td>
         <td class="right">—</td>
         <td class="right">—</td>
-        <td class="right">$5.00</td>
+        <td class="right">$10.00</td>
       </tr>
       <tr class="subtotal-row">
         <td colspan="5"><strong>Subtotal</strong></td>
-        <td class="right"><strong>$271.34</strong></td>
+        <td class="right"><strong>$1,166.27</strong></td>
       </tr>
       <tr>
         <td colspan="5">Safety Buffer (20% — accounts for usage variability, retries, long-form sessions)</td>
-        <td class="right">$54.27</td>
+        <td class="right">$233.25</td>
       </tr>
       <tr class="total-row">
         <td colspan="5"><strong>Total Annual Gemini API Cost</strong></td>
-        <td class="right"><strong>$325.61</strong></td>
+        <td class="right"><strong>$1,399.52</strong></td>
       </tr>
     </tbody>
   </table>
@@ -442,24 +433,24 @@
     </thead>
     <tbody>
       <tr>
-        <td>Claude Max 5× — Developer Subscription</td>
+        <td>Claude Pro — Developer Subscription</td>
         <td>One-time (development)</td>
-        <td>1 developer × 4 months × $100/month</td>
-        <td class="right">$400.00</td>
+        <td>1 developer × 4 months × $20/month</td>
+        <td class="right">$80.00</td>
       </tr>
       <tr>
         <td>Google Gemini API — AI Inference</td>
         <td>Annual recurring</td>
-        <td>100 users, 2 sessions/week, 12 months</td>
-        <td class="right">$325.61</td>
+        <td>100 users, 4 sessions/week, 12 months</td>
+        <td class="right">$1,399.52</td>
       </tr>
       <tr class="total-row">
         <td colspan="3"><strong>Year 1 Grand Total</strong></td>
-        <td class="right"><strong>$725.61</strong></td>
+        <td class="right"><strong>$1,479.52</strong></td>
       </tr>
       <tr class="total-row">
         <td colspan="3"><strong>Year 2 and Beyond (API only, no development)</strong></td>
-        <td class="right"><strong>$325.61 / year</strong></td>
+        <td class="right"><strong>$1,399.52 / year</strong></td>
       </tr>
     </tbody>
   </table>
@@ -478,22 +469,22 @@
       <tbody>
         <tr>
           <td>Year 1 (incl. development)</td>
-          <td class="right">$725.61</td>
+          <td class="right">$1,479.52</td>
           <td class="center">100</td>
-          <td class="right bold">$7.26 / user</td>
+          <td class="right bold">$14.80 / user</td>
         </tr>
         <tr>
           <td>Year 2+ (API only)</td>
-          <td class="right">$325.61</td>
+          <td class="right">$1,399.52</td>
           <td class="center">100</td>
-          <td class="right bold">$3.26 / user</td>
+          <td class="right bold">$14.00 / user</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <div class="note-box">
-    <p><strong>Budget Note:</strong> This is a low-cost deployment. The all-in Year 1 cost of <strong>$725.61</strong> covers one developer's tooling for the full 4-month build plus 12 months of AI inference for the entire 100-user cohort. From Year 2 onward, the annual operating cost is under $330 — less than $3.30 per student per year.</p>
+    <p><strong>Budget Note:</strong> The all-in Year 1 cost of <strong>$1,479.52</strong> covers one developer's Claude Pro subscription for the full 4-month build plus 12 months of Gemini AI inference for the entire 100-user cohort. From Year 2 onward, the annual operating cost is approximately <strong>$1,400</strong> — just <strong>$14.00 per student per year</strong> — making this one of the most cost-efficient AI-powered medical education tools available.</p>
   </div>
 
   <!-- APPENDIX -->
@@ -522,13 +513,13 @@
   <div class="evidence-card">
     <h3>A.2 — Claude (Anthropic) Pricing</h3>
     <p class="evidence-url">https://claude.com/pricing</p>
-    <p><strong>Prices confirmed:</strong> Claude Pro at $20.00/month (includes Claude Code); Claude Max 5× at $100.00/month (includes Claude Code, 5× usage allowance vs Pro).</p>
+    <p><strong>Price confirmed:</strong> Claude Pro at $20.00/month (includes Claude Code).</p>
     <p style="margin-top:10px;"><strong>Screenshot instructions:</strong></p>
     <ol>
       <li>Open <code>https://claude.com/pricing</code> in a browser.</li>
-      <li>Locate the <strong>Pro</strong> plan card ($20/month) and the <strong>Max</strong> plan card ($100/month).</li>
-      <li>Confirm that both plan cards show "Claude Code" as an included feature.</li>
-      <li>Capture a screenshot showing both cards with their prices clearly visible.</li>
+      <li>Locate the <strong>Pro</strong> plan card showing $20/month.</li>
+      <li>Confirm the plan card shows "Claude Code" as an included feature.</li>
+      <li>Capture a screenshot with the price and feature list clearly visible.</li>
       <li>Save the file as: <code>pricing_evidence_claude_[YYYY-MM-DD].png</code></li>
       <li>Insert the image into the placeholder box below.</li>
     </ol>
