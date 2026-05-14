@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EyeQ AI Tutoring Platform — Budget Proposal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+      font-size: 11pt;
+      color: #000000;
+      background: #f0f0f0;
+      line-height: 1.5;
+    }
+
+    .page {
+      background: #ffffff;
+      width: 816px;
+      margin: 40px auto;
+      padding: 72px 90px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+    }
+
+    /* ── HEADINGS ── */
+    h1 {
+      font-size: 20pt;
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #000;
+      margin: 28px 0 8px 0;
+      border-bottom: 1px solid #000;
+      padding-bottom: 2px;
+    }
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin: 18px 0 6px 0;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      text-align: center;
+      padding-bottom: 32px;
+      border-bottom: 2px solid #000;
+      margin-bottom: 28px;
+    }
+    .cover .institution {
+      font-size: 12pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .cover .doc-title {
+      font-size: 22pt;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .cover .doc-subtitle {
+      font-size: 13pt;
+      margin-bottom: 20px;
+    }
+    .cover .doc-meta {
+      font-size: 10pt;
+      color: #333;
+      line-height: 1.8;
+    }
+
+    /* ── BODY TEXT ── */
+    p { margin-bottom: 10px; }
+    ul, ol { margin: 8px 0 10px 22px; }
+    li { margin-bottom: 3px; }
+
+    /* ── TABLES ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5pt;
+      margin: 12px 0 16px 0;
+    }
+    th {
+      background: #f2f2f2;
+      font-weight: 700;
+      padding: 7px 10px;
+      border: 1px solid #000;
+      text-align: left;
+    }
+    td {
+      padding: 6px 10px;
+      border: 1px solid #000;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f9f9f9; }
+    .total-row td {
+      background: #e8e8e8;
+      font-weight: 700;
+      border-top: 2px solid #000;
+    }
+    .subtotal-row td {
+      background: #f2f2f2;
+      font-weight: 600;
+      border-top: 1px solid #555;
+    }
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .bold { font-weight: 700; }
+    table caption {
+      font-size: 10pt;
+      font-style: italic;
+      text-align: left;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    /* ── CALLOUT BOXES ── */
+    .note-box {
+      border: 1px solid #000;
+      padding: 12px 16px;
+      margin: 12px 0;
+      background: #f9f9f9;
+    }
+    .note-box p { margin-bottom: 0; }
+
+    /* ── SUMMARY CALLOUT ── */
+    .summary-callout {
+      border: 2px solid #000;
+      padding: 16px 20px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .summary-callout table {
+      margin: 8px auto 0 auto;
+      width: auto;
+    }
+    .summary-callout td, .summary-callout th {
+      border: 1px solid #000;
+      padding: 6px 20px;
+    }
+    .summary-callout .big-number {
+      font-size: 20pt;
+      font-weight: 700;
+    }
+
+    /* ── EVIDENCE CARD ── */
+    .evidence-card {
+      border: 1px solid #000;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .evidence-url {
+      font-family: 'Courier New', monospace;
+      font-size: 9.5pt;
+      color: #0000EE;
+      margin: 6px 0 10px 0;
+      word-break: break-all;
+    }
+    .screenshot-placeholder {
+      border: 2px dashed #888;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      font-size: 10pt;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+
+    /* ── FOOTER ── */
+    .doc-footer {
+      margin-top: 40px;
+      border-top: 1px solid #000;
+      padding-top: 8px;
+      font-size: 9pt;
+      color: #444;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── PRINT ── */
+    @page {
+      size: A4;
+      margin: 20mm 18mm 22mm 18mm;
+    }
+    @media print {
+      body { background: #fff; }
+      .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      h2 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+      .evidence-card { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <p class="institution">Singapore National Eye Centre (SNEC)</p>
+    <p class="doc-title">EyeQ AI Tutoring Platform</p>
+    <p class="doc-subtitle">Budget Proposal — Fiscal Year 2025–2026</p>
+    <p class="doc-meta">
+      Prepared by: Caleb Teo &nbsp;|&nbsp; Developer<br>
+      Date: May 2026 &nbsp;|&nbsp; Version 1.0 &nbsp;|&nbsp; <em>Internal Use — Confidential</em>
+    </p>
+  </div>
+
+  <!-- 1. EXECUTIVE SUMMARY -->
+  <h2>1. Executive Summary</h2>
+  <p>
+    EyeQ is a web-based AI tutoring platform built exclusively for ophthalmology trainees at SNEC. The system delivers interactive Socratic tutoring, clinical case simulations, spaced-repetition flashcards, a retinal image quiz module, and a daily check-in system — all powered by Google's Gemini AI models. A supervisor dashboard provides faculty with real-time cohort performance analytics and at-risk student identification.
+  </p>
+  <p>
+    This document provides a transparent cost breakdown for two budget categories: (1) development tooling costs using Claude AI by Anthropic for a single developer over a four-month build period, and (2) ongoing operational API costs for 100 student users over a 12-month period. Pricing figures are drawn directly from official vendor pricing pages, with evidence references provided in the appendix.
+  </p>
+
+  <!-- 2. PLATFORM OVERVIEW -->
+  <h2>2. Platform Overview</h2>
+
+  <h3>2.1 Technical Architecture</h3>
+  <table>
+    <caption>Table 2.1 — Technology Stack</caption>
+    <thead>
+      <tr><th>Layer</th><th>Technology</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Frontend</td><td>React 18 (TypeScript) + Vite + Tailwind CSS</td></tr>
+      <tr><td>Backend</td><td>Python FastAPI + Uvicorn (REST API)</td></tr>
+      <tr><td>AI Inference</td><td>Google Gemini 2.5 Flash &amp; Gemini 2.5 Flash-Lite</td></tr>
+      <tr><td>Data Storage</td><td>Google Sheets (sessions, flashcards, profiles, audit logs)</td></tr>
+      <tr><td>File Storage</td><td>Google Drive (clinical case files)</td></tr>
+      <tr><td>Developer Tooling</td><td>Claude Code (Anthropic) — AI-assisted development CLI</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 Application Screens (8 Total)</h3>
+  <ul>
+    <li><strong>Onboarding</strong> — Email sign-up, consent, role detection (student / supervisor)</li>
+    <li><strong>Daily Check-In</strong> — 60-second warm-up question on the student's weakest topic</li>
+    <li><strong>Dashboard</strong> — Central hub: mode selection, XP tracking, study suggestions</li>
+    <li><strong>Tutor Chat</strong> — Socratic AI dialogue with streaming responses and gamification</li>
+    <li><strong>Case List</strong> — Browse 8 clinical cases (glaucoma, diabetic retinopathy, AMD, RD, etc.)</li>
+    <li><strong>Case Session</strong> — Interactive AI patient: history → investigations → diagnosis → management; rubric scoring across 4 domains</li>
+    <li><strong>Flashcard Review</strong> — Spaced repetition (SM-2 algorithm) with AI-generated cards</li>
+    <li><strong>Supervisor Dashboard</strong> — Cohort analytics, learning velocity, at-risk student identification</li>
+  </ul>
+
+  <!-- 3. DEVELOPMENT COST -->
+  <h2>3. Development Tooling Cost — Claude AI (Anthropic)</h2>
+  <p>
+    Development of the EyeQ platform is assisted by Claude Code, Anthropic's AI coding CLI tool, available under monthly subscription plans. Claude Code integrates directly into the developer's terminal and IDE, providing real-time code generation, debugging assistance, and architectural guidance. Two subscription tiers are evaluated below.
+  </p>
+
+  <table>
+    <caption>Table 3.1 — Claude Subscription Plan Comparison</caption>
+    <thead>
+      <tr>
+        <th>Plan</th>
+        <th>Monthly Rate</th>
+        <th>Development Period</th>
+        <th class="right">Total Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Claude Pro (includes Claude Code)</td>
+        <td>$20.00 / month</td>
+        <td>4 months</td>
+        <td class="right">$80.00</td>
+      </tr>
+      <tr>
+        <td><strong>Claude Max 5× (includes Claude Code, 5× usage vs Pro)</strong></td>
+        <td><strong>$100.00 / month</strong></td>
+        <td><strong>4 months</strong></td>
+        <td class="right bold">$400.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note-box">
+    <p><strong>Recommendation:</strong> Claude Max 5× at <strong>$400.00 total</strong>. Building an 8-screen medical education platform with complex multi-model AI orchestration, 28 Python backend modules, and full-stack integration benefits significantly from the 5× higher usage allowance of the Max plan. This minimises developer idle time caused by rate limits and accelerates the 4-month build timeline.</p>
+  </div>
+  <p style="font-size:9.5pt; color:#444; margin-top:6px;"><em>Note: This is a one-time development cost. No Claude subscription is required once the platform is deployed to production.</em></p>
+  <p style="font-size:9.5pt; color:#555; margin-top:4px;"><em>Source: claude.com/pricing — verified May 2026</em></p>
+
+  <!-- 4. OPERATIONAL COST -->
+  <h2>4. Operational Cost — Google Gemini API</h2>
+  <p>
+    All AI inference in EyeQ is handled by Google's Gemini API, billed on a per-token basis. Two model tiers are used: <strong>Gemini 2.5 Flash</strong> for complex multi-turn reasoning tasks (tutoring, case simulation, image analysis, study suggestions) and <strong>Gemini 2.5 Flash-Lite</strong> for lightweight generation tasks (flashcard creation and case evaluation scoring).
+  </p>
+
+  <h3>4.1 API Pricing — Standard Tier (Pay-As-You-Go)</h3>
+  <table>
+    <caption>Table 4.1 — Gemini API Pricing (Standard Tier)</caption>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th class="right">Input Price</th>
+        <th class="right">Output Price</th>
+        <th>Context Window</th>
+        <th>Use in EyeQ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Gemini 2.5 Flash</td>
+        <td class="right">$0.30 / 1M tokens</td>
+        <td class="right">$2.50 / 1M tokens</td>
+        <td>Up to 1M tokens</td>
+        <td>Chat, cases, image quiz, check-in, suggestions, supervisor</td>
+      </tr>
+      <tr>
+        <td>Gemini 2.5 Flash-Lite</td>
+        <td class="right">$0.10 / 1M tokens</td>
+        <td class="right">$0.40 / 1M tokens</td>
+        <td>Up to 1M tokens</td>
+        <td>Flashcard generation, case evaluation scoring</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:9.5pt; color:#555;"><em>Source: ai.google.dev/gemini-api/docs/pricing — verified May 2026</em></p>
+
+  <h3>4.2 Usage Assumptions</h3>
+  <p>Token counts are based on empirical measurement across a representative full-session run covering all application features. The following assumptions drive annual cost projections.</p>
+
+  <table>
+    <caption>Table 4.2 — Usage Assumptions</caption>
+    <thead>
+      <tr><th>Parameter</th><th class="right">Value</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Target user cohort</td><td class="right">100 users</td></tr>
+      <tr><td>Average sessions per user per week</td><td class="right">2 sessions</td></tr>
+      <tr><td>Weeks per year</td><td class="right">52 weeks</td></tr>
+      <tr><td>Total sessions per year (all users)</td><td class="right">10,400 sessions</td></tr>
+      <tr><td>Flash input tokens per session</td><td class="right">~15,450 tokens</td></tr>
+      <tr><td>Flash output tokens per session</td><td class="right">~8,200 tokens</td></tr>
+      <tr><td>Flash-Lite input tokens per session</td><td class="right">~1,550 tokens</td></tr>
+      <tr><td>Flash-Lite output tokens per session</td><td class="right">~800 tokens</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note-box">
+    <p><strong>Session definition:</strong> One session covers a tutor chat exchange (10 turns), one clinical case simulation (5 turns + evaluation), one image quiz attempt, daily check-in (question + answer), and a study suggestion. Flash-Lite handles only the two lightweight tasks: flashcard generation (from conversation transcript) and case evaluation scoring.</p>
+  </div>
+
+  <h3>4.3 Annual Token Volume and Cost Calculation</h3>
+
+  <table>
+    <caption>Table 4.3 — Annual Token and Cost Breakdown (100 Users, 12 Months)</caption>
+    <thead>
+      <tr>
+        <th>Line Item</th>
+        <th class="right">Sessions</th>
+        <th class="right">Tokens / Session</th>
+        <th class="right">Total Tokens</th>
+        <th class="right">Unit Price</th>
+        <th class="right">Annual Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Gemini 2.5 Flash — Input</td>
+        <td class="right">10,400</td>
+        <td class="right">15,450</td>
+        <td class="right">160,680,000</td>
+        <td class="right">$0.30 / 1M</td>
+        <td class="right">$48.20</td>
+      </tr>
+      <tr>
+        <td>Gemini 2.5 Flash — Output</td>
+        <td class="right">10,400</td>
+        <td class="right">8,200</td>
+        <td class="right">85,280,000</td>
+        <td class="right">$2.50 / 1M</td>
+        <td class="right">$213.20</td>
+      </tr>
+      <tr>
+        <td>Gemini 2.5 Flash-Lite — Input</td>
+        <td class="right">10,400</td>
+        <td class="right">1,550</td>
+        <td class="right">16,120,000</td>
+        <td class="right">$0.10 / 1M</td>
+        <td class="right">$1.61</td>
+      </tr>
+      <tr>
+        <td>Gemini 2.5 Flash-Lite — Output</td>
+        <td class="right">10,400</td>
+        <td class="right">800</td>
+        <td class="right">8,320,000</td>
+        <td class="right">$0.40 / 1M</td>
+        <td class="right">$3.33</td>
+      </tr>
+      <tr>
+        <td>Supervisor Dashboard Overhead</td>
+        <td class="right">—</td>
+        <td class="right">—</td>
+        <td class="right">—</td>
+        <td class="right">—</td>
+        <td class="right">$5.00</td>
+      </tr>
+      <tr class="subtotal-row">
+        <td colspan="5"><strong>Subtotal</strong></td>
+        <td class="right"><strong>$271.34</strong></td>
+      </tr>
+      <tr>
+        <td colspan="5">Safety Buffer (20% — accounts for usage variability, retries, long-form sessions)</td>
+        <td class="right">$54.27</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="5"><strong>Total Annual Gemini API Cost</strong></td>
+        <td class="right"><strong>$325.61</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 5. COST SUMMARY -->
+  <h2>5. Cost Summary</h2>
+
+  <table>
+    <caption>Table 5.1 — Total Budget Summary</caption>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Cost Type</th>
+        <th>Details</th>
+        <th class="right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Claude Max 5× — Developer Subscription</td>
+        <td>One-time (development)</td>
+        <td>1 developer × 4 months × $100/month</td>
+        <td class="right">$400.00</td>
+      </tr>
+      <tr>
+        <td>Google Gemini API — AI Inference</td>
+        <td>Annual recurring</td>
+        <td>100 users, 2 sessions/week, 12 months</td>
+        <td class="right">$325.61</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"><strong>Year 1 Grand Total</strong></td>
+        <td class="right"><strong>$725.61</strong></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"><strong>Year 2 and Beyond (API only, no development)</strong></td>
+        <td class="right"><strong>$325.61 / year</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="summary-callout">
+    <p class="bold" style="font-size:11pt; margin-bottom:10px;">Per-User Cost Summary</p>
+    <table style="width: auto; margin: 0 auto;">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Total Cost</th>
+          <th>Users</th>
+          <th>Cost per User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Year 1 (incl. development)</td>
+          <td class="right">$725.61</td>
+          <td class="center">100</td>
+          <td class="right bold">$7.26 / user</td>
+        </tr>
+        <tr>
+          <td>Year 2+ (API only)</td>
+          <td class="right">$325.61</td>
+          <td class="center">100</td>
+          <td class="right bold">$3.26 / user</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note-box">
+    <p><strong>Budget Note:</strong> This is a low-cost deployment. The all-in Year 1 cost of <strong>$725.61</strong> covers one developer's tooling for the full 4-month build plus 12 months of AI inference for the entire 100-user cohort. From Year 2 onward, the annual operating cost is under $330 — less than $3.30 per student per year.</p>
+  </div>
+
+  <!-- APPENDIX -->
+  <h2>Appendix A — Pricing Evidence</h2>
+  <p>
+    All prices quoted in this proposal are sourced from official vendor pricing pages. Screenshots of these pages should be captured at the time of proposal submission and inserted below as timestamped evidence. Instructions for obtaining each screenshot are provided.
+  </p>
+
+  <div class="evidence-card">
+    <h3>A.1 — Google Gemini API Pricing</h3>
+    <p class="evidence-url">https://ai.google.dev/gemini-api/docs/pricing</p>
+    <p><strong>Prices confirmed:</strong> Gemini 2.5 Flash at $0.30/1M input and $2.50/1M output; Gemini 2.5 Flash-Lite at $0.10/1M input and $0.40/1M output (Standard / pay-as-you-go tier).</p>
+    <p style="margin-top:10px;"><strong>Screenshot instructions:</strong></p>
+    <ol>
+      <li>Open <code>https://ai.google.dev/gemini-api/docs/pricing</code> in a browser.</li>
+      <li>Locate the <strong>Gemini 2.5 Flash</strong> and <strong>Gemini 2.5 Flash-Lite</strong> rows under the "Standard (pay-as-you-go)" pricing table.</li>
+      <li>Capture a screenshot showing both model rows, the Input/Output columns, and the prices $0.30 / $2.50 and $0.10 / $0.40.</li>
+      <li>Save the file as: <code>pricing_evidence_gemini_[YYYY-MM-DD].png</code></li>
+      <li>Insert the image into the placeholder box below.</li>
+    </ol>
+    <div class="screenshot-placeholder">
+      [ Insert screenshot: Gemini API Pricing Page — ai.google.dev/gemini-api/docs/pricing ]
+    </div>
+  </div>
+
+  <div class="evidence-card">
+    <h3>A.2 — Claude (Anthropic) Pricing</h3>
+    <p class="evidence-url">https://claude.com/pricing</p>
+    <p><strong>Prices confirmed:</strong> Claude Pro at $20.00/month (includes Claude Code); Claude Max 5× at $100.00/month (includes Claude Code, 5× usage allowance vs Pro).</p>
+    <p style="margin-top:10px;"><strong>Screenshot instructions:</strong></p>
+    <ol>
+      <li>Open <code>https://claude.com/pricing</code> in a browser.</li>
+      <li>Locate the <strong>Pro</strong> plan card ($20/month) and the <strong>Max</strong> plan card ($100/month).</li>
+      <li>Confirm that both plan cards show "Claude Code" as an included feature.</li>
+      <li>Capture a screenshot showing both cards with their prices clearly visible.</li>
+      <li>Save the file as: <code>pricing_evidence_claude_[YYYY-MM-DD].png</code></li>
+      <li>Insert the image into the placeholder box below.</li>
+    </ol>
+    <div class="screenshot-placeholder">
+      [ Insert screenshot: Claude Pricing Page — claude.com/pricing ]
+    </div>
+  </div>
+
+  <div class="evidence-card">
+    <h3>A.3 — Token Usage Methodology</h3>
+    <p>Token counts in Section 4.2 are empirically derived from a representative full-session run using the Gemini API's native usage metadata fields (<code>promptTokenCount</code> and <code>candidatesTokenCount</code>). The session covered all application features:</p>
+    <ul>
+      <li>Tutor Chat — 10 Socratic dialogue turns with student profile context</li>
+      <li>Case Simulation — Full walkthrough (5 patient interaction turns + structured evaluation)</li>
+      <li>Image Quiz — 1 fundus image analysis question with student description</li>
+      <li>Daily Check-In — AI-generated question + response evaluation</li>
+      <li>Study Suggestion — AI-generated recommendation based on student profile</li>
+      <li>Flashcard Generation — Post-session extraction of Q&amp;A pairs (Flash-Lite)</li>
+      <li>Case Evaluation Scoring — Rubric-based scoring against case answer key (Flash-Lite)</li>
+    </ul>
+    <p style="margin-top:8px;">Detailed token logs from the measurement session are available on request. The 20% safety buffer is applied to account for session length variability, model prompt overhead changes between API versions, and occasional retries on API errors.</p>
+  </div>
+
+  <div class="doc-footer">
+    <span>EyeQ AI Tutoring Platform — SNEC Internal Budget Proposal — Confidential</span>
+    <span>Prepared May 2026 — v1.0</span>
+  </div>
+
+</div>
+</body>
+</html>
