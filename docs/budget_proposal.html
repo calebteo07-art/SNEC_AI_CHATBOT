@@ -284,7 +284,7 @@
     </tbody>
   </table>
 
-  <p style="font-size:9.5pt; color:#444; margin-top:6px;"><em>Note: This is a one-time development cost billed in SGD. No Claude subscription is required once the platform is deployed to production.</em></p>
+  <p style="font-size:9.5pt; color:#444; margin-top:6px;"><em>Note: One-time development cost, billed in SGD. No Claude subscription is required once the platform is deployed to production.</em></p>
   <p style="font-size:9.5pt; color:#555; margin-top:4px;"><em>Source: claude.com/pricing — verified May 2026</em></p>
 
   <!-- 4. OPERATIONAL COST -->
@@ -308,21 +308,21 @@
     <tbody>
       <tr>
         <td>Gemini 2.5 Flash</td>
-        <td class="right">$0.30 / 1M tokens</td>
-        <td class="right">$2.50 / 1M tokens</td>
+        <td class="right">SGD $0.38 / 1M tokens</td>
+        <td class="right">SGD $3.18 / 1M tokens</td>
         <td>Up to 1M tokens</td>
         <td>Chat, cases, image quiz, check-in, suggestions, supervisor</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash-Lite</td>
-        <td class="right">$0.10 / 1M tokens</td>
-        <td class="right">$0.40 / 1M tokens</td>
+        <td class="right">SGD $0.13 / 1M tokens</td>
+        <td class="right">SGD $0.51 / 1M tokens</td>
         <td>Up to 1M tokens</td>
         <td>Flashcard generation, case evaluation scoring</td>
       </tr>
     </tbody>
   </table>
-  <p style="font-size:9.5pt; color:#555;"><em>Source: ai.google.dev/gemini-api/docs/pricing — verified May 2026</em></p>
+  <p style="font-size:9.5pt; color:#555;"><em>Source: ai.google.dev/gemini-api/docs/pricing — verified May 2026. USD prices converted to SGD at 1 USD = SGD 1.2723 (xe.com, 14 May 2026).</em></p>
 
   <h3>4.2 Usage Assumptions</h3>
   <p>Token counts account for all application features across the full stack, including system prompt overhead and Gemini 2.5 Flash's internal reasoning (thinking) tokens, which are billed at the standard output rate. The following assumptions drive annual cost projections.</p>
@@ -368,32 +368,32 @@
         <td class="right">20,800</td>
         <td class="right">28,000</td>
         <td class="right">582,400,000</td>
-        <td class="right">$0.30 / 1M</td>
-        <td class="right">$174.72</td>
+        <td class="right">SGD $0.38 / 1M</td>
+        <td class="right">SGD $222.30</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash — Output (incl. thinking tokens)</td>
         <td class="right">20,800</td>
         <td class="right">18,700</td>
         <td class="right">388,960,000</td>
-        <td class="right">$2.50 / 1M</td>
-        <td class="right">$972.40</td>
+        <td class="right">SGD $3.18 / 1M</td>
+        <td class="right">SGD $1,237.39</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash-Lite — Input</td>
         <td class="right">20,800</td>
         <td class="right">2,000</td>
         <td class="right">41,600,000</td>
-        <td class="right">$0.10 / 1M</td>
-        <td class="right">$4.16</td>
+        <td class="right">SGD $0.13 / 1M</td>
+        <td class="right">SGD $5.29</td>
       </tr>
       <tr>
         <td>Gemini 2.5 Flash-Lite — Output</td>
         <td class="right">20,800</td>
         <td class="right">600</td>
         <td class="right">12,480,000</td>
-        <td class="right">$0.40 / 1M</td>
-        <td class="right">$4.99</td>
+        <td class="right">SGD $0.51 / 1M</td>
+        <td class="right">SGD $6.35</td>
       </tr>
       <tr>
         <td>Supervisor Dashboard Overhead</td>
@@ -401,19 +401,19 @@
         <td class="right">—</td>
         <td class="right">—</td>
         <td class="right">—</td>
-        <td class="right">$10.00</td>
+        <td class="right">SGD $12.72</td>
       </tr>
       <tr class="subtotal-row">
         <td colspan="5"><strong>Subtotal</strong></td>
-        <td class="right"><strong>$1,166.27</strong></td>
+        <td class="right"><strong>SGD $1,484.05</strong></td>
       </tr>
       <tr>
         <td colspan="5">Safety Buffer (20% — accounts for usage variability, retries, long-form sessions)</td>
-        <td class="right">$233.25</td>
+        <td class="right">SGD $296.81</td>
       </tr>
       <tr class="total-row">
         <td colspan="5"><strong>Total Annual Gemini API Cost</strong></td>
-        <td class="right"><strong>$1,399.52</strong></td>
+        <td class="right"><strong>SGD $1,780.86</strong></td>
       </tr>
     </tbody>
   </table>
@@ -442,19 +442,15 @@
         <td>Google Gemini API — AI Inference</td>
         <td>Annual recurring</td>
         <td>100 users, 4 sessions/week, 12 months</td>
-        <td class="right">USD $1,400.00</td>
+        <td class="right">SGD $1,780.86</td>
       </tr>
       <tr class="total-row">
-        <td colspan="3"><strong>Year 1 Total — Development (SGD)</strong></td>
-        <td class="right"><strong>SGD $120.00</strong></td>
+        <td colspan="3"><strong>Year 1 Grand Total</strong></td>
+        <td class="right"><strong>SGD $1,900.86</strong></td>
       </tr>
       <tr class="total-row">
-        <td colspan="3"><strong>Year 1 Total — AI Inference (USD)</strong></td>
-        <td class="right"><strong>USD $1,400.00</strong></td>
-      </tr>
-      <tr class="total-row">
-        <td colspan="3"><strong>Year 2 and Beyond — AI Inference Only (USD)</strong></td>
-        <td class="right"><strong>USD $1,400.00 / year</strong></td>
+        <td colspan="3"><strong>Year 2 and Beyond (API only, no development)</strong></td>
+        <td class="right"><strong>SGD $1,780.86 / year</strong></td>
       </tr>
     </tbody>
   </table>
@@ -472,23 +468,23 @@
       </thead>
       <tbody>
         <tr>
-          <td>Development tooling (Year 1, SGD)</td>
-          <td class="right">SGD $120.00</td>
+          <td>Year 1 (development + AI inference)</td>
+          <td class="right">SGD $1,900.86</td>
           <td class="center">100</td>
-          <td class="right bold">SGD $1.20 / user</td>
+          <td class="right bold">SGD $19.01 / user</td>
         </tr>
         <tr>
-          <td>AI Inference — Year 1 &amp; Year 2+ (USD, annual)</td>
-          <td class="right">USD $1,400.00</td>
+          <td>Year 2+ (AI inference only, annual)</td>
+          <td class="right">SGD $1,780.86</td>
           <td class="center">100</td>
-          <td class="right bold">USD $14.00 / user / yr</td>
+          <td class="right bold">SGD $17.81 / user</td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <div class="note-box">
-    <p><strong>Budget Note:</strong> Development tooling (Claude Pro) is a one-time cost of <strong>SGD $120</strong> for the 4-month build period. The ongoing annual AI inference cost is <strong>USD $1,400</strong> for the full 100-user cohort — just <strong>USD $14.00 per student per year</strong> — making this one of the most cost-efficient AI-powered medical education tools available. Note that development and API costs are billed in different currencies (SGD and USD respectively).</p>
+    <p><strong>Budget Note:</strong> The all-in Year 1 cost is <strong>SGD $1,900.86</strong> — covering one developer's Claude Pro subscription for the full 4-month build plus 12 months of Gemini AI inference for the entire 100-user cohort. From Year 2 onward, the annual operating cost is <strong>SGD $1,780.86</strong> — just <strong>SGD $17.81 per student per year</strong>. All figures in SGD; Gemini API charges are billed in USD and converted at 1 USD = SGD 1.2723 (xe.com, 14 May 2026).</p>
   </div>
 
   <!-- APPENDIX -->
