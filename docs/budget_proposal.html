@@ -324,7 +324,13 @@
   </table>
   <p style="font-size:9.5pt; color:#555;"><em>Source: ai.google.dev/gemini-api/docs/pricing — verified May 2026. USD prices converted to SGD at 1 USD = SGD 1.2723 (xe.com, 14 May 2026).</em></p>
 
-  <h3>4.2 Usage Assumptions</h3>
+  <h3>4.2 Billing Model — Tier 1 (Prepaid)</h3>
+  <div class="note-box">
+    <p><strong>Billing tier: Tier 1 — Pay-As-You-Go (Prepaid Credit).</strong> Under Tier 1, Google does not issue monthly invoices. Instead, credits must be loaded into the Google Cloud billing account in advance. API usage is deducted from the available credit balance in real time as calls are made. When the balance runs low, additional credits must be topped up manually or via an auto-recharge threshold.</p>
+    <p style="margin-top:8px;"><strong>Budgeting implication:</strong> The full projected annual cost of <strong>SGD $1,780.86</strong> (≈ USD $1,400) does not need to be loaded upfront. A recommended approach is to load credits in quarterly instalments — approximately <strong>SGD $445 per quarter</strong> — and monitor usage via the Google Cloud Console to avoid service interruption.</p>
+  </div>
+
+  <h3>4.3 Usage Assumptions (Tier 1 Pay-As-You-Go)</h3>
   <p>Token counts account for all application features across the full stack, including system prompt overhead and Gemini 2.5 Flash's internal reasoning (thinking) tokens, which are billed at the standard output rate. The following assumptions drive annual cost projections.</p>
 
   <table>
@@ -348,7 +354,7 @@
     <p><strong>Token overhead notes:</strong> Input tokens are higher than a naive per-turn estimate because (a) each API call carries the full conversation history plus a detailed ophthalmology system prompt (~4,000–5,000 tokens), and (b) all 8 application features make API calls within a session. Output tokens include Gemini 2.5 Flash's chain-of-thought reasoning (thinking) tokens, which are billed at the standard output rate of $2.50/1M and are not visible in the final response but are charged. Flash-Lite is used only for flashcard generation and case scoring — shorter, simpler calls without extended reasoning.</p>
   </div>
 
-  <h3>4.3 Annual Token Volume and Cost Calculation</h3>
+  <h3>4.4 Annual Token Volume and Cost Calculation</h3>
 
   <table>
     <caption>Table 4.3 — Annual Token and Cost Breakdown (100 Users, 12 Months)</caption>
