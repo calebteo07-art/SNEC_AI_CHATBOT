@@ -28,7 +28,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 MOCK_MODE = not API_KEY
 EMBED_MODEL = "models/gemini-embedding-001"
-EMBED_DIM = 3072
+EMBED_DIM = 1536  # reduced from 3072 to stay within pgvector HNSW 2000-dim limit
 
 _client = None
 
@@ -47,9 +47,11 @@ def embed_text(text: str) -> list[float]:
         return [0.0] * EMBED_DIM
 
     client = _get_client()
+    from google.genai import types as _types
     result = client.models.embed_content(
         model=EMBED_MODEL,
         contents=text,
+        config=_types.EmbedContentConfig(output_dimensionality=EMBED_DIM),
     )
     return list(result.embeddings[0].values)
 
@@ -75,9 +77,11 @@ def embed_batch(
 
     for start in range(0, len(texts), batch_size):
         batch = texts[start : start + batch_size]
+        from google.genai import types as _types
         response = client.models.embed_content(
             model=EMBED_MODEL,
             contents=batch,
+            config=_types.EmbedContentConfig(output_dimensionality=EMBED_DIM),
         )
         results.extend(list(emb.values) for emb in response.embeddings)
 
