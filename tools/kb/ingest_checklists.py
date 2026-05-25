@@ -14,6 +14,7 @@ Self-test:
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -88,28 +89,49 @@ def parse_checklist(
     if not raw_text.strip():
         raise ValueError(f"No text could be extracted from {pdf_path.name}")
 
-    # Truncate to first 8000 chars — checklists are short; this avoids token overrun
-    text_excerpt = raw_text[:8000]
+    # Strip private-use Unicode and checkbox glyphs (e.g. ) that corrupt JSON
+    clean_text = re.sub(r"[-]", " ", raw_text)
+    # Normalise whitespace artifacts
+    clean_text = re.sub(r"[ \t]{3,}", "  ", clean_text)
+
+    # Truncate to first 10000 chars — checklists are short
+    text_excerpt = clean_text[:10000]
 
     override_note = (
         f"\nThe procedure name is: {procedure_name}\n" if procedure_name else ""
     )
     override_type = f"\nThe checklist type is: {checklist_type}\n"
 
-    response = ask(
-        system_prompt=_PARSE_PROMPT + override_note + override_type,
-        messages=[{"role": "user", "content": text_excerpt}],
-        max_tokens=4096,
-        feature="default",
+    system = _PARSE_PROMPT + override_note + override_type
+
+    # Use google-genai SDK with JSON mode to guarantee valid JSON output
+    import os as _os
+    from google import genai as _genai
+    from google.genai import types as _types
+    from dotenv import load_dotenv as _load
+    _load(PROJECT_ROOT / ".env")
+    _api_key = _os.getenv("GEMINI_API_KEY", "").strip()
+    _model = _os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    _sdk_client = _genai.Client(api_key=_api_key)
+
+    sdk_response = _sdk_client.models.generate_content(
+        model=_model,
+        contents=text_excerpt,
+        config=_types.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json",
+            max_output_tokens=8192,
+        ),
     )
-
-    # Strip any accidental markdown fences
-    text = response.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-
-    parsed = json.loads(text)
+    raw_json = sdk_response.text or ""
+    try:
+        parsed = json.loads(raw_json)
+    except json.JSONDecodeError:
+        try:
+            from json_repair import repair_json
+            parsed = json.loads(repair_json(raw_json))
+        except Exception as repair_err:
+            raise ValueError(f"Gemini returned unparseable JSON: {repair_err}\n---\n{raw_json[:400]}") from repair_err
 
     # Ensure required fields
     parsed.setdefault("checklist_type", checklist_type)

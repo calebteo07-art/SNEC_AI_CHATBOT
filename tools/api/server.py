@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """FastAPI backend for the EyeQ web frontend.
 
-Bridges the React frontend to the existing tools (claude_client, onboarding,
+Bridges the React frontend to the existing tools (gemini_client, onboarding,
 log_session, generate_cards). Automatically runs in MOCK MODE when
-ANTHROPIC_API_KEY is not set in .env — the full frontend flow works without
+GEMINI_API_KEY is not set in .env — the full frontend flow works without
 an API key.
 
 Run:
