@@ -56,14 +56,33 @@ Case details for your reference (do not reveal unless asked):
 {case_json}"""
 
 IMAGES_DIR = PROJECT_ROOT / "images"
-KB_PATH = PROJECT_ROOT / "workflows" / "ophthalmology_kb.md"
-_KB_TEXT: Optional[str] = None
 
-def _kb() -> str:
-    global _KB_TEXT
-    if _KB_TEXT is None:
-        _KB_TEXT = KB_PATH.read_text(encoding="utf-8")
-    return _KB_TEXT
+# ── Knowledge base: RAG (Supabase) with markdown fallback ─────────────────
+from tools.kb.search import search as _rag_search, format_context as _rag_format
+
+_RAG_ENABLED = bool(os.getenv("SUPABASE_URL", "").strip())
+_KB_PATH = PROJECT_ROOT / "workflows" / "ophthalmology_kb.md"
+_KB_CACHE: Optional[str] = None
+
+
+def _kb_fallback() -> str:
+    global _KB_CACHE
+    if _KB_CACHE is None and _KB_PATH.exists():
+        _KB_CACHE = _KB_PATH.read_text(encoding="utf-8")
+    return _KB_CACHE or ""
+
+
+def _get_context(query: str) -> str:
+    """Return RAG context if Supabase is ready, else fall back to full markdown KB."""
+    if _RAG_ENABLED:
+        try:
+            chunks = _rag_search(query, top_k=6)
+            if chunks:
+                print(f"[rag] retrieved {len(chunks)} chunks for query: {query[:60]!r}", flush=True)
+                return _rag_format(chunks)
+        except Exception as exc:
+            print(f"[rag-error] {exc}", flush=True)
+    return _kb_fallback()
 
 
 TUTOR_SYSTEM = """You are EyeQ, an expert ophthalmology tutor at SNEC (Singapore National Eye Centre). \
@@ -190,7 +209,10 @@ def onboard(body: OnboardRequest):
 def chat(request: Request, body: ChatRequest):
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
-    system_prompt = TUTOR_SYSTEM + "\n\n---\n\n" + _kb()
+    last_user_msg = next(
+        (m.content for m in reversed(body.messages) if m.role == "user"), ""
+    )
+    system_prompt = TUTOR_SYSTEM + "\n\n---\n\n" + _get_context(last_user_msg)
     try:
         profile = get_profile(body.student_id)
         gap_context = summarize_gaps(profile)

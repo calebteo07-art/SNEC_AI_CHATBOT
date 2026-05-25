@@ -52,7 +52,7 @@ def evaluate_case(case: dict, conversation: list[dict], student_id: str) -> dict
     """
     from tools.shared.audit_log import log as audit_log
 
-    # Build context for Claude — compact JSON saves ~30% tokens vs indent=2
+    # Build context for Gemini — compact JSON saves ~30% tokens vs indent=2
     case_summary = json.dumps({
         "diagnosis": case["diagnosis"],
         "management": case["management"],
@@ -66,7 +66,21 @@ def evaluate_case(case: dict, conversation: list[dict], student_id: str) -> dict
         for m in conversation
     )
 
-    prompt = f"""CASE DETAILS:\n{case_summary}\n\nSTUDENT CONVERSATION:\n{transcript}"""
+    # Augment with checklist steps if a matching procedure checklist exists
+    checklist_section = ""
+    try:
+        from tools.kb.search import search_checklist
+        checklist = search_checklist(case.get("topic", ""))
+        if checklist and isinstance(checklist, dict) and "steps" in checklist:
+            lines = ["\n\nPROCEDURE CHECKLIST (assess whether the student followed these steps):"]
+            for step in checklist["steps"]:
+                mark = "[CRITICAL] " if step.get("critical") else ""
+                lines.append(f"{step['step_number']}. {mark}{step['action']}")
+            checklist_section = "\n".join(lines)
+    except Exception:
+        pass  # Supabase not configured — skip checklist augmentation
+
+    prompt = f"""CASE DETAILS:\n{case_summary}{checklist_section}\n\nSTUDENT CONVERSATION:\n{transcript}"""
 
     response = ask(
         system_prompt=EVAL_PROMPT,

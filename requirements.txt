@@ -27,5 +27,10 @@ pydantic>=2.6.0
 # PDF Generation (Phase 2)
 reportlab>=4.0.0
 
+# Knowledge Base — PDF ingestion + vector DB
+supabase>=2.4.0
+pymupdf>=1.24.0
+tiktoken>=0.7.0
+
 # Environment
 python-dotenv>=1.0.0
