@@ -106,6 +106,34 @@ def search_checklist(procedure_name: str) -> dict | None:
     return None
 
 
+def get_checklist_by_name(name: str) -> dict | None:
+    """Fetch a single checklist from Supabase by procedure name.
+
+    Tries exact match first, then falls back to a case-insensitive partial match.
+    Returns {procedure_name, steps, total_steps} or None if not found.
+    """
+    if not _SUPABASE_ENABLED or not name:
+        return None
+
+    from tools.kb.supabase_client import get_client
+    try:
+        client = get_client()
+        # Exact match
+        result = client.table("checklists").select(
+            "procedure_name, steps, total_steps"
+        ).eq("procedure_name", name).limit(1).execute()
+        if result.data:
+            return result.data[0]
+        # Fuzzy fallback — match if name is a substring of procedure_name
+        result = client.table("checklists").select(
+            "procedure_name, steps, total_steps"
+        ).ilike("procedure_name", f"%{name}%").limit(1).execute()
+        return result.data[0] if result.data else None
+    except Exception as exc:
+        print(f"[get-checklist-error] {exc}", flush=True)
+        return None
+
+
 def fetch_checklists(role: str = "") -> list[dict]:
     """Fetch all checklists for the given role from Supabase.
 

@@ -374,6 +374,7 @@ class CaseSubmitRequest(BaseModel):
     messages: list[ChatMessage] = Field(max_length=100)
     diagnosis: str
     management_plan: str
+    performed_steps: list[int] = []
 
 class DomainScore(BaseModel):
     history_score: int
@@ -386,12 +387,27 @@ class DomainScore(BaseModel):
     management_feedback: str
     total_score: int
     overall_feedback: str
+    critical_hit: int = 0
+    critical_total: int = 0
 
 class CaseSubmitResponse(BaseModel):
     result: DomainScore
     cards: list[Flashcard]
     mock_mode: bool
     debrief: str | None = None
+
+class ChecklistStepModel(BaseModel):
+    step_number: int
+    action: str
+    critical: bool
+    category: str = ""
+    notes: str | None = None
+
+class ChecklistResponse(BaseModel):
+    procedure_name: str
+    steps: list[ChecklistStepModel]
+    total_steps: int
+    critical_count: int
 
 
 # ── Case endpoints ─────────────────────────────────────────────────────────
@@ -459,6 +475,69 @@ def get_cases(student_id: str = ""):
     return CasesResponse(cases=cases)
 
 
+@app.get("/api/cases/{case_id}", response_model=CaseInfo)
+def get_case(case_id: str):
+    """Return a single case stub from the in-memory cache or pre-stored files."""
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+            _case_cache[case["case_id"]] = case
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    return CaseInfo(
+        case_id=case["case_id"],
+        title=case["title"],
+        difficulty=case.get("difficulty", "intermediate"),
+        topic=case.get("topic", ""),
+        estimated_minutes=case.get("estimated_minutes", 15),
+        patient=CasePatientInfo(
+            name=case["patient"]["name"],
+            age=int(case["patient"].get("age", 30)),
+            presenting_complaint=case["patient"].get("presenting_complaint", ""),
+        ),
+    )
+
+
+@app.get("/api/cases/{case_id}/checklist", response_model=ChecklistResponse)
+def get_case_checklist(case_id: str):
+    """Return the procedure checklist for a given case."""
+    from tools.kb.search import get_checklist_by_name as _get_cl
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+
+    procedure_name = case.get("checklist_procedure") or case.get("topic", "")
+    cl_data = _get_cl(procedure_name)
+    if not cl_data:
+        raise HTTPException(status_code=404, detail="No checklist found for this case")
+
+    raw_steps = (cl_data.get("steps") or {})
+    steps_list = raw_steps.get("steps", []) if isinstance(raw_steps, dict) else []
+    parsed = []
+    critical_count = 0
+    for s in steps_list:
+        parsed.append(ChecklistStepModel(
+            step_number=int(s.get("step_number", 0)),
+            action=str(s.get("action", "")),
+            critical=bool(s.get("critical", False)),
+            category=str(s.get("category", "")),
+            notes=s.get("notes"),
+        ))
+        if s.get("critical"):
+            critical_count += 1
+
+    return ChecklistResponse(
+        procedure_name=cl_data.get("procedure_name", procedure_name),
+        steps=parsed,
+        total_steps=len(parsed),
+        critical_count=critical_count,
+    )
+
+
 @app.post("/api/cases/{case_id}/chat")
 @limiter.limit("30/minute")
 def case_chat(case_id: str, request: Request, body: CaseChatRequest):
@@ -513,7 +592,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
         "content": f"Diagnosis: {body.diagnosis}\nManagement Plan: {body.management_plan}",
     })
 
-    raw_result = evaluate_case(case, messages, body.student_id)
+    raw_result = evaluate_case(case, messages, body.student_id, body.performed_steps)
 
     session_id = log_session(
         student_id=body.student_id,
@@ -583,8 +662,9 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
     except Exception:
         debrief_text = None
 
+    domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields}
     return CaseSubmitResponse(
-        result=DomainScore(**{k: raw_result[k] for k in DomainScore.model_fields}),
+        result=DomainScore(**domain_fields),
         cards=[Flashcard(**c) for c in cards],
         mock_mode=MOCK_MODE,
         debrief=debrief_text,

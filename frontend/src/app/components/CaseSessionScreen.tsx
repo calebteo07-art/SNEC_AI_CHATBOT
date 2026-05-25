@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import {
   Send, User, ArrowLeft, CheckSquare, AlertCircle,
   Layers, ChevronDown, ChevronUp, Menu, X as XIcon,
+  ClipboardList, CheckCircle2, Circle, AlertTriangle,
 } from "lucide-react";
 
 interface CaseInfo {
@@ -14,6 +15,21 @@ interface CaseInfo {
   topic: string;
   estimated_minutes: number;
   patient: { name: string; age: number; presenting_complaint: string };
+}
+
+interface ChecklistStep {
+  step_number: number;
+  action: string;
+  critical: boolean;
+  category: string;
+  notes: string | null;
+}
+
+interface Checklist {
+  procedure_name: string;
+  steps: ChecklistStep[];
+  total_steps: number;
+  critical_count: number;
 }
 
 interface ChatMessage {
@@ -32,6 +48,8 @@ interface DomainResult {
   management_feedback: string;
   total_score: number;
   overall_feedback: string;
+  critical_hit: number;
+  critical_total: number;
 }
 
 const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
@@ -44,9 +62,16 @@ const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof
 export function CaseSessionScreen() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(null);
+  const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(
+    (location.state as { caseInfo?: CaseInfo } | null)?.caseInfo ?? null
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const [checklist, setChecklist] = useState<Checklist | null>(null);
+  const [tickedSteps, setTickedSteps] = useState<Set<number>>(new Set());
+  const [checklistOpen, setChecklistOpen] = useState(true);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -67,28 +92,42 @@ export function CaseSessionScreen() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Load case info if not passed via router state
+  useEffect(() => {
+    if (caseInfo || !caseId) return;
+    fetch(`/api/cases/${caseId}`)
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(setCaseInfo)
+      .catch(() => setLoadError(`Case "${caseId}" not found.`));
+  }, [caseId, caseInfo]);
+
+  // Load checklist for this case
   useEffect(() => {
     if (!caseId) return;
-    fetch("/api/cases")
-      .then((r) => r.json())
-      .then((data) => {
-        const found = data.cases.find((c: CaseInfo) => c.case_id === caseId);
-        if (found) setCaseInfo(found);
-        else setLoadError(`Case "${caseId}" not found.`);
-      })
-      .catch(() => setLoadError("Could not load case."));
+    fetch(`/api/cases/${caseId}/checklist`)
+      .then((r) => { if (!r.ok) return null; return r.json(); })
+      .then((data) => { if (data) setChecklist(data); })
+      .catch(() => {});
   }, [caseId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
+  const toggleStep = (stepNum: number) => {
+    setTickedSteps((prev) => {
+      const next = new Set(prev);
+      if (next.has(stepNum)) next.delete(stepNum);
+      else next.add(stepNum);
+      return next;
+    });
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || sending || isStreaming || !caseId) return;
     const content = input.trim();
     const newMsg: ChatMessage = { role: "user", content };
     const updated = [...messages, newMsg];
-
     setMessages(updated);
     setInput("");
     setSending(true);
@@ -102,11 +141,8 @@ export function CaseSessionScreen() {
         body: JSON.stringify({ student_id: studentId, messages: updated }),
       });
 
-      if (!res.ok || !res.body) {
-        throw new Error("Stream unavailable");
-      }
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
-      // Add empty assistant message and switch to streaming mode
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
       setSending(false);
       setIsStreaming(true);
@@ -118,11 +154,9 @@ export function CaseSessionScreen() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
-
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           const data = line.slice(6);
@@ -132,25 +166,21 @@ export function CaseSessionScreen() {
             if (parsed.text) {
               setMessages((prev) => {
                 const last = prev[prev.length - 1];
-                if (last.role === "assistant") {
+                if (last.role === "assistant")
                   return [...prev.slice(0, -1), { role: "assistant", content: last.content + parsed.text }];
-                }
                 return prev;
               });
               messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
             }
-          } catch {
-            // skip malformed SSE lines
-          }
+          } catch { /* skip malformed SSE lines */ }
         }
       }
     } catch {
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         const fallback = "(I'm having trouble reaching the service right now.)";
-        if (last.role === "assistant") {
+        if (last.role === "assistant")
           return [...prev.slice(0, -1), { role: "assistant", content: fallback }];
-        }
         return [...prev, { role: "assistant", content: fallback }];
       });
     } finally {
@@ -170,7 +200,6 @@ export function CaseSessionScreen() {
     if (!diagnosis.trim() || !managementPlan.trim() || !caseId) return;
     setSubmitting(true);
     setSubmitError(null);
-
     const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
     try {
       const res = await fetch(`/api/cases/${caseId}/submit`, {
@@ -181,6 +210,7 @@ export function CaseSessionScreen() {
           messages,
           diagnosis: diagnosis.trim(),
           management_plan: managementPlan.trim(),
+          performed_steps: Array.from(tickedSteps),
         }),
       });
       if (!res.ok) throw new Error(await res.text());
@@ -199,6 +229,100 @@ export function CaseSessionScreen() {
   const scoreColor = (s: number) =>
     s >= 8 ? "#4F6B3D" : s >= 5 ? "#9C7B1F" : "#8B2D2D";
 
+  const criticalTickedCount = checklist
+    ? checklist.steps.filter((s) => s.critical && tickedSteps.has(s.step_number)).length
+    : 0;
+  const unticked = checklist
+    ? checklist.steps.filter((s) => s.critical && !tickedSteps.has(s.step_number))
+    : [];
+
+  const ChecklistPanel = ({ compact }: { compact?: boolean }) => {
+    if (!checklist) return null;
+    return (
+      <div className={compact ? "" : "mt-6"}>
+        <button
+          onClick={() => setChecklistOpen((v) => !v)}
+          className="w-full flex items-center justify-between mb-3 group"
+        >
+          <div className="flex items-center gap-2">
+            <ClipboardList size={13} strokeWidth={1.5} className="text-[#8C6D3F]" />
+            <p className="annotation-label" style={{ marginBottom: 0 }}>Procedure Checklist</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span style={{
+              fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.12em",
+              color: criticalTickedCount === checklist.critical_count ? "#4F6B3D" : "#9C7B1F",
+            }}>
+              {criticalTickedCount}/{checklist.critical_count} critical
+            </span>
+            {checklistOpen
+              ? <ChevronUp size={13} strokeWidth={1.5} className="text-[#A39A8E]" />
+              : <ChevronDown size={13} strokeWidth={1.5} className="text-[#A39A8E]" />
+            }
+          </div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {checklistOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <p
+                className="text-[#5C544A] mb-3 italic-display"
+                style={{ fontSize: "0.78rem", lineHeight: 1.5 }}
+              >
+                {checklist.procedure_name}
+              </p>
+              <div className="space-y-1.5 max-h-72 overflow-y-auto custom-scrollbar pr-1">
+                {checklist.steps.map((step) => {
+                  const ticked = tickedSteps.has(step.step_number);
+                  return (
+                    <button
+                      key={step.step_number}
+                      onClick={() => toggleStep(step.step_number)}
+                      className="w-full flex items-start gap-2.5 text-left group/step py-1 rounded transition-colors hover:bg-[#8C6D3F]/4"
+                    >
+                      <span className="flex-shrink-0 mt-0.5">
+                        {ticked
+                          ? <CheckCircle2 size={14} strokeWidth={1.5} className="text-[#4F6B3D]" />
+                          : <Circle size={14} strokeWidth={1.5} className={step.critical ? "text-[#8C6D3F]" : "text-[#C5B9AC]"} />
+                        }
+                      </span>
+                      <span
+                        className="flex-1"
+                        style={{
+                          fontSize: "0.78rem",
+                          lineHeight: 1.5,
+                          color: ticked ? "#5C544A" : step.critical ? "#1F1A12" : "#7A6E65",
+                          textDecoration: ticked ? "line-through" : "none",
+                          textDecorationColor: "#A39A8E",
+                        }}
+                      >
+                        {step.critical && !ticked && (
+                          <span className="text-[#8C6D3F] font-semibold mr-1" style={{ fontSize: "0.65rem", letterSpacing: "0.1em" }}>
+                            ●{" "}
+                          </span>
+                        )}
+                        {step.action}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-[#A39A8E]" style={{ fontSize: "0.68rem", lineHeight: 1.5 }}>
+                Tick steps as you cover them. Critical steps (●) are marked.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
   if (loadError) {
     return (
       <div className="min-h-screen bg-[#FBF8F1] flex items-center justify-center p-8">
@@ -207,10 +331,7 @@ export function CaseSessionScreen() {
           <p className="text-[#1F1A12] mb-5" style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem" }}>
             {loadError}
           </p>
-          <button
-            onClick={() => navigate("/cases")}
-            className="text-[#8C6D3F] hover:underline text-sm"
-          >
+          <button onClick={() => navigate("/cases")} className="text-[#8C6D3F] hover:underline text-sm">
             ← Back to cases
           </button>
         </div>
@@ -229,27 +350,21 @@ export function CaseSessionScreen() {
           <ArrowLeft size={15} strokeWidth={1.5} />
           <span className="hidden sm:inline">Cases</span>
         </button>
-        {/* Mobile: patient info toggle */}
         <button
           onClick={() => setSidebarOpen((v) => !v)}
           aria-expanded={sidebarOpen}
           aria-controls="patient-panel"
-          aria-label={sidebarOpen ? "Hide patient information" : "Show patient information"}
+          aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
           className="md:hidden inline-flex items-center gap-1.5 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
         >
           {sidebarOpen ? <XIcon size={15} strokeWidth={1.5} aria-hidden="true" /> : <Menu size={15} strokeWidth={1.5} aria-hidden="true" />}
-          <span style={{ fontSize: "0.82rem" }}>Patient</span>
+          <span style={{ fontSize: "0.82rem" }}>Guide</span>
         </button>
         <div className="flex items-center gap-3 mx-auto">
           <HolographicEyeLogo size={26} animated={false} aria-hidden="true" />
           <span
             className="text-[#1F1A12] truncate max-w-[140px] sm:max-w-none"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "0.98rem",
-              fontWeight: 500,
-              letterSpacing: "-0.005em",
-            }}
+            style={{ fontFamily: "var(--font-display)", fontSize: "0.98rem", fontWeight: 500, letterSpacing: "-0.005em" }}
           >
             {caseInfo ? caseInfo.title : "Loading…"}
           </span>
@@ -268,7 +383,7 @@ export function CaseSessionScreen() {
       </div>
 
       <div className="flex flex-1 min-h-0 flex-col md:flex-row">
-        {/* Mobile collapsible patient panel */}
+        {/* Mobile collapsible sidebar */}
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
@@ -280,14 +395,9 @@ export function CaseSessionScreen() {
               transition={{ duration: 0.25 }}
             >
               <div className="px-4 py-5">
-                <p
-                  className="text-[#8C6D3F] mb-4"
-                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-                >
-                  · Patient
-                </p>
+                <p className="annotation-label mb-4">Patient</p>
                 {caseInfo ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4 mb-4">
                     <div>
                       <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 400 }}>
                         {caseInfo.patient.name}
@@ -295,19 +405,18 @@ export function CaseSessionScreen() {
                       <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>{caseInfo.patient.age} years old</p>
                     </div>
                     <div>
-                      <p className="text-[#A39A8E] mb-1" style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Presents with</p>
+                      <p className="annotation-label mb-1">Presents with</p>
                       <p className="text-[#1F1A12] italic-display" style={{ fontSize: "0.95rem", lineHeight: 1.5 }}>"{caseInfo.patient.presenting_complaint}"</p>
-                    </div>
-                    <div>
-                      <p className="text-[#A39A8E] mb-1" style={{ fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>Topic</p>
-                      <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>{caseInfo.topic}</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">{[80, 60, 90].map((w, i) => (
+                  <div className="space-y-3 mb-4">{[80, 60, 90].map((w, i) => (
                     <div key={i} className="h-3 rounded bg-[#1F1A12]/6 animate-pulse" style={{ width: `${w}%` }} />
                   ))}</div>
                 )}
+                <div className="border-t border-[#1F1A12]/8 pt-4">
+                  <ChecklistPanel compact />
+                </div>
               </div>
             </motion.div>
           )}
@@ -317,7 +426,7 @@ export function CaseSessionScreen() {
         <div className="hidden md:flex w-72 flex-shrink-0 border-r border-[#1F1A12]/8 flex-col overflow-y-auto glass-editorial rounded-none" style={{ borderRadius: 0 }}>
           <div className="p-8">
             {/* Anatomy diagram */}
-            <div className="relative h-32 mb-6 overflow-hidden rounded-xl">
+            <div className="relative h-28 mb-6 overflow-hidden rounded-xl">
               <motion.img
                 src="/anatomy/eye-labeled.png"
                 alt=""
@@ -329,39 +438,25 @@ export function CaseSessionScreen() {
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/70" />
             </div>
+
             <p className="annotation-label mb-5">Patient</p>
             {caseInfo ? (
               <div className="space-y-5">
                 <div>
-                  <p
-                    className="text-[#1F1A12]"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.35rem",
-                      fontWeight: 400,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
+                  <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.35rem", fontWeight: 400, letterSpacing: "-0.01em" }}>
                     {caseInfo.patient.name}
                   </p>
-                  <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>
-                    {caseInfo.patient.age} years old
-                  </p>
+                  <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>{caseInfo.patient.age} years old</p>
                 </div>
                 <div>
                   <p className="annotation-label mb-2">Presents with</p>
-                  <p
-                    className="text-[#1F1A12] italic-display"
-                    style={{ fontSize: "0.98rem", lineHeight: 1.55 }}
-                  >
+                  <p className="text-[#1F1A12] italic-display" style={{ fontSize: "0.98rem", lineHeight: 1.55 }}>
                     "{caseInfo.patient.presenting_complaint}"
                   </p>
                 </div>
                 <div>
                   <p className="annotation-label mb-1">Topic</p>
-                  <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>
-                    {caseInfo.topic}
-                  </p>
+                  <p className="text-[#8C6D3F]" style={{ fontSize: "0.85rem", fontWeight: 500 }}>{caseInfo.topic}</p>
                 </div>
               </div>
             ) : (
@@ -371,6 +466,11 @@ export function CaseSessionScreen() {
                 ))}
               </div>
             )}
+
+            {/* Checklist panel */}
+            <div className="mt-6 pt-6 border-t border-[#1F1A12]/8">
+              <ChecklistPanel />
+            </div>
           </div>
 
           <div className="mt-auto p-8 border-t border-[#1F1A12]/8">
@@ -393,13 +493,26 @@ export function CaseSessionScreen() {
                 transition={{ duration: 0.25 }}
               >
                 <p className="annotation-label mb-4">Submit Answer</p>
+
+                {/* Warn if critical steps unticked */}
+                {unticked.length > 0 && (
+                  <div className="mb-4 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-[#9C7B1F]/6 border border-[#9C7B1F]/20">
+                    <AlertTriangle size={14} strokeWidth={1.5} className="text-[#9C7B1F] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[#9C7B1F]" style={{ fontSize: "0.82rem", fontWeight: 500, marginBottom: "0.25rem" }}>
+                        {unticked.length} critical step{unticked.length > 1 ? "s" : ""} not ticked
+                      </p>
+                      <p className="text-[#7A6E65]" style={{ fontSize: "0.78rem", lineHeight: 1.5 }}>
+                        {unticked.slice(0, 3).map((s) => s.action).join(" · ")}
+                        {unticked.length > 3 ? ` · +${unticked.length - 3} more` : ""}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
                   <div>
-                    <label
-                      htmlFor="case-diagnosis-input"
-                      className="block text-[#A39A8E] mb-2"
-                      style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
-                    >
+                    <label htmlFor="case-diagnosis-input" className="block text-[#A39A8E] mb-2" style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
                       Diagnosis
                     </label>
                     <textarea
@@ -413,11 +526,7 @@ export function CaseSessionScreen() {
                     />
                   </div>
                   <div>
-                    <label
-                      htmlFor="case-management-input"
-                      className="block text-[#A39A8E] mb-2"
-                      style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}
-                    >
+                    <label htmlFor="case-management-input" className="block text-[#A39A8E] mb-2" style={{ fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
                       Management plan
                     </label>
                     <textarea
@@ -431,9 +540,7 @@ export function CaseSessionScreen() {
                     />
                   </div>
                 </div>
-                {submitError && (
-                  <p className="text-[#8B2D2D] mb-3" style={{ fontSize: "0.82rem" }}>{submitError}</p>
-                )}
+                {submitError && <p className="text-[#8B2D2D] mb-3" style={{ fontSize: "0.82rem" }}>{submitError}</p>}
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || !diagnosis.trim() || !managementPlan.trim()}
@@ -453,7 +560,7 @@ export function CaseSessionScreen() {
               aria-label="Evaluation results"
               aria-live="polite"
               className="flex-shrink-0 border-b border-[#1F1A12]/8 bg-white px-4 sm:px-8 py-6 overflow-y-auto custom-scrollbar relative"
-              style={{ maxHeight: "55%" }}
+              style={{ maxHeight: "60%" }}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -464,40 +571,50 @@ export function CaseSessionScreen() {
                   position: "absolute", top: "50%", right: "-4rem",
                   transform: "translateY(-50%)",
                   width: "24rem", pointerEvents: "none", opacity: 0.08,
-                  filter: "sepia(0.35) saturate(0.6)",
-                  mixBlendMode: "multiply",
+                  filter: "sepia(0.35) saturate(0.6)", mixBlendMode: "multiply",
                 }}
                 animate={{ y: [0, -8, 0], scale: [1, 1.04, 1] }}
                 transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
               />
               <div className="flex items-baseline justify-between mb-6">
                 <p className="annotation-label">Evaluation</p>
-                <span
-                  style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 400, color: scoreColor(result.total_score / 4) }}
-                >
-                  {result.total_score}
-                  <span className="text-[#A39A8E]">/40</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 400, color: scoreColor(result.total_score / 4) }}>
+                  {result.total_score}<span className="text-[#A39A8E]">/40</span>
                 </span>
               </div>
+
+              {/* Checklist compliance badge */}
+              {result.critical_total > 0 && (
+                <div
+                  className="mb-5 flex items-center gap-3 px-5 py-3 rounded-xl border"
+                  style={{
+                    borderColor: result.critical_hit === result.critical_total ? "rgba(79,107,61,0.25)" : "rgba(140,109,63,0.25)",
+                    background: result.critical_hit === result.critical_total ? "rgba(79,107,61,0.05)" : "rgba(140,109,63,0.05)",
+                  }}
+                >
+                  <ClipboardList size={15} strokeWidth={1.5} style={{ color: result.critical_hit === result.critical_total ? "#4F6B3D" : "#8C6D3F", flexShrink: 0 }} />
+                  <div>
+                    <p style={{ fontSize: "0.72rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: result.critical_hit === result.critical_total ? "#4F6B3D" : "#8C6D3F", marginBottom: "0.1rem" }}>
+                      Procedure Compliance
+                    </p>
+                    <p style={{ fontSize: "0.85rem", color: "#1F1A12" }}>
+                      {result.critical_hit}/{result.critical_total} critical steps marked
+                      {result.critical_hit === result.critical_total ? " — all critical steps covered" : ` — ${result.critical_total - result.critical_hit} step${result.critical_total - result.critical_hit > 1 ? "s" : ""} missed`}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 {DOMAINS.map(({ label, scoreKey, feedbackKey }) => {
                   const score = result[scoreKey] as number;
                   return (
-                    <div
-                      key={label}
-                      className="px-5 py-4 rounded-xl border border-[#1F1A12]/8 bg-[#FBF8F1]/60"
-                    >
+                    <div key={label} className="px-5 py-4 rounded-xl border border-[#1F1A12]/8 bg-[#FBF8F1]/60">
                       <div className="flex items-center justify-between mb-2">
-                        <p
-                          className="text-[#1F1A12]"
-                          style={{ fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 400 }}
-                        >
+                        <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 400 }}>
                           {label}
                         </p>
-                        <span style={{ fontSize: "0.85rem", fontWeight: 500, color: scoreColor(score) }}>
-                          {score}/10
-                        </span>
+                        <span style={{ fontSize: "0.85rem", fontWeight: 500, color: scoreColor(score) }}>{score}/10</span>
                       </div>
                       <p className="text-[#5C544A]" style={{ fontSize: "0.82rem", lineHeight: 1.55 }}>
                         {result[feedbackKey] as string}
@@ -508,29 +625,17 @@ export function CaseSessionScreen() {
               </div>
 
               <div className="px-5 py-4 rounded-xl bg-[#8C6D3F]/5 border border-[#8C6D3F]/15 mb-5">
-                <p className="text-[#1F1A12]" style={{ fontSize: "0.92rem", lineHeight: 1.65 }}>
-                  {result.overall_feedback}
-                </p>
+                <p className="text-[#1F1A12]" style={{ fontSize: "0.92rem", lineHeight: 1.65 }}>{result.overall_feedback}</p>
               </div>
 
               {debrief && (
                 <div className="px-5 py-5 rounded-xl border border-[#1F1A12]/8 bg-[#FBF8F1]/60 mb-5">
-                  <p
-                    className="text-[#A39A8E] mb-3"
-                    style={{ fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    Debrief
-                  </p>
-                  <div
-                    className="text-[#1F1A12] whitespace-pre-wrap"
-                    style={{ fontSize: "0.92rem", lineHeight: 1.7 }}
-                  >
+                  <p className="text-[#A39A8E] mb-3" style={{ fontSize: "0.66rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>Debrief</p>
+                  <div className="text-[#1F1A12] whitespace-pre-wrap" style={{ fontSize: "0.92rem", lineHeight: 1.7 }}>
                     {debrief.split(/\*\*(.*?)\*\*/g).map((part, i) =>
-                      i % 2 === 1 ? (
-                        <strong key={i} className="text-[#1F1A12]">{part}</strong>
-                      ) : (
-                        <span key={i}>{part}</span>
-                      )
+                      i % 2 === 1
+                        ? <strong key={i} className="text-[#1F1A12]">{part}</strong>
+                        : <span key={i}>{part}</span>
                     )}
                   </div>
                 </div>
@@ -538,9 +643,7 @@ export function CaseSessionScreen() {
 
               <button
                 onClick={() => {
-                  if (cards.length > 0) {
-                    sessionStorage.setItem("eyeq_session_cards", JSON.stringify(cards));
-                  }
+                  if (cards.length > 0) sessionStorage.setItem("eyeq_session_cards", JSON.stringify(cards));
                   navigate("/flashcards");
                 }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-all"
@@ -557,10 +660,7 @@ export function CaseSessionScreen() {
             {messages.length === 0 && !sending && (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center max-w-sm">
-                  <p
-                    className="text-[#1F1A12] italic-display mb-2"
-                    style={{ fontSize: "1.15rem" }}
-                  >
+                  <p className="text-[#1F1A12] italic-display mb-2" style={{ fontSize: "1.15rem" }}>
                     Introduce yourself and begin the history.
                   </p>
                   <p className="text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>
@@ -569,7 +669,6 @@ export function CaseSessionScreen() {
                 </div>
               </div>
             )}
-
             {messages.map((m, i) => {
               const isLastAssistant = isStreaming && i === messages.length - 1 && m.role === "assistant";
               return (
@@ -590,10 +689,7 @@ export function CaseSessionScreen() {
                     )}
                   </div>
                   <div className="flex-1 max-w-[680px]">
-                    <p
-                      className="text-[#A39A8E] mb-1"
-                      style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}
-                    >
+                    <p className="text-[#A39A8E] mb-1" style={{ fontSize: "0.66rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>
                       {m.role === "user" ? "You" : "Patient"}
                     </p>
                     <p
@@ -606,17 +702,13 @@ export function CaseSessionScreen() {
                     >
                       {m.content}
                       {isLastAssistant && (
-                        <span
-                          className="inline-block w-[2px] h-[1.05em] bg-[#8C6D3F] ml-0.5 align-[-0.15em] animate-pulse"
-                          aria-hidden="true"
-                        />
+                        <span className="inline-block w-[2px] h-[1.05em] bg-[#8C6D3F] ml-0.5 align-[-0.15em] animate-pulse" aria-hidden="true" />
                       )}
                     </p>
                   </div>
                 </motion.div>
               );
             })}
-
             {sending && (
               <div className="flex gap-4 items-center" role="status" aria-label="Patient is responding">
                 <HolographicEyeLogo size={26} animated={true} aria-hidden="true" />
@@ -639,7 +731,8 @@ export function CaseSessionScreen() {
           {!result && (
             <div className="flex-shrink-0 border-t border-[#1F1A12]/8 px-4 sm:px-8 py-4 sm:py-6 bg-[#FBF8F1]">
               <div className="flex gap-3 items-end max-w-3xl mx-auto">
-                <div className="flex-1 bg-white border border-[#1F1A12]/10 rounded-2xl overflow-hidden focus-within:border-[#8C6D3F]/40 transition-all"
+                <div
+                  className="flex-1 bg-white border border-[#1F1A12]/10 rounded-2xl overflow-hidden focus-within:border-[#8C6D3F]/40 transition-all"
                   style={{ boxShadow: "0 1px 2px rgba(31,26,18,0.04)" }}
                 >
                   <label htmlFor="case-chat-input" className="sr-only">Ask the patient a question</label>

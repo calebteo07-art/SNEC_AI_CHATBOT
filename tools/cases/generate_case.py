@@ -64,7 +64,8 @@ _CASE_SCHEMA = """{
   "case_id": null,
   "title": "<short procedure/scenario title>",
   "difficulty": "<beginner|intermediate|advanced>",
-  "topic": "<one lowercase word, e.g. biometry, history, ncт, hvf>",
+  "topic": "<one lowercase word, e.g. biometry, history, nct, hvf>",
+  "checklist_procedure": "<exact procedure name from the SNEC PROCEDURE CHECKLISTS section, e.g. 'Basic Biometry'>",
   "estimated_minutes": <integer 10-20>,
   "patient": {
     "name": "<realistic Singapore name>",
@@ -170,6 +171,7 @@ def generate_cases(
         f"- Make each case clinically distinct from the others.\n"
         f"- Use realistic Singapore patient demographics.\n"
         f"- Rubric key_points should list what the student MUST demonstrate for full marks.\n"
+        f"- 'checklist_procedure' must exactly match a procedure name from the SNEC PROCEDURE CHECKLISTS section.\n"
         f"{checklist_instruction}"
         f"- Ground all clinical content in the knowledge base and checklists provided below.\n\n"
         f"Return ONLY a valid JSON array of {n} case objects. No other text.\n\n"

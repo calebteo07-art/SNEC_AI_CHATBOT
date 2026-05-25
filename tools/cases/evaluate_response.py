@@ -38,7 +38,12 @@ Return ONLY valid JSON in exactly this format — no other text:
 }"""
 
 
-def evaluate_case(case: dict, conversation: list[dict], student_id: str) -> dict:
+def evaluate_case(
+    case: dict,
+    conversation: list[dict],
+    student_id: str,
+    performed_steps: list[int] | None = None,
+) -> dict:
     """
     Score a completed case simulation.
 
@@ -66,21 +71,47 @@ def evaluate_case(case: dict, conversation: list[dict], student_id: str) -> dict
         for m in conversation
     )
 
-    # Augment with checklist steps if a matching procedure checklist exists
+    # Fetch checklist and compute compliance counts
+    critical_hit = 0
+    critical_total = 0
     checklist_section = ""
+    performed = set(performed_steps or [])
     try:
-        from tools.kb.search import search_checklist
-        checklist = search_checklist(case.get("topic", ""))
-        if checklist and isinstance(checklist, dict) and "steps" in checklist:
-            lines = ["\n\nPROCEDURE CHECKLIST (assess whether the student followed these steps):"]
-            for step in checklist["steps"]:
-                mark = "[CRITICAL] " if step.get("critical") else ""
-                lines.append(f"{step['step_number']}. {mark}{step['action']}")
+        from tools.kb.search import get_checklist_by_name
+        procedure_name = case.get("checklist_procedure") or case.get("topic", "")
+        checklist_data = get_checklist_by_name(procedure_name)
+        if checklist_data:
+            cl = checklist_data.get("steps") or {}
+            steps = cl.get("steps", []) if isinstance(cl, dict) else []
+            lines = ["\n\nPROCEDURE CHECKLIST:"]
+            for s in steps:
+                num = s.get("step_number", 0)
+                is_crit = bool(s.get("critical"))
+                ticked = "✓ PERFORMED" if num in performed else "✗ NOT MARKED"
+                mark = "[CRITICAL] " if is_crit else ""
+                lines.append(f"{num}. {mark}{s.get('action','')} [{ticked}]")
+                if is_crit:
+                    critical_total += 1
+                    if num in performed:
+                        critical_hit += 1
             checklist_section = "\n".join(lines)
     except Exception:
-        pass  # Supabase not configured — skip checklist augmentation
+        pass
 
-    prompt = f"""CASE DETAILS:\n{case_summary}{checklist_section}\n\nSTUDENT CONVERSATION:\n{transcript}"""
+    ticked_note = ""
+    if performed:
+        ticked_note = (
+            f"\n\nThe student ticked {len(performed)} checklist steps as performed "
+            f"({critical_hit}/{critical_total} critical steps). "
+            f"Factor this procedural compliance into the management_score."
+        )
+
+    prompt = (
+        f"CASE DETAILS:\n{case_summary}"
+        f"{checklist_section}"
+        f"{ticked_note}"
+        f"\n\nSTUDENT CONVERSATION:\n{transcript}"
+    )
 
     response = ask(
         system_prompt=EVAL_PROMPT,
@@ -116,8 +147,10 @@ def evaluate_case(case: dict, conversation: list[dict], student_id: str) -> dict
         int(result.get("diagnosis_score", 0)),
         int(result.get("management_score", 0)),
     ])
+    result["critical_hit"] = critical_hit
+    result["critical_total"] = critical_total
 
     audit_log("case_evaluated", student_id=student_id, feature="cases",
-              detail=f"case_id={case['case_id']} total={result['total_score']}/40")
+              detail=f"case_id={case['case_id']} total={result['total_score']}/40 checklist={critical_hit}/{critical_total}")
 
     return result

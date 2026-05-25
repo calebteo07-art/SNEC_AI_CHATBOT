@@ -188,7 +188,7 @@ export function CaseListScreen() {
             return (
               <motion.button
                 key={c.case_id}
-                onClick={() => navigate(`/cases/${c.case_id}`)}
+                onClick={() => navigate(`/cases/${c.case_id}`, { state: { caseInfo: c } })}
                 className="w-full text-left glass-card iri-border p-8 group transition-all hover-shadow-holo"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
