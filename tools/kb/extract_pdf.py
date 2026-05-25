@@ -130,7 +130,7 @@ if __name__ == "__main__":
     images = extract_images_by_page(pdf_path, out_dir)
     print(f"  Images found: {len(images)}")
     for img in images[:3]:
-        print(f"    Page {img['page']}: {img['width']}x{img['height']}px → {img['path'].name}")
+        print(f"    Page {img['page']}: {img['width']}x{img['height']}px -> {img['path'].name}")
 
     print("\n[PASS] extract_pdf.py completed.")
     sys.exit(0)

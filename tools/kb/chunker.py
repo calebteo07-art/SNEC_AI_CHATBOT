@@ -129,7 +129,7 @@ if __name__ == "__main__":
     ) * 10  # Make it long enough to trigger chunking
 
     chunks = chunk_text(sample, chunk_tokens=200, overlap_tokens=30)
-    print(f"Input: {_count_tokens(sample)} tokens → {len(chunks)} chunks")
+    print(f"Input: {_count_tokens(sample)} tokens -> {len(chunks)} chunks")
     for i, c in enumerate(chunks):
         print(f"  Chunk {i}: {c['token_count']} tokens, starts: {c['text'][:60]!r}")
     assert len(chunks) > 1, "Expected multiple chunks for long input"

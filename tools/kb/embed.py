@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Google text-embedding-004 wrapper for KB ingestion.
+"""Google Gemini embedding wrapper for KB ingestion.
 
-Uses the same GEMINI_API_KEY as the rest of the platform. Returns 768-dim vectors.
-In MOCK_MODE (no API key), returns zero vectors so ingestion logic can be tested.
+Uses gemini-embedding-001 via the google-genai SDK (same key as the rest of the platform).
+Returns 3072-dim vectors. In MOCK_MODE (no API key), returns zero vectors so
+ingestion logic can be tested without credentials.
 
 Usage:
     from tools.kb.embed import embed_text, embed_batch
@@ -24,49 +25,44 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from dotenv import load_dotenv
 load_dotenv(PROJECT_ROOT / ".env")
 
-import httpx
-
 API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 MOCK_MODE = not API_KEY
-EMBED_DIM = 768
-_EMBED_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models"
-    "/text-embedding-004:embedContent"
-)
-_BATCH_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models"
-    "/text-embedding-004:batchEmbedContents"
-)
+EMBED_MODEL = "models/gemini-embedding-001"
+EMBED_DIM = 3072
+
+_client = None
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        from google import genai
+        _client = genai.Client(api_key=API_KEY)
+    return _client
 
 
 def embed_text(text: str) -> list[float]:
-    """Return a 768-dim embedding for a single text string."""
+    """Return a 3072-dim embedding for a single text string."""
     if MOCK_MODE:
         return [0.0] * EMBED_DIM
 
-    resp = httpx.post(
-        f"{_EMBED_URL}?key={API_KEY}",
-        json={
-            "model": "models/text-embedding-004",
-            "content": {"parts": [{"text": text}]},
-        },
-        timeout=30,
+    client = _get_client()
+    result = client.models.embed_content(
+        model=EMBED_MODEL,
+        contents=text,
     )
-    resp.raise_for_status()
-    return resp.json()["embedding"]["values"]
+    return list(result.embeddings[0].values)
 
 
 def embed_batch(
     texts: list[str],
-    batch_size: int = 100,
+    batch_size: int = 50,
     sleep_between_batches: float = 1.0,
 ) -> list[list[float]]:
     """Return embeddings for a list of texts.
 
-    Processes in batches of `batch_size` (max 100 per Google's API limit).
-    Sleeps between batches to respect the free-tier rate limit of 1,500 req/min.
-
-    Returns a list of 768-dim vectors in the same order as `texts`.
+    Processes in batches to respect API rate limits. Returns a list of
+    3072-dim vectors in the same order as `texts`.
     """
     if not texts:
         return []
@@ -74,24 +70,16 @@ def embed_batch(
     if MOCK_MODE:
         return [[0.0] * EMBED_DIM for _ in texts]
 
+    client = _get_client()
     results: list[list[float]] = []
+
     for start in range(0, len(texts), batch_size):
         batch = texts[start : start + batch_size]
-        requests = [
-            {
-                "model": "models/text-embedding-004",
-                "content": {"parts": [{"text": t}]},
-            }
-            for t in batch
-        ]
-        resp = httpx.post(
-            f"{_BATCH_URL}?key={API_KEY}",
-            json={"requests": requests},
-            timeout=60,
+        response = client.models.embed_content(
+            model=EMBED_MODEL,
+            contents=batch,
         )
-        resp.raise_for_status()
-        embeddings = resp.json()["embeddings"]
-        results.extend(e["values"] for e in embeddings)
+        results.extend(list(emb.values) for emb in response.embeddings)
 
         if start + batch_size < len(texts):
             time.sleep(sleep_between_batches)
@@ -114,7 +102,7 @@ if __name__ == "__main__":
     print(f"  [OK] embed_batch: {len(vs)} vectors returned")
 
     if MOCK_MODE:
-        print("\n  Running in MOCK mode — no API calls made.")
+        print("\n  Running in MOCK mode -- no API calls made.")
         print("  Add GEMINI_API_KEY to .env to test live embeddings.")
 
     print("\n[PASS] embed.py working correctly.")

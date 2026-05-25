@@ -220,7 +220,7 @@ MODULE_2_CATALOG = [
     {"filename": "IdentifiedDisordersoftheeyelidsptosis.pdf", "category": "disease"},
     {"filename": "IdentifiedDrSonal_ExtraOcularMuscles (1).pdf", "category": "disease"},
     {"filename": "Neuro-OphthalmologyOpticneuritisandGCA.pdf", "category": "disease"},
-    {"filename": "Notes 5 March24 Uveitis.pdf", "category": "disease"},
+    {"filename": "Notes 5 March24  Uveitis.pdf", "category": "disease"},
     {"filename": "Notes Uveitis 5 March 2024_.pdf", "category": "disease"},
     {"filename": "OcularInflammationandImmunology.pdf", "category": "disease"},
     {"filename": "Strabismus (Squint) – What It Is, Causes & Treatment.pdf", "category": "disease"},
