@@ -1,0 +1,110 @@
+{
+  "case_id": "case_ot_002_hvf",
+  "title": "Testing the Visual Field",
+  "difficulty": "intermediate",
+  "topic": "humphrey_visual_field",
+  "role": "OT",
+  "estimated_minutes": 20,
+  "patient": {
+    "name": "Mdm Hamidah bte Othman",
+    "age": 52,
+    "gender": "female",
+    "occupation": "office administrator",
+    "presenting_complaint": "Referred for Humphrey Visual Field test — elevated IOP, glaucoma suspect"
+  },
+  "history": {
+    "hpc": "Mdm Hamidah was seen in OPD and found to have elevated IOP (right eye 26 mmHg, left eye 24 mmHg) on two separate occasions. She has no visual symptoms — no tunnel vision, no peripheral vision loss that she is aware of. She has been referred for a Humphrey Visual Field (HVF) test to assess whether any functional loss is present. She has never had an HVF done before and is unsure what it involves.",
+    "pmhx": "No ocular history. Hypertension.",
+    "family_hx": "Father diagnosed with glaucoma in his 60s",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Office worker. Right-handed. Wears reading glasses."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "26 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. No disc pallor on fundus exam documented by doctor.",
+    "fundus": "C:D ratio 0.6 bilaterally (noted by doctor) — borderline suspicious"
+  },
+  "investigations": {
+    "hvf_right": {
+      "programme": "SITA Standard 24-2",
+      "mean_deviation": "-1.2 dB",
+      "pattern_sd": "1.8 dB",
+      "vfi": "98%",
+      "reliability": "Fixation losses 1/14 (7%), False positive 2%, False negative 1%",
+      "result": "Within normal limits. No definite scotoma."
+    },
+    "hvf_left": {
+      "programme": "SITA Standard 24-2",
+      "mean_deviation": "-1.5 dB",
+      "pattern_sd": "2.1 dB",
+      "vfi": "97%",
+      "reliability": "Fixation losses 0/14, False positive 1%, False negative 3%",
+      "result": "Within normal limits. Borderline early superior depression — to correlate with disc."
+    }
+  },
+  "diagnosis": "HVF SITA Standard 24-2 performed on both eyes. Reliable tests. No confirmed glaucomatous field defect. Borderline findings in left eye to be correlated with disc appearance by doctor.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and which eyes are to be tested",
+      "Explain the HVF test procedure to patient in clear terms",
+      "Set up HVF machine: enter patient data, select programme (24-2 SITA Standard as ordered)",
+      "Position patient comfortably with chin on chinrest, forehead on forehead rest",
+      "Patch the eye not being tested",
+      "Ensure correct trial lens inserted if patient wears glasses (based on age and prescription)",
+      "Demonstrate the test: click button when light seen, do not move eye, stare at central fixation light",
+      "Run the test, monitor for fixation losses and reliability",
+      "Print report and hand to doctor"
+    ],
+    "follow_up": [
+      "Doctor to correlate HVF result with disc appearance and IOP trend",
+      "If glaucoma confirmed, start IOP-lowering treatment",
+      "Repeat HVF in 6 months for monitoring"
+    ],
+    "patient_education": [
+      "Explain this is a map of what she can see — no right or wrong answers",
+      "Tell her to respond honestly, even if not sure",
+      "Advise test takes 6-10 minutes per eye",
+      "Tell her to inform OT if she needs to stop or rest"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and eyes to be tested",
+        "Asks if patient has done HVF before (first-timers need more explanation and may have a learning effect)",
+        "Checks if patient wears glasses — correct trial lens needed for accurate HVF",
+        "Explains the procedure clearly before starting the test"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Selects correct HVF programme as ordered (SITA Standard 24-2)",
+        "Enters patient data accurately into machine",
+        "Positions patient correctly on chinrest with appropriate correction in the trial frame",
+        "Patches untested eye and monitors patient for fixation loss during test",
+        "Prints report and checks reliability indices (fixation losses, false positives/negatives)"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies whether test is reliable (fixation losses <20%, false positives <15%)",
+        "Recognises that an unreliable test may need to be repeated",
+        "Does not interpret clinical significance independently — refers to doctor",
+        "Identifies purpose: to map peripheral vision for glaucoma assessment"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents test results and prints report accurately",
+        "Hands completed report to doctor",
+        "Educates patient in a way that reduces anxiety and improves cooperation during test",
+        "Checks reliability before dismissing patient — repeat if test unreliable"
+      ]
+    }
+  }
+}

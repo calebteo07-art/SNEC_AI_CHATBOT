@@ -1,0 +1,89 @@
+{
+  "case_id": "case_oa_002_iop_va",
+  "title": "Routine Glaucoma Follow-Up",
+  "difficulty": "beginner",
+  "topic": "iop_va_measurement",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Rajasekaran s/o Pillai",
+    "age": 55,
+    "gender": "male",
+    "occupation": "bus driver",
+    "presenting_complaint": "Routine glaucoma follow-up — on latanoprost eye drops for 6 months"
+  },
+  "history": {
+    "hpc": "Mr Raja is here for his 6-month glaucoma review. He says he has been using his eye drops every night but sometimes forgets. He has no eye pain. He says his vision 'seems okay' but he has not done a formal check recently. He has not had any new symptoms. He still drives for work.",
+    "pmhx": "Primary open-angle glaucoma, both eyes, diagnosed 6 months ago. No other eye conditions.",
+    "family_hx": "Brother also has glaucoma",
+    "medications": ["Latanoprost 0.005% eye drops — one drop each eye at night"],
+    "social_hx": "Non-smoker. Does not drink alcohol. Lives with family."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "18 mmHg (NCT)", "left": "20 mmHg (NCT)"},
+    "near_va": {"right": "N8", "left": "N8"},
+    "anterior_segment": "Normal bilaterally. No corneal changes."
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.1 (6/7.5). LE: LogMAR 0.2 (6/9). Tested using LogMAR chart at 4 metres.",
+    "va_near": "RE: N8 at 35cm. LE: N8 at 35cm. Tested using N chart.",
+    "iop_nct": "RE: 18 mmHg. LE: 20 mmHg. Three NCT readings taken per eye, average recorded."
+  },
+  "diagnosis": "Glaucoma — stable IOP on current medication. VA adequate for driving. Findings to be reviewed by doctor.",
+  "management": {
+    "immediate": [
+      "Record VA and IOP accurately on patient records",
+      "Note that patient occasionally forgets drops — flag this to the doctor",
+      "Hand over documentation to doctor for review"
+    ],
+    "follow_up": [
+      "Doctor will review IOP trend and visual field",
+      "Reinforce drop compliance with patient",
+      "Schedule next follow-up"
+    ],
+    "patient_education": [
+      "Explain importance of using drops every night without skipping",
+      "Advise patient to inform DVLA/traffic authority if vision deteriorates",
+      "Remind patient to attend all follow-up appointments"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about eye drop compliance (is patient using drops correctly?)",
+        "Asks about any new visual symptoms (pain, halos, sudden vision changes)",
+        "Asks about occupation — driving is relevant for visual standards",
+        "Records current medications and confirms correct drop name and frequency"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs distance VA using LogMAR chart at correct distance (4 metres)",
+        "Records VA correctly using LogMAR notation (e.g. 0.1, 0.2)",
+        "Performs near VA using N chart at 35cm",
+        "Performs NCT correctly: explains to patient, takes 3 readings per eye, records average"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies this as a routine glaucoma follow-up (not an emergency)",
+        "Recognises that VA and IOP values are within acceptable range",
+        "Flags medication non-compliance as an issue to raise with doctor",
+        "Does not make clinical decisions — refers findings to doctor appropriately"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents all measurements accurately",
+        "Flags compliance issue to doctor",
+        "Educates patient on importance of drop compliance without being dismissive",
+        "Performs procedures in the correct sequence: history → VA → IOP → handover"
+      ]
+    }
+  }
+}

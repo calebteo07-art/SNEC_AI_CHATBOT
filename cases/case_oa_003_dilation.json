@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_003_dilation",
+  "title": "Pre-Dilation Before Fundus Exam",
+  "difficulty": "beginner",
+  "topic": "eye_drop_instillation_dilation",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Wong Ah Mui",
+    "age": 72,
+    "gender": "female",
+    "occupation": "homemaker",
+    "presenting_complaint": "Referred for dilated fundus examination — diabetic eye screening"
+  },
+  "history": {
+    "hpc": "Mdm Wong is a 72-year-old diabetic referred from her GP for a dilated fundus examination as part of her annual diabetic eye screening. She has no current eye complaints — no pain, no redness, vision 'still okay' with glasses. She has never had dilation before.",
+    "pmhx": "Type 2 diabetes mellitus for 15 years. Hypertension. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 1g BD", "Perindopril 4mg OD", "Aspirin 100mg OD"],
+    "social_hx": "Does not drive. Came with daughter today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 with glasses (LogMAR 0.3)", "left": "6/9 with glasses (LogMAR 0.2)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "No contraindications to dilation observed. Pupils normal and reactive.",
+    "fundus": "Fundus cannot be adequately assessed without dilation — assessment to follow after drops take effect"
+  },
+  "investigations": {
+    "va_distance": "Measured with habitual correction (glasses). RE: LogMAR 0.3. LE: LogMAR 0.2.",
+    "iop_nct": "RE: 15 mmHg. LE: 14 mmHg. IOP measured before dilation as per protocol.",
+    "dilation": "Tropicamide 1% one drop each eye instilled at 10:00am. Second drop instilled at 10:05am. Patient advised to wait 20-30 minutes."
+  },
+  "diagnosis": "Diabetic patient requiring dilated fundus examination. No contraindication to dilation identified. Standard pre-dilation protocol applied.",
+  "management": {
+    "immediate": [
+      "Confirm correct patient identity (full name and NRIC) before instilling any drops",
+      "Explain procedure and obtain verbal consent",
+      "Check for known allergies to eye drops",
+      "Warn patient: vision will be blurred and eye sensitive to light for 4-6 hours after dilation",
+      "Instil tropicamide 1% — one drop per eye, wait 5 minutes, then second drop per eye",
+      "Ask patient to sit in waiting area for 20-30 minutes",
+      "Document drop name, dosage, time instilled, and by whom"
+    ],
+    "follow_up": [
+      "Recheck pupils after 20-30 minutes to confirm dilation adequate",
+      "Escort patient to doctor when dilation achieved",
+      "Doctor to perform dilated fundus examination"
+    ],
+    "patient_education": [
+      "Advise not to drive after dilation — patient should have someone escort her home",
+      "Sunglasses recommended outdoors after dilation due to light sensitivity",
+      "Explain dilation is temporary and vision will return to normal after 4-6 hours"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity correctly before instilling drops",
+        "Asks about known allergies to eye drops",
+        "Asks whether patient is driving today (cannot drive after dilation)",
+        "Explains procedure and gets verbal consent before instilling drops"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA before dilation (both distance and near if required)",
+        "Measures IOP before dilation (NCT)",
+        "Correct technique for eye drop instillation: lower lid retracted, drop in conjunctival sac, patient looks up, one drop at a time, nasolacrimal occlusion advised",
+        "Documents drop name, concentration, time, and number of drops"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises purpose of dilation (diabetic screening)",
+        "Identifies no contraindications to dilation",
+        "Does not instil drops without checking allergies and identity",
+        "Recognises that driving after dilation is unsafe"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses correct drop (tropicamide 1%) and correct technique",
+        "Waits correct time between drops (5 minutes) and before reassessment (20-30 minutes)",
+        "Educates patient on post-dilation care (no driving, light sensitivity, duration)",
+        "Documents all details accurately"
+      ]
+    }
+  }
+}

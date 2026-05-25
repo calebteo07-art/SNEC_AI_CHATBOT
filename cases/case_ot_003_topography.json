@@ -1,0 +1,105 @@
+{
+  "case_id": "case_ot_003_topography",
+  "title": "Mapping the Cornea",
+  "difficulty": "intermediate",
+  "topic": "corneal_topography",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Arjun Krishnamurthy",
+    "age": 24,
+    "gender": "male",
+    "occupation": "university student",
+    "presenting_complaint": "Referred for corneal topography — irregular astigmatism, query keratoconus"
+  },
+  "history": {
+    "hpc": "Mr Arjun has had progressive spectacle prescription changes over the last 2 years. His optometrist noticed irregular astigmatism that did not correct fully to 6/6 with glasses and has referred him to SNEC. He was seen by the doctor and has been sent for corneal topography to assess for keratoconus. He wears soft contact lenses daily and has been wearing them today.",
+    "pmhx": "Myopia since age 10. No eye surgery. No known ocular conditions previously.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Non-smoker. Student. Wears contact lenses."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 unaided, 6/9 best-corrected (irregular astigmatism)", "left": "6/6 unaided, 6/6 best-corrected"},
+    "iop": {"right": "13 mmHg (NCT)", "left": "12 mmHg (NCT)"},
+    "anterior_segment": "Right cornea: slight inferior corneal thinning noted on slit lamp. No Fleischer ring seen. Left cornea: normal appearance.",
+    "fundus": "Normal bilaterally"
+  },
+  "investigations": {
+    "corneal_topography_right": {
+      "anterior_curvature": "Irregular pattern — inferior steepening",
+      "k_max": "49.5 D (elevated)",
+      "thinnest_point": "462 microns (below normal)",
+      "belin_ambrosio_d": "Abnormal — consistent with keratoconus",
+      "result": "Keratoconus right eye, Amsler-Krumeich Stage I"
+    },
+    "corneal_topography_left": {
+      "anterior_curvature": "Regular bow-tie pattern, normal",
+      "k_max": "43.8 D",
+      "thinnest_point": "520 microns",
+      "belin_ambrosio_d": "Normal",
+      "result": "Within normal limits. Keratoconus suspect — monitor"
+    }
+  },
+  "diagnosis": "Corneal topography completed. Right eye: keratoconus Stage I (inferior steepening, thinning, K-max elevated). Left eye: normal, suspect changes — repeat monitoring recommended. Contact lenses removed prior to test (must confirm with patient).",
+  "management": {
+    "immediate": [
+      "BEFORE STARTING: confirm patient removed contact lenses — soft lenses must be removed at least 24 hours before accurate topography; if still wearing, reschedule",
+      "Confirm patient identity and both eyes to be mapped",
+      "Explain the procedure: painless, takes 1-2 minutes per eye, look at target light",
+      "Set up corneal topography machine (Pentacam or equivalent) and enter patient details",
+      "Position patient at chinrest with forehead against rest",
+      "Instruct patient to blink normally, then open wide and hold still during capture",
+      "Capture images for both eyes, check quality of scan (quality score adequate)",
+      "Print report and hand to doctor"
+    ],
+    "follow_up": [
+      "Doctor to review topography maps and counsel patient on diagnosis",
+      "If keratoconus confirmed: rigid contact lens fitting, corneal cross-linking consultation",
+      "Repeat topography in 6 months to monitor progression"
+    ],
+    "patient_education": [
+      "Advise patient to remove contact lenses at least 24 hours (soft) or 4 weeks (RGP) before topography in future",
+      "Explain that contact lenses can temporarily change corneal shape, affecting results",
+      "If test must be done today, contact lenses should have been out since the previous day"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Checks whether patient is wearing contact lenses today — CRITICAL step (contact lenses must be removed before topography)",
+        "Asks how long contact lenses have been out (soft: minimum 24 hours; RGP: minimum 4 weeks)",
+        "Confirms correct patient identity and which eyes to map",
+        "Explains the test to the patient before starting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Does not perform topography if contact lenses have been removed for less than 24 hours (soft) — reschedules",
+        "Correctly sets up the topography machine with patient data",
+        "Achieves good quality scan (checks quality indicator on machine)",
+        "Captures both eyes and prints/exports the complete report"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies that contact lens wear is a key confounding factor for this investigation",
+        "Understands purpose of corneal topography: mapping corneal curvature for keratoconus",
+        "Does not interpret keratoconus classification independently — refers to doctor",
+        "Recognises significance of inferior steepening pattern when visible on the map"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Would reschedule test if contact lenses were not removed in adequate time",
+        "Documents scan quality and prints complete report",
+        "Educates patient on contact lens removal requirements for future visits",
+        "Hands report to doctor promptly"
+      ]
+    }
+  }
+}

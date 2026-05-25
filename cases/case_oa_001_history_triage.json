@@ -1,0 +1,92 @@
+{
+  "case_id": "case_oa_001_history_triage",
+  "title": "The Red Eye Emergency",
+  "difficulty": "beginner",
+  "topic": "history_taking_triage",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Lee Siew Poh",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Sudden severe pain in the right eye with blurred vision and vomiting, started 2 hours ago"
+  },
+  "history": {
+    "hpc": "Mdm Lee presents to SNEC OPD with sudden onset severe right eye pain. She says it came on about 2 hours ago while she was watching TV. The pain is very bad — she rates it 9/10. She also has nausea and has vomited once. She notices the vision in her right eye is very blurry, like looking through fog. She has never had this before.",
+    "pmhx": "Hypertension on medication. No previous eye surgery or eye conditions.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives alone. Daughter brought her in today."
+  },
+  "examination_findings": {
+    "va": {"right": "CF (Count Fingers) at 1 metre", "left": "6/9"},
+    "iop": {"right": "58 mmHg (NCT)", "left": "16 mmHg"},
+    "anterior_segment": "Right eye: mid-dilated fixed pupil, corneal haze/oedema, conjunctival redness. Left eye: normal.",
+    "fundus": "Unable to assess right fundus due to corneal oedema"
+  },
+  "investigations": {
+    "iop_nct": "RE: 58 mmHg. NCT reading taken after patient settled — multiple readings consistent.",
+    "va_distance": "RE: CF at 1m (unable to read logMAR chart). LE: 6/9 on LogMAR chart."
+  },
+  "diagnosis": "Acute Angle Closure Glaucoma (AACG) — right eye. Category 1 emergency. Must be seen by doctor within 10 minutes.",
+  "management": {
+    "immediate": [
+      "Triage as Category 1 — see doctor within 10 minutes",
+      "Alert doctor immediately to the patient's condition",
+      "Do NOT leave patient unattended",
+      "Document triage time, presenting complaint, and vital signs on SNEC Triage Form",
+      "Do NOT instil any drops without doctor's order"
+    ],
+    "follow_up": [
+      "Doctor will manage acute IOP reduction",
+      "Prepare for possible laser iridotomy or IV acetazolamide",
+      "Monitor patient closely while waiting for doctor"
+    ],
+    "patient_education": [
+      "Reassure patient that help is coming",
+      "Advise patient not to rub her eye",
+      "Keep patient calm and in a comfortable seated position"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about onset and duration of pain (sudden, 2 hours)",
+        "Asks about severity and nature of pain (very severe, 9/10)",
+        "Asks about associated symptoms: nausea/vomiting, blurred vision, haloes around lights",
+        "Asks about past eye history and medications",
+        "Uses structured history approach: general health → presenting problem → past ocular history"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes (affected and unaffected)",
+        "Performs NCT to measure IOP",
+        "Observes and documents anterior segment signs (red eye, cloudy cornea, mid-dilated pupil)",
+        "Records findings accurately on triage form"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as an ocular emergency",
+        "Identifies the condition as acute angle closure glaucoma or acute painful red eye with high IOP",
+        "Correctly assigns SNEC Triage Category 1 (see doctor within 10 minutes)",
+        "Understands urgency — does not delay"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Alerts doctor immediately",
+        "Does not instil drops without doctor's order",
+        "Completes SNEC Triage Form with all required fields",
+        "Reassures and stays with patient",
+        "Documents all findings and triage time"
+      ]
+    }
+  }
+}

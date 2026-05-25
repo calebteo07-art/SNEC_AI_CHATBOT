@@ -1,0 +1,111 @@
+{
+  "case_id": "case_ot_004_dayward",
+  "title": "Day Ward — Is the Patient Ready?",
+  "difficulty": "intermediate",
+  "topic": "dayward_preoperative_assessment",
+  "role": "OT",
+  "estimated_minutes": 20,
+  "patient": {
+    "name": "Mr Lim Chee Keong",
+    "age": 66,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Day admission to SNEC Day Ward for left eye trabeculectomy (glaucoma surgery) today"
+  },
+  "history": {
+    "hpc": "Mr Lim has advanced left eye glaucoma not controlled on maximum medical therapy. He has been listed for left eye trabeculectomy. He arrives at the Day Ward at 7:30am. He reports he has not eaten or drunk anything since midnight as instructed. He took his blood pressure tablet this morning with a small sip of water. His wife is with him. He is anxious about the surgery.",
+    "pmhx": "Advanced left eye glaucoma. Hypertension. Type 2 diabetes (diet-controlled). No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": [
+      "Timolol 0.5% eye drops both eyes BD",
+      "Dorzolamide 2% eye drops both eyes BD",
+      "Bimatoprost 0.01% eye drops both eyes nocte",
+      "Amlodipine 5mg OD",
+      "Metformin 500mg BD (not taken today)"
+    ],
+    "social_hx": "Retired. Lives with wife who will accompany him home."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/60 (LogMAR 1.0)"},
+    "iop": {"right": "18 mmHg", "left": "32 mmHg (on maximum drops)"},
+    "vital_signs": {
+      "blood_pressure": "142/86 mmHg",
+      "heart_rate": "76 bpm, regular",
+      "spo2": "98% on room air",
+      "temperature": "36.7°C"
+    },
+    "anterior_segment": "Left eye: narrow anterior chamber, disc pallor on prior records",
+    "fundus": "Not assessed today"
+  },
+  "investigations": {
+    "pre_op_va": "RE: 6/9. LE: 6/60.",
+    "pre_op_iop": "RE: 18 mmHg. LE: 32 mmHg — uncontrolled, awaiting trabeculectomy.",
+    "consent": "Signed consent form present in records — patient signed at pre-op clinic visit 2 days ago.",
+    "surgical_site_marking": "Left eye confirmed as surgical site — verified with patient and records."
+  },
+  "diagnosis": "Day Ward pre-operative assessment completed. Patient fasted (clear fluids/nil by mouth since midnight). BP slightly elevated but not outside safe surgical limits. Consent signed. Correct surgical eye confirmed. Anticoagulants and diabetes medication not taken today. Ready to proceed — but flag elevated BP to nurse-in-charge and surgeon.",
+  "management": {
+    "immediate": [
+      "Greet patient by name and introduce yourself — confirm full identity with NRIC",
+      "Check and document vital signs: BP, HR, SpO2, temperature",
+      "Confirm fasting status and time of last meal/drink",
+      "Review which medications were taken this morning and which were withheld",
+      "Verify signed consent form is in patient file",
+      "Confirm surgical eye (left) with patient verbally and check records — document surgical site marking",
+      "Check allergy status and document",
+      "Assess fall risk using hospital fall risk tool",
+      "Attach patient ID wristband and confirm details are correct",
+      "Perform pre-op VA (both eyes)",
+      "Explain what will happen next: OT staff will collect him, surgery under LA/GA, duration",
+      "Document all findings in DISM format and handover to OT nurse"
+    ],
+    "follow_up": [
+      "Flag BP of 142/86 to nurse-in-charge — surgeon to decide if safe to proceed",
+      "OT team will collect patient when ready",
+      "Post-operatively, patient to be monitored in recovery area"
+    ],
+    "patient_education": [
+      "Reassure patient that feeling anxious is normal",
+      "Explain each step as you do it to reduce anxiety",
+      "Confirm he has someone to take him home — he should not drive or take public transport alone post-operatively"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity with full name and NRIC — not just asking 'are you Mr Lim?'",
+        "Asks about fasting status and time of last oral intake",
+        "Confirms which medications were taken and which were withheld this morning",
+        "Checks for allergies"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures and documents vital signs (BP, HR, SpO2, temperature)",
+        "Measures and documents pre-operative VA for both eyes",
+        "Verifies signed consent form in patient file",
+        "Confirms surgical eye with patient and against written records — sites surgical mark"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies patient is appropriately fasted",
+        "Flags elevated BP to nurse-in-charge and/or surgeon — does not clear independently",
+        "Confirms correct eye by cross-referencing patient statement with records",
+        "Identifies this as a Day Ward admission requiring DISM documentation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Completes full pre-op DISM documentation",
+        "Reports BP finding to nurse-in-charge without delay",
+        "Ensures patient ID wristband is attached and accurate",
+        "Provides clear, calming explanation to patient throughout"
+      ]
+    }
+  }
+}

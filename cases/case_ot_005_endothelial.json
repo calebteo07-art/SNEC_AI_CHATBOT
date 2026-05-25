@@ -1,0 +1,104 @@
+{
+  "case_id": "case_ot_005_endothelial",
+  "title": "Counting the Corneal Cells",
+  "difficulty": "intermediate",
+  "topic": "endothelial_cell_count",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Tan Ah Lian",
+    "age": 74,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for endothelial cell count — known Fuchs corneal dystrophy, scheduled for cataract surgery"
+  },
+  "history": {
+    "hpc": "Mdm Tan has Fuchs endothelial corneal dystrophy (known for 5 years) and has now developed a visually significant cataract in the right eye. Before proceeding with cataract surgery, the doctor wants to know whether her corneal endothelial cell count is adequate to withstand the surgical trauma. She is referred for specular microscopy (endothelial cell count, ECC) of both eyes. She does not wear contact lenses. No previous eye surgery.",
+    "pmhx": "Fuchs corneal dystrophy. Right eye cataract. Hypertension. No previous eye surgery.",
+    "family_hx": "Mother had 'cornea problems'",
+    "medications": ["Perindopril 4mg OD"],
+    "social_hx": "Retired. Lives with daughter. Does not drive."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (LogMAR 0.6) — reduced by cataract and corneal oedema", "left": "6/12 (LogMAR 0.3)"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "anterior_segment": "Right eye: corneal guttata (gold beaten appearance on retroillumination), early morning blurring reported by patient, nuclear cataract. Left eye: corneal guttata less dense, clear lens.",
+    "fundus": "Not assessed — not the focus today"
+  },
+  "investigations": {
+    "ecc_right": {
+      "cell_density": "820 cells/mm2",
+      "coefficient_of_variation": "38%",
+      "hexagonality": "52%",
+      "result": "Severely reduced cell density. High risk for corneal decompensation post-operatively."
+    },
+    "ecc_left": {
+      "cell_density": "1450 cells/mm2",
+      "coefficient_of_variation": "32%",
+      "hexagonality": "58%",
+      "result": "Moderately reduced. Lower than normal but may tolerate surgery better than right eye."
+    }
+  },
+  "diagnosis": "Endothelial cell count completed. Right eye: severely reduced (820 cells/mm2). Left eye: moderately reduced (1450 cells/mm2). Results to be reviewed by surgeon. Fuchs dystrophy patient — high risk for post-op corneal decompensation if cataract surgery proceeds on right eye without consideration for combined procedure (cataract + corneal transplant).",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and both eyes to be examined",
+      "Explain the procedure: painless, uses a special camera to photograph the cells on the back of the cornea, about 5-10 minutes",
+      "Do not instil any drops before ECC unless ordered — topical anaesthetic may be required depending on machine",
+      "Set up specular microscopy machine and enter patient details",
+      "Position patient at chinrest with forehead on forehead rest",
+      "Align machine with central cornea, achieve focus, capture high-quality images",
+      "Ensure at least 100 cells are analysed in the sample for reliable count",
+      "Document cell density (cells/mm2), coefficient of variation, and hexagonality",
+      "Print report and hand to doctor"
+    ],
+    "follow_up": [
+      "Surgeon to review ECC results before planning cataract surgery",
+      "Surgeon may counsel patient regarding need for combined procedure or corneal transplant (DMEK/DSAEK)",
+      "Follow-up ECC in 6-12 months to monitor cell loss progression"
+    ],
+    "patient_education": [
+      "Explain what the test is looking for: counting the cells that keep her cornea clear",
+      "Tell patient the test is quick and does not involve drops or touching the eye (if non-contact method)",
+      "Explain that the results will help the doctor decide the safest plan for her eye surgery"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and purpose of test (pre-op ECC for Fuchs dystrophy)",
+        "Asks if patient wears contact lenses (lenses can affect corneal thickness/ECC — remove before test)",
+        "Notes the clinical context: why ECC is needed (Fuchs + cataract surgery risk assessment)",
+        "Explains the procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up specular microscope correctly and enters patient data",
+        "Achieves adequate focus and image quality on central cornea",
+        "Ensures sample size is adequate (minimum 100 cells for reliable density estimate)",
+        "Records all three key parameters: cell density (cells/mm2), coefficient of variation, hexagonality"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands purpose: assessing corneal endothelial reserve before surgery",
+        "Recognises that low cell density (below ~1000 cells/mm2) carries higher surgical risk",
+        "Does not independently make clinical decisions — reports results to doctor",
+        "Identifies that Fuchs dystrophy means pre-existing cell dysfunction, increasing risk"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents complete ECC report and prints/hands to doctor",
+        "Performs test on both eyes as ordered",
+        "Educates patient on what the test measures and why it matters for her surgery plan",
+        "Does not instil unauthorised drops before test"
+      ]
+    }
+  }
+}

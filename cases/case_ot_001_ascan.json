@@ -1,0 +1,99 @@
+{
+  "case_id": "case_ot_001_ascan",
+  "title": "Measuring the Eye Before Surgery",
+  "difficulty": "beginner",
+  "topic": "ascan_biometry",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Tan Boon Seng",
+    "age": 70,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for A-scan biometry before right eye cataract surgery"
+  },
+  "history": {
+    "hpc": "Mr Tan has been diagnosed with dense right eye cataract affecting his daily activities. He has been listed for right eye phacoemulsification. He is referred for A-scan biometry so that the correct IOL power can be calculated before surgery. He has never had eye surgery before. He currently wears reading glasses.",
+    "pmhx": "Cataract right eye. Mild cataract left eye. Mild myopia. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Paracetamol PRN for occasional joint pain"],
+    "social_hx": "Retired. Lives with family."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (LogMAR 1.0)", "left": "6/12 (LogMAR 0.3)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Dense nuclear cataract right eye. Mild cortical cataract left eye.",
+    "fundus": "Unable to visualise right fundus due to dense cataract"
+  },
+  "investigations": {
+    "ascan_biometry": {
+      "right_axial_length": "23.45 mm",
+      "left_axial_length": "23.38 mm",
+      "corneal_power_K1": "43.25 D",
+      "corneal_power_K2": "44.00 D",
+      "iol_power_calculated": "+21.5 D (SRK/T formula)"
+    },
+    "va_distance": "RE: 6/60. LE: 6/12."
+  },
+  "diagnosis": "Pre-cataract A-scan biometry completed. Axial length and keratometry values obtained. IOL power calculated for surgeon review. Right eye: 23.45mm axial length, +21.5D IOL.",
+  "management": {
+    "immediate": [
+      "Confirm correct patient identity and correct eye to be measured (check with patient and records)",
+      "Explain the A-scan procedure to the patient: painless, uses sound waves, takes about 10 minutes",
+      "Instil topical anaesthetic (proxymetacaine) if contact A-scan method is used — check if ordered",
+      "Set up A-scan machine and enter patient details correctly",
+      "Take measurements with probe aligned correctly on the centre of the cornea",
+      "Take minimum 5-10 readings per eye and record the most consistent set",
+      "Print report and document axial length, K readings, and IOL power calculation",
+      "Hand report to doctor / upload to patient record"
+    ],
+    "follow_up": [
+      "Surgeon to review and confirm IOL power before surgery",
+      "IOL to be ordered or selected from stock",
+      "A-scan data stored in patient's pre-operative file"
+    ],
+    "patient_education": [
+      "Explain that this measurement helps the surgeon choose the correct lens to implant",
+      "Tell patient the test is quick and painless",
+      "If topical anaesthetic used, advise patient not to rub eye for 30 minutes after"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms correct patient identity (full name and IC) and correct eye to measure",
+        "Asks about previous eye surgery (prior surgery changes axial length measurement and IOL calculation)",
+        "Asks if patient wears contact lenses — soft lenses must be removed 1 week, rigid gas-permeable 2 weeks before accurate keratometry",
+        "Explains procedure to patient before starting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up A-scan machine correctly and enters patient data accurately",
+        "Takes multiple readings (minimum 5) and selects the most consistent set",
+        "Ensures probe is correctly positioned on cornea for immersion or contact method",
+        "Records axial length, corneal curvature (K readings), and IOL power calculation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies purpose of A-scan: to calculate IOL power for cataract surgery",
+        "Recognises that contact lens wear affects keratometry accuracy",
+        "Identifies consistency of readings (standard deviation acceptable range)",
+        "Does not proceed with incorrect patient identity or wrong eye"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents measurements accurately and completely",
+        "Hands printed report to surgeon or uploads to records",
+        "Educates patient on the purpose of the test",
+        "Advises on contact lens removal if applicable"
+      ]
+    }
+  }
+}

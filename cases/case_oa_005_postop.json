@@ -1,0 +1,99 @@
+{
+  "case_id": "case_oa_005_postop",
+  "title": "Day-One Post-Op Review",
+  "difficulty": "intermediate",
+  "topic": "postoperative_eye_dressing",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Nair Saraswathy",
+    "age": 65,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Day 1 post-op review after right eye cataract surgery yesterday"
+  },
+  "history": {
+    "hpc": "Mdm Nair had right eye phacoemulsification and IOL implantation yesterday afternoon. She is here for her day-1 review. She says the eye feels a bit gritty but there is no severe pain. She can see some improvement in vision compared to before surgery. She had watery discharge from the eye overnight. She slept with the eye shield on as instructed.",
+    "pmhx": "Hypertension, right eye cataract (now operated). No known allergies.",
+    "family_hx": "Nil significant",
+    "medications": [
+      "Prednisolone acetate 1% eye drops — 4 times a day right eye (post-op)",
+      "Tobramycin 0.3% eye drops — 4 times a day right eye (post-op)",
+      "Nepafenac 0.1% eye drops — 3 times a day right eye (post-op)"
+    ],
+    "social_hx": "Came with husband. Does not drive."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (LogMAR 0.3) — improved from pre-op 6/60", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Right eye: clear cornea, well-centred IOL in posterior chamber, anterior chamber formed. Mild conjunctival redness (expected post-op). Wound appears intact. No purulent discharge. Left eye: normal.",
+    "fundus": "Not assessed today — routine day-1 review"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.3 (6/12). Improvement from pre-op baseline (6/60).",
+    "iop_nct": "RE: 16 mmHg. LE: 14 mmHg. Within normal limits post-operatively.",
+    "wound_assessment": "Wound clean and intact. No leakage noted. No signs of infection."
+  },
+  "diagnosis": "Day 1 post-cataract surgery — right eye. Normal post-operative findings. VA improved. No signs of complication (no severe pain, no significant discharge, no hypopyon, wound intact, IOP normal).",
+  "management": {
+    "immediate": [
+      "Remove old eye dressing carefully using sterile technique",
+      "Observe and document wound appearance, redness, discharge",
+      "Measure and record VA and IOP",
+      "Apply clean eye dressing if required or advise on eye hygiene",
+      "Document all findings and hand over to doctor",
+      "Reinforce post-operative drop regimen and technique"
+    ],
+    "follow_up": [
+      "Doctor to review wound and anterior segment",
+      "Continue post-op drops as prescribed",
+      "Advise patient on activity restrictions (no rubbing, no water in eye, no heavy lifting)",
+      "Next review appointment to be given"
+    ],
+    "patient_education": [
+      "Remind patient to continue all three post-op eye drops as scheduled",
+      "No rubbing of the operated eye",
+      "Avoid getting water in the eye when bathing — use a clean flannel",
+      "Wear eye shield at night for 1 week",
+      "Return immediately if: severe pain, sudden vision loss, increased redness or discharge"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about pain level (gritty/mild expected; severe pain is a red flag)",
+        "Asks about vision change since surgery (should be improved)",
+        "Asks about type and amount of discharge (watery normal; yellow/green/purulent is concerning)",
+        "Confirms patient wore eye shield overnight as instructed"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in operated eye (compare to pre-op baseline)",
+        "Measures IOP in operated eye (post-op IOP spike is a concern)",
+        "Observes and documents wound appearance (intact, clean, no leakage)",
+        "Removes dressing using sterile technique"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies normal post-operative findings (mild gritty feeling, watery discharge, mild redness — all expected)",
+        "Recognises red flags that are absent: no severe pain, no purulent discharge, no wound leak, IOP normal",
+        "Confirms VA has improved from baseline (good surgical outcome)",
+        "Does not diagnose complication where none exists"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses sterile technique for dressing change",
+        "Educates patient on post-op drop regimen (frequency, technique, correct eye)",
+        "Gives clear instructions on activity restrictions",
+        "Tells patient warning signs to watch for and when to return urgently"
+      ]
+    }
+  }
+}

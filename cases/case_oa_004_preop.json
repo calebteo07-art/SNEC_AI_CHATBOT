@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_004_preop",
+  "title": "Ready for Theatre?",
+  "difficulty": "intermediate",
+  "topic": "preoperative_assessment",
+  "role": "OA",
+  "estimated_minutes": 20,
+  "patient": {
+    "name": "Mr Goh Bak Cheng",
+    "age": 78,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Admitted for right eye cataract surgery this morning"
+  },
+  "history": {
+    "hpc": "Mr Goh is scheduled for right eye phacoemulsification and IOL implantation today. He is anxious and asking many questions. He ate breakfast this morning at 7am (his surgery is at 11am). He takes aspirin daily and is not sure if he should have taken it this morning.",
+    "pmhx": "Hypertension. Ischaemic heart disease — stable, on aspirin. Cataract both eyes, right worse than left. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Aspirin 100mg OD", "Atenolol 50mg OD", "Simvastatin 20mg ON"],
+    "social_hx": "Lives with wife. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (LogMAR 1.0)", "left": "6/18 (LogMAR 0.5)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Dense nuclear cataract right eye. Mild cataract left eye.",
+    "fundus": "Unable to assess right fundus due to dense cataract"
+  },
+  "investigations": {
+    "va_distance": "RE: 6/60 (LogMAR 1.0). LE: 6/18 (LogMAR 0.5). Habitual correction used.",
+    "iop_nct": "RE: 16 mmHg. LE: 15 mmHg.",
+    "biometry": "A-scan biometry completed in previous visit. IOL power calculated and ready for surgeon.",
+    "consent": "Informed consent form signed at previous clinic visit."
+  },
+  "diagnosis": "Right eye dense cataract — patient scheduled for surgery. Issue identified: patient ate breakfast this morning (not fasted). Aspirin taken this morning — requires doctor review.",
+  "management": {
+    "immediate": [
+      "Complete pre-operative DISM checklist",
+      "Confirm consent form is signed — check with patient and check records",
+      "Confirm correct surgical eye is documented and marked",
+      "Check fasting status — patient ate at 7am, report to nurse-in-charge immediately",
+      "Check medication — aspirin taken this morning, flag to doctor before proceeding",
+      "Measure and document pre-op VA and IOP",
+      "Assess fall risk and document"
+    ],
+    "follow_up": [
+      "Doctor to decide whether to proceed with surgery given fasting concern",
+      "Nurse-in-charge to notify surgeon and anaesthetist",
+      "Do NOT prepare patient for OT until cleared by doctor"
+    ],
+    "patient_education": [
+      "Explain to Mr Goh that fasting is required for safety reasons",
+      "Reassure him that the team will sort it out and he should not worry",
+      "Tell him not to take any more medications until doctor advises"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about fasting status and time of last meal",
+        "Reviews medications taken today, especially anticoagulants (aspirin)",
+        "Confirms identity and correct surgical eye",
+        "Checks if consent form is signed"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures and records pre-operative VA",
+        "Measures and records pre-operative IOP",
+        "Checks that biometry/IOL calculation is complete",
+        "Assesses fall risk score"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies that patient is not properly fasted (ate at 7am, surgery at 11am — insufficient fast)",
+        "Flags aspirin taken this morning as a concern to report to doctor",
+        "Does not clear patient for OT unilaterally — escalates to nurse/doctor",
+        "Identifies both issues as needing immediate doctor review"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Reports fasting concern and aspirin use to nurse-in-charge and/or doctor immediately",
+        "Completes DISM pre-op documentation accurately",
+        "Does not proceed with OT preparation without medical clearance",
+        "Reassures patient calmly and professionally"
+      ]
+    }
+  }
+}
