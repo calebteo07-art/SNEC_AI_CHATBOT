@@ -106,6 +106,33 @@ def search_checklist(procedure_name: str) -> dict | None:
     return None
 
 
+def fetch_checklists(role: str = "") -> list[dict]:
+    """Fetch all checklists for the given role from Supabase.
+
+    OT  → returns OT checklists only.
+    PSA → returns PSA checklists only.
+    OA  → returns all checklists (OA scope overlaps with both).
+    Returns list of {procedure_name, checklist_type, steps, total_steps} dicts.
+    """
+    if not _SUPABASE_ENABLED:
+        return []
+
+    from tools.kb.supabase_client import get_client
+    try:
+        client = get_client()
+        query = client.table("checklists").select(
+            "procedure_name, checklist_type, steps, total_steps"
+        )
+        role_upper = (role or "").upper()
+        if role_upper in ("OT", "PSA"):
+            query = query.eq("checklist_type", role_upper)
+        result = query.execute()
+        return result.data or []
+    except Exception as exc:
+        print(f"[fetch-checklists-error] {exc}", flush=True)
+        return []
+
+
 if __name__ == "__main__":
     query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "intraocular pressure measurement"
     print(f"Searching KB for: {query!r}\n")

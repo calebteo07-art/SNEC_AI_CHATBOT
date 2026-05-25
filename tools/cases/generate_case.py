@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.shared.gemini_client import ask, MODEL_SMALL
-from tools.kb.search import search as _rag_search, format_context as _rag_format
+from tools.kb.search import search as _rag_search, format_context as _rag_format, fetch_checklists as _fetch_checklists
 
 _ROLE_QUERIES = {
     "OA": "ophthalmic auxiliary history taking IOP dilation pre-operative post-operative care",
@@ -39,6 +39,26 @@ _ROLE_FOCUS = {
         "Steps should reflect patient-facing clinical support tasks."
     ),
 }
+
+def _format_checklists(checklists: list[dict]) -> str:
+    """Format Supabase checklists as structured text for the Gemini prompt."""
+    if not checklists:
+        return ""
+    parts = []
+    for cl in checklists:
+        name = cl.get("procedure_name", "Unknown Procedure")
+        steps_data = cl.get("steps") or {}
+        if isinstance(steps_data, dict):
+            steps = steps_data.get("steps", [])
+        else:
+            steps = []
+        lines = []
+        for s in steps:
+            marker = "[CRITICAL] " if s.get("critical") else ""
+            lines.append(f"  {s.get('step_number', '')}. {marker}{s.get('action', '')}")
+        parts.append(f"### Checklist: {name}\n" + "\n".join(lines))
+    return "\n\n".join(parts)
+
 
 _CASE_SCHEMA = """{
   "case_id": null,
@@ -102,6 +122,13 @@ def generate_cases(
     if role not in _ROLE_FOCUS:
         role = "OA"
 
+    # Fetch all role-specific checklists from Supabase
+    checklists: list[dict] = []
+    try:
+        checklists = _fetch_checklists(role)
+    except Exception:
+        pass
+
     # Build RAG context from role-relevant content
     rag_query = _ROLE_QUERIES.get(role, "ophthalmology clinical procedure")
     if weak_topics:
@@ -115,11 +142,23 @@ def generate_cases(
     except Exception:
         pass
 
+    checklist_text = _format_checklists(checklists)
+    checklist_names = [cl.get("procedure_name", "") for cl in checklists if cl.get("procedure_name")]
+
     role_description = _ROLE_FOCUS[role]
     weak_note = (
         f"Prioritise cases touching these weak topics: {', '.join(weak_topics[:3])}.\n"
         if weak_topics else ""
     )
+    checklist_instruction = ""
+    if checklist_names:
+        checklist_instruction = (
+            f"- Each case must be based on ONE of the following SNEC procedures: "
+            f"{', '.join(checklist_names)}. "
+            f"Use a different procedure for each case. "
+            f"The case scenario must require the student to perform that procedure. "
+            f"The rubric management key_points MUST include the [CRITICAL] steps from that procedure's checklist.\n"
+        )
 
     system = (
         f"You are an ophthalmology clinical education designer at SNEC (Singapore National Eye Centre). "
@@ -131,9 +170,11 @@ def generate_cases(
         f"- Make each case clinically distinct from the others.\n"
         f"- Use realistic Singapore patient demographics.\n"
         f"- Rubric key_points should list what the student MUST demonstrate for full marks.\n"
-        f"- Groud all clinical content in the knowledge base provided below.\n\n"
+        f"{checklist_instruction}"
+        f"- Ground all clinical content in the knowledge base and checklists provided below.\n\n"
         f"Return ONLY a valid JSON array of {n} case objects. No other text.\n\n"
-        f"KNOWLEDGE BASE:\n{rag_context or 'Standard ophthalmology clinical guidelines.'}"
+        + (f"SNEC PROCEDURE CHECKLISTS:\n{checklist_text}\n\n" if checklist_text else "")
+        + f"KNOWLEDGE BASE:\n{rag_context or 'Standard ophthalmology clinical guidelines.'}"
     )
 
     raw = ask(
