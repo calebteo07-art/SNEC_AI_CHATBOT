@@ -882,6 +882,9 @@ def update_role(body: RoleUpdateRequest):
         update_profile(body.student_id, role=role)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    # Clear cached cases so the next visit to the case list regenerates
+    # with role-appropriate checklists for the new role.
+    _case_cache.clear()
     return {"role": role}
 
 
