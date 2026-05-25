@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut } from "lucide-react";
+import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut, BarChart2 } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { cardContainerVariants, cardItemVariants } from "../utils/motionVariants";
 
@@ -339,8 +339,26 @@ export function DashboardScreen() {
           </motion.div>
         </section>
 
+        {/* ===== My Progress link ===== */}
+        <motion.div
+          className="mt-12 flex justify-start"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.55 }}
+        >
+          <button
+            onClick={() => navigate("/progress")}
+            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#8C6D3F] transition-colors group"
+            style={{ fontSize: "0.85rem" }}
+          >
+            <BarChart2 size={14} strokeWidth={1.5} />
+            My Progress
+            <ArrowUpRight size={12} strokeWidth={1.5} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          </button>
+        </motion.div>
+
         {/* ===== Quiet footer ===== */}
-        <div className="mt-16 sm:mt-24 pt-8 border-t border-[#1F1A12]/8 flex flex-wrap items-center justify-between gap-2 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
+        <div className="mt-10 sm:mt-16 pt-8 border-t border-[#1F1A12]/8 flex flex-wrap items-center justify-between gap-2 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
           <span style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
             Singapore National Eye Centre
           </span>

@@ -102,6 +102,14 @@ export function FlashcardScreen() {
   const progress = (currentIndex / Math.max(FLASHCARDS.length, 1)) * 100;
   const remaining = FLASHCARDS.length - Object.keys(ratedCards).length;
 
+  // Derive deck title from the most frequent topic tag
+  const deckTitle = React.useMemo(() => {
+    if (FLASHCARDS.length === 0) return "Flashcards";
+    const freq: Record<string, number> = {};
+    for (const c of FLASHCARDS) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
+    return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }, [FLASHCARDS]);
+
   const resetCardState = () => {
     setUserAttempt("");
     setAiFeedback(null);
@@ -298,7 +306,7 @@ export function FlashcardScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Diabetic <span className="italic-display">Retinopathy</span>
+              <span className="italic-display">{deckTitle}</span>
             </h1>
           </div>
           <div className="text-right">

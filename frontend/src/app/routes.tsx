@@ -8,6 +8,7 @@ import { FlashcardScreen } from "./components/FlashcardScreen";
 import { SummaryScreen } from "./components/SummaryScreen";
 import { DailyCheckInScreen } from "./components/DailyCheckInScreen";
 import { SupervisorDashboard } from "./components/SupervisorDashboard";
+import { ProgressScreen } from "./components/ProgressScreen";
 import { CheckInGuard } from "./components/CheckInGuard";
 
 export const router = createBrowserRouter([
@@ -76,6 +77,14 @@ export const router = createBrowserRouter([
     element: (
       <CheckInGuard>
         <SummaryScreen />
+      </CheckInGuard>
+    ),
+  },
+  {
+    path: "/progress",
+    element: (
+      <CheckInGuard>
+        <ProgressScreen />
       </CheckInGuard>
     ),
   },

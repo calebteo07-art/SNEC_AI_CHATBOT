@@ -41,6 +41,7 @@ from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
 from tools.cases.generate_case import generate_cases as _generate_cases
 from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
+from tools.progress.get_progress import get_progress as _get_progress
 
 PATIENT_SYSTEM = """You are playing the role of a patient in a clinical case simulation for ophthalmic professionals.
 
@@ -342,6 +343,16 @@ def health():
 @app.get("/api/status")
 def status():
     return {"status": "ok", "mock_mode": MOCK_MODE}
+
+
+@app.get("/api/progress/{student_id}")
+def get_student_progress(student_id: str):
+    """Return topic performance, session history, and learning stats for a student."""
+    try:
+        return _get_progress(student_id)
+    except Exception as exc:
+        print(f"[progress-error] {exc}", flush=True)
+        raise HTTPException(status_code=500, detail="Could not load progress data")
 
 
 # ── Case simulation models ─────────────────────────────────────────────────
