@@ -95,12 +95,25 @@ MODULE_1_CATALOG = [
     # Clinical Procedures
     {"filename": "HistoryTaking10thintakeSNECDukeNUSprogram4June2021.pdf", "category": "clinical_procedure"},
     {"filename": "LV OAOT Talk 2026.pdf", "category": "clinical_procedure"},
-    {"filename": "NU-PR-OPD-D0002 Non-Contact Tonometry.pdf", "category": "clinical_procedure"},
-    {"filename": "NU-PR-OPD-D0003 Visual Acuity - Near Vision Testing.pdf", "category": "clinical_procedure"},
-    {"filename": "NU-PR-OPD-D0034 Auto Kerato-Refractometry.pdf", "category": "clinical_procedure"},
+    {
+        "filename": "NU-PR-OPD-D0002 Non-Contact Tonometry.pdf",
+        "category": "clinical_procedure", "is_checklist": True,
+        "checklist_type": "PSA", "procedure_name": "Non-Contact Tonometry (SOP)",
+    },
+    {
+        "filename": "NU-PR-OPD-D0003 Visual Acuity - Near Vision Testing.pdf",
+        "category": "clinical_procedure", "is_checklist": True,
+        "checklist_type": "PSA", "procedure_name": "Near Vision Testing (SOP)",
+    },
+    {
+        "filename": "NU-PR-OPD-D0034 Auto Kerato-Refractometry.pdf",
+        "category": "clinical_procedure", "is_checklist": True,
+        "checklist_type": "OT", "procedure_name": "Auto Kerato-Refractometry (SOP)",
+    },
     {
         "filename": "NU-PR-OPD-D0039 Visual Acuity-Distance Vision Testing Using LogMAR (Modified) Method.pdf",
-        "category": "clinical_procedure",
+        "category": "clinical_procedure", "is_checklist": True,
+        "checklist_type": "PSA", "procedure_name": "Distance Vision Testing LogMAR (SOP)",
     },
     {"filename": "oittalk.pdf", "category": "clinical_procedure"},
     {"filename": "OTOAInfectionControl_Jan2023.pdf", "category": "clinical_procedure"},

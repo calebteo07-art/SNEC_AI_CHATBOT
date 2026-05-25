@@ -109,9 +109,10 @@ def search_checklist(procedure_name: str) -> dict | None:
 def fetch_checklists(role: str = "") -> list[dict]:
     """Fetch all checklists for the given role from Supabase.
 
-    OT  → returns OT checklists only.
-    PSA → returns PSA checklists only.
-    OA  → returns all checklists (OA scope overlaps with both).
+    Always includes logbook checklists (shared across all roles).
+    OT  → OT + logbook checklists.
+    PSA → PSA + logbook checklists.
+    OA  → all checklists (OT + PSA + logbook).
     Returns list of {procedure_name, checklist_type, steps, total_steps} dicts.
     """
     if not _SUPABASE_ENABLED:
@@ -120,13 +121,24 @@ def fetch_checklists(role: str = "") -> list[dict]:
     from tools.kb.supabase_client import get_client
     try:
         client = get_client()
-        query = client.table("checklists").select(
-            "procedure_name, checklist_type, steps, total_steps"
-        )
         role_upper = (role or "").upper()
-        if role_upper in ("OT", "PSA"):
-            query = query.eq("checklist_type", role_upper)
-        result = query.execute()
+
+        if role_upper == "OT":
+            # OT checklists + shared logbook checklists
+            result = client.table("checklists").select(
+                "procedure_name, checklist_type, steps, total_steps"
+            ).in_("checklist_type", ["OT", "logbook"]).execute()
+        elif role_upper == "PSA":
+            # PSA checklists + shared logbook checklists
+            result = client.table("checklists").select(
+                "procedure_name, checklist_type, steps, total_steps"
+            ).in_("checklist_type", ["PSA", "logbook"]).execute()
+        else:
+            # OA or unknown — return everything
+            result = client.table("checklists").select(
+                "procedure_name, checklist_type, steps, total_steps"
+            ).execute()
+
         return result.data or []
     except Exception as exc:
         print(f"[fetch-checklists-error] {exc}", flush=True)
