@@ -22,6 +22,7 @@ from tools.shared.audit_log import log
 SHEET = "snec_profiles"
 
 _DEFAULTS = {
+    "role": "",
     "weak_topics": "[]",
     "missed_findings": "[]",
     "retention_scores": "{}",

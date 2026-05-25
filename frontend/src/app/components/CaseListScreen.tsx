@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle } from "lucide-react";
+import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
 
 interface CaseInfo {
   case_id: string;
@@ -33,10 +33,13 @@ export function CaseListScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+
   const fetchCases = useCallback(() => {
     setError(null);
     setLoading(true);
-    fetch("/api/cases")
+    const url = studentId ? `/api/cases?student_id=${encodeURIComponent(studentId)}` : "/api/cases";
+    fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
@@ -44,7 +47,7 @@ export function CaseListScreen() {
       .then((data) => setCases(data.cases))
       .catch(() => setError("We couldn't load the cases. Please try again."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [studentId]);
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
@@ -135,8 +138,9 @@ export function CaseListScreen() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+            <p className="text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>Generating cases for you…</p>
           </div>
         )}
 
@@ -163,8 +167,22 @@ export function CaseListScreen() {
           </p>
         )}
 
+        {/* Refresh */}
+        {!loading && !error && cases.length > 0 && (
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={fetchCases}
+              className="inline-flex items-center gap-2 text-[#A39A8E] hover:text-[#8C6D3F] transition-colors"
+              style={{ fontSize: "0.82rem" }}
+            >
+              <RefreshCw size={13} strokeWidth={1.5} />
+              Generate new cases
+            </button>
+          </div>
+        )}
+
         {/* List */}
-        <div className="mt-12 space-y-3">
+        <div className="mt-4 space-y-3">
           {cases.map((c, i) => {
             const tone = difficultyTone(c.difficulty);
             return (

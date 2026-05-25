@@ -39,8 +39,8 @@ from tools.profile.update_profile import update_profile
 from tools.profile.summarize_gaps import summarize_gaps
 from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
-from tools.image_quiz.evaluate_description import evaluate_description
-from tools.image_quiz.log_result import log_image_result
+from tools.cases.generate_case import generate_cases as _generate_cases
+from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
 
 PATIENT_SYSTEM = """You are playing the role of a patient in a clinical case simulation for ophthalmic professionals.
 
@@ -55,7 +55,7 @@ IMPORTANT RULES:
 Case details for your reference (do not reveal unless asked):
 {case_json}"""
 
-IMAGES_DIR = PROJECT_ROOT / "images"
+_case_cache: dict[str, dict] = {}
 
 # ── Knowledge base: RAG (Supabase) with markdown fallback ─────────────────
 from tools.kb.search import search as _rag_search, format_context as _rag_format
@@ -85,7 +85,7 @@ def _get_context(query: str) -> str:
     return _kb_fallback()
 
 
-TUTOR_SYSTEM = """You are EyeQ, an expert ophthalmology tutor at SNEC (Singapore National Eye Centre). \
+_TUTOR_BASE = """You are EyeQ, an expert ophthalmology tutor at SNEC (Singapore National Eye Centre). \
 You teach through Socratic dialogue — your job is to guide students to discover answers, not hand them out.
 
 TEACHING APPROACH:
@@ -106,6 +106,34 @@ HARD RULES:
 
 The ophthalmology knowledge base below is your reference. Draw on it naturally, not exhaustively.
 """
+
+_ROLE_TUTOR_CONTEXT = {
+    "OA": (
+        "STUDENT ROLE: Ophthalmic Auxiliary (OA). "
+        "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
+        "pre-operative and post-operative care, patient education and counselling."
+    ),
+    "OT": (
+        "STUDENT ROLE: Ophthalmic Technician (OT). "
+        "Focus teaching on: A-scan biometry, Humphrey Visual Field testing, OCT imaging, "
+        "corneal topography, endothelial cell count, equipment calibration and quality checks."
+    ),
+    "PSA": (
+        "STUDENT ROLE: Patient Service Associate (PSA). "
+        "Focus teaching on: history taking, LogMAR visual acuity testing, non-contact tonometry (NCT), "
+        "eye drop instillation, pupil dilation, PFAER and fall risk assessment."
+    ),
+}
+
+TUTOR_SYSTEM = _TUTOR_BASE
+
+
+def _tutor_system(role: str) -> str:
+    """Return TUTOR_SYSTEM enriched with the student's role context."""
+    role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
+    if role_line:
+        return _TUTOR_BASE + f"\n{role_line}\n"
+    return _TUTOR_BASE
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -144,11 +172,13 @@ def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-I
 class OnboardRequest(BaseModel):
     full_name: str
     email: str
+    student_role: str = ""  # OA | OT | PSA (empty for supervisors)
 
 class OnboardResponse(BaseModel):
     student_id: str
     mock_mode: bool
-    role: str = "student"
+    role: str = "student"  # "student" or "supervisor"
+    student_role: str = ""  # OA | OT | PSA
 
 class ChatMessage(BaseModel):
     role: str
@@ -201,7 +231,20 @@ def onboard(body: OnboardRequest):
     except Exception:
         pass
 
-    return OnboardResponse(student_id=student_id, mock_mode=MOCK_MODE, role=role)
+    # Save student role (OA/OT/PSA) to profile
+    student_role = body.student_role.strip().upper() if body.student_role else ""
+    if role == "student" and student_role in ("OA", "OT", "PSA"):
+        try:
+            update_profile(student_id, role=student_role)
+        except Exception:
+            pass
+
+    return OnboardResponse(
+        student_id=student_id,
+        mock_mode=MOCK_MODE,
+        role=role,
+        student_role=student_role,
+    )
 
 
 @app.post("/api/chat")
@@ -212,14 +255,18 @@ def chat(request: Request, body: ChatRequest):
     last_user_msg = next(
         (m.content for m in reversed(body.messages) if m.role == "user"), ""
     )
-    system_prompt = TUTOR_SYSTEM + "\n\n---\n\n" + _get_context(last_user_msg)
     try:
         profile = get_profile(body.student_id)
+        role = profile.get("role", "")
         gap_context = summarize_gaps(profile)
-        if gap_context:
-            system_prompt = f"## Student Weak Areas (steer toward these)\n{gap_context}\n\n{system_prompt}"
     except Exception:
-        pass
+        profile = {}
+        role = ""
+        gap_context = ""
+
+    system_prompt = _tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
+    if gap_context:
+        system_prompt = f"## Student Weak Areas (steer toward these)\n{gap_context}\n\n{system_prompt}"
 
     def sse_stream():
         try:
@@ -260,10 +307,15 @@ def end_session(request: Request, body: EndSessionRequest):
     )
 
     try:
+        _role = get_profile(body.student_id).get("role", "")
+    except Exception:
+        _role = ""
+    try:
         cards = generate_and_return_cards(
             student_id=body.student_id,
             session_id=session_id,
             messages=messages,
+            role=_role,
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
@@ -345,11 +397,51 @@ class CaseSubmitResponse(BaseModel):
 # ── Case endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/api/cases", response_model=CasesResponse)
-def get_cases():
+def get_cases(student_id: str = ""):
+    import json as _json
+
+    # Determine student role and weak topics for case generation
+    role = "OA"
+    weak_topics: list[str] = []
+    if student_id:
+        try:
+            profile = get_profile(student_id)
+            role = profile.get("role", "OA") or "OA"
+            weak_topics = _json.loads(profile.get("weak_topics", "[]") or "[]")
+        except Exception:
+            pass
+
+    # Try AI generation first
+    try:
+        generated = _generate_cases(role=role, weak_topics=weak_topics, n=5)
+        if generated:
+            _case_cache.clear()
+            for c in generated:
+                _case_cache[c["case_id"]] = c
+            return CasesResponse(cases=[
+                CaseInfo(
+                    case_id=c["case_id"],
+                    title=c["title"],
+                    difficulty=c.get("difficulty", "intermediate"),
+                    topic=c.get("topic", ""),
+                    estimated_minutes=c.get("estimated_minutes", 15),
+                    patient=CasePatientInfo(
+                        name=c["patient"]["name"],
+                        age=int(c["patient"].get("age", 30)),
+                        presenting_complaint=c["patient"].get("presenting_complaint", ""),
+                    ),
+                )
+                for c in generated if "patient" in c
+            ])
+    except Exception as exc:
+        print(f"[case-gen] AI generation failed, using pre-stored cases: {exc}", flush=True)
+
+    # Fallback: load pre-stored case files
     cases = []
     for case_id in list_available_cases():
         try:
             c = load_case(case_id)
+            _case_cache[c["case_id"]] = c
             cases.append(CaseInfo(
                 case_id=c["case_id"],
                 title=c["title"],
@@ -370,12 +462,15 @@ def get_cases():
 @app.post("/api/cases/{case_id}/chat")
 @limiter.limit("30/minute")
 def case_chat(case_id: str, request: Request, body: CaseChatRequest):
-    try:
-        case = load_case(case_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid case ID")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    # Try in-memory cache first (AI-generated cases), then fall back to file
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid case ID")
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
@@ -403,12 +498,14 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest):
 
 @app.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
 def case_submit(case_id: str, body: CaseSubmitRequest):
-    try:
-        case = load_case(case_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid case ID")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid case ID")
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     messages.append({
@@ -425,10 +522,15 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
         token_count=0,
         model="mock" if MOCK_MODE else MODEL,
     )
+    try:
+        _case_role = get_profile(body.student_id).get("role", "")
+    except Exception:
+        _case_role = ""
     cards = generate_and_return_cards(
         student_id=body.student_id,
         session_id=session_id,
         messages=messages,
+        role=_case_role,
     )
 
     # Update profile: retention score = total_score / 40
@@ -563,18 +665,22 @@ def checkin_status(student_id: str):
 @app.get("/api/checkin/question", response_model=CheckinQuestionResponse)
 @limiter.limit("10/minute")
 def checkin_question(request: Request, student_id: str):
+    import json as _json
     try:
         profile = get_profile(student_id)
-        import json as _json
         weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
         topic = weak[0] if weak else "Ophthalmology"
+        role = profile.get("role", "")
     except Exception:
         topic = "Ophthalmology"
+        role = ""
 
+    role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
     system = (
         "You are an ophthalmology tutor running a 60-second warm-up check-in. "
         "Generate ONE concise clinical question targeting the given topic. "
-        "Return only the question text — no preamble, no numbering."
+        + (f"Student role context: {role_line} " if role_line else "")
+        + "Return only the question text — no preamble, no numbering."
     )
     try:
         question = ask(
@@ -681,6 +787,24 @@ def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+# ── Profile role update ────────────────────────────────────────────────────
+
+class RoleUpdateRequest(BaseModel):
+    student_id: str
+    role: str  # OA | OT | PSA
+
+@app.patch("/api/profile/role")
+def update_role(body: RoleUpdateRequest):
+    role = body.role.strip().upper()
+    if role not in ("OA", "OT", "PSA"):
+        raise HTTPException(status_code=400, detail="role must be OA, OT, or PSA")
+    try:
+        update_profile(body.student_id, role=role)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"role": role}
+
+
 # ── Flashcard AI check ─────────────────────────────────────────────────────
 
 class FlashcardCheckRequest(BaseModel):
@@ -734,6 +858,31 @@ def flashcard_check(request: Request, body: FlashcardCheckRequest):
         )
     except Exception:
         return FlashcardCheckResponse(feedback=raw[:300], score=5, mock_mode=MOCK_MODE)
+
+
+# ── On-demand flashcard generation (RAG-backed) ────────────────────────────
+
+@app.get("/api/flashcards/generate", response_model=list[Flashcard])
+@limiter.limit("5/minute")
+def flashcards_generate(request: Request, student_id: str):
+    import json as _json
+    role = ""
+    weak_topics: list[str] = []
+    try:
+        profile = get_profile(student_id)
+        role = profile.get("role", "")
+        weak_topics = _json.loads(profile.get("weak_topics", "[]") or "[]")
+    except Exception:
+        pass
+    try:
+        cards = _gen_cards_rag(student_id=student_id, role=role, weak_topics=weak_topics, n=6)
+    except RuntimeError as exc:
+        if "quota_exceeded" in str(exc):
+            raise HTTPException(status_code=503, detail="quota_exceeded")
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return [Flashcard(**c) for c in cards]
 
 
 # ── Study suggestion ───────────────────────────────────────────────────────
@@ -820,120 +969,6 @@ def supervisor_insights(request: Request, _: str = Depends(_require_supervisor))
             raise HTTPException(status_code=503, detail="quota_exceeded")
         raise
     return SupervisorInsightsResponse(narrative=narrative.strip())
-
-
-# ── Image quiz helpers ─────────────────────────────────────────────────────
-
-def _load_image_meta(image_id: str) -> tuple[dict, Path]:
-    """Return (meta_dict, png_path) for the given image_id, or raise 404."""
-    for json_path in IMAGES_DIR.glob("*.json"):
-        try:
-            meta = json.loads(json_path.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        if meta.get("image_id") == image_id:
-            png_path = IMAGES_DIR / meta["filename"]
-            return meta, png_path
-    raise HTTPException(status_code=404, detail=f"Image '{image_id}' not found")
-
-
-def _list_images() -> list[dict]:
-    if not IMAGES_DIR.exists():
-        return []
-    result = []
-    for json_path in sorted(IMAGES_DIR.glob("*.json")):
-        try:
-            meta = json.loads(json_path.read_text(encoding="utf-8"))
-            result.append(meta)
-        except Exception:
-            pass
-    return result
-
-
-# ── Image quiz models ──────────────────────────────────────────────────────
-
-class ImageInfo(BaseModel):
-    image_id: str
-    modality: str
-    eye: str
-    difficulty: str
-    topic: str
-
-class ImagesResponse(BaseModel):
-    images: list[ImageInfo]
-
-class ImageSubmitRequest(BaseModel):
-    student_id: str
-    description: str
-
-class ImageSubmitResponse(BaseModel):
-    score: int
-    correct_findings: list[str]
-    missed_findings: list[str]
-    incorrect_findings: list[str]
-    diagnosis_correct: bool
-    feedback: str
-    mock_mode: bool
-
-
-# ── Image quiz endpoints ───────────────────────────────────────────────────
-
-@app.get("/api/images", response_model=ImagesResponse)
-def get_images():
-    images = [
-        ImageInfo(
-            image_id=m["image_id"],
-            modality=m.get("modality", ""),
-            eye=m.get("eye", ""),
-            difficulty=m.get("difficulty", "intermediate"),
-            topic=m.get("topic", ""),
-        )
-        for m in _list_images()
-    ]
-    return ImagesResponse(images=images)
-
-
-@app.get("/api/images/{image_id}/file")
-def get_image_file(image_id: str):
-    meta, png_path = _load_image_meta(image_id)
-    if not png_path.exists():
-        raise HTTPException(status_code=404, detail="Image file not found on disk")
-    return FileResponse(str(png_path), media_type="image/png")
-
-
-@app.post("/api/images/{image_id}/submit", response_model=ImageSubmitResponse)
-def image_submit(image_id: str, body: ImageSubmitRequest):
-    meta, png_path = _load_image_meta(image_id)
-
-    image_path = png_path if png_path.exists() else None
-    result = evaluate_description(meta, body.description, image_path)
-
-    result["_raw_description"] = body.description
-    try:
-        log_image_result(body.student_id, meta, result)
-    except Exception:
-        pass
-
-    try:
-        score_normalised = result.get("score", 0) / 10
-        update_profile(
-            body.student_id,
-            topic=meta.get("topic", "image_quiz"),
-            score=score_normalised,
-            new_missed_findings=result.get("missed_findings", []),
-        )
-    except Exception:
-        pass
-
-    return ImageSubmitResponse(
-        score=int(result.get("score", 0)),
-        correct_findings=result.get("correct_findings", []),
-        missed_findings=result.get("missed_findings", []),
-        incorrect_findings=result.get("incorrect_findings", []),
-        diagnosis_correct=bool(result.get("diagnosis_correct", False)),
-        feedback=result.get("feedback", ""),
-        mock_mode=MOCK_MODE,
-    )
 
 
 # Serve built React frontend — must be last so API routes take priority

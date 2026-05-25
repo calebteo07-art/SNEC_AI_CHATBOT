@@ -5,6 +5,7 @@ interface User {
   email: string;
   role: "student" | "supervisor";
   studentId: string;
+  studentRole: "OA" | "OT" | "PSA" | "";
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   login: (userData: User) => void;
   logout: () => void;
   setCheckInDone: (done: boolean) => void;
+  setStudentRole: (role: "OA" | "OT" | "PSA") => void;
   loading: boolean;
 }
 
@@ -28,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = sessionStorage.getItem("eyeq_user");
     const storedId = sessionStorage.getItem("eyeq_student_id");
     const storedRole = sessionStorage.getItem("eyeq_role");
+    const storedStudentRole = sessionStorage.getItem("eyeq_student_role") as "OA" | "OT" | "PSA" | "" ?? "";
     const checkInStatus = sessionStorage.getItem("eyeq_checkin_done") === "true";
 
     if (storedUser && storedId && storedRole) {
@@ -35,6 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...JSON.parse(storedUser),
         studentId: storedId,
         role: storedRole as "student" | "supervisor",
+        studentRole: storedStudentRole,
       });
       setIsCheckInDone(checkInStatus);
     }
@@ -46,7 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionStorage.setItem("eyeq_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
     sessionStorage.setItem("eyeq_student_id", userData.studentId);
     sessionStorage.setItem("eyeq_role", userData.role);
+    sessionStorage.setItem("eyeq_student_role", userData.studentRole ?? "");
     setLoading(false);
+  };
+
+  const setStudentRole = (role: "OA" | "OT" | "PSA") => {
+    sessionStorage.setItem("eyeq_student_role", role);
+    setUser((prev) => prev ? { ...prev, studentRole: role } : prev);
   };
 
   const logout = () => {
@@ -61,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isCheckInDone, login, logout, setCheckInDone, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isCheckInDone, login, logout, setCheckInDone, setStudentRole, loading }}>
       {children}
     </AuthContext.Provider>
   );

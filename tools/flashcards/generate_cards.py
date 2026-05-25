@@ -25,7 +25,7 @@ from tools.shared.gsheets import append_row
 from tools.shared.audit_log import log as audit_log
 from tools.flashcards.sm2 import due_date
 
-CARD_PROMPT = """You are extracting flash-cards from an ophthalmology tutoring session.
+_CARD_PROMPT_BASE = """You are extracting flash-cards from an ophthalmology tutoring session.
 
 Review the conversation below and extract 3 to 5 high-yield Q&A pairs.
 
@@ -41,6 +41,20 @@ Return ONLY a JSON array, no other text:
   {"front": "question", "back": "answer", "topic_tag": "topic"},
   ...
 ]"""
+
+_ROLE_CARD_CONTEXT = {
+    "OA": "Focus on: patient history taking, IOP measurement, pupil dilation, pre/post-operative care, patient education.",
+    "OT": "Focus on: A-scan biometry, Humphrey Visual Field, OCT imaging, corneal topography, endothelial cell count, equipment QC.",
+    "PSA": "Focus on: NCT tonometry, LogMAR visual acuity, eye drop instillation, PFAER fall risk assessment, patient service steps.",
+}
+
+def _card_prompt(role: str = "") -> str:
+    role_line = _ROLE_CARD_CONTEXT.get(role.upper(), "")
+    if role_line:
+        return f"{_CARD_PROMPT_BASE}\n\nROLE CONTEXT ({role}): {role_line}"
+    return _CARD_PROMPT_BASE
+
+CARD_PROMPT = _CARD_PROMPT_BASE
 
 
 def _build_transcript(messages: list[dict]) -> str:
@@ -88,6 +102,7 @@ def generate_and_return_cards(
     student_id: str,
     session_id: str,
     messages: list[dict],
+    role: str = "",
 ) -> list[dict]:
     """
     Generate flash-cards from a completed session, save to snec_flashcards, and return them.
@@ -103,7 +118,7 @@ def generate_and_return_cards(
     transcript = _build_transcript(messages[-20:])
 
     response = ask(
-        system_prompt=CARD_PROMPT,
+        system_prompt=_card_prompt(role),
         messages=[{"role": "user", "content": f"Session transcript:\n\n{transcript}"}],
         max_tokens=512,
         feature="flashcard",
@@ -136,6 +151,86 @@ def generate_and_return_cards(
 
     audit_log("cards_generated", student_id=student_id, feature="flashcards",
               detail=f"session_id={session_id} count={len(saved)}")
+    return saved
+
+
+def generate_cards_from_rag(
+    student_id: str,
+    role: str = "",
+    weak_topics: list[str] | None = None,
+    n: int = 6,
+) -> list[dict]:
+    """Generate n fresh flashcards from RAG content, scoped to the student's role.
+
+    Used when the student opens FlashcardScreen with no session or due cards.
+    Cards are saved to snec_flashcards with a synthetic session_id.
+    """
+    from tools.kb.search import search as _rag_search, format_context as _rag_format
+
+    _role_queries = {
+        "OA": "ophthalmic auxiliary history taking IOP dilation pre-operative care",
+        "OT": "ophthalmic technician biometry HVF OCT corneal topography",
+        "PSA": "NCT LogMAR visual acuity eye drop instillation PFAER",
+    }
+    query = _role_queries.get(role.upper(), "ophthalmology clinical procedure")
+    if weak_topics:
+        query = f"{' '.join(weak_topics[:2])} {query}"
+
+    rag_context = ""
+    try:
+        chunks = _rag_search(query, top_k=5)
+        if chunks:
+            rag_context = _rag_format(chunks)
+    except Exception:
+        rag_context = ""
+
+    role_line = _ROLE_CARD_CONTEXT.get(role.upper(), "")
+    system = (
+        f"You are an ophthalmology flashcard generator. "
+        f"Generate exactly {n} high-yield Q&A flashcards based on the clinical knowledge below.\n\n"
+        + (f"Student role: {role}. {role_line}\n\n" if role_line else "")
+        + (f"Prioritise weak topics: {', '.join(weak_topics[:3])}.\n\n" if weak_topics else "")
+        + "Rules:\n"
+        "- Each card tests ONE specific clinical fact\n"
+        "- Questions are concise and specific\n"
+        "- Answers are 1-3 sentences maximum\n"
+        "- Do NOT duplicate cards\n\n"
+        "Return ONLY a JSON array, no other text:\n"
+        '[{"front": "question", "back": "answer", "topic_tag": "topic"}, ...]\n\n'
+        f"KNOWLEDGE BASE:\n{rag_context or 'Standard ophthalmology clinical guidelines.'}"
+    )
+
+    response = ask(
+        system_prompt=system,
+        messages=[{"role": "user", "content": f"Generate {n} flashcards."}],
+        max_tokens=2048,
+        feature="flashcard",
+        model=MODEL_SMALL,
+    )
+
+    cards = _parse_cards(response)
+    if not cards:
+        return []
+
+    session_id = f"rag-{str(uuid.uuid4())[:8]}"
+    saved = []
+    for card in cards[:n]:
+        card_id = str(uuid.uuid4())
+        append_row("snec_flashcards", {
+            "card_id": card_id,
+            "student_id": student_id,
+            "front": card["front"],
+            "back": card["back"],
+            "topic_tag": card["topic_tag"],
+            "easiness_factor": "2.5",
+            "interval_days": "0",
+            "repetition_count": "0",
+            "next_due_date": due_date(0),
+            "last_reviewed": "",
+            "created_from_session_id": session_id,
+        })
+        saved.append({"card_id": card_id, "front": card["front"], "back": card["back"], "topic_tag": card["topic_tag"]})
+
     return saved
 
 

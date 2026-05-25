@@ -27,12 +27,15 @@ const MODES = [
   },
 ];
 
+const ROLE_OPTIONS = ["OA", "OT", "PSA"] as const;
+
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, setStudentRole } = useAuth();
   const firstName = (user?.fullName || "Student").split(" ")[0];
 
   const [suggestion, setSuggestion] = React.useState<string | null>(null);
+  const [roleChanging, setRoleChanging] = React.useState(false);
 
   React.useEffect(() => {
     if (user?.studentId) {
@@ -42,6 +45,23 @@ export function DashboardScreen() {
         .catch(() => setSuggestion("Review your weakest topics today."));
     }
   }, [user]);
+
+  const handleRoleChange = async (role: "OA" | "OT" | "PSA") => {
+    if (!user?.studentId || role === user.studentRole || roleChanging) return;
+    setRoleChanging(true);
+    try {
+      await fetch("/api/profile/role", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ student_id: user.studentId, role }),
+      });
+      setStudentRole(role);
+    } catch {
+      /* silently ignore */
+    } finally {
+      setRoleChanging(false);
+    }
+  };
 
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
@@ -207,6 +227,37 @@ export function DashboardScreen() {
             </blockquote>
           </motion.section>
         )}
+
+        {/* ===== Role selector ===== */}
+        <motion.section
+          className="mb-14 flex items-center gap-6 flex-wrap"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.38 }}
+        >
+          <p className="annotation-label">Training track</p>
+          <div className="flex items-center gap-2">
+            {ROLE_OPTIONS.map((role) => (
+              <button
+                key={role}
+                onClick={() => handleRoleChange(role)}
+                disabled={roleChanging}
+                className="px-4 py-1.5 rounded-full transition-all disabled:opacity-40"
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  border: `1px solid ${user?.studentRole === role ? "#8C6D3F" : "rgba(31,26,18,0.15)"}`,
+                  background: user?.studentRole === role ? "rgba(140,109,63,0.07)" : "transparent",
+                  color: user?.studentRole === role ? "#8C6D3F" : "#A39A8E",
+                }}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+        </motion.section>
 
         {/* ===== Practice modes ===== */}
         <section className="relative">

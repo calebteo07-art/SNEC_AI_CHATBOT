@@ -48,6 +48,7 @@ def update_profile(
     score: float | None = None,
     new_missed_findings: list[str] | None = None,
     checkin_done: bool = False,
+    role: str | None = None,
 ) -> None:
     """
     Update the student's profile. Never raises — logs errors to audit_log.
@@ -124,6 +125,8 @@ def update_profile(
     }
     if checkin_done:
         updates["checkin_done_today"] = "true"
+    if role:
+        updates["role"] = role
 
     try:
         update_row(SHEET, "student_id", student_id, updates)

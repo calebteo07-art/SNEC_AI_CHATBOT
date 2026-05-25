@@ -29,7 +29,7 @@ interface Flashcard {
   tag: string;
 }
 
-function loadFlashcards(): Flashcard[] {
+function loadSessionCards(): Flashcard[] {
   try {
     const session = JSON.parse(sessionStorage.getItem("eyeq_session") || "{}");
     if (Array.isArray(session.cards) && session.cards.length > 0) {
@@ -45,51 +45,8 @@ function loadFlashcards(): Flashcard[] {
   } catch {
     /* fall through */
   }
-  return FALLBACK_CARDS;
+  return [];
 }
-
-const FALLBACK_CARDS: Flashcard[] = [
-  {
-    id: 1,
-    question:
-      "What is the earliest histological finding in diabetic retinopathy, and what is the first clinically visible sign on fundoscopy?",
-    answer:
-      "Earliest histological finding: Pericyte loss from retinal capillaries — this occurs before any clinically visible changes and is detected on trypsin digest preparations.\n\nFirst visible fundoscopic sign: Microaneurysms (dot-shaped red lesions) — these form due to weakening of capillary walls after pericyte loss.",
-    tag: "Pathology",
-  },
-  {
-    id: 2,
-    question:
-      "Describe the four major pathological pathways activated by chronic hyperglycemia in diabetic retinopathy.",
-    answer:
-      "1. Polyol Pathway — Aldose reductase converts excess glucose → sorbitol, causing osmotic stress and cellular damage.\n\n2. PKC Activation — Protein kinase C increases VEGF production and enhances vascular permeability.\n\n3. AGE Formation — Advanced glycation end-products cross-link basement membrane proteins, thickening vessel walls and impairing function.\n\n4. Oxidative Stress — ROS generation damages pericytes and endothelial cells, initiating microvascular changes.",
-    tag: "Mechanisms",
-  },
-  {
-    id: 3,
-    question:
-      "What defines Clinically Significant Macular Edema (CSME) according to ETDRS criteria?",
-    answer:
-      "ETDRS CSME criteria (any one sufficient):\n• Retinal thickening within 500μm of the foveal center\n• Hard exudates within 500μm of the fovea with adjacent thickening\n• Retinal thickening ≥1 disc area, any portion within 1 disc diameter of the fovea\n\nClinical significance: CSME indicates high risk of visual loss requiring treatment — now primarily with anti-VEGF agents for center-involving DME.",
-    tag: "Clinical",
-  },
-  {
-    id: 4,
-    question:
-      "How does VEGF-A cause breakdown of the inner blood-retinal barrier in diabetic macular edema?",
-    answer:
-      "VEGF-A mediates iBRB breakdown through:\n• Phosphorylation of tight junction proteins occludin and ZO-1\n• This disrupts the integrity of inter-endothelial junctions\n• Plasma proteins and fluid leak into extracellular retinal space\n• Results in retinal thickening visible on OCT\n\nTherapeutic implication: Anti-VEGF agents (ranibizumab, aflibercept, bevacizumab) target this pathway and are now first-line for center-involving DME.",
-    tag: "Pharmacology",
-  },
-  {
-    id: 5,
-    question:
-      "Classify diabetic retinopathy and describe the key distinguishing feature between NPDR and PDR.",
-    answer:
-      "Classification:\n• Non-Proliferative DR (NPDR): Mild, Moderate, Severe\n• Proliferative DR (PDR): The hallmark is neovascularization\n\nKey distinction: PDR is defined by the presence of new blood vessel formation (neovascularization) on the disc (NVD) or elsewhere (NVE) — driven by chronic ischemia and VEGF overexpression.\n\n4-2-1 Rule (Severe NPDR): >20 microaneurysms in all 4 quadrants, venous beading in ≥2 quadrants, or IRMA in ≥1 quadrant.",
-    tag: "Classification",
-  },
-];
 
 const RATINGS = [
   { label: "Again", caption: "Try once more soon", accent: "#8B2D2D", value: 1 },
@@ -105,7 +62,10 @@ interface AiFeedback {
 
 export function FlashcardScreen() {
   const navigate = useNavigate();
-  const [FLASHCARDS] = useState<Flashcard[]>(() => loadFlashcards());
+  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+
+  const [FLASHCARDS, setFLASHCARDS] = useState<Flashcard[]>(() => loadSessionCards());
+  const [generating, setGenerating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [ratedCards, setRatedCards] = useState<Record<number, number>>({});
@@ -114,13 +74,32 @@ export function FlashcardScreen() {
   const [userAttempt, setUserAttempt] = useState("");
   const [aiFeedback, setAiFeedback] = useState<AiFeedback | null>(null);
   const [aiChecking, setAiChecking] = useState(false);
-  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+
+  // Fetch fresh cards from RAG if no session cards
+  React.useEffect(() => {
+    if (FLASHCARDS.length === 0 && studentId) {
+      setGenerating(true);
+      fetch(`/api/flashcards/generate?student_id=${encodeURIComponent(studentId)}`)
+        .then((r) => r.json())
+        .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setFLASHCARDS(data.map((c, i) => ({
+              id: i + 1,
+              question: c.front,
+              answer: c.back,
+              tag: c.topic_tag,
+            })));
+          }
+        })
+        .catch(() => {/* silently show empty state */})
+        .finally(() => setGenerating(false));
+    }
+  }, [studentId, FLASHCARDS.length]);
 
   const [userProgress, setUserProgress] = useState(getUserProgress());
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
-  const card = FLASHCARDS[currentIndex];
-  const progress = (currentIndex / FLASHCARDS.length) * 100;
+  const progress = (currentIndex / Math.max(FLASHCARDS.length, 1)) * 100;
   const remaining = FLASHCARDS.length - Object.keys(ratedCards).length;
 
   const resetCardState = () => {
@@ -230,6 +209,32 @@ export function FlashcardScreen() {
       }, 280);
     }
   };
+
+  // Loading / empty state
+  if (generating || FLASHCARDS.length === 0) {
+    return (
+      <div className="min-h-screen aurora-bg flex flex-col items-center justify-center gap-6">
+        {generating ? (
+          <>
+            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+            <p className="text-[#5C544A]" style={{ fontSize: "0.9rem" }}>Generating flashcards for you…</p>
+          </>
+        ) : (
+          <>
+            <p className="text-[#A39A8E]" style={{ fontSize: "0.9rem" }}>No flashcards available.</p>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="text-[#8C6D3F] underline underline-offset-2 text-sm"
+            >
+              Back to Dashboard
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const card = FLASHCARDS[currentIndex];
 
   return (
     <div className="min-h-screen aurora-bg flex flex-col">
