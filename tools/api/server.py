@@ -206,6 +206,53 @@ def _require_admin(x_admin_id: str = Header(..., alias="X-Admin-ID")):
     return x_admin_id
 
 
+def _student_context_block(student_id: str) -> str:
+    """Build a rich student profile block for injection into AI system prompts."""
+    import json as _json
+    _ROLE_NAMES = {
+        "OA": "Ophthalmic Auxiliary",
+        "OT": "Ophthalmic Technician",
+        "PSA": "Patient Service Associate",
+    }
+    try:
+        profile = get_profile(student_id)
+    except Exception:
+        return ""
+
+    role = profile.get("role", "").upper()
+    role_desc = _ROLE_NAMES.get(role, role)
+    session_count = int(profile.get("session_count", "0") or "0")
+    streak = int(profile.get("streak", "0") or "0")
+    velocity = profile.get("learning_velocity", "stable")
+
+    try:
+        scores = _json.loads(profile.get("retention_scores", "{}") or "{}")
+        weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
+        findings = _json.loads(profile.get("missed_findings", "[]") or "[]")
+    except Exception:
+        scores, weak, findings = {}, [], []
+
+    lines = ["## Student Profile (use to personalise your response)"]
+    if role_desc:
+        lines.append(f"Role: {role} — {role_desc}")
+    lines.append(f"Study streak: {streak} days · Sessions completed: {session_count} · Momentum: {velocity}")
+
+    if weak:
+        topic_parts = []
+        for t in weak[:3]:
+            sc = scores.get(t)
+            topic_parts.append(f"{t} ({sc:.0%})" if sc is not None else t)
+        lines.append(f"Weak topics: {', '.join(topic_parts)}")
+
+    if findings:
+        lines.append(f"Consistently misses: {', '.join(findings[:3])}")
+
+    if not weak and not findings:
+        lines.append("No weak areas identified yet — apply general best practice for their role.")
+
+    return "\n".join(lines)
+
+
 # ── Request / Response models ──────────────────────────────────────────────
 
 class OnboardRequest(BaseModel):
@@ -326,15 +373,14 @@ def chat(request: Request, body: ChatRequest):
     try:
         profile = get_profile(body.student_id)
         role = profile.get("role", "")
-        gap_context = summarize_gaps(profile)
     except Exception:
         profile = {}
         role = ""
-        gap_context = ""
 
+    ctx_block = _student_context_block(body.student_id)
     system_prompt = _tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
-    if gap_context:
-        system_prompt = f"## Student Weak Areas (steer toward these)\n{gap_context}\n\n{system_prompt}"
+    if ctx_block:
+        system_prompt = ctx_block + "\n\n" + system_prompt
 
     def sse_stream():
         try:
@@ -761,14 +807,18 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
     # Generate structured debrief
     debrief_text: str | None = None
     try:
+        _debrief_ctx = _student_context_block(body.student_id)
         debrief_prompt = (
-            "You are an ophthalmology clinical educator reviewing a student's case performance. "
+            (_debrief_ctx + "\n\n" if _debrief_ctx else "")
+            + "You are an ophthalmology clinical educator reviewing a student's case performance. "
+            "Tailor your debrief to the student's role and known weak areas listed above. "
             "Write a structured debrief in exactly this format:\n\n"
             "**What you got right:** ...\n\n"
             "**What you missed:** ...\n\n"
             "**Why it matters clinically:** ...\n\n"
             "**Focus for next time:** ...\n\n"
-            "Be specific and clinical. Do not repeat the scores — focus on insight."
+            "Be specific and clinical. Reference the student's role-specific procedures where relevant. "
+            "Do not repeat the scores — focus on insight."
         )
         debrief_messages = [
             {
@@ -961,11 +1011,14 @@ def checkin_question(request: Request, student_id: str):
         role = ""
 
     role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
+    ctx_block = _student_context_block(student_id)
     system = (
-        "You are an ophthalmology tutor running a 60-second warm-up check-in. "
+        (ctx_block + "\n\n" if ctx_block else "")
+        + "You are an ophthalmology tutor running a 60-second warm-up check-in. "
         "Generate ONE concise clinical question targeting the given topic. "
         + (f"Student role context: {role_line} " if role_line else "")
-        + "Return only the question text — no preamble, no numbering."
+        + "Calibrate difficulty to the student's experience level and known gaps. "
+        "Return only the question text — no preamble, no numbering."
     )
     try:
         question = ask(
@@ -984,10 +1037,13 @@ def checkin_question(request: Request, student_id: str):
 @app.post("/api/checkin/answer", response_model=CheckinAnswerResponse)
 @limiter.limit("10/minute")
 def checkin_answer(request: Request, body: CheckinAnswerRequest):
+    ctx_block = _student_context_block(body.student_id)
     system = (
-        "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "
+        (ctx_block + "\n\n" if ctx_block else "")
+        + "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "
         "Be honest and critical — if the answer is incomplete, vague, or missing key details, say so. "
-        "Do not inflate scores or praise weak answers.\n\n"
+        "Do not inflate scores or praise weak answers. "
+        "Frame your feedback using the student's role and target the specific gaps listed above.\n\n"
         "Return ONLY valid JSON with no other text:\n"
         "{\n"
         '  "correct": true or false,\n'
@@ -1296,11 +1352,13 @@ class FlashcardCheckResponse(BaseModel):
 @app.post("/api/flashcards/check", response_model=FlashcardCheckResponse)
 @limiter.limit("10/minute")
 def flashcard_check(request: Request, body: FlashcardCheckRequest):
+    ctx_block = _student_context_block(body.student_id)
     system = (
-        "You are an ophthalmology tutor evaluating a student's active recall attempt. "
-        "Compare the student's answer to the correct answer. "
+        (ctx_block + "\n\n" if ctx_block else "")
+        + "You are an ophthalmology tutor evaluating a student's active recall attempt. "
+        "Consider the student's role and weak areas above when giving feedback — connect the concept to their clinical context. "
         "Return ONLY valid JSON with no other text:\n"
-        '{"score": <0-10>, "feedback": "<2 concise sentences: what they got right, then what they missed or got wrong>"}'
+        '{"score": <0-10>, "feedback": "<2-3 sentences: what they got right, what they missed, and a clinical tip relevant to their role>"}'
     )
     try:
         raw = ask(
@@ -1378,6 +1436,7 @@ def study_suggestion(request: Request, student_id: str):
         session_count = int(profile.get("session_count", "0") or "0")
         velocity = profile.get("learning_velocity", "stable")
         focus = weak[0] if weak else None
+        role_line = _ROLE_TUTOR_CONTEXT.get(profile.get("role", "").upper(), "")
         context = (
             f"Weak topics: {', '.join(weak) if weak else 'none identified yet'}\n"
             f"Study streak: {streak} days\n"
@@ -1386,10 +1445,12 @@ def study_suggestion(request: Request, student_id: str):
         )
     except Exception:
         context = "New student — no profile data yet."
+        role_line = ""
 
     system = (
         "You are an ophthalmology study coach. "
-        "Give the student one specific, clinical, motivating sentence telling them exactly what to study today and why. "
+        + (f"Student role context: {role_line} " if role_line else "")
+        + "Give the student one specific, clinical, motivating sentence telling them exactly what to study today and why — mention their role's procedures where relevant. "
         "Under 30 words. No preamble."
     )
     try:
