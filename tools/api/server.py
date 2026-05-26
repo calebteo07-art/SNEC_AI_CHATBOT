@@ -43,6 +43,7 @@ from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks as _get_benchmarks
 from tools.supervisor.generate_report import generate_student_report as _generate_report
+from tools.supervisor.weekly_digest import send_weekly_digest as _send_digest
 from tools.cases.generate_case import generate_cases as _generate_cases
 from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
 from tools.progress.get_progress import get_progress as _get_progress
@@ -1045,6 +1046,20 @@ def supervisor_benchmarks(_: str = Depends(_require_supervisor)):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     return BenchmarkResponse(topics=[BenchmarkTopic(**t) for t in topics])
+
+
+class DigestRequest(BaseModel):
+    recipient: str  # supervisor email to send digest to
+
+@app.post("/api/supervisor/send-digest")
+def supervisor_send_digest(body: DigestRequest, supervisor_id: str = Depends(_require_supervisor)):
+    try:
+        _send_digest(body.recipient)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"ok": True, "sent_to": body.recipient}
 
 
 # ── Profile role update ────────────────────────────────────────────────────

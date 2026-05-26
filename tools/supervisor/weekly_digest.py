@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+"""Build and send the weekly EyeQ supervisor digest email.
+
+Call directly for a manual send:
+    python tools/supervisor/weekly_digest.py supervisor@example.com
+
+Or trigger via the API endpoint POST /api/supervisor/send-digest.
+"""
+
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from tools.supervisor.cohort_summary import cohort_summary
+from tools.supervisor.at_risk import get_at_risk
+from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
+from tools.shared.email import send_email
+
+
+# ── colour palette (matches EyeQ brand) ─────────────────────────────────────
+C_BG = "#FBF8F1"
+C_DARK = "#1F1A12"
+C_GOLD = "#8C6D3F"
+C_MUTED = "#A39A8E"
+C_RED = "#8B2D2D"
+C_GREEN = "#4F6B3D"
+C_BORDER = "#E8E1D5"
+
+
+def _bar(score: float) -> str:
+    """Return an inline SVG-style coloured bar for a retention score."""
+    pct = round(score * 100)
+    color = C_GREEN if pct >= 75 else (C_GOLD if pct >= 50 else C_RED)
+    filled = round(pct * 1.2)  # scale to ~120px max
+    return (
+        f'<span style="display:inline-block;width:120px;height:6px;'
+        f'background:#E8E1D5;border-radius:3px;vertical-align:middle;margin:0 8px 1px;">'
+        f'<span style="display:inline-block;width:{filled}px;height:6px;'
+        f'background:{color};border-radius:3px;"></span></span>'
+        f'<span style="color:{color};font-weight:600">{pct}%</span>'
+    )
+
+
+def build_digest_html(supervisor_email: str) -> str:
+    summary = cohort_summary()
+    at_risk = get_at_risk()
+    benchmarks = get_cohort_benchmarks()
+    date_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
+
+    # ── at-risk rows ─────────────────────────────────────────────────────────
+    if at_risk:
+        risk_rows = "".join(
+            f'<tr>'
+            f'<td style="padding:10px 12px;border-bottom:1px solid {C_BORDER};'
+            f'font-family:monospace;font-size:12px;color:{C_DARK}">'
+            f'{s["student_id"][:12]}…</td>'
+            f'<td style="padding:10px 12px;border-bottom:1px solid {C_BORDER};'
+            f'color:{C_RED};font-weight:600">{s["days_inactive"]}d inactive</td>'
+            f'<td style="padding:10px 12px;border-bottom:1px solid {C_BORDER};'
+            f'color:{C_MUTED};font-size:12px">'
+            f'{", ".join(s["weak_topics"][:3]).replace("_", " ")}</td>'
+            f'</tr>'
+            for s in at_risk[:10]
+        )
+        risk_section = f"""
+        <h3 style="margin:0 0 12px;font-size:11px;letter-spacing:0.18em;
+                   text-transform:uppercase;color:{C_GOLD};font-weight:600">
+          · Students needing attention
+        </h3>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:32px">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 12px;background:{C_BG};
+                         font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+                         color:{C_MUTED};border-bottom:1px solid {C_BORDER}">ID</th>
+              <th style="text-align:left;padding:8px 12px;background:{C_BG};
+                         font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+                         color:{C_MUTED};border-bottom:1px solid {C_BORDER}">Status</th>
+              <th style="text-align:left;padding:8px 12px;background:{C_BG};
+                         font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+                         color:{C_MUTED};border-bottom:1px solid {C_BORDER}">Weak topics</th>
+            </tr>
+          </thead>
+          <tbody>{risk_rows}</tbody>
+        </table>"""
+    else:
+        risk_section = f"""
+        <p style="color:{C_GREEN};margin-bottom:32px">
+          ✓ No students flagged at risk this week.
+        </p>"""
+
+    # ── benchmark rows ───────────────────────────────────────────────────────
+    if benchmarks:
+        bench_rows = "".join(
+            f'<tr>'
+            f'<td style="padding:8px 12px;border-bottom:1px solid {C_BORDER};'
+            f'color:{C_DARK};font-size:13px">'
+            f'{b["topic"].replace("_", " ").title()}</td>'
+            f'<td style="padding:8px 12px;border-bottom:1px solid {C_BORDER}">'
+            f'{_bar(b["avg_score"])}</td>'
+            f'<td style="padding:8px 12px;border-bottom:1px solid {C_BORDER};'
+            f'color:{C_MUTED};font-size:12px">{b["student_count"]} students</td>'
+            f'</tr>'
+            for b in benchmarks[:8]
+        )
+        bench_section = f"""
+        <h3 style="margin:0 0 12px;font-size:11px;letter-spacing:0.18em;
+                   text-transform:uppercase;color:{C_GOLD};font-weight:600">
+          · Cohort retention by topic
+        </h3>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:32px">
+          <tbody>{bench_rows}</tbody>
+        </table>"""
+    else:
+        bench_section = ""
+
+    at_risk_color = C_RED if summary["at_risk_count"] > 0 else C_GREEN
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F0EBE1;font-family:'Georgia',serif">
+  <div style="max-width:640px;margin:32px auto;background:{C_BG};
+              border-radius:12px;overflow:hidden;
+              box-shadow:0 2px 16px rgba(31,26,18,0.08)">
+
+    <!-- header -->
+    <div style="background:{C_DARK};padding:32px 40px">
+      <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.22em;
+                text-transform:uppercase;color:{C_GOLD};font-weight:600">
+        EyeQ · Singapore National Eye Centre
+      </p>
+      <h1 style="margin:0;font-size:26px;font-weight:400;color:#FBF8F1;
+                 letter-spacing:-0.01em">
+        Weekly Digest
+      </h1>
+      <p style="margin:6px 0 0;font-size:13px;color:{C_MUTED}">{date_str}</p>
+    </div>
+
+    <!-- KPI strip -->
+    <div style="display:flex;border-bottom:1px solid {C_BORDER}">
+      <div style="flex:1;padding:24px 28px;border-right:1px solid {C_BORDER};text-align:center">
+        <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.14em;
+                  text-transform:uppercase;color:{C_MUTED}">Students</p>
+        <p style="margin:0;font-size:32px;font-weight:400;color:{C_DARK}">{summary["total"]}</p>
+      </div>
+      <div style="flex:1;padding:24px 28px;border-right:1px solid {C_BORDER};text-align:center">
+        <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.14em;
+                  text-transform:uppercase;color:{C_MUTED}">Active this week</p>
+        <p style="margin:0;font-size:32px;font-weight:400;color:{C_GREEN}">{summary["active_this_week"]}</p>
+      </div>
+      <div style="flex:1;padding:24px 28px;text-align:center">
+        <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.14em;
+                  text-transform:uppercase;color:{C_MUTED}">At risk</p>
+        <p style="margin:0;font-size:32px;font-weight:400;color:{at_risk_color}">{summary["at_risk_count"]}</p>
+      </div>
+    </div>
+
+    <!-- body -->
+    <div style="padding:36px 40px">
+
+      <!-- weakest topics pill row -->
+      {"" if not summary["weakest_topics"] else f'''
+      <h3 style="margin:0 0 12px;font-size:11px;letter-spacing:0.18em;
+                 text-transform:uppercase;color:{C_GOLD};font-weight:600">
+        · Cohort weak spots
+      </h3>
+      <p style="margin:0 0 28px">
+        {"".join(
+          f\'<span style="display:inline-block;margin:0 6px 6px 0;padding:5px 14px;\'
+          f\'border-radius:20px;border:1px solid {C_RED}40;\'
+          f\'background:{C_RED}0d;color:{C_RED};font-size:12px;font-weight:500">\'
+          f\'{t.replace("_"," ")}</span>\'
+          for t in summary["weakest_topics"]
+        )}
+      </p>'''}
+
+      {risk_section}
+      {bench_section}
+
+      <!-- CTA -->
+      <div style="text-align:center;padding-top:8px">
+        <a href="http://localhost:5173/supervisor"
+           style="display:inline-block;padding:14px 32px;background:{C_DARK};
+                  color:#FBF8F1;text-decoration:none;border-radius:40px;
+                  font-size:14px;font-weight:500;letter-spacing:0.02em">
+          Open Dashboard →
+        </a>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <div style="padding:20px 40px;border-top:1px solid {C_BORDER}">
+      <p style="margin:0;font-size:11px;color:{C_MUTED};text-align:center;
+                letter-spacing:0.12em;text-transform:uppercase">
+        EyeQ · Singapore National Eye Centre · Confidential
+      </p>
+    </div>
+  </div>
+</body>
+</html>"""
+
+
+def send_weekly_digest(supervisor_email: str) -> None:
+    """Build and send the weekly digest to a supervisor."""
+    html = build_digest_html(supervisor_email)
+    date_str = datetime.now(timezone.utc).strftime("%-d %b %Y")
+    send_email(
+        to=supervisor_email,
+        subject=f"EyeQ Weekly Digest — {date_str}",
+        html=html,
+    )
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python tools/supervisor/weekly_digest.py supervisor@example.com")
+        sys.exit(1)
+    send_weekly_digest(sys.argv[1])
+    print(f"Digest sent to {sys.argv[1]}")

@@ -4,7 +4,7 @@ import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { CohortHeatmap } from "./CohortHeatmap";
 import { AtRiskTable } from "./AtRiskTable";
 import { StudentDrillDown } from "./StudentDrillDown";
-import { Users, AlertTriangle, Activity, LogOut } from "lucide-react";
+import { Users, AlertTriangle, Activity, LogOut, Mail } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 
@@ -42,6 +42,8 @@ export function SupervisorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [insights, setInsights] = useState<string | null>(null);
+  const [digestSending, setDigestSending] = useState(false);
+  const [digestStatus, setDigestStatus] = useState<"idle" | "sent" | "error">("idle");
 
   useEffect(() => {
     const supervisorHeaders = { "X-Supervisor-ID": user?.studentId || "" };
@@ -71,6 +73,24 @@ export function SupervisorDashboard() {
       .catch(() => null);
   }, [user]);
 
+  function handleSendDigest() {
+    if (digestSending || !user?.email) return;
+    setDigestSending(true);
+    setDigestStatus("idle");
+    fetch(`${API}/api/supervisor/send-digest`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Supervisor-ID": user?.studentId || "",
+      },
+      body: JSON.stringify({ recipient: user.email }),
+    })
+      .then((r) => { if (!r.ok) throw new Error(); })
+      .then(() => setDigestStatus("sent"))
+      .catch(() => setDigestStatus("error"))
+      .finally(() => setDigestSending(false));
+  }
+
   return (
     <div className="min-h-screen bg-[#FBF8F1]">
       {/* Top strip */}
@@ -99,16 +119,32 @@ export function SupervisorDashboard() {
               Supervisor
             </span>
           </div>
-          <button
-            onClick={() => {
-              sessionStorage.clear();
-              navigate("/");
-            }}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <LogOut size={14} strokeWidth={1.5} />
-            <span className="hidden sm:inline">Sign out</span>
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleSendDigest}
+              disabled={digestSending}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#8C6D3F]/30 text-[#8C6D3F] hover:bg-[#8C6D3F]/6 transition-colors disabled:opacity-50 text-sm"
+              title="Send weekly digest to your email"
+            >
+              {digestSending
+                ? <div className="w-3 h-3 border border-[#8C6D3F]/30 border-t-[#8C6D3F] rounded-full animate-spin" />
+                : <Mail size={13} strokeWidth={1.5} />
+              }
+              <span className="hidden sm:inline">
+                {digestStatus === "sent" ? "Sent!" : digestStatus === "error" ? "Failed" : "Send digest"}
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                navigate("/");
+              }}
+              className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
+            >
+              <LogOut size={14} strokeWidth={1.5} />
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
+          </div>
         </div>
       </motion.div>
 
