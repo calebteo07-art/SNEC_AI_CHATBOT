@@ -26,7 +26,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 TOKEN_FILE = PROJECT_ROOT / "token.json"
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive",
 ]
 
 _client: gspread.Client | None = None
