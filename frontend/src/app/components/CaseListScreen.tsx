@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
+import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw, Lock } from "lucide-react";
 
 interface CaseInfo {
   case_id: string;
@@ -10,6 +10,7 @@ interface CaseInfo {
   difficulty: string;
   topic: string;
   estimated_minutes: number;
+  locked?: boolean;
   patient: {
     name: string;
     age: number;
@@ -184,7 +185,87 @@ export function CaseListScreen() {
         {/* List */}
         <div className="mt-4 space-y-3">
           {cases.map((c, i) => {
-            const tone = difficultyTone(c.difficulty);
+            const locked = c.locked ?? false;
+            const tone = locked ? "#A39A8E" : difficultyTone(c.difficulty);
+            const unlockHint =
+              c.difficulty === "intermediate"
+                ? "Complete 2 beginner cases to unlock"
+                : c.difficulty === "advanced"
+                ? "Complete 2 intermediate cases to unlock"
+                : "";
+
+            if (locked) {
+              return (
+                <motion.div
+                  key={c.case_id}
+                  className="w-full text-left p-8 rounded-2xl border border-[#D4CFC9]/60"
+                  style={{ background: "#F5F3EF", cursor: "default" }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.4 }}
+                >
+                  <div className="flex items-start justify-between gap-6">
+                    <div className="flex-1 min-w-0" style={{ opacity: 0.45 }}>
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1" style={{ color: "#A39A8E", fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
+                          <Lock size={10} strokeWidth={2} />
+                          {c.difficulty}
+                        </span>
+                        <span className="text-[#A39A8E]">·</span>
+                        <span className="text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
+                          {c.topic}
+                        </span>
+                      </div>
+
+                      <h3
+                        className="text-[#5C544A] mb-3"
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontSize: "1.45rem",
+                          fontWeight: 400,
+                          letterSpacing: "-0.01em",
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {c.title}
+                      </h3>
+
+                      <p
+                        className="text-[#A39A8E] italic-display mb-4 max-w-xl"
+                        style={{ fontSize: "1rem", lineHeight: 1.55 }}
+                      >
+                        "{c.patient.presenting_complaint}"
+                      </p>
+
+                      <div className="flex items-center gap-5 text-[#C4BBB0]" style={{ fontSize: "0.78rem" }}>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Stethoscope size={12} strokeWidth={1.5} />
+                          {c.patient.name}, {c.patient.age} years
+                        </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock size={12} strokeWidth={1.5} />
+                          ~{c.estimated_minutes} min
+                        </span>
+                      </div>
+                    </div>
+
+                    <Lock
+                      size={18}
+                      strokeWidth={1.25}
+                      className="flex-shrink-0 mt-1"
+                      style={{ color: "#C4BBB0" }}
+                    />
+                  </div>
+
+                  {unlockHint && (
+                    <p className="mt-4 text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
+                      {unlockHint}
+                    </p>
+                  )}
+                </motion.div>
+              );
+            }
+
             return (
               <motion.button
                 key={c.case_id}

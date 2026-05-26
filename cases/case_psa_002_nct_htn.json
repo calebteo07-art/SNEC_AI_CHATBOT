@@ -1,0 +1,100 @@
+{
+  "case_id": "case_psa_002_nct_htn",
+  "title": "The High-Pressure Patient",
+  "difficulty": "beginner",
+  "topic": "non_contact_tonometry_hypertensive",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Mr Krishnamurthy s/o Rajan",
+    "age": 58,
+    "gender": "male",
+    "occupation": "bus driver",
+    "presenting_complaint": "Routine glaucoma follow-up — IOP check"
+  },
+  "history": {
+    "hpc": "Mr Krishnamurthy is attending for a routine IOP check as part of his glaucoma monitoring. He is on latanoprost eye drops once a night for both eyes. He says he has been using them every night as instructed. When the PSA informs him that the reading today is 26 mmHg in his right eye, Mr Krishnamurthy becomes alarmed: 'That is very high! Am I going blind? What does this number mean? Should I put more drops?' The PSA must complete the test correctly and manage the patient's concern appropriately.",
+    "pmhx": "Primary open-angle glaucoma (POAG) diagnosed 3 years ago. Controlled hypertension. No diabetes.",
+    "family_hx": "Father had glaucoma",
+    "medications": ["Latanoprost 0.005% eye drops OD nocte (both eyes)", "Atenolol 50mg OD for hypertension"],
+    "social_hx": "Bus driver. Worried about his driving license if his vision is affected."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {
+      "right": "26 mmHg — average of three NCT readings (25, 26, 27)",
+      "left": "18 mmHg — average of three NCT readings (17, 18, 19)"
+    },
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "nct": {
+      "right_readings": "25 / 26 / 27 mmHg — average 26 mmHg",
+      "left_readings": "17 / 18 / 19 mmHg — average 18 mmHg",
+      "notes": "Three readings taken per eye. Patient blinked on first attempt RE — reading discarded and repeated."
+    }
+  },
+  "diagnosis": "NCT completed. RE IOP elevated at 26 mmHg. LE IOP within normal range at 18 mmHg. PSA role is to document and report to doctor — not to interpret clinical significance or advise patient on medication changes.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity before testing",
+      "Explain the NCT procedure: 'I will measure the pressure in your eye using a gentle puff of air — there is no needle or touching the eye.'",
+      "Position patient correctly at the slit lamp chinrest: forehead touching the rest, eyes open and looking at the fixation light",
+      "Take three readings per eye and average them",
+      "Discard and repeat any reading where the patient blinked or moved",
+      "Record all readings clearly on the clinic form",
+      "When patient asks about the reading, respond calmly: 'I understand you are worried. The doctor will review these numbers and explain what they mean for you. My job is to measure and record — the doctor is the right person to explain the results.'",
+      "Do NOT tell the patient his readings are 'high' or 'normal' — do NOT advise him to change his drops",
+      "If patient is distressed, acknowledge the feeling: 'It is understandable to feel anxious — the doctor will go through everything with you.'"
+    ],
+    "follow_up": [
+      "Hand completed IOP form to nurse and flag that the patient has questions for the doctor",
+      "Reassure patient he will be seen shortly"
+    ],
+    "patient_education": [
+      "Remind patient that IOP measurements are just one piece of information and the doctor will review everything",
+      "Advise patient to ask the doctor his questions directly — write them down if needed so he does not forget",
+      "Do not answer clinical questions about whether his glaucoma is worsening"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity (full name and NRIC or date of birth)",
+        "Notes the purpose of visit (glaucoma follow-up, IOP check)",
+        "Checks that patient is wearing no contact lenses before NCT",
+        "Acknowledges the patient's anxiety without giving clinical interpretation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Correctly positions patient at NCT: forehead rest, eyes open, looking at fixation light",
+        "Takes three readings per eye and uses the average",
+        "Discards and repeats readings where patient blinked or moved",
+        "Records all individual readings and the average clearly on the form"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Does not interpret the IOP reading for the patient (does not say 'your pressure is high')",
+        "Does not advise medication changes under any circumstances",
+        "Correctly defers clinical interpretation to the doctor",
+        "Identifies the patient's distress and manages it with empathy, not clinical information"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Handles the anxious patient calmly and with empathy",
+        "Refers clinical questions to the doctor — does not attempt to answer them",
+        "Documents all readings accurately and flags patient's concerns to clinical staff",
+        "Does not reveal or comment on the numerical IOP result beyond 'the doctor will review it'"
+      ]
+    }
+  }
+}

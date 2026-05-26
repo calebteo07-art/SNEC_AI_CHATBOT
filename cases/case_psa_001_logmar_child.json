@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_001_logmar_child",
+  "title": "Measuring Vision in a Restless Child",
+  "difficulty": "beginner",
+  "topic": "logmar_visual_acuity_paediatric",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "LogMAR Visual Acuity",
+  "patient": {
+    "name": "Ethan Goh",
+    "age": 7,
+    "gender": "male",
+    "occupation": "primary school student",
+    "presenting_complaint": "Referred by school health service — possible myopia, difficulty seeing the board in class"
+  },
+  "history": {
+    "hpc": "Ethan is a 7-year-old brought by his mother after his school vision screening flagged reduced distance vision. His mother says he has been squinting at the TV and moving closer to see better. This is his first visit to an eye clinic. Ethan is shy and initially refuses to cooperate — he turns his head away and says 'I don't want to do the eye test.' His mother is present and supportive.",
+    "pmhx": "No known medical conditions. No previous spectacles. No eye surgery. No known allergies.",
+    "family_hx": "Both parents are myopic. Father wears -4.00D glasses.",
+    "medications": [],
+    "social_hx": "Studying in Primary 1. Lives with parents. Watches TV and iPad approximately 3-4 hours daily."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "6/18 (LogMAR 0.5) — achieved after gentle encouragement, with occluder",
+      "left": "6/12 (LogMAR 0.3) — achieved similarly"
+    },
+    "iop": {"right": "Not tested — not indicated at this visit", "left": "Not tested"},
+    "anterior_segment": "Not assessed at this stage — PSA role is VA measurement only",
+    "fundus": "Not assessed — doctor to review after VA obtained"
+  },
+  "investigations": {
+    "logmar_va": {
+      "right_unaided": "LogMAR 0.5 (6/18)",
+      "left_unaided": "LogMAR 0.3 (6/12)",
+      "method": "LogMAR tumbling-E chart, distance 3 metres, with child-friendly encouragement"
+    }
+  },
+  "diagnosis": "VA measurement completed for both eyes. RE 6/18, LE 6/12 unaided — reduced vision in both eyes, right worse than left. Results to be reviewed by doctor. Consistent with early-onset myopia given family history and symptoms.",
+  "management": {
+    "immediate": [
+      "Introduce yourself to the child and parent — use the child's name and get down to his level",
+      "Explain the test simply: 'I am going to show you some letters, and you just need to point which way the E is facing. Like this!' — demonstrate with your hand",
+      "Use the tumbling-E or picture chart (Lea Symbols) for children who cannot name letters — confirm which chart is appropriate for Ethan's reading ability",
+      "Let Ethan hold the occluder rather than placing it on his face — reduces fear and gives him control",
+      "Test the left (better) eye first to build confidence, then the right eye",
+      "Start from a larger line and work down — stop when the child misses more than two of five optotypes on a line",
+      "Be patient and praise the child: 'Well done! That was really good!' between lines",
+      "If child cannot cooperate, take a break and try again — do not force",
+      "Record results for both eyes separately on the clinic form: unaided VA RE and LE"
+    ],
+    "follow_up": [
+      "Hand the completed VA form to the nurse or doctor",
+      "Inform parent briefly: 'We have completed the vision test — the doctor will review the results and discuss what it means'",
+      "Do not tell parents a diagnosis or interpretation of the results"
+    ],
+    "patient_education": [
+      "Reassure Ethan that he did well and the test is finished",
+      "Tell the parent that the doctor will explain the results",
+      "If parent asks about glasses, advise her to ask the doctor"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the patient correctly (confirm name and date of birth with parent)",
+        "Notes the child's level of cooperation before starting",
+        "Checks if child can recognise letters or needs a picture/tumbling-E chart",
+        "Introduces self and explains the test in age-appropriate language"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Uses correct test distance (3 or 6 metres as per chart specifications)",
+        "Tests each eye separately with the other eye properly occluded",
+        "Uses child-appropriate strategies: tests better eye first, lets child hold occluder, uses praise",
+        "Records unaided VA for both eyes in LogMAR notation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises result is reduced for a 7-year-old (normal should be 6/6 or better by this age)",
+        "Does not interpret or diagnose — correctly defers to doctor",
+        "Understands that family history of myopia is a relevant background detail",
+        "Identifies the need to re-test if cooperation was inadequate"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses a child-friendly approach throughout — patience, simple language, praise",
+        "Does not force the child — takes a break if cooperation fails",
+        "Accurately records results and hands form to clinical staff",
+        "Does not give parents any diagnostic information — defers to doctor"
+      ]
+    }
+  }
+}

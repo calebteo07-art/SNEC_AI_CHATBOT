@@ -1,92 +1,98 @@
 {
   "case_id": "case_oa_003_dilation",
-  "title": "Pre-Dilation Before Fundus Exam",
-  "difficulty": "beginner",
-  "topic": "eye_drop_instillation_dilation",
+  "title": "When the Patient Says No",
+  "difficulty": "advanced",
+  "topic": "patient_refusal_dilation",
   "role": "OA",
-  "estimated_minutes": 15,
+  "estimated_minutes": 20,
+  "checklist_procedure": "Pupil Dilation",
   "patient": {
-    "name": "Mdm Wong Ah Mui",
-    "age": 72,
+    "name": "Mdm Lim Bee Geok",
+    "age": 64,
     "gender": "female",
-    "occupation": "homemaker",
-    "presenting_complaint": "Referred for dilated fundus examination — diabetic eye screening"
+    "occupation": "retired school teacher",
+    "presenting_complaint": "Annual diabetic eye review — scheduled for dilated fundus examination"
   },
   "history": {
-    "hpc": "Mdm Wong is a 72-year-old diabetic referred from her GP for a dilated fundus examination as part of her annual diabetic eye screening. She has no current eye complaints — no pain, no redness, vision 'still okay' with glasses. She has never had dilation before.",
-    "pmhx": "Type 2 diabetes mellitus for 15 years. Hypertension. No previous eye surgery.",
-    "family_hx": "Nil significant",
-    "medications": ["Metformin 1g BD", "Perindopril 4mg OD", "Aspirin 100mg OD"],
-    "social_hx": "Does not drive. Came with daughter today."
+    "hpc": "Mdm Lim is a 64-year-old with Type 2 diabetes for 12 years, attending for her annual dilated fundus exam. When the OA explains that eye drops are needed to dilate her pupils, Mdm Lim becomes visibly anxious and says: 'No, I don't want those drops. My neighbour went blind after getting eye drops at another clinic. I'm not doing it.' She is cooperative otherwise but firm in her refusal. She has had dilation before at her previous clinic 2 years ago with no problems, though she does not seem to recall this clearly.",
+    "pmhx": "Type 2 diabetes mellitus for 12 years (HbA1c 8.2% last check). Hypertension. No known drug allergies. Previous uneventful dilated fundus exam 2 years ago.",
+    "family_hx": "Sister has diabetic retinopathy",
+    "medications": ["Metformin 1g BD", "Sitagliptin 100mg OD", "Amlodipine 5mg OD"],
+    "social_hx": "Retired. Came alone today. Does not drive. Plans to take MRT home."
   },
   "examination_findings": {
-    "va": {"right": "6/12 with glasses (LogMAR 0.3)", "left": "6/9 with glasses (LogMAR 0.2)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
-    "anterior_segment": "No contraindications to dilation observed. Pupils normal and reactive.",
-    "fundus": "Fundus cannot be adequately assessed without dilation — assessment to follow after drops take effect"
+    "va": {"right": "6/9 with glasses (LogMAR 0.2)", "left": "6/12 with glasses (LogMAR 0.3)"},
+    "iop": {"right": "17 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Clear cornea. Pupils normally reactive. No contraindications to dilation identified on external assessment.",
+    "fundus": "Cannot be assessed without dilation — this is why dilation is clinically indicated"
   },
   "investigations": {
-    "va_distance": "Measured with habitual correction (glasses). RE: LogMAR 0.3. LE: LogMAR 0.2.",
-    "iop_nct": "RE: 15 mmHg. LE: 14 mmHg. IOP measured before dilation as per protocol.",
-    "dilation": "Tropicamide 1% one drop each eye instilled at 10:00am. Second drop instilled at 10:05am. Patient advised to wait 20-30 minutes."
+    "va_distance": "Measured with habitual correction. RE: LogMAR 0.2. LE: LogMAR 0.3.",
+    "iop_nct": "RE: 17 mmHg. LE: 16 mmHg. Measured prior to any drops."
   },
-  "diagnosis": "Diabetic patient requiring dilated fundus examination. No contraindication to dilation identified. Standard pre-dilation protocol applied.",
+  "diagnosis": "Patient refuses dilation despite clinical indication (diabetic eye screening). Refusal is based on misinformation about a neighbour's outcome. The OA must address concerns, provide correct information, and escalate to the doctor if refusal persists. If refusal is maintained after proper counselling, it must be documented and the doctor informed.",
   "management": {
     "immediate": [
-      "Confirm correct patient identity (full name and NRIC) before instilling any drops",
-      "Explain procedure and obtain verbal consent",
-      "Check for known allergies to eye drops",
-      "Warn patient: vision will be blurred and eye sensitive to light for 4-6 hours after dilation",
-      "Instil tropicamide 1% — one drop per eye, wait 5 minutes, then second drop per eye",
-      "Ask patient to sit in waiting area for 20-30 minutes",
-      "Document drop name, dosage, time instilled, and by whom"
+      "Stay calm, do not argue or dismiss the patient's concerns",
+      "Acknowledge her fear: 'I understand you are worried, Mdm Lim. Can you tell me more about what happened to your neighbour?'",
+      "Clarify the misunderstanding: dilating drops do not cause blindness — her neighbour's problem was almost certainly unrelated to the drops",
+      "Explain why dilation is needed specifically for her: 'You have diabetes for 12 years. Diabetes can affect the blood vessels at the back of your eye silently — no pain, no symptoms until it is very late. The only way to see this is to dilate your pupils and look inside.'",
+      "Explain the drops used: tropicamide — approved eye drops, used millions of times worldwide, temporary blurring for 4-6 hours, then vision returns to normal",
+      "Remind her she had dilation before without problems (if she recalls)",
+      "If she still refuses after counselling: DO NOT instil drops — you cannot force a patient",
+      "Inform the doctor immediately about the refusal and the reason",
+      "Document the refusal in the patient's record: date, time, reason given, education provided, outcome"
     ],
     "follow_up": [
-      "Recheck pupils after 20-30 minutes to confirm dilation adequate",
-      "Escort patient to doctor when dilation achieved",
-      "Doctor to perform dilated fundus examination"
+      "Doctor to speak with patient — may be able to address concerns further",
+      "If patient still refuses after speaking with doctor, arrange a follow-up appointment",
+      "Refusal must be documented as an informed refusal with the doctor's signature",
+      "Schedule a follow-up date — diabetic eye disease can progress, so patient should return soon"
     ],
     "patient_education": [
-      "Advise not to drive after dilation — patient should have someone escort her home",
-      "Sunglasses recommended outdoors after dilation due to light sensitivity",
-      "Explain dilation is temporary and vision will return to normal after 4-6 hours"
+      "Dilating drops do not cause blindness — vision blurring is temporary (4-6 hours)",
+      "Diabetic eye disease is silent — the examination is essential to detect it before vision is lost",
+      "Not checking the back of the eye is actually the greater risk for someone with her history",
+      "She can bring a family member next time if she would feel more comfortable"
     ]
   },
   "rubric": {
     "history": {
       "points": 10,
       "key_points": [
-        "Confirms patient identity correctly before instilling drops",
-        "Asks about known allergies to eye drops",
-        "Asks whether patient is driving today (cannot drive after dilation)",
-        "Explains procedure and gets verbal consent before instilling drops"
+        "Listens to the patient's concern without dismissing or arguing",
+        "Elicits the specific reason for refusal (neighbour anecdote / fear of blindness)",
+        "Notes the patient's diabetes duration and clinical risk (12 years, HbA1c elevated)",
+        "Recalls or checks that the patient has had dilation before without incident",
+        "Acknowledges the fear with empathy before providing information"
       ]
     },
     "investigations": {
       "points": 10,
       "key_points": [
-        "Measures VA before dilation (both distance and near if required)",
-        "Measures IOP before dilation (NCT)",
-        "Correct technique for eye drop instillation: lower lid retracted, drop in conjunctival sac, patient looks up, one drop at a time, nasolacrimal occlusion advised",
-        "Documents drop name, concentration, time, and number of drops"
+        "Completes measurements that can be done without drops (VA and IOP) — does not delay these",
+        "Does NOT instil any drops without consent",
+        "Accurately documents all findings including the refusal event in the correct format",
+        "Checks for any allergy or contraindication proactively while explaining the drops"
       ]
     },
     "diagnosis": {
       "points": 10,
       "key_points": [
-        "Recognises purpose of dilation (diabetic screening)",
-        "Identifies no contraindications to dilation",
-        "Does not instil drops without checking allergies and identity",
-        "Recognises that driving after dilation is unsafe"
+        "Correctly identifies this as an informed refusal situation — not a non-compliant patient",
+        "Understands the clinical stakes: diabetic retinopathy can be missed without dilation",
+        "Recognises that patient autonomy must be respected if refusal persists after full counselling",
+        "Escalates to the doctor appropriately — does not handle the final decision alone"
       ]
     },
     "management": {
       "points": 10,
       "key_points": [
-        "Uses correct drop (tropicamide 1%) and correct technique",
-        "Waits correct time between drops (5 minutes) and before reassessment (20-30 minutes)",
-        "Educates patient on post-dilation care (no driving, light sensitivity, duration)",
-        "Documents all details accurately"
+        "Does not force or coerce the patient — respects autonomy",
+        "Provides accurate, non-alarming information that directly addresses the patient's fear",
+        "Escalates to doctor when refusal persists after initial counselling",
+        "Documents the refusal with full details including counselling provided and doctor informed",
+        "Arranges follow-up to ensure patient does not fall through the cracks"
       ]
     }
   }

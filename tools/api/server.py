@@ -34,6 +34,8 @@ from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
 from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.evaluate_response import evaluate_case
+from tools.cases.log_case_completion import log_case_completion
+from tools.cases.get_case_progress import get_case_progress
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.profile.summarize_gaps import summarize_gaps
@@ -369,6 +371,7 @@ class CaseInfo(BaseModel):
     topic: str
     estimated_minutes: int
     patient: CasePatientInfo
+    locked: bool = False
 
 class CasesResponse(BaseModel):
     cases: list[CaseInfo]
@@ -401,11 +404,19 @@ class DomainScore(BaseModel):
     critical_hit: int = 0
     critical_total: int = 0
 
+class ChecklistStepResult(BaseModel):
+    step_number: int
+    action: str
+    critical: bool
+    performed: bool
+    clinical_note: str | None = None
+
 class CaseSubmitResponse(BaseModel):
     result: DomainScore
     cards: list[Flashcard]
     mock_mode: bool
     debrief: str | None = None
+    checklist_comparison: list[ChecklistStepResult] = []
 
 class ChecklistStepModel(BaseModel):
     step_number: int
@@ -464,25 +475,61 @@ def get_cases(student_id: str = ""):
         print(f"[case-gen] AI generation failed, using pre-stored cases: {exc}", flush=True)
 
     # Fallback: load pre-stored case files
-    cases = []
+    raw_cases = []
     for case_id in list_available_cases():
         try:
             c = load_case(case_id)
             _case_cache[c["case_id"]] = c
-            cases.append(CaseInfo(
-                case_id=c["case_id"],
-                title=c["title"],
-                difficulty=c["difficulty"],
-                topic=c["topic"],
-                estimated_minutes=c["estimated_minutes"],
-                patient=CasePatientInfo(
-                    name=c["patient"]["name"],
-                    age=c["patient"]["age"],
-                    presenting_complaint=c["patient"]["presenting_complaint"],
-                ),
-            ))
+            case_role = c.get("role", "any") or "any"
+            if case_role not in (role, "any"):
+                continue
+            raw_cases.append(c)
         except Exception:
             pass
+
+    # Compute difficulty unlock status
+    case_progress = {}
+    if student_id:
+        try:
+            case_progress = get_case_progress(student_id)
+        except Exception:
+            pass
+
+    passing_beginner = sum(
+        1 for c in raw_cases
+        if c.get("difficulty") == "beginner"
+        and case_progress.get(c["case_id"], {}).get("passed")
+    )
+    passing_intermediate = sum(
+        1 for c in raw_cases
+        if c.get("difficulty") == "intermediate"
+        and case_progress.get(c["case_id"], {}).get("passed")
+    )
+    intermediate_unlocked = passing_beginner >= 2
+    advanced_unlocked = passing_intermediate >= 2
+
+    cases = []
+    for c in raw_cases:
+        diff = c.get("difficulty", "beginner")
+        if diff == "intermediate":
+            locked = not intermediate_unlocked
+        elif diff == "advanced":
+            locked = not advanced_unlocked
+        else:
+            locked = False
+        cases.append(CaseInfo(
+            case_id=c["case_id"],
+            title=c["title"],
+            difficulty=diff,
+            topic=c["topic"],
+            estimated_minutes=c["estimated_minutes"],
+            patient=CasePatientInfo(
+                name=c["patient"]["name"],
+                age=c["patient"]["age"],
+                presenting_complaint=c["patient"]["presenting_complaint"],
+            ),
+            locked=locked,
+        ))
     return CasesResponse(cases=cases)
 
 
@@ -640,6 +687,12 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
     except Exception:
         pass
 
+    # Log case completion for difficulty progression tracking
+    try:
+        log_case_completion(body.student_id, case_id, raw_result.get("total_score", 0))
+    except Exception:
+        pass
+
     # Generate structured debrief
     debrief_text: str | None = None
     try:
@@ -673,12 +726,76 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
     except Exception:
         debrief_text = None
 
+    # Build checklist step comparison
+    checklist_comparison: list[ChecklistStepResult] = []
+    try:
+        from tools.kb.search import get_checklist_by_name as _get_cl_for_compare
+        procedure_name = case.get("checklist_procedure") or case.get("topic", "")
+        cl_data = _get_cl_for_compare(procedure_name)
+        if cl_data:
+            raw_steps = cl_data.get("steps") or {}
+            steps_list = raw_steps.get("steps", []) if isinstance(raw_steps, dict) else []
+            performed_set = set(body.performed_steps)
+            missed_critical_actions: list[str] = []
+
+            for s in steps_list:
+                step_num = int(s.get("step_number", 0))
+                performed = step_num in performed_set
+                critical = bool(s.get("critical", False))
+                if not performed and critical:
+                    missed_critical_actions.append(str(s.get("action", "")))
+                checklist_comparison.append(ChecklistStepResult(
+                    step_number=step_num,
+                    action=str(s.get("action", "")),
+                    critical=critical,
+                    performed=performed,
+                ))
+
+            # Generate one-sentence clinical notes for missed critical steps
+            if missed_critical_actions:
+                note_prompt = (
+                    "You are a clinical educator for ophthalmology allied health students. "
+                    "For each procedure step listed below, write exactly one sentence explaining "
+                    "WHY that step matters clinically — the consequence of skipping it. "
+                    "Return a JSON array of strings, one string per step, in the same order."
+                )
+                note_messages = [{
+                    "role": "user",
+                    "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
+                }]
+                try:
+                    note_response = ask(
+                        system_prompt=note_prompt,
+                        messages=note_messages,
+                        max_tokens=512,
+                        feature="checklist_notes",
+                    )
+                    import json as _cj
+                    raw_notes = note_response.strip()
+                    if raw_notes.startswith("```"):
+                        raw_notes = raw_notes.split("```")[1]
+                        if raw_notes.startswith("json"):
+                            raw_notes = raw_notes[4:]
+                    notes = _cj.loads(raw_notes)
+                    if isinstance(notes, list):
+                        note_idx = 0
+                        for step_result in checklist_comparison:
+                            if not step_result.performed and step_result.critical:
+                                if note_idx < len(notes):
+                                    step_result.clinical_note = str(notes[note_idx])
+                                    note_idx += 1
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
     domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields}
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),
         cards=[Flashcard(**c) for c in cards],
         mock_mode=MOCK_MODE,
         debrief=debrief_text,
+        checklist_comparison=checklist_comparison,
     )
 
 

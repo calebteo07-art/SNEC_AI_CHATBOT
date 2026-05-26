@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_004_eyedrops",
+  "title": "First-Time Eye Drop Instillation",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_education",
+  "role": "PSA",
+  "estimated_minutes": 20,
+  "checklist_procedure": "Eye Drop Instillation",
+  "patient": {
+    "name": "Mdm Ho Siew Ling",
+    "age": 55,
+    "gender": "female",
+    "occupation": "hawker stall assistant",
+    "presenting_complaint": "Newly diagnosed glaucoma — here for education on how to use eye drops"
+  },
+  "history": {
+    "hpc": "Mdm Ho was diagnosed with early primary open-angle glaucoma today during a routine check. The doctor has prescribed latanoprost 0.005% one drop right eye every night. This is the first time she has ever needed to put drops in her own eye. She tells the PSA: 'I tried before when I had pink eye, but I always miss — the drop goes on my cheek, not my eye. My hand shakes a little.' She is anxious about doing it wrong and worried the drop will sting.",
+    "pmhx": "Newly diagnosed POAG right eye. Hypertension on medication. No diabetes. No previous eye surgery.",
+    "family_hx": "No known glaucoma in family",
+    "medications": ["Amlodipine 5mg OD", "Latanoprost 0.005% eye drops RE ON — newly prescribed today"],
+    "social_hx": "Works long hours at a hawker stall. Lives alone. No family member at home to assist with drops."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "24 mmHg (post-dilation)", "left": "15 mmHg"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — reviewed by doctor"
+  },
+  "investigations": {
+    "note": "VA and IOP already completed by clinical staff before this education session."
+  },
+  "diagnosis": "Patient education session for self-administered eye drop instillation. Mdm Ho has never successfully administered drops to herself. Key challenges: hand tremor, fear of missing the eye, anxiety about stinging. Education goal: patient demonstrates correct technique independently by end of session.",
+  "management": {
+    "immediate": [
+      "Explain why the drops are important: 'Latanoprost lowers the pressure in your eye. It is important to use it every night without fail — even when you feel no symptoms — to prevent your glaucoma from getting worse and protect your vision.'",
+      "Demonstrate the technique step by step using a clean demo bottle (or capped bottle) first:",
+      "  Step 1 — Wash hands thoroughly with soap and water",
+      "  Step 2 — Tilt the head back or lie down — whichever is more comfortable",
+      "  Step 3 — Use one finger to gently pull the lower eyelid down to form a pocket",
+      "  Step 4 — Look up and away from the bottle tip",
+      "  Step 5 — Hold the bottle 1-2 cm above the eye — do not touch the tip to the eye or eyelid",
+      "  Step 6 — Squeeze gently — one drop is enough",
+      "  Step 7 — Close the eye gently — do not blink forcefully",
+      "  Step 8 — Press the inner corner of the eye (nasolacrimal occlusion) for 1-2 minutes to reduce systemic absorption",
+      "Have Mdm Ho practise the technique with a saline or demo bottle while you observe",
+      "Give specific feedback: 'Good — your head tilt is correct. Try holding the bottle a little closer to your eye.' Do not show frustration if she struggles",
+      "For hand tremor: suggest she rest her hand against her cheek or forehead for stability",
+      "Explain storage: 'Keep the bottle in the fridge. Once opened, use within 4 weeks.'",
+      "Give her the patient information leaflet for latanoprost"
+    ],
+    "follow_up": [
+      "Confirm she can demonstrate the correct technique before she leaves",
+      "If she is still not confident, arrange for a nurse educator to spend more time with her",
+      "Advise her to call the clinic if she has any questions about her drops"
+    ],
+    "patient_education": [
+      "Instil drops at the same time every night — bedtime is ideal for latanoprost (reduces redness side effect during sleep)",
+      "If she misses a dose, instil it as soon as she remembers — but if it is almost time for the next dose, skip the missed one; never double up",
+      "Latanoprost may cause the eye to look slightly redder and lashes to grow longer over time — this is expected and harmless",
+      "Store in the fridge; discard 4 weeks after opening even if there is drop left"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the patient's specific barrier: hand tremor and previous failed attempts",
+        "Confirms the correct eye and correct medication with the patient before the education session",
+        "Asks if patient lives alone or has someone to help at home — affects the education plan",
+        "Assesses patient's existing knowledge about her condition before educating"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Demonstrates the technique correctly step-by-step before asking patient to practise",
+        "Observes the patient practise and gives specific, constructive feedback",
+        "Offers the practical tip for hand tremor (rest hand against cheek/forehead)",
+        "Checks patient's understanding by asking her to explain back the steps"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that patient confidence in technique directly determines medication adherence",
+        "Identifies the specific barriers (tremor, missing the eye, anxiety) and addresses each one",
+        "Understands that non-adherence to glaucoma drops leads to disease progression and vision loss",
+        "Does not rush the session — prioritises patient mastery over clinic efficiency"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses teach-back method: patient demonstrates the technique, not just listens",
+        "Provides written information to reinforce verbal teaching",
+        "Covers all key counselling points: timing, storage, duration of use, expected side effects",
+        "Escalates to nurse educator if patient is not confident by end of session"
+      ]
+    }
+  }
+}

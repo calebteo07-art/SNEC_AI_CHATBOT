@@ -52,6 +52,14 @@ interface DomainResult {
   critical_total: number;
 }
 
+interface ChecklistStepResult {
+  step_number: number;
+  action: string;
+  critical: boolean;
+  performed: boolean;
+  clinical_note: string | null;
+}
+
 const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
   { label: "History",        scoreKey: "history_score",        feedbackKey: "history_feedback" },
   { label: "Investigations", scoreKey: "investigations_score",  feedbackKey: "investigations_feedback" },
@@ -85,6 +93,8 @@ export function CaseSessionScreen() {
   const [result, setResult] = useState<DomainResult | null>(null);
   const [cards, setCards] = useState<unknown[]>([]);
   const [debrief, setDebrief] = useState<string | null>(null);
+  const [checklistComparison, setChecklistComparison] = useState<ChecklistStepResult[]>([]);
+  const [checklistReviewOpen, setChecklistReviewOpen] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -218,6 +228,7 @@ export function CaseSessionScreen() {
       setResult(data.result);
       setCards(data.cards);
       setDebrief(data.debrief ?? null);
+      setChecklistComparison(data.checklist_comparison ?? []);
       setShowSubmitForm(false);
     } catch {
       setSubmitError("We couldn't evaluate that. Please try again.");
@@ -602,6 +613,75 @@ export function CaseSessionScreen() {
                       {result.critical_hit === result.critical_total ? " — all critical steps covered" : ` — ${result.critical_total - result.critical_hit} step${result.critical_total - result.critical_hit > 1 ? "s" : ""} missed`}
                     </p>
                   </div>
+                </div>
+              )}
+
+              {/* Checklist step-by-step review */}
+              {checklistComparison.length > 0 && (
+                <div className="mb-5 rounded-xl border border-[#1F1A12]/8 overflow-hidden">
+                  <button
+                    onClick={() => setChecklistReviewOpen((v) => !v)}
+                    className="w-full flex items-center justify-between px-5 py-3 bg-[#FBF8F1]/60 hover:bg-[#F5F0E8]/80 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ClipboardList size={14} strokeWidth={1.5} className="text-[#8C6D3F]" />
+                      <span className="text-[#5C544A]" style={{ fontSize: "0.78rem", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600 }}>
+                        Step Review
+                      </span>
+                      <span className="text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
+                        ({checklistComparison.filter((s) => s.performed).length}/{checklistComparison.length} steps completed)
+                      </span>
+                    </div>
+                    {checklistReviewOpen
+                      ? <ChevronUp size={14} strokeWidth={1.5} className="text-[#A39A8E]" />
+                      : <ChevronDown size={14} strokeWidth={1.5} className="text-[#A39A8E]" />
+                    }
+                  </button>
+
+                  {checklistReviewOpen && (
+                    <div className="divide-y divide-[#1F1A12]/6 bg-[#FFFDF9]">
+                      {checklistComparison.map((step) => (
+                        <div key={step.step_number} className="px-5 py-3">
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              {step.performed
+                                ? <CheckCircle2 size={15} strokeWidth={1.5} style={{ color: "#4F6B3D" }} />
+                                : <Circle size={15} strokeWidth={1.5} style={{ color: step.critical ? "#8B2D2D" : "#C4BBB0" }} />
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p
+                                style={{
+                                  fontSize: "0.85rem",
+                                  lineHeight: 1.5,
+                                  color: step.performed ? "#1F1A12" : step.critical ? "#8B2D2D" : "#A39A8E",
+                                  fontWeight: step.critical && !step.performed ? 500 : 400,
+                                }}
+                              >
+                                {step.action}
+                                {step.critical && (
+                                  <span
+                                    className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[0.62rem] font-semibold tracking-wide"
+                                    style={{
+                                      background: step.performed ? "rgba(79,107,61,0.12)" : "rgba(139,45,45,0.1)",
+                                      color: step.performed ? "#4F6B3D" : "#8B2D2D",
+                                    }}
+                                  >
+                                    critical
+                                  </span>
+                                )}
+                              </p>
+                              {!step.performed && step.clinical_note && (
+                                <p className="mt-1 text-[#8C6D3F]" style={{ fontSize: "0.78rem", lineHeight: 1.5, fontStyle: "italic" }}>
+                                  {step.clinical_note}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

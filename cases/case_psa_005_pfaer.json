@@ -1,0 +1,110 @@
+{
+  "case_id": "case_psa_005_pfaer",
+  "title": "Falls Risk in the Waiting Area",
+  "difficulty": "advanced",
+  "topic": "pfaer_assessment_falls_risk",
+  "role": "PSA",
+  "estimated_minutes": 20,
+  "checklist_procedure": "PFAER Assessment",
+  "patient": {
+    "name": "Mr Tan Ah Seng",
+    "age": 83,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Routine cataract follow-up — 2 weeks post-op right eye"
+  },
+  "history": {
+    "hpc": "Mr Tan is an 83-year-old attending for his post-operative review after right eye cataract surgery 2 weeks ago. He walks in slowly using a quad cane, accompanied by his domestic helper. While waiting, the PSA notices he is sitting at the edge of the chair rather than back in the seat, appears slightly unsteady when he stood up from the wheelchair in the car porch, and has difficulty with spatial orientation when walking. His helper mentions he had a fall at home 3 weeks ago (before surgery) — he tripped over a threshold and bruised his right knee. He is on multiple medications. His vision in the left eye remains poor (the non-operated eye has advanced AMD).",
+    "pmhx": "Cataract (operated right eye 2 weeks ago). AMD left eye (advanced — near-blind). Hypertension. Type 2 diabetes. Osteoarthritis knees. Fall 3 weeks ago.",
+    "family_hx": "Not relevant",
+    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Simvastatin 20mg ON", "Tramadol 50mg PRN for knee pain (uses 1-2x weekly)"],
+    "social_hx": "Widower. Lives with domestic helper. Daughter visits on weekends. Uses quad cane for all ambulation. Has not been assessed for falls risk previously."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "6/18 (LogMAR 0.5) — post-op, still recovering",
+      "left": "CF (Count Fingers) at 1 metre — AMD"
+    },
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "pfaer": {
+      "age_over_65": "Yes — scores 1 point",
+      "history_of_falls_in_past_year": "Yes (1 fall, 3 weeks ago) — scores 1 point",
+      "mobility_aid": "Yes (quad cane) — scores 1 point",
+      "visual_impairment": "Yes (poor left eye, reduced right eye post-op) — scores 1 point",
+      "on_sedating_or_high_risk_medication": "Yes (tramadol) — scores 1 point",
+      "total_pfaer_score": "5 — HIGH RISK (score >= 3 = high risk)",
+      "action_required": "Immediate notification to nurse-in-charge and documentation. Fall prevention measures to be implemented."
+    }
+  },
+  "diagnosis": "PFAER assessment score 5 — HIGH RISK. Multiple risk factors: age >65, recent fall, mobility aid, significant bilateral visual impairment, use of tramadol (opioid analgesic — sedating). Immediate action required. Patient must be supervised in the waiting area, assisted with all transfers, and nurse-in-charge notified.",
+  "management": {
+    "immediate": [
+      "Complete the PFAER (Patient Falls Assessment and Early Recognition) tool systematically — do not skip fields",
+      "Identify all risk factors present: age >65, fall within past year, mobility aid, visual impairment, sedating medication",
+      "Calculate the total PFAER score",
+      "If score is HIGH RISK (≥3 at SNEC): immediately notify the nurse-in-charge — do not wait until the patient is seen by a doctor",
+      "Apply fall prevention measures now:",
+      "  — Ensure patient is seated fully back in the chair, not on the edge",
+      "  — Place quad cane within easy reach but not as a trip hazard",
+      "  — Do not leave patient unsupervised in the waiting area",
+      "  — If patient needs to walk to another area, escort him personally or ask a colleague to assist",
+      "  — Place SNEC fall risk identifier (yellow wristband or label) on the patient per clinic protocol",
+      "Document the PFAER score and all identified risk factors on the clinic form",
+      "Inform the domestic helper: 'Mr Tan has been assessed as having a higher risk of falling today. We will help him wherever he needs to go. Please also hold his arm when you walk with him.'"
+    ],
+    "follow_up": [
+      "Ensure nurse-in-charge reviews and co-signs the PFAER documentation",
+      "Communicate falls risk status at patient handover to nurse or doctor",
+      "Suggest referral for formal falls prevention assessment or physiotherapy if not already done",
+      "Document the fall 3 weeks ago in the SNEC incident/risk log if not already recorded"
+    ],
+    "patient_education": [
+      "Explain simply to patient and helper: 'We have done a safety check and found a few factors that make falls more likely. We want to make sure you are safe during your visit today.'",
+      "Advise helper on home safety: remove trip hazards, install grab bars, ensure good lighting",
+      "Remind patient not to take tramadol before coming to the clinic if possible — discuss with his doctor",
+      "Advise patient to inform his regular doctor about the fall 3 weeks ago if he has not already done so"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Proactively identifies the patient as potentially at falls risk from observation (unsteady gait, edge-sitting, mobility aid) before even starting the formal assessment",
+        "Elicits the history of fall 3 weeks ago — asks the helper, not just the patient, as elderly patients may minimise or forget falls",
+        "Obtains full medication list and recognises tramadol as a sedating / high-risk medication",
+        "Notes the bilateral visual impairment (near-blind left eye, reduced right eye post-op) as a major risk factor"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Completes the PFAER tool systematically — does not skip any of the five domains",
+        "Correctly calculates total score and interprets it against the SNEC threshold (≥3 = high risk)",
+        "Documents all individual risk factors clearly alongside the total score",
+        "VA recorded for both eyes using correct notation prior to doctor's review"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly identifies the patient as HIGH RISK based on a score of 5",
+        "Recognises multiple compounding risk factors — does not underestimate risk because patient 'looks okay'",
+        "Understands that tramadol use is a pharmacological risk factor for falls",
+        "Does not dismiss the helper's observation of previous unsteadiness"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Acts immediately — does not wait for the doctor's review before notifying the nurse and implementing fall prevention",
+        "Applies all appropriate safety measures: supervised seating, escort, wristband/label as per protocol",
+        "Communicates clearly to both the helper and clinical staff",
+        "Documents the PFAER score and risk factors completely and accurately"
+      ]
+    }
+  }
+}

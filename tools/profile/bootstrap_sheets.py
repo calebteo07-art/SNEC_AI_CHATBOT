@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Create the snec_profiles, snec_supervisors, and snec_supervisor_alerts sheets
-if they do not already exist in the project spreadsheet.
+"""Create the snec_profiles, snec_supervisors, snec_supervisor_alerts, and
+snec_case_progress sheets if they do not already exist in the project spreadsheet.
 
 Run once during setup:
     python tools/profile/bootstrap_sheets.py
@@ -25,6 +25,9 @@ SHEETS = {
     "snec_supervisor_alerts": [
         "week_start", "active_students", "inactive_students", "weakest_topics",
         "at_risk_count", "report_json",
+    ],
+    "snec_case_progress": [
+        "student_id", "case_id", "total_score", "passed", "completed_at",
     ],
 }
 

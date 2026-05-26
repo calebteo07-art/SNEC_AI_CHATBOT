@@ -1,0 +1,97 @@
+{
+  "case_id": "case_psa_003_history_vi",
+  "title": "When the Patient Cannot See the Form",
+  "difficulty": "intermediate",
+  "topic": "history_taking_visually_impaired",
+  "role": "PSA",
+  "estimated_minutes": 20,
+  "checklist_procedure": "Patient History Taking",
+  "patient": {
+    "name": "Mr Mohamed Azri bin Hamid",
+    "age": 72,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Worsening vision — referred from polyclinic for specialist review"
+  },
+  "history": {
+    "hpc": "Mr Azri is a 72-year-old with advanced age-related macular degeneration in both eyes, referred for assessment of worsening central vision. He cannot read the SNEC patient registration form — he cannot see even the large print fields clearly. He is accompanied by his grandson, Haziq (aged 19), who offers to fill in the forms for him. Mr Azri is cognitively intact and can answer questions verbally. He does not have hearing difficulties.",
+    "pmhx": "Age-related macular degeneration (AMD) — bilateral, advanced. Hypertension. Type 2 diabetes mellitus (well-controlled). Prostate enlargement on tamsulosin.",
+    "family_hx": "Not known — patient says 'I cannot remember'",
+    "medications": ["Amlodipine 5mg OD", "Metformin 500mg BD", "Tamsulosin 0.4mg ON"],
+    "social_hx": "Widower. Lives with grandson Haziq. Grandson is the main caregiver. Mr Azri can still walk independently but uses a white cane outdoors."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "HM (Hand Motion) at 50 cm",
+      "left": "CF (Count Fingers) at 1 metre"
+    },
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "va_distance": "Tested at closest distance — unable to read LogMAR chart. RE: HM at 50cm. LE: CF at 1m."
+  },
+  "diagnosis": "History successfully obtained verbally for a patient with severe visual impairment. VA recorded using standard low-vision notation. Grandson's assistance used only for confirmation — primary history taken from patient himself.",
+  "management": {
+    "immediate": [
+      "Introduce yourself clearly: give your name, your role as PSA, and where you are in the clinic so the patient can orient himself",
+      "Confirm the patient's identity verbally: ask for his full name and NRIC number — he can state this even if he cannot see",
+      "Explain that you will read the form to him and fill it in based on his verbal answers",
+      "Speak directly to the patient — not to the grandson — unless the patient asks Haziq to help with a specific item",
+      "Grandson may help with names of medications if patient cannot recall exactly — but clinical history must come from the patient",
+      "Ask one question at a time clearly and give him time to answer — he is cognitively intact",
+      "Read back each completed section to the patient for confirmation before moving on",
+      "Obtain verbal consent for the history form in lieu of written signature — document 'unable to sign due to visual impairment, verbal consent given' and your own name as witness",
+      "Assist patient to the VA testing area and explain the modified test: 'I will ask you to tell me when you can see my hand move or count my fingers — there is no chart needed'"
+    ],
+    "follow_up": [
+      "Hand completed form to the nurse with a note that verbal consent was obtained",
+      "Ensure patient knows the waiting area and that someone will come to escort him when it is his turn",
+      "Inform nurse or doctor of the patient's mobility needs (white cane user)"
+    ],
+    "patient_education": [
+      "Reassure patient that staff are aware he cannot see the forms and will assist him throughout",
+      "Inform Haziq about the clinic process so he can support his grandfather appropriately",
+      "Do not make assumptions about cognitive ability based on visual impairment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Verifies identity verbally — does not rely on the patient reading a form",
+        "Speaks directly to the patient first, not the accompanying family member",
+        "Takes full history verbally and documents it accurately on the form",
+        "Allows grandson to assist only with factual items the patient cannot recall (e.g., medication names)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Adapts VA testing to the patient's visual level — uses HM or CF method instead of chart",
+        "Obtains VA for both eyes using appropriate notation (HM, CF, PL, NPL)",
+        "Explains the modified test to the patient clearly before starting",
+        "Documents results accurately using correct clinical abbreviations"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the patient is cognitively intact — does not over-involve the family member inappropriately",
+        "Correctly substitutes verbal consent and documents the reason (visual impairment, unable to sign)",
+        "Identifies the need to adapt all interactions — seating, guiding, explaining verbally",
+        "Does not delay or skip history because of the visual impairment"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Guides and positions the patient safely throughout the interaction",
+        "Obtains and documents verbal consent with own name as witness",
+        "Completes the full history form verbally and reads it back for confirmation",
+        "Communicates patient's mobility needs to clinical staff"
+      ]
+    }
+  }
+}
