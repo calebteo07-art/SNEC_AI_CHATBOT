@@ -985,9 +985,17 @@ def checkin_question(request: Request, student_id: str):
 @limiter.limit("10/minute")
 def checkin_answer(request: Request, body: CheckinAnswerRequest):
     system = (
-        "You are an ophthalmology tutor evaluating a warm-up answer. "
+        "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "
+        "Be honest and critical — if the answer is incomplete, vague, or missing key details, say so. "
+        "Do not inflate scores or praise weak answers.\n\n"
         "Return ONLY valid JSON with no other text:\n"
-        '{"correct": true or false, "feedback": "<one sentence confirming or correcting the answer, and one line on why it matters clinically>"}'
+        "{\n"
+        '  "correct": true or false,\n'
+        '  "feedback": "2–4 sentences: (1) directly assess what the student got right or wrong, '
+        "being specific about gaps or misconceptions; (2) provide the accurate, complete clinical answer "
+        "with precise values, protocols, or mechanisms a competent allied health professional should know; "
+        '(3) explain why this matters in practice at SNEC — patient safety, workflow, or clinical outcome."\n'
+        "}"
     )
     try:
         raw = ask(

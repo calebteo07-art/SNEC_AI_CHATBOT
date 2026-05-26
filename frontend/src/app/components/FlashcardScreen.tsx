@@ -501,11 +501,43 @@ export function FlashcardScreen() {
                 id="recall-attempt"
                 value={userAttempt}
                 onChange={(e) => setUserAttempt(e.target.value)}
-                placeholder="Optional · think it through before revealing"
-                rows={2}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) {
+                    e.preventDefault();
+                    flipCard();
+                  }
+                }}
+                placeholder="Write your answer before revealing — optional but builds retention"
+                rows={3}
                 className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#1F1A12]/10 text-[#1F1A12] placeholder-[#A39A8E] resize-none focus:outline-none focus:border-[#8C6D3F] transition-colors"
                 style={{ fontSize: "0.95rem", lineHeight: 1.55 }}
               />
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-[#A39A8E]" style={{ fontSize: "0.75rem" }}>
+                  {userAttempt.trim() ? "Ctrl + Enter to submit" : "Or tap the card to reveal"}
+                </span>
+                <AnimatePresence>
+                  {userAttempt.trim() && (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.92 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.92 }}
+                      transition={{ duration: 0.18 }}
+                      onClick={(e) => { e.stopPropagation(); flipCard(); }}
+                      disabled={aiChecking}
+                      className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                      style={{ fontSize: "0.82rem", fontWeight: 500 }}
+                    >
+                      {aiChecking ? (
+                        <div className="w-3 h-3 border border-[#FBF8F1]/30 border-t-[#FBF8F1] rounded-full animate-spin" />
+                      ) : (
+                        <Check size={13} strokeWidth={2} />
+                      )}
+                      Check answer
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
