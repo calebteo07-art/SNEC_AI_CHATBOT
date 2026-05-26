@@ -16,6 +16,7 @@ TOKEN_FILE = PROJECT_ROOT / "token.json"
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/gmail.send",
 ]
 
 if __name__ == "__main__":
