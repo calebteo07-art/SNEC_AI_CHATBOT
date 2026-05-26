@@ -26,11 +26,18 @@ interface AtRiskStudent {
   weak_count: number;
 }
 
+interface BenchmarkTopic {
+  topic: string;
+  avg_score: number;
+  student_count: number;
+}
+
 export function SupervisorDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskStudent[]>([]);
+  const [benchmarks, setBenchmarks] = useState<BenchmarkTopic[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +63,11 @@ export function SupervisorDashboard() {
     fetch(`${API}/api/supervisor/insights`, { headers: supervisorHeaders })
       .then((r) => r.json())
       .then((data) => setInsights(data.narrative))
+      .catch(() => null);
+
+    fetch(`${API}/api/supervisor/benchmarks`, { headers: supervisorHeaders })
+      .then((r) => r.json())
+      .then((data) => setBenchmarks(data.topics ?? []))
       .catch(() => null);
   }, [user]);
 
@@ -213,6 +225,63 @@ export function SupervisorDashboard() {
                 </p>
               )}
             </div>
+
+            {/* Cohort benchmarks */}
+            {benchmarks.length > 0 && (
+              <div className="surface-card-lg p-8">
+                <p
+                  className="text-[#8C6D3F] mb-6"
+                  style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
+                >
+                  · Cohort benchmarks
+                </p>
+                <div className="space-y-3">
+                  {benchmarks.map((b, idx) => {
+                    const pct = Math.round(b.avg_score * 100);
+                    const barColor = pct >= 75 ? "#4F6B3D" : pct >= 50 ? "#8C6D3F" : "#8B2D2D";
+                    const bgColor = pct >= 75 ? "#4F6B3D14" : pct >= 50 ? "#8C6D3F14" : "#8B2D2D14";
+                    return (
+                      <motion.div
+                        key={b.topic}
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.35, delay: idx * 0.04 }}
+                        className="flex items-center gap-4"
+                      >
+                        <span
+                          className="text-[#5C544A] shrink-0 w-44 truncate text-right"
+                          style={{ fontSize: "0.82rem" }}
+                          title={b.topic.replace(/_/g, " ")}
+                        >
+                          {b.topic.replace(/_/g, " ")}
+                        </span>
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: bgColor }}>
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: barColor }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 0.6, delay: 0.1 + idx * 0.04, ease: "easeOut" }}
+                          />
+                        </div>
+                        <span
+                          className="shrink-0 tabular-nums"
+                          style={{ fontSize: "0.82rem", color: barColor, fontWeight: 600, minWidth: "2.8rem" }}
+                        >
+                          {pct}%
+                        </span>
+                        <span
+                          className="shrink-0 text-[#A39A8E]"
+                          style={{ fontSize: "0.75rem", minWidth: "4rem" }}
+                        >
+                          {b.student_count} student{b.student_count !== 1 ? "s" : ""}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* At-risk table */}
             <div className="surface-card-lg p-8">

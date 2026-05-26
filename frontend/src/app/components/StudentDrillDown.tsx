@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { X, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Minus, FileDown, Save } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 const API = "";
 
@@ -14,6 +15,7 @@ interface StudentProfile {
   last_active: string;
   learning_velocity: string;
   checkin_done_today: boolean;
+  supervisor_note?: string;
 }
 
 interface Props {
@@ -28,25 +30,81 @@ function VelocityIcon({ velocity }: { velocity: string }) {
 }
 
 export function StudentDrillDown({ studentId, onClose }: Props) {
+  const { user } = useAuth();
+  const supervisorId = user?.studentId ?? "";
+
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [note, setNote] = useState("");
+  const [noteSaving, setNoteSaving] = useState(false);
+  const [noteSaved, setNoteSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   useEffect(() => {
-    fetch(`${API}/api/supervisor/student/${studentId}`)
+    fetch(`${API}/api/supervisor/student/${studentId}`, {
+      headers: { "X-Supervisor-ID": supervisorId },
+    })
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
         return r.json();
       })
       .then((data) => {
         setProfile(data);
+        setNote(data.supervisor_note ?? "");
         setLoading(false);
       })
       .catch(() => {
         setError("We couldn't load this student's profile.");
         setLoading(false);
       });
-  }, [studentId]);
+  }, [studentId, supervisorId]);
+
+  function handleSaveNote() {
+    if (noteSaving) return;
+    setNoteSaving(true);
+    fetch(`${API}/api/supervisor/student/${studentId}/note`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Supervisor-ID": supervisorId,
+      },
+      body: JSON.stringify({ note }),
+    })
+      .then((r) => { if (!r.ok) throw new Error(); })
+      .then(() => {
+        setNoteSaved(true);
+        if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+        savedTimerRef.current = setTimeout(() => setNoteSaved(false), 2500);
+      })
+      .catch(() => {})
+      .finally(() => setNoteSaving(false));
+  }
+
+  function handleExportPdf() {
+    if (pdfLoading) return;
+    setPdfLoading(true);
+    fetch(`${API}/api/supervisor/student/${studentId}/report`, {
+      headers: { "X-Supervisor-ID": supervisorId },
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.blob();
+      })
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `eyeq_student_${studentId.slice(0, 8)}_report.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(() => {})
+      .finally(() => setPdfLoading(false));
+  }
 
   return (
     <motion.div
@@ -77,9 +135,24 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
               {studentId.slice(0, 8)}…
             </p>
           </div>
-          <button onClick={onClose} className="text-[#A39A8E] hover:text-[#1F1A12] transition-colors">
-            <X size={18} strokeWidth={1.5} />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExportPdf}
+              disabled={pdfLoading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#8C6D3F]/30 text-[#8C6D3F] hover:bg-[#8C6D3F]/6 transition-colors disabled:opacity-50"
+              style={{ fontSize: "0.78rem", fontWeight: 500 }}
+              title="Export PDF report"
+            >
+              {pdfLoading
+                ? <div className="w-3 h-3 border border-[#8C6D3F]/30 border-t-[#8C6D3F] rounded-full animate-spin" />
+                : <FileDown size={13} strokeWidth={1.5} />
+              }
+              Export PDF
+            </button>
+            <button onClick={onClose} className="text-[#A39A8E] hover:text-[#1F1A12] transition-colors">
+              <X size={18} strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
         <div className="px-8 py-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
@@ -91,7 +164,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
           {error && <p className="text-[#8B2D2D]" style={{ fontSize: "0.92rem" }}>{error}</p>}
           {profile && (
             <div className="space-y-7">
-              <div className="grid grid-cols-3 gap-0 bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-xl overflow-hidden" style={{ gap: "1px" }}>
+              <div className="grid grid-cols-3 bg-[#1F1A12]/8 border border-[#1F1A12]/8 rounded-xl overflow-hidden" style={{ gap: "1px" }}>
                 {[
                   { label: "Sessions", value: profile.session_count },
                   { label: "Streak", value: `${profile.streak}d` },
@@ -175,6 +248,48 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
                     ))}
                   </ul>
                 )}
+              </div>
+
+              {/* Supervisor note */}
+              <div>
+                <p
+                  className="text-[#8C6D3F] mb-3"
+                  style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
+                >
+                  · Supervisor note
+                </p>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Add a note about this student — e.g. 'Spoke on 2 Jun, will revisit biometry steps next week.'"
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-xl border border-[#1F1A12]/12 bg-[#FBF8F1] text-[#1F1A12] placeholder-[#C4BBB0] resize-none focus:outline-none focus:border-[#8C6D3F]/40 transition-colors"
+                  style={{ fontSize: "0.88rem", lineHeight: 1.6 }}
+                />
+                <div className="mt-2 flex items-center justify-between">
+                  <span
+                    className="transition-opacity duration-500"
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "#4F6B3D",
+                      opacity: noteSaved ? 1 : 0,
+                    }}
+                  >
+                    Saved
+                  </span>
+                  <button
+                    onClick={handleSaveNote}
+                    disabled={noteSaving}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                    style={{ fontSize: "0.78rem", fontWeight: 500 }}
+                  >
+                    {noteSaving
+                      ? <div className="w-3 h-3 border border-[#FBF8F1]/30 border-t-[#FBF8F1] rounded-full animate-spin" />
+                      : <Save size={12} strokeWidth={1.5} />
+                    }
+                    Save note
+                  </button>
+                </div>
               </div>
             </div>
           )}

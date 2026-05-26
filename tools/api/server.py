@@ -41,6 +41,8 @@ from tools.profile.update_profile import update_profile
 from tools.profile.summarize_gaps import summarize_gaps
 from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
+from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks as _get_benchmarks
+from tools.supervisor.generate_report import generate_student_report as _generate_report
 from tools.cases.generate_case import generate_cases as _generate_cases
 from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
 from tools.progress.get_progress import get_progress as _get_progress
@@ -843,6 +845,18 @@ class StudentProfileResponse(BaseModel):
     last_active: str
     learning_velocity: str
     checkin_done_today: bool
+    supervisor_note: str = ""
+
+class SaveNoteRequest(BaseModel):
+    note: str
+
+class BenchmarkTopic(BaseModel):
+    topic: str
+    avg_score: float
+    student_count: int
+
+class BenchmarkResponse(BaseModel):
+    topics: list[BenchmarkTopic]
 
 
 # ── Check-in endpoints ─────────────────────────────────────────────────────
@@ -990,9 +1004,47 @@ def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
             last_active=profile.get("last_active", ""),
             learning_velocity=profile.get("learning_velocity", "stable"),
             checkin_done_today=str(profile.get("checkin_done_today", "false")).lower() == "true",
+            supervisor_note=profile.get("supervisor_note", "") or "",
         )
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.patch("/api/supervisor/student/{student_id}/note")
+def supervisor_save_note(
+    student_id: str,
+    body: SaveNoteRequest,
+    _: str = Depends(_require_supervisor),
+):
+    from tools.shared.gsheets import update_row as _update_row
+    try:
+        _update_row("snec_profiles", "student_id", student_id, {"supervisor_note": body.note})
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"ok": True}
+
+
+@app.get("/api/supervisor/student/{student_id}/report")
+def supervisor_student_report(student_id: str, _: str = Depends(_require_supervisor)):
+    try:
+        pdf_bytes = _generate_report(student_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Could not generate report: {exc}")
+    filename = f"eyeq_student_{student_id[:8]}_report.pdf"
+    return StreamingResponse(
+        iter([pdf_bytes]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get("/api/supervisor/benchmarks", response_model=BenchmarkResponse)
+def supervisor_benchmarks(_: str = Depends(_require_supervisor)):
+    try:
+        topics = _get_benchmarks()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return BenchmarkResponse(topics=[BenchmarkTopic(**t) for t in topics])
 
 
 # ── Profile role update ────────────────────────────────────────────────────
