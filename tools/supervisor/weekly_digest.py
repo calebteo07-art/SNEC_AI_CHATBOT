@@ -17,7 +17,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from tools.supervisor.cohort_summary import cohort_summary
 from tools.supervisor.at_risk import get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
-from tools.shared.email import send_email
+from tools.shared.gmail_sender import send_email
 
 
 # ── colour palette (matches EyeQ brand) ─────────────────────────────────────
