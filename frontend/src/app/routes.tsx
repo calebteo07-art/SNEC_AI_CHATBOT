@@ -8,6 +8,7 @@ import { FlashcardScreen } from "./components/FlashcardScreen";
 import { SummaryScreen } from "./components/SummaryScreen";
 import { DailyCheckInScreen } from "./components/DailyCheckInScreen";
 import { SupervisorDashboard } from "./components/SupervisorDashboard";
+import { AdminDashboard } from "./components/AdminDashboard";
 import { ProgressScreen } from "./components/ProgressScreen";
 import { CheckInGuard } from "./components/CheckInGuard";
 
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
         <SupervisorDashboard />
       </CheckInGuard>
     ),
+  },
+  {
+    path: "/admin",
+    Component: AdminDashboard,
   },
   {
     path: "/chat",

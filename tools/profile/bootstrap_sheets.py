@@ -13,6 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.shared.gsheets import _get_spreadsheet
+from gspread.exceptions import WorksheetNotFound
 
 SHEETS = {
     "snec_profiles": [
@@ -29,6 +30,9 @@ SHEETS = {
     ],
     "snec_case_progress": [
         "student_id", "case_id", "total_score", "passed", "completed_at",
+    ],
+    "snec_approved_students": [
+        "email", "full_name", "role", "added_by", "added_at", "student_id",
     ],
 }
 
@@ -48,13 +52,10 @@ def ensure_sheet(name: str, headers: list[str]) -> None:
             print(f"  [updated] '{name}' — added columns: {missing}")
         else:
             print(f"  [skip] '{name}' already exists with all columns.")
-    except Exception as e:
-        if "worksheet" in str(e).lower() or "not found" in str(e).lower():
-            ws = spreadsheet.add_worksheet(title=name, rows=1000, cols=len(headers))
-            ws.append_row(headers, value_input_option="RAW")
-            print(f"  [created] '{name}' with {len(headers)} columns.")
-        else:
-            raise
+    except WorksheetNotFound:
+        ws = spreadsheet.add_worksheet(title=name, rows=1000, cols=len(headers))
+        ws.append_row(headers, value_input_option="RAW")
+        print(f"  [created] '{name}' with {len(headers)} columns.")
 
 
 if __name__ == "__main__":

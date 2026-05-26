@@ -161,16 +161,49 @@ app.add_middleware(
 )
 
 
-def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-ID")):
-    """FastAPI dependency — verifies the caller is a registered supervisor."""
-    from tools.shared.gsheets import get_rows as _get_rows
+SUPER_ADMIN_EMAIL = "snec.tne.edu@gmail.com"
+
+
+def _get_email_for_id(student_id: str) -> str:
+    """Return the email address for a given student_id, or empty string."""
+    from tools.shared.gsheets import get_rows as _gr
     try:
-        rows = _get_rows("snec_supervisors", filters={"student_id": x_supervisor_id})
+        rows = _gr("snec_consent", filters={"student_id": student_id})
+        return rows[0].get("email", "").strip().lower() if rows else ""
+    except Exception:
+        return ""
+
+
+def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-ID")):
+    """FastAPI dependency — verifies the caller is a registered supervisor or admin."""
+    from tools.shared.gsheets import get_rows as _get_rows
+    email = _get_email_for_id(x_supervisor_id)
+    if email == SUPER_ADMIN_EMAIL:
+        return x_supervisor_id
+    try:
+        rows = _get_rows("snec_supervisors", filters={"email": email})
     except Exception:
         raise HTTPException(status_code=503, detail="Could not verify supervisor access")
     if not rows:
         raise HTTPException(status_code=401, detail="Unauthorized")
     return x_supervisor_id
+
+
+def _require_admin(x_admin_id: str = Header(..., alias="X-Admin-ID")):
+    """FastAPI dependency — verifies the caller is admin (snec email or promoted admin)."""
+    from tools.shared.gsheets import get_rows as _gr
+    email = _get_email_for_id(x_admin_id)
+    if not email:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if email == SUPER_ADMIN_EMAIL:
+        return x_admin_id
+    try:
+        rows = _gr("snec_supervisors", filters={"email": email})
+    except Exception:
+        raise HTTPException(status_code=503, detail="Could not verify admin access")
+    if not rows or rows[0].get("role", "").lower() != "admin":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return x_admin_id
 
 
 # ── Request / Response models ──────────────────────────────────────────────
@@ -223,22 +256,51 @@ def onboard(body: OnboardRequest):
         raise HTTPException(status_code=400, detail="full_name and email are required")
 
     email = body.email.strip().lower()
+
+    from tools.shared.gsheets import get_rows as _get_rows
+
+    # ── Determine role and access ──────────────────────────────────────────
+    role = "student"
+    student_role = body.student_role.strip().upper() if body.student_role else ""
+
+    if email == SUPER_ADMIN_EMAIL:
+        role = "admin"
+    else:
+        # Check supervisor list
+        try:
+            supervisors = _get_rows("snec_supervisors", filters={"email": email})
+            if supervisors:
+                role = "admin" if supervisors[0].get("role", "").lower() == "admin" else "supervisor"
+        except Exception:
+            pass
+
+        if role == "student":
+            # Check approved students whitelist
+            try:
+                approved = _get_rows("snec_approved_students", filters={"email": email})
+            except Exception:
+                approved = []
+            if not approved:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Access restricted. Contact your administrator to request access.",
+                )
+            # Pre-fill role from whitelist if student didn't supply one
+            if not student_role and approved[0].get("role", "").upper() in ("OA", "OT", "PSA"):
+                student_role = approved[0]["role"].upper()
+
     student_id = get_or_create_student(body.full_name.strip(), email)
     if not has_consented(student_id):
         record_consent(student_id)
 
-    # Check if this email belongs to a supervisor
-    role = "student"
-    try:
-        from tools.shared.gsheets import get_rows as _get_rows
-        supervisors = _get_rows("snec_supervisors", filters={"email": email})
-        if supervisors:
-            role = "supervisor"
-    except Exception:
-        pass
+    # Link student_id back to approved record
+    if role == "student":
+        try:
+            from tools.shared.gsheets import update_row as _update_row
+            _update_row("snec_approved_students", "email", email, {"student_id": student_id})
+        except Exception:
+            pass
 
-    # Save student role (OA/OT/PSA) to profile
-    student_role = body.student_role.strip().upper() if body.student_role else ""
     if role == "student" and student_role in ("OA", "OT", "PSA"):
         try:
             update_profile(student_id, role=student_role)
@@ -1060,6 +1122,133 @@ def supervisor_send_digest(body: DigestRequest, supervisor_id: str = Depends(_re
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     return {"ok": True, "sent_to": body.recipient}
+
+
+# ── Admin endpoints ────────────────────────────────────────────────────────
+
+class ApproveStudentRequest(BaseModel):
+    email: str
+    full_name: str = ""
+    role: str = ""  # OA | OT | PSA
+
+class PromoteRequest(BaseModel):
+    email: str
+    new_role: str  # "supervisor" | "admin"
+
+@app.get("/api/admin/approved")
+def admin_list_approved(_: str = Depends(_require_admin)):
+    from tools.shared.gsheets import get_rows as _gr
+    try:
+        rows = _gr("snec_approved_students")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"students": rows}
+
+@app.post("/api/admin/approved")
+def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_require_admin)):
+    email = body.email.strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="email is required")
+    from tools.shared.gsheets import get_rows as _gr, append_row as _ar
+    from datetime import datetime, timezone
+    existing = _gr("snec_approved_students", filters={"email": email})
+    if existing:
+        raise HTTPException(status_code=409, detail="Email already approved")
+    admin_email = _get_email_for_id(admin_id)
+    _ar("snec_approved_students", {
+        "email": email,
+        "full_name": body.full_name.strip(),
+        "role": body.role.strip().upper(),
+        "added_by": admin_email,
+        "added_at": datetime.now(timezone.utc).isoformat(),
+        "student_id": "",
+    })
+    return {"ok": True}
+
+@app.delete("/api/admin/approved/{email}")
+def admin_unapprove_student(email: str, _: str = Depends(_require_admin)):
+    from tools.shared.gsheets import delete_row as _dr
+    deleted = _dr("snec_approved_students", "email", email.lower())
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Email not found in approved list")
+    return {"ok": True}
+
+@app.get("/api/admin/students")
+def admin_all_students(_: str = Depends(_require_admin)):
+    from tools.shared.gsheets import get_rows as _gr
+    try:
+        profiles = _gr("snec_profiles")
+        consent = _gr("snec_consent")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    consent_map = {r["student_id"]: r for r in consent}
+    result = []
+    for p in profiles:
+        sid = p.get("student_id", "")
+        c = consent_map.get(sid, {})
+        result.append({
+            "student_id": sid,
+            "full_name": c.get("student_name", ""),
+            "email": c.get("email", ""),
+            "role": p.get("role", ""),
+            "session_count": p.get("session_count", 0),
+            "streak": p.get("streak", 0),
+            "last_active": p.get("last_active", ""),
+            "weak_topics": p.get("weak_topics", "[]"),
+            "learning_velocity": p.get("learning_velocity", "stable"),
+        })
+    return {"students": result}
+
+@app.get("/api/admin/activity")
+def admin_activity(_: str = Depends(_require_admin)):
+    from tools.shared.gsheets import get_rows as _gr
+    try:
+        sessions = _gr("snec_sessions")
+        cases = _gr("snec_case_progress")
+        consent = _gr("snec_consent")
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    name_map = {r["student_id"]: r.get("student_name", r["student_id"][:8]) for r in consent}
+    feed = []
+    for s in sessions[-50:]:
+        feed.append({
+            "type": "session",
+            "student_id": s.get("student_id", ""),
+            "name": name_map.get(s.get("student_id", ""), s.get("student_id", "")[:8]),
+            "detail": s.get("topic", "Chat session"),
+            "timestamp": s.get("timestamp", ""),
+        })
+    for c in cases[-50:]:
+        passed = str(c.get("passed", "false")).lower() == "true"
+        feed.append({
+            "type": "case",
+            "student_id": c.get("student_id", ""),
+            "name": name_map.get(c.get("student_id", ""), c.get("student_id", "")[:8]),
+            "detail": c.get("case_id", "") + (" ✓" if passed else " ✗") + " · " + str(c.get("total_score", 0)) + "/40",
+            "timestamp": c.get("completed_at", ""),
+        })
+    feed.sort(key=lambda x: x["timestamp"], reverse=True)
+    return {"feed": feed[:80]}
+
+@app.post("/api/admin/promote")
+def admin_promote(body: PromoteRequest, _: str = Depends(_require_admin)):
+    from tools.shared.gsheets import get_rows as _gr, append_row as _ar, update_row as _ur
+    email = body.email.strip().lower()
+    new_role = body.new_role.strip().lower()
+    if new_role not in ("supervisor", "admin"):
+        raise HTTPException(status_code=400, detail="new_role must be 'supervisor' or 'admin'")
+    existing = _gr("snec_supervisors", filters={"email": email})
+    if existing:
+        _ur("snec_supervisors", "email", email, {"role": new_role})
+    else:
+        _ar("snec_supervisors", {"supervisor_id": "", "email": email, "cohort": "SNEC", "role": new_role})
+    return {"ok": True}
+
+@app.delete("/api/admin/promote/{email}")
+def admin_demote(email: str, _: str = Depends(_require_admin)):
+    from tools.shared.gsheets import delete_row as _dr
+    _dr("snec_supervisors", "email", email.lower())
+    return {"ok": True}
 
 
 # ── Profile role update ────────────────────────────────────────────────────

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 interface User {
   fullName: string;
   email: string;
-  role: "student" | "supervisor";
+  role: "student" | "supervisor" | "admin";
   studentId: string;
   studentRole: "OA" | "OT" | "PSA" | "";
 }
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({
         ...JSON.parse(storedUser),
         studentId: storedId,
-        role: storedRole as "student" | "supervisor",
+        role: storedRole as "student" | "supervisor" | "admin",
         studentRole: storedStudentRole,
       });
       setIsCheckInDone(checkInStatus);

@@ -38,7 +38,7 @@ export function OnboardingScreen() {
   const [email, setEmail] = useState("");
   const [pdpaConsent, setPdpaConsent] = useState(false);
   const [selectedRole, setSelectedRole] = useState<"OA" | "OT" | "PSA" | null>(null);
-  const [errors, setErrors] = useState<{ fullName?: string; email?: string; pdpa?: string; role?: string; api?: string }>({});
+  const [errors, setErrors] = useState<{ fullName?: string; email?: string; pdpa?: string; role?: string; api?: string; blocked?: string }>({});
   const [submitting, setSubmitting] = useState(false);
 
   const validateStep1 = () => {
@@ -70,6 +70,12 @@ export function OnboardingScreen() {
           student_role: role,
         }),
       });
+      if (res.status === 403) {
+        const err = await res.json().catch(() => ({ detail: "Access restricted." }));
+        setErrors({ blocked: err.detail ?? "Access restricted. Contact your administrator." });
+        setSelectedRole(null);
+        return;
+      }
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
 
@@ -81,7 +87,9 @@ export function OnboardingScreen() {
         studentRole: (data.student_role ?? role) as "OA" | "OT" | "PSA" | "",
       });
 
-      if (data.role === "supervisor") {
+      if (data.role === "admin") {
+        navigate("/admin");
+      } else if (data.role === "supervisor") {
         navigate("/supervisor");
       } else {
         navigate("/checkin");
@@ -254,9 +262,12 @@ export function OnboardingScreen() {
                   Select your training track. This scopes your cases, flashcards, and daily check-ins.
                 </p>
 
-                {errors.api && (
+                {(errors.api || errors.blocked) && (
                   <div className="mb-6 px-4 py-3 bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 rounded-lg">
-                    <p className="text-[#8B2D2D] text-sm">{errors.api}</p>
+                    <p className="text-[#8B2D2D] text-sm">{errors.blocked ?? errors.api}</p>
+                    {errors.blocked && (
+                      <p className="text-[#A39A8E] text-xs mt-1">snec.tne.edu@gmail.com</p>
+                    )}
                   </div>
                 )}
 
