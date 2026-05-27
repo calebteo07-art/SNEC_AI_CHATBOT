@@ -311,8 +311,9 @@ class EndSessionResponse(BaseModel):
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
 
+@limiter.limit("5/minute")
 @app.post("/api/auth/login", response_model=LoginResponse)
-async def auth_login(body: LoginRequest):
+async def auth_login(request: Request, body: LoginRequest):
     email = body.email.strip().lower()
 
     # Must be in approved list
@@ -350,7 +351,7 @@ async def auth_login(body: LoginRequest):
     if approved_role == "student":
         sup_rows = get_rows("snec_supervisors", filters={"email": email})
         if sup_rows:
-            final_role = sup_rows[0].get("role", "student")
+            final_role = sup_rows[0].get("role") or "supervisor"
             approved_student_role = ""
 
     return LoginResponse(
