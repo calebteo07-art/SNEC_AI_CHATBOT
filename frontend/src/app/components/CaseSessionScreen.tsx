@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -142,7 +142,7 @@ export function CaseSessionScreen() {
     setInput("");
     setSending(true);
 
-    const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
+    const studentId = sessionStorage.getItem("eyebot_student_id") || "anonymous";
 
     try {
       const res = await fetch(`/api/cases/${caseId}/chat`, {
@@ -210,7 +210,7 @@ export function CaseSessionScreen() {
     if (!diagnosis.trim() || !managementPlan.trim() || !caseId) return;
     setSubmitting(true);
     setSubmitError(null);
-    const studentId = sessionStorage.getItem("eyeq_student_id") || "anonymous";
+    const studentId = sessionStorage.getItem("eyebot_student_id") || "anonymous";
     try {
       const res = await fetch(`/api/cases/${caseId}/submit`, {
         method: "POST",
@@ -723,7 +723,7 @@ export function CaseSessionScreen() {
 
               <button
                 onClick={() => {
-                  if (cards.length > 0) sessionStorage.setItem("eyeq_session_cards", JSON.stringify(cards));
+                  if (cards.length > 0) sessionStorage.setItem("eyebot_session_cards", JSON.stringify(cards));
                   navigate("/flashcards");
                 }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-all"

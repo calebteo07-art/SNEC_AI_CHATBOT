@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""FastAPI backend for the EyeQ web frontend.
+﻿#!/usr/bin/env python3
+"""FastAPI backend for the EyeBot web frontend.
 
 Bridges the React frontend to the existing tools (gemini_client, onboarding,
 log_session, generate_cards). Automatically runs in MOCK MODE when
@@ -96,7 +96,7 @@ def _get_context(query: str) -> str:
     return _kb_fallback()
 
 
-_TUTOR_BASE = """You are EyeQ, an expert ophthalmology tutor at SNEC (Singapore National Eye Centre). \
+_TUTOR_BASE = """You are EyeBot, an expert ophthalmology tutor at SNEC (Singapore National Eye Centre). \
 You teach through Socratic dialogue — your job is to guide students to discover answers, not hand them out.
 
 TEACHING APPROACH:
@@ -149,7 +149,7 @@ def _tutor_system(role: str) -> str:
 
 limiter = Limiter(key_func=get_remote_address)
 
-app = FastAPI(title="EyeQ API")
+app = FastAPI(title="EyeBot API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -1253,7 +1253,7 @@ def supervisor_student_report(student_id: str, _: str = Depends(_require_supervi
         pdf_bytes = _generate_report(student_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Could not generate report: {exc}")
-    filename = f"eyeq_student_{student_id[:8]}_report.pdf"
+    filename = f"eyebot_student_{student_id[:8]}_report.pdf"
     return StreamingResponse(
         iter([pdf_bytes]),
         media_type="application/pdf",
@@ -1334,13 +1334,13 @@ def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_
         from tools.shared.gmail_sender import send_email as _send_email
         _send_email(
             to=email,
-            subject="Your EyeQ account is ready",
+            subject="Your EyeBot account is ready",
             html=f"""<p>Hi {body.full_name},</p>
-<p>Your EyeQ account has been created.</p>
+<p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
 <p>Please log in and change your password when prompted.</p>
-<p>EyeQ · SNEC</p>""",
+<p>EyeBot · SNEC</p>""",
         )
     except Exception:
         pass
@@ -1580,13 +1580,13 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
         try:
             _send_email(
                 to=email,
-                subject="Your EyeQ account is ready",
+                subject="Your EyeBot account is ready",
                 html=f"""<p>Hi {full_name},</p>
-<p>Your EyeQ account has been created.</p>
+<p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
 <p>Please log in and change your password when prompted.</p>
-<p>EyeQ · SNEC</p>""",
+<p>EyeBot · SNEC</p>""",
             )
         except Exception:
             pass  # email failure does not block import

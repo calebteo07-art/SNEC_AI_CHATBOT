@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+﻿import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -34,7 +34,7 @@ export function CaseListScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
 
   const fetchCases = useCallback(() => {
     setError(null);
@@ -95,7 +95,7 @@ export function CaseListScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>

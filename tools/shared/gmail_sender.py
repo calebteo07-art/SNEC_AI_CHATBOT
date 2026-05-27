@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Send email via Gmail API using the existing OAuth token.
 
 No SMTP app password needed — reuses the same token.json as the Sheets integration.
@@ -57,7 +57,7 @@ def send_email(to: str | list[str], subject: str, html: str, text: str = "") -> 
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"EyeQ · SNEC <{sender_email}>"
+    msg["From"] = f"EyeBot · SNEC <{sender_email}>"
     msg["To"] = ", ".join(recipients)
     msg.attach(MIMEText(plain, "plain"))
     msg.attach(MIMEText(html, "html"))

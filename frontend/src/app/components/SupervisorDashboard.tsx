@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { CohortHeatmap } from "./CohortHeatmap";
@@ -112,7 +112,7 @@ export function SupervisorDashboard() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>

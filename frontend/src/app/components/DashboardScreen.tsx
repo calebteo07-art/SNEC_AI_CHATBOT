@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useNavigate } from "react-router";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -111,7 +111,7 @@ export function DashboardScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
           </div>
 

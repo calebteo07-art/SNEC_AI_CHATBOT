@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import confetti from "canvas-confetti";
@@ -24,7 +24,7 @@ import {
 
 function loadSession() {
   try {
-    const s = JSON.parse(sessionStorage.getItem("eyeq_session") || "{}");
+    const s = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
     const cards: { front: string; back: string; topic_tag: string }[] = Array.isArray(s.cards) ? s.cards : [];
     return {
       topic: s.topic || "Ophthalmology",
@@ -44,7 +44,7 @@ export function SummaryScreen() {
 
   const userData = (() => {
     try {
-      return JSON.parse(sessionStorage.getItem("eyeq_user") || "{}");
+      return JSON.parse(sessionStorage.getItem("eyebot_user") || "{}");
     } catch {
       return { fullName: "Student" };
     }
@@ -144,7 +144,7 @@ export function SummaryScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>

@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-"""Build and send the weekly EyeQ supervisor digest email.
+﻿#!/usr/bin/env python3
+"""Build and send the weekly EyeBot supervisor digest email.
 
 Call directly for a manual send:
     python tools/supervisor/weekly_digest.py supervisor@example.com
@@ -19,7 +19,7 @@ from tools.supervisor.at_risk import get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
 from tools.shared.gmail_sender import send_email
 
-# ── colour palette (matches EyeQ brand) ──────────────────────────────────────
+# ── colour palette (matches EyeBot brand) ──────────────────────────────────────
 C_BG     = "#FBF8F1"
 C_DARK   = "#1F1A12"
 C_GOLD   = "#8C6D3F"
@@ -152,7 +152,7 @@ def build_digest_html(supervisor_email: str) -> str:
         '<div style="background:' + C_DARK + ';padding:32px 40px">'
         '<p style="margin:0 0 4px;font-size:10px;letter-spacing:0.22em;'
         'text-transform:uppercase;color:' + C_GOLD + ';font-weight:600">'
-        'EyeQ · Singapore National Eye Centre</p>'
+        'EyeBot · Singapore National Eye Centre</p>'
         '<h1 style="margin:0;font-size:26px;font-weight:400;color:#FBF8F1;'
         'letter-spacing:-0.01em">Weekly Digest</h1>'
         '<p style="margin:6px 0 0;font-size:13px;color:' + C_MUTED + '">' + date_str + '</p>'
@@ -181,7 +181,7 @@ def build_digest_html(supervisor_email: str) -> str:
         '<div style="padding:20px 40px;border-top:1px solid ' + C_BORDER + '">'
         '<p style="margin:0;font-size:11px;color:' + C_MUTED + ';text-align:center;'
         'letter-spacing:0.12em;text-transform:uppercase">'
-        'EyeQ · Singapore National Eye Centre · Confidential</p>'
+        'EyeBot · Singapore National Eye Centre · Confidential</p>'
         '</div>'
         '</div></body></html>'
     )
@@ -192,7 +192,7 @@ def send_weekly_digest(supervisor_email: str) -> None:
     date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
     send_email(
         to=supervisor_email,
-        subject="EyeQ Weekly Digest — " + date_str,
+        subject="EyeBot Weekly Digest — " + date_str,
         html=html,
     )
 

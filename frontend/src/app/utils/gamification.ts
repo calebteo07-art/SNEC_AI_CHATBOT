@@ -1,4 +1,4 @@
-export interface UserProgress {
+﻿export interface UserProgress {
   level: number;
   xp: number;
   streak: number;
@@ -47,7 +47,7 @@ export const ACHIEVEMENTS = [
 ];
 
 export function getUserProgress(): UserProgress {
-  const stored = localStorage.getItem("eyeq_progress");
+  const stored = localStorage.getItem("eyebot_progress");
   if (stored) {
     return JSON.parse(stored);
   }
@@ -62,7 +62,7 @@ export function getUserProgress(): UserProgress {
 }
 
 export function saveUserProgress(progress: UserProgress) {
-  localStorage.setItem("eyeq_progress", JSON.stringify(progress));
+  localStorage.setItem("eyebot_progress", JSON.stringify(progress));
 }
 
 export function syncStreakFromBackend(backendStreak: number): void {

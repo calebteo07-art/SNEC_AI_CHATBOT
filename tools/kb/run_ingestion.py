@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Master ingestion script — processes all 82 PDFs from Module 1 and Module 2.
 
 Run this once to populate the Supabase knowledge base. It is idempotent:
@@ -317,7 +317,7 @@ def main():
     counter = [0]
     errors: list[str] = []
 
-    print(f"EyeQ KB Ingestion — {total} PDFs across Module 1 ({len(MODULE_1_CATALOG)}) + Module 2 ({len(MODULE_2_CATALOG)})")
+    print(f"EyeBot KB Ingestion — {total} PDFs across Module 1 ({len(MODULE_1_CATALOG)}) + Module 2 ({len(MODULE_2_CATALOG)})")
     print(f"Force: {args.force} | Module filter: {args.module} | Checklists only: {args.checklists}")
     print("=" * 70)
 

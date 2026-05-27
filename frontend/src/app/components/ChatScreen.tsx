@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -278,7 +278,7 @@ export function ChatScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>

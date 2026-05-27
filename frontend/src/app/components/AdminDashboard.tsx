@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { useNavigate } from "react-router";
@@ -235,7 +235,7 @@ export function AdminDashboard() {
       <div className="border-b border-[#3a3a5a] px-6 py-3 flex items-center justify-between bg-[#0f0f1e] sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <HolographicEyeLogo size={28} />
-          <span className="text-[#8C6D3F] text-sm font-medium tracking-wide">EyeQ Admin</span>
+          <span className="text-[#8C6D3F] text-sm font-medium tracking-wide">EyeBot Admin</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowChangePassword(true)} className="text-[#888] hover:text-[#8C6D3F] text-xs transition-colors">Change password</button>

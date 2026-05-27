@@ -1,4 +1,4 @@
-# Admin Dashboard & Password Auth Implementation Plan
+﻿# Admin Dashboard & Password Auth Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -690,13 +690,13 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
         try:
             _send_email(
                 to=email,
-                subject="Your EyeQ account is ready",
+                subject="Your EyeBot account is ready",
                 html=f"""<p>Hi {full_name},</p>
-<p>Your EyeQ account has been created.</p>
+<p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
 <p>Please log in and change your password when prompted.</p>
-<p>EyeQ · SNEC</p>""",
+<p>EyeBot · SNEC</p>""",
             )
         except Exception:
             pass  # email failure does not block import
@@ -721,13 +721,13 @@ try:
     from tools.shared.gmail_sender import send_email as _send_email
     _send_email(
         to=email_lc,
-        subject="Your EyeQ account is ready",
+        subject="Your EyeBot account is ready",
         html=f"""<p>Hi {body.full_name},</p>
-<p>Your EyeQ account has been created.</p>
+<p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email_lc}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
 <p>Please log in and change your password when prompted.</p>
-<p>EyeQ · SNEC</p>""",
+<p>EyeBot · SNEC</p>""",
     )
 except Exception:
     pass
@@ -794,18 +794,18 @@ Update the `login` function to also persist `mustChangePassword`:
 ```typescript
 const login = (userData: User) => {
   setUser(userData);
-  sessionStorage.setItem("eyeq_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
-  sessionStorage.setItem("eyeq_student_id", userData.studentId);
-  sessionStorage.setItem("eyeq_role", userData.role);
-  sessionStorage.setItem("eyeq_student_role", userData.studentRole ?? "");
-  sessionStorage.setItem("eyeq_must_change", userData.mustChangePassword ? "true" : "false");
+  sessionStorage.setItem("eyebot_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
+  sessionStorage.setItem("eyebot_student_id", userData.studentId);
+  sessionStorage.setItem("eyebot_role", userData.role);
+  sessionStorage.setItem("eyebot_student_role", userData.studentRole ?? "");
+  sessionStorage.setItem("eyebot_must_change", userData.mustChangePassword ? "true" : "false");
   setLoading(false);
 };
 ```
 
-Update the `useEffect` restore to read `eyeq_must_change`:
+Update the `useEffect` restore to read `eyebot_must_change`:
 ```typescript
-const mustChange = sessionStorage.getItem("eyeq_must_change") === "true";
+const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
 if (storedUser && storedId && storedRole) {
   setUser({
     ...JSON.parse(storedUser),
@@ -821,7 +821,7 @@ if (storedUser && storedId && storedRole) {
 Add `setMustChangePassword` function:
 ```typescript
 const setMustChangePassword = (v: boolean) => {
-  sessionStorage.setItem("eyeq_must_change", v ? "true" : "false");
+  sessionStorage.setItem("eyebot_must_change", v ? "true" : "false");
   setUser((prev) => prev ? { ...prev, mustChangePassword: v } : prev);
 };
 ```
@@ -1094,7 +1094,7 @@ import { ChangePasswordModal } from "./ChangePasswordModal";
 
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
 
-EyeQ collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
+EyeBot collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
 
 const ROLES = [
   { id: "OA" as const, label: "OA", title: "Ophthalmic Auxiliary", desc: "Patient flow, history taking, IOP measurement, dilation, pre/post-operative care." },
@@ -1253,7 +1253,7 @@ export function OnboardingScreen() {
             <HolographicEyeLogo size={72} animated />
           </motion.div>
           <h1 className="mt-8 text-center holo-text-subtle" style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.02em" }}>
-            EyeQ
+            EyeBot
           </h1>
           <p className="mt-4 text-center text-[#5C544A] italic-display" style={{ fontSize: "1.05rem" }}>an attentive tutor for the eye</p>
           <hr className="divider-shimmer w-16 mt-6" />
@@ -1263,7 +1263,7 @@ export function OnboardingScreen() {
           {step === "login" && (
             <motion.div key="login" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.35 }}>
               <div className="glass-card-lg iri-border p-10">
-                <p className="annotation-label mb-6">Sign in to EyeQ</p>
+                <p className="annotation-label mb-6">Sign in to EyeBot</p>
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div>
                     <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>Email</label>
@@ -1948,7 +1948,7 @@ export function AdminDashboard() {
       <div className="border-b border-[#3a3a5a] px-6 py-3 flex items-center justify-between bg-[#0f0f1e] sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <HolographicEyeLogo size={28} />
-          <span className="text-[#8C6D3F] text-sm font-medium tracking-wide">EyeQ Admin</span>
+          <span className="text-[#8C6D3F] text-sm font-medium tracking-wide">EyeBot Admin</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowChangePassword(true)} className="text-[#888] hover:text-[#8C6D3F] text-xs transition-colors">Change password</button>

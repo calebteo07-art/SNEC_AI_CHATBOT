@@ -65,7 +65,13 @@ def _get_spreadsheet() -> gspread.Spreadsheet:
 
 
 def _get_sheet(sheet_name: str) -> gspread.Worksheet:
-    return _get_spreadsheet().worksheet(sheet_name)
+    try:
+        return _get_spreadsheet().worksheet(sheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        raise
+    except StopIteration:
+        # gspread raises StopIteration when the worksheet title is not found
+        raise gspread.exceptions.WorksheetNotFound(sheet_name)
 
 
 def append_row(sheet_name: str, row_dict: dict) -> None:
@@ -91,9 +97,12 @@ def get_rows(sheet_name: str, filters: dict | None = None) -> list[dict]:
         filters:    e.g. {"student_id": "abc123"} — returns only matching rows
 
     Returns:
-        List of dicts, one per matching row. Empty list if no matches.
+        List of dicts, one per matching row. Empty list if no matches or sheet missing.
     """
-    sheet = _get_sheet(sheet_name)
+    try:
+        sheet = _get_sheet(sheet_name)
+    except gspread.exceptions.WorksheetNotFound:
+        return []
     records = sheet.get_all_records()
 
     if not filters:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Create the snec_profiles, snec_supervisors, snec_supervisor_alerts, and
 snec_case_progress sheets if they do not already exist in the project spreadsheet.
 
@@ -59,7 +59,7 @@ def ensure_sheet(name: str, headers: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    print("Bootstrapping EyeQ profile sheets...\n")
+    print("Bootstrapping EyeBot profile sheets...\n")
     for sheet_name, cols in SHEETS.items():
         ensure_sheet(sheet_name, cols)
     print("\nDone.")

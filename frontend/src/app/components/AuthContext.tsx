@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+﻿import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface User {
   fullName: string;
@@ -29,12 +29,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("eyeq_user");
-    const storedId = sessionStorage.getItem("eyeq_student_id");
-    const storedRole = sessionStorage.getItem("eyeq_role");
-    const storedStudentRole = sessionStorage.getItem("eyeq_student_role") as "OA" | "OT" | "PSA" | "" ?? "";
-    const checkInStatus = sessionStorage.getItem("eyeq_checkin_done") === "true";
-    const mustChange = sessionStorage.getItem("eyeq_must_change") === "true";
+    const storedUser = sessionStorage.getItem("eyebot_user");
+    const storedId = sessionStorage.getItem("eyebot_student_id");
+    const storedRole = sessionStorage.getItem("eyebot_role");
+    const storedStudentRole = sessionStorage.getItem("eyebot_student_role") as "OA" | "OT" | "PSA" | "" ?? "";
+    const checkInStatus = sessionStorage.getItem("eyebot_checkin_done") === "true";
+    const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
 
     if (storedUser && storedId && storedRole) {
       setUser({
@@ -51,21 +51,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData);
-    sessionStorage.setItem("eyeq_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
-    sessionStorage.setItem("eyeq_student_id", userData.studentId);
-    sessionStorage.setItem("eyeq_role", userData.role);
-    sessionStorage.setItem("eyeq_student_role", userData.studentRole ?? "");
-    sessionStorage.setItem("eyeq_must_change", userData.mustChangePassword ? "true" : "false");
+    sessionStorage.setItem("eyebot_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
+    sessionStorage.setItem("eyebot_student_id", userData.studentId);
+    sessionStorage.setItem("eyebot_role", userData.role);
+    sessionStorage.setItem("eyebot_student_role", userData.studentRole ?? "");
+    sessionStorage.setItem("eyebot_must_change", userData.mustChangePassword ? "true" : "false");
     setLoading(false);
   };
 
   const setMustChangePassword = (v: boolean) => {
-    sessionStorage.setItem("eyeq_must_change", v ? "true" : "false");
+    sessionStorage.setItem("eyebot_must_change", v ? "true" : "false");
     setUser((prev) => prev ? { ...prev, mustChangePassword: v } : prev);
   };
 
   const setStudentRole = (role: "OA" | "OT" | "PSA") => {
-    sessionStorage.setItem("eyeq_student_role", role);
+    sessionStorage.setItem("eyebot_student_role", role);
     setUser((prev) => prev ? { ...prev, studentRole: role } : prev);
   };
 
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
-    sessionStorage.setItem("eyeq_checkin_done", done ? "true" : "false");
+    sessionStorage.setItem("eyebot_checkin_done", done ? "true" : "false");
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
@@ -31,7 +31,7 @@ interface Flashcard {
 
 function loadSessionCards(): Flashcard[] {
   try {
-    const session = JSON.parse(sessionStorage.getItem("eyeq_session") || "{}");
+    const session = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
     if (Array.isArray(session.cards) && session.cards.length > 0) {
       return session.cards.map(
         (c: { front: string; back: string; topic_tag: string }, i: number) => ({
@@ -62,7 +62,7 @@ interface AiFeedback {
 
 export function FlashcardScreen() {
   const navigate = useNavigate();
-  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
 
   const [FLASHCARDS, setFLASHCARDS] = useState<Flashcard[]>(() => loadSessionCards());
   const [generating, setGenerating] = useState(false);
@@ -278,7 +278,7 @@ export function FlashcardScreen() {
                 letterSpacing: "-0.01em",
               }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>

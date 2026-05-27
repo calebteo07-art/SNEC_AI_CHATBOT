@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+﻿import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -65,7 +65,7 @@ function VelocityIcon({ v }: { v: string }) {
 
 export function ProgressScreen() {
   const navigate = useNavigate();
-  const studentId = sessionStorage.getItem("eyeq_student_id") ?? "";
+  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
 
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,7 +110,7 @@ export function ProgressScreen() {
               className="text-[#1F1A12]"
               style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 500, letterSpacing: "-0.01em" }}
             >
-              EyeQ
+              EyeBot
             </span>
             <span className="text-[#A39A8E]">·</span>
             <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>My Progress</span>

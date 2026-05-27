@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
@@ -8,7 +8,7 @@ import { ChangePasswordModal } from "./ChangePasswordModal";
 
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
 
-EyeQ collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
+EyeBot collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
 
 const ROLES = [
   { id: "OA" as const, label: "OA", title: "Ophthalmic Auxiliary", desc: "Patient flow, history taking, IOP measurement, dilation, pre/post-operative care." },
@@ -165,7 +165,7 @@ export function OnboardingScreen() {
             <HolographicEyeLogo size={72} animated />
           </motion.div>
           <h1 className="mt-8 text-center holo-text-subtle" style={{ fontFamily: "var(--font-display)", fontSize: "3.25rem", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.02em" }}>
-            EyeQ
+            EyeBot
           </h1>
           <p className="mt-4 text-center text-[#5C544A] italic-display" style={{ fontSize: "1.05rem" }}>an attentive tutor for the eye</p>
           <hr className="divider-shimmer w-16 mt-6" />
@@ -175,7 +175,7 @@ export function OnboardingScreen() {
           {step === "login" && (
             <motion.div key="login" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.35 }}>
               <div className="glass-card-lg iri-border p-10">
-                <p className="annotation-label mb-6">Sign in to EyeQ</p>
+                <p className="annotation-label mb-6">Sign in to EyeBot</p>
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div>
                     <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>Email</label>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { X, TrendingUp, TrendingDown, Minus, FileDown, Save } from "lucide-react";
 import { useAuth } from "./AuthContext";
@@ -98,7 +98,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `eyeq_student_${studentId.slice(0, 8)}_report.pdf`;
+        a.download = `eyebot_student_${studentId.slice(0, 8)}_report.pdf`;
         a.click();
         URL.revokeObjectURL(url);
       })
