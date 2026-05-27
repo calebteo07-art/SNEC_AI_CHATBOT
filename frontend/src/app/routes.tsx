@@ -11,6 +11,7 @@ import { SupervisorDashboard } from "./components/SupervisorDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { ProgressScreen } from "./components/ProgressScreen";
 import { CheckInGuard } from "./components/CheckInGuard";
+import { AdminGuard } from "./components/AdminGuard";
 
 export const router = createBrowserRouter([
   {
@@ -43,7 +44,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    Component: AdminDashboard,
+    element: (
+      <AdminGuard>
+        <AdminDashboard />
+      </AdminGuard>
+    ),
   },
   {
     path: "/chat",
