@@ -33,5 +33,8 @@ pymupdf>=1.24.0
 tiktoken>=0.7.0
 json-repair>=0.25.0
 
+# Authentication
+bcrypt>=4.0.0
+
 # Environment
 python-dotenv>=1.0.0
