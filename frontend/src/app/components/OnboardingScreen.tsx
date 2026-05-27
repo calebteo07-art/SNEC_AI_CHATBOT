@@ -16,7 +16,7 @@ const ROLES = [
   { id: "PSA" as const, label: "PSA", title: "Patient Service Associate", desc: "NCT, LogMAR visual acuity, eye drop instillation, PFAER and fall risk assessment." },
 ];
 
-type Step = "login" | "pdpa" | "role" | "change_password";
+type Step = "login" | "pdpa" | "role" | "change_password" | "forgot" | "reset_code";
 
 interface LoginResult {
   student_id: string;
@@ -42,6 +42,14 @@ export function OnboardingScreen() {
   const [loginResult, setLoginResult] = useState<LoginResult | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string; pdpa?: string; api?: string; blocked?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+
+  // Password reset flow
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetOtp, setResetOtp] = useState("");
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetConfirm, setResetConfirm] = useState("");
+  const [resetError, setResetError] = useState("");
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +205,14 @@ export function OnboardingScreen() {
                       </button>
                     </div>
                     {errors.password && <p role="alert" className="text-[#8B2D2D] text-xs mt-2">{errors.password}</p>}
+                    <button
+                      type="button"
+                      onClick={() => { setResetEmail(email); setResetError(""); setStep("forgot"); }}
+                      className="mt-2 text-[#A39A8E] hover:text-[#8C6D3F] transition-colors"
+                      style={{ fontSize: "0.75rem" }}
+                    >
+                      Forgot password?
+                    </button>
                   </div>
 
                   {(errors.api || errors.blocked) && (
@@ -268,6 +284,130 @@ export function OnboardingScreen() {
               </div>
             </motion.div>
           )}
+          {step === "forgot" && (
+            <motion.div key="forgot" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.35 }}>
+              <div className="glass-card-lg iri-border p-10">
+                <p className="annotation-label mb-2">Reset password</p>
+                <p className="text-[#5C544A] mb-8" style={{ fontSize: "0.88rem", lineHeight: 1.55 }}>Enter your email and we'll send you a 6-digit reset code.</p>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>Email</label>
+                    <input
+                      type="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)}
+                      className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
+                    />
+                  </div>
+                  {resetError && <p className="text-[#8B2D2D] text-xs">{resetError}</p>}
+                  <motion.button
+                    type="button" disabled={submitting}
+                    onClick={async () => {
+                      if (!resetEmail.trim()) { setResetError("Please enter your email."); return; }
+                      setResetError(""); setSubmitting(true);
+                      try {
+                        await fetch("/api/auth/request-reset", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ email: resetEmail.trim().toLowerCase() }),
+                        });
+                        setStep("reset_code");
+                      } catch {
+                        setResetError("Could not reach the server. Please try again.");
+                      } finally { setSubmitting(false); }
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 iri-border-pill transition-all disabled:opacity-50"
+                    style={{ fontFamily: "var(--font-body)", fontWeight: 500, fontSize: "0.95rem" }}
+                    whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+                  >
+                    {submitting ? <span className="w-4 h-4 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /> : <>Send code <ArrowRight size={16} strokeWidth={1.5} /></>}
+                  </motion.button>
+                  <button type="button" onClick={() => setStep("login")} className="w-full text-center text-[#A39A8E] hover:text-[#8C6D3F] transition-colors" style={{ fontSize: "0.78rem" }}>
+                    Back to sign in
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {step === "reset_code" && (
+            <motion.div key="reset_code" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.35 }}>
+              <div className="glass-card-lg iri-border p-10">
+                <p className="annotation-label mb-2">Enter reset code</p>
+                <p className="text-[#5C544A] mb-8" style={{ fontSize: "0.88rem", lineHeight: 1.55 }}>
+                  Check your email for a 6-digit code. It expires in 15 minutes.
+                </p>
+                {resetSuccess ? (
+                  <div className="text-center space-y-4">
+                    <p className="text-[#4a7c59]" style={{ fontSize: "0.95rem" }}>Password updated. You can now sign in.</p>
+                    <button type="button" onClick={() => { setStep("login"); setResetSuccess(false); }} className="text-[#8C6D3F] hover:underline" style={{ fontSize: "0.85rem" }}>
+                      Back to sign in
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>6-digit code</label>
+                      <input
+                        type="text" value={resetOtp} onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="000000" maxLength={6}
+                        className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base tracking-widest"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>New password (min 8 chars)</label>
+                      <input
+                        type="password" value={resetPassword} onChange={(e) => setResetPassword(e.target.value)}
+                        className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#5C544A] mb-2" style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}>Confirm password</label>
+                      <input
+                        type="password" value={resetConfirm} onChange={(e) => setResetConfirm(e.target.value)}
+                        className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
+                      />
+                    </div>
+                    {resetError && <p className="text-[#8B2D2D] text-xs">{resetError}</p>}
+                    <motion.button
+                      type="button" disabled={submitting}
+                      onClick={async () => {
+                        if (resetOtp.length !== 6) { setResetError("Please enter the 6-digit code."); return; }
+                        if (resetPassword.length < 8) { setResetError("Password must be at least 8 characters."); return; }
+                        if (resetPassword !== resetConfirm) { setResetError("Passwords do not match."); return; }
+                        setResetError(""); setSubmitting(true);
+                        try {
+                          const res = await fetch("/api/auth/reset-password", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), otp: resetOtp, new_password: resetPassword }),
+                          });
+                          const d = await res.json().catch(() => ({}));
+                          if (!res.ok) { setResetError((d as { detail?: string }).detail ?? "Something went wrong."); return; }
+                          setResetSuccess(true);
+                          setResetOtp(""); setResetPassword(""); setResetConfirm("");
+                        } catch {
+                          setResetError("Could not reach the server. Please try again.");
+                        } finally { setSubmitting(false); }
+                      }}
+                      className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 iri-border-pill transition-all disabled:opacity-50"
+                      style={{ fontFamily: "var(--font-body)", fontWeight: 500, fontSize: "0.95rem" }}
+                      whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+                    >
+                      {submitting ? <span className="w-4 h-4 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /> : <>Reset password <ArrowRight size={16} strokeWidth={1.5} /></>}
+                    </motion.button>
+                    <div className="flex justify-between">
+                      <button type="button" onClick={() => setStep("forgot")} className="text-[#A39A8E] hover:text-[#8C6D3F] transition-colors" style={{ fontSize: "0.78rem" }}>
+                        Resend code
+                      </button>
+                      <button type="button" onClick={() => setStep("login")} className="text-[#A39A8E] hover:text-[#8C6D3F] transition-colors" style={{ fontSize: "0.78rem" }}>
+                        Back to sign in
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
         </AnimatePresence>
 
         <p className="mt-12 text-center text-[#A39A8E]" style={{ fontSize: "0.7rem", letterSpacing: "0.18em", textTransform: "uppercase" }}>

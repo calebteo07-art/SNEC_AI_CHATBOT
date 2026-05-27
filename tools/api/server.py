@@ -15,7 +15,9 @@ import io
 import json
 import os
 import re
+import secrets
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -148,6 +150,9 @@ def _tutor_system(role: str) -> str:
 
 
 limiter = Limiter(key_func=get_remote_address)
+
+# In-memory OTP store: email -> {otp, expires_at}
+_reset_tokens: dict[str, dict] = {}
 
 app = FastAPI(title="EyeBot API")
 app.state.limiter = limiter
@@ -288,6 +293,14 @@ class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
 
+class RequestResetRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str
+
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
@@ -399,6 +412,67 @@ async def auth_change_password(body: ChangePasswordRequest):
     if not updated:
         # No existing row (e.g. admin accounts) — insert one
         append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
+    return {"ok": True}
+
+
+@limiter.limit("3/minute")
+@app.post("/api/auth/request-reset")
+async def auth_request_reset(request: Request, body: RequestResetRequest):
+    email = body.email.strip().lower()
+    # Always return ok so we don't reveal whether the email exists
+    approved = get_rows("snec_approved_students", filters={"email": email})
+    sup_rows = get_rows("snec_supervisors", filters={"email": email})
+    if not approved and email != SUPER_ADMIN_EMAIL and not sup_rows:
+        return {"ok": True}
+
+    otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
+    _reset_tokens[email] = {
+        "otp": otp,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat(),
+    }
+
+    try:
+        from tools.shared.gmail_sender import send_email as _send_email
+        _send_email(
+            to=email,
+            subject="EyeBot — your password reset code",
+            html=f"""<p>Your EyeBot password reset code is:</p>
+<p style="font-size:2rem;letter-spacing:0.3em;font-weight:bold">{otp}</p>
+<p>This code expires in 15 minutes. If you did not request this, ignore this email.</p>
+<p>EyeBot · SNEC</p>""",
+        )
+    except Exception:
+        pass  # don't reveal email failures to the caller
+
+    return {"ok": True}
+
+
+@app.post("/api/auth/reset-password")
+async def auth_reset_password(body: ResetPasswordRequest):
+    email = body.email.strip().lower()
+    otp = body.otp.strip()
+
+    token_data = _reset_tokens.get(email)
+    if not token_data:
+        raise HTTPException(status_code=400, detail="No reset code found. Please request a new one.")
+
+    expires_at = datetime.fromisoformat(token_data["expires_at"])
+    if datetime.now(timezone.utc) > expires_at:
+        _reset_tokens.pop(email, None)
+        raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
+
+    if not secrets.compare_digest(token_data["otp"], otp):
+        raise HTTPException(status_code=400, detail="Incorrect reset code.")
+
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    new_hash = hash_password(body.new_password)
+    updated = update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
+    if not updated:
+        append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
+
+    _reset_tokens.pop(email, None)
     return {"ok": True}
 
 
