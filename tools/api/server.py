@@ -14,7 +14,7 @@ import csv
 import io
 import json
 import os
-import re as _re
+import re
 import sys
 from pathlib import Path
 from typing import Optional
@@ -1325,7 +1325,10 @@ def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_
     })
     plain_pw = generate_password()
     pw_hash = hash_password(plain_pw)
-    append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+    try:
+        append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+    except Exception as _auth_exc:
+        raise HTTPException(status_code=500, detail="Account created but password setup failed. Contact support.")
 
     try:
         from tools.shared.gmail_sender import send_email as _send_email
@@ -1496,7 +1499,7 @@ async def admin_student_detail(student_id: str, admin_id: str = Depends(_require
 
 
 @app.get("/api/admin/token-summary")
-async def admin_token_summary(admin_id: str = Depends(_require_admin)):
+async def admin_token_summary(_: str = Depends(_require_admin)):
     all_sessions = get_rows("snec_sessions")
     total = 0
     by_student: dict[str, int] = {}
@@ -1511,13 +1514,14 @@ async def admin_token_summary(admin_id: str = Depends(_require_admin)):
     }
 
 
-_EMAIL_RE = _re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+_EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
 _VALID_ROLES = {"OA", "OT", "PSA"}
 
 
 @app.post("/api/admin/upload-csv")
 async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends(_require_admin)):
     from tools.shared.gmail_sender import send_email as _send_email
+    from datetime import datetime, timezone
 
     content = await file.read()
     text = content.decode("utf-8-sig")  # handles BOM from Excel
@@ -1527,6 +1531,12 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
     imported, skipped = 0, 0
     errors = []
     credentials = []
+
+    # Resolve admin email once before the loop; fall back to raw ID if lookup fails
+    try:
+        admin_email = _get_email_for_id(admin_id) or admin_id
+    except Exception:
+        admin_email = admin_id
 
     for i, row in enumerate(reader, start=2):
         full_name = (row.get("full_name") or "").strip()
@@ -1555,9 +1565,16 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
 
         append_row("snec_approved_students", {
             "email": email, "full_name": full_name, "role": role,
-            "added_by": admin_id, "added_at": "",
+            "added_by": admin_email,
+            "added_at": datetime.now(timezone.utc).isoformat(),
+            "student_id": "",
         })
-        append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+        try:
+            append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+        except Exception:
+            errors.append({"row": i, "reason": "password setup failed"})
+            skipped += 1
+            continue
         existing.add(email)
 
         try:

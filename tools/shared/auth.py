@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Password hashing and verification helpers using bcrypt."""
 
-import random
+import secrets
 import string
 import bcrypt
 
@@ -21,4 +21,4 @@ def verify_password(plain: str, hashed: str) -> bool:
 
 
 def generate_password(length: int = 10) -> str:
-    return "".join(random.choices(_ALPHABET, k=length))
+    return "".join(secrets.choice(_ALPHABET) for _ in range(length))
