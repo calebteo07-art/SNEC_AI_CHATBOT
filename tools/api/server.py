@@ -276,6 +276,7 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     student_id: str
+    full_name: str
     role: str
     student_role: str
     must_change: bool
@@ -363,6 +364,7 @@ async def auth_login(request: Request, body: LoginRequest):
 
     return LoginResponse(
         student_id=student_id,
+        full_name=full_name,
         role=final_role,
         student_role=approved_student_role,
         must_change=must_change,
