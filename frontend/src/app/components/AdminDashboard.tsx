@@ -156,10 +156,9 @@ export function AdminDashboard() {
   const handleRemove = async (email: string) => {
     setRemoving(email);
     try {
-      await fetch(`${API}/api/admin/approved`, {
+      await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, {
         method: "DELETE",
-        headers: { ...adminHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        headers: { ...adminHeaders },
       });
       setApproved((prev) => prev.filter((s) => s.email !== email));
     } catch { }
