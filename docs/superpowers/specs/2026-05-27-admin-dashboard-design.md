@@ -80,9 +80,9 @@ Errors: 401 wrong current password, 400 password too short (min 8 chars)
 Updates `snec_auth` row and sets `must_change: false`.
 
 ### Admin sets initial password
-When adding a student (one-at-a-time or CSV), admin provides an initial password in the form. The system stores it hashed and flags `must_change: true`. The admin communicates the password to the student directly (e.g., written on a card at intake).
+When adding a student (one-at-a-time or CSV), the system **auto-generates** a random 10-character password (letters + digits). The plain-text password is shown once in the app after the account is created (copy-to-clipboard button) so the admin can hand it to the student at intake. Simultaneously, the app emails the student their login credentials automatically using the existing Gmail sender (`tools/shared/gmail_sender.py`). The hash is stored in `snec_auth` with `must_change: true`.
 
-For CSV bulk import: a `password` column is required. Rows missing a password use a system default (e.g., `SNEC2026`) and are flagged `must_change: true`.
+For CSV bulk import: passwords are auto-generated per row. After import, a summary table is shown in-app listing each student's email + generated password, with a "Download as PDF" option so the admin can print and distribute at intake without any external tool. All students are also emailed their credentials automatically.
 
 ---
 
@@ -116,7 +116,7 @@ Two-panel layout at the top:
 
 **Add one student** (left panel): Form with Full Name, Email, Role dropdown, Initial Password field. Submit calls `POST /api/admin/approved` (extended to also write to `snec_auth`).
 
-**Bulk import** (right panel): CSV drop zone. Expected columns: `full_name`, `email`, `role`, `password`. Drag-and-drop or click to browse. Preview shows row count + validation errors before import. Submit calls `POST /api/admin/upload-csv`. Rows with missing passwords use `SNEC2026` and flag `must_change: true`.
+**Bulk import** (right panel): CSV drop zone. Expected columns: `full_name`, `email`, `role` (no password column — system generates passwords). Drag-and-drop or click to browse. Preview shows row count + validation errors before import. Submit calls `POST /api/admin/upload-csv`. After import, a credentials table appears in-app (name, email, generated password) with a "Download as PDF" button. Students are also auto-emailed their credentials via Gmail API.
 
 Below: Approved students table (name, email, role, activated status, Remove button). Unchanged from current implementation.
 
@@ -209,8 +209,9 @@ Protected by `_require_admin`. Accepts `multipart/form-data` with a `file` field
 - Parses CSV with `csv.DictReader`
 - Expected columns: `full_name`, `email`, `role`, `password` (password optional, defaults to `SNEC2026`)
 - Validates: email format, role in (OA, OT, PSA), duplicate check against `snec_approved_students`
-- For each valid row: appends to `snec_approved_students` + writes bcrypt hash to `snec_auth` with `must_change: true`
-- Returns: `{ imported: int, skipped: int, errors: [{ row: int, reason: str }] }`
+- For each valid row: auto-generates a random password, appends to `snec_approved_students`, writes bcrypt hash to `snec_auth` with `must_change: true`, sends welcome email via `gmail_sender`
+- Returns: `{ imported: int, skipped: int, errors: [{ row: int, reason: str }], credentials: [{ full_name, email, password }] }`
+- Credentials (plain-text, one-time) are returned so the frontend can display the in-app credentials table
 
 ### `GET /api/admin/token-summary`
 Protected by `_require_admin`.
