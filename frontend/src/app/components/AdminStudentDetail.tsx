@@ -53,6 +53,7 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
   const adminId = user?.studentId ?? "";
   const [data, setData] = useState<DetailData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [subTab, setSubTab] = useState<SubTab>("sessions");
   const [note, setNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -62,7 +63,7 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     fetch(`/api/admin/student/${studentId}/detail`, { headers: { "X-Admin-ID": adminId } })
       .then((r) => r.json())
       .then((d) => { setData(d); setNote(d.supervisor_note ?? ""); })
-      .catch(() => {})
+      .catch(() => { setError(true); })
       .finally(() => setLoading(false));
   }, [studentId, adminId]);
 
@@ -114,6 +115,12 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
           {loading && (
             <div className="flex-1 flex items-center justify-center py-20">
               <div className="w-6 h-6 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" />
+            </div>
+          )}
+
+          {!loading && error && (
+            <div className="flex-1 flex items-center justify-center py-20">
+              <p className="text-[#888] text-sm">Could not load student data.</p>
             </div>
           )}
 
