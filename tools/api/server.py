@@ -280,6 +280,11 @@ class LoginResponse(BaseModel):
     is_new: bool
     mock_mode: bool
 
+class ChangePasswordRequest(BaseModel):
+    student_id: str
+    current_password: str
+    new_password: str
+
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
@@ -362,6 +367,28 @@ async def auth_login(request: Request, body: LoginRequest):
         is_new=is_new,
         mock_mode=MOCK_MODE,
     )
+
+
+@app.post("/api/auth/change-password")
+async def auth_change_password(body: ChangePasswordRequest):
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+
+    # Resolve email from student_id
+    consent = get_rows("snec_consent", filters={"student_id": body.student_id})
+    if not consent:
+        raise HTTPException(status_code=404, detail="Student not found.")
+    email = consent[0].get("email", "").strip().lower()
+
+    auth_rows = get_rows("snec_auth", filters={"email": email})
+    if auth_rows:
+        stored_hash = auth_rows[0].get("password_hash", "")
+        if stored_hash and not verify_password(body.current_password, stored_hash):
+            raise HTTPException(status_code=401, detail="Current password is incorrect.")
+
+    new_hash = hash_password(body.new_password)
+    update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
+    return {"ok": True}
 
 
 @app.post("/api/onboard", response_model=OnboardResponse)

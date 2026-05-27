@@ -92,3 +92,67 @@ def test_login_student_promoted_to_supervisor():
     data = r.json()
     assert data["role"] == "supervisor"
     assert data["must_change"] is False
+
+
+def test_change_password_success():
+    from tools.shared.auth import hash_password
+    old_hash = hash_password("oldpass")
+    auth_row = {"email": "carol@test.com", "password_hash": old_hash, "must_change": "true"}
+    consent_row = {"email": "carol@test.com", "student_id": "stu_002", "full_name": "Carol"}
+
+    def mock_get_rows(sheet, filters=None):
+        if sheet == "snec_consent":
+            return [consent_row]
+        if sheet == "snec_auth":
+            return [auth_row]
+        return []
+
+    with patch("tools.api.server.get_rows", mock_get_rows), \
+         patch("tools.api.server.update_row") as mock_update:
+        r = client.post("/api/auth/change-password", json={
+            "student_id": "stu_002",
+            "current_password": "oldpass",
+            "new_password": "newpass123",
+        })
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+    mock_update.assert_called_once()
+
+
+def test_change_password_wrong_current():
+    from tools.shared.auth import hash_password
+    old_hash = hash_password("correctpass")
+    auth_row = {"email": "dave@test.com", "password_hash": old_hash, "must_change": "false"}
+    consent_row = {"email": "dave@test.com", "student_id": "stu_003", "full_name": "Dave"}
+
+    def mock_get_rows(sheet, filters=None):
+        if sheet == "snec_consent":
+            return [consent_row]
+        if sheet == "snec_auth":
+            return [auth_row]
+        return []
+
+    with patch("tools.api.server.get_rows", mock_get_rows):
+        r = client.post("/api/auth/change-password", json={
+            "student_id": "stu_003",
+            "current_password": "wrongpass",
+            "new_password": "newpass123",
+        })
+    assert r.status_code == 401
+
+
+def test_change_password_too_short():
+    consent_row = {"email": "e@t.com", "student_id": "x", "full_name": "X"}
+
+    def mock_get_rows(sheet, filters=None):
+        if sheet == "snec_consent":
+            return [consent_row]
+        return []
+
+    with patch("tools.api.server.get_rows", mock_get_rows):
+        r = client.post("/api/auth/change-password", json={
+            "student_id": "x",
+            "current_password": "any",
+            "new_password": "short",
+        })
+    assert r.status_code == 400
