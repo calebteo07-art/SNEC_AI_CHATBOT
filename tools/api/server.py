@@ -1176,6 +1176,64 @@ def checkin_status(student_id: str):
     )
 
 
+_CHECKIN_TOPIC_POOL: dict[str, list[str]] = {
+    "OA": [
+        "IOP measurement technique", "Goldmann tonometry", "non-contact tonometry",
+        "pupil dilation procedure", "dilating drops and contraindications",
+        "visual acuity testing", "Snellen chart technique", "pinhole test",
+        "patient history taking", "chief complaint documentation",
+        "pre-operative checklist", "post-operative instructions",
+        "anterior chamber assessment", "confrontation visual field test",
+        "colour vision testing", "Amsler grid", "cover-uncover test",
+        "documentation and EMR entry", "infection control in ophthalmology",
+        "patient consent and counselling",
+    ],
+    "OT": [
+        "A-scan biometry", "IOL power calculation", "AL measurement",
+        "Humphrey Visual Field interpretation", "glaucoma HVF patterns",
+        "OCT retinal nerve fibre layer", "OCT macular scan interpretation",
+        "corneal topography and Ks", "specular microscopy ECC",
+        "pachymetry and central corneal thickness", "fluorescein angiography",
+        "B-scan ultrasonography", "slit-lamp biomicroscopy technique",
+        "gonioscopy principles", "contact lens fitting",
+        "anterior segment OCT", "refraction and keratometry",
+        "retinal imaging and fundus photography", "ERG principles",
+        "tear film assessment and TBUT",
+    ],
+    "PSA": [
+        "non-contact tonometry procedure", "LogMAR visual acuity",
+        "ETDRS chart", "near visual acuity testing",
+        "eye drop instillation technique", "patient fall risk assessment",
+        "PFAER documentation", "wheelchair and mobility assistance",
+        "queue management and patient flow", "ophthalmic emergency triage",
+        "appointment scheduling and referrals", "patient identification protocols",
+        "informed consent for imaging", "infection control hand hygiene",
+        "handling anxious or visually impaired patients",
+        "billing codes for ophthalmic procedures", "pre-visit instructions",
+        "post-dilation patient safety", "spectacle dispensing basics",
+        "low vision aids overview",
+    ],
+    "": [
+        "anatomy of the anterior segment", "anatomy of the posterior segment",
+        "common causes of red eye", "acute angle-closure glaucoma",
+        "diabetic retinopathy staging", "age-related macular degeneration",
+        "cataract grading and management", "corneal abrasion management",
+        "retinal detachment symptoms", "optic nerve assessment",
+        "refractive errors overview", "strabismus basics",
+        "ocular pharmacology", "fluorescein staining",
+        "emergency ocular trauma", "uveitis classification",
+    ],
+}
+
+_CHECKIN_QUESTION_STYLES = [
+    "Ask a concise scenario-based clinical question (2–3 sentences, real patient context).",
+    "Ask a direct knowledge question testing recall of a specific concept, value, or procedure step.",
+    "Ask a 'what would you do if…' practical decision question.",
+    "Ask a question distinguishing normal from abnormal findings.",
+    "Ask a question connecting the topic to a patient safety or quality-care consideration.",
+    "Ask a step-by-step procedural question ('Describe how you would…').",
+]
+
 @app.get("/api/checkin/question", response_model=CheckinQuestionResponse)
 @limiter.limit("10/minute")
 def checkin_question(request: Request, student_id: str):
@@ -1183,27 +1241,32 @@ def checkin_question(request: Request, student_id: str):
     try:
         profile = get_profile(student_id)
         weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
-        topic = weak[0] if weak else "Ophthalmology"
         role = profile.get("role", "")
     except Exception:
-        topic = "Ophthalmology"
+        weak = []
         role = ""
+
+    role_pool = _CHECKIN_TOPIC_POOL.get(role.upper(), _CHECKIN_TOPIC_POOL[""])
+    # Weight weak topics 3× vs the general pool so gaps are targeted but not exclusively
+    weighted = list(weak) * 3 + role_pool
+    topic = secrets.choice(weighted) if weighted else "Ophthalmology"
+    question_style = secrets.choice(_CHECKIN_QUESTION_STYLES)
 
     role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
     ctx_block = _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor running a 60-second warm-up check-in. "
-        "Generate ONE concise clinical question targeting the given topic. "
+        + question_style + " "
         + (f"Student role context: {role_line} " if role_line else "")
         + "Calibrate difficulty to the student's experience level and known gaps. "
-        "Return only the question text — no preamble, no numbering."
+        "Return only the question text — no preamble, no numbering, no label."
     )
     try:
         question = ask(
             system_prompt=system,
             messages=[{"role": "user", "content": f"Topic: {topic}"}],
-            max_tokens=2048,
+            max_tokens=200,
             feature="checkin",
         )
     except RuntimeError as exc:
