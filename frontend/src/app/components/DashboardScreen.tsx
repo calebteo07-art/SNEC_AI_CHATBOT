@@ -4,6 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut, BarChart2 } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { ChangePasswordModal } from "./ChangePasswordModal";
 import { cardContainerVariants, cardItemVariants } from "../utils/motionVariants";
 
 const MODES = [
@@ -31,7 +32,7 @@ const ROLE_OPTIONS = ["OA", "OT", "PSA"] as const;
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, logout, setStudentRole } = useAuth();
+  const { user, logout, setStudentRole, setMustChangePassword } = useAuth();
   const firstName = (user?.fullName || "Student").split(" ")[0];
 
   const [suggestion, setSuggestion] = React.useState<string | null>(null);
@@ -81,6 +82,14 @@ export function DashboardScreen() {
 
   return (
     <div className="min-h-screen aurora-bg relative overflow-hidden">
+      {/* Forced password change modal */}
+      {user?.mustChangePassword && (
+        <ChangePasswordModal
+          forced
+          onSuccess={() => setMustChangePassword(false)}
+        />
+      )}
+
       {/* ===== Top navigation strip ===== */}
       <motion.div
         className="glass-nav sticky top-0 z-30"
