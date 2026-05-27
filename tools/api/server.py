@@ -10,13 +10,16 @@ Run:
     uvicorn tools.api.server:app --reload --port 8000
 """
 
+import csv
+import io
 import json
 import os
+import re as _re
 import sys
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -1320,7 +1323,26 @@ def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_
         "added_at": datetime.now(timezone.utc).isoformat(),
         "student_id": "",
     })
-    return {"ok": True}
+    plain_pw = generate_password()
+    pw_hash = hash_password(plain_pw)
+    append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+
+    try:
+        from tools.shared.gmail_sender import send_email as _send_email
+        _send_email(
+            to=email,
+            subject="Your EyeQ account is ready",
+            html=f"""<p>Hi {body.full_name},</p>
+<p>Your EyeQ account has been created.</p>
+<p><strong>Email:</strong> {email}<br>
+<strong>Temporary password:</strong> {plain_pw}</p>
+<p>Please log in and change your password when prompted.</p>
+<p>EyeQ · SNEC</p>""",
+        )
+    except Exception:
+        pass
+
+    return {"ok": True, "password": plain_pw}
 
 @app.delete("/api/admin/approved/{email}")
 def admin_unapprove_student(email: str, _: str = Depends(_require_admin)):
@@ -1374,6 +1396,7 @@ def admin_activity(_: str = Depends(_require_admin)):
             "name": name_map.get(s.get("student_id", ""), s.get("student_id", "")[:8]),
             "detail": s.get("topic", "Chat session"),
             "timestamp": s.get("timestamp", ""),
+            "token_count": int(s.get("token_count", 0) or 0),
         })
     for c in cases[-50:]:
         passed = str(c.get("passed", "false")).lower() == "true"
@@ -1470,6 +1493,91 @@ async def admin_student_detail(student_id: str, admin_id: str = Depends(_require
         "cases": cases,
         "total_tokens": total_tokens,
     }
+
+
+@app.get("/api/admin/token-summary")
+async def admin_token_summary(admin_id: str = Depends(_require_admin)):
+    all_sessions = get_rows("snec_sessions")
+    total = 0
+    by_student: dict[str, int] = {}
+    for s in all_sessions:
+        sid = s.get("student_id", "")
+        tc = int(s.get("token_count", 0) or 0)
+        total += tc
+        by_student[sid] = by_student.get(sid, 0) + tc
+    return {
+        "total_tokens": total,
+        "by_student": [{"student_id": k, "tokens": v} for k, v in by_student.items()],
+    }
+
+
+_EMAIL_RE = _re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+_VALID_ROLES = {"OA", "OT", "PSA"}
+
+
+@app.post("/api/admin/upload-csv")
+async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends(_require_admin)):
+    from tools.shared.gmail_sender import send_email as _send_email
+
+    content = await file.read()
+    text = content.decode("utf-8-sig")  # handles BOM from Excel
+    reader = csv.DictReader(io.StringIO(text))
+
+    existing = {r.get("email", "").strip().lower() for r in get_rows("snec_approved_students")}
+    imported, skipped = 0, 0
+    errors = []
+    credentials = []
+
+    for i, row in enumerate(reader, start=2):
+        full_name = (row.get("full_name") or "").strip()
+        email = (row.get("email") or "").strip().lower()
+        role = (row.get("role") or "").strip().upper()
+
+        if not full_name:
+            errors.append({"row": i, "reason": "missing full_name"})
+            skipped += 1
+            continue
+        if not email or not _EMAIL_RE.match(email):
+            errors.append({"row": i, "reason": "invalid email"})
+            skipped += 1
+            continue
+        if role not in _VALID_ROLES:
+            errors.append({"row": i, "reason": f"role must be OA, OT, or PSA (got {role!r})"})
+            skipped += 1
+            continue
+        if email in existing:
+            errors.append({"row": i, "reason": f"{email} already approved"})
+            skipped += 1
+            continue
+
+        plain_pw = generate_password()
+        pw_hash = hash_password(plain_pw)
+
+        append_row("snec_approved_students", {
+            "email": email, "full_name": full_name, "role": role,
+            "added_by": admin_id, "added_at": "",
+        })
+        append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+        existing.add(email)
+
+        try:
+            _send_email(
+                to=email,
+                subject="Your EyeQ account is ready",
+                html=f"""<p>Hi {full_name},</p>
+<p>Your EyeQ account has been created.</p>
+<p><strong>Email:</strong> {email}<br>
+<strong>Temporary password:</strong> {plain_pw}</p>
+<p>Please log in and change your password when prompted.</p>
+<p>EyeQ · SNEC</p>""",
+            )
+        except Exception:
+            pass  # email failure does not block import
+
+        credentials.append({"full_name": full_name, "email": email, "password": plain_pw})
+        imported += 1
+
+    return {"imported": imported, "skipped": skipped, "errors": errors, "credentials": credentials}
 
 
 # ── Profile role update ────────────────────────────────────────────────────
