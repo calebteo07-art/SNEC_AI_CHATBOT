@@ -156,3 +156,41 @@ def test_change_password_too_short():
             "new_password": "short",
         })
     assert r.status_code == 400
+
+
+def test_student_detail_requires_admin():
+    r = client.get("/api/admin/student/stu_001/detail")
+    assert r.status_code == 422  # missing X-Admin-ID header
+
+
+def test_student_detail_returns_shape():
+    consent_row = {"email": "alice@test.com", "student_id": "stu_001", "full_name": "Alice"}
+
+    profile_data = {
+        "student_id": "stu_001", "full_name": "Alice", "email": "alice@test.com",
+        "role": "OA", "session_count": "3", "streak": "2", "last_active": "2026-05-27",
+        "learning_velocity": "improving", "weak_topics": "[]", "missed_findings": "[]",
+        "retention_scores": "{}", "supervisor_note": "",
+    }
+
+    def mock_get_rows(sheet, filters=None):
+        if sheet == "snec_consent":
+            return [consent_row]
+        if sheet == "snec_supervisors":
+            return [{"email": "admin@snec.com", "role": "admin"}]
+        if sheet == "snec_sessions":
+            return []
+        if sheet == "snec_case_progress":
+            return []
+        return []
+
+    with patch("tools.api.server.get_rows", mock_get_rows), \
+         patch("tools.api.server.get_profile", return_value=profile_data), \
+         patch("tools.api.server._get_email_for_id", return_value="admin@snec.com"):
+        r = client.get("/api/admin/student/stu_001/detail",
+                       headers={"X-Admin-ID": "admin_x"})
+    assert r.status_code == 200
+    data = r.json()
+    assert "sessions" in data
+    assert "cases" in data
+    assert "retention_scores" in data

@@ -193,14 +193,13 @@ def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-I
 
 def _require_admin(x_admin_id: str = Header(..., alias="X-Admin-ID")):
     """FastAPI dependency — verifies the caller is admin (snec email or promoted admin)."""
-    from tools.shared.gsheets import get_rows as _gr
     email = _get_email_for_id(x_admin_id)
     if not email:
         raise HTTPException(status_code=401, detail="Unauthorized")
     if email == SUPER_ADMIN_EMAIL:
         return x_admin_id
     try:
-        rows = _gr("snec_supervisors", filters={"email": email})
+        rows = get_rows("snec_supervisors", filters={"email": email})
     except Exception:
         raise HTTPException(status_code=503, detail="Could not verify admin access")
     if not rows or rows[0].get("role", "").lower() != "admin":
@@ -1407,6 +1406,70 @@ def admin_demote(email: str, _: str = Depends(_require_admin)):
     from tools.shared.gsheets import delete_row as _dr
     _dr("snec_supervisors", "email", email.lower())
     return {"ok": True}
+
+
+@app.get("/api/admin/student/{student_id}/detail")
+async def admin_student_detail(student_id: str, admin_id: str = Depends(_require_admin)):
+    import json as _json
+
+    profile = get_profile(student_id)
+
+    # Sessions: last 30, newest first
+    all_sessions = get_rows("snec_sessions", filters={"student_id": student_id})
+    all_sessions.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
+    sessions = [
+        {
+            "session_id": s.get("session_id", ""),
+            "timestamp": s.get("timestamp", ""),
+            "topic": (s.get("topic") or s.get("summary") or "")[:60],
+            "summary": s.get("summary", ""),
+            "token_count": int(s.get("token_count", 0) or 0),
+            "model": s.get("model", ""),
+        }
+        for s in all_sessions[:30]
+    ]
+
+    # Cases: all attempts
+    case_rows = get_rows("snec_case_progress", filters={"student_id": student_id})
+    cases = [
+        {
+            "case_id": c.get("case_id", ""),
+            "total_score": int(c.get("total_score", 0) or 0),
+            "passed": str(c.get("passed", "false")).lower() == "true",
+            "completed_at": c.get("completed_at", ""),
+        }
+        for c in case_rows
+    ]
+
+    try:
+        retention_scores = _json.loads(profile.get("retention_scores", "{}") or "{}")
+    except Exception:
+        retention_scores = {}
+
+    try:
+        missed_findings = _json.loads(profile.get("missed_findings", "[]") or "[]")
+    except Exception:
+        missed_findings = []
+
+    total_tokens = sum(s["token_count"] for s in sessions)
+
+    return {
+        "student_id": student_id,
+        "full_name": profile.get("full_name", ""),
+        "email": profile.get("email", ""),
+        "role": profile.get("role", ""),
+        "session_count": int(profile.get("session_count", 0) or 0),
+        "streak": int(profile.get("streak", 0) or 0),
+        "last_active": profile.get("last_active", ""),
+        "learning_velocity": profile.get("learning_velocity", "stable"),
+        "weak_topics": _json.loads(profile.get("weak_topics", "[]") or "[]"),
+        "missed_findings": missed_findings,
+        "retention_scores": retention_scores,
+        "supervisor_note": profile.get("supervisor_note", ""),
+        "sessions": sessions,
+        "cases": cases,
+        "total_tokens": total_tokens,
+    }
 
 
 # ── Profile role update ────────────────────────────────────────────────────
