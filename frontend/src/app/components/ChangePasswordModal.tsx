@@ -70,14 +70,14 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
   }
 
   const fields: FieldConfig[] = [
-    {
+    ...(!forced ? [{
       label: "Current password",
       val: current,
       set: setCurrent,
       show: showCurrent,
       canToggle: true,
       onToggle: () => setShowCurrent((v) => !v),
-    },
+    }] : []),
     {
       label: "New password (min 8 chars)",
       val: next,

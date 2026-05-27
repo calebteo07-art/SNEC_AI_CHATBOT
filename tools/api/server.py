@@ -386,12 +386,17 @@ async def auth_change_password(body: ChangePasswordRequest):
 
     auth_rows = get_rows("snec_auth", filters={"email": email})
     if auth_rows:
+        row_must_change = auth_rows[0].get("must_change", "true").lower() == "true"
         stored_hash = auth_rows[0].get("password_hash", "")
-        if stored_hash and not verify_password(body.current_password, stored_hash):
+        # Skip current-password check when this is a forced first-time reset
+        if not row_must_change and stored_hash and not verify_password(body.current_password, stored_hash):
             raise HTTPException(status_code=401, detail="Current password is incorrect.")
 
     new_hash = hash_password(body.new_password)
-    update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
+    updated = update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
+    if not updated:
+        # No existing row (e.g. admin accounts) — insert one
+        append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
     return {"ok": True}
 
 
