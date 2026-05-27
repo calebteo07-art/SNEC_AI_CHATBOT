@@ -1370,17 +1370,23 @@ def admin_all_students(_: str = Depends(_require_admin)):
     try:
         profiles = _gr("snec_profiles")
         consent = _gr("snec_consent")
+        approved_rows = _gr("snec_approved_students")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+    approved_emails = {r.get("email", "").strip().lower() for r in approved_rows if r.get("email", "").strip()}
     consent_map = {r["student_id"]: r for r in consent}
     result = []
     for p in profiles:
         sid = p.get("student_id", "")
         c = consent_map.get(sid, {})
+        email = c.get("email", "").strip().lower()
+        full_name = c.get("student_name", "").strip()
+        if not email or not full_name or email not in approved_emails:
+            continue
         result.append({
             "student_id": sid,
-            "full_name": c.get("student_name", ""),
-            "email": c.get("email", ""),
+            "full_name": full_name,
+            "email": email,
             "role": p.get("role", ""),
             "session_count": p.get("session_count", 0),
             "streak": p.get("streak", 0),
