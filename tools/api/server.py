@@ -30,6 +30,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
+from tools.shared.auth import hash_password, verify_password, generate_password
+from tools.shared.gsheets import get_rows, append_row, update_row
 from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
 from tools.cases.load_case import load_case, list_available_cases
@@ -266,6 +268,18 @@ class OnboardResponse(BaseModel):
     role: str = "student"  # "student" or "supervisor"
     student_role: str = ""  # OA | OT | PSA
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class LoginResponse(BaseModel):
+    student_id: str
+    role: str
+    student_role: str
+    must_change: bool
+    is_new: bool
+    mock_mode: bool
+
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
@@ -296,6 +310,58 @@ class EndSessionResponse(BaseModel):
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
+
+@app.post("/api/auth/login", response_model=LoginResponse)
+async def auth_login(body: LoginRequest):
+    email = body.email.strip().lower()
+
+    # Must be in approved list
+    approved = get_rows("snec_approved_students", filters={"email": email})
+    if not approved:
+        # Also allow super admin and promoted supervisors/admins
+        sup_rows = get_rows("snec_supervisors", filters={"email": email})
+        if email != SUPER_ADMIN_EMAIL and not sup_rows:
+            raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
+        approved_role = "admin" if (email == SUPER_ADMIN_EMAIL or (sup_rows and sup_rows[0].get("role") == "admin")) else "supervisor"
+        approved_student_role = ""
+    else:
+        approved_role = "student"
+        approved_student_role = approved[0].get("role", "")
+
+    # Check password hash
+    auth_rows = get_rows("snec_auth", filters={"email": email})
+    must_change = True
+    if auth_rows:
+        stored_hash = auth_rows[0].get("password_hash", "")
+        if stored_hash and not verify_password(body.password, stored_hash):
+            raise HTTPException(status_code=401, detail="Incorrect password.")
+        must_change = auth_rows[0].get("must_change", "true").lower() == "true"
+    else:
+        # Legacy account — no hash stored; accept any password, force change
+        must_change = True
+
+    # Create/fetch student identity
+    full_name = approved[0].get("full_name", email) if approved else email
+    student_id = get_or_create_student(full_name, email)
+    is_new = not has_consented(student_id)
+
+    # Determine role from supervisors sheet if not a plain student
+    final_role = approved_role
+    if approved_role == "student":
+        sup_rows = get_rows("snec_supervisors", filters={"email": email})
+        if sup_rows:
+            final_role = sup_rows[0].get("role", "student")
+            approved_student_role = ""
+
+    return LoginResponse(
+        student_id=student_id,
+        role=final_role,
+        student_role=approved_student_role,
+        must_change=must_change,
+        is_new=is_new,
+        mock_mode=MOCK_MODE,
+    )
+
 
 @app.post("/api/onboard", response_model=OnboardResponse)
 def onboard(body: OnboardRequest):
