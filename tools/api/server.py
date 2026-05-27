@@ -344,7 +344,8 @@ async def auth_login(request: Request, body: LoginRequest):
         stored_hash = auth_rows[0].get("password_hash", "")
         if stored_hash and not verify_password(body.password, stored_hash):
             raise HTTPException(status_code=401, detail="Incorrect password.")
-        must_change = auth_rows[0].get("must_change", "true").lower() == "true"
+        raw_mc = auth_rows[0].get("must_change", "true")
+        must_change = str(raw_mc).lower() == "true"
     else:
         # Legacy account — no hash stored; accept any password, force change
         must_change = True
@@ -386,7 +387,8 @@ async def auth_change_password(body: ChangePasswordRequest):
 
     auth_rows = get_rows("snec_auth", filters={"email": email})
     if auth_rows:
-        row_must_change = auth_rows[0].get("must_change", "true").lower() == "true"
+        raw_mc = auth_rows[0].get("must_change", "true")
+        row_must_change = str(raw_mc).lower() == "true"
         stored_hash = auth_rows[0].get("password_hash", "")
         # Skip current-password check when this is a forced first-time reset
         if not row_must_change and stored_hash and not verify_password(body.current_password, stored_hash):
