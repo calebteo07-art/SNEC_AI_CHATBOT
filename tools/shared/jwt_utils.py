@@ -29,8 +29,15 @@ def create_access_token(student_id: str, role: str, student_role: str = "") -> s
 def decode_token(token: str) -> CurrentUser:
     try:
         payload = jwt.decode(token, _SECRET, algorithms=[_ALGORITHM])
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         return CurrentUser(
-            sub=payload["sub"],
+            sub=sub,
             role=payload.get("role", "student"),
             student_role=payload.get("student_role", ""),
         )
@@ -38,6 +45,7 @@ def decode_token(token: str) -> CurrentUser:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
         )
 
 
@@ -47,6 +55,7 @@ def get_current_user(authorization: str = Header(...)) -> CurrentUser:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header must start with 'Bearer '",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     return decode_token(authorization[7:])
 

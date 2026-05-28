@@ -44,3 +44,53 @@ def test_admin_role_in_token():
     token = create_access_token("admin-uuid", "admin", "")
     payload = decode_token(token)
     assert payload["role"] == "admin"
+    assert payload["student_role"] == ""
+
+
+def test_decode_token_missing_sub_raises_401():
+    """A validly-signed token without 'sub' must return 401, not 500."""
+    from jose import jwt as _jwt
+    from datetime import datetime, timedelta, timezone
+    from tools.shared.jwt_utils import decode_token, _SECRET, _ALGORITHM
+    payload = {
+        # intentionally omit "sub"
+        "role": "student",
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+    }
+    bad_token = _jwt.encode(payload, _SECRET, algorithm=_ALGORITHM)
+    with pytest.raises(HTTPException) as exc_info:
+        decode_token(bad_token)
+    assert exc_info.value.status_code == 401
+
+
+def test_get_current_user_missing_bearer_prefix_raises_401():
+    from tools.shared.jwt_utils import get_current_user
+    with pytest.raises(HTTPException) as exc_info:
+        get_current_user("notbearer sometoken")
+    assert exc_info.value.status_code == 401
+
+
+def test_require_supervisor_with_student_token_raises_403():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_supervisor
+    token = create_access_token("student-id", "student", "OA")
+    user = decode_token(token)
+    with pytest.raises(HTTPException) as exc_info:
+        require_supervisor(current_user=user)
+    assert exc_info.value.status_code == 403
+
+
+def test_require_admin_with_supervisor_token_raises_403():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_admin
+    token = create_access_token("sup-id", "supervisor", "")
+    user = decode_token(token)
+    with pytest.raises(HTTPException) as exc_info:
+        require_admin(current_user=user)
+    assert exc_info.value.status_code == 403
+
+
+def test_require_supervisor_passes_for_admin_role():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_supervisor
+    token = create_access_token("admin-id", "admin", "")
+    user = decode_token(token)
+    result = require_supervisor(current_user=user)
+    assert result["role"] == "admin"
