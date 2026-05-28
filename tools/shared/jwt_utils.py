@@ -55,9 +55,9 @@ def decode_token(token: str) -> CurrentUser:
         )
 
 
-def get_current_user(authorization: str = Header(...)) -> CurrentUser:
+def get_current_user(authorization: str | None = Header(None)) -> CurrentUser:
     """FastAPI dependency: extracts and verifies JWT from Authorization header."""
-    if not authorization.startswith("Bearer "):
+    if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header must start with 'Bearer '",

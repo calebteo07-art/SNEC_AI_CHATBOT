@@ -179,7 +179,7 @@ def test_change_password_too_short():
 
 def test_student_detail_requires_admin():
     r = client.get("/api/admin/student/stu_001/detail")
-    assert r.status_code == 422  # missing Authorization header
+    assert r.status_code == 401  # missing Authorization header → 401
 
 
 def test_student_detail_returns_shape():
