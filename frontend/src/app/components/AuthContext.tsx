@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface User {
   fullName: string;
@@ -7,6 +7,7 @@ interface User {
   studentId: string;
   studentRole: "OA" | "OT" | "PSA" | "";
   mustChangePassword: boolean;
+  token: string;
 }
 
 interface AuthContextType {
@@ -19,6 +20,7 @@ interface AuthContextType {
   setStudentRole: (role: "OA" | "OT" | "PSA") => void;
   setMustChangePassword: (v: boolean) => void;
   loading: boolean;
+  authHeaders: Record<string, string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,31 +31,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("eyebot_user");
-    const storedId = sessionStorage.getItem("eyebot_student_id");
-    const storedRole = sessionStorage.getItem("eyebot_role");
-    const storedStudentRole = sessionStorage.getItem("eyebot_student_role") as "OA" | "OT" | "PSA" | "" ?? "";
-    const checkInStatus = sessionStorage.getItem("eyebot_checkin_done") === "true";
-    const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
-
-    if (storedUser && storedId && storedRole) {
-      setUser({
-        ...JSON.parse(storedUser),
-        studentId: storedId,
-        role: storedRole as "student" | "supervisor" | "admin",
-        studentRole: storedStudentRole,
-        mustChangePassword: mustChange,
-      });
-      setIsCheckInDone(checkInStatus);
+    const token = sessionStorage.getItem("eyebot_token");
+    if (!token) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    // Validate token with backend on every app load
+    fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Token invalid");
+        return res.json();
+      })
+      .then(() => {
+        const stored = sessionStorage.getItem("eyebot_user");
+        const checkInStatus = sessionStorage.getItem("eyebot_checkin_done") === "true";
+        const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
+        const storedStudentRole = (sessionStorage.getItem("eyebot_student_role") ?? "") as "OA" | "OT" | "PSA" | "";
+
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setUser({
+            ...parsed,
+            token,
+            mustChangePassword: mustChange,
+            studentRole: storedStudentRole,
+          });
+          setIsCheckInDone(checkInStatus);
+        }
+      })
+      .catch(() => {
+        sessionStorage.clear();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const login = (userData: User) => {
     setUser(userData);
-    sessionStorage.setItem("eyebot_user", JSON.stringify({ fullName: userData.fullName, email: userData.email }));
-    sessionStorage.setItem("eyebot_student_id", userData.studentId);
-    sessionStorage.setItem("eyebot_role", userData.role);
+    sessionStorage.setItem("eyebot_token", userData.token);
+    sessionStorage.setItem("eyebot_user", JSON.stringify({
+      fullName: userData.fullName,
+      email: userData.email,
+      studentId: userData.studentId,
+      role: userData.role,
+    }));
     sessionStorage.setItem("eyebot_student_role", userData.studentRole ?? "");
     sessionStorage.setItem("eyebot_must_change", userData.mustChangePassword ? "true" : "false");
     setLoading(false);
@@ -80,8 +105,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionStorage.setItem("eyebot_checkin_done", done ? "true" : "false");
   };
 
+  const authHeaders: Record<string, string> = user?.token
+    ? { Authorization: `Bearer ${user.token}` }
+    : {};
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isCheckInDone, login, logout, setCheckInDone, setStudentRole, setMustChangePassword, loading }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isCheckInDone,
+      login,
+      logout,
+      setCheckInDone,
+      setStudentRole,
+      setMustChangePassword,
+      loading,
+      authHeaders,
+    }}>
       {children}
     </AuthContext.Provider>
   );
