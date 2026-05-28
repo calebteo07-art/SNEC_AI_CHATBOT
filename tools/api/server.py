@@ -21,7 +21,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -174,52 +174,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization", "X-Supervisor-ID", "X-Admin-ID"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
 SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
 
 
-def _get_email_for_id(student_id: str) -> str:
-    """Return the email address for a given student_id, or empty string."""
-    from tools.shared.gsheets import get_rows as _gr
-    try:
-        rows = _gr("snec_consent", filters={"student_id": student_id})
-        return rows[0].get("email", "").strip().lower() if rows else ""
-    except Exception:
-        return ""
-
-
-def _require_supervisor(x_supervisor_id: str = Header(..., alias="X-Supervisor-ID")):
-    """FastAPI dependency — verifies the caller is a registered supervisor or admin."""
-    from tools.shared.gsheets import get_rows as _get_rows
-    email = _get_email_for_id(x_supervisor_id)
-    if email == SUPER_ADMIN_EMAIL:
-        return x_supervisor_id
-    try:
-        rows = _get_rows("snec_supervisors", filters={"email": email})
-    except Exception:
-        raise HTTPException(status_code=503, detail="Could not verify supervisor access")
-    if not rows:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return x_supervisor_id
-
-
-def _require_admin(x_admin_id: str = Header(..., alias="X-Admin-ID")):
-    """FastAPI dependency — verifies the caller is admin (snec email or promoted admin)."""
-    email = _get_email_for_id(x_admin_id)
-    if not email:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    if email == SUPER_ADMIN_EMAIL:
-        return x_admin_id
-    try:
-        rows = get_rows("snec_supervisors", filters={"email": email})
-    except Exception:
-        raise HTTPException(status_code=503, detail="Could not verify admin access")
-    if not rows or rows[0].get("role", "").lower() != "admin":
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return x_admin_id
 
 
 def _student_context_block(student_id: str) -> str:
@@ -1375,7 +1336,7 @@ def checkin_answer(request: Request, body: CheckinAnswerRequest, current_user: C
 # ── Supervisor endpoints ───────────────────────────────────────────────────
 
 @app.get("/api/supervisor/cohort", response_model=CohortSummaryResponse)
-def supervisor_cohort(_: str = Depends(_require_supervisor)):
+def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         result = _cohort_summary()
     except Exception:
@@ -1384,7 +1345,7 @@ def supervisor_cohort(_: str = Depends(_require_supervisor)):
 
 
 @app.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
-def supervisor_at_risk(_: str = Depends(_require_supervisor)):
+def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         students = _get_at_risk()
     except Exception:
@@ -1393,7 +1354,7 @@ def supervisor_at_risk(_: str = Depends(_require_supervisor)):
 
 
 @app.get("/api/supervisor/student/{student_id}", response_model=StudentProfileResponse)
-def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
+def supervisor_student(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     import json as _json
     try:
         profile = get_profile(student_id)
@@ -1421,22 +1382,22 @@ def supervisor_student(student_id: str, _: str = Depends(_require_supervisor)):
 def supervisor_save_note(
     student_id: str,
     body: SaveNoteRequest,
-    _: str = Depends(_require_supervisor),
+    current_user: CurrentUser = Depends(require_supervisor),
 ):
     from tools.shared.gsheets import update_row as _update_row
     try:
         _update_row("snec_profiles", "student_id", student_id, {"supervisor_note": body.note})
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"ok": True}
 
 
 @app.get("/api/supervisor/student/{student_id}/report")
-def supervisor_student_report(student_id: str, _: str = Depends(_require_supervisor)):
+def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         pdf_bytes = _generate_report(student_id)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Could not generate report: {exc}")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     filename = f"eyebot_student_{student_id[:8]}_report.pdf"
     return StreamingResponse(
         iter([pdf_bytes]),
@@ -1446,11 +1407,11 @@ def supervisor_student_report(student_id: str, _: str = Depends(_require_supervi
 
 
 @app.get("/api/supervisor/benchmarks", response_model=BenchmarkResponse)
-def supervisor_benchmarks(_: str = Depends(_require_supervisor)):
+def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         topics = _get_benchmarks()
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return BenchmarkResponse(topics=[BenchmarkTopic(**t) for t in topics])
 
 
@@ -1458,13 +1419,13 @@ class DigestRequest(BaseModel):
     recipient: str  # supervisor email to send digest to
 
 @app.post("/api/supervisor/send-digest")
-def supervisor_send_digest(body: DigestRequest, supervisor_id: str = Depends(_require_supervisor)):
+def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         _send_digest(body.recipient)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc))
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="Operation failed. Please try again.")
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"ok": True, "sent_to": body.recipient}
 
 
@@ -1480,16 +1441,16 @@ class PromoteRequest(BaseModel):
     new_role: str  # "supervisor" | "admin"
 
 @app.get("/api/admin/approved")
-def admin_list_approved(_: str = Depends(_require_admin)):
+def admin_list_approved(current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import get_rows as _gr
     try:
         rows = _gr("snec_approved_students")
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"students": rows}
 
 @app.post("/api/admin/approved")
-def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_require_admin)):
+def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="email is required")
@@ -1498,7 +1459,8 @@ def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_
     existing = _gr("snec_approved_students", filters={"email": email})
     if existing:
         raise HTTPException(status_code=409, detail="Email already approved")
-    admin_email = _get_email_for_id(admin_id)
+    _consent = get_rows("snec_consent", filters={"student_id": current_user["sub"]})
+    admin_email = _consent[0].get("email", "") if _consent else ""
     _ar("snec_approved_students", {
         "email": email,
         "full_name": body.full_name.strip(),
@@ -1529,10 +1491,10 @@ def admin_approve_student(body: ApproveStudentRequest, admin_id: str = Depends(_
     except Exception:
         pass
 
-    return {"ok": True, "password": plain_pw}
+    return {"ok": True}
 
 @app.delete("/api/admin/approved/{email}")
-def admin_unapprove_student(email: str, _: str = Depends(_require_admin)):
+def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import delete_row as _dr
     deleted = _dr("snec_approved_students", "email", email.lower())
     if not deleted:
@@ -1540,14 +1502,14 @@ def admin_unapprove_student(email: str, _: str = Depends(_require_admin)):
     return {"ok": True}
 
 @app.get("/api/admin/students")
-def admin_all_students(_: str = Depends(_require_admin)):
+def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import get_rows as _gr
     try:
         profiles = _gr("snec_profiles")
         consent = _gr("snec_consent")
         approved_rows = _gr("snec_approved_students")
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     approved_emails = {r.get("email", "").strip().lower() for r in approved_rows if r.get("email", "").strip()}
     consent_map = {r["student_id"]: r for r in consent}
     result = []
@@ -1572,14 +1534,14 @@ def admin_all_students(_: str = Depends(_require_admin)):
     return {"students": result}
 
 @app.get("/api/admin/activity")
-def admin_activity(_: str = Depends(_require_admin)):
+def admin_activity(current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import get_rows as _gr
     try:
         sessions = _gr("snec_sessions")
         cases = _gr("snec_case_progress")
         consent = _gr("snec_consent")
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     name_map = {r["student_id"]: r.get("student_name", r["student_id"][:8]) for r in consent}
     feed = []
     for s in sessions[-50:]:
@@ -1604,7 +1566,7 @@ def admin_activity(_: str = Depends(_require_admin)):
     return {"feed": feed[:80]}
 
 @app.post("/api/admin/promote")
-def admin_promote(body: PromoteRequest, _: str = Depends(_require_admin)):
+def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import get_rows as _gr, append_row as _ar, update_row as _ur
     email = body.email.strip().lower()
     new_role = body.new_role.strip().lower()
@@ -1618,14 +1580,14 @@ def admin_promote(body: PromoteRequest, _: str = Depends(_require_admin)):
     return {"ok": True}
 
 @app.delete("/api/admin/promote/{email}")
-def admin_demote(email: str, _: str = Depends(_require_admin)):
+def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import delete_row as _dr
     _dr("snec_supervisors", "email", email.lower())
     return {"ok": True}
 
 
 @app.get("/api/admin/student/{student_id}/detail")
-async def admin_student_detail(student_id: str, admin_id: str = Depends(_require_admin)):
+async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_admin)):
     import json as _json
 
     profile = get_profile(student_id)
@@ -1689,7 +1651,7 @@ async def admin_student_detail(student_id: str, admin_id: str = Depends(_require
 
 
 @app.get("/api/admin/token-summary")
-async def admin_token_summary(_: str = Depends(_require_admin)):
+async def admin_token_summary(current_user: CurrentUser = Depends(require_admin)):
     all_sessions = get_rows("snec_sessions")
     total = 0
     by_student: dict[str, int] = {}
@@ -1709,7 +1671,7 @@ _VALID_ROLES = {"OA", "OT", "PSA"}
 
 
 @app.post("/api/admin/upload-csv")
-async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends(_require_admin)):
+async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gmail_sender import send_email as _send_email
     from datetime import datetime, timezone
 
@@ -1722,11 +1684,12 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
     errors = []
     credentials = []
 
-    # Resolve admin email once before the loop; fall back to raw ID if lookup fails
+    # Resolve admin email from JWT sub via consent sheet
     try:
-        admin_email = _get_email_for_id(admin_id) or admin_id
+        _admin_consent = get_rows("snec_consent", filters={"student_id": current_user["sub"]})
+        admin_email = _admin_consent[0].get("email", "") if _admin_consent else current_user["sub"]
     except Exception:
-        admin_email = admin_id
+        admin_email = current_user["sub"]
 
     for i, row in enumerate(reader, start=2):
         full_name = (row.get("full_name") or "").strip()
@@ -1948,7 +1911,7 @@ class SupervisorInsightsResponse(BaseModel):
 
 @app.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
 @limiter.limit("10/minute")
-def supervisor_insights(request: Request, _: str = Depends(_require_supervisor)):
+def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         cohort = _cohort_summary()
         at_risk = _get_at_risk()
