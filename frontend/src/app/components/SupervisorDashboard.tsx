@@ -34,7 +34,7 @@ interface BenchmarkTopic {
 
 export function SupervisorDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, authHeaders } = useAuth();
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskStudent[]>([]);
   const [benchmarks, setBenchmarks] = useState<BenchmarkTopic[]>([]);
@@ -46,11 +46,9 @@ export function SupervisorDashboard() {
   const [digestStatus, setDigestStatus] = useState<"idle" | "sent" | "error">("idle");
 
   useEffect(() => {
-    const supervisorHeaders = { "X-Supervisor-ID": user?.studentId || "" };
-
     Promise.all([
-      fetch(`${API}/api/supervisor/cohort`, { headers: supervisorHeaders }).then((r) => r.json()),
-      fetch(`${API}/api/supervisor/at-risk`, { headers: supervisorHeaders }).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/cohort`, { headers: { ...authHeaders } }).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/at-risk`, { headers: { ...authHeaders } }).then((r) => r.json()),
     ])
       .then(([cohortData, atRiskData]) => {
         setCohort(cohortData);
@@ -62,16 +60,16 @@ export function SupervisorDashboard() {
         setLoading(false);
       });
 
-    fetch(`${API}/api/supervisor/insights`, { headers: supervisorHeaders })
+    fetch(`${API}/api/supervisor/insights`, { headers: { ...authHeaders } })
       .then((r) => r.json())
       .then((data) => setInsights(data.narrative))
       .catch(() => null);
 
-    fetch(`${API}/api/supervisor/benchmarks`, { headers: supervisorHeaders })
+    fetch(`${API}/api/supervisor/benchmarks`, { headers: { ...authHeaders } })
       .then((r) => r.json())
       .then((data) => setBenchmarks(data.topics ?? []))
       .catch(() => null);
-  }, [user]);
+  }, [authHeaders]);
 
   function handleSendDigest() {
     if (digestSending || !user?.email) return;
@@ -81,7 +79,7 @@ export function SupervisorDashboard() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Supervisor-ID": user?.studentId || "",
+        ...authHeaders,
       },
       body: JSON.stringify({ recipient: user.email }),
     })

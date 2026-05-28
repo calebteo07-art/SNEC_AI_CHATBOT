@@ -16,8 +16,7 @@ interface QuestionData {
 
 export function DailyCheckInScreen() {
   const navigate = useNavigate();
-  const { user, setCheckInDone } = useAuth();
-  const studentId = user?.studentId || "anonymous";
+  const { authHeaders, setCheckInDone } = useAuth();
 
   const [streak, setStreak] = useState(0);
   const [weakTopic, setWeakTopic] = useState<string | null>(null);
@@ -31,14 +30,14 @@ export function DailyCheckInScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const statusRes = await fetch(`/api/checkin/status?student_id=${studentId}`);
+        const statusRes = await fetch("/api/checkin/status", { headers: { ...authHeaders } });
         const status = await statusRes.json();
         const backendStreak = status.streak ?? 0;
         setStreak(backendStreak);
         setWeakTopic(status.weak_topic ?? null);
         syncStreakFromBackend(backendStreak);
 
-        const qRes = await fetch(`/api/checkin/question?student_id=${studentId}`);
+        const qRes = await fetch("/api/checkin/question", { headers: { ...authHeaders } });
         const q = await qRes.json();
         setQuestion(q);
         setPhase("question");
@@ -47,7 +46,7 @@ export function DailyCheckInScreen() {
         navigate("/dashboard");
       }
     })();
-  }, [studentId, navigate, setCheckInDone]);
+  }, [authHeaders, navigate, setCheckInDone]);
 
   const handleSubmit = async () => {
     if (!answer.trim() || !question) return;
@@ -55,9 +54,8 @@ export function DailyCheckInScreen() {
     try {
       const res = await fetch(`/api/checkin/answer`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
-          student_id: studentId,
           question: question.question,
           answer: answer.trim(),
           topic: question.topic,

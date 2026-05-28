@@ -12,6 +12,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 interface TopicStat {
   topic: string;
@@ -65,17 +66,16 @@ function VelocityIcon({ v }: { v: string }) {
 
 export function ProgressScreen() {
   const navigate = useNavigate();
-  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
+  const { authHeaders } = useAuth();
 
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchProgress = useCallback(() => {
-    if (!studentId) return;
     setError(null);
     setLoading(true);
-    fetch(`/api/progress/${encodeURIComponent(studentId)}`)
+    fetch("/api/progress", { headers: { ...authHeaders } })
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
@@ -83,7 +83,7 @@ export function ProgressScreen() {
       .then((d: ProgressData) => setData(d))
       .catch(() => setError("We couldn't load your progress. Please try again."))
       .finally(() => setLoading(false));
-  }, [studentId]);
+  }, [authHeaders]);
 
   useEffect(() => { fetchProgress(); }, [fetchProgress]);
 

@@ -21,6 +21,7 @@ import {
   X as XIcon,
   Sparkles,
 } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 interface Flashcard {
   id: number;
@@ -62,7 +63,7 @@ interface AiFeedback {
 
 export function FlashcardScreen() {
   const navigate = useNavigate();
-  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
+  const { authHeaders } = useAuth();
 
   const [FLASHCARDS, setFLASHCARDS] = useState<Flashcard[]>(() => loadSessionCards());
   const [generating, setGenerating] = useState(false);
@@ -77,9 +78,9 @@ export function FlashcardScreen() {
 
   // Fetch fresh cards from RAG if no session cards
   React.useEffect(() => {
-    if (FLASHCARDS.length === 0 && studentId) {
+    if (FLASHCARDS.length === 0) {
       setGenerating(true);
-      fetch(`/api/flashcards/generate?student_id=${encodeURIComponent(studentId)}`)
+      fetch("/api/flashcards/generate", { headers: { ...authHeaders } })
         .then((r) => r.json())
         .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
           if (Array.isArray(data) && data.length > 0) {
@@ -94,7 +95,7 @@ export function FlashcardScreen() {
         .catch(() => {/* silently show empty state */})
         .finally(() => setGenerating(false));
     }
-  }, [studentId, FLASHCARDS.length]);
+  }, [authHeaders, FLASHCARDS.length]);
 
   const [userProgress, setUserProgress] = useState(getUserProgress());
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
@@ -122,9 +123,8 @@ export function FlashcardScreen() {
     setAiChecking(true);
     fetch(`/api/flashcards/check`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify({
-        student_id: studentId,
         question: card.question,
         student_answer: attempt,
         correct_answer: card.answer,

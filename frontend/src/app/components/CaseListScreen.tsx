@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw, Lock } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 interface CaseInfo {
   case_id: string;
@@ -30,17 +31,15 @@ function difficultyTone(d: string) {
 
 export function CaseListScreen() {
   const navigate = useNavigate();
+  const { authHeaders } = useAuth();
   const [cases, setCases] = useState<CaseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const studentId = sessionStorage.getItem("eyebot_student_id") ?? "";
-
   const fetchCases = useCallback(() => {
     setError(null);
     setLoading(true);
-    const url = studentId ? `/api/cases?student_id=${encodeURIComponent(studentId)}` : "/api/cases";
-    fetch(url)
+    fetch("/api/cases", { headers: { ...authHeaders } })
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
@@ -48,7 +47,7 @@ export function CaseListScreen() {
       .then((data) => setCases(data.cases))
       .catch(() => setError("We couldn't load the cases. Please try again."))
       .finally(() => setLoading(false));
-  }, [studentId]);
+  }, [authHeaders]);
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
 

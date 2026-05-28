@@ -115,7 +115,7 @@ function UserBubble({ message }: { message: UserMessage }) {
 
 export function ChatScreen() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, authHeaders } = useAuth();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -159,8 +159,6 @@ export function ChatScreen() {
       setNewAchievements((prev) => [...prev, ...unlockedAchievements]);
     }
 
-    const studentId = user?.studentId || "anonymous";
-
     const apiMessages = messages.concat(userMsg).map((m) => {
       if (m.type === "user") return { role: "user", content: m.text };
       return { role: "assistant", content: m.content };
@@ -171,8 +169,8 @@ export function ChatScreen() {
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: studentId, messages: apiMessages }),
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ messages: apiMessages }),
       });
 
       if (!res.ok || !res.body) {

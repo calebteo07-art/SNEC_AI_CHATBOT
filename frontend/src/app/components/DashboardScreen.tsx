@@ -32,7 +32,7 @@ const ROLE_OPTIONS = ["OA", "OT", "PSA"] as const;
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, logout, setStudentRole, setMustChangePassword } = useAuth();
+  const { user, authHeaders, logout, setStudentRole, setMustChangePassword } = useAuth();
   const firstName = (user?.fullName || "Student").split(" ")[0];
 
   const [suggestion, setSuggestion] = React.useState<string | null>(null);
@@ -40,12 +40,12 @@ export function DashboardScreen() {
 
   React.useEffect(() => {
     if (user?.studentId) {
-      fetch(`/api/study-suggestion?student_id=${user.studentId}`)
+      fetch("/api/study-suggestion", { headers: { ...authHeaders } })
         .then((r) => r.json())
         .then((data) => setSuggestion(data.suggestion))
         .catch(() => setSuggestion("Review your weakest topics today."));
     }
-  }, [user]);
+  }, [user, authHeaders]);
 
   const handleRoleChange = async (role: "OA" | "OT" | "PSA") => {
     if (!user?.studentId || role === user.studentRole || roleChanging) return;
@@ -53,8 +53,8 @@ export function DashboardScreen() {
     try {
       await fetch("/api/profile/role", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: user.studentId, role }),
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ role }),
       });
       setStudentRole(role);
     } catch {

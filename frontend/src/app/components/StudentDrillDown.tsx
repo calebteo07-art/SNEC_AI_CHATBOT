@@ -30,8 +30,7 @@ function VelocityIcon({ velocity }: { velocity: string }) {
 }
 
 export function StudentDrillDown({ studentId, onClose }: Props) {
-  const { user } = useAuth();
-  const supervisorId = user?.studentId ?? "";
+  const { authHeaders } = useAuth();
 
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +45,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
 
   useEffect(() => {
     fetch(`${API}/api/supervisor/student/${studentId}`, {
-      headers: { "X-Supervisor-ID": supervisorId },
+      headers: { ...authHeaders },
     })
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
@@ -61,7 +60,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
         setError("We couldn't load this student's profile.");
         setLoading(false);
       });
-  }, [studentId, supervisorId]);
+  }, [studentId, authHeaders]);
 
   function handleSaveNote() {
     if (noteSaving) return;
@@ -70,7 +69,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "X-Supervisor-ID": supervisorId,
+        ...authHeaders,
       },
       body: JSON.stringify({ note }),
     })
@@ -88,7 +87,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
     if (pdfLoading) return;
     setPdfLoading(true);
     fetch(`${API}/api/supervisor/student/${studentId}/report`, {
-      headers: { "X-Supervisor-ID": supervisorId },
+      headers: { ...authHeaders },
     })
       .then((r) => {
         if (!r.ok) throw new Error();

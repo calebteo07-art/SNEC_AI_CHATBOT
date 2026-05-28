@@ -7,6 +7,7 @@ import {
   Layers, ChevronDown, ChevronUp, Menu, X as XIcon,
   ClipboardList, CheckCircle2, Circle, AlertTriangle,
 } from "lucide-react";
+import { useAuth } from "./AuthContext";
 
 interface CaseInfo {
   case_id: string;
@@ -71,6 +72,7 @@ export function CaseSessionScreen() {
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { authHeaders } = useAuth();
 
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(
     (location.state as { caseInfo?: CaseInfo } | null)?.caseInfo ?? null
@@ -105,20 +107,20 @@ export function CaseSessionScreen() {
   // Load case info if not passed via router state
   useEffect(() => {
     if (caseInfo || !caseId) return;
-    fetch(`/api/cases/${caseId}`)
+    fetch(`/api/cases/${caseId}`, { headers: { ...authHeaders } })
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then(setCaseInfo)
       .catch(() => setLoadError(`Case "${caseId}" not found.`));
-  }, [caseId, caseInfo]);
+  }, [caseId, caseInfo, authHeaders]);
 
   // Load checklist for this case
   useEffect(() => {
     if (!caseId) return;
-    fetch(`/api/cases/${caseId}/checklist`)
+    fetch(`/api/cases/${caseId}/checklist`, { headers: { ...authHeaders } })
       .then((r) => { if (!r.ok) return null; return r.json(); })
       .then((data) => { if (data) setChecklist(data); })
       .catch(() => {});
-  }, [caseId]);
+  }, [caseId, authHeaders]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -142,13 +144,11 @@ export function CaseSessionScreen() {
     setInput("");
     setSending(true);
 
-    const studentId = sessionStorage.getItem("eyebot_student_id") || "anonymous";
-
     try {
       const res = await fetch(`/api/cases/${caseId}/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: studentId, messages: updated }),
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ messages: updated }),
       });
 
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
@@ -210,13 +210,11 @@ export function CaseSessionScreen() {
     if (!diagnosis.trim() || !managementPlan.trim() || !caseId) return;
     setSubmitting(true);
     setSubmitError(null);
-    const studentId = sessionStorage.getItem("eyebot_student_id") || "anonymous";
     try {
       const res = await fetch(`/api/cases/${caseId}/submit`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
-          student_id: studentId,
           messages,
           diagnosis: diagnosis.trim(),
           management_plan: managementPlan.trim(),
