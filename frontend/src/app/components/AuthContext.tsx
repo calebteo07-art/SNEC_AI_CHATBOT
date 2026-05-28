@@ -79,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       studentId: userData.studentId,
       role: userData.role,
     }));
+    sessionStorage.setItem("eyebot_student_id", userData.studentId);
     sessionStorage.setItem("eyebot_student_role", userData.studentRole ?? "");
     sessionStorage.setItem("eyebot_must_change", userData.mustChangePassword ? "true" : "false");
     setLoading(false);
