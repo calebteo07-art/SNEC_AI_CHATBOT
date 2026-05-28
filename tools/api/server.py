@@ -815,6 +815,49 @@ def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     return CasesResponse(cases=cases)
 
 
+def _check_case_access(student_id: str, case: dict) -> None:
+    """Raise HTTP 403 if the student has not unlocked this case's difficulty tier.
+
+    Rules:
+    - beginner      → always accessible
+    - intermediate  → requires >= 2 passing beginner cases
+    - advanced      → requires >= 2 passing intermediate cases
+    - unknown tier  → treated as beginner (allowed)
+    """
+    difficulty = case.get("difficulty", "beginner")
+    if difficulty == "beginner":
+        return
+    if difficulty not in ("intermediate", "advanced"):
+        return
+
+    prerequisite = "beginner" if difficulty == "intermediate" else "intermediate"
+
+    try:
+        progress = get_case_progress(student_id)
+    except Exception:
+        progress = {}
+
+    passing = 0
+    for cid in list_available_cases():
+        c = _case_cache.get(cid)
+        if c is None:
+            try:
+                c = load_case(cid)
+                _case_cache[c["case_id"]] = c
+            except Exception:
+                continue
+        if c.get("difficulty") == prerequisite:
+            if progress.get(c["case_id"], {}).get("passed"):
+                passing += 1
+
+    if passing < 2:
+        tier_label = "beginner" if difficulty == "intermediate" else "intermediate"
+        raise HTTPException(
+            status_code=403,
+            detail=f"Complete at least 2 {tier_label} cases before accessing {difficulty} cases.",
+        )
+
+
 @app.get("/api/cases/{case_id}", response_model=CaseInfo)
 def get_case(case_id: str):
     """Return a single case stub from the in-memory cache or pre-stored files."""
@@ -891,6 +934,7 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_use
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
+    _check_case_access(current_user["sub"], case)
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
@@ -927,6 +971,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
+    _check_case_access(student_id, case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     messages.append({
         "role": "user",
