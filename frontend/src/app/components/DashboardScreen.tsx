@@ -37,6 +37,7 @@ export function DashboardScreen() {
 
   const [suggestion, setSuggestion] = React.useState<string | null>(null);
   const [roleChanging, setRoleChanging] = React.useState(false);
+  const [roleError, setRoleError] = React.useState("");
 
   React.useEffect(() => {
     if (user?.studentId) {
@@ -51,14 +52,16 @@ export function DashboardScreen() {
     if (!user?.studentId || role === user.studentRole || roleChanging) return;
     setRoleChanging(true);
     try {
-      await fetch("/api/profile/role", {
+      const res = await fetch("/api/profile/role", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ role }),
       });
+      if (!res.ok) { setRoleError("Could not update role — please try again."); return; }
+      setRoleError("");
       setStudentRole(role);
     } catch {
-      /* silently ignore */
+      setRoleError("Could not update role — please try again.");
     } finally {
       setRoleChanging(false);
     }
@@ -245,7 +248,7 @@ export function DashboardScreen() {
           transition={{ duration: 0.6, delay: 0.38 }}
         >
           <p className="annotation-label">Training track</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {ROLE_OPTIONS.map((role) => (
               <button
                 key={role}
@@ -265,6 +268,7 @@ export function DashboardScreen() {
                 {role}
               </button>
             ))}
+            {roleError && <span className="text-red-500 text-xs ml-2">{roleError}</span>}
           </div>
         </motion.section>
 

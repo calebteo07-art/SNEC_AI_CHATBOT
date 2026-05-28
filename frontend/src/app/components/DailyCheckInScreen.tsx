@@ -42,6 +42,7 @@ export function DailyCheckInScreen() {
         setQuestion(q);
         setPhase("question");
       } catch {
+        toast.error("Could not load check-in. Taking you to the dashboard.");
         setCheckInDone(true);
         navigate("/dashboard");
       }

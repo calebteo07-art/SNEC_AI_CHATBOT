@@ -66,6 +66,7 @@ export function AdminDashboard() {
   const [addedCredential, setAddedCredential] = useState<{ email: string; password: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState("");
   const [promoteEmail, setPromoteEmail] = useState("");
   const [promoteRole, setPromoteRole] = useState("supervisor");
   const [promoting, setPromoting] = useState(false);
@@ -156,13 +157,15 @@ export function AdminDashboard() {
 
   const handleRemove = async (email: string) => {
     setRemoving(email);
+    setRemoveError("");
     try {
-      await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, {
+      const res = await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, {
         method: "DELETE",
         headers: { ...authHeaders },
       });
+      if (!res.ok) { setRemoveError("Failed to remove student."); setRemoving(null); return; }
       setApproved((prev) => prev.filter((s) => s.email !== email));
-    } catch { }
+    } catch { setRemoveError("Network error — failed to remove student."); }
     setRemoving(null);
   };
 
@@ -204,7 +207,7 @@ export function AdminDashboard() {
       setCsvErrors(data.errors ?? []);
       setCsvCredentials(data.credentials ?? []);
       setCsvFile(null); setCsvPreview(null);
-    } catch { }
+    } catch { setCsvImportSummary({ imported: 0, skipped: 0 }); setCsvErrors([{ row: 0, reason: "Network error — import failed." }]); }
     setCsvUploading(false);
   };
 
@@ -489,8 +492,9 @@ export function AdminDashboard() {
 
             {/* Approved students table */}
             <div className="bg-[#1a1a2e] rounded-xl border border-[#3a3a5a] overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#3a3a5a] text-[#8C6D3F] text-sm font-medium">
-                Approved students ({approved.length})
+              <div className="px-5 py-4 border-b border-[#3a3a5a] text-[#8C6D3F] text-sm font-medium flex items-center justify-between">
+                <span>Approved students ({approved.length})</span>
+                {removeError && <span className="text-[#ef4444] text-xs font-normal">{removeError}</span>}
               </div>
               {approvedLoading ? (
                 <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /></div>
