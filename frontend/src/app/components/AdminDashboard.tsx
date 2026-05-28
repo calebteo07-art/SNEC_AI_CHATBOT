@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
-import { LogOut, UserPlus, ShieldCheck, Users, Activity, BarChart2, Upload, Copy, Check } from "lucide-react";
+import { LogOut, UserPlus, ShieldCheck, Users, Activity, BarChart2, Upload } from "lucide-react";
 import { AdminStudentDetail } from "./AdminStudentDetail";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
@@ -63,8 +63,7 @@ export function AdminDashboard() {
   const [newRole, setNewRole] = useState("");
   const [addError, setAddError] = useState("");
   const [adding, setAdding] = useState(false);
-  const [addedCredential, setAddedCredential] = useState<{ email: string; password: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [addedCredential, setAddedCredential] = useState<{ email: string } | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState("");
   const [promoteEmail, setPromoteEmail] = useState("");
@@ -148,7 +147,7 @@ export function AdminDashboard() {
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError(d.detail ?? "Failed to add student."); return; }
       const data = await res.json();
-      setAddedCredential({ email: newEmail.trim().toLowerCase(), password: data.password });
+      setAddedCredential({ email: newEmail.trim().toLowerCase() });
       setApproved((prev) => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
       setNewEmail(""); setNewName(""); setNewRole("");
     } catch { setAddError("Network error."); }
@@ -209,12 +208,6 @@ export function AdminDashboard() {
       setCsvFile(null); setCsvPreview(null);
     } catch { setCsvImportSummary({ imported: 0, skipped: 0 }); setCsvErrors([{ row: 0, reason: "Network error — import failed." }]); }
     setCsvUploading(false);
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
   };
 
   const filteredStudents = students.filter((s) => {
@@ -426,15 +419,8 @@ export function AdminDashboard() {
                 </form>
                 {addedCredential && (
                   <div className="mt-4 p-3 bg-[#0f0f1e] border border-[#8C6D3F]/40 rounded-lg">
-                    <div className="text-[#4CAF50] text-xs mb-2">Student added. Share these credentials:</div>
-                    <div className="text-xs text-[#ccc] mb-1">Email: {addedCredential.email}</div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[#ccc] font-mono">Password: {addedCredential.password}</span>
-                      <button onClick={() => copyToClipboard(addedCredential.password)} className="text-[#8C6D3F]" aria-label="Copy password">
-                        {copied ? <Check size={12} /> : <Copy size={12} />}
-                      </button>
-                    </div>
-                    <div className="text-[#888] text-xs mt-1">Credentials also emailed to student.</div>
+                    <div className="text-[#4CAF50] text-xs mb-1">Student added successfully.</div>
+                    <div className="text-[#888] text-xs">Login credentials emailed to {addedCredential.email}.</div>
                   </div>
                 )}
               </div>
