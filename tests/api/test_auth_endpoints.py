@@ -204,10 +204,9 @@ def test_student_detail_returns_shape():
         return []
 
     with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.get_profile", return_value=profile_data), \
-         patch("tools.api.server._get_email_for_id", return_value="admin@snec.com"):
+         patch("tools.api.server.get_profile", return_value=profile_data):
         r = client.get("/api/admin/student/stu_001/detail",
-                       headers={"X-Admin-ID": "admin_x"})
+                       headers=_auth_headers("admin-uuid", "admin", ""))
     assert r.status_code == 200
     data = r.json()
     assert "sessions" in data
