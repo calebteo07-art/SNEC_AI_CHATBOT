@@ -43,6 +43,7 @@ from tools.shared.jwt_utils import (
     require_admin,
     CurrentUser,
 )
+from tools.shared.otp_store import set_otp, verify_and_consume_otp
 from tools.shared.gsheets import get_rows, append_row, update_row
 from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
@@ -157,9 +158,6 @@ def _tutor_system(role: str) -> str:
 
 
 limiter = Limiter(key_func=get_remote_address)
-
-# In-memory OTP store: email -> {otp, expires_at}
-_reset_tokens: dict[str, dict] = {}
 
 app = FastAPI(title="EyeBot API")
 app.state.limiter = limiter
@@ -415,10 +413,7 @@ async def auth_request_reset(request: Request, body: RequestResetRequest):
         return {"ok": True}
 
     otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
-    _reset_tokens[email] = {
-        "otp": otp,
-        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat(),
-    }
+    set_otp(email, otp)
 
     try:
         from tools.shared.gmail_sender import send_email as _send_email
@@ -441,17 +436,8 @@ async def auth_reset_password(body: ResetPasswordRequest):
     email = body.email.strip().lower()
     otp = body.otp.strip()
 
-    token_data = _reset_tokens.get(email)
-    if not token_data:
-        raise HTTPException(status_code=400, detail="No reset code found. Please request a new one.")
-
-    expires_at = datetime.fromisoformat(token_data["expires_at"])
-    if datetime.now(timezone.utc) > expires_at:
-        _reset_tokens.pop(email, None)
-        raise HTTPException(status_code=400, detail="Reset code has expired. Please request a new one.")
-
-    if not secrets.compare_digest(token_data["otp"], otp):
-        raise HTTPException(status_code=400, detail="Incorrect reset code.")
+    if not verify_and_consume_otp(email, otp):
+        raise HTTPException(status_code=400, detail="Incorrect or expired reset code.")
 
     if len(body.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
@@ -461,7 +447,6 @@ async def auth_reset_password(body: ResetPasswordRequest):
     if not updated:
         append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
 
-    _reset_tokens.pop(email, None)
     return {"ok": True}
 
 
