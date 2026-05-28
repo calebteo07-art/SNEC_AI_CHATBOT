@@ -281,3 +281,11 @@ def test_reset_password_too_short_returns_400():
         })
     assert r.status_code == 400
     assert "8 characters" in r.json()["detail"]
+
+
+def test_security_headers_present():
+    """Every response must include security headers."""
+    r = client.get("/health")
+    assert r.headers.get("X-Content-Type-Options") == "nosniff"
+    assert r.headers.get("X-Frame-Options") == "DENY"
+    assert r.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
