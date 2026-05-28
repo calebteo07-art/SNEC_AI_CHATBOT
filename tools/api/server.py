@@ -36,6 +36,13 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
 from tools.shared.auth import hash_password, verify_password, generate_password
+from tools.shared.jwt_utils import (
+    create_access_token,
+    get_current_user,
+    require_supervisor,
+    require_admin,
+    CurrentUser,
+)
 from tools.shared.gsheets import get_rows, append_row, update_row
 from tools.chatbot.log_session import log_session
 from tools.flashcards.generate_cards import generate_and_return_cards
@@ -171,7 +178,7 @@ app.add_middleware(
 )
 
 
-SUPER_ADMIN_EMAIL = "snec.tne.edu@gmail.com"
+SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "snec.tne.edu@gmail.com")
 
 
 def _get_email_for_id(student_id: str) -> str:
@@ -287,6 +294,7 @@ class LoginResponse(BaseModel):
     must_change: bool
     is_new: bool
     mock_mode: bool
+    token: str  # signed JWT — send as Authorization: Bearer <token>
 
 class ChangePasswordRequest(BaseModel):
     student_id: str
@@ -376,6 +384,8 @@ async def auth_login(request: Request, body: LoginRequest):
             final_role = sup_rows[0].get("role") or "supervisor"
             approved_student_role = ""
 
+    token = create_access_token(student_id, final_role, approved_student_role)
+
     return LoginResponse(
         student_id=student_id,
         full_name=full_name,
@@ -384,7 +394,18 @@ async def auth_login(request: Request, body: LoginRequest):
         must_change=must_change,
         is_new=is_new,
         mock_mode=MOCK_MODE,
+        token=token,
     )
+
+
+@app.get("/api/auth/me")
+def auth_me(current_user: CurrentUser = Depends(get_current_user)):
+    """Validate a token and return the caller's identity. Used by the frontend on app load."""
+    return {
+        "student_id": current_user["sub"],
+        "role": current_user["role"],
+        "student_role": current_user["student_role"],
+    }
 
 
 @app.post("/api/auth/change-password")
