@@ -3,8 +3,15 @@ import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from tools.api.server import app
+from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+def _auth_headers(student_id: str, role: str = "student", student_role: str = "OA") -> dict:
+    """Return Authorization headers with a valid JWT for the given identity."""
+    token = create_access_token(student_id, role, student_role)
+    return {"Authorization": f"Bearer {token}"}
 
 
 def _make_auth_row(email, plain_password, must_change="false"):
@@ -109,11 +116,15 @@ def test_change_password_success():
 
     with patch("tools.api.server.get_rows", mock_get_rows), \
          patch("tools.api.server.update_row") as mock_update:
-        r = client.post("/api/auth/change-password", json={
-            "student_id": "stu_002",
-            "current_password": "oldpass",
-            "new_password": "newpass123",
-        })
+        r = client.post(
+            "/api/auth/change-password",
+            json={
+                "student_id": "stu_002",
+                "current_password": "oldpass",
+                "new_password": "newpass123",
+            },
+            headers=_auth_headers("stu_002"),
+        )
     assert r.status_code == 200
     assert r.json()["ok"] is True
     mock_update.assert_called_once()
@@ -133,11 +144,15 @@ def test_change_password_wrong_current():
         return []
 
     with patch("tools.api.server.get_rows", mock_get_rows):
-        r = client.post("/api/auth/change-password", json={
-            "student_id": "stu_003",
-            "current_password": "wrongpass",
-            "new_password": "newpass123",
-        })
+        r = client.post(
+            "/api/auth/change-password",
+            json={
+                "student_id": "stu_003",
+                "current_password": "wrongpass",
+                "new_password": "newpass123",
+            },
+            headers=_auth_headers("stu_003"),
+        )
     assert r.status_code == 401
 
 
@@ -150,11 +165,15 @@ def test_change_password_too_short():
         return []
 
     with patch("tools.api.server.get_rows", mock_get_rows):
-        r = client.post("/api/auth/change-password", json={
-            "student_id": "x",
-            "current_password": "any",
-            "new_password": "short",
-        })
+        r = client.post(
+            "/api/auth/change-password",
+            json={
+                "student_id": "x",
+                "current_password": "any",
+                "new_password": "short",
+            },
+            headers=_auth_headers("x"),
+        )
     assert r.status_code == 400
 
 

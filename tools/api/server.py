@@ -173,8 +173,8 @@ _ALLOWED_ORIGINS = os.getenv(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
@@ -415,12 +415,13 @@ async def auth_me(request: Request, current_user: CurrentUser = Depends(get_curr
 
 
 @app.post("/api/auth/change-password")
-async def auth_change_password(body: ChangePasswordRequest):
+async def auth_change_password(body: ChangePasswordRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]  # identity from JWT
     if len(body.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
     # Resolve email from student_id
-    consent = get_rows("snec_consent", filters={"student_id": body.student_id})
+    consent = get_rows("snec_consent", filters={"student_id": student_id})
     if not consent:
         raise HTTPException(status_code=404, detail="Student not found.")
     email = consent[0].get("email", "").strip().lower()
@@ -570,20 +571,21 @@ def onboard(body: OnboardRequest):
 
 @app.post("/api/chat")
 @limiter.limit("30/minute")
-def chat(request: Request, body: ChatRequest):
+def chat(request: Request, body: ChatRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     last_user_msg = next(
         (m.content for m in reversed(body.messages) if m.role == "user"), ""
     )
     try:
-        profile = get_profile(body.student_id)
+        profile = get_profile(student_id)
         role = profile.get("role", "")
     except Exception:
         profile = {}
         role = ""
 
-    ctx_block = _student_context_block(body.student_id)
+    ctx_block = _student_context_block(student_id)
     system_prompt = _tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt
@@ -614,12 +616,13 @@ def chat(request: Request, body: ChatRequest):
 
 @app.post("/api/end-session", response_model=EndSessionResponse)
 @limiter.limit("10/minute")
-def end_session(request: Request, body: EndSessionRequest):
+def end_session(request: Request, body: EndSessionRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     model_name = "mock" if MOCK_MODE else MODEL
 
     session_id = log_session(
-        student_id=body.student_id,
+        student_id=student_id,
         topic=body.topic,
         messages=messages,
         token_count=body.token_count,
@@ -627,12 +630,12 @@ def end_session(request: Request, body: EndSessionRequest):
     )
 
     try:
-        _role = get_profile(body.student_id).get("role", "")
+        _role = get_profile(student_id).get("role", "")
     except Exception:
         _role = ""
     try:
         cards = generate_and_return_cards(
-            student_id=body.student_id,
+            student_id=student_id,
             session_id=session_id,
             messages=messages,
             role=_role,
@@ -644,7 +647,7 @@ def end_session(request: Request, body: EndSessionRequest):
             raise
 
     try:
-        update_profile(body.student_id)
+        update_profile(student_id)
     except Exception:
         pass
 
@@ -665,8 +668,11 @@ def status():
 
 
 @app.get("/api/progress/{student_id}")
-def get_student_progress(student_id: str):
+def get_student_progress(student_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return topic performance, session history, and learning stats for a student."""
+    # Students can only view their own progress; supervisors/admins can view anyone's
+    if current_user["role"] == "student" and student_id != current_user["sub"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
     try:
         return _get_progress(student_id)
     except Exception as exc:
@@ -752,8 +758,9 @@ class ChecklistResponse(BaseModel):
 # ── Case endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/api/cases", response_model=CasesResponse)
-def get_cases(student_id: str = ""):
+def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     import json as _json
+    student_id = current_user["sub"]
 
     # Determine student role and weak topics for case generation
     role = "OA"
@@ -915,7 +922,7 @@ def get_case_checklist(case_id: str):
 
 @app.post("/api/cases/{case_id}/chat")
 @limiter.limit("30/minute")
-def case_chat(case_id: str, request: Request, body: CaseChatRequest):
+def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_user: CurrentUser = Depends(get_current_user)):
     # Try in-memory cache first (AI-generated cases), then fall back to file
     case = _case_cache.get(case_id)
     if case is None:
@@ -951,7 +958,8 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest):
 
 
 @app.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
-def case_submit(case_id: str, body: CaseSubmitRequest):
+def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     case = _case_cache.get(case_id)
     if case is None:
         try:
@@ -967,21 +975,21 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
         "content": f"Diagnosis: {body.diagnosis}\nManagement Plan: {body.management_plan}",
     })
 
-    raw_result = evaluate_case(case, messages, body.student_id, body.performed_steps)
+    raw_result = evaluate_case(case, messages, student_id, body.performed_steps)
 
     session_id = log_session(
-        student_id=body.student_id,
+        student_id=student_id,
         topic=f"Case: {case['title']}",
         messages=messages,
         token_count=0,
         model="mock" if MOCK_MODE else MODEL,
     )
     try:
-        _case_role = get_profile(body.student_id).get("role", "")
+        _case_role = get_profile(student_id).get("role", "")
     except Exception:
         _case_role = ""
     cards = generate_and_return_cards(
-        student_id=body.student_id,
+        student_id=student_id,
         session_id=session_id,
         messages=messages,
         role=_case_role,
@@ -996,7 +1004,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
             if feedback and any(word in feedback.lower() for word in ("miss", "forgot", "lack", "no mention")):
                 missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
         update_profile(
-            body.student_id,
+            student_id,
             topic=case["topic"],
             score=retention_score,
             new_missed_findings=missed,
@@ -1006,14 +1014,14 @@ def case_submit(case_id: str, body: CaseSubmitRequest):
 
     # Log case completion for difficulty progression tracking
     try:
-        log_case_completion(body.student_id, case_id, raw_result.get("total_score", 0))
+        log_case_completion(student_id, case_id, raw_result.get("total_score", 0))
     except Exception:
         pass
 
     # Generate structured debrief
     debrief_text: str | None = None
     try:
-        _debrief_ctx = _student_context_block(body.student_id)
+        _debrief_ctx = _student_context_block(student_id)
         debrief_prompt = (
             (_debrief_ctx + "\n\n" if _debrief_ctx else "")
             + "You are an ophthalmology clinical educator reviewing a student's case performance. "
@@ -1181,7 +1189,8 @@ class BenchmarkResponse(BaseModel):
 # ── Check-in endpoints ─────────────────────────────────────────────────────
 
 @app.get("/api/checkin/status", response_model=CheckinStatusResponse)
-def checkin_status(student_id: str):
+def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     try:
         profile = get_profile(student_id)
     except Exception:
@@ -1263,7 +1272,8 @@ _CHECKIN_QUESTION_STYLES = [
 
 @app.get("/api/checkin/question", response_model=CheckinQuestionResponse)
 @limiter.limit("10/minute")
-def checkin_question(request: Request, student_id: str):
+def checkin_question(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     import json as _json
     try:
         profile = get_profile(student_id)
@@ -1305,8 +1315,9 @@ def checkin_question(request: Request, student_id: str):
 
 @app.post("/api/checkin/answer", response_model=CheckinAnswerResponse)
 @limiter.limit("10/minute")
-def checkin_answer(request: Request, body: CheckinAnswerRequest):
-    ctx_block = _student_context_block(body.student_id)
+def checkin_answer(request: Request, body: CheckinAnswerRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
+    ctx_block = _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "
@@ -1354,7 +1365,7 @@ def checkin_answer(request: Request, body: CheckinAnswerRequest):
         feedback = feedback_parts[-1].strip() if len(feedback_parts) > 1 else raw.strip()
 
     try:
-        update_profile(body.student_id, checkin_done=True)
+        update_profile(student_id, checkin_done=True)
     except Exception:
         pass
 
