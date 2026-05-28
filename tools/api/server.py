@@ -1849,8 +1849,8 @@ def flashcards_generate(request: Request, current_user: CurrentUser = Depends(ge
         if "quota_exceeded" in str(exc):
             raise HTTPException(status_code=503, detail="quota_exceeded")
         raise
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Could not generate flashcards. Please try again.")
     return [Flashcard(**c) for c in cards]
 
 
