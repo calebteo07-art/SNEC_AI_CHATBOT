@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Props) {
-  const { user, authHeaders, setMustChangePassword } = useAuth();
+  const { authHeaders, setMustChangePassword } = useAuth();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");

@@ -34,7 +34,7 @@ interface BenchmarkTopic {
 
 export function SupervisorDashboard() {
   const navigate = useNavigate();
-  const { user, authHeaders } = useAuth();
+  const { user, authHeaders, logout } = useAuth();
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskStudent[]>([]);
   const [benchmarks, setBenchmarks] = useState<BenchmarkTopic[]>([]);
@@ -134,7 +134,7 @@ export function SupervisorDashboard() {
             </button>
             <button
               onClick={() => {
-                sessionStorage.clear();
+                logout();
                 navigate("/");
               }}
               className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"

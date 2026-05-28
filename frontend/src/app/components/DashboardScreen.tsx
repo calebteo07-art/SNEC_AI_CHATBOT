@@ -45,7 +45,7 @@ export function DashboardScreen() {
         .then((data) => setSuggestion(data.suggestion))
         .catch(() => setSuggestion("Review your weakest topics today."));
     }
-  }, [user, authHeaders]);
+  }, [user?.studentId, authHeaders]);
 
   const handleRoleChange = async (role: "OA" | "OT" | "PSA") => {
     if (!user?.studentId || role === user.studentRole || roleChanging) return;

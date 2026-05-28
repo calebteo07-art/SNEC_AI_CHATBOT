@@ -140,7 +140,7 @@ export function AdminDashboard() {
     try {
       const res = await fetch(`${API}/api/admin/approved`, {
         method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError(d.detail ?? "Failed to add student."); return; }
@@ -170,7 +170,7 @@ export function AdminDashboard() {
     try {
       const res = await fetch(`${API}/api/admin/promote`, {
         method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ email: promoteEmail.trim().toLowerCase(), role: promoteRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setPromoteMsg(d.detail ?? "Failed."); }
