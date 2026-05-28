@@ -52,6 +52,8 @@ export function AdminDashboard() {
   const [studentsLoaded, setStudentsLoaded] = useState(false);
   const [studentSearch, setStudentSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState<"all" | "OA" | "OT" | "PSA" | "at-risk">("all");
+  const [studentPage, setStudentPage] = useState(0);
+  const PAGE_SIZE = 20;
 
   // Accounts
   const [approved, setApproved] = useState<ApprovedStudent[]>([]);
@@ -220,6 +222,12 @@ export function AdminDashboard() {
     return true;
   });
 
+  // Reset to page 0 whenever search or filter changes
+  React.useEffect(() => { setStudentPage(0); }, [studentSearch, studentFilter]);
+
+  const totalPages = Math.ceil(filteredStudents.length / PAGE_SIZE);
+  const pagedStudents = filteredStudents.slice(studentPage * PAGE_SIZE, (studentPage + 1) * PAGE_SIZE);
+
   const TABS = [
     { key: "overview" as Tab, label: "Overview", icon: <BarChart2 size={14} /> },
     { key: "students" as Tab, label: "Students", icon: <Users size={14} /> },
@@ -331,7 +339,7 @@ export function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredStudents.map((s) => (
+                    {pagedStudents.map((s) => (
                       <tr key={s.student_id} onClick={() => setDetailStudentId(s.student_id)}
                         className="border-b border-[#3a3a5a]/50 hover:bg-[#2a2a4a] cursor-pointer transition-colors">
                         <td className="px-4 py-3 text-[#ccc]">{s.full_name}</td>
@@ -349,6 +357,30 @@ export function AdminDashboard() {
                     )}
                   </tbody>
                 </table>
+                {filteredStudents.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-[#3a3a5a] text-xs text-[#888]">
+                    <span>
+                      Showing {studentPage * PAGE_SIZE + 1}–{Math.min((studentPage + 1) * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length} students
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setStudentPage((p) => Math.max(0, p - 1))}
+                        disabled={studentPage === 0}
+                        className="px-3 py-1 rounded bg-[#2a2a4a] disabled:opacity-40 hover:bg-[#3a3a5a] transition-colors"
+                      >
+                        ← Prev
+                      </button>
+                      <span className="px-3 py-1">Page {studentPage + 1} of {totalPages}</span>
+                      <button
+                        onClick={() => setStudentPage((p) => Math.min(totalPages - 1, p + 1))}
+                        disabled={studentPage >= totalPages - 1}
+                        className="px-3 py-1 rounded bg-[#2a2a4a] disabled:opacity-40 hover:bg-[#3a3a5a] transition-colors"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
