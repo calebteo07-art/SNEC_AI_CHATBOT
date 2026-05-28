@@ -1,0 +1,527 @@
+"""Case simulation endpoints."""
+import json
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
+
+from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM
+from tools.cases.evaluate_response import evaluate_case
+from tools.cases.generate_case import generate_cases as _generate_cases
+from tools.cases.get_case_progress import get_case_progress
+from tools.cases.load_case import load_case, list_available_cases
+from tools.cases.log_case_completion import log_case_completion
+from tools.chatbot.log_session import log_session
+from tools.flashcards.generate_cards import generate_and_return_cards
+from tools.profile.get_profile import get_profile
+from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL
+from tools.shared.jwt_utils import get_current_user, CurrentUser
+
+router = APIRouter()
+
+
+# ── Case simulation models ─────────────────────────────────────────────────
+
+class CasePatientInfo(BaseModel):
+    name: str
+    age: int
+    presenting_complaint: str
+
+class CaseInfo(BaseModel):
+    case_id: str
+    title: str
+    difficulty: str
+    topic: str
+    estimated_minutes: int
+    patient: CasePatientInfo
+    locked: bool = False
+
+class CasesResponse(BaseModel):
+    cases: list[CaseInfo]
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str = Field(max_length=8000)
+
+class CaseChatRequest(BaseModel):
+    student_id: str
+    messages: list[ChatMessage] = Field(max_length=100)
+
+class CaseChatResponse(BaseModel):
+    response: str
+
+class CaseSubmitRequest(BaseModel):
+    student_id: str
+    messages: list[ChatMessage] = Field(max_length=100)
+    diagnosis: str
+    management_plan: str
+    performed_steps: list[int] = []
+
+class DomainScore(BaseModel):
+    history_score: int
+    investigations_score: int
+    diagnosis_score: int
+    management_score: int
+    history_feedback: str
+    investigations_feedback: str
+    diagnosis_feedback: str
+    management_feedback: str
+    total_score: int
+    overall_feedback: str
+    critical_hit: int = 0
+    critical_total: int = 0
+
+class ChecklistStepResult(BaseModel):
+    step_number: int
+    action: str
+    critical: bool
+    performed: bool
+    clinical_note: str | None = None
+
+class Flashcard(BaseModel):
+    card_id: str
+    front: str
+    back: str
+    topic_tag: str
+
+class CaseSubmitResponse(BaseModel):
+    result: DomainScore
+    cards: list[Flashcard]
+    mock_mode: bool
+    debrief: str | None = None
+    checklist_comparison: list[ChecklistStepResult] = []
+
+class ChecklistStepModel(BaseModel):
+    step_number: int
+    action: str
+    critical: bool
+    category: str = ""
+    notes: str | None = None
+
+class ChecklistResponse(BaseModel):
+    procedure_name: str
+    steps: list[ChecklistStepModel]
+    total_steps: int
+    critical_count: int
+
+
+# ── Case endpoints ─────────────────────────────────────────────────────────
+
+@router.get("/api/cases", response_model=CasesResponse)
+def get_cases(current_user: CurrentUser = Depends(get_current_user)):
+    import json as _json
+    student_id = current_user["sub"]
+
+    # Determine student role and weak topics for case generation
+    role = "OA"
+    weak_topics: list[str] = []
+    if student_id:
+        try:
+            profile = get_profile(student_id)
+            role = profile.get("role", "OA") or "OA"
+            weak_topics = _json.loads(profile.get("weak_topics", "[]") or "[]")
+        except Exception:
+            pass
+
+    # Try AI generation first
+    try:
+        generated = _generate_cases(role=role, weak_topics=weak_topics, n=5)
+        if generated:
+            _case_cache.clear()
+            for c in generated:
+                _case_cache[c["case_id"]] = c
+            return CasesResponse(cases=[
+                CaseInfo(
+                    case_id=c["case_id"],
+                    title=c["title"],
+                    difficulty=c.get("difficulty", "intermediate"),
+                    topic=c.get("topic", ""),
+                    estimated_minutes=c.get("estimated_minutes", 15),
+                    patient=CasePatientInfo(
+                        name=c["patient"]["name"],
+                        age=int(c["patient"].get("age", 30)),
+                        presenting_complaint=c["patient"].get("presenting_complaint", ""),
+                    ),
+                )
+                for c in generated if "patient" in c
+            ])
+    except Exception as exc:
+        print(f"[case-gen] AI generation failed, using pre-stored cases: {exc}", flush=True)
+
+    # Fallback: load pre-stored case files
+    raw_cases = []
+    for case_id in list_available_cases():
+        try:
+            c = load_case(case_id)
+            _case_cache[c["case_id"]] = c
+            case_role = c.get("role", "any") or "any"
+            if case_role not in (role, "any"):
+                continue
+            raw_cases.append(c)
+        except Exception:
+            pass
+
+    # Compute difficulty unlock status
+    case_progress = {}
+    if student_id:
+        try:
+            case_progress = get_case_progress(student_id)
+        except Exception:
+            pass
+
+    passing_beginner = sum(
+        1 for c in raw_cases
+        if c.get("difficulty") == "beginner"
+        and case_progress.get(c["case_id"], {}).get("passed")
+    )
+    passing_intermediate = sum(
+        1 for c in raw_cases
+        if c.get("difficulty") == "intermediate"
+        and case_progress.get(c["case_id"], {}).get("passed")
+    )
+    intermediate_unlocked = passing_beginner >= 2
+    advanced_unlocked = passing_intermediate >= 2
+
+    cases = []
+    for c in raw_cases:
+        diff = c.get("difficulty", "beginner")
+        if diff == "intermediate":
+            locked = not intermediate_unlocked
+        elif diff == "advanced":
+            locked = not advanced_unlocked
+        else:
+            locked = False
+        cases.append(CaseInfo(
+            case_id=c["case_id"],
+            title=c["title"],
+            difficulty=diff,
+            topic=c["topic"],
+            estimated_minutes=c["estimated_minutes"],
+            patient=CasePatientInfo(
+                name=c["patient"]["name"],
+                age=c["patient"]["age"],
+                presenting_complaint=c["patient"]["presenting_complaint"],
+            ),
+            locked=locked,
+        ))
+    return CasesResponse(cases=cases)
+
+
+def _check_case_access(student_id: str, case: dict) -> None:
+    """Raise HTTP 403 if the student has not unlocked this case's difficulty tier.
+
+    Rules:
+    - beginner      → always accessible
+    - intermediate  → requires >= 2 passing beginner cases
+    - advanced      → requires >= 2 passing intermediate cases
+    - unknown tier  → treated as beginner (allowed)
+    """
+    difficulty = case.get("difficulty", "beginner")
+    if difficulty == "beginner":
+        return
+    if difficulty not in ("intermediate", "advanced"):
+        return
+
+    prerequisite = "beginner" if difficulty == "intermediate" else "intermediate"
+
+    try:
+        progress = get_case_progress(student_id)
+    except Exception:
+        progress = {}
+
+    passing = 0
+    for cid in list_available_cases():
+        c = _case_cache.get(cid)
+        if c is None:
+            try:
+                c = load_case(cid)
+                _case_cache[c["case_id"]] = c
+            except Exception:
+                continue
+        if c.get("difficulty") == prerequisite:
+            if progress.get(c["case_id"], {}).get("passed"):
+                passing += 1
+
+    if passing < 2:
+        tier_label = "beginner" if difficulty == "intermediate" else "intermediate"
+        raise HTTPException(
+            status_code=403,
+            detail=f"Complete at least 2 {tier_label} cases before accessing {difficulty} cases.",
+        )
+
+
+@router.get("/api/cases/{case_id}", response_model=CaseInfo)
+def get_case(case_id: str):
+    """Return a single case stub from the in-memory cache or pre-stored files."""
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+            _case_cache[case["case_id"]] = case
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    return CaseInfo(
+        case_id=case["case_id"],
+        title=case["title"],
+        difficulty=case.get("difficulty", "intermediate"),
+        topic=case.get("topic", ""),
+        estimated_minutes=case.get("estimated_minutes", 15),
+        patient=CasePatientInfo(
+            name=case["patient"]["name"],
+            age=int(case["patient"].get("age", 30)),
+            presenting_complaint=case["patient"].get("presenting_complaint", ""),
+        ),
+    )
+
+
+@router.get("/api/cases/{case_id}/checklist", response_model=ChecklistResponse)
+def get_case_checklist(case_id: str):
+    """Return the procedure checklist for a given case."""
+    from tools.kb.search import get_checklist_by_name as _get_cl
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+
+    procedure_name = case.get("checklist_procedure") or case.get("topic", "")
+    cl_data = _get_cl(procedure_name)
+    if not cl_data:
+        raise HTTPException(status_code=404, detail="No checklist found for this case")
+
+    raw_steps = (cl_data.get("steps") or {})
+    steps_list = raw_steps.get("steps", []) if isinstance(raw_steps, dict) else []
+    parsed = []
+    critical_count = 0
+    for s in steps_list:
+        parsed.append(ChecklistStepModel(
+            step_number=int(s.get("step_number", 0)),
+            action=str(s.get("action", "")),
+            critical=bool(s.get("critical", False)),
+            category=str(s.get("category", "")),
+            notes=s.get("notes"),
+        ))
+        if s.get("critical"):
+            critical_count += 1
+
+    return ChecklistResponse(
+        procedure_name=cl_data.get("procedure_name", procedure_name),
+        steps=parsed,
+        total_steps=len(parsed),
+        critical_count=critical_count,
+    )
+
+
+@router.post("/api/cases/{case_id}/chat")
+@limiter.limit("30/minute")
+def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_user: CurrentUser = Depends(get_current_user)):
+    # Try in-memory cache first (AI-generated cases), then fall back to file
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid case ID")
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+
+    _check_case_access(current_user["sub"], case)
+    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
+    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+
+    def sse_stream():
+        try:
+            for chunk in stream_ask(
+                system_prompt=patient_prompt,
+                messages=messages,
+                max_tokens=2048,
+                feature="case",
+            ):
+                yield f"data: {json.dumps({'text': chunk})}\n\n"
+        except RuntimeError as exc:
+            if "quota_exceeded" in str(exc):
+                yield f"data: {json.dumps({'text': '(API quota reached for today — case simulation will resume tomorrow.)', 'quota_exceeded': True})}\n\n"
+            else:
+                yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
+        except Exception:
+            yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(sse_stream(), media_type="text/event-stream")
+
+
+@router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
+def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
+    from tools.shared.gemini_client import ask
+    student_id = current_user["sub"]
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid case ID")
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+
+    _check_case_access(student_id, case)
+    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+    messages.append({
+        "role": "user",
+        "content": f"Diagnosis: {body.diagnosis}\nManagement Plan: {body.management_plan}",
+    })
+
+    raw_result = evaluate_case(case, messages, student_id, body.performed_steps)
+
+    session_id = log_session(
+        student_id=student_id,
+        topic=f"Case: {case['title']}",
+        messages=messages,
+        token_count=0,
+        model="mock" if MOCK_MODE else MODEL,
+    )
+    try:
+        from tools.profile.get_profile import get_profile as _get_profile
+        _case_role = _get_profile(student_id).get("role", "")
+    except Exception:
+        _case_role = ""
+    cards = generate_and_return_cards(
+        student_id=student_id,
+        session_id=session_id,
+        messages=messages,
+        role=_case_role,
+    )
+
+    # Update profile: retention score = total_score / 40
+    try:
+        from tools.profile.update_profile import update_profile
+        retention_score = raw_result.get("total_score", 0) / 40
+        missed = []
+        for domain in ("history_feedback", "investigations_feedback", "diagnosis_feedback", "management_feedback"):
+            feedback = raw_result.get(domain, "")
+            if feedback and any(word in feedback.lower() for word in ("miss", "forgot", "lack", "no mention")):
+                missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
+        update_profile(
+            student_id,
+            topic=case["topic"],
+            score=retention_score,
+            new_missed_findings=missed,
+        )
+    except Exception:
+        pass
+
+    # Log case completion for difficulty progression tracking
+    try:
+        log_case_completion(student_id, case_id, raw_result.get("total_score", 0))
+    except Exception:
+        pass
+
+    # Generate structured debrief
+    debrief_text: str | None = None
+    try:
+        from tools.api.server import _student_context_block  # lazy import to avoid circular dependency at load time
+        _debrief_ctx = _student_context_block(student_id)
+        debrief_prompt = (
+            (_debrief_ctx + "\n\n" if _debrief_ctx else "")
+            + "You are an ophthalmology clinical educator reviewing a student's case performance. "
+            "Tailor your debrief to the student's role and known weak areas listed above. "
+            "Write a structured debrief in exactly this format:\n\n"
+            "**What you got right:** ...\n\n"
+            "**What you missed:** ...\n\n"
+            "**Why it matters clinically:** ...\n\n"
+            "**Focus for next time:** ...\n\n"
+            "Be specific and clinical. Reference the student's role-specific procedures where relevant. "
+            "Do not repeat the scores — focus on insight."
+        )
+        debrief_messages = [
+            {
+                "role": "user",
+                "content": (
+                    f"Case: {case['title']}\n"
+                    f"Diagnosis submitted: {body.diagnosis}\n"
+                    f"Management submitted: {body.management_plan}\n"
+                    f"Score: {raw_result.get('total_score', 0)}/40\n"
+                    f"Overall feedback: {raw_result.get('overall_feedback', '')}"
+                ),
+            }
+        ]
+        debrief_text = ask(
+            system_prompt=debrief_prompt,
+            messages=debrief_messages,
+            max_tokens=2048,
+            feature="debrief",
+        )
+    except Exception:
+        debrief_text = None
+
+    # Build checklist step comparison
+    checklist_comparison: list[ChecklistStepResult] = []
+    try:
+        from tools.kb.search import get_checklist_by_name as _get_cl_for_compare
+        procedure_name = case.get("checklist_procedure") or case.get("topic", "")
+        cl_data = _get_cl_for_compare(procedure_name)
+        if cl_data:
+            raw_steps = cl_data.get("steps") or {}
+            steps_list = raw_steps.get("steps", []) if isinstance(raw_steps, dict) else []
+            performed_set = set(body.performed_steps)
+            missed_critical_actions: list[str] = []
+
+            for s in steps_list:
+                step_num = int(s.get("step_number", 0))
+                performed = step_num in performed_set
+                critical = bool(s.get("critical", False))
+                if not performed and critical:
+                    missed_critical_actions.append(str(s.get("action", "")))
+                checklist_comparison.append(ChecklistStepResult(
+                    step_number=step_num,
+                    action=str(s.get("action", "")),
+                    critical=critical,
+                    performed=performed,
+                ))
+
+            # Generate one-sentence clinical notes for missed critical steps
+            if missed_critical_actions:
+                note_prompt = (
+                    "You are a clinical educator for ophthalmology allied health students. "
+                    "For each procedure step listed below, write exactly one sentence explaining "
+                    "WHY that step matters clinically — the consequence of skipping it. "
+                    "Return a JSON array of strings, one string per step, in the same order."
+                )
+                note_messages = [{
+                    "role": "user",
+                    "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
+                }]
+                try:
+                    note_response = ask(
+                        system_prompt=note_prompt,
+                        messages=note_messages,
+                        max_tokens=512,
+                        feature="checklist_notes",
+                    )
+                    import json as _cj
+                    raw_notes = note_response.strip()
+                    if raw_notes.startswith("```"):
+                        raw_notes = raw_notes.split("```")[1]
+                        if raw_notes.startswith("json"):
+                            raw_notes = raw_notes[4:]
+                    notes = _cj.loads(raw_notes)
+                    if isinstance(notes, list):
+                        note_idx = 0
+                        for step_result in checklist_comparison:
+                            if not step_result.performed and step_result.critical:
+                                if note_idx < len(notes):
+                                    step_result.clinical_note = str(notes[note_idx])
+                                    note_idx += 1
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields}
+    return CaseSubmitResponse(
+        result=DomainScore(**domain_fields),
+        cards=[Flashcard(**c) for c in cards],
+        mock_mode=MOCK_MODE,
+        debrief=debrief_text,
+        checklist_comparison=checklist_comparison,
+    )

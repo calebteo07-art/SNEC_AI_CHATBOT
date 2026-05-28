@@ -5,7 +5,9 @@ from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from tools.api.server import app, _check_case_access, _case_cache
+from tools.api.server import app
+from tools.api.routers.cases import _check_case_access
+from tools.api.shared import _case_cache
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
@@ -42,17 +44,17 @@ def _patch_all_cases(progress: dict):
     from contextlib import ExitStack
     stack = ExitStack()
     stack.enter_context(
-        patch("tools.api.server.list_available_cases",
+        patch("tools.api.routers.cases.list_available_cases",
               return_value=[c["case_id"] for c in ALL_CASES])
     )
     stack.enter_context(
-        patch("tools.api.server.load_case",
+        patch("tools.api.routers.cases.load_case",
               side_effect=lambda cid: next(c for c in ALL_CASES if c["case_id"] == cid))
     )
     stack.enter_context(
-        patch("tools.api.server.get_case_progress", return_value=progress)
+        patch("tools.api.routers.cases.get_case_progress", return_value=progress)
     )
-    stack.enter_context(patch.dict("tools.api.server._case_cache", {}, clear=True))
+    stack.enter_context(patch.dict("tools.api.shared._case_cache", {}, clear=True))
     return stack
 
 
@@ -149,10 +151,10 @@ def _locked_advanced_case() -> dict:
 def test_submit_locked_case_returns_403():
     """POST /api/cases/{case_id}/submit returns 403 when case is locked."""
     case = _locked_advanced_case()
-    with patch.dict("tools.api.server._case_cache", {"adv_locked": case}, clear=False), \
-         patch("tools.api.server.list_available_cases", return_value=["adv_locked"]), \
-         patch("tools.api.server.load_case", return_value=case), \
-         patch("tools.api.server.get_case_progress", return_value={}):
+    with patch.dict("tools.api.shared._case_cache", {"adv_locked": case}, clear=False), \
+         patch("tools.api.routers.cases.list_available_cases", return_value=["adv_locked"]), \
+         patch("tools.api.routers.cases.load_case", return_value=case), \
+         patch("tools.api.routers.cases.get_case_progress", return_value={}):
 
         r = client.post(
             "/api/cases/adv_locked/submit",
@@ -173,10 +175,10 @@ def test_submit_locked_case_returns_403():
 def test_chat_locked_case_returns_403():
     """POST /api/cases/{case_id}/chat returns 403 when case is locked."""
     case = _locked_advanced_case()
-    with patch.dict("tools.api.server._case_cache", {"adv_locked": case}, clear=False), \
-         patch("tools.api.server.list_available_cases", return_value=["adv_locked"]), \
-         patch("tools.api.server.load_case", return_value=case), \
-         patch("tools.api.server.get_case_progress", return_value={}):
+    with patch.dict("tools.api.shared._case_cache", {"adv_locked": case}, clear=False), \
+         patch("tools.api.routers.cases.list_available_cases", return_value=["adv_locked"]), \
+         patch("tools.api.routers.cases.load_case", return_value=case), \
+         patch("tools.api.routers.cases.get_case_progress", return_value={}):
 
         r = client.post(
             "/api/cases/adv_locked/chat",
