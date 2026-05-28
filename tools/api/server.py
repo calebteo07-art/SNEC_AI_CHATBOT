@@ -174,7 +174,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "X-Supervisor-ID", "X-Admin-ID"],
 )
 
 
@@ -1790,28 +1790,27 @@ async def admin_upload_csv(file: UploadFile = File(...), admin_id: str = Depends
 # ── Profile role update ────────────────────────────────────────────────────
 
 class RoleUpdateRequest(BaseModel):
-    student_id: str
     role: str  # OA | OT | PSA
 
 @app.patch("/api/profile/role")
-def update_role(body: RoleUpdateRequest):
+def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]  # identity from JWT
     role = body.role.strip().upper()
     if role not in ("OA", "OT", "PSA"):
-        raise HTTPException(status_code=400, detail="role must be OA, OT, or PSA")
+        raise HTTPException(status_code=400, detail="Invalid role. Must be OA, OT, or PSA.")
     try:
-        update_profile(body.student_id, role=role)
+        update_profile(student_id, role=role)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Could not update role. Please try again.")
     # Clear cached cases so the next visit to the case list regenerates
     # with role-appropriate checklists for the new role.
     _case_cache.clear()
-    return {"role": role}
+    return {"ok": True}
 
 
 # ── Flashcard AI check ─────────────────────────────────────────────────────
 
 class FlashcardCheckRequest(BaseModel):
-    student_id: str
     question: str
     student_answer: str
     correct_answer: str
@@ -1823,8 +1822,9 @@ class FlashcardCheckResponse(BaseModel):
 
 @app.post("/api/flashcards/check", response_model=FlashcardCheckResponse)
 @limiter.limit("10/minute")
-def flashcard_check(request: Request, body: FlashcardCheckRequest):
-    ctx_block = _student_context_block(body.student_id)
+def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
+    ctx_block = _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor evaluating a student's active recall attempt. "
@@ -1869,7 +1869,8 @@ def flashcard_check(request: Request, body: FlashcardCheckRequest):
 
 @app.get("/api/flashcards/generate", response_model=list[Flashcard])
 @limiter.limit("5/minute")
-def flashcards_generate(request: Request, student_id: str):
+def flashcards_generate(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     import json as _json
     role = ""
     weak_topics: list[str] = []
@@ -1898,7 +1899,8 @@ class StudySuggestionResponse(BaseModel):
 
 @app.get("/api/study-suggestion", response_model=StudySuggestionResponse)
 @limiter.limit("10/minute")
-def study_suggestion(request: Request, student_id: str):
+def study_suggestion(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    student_id = current_user["sub"]
     import json as _json
     focus: str | None = None
     try:
