@@ -6,6 +6,12 @@ from jose import JWTError, jwt
 from typing import TypedDict
 
 _SECRET = os.getenv("JWT_SECRET", "dev-only-secret-set-JWT_SECRET-in-env")
+import warnings as _warnings
+if _SECRET == "dev-only-secret-set-JWT_SECRET-in-env":
+    _warnings.warn(
+        "JWT_SECRET is using the insecure default. Set JWT_SECRET in your .env before deploying.",
+        stacklevel=2,
+    )
 _ALGORITHM = "HS256"
 _EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "8"))
 

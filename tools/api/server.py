@@ -178,7 +178,7 @@ app.add_middleware(
 )
 
 
-SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "snec.tne.edu@gmail.com")
+SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
 
 
 def _get_email_for_id(student_id: str) -> str:
@@ -309,6 +309,11 @@ class ResetPasswordRequest(BaseModel):
     otp: str
     new_password: str
 
+class MeResponse(BaseModel):
+    student_id: str
+    role: str
+    student_role: str
+
 class ChatMessage(BaseModel):
     role: str
     content: str = Field(max_length=8000)
@@ -398,14 +403,15 @@ async def auth_login(request: Request, body: LoginRequest):
     )
 
 
-@app.get("/api/auth/me")
-def auth_me(current_user: CurrentUser = Depends(get_current_user)):
+@app.get("/api/auth/me", response_model=MeResponse)
+@limiter.limit("60/minute")
+async def auth_me(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     """Validate a token and return the caller's identity. Used by the frontend on app load."""
-    return {
-        "student_id": current_user["sub"],
-        "role": current_user["role"],
-        "student_role": current_user["student_role"],
-    }
+    return MeResponse(
+        student_id=current_user["sub"],
+        role=current_user["role"],
+        student_role=current_user["student_role"],
+    )
 
 
 @app.post("/api/auth/change-password")
