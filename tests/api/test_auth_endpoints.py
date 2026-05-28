@@ -41,9 +41,9 @@ def test_login_success():
             return [approved_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.get_or_create_student", return_value="stu_001"), \
-         patch("tools.api.server.has_consented", return_value=True):
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_001"), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
     assert r.status_code == 200
     data = r.json()
@@ -62,13 +62,13 @@ def test_login_wrong_password():
             return [{"email": "bob@test.com", "full_name": "Bob", "role": "OT"}]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows):
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
         r = client.post("/api/auth/login", json={"email": "bob@test.com", "password": "wrongpass"})
     assert r.status_code == 401
 
 
 def test_login_not_approved():
-    with patch("tools.api.server.get_rows", return_value=[]):
+    with patch("tools.api.routers.auth.get_rows", return_value=[]):
         r = client.post("/api/auth/login", json={"email": "unknown@test.com", "password": "any"})
     assert r.status_code == 403
 
@@ -91,9 +91,9 @@ def test_login_student_promoted_to_supervisor():
             return [consent_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.get_or_create_student", return_value="stu_004"), \
-         patch("tools.api.server.has_consented", return_value=True):
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_004"), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "promo@test.com", "password": "pass123"})
     assert r.status_code == 200
     data = r.json()
@@ -114,8 +114,8 @@ def test_change_password_success():
             return [auth_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.update_row") as mock_update:
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+         patch("tools.api.routers.auth.update_row") as mock_update:
         r = client.post(
             "/api/auth/change-password",
             json={
@@ -143,7 +143,7 @@ def test_change_password_wrong_current():
             return [auth_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows):
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
         r = client.post(
             "/api/auth/change-password",
             json={
@@ -164,7 +164,7 @@ def test_change_password_too_short():
             return [consent_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows):
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
         r = client.post(
             "/api/auth/change-password",
             json={
@@ -227,8 +227,8 @@ def test_request_reset_returns_ok_for_approved_user():
             return [approved_row]
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.set_otp") as mock_set_otp, \
+    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+         patch("tools.api.routers.auth.set_otp") as mock_set_otp, \
          patch("tools.shared.gmail_sender.send_email", side_effect=Exception("email disabled")):
         r = client.post("/api/auth/request-reset", json={"email": "reset@test.com"})
 
@@ -240,7 +240,7 @@ def test_request_reset_returns_ok_for_approved_user():
 
 def test_request_reset_returns_ok_for_unknown_email():
     """request-reset returns {"ok": True} even for unknown emails (no enumeration)."""
-    with patch("tools.api.server.get_rows", return_value=[]):
+    with patch("tools.api.routers.auth.get_rows", return_value=[]):
         r = client.post("/api/auth/request-reset", json={"email": "nobody@test.com"})
     assert r.status_code == 200
     assert r.json()["ok"] is True
@@ -248,8 +248,8 @@ def test_request_reset_returns_ok_for_unknown_email():
 
 def test_reset_password_success():
     """Valid OTP and new password updates auth row and returns {"ok": True}."""
-    with patch("tools.api.server.verify_and_consume_otp", return_value=True), \
-         patch("tools.api.server.update_row", return_value=True):
+    with patch("tools.api.routers.auth.verify_and_consume_otp", return_value=True), \
+         patch("tools.api.routers.auth.update_row", return_value=True):
         r = client.post("/api/auth/reset-password", json={
             "email": "reset@test.com",
             "otp": "123456",
@@ -261,7 +261,7 @@ def test_reset_password_success():
 
 def test_reset_password_wrong_or_expired_otp_returns_400():
     """Invalid OTP must return 400."""
-    with patch("tools.api.server.verify_and_consume_otp", return_value=False):
+    with patch("tools.api.routers.auth.verify_and_consume_otp", return_value=False):
         r = client.post("/api/auth/reset-password", json={
             "email": "reset@test.com",
             "otp": "000000",
@@ -273,7 +273,7 @@ def test_reset_password_wrong_or_expired_otp_returns_400():
 
 def test_reset_password_too_short_returns_400():
     """Password shorter than 8 chars must return 400 even when OTP is valid."""
-    with patch("tools.api.server.verify_and_consume_otp", return_value=True):
+    with patch("tools.api.routers.auth.verify_and_consume_otp", return_value=True):
         r = client.post("/api/auth/reset-password", json={
             "email": "reset@test.com",
             "otp": "123456",
