@@ -203,8 +203,8 @@ def test_student_detail_returns_shape():
             return []
         return []
 
-    with patch("tools.api.server.get_rows", mock_get_rows), \
-         patch("tools.api.server.get_profile", return_value=profile_data):
+    with patch("tools.api.routers.admin.get_rows", mock_get_rows), \
+         patch("tools.api.routers.admin.get_profile", return_value=profile_data):
         r = client.get("/api/admin/student/stu_001/detail",
                        headers=_auth_headers("admin-uuid", "admin", ""))
     assert r.status_code == 200
