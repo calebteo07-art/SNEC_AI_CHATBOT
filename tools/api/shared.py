@@ -71,3 +71,52 @@ def tutor_system(role: str) -> str:
     if role_line:
         return _TUTOR_BASE + f"\n{role_line}\n"
     return _TUTOR_BASE
+
+
+def _student_context_block(student_id: str) -> str:
+    """Build a rich student profile block for injection into AI system prompts."""
+    import json as _json
+    from tools.profile.get_profile import get_profile
+
+    _ROLE_NAMES = {
+        "OA": "Ophthalmic Auxiliary",
+        "OT": "Ophthalmic Technician",
+        "PSA": "Patient Service Associate",
+    }
+    try:
+        profile = get_profile(student_id)
+    except Exception:
+        return ""
+
+    role = profile.get("role", "").upper()
+    role_desc = _ROLE_NAMES.get(role, role)
+    session_count = int(profile.get("session_count", "0") or "0")
+    streak = int(profile.get("streak", "0") or "0")
+    velocity = profile.get("learning_velocity", "stable")
+
+    try:
+        scores = _json.loads(profile.get("retention_scores", "{}") or "{}")
+        weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
+        findings = _json.loads(profile.get("missed_findings", "[]") or "[]")
+    except Exception:
+        scores, weak, findings = {}, [], []
+
+    lines = ["## Student Profile (use to personalise your response)"]
+    if role_desc:
+        lines.append(f"Role: {role} — {role_desc}")
+    lines.append(f"Study streak: {streak} days · Sessions completed: {session_count} · Momentum: {velocity}")
+
+    if weak:
+        topic_parts = []
+        for t in weak[:3]:
+            sc = scores.get(t)
+            topic_parts.append(f"{t} ({sc:.0%})" if sc is not None else t)
+        lines.append(f"Weak topics: {', '.join(topic_parts)}")
+
+    if findings:
+        lines.append(f"Consistently misses: {', '.join(findings[:3])}")
+
+    if not weak and not findings:
+        lines.append("No weak areas identified yet — apply general best practice for their role.")
+
+    return "\n".join(lines)

@@ -419,7 +419,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
     # Generate structured debrief
     debrief_text: str | None = None
     try:
-        from tools.api.server import _student_context_block  # lazy import to avoid circular dependency at load time
+        from tools.api.shared import _student_context_block
         _debrief_ctx = _student_context_block(student_id)
         debrief_prompt = (
             (_debrief_ctx + "\n\n" if _debrief_ctx else "")
