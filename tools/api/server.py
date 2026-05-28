@@ -628,6 +628,18 @@ def status():
     return {"status": "ok", "mock_mode": MOCK_MODE}
 
 
+@app.get("/api/progress")
+@limiter.limit("30/minute")
+async def get_my_progress(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    """Return the calling student's own progress data (JWT-authenticated, no path param)."""
+    student_id = current_user["sub"]
+    try:
+        return _get_progress(student_id)
+    except Exception as exc:
+        print(f"[progress-error] {exc}", flush=True)
+        raise HTTPException(status_code=500, detail="Could not load progress data")
+
+
 @app.get("/api/progress/{student_id}")
 def get_student_progress(student_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return topic performance, session history, and learning stats for a student."""
