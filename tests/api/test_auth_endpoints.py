@@ -212,3 +212,72 @@ def test_student_detail_returns_shape():
     assert "sessions" in data
     assert "cases" in data
     assert "retention_scores" in data
+
+
+# ---------------------------------------------------------------------------
+# /api/auth/request-reset and /api/auth/reset-password
+# ---------------------------------------------------------------------------
+
+def test_request_reset_returns_ok_for_approved_user():
+    """request-reset returns {"ok": True} for a known approved email."""
+    approved_row = {"email": "reset@test.com", "full_name": "Reset User", "role": "OA"}
+
+    def mock_get_rows(sheet, filters=None):
+        if sheet == "snec_approved_students":
+            return [approved_row]
+        return []
+
+    with patch("tools.api.server.get_rows", mock_get_rows), \
+         patch("tools.api.server.set_otp") as mock_set_otp, \
+         patch("tools.shared.gmail_sender.send_email", side_effect=Exception("email disabled")):
+        r = client.post("/api/auth/request-reset", json={"email": "reset@test.com"})
+
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+    mock_set_otp.assert_called_once()
+    assert mock_set_otp.call_args[0][0] == "reset@test.com"
+
+
+def test_request_reset_returns_ok_for_unknown_email():
+    """request-reset returns {"ok": True} even for unknown emails (no enumeration)."""
+    with patch("tools.api.server.get_rows", return_value=[]):
+        r = client.post("/api/auth/request-reset", json={"email": "nobody@test.com"})
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+
+
+def test_reset_password_success():
+    """Valid OTP and new password updates auth row and returns {"ok": True}."""
+    with patch("tools.api.server.verify_and_consume_otp", return_value=True), \
+         patch("tools.api.server.update_row", return_value=True):
+        r = client.post("/api/auth/reset-password", json={
+            "email": "reset@test.com",
+            "otp": "123456",
+            "new_password": "newpassword1",
+        })
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+
+
+def test_reset_password_wrong_or_expired_otp_returns_400():
+    """Invalid OTP must return 400."""
+    with patch("tools.api.server.verify_and_consume_otp", return_value=False):
+        r = client.post("/api/auth/reset-password", json={
+            "email": "reset@test.com",
+            "otp": "000000",
+            "new_password": "newpassword1",
+        })
+    assert r.status_code == 400
+    assert "Incorrect or expired" in r.json()["detail"]
+
+
+def test_reset_password_too_short_returns_400():
+    """Password shorter than 8 chars must return 400 even when OTP is valid."""
+    with patch("tools.api.server.verify_and_consume_otp", return_value=True):
+        r = client.post("/api/auth/reset-password", json={
+            "email": "reset@test.com",
+            "otp": "123456",
+            "new_password": "short",
+        })
+    assert r.status_code == 400
+    assert "8 characters" in r.json()["detail"]
