@@ -52,14 +52,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedStudentRole = (sessionStorage.getItem("eyebot_student_role") ?? "") as "OA" | "OT" | "PSA" | "";
 
         if (stored) {
-          const parsed = JSON.parse(stored);
-          setUser({
-            ...parsed,
-            token,
-            mustChangePassword: mustChange,
-            studentRole: storedStudentRole,
-          });
-          setIsCheckInDone(checkInStatus);
+          try {
+            const parsed = JSON.parse(stored);
+            setUser({
+              ...parsed,
+              token,
+              mustChangePassword: mustChange,
+              studentRole: storedStudentRole,
+            });
+            setIsCheckInDone(checkInStatus);
+          } catch {
+            sessionStorage.clear();
+          }
         }
       })
       .catch(() => {
