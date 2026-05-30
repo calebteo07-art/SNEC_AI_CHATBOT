@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw, Lock } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { SkeletonCard } from "./SkeletonLoader";
 
 interface CaseInfo {
   case_id: string;
@@ -138,9 +139,8 @@ export function CaseListScreen() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
-            <p className="text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>Generating cases for you…</p>
+          <div className="mt-8 space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} rows={2} />)}
           </div>
         )}
 
