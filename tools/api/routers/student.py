@@ -9,7 +9,6 @@ from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_card
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
-from tools.shared.gsheets import get_rows, update_row
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -62,13 +61,13 @@ class StudySuggestionResponse(BaseModel):
 # ── Profile role update ────────────────────────────────────────────────────
 
 @router.patch("/api/profile/role")
-def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]  # identity from JWT
     role = body.role.strip().upper()
     if role not in ("OA", "OT", "PSA"):
         raise HTTPException(status_code=400, detail="Invalid role. Must be OA, OT, or PSA.")
     try:
-        update_profile(student_id, role=role)
+        await update_profile(student_id, role=role)
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Could not update role. Please try again.")
     # Clear cached cases so the next visit to the case list regenerates
@@ -81,7 +80,7 @@ def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(get
 
 @router.post("/api/flashcards/check", response_model=FlashcardCheckResponse)
 @limiter.limit("10/minute")
-def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
     ctx_block = _student_context_block(student_id)
@@ -129,15 +128,14 @@ def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user:
 
 @router.get("/api/flashcards/generate", response_model=list[Flashcard])
 @limiter.limit("5/minute")
-def flashcards_generate(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+async def flashcards_generate(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
-    import json as _json
     role = ""
     weak_topics: list[str] = []
     try:
-        profile = get_profile(student_id)
+        profile = await get_profile(student_id)
         role = profile.get("role", "")
-        weak_topics = _json.loads(profile.get("weak_topics", "[]") or "[]")
+        weak_topics = profile.get("weak_topics", []) or []
     except Exception:
         pass
     try:
@@ -155,15 +153,14 @@ def flashcards_generate(request: Request, current_user: CurrentUser = Depends(ge
 
 @router.get("/api/study-suggestion", response_model=StudySuggestionResponse)
 @limiter.limit("10/minute")
-def study_suggestion(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+async def study_suggestion(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
-    import json as _json
     focus: str | None = None
     try:
-        profile = get_profile(student_id)
-        weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
-        streak = int(profile.get("streak", "0") or "0")
-        session_count = int(profile.get("session_count", "0") or "0")
+        profile = await get_profile(student_id)
+        weak = profile.get("weak_topics", []) or []
+        streak = int(profile.get("streak") or 0)
+        session_count = int(profile.get("session_count") or 0)
         velocity = profile.get("learning_velocity", "stable")
         focus = weak[0] if weak else None
         role_line = _ROLE_TUTOR_CONTEXT.get(profile.get("role", "").upper(), "")

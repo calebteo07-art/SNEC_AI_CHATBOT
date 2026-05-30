@@ -6,9 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, SUPER_ADMIN_EMAIL
+from tools.shared import db
 from tools.shared.auth import hash_password, verify_password, generate_password
 from tools.shared.gemini_client import MOCK_MODE
-from tools.shared.gsheets import get_rows, append_row, update_row
+from tools.shared.gsheets import get_rows_async, update_row_async
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
 from tools.shared.jwt_utils import create_access_token, get_current_user, CurrentUser
 from tools.shared.otp_store import set_otp, verify_and_consume_otp
@@ -66,10 +67,10 @@ async def auth_login(request: Request, body: LoginRequest):
     email = body.email.strip().lower()
 
     # Must be in approved list
-    approved = get_rows("snec_approved_students", filters={"email": email})
+    approved = await get_rows_async("snec_approved_students", filters={"email": email})
     if not approved:
         # Also allow super admin and promoted supervisors/admins
-        sup_rows = get_rows("snec_supervisors", filters={"email": email})
+        sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
         if email != SUPER_ADMIN_EMAIL and not sup_rows:
             raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
         approved_role = "admin" if (email == SUPER_ADMIN_EMAIL or (sup_rows and sup_rows[0].get("role") == "admin")) else "supervisor"
@@ -79,14 +80,13 @@ async def auth_login(request: Request, body: LoginRequest):
         approved_student_role = approved[0].get("role", "")
 
     # Check password hash
-    auth_rows = get_rows("snec_auth", filters={"email": email})
+    auth_row = await db.get_auth(email)
     must_change = True
-    if auth_rows:
-        stored_hash = auth_rows[0].get("password_hash", "")
+    if auth_row:
+        stored_hash = auth_row.get("password_hash", "")
         if stored_hash and not verify_password(body.password, stored_hash):
             raise HTTPException(status_code=401, detail="Incorrect password.")
-        raw_mc = auth_rows[0].get("must_change", "true")
-        must_change = str(raw_mc).lower() == "true"
+        must_change = bool(auth_row.get("must_change", True))
     else:
         # Legacy account — no hash stored; accept any password, force change
         must_change = True
@@ -99,7 +99,7 @@ async def auth_login(request: Request, body: LoginRequest):
     # Determine role from supervisors sheet if not a plain student
     final_role = approved_role
     if approved_role == "student":
-        sup_rows = get_rows("snec_supervisors", filters={"email": email})
+        sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
         if sup_rows:
             final_role = sup_rows[0].get("role") or "supervisor"
             approved_student_role = ""
@@ -136,25 +136,21 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
     # Resolve email from student_id
-    consent = get_rows("snec_consent", filters={"student_id": student_id})
+    consent = await get_rows_async("snec_consent", filters={"student_id": student_id})
     if not consent:
         raise HTTPException(status_code=404, detail="Student not found.")
     email = consent[0].get("email", "").strip().lower()
 
-    auth_rows = get_rows("snec_auth", filters={"email": email})
-    if auth_rows:
-        raw_mc = auth_rows[0].get("must_change", "true")
-        row_must_change = str(raw_mc).lower() == "true"
-        stored_hash = auth_rows[0].get("password_hash", "")
+    auth_row = await db.get_auth(email)
+    if auth_row:
+        row_must_change = bool(auth_row.get("must_change", True))
+        stored_hash = auth_row.get("password_hash", "")
         # Skip current-password check when this is a forced first-time reset
         if not row_must_change and stored_hash and not verify_password(body.current_password, stored_hash):
             raise HTTPException(status_code=401, detail="Current password is incorrect.")
 
     new_hash = hash_password(body.new_password)
-    updated = update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
-    if not updated:
-        # No existing row (e.g. admin accounts) — insert one
-        append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
+    await db.upsert_auth(email, new_hash, must_change=False)
     return {"ok": True}
 
 
@@ -163,8 +159,8 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
 async def auth_request_reset(request: Request, body: RequestResetRequest):
     email = body.email.strip().lower()
     # Always return ok so we don't reveal whether the email exists
-    approved = get_rows("snec_approved_students", filters={"email": email})
-    sup_rows = get_rows("snec_supervisors", filters={"email": email})
+    approved = await get_rows_async("snec_approved_students", filters={"email": email})
+    sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
     if not approved and email != SUPER_ADMIN_EMAIL and not sup_rows:
         return {"ok": True}
 
@@ -199,15 +195,12 @@ async def auth_reset_password(body: ResetPasswordRequest):
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
     new_hash = hash_password(body.new_password)
-    updated = update_row("snec_auth", "email", email, {"password_hash": new_hash, "must_change": "false"})
-    if not updated:
-        append_row("snec_auth", {"email": email, "password_hash": new_hash, "must_change": "false"})
-
+    await db.upsert_auth(email, new_hash, must_change=False)
     return {"ok": True}
 
 
 @router.post("/api/onboard", response_model=OnboardResponse)
-def onboard(body: OnboardRequest):
+async def onboard(body: OnboardRequest):
     if not body.full_name.strip() or not body.email.strip():
         raise HTTPException(status_code=400, detail="full_name and email are required")
 
@@ -222,7 +215,7 @@ def onboard(body: OnboardRequest):
     else:
         # Check supervisor list
         try:
-            supervisors = get_rows("snec_supervisors", filters={"email": email})
+            supervisors = await get_rows_async("snec_supervisors", filters={"email": email})
             if supervisors:
                 role = "admin" if supervisors[0].get("role", "").lower() == "admin" else "supervisor"
         except Exception:
@@ -231,7 +224,7 @@ def onboard(body: OnboardRequest):
         if role == "student":
             # Check approved students whitelist
             try:
-                approved = get_rows("snec_approved_students", filters={"email": email})
+                approved = await get_rows_async("snec_approved_students", filters={"email": email})
             except Exception:
                 approved = []
             if not approved:
@@ -250,14 +243,14 @@ def onboard(body: OnboardRequest):
     # Link student_id back to approved record
     if role == "student":
         try:
-            update_row("snec_approved_students", "email", email, {"student_id": student_id})
+            await update_row_async("snec_approved_students", "email", email, {"student_id": student_id})
         except Exception:
             pass
 
     if role == "student" and student_role in ("OA", "OT", "PSA"):
         try:
             from tools.profile.update_profile import update_profile
-            update_profile(student_id, role=student_role)
+            await update_profile(student_id, role=student_role)
         except Exception:
             pass
 

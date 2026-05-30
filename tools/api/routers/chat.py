@@ -55,14 +55,12 @@ class ChatMessage(BaseModel):
     content: str = Field(max_length=8000)
 
 class ChatRequest(BaseModel):
-    student_id: str
     messages: list[ChatMessage] = Field(max_length=100)
 
 class ChatResponse(BaseModel):
     content: str
 
 class EndSessionRequest(BaseModel):
-    student_id: str
     messages: list[ChatMessage] = Field(max_length=100)
     topic: str = "Ophthalmology"
     token_count: int = 0
@@ -81,7 +79,7 @@ class EndSessionResponse(BaseModel):
 
 @router.post("/api/chat")
 @limiter.limit("30/minute")
-def chat(request: Request, body: ChatRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
@@ -90,7 +88,7 @@ def chat(request: Request, body: ChatRequest, current_user: CurrentUser = Depend
         (m.content for m in reversed(body.messages) if m.role == "user"), ""
     )
     try:
-        profile = get_profile(student_id)
+        profile = await get_profile(student_id)
         role = profile.get("role", "")
     except Exception:
         profile = {}
@@ -130,12 +128,12 @@ def chat(request: Request, body: ChatRequest, current_user: CurrentUser = Depend
 
 @router.post("/api/end-session", response_model=EndSessionResponse)
 @limiter.limit("10/minute")
-def end_session(request: Request, body: EndSessionRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def end_session(request: Request, body: EndSessionRequest, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     model_name = "mock" if MOCK_MODE else MODEL
 
-    session_id = log_session(
+    session_id = await log_session(
         student_id=student_id,
         topic=body.topic,
         messages=messages,
@@ -144,7 +142,7 @@ def end_session(request: Request, body: EndSessionRequest, current_user: Current
     )
 
     try:
-        _role = get_profile(student_id).get("role", "")
+        _role = (await get_profile(student_id)).get("role", "")
     except Exception:
         _role = ""
     try:
@@ -161,7 +159,7 @@ def end_session(request: Request, body: EndSessionRequest, current_user: Current
             raise
 
     try:
-        update_profile(student_id)
+        await update_profile(student_id)
     except Exception:
         pass
 
@@ -185,7 +183,7 @@ async def get_my_progress(request: Request, current_user: CurrentUser = Depends(
 
 
 @router.get("/api/progress/{student_id}")
-def get_student_progress(student_id: str, current_user: CurrentUser = Depends(get_current_user)):
+async def get_student_progress(student_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return topic performance, session history, and learning stats for a student."""
     # Students can only view their own progress; supervisors/admins can view anyone's
     if current_user["role"] == "student" and student_id != current_user["sub"]:

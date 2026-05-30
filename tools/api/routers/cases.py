@@ -108,8 +108,7 @@ class ChecklistResponse(BaseModel):
 # ── Case endpoints ─────────────────────────────────────────────────────────
 
 @router.get("/api/cases", response_model=CasesResponse)
-def get_cases(current_user: CurrentUser = Depends(get_current_user)):
-    import json as _json
+async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
 
     # Determine student role and weak topics for case generation
@@ -117,9 +116,9 @@ def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     weak_topics: list[str] = []
     if student_id:
         try:
-            profile = get_profile(student_id)
+            profile = await get_profile(student_id)
             role = profile.get("role", "OA") or "OA"
-            weak_topics = _json.loads(profile.get("weak_topics", "[]") or "[]")
+            weak_topics = profile.get("weak_topics", []) or []
         except Exception:
             pass
 
@@ -165,7 +164,7 @@ def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     case_progress = {}
     if student_id:
         try:
-            case_progress = get_case_progress(student_id)
+            case_progress = await get_case_progress(student_id)
         except Exception:
             pass
 
@@ -207,7 +206,7 @@ def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     return CasesResponse(cases=cases)
 
 
-def _check_case_access(student_id: str, case: dict) -> None:
+async def _check_case_access(student_id: str, case: dict) -> None:
     """Raise HTTP 403 if the student has not unlocked this case's difficulty tier.
 
     Rules:
@@ -225,7 +224,7 @@ def _check_case_access(student_id: str, case: dict) -> None:
     prerequisite = "beginner" if difficulty == "intermediate" else "intermediate"
 
     try:
-        progress = get_case_progress(student_id)
+        progress = await get_case_progress(student_id)
     except Exception:
         progress = {}
 
@@ -315,7 +314,7 @@ def get_case_checklist(case_id: str):
 
 @router.post("/api/cases/{case_id}/chat")
 @limiter.limit("30/minute")
-def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_user: CurrentUser = Depends(get_current_user)):
     # Try in-memory cache first (AI-generated cases), then fall back to file
     case = _case_cache.get(case_id)
     if case is None:
@@ -326,7 +325,7 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_use
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    _check_case_access(current_user["sub"], case)
+    await _check_case_access(current_user["sub"], case)
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
@@ -352,7 +351,7 @@ def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_use
 
 
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
-def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
     from tools.shared.gemini_client import ask
     student_id = current_user["sub"]
     case = _case_cache.get(case_id)
@@ -364,7 +363,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    _check_case_access(student_id, case)
+    await _check_case_access(student_id, case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     messages.append({
         "role": "user",
@@ -373,7 +372,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
 
     raw_result = evaluate_case(case, messages, student_id, body.performed_steps)
 
-    session_id = log_session(
+    session_id = await log_session(
         student_id=student_id,
         topic=f"Case: {case['title']}",
         messages=messages,
@@ -382,7 +381,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
     )
     try:
         from tools.profile.get_profile import get_profile as _get_profile
-        _case_role = _get_profile(student_id).get("role", "")
+        _case_role = (await _get_profile(student_id)).get("role", "")
     except Exception:
         _case_role = ""
     cards = generate_and_return_cards(
@@ -401,7 +400,7 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
             feedback = raw_result.get(domain, "")
             if feedback and any(word in feedback.lower() for word in ("miss", "forgot", "lack", "no mention")):
                 missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
-        update_profile(
+        await update_profile(
             student_id,
             topic=case["topic"],
             score=retention_score,
@@ -411,8 +410,10 @@ def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser
         pass
 
     # Log case completion for difficulty progression tracking
+    total = raw_result.get("total_score", 0)
+    passed = total >= 24
     try:
-        log_case_completion(student_id, case_id, raw_result.get("total_score", 0))
+        await log_case_completion(student_id, case_id, total, passed)
     except Exception:
         pass
 
