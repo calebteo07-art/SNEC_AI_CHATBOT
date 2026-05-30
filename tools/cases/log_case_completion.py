@@ -1,25 +1,39 @@
 #!/usr/bin/env python3
-"""Log a case completion to the snec_case_progress sheet."""
+"""Log a completed case simulation to Supabase case_progress table.
 
-from datetime import datetime, timezone
+Usage:
+    from tools.cases.log_case_completion import log_case_completion
+    await log_case_completion(student_id, case_id, total_score, passed)
+"""
+import sys
+from pathlib import Path
 
-from tools.shared.gsheets import append_row
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-SHEET = "snec_case_progress"
+from tools.shared import db
+from tools.shared.audit_log import log as audit_log
 
 
-def log_case_completion(student_id: str, case_id: str, total_score: int) -> None:
-    """Append a case completion record.
-
-    A case is considered passing when total_score >= 24 (60% of 40).
-    Multiple completions of the same case are allowed — the unlock logic
-    counts distinct passing scores so students can retake cases freely.
-    """
-    passed = total_score >= 24
-    append_row(SHEET, {
-        "student_id": student_id,
-        "case_id": case_id,
-        "total_score": str(total_score),
-        "passed": "true" if passed else "false",
-        "completed_at": datetime.now(timezone.utc).isoformat(),
-    })
+async def log_case_completion(
+    student_id: str,
+    case_id: str,
+    total_score: int,
+    passed: bool,
+) -> None:
+    """Append a case completion record. Never raises."""
+    try:
+        await db.insert_case_result(
+            student_id=student_id,
+            case_id=case_id,
+            total_score=total_score,
+            passed=passed,
+        )
+        audit_log(
+            "case_completed",
+            student_id=student_id,
+            feature="cases",
+            detail=f"case: {case_id}, score: {total_score}, passed: {passed}",
+        )
+    except Exception as exc:
+        audit_log("case_log_error", student_id=student_id, feature="cases", detail=str(exc))
