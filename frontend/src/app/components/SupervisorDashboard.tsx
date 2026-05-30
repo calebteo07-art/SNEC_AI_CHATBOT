@@ -49,6 +49,10 @@ export function SupervisorDashboard() {
   const fetchData = React.useCallback(() => {
     setLoading(true);
     setError(null);
+    setCohort(null);
+    setAtRisk([]);
+    setInsights(null);
+    setBenchmarks([]);
 
     Promise.all([
       fetch(`${API}/api/supervisor/cohort`, { headers: { ...authHeaders } }).then((r) => r.json()),
