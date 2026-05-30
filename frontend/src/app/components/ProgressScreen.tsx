@@ -13,6 +13,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { SkeletonStatStrip, SkeletonLine } from "./SkeletonLoader";
 
 interface TopicStat {
   topic: string;
@@ -137,9 +138,17 @@ export function ProgressScreen() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
-            <p className="text-[#A39A8E]" style={{ fontSize: "0.85rem" }}>Loading your progress…</p>
+          <div>
+            <SkeletonStatStrip />
+            <div className="mt-12 space-y-3">
+              <SkeletonLine widthClass="w-1/4" heightClass="h-3" />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <SkeletonLine widthClass="w-32" heightClass="h-3" />
+                  <SkeletonLine widthClass="flex-1" heightClass="h-4" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
