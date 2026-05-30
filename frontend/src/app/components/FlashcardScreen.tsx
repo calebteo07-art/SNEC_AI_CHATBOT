@@ -227,6 +227,7 @@ export function FlashcardScreen() {
         <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-12 pb-8">
           {generating ? (
             <div className="space-y-6">
+              {/* Topic + count header */}
               <div className="flex justify-between items-end">
                 <div className="space-y-2">
                   <SkeletonLine widthClass="w-24" heightClass="h-3" />
@@ -234,8 +235,28 @@ export function FlashcardScreen() {
                 </div>
                 <SkeletonLine widthClass="w-16" heightClass="h-7" />
               </div>
-              <SkeletonLine widthClass="w-full" heightClass="h-1" />
-              <SkeletonCard rows={4} />
+              {/* Progress hairline */}
+              <SkeletonLine widthClass="w-full" heightClass="h-[3px]" />
+              {/* XP bar */}
+              <SkeletonLine widthClass="w-48" heightClass="h-2" />
+              {/* Card stage: prev | card | next */}
+              <div className="flex items-center gap-5 pt-4">
+                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#1F1A12]/6 animate-pulse" />
+                <div className="flex-1 rounded-2xl bg-[#1F1A12]/5 animate-pulse" style={{ minHeight: "440px" }}>
+                  <div className="p-8 space-y-4">
+                    <SkeletonLine widthClass="w-20" heightClass="h-3" />
+                    {/* Anatomy image placeholder */}
+                    <div className="h-24 rounded-xl bg-[#1F1A12]/6 animate-pulse" />
+                    <div className="flex-1 flex items-center justify-center py-8">
+                      <div className="space-y-3 w-full max-w-xs">
+                        <SkeletonLine widthClass="w-full" heightClass="h-5" />
+                        <SkeletonLine widthClass="w-4/5 mx-auto" heightClass="h-5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#1F1A12]/6 animate-pulse" />
+              </div>
             </div>
           ) : (
             <>
