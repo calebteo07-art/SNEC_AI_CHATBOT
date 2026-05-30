@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { SkeletonCard, SkeletonLine } from "./SkeletonLoader";
 
 interface Flashcard {
   id: number;
@@ -221,23 +222,33 @@ export function FlashcardScreen() {
   // Loading / empty state
   if (generating || FLASHCARDS.length === 0) {
     return (
-      <div className="min-h-screen aurora-bg flex flex-col items-center justify-center gap-6">
-        {generating ? (
-          <>
-            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
-            <p className="text-[#5C544A]" style={{ fontSize: "0.9rem" }}>Generating flashcards for you…</p>
-          </>
-        ) : (
-          <>
-            <p className="text-[#A39A8E]" style={{ fontSize: "0.9rem" }}>No flashcards available.</p>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="text-[#8C6D3F] underline underline-offset-2 text-sm"
-            >
-              Back to Dashboard
-            </button>
-          </>
-        )}
+      <div className="min-h-screen aurora-bg flex flex-col">
+        <div className="glass-nav sticky top-0 z-30 h-16" />
+        <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-12 pb-8">
+          {generating ? (
+            <div className="space-y-6">
+              <div className="flex justify-between items-end">
+                <div className="space-y-2">
+                  <SkeletonLine widthClass="w-24" heightClass="h-3" />
+                  <SkeletonLine widthClass="w-48" heightClass="h-7" />
+                </div>
+                <SkeletonLine widthClass="w-16" heightClass="h-7" />
+              </div>
+              <SkeletonLine widthClass="w-full" heightClass="h-1" />
+              <SkeletonCard rows={4} />
+            </div>
+          ) : (
+            <>
+              <p className="text-[#A39A8E]" style={{ fontSize: "0.9rem" }}>No flashcards available.</p>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-[#8C6D3F] underline underline-offset-2 text-sm"
+              >
+                Back to Dashboard
+              </button>
+            </>
+          )}
+        </div>
       </div>
     );
   }
