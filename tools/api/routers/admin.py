@@ -9,9 +9,10 @@ from pydantic import BaseModel
 
 from tools.api.shared import limiter
 from tools.profile.get_profile import get_profile
+from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.gemini_client import MOCK_MODE, MODEL
-from tools.shared.gsheets import append_row, get_rows, update_row
+from tools.shared.gsheets import append_row_async, get_rows_async, update_row_async
 from tools.shared.jwt_utils import CurrentUser, require_admin
 
 router = APIRouter()
@@ -31,24 +32,24 @@ class PromoteRequest(BaseModel):
 # ── Admin endpoints ────────────────────────────────────────────────────────
 
 @router.get("/api/admin/approved")
-def admin_list_approved(current_user: CurrentUser = Depends(require_admin)):
+async def admin_list_approved(current_user: CurrentUser = Depends(require_admin)):
     try:
-        rows = get_rows("snec_approved_students")
+        rows = await get_rows_async("snec_approved_students")
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"students": rows}
 
 @router.post("/api/admin/approved")
-def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser = Depends(require_admin)):
+async def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="email is required")
-    existing = get_rows("snec_approved_students", filters={"email": email})
+    existing = await get_rows_async("snec_approved_students", filters={"email": email})
     if existing:
         raise HTTPException(status_code=409, detail="Email already approved")
-    _consent = get_rows("snec_consent", filters={"student_id": current_user["sub"]})
+    _consent = await get_rows_async("snec_consent", filters={"student_id": current_user["sub"]})
     admin_email = _consent[0].get("email", "") if _consent else ""
-    append_row("snec_approved_students", {
+    await append_row_async("snec_approved_students", {
         "email": email,
         "full_name": body.full_name.strip(),
         "role": body.role.strip().upper(),
@@ -59,7 +60,7 @@ def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser
     plain_pw = generate_password()
     pw_hash = hash_password(plain_pw)
     try:
-        append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+        await db.upsert_auth(email, pw_hash, must_change=True)
     except Exception as _auth_exc:
         raise HTTPException(status_code=500, detail="Account created but password setup failed. Contact support.")
 
@@ -81,7 +82,7 @@ def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser
     return {"ok": True}
 
 @router.delete("/api/admin/approved/{email}")
-def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
+async def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import delete_row as _dr
     deleted = _dr("snec_approved_students", "email", email.lower())
     if not deleted:
@@ -89,18 +90,18 @@ def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(requ
     return {"ok": True}
 
 @router.get("/api/admin/students")
-def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
+async def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
     try:
-        profiles = get_rows("snec_profiles")
-        consent = get_rows("snec_consent")
-        approved_rows = get_rows("snec_approved_students")
+        profiles = await db.get_all_profiles()
+        consent = await get_rows_async("snec_consent")
+        approved_rows = await get_rows_async("snec_approved_students")
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     approved_emails = {r.get("email", "").strip().lower() for r in approved_rows if r.get("email", "").strip()}
     consent_map = {r["student_id"]: r for r in consent}
     result = []
     for p in profiles:
-        sid = p.get("student_id", "")
+        sid = str(p.get("student_id", ""))
         c = consent_map.get(sid, {})
         email = c.get("email", "").strip().lower()
         full_name = c.get("student_name", "").strip()
@@ -111,60 +112,62 @@ def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
             "full_name": full_name,
             "email": email,
             "role": p.get("role", ""),
-            "session_count": p.get("session_count", 0),
-            "streak": p.get("streak", 0),
-            "last_active": p.get("last_active", ""),
-            "weak_topics": p.get("weak_topics", "[]"),
+            "session_count": int(p.get("session_count") or 0),
+            "streak": int(p.get("streak") or 0),
+            "last_active": str(p.get("last_active") or ""),
+            "weak_topics": p.get("weak_topics", []) or [],
             "learning_velocity": p.get("learning_velocity", "stable"),
         })
     return {"students": result}
 
 @router.get("/api/admin/activity")
-def admin_activity(current_user: CurrentUser = Depends(require_admin)):
+async def admin_activity(current_user: CurrentUser = Depends(require_admin)):
     try:
-        sessions = get_rows("snec_sessions")
-        cases = get_rows("snec_case_progress")
-        consent = get_rows("snec_consent")
+        sessions = await db.get_all_sessions(limit=50)
+        cases = await db.get_all_case_progress()
+        consent = await get_rows_async("snec_consent")
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
-    name_map = {r["student_id"]: r.get("student_name", r["student_id"][:8]) for r in consent}
+    name_map = {r["student_id"]: r.get("student_name", str(r["student_id"])[:8]) for r in consent}
     feed = []
-    for s in sessions[-50:]:
+    for s in sessions[:50]:
+        sid = str(s.get("student_id", ""))
         feed.append({
             "type": "session",
-            "student_id": s.get("student_id", ""),
-            "name": name_map.get(s.get("student_id", ""), s.get("student_id", "")[:8]),
+            "student_id": sid,
+            "name": name_map.get(sid, sid[:8]),
             "detail": s.get("topic", "Chat session"),
-            "timestamp": s.get("timestamp", ""),
-            "token_count": int(s.get("token_count", 0) or 0),
+            "timestamp": str(s.get("created_at", "")),
+            "token_count": int(s.get("token_count") or 0),
         })
-    for c in cases[-50:]:
-        passed = str(c.get("passed", "false")).lower() == "true"
+    for c in cases[:50]:
+        sid = str(c.get("student_id", ""))
+        passed = bool(c.get("passed", False))
         feed.append({
             "type": "case",
-            "student_id": c.get("student_id", ""),
-            "name": name_map.get(c.get("student_id", ""), c.get("student_id", "")[:8]),
-            "detail": c.get("case_id", "") + (" ✓" if passed else " ✗") + " · " + str(c.get("total_score", 0)) + "/40",
-            "timestamp": c.get("completed_at", ""),
+            "student_id": sid,
+            "name": name_map.get(sid, sid[:8]),
+            "detail": str(c.get("case_id", "")) + (" ✓" if passed else " ✗") + " · " + str(c.get("total_score", 0)) + "/40",
+            "timestamp": str(c.get("completed_at", "")),
         })
     feed.sort(key=lambda x: x["timestamp"], reverse=True)
     return {"feed": feed[:80]}
 
 @router.post("/api/admin/promote")
-def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depends(require_admin)):
+async def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     new_role = body.new_role.strip().lower()
     if new_role not in ("supervisor", "admin"):
         raise HTTPException(status_code=400, detail="new_role must be 'supervisor' or 'admin'")
-    existing = get_rows("snec_supervisors", filters={"email": email})
+    existing = await get_rows_async("snec_supervisors", filters={"email": email})
     if existing:
-        update_row("snec_supervisors", "email", email, {"role": new_role})
+        await update_row_async("snec_supervisors", "email", email, {"role": new_role})
     else:
-        append_row("snec_supervisors", {"supervisor_id": "", "email": email, "cohort": "SNEC", "role": new_role})
+        await append_row_async("snec_supervisors", {"supervisor_id": "", "email": email, "cohort": "SNEC", "role": new_role})
     return {"ok": True}
 
 @router.delete("/api/admin/promote/{email}")
-def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin)):
+async def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gsheets import delete_row as _dr
     _dr("snec_supervisors", "email", email.lower())
     return {"ok": True}
@@ -174,44 +177,36 @@ def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin))
 async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_admin)):
     import json as _json
 
-    profile = get_profile(student_id)
+    profile = await get_profile(student_id)
 
-    # Sessions: last 30, newest first
-    all_sessions = get_rows("snec_sessions", filters={"student_id": student_id})
-    all_sessions.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
+    # Sessions: last 30, newest first (db.get_sessions already orders newest-first)
+    all_sessions = await db.get_sessions(student_id, limit=30)
     sessions = [
         {
-            "session_id": s.get("session_id", ""),
-            "timestamp": s.get("timestamp", ""),
+            "session_id": str(s.get("session_id", "")),
+            "timestamp": str(s.get("created_at", "")),
             "topic": (s.get("topic") or s.get("summary") or "")[:60],
             "summary": s.get("summary", ""),
-            "token_count": int(s.get("token_count", 0) or 0),
+            "token_count": int(s.get("token_count") or 0),
             "model": s.get("model", ""),
         }
-        for s in all_sessions[:30]
+        for s in all_sessions
     ]
 
     # Cases: all attempts
-    case_rows = get_rows("snec_case_progress", filters={"student_id": student_id})
+    case_rows = await db.get_case_results(student_id)
     cases = [
         {
             "case_id": c.get("case_id", ""),
-            "total_score": int(c.get("total_score", 0) or 0),
-            "passed": str(c.get("passed", "false")).lower() == "true",
-            "completed_at": c.get("completed_at", ""),
+            "total_score": int(c.get("total_score") or 0),
+            "passed": bool(c.get("passed", False)),
+            "completed_at": str(c.get("completed_at", "")),
         }
         for c in case_rows
     ]
 
-    try:
-        retention_scores = _json.loads(profile.get("retention_scores", "{}") or "{}")
-    except Exception:
-        retention_scores = {}
-
-    try:
-        missed_findings = _json.loads(profile.get("missed_findings", "[]") or "[]")
-    except Exception:
-        missed_findings = []
+    retention_scores = profile.get("retention_scores") or {}
+    missed_findings = profile.get("missed_findings") or []
 
     total_tokens = sum(s["token_count"] for s in sessions)
 
@@ -220,11 +215,11 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         "full_name": profile.get("full_name", ""),
         "email": profile.get("email", ""),
         "role": profile.get("role", ""),
-        "session_count": int(profile.get("session_count", 0) or 0),
-        "streak": int(profile.get("streak", 0) or 0),
-        "last_active": profile.get("last_active", ""),
+        "session_count": int(profile.get("session_count") or 0),
+        "streak": int(profile.get("streak") or 0),
+        "last_active": str(profile.get("last_active") or ""),
         "learning_velocity": profile.get("learning_velocity", "stable"),
-        "weak_topics": _json.loads(profile.get("weak_topics", "[]") or "[]"),
+        "weak_topics": profile.get("weak_topics") or [],
         "missed_findings": missed_findings,
         "retention_scores": retention_scores,
         "supervisor_note": profile.get("supervisor_note", ""),
@@ -236,7 +231,7 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 
 @router.get("/api/admin/token-summary")
 async def admin_token_summary(current_user: CurrentUser = Depends(require_admin)):
-    all_sessions = get_rows("snec_sessions")
+    all_sessions = await db.get_all_sessions()
     total = 0
     by_student: dict[str, int] = {}
     for s in all_sessions:
@@ -262,14 +257,14 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
     text = content.decode("utf-8-sig")  # handles BOM from Excel
     reader = csv.DictReader(io.StringIO(text))
 
-    existing = {r.get("email", "").strip().lower() for r in get_rows("snec_approved_students")}
+    existing = {r.get("email", "").strip().lower() for r in await get_rows_async("snec_approved_students")}
     imported, skipped = 0, 0
     errors = []
     credentials = []
 
     # Resolve admin email from JWT sub via consent sheet
     try:
-        _admin_consent = get_rows("snec_consent", filters={"student_id": current_user["sub"]})
+        _admin_consent = await get_rows_async("snec_consent", filters={"student_id": current_user["sub"]})
         admin_email = _admin_consent[0].get("email", "") if _admin_consent else current_user["sub"]
     except Exception:
         admin_email = current_user["sub"]
@@ -299,14 +294,14 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
         plain_pw = generate_password()
         pw_hash = hash_password(plain_pw)
 
-        append_row("snec_approved_students", {
+        await append_row_async("snec_approved_students", {
             "email": email, "full_name": full_name, "role": role,
             "added_by": admin_email,
             "added_at": datetime.now(timezone.utc).isoformat(),
             "student_id": "",
         })
         try:
-            append_row("snec_auth", {"email": email, "password_hash": pw_hash, "must_change": "true"})
+            await db.upsert_auth(email, pw_hash, must_change=True)
         except Exception:
             errors.append({"row": i, "reason": "password setup failed"})
             skipped += 1

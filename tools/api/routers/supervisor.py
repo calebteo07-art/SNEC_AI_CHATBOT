@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from tools.api.shared import limiter
-from tools.shared.gsheets import get_rows, append_row, update_row
+from tools.shared import db
 from tools.shared.jwt_utils import require_supervisor, CurrentUser
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks as _get_benchmarks
@@ -62,7 +62,7 @@ class SupervisorInsightsResponse(BaseModel):
 # ── Supervisor endpoints ───────────────────────────────────────────────────
 
 @router.get("/api/supervisor/cohort", response_model=CohortSummaryResponse)
-def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         result = _cohort_summary()
     except Exception:
@@ -71,7 +71,7 @@ def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
 
 
 @router.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
-def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         students = _get_at_risk()
     except Exception:
@@ -80,25 +80,24 @@ def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
 
 
 @router.get("/api/supervisor/student/{student_id}", response_model=StudentProfileResponse)
-def supervisor_student(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
-    import json as _json
+async def supervisor_student(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         from tools.profile.get_profile import get_profile
-        profile = get_profile(student_id)
+        profile = await get_profile(student_id)
     except Exception:
         raise HTTPException(status_code=404, detail="Student not found")
 
     try:
         return StudentProfileResponse(
-            student_id=profile["student_id"],
-            weak_topics=_json.loads(profile.get("weak_topics", "[]") or "[]"),
-            missed_findings=_json.loads(profile.get("missed_findings", "[]") or "[]"),
-            retention_scores=_json.loads(profile.get("retention_scores", "{}") or "{}"),
-            session_count=int(profile.get("session_count", "0") or "0"),
-            streak=int(profile.get("streak", "0") or "0"),
-            last_active=profile.get("last_active", ""),
+            student_id=str(profile["student_id"]),
+            weak_topics=profile.get("weak_topics") or [],
+            missed_findings=profile.get("missed_findings") or [],
+            retention_scores=profile.get("retention_scores") or {},
+            session_count=int(profile.get("session_count") or 0),
+            streak=int(profile.get("streak") or 0),
+            last_active=str(profile.get("last_active") or ""),
             learning_velocity=profile.get("learning_velocity", "stable"),
-            checkin_done_today=str(profile.get("checkin_done_today", "false")).lower() == "true",
+            checkin_done_today=bool(profile.get("checkin_done_today", False)),
             supervisor_note=profile.get("supervisor_note", "") or "",
         )
     except Exception:
@@ -106,20 +105,20 @@ def supervisor_student(student_id: str, current_user: CurrentUser = Depends(requ
 
 
 @router.patch("/api/supervisor/student/{student_id}/note")
-def supervisor_save_note(
+async def supervisor_save_note(
     student_id: str,
     body: SaveNoteRequest,
     current_user: CurrentUser = Depends(require_supervisor),
 ):
     try:
-        update_row("snec_profiles", "student_id", student_id, {"supervisor_note": body.note})
+        await db.update_profile(student_id, supervisor_note=body.note)
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"ok": True}
 
 
 @router.get("/api/supervisor/student/{student_id}/report")
-def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         pdf_bytes = _generate_report(student_id)
     except Exception:
@@ -133,7 +132,7 @@ def supervisor_student_report(student_id: str, current_user: CurrentUser = Depen
 
 
 @router.get("/api/supervisor/benchmarks", response_model=BenchmarkResponse)
-def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor)):
     try:
         topics = _get_benchmarks()
     except Exception:
@@ -142,7 +141,7 @@ def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor
 
 
 @router.post("/api/supervisor/send-digest")
-def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         _send_digest(body.recipient)
     except RuntimeError:
@@ -154,7 +153,7 @@ def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depe
 
 @router.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
 @limiter.limit("10/minute")
-def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_supervisor)):
     try:
         cohort = _cohort_summary()
         at_risk = _get_at_risk()

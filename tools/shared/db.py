@@ -155,3 +155,37 @@ async def get_case_results(student_id: str) -> list[dict]:
         .execute()
     )
     return result.data or []
+
+
+# ── Admin helpers (bulk reads) ────────────────────────────────────────────────
+
+async def get_all_profiles() -> list[dict]:
+    """Return all student profile rows. Used by admin dashboard."""
+    client = await _get_client()
+    result = await client.table("student_profiles").select("*").execute()
+    return result.data or []
+
+
+async def get_all_sessions(limit: int = 500) -> list[dict]:
+    """Return recent sessions across all students. Used by admin dashboard."""
+    client = await _get_client()
+    result = (
+        await client.table("chat_sessions")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return result.data or []
+
+
+async def get_all_case_progress() -> list[dict]:
+    """Return all case completion records. Used by admin dashboard."""
+    client = await _get_client()
+    result = (
+        await client.table("case_progress")
+        .select("*")
+        .order("completed_at", desc=True)
+        .execute()
+    )
+    return result.data or []
