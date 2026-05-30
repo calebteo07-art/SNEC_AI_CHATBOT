@@ -5,13 +5,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import tools.shared.db as db
 
 
-def _make_client(rows: list) -> AsyncMock:
-    """Return a mock AsyncClient whose execute() returns the given rows."""
+def _make_client(rows: list) -> MagicMock:
+    """Return a mock Supabase client whose execute() returns the given rows.
+
+    Uses MagicMock (not AsyncMock) for the client and table chain so that
+    synchronous builder calls like client.table(...).select(...) work correctly.
+    Only execute() is async, matching real supabase-py 2.x behaviour.
+    """
     response = MagicMock()
     response.data = rows
     execute = AsyncMock(return_value=response)
 
-    client = AsyncMock()
+    client = MagicMock()
     table = client.table.return_value
     table.select.return_value.eq.return_value.limit.return_value.execute = execute
     table.select.return_value.eq.return_value.order.return_value.limit.return_value.execute = execute
