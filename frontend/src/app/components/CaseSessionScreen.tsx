@@ -392,42 +392,65 @@ export function CaseSessionScreen() {
       </div>
 
       <div className="flex flex-1 min-h-0 flex-col md:flex-row">
-        {/* Mobile collapsible sidebar */}
+        {/* Mobile sidebar — full-screen overlay */}
         <AnimatePresence>
           {sidebarOpen && (
-            <motion.div
-              id="patient-panel"
-              className="md:hidden flex-shrink-0 border-b border-[#1F1A12]/8 bg-white/60 overflow-y-auto"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <div className="px-4 py-5">
-                <p className="annotation-label mb-4">Patient</p>
-                {caseInfo ? (
-                  <div className="space-y-4 mb-4">
-                    <div>
-                      <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 400 }}>
-                        {caseInfo.patient.name}
-                      </p>
-                      <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>{caseInfo.patient.age} years old</p>
-                    </div>
-                    <div>
-                      <p className="annotation-label mb-1">Presents with</p>
-                      <p className="text-[#1F1A12] italic-display" style={{ fontSize: "0.95rem", lineHeight: 1.5 }}>"{caseInfo.patient.presenting_complaint}"</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3 mb-4">{[80, 60, 90].map((w, i) => (
-                    <div key={i} className="h-3 rounded bg-[#1F1A12]/6 animate-pulse" style={{ width: `${w}%` }} />
-                  ))}</div>
-                )}
-                <div className="border-t border-[#1F1A12]/8 pt-4">
-                  <ChecklistPanel compact />
+            <>
+              {/* Backdrop */}
+              <motion.div
+                className="md:hidden fixed inset-0 z-40 bg-[#1F1A12]/30 backdrop-blur-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setSidebarOpen(false)}
+                aria-hidden="true"
+              />
+              {/* Panel */}
+              <motion.div
+                id="patient-panel"
+                className="md:hidden fixed top-0 right-0 bottom-0 z-50 w-full max-w-sm bg-[#FBF8F1]/97 backdrop-blur-xl overflow-y-auto shadow-2xl"
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 280 }}
+              >
+                {/* Close button */}
+                <div className="sticky top-0 flex items-center justify-between px-5 py-4 border-b border-[#1F1A12]/8 bg-[#FBF8F1]/95 backdrop-blur-sm">
+                  <p className="annotation-label" style={{ marginBottom: 0 }}>Patient Guide</p>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    aria-label="Close patient guide"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-[#5C544A] hover:bg-[#1F1A12]/6 transition-colors"
+                  >
+                    <XIcon size={16} strokeWidth={1.5} />
+                  </button>
                 </div>
-              </div>
-            </motion.div>
+                <div className="px-5 py-5">
+                  {caseInfo ? (
+                    <div className="space-y-4 mb-4">
+                      <div>
+                        <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", fontWeight: 400 }}>
+                          {caseInfo.patient.name}
+                        </p>
+                        <p className="text-[#5C544A] mt-0.5" style={{ fontSize: "0.85rem" }}>{caseInfo.patient.age} years old</p>
+                      </div>
+                      <div>
+                        <p className="annotation-label mb-1">Presents with</p>
+                        <p className="text-[#1F1A12] italic-display" style={{ fontSize: "0.95rem", lineHeight: 1.5 }}>"{caseInfo.patient.presenting_complaint}"</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 mb-4">{[80, 60, 90].map((w, i) => (
+                      <div key={i} className="h-3 rounded bg-[#1F1A12]/6 animate-pulse" style={{ width: `${w}%` }} />
+                    ))}</div>
+                  )}
+                  <div className="border-t border-[#1F1A12]/8 pt-4">
+                    <ChecklistPanel compact />
+                  </div>
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 
