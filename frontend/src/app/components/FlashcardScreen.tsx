@@ -219,6 +219,27 @@ export function FlashcardScreen() {
     }
   };
 
+  const handleSwipe = (offsetX: number, offsetY: number) => {
+    if (animating) return;
+    const THRESHOLD = 70;
+    const dominantAxis = Math.abs(offsetX) > Math.abs(offsetY) ? "x" : "y";
+
+    if (!isFlipped) {
+      if (dominantAxis === "y" && offsetY < -THRESHOLD) {
+        flipCard(); // swipe up = flip
+      }
+      return;
+    }
+
+    if (dominantAxis === "x") {
+      if (offsetX > THRESHOLD) handleRating(4);      // right = Easy
+      else if (offsetX < -THRESHOLD) handleRating(1); // left = Again
+    } else {
+      if (offsetY < -THRESHOLD) handleRating(3);      // up = Good
+      else if (offsetY > THRESHOLD) handleRating(2);  // down = Hard
+    }
+  };
+
   // Loading / empty state
   if (generating || FLASHCARDS.length === 0) {
     return (
@@ -384,7 +405,15 @@ export function FlashcardScreen() {
           </button>
 
           {/* The Card */}
-          <div className="flex-1" style={{ perspective: "1800px" }}>
+          <motion.div
+            className="flex-1"
+            style={{ perspective: "1800px" }}
+            drag={!animating}
+            dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+            dragElastic={0.12}
+            dragMomentum={false}
+            onDragEnd={(_, info) => handleSwipe(info.offset.x, info.offset.y)}
+          >
             <motion.div
               onClick={flipCard}
               role="button"
@@ -501,7 +530,7 @@ export function FlashcardScreen() {
                 </div>
               </motion.div>
             </motion.div>
-          </div>
+          </motion.div>
 
           {/* Next */}
           <button
@@ -517,6 +546,13 @@ export function FlashcardScreen() {
             <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
+
+        {/* Swipe hint — touch only, shown before first flip */}
+        {!isFlipped && (
+          <p className="mt-4 text-center text-[#A39A8E] sm:hidden" style={{ fontSize: "0.72rem", letterSpacing: "0.1em" }}>
+            Swipe up to reveal · left/right/up/down to rate
+          </p>
+        )}
 
         {/* Active recall input (before flip) */}
         <AnimatePresence>
