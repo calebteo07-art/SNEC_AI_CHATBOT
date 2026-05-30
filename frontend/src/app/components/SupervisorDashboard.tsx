@@ -4,9 +4,10 @@ import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { CohortHeatmap } from "./CohortHeatmap";
 import { AtRiskTable } from "./AtRiskTable";
 import { StudentDrillDown } from "./StudentDrillDown";
-import { Users, AlertTriangle, Activity, LogOut, Mail } from "lucide-react";
+import { Users, AlertTriangle, Activity, LogOut, Mail, RefreshCw, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import { SkeletonCard, SkeletonStatStrip } from "./SkeletonLoader";
 
 const API = "";
 
@@ -45,7 +46,10 @@ export function SupervisorDashboard() {
   const [digestSending, setDigestSending] = useState(false);
   const [digestStatus, setDigestStatus] = useState<"idle" | "sent" | "error">("idle");
 
-  useEffect(() => {
+  const fetchData = React.useCallback(() => {
+    setLoading(true);
+    setError(null);
+
     Promise.all([
       fetch(`${API}/api/supervisor/cohort`, { headers: { ...authHeaders } }).then((r) => r.json()),
       fetch(`${API}/api/supervisor/at-risk`, { headers: { ...authHeaders } }).then((r) => r.json()),
@@ -70,6 +74,8 @@ export function SupervisorDashboard() {
       .then((data) => setBenchmarks(data.topics ?? []))
       .catch(() => null);
   }, [authHeaders]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   function handleSendDigest() {
     if (digestSending || !user?.email) return;
@@ -173,15 +179,30 @@ export function SupervisorDashboard() {
         </motion.div>
 
         {loading && (
-          <div className="flex justify-center py-24">
-            <div className="w-8 h-8 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+          <div>
+            <SkeletonStatStrip />
+            <div className="mt-12 space-y-4">
+              <SkeletonCard rows={3} />
+              <SkeletonCard rows={2} />
+            </div>
           </div>
         )}
 
         {error && (
-          <p className="text-[#8B2D2D] text-center py-24" style={{ fontSize: "0.95rem" }}>
-            {error}
-          </p>
+          <div className="mt-10 flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]">
+            <div className="flex items-center gap-3">
+              <AlertCircle size={16} strokeWidth={1.5} aria-hidden="true" />
+              <span style={{ fontSize: "0.9rem" }}>{error}</span>
+            </div>
+            <button
+              onClick={fetchData}
+              className="flex-shrink-0 text-[#8B2D2D] underline underline-offset-2 hover:opacity-70 transition-opacity inline-flex items-center gap-1"
+              style={{ fontSize: "0.88rem", fontWeight: 500 }}
+            >
+              <RefreshCw size={13} strokeWidth={1.5} />
+              Retry
+            </button>
+          </div>
         )}
 
         {cohort && (
