@@ -1,6 +1,6 @@
 # tests/api/test_auth_endpoints.py
 import pytest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
@@ -14,7 +14,7 @@ def _auth_headers(student_id: str, role: str = "student", student_role: str = "O
     return {"Authorization": f"Bearer {token}"}
 
 
-def _make_auth_row(email, plain_password, must_change="false"):
+def _make_auth_row(email, plain_password, must_change=False):
     from tools.shared.auth import hash_password
     return {"email": email, "password_hash": hash_password(plain_password), "must_change": must_change}
 
@@ -29,19 +29,15 @@ def _make_approved_row(email, role="OA"):
 
 def test_login_success():
     auth_row = _make_auth_row("alice@test.com", "password1")
-    consent_row = _make_consent_row("alice@test.com", "stu_001", "Alice")
     approved_row = _make_approved_row("alice@test.com")
 
     def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_auth":
-            return [auth_row]
-        if sheet == "snec_consent":
-            return [consent_row]
         if sheet == "snec_approved_students":
             return [approved_row]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value="stu_001"), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
@@ -56,42 +52,37 @@ def test_login_wrong_password():
     auth_row = _make_auth_row("bob@test.com", "realpass")
 
     def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_auth":
-            return [auth_row]
         if sheet == "snec_approved_students":
             return [{"email": "bob@test.com", "full_name": "Bob", "role": "OT"}]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)):
         r = client.post("/api/auth/login", json={"email": "bob@test.com", "password": "wrongpass"})
     assert r.status_code == 401
 
 
 def test_login_not_approved():
-    with patch("tools.api.routers.auth.get_rows", return_value=[]):
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(return_value=[])):
         r = client.post("/api/auth/login", json={"email": "unknown@test.com", "password": "any"})
     assert r.status_code == 403
 
 
 def test_login_student_promoted_to_supervisor():
     """Student in both approved_students and supervisors gets supervisor role."""
-    auth_row = _make_auth_row("promo@test.com", "pass123", must_change="false")
-    consent_row = _make_consent_row("promo@test.com", "stu_004", "Promo User")
+    auth_row = _make_auth_row("promo@test.com", "pass123")
     approved_row = _make_approved_row("promo@test.com", role="OA")
     sup_row = {"email": "promo@test.com", "role": "supervisor"}
 
     def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_auth":
-            return [auth_row]
         if sheet == "snec_approved_students":
             return [approved_row]
         if sheet == "snec_supervisors":
             return [sup_row]
-        if sheet == "snec_consent":
-            return [consent_row]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value="stu_004"), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "promo@test.com", "password": "pass123"})
@@ -104,18 +95,17 @@ def test_login_student_promoted_to_supervisor():
 def test_change_password_success():
     from tools.shared.auth import hash_password
     old_hash = hash_password("oldpass")
-    auth_row = {"email": "carol@test.com", "password_hash": old_hash, "must_change": "true"}
+    auth_row = {"email": "carol@test.com", "password_hash": old_hash, "must_change": True}
     consent_row = {"email": "carol@test.com", "student_id": "stu_002", "full_name": "Carol"}
 
     def mock_get_rows(sheet, filters=None):
         if sheet == "snec_consent":
             return [consent_row]
-        if sheet == "snec_auth":
-            return [auth_row]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
-         patch("tools.api.routers.auth.update_row") as mock_update:
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_upsert:
         r = client.post(
             "/api/auth/change-password",
             json={
@@ -127,23 +117,22 @@ def test_change_password_success():
         )
     assert r.status_code == 200
     assert r.json()["ok"] is True
-    mock_update.assert_called_once()
+    mock_upsert.assert_called_once()
 
 
 def test_change_password_wrong_current():
     from tools.shared.auth import hash_password
     old_hash = hash_password("correctpass")
-    auth_row = {"email": "dave@test.com", "password_hash": old_hash, "must_change": "false"}
+    auth_row = {"email": "dave@test.com", "password_hash": old_hash, "must_change": False}
     consent_row = {"email": "dave@test.com", "student_id": "stu_003", "full_name": "Dave"}
 
     def mock_get_rows(sheet, filters=None):
         if sheet == "snec_consent":
             return [consent_row]
-        if sheet == "snec_auth":
-            return [auth_row]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)):
         r = client.post(
             "/api/auth/change-password",
             json={
@@ -157,23 +146,16 @@ def test_change_password_wrong_current():
 
 
 def test_change_password_too_short():
-    consent_row = {"email": "e@t.com", "student_id": "x", "full_name": "X"}
-
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_consent":
-            return [consent_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows):
-        r = client.post(
-            "/api/auth/change-password",
-            json={
-                "student_id": "x",
-                "current_password": "any",
-                "new_password": "short",
-            },
-            headers=_auth_headers("x"),
-        )
+    # Length check fires before consent lookup; no gsheets call needed
+    r = client.post(
+        "/api/auth/change-password",
+        json={
+            "student_id": "x",
+            "current_password": "any",
+            "new_password": "short",
+        },
+        headers=_auth_headers("x"),
+    )
     assert r.status_code == 400
 
 
@@ -183,28 +165,16 @@ def test_student_detail_requires_admin():
 
 
 def test_student_detail_returns_shape():
-    consent_row = {"email": "alice@test.com", "student_id": "stu_001", "full_name": "Alice"}
-
     profile_data = {
         "student_id": "stu_001", "full_name": "Alice", "email": "alice@test.com",
-        "role": "OA", "session_count": "3", "streak": "2", "last_active": "2026-05-27",
-        "learning_velocity": "improving", "weak_topics": "[]", "missed_findings": "[]",
-        "retention_scores": "{}", "supervisor_note": "",
+        "role": "OA", "session_count": 3, "streak": 2, "last_active": "2026-05-27",
+        "learning_velocity": "improving", "weak_topics": [], "missed_findings": [],
+        "retention_scores": {}, "supervisor_note": "",
     }
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_consent":
-            return [consent_row]
-        if sheet == "snec_supervisors":
-            return [{"email": "admin@snec.com", "role": "admin"}]
-        if sheet == "snec_sessions":
-            return []
-        if sheet == "snec_case_progress":
-            return []
-        return []
-
-    with patch("tools.api.routers.admin.get_rows", mock_get_rows), \
-         patch("tools.api.routers.admin.get_profile", return_value=profile_data):
+    with patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value=profile_data)), \
+         patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])):
         r = client.get("/api/admin/student/stu_001/detail",
                        headers=_auth_headers("admin-uuid", "admin", ""))
     assert r.status_code == 200
@@ -227,7 +197,7 @@ def test_request_reset_returns_ok_for_approved_user():
             return [approved_row]
         return []
 
-    with patch("tools.api.routers.auth.get_rows", mock_get_rows), \
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
          patch("tools.api.routers.auth.set_otp") as mock_set_otp, \
          patch("tools.shared.gmail_sender.send_email", side_effect=Exception("email disabled")):
         r = client.post("/api/auth/request-reset", json={"email": "reset@test.com"})
@@ -240,7 +210,7 @@ def test_request_reset_returns_ok_for_approved_user():
 
 def test_request_reset_returns_ok_for_unknown_email():
     """request-reset returns {"ok": True} even for unknown emails (no enumeration)."""
-    with patch("tools.api.routers.auth.get_rows", return_value=[]):
+    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(return_value=[])):
         r = client.post("/api/auth/request-reset", json={"email": "nobody@test.com"})
     assert r.status_code == 200
     assert r.json()["ok"] is True
@@ -249,7 +219,7 @@ def test_request_reset_returns_ok_for_unknown_email():
 def test_reset_password_success():
     """Valid OTP and new password updates auth row and returns {"ok": True}."""
     with patch("tools.api.routers.auth.verify_and_consume_otp", return_value=True), \
-         patch("tools.api.routers.auth.update_row", return_value=True):
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()):
         r = client.post("/api/auth/reset-password", json={
             "email": "reset@test.com",
             "otp": "123456",

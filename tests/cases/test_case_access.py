@@ -1,7 +1,7 @@
 # tests/cases/test_case_access.py
 """Tests for _check_case_access and its enforcement in case_chat / case_submit."""
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
@@ -52,40 +52,44 @@ def _patch_all_cases(progress: dict):
               side_effect=lambda cid: next(c for c in ALL_CASES if c["case_id"] == cid))
     )
     stack.enter_context(
-        patch("tools.api.routers.cases.get_case_progress", return_value=progress)
+        patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value=progress))
     )
     stack.enter_context(patch.dict("tools.api.shared._case_cache", {}, clear=True))
     return stack
 
 
-def test_beginner_always_allowed():
+@pytest.mark.asyncio
+async def test_beginner_always_allowed():
     """Beginner case is always allowed regardless of progress."""
     case = _make_case("beg_1", "beginner")
     with _patch_all_cases({}):
-        _check_case_access("stu_test", case)
+        await _check_case_access("stu_test", case)
 
 
-def test_intermediate_blocked_zero_beginner_passes():
+@pytest.mark.asyncio
+async def test_intermediate_blocked_zero_beginner_passes():
     """Intermediate case is blocked when student has 0 beginner passes."""
     case = _make_case("int_1", "intermediate")
     with _patch_all_cases({}):
         with pytest.raises(HTTPException) as exc_info:
-            _check_case_access("stu_test", case)
+            await _check_case_access("stu_test", case)
     assert exc_info.value.status_code == 403
     assert "beginner" in exc_info.value.detail.lower()
 
 
-def test_intermediate_blocked_one_beginner_pass():
+@pytest.mark.asyncio
+async def test_intermediate_blocked_one_beginner_pass():
     """Intermediate case is blocked when student has only 1 beginner pass."""
     case = _make_case("int_1", "intermediate")
     progress = {"beg_1": {"total_score": 30, "passed": True}}
     with _patch_all_cases(progress):
         with pytest.raises(HTTPException) as exc_info:
-            _check_case_access("stu_test", case)
+            await _check_case_access("stu_test", case)
     assert exc_info.value.status_code == 403
 
 
-def test_intermediate_allowed_two_beginner_passes():
+@pytest.mark.asyncio
+async def test_intermediate_allowed_two_beginner_passes():
     """Intermediate case is allowed when student has 2 beginner passes."""
     case = _make_case("int_1", "intermediate")
     progress = {
@@ -93,10 +97,11 @@ def test_intermediate_allowed_two_beginner_passes():
         "beg_2": {"total_score": 28, "passed": True},
     }
     with _patch_all_cases(progress):
-        _check_case_access("stu_test", case)
+        await _check_case_access("stu_test", case)
 
 
-def test_advanced_blocked_zero_intermediate_passes():
+@pytest.mark.asyncio
+async def test_advanced_blocked_zero_intermediate_passes():
     """Advanced case is blocked when student has 0 intermediate passes."""
     case = _make_case("adv_1", "advanced")
     progress = {
@@ -105,12 +110,13 @@ def test_advanced_blocked_zero_intermediate_passes():
     }
     with _patch_all_cases(progress):
         with pytest.raises(HTTPException) as exc_info:
-            _check_case_access("stu_test", case)
+            await _check_case_access("stu_test", case)
     assert exc_info.value.status_code == 403
     assert "intermediate" in exc_info.value.detail.lower()
 
 
-def test_advanced_blocked_one_intermediate_pass():
+@pytest.mark.asyncio
+async def test_advanced_blocked_one_intermediate_pass():
     """Advanced case is blocked when student has only 1 intermediate pass."""
     case = _make_case("adv_1", "advanced")
     progress = {
@@ -120,11 +126,12 @@ def test_advanced_blocked_one_intermediate_pass():
     }
     with _patch_all_cases(progress):
         with pytest.raises(HTTPException) as exc_info:
-            _check_case_access("stu_test", case)
+            await _check_case_access("stu_test", case)
     assert exc_info.value.status_code == 403
 
 
-def test_advanced_allowed_two_intermediate_passes():
+@pytest.mark.asyncio
+async def test_advanced_allowed_two_intermediate_passes():
     """Advanced case is allowed when student has 2 intermediate passes."""
     case = _make_case("adv_1", "advanced")
     progress = {
@@ -134,14 +141,15 @@ def test_advanced_allowed_two_intermediate_passes():
         "int_2": {"total_score": 32, "passed": True},
     }
     with _patch_all_cases(progress):
-        _check_case_access("stu_test", case)
+        await _check_case_access("stu_test", case)
 
 
-def test_unknown_difficulty_allowed():
+@pytest.mark.asyncio
+async def test_unknown_difficulty_allowed():
     """Unknown difficulty is treated as beginner (allowed)."""
     case = _make_case("mystery_1", "expert")
     with _patch_all_cases({}):
-        _check_case_access("stu_test", case)
+        await _check_case_access("stu_test", case)
 
 
 def _locked_advanced_case() -> dict:
@@ -154,7 +162,7 @@ def test_submit_locked_case_returns_403():
     with patch.dict("tools.api.shared._case_cache", {"adv_locked": case}, clear=False), \
          patch("tools.api.routers.cases.list_available_cases", return_value=["adv_locked"]), \
          patch("tools.api.routers.cases.load_case", return_value=case), \
-         patch("tools.api.routers.cases.get_case_progress", return_value={}):
+         patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})):
 
         r = client.post(
             "/api/cases/adv_locked/submit",
@@ -178,7 +186,7 @@ def test_chat_locked_case_returns_403():
     with patch.dict("tools.api.shared._case_cache", {"adv_locked": case}, clear=False), \
          patch("tools.api.routers.cases.list_available_cases", return_value=["adv_locked"]), \
          patch("tools.api.routers.cases.load_case", return_value=case), \
-         patch("tools.api.routers.cases.get_case_progress", return_value={}):
+         patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})):
 
         r = client.post(
             "/api/cases/adv_locked/chat",

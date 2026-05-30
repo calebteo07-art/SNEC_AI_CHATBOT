@@ -5,7 +5,7 @@ Critical security invariant: every admin endpoint must enforce JWT auth AND
 require the 'admin' role — a student or supervisor JWT must be rejected.
 """
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
@@ -80,21 +80,21 @@ def test_admin_list_approved_returns_students():
         {"email": "a@test.com", "full_name": "Alice", "role": "OA"},
         {"email": "b@test.com", "full_name": "Bob",   "role": "OT"},
     ]
-    with patch("tools.api.routers.admin.get_rows", return_value=rows):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=rows)):
         r = client.get("/api/admin/approved", headers=_admin_headers())
     assert r.status_code == 200
     assert len(r.json()["students"]) == 2
 
 
 def test_admin_list_approved_returns_empty_list():
-    with patch("tools.api.routers.admin.get_rows", return_value=[]):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
         r = client.get("/api/admin/approved", headers=_admin_headers())
     assert r.status_code == 200
     assert r.json()["students"] == []
 
 
 def test_admin_list_approved_500_on_sheets_failure():
-    with patch("tools.api.routers.admin.get_rows", side_effect=Exception("sheets down")):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=Exception("sheets down"))):
         r = client.get("/api/admin/approved", headers=_admin_headers())
     assert r.status_code == 500
     assert "sheets down" not in r.json()["detail"]
@@ -111,8 +111,9 @@ def _mock_get_rows_no_existing(sheet, filters=None):
 
 
 def test_admin_approve_student_success():
-    with patch("tools.api.routers.admin.get_rows", side_effect=_mock_get_rows_no_existing), \
-         patch("tools.api.routers.admin.append_row"), \
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=_mock_get_rows_no_existing)), \
+         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
          patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
         r = client.post(
             "/api/admin/approved",
@@ -132,7 +133,7 @@ def test_admin_approve_student_409_duplicate():
             return existing
         return []
 
-    with patch("tools.api.routers.admin.get_rows", side_effect=mock_get_rows):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)):
         r = client.post(
             "/api/admin/approved",
             json={"email": "dup@test.com", "full_name": "Dup", "role": "OA"},
@@ -142,7 +143,7 @@ def test_admin_approve_student_409_duplicate():
 
 
 def test_admin_approve_student_400_empty_email():
-    with patch("tools.api.routers.admin.get_rows", return_value=[]):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
         r = client.post(
             "/api/admin/approved",
             json={"email": "   ", "full_name": "X", "role": "OA"},
@@ -153,8 +154,9 @@ def test_admin_approve_student_400_empty_email():
 
 def test_admin_approve_student_does_not_return_password():
     """Plaintext password must never appear in the API response."""
-    with patch("tools.api.routers.admin.get_rows", side_effect=_mock_get_rows_no_existing), \
-         patch("tools.api.routers.admin.append_row"), \
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=_mock_get_rows_no_existing)), \
+         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
          patch("tools.api.routers.admin.generate_password", return_value="SuperSecret1!"):
         r = client.post(
             "/api/admin/approved",
@@ -187,15 +189,11 @@ def test_admin_remove_student_404_not_found():
 # ---------------------------------------------------------------------------
 
 def test_admin_promote_success():
-    consent_row = [{"email": "staff@test.com", "student_id": "stu_staff"}]
-
     def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_consent":
-            return consent_row
-        return []
+        return []  # no existing supervisor → triggers append
 
-    with patch("tools.api.routers.admin.get_rows", side_effect=mock_get_rows), \
-         patch("tools.api.routers.admin.update_row"):
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()):
         r = client.post(
             "/api/admin/promote",
             json={"email": "staff@test.com", "new_role": "supervisor"},
@@ -205,7 +203,8 @@ def test_admin_promote_success():
 
 
 def test_admin_promote_invalid_role():
-    with patch("tools.api.routers.admin.get_rows", return_value=[]):
+    # Role check fires before any DB call; patch included for safety
+    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
         r = client.post(
             "/api/admin/promote",
             json={"email": "x@test.com", "new_role": "overlord"},
