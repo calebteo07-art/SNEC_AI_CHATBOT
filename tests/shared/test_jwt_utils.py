@@ -63,11 +63,19 @@ def test_decode_token_missing_sub_raises_401():
     assert exc_info.value.status_code == 401
 
 
-def test_get_current_user_missing_bearer_prefix_raises_401():
+def test_get_current_user_missing_cookie_raises_401():
     from tools.shared.jwt_utils import get_current_user
     with pytest.raises(HTTPException) as exc_info:
-        get_current_user("notbearer sometoken")
+        get_current_user(eyebot_token=None)
     assert exc_info.value.status_code == 401
+
+
+def test_get_current_user_valid_cookie():
+    from tools.shared.jwt_utils import create_access_token, get_current_user
+    token = create_access_token("stu-123", "student", "OA")
+    result = get_current_user(eyebot_token=token)
+    assert result["sub"] == "stu-123"
+    assert result["role"] == "student"
 
 
 def test_require_supervisor_with_student_token_raises_403():

@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, Response, status
 from jose import JWTError, jwt
 from typing import TypedDict
 
@@ -55,15 +55,15 @@ def decode_token(token: str) -> CurrentUser:
         )
 
 
-def get_current_user(authorization: str | None = Header(None)) -> CurrentUser:
-    """FastAPI dependency: extracts and verifies JWT from Authorization header."""
-    if not authorization or not authorization.startswith("Bearer "):
+def get_current_user(eyebot_token: str | None = Cookie(None)) -> CurrentUser:
+    """FastAPI dependency: extracts and verifies JWT from the eyebot_token cookie."""
+    if not eyebot_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header must start with 'Bearer '",
+            detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return decode_token(authorization[7:])
+    return decode_token(eyebot_token)
 
 
 def require_supervisor(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
@@ -78,3 +78,22 @@ def require_admin(current_user: CurrentUser = Depends(get_current_user)) -> Curr
     if current_user["role"] != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return current_user
+
+
+def set_auth_cookie(response: Response, token: str) -> None:
+    """Write the JWT to an HttpOnly cookie on the response."""
+    is_production = os.getenv("ENVIRONMENT", "development") == "production"
+    response.set_cookie(
+        key="eyebot_token",
+        value=token,
+        httponly=True,
+        secure=is_production,
+        samesite="lax",
+        max_age=_EXPIRE_HOURS * 3600,
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    """Delete the eyebot_token cookie."""
+    response.delete_cookie(key="eyebot_token", path="/")

@@ -25,21 +25,21 @@ ADMIN_ENDPOINTS = [
 ]
 
 
-def _headers(role: str, student_role: str = "OA") -> dict:
+def _cookies(role: str, student_role: str = "OA") -> dict:
     token = create_access_token("user_001", role, student_role)
-    return {"Authorization": f"Bearer {token}"}
+    return {"eyebot_token": token}
 
 
 def _admin_headers() -> dict:
-    return _headers("admin")
+    return _cookies("admin")
 
 
 def _student_headers() -> dict:
-    return _headers("student")
+    return _cookies("student")
 
 
 def _supervisor_headers() -> dict:
-    return _headers("supervisor")
+    return _cookies("supervisor")
 
 
 # ---------------------------------------------------------------------------
@@ -60,14 +60,14 @@ def test_admin_endpoint_rejects_unauthenticated(method, path):
 @pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
 def test_admin_endpoint_rejects_student_token(method, path):
     """Every admin endpoint returns 403 when called with a student JWT."""
-    r = client.request(method, path, headers=_student_headers())
+    r = client.request(method, path, cookies=_student_headers())
     assert r.status_code == 403, f"{method} {path} → {r.status_code}"
 
 
 @pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
 def test_admin_endpoint_rejects_supervisor_token(method, path):
     """Every admin endpoint returns 403 when called with a supervisor JWT."""
-    r = client.request(method, path, headers=_supervisor_headers())
+    r = client.request(method, path, cookies=_supervisor_headers())
     assert r.status_code == 403, f"{method} {path} → {r.status_code}"
 
 
@@ -81,21 +81,21 @@ def test_admin_list_approved_returns_students():
         {"email": "b@test.com", "full_name": "Bob",   "role": "OT"},
     ]
     with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=rows)):
-        r = client.get("/api/admin/approved", headers=_admin_headers())
+        r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 200
     assert len(r.json()["students"]) == 2
 
 
 def test_admin_list_approved_returns_empty_list():
     with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
-        r = client.get("/api/admin/approved", headers=_admin_headers())
+        r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 200
     assert r.json()["students"] == []
 
 
 def test_admin_list_approved_500_on_sheets_failure():
     with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=Exception("sheets down"))):
-        r = client.get("/api/admin/approved", headers=_admin_headers())
+        r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 500
     assert "sheets down" not in r.json()["detail"]
 
@@ -118,7 +118,7 @@ def test_admin_approve_student_success():
         r = client.post(
             "/api/admin/approved",
             json={"email": "new@test.com", "full_name": "New User", "role": "OA"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert r.status_code == 200
     assert r.json()["ok"] is True
@@ -137,7 +137,7 @@ def test_admin_approve_student_409_duplicate():
         r = client.post(
             "/api/admin/approved",
             json={"email": "dup@test.com", "full_name": "Dup", "role": "OA"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert r.status_code == 409
 
@@ -147,7 +147,7 @@ def test_admin_approve_student_400_empty_email():
         r = client.post(
             "/api/admin/approved",
             json={"email": "   ", "full_name": "X", "role": "OA"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert r.status_code == 400
 
@@ -161,7 +161,7 @@ def test_admin_approve_student_does_not_return_password():
         r = client.post(
             "/api/admin/approved",
             json={"email": "safe@test.com", "full_name": "Safe User", "role": "OT"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert "SuperSecret1!" not in r.text
     assert "password" not in r.json()
@@ -173,14 +173,14 @@ def test_admin_approve_student_does_not_return_password():
 
 def test_admin_remove_student_success():
     with patch("tools.shared.gsheets.delete_row", return_value=True):
-        r = client.delete("/api/admin/approved/gone@test.com", headers=_admin_headers())
+        r = client.delete("/api/admin/approved/gone@test.com", cookies=_admin_headers())
     assert r.status_code == 200
     assert r.json()["ok"] is True
 
 
 def test_admin_remove_student_404_not_found():
     with patch("tools.shared.gsheets.delete_row", return_value=False):
-        r = client.delete("/api/admin/approved/nobody@test.com", headers=_admin_headers())
+        r = client.delete("/api/admin/approved/nobody@test.com", cookies=_admin_headers())
     assert r.status_code == 404
 
 
@@ -197,7 +197,7 @@ def test_admin_promote_success():
         r = client.post(
             "/api/admin/promote",
             json={"email": "staff@test.com", "new_role": "supervisor"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert r.status_code == 200
 
@@ -208,6 +208,6 @@ def test_admin_promote_invalid_role():
         r = client.post(
             "/api/admin/promote",
             json={"email": "x@test.com", "new_role": "overlord"},
-            headers=_admin_headers(),
+            cookies=_admin_headers(),
         )
     assert r.status_code == 400

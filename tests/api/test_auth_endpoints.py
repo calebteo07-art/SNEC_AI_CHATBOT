@@ -8,10 +8,10 @@ from tools.shared.jwt_utils import create_access_token
 client = TestClient(app)
 
 
-def _auth_headers(student_id: str, role: str = "student", student_role: str = "OA") -> dict:
-    """Return Authorization headers with a valid JWT for the given identity."""
+def _auth_cookie(student_id: str, role: str = "student", student_role: str = "OA") -> dict:
+    """Return a cookie dict with a valid JWT for the given identity."""
     token = create_access_token(student_id, role, student_role)
-    return {"Authorization": f"Bearer {token}"}
+    return {"eyebot_token": token}
 
 
 def _make_auth_row(email, plain_password, must_change=False):
@@ -113,7 +113,7 @@ def test_change_password_success():
                 "current_password": "oldpass",
                 "new_password": "newpass123",
             },
-            headers=_auth_headers("stu_002"),
+            cookies=_auth_cookie("stu_002"),
         )
     assert r.status_code == 200
     assert r.json()["ok"] is True
@@ -140,7 +140,7 @@ def test_change_password_wrong_current():
                 "current_password": "wrongpass",
                 "new_password": "newpass123",
             },
-            headers=_auth_headers("stu_003"),
+            cookies=_auth_cookie("stu_003"),
         )
     assert r.status_code == 401
 
@@ -154,7 +154,7 @@ def test_change_password_too_short():
             "current_password": "any",
             "new_password": "short",
         },
-        headers=_auth_headers("x"),
+        cookies=_auth_cookie("x"),
     )
     assert r.status_code == 400
 
@@ -176,7 +176,7 @@ def test_student_detail_returns_shape():
          patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
          patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])):
         r = client.get("/api/admin/student/stu_001/detail",
-                       headers=_auth_headers("admin-uuid", "admin", ""))
+                       cookies=_auth_cookie("admin-uuid", "admin", ""))
     assert r.status_code == 200
     data = r.json()
     assert "sessions" in data

@@ -13,9 +13,9 @@ from tools.shared.jwt_utils import create_access_token
 client = TestClient(app)
 
 
-def _auth_headers(student_id: str = "stu_test") -> dict:
+def _auth_cookie(student_id: str = "stu_test") -> dict:
     token = create_access_token(student_id, "student", "OA")
-    return {"Authorization": f"Bearer {token}"}
+    return {"eyebot_token": token}
 
 
 def _make_case(case_id: str, difficulty: str) -> dict:
@@ -173,7 +173,7 @@ def test_submit_locked_case_returns_403():
                 "management_plan": "Timolol drops",
                 "performed_steps": [],
             },
-            headers=_auth_headers("stu_test"),
+            cookies=_auth_cookie("stu_test"),
         )
 
     assert r.status_code == 403
@@ -194,7 +194,7 @@ def test_chat_locked_case_returns_403():
                 "student_id": "stu_test",
                 "messages": [{"role": "user", "content": "Hello"}],
             },
-            headers=_auth_headers("stu_test"),
+            cookies=_auth_cookie("stu_test"),
         )
 
     assert r.status_code == 403
