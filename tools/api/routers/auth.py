@@ -2,7 +2,7 @@
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, SUPER_ADMIN_EMAIL
@@ -11,7 +11,7 @@ from tools.shared.auth import hash_password, verify_password, generate_password
 from tools.shared.gemini_client import MOCK_MODE
 from tools.shared.gsheets import get_rows_async, update_row_async
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
-from tools.shared.jwt_utils import create_access_token, get_current_user, CurrentUser
+from tools.shared.jwt_utils import create_access_token, get_current_user, CurrentUser, set_auth_cookie, clear_auth_cookie
 from tools.shared.otp_store import set_otp, verify_and_consume_otp
 
 router = APIRouter()
@@ -40,7 +40,6 @@ class LoginResponse(BaseModel):
     must_change: bool
     is_new: bool
     mock_mode: bool
-    token: str  # signed JWT — send as Authorization: Bearer <token>
 
 class ChangePasswordRequest(BaseModel):
     student_id: str
@@ -63,7 +62,7 @@ class MeResponse(BaseModel):
 
 @limiter.limit("5/minute")
 @router.post("/api/auth/login", response_model=LoginResponse)
-async def auth_login(request: Request, body: LoginRequest):
+async def auth_login(request: Request, body: LoginRequest, response: Response):
     email = body.email.strip().lower()
 
     # Must be in approved list
@@ -105,6 +104,7 @@ async def auth_login(request: Request, body: LoginRequest):
             approved_student_role = ""
 
     token = create_access_token(student_id, final_role, approved_student_role)
+    set_auth_cookie(response, token)
 
     return LoginResponse(
         student_id=student_id,
@@ -114,7 +114,6 @@ async def auth_login(request: Request, body: LoginRequest):
         must_change=must_change,
         is_new=is_new,
         mock_mode=MOCK_MODE,
-        token=token,
     )
 
 
@@ -127,6 +126,13 @@ async def auth_me(request: Request, current_user: CurrentUser = Depends(get_curr
         role=current_user["role"],
         student_role=current_user["student_role"],
     )
+
+
+@router.post("/api/auth/logout")
+async def auth_logout(response: Response):
+    """Clear the auth cookie and end the session."""
+    clear_auth_cookie(response)
+    return {"ok": True}
 
 
 @router.post("/api/auth/change-password")

@@ -160,8 +160,8 @@ def test_change_password_too_short():
 
 
 def test_student_detail_requires_admin():
-    r = client.get("/api/admin/student/stu_001/detail")
-    assert r.status_code == 401  # missing Authorization header → 401
+    r = TestClient(app).get("/api/admin/student/stu_001/detail")
+    assert r.status_code == 401  # no cookie → 401
 
 
 def test_student_detail_returns_shape():
