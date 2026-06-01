@@ -92,8 +92,8 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
 
     # Create/fetch student identity
     full_name = approved[0].get("full_name", email) if approved else email
-    student_id = get_or_create_student(full_name, email)
-    is_new = not has_consented(student_id)
+    student_id = await get_or_create_student(full_name, email)
+    is_new = not await has_consented(student_id)
 
     # Determine role from supervisors sheet if not a plain student
     final_role = approved_role
@@ -242,9 +242,9 @@ async def onboard(body: OnboardRequest):
             if not student_role and approved[0].get("role", "").upper() in ("OA", "OT", "PSA"):
                 student_role = approved[0]["role"].upper()
 
-    student_id = get_or_create_student(body.full_name.strip(), email)
-    if not has_consented(student_id):
-        record_consent(student_id)
+    student_id = await get_or_create_student(body.full_name.strip(), email)
+    if not await has_consented(student_id):
+        await record_consent(student_id)
 
     # Link student_id back to approved record
     if role == "student":
