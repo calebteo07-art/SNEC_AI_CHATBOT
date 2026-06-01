@@ -25,6 +25,7 @@ def _make_client(rows: list) -> MagicMock:
     table.update.return_value.eq.return_value.execute = execute
     table.insert.return_value.execute = execute
     table.select.return_value.execute = execute          # for get_all_* functions
+    table.select.return_value.order.return_value.execute = execute
     table.delete.return_value.eq.return_value.execute = execute  # for delete_* functions
     return client
 
@@ -141,7 +142,7 @@ async def test_upsert_approved_writes_to_approved_students_table():
     client = _make_client([])
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         await db.upsert_approved("new@test.com", full_name="New", role="OT")
-    client.table.assert_called_with("approved_students")
+    client.table.assert_called_once_with("approved_students")
     payload = client.table.return_value.upsert.call_args[0][0]
     assert payload["email"] == "new@test.com"
     assert payload["role"] == "OT"
@@ -152,6 +153,7 @@ async def test_delete_approved_returns_true_when_deleted():
     client = _make_client([{"email": "gone@test.com"}])
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         result = await db.delete_approved("gone@test.com")
+    client.table.assert_called_once_with("approved_students")
     assert result is True
 
 
@@ -160,6 +162,7 @@ async def test_delete_approved_returns_false_when_not_found():
     client = _make_client([])
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         result = await db.delete_approved("nobody@test.com")
+    client.table.assert_called_once_with("approved_students")
     assert result is False
 
 
@@ -201,7 +204,7 @@ async def test_upsert_consent_writes_to_student_consent_table():
     client = _make_client([])
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         await db.upsert_consent("stu-001", student_name="Alice", email="a@test.com")
-    client.table.assert_called_with("student_consent")
+    client.table.assert_called_once_with("student_consent")
     payload = client.table.return_value.upsert.call_args[0][0]
     assert payload["student_id"] == "stu-001"
     assert payload["email"] == "a@test.com"
@@ -237,7 +240,7 @@ async def test_upsert_supervisor_writes_to_supervisors_table():
     client = _make_client([])
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         await db.upsert_supervisor("sup@snec.com", role="admin")
-    client.table.assert_called_with("supervisors")
+    client.table.assert_called_once_with("supervisors")
     payload = client.table.return_value.upsert.call_args[0][0]
     assert payload["email"] == "sup@snec.com"
     assert payload["role"] == "admin"
