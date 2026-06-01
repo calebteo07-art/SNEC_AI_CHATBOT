@@ -24,6 +24,8 @@ def _make_client(rows: list) -> MagicMock:
     table.upsert.return_value.execute = execute
     table.update.return_value.eq.return_value.execute = execute
     table.insert.return_value.execute = execute
+    table.select.return_value.execute = execute          # for get_all_* functions
+    table.delete.return_value.eq.return_value.execute = execute  # for delete_* functions
     return client
 
 
@@ -107,3 +109,143 @@ async def test_get_case_results_returns_list():
         result = await db.get_case_results("stu-001")
     assert result[0]["passed"] is True
     assert result[0]["total_score"] == 32
+
+
+# ── approved_students ──────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_get_approved_returns_row_when_found():
+    row = {"email": "a@test.com", "full_name": "Alice", "role": "OA", "student_id": None}
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([row]))):
+        result = await db.get_approved("a@test.com")
+    assert result == row
+
+
+@pytest.mark.asyncio
+async def test_get_approved_returns_none_when_not_found():
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([]))):
+        result = await db.get_approved("missing@test.com")
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_all_approved_returns_list():
+    rows = [{"email": "a@test.com"}, {"email": "b@test.com"}]
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client(rows))):
+        result = await db.get_all_approved()
+    assert len(result) == 2
+
+
+@pytest.mark.asyncio
+async def test_upsert_approved_writes_to_approved_students_table():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.upsert_approved("new@test.com", full_name="New", role="OT")
+    client.table.assert_called_with("approved_students")
+    payload = client.table.return_value.upsert.call_args[0][0]
+    assert payload["email"] == "new@test.com"
+    assert payload["role"] == "OT"
+
+
+@pytest.mark.asyncio
+async def test_delete_approved_returns_true_when_deleted():
+    client = _make_client([{"email": "gone@test.com"}])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.delete_approved("gone@test.com")
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_delete_approved_returns_false_when_not_found():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.delete_approved("nobody@test.com")
+    assert result is False
+
+
+# ── student_consent ────────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_get_consent_by_email_returns_row():
+    row = {"student_id": "stu-001", "email": "a@test.com", "student_name": "Alice", "consent_date": None}
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([row]))):
+        result = await db.get_consent_by_email("a@test.com")
+    assert result["student_id"] == "stu-001"
+
+
+@pytest.mark.asyncio
+async def test_get_consent_by_email_returns_none_when_not_found():
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([]))):
+        result = await db.get_consent_by_email("nobody@test.com")
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_consent_by_student_id_returns_row():
+    row = {"student_id": "stu-001", "email": "a@test.com", "consent_date": "2026-01-01"}
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([row]))):
+        result = await db.get_consent_by_student_id("stu-001")
+    assert result["email"] == "a@test.com"
+
+
+@pytest.mark.asyncio
+async def test_get_all_consent_returns_list():
+    rows = [{"student_id": "s1"}, {"student_id": "s2"}]
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client(rows))):
+        result = await db.get_all_consent()
+    assert len(result) == 2
+
+
+@pytest.mark.asyncio
+async def test_upsert_consent_writes_to_student_consent_table():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.upsert_consent("stu-001", student_name="Alice", email="a@test.com")
+    client.table.assert_called_with("student_consent")
+    payload = client.table.return_value.upsert.call_args[0][0]
+    assert payload["student_id"] == "stu-001"
+    assert payload["email"] == "a@test.com"
+
+
+# ── supervisors ────────────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_get_supervisor_returns_row():
+    row = {"email": "sup@snec.com", "role": "supervisor"}
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([row]))):
+        result = await db.get_supervisor("sup@snec.com")
+    assert result["role"] == "supervisor"
+
+
+@pytest.mark.asyncio
+async def test_get_supervisor_returns_none_when_not_found():
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([]))):
+        result = await db.get_supervisor("nobody@snec.com")
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_all_supervisors_returns_list():
+    rows = [{"email": "a@snec.com", "role": "supervisor"}, {"email": "b@snec.com", "role": "admin"}]
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client(rows))):
+        result = await db.get_all_supervisors()
+    assert len(result) == 2
+
+
+@pytest.mark.asyncio
+async def test_upsert_supervisor_writes_to_supervisors_table():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.upsert_supervisor("sup@snec.com", role="admin")
+    client.table.assert_called_with("supervisors")
+    payload = client.table.return_value.upsert.call_args[0][0]
+    assert payload["email"] == "sup@snec.com"
+    assert payload["role"] == "admin"
+
+
+@pytest.mark.asyncio
+async def test_delete_supervisor_calls_delete_on_supervisors_table():
+    client = _make_client([{"email": "sup@snec.com"}])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.delete_supervisor("sup@snec.com")
+    client.table.assert_called_with("supervisors")
