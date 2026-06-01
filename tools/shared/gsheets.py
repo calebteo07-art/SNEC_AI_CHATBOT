@@ -11,7 +11,6 @@ Self-test:
     python tools/shared/gsheets.py
 """
 
-import asyncio
 import os
 import sys
 from pathlib import Path
@@ -176,26 +175,6 @@ def delete_row(sheet_name: str, match_col: str, match_val: str) -> bool:
 
     sheet.delete_rows(cell.row)
     return True
-
-
-# ── Async wrappers for use in async FastAPI route handlers ─────────────────
-
-
-async def get_rows_async(sheet_name: str, filters: dict | None = None) -> list[dict]:
-    """Async wrapper — runs get_rows in a thread so it does not block the event loop."""
-    return await asyncio.to_thread(get_rows, sheet_name, filters)
-
-
-async def append_row_async(sheet_name: str, row: dict) -> None:
-    """Async wrapper — runs append_row in a thread so it does not block the event loop."""
-    await asyncio.to_thread(append_row, sheet_name, row)
-
-
-async def update_row_async(
-    sheet_name: str, key_col: str, key_val: str, updates: dict
-) -> None:
-    """Async wrapper — runs update_row in a thread so it does not block the event loop."""
-    await asyncio.to_thread(update_row, sheet_name, key_col, key_val, updates)
 
 
 if __name__ == "__main__":
