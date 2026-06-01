@@ -64,7 +64,7 @@ class SupervisorInsightsResponse(BaseModel):
 @router.get("/api/supervisor/cohort", response_model=CohortSummaryResponse)
 async def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        result = _cohort_summary()
+        result = await _cohort_summary()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch cohort data")
     return CohortSummaryResponse(**result)
@@ -73,7 +73,7 @@ async def supervisor_cohort(current_user: CurrentUser = Depends(require_supervis
 @router.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
 async def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        students = _get_at_risk()
+        students = await _get_at_risk()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch at-risk data")
     return AtRiskResponse(students=students)
@@ -120,7 +120,7 @@ async def supervisor_save_note(
 @router.get("/api/supervisor/student/{student_id}/report")
 async def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        pdf_bytes = _generate_report(student_id)
+        pdf_bytes = await _generate_report(student_id)
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     filename = f"eyebot_student_{student_id[:8]}_report.pdf"
@@ -134,7 +134,7 @@ async def supervisor_student_report(student_id: str, current_user: CurrentUser =
 @router.get("/api/supervisor/benchmarks", response_model=BenchmarkResponse)
 async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        topics = _get_benchmarks()
+        topics = await _get_benchmarks()
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return BenchmarkResponse(topics=[BenchmarkTopic(**t) for t in topics])
@@ -143,7 +143,7 @@ async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supe
 @router.post("/api/supervisor/send-digest")
 async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        _send_digest(body.recipient)
+        await _send_digest(body.recipient)
     except RuntimeError:
         raise HTTPException(status_code=503, detail="Operation failed. Please try again.")
     except Exception:
@@ -155,8 +155,8 @@ async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser 
 @limiter.limit("10/minute")
 async def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_supervisor)):
     try:
-        cohort = _cohort_summary()
-        at_risk = _get_at_risk()
+        cohort = await _cohort_summary()
+        at_risk = await _get_at_risk()
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to fetch cohort insights")
 
