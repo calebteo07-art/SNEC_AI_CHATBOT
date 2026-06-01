@@ -176,7 +176,7 @@ async def get_my_progress(request: Request, current_user: CurrentUser = Depends(
     """Return the calling student's own progress data (JWT-authenticated, no path param)."""
     student_id = current_user["sub"]
     try:
-        return _get_progress(student_id)
+        return await _get_progress(student_id)
     except Exception as exc:
         print(f"[progress-error] {exc}", flush=True)
         raise HTTPException(status_code=500, detail="Could not load progress data")
@@ -189,7 +189,7 @@ async def get_student_progress(student_id: str, current_user: CurrentUser = Depe
     if current_user["role"] == "student" and student_id != current_user["sub"]:
         raise HTTPException(status_code=403, detail="Forbidden")
     try:
-        return _get_progress(student_id)
+        return await _get_progress(student_id)
     except Exception as exc:
         print(f"[progress-error] {exc}", flush=True)
         raise HTTPException(status_code=500, detail="Could not load progress data")
