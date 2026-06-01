@@ -2,18 +2,16 @@
 """Generate a one-page PDF student report for a supervisor."""
 
 import io
-import json
 from datetime import datetime, timezone
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Spacer, SimpleDocTemplate, HRFlowable, Table, TableStyle
 
-from tools.shared.gsheets import get_rows
+from tools.shared import db
 from tools.profile.get_profile import get_profile
-from tools.cases.get_case_progress import get_case_progress
 
 BRAND = colors.HexColor("#8C6D3F")
 MUTED = colors.HexColor("#A39A8E")
@@ -22,51 +20,46 @@ RED = colors.HexColor("#8B2D2D")
 GREEN = colors.HexColor("#4F6B3D")
 
 
-def _get_student_name(student_id: str) -> str:
+async def _get_student_name(student_id: str) -> str:
     try:
-        rows = get_rows("snec_consent", filters={"student_id": student_id})
-        if rows:
-            return rows[0].get("student_name", "") or rows[0].get("email", student_id[:8])
+        row = await db.get_consent_by_student_id(student_id)
+        if row:
+            return row.get("student_name", "") or row.get("email", student_id[:8])
     except Exception:
         pass
     return student_id[:8] + "…"
 
 
-def generate_student_report(student_id: str) -> bytes:
+async def generate_student_report(student_id: str) -> bytes:
     """Return a one-page PDF report as bytes."""
-    profile = get_profile(student_id)
-    name = _get_student_name(student_id)
-    case_progress = get_case_progress(student_id)
+    profile = await get_profile(student_id)
+    name = await _get_student_name(student_id)
+    case_rows = await db.get_case_results(student_id)
 
-    weak_topics: list[str] = json.loads(profile.get("weak_topics", "[]") or "[]")
-    retention: dict[str, float] = json.loads(profile.get("retention_scores", "{}") or "{}")
+    weak_topics: list[str] = profile.get("weak_topics") or []
+    retention: dict[str, float] = profile.get("retention_scores") or {}
     supervisor_note: str = profile.get("supervisor_note", "") or ""
     role: str = profile.get("role", "—")
-    session_count: int = int(profile.get("session_count", 0) or 0)
-    streak: int = int(profile.get("streak", 0) or 0)
-    last_active: str = profile.get("last_active", "—") or "—"
+    session_count: int = int(profile.get("session_count") or 0)
+    streak: int = int(profile.get("streak") or 0)
+    last_active: str = str(profile.get("last_active") or "—")
     velocity: str = profile.get("learning_velocity", "stable") or "stable"
 
     # Recent case attempts (up to 5, most recent first)
     recent_cases: list[dict] = []
-    if case_progress:
-        try:
-            all_rows = get_rows("snec_case_progress", filters={"student_id": student_id})
-            all_rows.sort(key=lambda r: r.get("completed_at", ""), reverse=True)
-            seen: set[str] = set()
-            for row in all_rows:
-                cid = row.get("case_id", "")
-                if cid and cid not in seen:
-                    seen.add(cid)
-                    recent_cases.append({
-                        "case_id": cid,
-                        "score": int(row.get("total_score", 0) or 0),
-                        "passed": str(row.get("passed", "false")).lower() == "true",
-                    })
-                if len(recent_cases) >= 5:
-                    break
-        except Exception:
-            pass
+    case_rows_sorted = sorted(case_rows, key=lambda r: str(r.get("completed_at", "")), reverse=True)
+    seen: set[str] = set()
+    for row in case_rows_sorted:
+        cid = row.get("case_id", "")
+        if cid and cid not in seen:
+            seen.add(cid)
+            recent_cases.append({
+                "case_id": cid,
+                "score": int(row.get("total_score") or 0),
+                "passed": bool(row.get("passed", False)),
+            })
+        if len(recent_cases) >= 5:
+            break
 
     buf = io.BytesIO()
     doc = SimpleDocTemplate(

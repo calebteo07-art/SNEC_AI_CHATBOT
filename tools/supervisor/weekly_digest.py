@@ -7,6 +7,7 @@ Call directly for a manual send:
 Or trigger via the API endpoint POST /api/supervisor/send-digest.
 """
 
+import asyncio
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -120,10 +121,10 @@ def _bench_section(benchmarks: list[dict]) -> str:
     )
 
 
-def build_digest_html(supervisor_email: str) -> str:
-    summary    = cohort_summary()
-    at_risk    = get_at_risk()
-    benchmarks = get_cohort_benchmarks()
+async def build_digest_html(supervisor_email: str) -> str:
+    summary    = await cohort_summary()
+    at_risk    = await get_at_risk()
+    benchmarks = await get_cohort_benchmarks()
     date_str   = datetime.now(timezone.utc).strftime("%d %b %Y")
 
     at_risk_color = C_RED if summary["at_risk_count"] > 0 else C_GREEN
@@ -187,8 +188,8 @@ def build_digest_html(supervisor_email: str) -> str:
     )
 
 
-def send_weekly_digest(supervisor_email: str) -> None:
-    html = build_digest_html(supervisor_email)
+async def send_weekly_digest(supervisor_email: str) -> None:
+    html = await build_digest_html(supervisor_email)
     date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
     send_email(
         to=supervisor_email,
