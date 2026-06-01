@@ -35,7 +35,7 @@ interface BenchmarkTopic {
 
 export function SupervisorDashboard() {
   const navigate = useNavigate();
-  const { user, authHeaders, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskStudent[]>([]);
   const [benchmarks, setBenchmarks] = useState<BenchmarkTopic[]>([]);
@@ -55,8 +55,8 @@ export function SupervisorDashboard() {
     setBenchmarks([]);
 
     Promise.all([
-      fetch(`${API}/api/supervisor/cohort`, { headers: { ...authHeaders } }).then((r) => r.json()),
-      fetch(`${API}/api/supervisor/at-risk`, { headers: { ...authHeaders } }).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/cohort`, { credentials: "include" }).then((r) => r.json()),
+      fetch(`${API}/api/supervisor/at-risk`, { credentials: "include" }).then((r) => r.json()),
     ])
       .then(([cohortData, atRiskData]) => {
         setCohort(cohortData);
@@ -68,16 +68,16 @@ export function SupervisorDashboard() {
         setLoading(false);
       });
 
-    fetch(`${API}/api/supervisor/insights`, { headers: { ...authHeaders } })
+    fetch(`${API}/api/supervisor/insights`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => setInsights(data.narrative))
       .catch(() => null);
 
-    fetch(`${API}/api/supervisor/benchmarks`, { headers: { ...authHeaders } })
+    fetch(`${API}/api/supervisor/benchmarks`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => setBenchmarks(data.topics ?? []))
       .catch(() => null);
-  }, [authHeaders]);
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -87,10 +87,8 @@ export function SupervisorDashboard() {
     setDigestStatus("idle");
     fetch(`${API}/api/supervisor/send-digest`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders,
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ recipient: user.email }),
     })
       .then((r) => { if (!r.ok) throw new Error(); })

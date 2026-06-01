@@ -49,7 +49,7 @@ function scoreColor(score: number) {
 }
 
 export function AdminStudentDetail({ studentId, onClose }: { studentId: string; onClose: () => void }) {
-  const { authHeaders } = useAuth();
+  const {} = useAuth();
   const [data, setData] = useState<DetailData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -59,12 +59,12 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
   const [noteSaved, setNoteSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/admin/student/${studentId}/detail`, { headers: { ...authHeaders } })
+    fetch(`/api/admin/student/${studentId}/detail`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => { setData(d); setNote(d.supervisor_note ?? ""); })
       .catch(() => { setError(true); })
       .finally(() => setLoading(false));
-  }, [studentId, authHeaders]);
+  }, [studentId]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -78,7 +78,8 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     try {
       await fetch(`/api/supervisor/student/${studentId}/note`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ note }),
       });
       setNoteSaved(true);

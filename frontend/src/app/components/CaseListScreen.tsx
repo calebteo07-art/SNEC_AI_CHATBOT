@@ -32,7 +32,7 @@ function difficultyTone(d: string) {
 
 export function CaseListScreen() {
   const navigate = useNavigate();
-  const { authHeaders } = useAuth();
+  const {} = useAuth();
   const [cases, setCases] = useState<CaseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export function CaseListScreen() {
   const fetchCases = useCallback(() => {
     setError(null);
     setLoading(true);
-    fetch("/api/cases", { headers: { ...authHeaders } })
+    fetch("/api/cases", { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
@@ -48,7 +48,7 @@ export function CaseListScreen() {
       .then((data) => setCases(data.cases))
       .catch(() => setError("We couldn't load the cases. Please try again."))
       .finally(() => setLoading(false));
-  }, [authHeaders]);
+  }, []);
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
 

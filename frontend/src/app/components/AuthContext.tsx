@@ -7,7 +7,6 @@ interface User {
   studentId: string;
   studentRole: "OA" | "OT" | "PSA" | "";
   mustChangePassword: boolean;
-  token: string;
 }
 
 interface AuthContextType {
@@ -20,7 +19,6 @@ interface AuthContextType {
   setStudentRole: (role: "OA" | "OT" | "PSA") => void;
   setMustChangePassword: (v: boolean) => void;
   loading: boolean;
-  authHeaders: Record<string, string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,18 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("eyebot_token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    // Validate token with backend on every app load
-    fetch("/api/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    // Validate session cookie with backend on every app load
+    fetch("/api/auth/me", { credentials: "include" })
       .then((res) => {
-        if (!res.ok) throw new Error("Token invalid");
+        if (!res.ok) throw new Error("Not authenticated");
         return res.json();
       })
       .then(() => {
@@ -56,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const parsed = JSON.parse(stored);
             setUser({
               ...parsed,
-              token,
               mustChangePassword: mustChange,
               studentRole: storedStudentRole,
             });
@@ -76,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData);
-    sessionStorage.setItem("eyebot_token", userData.token);
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
       email: userData.email,
@@ -99,20 +87,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser((prev) => prev ? { ...prev, studentRole: role } : prev);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // best-effort
+    }
+    sessionStorage.clear();
     setUser(null);
     setIsCheckInDone(false);
-    sessionStorage.clear();
   };
 
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
     sessionStorage.setItem("eyebot_checkin_done", done ? "true" : "false");
   };
-
-  const authHeaders: Record<string, string> = user?.token
-    ? { Authorization: `Bearer ${user.token}` }
-    : {};
 
   return (
     <AuthContext.Provider value={{
@@ -125,7 +114,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setStudentRole,
       setMustChangePassword,
       loading,
-      authHeaders,
     }}>
       {children}
     </AuthContext.Provider>

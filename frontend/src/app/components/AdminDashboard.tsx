@@ -31,7 +31,7 @@ function fmtTokens(n: number) { return n >= 1000 ? `${(n / 1000).toFixed(0)}k` :
 
 export function AdminDashboard() {
   const navigate = useNavigate();
-  const { user, authHeaders, logout } = useAuth();
+  const { user, logout } = useAuth();
   const adminId = user?.studentId ?? "";
 
   const [tab, setTab] = useState<Tab>("overview");
@@ -85,10 +85,10 @@ export function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/supervisor/cohort`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => null),
-      fetch(`${API}/api/supervisor/at-risk`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => ({ at_risk: [] })),
-      fetch(`${API}/api/admin/token-summary`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => ({ total_tokens: 0 })),
-      fetch(`${API}/api/supervisor/insights`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => ({ insight: "" })),
+      fetch(`${API}/api/supervisor/cohort`, { credentials: "include" }).then((r) => r.json()).catch(() => null),
+      fetch(`${API}/api/supervisor/at-risk`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ at_risk: [] })),
+      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ total_tokens: 0 })),
+      fetch(`${API}/api/supervisor/insights`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ insight: "" })),
     ]).then(([cohortData, riskData, tokenData, insightData]) => {
       if (cohortData) setCohort(cohortData);
       setAtRisk(riskData?.at_risk ?? []);
@@ -96,19 +96,19 @@ export function AdminDashboard() {
       setAiInsight(insightData?.insight ?? "");
     }).finally(() => setOverviewLoading(false));
 
-    fetch(`${API}/api/admin/approved`, { headers: { ...authHeaders } })
+    fetch(`${API}/api/admin/approved`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setApproved(d.students ?? []))
       .catch(() => {})
       .finally(() => setApprovedLoading(false));
-  }, [authHeaders]);
+  }, []);
 
   const loadStudents = () => {
     if (studentsLoaded) return;
     setStudentsLoading(true);
     Promise.all([
-      fetch(`${API}/api/admin/students`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => ({ students: [] })),
-      fetch(`${API}/api/admin/token-summary`, { headers: { ...authHeaders } }).then((r) => r.json()).catch(() => ({ by_student: [] })),
+      fetch(`${API}/api/admin/students`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ students: [] })),
+      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ by_student: [] })),
     ]).then(([sd, td]) => {
       setStudents(sd.students ?? []);
       const map: Record<string, number> = {};
@@ -121,7 +121,7 @@ export function AdminDashboard() {
   const loadFeed = () => {
     if (feedLoaded) return;
     setFeedLoading(true);
-    fetch(`${API}/api/admin/activity`, { headers: { ...authHeaders } })
+    fetch(`${API}/api/admin/activity`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => { setFeed(d.feed ?? []); setFeedLoaded(true); })
       .catch(() => {})
@@ -142,7 +142,8 @@ export function AdminDashboard() {
     try {
       const res = await fetch(`${API}/api/admin/approved`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError(d.detail ?? "Failed to add student."); return; }
@@ -160,7 +161,7 @@ export function AdminDashboard() {
     try {
       const res = await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, {
         method: "DELETE",
-        headers: { ...authHeaders },
+        credentials: "include",
       });
       if (!res.ok) { setRemoveError("Failed to remove student."); setRemoving(null); return; }
       setApproved((prev) => prev.filter((s) => s.email !== email));
@@ -174,7 +175,8 @@ export function AdminDashboard() {
     try {
       const res = await fetch(`${API}/api/admin/promote`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: promoteEmail.trim().toLowerCase(), role: promoteRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setPromoteMsg(d.detail ?? "Failed."); }
@@ -200,7 +202,7 @@ export function AdminDashboard() {
     const form = new FormData();
     form.append("file", csvFile);
     try {
-      const res = await fetch(`${API}/api/admin/upload-csv`, { method: "POST", headers: { ...authHeaders }, body: form });
+      const res = await fetch(`${API}/api/admin/upload-csv`, { method: "POST", credentials: "include", body: form });
       const data = await res.json();
       setCsvImportSummary({ imported: data.imported, skipped: data.skipped });
       setCsvErrors(data.errors ?? []);

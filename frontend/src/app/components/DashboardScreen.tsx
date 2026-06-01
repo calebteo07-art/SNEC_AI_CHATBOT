@@ -32,7 +32,7 @@ const ROLE_OPTIONS = ["OA", "OT", "PSA"] as const;
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, authHeaders, logout, setStudentRole, setMustChangePassword } = useAuth();
+  const { user, logout, setStudentRole, setMustChangePassword } = useAuth();
   const firstName = (user?.fullName || "Student").split(" ")[0];
 
   const [suggestion, setSuggestion] = React.useState<string | null>(null);
@@ -41,12 +41,12 @@ export function DashboardScreen() {
 
   React.useEffect(() => {
     if (user?.studentId) {
-      fetch("/api/study-suggestion", { headers: { ...authHeaders } })
+      fetch("/api/study-suggestion", { credentials: "include" })
         .then((r) => r.json())
         .then((data) => setSuggestion(data.suggestion))
         .catch(() => setSuggestion("Review your weakest topics today."));
     }
-  }, [user?.studentId, authHeaders]);
+  }, [user?.studentId]);
 
   const handleRoleChange = async (role: "OA" | "OT" | "PSA") => {
     if (!user?.studentId || role === user.studentRole || roleChanging) return;
@@ -54,7 +54,8 @@ export function DashboardScreen() {
     try {
       const res = await fetch("/api/profile/role", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ role }),
       });
       if (!res.ok) { setRoleError("Could not update role — please try again."); return; }

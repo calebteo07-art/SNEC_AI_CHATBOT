@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Props) {
-  const { authHeaders, setMustChangePassword } = useAuth();
+  const { setMustChangePassword } = useAuth();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -35,7 +35,8 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
     try {
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           current_password: current,
           new_password: next,

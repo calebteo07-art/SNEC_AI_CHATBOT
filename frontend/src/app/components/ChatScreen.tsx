@@ -115,7 +115,7 @@ function UserBubble({ message }: { message: UserMessage }) {
 
 export function ChatScreen() {
   const navigate = useNavigate();
-  const { user, authHeaders } = useAuth();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -169,7 +169,8 @@ export function ChatScreen() {
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ messages: apiMessages }),
       });
 

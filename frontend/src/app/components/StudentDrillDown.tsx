@@ -30,7 +30,7 @@ function VelocityIcon({ velocity }: { velocity: string }) {
 }
 
 export function StudentDrillDown({ studentId, onClose }: Props) {
-  const { authHeaders } = useAuth();
+  const {} = useAuth();
 
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,9 +44,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
   const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/api/supervisor/student/${studentId}`, {
-      headers: { ...authHeaders },
-    })
+    fetch(`${API}/api/supervisor/student/${studentId}`, { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
         return r.json();
@@ -60,17 +58,15 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
         setError("We couldn't load this student's profile.");
         setLoading(false);
       });
-  }, [studentId, authHeaders]);
+  }, [studentId]);
 
   function handleSaveNote() {
     if (noteSaving) return;
     setNoteSaving(true);
     fetch(`${API}/api/supervisor/student/${studentId}/note`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders,
-      },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ note }),
     })
       .then((r) => { if (!r.ok) throw new Error(); })
@@ -86,9 +82,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
   function handleExportPdf() {
     if (pdfLoading) return;
     setPdfLoading(true);
-    fetch(`${API}/api/supervisor/student/${studentId}/report`, {
-      headers: { ...authHeaders },
-    })
+    fetch(`${API}/api/supervisor/student/${studentId}/report`, { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.blob();

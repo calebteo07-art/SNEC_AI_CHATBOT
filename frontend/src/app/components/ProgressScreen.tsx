@@ -67,7 +67,7 @@ function VelocityIcon({ v }: { v: string }) {
 
 export function ProgressScreen() {
   const navigate = useNavigate();
-  const { authHeaders } = useAuth();
+  const {} = useAuth();
 
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -76,7 +76,7 @@ export function ProgressScreen() {
   const fetchProgress = useCallback(() => {
     setError(null);
     setLoading(true);
-    fetch("/api/progress", { headers: { ...authHeaders } })
+    fetch("/api/progress", { credentials: "include" })
       .then((r) => {
         if (!r.ok) throw new Error("Server error");
         return r.json();
@@ -84,7 +84,7 @@ export function ProgressScreen() {
       .then((d: ProgressData) => setData(d))
       .catch(() => setError("We couldn't load your progress. Please try again."))
       .finally(() => setLoading(false));
-  }, [authHeaders]);
+  }, []);
 
   useEffect(() => { fetchProgress(); }, [fetchProgress]);
 

@@ -64,7 +64,7 @@ interface AiFeedback {
 
 export function FlashcardScreen() {
   const navigate = useNavigate();
-  const { authHeaders } = useAuth();
+  const {} = useAuth();
 
   const [FLASHCARDS, setFLASHCARDS] = useState<Flashcard[]>(() => loadSessionCards());
   const [generating, setGenerating] = useState(false);
@@ -81,7 +81,7 @@ export function FlashcardScreen() {
   React.useEffect(() => {
     if (FLASHCARDS.length === 0) {
       setGenerating(true);
-      fetch("/api/flashcards/generate", { headers: { ...authHeaders } })
+      fetch("/api/flashcards/generate", { credentials: "include" })
         .then((r) => r.json())
         .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
           if (Array.isArray(data) && data.length > 0) {
@@ -96,7 +96,7 @@ export function FlashcardScreen() {
         .catch(() => {/* silently show empty state */})
         .finally(() => setGenerating(false));
     }
-  }, [authHeaders, FLASHCARDS.length]);
+  }, [FLASHCARDS.length]);
 
   const [userProgress, setUserProgress] = useState(getUserProgress());
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
@@ -124,7 +124,8 @@ export function FlashcardScreen() {
     setAiChecking(true);
     fetch(`/api/flashcards/check`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...authHeaders },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         question: card.question,
         student_answer: attempt,

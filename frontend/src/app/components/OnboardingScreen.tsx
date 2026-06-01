@@ -27,7 +27,6 @@ interface LoginResult {
   mock_mode: boolean;
   full_name?: string;
   email?: string;
-  token: string;
 }
 
 export function OnboardingScreen() {
@@ -66,6 +65,7 @@ export function OnboardingScreen() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
       if (res.status === 401) { setErrors({ password: "Incorrect password." }); return; }
@@ -87,7 +87,6 @@ export function OnboardingScreen() {
           role: data.role as "student" | "supervisor" | "admin",
           studentRole: (data.student_role ?? "") as "OA" | "OT" | "PSA" | "",
           mustChangePassword: true,
-          token: data.token,
         });
         setStep("change_password");
         return;
@@ -114,7 +113,6 @@ export function OnboardingScreen() {
       role: data.role as "student" | "supervisor" | "admin",
       studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "",
       mustChangePassword: false,
-      token: data.token,
     });
     if (data.role === "admin") navigate("/admin");
     else if (data.role === "supervisor") navigate("/supervisor");
