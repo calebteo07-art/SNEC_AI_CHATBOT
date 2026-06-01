@@ -12,7 +12,6 @@ from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.gemini_client import MOCK_MODE, MODEL
-from tools.shared.gsheets import append_row_async, get_rows_async, update_row_async
 from tools.shared.jwt_utils import CurrentUser, require_admin
 
 router = APIRouter()
@@ -34,7 +33,7 @@ class PromoteRequest(BaseModel):
 @router.get("/api/admin/approved")
 async def admin_list_approved(current_user: CurrentUser = Depends(require_admin)):
     try:
-        rows = await get_rows_async("snec_approved_students")
+        rows = await db.get_all_approved()
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     return {"students": rows}
@@ -44,19 +43,18 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
     email = body.email.strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="email is required")
-    existing = await get_rows_async("snec_approved_students", filters={"email": email})
+    existing = await db.get_approved(email)
     if existing:
         raise HTTPException(status_code=409, detail="Email already approved")
-    _consent = await get_rows_async("snec_consent", filters={"student_id": current_user["sub"]})
-    admin_email = _consent[0].get("email", "") if _consent else ""
-    await append_row_async("snec_approved_students", {
-        "email": email,
-        "full_name": body.full_name.strip(),
-        "role": body.role.strip().upper(),
-        "added_by": admin_email,
-        "added_at": datetime.now(timezone.utc).isoformat(),
-        "student_id": "",
-    })
+    _consent = await db.get_consent_by_student_id(current_user["sub"])
+    admin_email = _consent.get("email", "") if _consent else ""
+    await db.upsert_approved(
+        email,
+        full_name=body.full_name.strip(),
+        role=body.role.strip().upper(),
+        added_by=admin_email,
+        added_at=datetime.now(timezone.utc).isoformat(),
+    )
     plain_pw = generate_password()
     pw_hash = hash_password(plain_pw)
     try:
@@ -83,8 +81,7 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
 
 @router.delete("/api/admin/approved/{email}")
 async def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
-    from tools.shared.gsheets import delete_row as _dr
-    deleted = _dr("snec_approved_students", "email", email.lower())
+    deleted = await db.delete_approved(email.lower())
     if not deleted:
         raise HTTPException(status_code=404, detail="Email not found in approved list")
     return {"ok": True}
@@ -93,8 +90,8 @@ async def admin_unapprove_student(email: str, current_user: CurrentUser = Depend
 async def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
     try:
         profiles = await db.get_all_profiles()
-        consent = await get_rows_async("snec_consent")
-        approved_rows = await get_rows_async("snec_approved_students")
+        consent = await db.get_all_consent()
+        approved_rows = await db.get_all_approved()
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     approved_emails = {r.get("email", "").strip().lower() for r in approved_rows if r.get("email", "").strip()}
@@ -125,7 +122,7 @@ async def admin_activity(current_user: CurrentUser = Depends(require_admin)):
     try:
         sessions = await db.get_all_sessions(limit=50)
         cases = await db.get_all_case_progress()
-        consent = await get_rows_async("snec_consent")
+        consent = await db.get_all_consent()
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     name_map = {r["student_id"]: r.get("student_name", str(r["student_id"])[:8]) for r in consent}
@@ -159,17 +156,12 @@ async def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depend
     new_role = body.new_role.strip().lower()
     if new_role not in ("supervisor", "admin"):
         raise HTTPException(status_code=400, detail="new_role must be 'supervisor' or 'admin'")
-    existing = await get_rows_async("snec_supervisors", filters={"email": email})
-    if existing:
-        await update_row_async("snec_supervisors", "email", email, {"role": new_role})
-    else:
-        await append_row_async("snec_supervisors", {"supervisor_id": "", "email": email, "cohort": "SNEC", "role": new_role})
+    await db.upsert_supervisor(email, role=new_role)
     return {"ok": True}
 
 @router.delete("/api/admin/promote/{email}")
 async def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin)):
-    from tools.shared.gsheets import delete_row as _dr
-    _dr("snec_supervisors", "email", email.lower())
+    await db.delete_supervisor(email.lower())
     return {"ok": True}
 
 
@@ -257,15 +249,15 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
     text = content.decode("utf-8-sig")  # handles BOM from Excel
     reader = csv.DictReader(io.StringIO(text))
 
-    existing = {r.get("email", "").strip().lower() for r in await get_rows_async("snec_approved_students")}
+    existing = {r.get("email", "").strip().lower() for r in await db.get_all_approved()}
     imported, skipped = 0, 0
     errors = []
     credentials = []
 
     # Resolve admin email from JWT sub via consent sheet
     try:
-        _admin_consent = await get_rows_async("snec_consent", filters={"student_id": current_user["sub"]})
-        admin_email = _admin_consent[0].get("email", "") if _admin_consent else current_user["sub"]
+        _admin_consent = await db.get_consent_by_student_id(current_user["sub"])
+        admin_email = _admin_consent.get("email", "") if _admin_consent else current_user["sub"]
     except Exception:
         admin_email = current_user["sub"]
 
@@ -294,12 +286,13 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
         plain_pw = generate_password()
         pw_hash = hash_password(plain_pw)
 
-        await append_row_async("snec_approved_students", {
-            "email": email, "full_name": full_name, "role": role,
-            "added_by": admin_email,
-            "added_at": datetime.now(timezone.utc).isoformat(),
-            "student_id": "",
-        })
+        await db.upsert_approved(
+            email,
+            full_name=full_name,
+            role=role,
+            added_by=admin_email,
+            added_at=datetime.now(timezone.utc).isoformat(),
+        )
         try:
             await db.upsert_auth(email, pw_hash, must_change=True)
         except Exception:

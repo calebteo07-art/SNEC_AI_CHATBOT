@@ -80,39 +80,34 @@ def test_admin_list_approved_returns_students():
         {"email": "a@test.com", "full_name": "Alice", "role": "OA"},
         {"email": "b@test.com", "full_name": "Bob",   "role": "OT"},
     ]
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=rows)):
+    with patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=rows)):
         r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 200
     assert len(r.json()["students"]) == 2
 
 
 def test_admin_list_approved_returns_empty_list():
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
+    with patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=[])):
         r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 200
     assert r.json()["students"] == []
 
 
 def test_admin_list_approved_500_on_sheets_failure():
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=Exception("sheets down"))):
+    with patch("tools.shared.db.get_all_approved", new=AsyncMock(side_effect=Exception("db down"))):
         r = client.get("/api/admin/approved", cookies=_admin_headers())
     assert r.status_code == 500
-    assert "sheets down" not in r.json()["detail"]
+    assert "db down" not in r.json()["detail"]
 
 
 # ---------------------------------------------------------------------------
 # Functional: approve one student
 # ---------------------------------------------------------------------------
 
-def _mock_get_rows_no_existing(sheet, filters=None):
-    if sheet == "snec_consent":
-        return [{"email": "admin@test.com", "student_id": "user_001"}]
-    return []
-
-
 def test_admin_approve_student_success():
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=_mock_get_rows_no_existing)), \
-         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
          patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
          patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
         r = client.post(
@@ -126,14 +121,9 @@ def test_admin_approve_student_success():
 
 
 def test_admin_approve_student_409_duplicate():
-    existing = [{"email": "dup@test.com", "full_name": "Dup", "role": "OA"}]
+    existing = {"email": "dup@test.com", "full_name": "Dup", "role": "OA"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_approved_students":
-            return existing
-        return []
-
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)):
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=existing)):
         r = client.post(
             "/api/admin/approved",
             json={"email": "dup@test.com", "full_name": "Dup", "role": "OA"},
@@ -143,19 +133,19 @@ def test_admin_approve_student_409_duplicate():
 
 
 def test_admin_approve_student_400_empty_email():
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
-        r = client.post(
-            "/api/admin/approved",
-            json={"email": "   ", "full_name": "X", "role": "OA"},
-            cookies=_admin_headers(),
-        )
+    r = client.post(
+        "/api/admin/approved",
+        json={"email": "   ", "full_name": "X", "role": "OA"},
+        cookies=_admin_headers(),
+    )
     assert r.status_code == 400
 
 
 def test_admin_approve_student_does_not_return_password():
     """Plaintext password must never appear in the API response."""
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=_mock_get_rows_no_existing)), \
-         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
          patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
          patch("tools.api.routers.admin.generate_password", return_value="SuperSecret1!"):
         r = client.post(
@@ -172,14 +162,14 @@ def test_admin_approve_student_does_not_return_password():
 # ---------------------------------------------------------------------------
 
 def test_admin_remove_student_success():
-    with patch("tools.shared.gsheets.delete_row", return_value=True):
+    with patch("tools.shared.db.delete_approved", new=AsyncMock(return_value=True)):
         r = client.delete("/api/admin/approved/gone@test.com", cookies=_admin_headers())
     assert r.status_code == 200
     assert r.json()["ok"] is True
 
 
 def test_admin_remove_student_404_not_found():
-    with patch("tools.shared.gsheets.delete_row", return_value=False):
+    with patch("tools.shared.db.delete_approved", new=AsyncMock(return_value=False)):
         r = client.delete("/api/admin/approved/nobody@test.com", cookies=_admin_headers())
     assert r.status_code == 404
 
@@ -189,11 +179,7 @@ def test_admin_remove_student_404_not_found():
 # ---------------------------------------------------------------------------
 
 def test_admin_promote_success():
-    def mock_get_rows(sheet, filters=None):
-        return []  # no existing supervisor → triggers append
-
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
-         patch("tools.api.routers.admin.append_row_async", new=AsyncMock()):
+    with patch("tools.shared.db.upsert_supervisor", new=AsyncMock()):
         r = client.post(
             "/api/admin/promote",
             json={"email": "staff@test.com", "new_role": "supervisor"},
@@ -203,11 +189,10 @@ def test_admin_promote_success():
 
 
 def test_admin_promote_invalid_role():
-    # Role check fires before any DB call; patch included for safety
-    with patch("tools.api.routers.admin.get_rows_async", new=AsyncMock(return_value=[])):
-        r = client.post(
-            "/api/admin/promote",
-            json={"email": "x@test.com", "new_role": "overlord"},
-            cookies=_admin_headers(),
-        )
+    # Role check fires before any DB call; no patch needed
+    r = client.post(
+        "/api/admin/promote",
+        json={"email": "x@test.com", "new_role": "overlord"},
+        cookies=_admin_headers(),
+    )
     assert r.status_code == 400

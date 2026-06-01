@@ -31,12 +31,8 @@ def test_login_success():
     auth_row = _make_auth_row("alice@test.com", "password1")
     approved_row = _make_approved_row("alice@test.com")
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_approved_students":
-            return [approved_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value="stu_001"), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
@@ -50,20 +46,17 @@ def test_login_success():
 
 def test_login_wrong_password():
     auth_row = _make_auth_row("bob@test.com", "realpass")
+    approved_row = {"email": "bob@test.com", "full_name": "Bob", "role": "OT"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_approved_students":
-            return [{"email": "bob@test.com", "full_name": "Bob", "role": "OT"}]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)):
         r = client.post("/api/auth/login", json={"email": "bob@test.com", "password": "wrongpass"})
     assert r.status_code == 401
 
 
 def test_login_not_approved():
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(return_value=[])):
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)):
         r = client.post("/api/auth/login", json={"email": "unknown@test.com", "password": "any"})
     assert r.status_code == 403
 
@@ -74,14 +67,8 @@ def test_login_student_promoted_to_supervisor():
     approved_row = _make_approved_row("promo@test.com", role="OA")
     sup_row = {"email": "promo@test.com", "role": "supervisor"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_approved_students":
-            return [approved_row]
-        if sheet == "snec_supervisors":
-            return [sup_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.api.routers.auth.get_or_create_student", return_value="stu_004"), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
@@ -98,12 +85,7 @@ def test_change_password_success():
     auth_row = {"email": "carol@test.com", "password_hash": old_hash, "must_change": True}
     consent_row = {"email": "carol@test.com", "student_id": "stu_002", "full_name": "Carol"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_consent":
-            return [consent_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
          patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_upsert:
         r = client.post(
@@ -126,12 +108,7 @@ def test_change_password_wrong_current():
     auth_row = {"email": "dave@test.com", "password_hash": old_hash, "must_change": False}
     consent_row = {"email": "dave@test.com", "student_id": "stu_003", "full_name": "Dave"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_consent":
-            return [consent_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)):
         r = client.post(
             "/api/auth/change-password",
@@ -192,12 +169,8 @@ def test_request_reset_returns_ok_for_approved_user():
     """request-reset returns {"ok": True} for a known approved email."""
     approved_row = {"email": "reset@test.com", "full_name": "Reset User", "role": "OA"}
 
-    def mock_get_rows(sheet, filters=None):
-        if sheet == "snec_approved_students":
-            return [approved_row]
-        return []
-
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(side_effect=mock_get_rows)), \
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.api.routers.auth.set_otp") as mock_set_otp, \
          patch("tools.shared.gmail_sender.send_email", side_effect=Exception("email disabled")):
         r = client.post("/api/auth/request-reset", json={"email": "reset@test.com"})
@@ -210,7 +183,8 @@ def test_request_reset_returns_ok_for_approved_user():
 
 def test_request_reset_returns_ok_for_unknown_email():
     """request-reset returns {"ok": True} even for unknown emails (no enumeration)."""
-    with patch("tools.api.routers.auth.get_rows_async", new=AsyncMock(return_value=[])):
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)):
         r = client.post("/api/auth/request-reset", json={"email": "nobody@test.com"})
     assert r.status_code == 200
     assert r.json()["ok"] is True
