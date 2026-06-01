@@ -9,7 +9,6 @@ from tools.api.shared import limiter, SUPER_ADMIN_EMAIL
 from tools.shared import db
 from tools.shared.auth import hash_password, verify_password, generate_password
 from tools.shared.gemini_client import MOCK_MODE
-from tools.shared.gsheets import get_rows_async, update_row_async
 from tools.shared.identity import get_or_create_student, has_consented, record_consent
 from tools.shared.jwt_utils import create_access_token, get_current_user, CurrentUser, set_auth_cookie, clear_auth_cookie
 from tools.shared.otp_store import set_otp, verify_and_consume_otp
@@ -66,17 +65,17 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     email = body.email.strip().lower()
 
     # Must be in approved list
-    approved = await get_rows_async("snec_approved_students", filters={"email": email})
-    if not approved:
+    approved_row = await db.get_approved(email)
+    if not approved_row:
         # Also allow super admin and promoted supervisors/admins
-        sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
-        if email != SUPER_ADMIN_EMAIL and not sup_rows:
+        sup_row = await db.get_supervisor(email)
+        if email != SUPER_ADMIN_EMAIL and not sup_row:
             raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
-        approved_role = "admin" if (email == SUPER_ADMIN_EMAIL or (sup_rows and sup_rows[0].get("role") == "admin")) else "supervisor"
+        approved_role = "admin" if (email == SUPER_ADMIN_EMAIL or (sup_row and sup_row.get("role") == "admin")) else "supervisor"
         approved_student_role = ""
     else:
         approved_role = "student"
-        approved_student_role = approved[0].get("role", "")
+        approved_student_role = approved_row.get("role", "")
 
     # Check password hash
     auth_row = await db.get_auth(email)
@@ -91,16 +90,16 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         must_change = True
 
     # Create/fetch student identity
-    full_name = approved[0].get("full_name", email) if approved else email
+    full_name = approved_row.get("full_name", email) if approved_row else email
     student_id = await get_or_create_student(full_name, email)
     is_new = not await has_consented(student_id)
 
-    # Determine role from supervisors sheet if not a plain student
+    # Determine role from supervisors table if not a plain student
     final_role = approved_role
     if approved_role == "student":
-        sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
-        if sup_rows:
-            final_role = sup_rows[0].get("role") or "supervisor"
+        sup_row = await db.get_supervisor(email)
+        if sup_row:
+            final_role = sup_row.get("role") or "supervisor"
             approved_student_role = ""
 
     token = create_access_token(student_id, final_role, approved_student_role)
@@ -142,10 +141,10 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
     # Resolve email from student_id
-    consent = await get_rows_async("snec_consent", filters={"student_id": student_id})
-    if not consent:
+    consent_row = await db.get_consent_by_student_id(student_id)
+    if not consent_row:
         raise HTTPException(status_code=404, detail="Student not found.")
-    email = consent[0].get("email", "").strip().lower()
+    email = consent_row.get("email", "").strip().lower()
 
     auth_row = await db.get_auth(email)
     if auth_row:
@@ -165,9 +164,9 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
 async def auth_request_reset(request: Request, body: RequestResetRequest):
     email = body.email.strip().lower()
     # Always return ok so we don't reveal whether the email exists
-    approved = await get_rows_async("snec_approved_students", filters={"email": email})
-    sup_rows = await get_rows_async("snec_supervisors", filters={"email": email})
-    if not approved and email != SUPER_ADMIN_EMAIL and not sup_rows:
+    approved_row = await db.get_approved(email)
+    sup_row = await db.get_supervisor(email)
+    if not approved_row and email != SUPER_ADMIN_EMAIL and not sup_row:
         return {"ok": True}
 
     otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
@@ -221,26 +220,26 @@ async def onboard(body: OnboardRequest):
     else:
         # Check supervisor list
         try:
-            supervisors = await get_rows_async("snec_supervisors", filters={"email": email})
-            if supervisors:
-                role = "admin" if supervisors[0].get("role", "").lower() == "admin" else "supervisor"
+            sup_row = await db.get_supervisor(email)
+            if sup_row:
+                role = "admin" if sup_row.get("role", "").lower() == "admin" else "supervisor"
         except Exception:
             pass
 
         if role == "student":
             # Check approved students whitelist
             try:
-                approved = await get_rows_async("snec_approved_students", filters={"email": email})
+                approved_row = await db.get_approved(email)
             except Exception:
-                approved = []
-            if not approved:
+                approved_row = None
+            if not approved_row:
                 raise HTTPException(
                     status_code=403,
                     detail="Access restricted. Contact your administrator to request access.",
                 )
             # Pre-fill role from whitelist if student didn't supply one
-            if not student_role and approved[0].get("role", "").upper() in ("OA", "OT", "PSA"):
-                student_role = approved[0]["role"].upper()
+            if not student_role and approved_row.get("role", "").upper() in ("OA", "OT", "PSA"):
+                student_role = approved_row["role"].upper()
 
     student_id = await get_or_create_student(body.full_name.strip(), email)
     if not await has_consented(student_id):
@@ -249,7 +248,7 @@ async def onboard(body: OnboardRequest):
     # Link student_id back to approved record
     if role == "student":
         try:
-            await update_row_async("snec_approved_students", "email", email, {"student_id": student_id})
+            await db.update_approved(email, student_id=student_id)
         except Exception:
             pass
 
