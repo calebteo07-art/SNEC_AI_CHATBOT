@@ -189,3 +189,148 @@ async def get_all_case_progress() -> list[dict]:
         .execute()
     )
     return result.data or []
+
+
+# ── approved_students ─────────────────────────────────────────────────────────
+
+async def get_approved(email: str) -> dict | None:
+    """Return the approved_students row for email, or None if not found."""
+    client = await _get_client()
+    result = (
+        await client.table("approved_students")
+        .select("*")
+        .eq("email", email)
+        .limit(1)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+async def get_all_approved() -> list[dict]:
+    """Return all rows from approved_students."""
+    client = await _get_client()
+    result = await client.table("approved_students").select("*").execute()
+    return result.data or []
+
+
+async def upsert_approved(
+    email: str,
+    full_name: str = "",
+    role: str = "",
+    added_by: str = "",
+    added_at: str | None = None,
+    student_id: str | None = None,
+) -> None:
+    """Insert or update an approved_students row."""
+    client = await _get_client()
+    payload: dict = {"email": email, "full_name": full_name, "role": role, "added_by": added_by}
+    if added_at:
+        payload["added_at"] = added_at
+    if student_id:
+        payload["student_id"] = student_id
+    await client.table("approved_students").upsert(payload, on_conflict="email").execute()
+
+
+async def update_approved(email: str, **fields) -> None:
+    """Update specific fields on an approved_students row."""
+    client = await _get_client()
+    await client.table("approved_students").update(fields).eq("email", email).execute()
+
+
+async def delete_approved(email: str) -> bool:
+    """Delete an approved_students row. Returns True if a row was deleted."""
+    client = await _get_client()
+    result = await client.table("approved_students").delete().eq("email", email).execute()
+    return len(result.data) > 0
+
+
+# ── student_consent ───────────────────────────────────────────────────────────
+
+async def get_consent_by_email(email: str) -> dict | None:
+    """Return the student_consent row for email, or None."""
+    client = await _get_client()
+    result = (
+        await client.table("student_consent")
+        .select("*")
+        .eq("email", email)
+        .limit(1)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+async def get_consent_by_student_id(student_id: str) -> dict | None:
+    """Return the student_consent row for student_id, or None."""
+    client = await _get_client()
+    result = (
+        await client.table("student_consent")
+        .select("*")
+        .eq("student_id", student_id)
+        .limit(1)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+async def get_all_consent() -> list[dict]:
+    """Return all rows from student_consent."""
+    client = await _get_client()
+    result = await client.table("student_consent").select("*").execute()
+    return result.data or []
+
+
+async def upsert_consent(student_id: str, student_name: str, email: str) -> None:
+    """Insert or update a student_consent row (core identity fields only)."""
+    client = await _get_client()
+    await client.table("student_consent").upsert(
+        {"student_id": student_id, "student_name": student_name, "email": email},
+        on_conflict="student_id",
+    ).execute()
+
+
+async def update_consent(student_id: str, **fields) -> None:
+    """Update specific fields on a student_consent row."""
+    client = await _get_client()
+    await client.table("student_consent").update(fields).eq("student_id", student_id).execute()
+
+
+# ── supervisors ───────────────────────────────────────────────────────────────
+
+async def get_supervisor(email: str) -> dict | None:
+    """Return the supervisors row for email, or None."""
+    client = await _get_client()
+    result = (
+        await client.table("supervisors")
+        .select("*")
+        .eq("email", email)
+        .limit(1)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+async def get_all_supervisors() -> list[dict]:
+    """Return all rows from supervisors."""
+    client = await _get_client()
+    result = await client.table("supervisors").select("*").execute()
+    return result.data or []
+
+
+async def upsert_supervisor(
+    email: str,
+    role: str = "supervisor",
+    cohort: str = "SNEC",
+    supervisor_id: str = "",
+) -> None:
+    """Insert or update a supervisors row."""
+    client = await _get_client()
+    await client.table("supervisors").upsert(
+        {"email": email, "role": role, "cohort": cohort, "supervisor_id": supervisor_id},
+        on_conflict="email",
+    ).execute()
+
+
+async def delete_supervisor(email: str) -> None:
+    """Delete a supervisors row."""
+    client = await _get_client()
+    await client.table("supervisors").delete().eq("email", email).execute()
