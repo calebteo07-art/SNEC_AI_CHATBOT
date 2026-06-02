@@ -1,45 +1,49 @@
 # SNEC EyeBot — Award Proposal
 
-A design-forward business proposal for **SNEC EyeBot**, prepared for the
-2026 International E-Learning Awards (Academic Division — E-Learning Experiences).
+A design-forward proposal for **SNEC EyeBot**, prepared for the 2026 International
+E-Learning Awards (Academic Division — E-Learning Experiences). Scope spans the
+whole ophthalmic learning continuum (medical students → optometry → residents →
+nurses → allied health), with the innovation foregrounded.
 
-## Files
+## Deliverables
 
 | File | Purpose |
 |---|---|
-| `proposal.html` | The source document — all text, layout and hand-built SVG graphics live here. |
-| `SNEC_EyeBot_Proposal.pdf` | The rendered deliverable (8 × A4 pages, ~1.4 MB). **This is the file to send.** |
-| `render.mjs` | Renders `proposal.html` → PDF + per-page PNG previews using your installed Chrome/Edge. |
-| `previews/` | Per-page PNGs for visual checking (regenerated each render; git-ignored). |
+| `SNEC_EyeBot_Proposal.pdf` | **The print/email-ready deliverable** — 9 × A4 pages, ~1.5 MB. |
+| `SNEC_EyeBot_Proposal.pptx` | **Canva-editable version** — import into Canva (or open in PowerPoint) to edit every text block. |
 
-## Editing the text
+## Source & build files
 
-Open `proposal.html` and edit the copy directly. A few common spots:
+| File | Purpose |
+|---|---|
+| `proposal.html` | The single source of truth — all copy, layout and hand-built SVG graphics. |
+| `render.mjs` | Renders `proposal.html` → PDF, page previews, text-less backgrounds, and `layout.json` (text positions/styles). Drives your installed Chrome/Edge via puppeteer-core. |
+| `build_pptx.py` | Assembles `SNEC_EyeBot_Proposal.pptx` from the backgrounds + `layout.json` (real, editable text boxes over pixel-perfect backgrounds). |
 
-- **Names / recipient** — search for `Dr JB` and `Caleb Teo` on the cover (page 1)
-  and footer (page 8). These are placeholders — replace with the correct full
-  names and titles.
-- **Product name** — search for `EyeBot`.
-- **Pilot specifics** — page 7 (`PAGE 7 · PILOT + IELA`) — e.g. cohort size, duration.
+## Editing in Canva
 
-## Re-exporting the PDF
+1. In Canva: **Create design → Import file →** choose `SNEC_EyeBot_Proposal.pptx`.
+2. Canva converts each slide to an editable design; all headings/body become editable text.
+3. Fonts used — **Fraunces**, **Archivo**, **JetBrains Mono** — are all in Canva's font library, so they resolve automatically.
 
-From this folder:
+Common things to change: the names on the cover (`Dr JB`, `Caleb Teo`), the product
+name (`EyeBot`), and the pilot specifics.
+
+## Re-exporting from source
 
 ```bash
-npm install      # first time only (installs puppeteer-core; uses your existing Chrome)
-npm run render   # writes SNEC_EyeBot_Proposal.pdf and refreshes previews/
+npm install            # first time only (puppeteer-core; uses your existing Chrome)
+npm run render         # -> PDF + previews + backgrounds + layout.json
+python build_pptx.py   # -> SNEC_EyeBot_Proposal.pptx   (needs: pip install python-pptx)
 ```
 
-The renderer auto-detects Chrome or Edge. Fonts (Fraunces, Archivo, JetBrains Mono)
-load from Google Fonts at render time, so keep an internet connection for export.
+Keep an internet connection when rendering — the display fonts load from Google Fonts.
 
 ## Design notes
 
 - **Aesthetic:** clinical-futurism / scientific-editorial — deep teal + warm gold,
-  recurring iris / optical-scan motif.
-- **Type:** Fraunces (optical display serif), Archivo (body), JetBrains Mono (data labels).
-- **Graphics:** all hand-built SVG/CSS — holographic iris, adaptive-loop engine
-  diagram, Ebbinghaus forgetting curve, cohort heatmap, Workflows-Agents-Tools bands.
-- **Integrity:** EyeBot is a working prototype, so the document positions impact as a
+  a recurring iris / optical-scan motif.
+- **Graphics:** all hand-built SVG/CSS — holographic iris, adaptive-loop engine,
+  Ebbinghaus forgetting curve, learner-continuum, Workflows-Agents-Tools bands.
+- **Integrity:** EyeBot is a working prototype, so impact is positioned as a
   *measured pilot plan*, not invented results.
