@@ -80,6 +80,21 @@
   .cover-foot .col b{font-family:var(--sans);font-size:12.5px;font-weight:600;color:#dcefea;letter-spacing:.01em;}
   .scanwrap{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);z-index:1;}
 
+  /* photographic imagery */
+  .cover-photo{position:absolute;top:0;left:0;right:0;height:566px;overflow:hidden;z-index:0;}
+  .cover-photo img{width:100%;height:100%;object-fit:cover;object-position:center 42%;}
+  .cover-photo::after{content:"";position:absolute;inset:0;background:
+      linear-gradient(180deg,rgba(6,18,26,.4) 0%,rgba(6,18,26,0) 22%,rgba(6,18,26,0) 50%,rgba(6,18,26,.82) 82%,#06121a 100%),
+      linear-gradient(90deg,rgba(6,18,26,.55),transparent 16%,transparent 84%,rgba(6,18,26,.55));}
+  .cover-center2{display:flex;flex-direction:column;align-items:center;text-align:center;z-index:3;}
+  .photo-bg{position:absolute;inset:0;z-index:0;overflow:hidden;}
+  .photo-bg img{width:100%;height:100%;object-fit:cover;object-position:center;}
+  .photo-scrim{position:absolute;inset:0;z-index:0;}
+  .scrim-left{background:
+      linear-gradient(180deg,rgba(6,18,26,.6) 0%,transparent 13%,transparent 87%,rgba(6,18,26,.55) 100%),
+      linear-gradient(100deg,rgba(6,18,26,.975) 0%,rgba(6,18,26,.93) 37%,rgba(6,18,26,.6) 63%,rgba(6,18,26,.16) 100%);}
+  .scrim-full{background:radial-gradient(120% 90% at 30% 24%,rgba(6,18,26,.66),transparent 60%),linear-gradient(180deg,rgba(6,18,26,.9) 0%,rgba(6,18,26,.74) 34%,rgba(6,18,26,.84) 64%,rgba(6,18,26,.96) 100%);}
+
   /* holographic iris */
   .eye{position:relative;border-radius:50%;}
   .eye .lyr{position:absolute;inset:0;border-radius:50%;}
@@ -102,7 +117,7 @@
   .stat .ic{position:absolute;right:16px;top:18px;color:var(--teal-2);}
 
   .pains{display:flex;flex-direction:column;gap:13px;margin-top:6px;}
-  .pain{display:flex;gap:18px;align-items:flex-start;padding:18px 20px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid var(--line-d);}
+  .pain{display:flex;gap:18px;align-items:flex-start;padding:18px 20px;border-radius:13px;background:rgba(7,20,28,.6);border:1px solid rgba(47,224,196,.2);backdrop-filter:blur(2px);}
   .pain .n{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--teal);width:26px;flex:none;padding-top:2px;}
   .pain h3{font-size:17px;color:#eafffb;margin-bottom:4px;}
   .pain p{font-size:12.5px;line-height:1.5;color:#9fb6b6;}
@@ -188,35 +203,23 @@
 
 <!-- ============ PAGE 1 · COVER ============ -->
 <section class="page dark">
-  <div class="grid-lines"></div>
-  <svg class="scanwrap" width="640" height="640" viewBox="0 0 640 640" fill="none">
-    <g stroke="rgba(47,224,196,0.13)"><circle cx="320" cy="320" r="300"/><circle cx="320" cy="320" r="232" stroke-dasharray="2 8"/><circle cx="320" cy="320" r="170"/></g>
-    <g stroke="rgba(47,224,196,0.22)" stroke-width="1"><line x1="320" y1="8" x2="320" y2="44"/><line x1="320" y1="596" x2="320" y2="632"/><line x1="8" y1="320" x2="44" y2="320"/><line x1="596" y1="320" x2="632" y2="320"/></g>
-  </svg>
+  <div class="cover-photo"><img src="assets/eye_hero.png" alt="" /></div>
   <div class="pad">
     <div class="cover-top">
       <div class="brandmark"><span class="dot"></span><b>SNEC · Singapore National Eye Centre</b></div>
-      <div class="brandmark"><b style="color:#7f9aa0">Training &amp; Education</b></div>
+      <div class="brandmark"><b style="color:#bfe0e0">Training &amp; Education</b></div>
     </div>
-    <div class="cover-center">
-      <div class="eye" style="width:296px;height:296px">
-        <div class="lyr sclera"></div><div class="lyr fibers"></div><div class="lyr depth"></div><div class="lyr innerglow"></div><div class="lyr pupil"></div><div class="lyr glint"></div>
-        <svg class="rings" viewBox="0 0 300 300">
-          <circle cx="150" cy="150" r="118" fill="none" stroke="rgba(47,224,196,.35)" stroke-width="1"/>
-          <circle cx="150" cy="150" r="106" fill="none" stroke="rgba(47,224,196,.5)" stroke-width="1" stroke-dasharray="1.5 6"/>
-          <circle cx="150" cy="150" r="56" fill="none" stroke="rgba(47,224,196,.4)" stroke-width="1" stroke-dasharray="2 5"/>
-          <g stroke="rgba(47,224,196,.7)" stroke-width="1.4"><line x1="150" y1="20" x2="150" y2="34"/><line x1="150" y1="266" x2="150" y2="280"/><line x1="20" y1="150" x2="34" y2="150"/><line x1="266" y1="150" x2="280" y2="150"/></g>
-        </svg>
-        <div class="lyr bezel"></div>
-      </div>
+    <div class="spacer" style="flex:1.45"></div>
+    <div class="cover-center2">
       <div class="cover-title">Eye<span class="eye-i">Bot</span></div>
       <div class="cover-sub">An AI training companion for the whole of ophthalmic education — grounding every learner, from first-year student to practising clinician, in faithful, adaptive, measurable practice.</div>
       <div class="cover-badge"><span class="star">★</span><span>Prepared for the 2026 International E-Learning Awards · Academic Division · E-Learning Experiences</span></div>
     </div>
+    <div class="spacer"></div>
     <div class="cover-foot">
       <div class="col"><span>Prepared for</span><b>Dr JB · Director, SNEC Training &amp; Education</b></div>
       <div class="col" style="text-align:center"><span>Prepared by</span><b>Caleb Teo · SNEC Training &amp; Education</b></div>
-      <div class="col" style="text-align:right"><span>Document</span><b>June 2026 · Confidential Draft v2.0</b></div>
+      <div class="col" style="text-align:right"><span>Document</span><b>June 2026 · Confidential Draft v3.0</b></div>
     </div>
   </div>
 </section>
@@ -242,8 +245,8 @@
 
 <!-- ============ PAGE 3 · THE CHALLENGE ============ -->
 <section class="page dark">
-  <div class="grid-lines"></div>
-  <div class="wm" style="right:-185px;bottom:-185px"><svg width="560" height="560" viewBox="0 0 560 560" fill="none"><g stroke="rgba(47,224,196,.17)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g><g stroke="rgba(47,224,196,.28)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g></svg></div>
+  <div class="photo-bg"><img src="assets/clinic.png" alt="" /></div>
+  <div class="photo-scrim scrim-full"></div>
   <div class="pad">
     <div class="rhead"><span class="b tealdot">SNEC EyeBot</span><span class="b">The Challenge</span></div>
     <div class="kicker"><span class="num">02</span><span class="label">The Challenge</span><span class="rule"></span></div>
@@ -298,14 +301,14 @@
 
 <!-- ============ PAGE 5 · THE INNOVATION ============ -->
 <section class="page dark">
-  <div class="grid-lines"></div>
-  <div class="wm" style="left:-180px;top:300px"><svg width="560" height="560" viewBox="0 0 560 560" fill="none"><g stroke="rgba(47,224,196,.14)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/></g></svg></div>
+  <div class="photo-bg"><img src="assets/innovation.png" alt="" /></div>
+  <div class="photo-scrim scrim-left"></div>
   <div class="pad">
     <div class="rhead"><span class="b tealdot">SNEC EyeBot</span><span class="b">The Innovation</span></div>
     <div class="kicker"><span class="num">04</span><span class="label">The Innovation</span><span class="rule"></span></div>
     <h2 class="section">An innovation —<br/>not an integration.</h2>
-    <p class="body" style="max-width:600px;margin-bottom:6px">EyeBot is not a chatbot bolted onto a syllabus. Five deliberate advances make it genuinely new for clinical education.</p>
-    <div class="pillars">
+    <p class="body" style="max-width:512px;margin-bottom:6px">EyeBot is not a chatbot bolted onto a syllabus. Five deliberate advances make it genuinely new for clinical education.</p>
+    <div class="pillars" style="max-width:520px">
       <div class="pillar"><div class="pn">01</div><div class="pic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/><path d="m9 12 2 2 4-4"/></svg></div><div><h3>Curriculum-grounded clinical AI</h3><p>Answers are retrieved from the institution’s own validated material — faithful and auditable, never the untraceable guesswork of a generic model.</p></div></div>
       <div class="pillar"><div class="pn">02</div><div class="pic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></div><div><h3>Inexhaustible virtual patients</h3><p>The AI plays both patient and examiner: unlimited, standardised case exposure with rubric-graded feedback — independent of roster luck.</p></div></div>
       <div class="pillar"><div class="pn">03</div><div class="pic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><div><h3>A self-optimising loop</h3><p>Each learner’s weak points automatically become their next flashcards and tougher cases — genuine personalisation, at scale.</p></div></div>
@@ -313,7 +316,7 @@
       <div class="pillar"><div class="pn">05</div><div class="pic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><h3>Cohort intelligence</h3><p>Learning analytics purpose-built for clinical education: at-risk detection, retention scoring and learning-velocity — live, not at term’s end.</p></div></div>
     </div>
     <div class="spacer"></div>
-    <div class="pull" style="max-width:610px">Together: the first AI companion built for <span class="g">how eye care is actually taught.</span></div>
+    <div class="pull" style="max-width:496px">Together: the first AI companion built for <span class="g">how eye care is actually taught.</span></div>
   </div>
   <div class="foot-brand">SNEC EYEBOT</div><div class="foot-num">05 — 09</div>
 </section>
@@ -432,7 +435,7 @@
     </div>
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:32px;border-top:1px solid var(--line-d);padding-top:18px">
       <div class="brandmark"><span class="dot"></span><b>SNEC EyeBot · Training &amp; Education</b></div>
-      <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#7f9aa0;text-align:right">Prepared by Caleb Teo · June 2026<br/>Confidential Draft v2.0</div>
+      <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#7f9aa0;text-align:right">Prepared by Caleb Teo · June 2026<br/>Confidential Draft v3.0</div>
     </div>
   </div>
 </section>

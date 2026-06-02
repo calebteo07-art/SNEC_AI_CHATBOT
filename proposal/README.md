@@ -19,6 +19,8 @@ nurses → allied health), with the innovation foregrounded.
 | `proposal.html` | The single source of truth — all copy, layout and hand-built SVG graphics. |
 | `render.mjs` | Renders `proposal.html` → PDF, page previews, text-less backgrounds, and `layout.json` (text positions/styles). Drives your installed Chrome/Edge via puppeteer-core. |
 | `build_pptx.py` | Assembles `SNEC_EyeBot_Proposal.pptx` from the backgrounds + `layout.json` (real, editable text boxes over pixel-perfect backgrounds). |
+| `gen_images.py` | (Re)generates the realistic imagery in `assets/` via Google Gemini "Nano Banana Pro". |
+| `assets/` | AI-generated photographs used in the document (committed; the eye, clinic scene, AI-eye). |
 
 ## Editing in Canva
 
@@ -32,9 +34,10 @@ name (`EyeBot`), and the pilot specifics.
 ## Re-exporting from source
 
 ```bash
-npm install            # first time only (puppeteer-core; uses your existing Chrome)
-npm run render         # -> PDF + previews + backgrounds + layout.json
-python build_pptx.py   # -> SNEC_EyeBot_Proposal.pptx   (needs: pip install python-pptx)
+npm install                # first time only (puppeteer-core; uses your existing Chrome)
+python gen_images.py all   # (optional) regenerate imagery in assets/ via Gemini "Nano Banana Pro" (needs GEMINI_API_KEY in .env)
+npm run render             # -> PDF + previews + backgrounds + layout.json
+python build_pptx.py       # -> SNEC_EyeBot_Proposal.pptx   (needs: pip install python-pptx)
 ```
 
 Keep an internet connection when rendering — the display fonts load from Google Fonts.
@@ -43,7 +46,9 @@ Keep an internet connection when rendering — the display fonts load from Googl
 
 - **Aesthetic:** clinical-futurism / scientific-editorial — deep teal + warm gold,
   a recurring iris / optical-scan motif.
-- **Graphics:** all hand-built SVG/CSS — holographic iris, adaptive-loop engine,
-  Ebbinghaus forgetting curve, learner-continuum, Workflows-Agents-Tools bands.
+- **Imagery:** photorealistic eye, clinic scene and AI-eye generated with Google
+  Gemini "Nano Banana Pro" (`gemini-3-pro-image`); see `gen_images.py`.
+- **Diagrams:** hand-built SVG/CSS — adaptive-loop engine, Ebbinghaus forgetting
+  curve, learner-continuum, Workflows-Agents-Tools bands.
 - **Integrity:** EyeBot is a working prototype, so impact is positioned as a
   *measured pilot plan*, not invented results.
