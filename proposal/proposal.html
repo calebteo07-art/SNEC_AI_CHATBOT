@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=794, initial-scale=1" />
+<title>SNEC EyeBot — Award Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#07151c;
+    --ink-2:#0a1f28;
+    --ink-3:#0d2630;
+    --teal:#2fe0c4;
+    --teal-2:#19b9a3;
+    --teal-deep:#0c7d72;
+    --gold:#e8b964;
+    --gold-2:#f2d9a8;
+    --paper:#f4f1e9;
+    --paper-2:#fbf9f3;
+    --body:#16313b;
+    --muted:#5d7480;
+    --muted-2:#86979f;
+    --line:rgba(16,49,59,.14);
+    --line-d:rgba(47,224,196,.16);
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Archivo","Helvetica Neue",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+  @page{size:A4;margin:0;}
+
+  html,body{background:#202833;}
+  body{font-family:var(--sans);color:var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+
+  .page{
+    position:relative;width:794px;height:1123px;overflow:hidden;
+    page-break-after:always;break-after:page;
+    background:var(--paper);
+  }
+  .page:last-child{page-break-after:auto;}
+  .light{background:
+      radial-gradient(120% 80% at 92% 108%,rgba(47,224,196,.07),transparent 52%),
+      radial-gradient(90% 60% at -5% -5%,rgba(232,185,100,.06),transparent 55%),
+      var(--paper);}
+  .wm{position:absolute;z-index:0;pointer-events:none;}
+
+  /* ---------- shared atmospheric layers ---------- */
+  /* Film grain disabled for print: feTurbulence noise rasterises to ~23MB across 8 pages.
+     Set display:block to re-enable for on-screen / HTML viewing. */
+  .grain{display:none;position:absolute;inset:0;pointer-events:none;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .pad{position:absolute;inset:0;padding:74px 64px;display:flex;flex-direction:column;}
+
+  /* ---------- dark theme ---------- */
+  .dark{background:
+      radial-gradient(120% 90% at 82% 8%, rgba(47,224,196,.16), transparent 46%),
+      radial-gradient(120% 120% at 10% 100%, rgba(12,125,114,.22), transparent 50%),
+      linear-gradient(160deg,#07151c 0%,#0a1f28 55%,#06121a 100%);
+    color:#dcebe9;}
+  .dark .meta,.dark .eyebrow{color:var(--teal);}
+  .dark .muted{color:#90a7ac;}
+  .grid-lines{position:absolute;inset:0;pointer-events:none;opacity:.6;
+    background-image:linear-gradient(rgba(47,224,196,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(47,224,196,.035) 1px,transparent 1px);
+    background-size:46px 46px;}
+
+  /* ---------- type ---------- */
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--teal-deep);font-weight:500;}
+  .meta{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-2);}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.04;letter-spacing:-.01em;}
+  .kicker{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;}
+  .kicker .num{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--teal-2);font-weight:600;}
+  .kicker .label{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);}
+  .kicker .rule{flex:1;height:1px;background:var(--line);}
+  .dark .kicker .label{color:#90a7ac;}
+  .dark .kicker .rule{background:var(--line-d);}
+
+  h2.section{font-size:42px;color:var(--ink);margin-bottom:8px;}
+  .dark h2.section{color:#eafffb;}
+  .lead{font-family:var(--serif);font-weight:400;font-size:20px;line-height:1.45;color:var(--ink-2);}
+  .dark .lead{color:#cfe8e4;}
+  p.body{font-size:13.5px;line-height:1.62;color:var(--body);}
+  .dark p.body{color:#b9d0cf;}
+  .muted{color:var(--muted);}
+  .accent{color:var(--teal-deep);}
+  .dark .accent{color:var(--teal);}
+  em.h{font-style:normal;background:linear-gradient(180deg,transparent 62%,rgba(232,185,100,.42) 62%);}
+
+  /* ---------- COVER ---------- */
+  .cover-top{display:flex;justify-content:space-between;align-items:flex-start;z-index:3;}
+  .brandmark{display:flex;align-items:center;gap:11px;}
+  .brandmark .dot{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--teal),var(--teal-deep) 70%);box-shadow:0 0 14px rgba(47,224,196,.6);}
+  .brandmark b{font-family:var(--mono);font-size:11px;letter-spacing:.26em;font-weight:600;color:#cdeae6;text-transform:uppercase;}
+  .cover-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:3;}
+  .cover-title{font-family:var(--serif);font-weight:900;font-size:104px;line-height:.92;color:#f3fffb;letter-spacing:-.03em;margin-top:30px;}
+  .cover-title .eye-i{color:var(--teal);}
+  .cover-sub{max-width:560px;margin:24px auto 0;font-family:var(--serif);font-weight:400;font-style:italic;font-size:19px;line-height:1.5;color:#bfe2dc;}
+  .cover-badge{margin-top:30px;display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border:1px solid var(--line-d);border-radius:999px;background:rgba(7,21,28,.4);backdrop-filter:blur(4px);}
+  .cover-badge span{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-2);}
+  .cover-badge .star{color:var(--gold);}
+  .cover-foot{display:flex;justify-content:space-between;align-items:flex-end;z-index:3;border-top:1px solid var(--line-d);padding-top:18px;}
+  .cover-foot .col span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#7f9aa0;}
+  .cover-foot .col b{font-family:var(--sans);font-size:12.5px;font-weight:600;color:#dcefea;letter-spacing:.01em;}
+  .cover-foot .col.r{text-align:right;}
+
+  /* concentric scan rings behind iris on cover */
+  .scanwrap{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);z-index:1;}
+
+  /* ---------- holographic iris ---------- */
+  .eye{position:relative;border-radius:50%;}
+  .eye .lyr{position:absolute;inset:0;border-radius:50%;}
+  .eye .sclera{background:radial-gradient(circle at 50% 50%,#0c2a30 0%,#08202a 55%,#050f16 80%);box-shadow:inset 0 0 70px rgba(0,0,0,.7);}
+  .eye .fibers{
+    background:repeating-conic-gradient(from 0deg at 50% 50%,
+      #0a4f49 0deg 2.2deg,#16a08f 2.2deg 4.2deg,#34e0c4 4.2deg 5.4deg,
+      #0c6b62 5.4deg 7.4deg,#1ec4ab 7.4deg 9.6deg,#073f3a 9.6deg 11.4deg);
+    -webkit-mask:radial-gradient(circle at 50% 50%,transparent 19%,#000 25%,#000 73%,transparent 80%);
+            mask:radial-gradient(circle at 50% 50%,transparent 19%,#000 25%,#000 73%,transparent 80%);
+    filter:saturate(1.15);}
+  .eye .depth{background:
+      radial-gradient(circle at 50% 50%,rgba(2,9,12,.98) 0%,rgba(3,12,16,.95) 17%,rgba(8,40,44,0) 40%,rgba(5,18,24,0) 66%,rgba(3,13,18,.92) 86%,rgba(2,9,12,.98) 100%);}
+  .eye .innerglow{box-shadow:inset 0 0 40px rgba(47,224,196,.25);}
+  .eye .pupil{width:36%;height:36%;top:32%;left:32%;inset:auto;border-radius:50%;
+    background:radial-gradient(circle at 46% 42%,#02151a 0%,#01080c 62%,#020f12 100%);
+    box-shadow:0 0 26px 5px rgba(47,224,196,.32),inset 0 0 20px rgba(0,0,0,.95),inset 0 0 4px rgba(47,224,196,.5);}
+  .eye .glint{width:13%;height:8%;top:26%;left:32%;inset:auto;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.8),rgba(255,255,255,0) 72%);filter:blur(1.5px);}
+  .eye .bezel{inset:-3px;border:1px solid rgba(47,224,196,.3);box-shadow:0 0 50px rgba(47,224,196,.28),0 0 120px rgba(47,224,196,.12);}
+  .eye svg.rings{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+
+  /* ---------- cards / grids ---------- */
+  .row{display:flex;gap:16px;}
+  .stat-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .stat{position:relative;padding:22px 20px 20px;border-radius:14px;background:var(--paper-2);border:1px solid var(--line);overflow:hidden;}
+  .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--teal),var(--teal-deep));}
+  .stat .big{font-family:var(--serif);font-weight:700;font-size:34px;color:var(--ink);line-height:1;letter-spacing:-.02em;}
+  .stat .cap{margin-top:10px;font-size:11.5px;line-height:1.5;color:var(--muted);}
+  .stat .ic{position:absolute;right:16px;top:16px;color:var(--teal-2);opacity:.85;}
+
+  .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .feat{position:relative;padding:20px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line-d);}
+  .light .feat{background:var(--paper-2);border:1px solid var(--line);}
+  .feat .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(47,224,196,.18),rgba(12,125,114,.1));color:var(--teal);border:1px solid var(--line-d);margin-bottom:13px;}
+  .light .feat .ic{color:var(--teal-deep);}
+  .feat h3{font-size:16.5px;color:var(--ink);margin-bottom:6px;}
+  .dark .feat h3{color:#eafffb;}
+  .feat p{font-size:11.8px;line-height:1.55;color:var(--muted);}
+  .dark .feat p{color:#9fb6b6;}
+
+  /* challenge list */
+  .pains{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
+  .pain{display:flex;gap:18px;align-items:flex-start;padding:18px 20px;border-radius:13px;background:rgba(255,255,255,.04);border:1px solid var(--line-d);}
+  .pain .n{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--teal);width:30px;flex:none;padding-top:3px;}
+  .pain h3{font-size:17px;color:#eafffb;margin-bottom:4px;}
+  .pain p{font-size:12.5px;line-height:1.5;color:#9fb6b6;}
+  .pain .ic{color:var(--teal);opacity:.9;flex:none;}
+
+  /* mode cards */
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+  .mode{padding:18px 16px;border-radius:13px;background:var(--paper-2);border:1px solid var(--line);position:relative;}
+  .mode .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-deep);}
+  .mode h3{font-size:16px;color:var(--ink);margin:9px 0 7px;}
+  .mode p{font-size:11.3px;line-height:1.5;color:var(--muted);}
+  .mode .ic{color:var(--teal-deep);margin-bottom:6px;}
+
+  /* principles */
+  .principles{display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;margin-top:6px;}
+  .prin{display:flex;gap:14px;align-items:flex-start;}
+  .prin .ic{width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,rgba(47,224,196,.16),rgba(12,125,114,.08));color:var(--teal-deep);border:1px solid var(--line);}
+  .prin h3{font-size:14.5px;color:var(--ink);margin-bottom:3px;}
+  .prin p{font-size:11.3px;line-height:1.5;color:var(--muted);}
+
+  /* IELA table */
+  .iela{width:100%;border-collapse:collapse;margin-top:4px;}
+  .iela th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:0 0 10px;border-bottom:1px solid var(--line);}
+  .iela td{vertical-align:top;padding:13px 0;border-bottom:1px solid var(--line);}
+  .iela td.attr{width:34%;font-family:var(--serif);font-size:15px;color:var(--ink);padding-right:18px;font-weight:600;}
+  .iela td.how{font-size:11.6px;line-height:1.5;color:var(--body);}
+  .iela tr:last-child td{border-bottom:none;}
+  .iela .attr .sub{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--teal-deep);text-transform:uppercase;margin-top:3px;font-weight:500;}
+
+  /* pilot list */
+  .pilot{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .pcard{padding:15px 17px;border-radius:12px;background:var(--paper-2);border:1px solid var(--line);}
+  .pcard .h{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-deep);margin-bottom:6px;}
+  .pcard p{font-size:11.6px;line-height:1.55;color:var(--body);}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .chip{font-family:var(--mono);font-size:10px;letter-spacing:.04em;padding:5px 11px;border-radius:999px;background:rgba(47,224,196,.1);border:1px solid var(--line);color:var(--teal-deep);}
+
+  /* roadmap timeline */
+  .road{display:flex;gap:0;margin-top:26px;}
+  .stop{flex:1;position:relative;padding-top:30px;}
+  .stop::before{content:"";position:absolute;top:7px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal-deep),rgba(47,224,196,.25));}
+  .stop:last-child::before{background:var(--teal-deep);}
+  .stop .d{position:absolute;top:1px;left:0;width:14px;height:14px;border-radius:50%;background:var(--ink);border:2px solid var(--teal);box-shadow:0 0 12px rgba(47,224,196,.6);}
+  .stop .t{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;}
+  .stop h3{font-size:14px;color:#eafffb;margin:5px 18px 4px 0;line-height:1.15;}
+  .stop p{font-size:10.6px;color:#9fb6b6;line-height:1.45;margin-right:16px;}
+
+  /* heatmap motif */
+  .heat{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-top:12px;max-width:200px;}
+  .heat i{aspect-ratio:1;border-radius:2px;background:var(--teal);}
+
+  /* WAT bands */
+  .wat{display:flex;flex-direction:column;gap:5px;margin-top:12px;}
+  .band{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:11px;border:1px solid var(--line-d);}
+  .band b{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;width:74px;flex:none;}
+  .band span{color:var(--muted);font-size:10.5px;}
+  .band.w{background:rgba(232,185,100,.1);} .band.w b{color:var(--gold);}
+  .band.a{background:rgba(47,224,196,.1);} .band.a b{color:var(--teal);}
+  .band.t{background:rgba(255,255,255,.05);} .band.t b{color:#cfe8e4;}
+  .dark .band span{color:#9fb6b6;}
+
+  /* footer tech strip */
+  .techstrip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .techstrip .t{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:#8fb0b0;padding:5px 10px;border:1px solid var(--line-d);border-radius:6px;}
+
+  .pull{font-family:var(--serif);font-weight:500;font-size:27px;line-height:1.25;color:var(--ink);letter-spacing:-.01em;}
+  .dark .pull{color:#eafffb;}
+  .pull .g{color:var(--teal-deep);} .dark .pull .g{color:var(--teal);}
+
+  .foot-num{position:absolute;bottom:34px;right:64px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted-2);}
+  .dark .foot-num{color:#5f7a80;}
+  .foot-brand{position:absolute;bottom:34px;left:64px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted-2);}
+  .dark .foot-brand{color:#5f7a80;}
+  .spacer{flex:1;}
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1 · COVER ============ -->
+<section class="page dark">
+  <div class="grid-lines"></div>
+  <div class="grain"></div>
+
+  <!-- background scan rings -->
+  <svg class="scanwrap" width="640" height="640" viewBox="0 0 640 640" fill="none">
+    <g stroke="rgba(47,224,196,0.13)">
+      <circle cx="320" cy="320" r="300"/>
+      <circle cx="320" cy="320" r="232" stroke-dasharray="2 8"/>
+      <circle cx="320" cy="320" r="170"/>
+    </g>
+    <g stroke="rgba(47,224,196,0.22)" stroke-width="1">
+      <line x1="320" y1="8" x2="320" y2="44"/><line x1="320" y1="596" x2="320" y2="632"/>
+      <line x1="8" y1="320" x2="44" y2="320"/><line x1="596" y1="320" x2="632" y2="320"/>
+    </g>
+  </svg>
+
+  <div class="pad">
+    <div class="cover-top">
+      <div class="brandmark"><span class="dot"></span><b>SNEC · Singapore National Eye Centre</b></div>
+      <div class="brandmark"><b style="color:#7f9aa0">Training &amp; Education</b></div>
+    </div>
+
+    <div class="cover-center">
+      <!-- holographic iris -->
+      <div class="eye" style="width:300px;height:300px">
+        <div class="lyr sclera"></div>
+        <div class="lyr fibers"></div>
+        <div class="lyr depth"></div>
+        <div class="lyr innerglow"></div>
+        <div class="lyr pupil"></div>
+        <div class="lyr glint"></div>
+        <svg class="rings" viewBox="0 0 300 300">
+          <circle cx="150" cy="150" r="118" fill="none" stroke="rgba(47,224,196,.35)" stroke-width="1"/>
+          <circle cx="150" cy="150" r="106" fill="none" stroke="rgba(47,224,196,.5)" stroke-width="1" stroke-dasharray="1.5 6"/>
+          <circle cx="150" cy="150" r="56" fill="none" stroke="rgba(47,224,196,.4)" stroke-width="1" stroke-dasharray="2 5"/>
+          <g stroke="rgba(47,224,196,.7)" stroke-width="1.4">
+            <line x1="150" y1="20" x2="150" y2="34"/><line x1="150" y1="266" x2="150" y2="280"/>
+            <line x1="20" y1="150" x2="34" y2="150"/><line x1="266" y1="150" x2="280" y2="150"/>
+          </g>
+        </svg>
+        <div class="lyr bezel"></div>
+      </div>
+
+      <div class="cover-title">Eye<span class="eye-i">Bot</span></div>
+      <div class="cover-sub">An AI training companion that turns SNEC’s OAOT curriculum into a living tutor, an unlimited clinical-simulation suite, and a self-optimising memory engine.</div>
+
+      <div class="cover-badge">
+        <span class="star">★</span>
+        <span>Prepared for the 2026 International E-Learning Awards · Academic Division · E-Learning Experiences</span>
+      </div>
+    </div>
+
+    <div class="cover-foot">
+      <div class="col">
+        <span>Prepared for</span>
+        <b>Dr JB · Director, SNEC Training &amp; Education</b>
+      </div>
+      <div class="col" style="text-align:center">
+        <span>Prepared by</span>
+        <b>Caleb Teo · SNEC Training &amp; Education</b>
+      </div>
+      <div class="col r">
+        <span>Document</span>
+        <b>June 2026 · Confidential Draft v1.0</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAGE 2 · EXECUTIVE SUMMARY ============ -->
+<section class="page light">
+  <div class="grain"></div>
+  <svg class="wm" width="560" height="560" viewBox="0 0 560 560" fill="none" style="right:-150px;top:320px">
+    <g stroke="rgba(16,49,59,.08)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g>
+    <g stroke="rgba(16,49,59,.13)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g>
+  </svg>
+  <div class="pad">
+    <div class="kicker"><span class="num">01</span><span class="label">Executive Summary</span><span class="rule"></span></div>
+
+    <div class="lead" style="max-width:640px">
+      Every ophthalmic allied-health professional deserves a tutor who never sleeps, a patient who is always available, and a curriculum that adapts to exactly what they keep forgetting.
+    </div>
+
+    <p class="body" style="max-width:640px;margin-top:22px">
+      <b>SNEC EyeBot</b> is an AI-powered learning companion built on SNEC’s own <span class="accent">OAOT Module 1</span> curriculum. It unites three evidence-based modalities — a Socratic AI tutor, interactive clinical case simulations, and spaced-repetition flashcards — into one continuous loop that personalises itself to each learner. Running quietly alongside is an analytics layer that gives educators, for the first time, a live view of where an entire cohort is thriving or struggling. The platform is fully engineered, demonstrable today, and ready for a SNEC pilot.
+    </p>
+
+    <div class="stat-cards" style="margin-top:34px">
+      <div class="stat">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div>
+        <div class="big">3-in-1</div>
+        <div class="cap">Tutor, clinical simulator and memory engine working as a single adaptive loop.</div>
+      </div>
+      <div class="stat">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <div class="big">100%</div>
+        <div class="cap">Curriculum-grounded — answers drawn from SNEC’s OAOT Module 1, not the open internet.</div>
+      </div>
+      <div class="stat">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="big">Cohort</div>
+        <div class="cap">Live at-risk detection, retention scoring and weekly digests for educators.</div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="pull" style="max-width:660px">
+      A fixed curriculum becomes a <span class="g">living, personalised, measurable</span> learning experience — and positions SNEC at the front of AI-enabled clinical education.
+    </div>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">02 — 08</div>
+</section>
+
+<!-- ============ PAGE 3 · THE CHALLENGE ============ -->
+<section class="page dark">
+  <div class="grid-lines"></div>
+  <div class="grain"></div>
+  <svg class="wm" width="560" height="560" viewBox="0 0 560 560" fill="none" style="right:-185px;bottom:-185px">
+    <g stroke="rgba(47,224,196,.17)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g>
+    <g stroke="rgba(47,224,196,.28)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g>
+  </svg>
+  <div class="pad">
+    <div class="kicker"><span class="num">02</span><span class="label">The Challenge</span><span class="rule"></span></div>
+
+    <h2 class="section">Training the eyes<br/>behind the eye care.</h2>
+    <p class="body" style="max-width:600px;margin-top:18px">
+      Ophthalmic Assistants, Technicians and Patient Service Associates are the first clinical touchpoint at SNEC. Their training is rigorous — and rightly so — but it meets four structural limits that no amount of dedication can fully solve.
+    </p>
+
+    <div class="pains">
+      <div class="pain">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <div><h3>Expert time is scarce</h3><p>One educator cannot give every trainee unlimited one-to-one tutoring or on-demand case practice.</p></div>
+      </div>
+      <div class="pain">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg></div>
+        <div><h3>Case exposure is uneven</h3><p>Which emergencies a trainee actually meets is left to the luck of the clinical roster.</p></div>
+      </div>
+      <div class="pain">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17h6v-6"/><path d="m22 17-8.5-8.5-5 5L2 7"/></svg></div>
+        <div><h3>Knowledge decays</h3><p>Without deliberate reinforcement, much of what is taught is forgotten within weeks of the lesson.</p></div>
+      </div>
+      <div class="pain">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.7 5.1A9.7 9.7 0 0 1 12 5c5.5 0 9 5.5 9 7a13 13 0 0 1-1.7 2.4"/><path d="M6.6 6.6C3.9 8.2 2 11 2 12c0 1.5 3.5 7 10 7a9.7 9.7 0 0 0 4.6-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg></div>
+        <div><h3>Cohort gaps are invisible</h3><p>Educators often discover weaknesses at assessment time — when it is already late to intervene.</p></div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="pull" style="max-width:560px">EyeBot is engineered to dissolve all four — <span class="g">at once.</span></div>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">03 — 08</div>
+</section>
+
+<!-- ============ PAGE 4 · THE SOLUTION ============ -->
+<section class="page light">
+  <div class="grain"></div>
+  <div class="pad">
+    <div class="kicker"><span class="num">03</span><span class="label">The Solution</span><span class="rule"></span></div>
+    <h2 class="section" style="color:var(--ink)">One companion. Three modes.<br/>A single adaptive loop.</h2>
+
+    <!-- engine diagram -->
+    <div style="display:flex;justify-content:center;margin-top:6px">
+      <svg width="520" height="338" viewBox="0 0 520 338" fill="none">
+        <defs>
+          <radialGradient id="core" cx="50%" cy="45%" r="60%">
+            <stop offset="0%" stop-color="#34e0c4"/><stop offset="60%" stop-color="#0c7d72"/><stop offset="100%" stop-color="#063f3a"/>
+          </radialGradient>
+          <marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#0c7d72"/>
+          </marker>
+        </defs>
+        <!-- orbit -->
+        <circle cx="260" cy="178" r="120" fill="none" stroke="rgba(12,125,114,.28)" stroke-width="1.5" stroke-dasharray="3 7"/>
+        <!-- flow arcs (clockwise) -->
+        <path d="M300 70 A120 120 0 0 1 372 240" fill="none" stroke="#0c7d72" stroke-width="2" marker-end="url(#ah)"/>
+        <path d="M360 252 A120 120 0 0 1 160 252" fill="none" stroke="#0c7d72" stroke-width="2" marker-end="url(#ah)"/>
+        <path d="M148 240 A120 120 0 0 1 220 70" fill="none" stroke="#0c7d72" stroke-width="2" marker-end="url(#ah)"/>
+        <!-- spokes -->
+        <g stroke="rgba(12,125,114,.3)" stroke-width="1" stroke-dasharray="2 4">
+          <line x1="260" y1="178" x2="260" y2="64"/><line x1="260" y1="178" x2="368" y2="240"/><line x1="260" y1="178" x2="152" y2="240"/>
+        </g>
+        <!-- core -->
+        <circle cx="260" cy="178" r="46" fill="url(#core)"/>
+        <circle cx="260" cy="178" r="46" fill="none" stroke="rgba(47,224,196,.6)" stroke-width="1"/>
+        <circle cx="260" cy="178" r="15" fill="#05181c"/>
+        <circle cx="260" cy="178" r="15" fill="none" stroke="rgba(47,224,196,.7)" stroke-width="1"/>
+        <text x="260" y="244" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="1.5" fill="#0c7d72">ADAPTIVE CORE</text>
+        <!-- node: tutor (top) -->
+        <g>
+          <circle cx="260" cy="64" r="34" fill="#fbf9f3" stroke="rgba(16,49,59,.16)"/>
+          <text x="260" y="40" text-anchor="middle" font-family="Archivo" font-weight="700" font-size="13" fill="#16313b">Tutor</text>
+          <path d="M249 64 h22 a3 3 0 0 1 3 3 v8 a3 3 0 0 1 -3 3 h-13 l-6 5 v-5 h-3 a3 3 0 0 1 -3 -3 v-8 a3 3 0 0 1 3 -3 z" fill="none" stroke="#0c7d72" stroke-width="1.6"/>
+        </g>
+        <!-- node: cases (right) -->
+        <g>
+          <circle cx="368" cy="240" r="34" fill="#fbf9f3" stroke="rgba(16,49,59,.16)"/>
+          <text x="368" y="296" text-anchor="middle" font-family="Archivo" font-weight="700" font-size="13" fill="#16313b">Case Sims</text>
+          <path d="M362 228 v10 a6 6 0 0 0 12 0 v-10 M362 228 a3 3 0 1 1 6 0 M368 228 a3 3 0 1 1 6 0 M380 240 a4 4 0 1 1 -8 0" fill="none" stroke="#0c7d72" stroke-width="1.5"/>
+        </g>
+        <!-- node: cards (left) -->
+        <g>
+          <circle cx="152" cy="240" r="34" fill="#fbf9f3" stroke="rgba(16,49,59,.16)"/>
+          <text x="152" y="296" text-anchor="middle" font-family="Archivo" font-weight="700" font-size="13" fill="#16313b">Flashcards</text>
+          <rect x="142" y="232" width="18" height="14" rx="2" fill="none" stroke="#0c7d72" stroke-width="1.6"/>
+          <rect x="146" y="228" width="18" height="14" rx="2" fill="#fbf9f3" stroke="#0c7d72" stroke-width="1.6"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="modes">
+      <div class="mode">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></div>
+        <div class="tag">Mode 01</div>
+        <h3>Socratic Tutor</h3>
+        <p>Plain-language questions met with Explanation → Mechanism → Clinical Pearl → a check for understanding, always grounded in the OAOT knowledge base.</p>
+      </div>
+      <div class="mode">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></div>
+        <div class="tag">Mode 02</div>
+        <h3>Case Simulations</h3>
+        <p>Interview a virtual patient, order investigations, commit to a diagnosis and plan — graded on a four-domain rubric out of 40 with instant feedback.</p>
+      </div>
+      <div class="mode">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/></svg></div>
+        <div class="tag">Mode 03</div>
+        <h3>Spaced Flashcards</h3>
+        <p>High-yield cards auto-generated from each session and every missed clinical point, scheduled by the SM-2 algorithm for durable recall.</p>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <p class="body" style="text-align:center;color:var(--muted)">…and quietly, an analytics layer watches the whole cohort — turning individual practice into institutional insight.</p>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">04 — 08</div>
+</section>
+
+<!-- ============ PAGE 5 · PEDAGOGY ============ -->
+<section class="page light">
+  <div class="grain"></div>
+  <svg class="wm" width="560" height="560" viewBox="0 0 560 560" fill="none" style="right:-180px;bottom:-170px">
+    <g stroke="rgba(16,49,59,.08)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g>
+    <g stroke="rgba(16,49,59,.13)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g>
+  </svg>
+  <div class="pad">
+    <div class="kicker"><span class="num">04</span><span class="label">Pedagogical Foundation</span><span class="rule"></span></div>
+    <h2 class="section" style="color:var(--ink)">Grounded in learning<br/>science, not novelty.</h2>
+    <p class="body" style="max-width:600px;margin-top:16px">Every design decision in EyeBot maps to an established principle of how clinicians actually learn and retain.</p>
+
+    <!-- forgetting curve -->
+    <div style="margin-top:22px;padding:22px 24px 16px;border:1px solid var(--line);border-radius:14px;background:var(--paper-2)">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-deep)">Fig. 1 — Spaced repetition vs. the forgetting curve</div>
+        <div style="font-family:var(--mono);font-size:9.5px;color:var(--muted)">Retention&nbsp;↑ &nbsp;·&nbsp; Time&nbsp;→</div>
+      </div>
+      <svg width="100%" height="210" viewBox="0 0 600 210" preserveAspectRatio="none" style="margin-top:6px" fill="none">
+        <!-- grid -->
+        <g stroke="rgba(16,49,59,.08)" stroke-width="1">
+          <line x1="40" y1="20" x2="40" y2="178"/><line x1="40" y1="178" x2="580" y2="178"/>
+          <line x1="40" y1="60" x2="580" y2="60" stroke-dasharray="2 6"/><line x1="40" y1="120" x2="580" y2="120" stroke-dasharray="2 6"/>
+        </g>
+        <!-- without review -->
+        <path d="M40 30 C120 130 220 165 580 172" stroke="#b9c4c7" stroke-width="2" stroke-dasharray="4 5"/>
+        <text x="430" y="160" font-family="Archivo" font-size="11" fill="#9aa9ac">without review</text>
+        <!-- with spaced repetition -->
+        <path d="M40 30 C90 90 120 108 150 112 L150 40 C200 78 220 92 250 96 L250 36 C320 64 350 74 400 78 L400 30 C470 50 520 58 580 62"
+              stroke="#0c7d72" stroke-width="2.6"/>
+        <!-- review markers -->
+        <g>
+          <line x1="150" y1="40" x2="150" y2="178" stroke="#e8b964" stroke-width="1" stroke-dasharray="2 4"/>
+          <line x1="250" y1="36" x2="250" y2="178" stroke="#e8b964" stroke-width="1" stroke-dasharray="2 4"/>
+          <line x1="400" y1="30" x2="400" y2="178" stroke="#e8b964" stroke-width="1" stroke-dasharray="2 4"/>
+          <circle cx="150" cy="40" r="4.5" fill="#e8b964"/><circle cx="250" cy="36" r="4.5" fill="#e8b964"/><circle cx="400" cy="30" r="4.5" fill="#e8b964"/>
+          <text x="150" y="194" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#a98b4e">review 1</text>
+          <text x="250" y="194" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#a98b4e">review 2</text>
+          <text x="400" y="194" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#a98b4e">review 3</text>
+        </g>
+        <text x="408" y="48" font-family="Archivo" font-size="11" font-weight="600" fill="#0c7d72">with EyeBot (SM-2)</text>
+      </svg>
+    </div>
+
+    <div class="principles" style="margin-top:24px">
+      <div class="prin"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><div><h3>Retrieval &amp; spacing</h3><p>SM-2 spaced repetition fights the forgetting curve — each review lengthens durable retention.</p></div></div>
+      <div class="prin"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></div><div><h3>Socratic scaffolding</h3><p>The tutor explains mechanism, then checks understanding — active recall over passive reading.</p></div></div>
+      <div class="prin"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg></div><div><h3>Case-based reasoning</h3><p>Simulations rehearse the full clinical chain: history, investigation, diagnosis, management.</p></div></div>
+      <div class="prin"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></div><div><h3>Formative feedback</h3><p>Rubric scores and targeted cards turn every mistake into the learner’s next rep.</p></div></div>
+    </div>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">05 — 08</div>
+</section>
+
+<!-- ============ PAGE 6 · DIFFERENTIATORS ============ -->
+<section class="page dark">
+  <div class="grid-lines"></div>
+  <div class="grain"></div>
+  <div class="pad">
+    <div class="kicker"><span class="num">05</span><span class="label">What Makes It Different</span><span class="rule"></span></div>
+    <h2 class="section">Far more than<br/>a chatbot.</h2>
+
+    <div class="feature-grid" style="margin-top:22px">
+      <div class="feat"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Curriculum-grounded</h3><p>Retrieval over SNEC’s OAOT Module 1 — clinically faithful answers, not generic AI guesswork.</p></div>
+      <div class="feat"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><h3>Self-optimising</h3><p>Weak topics automatically become tomorrow’s flashcards and tougher simulated cases.</p></div>
+      <div class="feat"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h3>Role-aware</h3><p>Tailored content and case libraries for the OA, OT and PSA training pathways.</p></div>
+      <div class="feat">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Educator analytics</h3>
+        <p>Cohort heatmap, at-risk detection, learning-velocity &amp; retention scoring, weekly e-mail digests.</p>
+        <div class="heat">
+          <i style="opacity:.85"></i><i style="opacity:.3"></i><i style="opacity:.6"></i><i style="opacity:.95"></i><i style="opacity:.2"></i><i style="opacity:.7"></i><i style="opacity:.4"></i><i style="opacity:.8"></i>
+          <i style="opacity:.5"></i><i style="opacity:.9"></i><i style="opacity:.25"></i><i style="opacity:.65"></i><i style="opacity:.85"></i><i style="opacity:.35"></i><i style="opacity:.75"></i><i style="opacity:.55"></i>
+        </div>
+      </div>
+      <div class="feat"><div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3>Governance built-in</h3><p>PDPA-compliant consent, bcrypt-secured credentials and role-based access — privacy by design.</p></div>
+      <div class="feat">
+        <div class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg></div><h3>Reliable by architecture</h3>
+        <p>A Workflows–Agents–Tools design separates AI reasoning from deterministic execution.</p>
+        <div class="wat">
+          <div class="band w"><b>Workflows</b><span>plain-language clinical SOPs</span></div>
+          <div class="band a"><b>Agents</b><span>AI orchestration &amp; judgement</span></div>
+          <div class="band t"><b>Tools</b><span>deterministic, tested code</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">06 — 08</div>
+</section>
+
+<!-- ============ PAGE 7 · PILOT + IELA ============ -->
+<section class="page light">
+  <div class="grain"></div>
+  <svg class="wm" width="560" height="560" viewBox="0 0 560 560" fill="none" style="left:-180px;bottom:-165px">
+    <g stroke="rgba(16,49,59,.08)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g>
+    <g stroke="rgba(16,49,59,.13)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g>
+  </svg>
+  <div class="pad">
+    <div class="kicker"><span class="num">06</span><span class="label">Pilot Plan &amp; Award Fit</span><span class="rule"></span></div>
+    <h2 class="section" style="color:var(--ink)">From prototype to proof.</h2>
+
+    <div class="row" style="margin-top:22px;align-items:flex-start">
+      <!-- pilot -->
+      <div style="flex:1">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-deep);margin-bottom:12px">Proposed SNEC Pilot</div>
+        <div class="pilot">
+          <div class="pcard"><div class="h">Cohort</div><p>One OAOT intake over an 8–12 week module, benchmarked against a prior cohort as historical control.</p></div>
+          <div class="pcard"><div class="h">Metrics</div><p>Pre/post knowledge test · case-rubric progression · flashcard retention · engagement (active days &amp; streaks) · educator time saved · learner satisfaction.</p></div>
+          <div class="pcard"><div class="h">Method</div><p>Baseline → guided daily use → measured uplift, with the analytics layer capturing evidence automatically throughout.</p></div>
+        </div>
+      </div>
+      <!-- iela -->
+      <div style="flex:1.05">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-deep);margin-bottom:12px">Fit to IELA Criteria</div>
+        <table class="iela">
+          <tr><th>Attribute</th><th>How EyeBot delivers</th></tr>
+          <tr><td class="attr">Educational soundness<span class="sub">pedagogy</span></td><td class="how">Curriculum-grounded; SM-2 spacing; Socratic + case-based design rooted in learning science.</td></tr>
+          <tr><td class="attr">Effectiveness<span class="sub">outcomes</span></td><td class="how">Closes gaps in a measured loop; analytics quantify uplift at learner and cohort level.</td></tr>
+          <tr><td class="attr">User experience<span class="sub">engagement</span></td><td class="how">Polished, gamified and mobile-friendly, with daily check-ins that build habit.</td></tr>
+          <tr><td class="attr">Significance<span class="sub">impact</span></td><td class="how">First AI companion for ophthalmic allied-health training; scalable across SingHealth modules.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="pull" style="max-width:660px">Because impact is <span class="g">measured, not asserted</span>, the pilot doubles as the evidence base for the award submission itself.</div>
+  </div>
+  <div class="foot-brand">SNEC EYEBOT</div>
+  <div class="foot-num">07 — 08</div>
+</section>
+
+<!-- ============ PAGE 8 · ROADMAP + CLOSING ============ -->
+<section class="page dark">
+  <div class="grid-lines"></div>
+  <div class="grain"></div>
+  <svg class="wm" width="600" height="600" viewBox="0 0 560 560" fill="none" style="right:-170px;top:255px">
+    <g stroke="rgba(47,224,196,.17)" stroke-width="1"><circle cx="280" cy="280" r="272"/><circle cx="280" cy="280" r="208" stroke-dasharray="2 9"/><circle cx="280" cy="280" r="150"/><circle cx="280" cy="280" r="88" stroke-dasharray="2 7"/></g>
+    <g stroke="rgba(47,224,196,.28)" stroke-width="1"><line x1="280" y1="2" x2="280" y2="30"/><line x1="280" y1="530" x2="280" y2="558"/><line x1="2" y1="280" x2="30" y2="280"/><line x1="530" y1="280" x2="558" y2="280"/></g>
+  </svg>
+  <div class="pad">
+    <div class="kicker"><span class="num">07</span><span class="label">Roadmap &amp; Vision</span><span class="rule"></span></div>
+    <h2 class="section">Where this goes next.</h2>
+
+    <div class="road">
+      <div class="stop"><div class="d"></div><div class="t">Q3 2026</div><h3>SNEC Pilot</h3><p>Run with a live OAOT intake; capture the outcome evidence.</p></div>
+      <div class="stop"><div class="d"></div><div class="t">Q4 2026</div><h3>Full module coverage</h3><p>Extend the knowledge base across the complete OAOT syllabus.</p></div>
+      <div class="stop"><div class="d"></div><div class="t">2027</div><h3>Experience redesign</h3><p>A top-tier UI refresh and richer simulation media.</p></div>
+      <div class="stop"><div class="d"></div><div class="t">Beyond</div><h3>SingHealth-wide</h3><p>New specialties and institutions on the same engine.</p></div>
+    </div>
+
+    <div style="margin-top:46px;border-top:1px solid var(--line-d);padding-top:34px">
+      <div class="pull" style="max-width:680px">
+        SNEC EyeBot turns a fixed curriculum into a <span class="g">living, personalised and measurable</span> learning experience — and positions SNEC at the forefront of AI-enabled clinical education.
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div>
+      <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#7f9aa0;margin-bottom:12px">Engineered with</div>
+      <div class="techstrip">
+        <span class="t">FastAPI</span><span class="t">Supabase</span><span class="t">React + TypeScript</span><span class="t">Anthropic Claude</span><span class="t">Workflows · Agents · Tools</span>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:34px;border-top:1px solid var(--line-d);padding-top:18px">
+      <div class="brandmark"><span class="dot"></span><b>SNEC EyeBot · Training &amp; Education</b></div>
+      <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:#7f9aa0;text-align:right">Prepared by Caleb Teo · June 2026<br/>Confidential Draft v1.0</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
