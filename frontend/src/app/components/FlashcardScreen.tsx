@@ -1,706 +1,347 @@
-﻿import React, { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { XPBar } from "./XPBar";
-import { StreakDisplay } from "./StreakDisplay";
 import { AchievementManager } from "./AchievementToast";
-import {
-  getUserProgress,
-  addXP,
-  checkAndUnlockAchievements,
-  XP_REWARDS,
-} from "../utils/gamification";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  X as XIcon,
-  Sparkles,
-} from "lucide-react";
+import { ExerciseSplit } from "./ExerciseSplit";
+import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
 import { useAuth } from "./AuthContext";
-import { SkeletonCard, SkeletonLine } from "./SkeletonLoader";
 
-interface Flashcard {
-  id: number;
-  question: string;
-  answer: string;
-  tag: string;
-}
+/* ── Types ────────────────────────────────────────────────── */
+interface Flashcard { id: number; question: string; answer: string; tag: string; }
+interface AiFeedback { feedback: string; score: number; }
 
+const RATINGS = [
+  { label: "Again", caption: "Try soon",        accent: "var(--heart)",   value: 1 },
+  { label: "Hard",  caption: "Effortful recall", accent: "var(--gold)",    value: 2 },
+  { label: "Good",  caption: "Solid recall",     accent: "var(--teal)",    value: 3 },
+  { label: "Easy",  caption: "Mastered",         accent: "var(--emerald)", value: 4 },
+];
+
+/* ── Card loader ──────────────────────────────────────────── */
 function loadSessionCards(): Flashcard[] {
   try {
-    const session = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
-    if (Array.isArray(session.cards) && session.cards.length > 0) {
-      return session.cards.map(
-        (c: { front: string; back: string; topic_tag: string }, i: number) => ({
-          id: i + 1,
-          question: c.front,
-          answer: c.back,
-          tag: c.topic_tag,
-        })
-      );
+    const s = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
+    if (Array.isArray(s.cards) && s.cards.length > 0) {
+      return s.cards.map((c: { front: string; back: string; topic_tag: string }, i: number) => ({
+        id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag,
+      }));
     }
-  } catch {
-    /* fall through */
-  }
+  } catch { /* fall through */ }
   return [];
 }
 
-const RATINGS = [
-  { label: "Again", caption: "Try once more soon", accent: "#8B2D2D", value: 1 },
-  { label: "Hard", caption: "Recall was effortful", accent: "#9C7B1F", value: 2 },
-  { label: "Good", caption: "Recall was solid", accent: "#8C6D3F", value: 3 },
-  { label: "Easy", caption: "Mastered", accent: "#4F6B3D", value: 4 },
-];
-
-interface AiFeedback {
-  feedback: string;
-  score: number;
+/* ── Topic → anatomy image ────────────────────────────────── */
+function tagToImage(tag: string): string {
+  const t = tag.toLowerCase();
+  if (t.includes("oct"))  return "/anatomy/eye-oct.png";
+  if (t.includes("hvf") || t.includes("visual field") || t.includes("biometry")) return "/anatomy/eye-innovation.png";
+  if (t.includes("anterior") || t.includes("slit") || t.includes("drop")) return "/anatomy/eye-anterior.png";
+  if (t.includes("nerve") || t.includes("glaucoma") || t.includes("pfaer")) return "/anatomy/eye-nerve.png";
+  if (t.includes("iop") || t.includes("nct") || t.includes("tonometry")) return "/anatomy/eye-scan.png";
+  return "/anatomy/eye-fundus.png";
 }
 
+/* ── FlashcardScreen ──────────────────────────────────────── */
 export function FlashcardScreen() {
   const navigate = useNavigate();
-  const {} = useAuth();
+  useAuth();
 
-  const [FLASHCARDS, setFLASHCARDS] = useState<Flashcard[]>(() => loadSessionCards());
-  const [generating, setGenerating] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [ratedCards, setRatedCards] = useState<Record<number, number>>({});
-  const [animating, setAnimating] = useState(false);
-
-  const [userAttempt, setUserAttempt] = useState("");
-  const [aiFeedback, setAiFeedback] = useState<AiFeedback | null>(null);
-  const [aiChecking, setAiChecking] = useState(false);
-
-  // Fetch fresh cards from RAG if no session cards
-  React.useEffect(() => {
-    if (FLASHCARDS.length === 0) {
-      setGenerating(true);
-      fetch("/api/flashcards/generate", { credentials: "include" })
-        .then((r) => r.json())
-        .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
-          if (Array.isArray(data) && data.length > 0) {
-            setFLASHCARDS(data.map((c, i) => ({
-              id: i + 1,
-              question: c.front,
-              answer: c.back,
-              tag: c.topic_tag,
-            })));
-          }
-        })
-        .catch(() => {/* silently show empty state */})
-        .finally(() => setGenerating(false));
-    }
-  }, [FLASHCARDS.length]);
-
-  const [userProgress, setUserProgress] = useState(getUserProgress());
+  const [cards, setCards]               = useState<Flashcard[]>(() => loadSessionCards());
+  const [generating, setGenerating]     = useState(false);
+  const [idx, setIdx]                   = useState(0);
+  const [revealed, setRevealed]         = useState(false);
+  const [ratedCards, setRatedCards]     = useState<Record<number, number>>({});
+  const [animating, setAnimating]       = useState(false);
+  const [userAttempt, setUserAttempt]   = useState("");
+  const [aiFeedback, setAiFeedback]     = useState<AiFeedback | null>(null);
+  const [aiChecking, setAiChecking]     = useState(false);
+  const [, setUserProgress] = useState(getUserProgress());
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
 
-  const progress = (currentIndex / Math.max(FLASHCARDS.length, 1)) * 100;
-  const remaining = FLASHCARDS.length - Object.keys(ratedCards).length;
+  /* Fetch fresh cards if no session cards */
+  useEffect(() => {
+    if (cards.length === 0) {
+      setGenerating(true);
+      fetch("/api/flashcards/generate", { credentials: "include" })
+        .then(r => r.json())
+        .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setCards(data.map((c, i) => ({ id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag })));
+          }
+        })
+        .catch(() => {})
+        .finally(() => setGenerating(false));
+    }
+  }, [cards.length]);
 
-  // Derive deck title from the most frequent topic tag
-  const deckTitle = React.useMemo(() => {
-    if (FLASHCARDS.length === 0) return "Flashcards";
+  const deckTitle = useMemo(() => {
+    if (cards.length === 0) return "Flashcards";
     const freq: Record<string, number> = {};
-    for (const c of FLASHCARDS) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
+    for (const c of cards) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-  }, [FLASHCARDS]);
+  }, [cards]);
+
+  const card = cards[idx];
 
   const resetCardState = () => {
-    setUserAttempt("");
-    setAiFeedback(null);
-    setAiChecking(false);
-    setIsFlipped(false);
+    setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setRevealed(false);
   };
 
   const checkWithAi = (attempt: string) => {
-    if (!attempt.trim() || aiFeedback) return;
+    if (!attempt.trim() || aiFeedback || !card) return;
     setAiChecking(true);
-    fetch(`/api/flashcards/check`, {
+    fetch("/api/flashcards/check", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({
-        question: card.question,
-        student_answer: attempt,
-        correct_answer: card.answer,
-      }),
+      body: JSON.stringify({ question: card.question, student_answer: attempt, correct_answer: card.answer }),
     })
-      .then((r) => r.json())
-      .then((data: AiFeedback) => {
-        setAiFeedback(data);
-        setAiChecking(false);
-      })
+      .then(r => r.json())
+      .then((d: AiFeedback) => { setAiFeedback(d); setAiChecking(false); })
       .catch(() => setAiChecking(false));
   };
 
-  const flipCard = () => {
-    if (animating) return;
-    if (!isFlipped && userAttempt.trim() && !aiFeedback) {
-      checkWithAi(userAttempt);
-    }
-    setIsFlipped((f) => !f);
+  const reveal = () => {
+    if (animating || revealed) return;
+    if (userAttempt.trim() && !aiFeedback) checkWithAi(userAttempt);
+    setRevealed(true);
   };
 
   const handleRating = (value: number) => {
-    setRatedCards((prev) => ({ ...prev, [card.id]: value }));
+    if (!card) return;
+    setRatedCards(prev => ({ ...prev, [card.id]: value }));
 
-    let xpReward = 0;
-    if (value === 1) xpReward = XP_REWARDS.flashcardAgain;
-    else if (value === 2) xpReward = XP_REWARDS.flashcardHard;
-    else if (value === 3) xpReward = XP_REWARDS.flashcardGood;
-    else if (value === 4) xpReward = XP_REWARDS.flashcardEasy;
+    const xpMap: Record<number, number> = {
+      1: XP_REWARDS.flashcardAgain,
+      2: XP_REWARDS.flashcardHard,
+      3: XP_REWARDS.flashcardGood,
+      4: XP_REWARDS.flashcardEasy,
+    };
+    const result = addXP(xpMap[value] ?? 0);
+    const up = getUserProgress();
+    up.totalCards += 1;
+    setUserProgress(up);
 
-    const result = addXP(xpReward);
-    const updatedProgress = getUserProgress();
-    updatedProgress.totalCards += 1;
-    setUserProgress(updatedProgress);
+    if (value === 4) confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#0891b2", "#059669", "#d97706"] });
+    if (result.leveledUp) confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
 
-    if (value === 4) {
-      confetti({
-        particleCount: 40,
-        spread: 50,
-        origin: { y: 0.6 },
-        colors: ["#8C6D3F", "#C4A57B", "#4F6B3D"],
-      });
-    }
-
-    if (result.leveledUp) {
-      confetti({
-        particleCount: 80,
-        spread: 100,
-        origin: { y: 0.5 },
-        colors: ["#8C6D3F", "#9C7B1F", "#C4A57B"],
-      });
-    }
-
-    const unlockedAchievements = checkAndUnlockAchievements();
-    if (unlockedAchievements.length > 0) {
-      setNewAchievements((prev) => [...prev, ...unlockedAchievements]);
-    }
+    const unlocked = checkAndUnlockAchievements();
+    if (unlocked.length > 0) setNewAchievements(prev => [...prev, ...unlocked]);
 
     setAnimating(true);
     resetCardState();
-
     setTimeout(() => {
-      if (currentIndex < FLASHCARDS.length - 1) {
-        setCurrentIndex((i) => i + 1);
-      } else {
-        navigate("/summary");
-      }
+      if (idx < cards.length - 1) setIdx(i => i + 1);
+      else navigate("/summary");
       setAnimating(false);
-    }, 320);
+    }, 280);
   };
 
-  const goToPrev = () => {
-    if (currentIndex > 0 && !animating) {
-      setAnimating(true);
-      resetCardState();
-      setTimeout(() => {
-        setCurrentIndex((i) => i - 1);
-        setAnimating(false);
-      }, 280);
-    }
-  };
-
-  const goToNext = () => {
-    if (currentIndex < FLASHCARDS.length - 1 && !animating) {
-      setAnimating(true);
-      resetCardState();
-      setTimeout(() => {
-        setCurrentIndex((i) => i + 1);
-        setAnimating(false);
-      }, 280);
-    }
-  };
-
-  const handleSwipe = (offsetX: number, offsetY: number) => {
+  /* Swipe gesture */
+  const handleSwipe = (ox: number, oy: number) => {
     if (animating) return;
-    const THRESHOLD = 70;
-    const dominantAxis = Math.abs(offsetX) > Math.abs(offsetY) ? "x" : "y";
-
-    if (!isFlipped) {
-      if (dominantAxis === "y" && offsetY < -THRESHOLD) {
-        flipCard(); // swipe up = flip
-      }
-      return;
-    }
-
-    if (dominantAxis === "x") {
-      if (offsetX > THRESHOLD) handleRating(4);      // right = Easy
-      else if (offsetX < -THRESHOLD) handleRating(1); // left = Again
+    const T = 70;
+    if (!revealed) { if (Math.abs(oy) > T && oy < 0) reveal(); return; }
+    if (Math.abs(ox) > Math.abs(oy)) {
+      if (ox > T) handleRating(4); else if (ox < -T) handleRating(1);
     } else {
-      if (offsetY < -THRESHOLD) handleRating(3);      // up = Good
-      else if (offsetY > THRESHOLD) handleRating(2);  // down = Hard
+      if (oy < -T) handleRating(3); else if (oy > T) handleRating(2);
     }
   };
 
-  // Loading / empty state
-  if (generating || FLASHCARDS.length === 0) {
+  /* ── Loading / empty ────────────────────────────────────── */
+  if (generating || cards.length === 0) {
     return (
-      <div className="min-h-screen aurora-bg flex flex-col">
-        <div className="glass-nav sticky top-0 z-30 h-16" />
-        <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-12 pb-8">
-          {generating ? (
-            <div className="space-y-6">
-              {/* Topic + count header */}
-              <div className="flex justify-between items-end">
-                <div className="space-y-2">
-                  <SkeletonLine widthClass="w-24" heightClass="h-3" />
-                  <SkeletonLine widthClass="w-48" heightClass="h-7" />
-                </div>
-                <SkeletonLine widthClass="w-16" heightClass="h-7" />
-              </div>
-              {/* Progress hairline */}
-              <SkeletonLine widthClass="w-full" heightClass="h-[3px]" />
-              {/* XP bar */}
-              <SkeletonLine widthClass="w-48" heightClass="h-2" />
-              {/* Card stage: prev | card | next */}
-              <div className="flex items-center gap-5 pt-4">
-                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#1F1A12]/6 animate-pulse" />
-                <div className="flex-1 rounded-2xl bg-[#1F1A12]/5 animate-pulse" style={{ minHeight: "440px" }}>
-                  <div className="p-8 space-y-4">
-                    <SkeletonLine widthClass="w-20" heightClass="h-3" />
-                    {/* Anatomy image placeholder */}
-                    <div className="h-24 rounded-xl bg-[#1F1A12]/6 animate-pulse" />
-                    <div className="flex-1 flex items-center justify-center py-8">
-                      <div className="space-y-3 w-full max-w-xs">
-                        <SkeletonLine widthClass="w-full" heightClass="h-5" />
-                        <SkeletonLine widthClass="w-4/5 mx-auto" heightClass="h-5" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#1F1A12]/6 animate-pulse" />
-              </div>
-            </div>
-          ) : (
-            <>
-              <p className="text-[#A39A8E]" style={{ fontSize: "0.9rem" }}>No flashcards available.</p>
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="text-[#8C6D3F] underline underline-offset-2 text-sm"
-              >
-                Back to Dashboard
-              </button>
-            </>
-          )}
-        </div>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16, color: "var(--muted)" }}>
+        {generating ? (
+          <>
+            <span className="spinner spinner--teal" />
+            <span style={{ fontSize: 13 }}>Generating flashcards…</span>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 14 }}>No flashcards available.</span>
+            <button onClick={() => navigate("/dashboard")} style={{ color: "var(--teal)", fontSize: 13, fontWeight: 700 }}>Back to Learn</button>
+          </>
+        )}
       </div>
     );
   }
 
-  const card = FLASHCARDS[currentIndex];
+  const imageSrc = tagToImage(card.tag);
+  const totalDots = Math.min(cards.length, 10);
+  const dotIdx   = Math.min(idx, totalDots - 1);
 
   return (
-    <div className="min-h-screen aurora-bg flex flex-col">
+    <div className="screen-exercise">
       <AchievementManager
         achievements={newAchievements}
-        onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
+        onDismiss={id => setNewAchievements(prev => prev.filter(a => a !== id))}
       />
 
-      {/* ===== Top Bar ===== */}
-      <motion.div
-        className="glass-nav sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <ArrowLeft size={15} strokeWidth={1.5} />
-            Dashboard
-          </button>
+      {/* ── Header ────────────────────────────────────────── */}
+      <div className="exercise-header">
+        <button className="exercise-close-btn" onClick={() => navigate("/dashboard")} aria-label="Exit">✕</button>
 
-          <div className="flex items-center gap-3">
-            <HolographicEyeLogo size={28} animated={false} />
-            <span
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.05rem",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              EyeBot
-            </span>
-            <span className="text-[#A39A8E]">·</span>
-            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
-              Flashcards
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <StreakDisplay streak={userProgress.streak} size="sm" />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ===== Topic + progress meta ===== */}
-      <div className="max-w-4xl w-full mx-auto px-4 sm:px-8 pt-8 sm:pt-12 pb-2">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="annotation-label">{card.tag}</p>
-            <h1
-              className="mt-2 text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.6rem",
-                fontWeight: 400,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              <span className="italic-display">{deckTitle}</span>
-            </h1>
-          </div>
-          <div className="text-right">
-            <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 400 }}>
-              {currentIndex + 1}
-              <span className="text-[#A39A8E]">/{FLASHCARDS.length}</span>
-            </p>
-            <p className="text-[#A39A8E]" style={{ fontSize: "0.7rem", letterSpacing: "0.14em", textTransform: "uppercase" }}>
-              {remaining} remaining
-            </p>
-          </div>
+        <div className="exercise-progress-dots" role="progressbar" aria-valuenow={idx + 1} aria-valuemax={cards.length}>
+          {Array.from({ length: totalDots }).map((_, i) => (
+            <div
+              key={i}
+              className={`progress-dot${i < dotIdx ? " done" : i === dotIdx ? " active" : ""}`}
+            />
+          ))}
         </div>
 
-        {/* Progress hairline */}
-        <div className="progress-rail">
-          <motion.div
-            className="progress-fill"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <div className="mt-4 max-w-xs">
-          <XPBar currentXP={userProgress.xp} level={userProgress.level} size="sm" />
+        <div className="exercise-hearts">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M8 13C8 13 2 9 2 5.5C2 3.57 3.57 2 5.5 2C6.61 2 7.6 2.52 8 3.36C8.4 2.52 9.39 2 10.5 2C12.43 2 14 3.57 14 5.5C14 9 8 13 8 13Z" fill="currentColor" />
+          </svg>
+          {5 - Object.values(ratedCards).filter(v => v === 1).length}
         </div>
       </div>
 
-      {/* ===== Card Stage ===== */}
-      <div className="flex-1 max-w-4xl w-full mx-auto px-8 pt-10 pb-16">
-        <div className="flex items-center gap-5">
-          {/* Prev */}
-          <button
-            onClick={goToPrev}
-            disabled={currentIndex === 0 || animating}
-            aria-label="Previous card"
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
-              currentIndex === 0 || animating
-                ? "border-[#1F1A12]/8 text-[#A39A8E]/40 cursor-not-allowed"
-                : "border-[#1F1A12]/12 text-[#5C544A] hover:border-[#8C6D3F]/40 hover:text-[#8C6D3F] hover:bg-white"
-            }`}
-          >
-            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
-          </button>
+      {/* ── Split body ────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={idx}
+          style={{ flex: 1, display: "flex", overflow: "hidden" }}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.22 }}
+        >
+          <ExerciseSplit imageSrc={imageSrc}>
+            {/* Topic pill */}
+            <div style={{ marginBottom: 6 }}>
+              <span className="exercise-q-label">{card.tag} · {deckTitle}</span>
+            </div>
 
-          {/* The Card */}
-          <motion.div
-            className="flex-1"
-            style={{ perspective: "1800px" }}
+            {/* Question */}
+            <p className="exercise-q-text">{card.question}</p>
+
+            {/* Active recall textarea (pre-reveal) */}
+            {!revealed && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ marginBottom: 20 }}
+              >
+                <textarea
+                  value={userAttempt}
+                  onChange={e => setUserAttempt(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) { e.preventDefault(); reveal(); } }}
+                  placeholder="Write your answer before revealing — optional, but builds retention"
+                  rows={3}
+                  style={{
+                    width: "100%",
+                    padding: "12px 0",
+                    border: "none",
+                    borderBottom: "1.5px solid var(--border)",
+                    background: "none",
+                    fontSize: 13,
+                    color: "var(--text)",
+                    resize: "none",
+                    outline: "none",
+                    lineHeight: 1.6,
+                  }}
+                />
+                {userAttempt.trim() && (
+                  <div style={{ fontSize: 10, color: "var(--faint)", marginTop: 4 }}>Ctrl + Enter to reveal</div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Answer (post-reveal) */}
+            {revealed && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ borderLeft: "3px solid var(--teal)", paddingLeft: 14, marginBottom: 20 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 6 }}>Answer</div>
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)", whiteSpace: "pre-wrap" }}>{card.answer}</p>
+                </div>
+
+                {/* AI feedback */}
+                {(aiChecking || aiFeedback) && (
+                  <div style={{ background: "var(--teal-bg)", border: "1px solid var(--teal-muted)", borderRadius: "var(--r-md)", padding: "12px 14px", marginBottom: 20 }}>
+                    {aiChecking ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--teal)", fontSize: 12 }}>
+                        <span className="spinner spinner--teal" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                        Reviewing your answer…
+                      </div>
+                    ) : aiFeedback ? (
+                      <>
+                        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 6 }}>
+                          Tutor · {aiFeedback.score}/10
+                        </div>
+                        <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)" }}>{aiFeedback.feedback}</p>
+                      </>
+                    ) : null}
+                  </div>
+                )}
+
+                {/* Spaced-repetition rating buttons */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 10 }}>
+                    How well did you recall this?
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                    {RATINGS.map(r => (
+                      <motion.button
+                        key={r.label}
+                        onClick={() => handleRating(r.value)}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.94 }}
+                        style={{
+                          padding: "10px 6px",
+                          borderRadius: "var(--r-md)",
+                          border: `2px solid ${r.accent}30`,
+                          background: `${r.accent}08`,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: r.accent,
+                          cursor: "pointer",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div style={{ fontSize: 13, marginBottom: 2 }}>{r.label}</div>
+                        <div style={{ fontSize: 9, fontWeight: 600, opacity: 0.7 }}>{r.caption}</div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </ExerciseSplit>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* ── Footer ────────────────────────────────────────── */}
+      <div className="exercise-footer">
+        {!revealed ? (
+          <motion.button
             drag={!animating}
             dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
-            dragElastic={0.12}
+            dragElastic={0.1}
             dragMomentum={false}
             onDragEnd={(_, info) => handleSwipe(info.offset.x, info.offset.y)}
+            className="check-btn"
+            onClick={reveal}
+            style={{ cursor: "pointer" }}
           >
-            <motion.div
-              onClick={flipCard}
-              role="button"
-              tabIndex={0}
-              aria-label={isFlipped ? "Flip card back to question" : "Flip card to reveal answer"}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flipCard(); } }}
-              className="relative cursor-pointer"
-              style={{ transformStyle: "preserve-3d", minHeight: "440px" }}
-              animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
-              whileHover={{ y: -2 }}
-            >
-              {/* Front — Question */}
-              <motion.div
-                className="absolute inset-0 glass-card-lg iri-border flex flex-col p-12"
-                style={{
-                  backfaceVisibility: "hidden",
-                  WebkitBackfaceVisibility: "hidden",
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <p className="annotation-label">Question</p>
-                  <p className="text-[#A39A8E] italic-display" style={{ fontSize: "0.85rem" }}>
-                    Tap to reveal
-                  </p>
-                </div>
-
-                {/* Anatomy header strip */}
-                <div className="relative h-24 my-4 overflow-hidden rounded-xl">
-                  <motion.img
-                    src="/anatomy/eye-flashcard.png"
-                    alt=""
-                    aria-hidden="true"
-                    className="w-full h-full object-cover anatomy-hero"
-                    style={{ position: "relative", opacity: 0.22 }}
-                    animate={{ scale: [1, 1.06, 1], x: [0, 8, 0, -8, 0] }}
-                    transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60" />
-                </div>
-
-                <div className="flex-1 flex items-center justify-center py-4">
-                  <p
-                    className="text-[#1F1A12] text-center max-w-xl"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.5rem",
-                      fontWeight: 400,
-                      lineHeight: 1.5,
-                      letterSpacing: "-0.005em",
-                    }}
-                  >
-                    {card.question}
-                  </p>
-                </div>
-
-                {/* Progress dots */}
-                <div className="flex justify-center gap-1.5">
-                  {FLASHCARDS.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={`h-[3px] rounded-full transition-all ${
-                        idx === currentIndex
-                          ? "w-8"
-                          : ratedCards[FLASHCARDS[idx].id]
-                          ? "w-1.5 bg-[#4F6B3D]/50"
-                          : "w-1.5 bg-[#1F1A12]/10"
-                      }`}
-                      style={idx === currentIndex ? {
-                        background: "linear-gradient(90deg, #8C6D3F, #C4A57B, #8B7BAF, #8C6D3F)",
-                        backgroundSize: "200% 100%",
-                        animation: "holo-shimmer 2.5s ease-in-out infinite",
-                      } : undefined}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Back — Answer */}
-              <motion.div
-                className="absolute inset-0 glass-card-lg iri-border flex flex-col p-12 overflow-hidden"
-                style={{
-                  backfaceVisibility: "hidden",
-                  WebkitBackfaceVisibility: "hidden",
-                  transform: "rotateY(180deg)",
-                  background: "linear-gradient(135deg, rgba(79,107,61,0.06) 0%, transparent 50%), rgba(255,255,255,0.6)",
-                  backdropFilter: "saturate(1.4) blur(12px)",
-                  WebkitBackdropFilter: "saturate(1.4) blur(12px)",
-                }}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <p
-                    className="text-[#4F6B3D]"
-                    style={{ fontSize: "0.7rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-                  >
-                    · Answer
-                  </p>
-                  <p className="text-[#A39A8E] italic-display" style={{ fontSize: "0.85rem" }}>
-                    Tap to flip back
-                  </p>
-                </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                  <p
-                    className="text-[#1F1A12] whitespace-pre-line"
-                    style={{
-                      fontSize: "1rem",
-                      lineHeight: 1.75,
-                      fontWeight: 400,
-                    }}
-                  >
-                    {card.answer}
-                  </p>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-
-          {/* Next */}
+            Reveal Answer
+          </motion.button>
+        ) : (
           <button
-            onClick={goToNext}
-            disabled={currentIndex === FLASHCARDS.length - 1 || animating}
-            aria-label="Next card"
-            className={`flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center border transition-all ${
-              currentIndex === FLASHCARDS.length - 1 || animating
-                ? "border-[#1F1A12]/8 text-[#A39A8E]/40 cursor-not-allowed"
-                : "border-[#1F1A12]/12 text-[#5C544A] hover:border-[#8C6D3F]/40 hover:text-[#8C6D3F] hover:bg-white"
-            }`}
+            style={{ fontSize: 12, color: "var(--faint)", background: "none", border: "none", cursor: "pointer" }}
+            onClick={() => navigate("/summary")}
           >
-            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" />
+            End session →
           </button>
-        </div>
-
-        {/* Swipe hint — touch only, shown before first flip */}
-        {!isFlipped && (
-          <p className="mt-4 text-center text-[#A39A8E] sm:hidden" style={{ fontSize: "0.72rem", letterSpacing: "0.1em" }}>
-            Swipe up to reveal · left/right/up/down to rate
-          </p>
         )}
-
-        {/* Active recall input (before flip) */}
-        <AnimatePresence>
-          {!isFlipped && (
-            <motion.div
-              className="mt-8 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <label htmlFor="recall-attempt" className="sr-only">Your answer (optional)</label>
-              <textarea
-                id="recall-attempt"
-                value={userAttempt}
-                onChange={(e) => setUserAttempt(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) {
-                    e.preventDefault();
-                    flipCard();
-                  }
-                }}
-                placeholder="Write your answer before revealing — optional but builds retention"
-                rows={3}
-                className="w-full px-0 py-3 bg-transparent border-0 border-b border-[#1F1A12]/10 text-[#1F1A12] placeholder-[#A39A8E] resize-none focus:outline-none focus:border-[#8C6D3F] transition-colors"
-                style={{ fontSize: "0.95rem", lineHeight: 1.55 }}
-              />
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-[#A39A8E]" style={{ fontSize: "0.75rem" }}>
-                  {userAttempt.trim() ? "Ctrl + Enter to submit" : "Or tap the card to reveal"}
-                </span>
-                <AnimatePresence>
-                  {userAttempt.trim() && (
-                    <motion.button
-                      initial={{ opacity: 0, scale: 0.92 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.92 }}
-                      transition={{ duration: 0.18 }}
-                      onClick={(e) => { e.stopPropagation(); flipCard(); }}
-                      disabled={aiChecking}
-                      className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-colors disabled:opacity-50"
-                      style={{ fontSize: "0.82rem", fontWeight: 500 }}
-                    >
-                      {aiChecking ? (
-                        <div className="w-3 h-3 border border-[#FBF8F1]/30 border-t-[#FBF8F1] rounded-full animate-spin" />
-                      ) : (
-                        <Check size={13} strokeWidth={2} />
-                      )}
-                      Check answer
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* AI Feedback (after flip) */}
-        <AnimatePresence>
-          {isFlipped && (userAttempt.trim() || aiChecking) && (
-            <motion.div
-              className="mt-8 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="glass-card p-6" aria-live="polite" aria-atomic="true">
-                {aiChecking ? (
-                  <div className="flex items-center gap-3 text-[#5C544A]" role="status" style={{ fontSize: "0.88rem" }}>
-                    <div className="w-3 h-3 border-2 border-[#8C6D3F] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-                    The tutor is reviewing your answer…
-                  </div>
-                ) : aiFeedback ? (
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles size={12} strokeWidth={1.5} className="text-[#8C6D3F]" />
-                      <span className="text-[#A39A8E]" style={{ fontSize: "0.7rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}>
-                        Tutor's note · {aiFeedback.score}/10
-                      </span>
-                    </div>
-                    <p className="text-[#1F1A12]" style={{ fontSize: "0.95rem", lineHeight: 1.65 }}>
-                      {aiFeedback.feedback}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Rating Buttons (after flip) */}
-        <div
-          className={`mt-8 max-w-2xl mx-auto transition-all duration-300 ${
-            isFlipped ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
-          }`}
-        >
-          <p className="annotation-label justify-center mb-4">How well did you recall this?</p>
-          <div className="grid grid-cols-4 gap-3">
-            {RATINGS.map((rating, idx) => (
-              <motion.button
-                key={rating.label}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRating(rating.value);
-                }}
-                aria-label={`Rate recall: ${rating.label} — ${rating.caption}`}
-                className="glass-card p-4 text-center group transition-all"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                whileHover={{
-                  y: -2,
-                  borderColor: `${rating.accent}40`,
-                  boxShadow: `0 1px 2px rgba(31,26,18,0.04), 0 12px 24px ${rating.accent}15`,
-                }}
-                whileTap={{ scale: 0.94 }}
-              >
-                <p
-                  className="text-[#1F1A12] mb-1"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.05rem",
-                    fontWeight: 400,
-                  }}
-                >
-                  {rating.label}
-                </p>
-                <p className="text-[#A39A8E]" style={{ fontSize: "0.7rem", lineHeight: 1.3 }}>
-                  {rating.caption}
-                </p>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Footer skip */}
-      <div className="flex justify-center pb-8">
-        <button
-          onClick={() => navigate("/summary")}
-          className="text-[#A39A8E] hover:text-[#5C544A] transition-colors inline-flex items-center gap-1.5"
-          style={{ fontSize: "0.82rem" }}
-        >
-          End session
-          <ArrowRight size={13} strokeWidth={1.5} />
-        </button>
       </div>
     </div>
   );
