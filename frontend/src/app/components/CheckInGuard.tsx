@@ -18,13 +18,13 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  /* Admin users may only access the admin panel */
-  if (user?.role === "admin") {
+  /* Admin users may only access the admin panel or their profile */
+  if (user?.role === "admin" && location.pathname !== "/profile") {
     return <Navigate to="/admin" replace />;
   }
 
-  /* Supervisor users may only access the supervisor panel */
-  if (user?.role === "supervisor" && location.pathname !== "/supervisor") {
+  /* Supervisor users may only access the supervisor panel or their profile */
+  if (user?.role === "supervisor" && location.pathname !== "/supervisor" && location.pathname !== "/profile") {
     return <Navigate to="/supervisor" replace />;
   }
 

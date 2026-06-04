@@ -93,12 +93,12 @@ export function AppShell() {
           ))}
         </div>
 
-        {/* User avatar */}
+        {/* User avatar → profile */}
         <button
-          className="sidebar-avatar"
-          onClick={logout}
-          title={`${user?.fullName ?? "User"} — click to sign out`}
-          aria-label="Sign out"
+          className={`sidebar-avatar${pathname === "/profile" ? " active" : ""}`}
+          onClick={() => navigate("/profile")}
+          title={`${user?.fullName ?? "User"} — view profile`}
+          aria-label="Profile"
         >
           {initials}
         </button>

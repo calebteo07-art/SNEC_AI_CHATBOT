@@ -11,6 +11,7 @@ import { DailyCheckInScreen } from "./components/DailyCheckInScreen";
 import { SupervisorDashboard } from "./components/SupervisorDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { ProgressScreen } from "./components/ProgressScreen";
+import { ProfileScreen } from "./components/ProfileScreen";
 import { CheckInGuard } from "./components/CheckInGuard";
 import { AdminGuard } from "./components/AdminGuard";
 
@@ -103,6 +104,14 @@ export const router = createBrowserRouter([
           <AdminGuard>
             <AdminDashboard />
           </AdminGuard>
+        ),
+      },
+      {
+        path: "/profile",
+        element: (
+          <CheckInGuard>
+            <ProfileScreen />
+          </CheckInGuard>
         ),
       },
     ],
