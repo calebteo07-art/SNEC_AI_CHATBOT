@@ -33,6 +33,28 @@ function formatRelativeDate(ts: string): string {
   return `${diff}d ago`;
 }
 
+function TopicIcon({ icon, color }: { icon: string; color: string }) {
+  switch (icon) {
+    case "microscope":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18h12M10 18V9m4 9V9m-7-4.5L9 3l4.5 4.5L12 9H8L6 4.5z" /></svg>;
+    case "drop":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z" /></svg>;
+    case "clipboard":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" /><rect x="4" y="4" width="16" height="18" rx="2" /><line x1="8" y1="11" x2="16" y2="11" /><line x1="8" y1="15" x2="13" y2="15" /></svg>;
+    case "camera":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>;
+    case "waveform":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,12 6,4 10,20 14,8 18,16 22,12" /></svg>;
+    case "ruler":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21l18-18M8 21l13-13M3 16l8-8" /><line x1="9" y1="3" x2="21" y2="15" /></svg>;
+    case "lightbulb":
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21h6M12 3a6 6 0 016 6c0 2.5-1.5 4.5-3 6H9c-1.5-1.5-3-3.5-3-6a6 6 0 016-6z" /></svg>;
+    case "eye":
+    default:
+      return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>;
+  }
+}
+
 function StarRow({ stars, track }: { stars: number; track: Track }) {
   const color = track === "OA" ? "var(--teal)" : track === "OT" ? "var(--purple)" : "var(--emerald)";
   return (
@@ -168,7 +190,7 @@ export function DashboardScreen() {
                   )}
                 </div>
 
-                <topic.Icon size={18} color={prog.state === "locked" ? "var(--faint)" : tokens.primary} />
+                <TopicIcon icon={topic.icon} color={prog.state === "locked" ? "var(--faint)" : tokens.primary} />
 
                 <div className="topic-card-name">{topic.label}</div>
                 <div className="topic-card-score" style={{ color: prog.score !== null ? tokens.primary : "var(--faint)" }}>
