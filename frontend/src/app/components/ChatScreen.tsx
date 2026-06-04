@@ -1,171 +1,62 @@
-﻿import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { motion, AnimatePresence } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { XPBar } from "./XPBar";
-import { StreakDisplay } from "./StreakDisplay";
+import React, { useState, useRef, useEffect } from "react";
+import { motion } from "motion/react";
 import { AchievementManager } from "./AchievementToast";
-import {
-  getUserProgress,
-  addXP,
-  updateStreak,
-  checkAndUnlockAchievements,
-  XP_REWARDS,
-} from "../utils/gamification";
+import { getUserProgress, addXP, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
 import { useAuth } from "./AuthContext";
-import { Send, BookOpen, ArrowLeft, User } from "lucide-react";
 
-interface AIMessage {
-  type: "ai";
-  id: string;
-  content: string;
-}
-
-interface UserMessage {
-  type: "user";
-  id: string;
-  text: string;
-}
-
+/* ── Types (unchanged) ────────────────────────────────────── */
+interface AIMessage   { type: "ai";   id: string; content: string; }
+interface UserMessage { type: "user"; id: string; text: string; }
 type Message = AIMessage | UserMessage;
 
-const TOPIC_LABEL = "Ophthalmology";
 const INITIAL_MESSAGES: Message[] = [
-  {
-    type: "ai",
-    id: "1",
-    content:
-      "I'm here whenever you're ready. What would you like to think through today?",
-  },
+  { type: "ai", id: "1", content: "I'm here whenever you're ready. What would you like to think through today?" },
 ];
-
 const FALLBACK_CONTENT = "I'm having trouble reaching the service right now — please try again in a moment.";
 
-function AIBubble({ message, isStreaming }: { message: AIMessage; isStreaming?: boolean }) {
-  return (
-    <motion.div
-      className="flex gap-5 items-start"
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className="flex-shrink-0 mt-1" aria-hidden="true">
-        <HolographicEyeLogo size={28} animated={isStreaming} />
-      </div>
-      <div className="flex-1 max-w-[680px]">
-        <p
-          className="text-[#A39A8E] mb-2"
-          style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}
-        >
-          Tutor
-        </p>
-        <div className="glass-editorial p-5 rounded-2xl">
-          <p
-            className="text-[#1F1A12]"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.08rem",
-              lineHeight: 1.65,
-              fontWeight: 400,
-            }}
-          >
-            {message.content}
-            {isStreaming && (
-              <span
-                className="inline-block w-[3px] h-[1.1em] rounded-full bg-[#8C6D3F] ml-1 align-[-0.15em] soft-pulse"
-                style={{ boxShadow: "0 0 6px rgba(140,109,63,0.5)" }}
-                aria-hidden="true"
-              />
-            )}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+const SUGGESTIONS = [
+  "Explain slit-lamp technique",
+  "Describe normal OCT layers",
+  "How do I measure IOP?",
+  "What is the cup-to-disc ratio?",
+  "Explain LogMAR visual acuity",
+];
 
-function UserBubble({ message }: { message: UserMessage }) {
-  return (
-    <motion.div
-      className="flex gap-5 items-start"
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-    >
-      <div className="flex-shrink-0 mt-1 w-7 h-7 rounded-full bg-[#8C6D3F]/12 flex items-center justify-center">
-        <User size={14} strokeWidth={1.5} className="text-[#8C6D3F]" />
-      </div>
-      <div className="flex-1 max-w-[680px]">
-        <p
-          className="text-[#A39A8E] mb-2"
-          style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600 }}
-        >
-          You
-        </p>
-        <p
-          className="text-[#5C544A]"
-          style={{ fontSize: "1rem", lineHeight: 1.65 }}
-        >
-          {message.text}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
+/* ── ChatScreen ───────────────────────────────────────────── */
 export function ChatScreen() {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [streamingId, setStreamingId] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const [userProgress, setUserProgress] = useState(getUserProgress());
+  const [messages, setMessages]         = useState<Message[]>(INITIAL_MESSAGES);
+  const [input, setInput]               = useState("");
+  const [isTyping, setIsTyping]         = useState(false);
+  const [streamingId, setStreamingId]   = useState<string | null>(null);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef       = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => { updateStreak(); }, []);
 
   useEffect(() => {
-    updateStreak();
-    setUserProgress(getUserProgress());
-  }, []);
-
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
   }, [messages, isTyping]);
 
+  /* Preserved: SSE streaming send */
   const sendMessage = async () => {
     if (!input.trim() || isTyping || streamingId) return;
-    const userMsg: UserMessage = {
-      type: "user",
-      id: Date.now().toString(),
-      text: input.trim(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
+    const userMsg: UserMessage = { type: "user", id: Date.now().toString(), text: input.trim() };
+    setMessages(prev => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
+    if (inputRef.current) inputRef.current.style.height = "auto";
 
     addXP(XP_REWARDS.chatMessage);
-    setUserProgress(getUserProgress());
+    const unlocked = checkAndUnlockAchievements();
+    if (unlocked.length > 0) setNewAchievements(prev => [...prev, ...unlocked]);
 
-    const unlockedAchievements = checkAndUnlockAchievements();
-    if (unlockedAchievements.length > 0) {
-      setNewAchievements((prev) => [...prev, ...unlockedAchievements]);
-    }
-
-    const apiMessages = messages.concat(userMsg).map((m) => {
-      if (m.type === "user") return { role: "user", content: m.text };
-      return { role: "assistant", content: m.content };
-    });
+    const apiMessages = messages.concat(userMsg).map(m =>
+      m.type === "user" ? { role: "user", content: m.text } : { role: "assistant", content: m.content }
+    );
 
     const aiMsgId = `ai-${Date.now() + 1}`;
-
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -173,28 +64,22 @@ export function ChatScreen() {
         credentials: "include",
         body: JSON.stringify({ messages: apiMessages }),
       });
+      if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
-      if (!res.ok || !res.body) {
-        throw new Error("Stream unavailable");
-      }
-
-      // Add empty AI message and switch from typing indicator to streaming cursor
-      setMessages((prev) => [...prev, { type: "ai", id: aiMsgId, content: "" }]);
+      setMessages(prev => [...prev, { type: "ai", id: aiMsgId, content: "" }]);
       setIsTyping(false);
       setStreamingId(aiMsgId);
 
-      const reader = res.body.getReader();
+      const reader  = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
-
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue;
           const data = line.slice(6);
@@ -202,27 +87,21 @@ export function ChatScreen() {
           try {
             const parsed = JSON.parse(data) as { text: string };
             if (parsed.text) {
-              setMessages((prev) => {
+              setMessages(prev => {
                 const last = prev[prev.length - 1];
-                if (last.type === "ai" && last.id === aiMsgId) {
+                if (last.type === "ai" && last.id === aiMsgId)
                   return [...prev.slice(0, -1), { ...last, content: last.content + parsed.text }];
-                }
                 return prev;
               });
-              scrollToBottom();
             }
-          } catch {
-            // skip malformed SSE lines
-          }
+          } catch { /* skip malformed SSE */ }
         }
       }
     } catch {
-      setMessages((prev) => {
-        // If AI message was already added, update its content; otherwise append new one
+      setMessages(prev => {
         const last = prev[prev.length - 1];
-        if (last.type === "ai" && last.id === aiMsgId) {
+        if (last.type === "ai" && last.id === aiMsgId)
           return [...prev.slice(0, -1), { ...last, content: FALLBACK_CONTENT }];
-        }
         return [...prev, { type: "ai", id: aiMsgId, content: FALLBACK_CONTENT }];
       });
     } finally {
@@ -232,10 +111,7 @@ export function ChatScreen() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -244,179 +120,151 @@ export function ChatScreen() {
     e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
   };
 
+  const topicStats = { xp: getUserProgress().xp, sessionCount: messages.filter(m => m.type === "user").length };
+
+  /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="min-h-screen aurora-bg flex flex-col">
+    <div className="screen-chat">
       <AchievementManager
         achievements={newAchievements}
-        onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
+        onDismiss={id => setNewAchievements(prev => prev.filter(a => a !== id))}
       />
 
-      {/* ===== Top navigation strip ===== */}
-      <motion.div
-        className="glass-nav sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <ArrowLeft size={15} strokeWidth={1.5} />
-            Dashboard
-          </button>
+      {/* ── Main chat pane ────────────────────────────────── */}
+      <div className="chat-main">
+        {/* Chat topbar */}
+        <div className="chat-topbar">
+          <div className="chat-avatar">
+            <img src="/anatomy/eye-hero.png" alt="AI Tutor" />
+          </div>
+          <div>
+            <div className="chat-avatar-name">EyeBot Tutor</div>
+            <div className="chat-avatar-sub">AI Ophthalmology Educator</div>
+          </div>
+          <div className="chat-online-dot" title="Online" />
+        </div>
 
-          <div className="flex items-center gap-3">
-            <span
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.05rem",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-              }}
+        {/* Messages */}
+        <div className="chat-messages" role="log" aria-live="polite" aria-label="Conversation">
+          {messages.map(m => (
+            <motion.div
+              key={m.id}
+              className={`msg ${m.type === "ai" ? "msg-ai" : "msg-user"}`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              EyeBot
-            </span>
-            <span className="text-[#A39A8E]">·</span>
-            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
-              Tutor
-            </span>
-          </div>
-
-          <button
-            onClick={() => navigate("/flashcards")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <BookOpen size={15} strokeWidth={1.5} />
-            <span className="hidden sm:inline">Flashcards</span>
-          </button>
-        </div>
-      </motion.div>
-
-      {/* ===== Topic / context strip ===== */}
-      <div className="max-w-3xl w-full mx-auto px-4 sm:px-8 pt-10 pb-2">
-        <div className="flex items-center justify-between">
-          <p className="annotation-label">AI Tutor · Socratic Mode · {TOPIC_LABEL}</p>
-          <div className="flex items-center gap-3">
-            <StreakDisplay streak={userProgress.streak} size="sm" />
-          </div>
-        </div>
-        <div className="mt-3 max-w-xs">
-          <XPBar currentXP={userProgress.xp} level={userProgress.level} size="sm" />
-        </div>
-      </div>
-
-      {/* ===== Conversation stream ===== */}
-      <div className="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-8 pt-8 pb-40 sm:pb-32 relative">
-        {/* Anatomy watermark */}
-        <motion.img
-          src="/anatomy/eye-hero.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: "fixed",
-            width: "40vw",
-            maxWidth: 320,
-            opacity: 0.07,
-            pointerEvents: "none",
-            zIndex: 0,
-            top: "50%",
-            left: "50%",
-            translateX: "-50%",
-            translateY: "-50%",
-            filter: "sepia(0.3) saturate(0.6)",
-          }}
-          animate={{
-            x: ["0%", "35vw", "20vw", "-30vw", "-20vw", "0%"],
-            y: ["0%", "-25vh", "30vh", "20vh", "-30vh", "0%"],
-            rotate: [0, 8, -5, 12, -8, 0],
-            scale: [1, 1.08, 0.95, 1.05, 0.98, 1],
-          }}
-          transition={{ duration: 40, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <div className="space-y-10" role="log" aria-live="polite" aria-atomic="false" aria-label="Conversation">
-          {messages.map((msg) =>
-            msg.type === "ai" ? (
-              <AIBubble key={msg.id} message={msg} isStreaming={msg.id === streamingId} />
-            ) : (
-              <UserBubble key={msg.id} message={msg} />
-            )
-          )}
+              {m.type === "ai" ? (
+                <>
+                  <div className="msg-sender">Tutor</div>
+                  <div className="msg-bubble">
+                    {m.content}
+                    {streamingId === m.id && (
+                      <span
+                        style={{ display: "inline-block", width: 3, height: "1.1em", borderRadius: 2, background: "var(--teal)", marginLeft: 3, verticalAlign: "-0.15em", animation: "online-pulse 0.9s ease-in-out infinite" }}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="msg-sender" style={{ textAlign: "right" }}>You</div>
+                  <div className="msg-bubble">{m.text}</div>
+                </>
+              )}
+            </motion.div>
+          ))}
 
           {isTyping && (
-            <motion.div
-              className="flex gap-5 items-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              aria-label="Tutor is typing"
-              role="status"
-            >
-              <div className="flex-shrink-0" aria-hidden="true">
-                <HolographicEyeLogo size={28} animated={true} />
+            <div className="msg msg-ai">
+              <div className="msg-bubble" style={{ color: "var(--faint)" }}>
+                <span className="spinner spinner--teal" style={{ width: 12, height: 12, borderWidth: 2 }} />
               </div>
-              <div className="flex gap-1 items-center" aria-hidden="true">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: [`hsl(25, 35%, 52%)`, `hsl(260, 30%, 60%)`, `hsl(175, 30%, 52%)`][i] }}
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
-                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.18 }}
-                  />
-                ))}
-              </div>
-            </motion.div>
+            </div>
           )}
+
           <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input area */}
+        <div className="chat-input-area">
+          {/* Suggestion chips */}
+          <div className="chat-suggestions">
+            {SUGGESTIONS.map(s => (
+              <button
+                key={s}
+                className="suggestion-chip"
+                onClick={() => { setInput(s); inputRef.current?.focus(); }}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+
+          <div className="chat-input-row">
+            <textarea
+              ref={inputRef}
+              className="chat-input"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about any ophthalmic topic…"
+              rows={1}
+              style={{ lineHeight: 1.5, resize: "none" }}
+              aria-label="Message input"
+            />
+            <button
+              className="send-btn"
+              onClick={sendMessage}
+              disabled={!input.trim() || isTyping}
+              aria-label="Send message"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 14L14 8L2 2V6.5L10 8L2 9.5V14Z" fill="#fff" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ===== Composer ===== */}
-      <div
-        className="fixed bottom-0 inset-x-0 bg-gradient-to-t from-[#FBF8F1] via-[#FBF8F1] to-transparent pt-10 z-20"
-        style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom))" }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-8">
-          <div
-            className="relative glass-card iri-border rounded-3xl transition-all"
-            style={{ borderRadius: "1.5rem" }}
-          >
-            <div className="flex items-end gap-2 p-3">
-              <label htmlFor="chat-message-input" className="sr-only">Message</label>
-              <textarea
-                id="chat-message-input"
-                ref={inputRef}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="What's on your mind?"
-                rows={1}
-                className="flex-1 bg-transparent px-4 py-3 text-[#1F1A12] placeholder-[#A39A8E] outline-none resize-none min-h-[48px] max-h-[160px]"
-                style={{ fontSize: "1rem", lineHeight: 1.55, fontFamily: "var(--font-body)" }}
-              />
-              <motion.button
-                onClick={sendMessage}
-                disabled={!input.trim() || isTyping || !!streamingId}
-                aria-label="Send message"
-                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-                  input.trim() && !isTyping && !streamingId
-                    ? "bg-[#8C6D3F] text-[#FBF8F1]"
-                    : "bg-[#1F1A12]/5 text-[#A39A8E] cursor-not-allowed"
-                }`}
-                whileHover={input.trim() && !isTyping && !streamingId ? { scale: 1.05 } : undefined}
-                whileTap={input.trim() && !isTyping && !streamingId ? { scale: 0.95 } : undefined}
-              >
-                <Send size={15} strokeWidth={1.5} aria-hidden="true" />
-              </motion.button>
-            </div>
+      {/* ── Context panel ─────────────────────────────────── */}
+      <aside className="chat-context-panel" aria-label="Session info">
+        <div className="context-card">
+          <img className="context-card-img" src="/anatomy/clinic-slitlamp.png" alt="Clinical context" />
+          <div className="context-card-body">
+            <div className="context-card-label">Current topic</div>
+            <div className="context-card-title">Ophthalmology</div>
           </div>
-          <p className="mt-3 text-center text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
-            Press Enter to send · Shift + Enter for a new line
-          </p>
         </div>
-      </div>
+
+        <div className="context-card">
+          <img className="context-card-img" src="/anatomy/eye-fundus.png" alt="Anatomy reference" />
+          <div className="context-card-body">
+            <div className="context-card-label">Reference</div>
+            <div className="context-card-title">Fundus anatomy</div>
+          </div>
+        </div>
+
+        <div className="context-stat-row">
+          <div className="context-stat">
+            <div className="context-stat-val">{topicStats.sessionCount}</div>
+            <div className="context-stat-key">Messages</div>
+          </div>
+          <div className="context-stat">
+            <div className="context-stat-val">{topicStats.xp}</div>
+            <div className="context-stat-key">XP</div>
+          </div>
+        </div>
+
+        {user?.studentRole && (
+          <div style={{ padding: "10px 12px", background: "var(--teal-bg)", borderRadius: "var(--r-sm)", border: "1px solid var(--teal-muted)" }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 3 }}>Track</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--teal-deep)" }}>{user.studentRole}</div>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }
+

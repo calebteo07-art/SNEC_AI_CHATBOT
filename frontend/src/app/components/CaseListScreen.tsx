@@ -1,335 +1,191 @@
-﻿import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { Stethoscope, Clock, ArrowUpRight, ArrowLeft, AlertCircle, RefreshCw, Lock } from "lucide-react";
-import { useAuth } from "./AuthContext";
-import { SkeletonCard } from "./SkeletonLoader";
 
+/* ── Types (preserved) ────────────────────────────────────── */
 interface CaseInfo {
-  case_id: string;
-  title: string;
-  difficulty: string;
-  topic: string;
-  estimated_minutes: number;
-  locked?: boolean;
-  patient: {
-    name: string;
-    age: number;
-    presenting_complaint: string;
-  };
+  case_id: string; title: string; difficulty: string; topic: string;
+  estimated_minutes: number; locked?: boolean;
+  patient: { name: string; age: number; presenting_complaint: string; };
 }
 
-const DIFFICULTY_TONES: Record<string, string> = {
-  beginner: "#4F6B3D",
-  intermediate: "#9C7B1F",
-  advanced: "#8B2D2D",
+const DIFFICULTY_COLOR: Record<string, string> = {
+  beginner:     "var(--emerald)",
+  intermediate: "var(--gold)",
+  advanced:     "var(--heart)",
 };
 
-function difficultyTone(d: string) {
-  return DIFFICULTY_TONES[d.toLowerCase()] ?? DIFFICULTY_TONES.intermediate;
-}
+const DIFFICULTY_BG: Record<string, string> = {
+  beginner:     "var(--emerald-bg)",
+  intermediate: "var(--streak-bg)",
+  advanced:     "var(--heart-bg)",
+};
 
+function diffColor(d: string) { return DIFFICULTY_COLOR[d.toLowerCase()] ?? "var(--muted)"; }
+function diffBg(d: string)    { return DIFFICULTY_BG[d.toLowerCase()] ?? "var(--page)"; }
+
+const CASE_IMAGES = [
+  "/anatomy/clinic-slitlamp.png",
+  "/anatomy/eye-oct.png",
+  "/anatomy/eye-anterior.png",
+  "/anatomy/eye-fundus.png",
+  "/anatomy/eye-innovation.png",
+  "/anatomy/eye-scan.png",
+];
+
+/* ── CaseListScreen ───────────────────────────────────────── */
 export function CaseListScreen() {
   const navigate = useNavigate();
-  const {} = useAuth();
-  const [cases, setCases] = useState<CaseInfo[]>([]);
+  const [cases, setCases]   = useState<CaseInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]   = useState<string | null>(null);
 
   const fetchCases = useCallback(() => {
     setError(null);
     setLoading(true);
     fetch("/api/cases", { credentials: "include" })
-      .then((r) => {
-        if (!r.ok) throw new Error("Server error");
-        return r.json();
-      })
-      .then((data) => setCases(data.cases))
-      .catch(() => setError("We couldn't load the cases. Please try again."))
+      .then(r => { if (!r.ok) throw new Error("Server error"); return r.json(); })
+      .then(data => setCases(data.cases))
+      .catch(() => setError("Could not load cases. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
   return (
-    <div className="min-h-screen aurora-bg relative overflow-hidden">
-      {/* Anterior segment watermark */}
-      <motion.img
-        src="/anatomy/eye-anterior.png"
-        alt="" aria-hidden="true"
-        style={{
-          position: "absolute", top: "8rem", right: "-2rem",
-          width: "38vw", maxWidth: 360,
-          pointerEvents: "none", opacity: 0.09,
-          filter: "sepia(0.35) saturate(0.65)",
-          mixBlendMode: "multiply",
-        }}
-        animate={{ y: [0, -10, 0], rotate: [0, 1.5, 0, -1.5, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* Top strip */}
-      <motion.div
-        className="glass-nav sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-3xl mx-auto px-8 h-16 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <ArrowLeft size={15} strokeWidth={1.5} />
-            Dashboard
-          </button>
-          <div className="flex items-center gap-3">
-            <HolographicEyeLogo size={28} animated={false} />
-            <span
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.05rem",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              EyeBot
-            </span>
-            <span className="text-[#A39A8E]">·</span>
-            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
-              Cases
-            </span>
+    <div style={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      {/* Page header */}
+      <div style={{ padding: "20px 24px 0", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
+          <div>
+            <p className="section-label">Clinical Cases</p>
+            <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em" }}>Choose a Case</h1>
+            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, lineHeight: 1.5 }}>
+              Interview a virtual patient, request investigations, and reach your diagnosis.
+            </p>
           </div>
-          <div className="w-20" />
+          {!loading && !error && cases.length > 0 && (
+            <button
+              onClick={fetchCases}
+              style={{ fontSize: 11, fontWeight: 700, color: "var(--teal)", display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}
+            >
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                <path d="M14 8A6 6 0 1 1 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M14 4V8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              New cases
+            </button>
+          )}
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="max-w-3xl mx-auto px-8 py-16"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p
-          className="text-[#8C6D3F] mb-3"
-          style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-        >
-          · Clinical cases
-        </p>
-        <h2
-          className="text-[#1F1A12]"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(2rem, 4vw, 3rem)",
-            fontWeight: 400,
-            lineHeight: 1.05,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Choose a <span className="italic-display">case</span>
-        </h2>
-        <p
-          className="mt-5 text-[#5C544A] max-w-xl"
-          style={{ fontSize: "1.02rem", lineHeight: 1.65, fontWeight: 300 }}
-        >
-          Interview a virtual patient, request investigations, and submit your diagnosis. Each case takes around fifteen minutes.
-        </p>
-
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 32px" }}>
         {/* Loading */}
         {loading && (
-          <div className="mt-8 space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} rows={2} />)}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14, paddingTop: 16 }}>
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} style={{ height: 220, background: "var(--border-subtle)", borderRadius: "var(--r-lg)", animation: "online-pulse 1.5s ease-in-out infinite" }} />
+            ))}
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="mt-10 flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={16} strokeWidth={1.5} aria-hidden="true" />
-              <span style={{ fontSize: "0.9rem" }}>{error}</span>
-            </div>
-            <button
-              onClick={fetchCases}
-              className="flex-shrink-0 text-[#8B2D2D] underline underline-offset-2 hover:opacity-70 transition-opacity"
-              style={{ fontSize: "0.88rem", fontWeight: 500 }}
-            >
-              Try again
-            </button>
+          <div style={{ padding: "14px 16px", background: "var(--heart-bg)", border: "1px solid var(--heart)", borderRadius: "var(--r-md)", color: "#991b1b", fontSize: 13, display: "flex", justifyContent: "space-between", marginTop: 16 }}>
+            {error}
+            <button onClick={fetchCases} style={{ fontWeight: 700, color: "var(--heart)", fontSize: 12 }}>Retry</button>
           </div>
         )}
 
+        {/* Empty */}
         {!loading && !error && cases.length === 0 && (
-          <p className="text-[#A39A8E] text-center py-20" style={{ fontSize: "0.92rem" }}>
-            No cases available yet.
-          </p>
+          <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 13, padding: "60px 0" }}>No cases available yet.</p>
         )}
 
-        {/* Refresh */}
+        {/* Case cards */}
         {!loading && !error && cases.length > 0 && (
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={fetchCases}
-              className="inline-flex items-center gap-2 text-[#A39A8E] hover:text-[#8C6D3F] transition-colors"
-              style={{ fontSize: "0.82rem" }}
-            >
-              <RefreshCw size={13} strokeWidth={1.5} />
-              Generate new cases
-            </button>
-          </div>
-        )}
+          <motion.div
+            style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14, paddingTop: 16 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            {cases.map((c, i) => {
+              const locked = c.locked ?? false;
+              const imgSrc = CASE_IMAGES[i % CASE_IMAGES.length];
 
-        {/* List */}
-        <div className="mt-4 space-y-3">
-          {cases.map((c, i) => {
-            const locked = c.locked ?? false;
-            const tone = locked ? "#A39A8E" : difficultyTone(c.difficulty);
-            const unlockHint =
-              c.difficulty === "intermediate"
-                ? "Complete 2 beginner cases to unlock"
-                : c.difficulty === "advanced"
-                ? "Complete 2 intermediate cases to unlock"
-                : "";
-
-            if (locked) {
-              return (
-                <motion.div
-                  key={c.case_id}
-                  className="w-full text-left p-8 rounded-2xl border border-[#D4CFC9]/60"
-                  style={{ background: "#F5F3EF", cursor: "default" }}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.4 }}
-                >
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex-1 min-w-0" style={{ opacity: 0.45 }}>
-                      <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1" style={{ color: "#A39A8E", fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
-                          <Lock size={10} strokeWidth={2} />
-                          {c.difficulty}
-                        </span>
-                        <span className="text-[#A39A8E]">·</span>
-                        <span className="text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
-                          {c.topic}
-                        </span>
-                      </div>
-
-                      <h3
-                        className="text-[#5C544A] mb-3"
-                        style={{
-                          fontFamily: "var(--font-display)",
-                          fontSize: "1.45rem",
-                          fontWeight: 400,
-                          letterSpacing: "-0.01em",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {c.title}
-                      </h3>
-
-                      <p
-                        className="text-[#A39A8E] italic-display mb-4 max-w-xl"
-                        style={{ fontSize: "1rem", lineHeight: 1.55 }}
-                      >
-                        "{c.patient.presenting_complaint}"
-                      </p>
-
-                      <div className="flex items-center gap-5 text-[#C4BBB0]" style={{ fontSize: "0.78rem" }}>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Stethoscope size={12} strokeWidth={1.5} />
-                          {c.patient.name}, {c.patient.age} years
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock size={12} strokeWidth={1.5} />
-                          ~{c.estimated_minutes} min
-                        </span>
+              if (locked) {
+                return (
+                  <div
+                    key={c.case_id}
+                    style={{ borderRadius: "var(--r-lg)", border: "1px solid var(--border)", background: "var(--border-subtle)", overflow: "hidden", opacity: 0.6 }}
+                  >
+                    <div style={{ height: 110, background: "var(--border)", position: "relative", overflow: "hidden" }}>
+                      <img src={imgSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(1)", opacity: 0.4 }} />
+                      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <rect x="5" y="11" width="14" height="10" rx="2" stroke="var(--muted)" strokeWidth="1.5" />
+                          <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="var(--muted)" strokeWidth="1.5" />
+                        </svg>
                       </div>
                     </div>
+                    <div style={{ padding: "12px 14px" }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--faint)" }}>{c.difficulty} · Locked</span>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)", marginTop: 4, lineHeight: 1.3 }}>{c.title}</p>
+                    </div>
+                  </div>
+                );
+              }
 
-                    <Lock
-                      size={18}
-                      strokeWidth={1.25}
-                      className="flex-shrink-0 mt-1"
-                      style={{ color: "#C4BBB0" }}
-                    />
+              return (
+                <motion.button
+                  key={c.case_id}
+                  className="case-card"
+                  onClick={() => navigate(`/cases/${c.case_id}`, { state: { caseInfo: c } })}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04, duration: 0.3 }}
+                  style={{ textAlign: "left", width: "100%" }}
+                >
+                  {/* Card image */}
+                  <div style={{ height: 130, position: "relative", overflow: "hidden", background: "var(--sidebar-bg)" }}>
+                    <img className="case-card-img" src={imgSrc} alt="" />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
+                    {/* Difficulty pill on image */}
+                    <div style={{
+                      position: "absolute", top: 10, left: 12,
+                      padding: "3px 9px", borderRadius: "var(--r-full)",
+                      background: diffBg(c.difficulty),
+                      border: `1px solid ${diffColor(c.difficulty)}`,
+                      fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
+                      textTransform: "uppercase", color: diffColor(c.difficulty),
+                    }}>
+                      {c.difficulty}
+                    </div>
+                    {/* Time on image */}
+                    <div style={{ position: "absolute", bottom: 10, right: 12, fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                      ~{c.estimated_minutes} min
+                    </div>
                   </div>
 
-                  {unlockHint && (
-                    <p className="mt-4 text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
-                      {unlockHint}
-                    </p>
-                  )}
-                </motion.div>
-              );
-            }
-
-            return (
-              <motion.button
-                key={c.case_id}
-                onClick={() => navigate(`/cases/${c.case_id}`, { state: { caseInfo: c } })}
-                className="w-full text-left glass-card iri-border p-8 group transition-all hover-shadow-holo"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.4 }}
-                whileHover={{ y: -1 }}
-              >
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <span style={{ color: tone, fontSize: "0.7rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
-                        · {c.difficulty}
-                      </span>
-                      <span className="text-[#A39A8E]">·</span>
-                      <span className="text-[#5C544A]" style={{ fontSize: "0.78rem" }}>
-                        {c.topic}
-                      </span>
+                  {/* Card body */}
+                  <div className="case-card-body">
+                    <div className="case-card-tag" style={{ color: "var(--teal)" }}>{c.topic}</div>
+                    <div className="case-card-title">{c.title}</div>
+                    <div className="case-card-sub">
+                      {c.patient.name}, {c.patient.age} yrs
                     </div>
-
-                    <h3
-                      className="text-[#1F1A12] mb-3"
-                      style={{
-                        fontFamily: "var(--font-display)",
-                        fontSize: "1.45rem",
-                        fontWeight: 400,
-                        letterSpacing: "-0.01em",
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {c.title}
-                    </h3>
-
-                    <p
-                      className="text-[#5C544A] italic-display mb-4 max-w-xl"
-                      style={{ fontSize: "1rem", lineHeight: 1.55 }}
-                    >
+                    <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6, lineHeight: 1.4, fontStyle: "italic" }}>
                       "{c.patient.presenting_complaint}"
                     </p>
-
-                    <div className="flex items-center gap-5 text-[#A39A8E]" style={{ fontSize: "0.78rem" }}>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Stethoscope size={12} strokeWidth={1.5} />
-                        {c.patient.name}, {c.patient.age} years
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <Clock size={12} strokeWidth={1.5} />
-                        ~{c.estimated_minutes} min
-                      </span>
-                    </div>
                   </div>
-
-                  <ArrowUpRight
-                    size={18}
-                    strokeWidth={1.25}
-                    className="flex-shrink-0 text-[#A39A8E] group-hover:text-[#8C6D3F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all mt-1"
-                  />
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
-      </motion.div>
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
