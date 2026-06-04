@@ -45,8 +45,6 @@ def log(
         detail:     Any extra context (no PII). Examples: "topic: glaucoma",
                     "score: 85", "card_id: abc123".
     """
-    LOG_FILE.parent.mkdir(exist_ok=True)
-
     entry = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "event_type": event_type,
@@ -55,8 +53,14 @@ def log(
         "detail": detail,
     }
 
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        LOG_FILE.parent.mkdir(exist_ok=True)
+        with LOG_FILE.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except (PermissionError, OSError):
+        # Read-only filesystem (e.g. container without a writable volume) —
+        # audit log is best-effort; never crash a request because of it.
+        pass
 
 
 def read_recent(n: int = 20) -> list[dict]:

@@ -31,6 +31,9 @@ COPY cases/ ./cases/
 # Copy built frontend from Stage 1
 COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
 
+# Pre-create writable directories and hand them to the non-root user
+RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
+
 # Switch to non-root
 USER eyebot
 
