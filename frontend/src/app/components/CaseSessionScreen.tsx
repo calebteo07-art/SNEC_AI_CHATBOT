@@ -189,10 +189,46 @@ export function CaseSessionScreen() {
 
   /* ── Main layout ────────────────────────────────────────── */
   return (
-    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+
+      {/* ── Top HUD: patient vitals ──────────────────────────── */}
+      {caseInfo && (
+        <div className="case-hud">
+          <div className="case-hud-stat">
+            <span className="case-hud-label">Patient</span>
+            <span className="case-hud-val">{caseInfo.patient.name}</span>
+          </div>
+          <div className="case-hud-stat">
+            <span className="case-hud-label">Age</span>
+            <span className="case-hud-val">{caseInfo.patient.age}</span>
+            <span className="case-hud-unit">yr</span>
+          </div>
+          <div className="case-hud-stat">
+            <span className="case-hud-label">Topic</span>
+            <span className="case-hud-val" style={{ fontSize: 12 }}>{caseInfo.topic}</span>
+          </div>
+          <div className="case-hud-stat">
+            <span className="case-hud-label">Difficulty</span>
+            <span className={`role-badge ${caseInfo.difficulty?.toLowerCase()}`} style={{ fontSize: 10 }}>
+              {caseInfo.difficulty}
+            </span>
+          </div>
+          <div className="case-hud-stat case-hud-stat--flex">
+            <span className="case-hud-label">CC</span>
+            <span className="case-hud-cc">{caseInfo.patient.presenting_complaint}</span>
+          </div>
+          <div className="case-hud-stat" style={{ marginLeft: "auto" }}>
+            <span className="case-hud-label">Time</span>
+            <span className="case-hud-val">{caseInfo.estimated_minutes}′</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── Cockpit: left panel + chat + right panel ─────────── */}
+      <div className="case-cockpit">
 
       {/* ── Left panel: patient + checklist ─────────────────── */}
-      <aside style={{ width: 272, flexShrink: 0, background: "var(--card)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <aside style={{ width: 248, flexShrink: 0, background: "var(--card)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Anatomy banner */}
         <div style={{ height: 100, position: "relative", overflow: "hidden", flexShrink: 0, background: "var(--sidebar-bg)" }}>
           <img src="/anatomy/eye-anterior.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
@@ -445,8 +481,8 @@ export function CaseSessionScreen() {
                 rows={1}
                 style={{
                   flex: 1, padding: "11px 18px", borderRadius: "var(--r-full)",
-                  border: "1.5px solid var(--border)", background: "var(--page)",
-                  fontSize: 13.5, resize: "none", outline: "none", lineHeight: 1.5,
+                  border: "1.5px solid var(--border)", background: "var(--surface-2)",
+                  fontSize: 13.5, resize: "none", outline: "none", lineHeight: 1.5, color: "var(--text)",
                 }}
               />
               <button
@@ -462,7 +498,97 @@ export function CaseSessionScreen() {
             </div>
           </div>
         )}
+      </div>{/* end chat column */}
+
+      {/* ── Right panel: assessment / scoring ────────────────── */}
+      <div className="case-right-panel">
+        {!result ? (
+          <>
+            <div className="case-right-section">
+              <div className="case-right-label">Diagnosis</div>
+              <textarea
+                value={diagnosis}
+                onChange={e => setDiagnosis(e.target.value)}
+                placeholder="Your primary diagnosis…"
+                rows={4}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: "var(--r-xs)", border: "1px solid var(--border)", background: "var(--surface-2)", fontSize: 12, resize: "none", outline: "none", color: "var(--text)", lineHeight: 1.5 }}
+              />
+            </div>
+            <div className="case-right-section">
+              <div className="case-right-label">Management</div>
+              <textarea
+                value={managementPlan}
+                onChange={e => setManagementPlan(e.target.value)}
+                placeholder="Proposed management…"
+                rows={4}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: "var(--r-xs)", border: "1px solid var(--border)", background: "var(--surface-2)", fontSize: 12, resize: "none", outline: "none", color: "var(--text)", lineHeight: 1.5 }}
+              />
+            </div>
+            {unticked.length > 0 && (
+              <div className="case-right-section">
+                <div style={{ fontSize: 11, color: "var(--streak)", padding: "6px 8px", background: "var(--streak-bg)", borderRadius: "var(--r-xs)", border: "1px solid var(--streak)" }}>
+                  ⚠ {unticked.length} critical step{unticked.length !== 1 ? "s" : ""} not ticked
+                </div>
+              </div>
+            )}
+            {submitError && (
+              <div className="case-right-section">
+                <p style={{ color: "var(--heart)", fontSize: 11 }}>{submitError}</p>
+              </div>
+            )}
+            <div style={{ padding: "12px 14px" }}>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || !diagnosis.trim() || !managementPlan.trim()}
+                style={{
+                  width: "100%", padding: "10px", borderRadius: "var(--r-xs)",
+                  background: "var(--emerald)", color: "#000", border: "none",
+                  borderBottom: "3px solid var(--emerald-shadow)",
+                  fontSize: 12, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase",
+                  cursor: submitting ? "wait" : "pointer", opacity: submitting || !diagnosis.trim() ? 0.5 : 1,
+                }}
+              >
+                {submitting ? "Evaluating…" : "Submit →"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Score */}
+            <div className="case-right-section">
+              <div className="case-right-label">Score</div>
+              <div className="case-right-score" style={{ color: scoreColor(result.total_score) }}>
+                {result.total_score}<span style={{ fontSize: 14, color: "var(--faint)", fontWeight: 500 }}>/10</span>
+              </div>
+            </div>
+            {/* Domain scores */}
+            {DOMAINS.map(d => (
+              <div key={d.label} className="case-right-section">
+                <div className="case-domain-row">
+                  <span className="case-domain-label">{d.label}</span>
+                  <span className="case-domain-val" style={{ color: scoreColor(result[d.scoreKey] as number) }}>
+                    {result[d.scoreKey] as number}/10
+                  </span>
+                </div>
+                <div className="case-score-bar-track">
+                  <div className="case-score-bar-fill" style={{ width: `${(result[d.scoreKey] as number / 10) * 100}%`, background: scoreColor(result[d.scoreKey] as number) }} />
+                </div>
+              </div>
+            ))}
+            {/* Actions */}
+            <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 6 }}>
+              <button onClick={() => navigate("/dashboard")} style={{ width: "100%", padding: "9px", borderRadius: "var(--r-xs)", background: "var(--teal)", color: "#000", border: "none", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+                Back to Learn
+              </button>
+              <button onClick={() => navigate("/cases")} style={{ width: "100%", padding: "9px", borderRadius: "var(--r-xs)", border: "1px solid var(--border)", background: "none", fontSize: 11, fontWeight: 600, color: "var(--muted)", cursor: "pointer" }}>
+                More Cases
+              </button>
+            </div>
+          </>
+        )}
       </div>
+
+      </div>{/* end .case-cockpit */}
     </div>
   );
 }

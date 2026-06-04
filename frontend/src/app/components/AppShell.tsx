@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
-import { StatsHelpPopover } from "./StatsHelpPopover";
 
 /* ── Nav definitions ──────────────────────────────────────── */
 const STUDENT_NAV = [
@@ -43,14 +42,16 @@ export function AppShell() {
         syncStreakFromBackend(d.streak ?? 0);
         syncHeartsFromBackend(d.hearts ?? 5);
       })
-      .catch(() => { /* keep defaults */ });
+      .catch(() => {});
   }, [pathname]);
+
+  // Suppress unused warning — logout available via ProfileScreen
+  void logout;
 
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
 
   const activeRoute = [...STUDENT_NAV, ...ADMIN_NAV, ...SUPERVISOR_NAV].find(n => pathname.startsWith(n.path))?.path ?? "";
-  const crumb = [...STUDENT_NAV, ...ADMIN_NAV, ...SUPERVISOR_NAV].find(n => pathname.startsWith(n.path))?.label ?? "";
 
   const initials = (user?.fullName ?? "?")
     .split(" ")
@@ -60,8 +61,10 @@ export function AppShell() {
     .toUpperCase();
 
   const currentLevelBase = (level - 1) * 500;
-  const xpIntoLevel = xp - currentLevelBase;
-  const xpFillPct = Math.round((xpIntoLevel / 500) * 100);
+  const xpIntoLevel = Math.max(0, xp - currentLevelBase);
+  const xpFillPct = Math.min(100, Math.round((xpIntoLevel / 500) * 100));
+
+  const roleLabel = role === "student" ? (user?.studentRole ?? "Student") : role === "admin" ? "Admin" : "Supervisor";
 
   return (
     <div className="app">
@@ -75,13 +78,16 @@ export function AppShell() {
           alt=""
         />
 
-        {/* Logo */}
+        {/* Logo row */}
         <button
           className="sidebar-logo"
           onClick={() => navigate("/dashboard")}
           aria-label="EyeBot home"
         >
-          <EyeSvgLogo />
+          <div className="sidebar-logo-icon">
+            <EyeSvgLogo />
+          </div>
+          <span className="sidebar-brand-text">EyeBot</span>
         </button>
 
         {/* Nav items */}
@@ -100,60 +106,59 @@ export function AppShell() {
           ))}
         </div>
 
-        {/* User avatar → profile */}
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Gamification stats — student only */}
+        {role === "student" && (
+          <div className="sidebar-stats">
+            <div className="sidebar-stat-label">Performance</div>
+
+            <div className="sidebar-stat-row">
+              <FlameIcon />
+              <span className="sidebar-stat-val">{streak}</span>
+              <span>day streak</span>
+            </div>
+
+            <div className="sidebar-stat-row">
+              <StarIcon />
+              <span className="sidebar-stat-val">{xp}</span>
+              <span>XP · Lv {level}</span>
+            </div>
+
+            <div className="sidebar-stat-row">
+              <HeartIcon />
+              <span className="sidebar-stat-val">{hearts}</span>
+              <span>/ 5 hearts</span>
+            </div>
+
+            <div className="sidebar-xp-wrap">
+              <div className="sidebar-xp-label">
+                Lv {level} → {level + 1} · {xpIntoLevel} / 500 xp
+              </div>
+              <div className="sidebar-xp-track">
+                <div className="sidebar-xp-fill" style={{ width: `${xpFillPct}%` }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* User card → profile */}
         <button
-          className={`sidebar-avatar${pathname === "/profile" ? " active" : ""}`}
+          className="sidebar-user"
           onClick={() => navigate("/profile")}
-          title={`${user?.fullName ?? "User"} — view profile`}
-          aria-label="Profile"
+          aria-label="View profile"
         >
-          {initials}
+          <div className="sidebar-avatar">{initials}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{user?.fullName ?? "User"}</div>
+            <div className="sidebar-user-role">{roleLabel}</div>
+          </div>
         </button>
       </nav>
 
       {/* ── Main column ───────────────────────────────────── */}
       <div className="main">
-        {/* Topbar */}
-        <header className="topbar">
-          <span className="topbar-brand">
-            EyeBot
-            {crumb && (
-              <span className="topbar-brand-crumb"> / {crumb}</span>
-            )}
-          </span>
-
-          {/* XP progress bar */}
-          <div className="topbar-xp-wrap">
-            <span className="topbar-xp-label">
-              Lv {level} · {xpIntoLevel} / 500 xp
-            </span>
-            <div className="topbar-xp-track" role="progressbar" aria-valuenow={xpFillPct} aria-valuemin={0} aria-valuemax={100}>
-              <div
-                className="topbar-xp-fill"
-                style={{ width: `${xpFillPct}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Stat pills + help */}
-          <div className="topbar-pills" style={{ position: "relative" }}>
-            <div className="stat-pill stat-pill--streak" aria-label={`${streak} day streak`}>
-              <FlameIcon />
-              {streak}
-            </div>
-            <div className="stat-pill stat-pill--xp" aria-label={`${xp} XP`}>
-              <StarIcon />
-              {xp} XP
-            </div>
-            <div className="stat-pill stat-pill--hearts" aria-label={`${hearts} hearts`}>
-              <HeartIcon />
-              {hearts}
-            </div>
-            <StatsHelpPopover streak={streak} xp={xp} level={level} hearts={hearts} />
-          </div>
-        </header>
-
-        {/* Screen content */}
         <main className="content">
           <Outlet />
         </main>
@@ -172,7 +177,6 @@ export function AppShell() {
             {label}
           </button>
         ))}
-
       </nav>
     </div>
   );
@@ -182,10 +186,10 @@ export function AppShell() {
 
 function EyeSvgLogo() {
   return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+    <svg width="20" height="20" viewBox="0 0 26 26" fill="none">
       <ellipse cx="13" cy="13" rx="11" ry="7" stroke="#fff" strokeWidth="1.8" />
       <circle cx="13" cy="13" r="4.5" fill="#fff" />
-      <circle cx="14.5" cy="11.5" r="1.6" fill="rgba(8,145,178,0.55)" />
+      <circle cx="14.5" cy="11.5" r="1.6" fill="rgba(6,182,212,0.5)" />
       <circle cx="13" cy="13" r="2" fill="rgba(6,13,24,0.85)" />
     </svg>
   );
@@ -194,13 +198,11 @@ function EyeSvgLogo() {
 function LearnIcon({ active }: { active: boolean }) {
   const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path
         d="M3 11L11 3L19 11V19H14V14H8V19H3V11Z"
         fill={active ? "rgba(34,211,238,0.18)" : "none"}
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinejoin="round"
+        stroke={c} strokeWidth="1.6" strokeLinejoin="round"
       />
     </svg>
   );
@@ -209,7 +211,7 @@ function LearnIcon({ active }: { active: boolean }) {
 function CasesIcon({ active }: { active: boolean }) {
   const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3" y="7" width="16" height="12" rx="2" stroke={c} strokeWidth="1.6" />
       <path d="M8 7V5.5C8 4.67 8.67 4 9.5 4H12.5C13.33 4 14 4.67 14 5.5V7" stroke={c} strokeWidth="1.6" />
       <line x1="7" y1="12" x2="15" y2="12" stroke={c} strokeWidth="1.4" strokeLinecap="round" opacity={0.7} />
@@ -221,13 +223,11 @@ function CasesIcon({ active }: { active: boolean }) {
 function TutorIcon({ active }: { active: boolean }) {
   const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path
         d="M4 5H18C18.55 5 19 5.45 19 6V14C19 14.55 18.55 15 18 15H8L4 18V6C4 5.45 4.45 5 5 5H4Z"
         fill={active ? "rgba(34,211,238,0.18)" : "none"}
-        stroke={c}
-        strokeWidth="1.6"
-        strokeLinejoin="round"
+        stroke={c} strokeWidth="1.6" strokeLinejoin="round"
       />
       <circle cx="8"  cy="10" r="1" fill={c} />
       <circle cx="11" cy="10" r="1" fill={c} />
@@ -239,7 +239,7 @@ function TutorIcon({ active }: { active: boolean }) {
 function AdminIcon({ active }: { active: boolean }) {
   const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path d="M11 3L19 7V11C19 15.1 16.4 18.9 11 20C5.6 18.9 3 15.1 3 11V7L11 3Z"
         fill={active ? "rgba(34,211,238,0.18)" : "none"}
         stroke={c} strokeWidth="1.6" strokeLinejoin="round" />
@@ -251,9 +251,9 @@ function AdminIcon({ active }: { active: boolean }) {
 function ProgressIcon({ active }: { active: boolean }) {
   const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <rect x="3" y="14" width="4" height="5" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
-      <rect x="9" y="10" width="4" height="9" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
+      <rect x="3"  y="14" width="4" height="5" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
+      <rect x="9"  y="10" width="4" height="9" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
       <rect x="15" y="6"  width="4" height="13" rx="1" fill={active ? "#22d3ee" : c} />
     </svg>
   );
@@ -261,25 +261,24 @@ function ProgressIcon({ active }: { active: boolean }) {
 
 function FlameIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M8 1.5C8 1.5 4 6 4 9.5C4 11.7 5.8 13.5 8 13.5C10.2 13.5 12 11.7 12 9.5C12 6 8 1.5 8 1.5Z" fill="currentColor" opacity={0.9} />
-      <path d="M8 7.5C8 7.5 6.5 9.5 6.5 10.5C6.5 11.05 7 11.5 7.5 11.5C7.5 11.5 7.2 10.5 8 9.5C8.8 10.5 8.5 11.5 8.5 11.5C9 11.5 9.5 11.05 9.5 10.5C9.5 9.5 8 7.5 8 7.5Z" fill="rgba(255,255,255,0.5)" />
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--streak)">
+      <path d="M8 1.5C8 1.5 4 6 4 9.5C4 11.7 5.8 13.5 8 13.5C10.2 13.5 12 11.7 12 9.5C12 6 8 1.5 8 1.5Z" />
     </svg>
   );
 }
 
 function StarIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-      <polygon points="7,1.5 8.8,5.5 13,5.9 10,8.6 11,12.5 7,10.2 3,12.5 4,8.6 1,5.9 5.2,5.5" fill="currentColor" />
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="var(--gold)">
+      <polygon points="7,1.5 8.8,5.5 13,5.9 10,8.6 11,12.5 7,10.2 3,12.5 4,8.6 1,5.9 5.2,5.5" />
     </svg>
   );
 }
 
 function HeartIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M8 13C8 13 2 9 2 5.5C2 3.57 3.57 2 5.5 2C6.61 2 7.6 2.52 8 3.36C8.4 2.52 9.39 2 10.5 2C12.43 2 14 3.57 14 5.5C14 9 8 13 8 13Z" fill="currentColor" />
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--heart)">
+      <path d="M8 13C8 13 2 9 2 5.5C2 3.57 3.57 2 5.5 2C6.61 2 7.6 2.52 8 3.36C8.4 2.52 9.39 2 10.5 2C12.43 2 14 3.57 14 5.5C14 9 8 13 8 13Z" />
     </svg>
   );
 }

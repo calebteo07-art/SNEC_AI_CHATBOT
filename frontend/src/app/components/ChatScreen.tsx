@@ -30,6 +30,7 @@ export function ChatScreen() {
   const [isTyping, setIsTyping]         = useState(false);
   const [streamingId, setStreamingId]   = useState<string | null>(null);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const [sessionStart]                  = useState(() => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLTextAreaElement>(null);
 
@@ -129,6 +130,24 @@ export function ChatScreen() {
         achievements={newAchievements}
         onDismiss={id => setNewAchievements(prev => prev.filter(a => a !== id))}
       />
+
+      {/* ── Left: session history panel ───────────────────── */}
+      <div className="chat-history-panel">
+        <button className="chat-new-btn" onClick={() => { setMessages(INITIAL_MESSAGES); }}>
+          + New session
+        </button>
+        <div className="chat-history-date">Today</div>
+        <div className="chat-history-item active">
+          {sessionStart} · Session
+        </div>
+        {messages.filter(m => m.type === "user").slice(0, 1).map(m => (
+          <div key="snippet" className="chat-history-item" style={{ fontSize: 10, color: "var(--faint)", paddingTop: 2, borderLeft: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {m.type === "user" ? m.text.slice(0, 28) : ""}
+          </div>
+        ))}
+        <div className="chat-history-date" style={{ marginTop: 8 }}>Previous</div>
+        <div className="chat-history-item" style={{ color: "var(--faint)", fontSize: 10 }}>No history yet</div>
+      </div>
 
       {/* ── Main chat pane ────────────────────────────────── */}
       <div className="chat-main">

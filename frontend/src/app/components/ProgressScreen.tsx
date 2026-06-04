@@ -121,106 +121,67 @@ export function ProgressScreen() {
   const today       = new Date().getDay(); // 0=Sun
 
   return (
-    <div className="screen-progress">
-      {/* ── Cinematic hero ────────────────────────────────── */}
-      <div className="progress-hero">
-        <img className="progress-hero-bg" src="/anatomy/eye-innovation.png" alt="" aria-hidden="true" />
-        <div className="progress-hero-overlay">
-          <div className="progress-hero-left">
-            <div className="progress-hero-eyeline">SNEC Clinical Education</div>
-            <h1 className="progress-hero-h1">My Progress</h1>
-            <div className="progress-hero-sub">
-              {velocity === "improving" ? "↑ Improving" : velocity === "declining" ? "↓ Needs attention" : "→ Stable"}
-            </div>
-          </div>
-          <div className="progress-hero-stats">
-            <div className="hero-stat">
-              <div className="hero-stat-value">{streak}</div>
-              <div className="hero-stat-label">Streak</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-value">{sessionCount}</div>
-              <div className="hero-stat-label">Sessions</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-value">{avgScore}%</div>
-              <div className="hero-stat-label">Accuracy</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-value">{topicPerf.length}</div>
-              <div className="hero-stat-label">Topics</div>
-            </div>
+    <div className="progress-two-col">
+
+      {/* ── Left column: stats + calendar + focus areas ───── */}
+      <div className="progress-left-col">
+        {/* Compact header */}
+        <div className="progress-compact-header">
+          <div className="progress-compact-eyeline">SNEC Clinical Education</div>
+          <div className="progress-compact-h1">My Progress</div>
+          <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3 }}>
+            {velocity === "improving" ? "↑ Improving" : velocity === "declining" ? "↓ Needs attention" : "→ Stable"}
           </div>
         </div>
-      </div>
 
-      {/* ── Body ──────────────────────────────────────────── */}
-      <div className="progress-body">
-
-        {/* Loading */}
+        {/* Loading / Error */}
         {loading && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--muted)", fontSize: 13 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 12 }}>
             <span className="spinner spinner--teal" />
-            Loading your data…
+            Loading…
           </div>
         )}
-
-        {/* Error */}
         {error && (
-          <div style={{ padding: "14px 16px", background: "var(--heart-bg)", border: "1px solid var(--heart)", borderRadius: "var(--r-md)", color: "#991b1b", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ padding: "10px 12px", background: "var(--heart-bg)", border: "1px solid var(--heart)", borderRadius: "var(--r-sm)", color: "var(--heart)", fontSize: 12, display: "flex", justifyContent: "space-between" }}>
             {error}
-            <button onClick={fetchProgress} style={{ color: "var(--heart)", fontWeight: 700, fontSize: 12 }}>Retry</button>
+            <button onClick={fetchProgress} style={{ color: "var(--heart)", fontWeight: 700, fontSize: 11 }}>Retry</button>
           </div>
         )}
 
         {data && (
           <>
-            {/* ── Stats grid ──────────────────────────────── */}
-            <div className="stats-grid">
-              <StatCard
-                icon="🔥" iconBg="var(--streak-bg)" iconColor="var(--streak)"
-                value={streak} label="Day Streak"
-                delta={streak > 0 ? `${streak} day${streak !== 1 ? "s" : ""} running` : "Start today"}
-                deltaColor="var(--streak)"
-              />
-              <StatCard
-                icon="⚡" iconBg="var(--teal-bg)" iconColor="var(--teal)"
-                value={sessionCount} label="Total Sessions"
-                delta={sessionCount > 0 ? "Keep it up" : "Start your first session"}
-                deltaColor="var(--teal)"
-              />
-              <StatCard
-                icon="🎯" iconBg={avgScore >= 80 ? "var(--emerald-bg)" : avgScore >= 60 ? "#fffbeb" : "var(--heart-bg)"}
-                iconColor={avgScore >= 80 ? "var(--emerald)" : avgScore >= 60 ? "var(--gold)" : "var(--heart)"}
-                value={avgScore} label="Avg Accuracy" suffix="%"
-                delta={avgScore >= 80 ? "Excellent" : avgScore >= 60 ? "Good progress" : "Keep practising"}
-                deltaColor={avgScore >= 80 ? "var(--emerald)" : avgScore >= 60 ? "var(--gold)" : "var(--heart)"}
-              />
-            </div>
+            {/* Compact stat rows */}
+            {[
+              { label: "Day Streak",     val: streak,       unit: "days", color: "var(--streak)" },
+              { label: "Total Sessions", val: sessionCount,  unit: "",     color: "var(--teal)" },
+              { label: "Avg Accuracy",   val: `${avgScore}%`, unit: "",   color: avgScore >= 80 ? "var(--emerald)" : avgScore >= 60 ? "var(--gold)" : "var(--heart)" },
+              { label: "Topics Studied", val: topicPerf.length, unit: "", color: "var(--purple)" },
+            ].map(s => (
+              <div key={s.label} className="progress-stat-compact">
+                <div className="progress-stat-compact-label">{s.label}</div>
+                <div className="progress-stat-compact-val" style={{ color: s.color }}>
+                  {s.val}{s.unit ? ` ${s.unit}` : ""}
+                </div>
+              </div>
+            ))}
 
-            {/* ── Streak calendar ─────────────────────────── */}
+            {/* 7-day calendar */}
             <div className="streak-calendar">
               <div className="cal-header">
-                <p className="section-label" style={{ marginBottom: 0 }}>This Week</p>
-                <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                  {weekHits.filter(Boolean).length} / 7 days active
-                </span>
+                <p className="section-label" style={{ marginBottom: 0, fontSize: 9 }}>This Week</p>
+                <span style={{ fontSize: 10, color: "var(--muted)" }}>{weekHits.filter(Boolean).length}/7</span>
               </div>
               <div className="cal-day-labels">
                 {DAY_LABELS.map((d, i) => <div key={i} className="cal-day-label">{d}</div>)}
               </div>
               <div className="cal-grid">
                 {DAY_LABELS.map((d, i) => {
-                  const dayOfWeek = (1 + i) % 7; // Mon=1..Sun=0
-                  const isToday   = dayOfWeek === today;
-                  const isFuture  = !weekHits[i] && i > today;
+                  const dayOfWeek = (1 + i) % 7;
+                  const isToday = dayOfWeek === today;
+                  const isFuture = !weekHits[i] && i > today;
                   const hit = weekHits[i];
                   return (
-                    <div
-                      key={i}
-                      className={`cal-day${hit ? (isToday ? " today" : " hit") : isFuture ? " future" : ""}`}
-                      aria-label={`${d}: ${hit ? "active" : "inactive"}`}
-                    >
+                    <div key={i} className={`cal-day${hit ? (isToday ? " today" : " hit") : isFuture ? " future" : ""}`} aria-label={`${d}: ${hit ? "active" : "inactive"}`}>
                       {i + 1}
                     </div>
                   );
@@ -228,38 +189,13 @@ export function ProgressScreen() {
               </div>
             </div>
 
-            {/* ── Topic mastery ───────────────────────────── */}
-            {topicPerf.length > 0 && (
-              <div className="mastery-section">
-                <img className="mastery-deco" src="/anatomy/eye-nerve.png" alt="" aria-hidden="true" />
-                <p className="section-label">Topic Mastery</p>
-                {[...topicPerf]
-                  .sort((a, b) => b.score - a.score)
-                  .map(({ topic, score }) => (
-                    <MasteryBar key={topic} topic={topic} score={score} />
-                  ))
-                }
-              </div>
-            )}
-
-            {/* ── Weak topics ─────────────────────────────── */}
+            {/* Focus areas */}
             {(data.weak_topics ?? []).length > 0 && (
-              <div className="card" style={{ padding: 18 }}>
-                <p className="section-label">Focus Areas</p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+              <div>
+                <p className="section-label" style={{ marginBottom: 8 }}>Focus Areas</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {data.weak_topics.map(t => (
-                    <span
-                      key={t}
-                      style={{
-                        padding: "5px 12px",
-                        borderRadius: "var(--r-full)",
-                        background: "var(--heart-bg)",
-                        border: "1px solid var(--heart)",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "#991b1b",
-                      }}
-                    >
+                    <span key={t} style={{ padding: "4px 10px", borderRadius: "var(--r-full)", background: "var(--heart-bg)", border: "1px solid var(--heart)", fontSize: 10, fontWeight: 700, color: "var(--heart)" }}>
                       {topicLabel(t)}
                     </span>
                   ))}
@@ -267,6 +203,32 @@ export function ProgressScreen() {
               </div>
             )}
           </>
+        )}
+      </div>
+
+      {/* ── Right column: topic mastery ───────────────────── */}
+      <div className="progress-right-col">
+        {loading && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 12 }}>
+            <span className="spinner spinner--teal" />
+            Loading mastery data…
+          </div>
+        )}
+        {data && topicPerf.length > 0 && (
+          <>
+            <p className="section-label">Topic Mastery</p>
+            {[...topicPerf]
+              .sort((a, b) => b.score - a.score)
+              .map(({ topic, score }) => (
+                <MasteryBar key={topic} topic={topic} score={score} />
+              ))
+            }
+          </>
+        )}
+        {data && topicPerf.length === 0 && (
+          <div style={{ textAlign: "center", paddingTop: 40, color: "var(--faint)", fontSize: 13 }}>
+            Complete a study session to see mastery data.
+          </div>
         )}
       </div>
     </div>

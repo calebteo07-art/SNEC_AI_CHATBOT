@@ -61,6 +61,9 @@ export function FlashcardScreen() {
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [sessionXp, setSessionXp]       = useState(0);
   const [sessionAgain, setSessionAgain] = useState(0);
+  const [sessionHard,  setSessionHard]  = useState(0);
+  const [sessionGood,  setSessionGood]  = useState(0);
+  const [sessionEasy,  setSessionEasy]  = useState(0);
   const [displayHearts, setDisplayHearts] = useState(() => getStoredHearts());
 
   /* Fetch fresh cards if no session cards */
@@ -130,12 +133,18 @@ export function FlashcardScreen() {
     up.totalCards += 1;
     setUserProgress(up);
 
-    // Hearts: lose one on Again (optimistic)
+    // Track per-rating counters and hearts
     if (value === 1) {
       const newH = Math.max(0, getStoredHearts() - 1);
       setStoredHearts(newH);
       setDisplayHearts(newH);
       setSessionAgain(prev => prev + 1);
+    } else if (value === 2) {
+      setSessionHard(prev => prev + 1);
+    } else if (value === 3) {
+      setSessionGood(prev => prev + 1);
+    } else if (value === 4) {
+      setSessionEasy(prev => prev + 1);
     }
 
     if (value === 4) confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#0891b2", "#059669", "#d97706"] });
@@ -203,6 +212,9 @@ export function FlashcardScreen() {
         achievements={newAchievements}
         onDismiss={id => setNewAchievements(prev => prev.filter(a => a !== id))}
       />
+
+      {/* ── Main exercise body (header + split + footer) ── */}
+      <div className="exercise-body">
 
       {/* ── Header ────────────────────────────────────────── */}
       <div className="exercise-header">
@@ -373,6 +385,64 @@ export function FlashcardScreen() {
             End session →
           </button>
         )}
+      </div>
+
+      </div>{/* end .exercise-body */}
+
+      {/* ── Right panel: queue + session matrix ───────────── */}
+      <div className="exercise-right-panel">
+        {/* Card queue */}
+        <div className="exercise-right-section">
+          <div className="exercise-right-label">
+            Queue · {Math.max(0, cards.length - idx - 1)} left
+          </div>
+          {cards.slice(idx + 1, idx + 6).map((c, i) => (
+            <div key={c.id} className="queue-item">
+              <span className="queue-item-num">{idx + 2 + i}</span>
+              <span>{c.question.length > 36 ? c.question.slice(0, 36) + "…" : c.question}</span>
+            </div>
+          ))}
+          {cards.slice(idx + 1, idx + 6).length === 0 && (
+            <div style={{ fontSize: 11, color: "var(--faint)" }}>Last card</div>
+          )}
+        </div>
+
+        {/* Session matrix */}
+        <div className="exercise-right-section">
+          <div className="exercise-right-label">Session</div>
+          {[
+            { label: "Again", val: sessionAgain, color: "var(--heart)" },
+            { label: "Hard",  val: sessionHard,  color: "var(--gold)" },
+            { label: "Good",  val: sessionGood,  color: "var(--teal)" },
+            { label: "Easy",  val: sessionEasy,  color: "var(--emerald)" },
+          ].map(({ label, val, color }) => (
+            <div key={label} className="matrix-row">
+              <span className="matrix-label">{label}</span>
+              <span className="matrix-val" style={{ color: val > 0 ? color : undefined }}>
+                {val}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* XP this session */}
+        <div className="exercise-right-section">
+          <div className="exercise-right-label">XP Earned</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, fontWeight: 700, color: "var(--gold)", letterSpacing: "-0.03em" }}>
+            +{sessionXp}
+          </div>
+        </div>
+
+        {/* Card N of total */}
+        <div className="exercise-right-section">
+          <div className="exercise-right-label">Progress</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 600, color: "var(--text)" }}>
+            {idx + 1} <span style={{ color: "var(--faint)" }}>/ {cards.length}</span>
+          </div>
+          <div style={{ marginTop: 6, height: 3, background: "var(--border)", borderRadius: 2 }}>
+            <div style={{ height: "100%", width: `${((idx + 1) / cards.length) * 100}%`, background: "var(--teal)", borderRadius: 2, transition: "width 0.3s ease" }} />
+          </div>
+        </div>
       </div>
     </div>
   );
