@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { CohortHeatmap } from "./CohortHeatmap";
 import { AtRiskTable } from "./AtRiskTable";
 import { StudentDrillDown } from "./StudentDrillDown";
@@ -98,33 +97,13 @@ export function SupervisorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF8F1]">
+    <div className="admin-layout">
       {/* Top strip */}
-      <motion.div
-        className="border-b border-[#1F1A12]/8 bg-[#FBF8F1]/80 backdrop-blur-sm sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-5xl mx-auto px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <HolographicEyeLogo size={32} animated />
-            <span
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.05rem",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              EyeBot
-            </span>
-            <span className="text-[#A39A8E]">·</span>
-            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>
-              Supervisor
-            </span>
-          </div>
+      <div style={{ borderBottom: "1px solid var(--border)", background: "var(--card)", position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 52, flexShrink: 0, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>Supervisor</span>
+          <span style={{ fontSize: 12, color: "var(--muted)" }}>· Cohort Analytics</span>
+        </div>
           <div className="flex items-center gap-4">
             <button
               onClick={handleSendDigest}
@@ -151,34 +130,13 @@ export function SupervisorDashboard() {
               <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
-        </div>
-      </motion.div>
+      </div>
 
-      <div className="max-w-5xl mx-auto px-8 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          <p
-            className="text-[#8C6D3F] mb-3"
-            style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}
-          >
-            · Cohort overview
-          </p>
-          <h1
-            className="text-[#1F1A12]"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: 400,
-              lineHeight: 1.05,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            How is your <span className="italic-display">cohort</span> doing?
-          </h1>
-        </motion.div>
+      <div>
+        <div>
+          <h1 className="admin-title">Cohort Overview</h1>
+          <p className="admin-sub">How is your cohort performing?</p>
+        </div>
 
         {loading && (
           <div>

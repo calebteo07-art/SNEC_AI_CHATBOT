@@ -1,6 +1,4 @@
 ﻿import React, { useEffect, useState, useRef } from "react";
-import { motion } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { LogOut, UserPlus, ShieldCheck, Users, Activity, BarChart2, Upload } from "lucide-react";
@@ -146,8 +144,8 @@ export function AdminDashboard() {
         credentials: "include",
         body: JSON.stringify({ email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole }),
       });
-      if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError(d.detail ?? "Failed to add student."); return; }
-      const data = await res.json();
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError((d as { detail?: string }).detail ?? "Failed to add student."); return; }
+      await res.json();
       setAddedCredential({ email: newEmail.trim().toLowerCase() });
       setApproved((prev) => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
       setNewEmail(""); setNewName(""); setNewRole("");
@@ -234,12 +232,11 @@ export function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-[#ccc]">
+    <div className="admin-layout">
       {/* Nav */}
-      <div className="border-b border-[#3a3a5a] px-6 py-3 flex items-center justify-between bg-[#0f0f1e] sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-          <HolographicEyeLogo size={28} />
-          <span className="text-[#8C6D3F] text-sm font-medium tracking-wide">EyeBot Admin</span>
+      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--card)", height: 48, flexShrink: 0, position: "sticky", top: 0, zIndex: 10, marginBottom: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>Admin Panel</span>
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setShowChangePassword(true)} className="text-[#888] hover:text-[#8C6D3F] text-xs transition-colors">Change password</button>
