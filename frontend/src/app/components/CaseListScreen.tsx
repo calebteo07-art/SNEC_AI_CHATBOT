@@ -45,7 +45,7 @@ export function CaseListScreen() {
     setLoading(true);
     fetch("/api/cases", { credentials: "include" })
       .then(r => { if (!r.ok) throw new Error("Server error"); return r.json(); })
-      .then(data => setCases(data.cases))
+      .then(data => setCases(data.cases ?? []))
       .catch(() => setError("Could not load cases. Please try again."))
       .finally(() => setLoading(false));
   }, []);
