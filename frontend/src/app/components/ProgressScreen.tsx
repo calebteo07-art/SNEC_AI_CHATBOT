@@ -1,32 +1,9 @@
-﻿import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import {
-  ArrowLeft,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Flame,
-  BookOpen,
-  AlertCircle,
-  RefreshCw,
-} from "lucide-react";
-import { useAuth } from "./AuthContext";
-import { SkeletonStatStrip, SkeletonLine } from "./SkeletonLoader";
 
-interface TopicStat {
-  topic: string;
-  score: number;
-}
-
-interface SessionEntry {
-  session_id: string;
-  timestamp: string;
-  topic: string;
-  summary: string;
-  mode: string;
-}
+/* ── Types (preserved from original) ─────────────────────── */
+interface TopicStat    { topic: string; score: number; }
+interface SessionEntry { session_id: string; timestamp: string; topic: string; summary: string; mode: string; }
 
 interface ProgressData {
   session_count: number;
@@ -37,262 +14,283 @@ interface ProgressData {
   sessions: SessionEntry[];
 }
 
-function ScoreBar({ score }: { score: number }) {
+/* ── Helpers ──────────────────────────────────────────────── */
+function buildWeekHits(sessions: SessionEntry[]): boolean[] {
+  const hits = Array(7).fill(false) as boolean[];
+  const now = new Date();
+  sessions.forEach(s => {
+    const diff = Math.floor((now.getTime() - new Date(s.timestamp).getTime()) / 86_400_000);
+    if (diff >= 0 && diff < 7) hits[6 - diff] = true;
+  });
+  return hits;
+}
+
+function topicLabel(raw: string): string {
+  return raw.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function trackColor(topic: string): string {
+  const t = topic.toLowerCase();
+  if (t.includes("ot-") || t.startsWith("ot"))  return "var(--purple)";
+  if (t.includes("psa-") || t.startsWith("psa")) return "var(--emerald)";
+  return "var(--teal)";
+}
+
+function trackBg(topic: string): string {
+  const t = topic.toLowerCase();
+  if (t.includes("ot-") || t.startsWith("ot"))  return "var(--purple-bg)";
+  if (t.includes("psa-") || t.startsWith("psa")) return "var(--emerald-bg)";
+  return "var(--teal-bg)";
+}
+
+function trackLabel(topic: string): string {
+  const t = topic.toLowerCase();
+  if (t.includes("ot-") || t.startsWith("ot"))  return "OT";
+  if (t.includes("psa-") || t.startsWith("psa")) return "PSA";
+  return "OA";
+}
+
+/* ── Animated mastery bar ─────────────────────────────────── */
+function MasteryBar({ topic, score }: { topic: string; score: number }) {
   const pct = Math.round(score * 100);
-  const color =
-    pct >= 80 ? "#4F6B3D" : pct >= 65 ? "#9C7B1F" : "#8B2D2D";
+  const color = trackColor(topic);
+  const bg    = trackBg(topic);
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <div className="flex items-center gap-3 flex-1 min-w-0">
-      <div className="flex-1 h-[3px] rounded-full bg-[#1F1A12]/8 overflow-hidden">
+    <div className="mastery-row" ref={ref}>
+      <div className="mastery-icon-badge" style={{ background: bg }}>
+        <svg width="14" height="14" viewBox="0 0 28 28" fill="none">
+          <ellipse cx="14" cy="14" rx="9" ry="6" stroke={color} strokeWidth="1.8" />
+          <circle cx="14" cy="14" r="3.5" fill={color} />
+        </svg>
+      </div>
+      <div className="mastery-info">
+        <div className="mastery-name">{topicLabel(topic)}</div>
+        <div className="mastery-track-label">{trackLabel(topic)} Track</div>
+      </div>
+      <div className="mastery-bar-track">
         <motion.div
-          className="h-full rounded-full"
+          className="mastery-bar-fill"
           style={{ background: color }}
           initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          animate={{ width: visible ? `${pct}%` : 0 }}
+          transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
         />
       </div>
-      <span style={{ color, fontSize: "0.78rem", fontWeight: 600, minWidth: 36, textAlign: "right" }}>
-        {pct}%
-      </span>
+      <div className="mastery-pct" style={{ color }}>{pct}%</div>
     </div>
   );
 }
 
-function VelocityIcon({ v }: { v: string }) {
-  if (v === "improving") return <TrendingUp size={14} strokeWidth={1.5} className="text-[#4F6B3D]" />;
-  if (v === "declining") return <TrendingDown size={14} strokeWidth={1.5} className="text-[#8B2D2D]" />;
-  return <Minus size={14} strokeWidth={1.5} className="text-[#A39A8E]" />;
-}
-
+/* ── ProgressScreen ───────────────────────────────────────── */
 export function ProgressScreen() {
-  const navigate = useNavigate();
-  const {} = useAuth();
-
-  const [data, setData] = useState<ProgressData | null>(null);
+  const [data, setData]       = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
   const fetchProgress = useCallback(() => {
     setError(null);
     setLoading(true);
     fetch("/api/progress", { credentials: "include" })
-      .then((r) => {
-        if (!r.ok) throw new Error("Server error");
-        return r.json();
-      })
+      .then(r => { if (!r.ok) throw new Error("Server error"); return r.json(); })
       .then((d: ProgressData) => setData(d))
-      .catch(() => setError("We couldn't load your progress. Please try again."))
+      .catch(() => setError("Could not load your progress. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { fetchProgress(); }, [fetchProgress]);
 
-  return (
-    <div className="min-h-screen aurora-bg relative overflow-hidden">
-      {/* Top bar */}
-      <motion.div
-        className="glass-nav sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-3xl mx-auto px-8 h-16 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
-          >
-            <ArrowLeft size={15} strokeWidth={1.5} />
-            Dashboard
-          </button>
-          <div className="flex items-center gap-3">
-            <HolographicEyeLogo size={28} animated={false} />
-            <span
-              className="text-[#1F1A12]"
-              style={{ fontFamily: "var(--font-display)", fontSize: "1.05rem", fontWeight: 500, letterSpacing: "-0.01em" }}
-            >
-              EyeBot
-            </span>
-            <span className="text-[#A39A8E]">·</span>
-            <span className="text-[#5C544A]" style={{ fontSize: "0.85rem" }}>My Progress</span>
-          </div>
-          <div className="w-20" />
-        </div>
-      </motion.div>
+  const weekHits    = buildWeekHits(data?.sessions ?? []);
+  const sessionCount = data?.session_count ?? 0;
+  const streak      = data?.streak ?? 0;
+  const topicPerf   = data?.topic_performance ?? [];
+  const avgScore    = topicPerf.length > 0
+    ? Math.round((topicPerf.reduce((s, p) => s + p.score, 0) / topicPerf.length) * 100)
+    : 0;
+  const velocity    = data?.learning_velocity ?? "stable";
 
-      <motion.div
-        className="max-w-3xl mx-auto px-8 py-16"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="text-[#8C6D3F] mb-3" style={{ fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 600 }}>
-          · Learning analytics
-        </p>
-        <h2
-          className="text-[#1F1A12]"
-          style={{ fontFamily: "var(--font-display)", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.02em" }}
-        >
-          My <span className="italic-display">Progress</span>
-        </h2>
+  const DAY_LABELS  = ["M", "T", "W", "T", "F", "S", "S"];
+  const today       = new Date().getDay(); // 0=Sun
+
+  return (
+    <div className="screen-progress">
+      {/* ── Cinematic hero ────────────────────────────────── */}
+      <div className="progress-hero">
+        <img className="progress-hero-bg" src="/anatomy/eye-innovation.png" alt="" aria-hidden="true" />
+        <div className="progress-hero-overlay">
+          <div className="progress-hero-left">
+            <div className="progress-hero-eyeline">SNEC Clinical Education</div>
+            <h1 className="progress-hero-h1">My Progress</h1>
+            <div className="progress-hero-sub">
+              {velocity === "improving" ? "↑ Improving" : velocity === "declining" ? "↓ Needs attention" : "→ Stable"}
+            </div>
+          </div>
+          <div className="progress-hero-stats">
+            <div className="hero-stat">
+              <div className="hero-stat-value">{streak}</div>
+              <div className="hero-stat-label">Streak</div>
+            </div>
+            <div className="hero-stat">
+              <div className="hero-stat-value">{sessionCount}</div>
+              <div className="hero-stat-label">Sessions</div>
+            </div>
+            <div className="hero-stat">
+              <div className="hero-stat-value">{avgScore}%</div>
+              <div className="hero-stat-label">Accuracy</div>
+            </div>
+            <div className="hero-stat">
+              <div className="hero-stat-value">{topicPerf.length}</div>
+              <div className="hero-stat-label">Topics</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Body ──────────────────────────────────────────── */}
+      <div className="progress-body">
 
         {/* Loading */}
         {loading && (
-          <div>
-            <SkeletonStatStrip />
-            <div className="mt-12 space-y-3">
-              <SkeletonLine widthClass="w-1/4" heightClass="h-3" />
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <SkeletonLine widthClass="w-32" heightClass="h-3" />
-                  <SkeletonLine widthClass="flex-1" heightClass="h-4" />
-                </div>
-              ))}
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--muted)", fontSize: 13 }}>
+            <span className="spinner spinner--teal" />
+            Loading your data…
           </div>
         )}
 
         {/* Error */}
         {error && (
-          <div className="mt-10 flex items-center justify-between gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]">
-            <div className="flex items-center gap-3">
-              <AlertCircle size={16} strokeWidth={1.5} />
-              <span style={{ fontSize: "0.9rem" }}>{error}</span>
-            </div>
-            <button
-              onClick={fetchProgress}
-              className="flex-shrink-0 text-[#8B2D2D] underline underline-offset-2 hover:opacity-70 transition-opacity"
-              style={{ fontSize: "0.88rem", fontWeight: 500 }}
-            >
-              <RefreshCw size={13} strokeWidth={1.5} className="inline mr-1" />
-              Retry
-            </button>
+          <div style={{ padding: "14px 16px", background: "var(--heart-bg)", border: "1px solid var(--heart)", borderRadius: "var(--r-md)", color: "#991b1b", fontSize: 13, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {error}
+            <button onClick={fetchProgress} style={{ color: "var(--heart)", fontWeight: 700, fontSize: 12 }}>Retry</button>
           </div>
         )}
 
         {data && (
           <>
-            {/* ── Stats strip ─────────────────────────────── */}
-            <div className="mt-12 grid grid-cols-3 gap-4">
-              {[
-                { label: "Sessions", value: String(data.session_count), icon: <BookOpen size={14} strokeWidth={1.5} className="text-[#8C6D3F]" /> },
-                { label: "Day streak", value: String(data.streak), icon: <Flame size={14} strokeWidth={1.5} className="text-[#8C6D3F]" /> },
-                {
-                  label: "Trend",
-                  value: data.learning_velocity === "improving" ? "Improving" : data.learning_velocity === "declining" ? "Declining" : "Stable",
-                  icon: <VelocityIcon v={data.learning_velocity} />,
-                },
-              ].map(({ label, value, icon }) => (
-                <div key={label} className="glass-card p-6">
-                  <div className="flex items-center gap-2 mb-3">{icon}<span className="text-[#A39A8E]" style={{ fontSize: "0.7rem", letterSpacing: "0.16em", textTransform: "uppercase" }}>{label}</span></div>
-                  <p className="text-[#1F1A12]" style={{ fontFamily: "var(--font-display)", fontSize: "1.8rem", fontWeight: 400 }}>{value}</p>
-                </div>
-              ))}
+            {/* ── Stats grid ──────────────────────────────── */}
+            <div className="stats-grid">
+              <StatCard
+                icon="🔥" iconBg="var(--streak-bg)" iconColor="var(--streak)"
+                value={streak} label="Day Streak"
+                delta={streak > 0 ? `${streak} day${streak !== 1 ? "s" : ""} running` : "Start today"}
+                deltaColor="var(--streak)"
+              />
+              <StatCard
+                icon="⚡" iconBg="var(--teal-bg)" iconColor="var(--teal)"
+                value={sessionCount} label="Total Sessions"
+                delta={sessionCount > 0 ? "Keep it up" : "Start your first session"}
+                deltaColor="var(--teal)"
+              />
+              <StatCard
+                icon="🎯" iconBg={avgScore >= 80 ? "var(--emerald-bg)" : avgScore >= 60 ? "#fffbeb" : "var(--heart-bg)"}
+                iconColor={avgScore >= 80 ? "var(--emerald)" : avgScore >= 60 ? "var(--gold)" : "var(--heart)"}
+                value={avgScore} label="Avg Accuracy" suffix="%"
+                delta={avgScore >= 80 ? "Excellent" : avgScore >= 60 ? "Good progress" : "Keep practising"}
+                deltaColor={avgScore >= 80 ? "var(--emerald)" : avgScore >= 60 ? "var(--gold)" : "var(--heart)"}
+              />
             </div>
 
+            {/* ── Streak calendar ─────────────────────────── */}
+            <div className="streak-calendar">
+              <div className="cal-header">
+                <p className="section-label" style={{ marginBottom: 0 }}>This Week</p>
+                <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                  {weekHits.filter(Boolean).length} / 7 days active
+                </span>
+              </div>
+              <div className="cal-day-labels">
+                {DAY_LABELS.map((d, i) => <div key={i} className="cal-day-label">{d}</div>)}
+              </div>
+              <div className="cal-grid">
+                {DAY_LABELS.map((d, i) => {
+                  const dayOfWeek = (1 + i) % 7; // Mon=1..Sun=0
+                  const isToday   = dayOfWeek === today;
+                  const isFuture  = !weekHits[i] && i > today;
+                  const hit = weekHits[i];
+                  return (
+                    <div
+                      key={i}
+                      className={`cal-day${hit ? (isToday ? " today" : " hit") : isFuture ? " future" : ""}`}
+                      aria-label={`${d}: ${hit ? "active" : "inactive"}`}
+                    >
+                      {i + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ── Topic mastery ───────────────────────────── */}
+            {topicPerf.length > 0 && (
+              <div className="mastery-section">
+                <img className="mastery-deco" src="/anatomy/eye-nerve.png" alt="" aria-hidden="true" />
+                <p className="section-label">Topic Mastery</p>
+                {[...topicPerf]
+                  .sort((a, b) => b.score - a.score)
+                  .map(({ topic, score }) => (
+                    <MasteryBar key={topic} topic={topic} score={score} />
+                  ))
+                }
+              </div>
+            )}
+
             {/* ── Weak topics ─────────────────────────────── */}
-            {data.weak_topics.length > 0 && (
-              <motion.section
-                className="mt-12"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-              >
-                <p className="annotation-label mb-4">Focus areas · needs attention</p>
-                <div className="flex flex-wrap gap-2">
-                  {data.weak_topics.map((t) => (
+            {(data.weak_topics ?? []).length > 0 && (
+              <div className="card" style={{ padding: 18 }}>
+                <p className="section-label">Focus Areas</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+                  {data.weak_topics.map(t => (
                     <span
                       key={t}
-                      className="px-4 py-1.5 rounded-full text-[#8B2D2D]"
-                      style={{ fontSize: "0.78rem", fontWeight: 600, background: "rgba(139,45,45,0.07)", border: "1px solid rgba(139,45,45,0.18)" }}
+                      style={{
+                        padding: "5px 12px",
+                        borderRadius: "var(--r-full)",
+                        background: "var(--heart-bg)",
+                        border: "1px solid var(--heart)",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "#991b1b",
+                      }}
                     >
-                      {t}
+                      {topicLabel(t)}
                     </span>
                   ))}
                 </div>
-              </motion.section>
-            )}
-
-            {/* ── Topic performance ───────────────────────── */}
-            {data.topic_performance.length > 0 && (
-              <motion.section
-                className="mt-12"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="flex items-baseline justify-between mb-6">
-                  <p className="annotation-label">Topic retention</p>
-                  <span className="text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>Worst → Best</span>
-                </div>
-                <div className="space-y-4">
-                  {data.topic_performance.map(({ topic, score }, i) => (
-                    <motion.div
-                      key={topic}
-                      className="flex items-center gap-5"
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                    >
-                      <span
-                        className="text-[#5C544A] truncate"
-                        style={{ fontSize: "0.88rem", minWidth: 160, maxWidth: 200 }}
-                        title={topic}
-                      >
-                        {topic}
-                      </span>
-                      <ScoreBar score={score} />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
-            )}
-
-            {data.topic_performance.length === 0 && data.sessions.length === 0 && (
-              <p className="text-[#A39A8E] text-center py-16" style={{ fontSize: "0.92rem" }}>
-                Complete a study session to see your progress here.
-              </p>
-            )}
-
-            {/* ── Session history ─────────────────────────── */}
-            {data.sessions.length > 0 && (
-              <motion.section
-                className="mt-12"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-              >
-                <p className="annotation-label mb-6">Recent sessions</p>
-                <div className="space-y-2">
-                  {data.sessions.map((s, i) => (
-                    <motion.div
-                      key={s.session_id || i}
-                      className="glass-card p-5 flex items-start gap-5"
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                    >
-                      <div className="flex-shrink-0 text-[#A39A8E]" style={{ fontSize: "0.75rem", minWidth: 72 }}>
-                        {s.timestamp}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[#1F1A12] truncate" style={{ fontSize: "0.9rem", fontWeight: 500 }}>
-                          {s.topic}
-                        </p>
-                        {s.summary && (
-                          <p className="text-[#A39A8E] mt-1 line-clamp-2" style={{ fontSize: "0.78rem", lineHeight: 1.5 }}>
-                            {s.summary}
-                          </p>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
+              </div>
             )}
           </>
         )}
-      </motion.div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Stat card ────────────────────────────────────────────── */
+function StatCard({
+  icon, iconBg, iconColor, value, label, suffix = "", delta, deltaColor,
+}: {
+  icon: string; iconBg: string; iconColor: string;
+  value: number; label: string; suffix?: string;
+  delta: string; deltaColor: string;
+}) {
+  return (
+    <div className="stat-card">
+      <div className="stat-card-icon" style={{ background: iconBg }}>
+        <span style={{ fontSize: 18 }} role="img" aria-hidden="true">{icon}</span>
+      </div>
+      <div className="stat-card-value" style={{ color: iconColor }}>
+        {value}{suffix}
+      </div>
+      <div className="stat-card-label">{label}</div>
+      <div className="stat-card-delta" style={{ color: deltaColor }}>{delta}</div>
     </div>
   );
 }
