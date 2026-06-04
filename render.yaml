@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: eyebot
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: uvicorn tools.api.server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: ENVIRONMENT
+        value: production
+      # After first deploy, set ALLOWED_ORIGINS to your Render URL, e.g.:
+      # https://eyebot.onrender.com
+      # Leave blank or set to * for initial deployment
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      # --- Secrets: add these in the Render dashboard, NOT here ---
+      # GEMINI_API_KEY
+      # GEMINI_MODEL
+      # SUPABASE_URL
+      # SUPABASE_SERVICE_ROLE_KEY
+      # JWT_SECRET
+      # JWT_EXPIRE_HOURS
+      # GOOGLE_SPREADSHEET_ID
+      # GOOGLE_FOLDER_CASES
+      # GOOGLE_FOLDER_IMAGES
+      # GOOGLE_FOLDER_AUDIT
+      # SMTP_EMAIL
+      # SMTP_APP_PASSWORD
+      # SUPER_ADMIN_EMAIL
