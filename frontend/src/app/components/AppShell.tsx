@@ -2,12 +2,20 @@ import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 
-/* ── Nav items ────────────────────────────────────────────── */
-const NAV = [
+/* ── Nav definitions ──────────────────────────────────────── */
+const STUDENT_NAV = [
   { path: "/dashboard", label: "Learn",    icon: LearnIcon    },
   { path: "/cases",     label: "Cases",    icon: CasesIcon    },
   { path: "/chat",      label: "Tutor",    icon: TutorIcon    },
   { path: "/progress",  label: "Progress", icon: ProgressIcon },
+] as const;
+
+const ADMIN_NAV = [
+  { path: "/admin", label: "Admin", icon: AdminIcon },
+] as const;
+
+const SUPERVISOR_NAV = [
+  { path: "/supervisor", label: "Reports", icon: ProgressIcon },
 ] as const;
 
 /* ── AppShell ─────────────────────────────────────────────── */
@@ -33,8 +41,11 @@ export function AppShell() {
       .catch(() => { /* keep defaults */ });
   }, [pathname]);
 
-  const activeRoute = NAV.find(n => pathname.startsWith(n.path))?.path ?? "";
-  const crumb = NAV.find(n => pathname.startsWith(n.path))?.label ?? "";
+  const role = user?.role ?? "student";
+  const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
+
+  const activeRoute = [...STUDENT_NAV, ...ADMIN_NAV, ...SUPERVISOR_NAV].find(n => pathname.startsWith(n.path))?.path ?? "";
+  const crumb = [...STUDENT_NAV, ...ADMIN_NAV, ...SUPERVISOR_NAV].find(n => pathname.startsWith(n.path))?.label ?? "";
 
   const initials = (user?.fullName ?? "?")
     .split(" ")
@@ -153,6 +164,7 @@ export function AppShell() {
             {label}
           </button>
         ))}
+
       </nav>
     </div>
   );
@@ -212,6 +224,18 @@ function TutorIcon({ active }: { active: boolean }) {
       <circle cx="8"  cy="10" r="1" fill={c} />
       <circle cx="11" cy="10" r="1" fill={c} />
       <circle cx="14" cy="10" r="1" fill={c} />
+    </svg>
+  );
+}
+
+function AdminIcon({ active }: { active: boolean }) {
+  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M11 3L19 7V11C19 15.1 16.4 18.9 11 20C5.6 18.9 3 15.1 3 11V7L11 3Z"
+        fill={active ? "rgba(34,211,238,0.18)" : "none"}
+        stroke={c} strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M8 11L10 13L14 9" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

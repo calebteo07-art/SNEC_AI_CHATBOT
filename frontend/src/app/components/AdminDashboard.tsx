@@ -1,7 +1,6 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
-import { LogOut, UserPlus, ShieldCheck, Users, Activity, BarChart2, Upload } from "lucide-react";
 import { AdminStudentDetail } from "./AdminStudentDetail";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
@@ -16,17 +15,100 @@ interface Credential { full_name: string; email: string; password: string; }
 
 type Tab = "overview" | "students" | "accounts" | "activity";
 
-function StatCard({ label, value, color }: { label: string; value: string | number; color?: string }) {
+function roleBadgeClass(role: string): string {
+  const r = role.toLowerCase();
+  if (r === "oa") return "role-badge oa";
+  if (r === "ot") return "role-badge ot";
+  if (r === "psa") return "role-badge psa";
+  if (r === "admin") return "role-badge admin";
+  if (r === "supervisor") return "role-badge supervisor";
+  return "role-badge";
+}
+
+function fmtTokens(n: number) { return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n); }
+
+/* ── KPI Card ────────────────────────────────────────────── */
+function KpiCard({ value, label, iconBg, icon }: { value: string | number; label: string; iconBg: string; icon: React.ReactNode }) {
   return (
-    <div className="bg-[#2a2a4a] rounded-xl p-4 text-center">
-      <div className="text-2xl font-bold mb-1" style={{ color: color ?? "#8C6D3F" }}>{value}</div>
-      <div className="text-[#888] text-xs">{label}</div>
+    <div className="admin-kpi">
+      <div className="admin-kpi-icon" style={{ background: iconBg }}>{icon}</div>
+      <div className="admin-kpi-value">{value}</div>
+      <div className="admin-kpi-label">{label}</div>
     </div>
   );
 }
 
-function fmtTokens(n: number) { return n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n); }
+/* ── Icons ───────────────────────────────────────────────── */
+const IconUsers = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+    <circle cx="8" cy="7" r="3" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M2 17C2 14.24 4.69 12 8 12C11.31 12 14 14.24 14 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M14 12C14.9 11.4 16 10.7 17 11C18.3 11.3 19 12.6 19 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="16" cy="7" r="2" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
 
+const IconActive = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+    <path d="M10 2v4M10 14v4M2 10h4M14 10h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+
+const IconRisk = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+    <path d="M10 3L18 17H2L10 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <line x1="10" y1="9" x2="10" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="10" cy="15.5" r="0.75" fill="currentColor" />
+  </svg>
+);
+
+const IconTokens = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+    <path d="M2 6l8-3 8 3-8 3-8-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M2 10l8 3 8-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M2 14l8 3 8-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconTrend = () => (
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+    <polyline points="2,14 7,9 11,12 18,5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <polyline points="14,5 18,5 18,9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconAdd = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+    <line x1="8" y1="5" x2="8" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="5" y1="8" x2="11" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconShield = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+    <path d="M8 2L14 5V8C14 11.3 11.5 14.1 8 15C4.5 14.1 2 11.3 2 8V5L8 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M5.5 8L7 9.5L10.5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const IconUpload = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+    <path d="M8 10V3M8 3L5 6M8 3L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M3 12H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const IconLogout = () => (
+  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+    <path d="M6 3H3C2.45 3 2 3.45 2 4V12C2 12.55 2.45 13 3 13H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M11 5L14 8L11 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <line x1="14" y1="8" x2="6" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+/* ── AdminDashboard ──────────────────────────────────────── */
 export function AdminDashboard() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -83,10 +165,10 @@ export function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/supervisor/cohort`, { credentials: "include" }).then((r) => r.json()).catch(() => null),
-      fetch(`${API}/api/supervisor/at-risk`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ at_risk: [] })),
-      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ total_tokens: 0 })),
-      fetch(`${API}/api/supervisor/insights`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ insight: "" })),
+      fetch(`${API}/api/supervisor/cohort`, { credentials: "include" }).then(r => r.json()).catch(() => null),
+      fetch(`${API}/api/supervisor/at-risk`, { credentials: "include" }).then(r => r.json()).catch(() => ({ at_risk: [] })),
+      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then(r => r.json()).catch(() => ({ total_tokens: 0 })),
+      fetch(`${API}/api/supervisor/insights`, { credentials: "include" }).then(r => r.json()).catch(() => ({ insight: "" })),
     ]).then(([cohortData, riskData, tokenData, insightData]) => {
       if (cohortData) setCohort(cohortData);
       setAtRisk(riskData?.at_risk ?? []);
@@ -95,8 +177,8 @@ export function AdminDashboard() {
     }).finally(() => setOverviewLoading(false));
 
     fetch(`${API}/api/admin/approved`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => setApproved(d.students ?? []))
+      .then(r => r.json())
+      .then(d => setApproved(d.students ?? []))
       .catch(() => {})
       .finally(() => setApprovedLoading(false));
   }, []);
@@ -105,8 +187,8 @@ export function AdminDashboard() {
     if (studentsLoaded) return;
     setStudentsLoading(true);
     Promise.all([
-      fetch(`${API}/api/admin/students`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ students: [] })),
-      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then((r) => r.json()).catch(() => ({ by_student: [] })),
+      fetch(`${API}/api/admin/students`, { credentials: "include" }).then(r => r.json()).catch(() => ({ students: [] })),
+      fetch(`${API}/api/admin/token-summary`, { credentials: "include" }).then(r => r.json()).catch(() => ({ by_student: [] })),
     ]).then(([sd, td]) => {
       setStudents(sd.students ?? []);
       const map: Record<string, number> = {};
@@ -120,8 +202,8 @@ export function AdminDashboard() {
     if (feedLoaded) return;
     setFeedLoading(true);
     fetch(`${API}/api/admin/activity`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => { setFeed(d.feed ?? []); setFeedLoaded(true); })
+      .then(r => r.json())
+      .then(d => { setFeed(d.feed ?? []); setFeedLoaded(true); })
       .catch(() => {})
       .finally(() => setFeedLoading(false));
   };
@@ -147,23 +229,19 @@ export function AdminDashboard() {
       if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError((d as { detail?: string }).detail ?? "Failed to add student."); return; }
       await res.json();
       setAddedCredential({ email: newEmail.trim().toLowerCase() });
-      setApproved((prev) => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
+      setApproved(prev => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
       setNewEmail(""); setNewName(""); setNewRole("");
     } catch { setAddError("Network error."); }
     setAdding(false);
   };
 
   const handleRemove = async (email: string) => {
-    setRemoving(email);
-    setRemoveError("");
+    setRemoving(email); setRemoveError("");
     try {
-      const res = await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(`${API}/api/admin/approved/${encodeURIComponent(email)}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) { setRemoveError("Failed to remove student."); setRemoving(null); return; }
-      setApproved((prev) => prev.filter((s) => s.email !== email));
-    } catch { setRemoveError("Network error — failed to remove student."); }
+      setApproved(prev => prev.filter(s => s.email !== email));
+    } catch { setRemoveError("Network error."); }
     setRemoving(null);
   };
 
@@ -186,9 +264,9 @@ export function AdminDashboard() {
   const handleCsvFile = (f: File) => {
     setCsvFile(f);
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev => {
       const text = (ev.target?.result as string) ?? "";
-      const lines = text.split("\n").filter((l) => l.trim());
+      const lines = text.split("\n").filter(l => l.trim());
       setCsvPreview({ count: Math.max(0, lines.length - 1) });
     };
     reader.readAsText(f);
@@ -206,309 +284,364 @@ export function AdminDashboard() {
       setCsvErrors(data.errors ?? []);
       setCsvCredentials(data.credentials ?? []);
       setCsvFile(null); setCsvPreview(null);
-    } catch { setCsvImportSummary({ imported: 0, skipped: 0 }); setCsvErrors([{ row: 0, reason: "Network error — import failed." }]); }
+    } catch {
+      setCsvImportSummary({ imported: 0, skipped: 0 });
+      setCsvErrors([{ row: 0, reason: "Network error — import failed." }]);
+    }
     setCsvUploading(false);
   };
 
-  const filteredStudents = students.filter((s) => {
+  const filteredStudents = students.filter(s => {
     const q = studentSearch.toLowerCase();
     if (q && !s.full_name.toLowerCase().includes(q) && !s.email.toLowerCase().includes(q)) return false;
-    if (studentFilter === "at-risk") return atRisk.some((r) => r.student_id === s.student_id);
+    if (studentFilter === "at-risk") return atRisk.some(r => r.student_id === s.student_id);
     if (studentFilter !== "all") return s.role === studentFilter;
     return true;
   });
 
-  // Reset to page 0 whenever search or filter changes
   React.useEffect(() => { setStudentPage(0); }, [studentSearch, studentFilter]);
 
   const totalPages = Math.ceil(filteredStudents.length / PAGE_SIZE);
   const pagedStudents = filteredStudents.slice(studentPage * PAGE_SIZE, (studentPage + 1) * PAGE_SIZE);
 
-  const TABS = [
-    { key: "overview" as Tab, label: "Overview", icon: <BarChart2 size={14} /> },
-    { key: "students" as Tab, label: "Students", icon: <Users size={14} /> },
-    { key: "accounts" as Tab, label: "Accounts", icon: <ShieldCheck size={14} /> },
-    { key: "activity" as Tab, label: "Activity", icon: <Activity size={14} /> },
+  const TABS: { key: Tab; label: string }[] = [
+    { key: "overview",  label: "Overview"  },
+    { key: "students",  label: "Students"  },
+    { key: "accounts",  label: "Accounts"  },
+    { key: "activity",  label: "Activity"  },
   ];
 
   return (
     <div className="admin-layout">
-      {/* Nav */}
-      <div style={{ borderBottom: "1px solid var(--border)", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--card)", height: 48, flexShrink: 0, position: "sticky", top: 0, zIndex: 10, marginBottom: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>Admin Panel</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setShowChangePassword(true)} className="text-[#888] hover:text-[#8C6D3F] text-xs transition-colors">Change password</button>
-          <button onClick={() => { logout(); navigate("/"); }} className="flex items-center gap-1.5 text-[#888] hover:text-[#ccc] text-xs transition-colors">
-            <LogOut size={13} /> Sign out
-          </button>
-        </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 px-6 pt-4 border-b border-[#3a3a5a] bg-[#0f0f1e]">
-        {TABS.map(({ key, label, icon }) => (
-          <button key={key} onClick={() => handleTabChange(key)}
-            className="flex items-center gap-1.5 px-4 py-2.5 text-xs rounded-t-lg transition-colors"
-            style={{ background: tab === key ? "#1a1a2e" : "transparent", color: tab === key ? "#8C6D3F" : "#888", borderBottom: tab === key ? "2px solid #8C6D3F" : "2px solid transparent" }}>
-            {icon} {label}
+      {/* ── Tab bar ──────────────────────────────────────────── */}
+      <div className="admin-tabbar">
+        {TABS.map(({ key, label }) => (
+          <button
+            key={key}
+            className={`admin-tab${tab === key ? " active" : ""}`}
+            onClick={() => handleTabChange(key)}
+          >
+            {label}
           </button>
         ))}
+
+        <div className="admin-tab-actions">
+          <button className="admin-text-btn" onClick={() => setShowChangePassword(true)}>
+            Change password
+          </button>
+          <button className="admin-text-btn danger" onClick={() => { logout(); navigate("/"); }}>
+            <IconLogout /> Sign out
+          </button>
+        </div>
       </div>
 
-      <div className="p-6 max-w-6xl mx-auto">
+      {/* ── Content ──────────────────────────────────────────── */}
+      <div className="admin-body">
 
-        {/* OVERVIEW */}
+        {/* ── OVERVIEW ───────────────────────────────────────── */}
         {tab === "overview" && (
-          <div className="space-y-6">
-            {overviewLoading ? (
-              <div className="flex justify-center py-16"><div className="w-6 h-6 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /></div>
-            ) : (
-              <>
-                <div className="grid grid-cols-5 gap-4">
-                  <StatCard label="Total Students" value={cohort?.total_students ?? 0} />
-                  <StatCard label="Active This Week" value={cohort?.active_this_week ?? 0} color="#4CAF50" />
-                  <StatCard label="At Risk" value={cohort?.at_risk_count ?? 0} color="#ef4444" />
-                  <StatCard label="Total Tokens" value={fmtTokens(totalTokens)} />
-                  <StatCard label="Cohort Momentum" value="&#x2191;" color="#f59e0b" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#1a1a2e] rounded-xl p-5 border border-[#3a3a5a]">
-                    <div className="text-[#ef4444] text-xs font-semibold uppercase tracking-widest mb-4">At-Risk Students</div>
-                    {atRisk.length === 0 && <p className="text-[#888] text-sm">No at-risk students.</p>}
-                    {atRisk.map((s) => (
-                      <div key={s.student_id} className="flex justify-between items-center py-2 border-b border-[#3a3a5a]/50 last:border-0 text-sm">
-                        <button onClick={() => setDetailStudentId(s.student_id)} className="text-[#ccc] hover:text-[#8C6D3F] transition-colors text-left">{s.name}</button>
-                        <span className="text-[#ef4444] text-xs">{s.days_inactive}d inactive · {s.weak_topic_count} weak</span>
+          overviewLoading ? (
+            <div style={{ display: "flex", justifyContent: "center", paddingTop: 64 }}>
+              <span className="spinner spinner--teal" />
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* KPI row */}
+              <div className="admin-kpi-grid">
+                <KpiCard value={cohort?.total_students ?? 0}   label="Total Students"   iconBg="var(--teal-bg)"    icon={<IconUsers   />} />
+                <KpiCard value={cohort?.active_this_week ?? 0} label="Active This Week" iconBg="var(--emerald-bg)" icon={<IconActive  />} />
+                <KpiCard value={cohort?.at_risk_count ?? 0}    label="At Risk"          iconBg="var(--heart-bg)"   icon={<IconRisk    />} />
+                <KpiCard value={fmtTokens(totalTokens)}        label="Total AI Tokens"  iconBg="var(--streak-bg)"  icon={<IconTokens  />} />
+                <KpiCard value="↑"                             label="Cohort Momentum"  iconBg="var(--purple-bg)"  icon={<IconTrend   />} />
+              </div>
+
+              {/* Two panels */}
+              <div className="admin-panel-grid">
+                <div className="admin-panel">
+                  <div className="admin-panel-header" style={{ color: "var(--heart)" }}>
+                    <IconRisk /> At-Risk Students
+                  </div>
+                  <div className="admin-panel-body">
+                    {atRisk.length === 0 && (
+                      <p style={{ fontSize: 13, color: "var(--muted)" }}>No at-risk students — great cohort health.</p>
+                    )}
+                    {atRisk.map(s => (
+                      <div key={s.student_id} className="risk-row">
+                        <button className="risk-row-name" onClick={() => setDetailStudentId(s.student_id)}>
+                          {s.name}
+                        </button>
+                        <span className="risk-row-meta">{s.days_inactive}d inactive · {s.weak_topic_count} weak</span>
                       </div>
                     ))}
                   </div>
-                  <div className="bg-[#1a1a2e] rounded-xl p-5 border border-[#3a3a5a]">
-                    <div className="text-[#f59e0b] text-xs font-semibold uppercase tracking-widest mb-4">Cohort Weak Topics</div>
-                    {(cohort?.weakest_topics ?? []).length === 0 && <p className="text-[#888] text-sm">No data yet.</p>}
+                </div>
+
+                <div className="admin-panel">
+                  <div className="admin-panel-header" style={{ color: "var(--streak)" }}>
+                    <IconTrend /> Cohort Weak Topics
+                  </div>
+                  <div className="admin-panel-body">
+                    {(cohort?.weakest_topics ?? []).length === 0 && (
+                      <p style={{ fontSize: 13, color: "var(--muted)" }}>No data yet — students haven't started.</p>
+                    )}
                     {(cohort?.weakest_topics ?? []).slice(0, 5).map((t, i) => (
-                      <div key={t} className="mb-3">
-                        <div className="flex justify-between text-sm mb-1"><span>{t}</span></div>
-                        <div className="bg-[#3a3a5a] h-1.5 rounded-full">
-                          <div className="h-1.5 rounded-full bg-[#f59e0b]" style={{ width: `${Math.max(20, 90 - i * 15)}%` }} />
+                      <div key={t} className="weak-topic-row">
+                        <div className="weak-topic-label">{t}</div>
+                        <div className="weak-bar-bg">
+                          <div className="weak-bar-fill" style={{ width: `${Math.max(20, 90 - i * 15)}%` }} />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                {aiInsight && (
-                  <div className="bg-[#1a1a2e] border border-[#8C6D3F]/30 rounded-xl p-4 text-[#ccc] text-sm italic">{aiInsight}</div>
-                )}
-              </>
-            )}
-          </div>
+              </div>
+
+              {aiInsight && (
+                <div className="admin-insight">{aiInsight}</div>
+              )}
+            </div>
+          )
         )}
 
-        {/* STUDENTS */}
+        {/* ── STUDENTS ───────────────────────────────────────── */}
         {tab === "students" && (
-          <div className="space-y-4">
-            <div className="flex gap-3 items-center flex-wrap">
-              <input value={studentSearch} onChange={(e) => setStudentSearch(e.target.value)} placeholder="Search name or email&#x2026;"
-                className="bg-[#1a1a2e] border border-[#3a3a5a] rounded-lg px-4 py-2 text-sm outline-none focus:border-[#8C6D3F] transition-colors flex-1 min-w-[200px]" />
-              <div className="flex gap-1">
-                {(["all", "OA", "OT", "PSA", "at-risk"] as const).map((f) => (
-                  <button key={f} onClick={() => setStudentFilter(f)}
-                    className="px-3 py-1.5 rounded-lg text-xs transition-colors"
-                    style={{ background: studentFilter === f ? "#8C6D3F" : "#2a2a4a", color: studentFilter === f ? "white" : "#888" }}>
-                    {f === "all" ? "All" : f === "at-risk" ? "At Risk" : f}
-                  </button>
-                ))}
+          <div>
+            <div className="admin-table-wrap">
+              <div className="admin-table-toolbar">
+                <input
+                  className="admin-search"
+                  value={studentSearch}
+                  onChange={e => setStudentSearch(e.target.value)}
+                  placeholder="Search name or email…"
+                />
+                <div style={{ display: "flex", gap: 4 }}>
+                  {(["all", "OA", "OT", "PSA", "at-risk"] as const).map(f => (
+                    <button
+                      key={f}
+                      className={`admin-filter-pill${studentFilter === f ? " active" : ""}`}
+                      onClick={() => setStudentFilter(f)}
+                    >
+                      {f === "all" ? "All" : f === "at-risk" ? "At Risk" : f}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            {studentsLoading ? (
-              <div className="flex justify-center py-10"><div className="w-5 h-5 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /></div>
-            ) : (
-              <div className="bg-[#1a1a2e] rounded-xl border border-[#3a3a5a] overflow-hidden">
-                <table className="w-full text-sm">
+
+              {studentsLoading ? (
+                <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+                  <span className="spinner spinner--teal" />
+                </div>
+              ) : (
+                <table className="admin-table">
                   <thead>
-                    <tr className="border-b border-[#3a3a5a]">
-                      {["Name", "Email", "Role", "Sessions", "Streak", "Tokens", "Velocity", "Last Active"].map((h) => (
-                        <th key={h} className="text-left px-4 py-3 text-[#8C6D3F] text-xs uppercase tracking-wide font-medium">{h}</th>
+                    <tr>
+                      {["Name", "Email", "Role", "Sessions", "Streak", "Tokens", "Velocity", "Last Active"].map(h => (
+                        <th key={h}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {pagedStudents.map((s) => (
-                      <tr key={s.student_id} onClick={() => setDetailStudentId(s.student_id)}
-                        className="border-b border-[#3a3a5a]/50 hover:bg-[#2a2a4a] cursor-pointer transition-colors">
-                        <td className="px-4 py-3 text-[#ccc]">{s.full_name}</td>
-                        <td className="px-4 py-3 text-[#888] text-xs">{s.email}</td>
-                        <td className="px-4 py-3"><span className="px-2 py-0.5 rounded text-xs" style={{ background: "#8C6D3F22", color: "#8C6D3F" }}>{s.role}</span></td>
-                        <td className="px-4 py-3 text-[#ccc]">{s.session_count}</td>
-                        <td className="px-4 py-3 text-[#ccc]">{s.streak}</td>
-                        <td className="px-4 py-3 text-[#8C6D3F]">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</td>
-                        <td className="px-4 py-3 text-[#888] text-xs">{s.learning_velocity}</td>
-                        <td className="px-4 py-3 text-[#888] text-xs">{s.last_active?.slice(0, 10) || "&#x2014;"}</td>
+                    {pagedStudents.map(s => (
+                      <tr key={s.student_id} onClick={() => setDetailStudentId(s.student_id)}>
+                        <td style={{ fontWeight: 600 }}>{s.full_name}</td>
+                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{s.email}</td>
+                        <td><span className={roleBadgeClass(s.role)}>{s.role}</span></td>
+                        <td style={{ fontFamily: "var(--font-mono,monospace)" }}>{s.session_count}</td>
+                        <td style={{ fontFamily: "var(--font-mono,monospace)" }}>{s.streak}</td>
+                        <td style={{ fontFamily: "var(--font-mono,monospace)", color: "var(--teal-deep)", fontWeight: 600 }}>{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</td>
+                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{s.learning_velocity}</td>
+                        <td style={{ color: "var(--muted)", fontSize: 12, fontFamily: "var(--font-mono,monospace)" }}>{s.last_active?.slice(0, 10) || "—"}</td>
                       </tr>
                     ))}
                     {filteredStudents.length === 0 && (
-                      <tr><td colSpan={8} className="px-4 py-8 text-center text-[#888] text-sm">No students found.</td></tr>
+                      <tr>
+                        <td colSpan={8} style={{ textAlign: "center", color: "var(--muted)", padding: "32px 0", fontSize: 13 }}>
+                          No students found.
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
-                {filteredStudents.length > PAGE_SIZE && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-[#3a3a5a] text-xs text-[#888]">
-                    <span>
-                      Showing {studentPage * PAGE_SIZE + 1}–{Math.min((studentPage + 1) * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length} students
-                    </span>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setStudentPage((p) => Math.max(0, p - 1))}
-                        disabled={studentPage === 0}
-                        className="px-3 py-1 rounded bg-[#2a2a4a] disabled:opacity-40 hover:bg-[#3a3a5a] transition-colors"
-                      >
-                        ← Prev
-                      </button>
-                      <span className="px-3 py-1">Page {studentPage + 1} of {totalPages}</span>
-                      <button
-                        onClick={() => setStudentPage((p) => Math.min(totalPages - 1, p + 1))}
-                        disabled={studentPage >= totalPages - 1}
-                        className="px-3 py-1 rounded bg-[#2a2a4a] disabled:opacity-40 hover:bg-[#3a3a5a] transition-colors"
-                      >
-                        Next →
-                      </button>
-                    </div>
+              )}
+
+              {filteredStudents.length > PAGE_SIZE && (
+                <div className="admin-table-footer">
+                  <span>
+                    {studentPage * PAGE_SIZE + 1}–{Math.min((studentPage + 1) * PAGE_SIZE, filteredStudents.length)} of {filteredStudents.length}
+                  </span>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <button
+                      className="admin-btn ghost"
+                      onClick={() => setStudentPage(p => Math.max(0, p - 1))}
+                      disabled={studentPage === 0}
+                      style={{ padding: "5px 12px", fontSize: 12 }}
+                    >
+                      ← Prev
+                    </button>
+                    <span style={{ fontSize: 12, color: "var(--muted)" }}>Page {studentPage + 1} / {totalPages}</span>
+                    <button
+                      className="admin-btn ghost"
+                      onClick={() => setStudentPage(p => Math.min(totalPages - 1, p + 1))}
+                      disabled={studentPage >= totalPages - 1}
+                      style={{ padding: "5px 12px", fontSize: 12 }}
+                    >
+                      Next →
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* ACCOUNTS */}
+        {/* ── ACCOUNTS ───────────────────────────────────────── */}
         {tab === "accounts" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="admin-form-grid">
               {/* Add one student */}
-              <div className="bg-[#1a1a2e] rounded-xl p-5 border border-[#3a3a5a]">
-                <div className="text-[#8C6D3F] text-sm font-medium mb-4 flex items-center gap-2"><UserPlus size={14} /> Add one student</div>
-                <form onSubmit={handleAdd} className="space-y-3">
+              <div className="admin-form-card">
+                <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
+                  <IconAdd /> Add one student
+                </div>
+                <form onSubmit={handleAdd}>
                   {[
-                    { label: "Full name", val: newName, set: setNewName, type: "text" },
-                    { label: "Email", val: newEmail, set: setNewEmail, type: "email" },
-                  ].map(({ label, val, set, type }) => (
-                    <div key={label}>
-                      <label className="block text-[#888] text-xs mb-1">{label}</label>
-                      <input type={type} value={val} onChange={(e) => set(e.target.value)}
-                        className="w-full bg-[#0f0f1e] border border-[#3a3a5a] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#8C6D3F] transition-colors" />
+                    { label: "Full name", val: newName, set: setNewName, type: "text", placeholder: "Jane Doe" },
+                    { label: "Email",     val: newEmail, set: setNewEmail, type: "email", placeholder: "jane@snec.com.sg" },
+                  ].map(({ label, val, set, type, placeholder }) => (
+                    <div key={label} className="admin-field">
+                      <label className="admin-field-label">{label}</label>
+                      <input
+                        type={type}
+                        value={val}
+                        onChange={e => set(e.target.value)}
+                        className="admin-input"
+                        placeholder={placeholder}
+                      />
                     </div>
                   ))}
-                  <div>
-                    <label className="block text-[#888] text-xs mb-1">Role</label>
-                    <select value={newRole} onChange={(e) => setNewRole(e.target.value)}
-                      className="w-full bg-[#0f0f1e] border border-[#3a3a5a] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#8C6D3F] transition-colors">
-                      <option value="">Select role&#x2026;</option>
+                  <div className="admin-field">
+                    <label className="admin-field-label">Role</label>
+                    <select value={newRole} onChange={e => setNewRole(e.target.value)} className="admin-input">
+                      <option value="">Select role…</option>
                       <option value="OA">Ophthalmic Auxiliary (OA)</option>
                       <option value="OT">Ophthalmic Technician (OT)</option>
                       <option value="PSA">Patient Service Associate (PSA)</option>
                     </select>
                   </div>
-                  {addError && <p className="text-[#ef4444] text-xs">{addError}</p>}
-                  <button type="submit" disabled={adding}
-                    className="w-full py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                    style={{ background: "#8C6D3F", color: "white" }}>
-                    {adding ? "Adding&#x2026;" : "Add Student"}
+                  {addError && <p className="admin-msg error">{addError}</p>}
+                  <button type="submit" className="admin-btn full" disabled={adding} style={{ marginTop: 4 }}>
+                    {adding ? "Adding…" : "Add Student"}
                   </button>
                 </form>
                 {addedCredential && (
-                  <div className="mt-4 p-3 bg-[#0f0f1e] border border-[#8C6D3F]/40 rounded-lg">
-                    <div className="text-[#4CAF50] text-xs mb-1">Student added successfully.</div>
-                    <div className="text-[#888] text-xs">Login credentials emailed to {addedCredential.email}.</div>
+                  <div className="admin-msg success" style={{ marginTop: 12 }}>
+                    Student added. Login credentials emailed to {addedCredential.email}.
                   </div>
                 )}
               </div>
 
               {/* CSV upload */}
-              <div className="bg-[#1a1a2e] rounded-xl p-5 border border-[#3a3a5a]">
-                <div className="text-[#8C6D3F] text-sm font-medium mb-4 flex items-center gap-2"><Upload size={14} /> Bulk import via CSV</div>
+              <div className="admin-form-card">
+                <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
+                  <IconUpload /> Bulk import via CSV
+                </div>
                 <div
-                  className="border-2 border-dashed border-[#3a3a5a] rounded-xl p-8 text-center cursor-pointer hover:border-[#8C6D3F]/50 transition-colors mb-3"
+                  className="csv-dropzone"
                   onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
                 >
-                  <div className="text-3xl mb-2">&#x1F4C4;</div>
-                  <div className="text-[#888] text-xs">Drop CSV file here or click to browse</div>
-                  <div className="text-[#555] text-xs mt-1">Columns: full_name, email, role</div>
-                  <input ref={fileInputRef} type="file" accept=".csv" className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
+                  <div className="csv-dropzone-icon">📄</div>
+                  <div className="csv-dropzone-hint">Drop CSV here or click to browse</div>
+                  <div className="csv-dropzone-sub">Columns: full_name, email, role</div>
+                  <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }}
+                    onChange={e => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
                 </div>
                 {csvPreview && (
-                  <div className="bg-[#0f0f1e] rounded-lg p-3 text-xs mb-3">
-                    <div className="text-[#4CAF50]">&#x2713; {csvPreview.count} students ready to import</div>
-                  </div>
+                  <div className="admin-msg info">{csvPreview.count} students ready to import</div>
                 )}
                 {csvFile && (
-                  <button onClick={handleCsvImport} disabled={csvUploading}
-                    className="w-full py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                    style={{ background: "#8C6D3F", color: "white" }}>
-                    {csvUploading ? "Importing&#x2026;" : `Import ${csvPreview?.count ?? ""} Students`}
+                  <button onClick={handleCsvImport} disabled={csvUploading} className="admin-btn full" style={{ marginTop: 8 }}>
+                    {csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} Students`}
                   </button>
                 )}
                 {csvImportSummary && (
-                  <div className="mt-3 text-xs space-y-1">
-                    <div className="text-[#4CAF50]">Imported: {csvImportSummary.imported}</div>
-                    {csvImportSummary.skipped > 0 && <div className="text-[#f59e0b]">Skipped: {csvImportSummary.skipped}</div>}
-                    {csvErrors.map((e, i) => <div key={i} className="text-[#ef4444]">Row {e.row}: {e.reason}</div>)}
+                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div className="admin-msg success">Imported: {csvImportSummary.imported}</div>
+                    {csvImportSummary.skipped > 0 && <div className="admin-msg info">Skipped: {csvImportSummary.skipped}</div>}
+                    {csvErrors.map((e, i) => <div key={i} className="admin-msg error">Row {e.row}: {e.reason}</div>)}
                   </div>
                 )}
                 {csvCredentials.length > 0 && (
-                  <div className="mt-4">
-                    <div className="text-[#8C6D3F] text-xs mb-2">Generated credentials (shown once):</div>
-                    <div className="bg-[#0f0f1e] rounded-lg p-2 max-h-40 overflow-y-auto text-xs space-y-1">
-                      {csvCredentials.map((c) => (
-                        <div key={c.email} className="flex justify-between gap-2 py-1 border-b border-[#3a3a5a]/50">
-                          <span className="text-[#888] truncate">{c.email}</span>
-                          <span className="font-mono text-[#ccc] flex-shrink-0">{c.password}</span>
+                  <div style={{ marginTop: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>
+                      Generated credentials (shown once)
+                    </div>
+                    <div className="cred-list">
+                      {csvCredentials.map(c => (
+                        <div key={c.email} className="cred-row">
+                          <span className="cred-row-email">{c.email}</span>
+                          <span className="cred-row-pass">{c.password}</span>
                         </div>
                       ))}
                     </div>
-                    <div className="text-[#888] text-xs mt-1">All students have been emailed their credentials.</div>
+                    <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
+                      Credentials have been emailed to all students.
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Approved students table */}
-            <div className="bg-[#1a1a2e] rounded-xl border border-[#3a3a5a] overflow-hidden">
-              <div className="px-5 py-4 border-b border-[#3a3a5a] text-[#8C6D3F] text-sm font-medium flex items-center justify-between">
-                <span>Approved students ({approved.length})</span>
-                {removeError && <span className="text-[#ef4444] text-xs font-normal">{removeError}</span>}
+            <div className="admin-table-wrap">
+              <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)" }}>
+                  Approved students ({approved.length})
+                </span>
+                {removeError && <span className="admin-msg error" style={{ marginTop: 0 }}>{removeError}</span>}
               </div>
               {approvedLoading ? (
-                <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /></div>
+                <div style={{ display: "flex", justifyContent: "center", padding: "24px 0" }}>
+                  <span className="spinner spinner--teal" />
+                </div>
               ) : (
-                <table className="w-full text-sm">
+                <table className="admin-table">
                   <thead>
-                    <tr className="border-b border-[#3a3a5a]">
-                      {["Name", "Email", "Role", "Status", ""].map((h) => (
-                        <th key={h} className="text-left px-4 py-2 text-[#888] text-xs font-medium">{h}</th>
-                      ))}
+                    <tr>
+                      {["Name", "Email", "Role", "Status", ""].map(h => <th key={h}>{h}</th>)}
                     </tr>
                   </thead>
                   <tbody>
-                    {approved.map((s) => (
-                      <tr key={s.email} className="border-b border-[#3a3a5a]/50">
-                        <td className="px-4 py-2.5 text-[#ccc]">{s.full_name}</td>
-                        <td className="px-4 py-2.5 text-[#888] text-xs">{s.email}</td>
-                        <td className="px-4 py-2.5"><span className="px-1.5 py-0.5 rounded text-xs" style={{ background: "#8C6D3F22", color: "#8C6D3F" }}>{s.role}</span></td>
-                        <td className="px-4 py-2.5"><span className={`text-xs ${s.student_id ? "text-[#4CAF50]" : "text-[#888]"}`}>{s.student_id ? "&#x2713; Active" : "Pending"}</span></td>
-                        <td className="px-4 py-2.5 text-right">
-                          <button onClick={() => handleRemove(s.email)} disabled={removing === s.email}
-                            className="text-[#ef4444] text-xs hover:opacity-70 disabled:opacity-30">
-                            {removing === s.email ? "&#x2026;" : "Remove"}
+                    {approved.map(s => (
+                      <tr key={s.email} style={{ cursor: "default" }}>
+                        <td style={{ fontWeight: 600 }}>{s.full_name}</td>
+                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{s.email}</td>
+                        <td><span className={roleBadgeClass(s.role)}>{s.role}</span></td>
+                        <td>
+                          <span className={s.student_id ? "role-badge status-active" : "role-badge status-pending"}>
+                            {s.student_id ? "✓ Active" : "Pending"}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          <button
+                            className="admin-btn danger"
+                            onClick={() => handleRemove(s.email)}
+                            disabled={removing === s.email}
+                            style={{ padding: "4px 10px", fontSize: 11, borderBottomWidth: 2 }}
+                          >
+                            {removing === s.email ? "…" : "Remove"}
                           </button>
                         </td>
                       </tr>
                     ))}
                     {approved.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-6 text-center text-[#888] text-sm">No approved students yet.</td></tr>
+                      <tr>
+                        <td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "24px 0", fontSize: 13 }}>
+                          No approved students yet.
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -516,46 +649,60 @@ export function AdminDashboard() {
             </div>
 
             {/* Promote staff */}
-            <div className="bg-[#1a1a2e] rounded-xl p-5 border border-[#3a3a5a]">
-              <div className="text-[#8C6D3F] text-sm font-medium mb-4 flex items-center gap-2"><ShieldCheck size={14} /> Promote staff</div>
-              <form onSubmit={handlePromote} className="flex gap-3 flex-wrap items-end">
-                <div className="flex-1 min-w-[200px]">
-                  <label className="block text-[#888] text-xs mb-1">Staff email</label>
-                  <input type="email" value={promoteEmail} onChange={(e) => setPromoteEmail(e.target.value)}
-                    className="w-full bg-[#0f0f1e] border border-[#3a3a5a] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#8C6D3F] transition-colors" />
+            <div className="admin-form-card">
+              <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
+                <IconShield /> Promote staff
+              </div>
+              <form onSubmit={handlePromote} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <div className="admin-field" style={{ flex: 1, minWidth: 200, marginBottom: 0 }}>
+                  <label className="admin-field-label">Staff email</label>
+                  <input
+                    type="email"
+                    value={promoteEmail}
+                    onChange={e => setPromoteEmail(e.target.value)}
+                    className="admin-input"
+                    placeholder="staff@snec.com.sg"
+                  />
                 </div>
-                <div>
-                  <label className="block text-[#888] text-xs mb-1">Role</label>
-                  <select value={promoteRole} onChange={(e) => setPromoteRole(e.target.value)}
-                    className="bg-[#0f0f1e] border border-[#3a3a5a] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#8C6D3F] transition-colors">
+                <div className="admin-field" style={{ marginBottom: 0 }}>
+                  <label className="admin-field-label">Role</label>
+                  <select value={promoteRole} onChange={e => setPromoteRole(e.target.value)} className="admin-input">
                     <option value="supervisor">Supervisor</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
-                <button type="submit" disabled={promoting}
-                  className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-                  style={{ background: "#8C6D3F22", color: "#8C6D3F", border: "1px solid #8C6D3F44" }}>
-                  {promoting ? "&#x2026;" : "Promote"}
+                <button type="submit" disabled={promoting} className="admin-btn">
+                  {promoting ? "…" : "Promote"}
                 </button>
               </form>
-              {promoteMsg && <p className="mt-2 text-xs text-[#4CAF50]">{promoteMsg}</p>}
+              {promoteMsg && <p className="admin-msg success">{promoteMsg}</p>}
             </div>
           </div>
         )}
 
-        {/* ACTIVITY */}
+        {/* ── ACTIVITY ───────────────────────────────────────── */}
         {tab === "activity" && (
-          <div className="space-y-2">
-            {feedLoading && <div className="flex justify-center py-10"><div className="w-5 h-5 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" /></div>}
-            {!feedLoading && feed.length === 0 && <p className="text-[#888] text-sm">No activity yet.</p>}
+          <div>
+            {feedLoading && (
+              <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
+                <span className="spinner spinner--teal" />
+              </div>
+            )}
+            {!feedLoading && feed.length === 0 && (
+              <p style={{ fontSize: 13, color: "var(--muted)" }}>No activity yet.</p>
+            )}
             {feed.map((item, i) => (
-              <div key={i} className="bg-[#1a1a2e] rounded-lg px-4 py-3 border border-[#3a3a5a] flex justify-between items-center">
-                <div>
-                  <button onClick={() => setDetailStudentId(item.student_id)} className="text-[#8C6D3F] text-sm hover:underline">{item.name}</button>
-                  <span className="text-[#888] text-xs ml-2">{item.detail}</span>
-                  {item.token_count ? <span className="text-[#555] text-xs ml-2">· {item.token_count.toLocaleString()} tokens</span> : null}
+              <div key={i} className="feed-item">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <button className="feed-item-name" onClick={() => setDetailStudentId(item.student_id)}>
+                    {item.name}
+                  </button>
+                  <span className="feed-item-detail">{item.detail}</span>
+                  {item.token_count ? (
+                    <span className="feed-item-tokens">· {item.token_count.toLocaleString()} tokens</span>
+                  ) : null}
                 </div>
-                <span className="text-[#555] text-xs flex-shrink-0">{item.timestamp?.slice(0, 10)}</span>
+                <span className="feed-item-date">{item.timestamp?.slice(0, 10)}</span>
               </div>
             ))}
           </div>
@@ -563,10 +710,10 @@ export function AdminDashboard() {
 
       </div>
 
+      {/* ── Modals ───────────────────────────────────────────── */}
       {detailStudentId && (
         <AdminStudentDetail studentId={detailStudentId} onClose={() => setDetailStudentId(null)} />
       )}
-
       {showChangePassword && (
         <ChangePasswordModal onClose={() => setShowChangePassword(false)} onSuccess={() => setShowChangePassword(false)} />
       )}

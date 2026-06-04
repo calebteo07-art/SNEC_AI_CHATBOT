@@ -8,8 +8,8 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FBF8F1] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-[#1F1A12]/10 border-t-[#8C6D3F] rounded-full animate-spin" />
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--page)" }}>
+        <span className="spinner spinner--teal" aria-label="Loading" />
       </div>
     );
   }
@@ -18,6 +18,17 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
+  /* Admin users may only access the admin panel */
+  if (user?.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+
+  /* Supervisor users may only access the supervisor panel */
+  if (user?.role === "supervisor" && location.pathname !== "/supervisor") {
+    return <Navigate to="/supervisor" replace />;
+  }
+
+  /* Students must complete check-in before any other page */
   if (user?.role === "student" && !isCheckInDone && location.pathname !== "/checkin") {
     return <Navigate to="/checkin" replace />;
   }
