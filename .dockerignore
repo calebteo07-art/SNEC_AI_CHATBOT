@@ -1,0 +1,31 @@
+# Never include secrets or dev artifacts in the image
+.env
+.env.*
+credentials.json
+token.json
+
+# Build artifacts (frontend is built in Dockerfile Stage 1)
+frontend/node_modules/
+frontend/dist/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Dev tools
+node_modules/
+.tmp/
+.git/
+.gitignore
+*.md
+docs/
+proposal/
+tests/
+workflows/
+
+# IDE
+.vscode/
+.idea/
