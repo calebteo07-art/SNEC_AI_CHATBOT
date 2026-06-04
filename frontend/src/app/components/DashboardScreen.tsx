@@ -1,56 +1,60 @@
-﻿import React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import { HolographicEyeLogo } from "./HolographicEyeLogo";
-import { MessageCircle, Stethoscope, BookOpen, ArrowUpRight, LogOut, BarChart2 } from "lucide-react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { cardContainerVariants, cardItemVariants } from "../utils/motionVariants";
+import { TrackSidebar } from "./TrackSidebar";
+import { SkillPath, type TopicProgress } from "./SkillPath";
+import { NodeTooltip } from "./NodeTooltip";
+import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "../utils/curriculum";
+import { trackTokens } from "../utils/trackColors";
+import type { ProgressData } from "../utils/curriculum";
 
-const MODES = [
-  {
-    icon: MessageCircle,
-    label: "Tutor Chat",
-    description: "A Socratic dialogue with the AI tutor",
-    path: "/chat",
-  },
-  {
-    icon: Stethoscope,
-    label: "Case Simulation",
-    description: "Walk through a patient case from history to management",
-    path: "/cases",
-  },
-  {
-    icon: BookOpen,
-    label: "Flashcards",
-    description: "Spaced repetition for long-term retention",
-    path: "/flashcards",
-  },
-];
+const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = {
+  OA:  OA_TOPICS,
+  OT:  OT_TOPICS,
+  PSA: PSA_TOPICS,
+};
 
-const ROLE_OPTIONS = ["OA", "OT", "PSA"] as const;
+function scoreToStars(score: number): number {
+  if (score >= 0.85) return 3;
+  if (score >= 0.65) return 2;
+  if (score >= 0.4)  return 1;
+  return 0;
+}
+
+function buildWeekHits(sessions: ProgressData["sessions"]): boolean[] {
+  const hits = Array(7).fill(false) as boolean[];
+  const now = new Date();
+  sessions.forEach(s => {
+    const d = new Date(s.timestamp);
+    const diff = Math.floor((now.getTime() - d.getTime()) / 86_400_000);
+    if (diff >= 0 && diff < 7) hits[6 - diff] = true;
+  });
+  return hits;
+}
 
 export function DashboardScreen() {
-  const navigate = useNavigate();
-  const { user, logout, setStudentRole, setMustChangePassword } = useAuth();
-  const firstName = (user?.fullName || "Student").split(" ")[0];
+  const navigate  = useNavigate();
+  const { user, setStudentRole, setMustChangePassword } = useAuth();
 
-  const [suggestion, setSuggestion] = React.useState<string | null>(null);
-  const [roleChanging, setRoleChanging] = React.useState(false);
-  const [roleError, setRoleError] = React.useState("");
+  const [activeTrack, setActiveTrack]     = useState<Track>((user?.studentRole as Track) || "OA");
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [progress, setProgress]           = useState<ProgressData | null>(null);
+  const [roleChanging, setRoleChanging]   = useState(false);
 
-  React.useEffect(() => {
-    if (user?.studentId) {
-      fetch("/api/study-suggestion", { credentials: "include" })
-        .then((r) => r.json())
-        .then((data) => setSuggestion(data.suggestion))
-        .catch(() => setSuggestion("Review your weakest topics today."));
-    }
-  }, [user?.studentId]);
+  /* Fetch live progress */
+  useEffect(() => {
+    fetch("/api/progress", { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d && setProgress(d))
+      .catch(() => { /* keep null — we show locked state */ });
+  }, []);
 
-  const handleRoleChange = async (role: "OA" | "OT" | "PSA") => {
+  /* Role change — preserved from original */
+  const handleRoleChange = async (role: Track) => {
     if (!user?.studentId || role === user.studentRole || roleChanging) return;
     setRoleChanging(true);
+    setActiveTrack(role);
     try {
       const res = await fetch("/api/profile/role", {
         method: "PATCH",
@@ -58,35 +62,53 @@ export function DashboardScreen() {
         credentials: "include",
         body: JSON.stringify({ role }),
       });
-      if (!res.ok) { setRoleError("Could not update role — please try again."); return; }
-      setRoleError("");
-      setStudentRole(role);
-    } catch {
-      setRoleError("Could not update role — please try again.");
+      if (res.ok) setStudentRole(role);
     } finally {
       setRoleChanging(false);
     }
   };
 
-  const rawX = useMotionValue(0);
-  const rawY = useMotionValue(0);
-  const springX = useSpring(rawX, { stiffness: 60, damping: 25 });
-  const springY = useSpring(rawY, { stiffness: 60, damping: 25 });
-  const imgX = useTransform(springX, [-1, 1], [-16, 16]);
-  const imgY = useTransform(springY, [-1, 1], [-10, 10]);
+  /* Build TopicProgress from API data */
+  const completedIds = (progress?.topic_performance ?? [])
+    .filter(p => p.score >= 0.65)
+    .map(p => p.topic);
 
-  React.useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      rawX.set((e.clientX / window.innerWidth) * 2 - 1);
-      rawY.set((e.clientY / window.innerHeight) * 2 - 1);
+  const topics = TRACK_TOPICS[activeTrack];
+
+  const firstNotDoneIdx = topics.findIndex(t => !completedIds.includes(t.id));
+  const activeId = firstNotDoneIdx >= 0 ? topics[firstNotDoneIdx].id : null;
+
+  const topicProgress: TopicProgress[] = topics.map((topic, idx) => {
+    const perf = progress?.topic_performance?.find(p => p.topic === topic.id);
+    const isDone = completedIds.includes(topic.id);
+    const isActive = topic.id === activeId;
+    const isUnlocked = idx === 0 || completedIds.includes(topics[idx - 1].id);
+
+    let state: "done" | "active" | "locked" = "locked";
+    if (isDone) state = "done";
+    else if (isActive || isUnlocked) state = "active";
+
+    return {
+      topicId: topic.id,
+      state,
+      stars: scoreToStars(perf?.score ?? 0),
     };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, [rawX, rawY]);
+  });
+
+  const selectedTopic  = selectedNodeId ? CURRICULUM.find(t => t.id === selectedNodeId) ?? null : null;
+  const selectedProg   = topicProgress.find(p => p.topicId === selectedNodeId);
+  const tokens         = trackTokens(activeTrack);
+
+  const weekHits    = buildWeekHits(progress?.sessions ?? []);
+  const sessionCount = progress?.session_count ?? 0;
+  const topPerf     = progress?.topic_performance ?? [];
+  const avgScore    = topPerf.length > 0
+    ? Math.round((topPerf.reduce((s, p) => s + p.score, 0) / topPerf.length) * 100)
+    : 0;
 
   return (
-    <div className="min-h-screen aurora-bg relative overflow-hidden">
-      {/* Forced password change modal */}
+    <div className="screen-learn">
+      {/* Forced password change */}
       {user?.mustChangePassword && (
         <ChangePasswordModal
           forced
@@ -94,292 +116,56 @@ export function DashboardScreen() {
         />
       )}
 
-      {/* ===== Top navigation strip ===== */}
-      <motion.div
-        className="glass-nav sticky top-0 z-30"
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="glass-editorial rounded-full p-1.5">
-              <HolographicEyeLogo size={28} animated />
-            </div>
-            <span
-              className="holo-text-subtle"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.3rem",
-                fontWeight: 500,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              EyeBot
-            </span>
-          </div>
+      {/* Track selector sidebar */}
+      <TrackSidebar
+        activeTrack={activeTrack}
+        onTrackChange={handleRoleChange}
+        weekHits={weekHits}
+        sessionCount={sessionCount}
+        avgScore={avgScore}
+      />
 
-          <button
-            onClick={logout}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#1F1A12] transition-colors text-sm"
+      {/* Winding path area */}
+      <div className="path-area">
+        {/* Decorative floating anatomy image */}
+        <img
+          className="path-deco"
+          src="/anatomy/eye-fundus.png"
+          aria-hidden="true"
+          alt=""
+        />
+
+        <div className="path-scroll">
+          {/* Section banner */}
+          <div
+            className="path-section-banner"
+            style={{ borderColor: tokens.primary, color: tokens.primary }}
           >
-            <LogOut size={14} strokeWidth={1.5} />
-            <span className="hidden sm:inline">Sign out</span>
-          </button>
-        </div>
-      </motion.div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-16 relative">
-        {/* ===== Editorial hero: greeting + eye medallion ===== */}
-        <motion.section
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20 items-center"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="lg:col-span-7 order-2 lg:order-1">
-            <p
-              className="text-[#8C6D3F] mb-4"
-              style={{ fontSize: "0.7rem", letterSpacing: "0.24em", textTransform: "uppercase", fontWeight: 600 }}
-            >
-              · Welcome back
-            </p>
-            <h1
-              className="text-[#1F1A12]"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2.5rem, 5vw, 4rem)",
-                fontWeight: 400,
-                lineHeight: 1.05,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Good morning,
-              <br />
-              <span className="italic-display holo-text-subtle">{firstName}.</span>
-            </h1>
-            <p
-              className="mt-6 text-[#5C544A] max-w-md"
-              style={{ fontSize: "1.05rem", lineHeight: 1.65, fontWeight: 300 }}
-            >
-              Continue your study where you left off, or choose a different path below. Today is a good day for the small, deliberate work.
-            </p>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+              <polygon points="7,1.5 8.8,5.5 13,5.9 10,8.6 11,12.5 7,10.2 3,12.5 4,8.6 1,5.9 5.2,5.5" fill="currentColor" />
+            </svg>
+            {activeTrack} Track
           </div>
 
-          {/* Eye medallion centerpiece */}
-          <div className="lg:col-span-5 order-1 lg:order-2 flex justify-center relative">
-            {/* Light-leak glow behind medallion */}
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                inset: "-20%",
-                background: "radial-gradient(circle, rgba(140,109,63,0.08) 0%, rgba(139,123,175,0.05) 40%, transparent 70%)",
-                animation: "light-leak 10s ease-in-out infinite",
-                borderRadius: "50%",
-                zIndex: 0,
-              }}
-            />
-            <motion.div
-              className="eye-medallion relative w-[280px] h-[280px] lg:w-[340px] lg:h-[340px]"
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <motion.img
-                src="/anatomy/eye-hero.png"
-                alt=""
-                className="w-full h-full object-cover"
-                style={{
-                  x: imgX,
-                  y: imgY,
-                  scale: 1.15,
-                  filter: "sepia(0.45) brightness(0.88) contrast(1.12) saturate(0.75)",
-                }}
-                animate={{ scale: [1.15, 1.22, 1.15] }}
-                transition={{ scale: { duration: 8, repeat: Infinity, ease: "easeInOut" } }}
-              />
-              {/* Inner vignette */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    "radial-gradient(circle at center, transparent 45%, rgba(31, 26, 18, 0.35) 100%)",
-                }}
-              />
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* ===== AI Suggestion (if present) ===== */}
-        {suggestion && (
-          <motion.section
-            className="mb-16 max-w-2xl relative"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-          >
-            <motion.img
-              src="/anatomy/eye-nerve.png"
-              alt="" aria-hidden="true"
-              style={{
-                position: "absolute", top: "50%", left: "-6rem",
-                transform: "translateY(-50%)",
-                width: "18rem", pointerEvents: "none", opacity: 0.08,
-                filter: "sepia(0.4) saturate(0.6)",
-                mixBlendMode: "multiply",
-              }}
-              animate={{ rotate: [0, 3, 0, -3, 0], scale: [1, 1.04, 1] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <p className="annotation-label mb-3">Today's Directive</p>
-            <blockquote
-              className="text-[#1F1A12] italic-display border-l-2 border-[#8C6D3F]/40 pl-6"
-              style={{ fontSize: "clamp(1.1rem, 3vw, 1.4rem)", lineHeight: 1.5 }}
-            >
-              "{suggestion}"
-            </blockquote>
-          </motion.section>
-        )}
-
-        {/* ===== Role selector ===== */}
-        <motion.section
-          className="mb-14 flex items-center gap-6 flex-wrap"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.38 }}
-        >
-          <p className="annotation-label">Training track</p>
-          <div className="flex items-center gap-2 flex-wrap">
-            {ROLE_OPTIONS.map((role) => (
-              <button
-                key={role}
-                onClick={() => handleRoleChange(role)}
-                disabled={roleChanging}
-                className="px-4 py-1.5 rounded-full transition-all disabled:opacity-40"
-                style={{
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.22em",
-                  textTransform: "uppercase",
-                  border: `1px solid ${user?.studentRole === role ? "#8C6D3F" : "rgba(31,26,18,0.15)"}`,
-                  background: user?.studentRole === role ? "rgba(140,109,63,0.07)" : "transparent",
-                  color: user?.studentRole === role ? "#8C6D3F" : "#A39A8E",
-                }}
-              >
-                {role}
-              </button>
-            ))}
-            {roleError && <span className="text-red-500 text-xs ml-2">{roleError}</span>}
-          </div>
-        </motion.section>
-
-        {/* ===== Practice modes ===== */}
-        <section className="relative">
-          {/* Anatomy watermark behind cards */}
-          <motion.img
-            src="/anatomy/eye-hero.png"
-            alt=""
-            aria-hidden="true"
-            className="anatomy-hero right-0 top-1/2 -translate-y-1/2 w-[40%] max-w-xs"
-            style={{ pointerEvents: "none" }}
-            animate={{ y: [0, -10, 0], rotate: [0, 1.5, 0, -1.5, 0] }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          {/* The winding skill path */}
+          <SkillPath
+            topics={topics}
+            progress={topicProgress}
+            onNodeClick={id => setSelectedNodeId(prev => prev === id ? null : id)}
+            onStartLesson={id => navigate(`/flashcards?topic=${id}`)}
           />
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-          >
-            <div className="flex items-baseline justify-between mb-8">
-              <h2
-                className="text-[#1F1A12]"
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "1.75rem",
-                  fontWeight: 400,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Practice
-              </h2>
-              <p className="annotation-label">Three paths</p>
-            </div>
-
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-3 gap-3"
-              variants={cardContainerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {MODES.map(({ icon: Icon, label, description, path }) => (
-                <motion.button
-                  key={path}
-                  onClick={() => navigate(path)}
-                  className="text-left glass-editorial iri-border p-8 group card-hover-glow"
-                  variants={cardItemVariants}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="flex items-start justify-between mb-10">
-                    <Icon size={22} strokeWidth={1.25} className="text-[#8C6D3F]" aria-hidden="true" />
-                    <ArrowUpRight
-                      size={16}
-                      strokeWidth={1.25}
-                      className="text-[#A39A8E] group-hover:text-[#8C6D3F] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <h3
-                    className="text-[#1F1A12] mb-2"
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.35rem",
-                      fontWeight: 400,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    {label}
-                  </h3>
-                  <p
-                    className="text-[#5C544A]"
-                    style={{ fontSize: "0.88rem", lineHeight: 1.6, fontWeight: 300 }}
-                  >
-                    {description}
-                  </p>
-                </motion.button>
-              ))}
-            </motion.div>
-          </motion.div>
-        </section>
-
-        {/* ===== My Progress link ===== */}
-        <motion.div
-          className="mt-12 flex justify-start"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-        >
-          <button
-            onClick={() => navigate("/progress")}
-            className="inline-flex items-center gap-2 text-[#5C544A] hover:text-[#8C6D3F] transition-colors group"
-            style={{ fontSize: "0.85rem" }}
-          >
-            <BarChart2 size={14} strokeWidth={1.5} />
-            My Progress
-            <ArrowUpRight size={12} strokeWidth={1.5} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-          </button>
-        </motion.div>
-
-        {/* ===== Quiet footer ===== */}
-        <div className="mt-10 sm:mt-16 pt-8 border-t border-[#1F1A12]/8 flex flex-wrap items-center justify-between gap-2 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
-          <span style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}>
-            Singapore National Eye Centre
-          </span>
-          <span className="italic-display" style={{ fontSize: "0.85rem" }}>
-            Vol. II · 2026
-          </span>
         </div>
+
+        {/* Node tooltip — appears when a node is selected */}
+        <NodeTooltip
+          topic={selectedTopic}
+          state={selectedProg?.state ?? "locked"}
+          stars={selectedProg?.stars ?? 0}
+          onClose={() => setSelectedNodeId(null)}
+          onLearn={id => { setSelectedNodeId(null); navigate(`/flashcards?topic=${id}`); }}
+          onSimulate={id => { setSelectedNodeId(null); navigate(`/cases?topic=${id}`); }}
+          onChat={id => { setSelectedNodeId(null); navigate(`/chat?topic=${id}`); }}
+        />
       </div>
     </div>
   );
