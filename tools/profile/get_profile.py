@@ -29,6 +29,9 @@ _DEFAULTS = {
     "learning_velocity": "stable",
     "checkin_done_today": False,
     "supervisor_note": "",
+    "xp": 0,
+    "hearts": 5,
+    "hearts_reset_date": None,
 }
 
 

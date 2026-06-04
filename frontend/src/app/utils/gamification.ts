@@ -72,6 +72,43 @@ export function syncStreakFromBackend(backendStreak: number): void {
   }
 }
 
+export function getStoredHearts(): number {
+  const stored = localStorage.getItem("eyebot_hearts");
+  return stored !== null ? Math.max(0, parseInt(stored, 10)) : 5;
+}
+
+export function setStoredHearts(hearts: number): void {
+  localStorage.setItem("eyebot_hearts", String(Math.max(0, hearts)));
+}
+
+export function syncHeartsFromBackend(backendHearts: number): void {
+  setStoredHearts(backendHearts);
+}
+
+export async function syncGamificationToBackend(
+  xpDelta: number,
+  heartsUsed: number,
+  topic?: string,
+  score?: number,
+): Promise<{ xp: number; hearts: number; level: number; streak: number } | null> {
+  try {
+    const res = await fetch("/api/gamification/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ xp_delta: xpDelta, hearts_used: heartsUsed, topic, score }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const progress = getUserProgress();
+    saveUserProgress({ ...progress, xp: data.xp, level: data.level, streak: data.streak });
+    setStoredHearts(data.hearts);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export function addXP(amount: number): { newXP: number; leveledUp: boolean; newLevel: number } {
   const progress = getUserProgress();
   const oldLevel = progress.level;

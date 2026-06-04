@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
+import { StatsHelpPopover } from "./StatsHelpPopover";
 
 /* ── Nav definitions ──────────────────────────────────────── */
 const STUDENT_NAV = [
@@ -25,9 +27,9 @@ export function AppShell() {
   const { pathname } = useLocation();
 
   const [xp, setXp]         = useState(0);
-  const [xpGoal]             = useState(200);
   const [streak, setStreak]  = useState(0);
-  const [hearts]              = useState(5);
+  const [hearts, setHearts]  = useState(5);
+  const [level, setLevel]    = useState(1);
 
   useEffect(() => {
     fetch("/api/progress", { credentials: "include" })
@@ -35,8 +37,11 @@ export function AppShell() {
       .then(d => {
         if (!d) return;
         setStreak(d.streak ?? 0);
-        const sessions = d.session_count ?? 0;
-        setXp(Math.min((sessions % 10) * 20, 200));
+        setXp(d.xp ?? 0);
+        setHearts(d.hearts ?? 5);
+        setLevel(d.level ?? 1);
+        syncStreakFromBackend(d.streak ?? 0);
+        syncHeartsFromBackend(d.hearts ?? 5);
       })
       .catch(() => { /* keep defaults */ });
   }, [pathname]);
@@ -54,7 +59,9 @@ export function AppShell() {
     .join("")
     .toUpperCase();
 
-  const xpFillPct = Math.round((xp / xpGoal) * 100);
+  const currentLevelBase = (level - 1) * 500;
+  const xpIntoLevel = xp - currentLevelBase;
+  const xpFillPct = Math.round((xpIntoLevel / 500) * 100);
 
   return (
     <div className="app">
@@ -118,7 +125,7 @@ export function AppShell() {
           {/* XP progress bar */}
           <div className="topbar-xp-wrap">
             <span className="topbar-xp-label">
-              {xp} / {xpGoal} xp
+              Lv {level} · {xpIntoLevel} / 500 xp
             </span>
             <div className="topbar-xp-track" role="progressbar" aria-valuenow={xpFillPct} aria-valuemin={0} aria-valuemax={100}>
               <div
@@ -128,8 +135,8 @@ export function AppShell() {
             </div>
           </div>
 
-          {/* Stat pills */}
-          <div className="topbar-pills">
+          {/* Stat pills + help */}
+          <div className="topbar-pills" style={{ position: "relative" }}>
             <div className="stat-pill stat-pill--streak" aria-label={`${streak} day streak`}>
               <FlameIcon />
               {streak}
@@ -142,6 +149,7 @@ export function AppShell() {
               <HeartIcon />
               {hearts}
             </div>
+            <StatsHelpPopover streak={streak} xp={xp} level={level} hearts={hearts} />
           </div>
         </header>
 

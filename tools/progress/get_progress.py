@@ -60,9 +60,16 @@ async def get_progress(student_id: str) -> dict:
             "mode": "chat",
         })
 
+    xp = int(profile.get("xp") or 0)
+    hearts = int(profile.get("hearts") or 5)
+    level = (xp // 500) + 1
+
     return {
         "session_count": session_count,
         "streak": streak,
+        "xp": xp,
+        "hearts": hearts,
+        "level": level,
         "learning_velocity": velocity,
         "weak_topics": list(weak_topics)[:5],
         "topic_performance": topic_performance,

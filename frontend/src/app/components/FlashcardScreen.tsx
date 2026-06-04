@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { AchievementManager } from "./AchievementToast";
 import { ExerciseSplit } from "./ExerciseSplit";
-import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
+import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
+         getStoredHearts, setStoredHearts, syncGamificationToBackend } from "../utils/gamification";
 import { useAuth } from "./AuthContext";
 
 /* ── Types ────────────────────────────────────────────────── */
@@ -58,6 +59,9 @@ export function FlashcardScreen() {
   const [aiChecking, setAiChecking]     = useState(false);
   const [, setUserProgress] = useState(getUserProgress());
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
+  const [sessionXp, setSessionXp]       = useState(0);
+  const [sessionAgain, setSessionAgain] = useState(0);
+  const [displayHearts, setDisplayHearts] = useState(() => getStoredHearts());
 
   /* Fetch fresh cards if no session cards */
   useEffect(() => {
@@ -118,10 +122,21 @@ export function FlashcardScreen() {
       3: XP_REWARDS.flashcardGood,
       4: XP_REWARDS.flashcardEasy,
     };
-    const result = addXP(xpMap[value] ?? 0);
+    const xpAmount = xpMap[value] ?? 0;
+    const result = addXP(xpAmount);
+    setSessionXp(prev => prev + xpAmount);
+
     const up = getUserProgress();
     up.totalCards += 1;
     setUserProgress(up);
+
+    // Hearts: lose one on Again (optimistic)
+    if (value === 1) {
+      const newH = Math.max(0, getStoredHearts() - 1);
+      setStoredHearts(newH);
+      setDisplayHearts(newH);
+      setSessionAgain(prev => prev + 1);
+    }
 
     if (value === 4) confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#0891b2", "#059669", "#d97706"] });
     if (result.leveledUp) confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
@@ -131,11 +146,20 @@ export function FlashcardScreen() {
 
     setAnimating(true);
     resetCardState();
-    setTimeout(() => {
-      if (idx < cards.length - 1) setIdx(i => i + 1);
-      else navigate("/summary");
-      setAnimating(false);
-    }, 280);
+
+    if (idx < cards.length - 1) {
+      setTimeout(() => { setIdx(i => i + 1); setAnimating(false); }, 280);
+    } else {
+      // End of deck — sync to backend then navigate
+      const totalXp = sessionXp + xpAmount + XP_REWARDS.sessionComplete;
+      const totalAgain = value === 1 ? sessionAgain + 1 : sessionAgain;
+      setTimeout(() => {
+        syncGamificationToBackend(totalXp, totalAgain).finally(() => {
+          navigate("/summary");
+          setAnimating(false);
+        });
+      }, 280);
+    }
   };
 
   /* Swipe gesture */
@@ -197,7 +221,7 @@ export function FlashcardScreen() {
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M8 13C8 13 2 9 2 5.5C2 3.57 3.57 2 5.5 2C6.61 2 7.6 2.52 8 3.36C8.4 2.52 9.39 2 10.5 2C12.43 2 14 3.57 14 5.5C14 9 8 13 8 13Z" fill="currentColor" />
           </svg>
-          {5 - Object.values(ratedCards).filter(v => v === 1).length}
+          {displayHearts}
         </div>
       </div>
 
@@ -318,6 +342,13 @@ export function FlashcardScreen() {
           </ExerciseSplit>
         </motion.div>
       </AnimatePresence>
+
+      {/* ── 0-hearts banner (non-blocking) ───────────────── */}
+      {displayHearts === 0 && (
+        <div style={{ padding: "10px 20px", background: "var(--heart-bg)", borderTop: "1.5px solid var(--heart)", fontSize: 12, color: "#991b1b", textAlign: "center", flexShrink: 0 }}>
+          No hearts left today — keep going, they reset at midnight! 💪
+        </div>
+      )}
 
       {/* ── Footer ────────────────────────────────────────── */}
       <div className="exercise-footer">

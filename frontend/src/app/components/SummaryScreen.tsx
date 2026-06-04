@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
 import confetti from "canvas-confetti";
-import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
+import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
 
 /* ── Helpers (unchanged) ──────────────────────────────────── */
 function loadSession() {
@@ -27,7 +27,7 @@ export function SummaryScreen() {
   const sessionData = loadSession();
 
   useEffect(() => {
-    addXP(XP_REWARDS.sessionComplete);
+    // XP already awarded and synced by FlashcardScreen at session end
     const p = getUserProgress();
     setXp(p.xp);
     checkAndUnlockAchievements();

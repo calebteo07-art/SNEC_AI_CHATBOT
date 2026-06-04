@@ -39,6 +39,8 @@ async def update_profile(
     new_missed_findings: list[str] | None = None,
     checkin_done: bool = False,
     role: str | None = None,
+    xp_delta: int = 0,
+    hearts_used: int = 0,
 ) -> None:
     """Update the student's profile. Never raises — logs errors to audit_log."""
     try:
@@ -110,3 +112,38 @@ async def update_profile(
         await db.update_profile(student_id, **updates)
     except Exception as exc:
         log("profile_write_error", student_id=student_id, feature="profile", detail=str(exc))
+
+    # XP and hearts — separate call so a missing column (pre-migration) never
+    # breaks the main profile update above.
+    if xp_delta != 0 or hearts_used != 0:
+        try:
+            current_xp = int(profile.get("xp") or 0)
+            streak_bonus = 50 if new_streak > current_streak else 0
+            new_xp = max(0, current_xp + xp_delta + streak_bonus)
+
+            last_reset_raw = profile.get("hearts_reset_date")
+            try:
+                last_reset = date.fromisoformat(str(last_reset_raw)) if last_reset_raw else None
+            except (ValueError, TypeError):
+                last_reset = None
+
+            if last_reset != today:
+                current_hearts = 5
+            else:
+                current_hearts = int(profile.get("hearts") or 5)
+
+            new_hearts = max(0, current_hearts - hearts_used)
+
+            await db.update_profile(student_id, xp=new_xp, hearts=new_hearts,
+                                    hearts_reset_date=today.isoformat())
+        except Exception as exc:
+            log("gamification_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+    else:
+        # Still reset hearts daily even when xp_delta/hearts_used are both 0
+        try:
+            last_reset_raw = profile.get("hearts_reset_date")
+            last_reset = date.fromisoformat(str(last_reset_raw)) if last_reset_raw else None
+            if last_reset != today:
+                await db.update_profile(student_id, hearts=5, hearts_reset_date=today.isoformat())
+        except Exception:
+            pass

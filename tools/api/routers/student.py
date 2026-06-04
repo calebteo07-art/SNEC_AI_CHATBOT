@@ -58,6 +58,40 @@ class StudySuggestionResponse(BaseModel):
     focus_topic: str | None = None
 
 
+# ── Gamification sync ─────────────────────────────────────────────────────
+
+class GamificationSyncRequest(BaseModel):
+    xp_delta: int = 0
+    hearts_used: int = 0
+    topic: str | None = None
+    score: float | None = None
+
+@router.post("/api/gamification/sync")
+@limiter.limit("30/minute")
+async def sync_gamification(
+    request: Request,
+    body: GamificationSyncRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    student_id = current_user["sub"]
+    await update_profile(
+        student_id,
+        topic=body.topic,
+        score=body.score,
+        xp_delta=body.xp_delta,
+        hearts_used=body.hearts_used,
+    )
+    profile = await get_profile(student_id)
+    xp = int(profile.get("xp") or 0)
+    hearts = int(profile.get("hearts") or 5)
+    return {
+        "xp": xp,
+        "hearts": hearts,
+        "level": (xp // 500) + 1,
+        "streak": int(profile.get("streak") or 0),
+    }
+
+
 # ── Profile role update ────────────────────────────────────────────────────
 
 @router.patch("/api/profile/role")
