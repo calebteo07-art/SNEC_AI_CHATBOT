@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { TopicNode, NodeState } from "../utils/curriculum";
 import { trackTokens } from "../utils/trackColors";
 import { SkillNode } from "./SkillNode";
@@ -44,6 +44,14 @@ function buildPath(n: number): string {
 
 export function SkillPath({ topics, progress, onNodeClick, onStartLesson }: SkillPathProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [kbFocusIdx, setKbFocusIdx] = useState<number>(-1);
+  const nodeEls = useRef<(HTMLDivElement | null)[]>([]);
+
+  const focusNode = (idx: number) => {
+    const clamped = Math.max(0, Math.min(topics.length - 1, idx));
+    setKbFocusIdx(clamped);
+    nodeEls.current[clamped]?.focus();
+  };
 
   if (topics.length === 0) return null;
 
@@ -66,7 +74,30 @@ export function SkillPath({ topics, progress, onNodeClick, onStartLesson }: Skil
   };
 
   return (
-    <div className="skill-path-canvas" style={{ height: canvasH }}>
+    <div
+      className="skill-path-canvas"
+      style={{ height: canvasH }}
+      role="list"
+      aria-label="Learning skill path"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        const currentIdx = kbFocusIdx >= 0 ? kbFocusIdx : 0;
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          focusNode(Math.min(topics.length - 1, currentIdx + 1));
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          focusNode(Math.max(0, currentIdx - 1));
+        }
+        if ((e.key === "Enter" || e.key === " ") && kbFocusIdx >= 0) {
+          e.preventDefault();
+          const topic = topics[kbFocusIdx];
+          const state = progress.find(p => p.topicId === topic.id)?.state ?? "locked";
+          if (state !== "locked") handleClick(topic.id);
+        }
+      }}
+    >
       {/* SVG connector lines */}
       <svg
         className="skill-path-svg"
@@ -106,19 +137,38 @@ export function SkillPath({ topics, progress, onNodeClick, onStartLesson }: Skil
         const prog = progress.find(p => p.topicId === topic.id);
         const state = prog?.state ?? "locked";
         const stars = prog?.stars ?? 0;
+        const isLocked = state === "locked";
 
         return (
-          <SkillNode
+          <div
             key={topic.id}
-            topic={topic}
-            state={state}
-            stars={stars}
-            x={cx}
-            y={cy - NODE_RADIUS}
-            showStartBtn={selectedId === topic.id}
-            onClick={() => handleClick(topic.id)}
-            onStart={() => onStartLesson(topic.id)}
-          />
+            role="listitem"
+            ref={(el) => { nodeEls.current[idx] = el; }}
+            tabIndex={isLocked ? -1 : 0}
+            aria-label={`${topic.label} — ${state}`}
+            aria-disabled={isLocked || undefined}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!isLocked) handleClick(topic.id);
+              }
+              if (e.key === "ArrowDown") { e.preventDefault(); e.stopPropagation(); focusNode(idx + 1); }
+              if (e.key === "ArrowUp")   { e.preventDefault(); e.stopPropagation(); focusNode(idx - 1); }
+            }}
+            style={{ position: "absolute", left: 0, top: 0, width: "100%", outline: "none", pointerEvents: "none" }}
+          >
+            <SkillNode
+              topic={topic}
+              state={state}
+              stars={stars}
+              x={cx}
+              y={cy - NODE_RADIUS}
+              showStartBtn={selectedId === topic.id}
+              onClick={() => handleClick(topic.id)}
+              onStart={() => onStartLesson(topic.id)}
+            />
+          </div>
         );
       })}
     </div>
