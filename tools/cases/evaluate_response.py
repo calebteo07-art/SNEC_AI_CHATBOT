@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Agent 14 (part 1): Evaluates a student's case simulation against the rubric.
+"""Agent 14 (part 1): Evaluates a student's case simulation against the 4-domain rubric.
 
-Usage (from run_case.py):
+Uses per-domain few-shot prompts (rubric_prompts.py) for consistent, calibrated scoring.
+4 separate Gemini calls (one per domain) — each at max_tokens=200 — replace the previous
+single monolithic call, improving score precision at the cost of ~3x more tokens.
+
+Usage (from cases.py):
     from tools.cases.evaluate_response import evaluate_case
-    result = evaluate_case(case, conversation, student_id)
+    result = evaluate_case(case, conversation, student_id, performed_steps)
 """
 
 import json
@@ -13,29 +17,32 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from tools.cases.rubric_prompts import build_eval_prompt
 from tools.shared.gemini_client import ask, MODEL_SMALL
 
-EVAL_PROMPT = """You are an experienced ophthalmology examiner evaluating a student's clinical case performance.
+_GRADER_SYSTEM = "You are a clinical grader. Return only valid JSON."
 
-You will be given:
-1. The case details (patient, findings, correct diagnosis, management plan)
-2. The student's conversation with the virtual patient
+_DOMAINS = ("history", "investigations", "diagnosis", "management")
 
-Score the student on each of the 4 domains below. Each domain is worth 10 points.
-Base scores ONLY on what the student actually asked or stated during the conversation.
 
-Return ONLY valid JSON in exactly this format — no other text:
-{
-  "history_score": <0-10>,
-  "investigations_score": <0-10>,
-  "diagnosis_score": <0-10>,
-  "management_score": <0-10>,
-  "history_feedback": "<1-2 sentences>",
-  "investigations_feedback": "<1-2 sentences>",
-  "diagnosis_feedback": "<1-2 sentences>",
-  "management_feedback": "<1-2 sentences>",
-  "overall_feedback": "<2-3 sentences summarising performance and key learning points>"
-}"""
+def _evaluate_domain(domain: str, conv_text: str, case_context: str) -> dict:
+    """Score one domain with a few-shot prompt. Returns {"score": int, "feedback": str}."""
+    prompt = build_eval_prompt(domain, conv_text, case_context)
+    raw = ask(
+        system_prompt=_GRADER_SYSTEM,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=256,
+        feature="case_eval",
+        model=MODEL_SMALL,
+    )
+    text = raw.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {"score": 5, "feedback": "Evaluation error — please retry."}
 
 
 def evaluate_case(
@@ -44,32 +51,37 @@ def evaluate_case(
     student_id: str,
     performed_steps: list[int] | None = None,
 ) -> dict:
-    """
-    Score a completed case simulation.
+    """Score a completed case simulation using per-domain few-shot rubric.
 
     Args:
-        case:         The full case dict (from load_case).
-        conversation: The full conversation history.
-        student_id:   Student UUID (for audit logging).
+        case:            The full case dict (from load_case).
+        conversation:    Full conversation history (list of {role, content} dicts).
+        student_id:      Student UUID (for audit logging).
+        performed_steps: Checklist step numbers the student marked as performed.
 
     Returns:
-        Dict with scores and feedback for each domain.
+        Dict with per-domain scores/feedback + total_score + checklist compliance.
     """
     from tools.shared.audit_log import log as audit_log
 
-    # Build context for Gemini — compact JSON saves ~30% tokens vs indent=2
-    case_summary = json.dumps({
-        "diagnosis": case["diagnosis"],
-        "management": case["management"],
-        "rubric": case["rubric"],
-        "examination_findings": case["examination_findings"],
-        "investigations": case["investigations"],
+    # Compact case context — saves ~30% tokens vs indent=2
+    case_context = json.dumps({
+        "diagnosis": case.get("diagnosis", ""),
+        "management": case.get("management", ""),
+        "rubric": case.get("rubric", {}),
+        "examination_findings": case.get("examination_findings", {}),
+        "investigations": case.get("investigations", {}),
     }, separators=(",", ":"))
 
-    transcript = "\n\n".join(
+    conv_text = "\n\n".join(
         f"{'Student' if m['role'] == 'user' else 'Patient/Examiner'}: {m['content']}"
         for m in conversation
     )
+
+    # Evaluate each domain independently with its few-shot calibration prompt
+    domain_results: dict[str, dict] = {}
+    for domain in _DOMAINS:
+        domain_results[domain] = _evaluate_domain(domain, conv_text, case_context)
 
     # Fetch checklist and compute compliance counts
     critical_hit = 0
@@ -89,68 +101,56 @@ def evaluate_case(
                 is_crit = bool(s.get("critical"))
                 ticked = "✓ PERFORMED" if num in performed else "✗ NOT MARKED"
                 mark = "[CRITICAL] " if is_crit else ""
-                lines.append(f"{num}. {mark}{s.get('action','')} [{ticked}]")
+                lines.append(f"{num}. {mark}{s.get('action', '')} [{ticked}]")
                 if is_crit:
                     critical_total += 1
                     if num in performed:
                         critical_hit += 1
-            checklist_section = "\n".join(lines)
+            checklist_section = "\n".join(lines)  # noqa: F841 — available if needed
     except Exception:
         pass
 
-    ticked_note = ""
-    if performed:
-        ticked_note = (
-            f"\n\nThe student ticked {len(performed)} checklist steps as performed "
-            f"({critical_hit}/{critical_total} critical steps). "
-            f"Factor this procedural compliance into the management_score."
-        )
+    # Boost management score for checklist compliance
+    mgmt_score = int(domain_results["management"].get("score", 0))
+    if critical_total > 0:
+        compliance_ratio = critical_hit / critical_total
+        if compliance_ratio >= 0.8 and mgmt_score < 10:
+            mgmt_score = min(10, mgmt_score + 1)
+        elif compliance_ratio < 0.5 and mgmt_score > 2:
+            mgmt_score = max(0, mgmt_score - 1)
+    domain_results["management"]["score"] = mgmt_score
 
-    prompt = (
-        f"CASE DETAILS:\n{case_summary}"
-        f"{checklist_section}"
-        f"{ticked_note}"
-        f"\n\nSTUDENT CONVERSATION:\n{transcript}"
-    )
+    total = sum(int(domain_results[d].get("score", 0)) for d in _DOMAINS)
 
-    response = ask(
-        system_prompt=EVAL_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=512,
-        feature="case",
-        model=MODEL_SMALL,
-    )
-
-    # Parse response
-    text = response.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-
-    try:
-        result = json.loads(text)
-    except json.JSONDecodeError:
-        # Fallback if mock/live response isn't valid JSON
-        result = {
-            "history_score": 7, "investigations_score": 7,
-            "diagnosis_score": 8, "management_score": 7,
-            "history_feedback": "Good systematic history taking.",
-            "investigations_feedback": "Key investigations requested.",
-            "diagnosis_feedback": "Correct diagnosis identified.",
-            "management_feedback": "Appropriate management plan outlined.",
-            "overall_feedback": response[:300],
-        }
-
-    result["total_score"] = sum([
-        int(result.get("history_score", 0)),
-        int(result.get("investigations_score", 0)),
-        int(result.get("diagnosis_score", 0)),
-        int(result.get("management_score", 0)),
-    ])
-    result["critical_hit"] = critical_hit
-    result["critical_total"] = critical_total
+    result = {
+        "history_score":         int(domain_results["history"].get("score", 0)),
+        "investigations_score":  int(domain_results["investigations"].get("score", 0)),
+        "diagnosis_score":       int(domain_results["diagnosis"].get("score", 0)),
+        "management_score":      mgmt_score,
+        "history_feedback":      domain_results["history"].get("feedback", ""),
+        "investigations_feedback": domain_results["investigations"].get("feedback", ""),
+        "diagnosis_feedback":    domain_results["diagnosis"].get("feedback", ""),
+        "management_feedback":   domain_results["management"].get("feedback", ""),
+        "overall_feedback":      _build_overall(domain_results, total),
+        "total_score":           total,
+        "critical_hit":          critical_hit,
+        "critical_total":        critical_total,
+    }
 
     audit_log("case_evaluated", student_id=student_id, feature="cases",
-              detail=f"case_id={case['case_id']} total={result['total_score']}/40 checklist={critical_hit}/{critical_total}")
+              detail=f"case_id={case['case_id']} total={total}/40 checklist={critical_hit}/{critical_total}")
 
     return result
+
+
+def _build_overall(domain_results: dict, total: int) -> str:
+    """Compose a one-sentence overall summary from domain results."""
+    weak = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) < 6]
+    strong = [d for d in _DOMAINS if int(domain_results[d].get("score", 0)) >= 8]
+    grade = "Excellent" if total >= 36 else "Good" if total >= 28 else "Satisfactory" if total >= 20 else "Needs improvement"
+    summary = f"{grade} overall ({total}/40)."
+    if strong:
+        summary += f" Strong performance in: {', '.join(strong)}."
+    if weak:
+        summary += f" Focus revision on: {', '.join(weak)}."
+    return summary

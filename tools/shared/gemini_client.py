@@ -63,6 +63,8 @@ _MOCK_RESPONSES: dict[str, str] = {
         "DIAGNOSIS: Appearances consistent with glaucomatous optic neuropathy. "
         "Recommend visual field testing and OCT RNFL analysis."
     ),
+    "case_eval": '{"score": 7, "feedback": "Good systematic approach. Asked key history questions. Consider exploring medication history and family risk factors more thoroughly."}',
+    "guardrail_input": "yes",
     "default": "[MOCK] This is a mock response. Add GEMINI_API_KEY to .env to use the real Gemini API.",
     "checkin": (
         "What is the most common cause of painless, gradual visual field loss in a 65-year-old?"
