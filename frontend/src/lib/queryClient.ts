@@ -22,8 +22,10 @@ const persister = createAsyncStoragePersister({
   key: "EYEBOT_QUERY_CACHE",
 });
 
-persistQueryClient({
+const [, persistPromise] = persistQueryClient({
   queryClient,
   persister,
   maxAge: 24 * 60 * 60_000,
 });
+// Suppress unhandled rejection — IDB unavailable (private browsing, quota exceeded) is non-fatal
+persistPromise.catch(() => {});

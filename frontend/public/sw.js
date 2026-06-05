@@ -48,12 +48,61 @@ self.addEventListener('fetch', (e) => {
   );
 });
 
-// Background sync: replay failed gamification writes
+// Background sync: replay failed gamification writes from IDB queue
 self.addEventListener("sync", (e) => {
   if (e.tag === "sync-gamification") {
-    e.waitUntil(
-      // Re-request any queued gamification syncs from IDB (best-effort)
-      Promise.resolve()
-    );
+    e.waitUntil(replayGamificationQueue());
   }
 });
+
+async function replayGamificationQueue() {
+  let db;
+  try {
+    db = await new Promise((resolve, reject) => {
+      const req = indexedDB.open("eyebot", 1);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+      req.onupgradeneeded = (event) => {
+        const d = event.target.result;
+        if (!d.objectStoreNames.contains("qcache")) d.createObjectStore("qcache");
+        if (!d.objectStoreNames.contains("syncQueue")) d.createObjectStore("syncQueue", { autoIncrement: true });
+      };
+    });
+  } catch {
+    return;
+  }
+
+  const items = await new Promise((resolve) => {
+    const tx = db.transaction("syncQueue", "readonly");
+    const req = tx.objectStore("syncQueue").getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => resolve([]);
+  });
+
+  for (let i = 0; i < items.length; i++) {
+    try {
+      const res = await fetch("/api/gamification/sync", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(items[i]),
+      });
+      if (res.ok) {
+        await new Promise((resolve) => {
+          // Delete by index (IDB autoIncrement keys start at 1)
+          const tx = db.transaction("syncQueue", "readwrite");
+          const store = tx.objectStore("syncQueue");
+          const getReq = store.getAllKeys();
+          getReq.onsuccess = () => {
+            const keys = getReq.result;
+            if (keys[i] !== undefined) store.delete(keys[i]);
+            resolve(undefined);
+          };
+          getReq.onerror = () => resolve(undefined);
+        });
+      }
+    } catch {
+      // Network still down — leave in queue for next sync attempt
+    }
+  }
+}

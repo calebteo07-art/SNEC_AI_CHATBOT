@@ -11,6 +11,9 @@ async function getDB(): Promise<IDBPDatabase> {
   _db = await openDB(DB_NAME, DB_VERSION, {
     upgrade(db) {
       if (!db.objectStoreNames.contains("qcache")) db.createObjectStore("qcache");
+      if (!db.objectStoreNames.contains("syncQueue")) {
+        db.createObjectStore("syncQueue", { autoIncrement: true });
+      }
     },
   });
   return _db;
@@ -39,3 +42,10 @@ export const idbStorage = {
     } catch {}
   },
 };
+
+export async function queueSyncPayload(payload: unknown): Promise<void> {
+  try {
+    const db = await getDB();
+    await db.add("syncQueue" as any, payload);
+  } catch {}
+}

@@ -22,7 +22,7 @@ const SUPERVISOR_NAV = [
 
 /* ── AppShell ─────────────────────────────────────────────── */
 export function AppShell() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: progress } = useProgress();
@@ -38,10 +38,6 @@ export function AppShell() {
     syncStreakFromBackend(progress.streak);
     syncHeartsFromBackend(progress.hearts);
   }, [progress]);
-
-  // Suppress unused warning — logout available via ProfileScreen
-  void logout;
-  void pathname; // TanStack Query refetches automatically; pathname no longer drives it
 
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
