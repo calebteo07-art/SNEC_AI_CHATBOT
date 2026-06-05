@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const check = async (attempt = 0): Promise<void> => {
       try {
-        const res = await fetch("/api/auth/me", { credentials: "include" });
+        const res = await fetch("/api/auth/me", { credentials: "include", signal: AbortSignal.timeout(8000) });
         if (cancelled) return;
         if (!res.ok) throw new Error("Not authenticated");
         const stored = sessionStorage.getItem("eyebot_user");

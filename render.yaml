@@ -38,4 +38,4 @@ services:
     plan: free
     schedule: "*/10 * * * *"
     buildCommand: echo ""
-    startCommand: python -c "import urllib.request; urllib.request.urlopen('https://eyebot.onrender.com/health')"
+    startCommand: python -c "import urllib.request; urllib.request.urlopen('https://snec-ai-chatbot.onrender.com/health')"
