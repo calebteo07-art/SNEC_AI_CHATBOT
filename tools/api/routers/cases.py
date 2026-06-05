@@ -15,7 +15,7 @@ from tools.cases.log_case_completion import log_case_completion
 from tools.chatbot.log_session import log_session
 from tools.profile.get_profile import get_profile
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL, MODEL_PRO
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -351,8 +351,9 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             for chunk in stream_ask(
                 system_prompt=patient_prompt,
                 messages=messages,
-                max_tokens=2048,
+                max_tokens=3072,
                 feature="case",
+                model=MODEL_PRO,
             ):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
         except RuntimeError as exc:
@@ -369,7 +370,6 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
 
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
 async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
-    from tools.shared.gemini_client import ask
     student_id = current_user["sub"]
     case = _case_cache.get(case_id)
     if case is None:
@@ -474,8 +474,9 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         debrief_text = ask(
             system_prompt=debrief_prompt,
             messages=debrief_messages,
-            max_tokens=2048,
+            max_tokens=4096,
             feature="debrief",
+            model=MODEL_PRO,
         )
     except Exception:
         debrief_text = None

@@ -21,8 +21,9 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-MODEL       = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-2.5-flash-lite")  # lightweight model for flashcards, hints
+MODEL       = os.getenv("GEMINI_MODEL",       "gemini-2.5-flash")
+MODEL_PRO   = os.getenv("GEMINI_MODEL_PRO",   "gemini-2.5-pro")       # deep reasoning: chat, case eval, debrief
+MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-2.5-flash-lite") # trivial single-token outputs only
 API_KEY     = os.getenv("GEMINI_API_KEY", "").strip()
 MOCK_MODE   = not API_KEY
 

@@ -20,7 +20,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.gemini_client import ask, MODEL_SMALL
+from tools.shared.gemini_client import ask, MODEL
 from tools.shared.audit_log import log as audit_log
 from tools.flashcards.flashcard_store import insert_cards
 from tools.flashcards.sm2 import due_date  # noqa: F401 — re-exported for callers
@@ -118,9 +118,9 @@ async def generate_and_return_cards(
     response = ask(
         system_prompt=_card_prompt(role),
         messages=[{"role": "user", "content": f"Session transcript:\n\n{transcript}"}],
-        max_tokens=512,
+        max_tokens=1024,
         feature="flashcard",
-        model=MODEL_SMALL,
+        model=MODEL,
     )
 
     cards = _parse_cards(response)
@@ -190,7 +190,7 @@ async def generate_cards_from_rag(
         messages=[{"role": "user", "content": f"Generate {n} flashcards."}],
         max_tokens=2048,
         feature="flashcard",
-        model=MODEL_SMALL,
+        model=MODEL,
     )
 
     cards = _parse_cards(response)

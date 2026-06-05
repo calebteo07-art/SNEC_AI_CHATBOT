@@ -13,7 +13,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared.gemini_client import ask, MODEL_SMALL
+from tools.shared.gemini_client import ask, MODEL
 from tools.kb.search import search as _rag_search, format_context as _rag_format, fetch_checklists as _fetch_checklists
 
 _ROLE_QUERIES = {
@@ -184,7 +184,7 @@ def generate_cases(
         messages=[{"role": "user", "content": f"Generate {n} {role} simulation cases."}],
         max_tokens=8192,
         feature="case_gen",
-        model=MODEL_SMALL,
+        model=MODEL,
     )
 
     # Parse JSON

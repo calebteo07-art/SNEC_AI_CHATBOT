@@ -142,7 +142,7 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
                     f"Student answer: {body.student_answer}"
                 ),
             }],
-            max_tokens=2048,
+            max_tokens=1024,
             feature="flashcard",
         )
     except RuntimeError as exc:
@@ -253,7 +253,7 @@ async def study_suggestion(request: Request, current_user: CurrentUser = Depends
         suggestion = ask(
             system_prompt=system,
             messages=[{"role": "user", "content": context}],
-            max_tokens=2048,
+            max_tokens=256,
             feature="suggestion",
         )
     except RuntimeError as exc:

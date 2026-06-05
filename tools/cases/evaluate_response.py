@@ -18,7 +18,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.cases.rubric_prompts import build_eval_prompt
-from tools.shared.gemini_client import ask, MODEL_SMALL
+from tools.shared.gemini_client import ask, MODEL_PRO
 
 _GRADER_SYSTEM = "You are a clinical grader. Return only valid JSON."
 
@@ -31,9 +31,9 @@ def _evaluate_domain(domain: str, conv_text: str, case_context: str) -> dict:
     raw = ask(
         system_prompt=_GRADER_SYSTEM,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=256,
+        max_tokens=512,
         feature="case_eval",
-        model=MODEL_SMALL,
+        model=MODEL_PRO,
     )
     text = raw.strip()
     if text.startswith("```"):
