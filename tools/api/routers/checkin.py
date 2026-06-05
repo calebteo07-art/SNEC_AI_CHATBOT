@@ -173,7 +173,7 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
         question = ask(
             system_prompt=system,
             messages=[{"role": "user", "content": f"Topic: {topic}"}],
-            max_tokens=200,
+            max_tokens=1024,
             feature="checkin",
         )
     except RuntimeError as exc:

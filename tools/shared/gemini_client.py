@@ -195,7 +195,10 @@ def ask(
             raise RuntimeError("quota_exceeded")
         resp.raise_for_status()
         data = _json.loads(resp.text)
-        return data["candidates"][0]["content"]["parts"][0]["text"]
+        candidate = data["candidates"][0]
+        if candidate.get("finishReason") == "MAX_TOKENS":
+            raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
+        return candidate["content"]["parts"][0]["text"]
     except RuntimeError:
         raise
     except Exception as exc:
