@@ -22,34 +22,46 @@ export function DailyCheckInScreen() {
   const [correct, setCorrect]   = useState<boolean | null>(null);
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   const handleSkip = () => {
     setCheckInDone(true);
     navigate("/dashboard");
   };
 
+  const handleRetry = () => {
+    setLoadError(false);
+    setPhase("loading");
+    setLoadAttempt(a => a + 1);
+  };
+
   /* Load status + question */
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const statusRes = await fetch("/api/checkin/status", { credentials: "include" });
         if (!statusRes.ok) throw new Error("status_failed");
         const status = await statusRes.json();
+        if (cancelled) return;
         setStreak(status.streak ?? 0);
         setWeakTopic(status.weak_topic ?? null);
         syncStreakFromBackend(status.streak ?? 0);
         const qRes = await fetch("/api/checkin/question", { credentials: "include" });
         if (!qRes.ok) throw new Error("question_failed");
         const q = await qRes.json();
+        if (cancelled) return;
         setQuestion(q);
         setPhase("question");
       } catch {
-        toast.error("Could not load check-in. Taking you to the dashboard.");
-        setCheckInDone(true);
-        navigate("/dashboard");
+        if (cancelled) return;
+        setLoadError(true);
+        setPhase("question");
       }
     })();
-  }, [navigate, setCheckInDone]);
+    return () => { cancelled = true; };
+  }, [loadAttempt]);
 
   /* Submit (unchanged) */
   const handleSubmit = async () => {
@@ -120,9 +132,32 @@ export function DailyCheckInScreen() {
             </div>
           )}
 
+          {/* Load error */}
+          <AnimatePresence mode="wait">
+            {phase === "question" && loadError && (
+              <motion.div key="err" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: "center", padding: "24px 0" }}>
+                <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 20, lineHeight: 1.5 }}>
+                  Couldn't load today's question.<br />Check your connection and try again.
+                </p>
+                <button
+                  onClick={handleRetry}
+                  style={{ width: "100%", padding: 14, borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 14, fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", cursor: "pointer", boxShadow: "0 4px 16px var(--teal-glow)", marginBottom: 10 }}
+                >
+                  Try again
+                </button>
+                <button
+                  onClick={handleSkip}
+                  style={{ width: "100%", padding: "8px 0", background: "none", border: "none", fontSize: 12, color: "var(--faint)", cursor: "pointer", letterSpacing: "0.04em" }}
+                >
+                  Skip for today
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Question */}
           <AnimatePresence mode="wait">
-            {phase === "question" && question && (
+            {phase === "question" && !loadError && question && (
               <motion.div key="q" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 10 }}>{question.topic}</div>
                 <p style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", lineHeight: 1.45, letterSpacing: "-0.01em", marginBottom: 20 }}>{question.question}</p>

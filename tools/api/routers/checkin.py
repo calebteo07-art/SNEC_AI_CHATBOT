@@ -118,6 +118,13 @@ _ROLE_TUTOR_CONTEXT = {
 }
 
 
+def _static_fallback(topic: str) -> str:
+    return (
+        f"Describe the key steps, clinical considerations, and common pitfalls involved in {topic}. "
+        "Include any relevant normal values, safety checks, or patient communication points a competent allied health professional should know."
+    )
+
+
 # ── Check-in endpoints ─────────────────────────────────────────────────────
 
 @router.get("/api/checkin/status", response_model=CheckinStatusResponse)
@@ -126,7 +133,7 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
     try:
         profile = await get_profile(student_id)
     except Exception:
-        return CheckinStatusResponse(checkin_done_today=True, streak=0, weak_topic=None)
+        return CheckinStatusResponse(checkin_done_today=False, streak=0, weak_topic=None)
 
     done = bool(profile.get("checkin_done_today", False))
     streak = int(profile.get("streak") or 0)
@@ -189,11 +196,10 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
             max_tokens=512,
             feature="checkin",
         )
-    except RuntimeError as exc:
-        if "quota_exceeded" in str(exc):
-            raise HTTPException(status_code=503, detail="quota_exceeded")
-        raise
-    result = CheckinQuestionResponse(question=question.strip(), topic=topic)
+        question_text = question.strip()
+    except Exception:
+        question_text = _static_fallback(topic)
+    result = CheckinQuestionResponse(question=question_text, topic=topic)
     _question_cache[student_id] = (today, result)
     return result
 
