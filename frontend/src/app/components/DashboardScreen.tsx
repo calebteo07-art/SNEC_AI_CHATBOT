@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "../utils/curriculum";
 import { trackTokens } from "../utils/trackColors";
-import type { ProgressData } from "../utils/curriculum";
+import { useProgress } from "../../hooks/useProgress";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = {
   OA:  OA_TOPICS,
@@ -76,15 +76,8 @@ export function DashboardScreen() {
   const { user, setStudentRole, setMustChangePassword } = useAuth();
 
   const [activeTrack, setActiveTrack] = useState<Track>((user?.studentRole as Track) || "OA");
-  const [progress, setProgress]       = useState<ProgressData | null>(null);
+  const { data: progress } = useProgress();
   const [roleChanging, setRoleChanging] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/progress", { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => d && setProgress(d))
-      .catch(() => {});
-  }, []);
 
   const handleTrackChange = async (track: Track) => {
     setActiveTrack(track);

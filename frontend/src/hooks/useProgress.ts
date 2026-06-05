@@ -6,10 +6,10 @@ export interface ProgressData {
   level: number;
   streak: number;
   session_count: number;
-  learning_velocity: string;
+  learning_velocity: "improving" | "stable" | "declining";
   weak_topics: string[];
-  topic_performance: Record<string, number>;
-  sessions: Array<{ session_id: string; timestamp: string; topic: string; summary: string; mode: string }>;
+  topic_performance: { topic: string; score: number }[];
+  sessions: { session_id: string; timestamp: string; topic: string; summary: string; mode: string }[];
 }
 
 async function fetchProgress(): Promise<ProgressData> {

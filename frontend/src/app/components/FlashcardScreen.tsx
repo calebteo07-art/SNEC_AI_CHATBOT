@@ -1,15 +1,20 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import confetti from "canvas-confetti";
 import { AchievementManager } from "./AchievementToast";
 import { ExerciseSplit } from "./ExerciseSplit";
 import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
-         getStoredHearts, setStoredHearts, syncGamificationToBackend } from "../utils/gamification";
+         getStoredHearts, setStoredHearts } from "../utils/gamification";
 import { useAuth } from "./AuthContext";
+import { useFlashcards, useFlashcardCheck } from "../../hooks/useFlashcards";
+import { useGamificationSync } from "../../hooks/useGamification";
 
 /* ── Types ────────────────────────────────────────────────── */
-interface Flashcard { id: number; question: string; answer: string; tag: string; }
+interface Flashcard {
+  id: number; question: string; answer: string; tag: string;
+  card_id?: string; repetitions?: number; easiness?: number; interval_days?: number;
+}
 interface AiFeedback { feedback: string; score: number; }
 
 const RATINGS = [
@@ -48,8 +53,21 @@ export function FlashcardScreen() {
   const navigate = useNavigate();
   useAuth();
 
-  const [cards, setCards]               = useState<Flashcard[]>(() => loadSessionCards());
-  const [generating, setGenerating]     = useState(false);
+  const sessionCards = useMemo(() => loadSessionCards(), []);
+  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards();
+  const checkCard = useFlashcardCheck();
+  const { mutateAsync: syncGamification } = useGamificationSync();
+
+  const cards: Flashcard[] = useMemo(() => {
+    if (sessionCards.length > 0) return sessionCards;
+    if (!apiCardsRaw) return [];
+    return apiCardsRaw.map((c, i) => ({
+      id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag,
+      card_id: c.card_id, repetitions: c.repetitions, easiness: c.easiness, interval_days: c.interval_days,
+    }));
+  }, [sessionCards, apiCardsRaw]);
+
+  const generating = sessionCards.length === 0 && apiLoading;
   const [idx, setIdx]                   = useState(0);
   const [revealed, setRevealed]         = useState(false);
   const [ratedCards, setRatedCards]     = useState<Record<number, number>>({});
@@ -66,21 +84,6 @@ export function FlashcardScreen() {
   const [sessionEasy,  setSessionEasy]  = useState(0);
   const [displayHearts, setDisplayHearts] = useState(() => getStoredHearts());
 
-  /* Fetch fresh cards if no session cards */
-  useEffect(() => {
-    if (cards.length === 0) {
-      setGenerating(true);
-      fetch("/api/flashcards/generate", { credentials: "include" })
-        .then(r => r.json())
-        .then((data: Array<{ card_id: string; front: string; back: string; topic_tag: string }>) => {
-          if (Array.isArray(data) && data.length > 0) {
-            setCards(data.map((c, i) => ({ id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag })));
-          }
-        })
-        .catch(() => {})
-        .finally(() => setGenerating(false));
-    }
-  }, [cards.length]);
 
   const deckTitle = useMemo(() => {
     if (cards.length === 0) return "Flashcards";
@@ -98,15 +101,17 @@ export function FlashcardScreen() {
   const checkWithAi = (attempt: string) => {
     if (!attempt.trim() || aiFeedback || !card) return;
     setAiChecking(true);
-    fetch("/api/flashcards/check", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ question: card.question, student_answer: attempt, correct_answer: card.answer }),
-    })
-      .then(r => r.json())
-      .then((d: AiFeedback) => { setAiFeedback(d); setAiChecking(false); })
-      .catch(() => setAiChecking(false));
+    checkCard.mutate(
+      {
+        question: card.question, student_answer: attempt, correct_answer: card.answer,
+        card_id: card.card_id, repetitions: card.repetitions,
+        easiness: card.easiness, interval_days: card.interval_days,
+      },
+      {
+        onSuccess: (d) => { setAiFeedback(d); setAiChecking(false); },
+        onError: () => setAiChecking(false),
+      },
+    );
   };
 
   const reveal = () => {
@@ -163,7 +168,7 @@ export function FlashcardScreen() {
       const totalXp = sessionXp + xpAmount + XP_REWARDS.sessionComplete;
       const totalAgain = value === 1 ? sessionAgain + 1 : sessionAgain;
       setTimeout(() => {
-        syncGamificationToBackend(totalXp, totalAgain).finally(() => {
+        syncGamification({ xp_delta: totalXp, hearts_used: totalAgain }).finally(() => {
           navigate("/summary");
           setAnimating(false);
         });

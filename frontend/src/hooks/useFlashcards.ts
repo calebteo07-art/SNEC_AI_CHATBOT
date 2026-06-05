@@ -4,22 +4,26 @@ export interface FlashcardItem {
   card_id: string;
   front: string;
   back: string;
-  topic: string;
+  topic_tag: string;
   repetitions: number;
   easiness: number;
   interval_days: number;
 }
 
-interface CheckPayload {
-  card_id: string;
-  answer: string;
-  topic: string;
+export interface CheckPayload {
+  question: string;
+  student_answer: string;
+  correct_answer: string;
+  card_id?: string;
+  repetitions?: number;
+  easiness?: number;
+  interval_days?: number;
 }
 
-interface CheckResponse {
+export interface CheckResponse {
   score: number;
   feedback: string;
-  next_due_days: number;
+  mock_mode: boolean;
 }
 
 export function useFlashcards() {

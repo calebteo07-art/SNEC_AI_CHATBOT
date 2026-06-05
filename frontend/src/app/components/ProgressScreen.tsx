@@ -1,18 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { useProgress } from "../../hooks/useProgress";
+import type { ProgressData } from "../../hooks/useProgress";
 
-/* ── Types (preserved from original) ─────────────────────── */
-interface TopicStat    { topic: string; score: number; }
-interface SessionEntry { session_id: string; timestamp: string; topic: string; summary: string; mode: string; }
-
-interface ProgressData {
-  session_count: number;
-  streak: number;
-  learning_velocity: "improving" | "stable" | "declining";
-  weak_topics: string[];
-  topic_performance: TopicStat[];
-  sessions: SessionEntry[];
-}
+type SessionEntry = ProgressData["sessions"][0];
 
 /* ── Helpers ──────────────────────────────────────────────── */
 function buildWeekHits(sessions: SessionEntry[]): boolean[] {
@@ -92,21 +83,7 @@ function MasteryBar({ topic, score }: { topic: string; score: number }) {
 
 /* ── ProgressScreen ───────────────────────────────────────── */
 export function ProgressScreen() {
-  const [data, setData]       = useState<ProgressData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-
-  const fetchProgress = useCallback(() => {
-    setError(null);
-    setLoading(true);
-    fetch("/api/progress", { credentials: "include" })
-      .then(r => { if (!r.ok) throw new Error("Server error"); return r.json(); })
-      .then((d: ProgressData) => setData(d))
-      .catch(() => setError("Could not load your progress. Please try again."))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => { fetchProgress(); }, [fetchProgress]);
+  const { data, isLoading: loading, isError, refetch } = useProgress();
 
   const weekHits    = buildWeekHits(data?.sessions ?? []);
   const sessionCount = data?.session_count ?? 0;
@@ -141,10 +118,10 @@ export function ProgressScreen() {
             Loading…
           </div>
         )}
-        {error && (
+        {isError && (
           <div style={{ padding: "10px 12px", background: "var(--heart-bg)", border: "1px solid var(--heart)", borderRadius: "var(--r-sm)", color: "var(--heart)", fontSize: 12, display: "flex", justifyContent: "space-between" }}>
-            {error}
-            <button onClick={fetchProgress} style={{ color: "var(--heart)", fontWeight: 700, fontSize: 11 }}>Retry</button>
+            Could not load your progress. Please try again.
+            <button onClick={() => refetch()} style={{ color: "var(--heart)", fontWeight: 700, fontSize: 11 }}>Retry</button>
           </div>
         )}
 
