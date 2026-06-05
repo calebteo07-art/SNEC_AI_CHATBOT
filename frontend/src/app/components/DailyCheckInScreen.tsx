@@ -23,16 +23,23 @@ export function DailyCheckInScreen() {
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  /* Load status + question (unchanged) */
+  const handleSkip = () => {
+    setCheckInDone(true);
+    navigate("/dashboard");
+  };
+
+  /* Load status + question */
   useEffect(() => {
     (async () => {
       try {
         const statusRes = await fetch("/api/checkin/status", { credentials: "include" });
+        if (!statusRes.ok) throw new Error("status_failed");
         const status = await statusRes.json();
         setStreak(status.streak ?? 0);
         setWeakTopic(status.weak_topic ?? null);
         syncStreakFromBackend(status.streak ?? 0);
         const qRes = await fetch("/api/checkin/question", { credentials: "include" });
+        if (!qRes.ok) throw new Error("question_failed");
         const q = await qRes.json();
         setQuestion(q);
         setPhase("question");
@@ -147,6 +154,12 @@ export function DailyCheckInScreen() {
                       Checking…
                     </span>
                   ) : "Submit Answer →"}
+                </button>
+                <button
+                  onClick={handleSkip}
+                  style={{ width: "100%", marginTop: 10, padding: "8px 0", background: "none", border: "none", fontSize: 12, color: "var(--faint)", cursor: "pointer", letterSpacing: "0.04em" }}
+                >
+                  Skip for today
                 </button>
               </motion.div>
             )}

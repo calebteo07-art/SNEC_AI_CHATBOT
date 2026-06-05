@@ -45,14 +45,12 @@ class ChatMessage(BaseModel):
     content: str = Field(max_length=8000)
 
 class CaseChatRequest(BaseModel):
-    student_id: str
     messages: list[ChatMessage] = Field(max_length=100)
 
 class CaseChatResponse(BaseModel):
     response: str
 
 class CaseSubmitRequest(BaseModel):
-    student_id: str
     messages: list[ChatMessage] = Field(max_length=100)
     diagnosis: str
     management_plan: str

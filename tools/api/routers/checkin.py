@@ -1,6 +1,7 @@
 """Check-in endpoints."""
 import json
 import secrets
+from datetime import date as _date
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -12,6 +13,9 @@ from tools.shared.gemini_client import ask, MOCK_MODE, MODEL_PRO
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
+
+# Per-student daily question cache: student_id -> (date_iso, CheckinQuestionResponse)
+_question_cache: dict[str, tuple[str, "CheckinQuestionResponse"]] = {}
 
 
 # ── Check-in models ────────────────────────────────────────────────────────
@@ -26,7 +30,6 @@ class CheckinQuestionResponse(BaseModel):
     topic: str
 
 class CheckinAnswerRequest(BaseModel):
-    student_id: str
     question: str
     answer: str
     topic: str
@@ -145,6 +148,13 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
 async def checkin_question(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
+
+    # Return cached question if already generated today (saves API calls, keeps question stable)
+    today = _date.today().isoformat()
+    cached = _question_cache.get(student_id)
+    if cached and cached[0] == today:
+        return cached[1]
+
     try:
         profile = await get_profile(student_id)
         weak = profile.get("weak_topics", []) or []
@@ -160,7 +170,10 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
     question_style = secrets.choice(_CHECKIN_QUESTION_STYLES)
 
     role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
-    ctx_block = await _student_context_block(student_id)
+    try:
+        ctx_block = await _student_context_block(student_id)
+    except Exception:
+        ctx_block = ""
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor running a 60-second warm-up check-in. "
@@ -180,7 +193,9 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
         if "quota_exceeded" in str(exc):
             raise HTTPException(status_code=503, detail="quota_exceeded")
         raise
-    return CheckinQuestionResponse(question=question.strip(), topic=topic)
+    result = CheckinQuestionResponse(question=question.strip(), topic=topic)
+    _question_cache[student_id] = (today, result)
+    return result
 
 
 @router.post("/api/checkin/answer", response_model=CheckinAnswerResponse)
