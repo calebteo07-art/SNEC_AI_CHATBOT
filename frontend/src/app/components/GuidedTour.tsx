@@ -2,10 +2,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 
-const STEP_DURATION = 3500;
+const STEP_DURATION = 6000;
 const TOUR_KEY = "eyebot_tour_seen";
-const TOOLTIP_W = 280;
-const TOOLTIP_H = 150;
+const TOOLTIP_W = 340;
+const TOOLTIP_H = 170;
 const GAP = 20;
 const EDGE = 16;
 
@@ -217,7 +217,7 @@ export function GuidedTour() {
 
           <h3
             style={{
-              fontSize: "0.95rem",
+              fontSize: "1.05rem",
               fontWeight: 600,
               margin: 0,
               color: "var(--text)",
@@ -228,7 +228,7 @@ export function GuidedTour() {
           </h3>
           <p
             style={{
-              fontSize: "0.82rem",
+              fontSize: "0.88rem",
               color: "var(--text)",
               opacity: 0.65,
               margin: "6px 0 0",
