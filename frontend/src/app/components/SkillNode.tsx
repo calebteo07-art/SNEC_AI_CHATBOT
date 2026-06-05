@@ -1,3 +1,4 @@
+import type React from "react";
 import { motion } from "motion/react";
 import type { TopicNode, NodeState } from "../utils/curriculum";
 import { springs } from "../utils/springs";
@@ -13,6 +14,8 @@ interface SkillNodeProps {
   onClick: () => void;
   showStartBtn?: boolean;
   onStart?: () => void;
+  tabIndex?: number;
+  nodeRef?: React.Ref<HTMLDivElement>;
 }
 
 function Stars({ count }: { count: number }) {
@@ -30,7 +33,7 @@ function Stars({ count }: { count: number }) {
   );
 }
 
-export function SkillNode({ topic, state, stars, x, y, onClick, showStartBtn, onStart }: SkillNodeProps) {
+export function SkillNode({ topic, state, stars, x, y, onClick, showStartBtn, onStart, tabIndex, nodeRef }: SkillNodeProps) {
   const tokens = trackTokens(topic.track);
   const isLocked = state === "locked";
   const isActive = state === "active";
@@ -54,6 +57,8 @@ export function SkillNode({ topic, state, stars, x, y, onClick, showStartBtn, on
       role={isLocked ? undefined : "button"}
       aria-label={`${topic.label} — ${state}`}
       aria-disabled={isLocked}
+      tabIndex={isLocked ? -1 : (tabIndex ?? 0)}
+      ref={nodeRef}
     >
       <motion.div
         style={{ position: "relative" }}
