@@ -30,3 +30,12 @@ services:
       # SMTP_EMAIL
       # SMTP_APP_PASSWORD
       # SUPER_ADMIN_EMAIL
+
+  - type: cron
+    name: eyebot-keep-alive
+    runtime: python
+    region: singapore
+    plan: free
+    schedule: "*/10 * * * *"
+    buildCommand: echo ""
+    startCommand: python -c "import urllib.request; urllib.request.urlopen('https://eyebot.onrender.com/health')"

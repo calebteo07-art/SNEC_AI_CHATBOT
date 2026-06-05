@@ -31,38 +31,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Validate session cookie with backend on every app load
-    fetch("/api/auth/me", { credentials: "include" })
-      .then((res) => {
+    let cancelled = false;
+
+    const check = async (attempt = 0): Promise<void> => {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (cancelled) return;
         if (!res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then(() => {
         const stored = sessionStorage.getItem("eyebot_user");
         const checkInStatus = localStorage.getItem("eyebot_checkin_date") === new Date().toDateString();
         const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
         const storedStudentRole = (sessionStorage.getItem("eyebot_student_role") ?? "") as "OA" | "OT" | "PSA" | "";
-
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            setUser({
-              ...parsed,
-              mustChangePassword: mustChange,
-              studentRole: storedStudentRole,
-            });
+            setUser({ ...parsed, mustChangePassword: mustChange, studentRole: storedStudentRole });
             setIsCheckInDone(checkInStatus);
           } catch {
             sessionStorage.clear();
           }
         }
-      })
-      .catch(() => {
-        sessionStorage.clear();
-      })
-      .finally(() => {
         setLoading(false);
-      });
+      } catch {
+        if (cancelled) return;
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          return check(attempt + 1);
+        }
+        sessionStorage.clear();
+        setLoading(false);
+      }
+    };
+
+    check();
+    return () => { cancelled = true; };
   }, []);
 
   const login = (userData: User) => {
