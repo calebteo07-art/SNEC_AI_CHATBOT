@@ -6,7 +6,7 @@ structured fake responses so all features can be built and tested without an API
 Switch to live mode by adding GEMINI_API_KEY to .env.
 
 Usage (from other tools):
-    from tools.shared.gemini_client import ask, ask_with_image
+    from tools.shared.gemini_client import ask
 
 Self-test:
     python tools/shared/gemini_client.py
@@ -201,50 +201,6 @@ def ask(
     except Exception as exc:
         _quota_or_raise(exc)
 
-
-def ask_with_image(
-    system_prompt: str,
-    messages: list[dict],
-    image_path: str | Path,
-    max_tokens: int = 1024,
-    feature: str = "image",
-) -> str:
-    """
-    Send the last user message with an image attachment to Gemini.
-
-    Vision calls are single-turn: only the last user message in `messages` is
-    sent alongside the image. Prior conversation turns are ignored.
-
-    Args:
-        system_prompt: The system prompt.
-        messages:      Conversation history; only the last user message is used.
-        image_path:    Path to a local image file (JPG, PNG, GIF, WEBP).
-        max_tokens:    Maximum tokens in the response.
-        feature:       Feature name for mock routing.
-
-    Returns:
-        Response text as a string.
-    """
-    if MOCK_MODE:
-        return _mock_response(feature)
-
-    import PIL.Image
-    from google import genai as _genai
-
-    last_user_text = next(
-        (m["content"] for m in reversed(messages) if m["role"] == "user"), ""
-    )
-    img = PIL.Image.open(Path(image_path))
-
-    response = _client.models.generate_content(
-        model=MODEL,
-        config=_genai.types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            max_output_tokens=max_tokens,
-        ),
-        contents=[last_user_text, img],
-    )
-    return response.text
 
 
 if __name__ == "__main__":
