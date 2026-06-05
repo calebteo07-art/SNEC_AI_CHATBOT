@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field
 
 from tools.api.shared import limiter, tutor_system
 from tools.chatbot.log_session import log_session
-from tools.flashcards.generate_cards import generate_and_return_cards
 from tools.kb.search import search as _rag_search, format_context as _rag_format
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -74,6 +73,7 @@ class Flashcard(BaseModel):
 class EndSessionResponse(BaseModel):
     session_id: str
     cards: list[Flashcard]
+    cards_pending: bool = False   # True when card generation is running in background
     mock_mode: bool
 
 
@@ -145,18 +145,40 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
         _role = (await get_profile(student_id)).get("role", "")
     except Exception:
         _role = ""
+
+    # Fire card generation as a background Celery task — returns immediately
+    cards_pending = False
     try:
-        cards = await generate_and_return_cards(
+        from tools.workers.tasks.card_generation import generate_cards_bg
+        generate_cards_bg.delay(
             student_id=student_id,
             session_id=session_id,
             messages=messages,
             role=_role,
         )
-    except RuntimeError as exc:
-        if "quota_exceeded" in str(exc):
-            cards = []
-        else:
-            raise
+        cards_pending = True
+    except Exception:
+        # Celery unavailable (no Redis) — fall back to synchronous generation
+        from tools.flashcards.generate_cards import generate_and_return_cards
+        try:
+            _cards = await generate_and_return_cards(
+                student_id=student_id,
+                session_id=session_id,
+                messages=messages,
+                role=_role,
+            )
+        except Exception:
+            _cards = []
+        try:
+            await update_profile(student_id)
+        except Exception:
+            pass
+        return EndSessionResponse(
+            session_id=session_id,
+            cards=[Flashcard(**c) for c in _cards],
+            cards_pending=False,
+            mock_mode=MOCK_MODE,
+        )
 
     try:
         await update_profile(student_id)
@@ -165,7 +187,8 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
 
     return EndSessionResponse(
         session_id=session_id,
-        cards=[Flashcard(**c) for c in cards],
+        cards=[],
+        cards_pending=cards_pending,
         mock_mode=MOCK_MODE,
     )
 

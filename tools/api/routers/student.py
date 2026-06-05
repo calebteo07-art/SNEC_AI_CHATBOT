@@ -161,16 +161,24 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
         score = 5
         feedback = raw[:300]
 
-    # Apply SM-2 to Supabase card if card_id is present (Supabase-backed cards only)
+    # Persist SM-2 schedule update in background (non-critical — never blocks response)
     if body.card_id:
         quality = round(score / 2)  # map 0-10 → 0-5 for SM-2
-        new_interval, new_ease, new_reps = next_review(
-            quality, body.repetitions, body.easiness, body.interval_days
-        )
         try:
-            await update_card_sm2(body.card_id, new_interval, new_ease, new_reps, due_date(new_interval))
+            from tools.workers.tasks.sm2_review import process_review
+            process_review.delay(
+                body.card_id, quality,
+                body.repetitions, body.easiness, body.interval_days,
+            )
         except Exception:
-            pass  # SM-2 update is non-critical — never fail the response
+            # Celery unavailable — fall back to synchronous write
+            try:
+                new_interval, new_ease, new_reps = next_review(
+                    quality, body.repetitions, body.easiness, body.interval_days
+                )
+                await update_card_sm2(body.card_id, new_interval, new_ease, new_reps, due_date(new_interval))
+            except Exception:
+                pass
 
     return FlashcardCheckResponse(feedback=feedback, score=score, mock_mode=MOCK_MODE)
 
