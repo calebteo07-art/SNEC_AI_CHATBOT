@@ -10,7 +10,7 @@ const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
 EyeBot collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
 
 const ROLES = [
-  { id: "OA" as const, label: "OA", title: "Ophthalmic Auxiliary",       desc: "Patient flow, history taking, IOP measurement, dilation, pre/post-operative care." },
+  { id: "OA" as const, label: "OA", title: "Ophthalmic Assistant",       desc: "Patient flow, history taking, IOP measurement, dilation, pre/post-operative care." },
   { id: "OT" as const, label: "OT", title: "Ophthalmic Technician",      desc: "A-scan biometry, HVF, OCT imaging, corneal topography, endothelial cell count." },
   { id: "PSA"as const, label: "PSA",title: "Patient Service Associate",  desc: "NCT, LogMAR visual acuity, eye drop instillation, PFAER and fall risk assessment." },
 ];

@@ -48,7 +48,7 @@ The ophthalmology knowledge base below is your reference. Draw on it naturally, 
 
 _ROLE_TUTOR_CONTEXT = {
     "OA": (
-        "STUDENT ROLE: Ophthalmic Auxiliary (OA). "
+        "STUDENT ROLE: Ophthalmic Assistant (OA). "
         "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
         "pre-operative and post-operative care, patient education and counselling."
     ),
@@ -79,7 +79,7 @@ def _student_context_block(student_id: str) -> str:
     from tools.profile.get_profile import get_profile
 
     _ROLE_NAMES = {
-        "OA": "Ophthalmic Auxiliary",
+        "OA": "Ophthalmic Assistant",
         "OT": "Ophthalmic Technician",
         "PSA": "Patient Service Associate",
     }

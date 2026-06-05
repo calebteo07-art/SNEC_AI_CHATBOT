@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
@@ -13,7 +12,7 @@ const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = {
 };
 
 const TRACK_LABELS: Record<Track, string> = {
-  OA: "Ophthalmic Auxiliary",
+  OA: "Ophthalmic Assistant",
   OT: "Ophthalmic Technician",
   PSA: "Patient Service Assoc.",
 };
@@ -73,28 +72,10 @@ function StarRow({ stars, track }: { stars: number; track: Track }) {
 
 export function DashboardScreen() {
   const navigate = useNavigate();
-  const { user, setStudentRole, setMustChangePassword } = useAuth();
+  const { user, setMustChangePassword } = useAuth();
 
-  const [activeTrack, setActiveTrack] = useState<Track>((user?.studentRole as Track) || "OA");
+  const activeTrack = (user?.studentRole as Track) || "OA";
   const { data: progress } = useProgress();
-  const [roleChanging, setRoleChanging] = useState(false);
-
-  const handleTrackChange = async (track: Track) => {
-    setActiveTrack(track);
-    if (!user?.studentId || track === user.studentRole || roleChanging) return;
-    setRoleChanging(true);
-    try {
-      const res = await fetch("/api/profile/role", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ role: track }),
-      });
-      if (res.ok) setStudentRole(track);
-    } finally {
-      setRoleChanging(false);
-    }
-  };
 
   const completedIds = (progress?.topic_performance ?? [])
     .filter(p => p.score >= 0.65)
@@ -132,17 +113,11 @@ export function DashboardScreen() {
         <ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} />
       )}
 
-      {/* Track tabs */}
+      {/* Role header — non-interactive, locked to assigned track */}
       <div className="curriculum-tabs">
-        {(["OA", "OT", "PSA"] as Track[]).map(t => (
-          <button
-            key={t}
-            className={`curriculum-tab${activeTrack === t ? " active" : ""}`}
-            onClick={() => handleTrackChange(t)}
-          >
-            {TRACK_LABELS[t]}
-          </button>
-        ))}
+        <div className="curriculum-tab active" style={{ pointerEvents: "none" }}>
+          {TRACK_LABELS[activeTrack]}
+        </div>
         <div style={{ flex: 1 }} />
         <div style={{
           display: "flex", alignItems: "center", gap: 6, padding: "0 4px",

@@ -10,7 +10,7 @@ interface TrackSidebarProps {
 }
 
 const TRACKS: Track[] = ["OA", "OT", "PSA"];
-const TRACK_LABELS: Record<Track, string> = { OA: "Ophthalmic Auxiliary", OT: "Ophthalmic Technician", PSA: "Patient Service Associate" };
+const TRACK_LABELS: Record<Track, string> = { OA: "Ophthalmic Assistant", OT: "Ophthalmic Technician", PSA: "Patient Service Associate" };
 const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 export function TrackSidebar({ activeTrack, onTrackChange, weekHits, sessionCount, avgScore }: TrackSidebarProps) {

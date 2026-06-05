@@ -24,7 +24,7 @@ _ROLE_QUERIES = {
 
 _ROLE_FOCUS = {
     "OA": (
-        "Ophthalmic Auxiliary (OA). Cases should involve: patient triage, history taking, "
+        "Ophthalmic Assistant (OA). Cases should involve: patient triage, history taking, "
         "IOP measurement, pupil dilation, pre-operative preparation, post-operative care, "
         "patient education. Examination and investigation steps should reflect OA scope of practice."
     ),

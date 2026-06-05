@@ -98,7 +98,7 @@ _CHECKIN_QUESTION_STYLES = [
 
 _ROLE_TUTOR_CONTEXT = {
     "OA": (
-        "STUDENT ROLE: Ophthalmic Auxiliary (OA). "
+        "STUDENT ROLE: Ophthalmic Assistant (OA). "
         "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
         "pre-operative and post-operative care, patient education and counselling."
     ),

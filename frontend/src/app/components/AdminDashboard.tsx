@@ -524,7 +524,7 @@ export function AdminDashboard() {
                     <label className="admin-field-label">Role</label>
                     <select value={newRole} onChange={e => setNewRole(e.target.value)} className="admin-input">
                       <option value="">Select role…</option>
-                      <option value="OA">Ophthalmic Auxiliary (OA)</option>
+                      <option value="OA">Ophthalmic Assistant (OA)</option>
                       <option value="OT">Ophthalmic Technician (OT)</option>
                       <option value="PSA">Patient Service Associate (PSA)</option>
                     </select>

@@ -16,7 +16,7 @@ function roleBadgeClass(role: string): string {
 function roleLabel(role: string, studentRole: string): string {
   if (role === "admin") return "Administrator";
   if (role === "supervisor") return "Supervisor";
-  if (studentRole === "OA") return "Ophthalmic Auxiliary";
+  if (studentRole === "OA") return "Ophthalmic Assistant";
   if (studentRole === "OT") return "Ophthalmic Technician";
   if (studentRole === "PSA") return "Patient Service Associate";
   return role;

@@ -11,13 +11,13 @@ from tools.flashcards.sm2 import next_review, due_date
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
-from tools.shared.jwt_utils import get_current_user, CurrentUser
+from tools.shared.jwt_utils import get_current_user, require_supervisor, CurrentUser
 
 router = APIRouter()
 
 _ROLE_TUTOR_CONTEXT = {
     "OA": (
-        "STUDENT ROLE: Ophthalmic Auxiliary (OA). "
+        "STUDENT ROLE: Ophthalmic Assistant (OA). "
         "Focus teaching on: patient history taking, IOP measurement, pupil dilation, "
         "pre-operative and post-operative care, patient education and counselling."
     ),
@@ -101,7 +101,7 @@ async def sync_gamification(
 # ── Profile role update ────────────────────────────────────────────────────
 
 @router.patch("/api/profile/role")
-async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(require_supervisor)):
     student_id = current_user["sub"]  # identity from JWT
     role = body.role.strip().upper()
     if role not in ("OA", "OT", "PSA"):
