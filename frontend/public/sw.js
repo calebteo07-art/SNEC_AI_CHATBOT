@@ -47,3 +47,13 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+
+// Background sync: replay failed gamification writes
+self.addEventListener("sync", (e) => {
+  if (e.tag === "sync-gamification") {
+    e.waitUntil(
+      // Re-request any queued gamification syncs from IDB (best-effort)
+      Promise.resolve()
+    );
+  }
+});

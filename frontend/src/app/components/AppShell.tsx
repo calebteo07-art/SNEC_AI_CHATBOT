@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
 
 /* ── Nav definitions ──────────────────────────────────────── */
@@ -24,29 +25,23 @@ export function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { data: progress } = useProgress();
 
-  const [xp, setXp]         = useState(0);
-  const [streak, setStreak]  = useState(0);
-  const [hearts, setHearts]  = useState(5);
-  const [level, setLevel]    = useState(1);
+  const xp     = progress?.xp     ?? 0;
+  const streak = progress?.streak  ?? 0;
+  const hearts = progress?.hearts  ?? 5;
+  const level  = progress?.level   ?? 1;
 
+  // Keep localStorage in sync for backward compat with gamification.ts helpers
   useEffect(() => {
-    fetch("/api/progress", { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        if (!d) return;
-        setStreak(d.streak ?? 0);
-        setXp(d.xp ?? 0);
-        setHearts(d.hearts ?? 5);
-        setLevel(d.level ?? 1);
-        syncStreakFromBackend(d.streak ?? 0);
-        syncHeartsFromBackend(d.hearts ?? 5);
-      })
-      .catch(() => {});
-  }, [pathname]);
+    if (!progress) return;
+    syncStreakFromBackend(progress.streak);
+    syncHeartsFromBackend(progress.hearts);
+  }, [progress]);
 
   // Suppress unused warning — logout available via ProfileScreen
   void logout;
+  void pathname; // TanStack Query refetches automatically; pathname no longer drives it
 
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
