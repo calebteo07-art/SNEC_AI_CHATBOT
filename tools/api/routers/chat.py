@@ -8,12 +8,15 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from tools.ai.guardrails.input_filter import filter_input
+from tools.ai.guardrails.output_validator import validate_output
 from tools.api.shared import limiter, tutor_system
 from tools.chatbot.log_session import log_session
 from tools.kb.search import search as _rag_search, format_context as _rag_format
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
+from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
@@ -94,12 +97,29 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
         profile = {}
         role = ""
 
+    # ── Stage 1: Input filter (regex + keyword + optional LLM) ───────────────
+    try:
+        guard = await filter_input(last_user_msg, student_role=role)
+        if not guard["safe"]:
+            audit_log("input_blocked", student_id=student_id, feature="guardrail",
+                      detail=f"reason={guard['reason']} query={last_user_msg[:80]!r}")
+
+            def _blocked_stream():
+                msg = "I'm here to help with ophthalmology and eye care education. Please ask a clinical question."
+                yield f"data: {json.dumps({'text': msg})}\n\n"
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(_blocked_stream(), media_type="text/event-stream")
+    except Exception:
+        pass  # Guardrail errors must never block legitimate queries
+
     ctx_block = _student_context_block(student_id)
     system_prompt = tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt
 
     def sse_stream():
+        full_response: list[str] = []
         try:
             for chunk in stream_ask(
                 system_prompt=system_prompt,
@@ -108,6 +128,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
                 feature="chatbot",
                 model=MODEL,
             ):
+                full_response.append(chunk)
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
         except RuntimeError as exc:
             if "quota_exceeded" in str(exc):
@@ -121,6 +142,22 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
             print(f"[chat-error] {type(_exc).__name__}: {_exc}", flush=True)
             _err_msg = "I'm having trouble reaching the service right now — please try again in a moment."
             yield f"data: {json.dumps({'text': _err_msg})}\n\n"
+
+        # ── Stage 2: Output validation (runs after stream completes) ────────
+        try:
+            result = validate_output("".join(full_response))
+            if result["issues"]:
+                audit_log("output_flagged", student_id=student_id, feature="guardrail",
+                          detail=str(result["issues"]))
+            # Append disclaimer as a trailing SSE chunk if one was added
+            full_text = "".join(full_response)
+            validated = result["response"]
+            if len(validated) > len(full_text):
+                disclaimer = validated[len(full_text):]
+                yield f"data: {json.dumps({'text': disclaimer})}\n\n"
+        except Exception:
+            pass
+
         yield "data: [DONE]\n\n"
 
     return StreamingResponse(sse_stream(), media_type="text/event-stream")

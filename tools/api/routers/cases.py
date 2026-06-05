@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from tools.ai.guardrails.input_filter import filter_input
 from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM
 from tools.cases.evaluate_response import evaluate_case
 from tools.cases.generate_case import generate_cases as _generate_cases
@@ -12,8 +13,8 @@ from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.log_case_completion import log_case_completion
 from tools.chatbot.log_session import log_session
-from tools.flashcards.generate_cards import generate_and_return_cards
 from tools.profile.get_profile import get_profile
+from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
@@ -329,6 +330,22 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
+    # Input filter — prevents prompt injection via the case chat interface
+    last_msg = next((m.content for m in reversed(body.messages) if m.role == "user"), "")
+    try:
+        guard = await filter_input(last_msg)
+        if not guard["safe"]:
+            audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_case",
+                      detail=f"reason={guard['reason']}")
+
+            def _blocked():
+                yield f"data: {json.dumps({'text': 'Please keep the conversation focused on this clinical case.'})}\n\n"
+                yield "data: [DONE]\n\n"
+
+            return StreamingResponse(_blocked(), media_type="text/event-stream")
+    except Exception:
+        pass
+
     def sse_stream():
         try:
             for chunk in stream_ask(
@@ -384,12 +401,20 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         _case_role = (await _get_profile(student_id)).get("role", "")
     except Exception:
         _case_role = ""
-    cards = generate_and_return_cards(
-        student_id=student_id,
-        session_id=session_id,
-        messages=messages,
-        role=_case_role,
-    )
+
+    # Fire card generation as a background Celery task
+    cards: list = []
+    try:
+        from tools.workers.tasks.card_generation import generate_cards_bg
+        generate_cards_bg.delay(
+            student_id=student_id,
+            session_id=session_id,
+            messages=messages,
+            role=_case_role,
+        )
+    except Exception:
+        # Celery unavailable — skip card generation (case submit should never fail for this)
+        pass
 
     # Update profile: retention score = total_score / 40
     try:
