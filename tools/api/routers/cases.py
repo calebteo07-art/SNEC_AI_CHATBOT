@@ -446,7 +446,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     debrief_text: str | None = None
     try:
         from tools.api.shared import _student_context_block
-        _debrief_ctx = _student_context_block(student_id)
+        _debrief_ctx = await _student_context_block(student_id)
         debrief_prompt = (
             (_debrief_ctx + "\n\n" if _debrief_ctx else "")
             + "You are an ophthalmology clinical educator reviewing a student's case performance. "

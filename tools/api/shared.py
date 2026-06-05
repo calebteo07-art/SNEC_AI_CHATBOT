@@ -73,9 +73,8 @@ def tutor_system(role: str) -> str:
     return _TUTOR_BASE
 
 
-def _student_context_block(student_id: str) -> str:
+async def _student_context_block(student_id: str) -> str:
     """Build a rich student profile block for injection into AI system prompts."""
-    import json as _json
     from tools.profile.get_profile import get_profile
 
     _ROLE_NAMES = {
@@ -84,22 +83,19 @@ def _student_context_block(student_id: str) -> str:
         "PSA": "Patient Service Associate",
     }
     try:
-        profile = get_profile(student_id)
+        profile = await get_profile(student_id)
     except Exception:
         return ""
 
     role = profile.get("role", "").upper()
     role_desc = _ROLE_NAMES.get(role, role)
-    session_count = int(profile.get("session_count", "0") or "0")
-    streak = int(profile.get("streak", "0") or "0")
+    session_count = int(profile.get("session_count") or 0)
+    streak = int(profile.get("streak") or 0)
     velocity = profile.get("learning_velocity", "stable")
 
-    try:
-        scores = _json.loads(profile.get("retention_scores", "{}") or "{}")
-        weak = _json.loads(profile.get("weak_topics", "[]") or "[]")
-        findings = _json.loads(profile.get("missed_findings", "[]") or "[]")
-    except Exception:
-        scores, weak, findings = {}, [], []
+    scores = profile.get("retention_scores") or {}
+    weak = profile.get("weak_topics") or []
+    findings = profile.get("missed_findings") or []
 
     lines = ["## Student Profile (use to personalise your response)"]
     if role_desc:

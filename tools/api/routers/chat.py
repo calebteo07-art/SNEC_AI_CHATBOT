@@ -113,7 +113,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     except Exception:
         pass  # Guardrail errors must never block legitimate queries
 
-    ctx_block = _student_context_block(student_id)
+    ctx_block = await _student_context_block(student_id)
     system_prompt = tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt

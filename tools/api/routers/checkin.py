@@ -160,7 +160,7 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
     question_style = secrets.choice(_CHECKIN_QUESTION_STYLES)
 
     role_line = _ROLE_TUTOR_CONTEXT.get(role.upper(), "")
-    ctx_block = _student_context_block(student_id)
+    ctx_block = await _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor running a 60-second warm-up check-in. "
@@ -188,7 +188,7 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
 async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
-    ctx_block = _student_context_block(student_id)
+    ctx_block = await _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "

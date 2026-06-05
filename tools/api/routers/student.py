@@ -123,7 +123,7 @@ async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depen
 async def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
-    ctx_block = _student_context_block(student_id)
+    ctx_block = await _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor evaluating a student's active recall attempt. "
