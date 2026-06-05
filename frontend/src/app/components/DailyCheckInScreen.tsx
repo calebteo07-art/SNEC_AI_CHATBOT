@@ -87,7 +87,7 @@ export function DailyCheckInScreen() {
               <circle cx="14" cy="14" r="2" fill="rgba(6,13,24,0.8)" />
             </svg>
           </div>
-          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 6 }}>Daily Calibration</p>
+          <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 6 }}>Daily Check-In</p>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em", lineHeight: 1.1 }}>Today's question</h1>
           {streak > 0 && (
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12, padding: "5px 14px", borderRadius: "var(--r-full)", background: "var(--streak-bg)", border: "1px solid var(--streak)", fontSize: 12, fontWeight: 700, color: "var(--streak)" }}>

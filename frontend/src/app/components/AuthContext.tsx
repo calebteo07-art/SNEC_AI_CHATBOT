@@ -25,7 +25,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isCheckInDone, setIsCheckInDone] = useState(false);
+  const [isCheckInDone, setIsCheckInDone] = useState(
+    () => localStorage.getItem("eyebot_checkin_date") === new Date().toDateString()
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       .then(() => {
         const stored = sessionStorage.getItem("eyebot_user");
-        const checkInStatus = sessionStorage.getItem("eyebot_checkin_done") === "true";
+        const checkInStatus = localStorage.getItem("eyebot_checkin_date") === new Date().toDateString();
         const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
         const storedStudentRole = (sessionStorage.getItem("eyebot_student_role") ?? "") as "OA" | "OT" | "PSA" | "";
 
@@ -100,7 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
-    sessionStorage.setItem("eyebot_checkin_done", done ? "true" : "false");
+    if (done) {
+      localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+    } else {
+      localStorage.removeItem("eyebot_checkin_date");
+    }
   };
 
   return (

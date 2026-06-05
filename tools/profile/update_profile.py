@@ -51,20 +51,23 @@ async def update_profile(
 
     today = date.today()
 
-    # Streak
-    last_active = profile.get("last_active")
-    try:
-        last = date.fromisoformat(str(last_active)) if last_active else None
-    except (ValueError, TypeError):
-        last = None
-
+    # Streak — only recalculate when the student completes the daily check-in
     current_streak = int(profile.get("streak") or 0)
-    if last is None or last == today:
-        new_streak = max(current_streak, 1)
-    elif last == today - timedelta(days=1):
-        new_streak = current_streak + 1
-    else:
-        new_streak = 1
+    new_streak = current_streak
+
+    if checkin_done:
+        last_active = profile.get("last_active")
+        try:
+            last = date.fromisoformat(str(last_active)) if last_active else None
+        except (ValueError, TypeError):
+            last = None
+
+        if last is None or last == today:
+            new_streak = max(current_streak, 1)
+        elif last == today - timedelta(days=1):
+            new_streak = current_streak + 1
+        else:
+            new_streak = 1
 
     # Retention scores — already a dict from Supabase JSONB
     retention = dict(profile.get("retention_scores") or {})
@@ -96,7 +99,6 @@ async def update_profile(
 
     updates: dict = {
         "session_count": session_count,
-        "streak": new_streak,
         "last_active": today.isoformat(),
         "retention_scores": retention,
         "weak_topics": weak_topics,
@@ -104,6 +106,7 @@ async def update_profile(
         "learning_velocity": velocity,
     }
     if checkin_done:
+        updates["streak"] = new_streak
         updates["checkin_done_today"] = True
     if role:
         updates["role"] = role
@@ -118,7 +121,7 @@ async def update_profile(
     if xp_delta != 0 or hearts_used != 0:
         try:
             current_xp = int(profile.get("xp") or 0)
-            streak_bonus = 50 if new_streak > current_streak else 0
+            streak_bonus = 50 if (checkin_done and new_streak > current_streak) else 0
             new_xp = max(0, current_xp + xp_delta + streak_bonus)
 
             last_reset_raw = profile.get("hearts_reset_date")
