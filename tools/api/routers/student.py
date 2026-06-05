@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, _case_cache
+from tools.flashcards.flashcard_store import get_due_cards, insert_cards, update_card_sm2
 from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
+from tools.flashcards.sm2 import next_review, due_date
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
@@ -41,6 +43,10 @@ class FlashcardCheckRequest(BaseModel):
     question: str
     student_answer: str
     correct_answer: str
+    card_id: str | None = None          # Supabase UUID — enables SM-2 update when present
+    repetitions: int = 0                # current card repetition count
+    easiness: float = 2.5               # current easiness factor
+    interval_days: int = 0              # current interval
 
 class FlashcardCheckResponse(BaseModel):
     feedback: str
@@ -149,13 +155,24 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
         text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
     try:
         parsed = json.loads(text)
-        return FlashcardCheckResponse(
-            feedback=parsed.get("feedback", raw[:300]),
-            score=int(parsed.get("score", 5)),
-            mock_mode=MOCK_MODE,
-        )
+        score = int(parsed.get("score", 5))
+        feedback = parsed.get("feedback", raw[:300])
     except Exception:
-        return FlashcardCheckResponse(feedback=raw[:300], score=5, mock_mode=MOCK_MODE)
+        score = 5
+        feedback = raw[:300]
+
+    # Apply SM-2 to Supabase card if card_id is present (Supabase-backed cards only)
+    if body.card_id:
+        quality = round(score / 2)  # map 0-10 → 0-5 for SM-2
+        new_interval, new_ease, new_reps = next_review(
+            quality, body.repetitions, body.easiness, body.interval_days
+        )
+        try:
+            await update_card_sm2(body.card_id, new_interval, new_ease, new_reps, due_date(new_interval))
+        except Exception:
+            pass  # SM-2 update is non-critical — never fail the response
+
+    return FlashcardCheckResponse(feedback=feedback, score=score, mock_mode=MOCK_MODE)
 
 
 # ── On-demand flashcard generation (RAG-backed) ────────────────────────────
@@ -172,15 +189,25 @@ async def flashcards_generate(request: Request, current_user: CurrentUser = Depe
         weak_topics = profile.get("weak_topics", []) or []
     except Exception:
         pass
+
+    # Serve due cards from Supabase first
     try:
-        cards = _gen_cards_rag(student_id=student_id, role=role, weak_topics=weak_topics, n=6)
-    except RuntimeError as exc:
-        if "quota_exceeded" in str(exc):
-            raise HTTPException(status_code=503, detail="quota_exceeded")
-        raise
+        cards = await get_due_cards(student_id, limit=6)
     except Exception:
-        raise HTTPException(status_code=500, detail="Could not generate flashcards. Please try again.")
-    return [Flashcard(**c) for c in cards]
+        cards = []
+
+    # No due cards — generate fresh ones from RAG
+    if not cards:
+        try:
+            cards = await _gen_cards_rag(student_id=student_id, role=role, weak_topics=weak_topics, n=6)
+        except RuntimeError as exc:
+            if "quota_exceeded" in str(exc):
+                raise HTTPException(status_code=503, detail="quota_exceeded")
+            raise
+        except Exception:
+            raise HTTPException(status_code=500, detail="Could not generate flashcards. Please try again.")
+
+    return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c}) for c in cards]
 
 
 # ── Study suggestion ───────────────────────────────────────────────────────

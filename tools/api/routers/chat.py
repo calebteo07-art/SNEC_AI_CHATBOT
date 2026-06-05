@@ -146,7 +146,7 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
     except Exception:
         _role = ""
     try:
-        cards = generate_and_return_cards(
+        cards = await generate_and_return_cards(
             student_id=student_id,
             session_id=session_id,
             messages=messages,
