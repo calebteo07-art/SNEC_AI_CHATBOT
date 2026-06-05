@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { feedbackBarVariant } from "../utils/springs";
 
 interface FeedbackBarProps {
   correct: boolean;
@@ -10,10 +11,10 @@ export function FeedbackBar({ correct, explanation, onContinue }: FeedbackBarPro
   return (
     <motion.div
       className={`feedback-bar ${correct ? "correct" : "wrong"}`}
-      initial={{ y: "100%" }}
-      animate={{ y: 0 }}
-      exit={{ y: "100%" }}
-      transition={{ type: "spring", damping: 26, stiffness: 300 }}
+      variants={feedbackBarVariant}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
     >
       <div className="feedback-content">
         <div className="feedback-label">

@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { tooltipVariant } from "../utils/springs";
 import type { TopicNode, NodeState } from "../utils/curriculum";
 import { trackTokens, topicHeroImage } from "../utils/trackColors";
 import { TopicIcon } from "../utils/topicIcons";
@@ -20,10 +21,10 @@ export function NodeTooltip({ topic, state, stars, onClose, onLearn, onSimulate,
       {topic && (
         <motion.div
           className="node-tooltip"
-          initial={{ opacity: 0, scale: 0.9, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 10 }}
-          transition={{ type: "spring", damping: 22, stiffness: 300 }}
+          variants={tooltipVariant}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
           aria-label={`${topic.label} lesson options`}
           role="dialog"
         >

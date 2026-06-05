@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import type { TopicNode, NodeState } from "../utils/curriculum";
+import { springs } from "../utils/springs";
 import { trackTokens } from "../utils/trackColors";
 import { TopicIcon, LockIcon } from "../utils/topicIcons";
 
@@ -58,8 +59,8 @@ export function SkillNode({ topic, state, stars, x, y, onClick, showStartBtn, on
         style={{ position: "relative" }}
         animate={isActive ? { y: [0, -5, 0] } : {}}
         transition={isActive ? { duration: 2.8, repeat: Infinity, ease: "easeInOut" } : {}}
-        whileHover={isLocked ? {} : { scale: 1.07, transition: { duration: 0.15 } }}
-        whileTap={isLocked ? {} : { scale: 0.94, transition: { duration: 0.08 } }}
+        whileHover={isLocked ? {} : { scale: 1.07, y: -3, transition: springs.snappy }}
+        whileTap={isLocked ? {} : { scale: 0.95, y: 2, transition: { duration: 0.05 } }}
       >
         {/* Animated glow ring — active only */}
         {isActive && (
@@ -95,7 +96,7 @@ export function SkillNode({ topic, state, stars, x, y, onClick, showStartBtn, on
           onClick={e => { e.stopPropagation(); onStart?.(); }}
           initial={{ opacity: 0, y: 6, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", damping: 18, stiffness: 300 }}
+          transition={springs.bouncy}
         >
           Start Lesson
         </motion.button>
