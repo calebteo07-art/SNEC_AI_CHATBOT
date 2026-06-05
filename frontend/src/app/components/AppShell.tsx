@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
+import { GuidedTour } from "./GuidedTour";
 
 /* ── Nav definitions ──────────────────────────────────────── */
 const STUDENT_NAV = [
@@ -90,6 +91,12 @@ export function AppShell() {
               onClick={() => navigate(path)}
               aria-label={label}
               aria-current={activeRoute === path ? "page" : undefined}
+              data-tour={
+                path === "/dashboard" ? "learn" :
+                path === "/cases"     ? "cases" :
+                path === "/chat"      ? "chat"  :
+                path === "/progress"  ? "progress" : undefined
+              }
             >
               <Icon active={activeRoute === path} />
               {label}
@@ -102,7 +109,7 @@ export function AppShell() {
 
         {/* Gamification stats — student only */}
         {role === "student" && (
-          <div className="sidebar-stats">
+          <div className="sidebar-stats" data-tour="gamification">
             <div className="sidebar-stat-label">Performance</div>
 
             <div className="sidebar-stat-row">
@@ -169,6 +176,8 @@ export function AppShell() {
           </button>
         ))}
       </nav>
+
+      {role === "student" && <GuidedTour />}
     </div>
   );
 }
