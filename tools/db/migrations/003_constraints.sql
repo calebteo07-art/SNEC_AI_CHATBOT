@@ -1,9 +1,15 @@
--- Migration 003: data integrity constraints
--- Prevents out-of-range values reaching the DB regardless of application logic.
--- Run after 002_indexes.sql.
--- Uses DO blocks so re-running is safe (duplicate_object is silently ignored).
+-- Migration 003: add missing gamification columns + data integrity constraints
+-- Safe to re-run: ADD COLUMN IF NOT EXISTS and DO/EXCEPTION blocks are idempotent.
 
--- student_profiles: gamification field bounds
+-- ── Step 1: add columns that may not exist yet ───────────────────────────────
+
+ALTER TABLE student_profiles
+  ADD COLUMN IF NOT EXISTS xp               INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS hearts           INTEGER NOT NULL DEFAULT 5,
+  ADD COLUMN IF NOT EXISTS hearts_reset_date DATE;
+
+-- ── Step 2: constraints on student_profiles ──────────────────────────────────
+
 DO $$ BEGIN
   ALTER TABLE student_profiles ADD CONSTRAINT chk_hearts CHECK (hearts BETWEEN 0 AND 5);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
@@ -21,12 +27,14 @@ DO $$ BEGIN
     CHECK (learning_velocity IN ('improving', 'stable', 'declining'));
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- case_progress: rubric total is 4 domains × 10 points = 0-40
+-- ── Step 3: case_progress ────────────────────────────────────────────────────
+
 DO $$ BEGIN
   ALTER TABLE case_progress ADD CONSTRAINT chk_score CHECK (total_score BETWEEN 0 AND 40);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- flashcards: SM-2 field bounds
+-- ── Step 4: flashcards (created by 001_flashcards.sql) ───────────────────────
+
 DO $$ BEGIN
   ALTER TABLE flashcards ADD CONSTRAINT chk_easiness CHECK (easiness >= 1.3);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
