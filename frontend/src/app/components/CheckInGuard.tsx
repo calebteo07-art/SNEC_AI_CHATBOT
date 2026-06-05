@@ -28,8 +28,8 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/supervisor" replace />;
   }
 
-  /* Students are prompted to check in only when visiting the home page */
-  if (user?.role === "student" && !isCheckInDone && location.pathname === "/dashboard") {
+  /* Students must complete check-in before accessing any page */
+  if (user?.role === "student" && !isCheckInDone && location.pathname !== "/checkin") {
     return <Navigate to="/checkin" replace />;
   }
 

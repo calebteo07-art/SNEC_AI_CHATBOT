@@ -75,7 +75,7 @@ export function DailyCheckInScreen() {
   };
 
   return (
-    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, position: "relative", overflow: "hidden", background: "var(--page)" }}>
       {/* Floating deco */}
       <img src="/anatomy/eye-scan.png" aria-hidden="true" alt="" style={{ position: "absolute", width: 400, height: 400, objectFit: "cover", opacity: 0.07, mixBlendMode: "multiply", top: "50%", left: "50%", transform: "translate(-50%,-50%)", borderRadius: "50%", pointerEvents: "none" }} />
 

@@ -22,18 +22,20 @@ export const router = createBrowserRouter([
     Component: OnboardingScreen,
   },
 
+  /* Check-in — full screen, no shell */
+  {
+    path: "/checkin",
+    element: (
+      <CheckInGuard>
+        <DailyCheckInScreen />
+      </CheckInGuard>
+    ),
+  },
+
   /* All authenticated routes share AppShell (sidebar + topbar) */
   {
     element: <AppShell />,
     children: [
-      {
-        path: "/checkin",
-        element: (
-          <CheckInGuard>
-            <DailyCheckInScreen />
-          </CheckInGuard>
-        ),
-      },
       {
         path: "/dashboard",
         element: (
