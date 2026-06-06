@@ -69,6 +69,20 @@ def get_document_id(filename: str) -> str | None:
     return None
 
 
+def get_checklist_id(document_id: str) -> str | None:
+    """Return the existing checklist id for a document_id, or None if not found."""
+    client = get_client()
+    result = (
+        client.table("checklists")
+        .select("id")
+        .eq("document_id", document_id)
+        .execute()
+    )
+    if result.data:
+        return result.data[0]["id"]
+    return None
+
+
 def insert_chunks(rows: list[dict]) -> None:
     """Batch-insert chunk rows. Each row must include document_id and embedding."""
     if not rows:

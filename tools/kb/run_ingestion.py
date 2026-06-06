@@ -295,6 +295,7 @@ def _run(
                     checklist_type=entry.get("checklist_type", "OT"),
                     procedure_name=entry.get("procedure_name"),
                     module=module,
+                    force=force,
                 )
         except Exception as exc:
             msg = f"  [ERROR] {filename}: {exc}"

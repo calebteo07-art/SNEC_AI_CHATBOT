@@ -111,7 +111,7 @@ def parse_checklist(
     from dotenv import load_dotenv as _load
     _load(PROJECT_ROOT / ".env")
     _api_key = _os.getenv("GEMINI_API_KEY", "").strip()
-    _model = _os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    _model = _os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     _sdk_client = _genai.Client(api_key=_api_key)
 
     sdk_response = _sdk_client.models.generate_content(
@@ -148,11 +148,20 @@ def ingest_checklist(
     checklist_type: str,
     procedure_name: str | None,
     module: int,
+    force: bool = False,
 ) -> None:
     """Parse and store a checklist into Supabase.
 
-    The document row must already exist (inserted by ingest_document.ingest()).
+    Skips Gemini parsing if a checklist already exists for this document_id
+    and force=False. The document row must already exist (inserted by
+    ingest_document.ingest()).
     """
+    if not force:
+        from tools.kb.supabase_client import get_checklist_id
+        if get_checklist_id(document_id):
+            print(f"    [skip] Checklist already exists for: {pdf_path.name}")
+            return
+
     parsed = parse_checklist(pdf_path, checklist_type, procedure_name)
 
     upsert_checklist({
