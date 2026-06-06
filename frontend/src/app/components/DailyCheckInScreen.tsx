@@ -108,7 +108,7 @@ export function DailyCheckInScreen() {
           </div>
           <p style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 6 }}>Daily Check-In</p>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em", lineHeight: 1.1 }}>Today's question</h1>
-          {streak > 0 && (
+          {streak > 0 && phase === "question" && (
             <div style={{
               background: "var(--streak-bg)",
               border: "1px solid var(--streak)",
