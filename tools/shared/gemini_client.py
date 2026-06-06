@@ -24,11 +24,21 @@ load_dotenv(PROJECT_ROOT / ".env")
 MODEL       = os.getenv("GEMINI_MODEL",       "gemini-2.5-flash")
 MODEL_PRO   = os.getenv("GEMINI_MODEL_PRO",   "gemini-2.5-pro")       # deep reasoning: chat, case eval, debrief
 MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-2.5-flash-lite") # trivial single-token outputs only
-API_KEY     = os.getenv("GEMINI_API_KEY", "").strip()
-MOCK_MODE   = not API_KEY
+# Load all available API keys — primary required, backups optional.
+# Add GEMINI_API_KEY_2 / GEMINI_API_KEY_3 in Render env vars to enable rotation.
+_API_KEYS: list[str] = [
+    k.strip()
+    for k in [
+        os.getenv("GEMINI_API_KEY", ""),
+        os.getenv("GEMINI_API_KEY_2", ""),
+        os.getenv("GEMINI_API_KEY_3", ""),
+    ]
+    if k.strip()
+]
+API_KEY   = _API_KEYS[0] if _API_KEYS else ""
+MOCK_MODE = not _API_KEYS
 
 _client = None
-
 if not MOCK_MODE:
     from google import genai as _genai
     _client = _genai.Client(api_key=API_KEY, http_options={"timeout": 30})
@@ -125,19 +135,17 @@ def stream_ask(
     feature: str = "default",
     model: str | None = None,
 ):
-    """Stream a conversation to Gemini via REST, yielding text chunks as they arrive."""
+    """Stream a conversation to Gemini via REST, yielding text chunks as they arrive.
+    Tries each available API key in order; retries up to 3 attempts per key on transient errors.
+    """
     if MOCK_MODE:
         for word in _mock_response(feature).split(" "):
             yield word + " "
         return
 
-    import httpx, json as _json
+    import httpx, json as _json, time
 
     _model = model or MODEL
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
-        f":streamGenerateContent?key={API_KEY}&alt=sse"
-    )
     contents, _ = _build_contents(messages)
     body = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
@@ -145,24 +153,59 @@ def stream_ask(
         "generationConfig": {"maxOutputTokens": max_tokens},
     }
 
-    try:
-        resp = httpx.post(url, json=body, timeout=60)
-        if resp.status_code == 429:
-            raise RuntimeError("quota_exceeded")
-        resp.raise_for_status()
-        for line in resp.text.splitlines():
-            if line.startswith("data: "):
-                try:
-                    data = _json.loads(line[6:])
-                    text = data["candidates"][0]["content"]["parts"][0]["text"]
-                    if text:
-                        yield text
-                except (KeyError, IndexError, _json.JSONDecodeError):
-                    pass
-    except RuntimeError:
-        raise
-    except Exception as exc:
-        _quota_or_raise(exc)
+    last_exc: Exception = RuntimeError("no_api_keys")
+    lines_to_yield: list[str] | None = None
+
+    for api_key in _API_KEYS:
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
+            f":streamGenerateContent?key={api_key}&alt=sse"
+        )
+        for attempt in range(3):
+            try:
+                resp = httpx.post(url, json=body, timeout=20)
+                if resp.status_code == 429:
+                    last_exc = RuntimeError("quota_exceeded")
+                    break  # quota exhausted — try next key
+                if resp.status_code >= 500:
+                    last_exc = RuntimeError(f"server_error_{resp.status_code}")
+                    if attempt < 2:
+                        time.sleep(0.5 * (2 ** attempt))
+                        continue
+                    break
+                resp.raise_for_status()
+                parsed: list[str] = []
+                for line in resp.text.splitlines():
+                    if line.startswith("data: "):
+                        try:
+                            data = _json.loads(line[6:])
+                            text = data["candidates"][0]["content"]["parts"][0]["text"]
+                            if text:
+                                parsed.append(text)
+                        except (KeyError, IndexError, _json.JSONDecodeError):
+                            pass
+                lines_to_yield = parsed
+                break
+            except RuntimeError:
+                raise
+            except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
+                last_exc = exc
+                if attempt < 2:
+                    time.sleep(0.5 * (2 ** attempt))
+                    continue
+                break
+            except Exception as exc:
+                last_exc = exc
+                break
+        if lines_to_yield is not None:
+            break
+
+    if lines_to_yield is None:
+        _quota_or_raise(last_exc)
+        return
+
+    for text in lines_to_yield:
+        yield text
 
 
 def ask(
@@ -172,17 +215,15 @@ def ask(
     feature: str = "default",
     model: str | None = None,
 ) -> str:
-    """Send a conversation to Gemini via REST and return the full response text."""
+    """Send a conversation to Gemini via REST and return the full response text.
+    Tries each available API key in order; retries up to 3 attempts per key on transient errors.
+    """
     if MOCK_MODE:
         return _mock_response(feature)
 
-    import httpx, json as _json
+    import httpx, json as _json, time
 
     _model = model or MODEL
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
-        f":generateContent?key={API_KEY}"
-    )
     contents, _ = _build_contents(messages)
     body = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
@@ -190,20 +231,43 @@ def ask(
         "generationConfig": {"maxOutputTokens": max_tokens},
     }
 
-    try:
-        resp = httpx.post(url, json=body, timeout=60)
-        if resp.status_code == 429:
-            raise RuntimeError("quota_exceeded")
-        resp.raise_for_status()
-        data = _json.loads(resp.text)
-        candidate = data["candidates"][0]
-        if candidate.get("finishReason") == "MAX_TOKENS":
-            raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
-        return candidate["content"]["parts"][0]["text"]
-    except RuntimeError:
-        raise
-    except Exception as exc:
-        _quota_or_raise(exc)
+    last_exc: Exception = RuntimeError("no_api_keys")
+    for api_key in _API_KEYS:
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
+            f":generateContent?key={api_key}"
+        )
+        for attempt in range(3):
+            try:
+                resp = httpx.post(url, json=body, timeout=20)
+                if resp.status_code == 429:
+                    last_exc = RuntimeError("quota_exceeded")
+                    break  # quota exhausted on this key — try next key
+                if resp.status_code >= 500:
+                    last_exc = RuntimeError(f"server_error_{resp.status_code}")
+                    if attempt < 2:
+                        time.sleep(0.5 * (2 ** attempt))
+                        continue
+                    break  # persistent server error — try next key
+                resp.raise_for_status()
+                data = _json.loads(resp.text)
+                candidate = data["candidates"][0]
+                if candidate.get("finishReason") == "MAX_TOKENS":
+                    raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
+                return candidate["content"]["parts"][0]["text"]
+            except RuntimeError:
+                raise
+            except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
+                last_exc = exc
+                if attempt < 2:
+                    time.sleep(0.5 * (2 ** attempt))
+                    continue
+                break  # transient error persists — try next key
+            except Exception as exc:
+                last_exc = exc
+                break  # unknown error — try next key
+
+    _quota_or_raise(last_exc)
 
 
 
