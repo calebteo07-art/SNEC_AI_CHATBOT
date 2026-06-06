@@ -185,6 +185,7 @@ def generate_cases(
         max_tokens=8192,
         feature="case_gen",
         model=MODEL,
+        thinking_level="HIGH",
     )
 
     # Parse JSON

@@ -73,6 +73,7 @@ async def filter_input(query: str, student_role: str = "") -> dict:
             max_tokens=5,
             feature="guardrail_input",
             model=MODEL_SMALL,
+            thinking_level="MINIMAL",
         )
         safe = result.strip().lower().startswith("yes")
         return {"safe": safe, "reason": "llm_classified"}

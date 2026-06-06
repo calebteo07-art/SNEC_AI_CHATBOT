@@ -144,6 +144,8 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
             }],
             max_tokens=1024,
             feature="flashcard",
+            model=MODEL_SMALL,
+            thinking_level="LOW",
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
@@ -256,6 +258,7 @@ async def study_suggestion(request: Request, current_user: CurrentUser = Depends
             max_tokens=256,
             feature="suggestion",
             model=MODEL_SMALL,
+            thinking_level="MINIMAL",
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):

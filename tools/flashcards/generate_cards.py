@@ -121,6 +121,7 @@ async def generate_and_return_cards(
         max_tokens=1024,
         feature="flashcard",
         model=MODEL,
+        thinking_level="MEDIUM",
     )
 
     cards = _parse_cards(response)
@@ -191,6 +192,7 @@ async def generate_cards_from_rag(
         max_tokens=2048,
         feature="flashcard",
         model=MODEL,
+        thinking_level="MEDIUM",
     )
 
     cards = _parse_cards(response)

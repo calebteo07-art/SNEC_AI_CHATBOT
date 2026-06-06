@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from tools.api.shared import limiter
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
-from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -509,6 +509,8 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
             messages=[{"role": "user", "content": f"Topic: {topic}"}],
             max_tokens=512,
             feature="checkin",
+            model=MODEL_SMALL,
+            thinking_level="MINIMAL",
         )
         question_text = question.strip()
     except Exception:
@@ -551,7 +553,8 @@ async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_u
             }],
             max_tokens=1024,
             feature="checkin",
-            model=MODEL,
+            model=MODEL_SMALL,
+            thinking_level="LOW",
         )
     except Exception as exc:
         if "quota_exceeded" in str(exc):

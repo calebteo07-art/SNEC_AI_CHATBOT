@@ -167,7 +167,7 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
         f"Weakest topics: {', '.join(cohort.get('weakest_topics', [])) or 'none recorded'}\n"
         f"At-risk students: {len(at_risk)}"
     )
-    from tools.shared.gemini_client import ask, MODEL_SMALL
+    from tools.shared.gemini_client import ask, MODEL
     system = (
         "You are an AI assistant for an ophthalmology education supervisor. "
         "Write 2-3 sentences summarising the cohort's current state and the single most important action the supervisor should take today. "
@@ -179,7 +179,8 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
             messages=[{"role": "user", "content": context}],
             max_tokens=256,
             feature="supervisor",
-            model=MODEL_SMALL,
+            model=MODEL,
+            thinking_level="MEDIUM",
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):

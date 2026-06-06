@@ -111,7 +111,7 @@ def parse_checklist(
     from dotenv import load_dotenv as _load
     _load(PROJECT_ROOT / ".env")
     _api_key = _os.getenv("GEMINI_API_KEY", "").strip()
-    _model = _os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    _model = _os.getenv("GEMINI_MODEL_PRO", "gemini-3.1-pro")
     _sdk_client = _genai.Client(api_key=_api_key)
 
     sdk_response = _sdk_client.models.generate_content(
@@ -121,6 +121,7 @@ def parse_checklist(
             system_instruction=system,
             response_mime_type="application/json",
             max_output_tokens=8192,
+            thinking_config=_types.ThinkingConfig(thinking_level="HIGH"),
         ),
     )
     raw_json = sdk_response.text or ""

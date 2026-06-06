@@ -68,6 +68,7 @@ async def _condense_query(messages: list) -> str:
             max_tokens=128,
             feature="default",
             model=MODEL_SMALL,
+            thinking_level="MINIMAL",
         )
         condensed = (result or "").strip()
         return condensed if condensed else (messages[-1].content if messages else "")
@@ -168,6 +169,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
                 max_tokens=4096,
                 feature="chatbot",
                 model=MODEL,
+                thinking_level="LOW",
             ):
                 full_response.append(chunk)
                 yield f"data: {json.dumps({'text': chunk})}\n\n"

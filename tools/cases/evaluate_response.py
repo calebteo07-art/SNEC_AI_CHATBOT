@@ -17,32 +17,64 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.cases.rubric_prompts import build_eval_prompt
-from tools.shared.gemini_client import ask, MODEL_PRO
+from tools.cases.rubric_prompts import DOMAIN_FEW_SHOTS
+from tools.shared.gemini_client import ask, MODEL
 
 _GRADER_SYSTEM = "You are a clinical grader. Return only valid JSON."
 
 _DOMAINS = ("history", "investigations", "diagnosis", "management")
 
+_ALL_DOMAINS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "history":        {"type": "object", "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}}, "required": ["score", "feedback"]},
+        "investigations": {"type": "object", "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}}, "required": ["score", "feedback"]},
+        "diagnosis":      {"type": "object", "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}}, "required": ["score", "feedback"]},
+        "management":     {"type": "object", "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}}, "required": ["score", "feedback"]},
+    },
+    "required": ["history", "investigations", "diagnosis", "management"],
+}
 
-def _evaluate_domain(domain: str, conv_text: str, case_context: str) -> dict:
-    """Score one domain with a few-shot prompt. Returns {"score": int, "feedback": str}."""
-    prompt = build_eval_prompt(domain, conv_text, case_context)
+
+def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
+    """Score all 4 domains in a single Gemini call. Returns dict keyed by domain name."""
+    all_few_shots = "\n\n".join(DOMAIN_FEW_SHOTS[d] for d in _DOMAINS)
+
+    prompt = (
+        f"You are a senior ophthalmology clinical educator grading a student's case simulation.\n\n"
+        f"{all_few_shots}\n\n"
+        f"## Case Context\n{case_context}\n\n"
+        f"## Student Conversation\n{conv_text}\n\n"
+        f"## Task\n"
+        f"Score the student's performance in ALL FOUR domains (history, investigations, diagnosis, management) from 0-10.\n"
+        f"Base scores ONLY on what appears in the student conversation above — do not infer actions not mentioned.\n"
+        f"Return ONLY valid JSON:\n"
+        f'{{"history": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
+        f'"investigations": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
+        f'"diagnosis": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
+        f'"management": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}}}'
+    )
+
     raw = ask(
         system_prompt=_GRADER_SYSTEM,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=512,
+        max_tokens=2048,
         feature="case_eval",
-        model=MODEL_PRO,
+        model=MODEL,
+        thinking_level="HIGH",
+        response_json_schema=_ALL_DOMAINS_SCHEMA,
     )
-    text = raw.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+
+    _fallback = {d: {"score": 5, "feedback": "Evaluation error — please retry."} for d in _DOMAINS}
     try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        return {"score": 5, "feedback": "Evaluation error — please retry."}
+        text = raw.strip()
+        if text.startswith("```"):
+            lines = text.splitlines()
+            text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+        result = json.loads(text)
+        return {d: result.get(d, _fallback[d]) for d in _DOMAINS}
+    except (json.JSONDecodeError, AttributeError):
+        return _fallback
 
 
 def evaluate_case(
@@ -78,10 +110,7 @@ def evaluate_case(
         for m in conversation
     )
 
-    # Evaluate each domain independently with its few-shot calibration prompt
-    domain_results: dict[str, dict] = {}
-    for domain in _DOMAINS:
-        domain_results[domain] = _evaluate_domain(domain, conv_text, case_context)
+    domain_results = _evaluate_all_domains(conv_text, case_context)
 
     # Fetch checklist and compute compliance counts
     critical_hit = 0
