@@ -105,6 +105,15 @@ input, textarea {
   font-family: inherit;
 }
 
+.checkin-textarea::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.checkin-textarea:focus {
+  border-color: var(--primary) !important;
+}
+
 img {
   display: block;
   max-width: 100%;
