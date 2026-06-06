@@ -10,7 +10,7 @@ from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_card
 from tools.flashcards.sm2 import next_review, due_date
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
-from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, require_supervisor, CurrentUser
 
 router = APIRouter()
@@ -255,6 +255,7 @@ async def study_suggestion(request: Request, current_user: CurrentUser = Depends
             messages=[{"role": "user", "content": context}],
             max_tokens=256,
             feature="suggestion",
+            model=MODEL_SMALL,
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
