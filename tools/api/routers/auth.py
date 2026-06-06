@@ -57,6 +57,9 @@ class MeResponse(BaseModel):
     student_id: str
     role: str
     student_role: str
+    full_name: str
+    email: str
+    must_change: bool
 
 
 @limiter.limit("5/minute")
@@ -120,10 +123,19 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
 @limiter.limit("60/minute")
 async def auth_me(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     """Validate a token and return the caller's identity. Used by the frontend on app load."""
+    student_id = current_user["sub"]
+    consent_row = await db.get_consent_by_student_id(student_id)
+    email = consent_row["email"] if consent_row else ""
+    full_name = consent_row["student_name"] if consent_row else ""
+    auth_row = await db.get_auth(email) if email else None
+    must_change = bool(auth_row.get("must_change", False)) if auth_row else False
     return MeResponse(
-        student_id=current_user["sub"],
+        student_id=student_id,
         role=current_user["role"],
         student_role=current_user["student_role"],
+        full_name=full_name,
+        email=email,
+        must_change=must_change,
     )
 
 

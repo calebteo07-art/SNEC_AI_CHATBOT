@@ -38,19 +38,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const res = await fetch("/api/auth/me", { credentials: "include", signal: AbortSignal.timeout(8000) });
         if (cancelled) return;
         if (!res.ok) throw new Error("Not authenticated");
-        const stored = sessionStorage.getItem("eyebot_user");
-        const checkInStatus = localStorage.getItem("eyebot_checkin_date") === new Date().toDateString();
-        const mustChange = sessionStorage.getItem("eyebot_must_change") === "true";
-        const storedStudentRole = (sessionStorage.getItem("eyebot_student_role") ?? "") as "OA" | "OT" | "PSA" | "";
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            setUser({ ...parsed, mustChangePassword: mustChange, studentRole: storedStudentRole });
-            setIsCheckInDone(checkInStatus);
-          } catch {
-            sessionStorage.clear();
-          }
+        const me = await res.json();
+        const restoredUser: User = {
+          fullName: me.full_name,
+          email: me.email,
+          studentId: me.student_id,
+          role: me.role,
+          studentRole: me.student_role as "OA" | "OT" | "PSA" | "",
+          mustChangePassword: me.must_change,
+        };
+        // Repopulate sessionStorage if it was cleared (e.g. browser was closed)
+        if (!sessionStorage.getItem("eyebot_user")) {
+          sessionStorage.setItem("eyebot_user", JSON.stringify({
+            fullName: restoredUser.fullName,
+            email: restoredUser.email,
+            studentId: restoredUser.studentId,
+            role: restoredUser.role,
+          }));
+          sessionStorage.setItem("eyebot_student_id", restoredUser.studentId);
+          sessionStorage.setItem("eyebot_student_role", restoredUser.studentRole ?? "");
+          sessionStorage.setItem("eyebot_must_change", restoredUser.mustChangePassword ? "true" : "false");
         }
+        setUser(restoredUser);
+        setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
         setLoading(false);
       } catch {
         if (cancelled) return;
