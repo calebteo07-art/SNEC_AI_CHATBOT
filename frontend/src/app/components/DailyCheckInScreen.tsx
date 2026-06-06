@@ -110,8 +110,8 @@ export function DailyCheckInScreen() {
           <h1 style={{ fontSize: 28, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em", lineHeight: 1.1 }}>Today's question</h1>
           {streak > 0 && (
             <div style={{
-              background: "rgba(251,146,60,0.12)",
-              border: "1px solid #fb923c",
+              background: "var(--streak-bg)",
+              border: "1px solid var(--streak)",
               borderRadius: "var(--r-sm)",
               padding: "10px 14px",
               display: "flex",
@@ -122,10 +122,10 @@ export function DailyCheckInScreen() {
             }}>
               <span style={{ fontSize: 20 }}>🔥</span>
               <div>
-                <div style={{ color: "#fb923c", fontWeight: 700, fontSize: 13, lineHeight: 1.4 }}>
+                <div style={{ color: "var(--streak)", fontWeight: 700, fontSize: 13, lineHeight: 1.4 }}>
                   {streak}-day streak at risk!
                 </div>
-                <div style={{ color: "#94a3b8", fontSize: 12, lineHeight: 1.4 }}>
+                <div style={{ color: "var(--muted)", fontSize: 12, lineHeight: 1.4 }}>
                   Submit your answer today to keep it alive.
                 </div>
               </div>
