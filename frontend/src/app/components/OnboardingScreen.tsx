@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import React, { useState } from "react";
+import { Navigate, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
@@ -79,7 +79,7 @@ function ArrowRight({ size = 14 }: { size?: number }) {
 /* ── OnboardingScreen ─────────────────────────────────────── */
 export function OnboardingScreen() {
   const navigate = useNavigate();
-  const { login, setMustChangePassword, loading, user } = useAuth();
+  const { login, setMustChangePassword, user } = useAuth();
 
   const [step, setStep]             = useState<Step>("login");
   const [email, setEmail]           = useState("");
@@ -98,9 +98,7 @@ export function OnboardingScreen() {
   const [resetError, setResetError]     = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  useEffect(() => {
-    if (!loading && user) navigate("/dashboard", { replace: true });
-  }, [user, loading, navigate]);
+  if (user) return <Navigate to="/dashboard" replace />;
 
   /* ── Login ────────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
