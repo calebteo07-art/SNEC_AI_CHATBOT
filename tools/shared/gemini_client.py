@@ -38,10 +38,6 @@ _API_KEYS: list[str] = [
 API_KEY   = _API_KEYS[0] if _API_KEYS else ""
 MOCK_MODE = not _API_KEYS
 
-_client = None
-if not MOCK_MODE:
-    from google import genai as _genai
-    _client = _genai.Client(api_key=API_KEY, http_options={"timeout": 30})
 
 _MOCK_RESPONSES: dict[str, str] = {
     "chatbot": (
@@ -163,7 +159,7 @@ def stream_ask(
         )
         for attempt in range(3):
             try:
-                resp = httpx.post(url, json=body, timeout=20)
+                resp = httpx.post(url, json=body, timeout=45)
                 if resp.status_code == 429:
                     last_exc = RuntimeError("quota_exceeded")
                     break  # quota exhausted — try next key
@@ -239,7 +235,7 @@ def ask(
         )
         for attempt in range(3):
             try:
-                resp = httpx.post(url, json=body, timeout=20)
+                resp = httpx.post(url, json=body, timeout=45)
                 if resp.status_code == 429:
                     last_exc = RuntimeError("quota_exceeded")
                     break  # quota exhausted on this key — try next key
