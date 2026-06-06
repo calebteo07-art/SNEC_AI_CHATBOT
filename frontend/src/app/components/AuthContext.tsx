@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const check = async (attempt = 0): Promise<void> => {
       try {
-        const res = await fetch("/api/auth/me", { credentials: "include", signal: AbortSignal.timeout(8000) });
+        const res = await fetch("/api/auth/me", { credentials: "include", signal: AbortSignal.timeout(4000) });
         if (cancelled) return;
         if (!res.ok) throw new Error("Not authenticated");
         const me = await res.json();
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       } catch {
         if (cancelled) return;
-        if (attempt < 2) {
+        if (attempt < 1) {
           await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
           return check(attempt + 1);
         }

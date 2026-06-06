@@ -102,7 +102,16 @@ export function OnboardingScreen() {
     if (!loading && user) navigate("/dashboard", { replace: true });
   }, [user, loading, navigate]);
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="login-root">
+        <div className="login-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+          <EyeLogo />
+          <span className="spinner" aria-label="Loading" />
+        </div>
+      </div>
+    );
+  }
 
   /* ── Login ────────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
