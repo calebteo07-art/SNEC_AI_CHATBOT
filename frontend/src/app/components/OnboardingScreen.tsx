@@ -172,10 +172,10 @@ export function OnboardingScreen() {
 
   /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="screen-login">
+    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", background: "#080e1a" }}>
       {/* Full-bleed background */}
-      <img src="/anatomy/eye-hero.png" className="login-bg" alt="" aria-hidden="true" />
-      <div className="login-overlay" />
+      <img src="/anatomy/eye-hero.png" className="login-bg" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", maxWidth: "none" }} />
+      <div className="login-overlay" style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, rgba(2,6,18,0.94) 0%, rgba(6,25,50,0.78) 60%, rgba(14,116,144,0.3) 100%)" }} />
 
       {/* Forced password change modal (floats on top) */}
       {step === "change_password" && loginResult && (
@@ -195,6 +195,7 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.075)", backdropFilter: "blur(32px) saturate(1.8)", WebkitBackdropFilter: "blur(32px) saturate(1.8)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
