@@ -13,7 +13,7 @@ if _SECRET == "dev-only-secret-set-JWT_SECRET-in-env":
         stacklevel=2,
     )
 _ALGORITHM = "HS256"
-_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "8"))
+_EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "720"))
 
 
 class CurrentUser(TypedDict):
