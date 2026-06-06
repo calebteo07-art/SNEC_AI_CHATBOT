@@ -38,6 +38,17 @@ _API_KEYS: list[str] = [
 API_KEY   = _API_KEYS[0] if _API_KEYS else ""
 MOCK_MODE = not _API_KEYS
 
+_SDK_CLIENTS: list = []  # populated lazily on first real API call
+
+
+def _ensure_sdk_clients() -> list:
+    """Lazily initialize SDK clients so google-genai import only runs in live mode."""
+    global _SDK_CLIENTS
+    if not _SDK_CLIENTS and _API_KEYS:
+        from google import genai
+        _SDK_CLIENTS = [genai.Client(api_key=k) for k in _API_KEYS]
+    return _SDK_CLIENTS
+
 
 _MOCK_RESPONSES: dict[str, str] = {
     "chatbot": (
@@ -70,7 +81,12 @@ _MOCK_RESPONSES: dict[str, str] = {
         "DIAGNOSIS: Appearances consistent with glaucomatous optic neuropathy. "
         "Recommend visual field testing and OCT RNFL analysis."
     ),
-    "case_eval": '{"score": 7, "feedback": "Good systematic approach. Asked key history questions. Consider exploring medication history and family risk factors more thoroughly."}',
+    "case_eval": (
+        '{"history": {"score": 7, "feedback": "Good approach. Asked onset and laterality."}, '
+        '"investigations": {"score": 7, "feedback": "Key tests ordered; HVF missing."}, '
+        '"diagnosis": {"score": 8, "feedback": "Correct primary diagnosis reached."}, '
+        '"management": {"score": 7, "feedback": "Treatment initiated but follow-up incomplete."}}'
+    ),
     "guardrail_input": "yes",
     "default": "[MOCK] This is a mock response. Add GEMINI_API_KEY to .env to use the real Gemini API.",
     "checkin": (
@@ -130,77 +146,70 @@ def stream_ask(
     max_tokens: int = 2048,
     feature: str = "default",
     model: str | None = None,
+    thinking_level: str = "MINIMAL",
 ):
-    """Stream a conversation to Gemini via REST, yielding text chunks as they arrive.
-    Tries each available API key in order; retries up to 3 attempts per key on transient errors.
+    """Stream a conversation to Gemini via the google-genai SDK, yielding text chunks.
+    Buffers all chunks before yielding to preserve multi-key fallback error recovery.
+    Tries each available SDK client in order; retries up to 3 attempts per client on transient errors.
     """
     if MOCK_MODE:
         for word in _mock_response(feature).split(" "):
             yield word + " "
         return
 
-    import httpx, json as _json, time
+    import time
+    from google.genai import types
 
     _model = model or MODEL
     contents, _ = _build_contents(messages)
-    body = {
-        "systemInstruction": {"parts": [{"text": system_prompt}]},
-        "contents": contents,
-        "generationConfig": {"maxOutputTokens": max_tokens},
+    config_kwargs_stream: dict = {
+        "system_instruction": system_prompt,
+        "max_output_tokens": max_tokens,
     }
+    if thinking_level != "MINIMAL":
+        config_kwargs_stream["thinking_config"] = types.ThinkingConfig(thinking_level=thinking_level)
+    config = types.GenerateContentConfig(**config_kwargs_stream)
 
     last_exc: Exception = RuntimeError("no_api_keys")
-    lines_to_yield: list[str] | None = None
+    chunks_to_yield: list[str] | None = None
 
-    for api_key in _API_KEYS:
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
-            f":streamGenerateContent?key={api_key}&alt=sse"
-        )
+    for sdk_client in _ensure_sdk_clients():
         for attempt in range(3):
             try:
-                resp = httpx.post(url, json=body, timeout=45)
-                if resp.status_code == 429:
+                parsed: list[str] = []
+                for chunk in sdk_client.models.generate_content_stream(
+                    model=_model,
+                    contents=contents,
+                    config=config,
+                ):
+                    text = chunk.text
+                    if text:
+                        parsed.append(text)
+                chunks_to_yield = parsed
+                break
+            except RuntimeError:
+                raise
+            except Exception as exc:
+                msg = str(exc)
+                if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
                     last_exc = RuntimeError("quota_exceeded")
                     break  # quota exhausted — try next key
-                if resp.status_code >= 500:
-                    last_exc = RuntimeError(f"server_error_{resp.status_code}")
+                if "500" in msg or "503" in msg or "UNAVAILABLE" in msg:
+                    last_exc = exc
                     if attempt < 2:
                         time.sleep(0.5 * (2 ** attempt))
                         continue
                     break
-                resp.raise_for_status()
-                parsed: list[str] = []
-                for line in resp.text.splitlines():
-                    if line.startswith("data: "):
-                        try:
-                            data = _json.loads(line[6:])
-                            text = data["candidates"][0]["content"]["parts"][0]["text"]
-                            if text:
-                                parsed.append(text)
-                        except (KeyError, IndexError, _json.JSONDecodeError):
-                            pass
-                lines_to_yield = parsed
-                break
-            except RuntimeError:
-                raise
-            except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
                 last_exc = exc
-                if attempt < 2:
-                    time.sleep(0.5 * (2 ** attempt))
-                    continue
-                break
-            except Exception as exc:
-                last_exc = exc
-                break
-        if lines_to_yield is not None:
+                break  # unknown error — try next key
+        if chunks_to_yield is not None:
             break
 
-    if lines_to_yield is None:
+    if chunks_to_yield is None:
         _quota_or_raise(last_exc)
         return
 
-    for text in lines_to_yield:
+    for text in chunks_to_yield:
         yield text
 
 
@@ -210,56 +219,61 @@ def ask(
     max_tokens: int = 8192,
     feature: str = "default",
     model: str | None = None,
+    thinking_level: str = "MINIMAL",
+    response_json_schema: dict | None = None,
 ) -> str:
-    """Send a conversation to Gemini via REST and return the full response text.
-    Tries each available API key in order; retries up to 3 attempts per key on transient errors.
+    """Send a conversation to Gemini via the google-genai SDK and return the full response text.
+    Tries each available SDK client in order; retries up to 3 attempts per client on transient errors.
     """
     if MOCK_MODE:
         return _mock_response(feature)
 
-    import httpx, json as _json, time
+    import time
+    from google.genai import types
 
     _model = model or MODEL
     contents, _ = _build_contents(messages)
-    body = {
-        "systemInstruction": {"parts": [{"text": system_prompt}]},
-        "contents": contents,
-        "generationConfig": {"maxOutputTokens": max_tokens},
+
+    config_kwargs: dict = {
+        "system_instruction": system_prompt,
+        "max_output_tokens": max_tokens,
     }
+    if thinking_level != "MINIMAL":
+        config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_level=thinking_level)
+    if response_json_schema is not None:
+        config_kwargs["response_mime_type"] = "application/json"
+        config_kwargs["response_schema"] = response_json_schema
+
+    config = types.GenerateContentConfig(**config_kwargs)
 
     last_exc: Exception = RuntimeError("no_api_keys")
-    for api_key in _API_KEYS:
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{_model}"
-            f":generateContent?key={api_key}"
-        )
+    for sdk_client in _ensure_sdk_clients():
         for attempt in range(3):
             try:
-                resp = httpx.post(url, json=body, timeout=45)
-                if resp.status_code == 429:
+                response = sdk_client.models.generate_content(
+                    model=_model,
+                    contents=contents,
+                    config=config,
+                )
+                if not response.candidates:
+                    return response.text or ""
+                candidate = response.candidates[0]
+                if getattr(getattr(candidate, 'finish_reason', None), 'name', None) == "MAX_TOKENS":
+                    raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
+                return response.text or ""
+            except RuntimeError:
+                raise
+            except Exception as exc:
+                msg = str(exc)
+                if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
                     last_exc = RuntimeError("quota_exceeded")
-                    break  # quota exhausted on this key — try next key
-                if resp.status_code >= 500:
-                    last_exc = RuntimeError(f"server_error_{resp.status_code}")
+                    break  # quota exhausted — try next key
+                if "500" in msg or "503" in msg or "UNAVAILABLE" in msg:
+                    last_exc = exc
                     if attempt < 2:
                         time.sleep(0.5 * (2 ** attempt))
                         continue
-                    break  # persistent server error — try next key
-                resp.raise_for_status()
-                data = _json.loads(resp.text)
-                candidate = data["candidates"][0]
-                if candidate.get("finishReason") == "MAX_TOKENS":
-                    raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
-                return candidate["content"]["parts"][0]["text"]
-            except RuntimeError:
-                raise
-            except (httpx.TimeoutException, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
-                last_exc = exc
-                if attempt < 2:
-                    time.sleep(0.5 * (2 ** attempt))
-                    continue
-                break  # transient error persists — try next key
-            except Exception as exc:
+                    break
                 last_exc = exc
                 break  # unknown error — try next key
 
