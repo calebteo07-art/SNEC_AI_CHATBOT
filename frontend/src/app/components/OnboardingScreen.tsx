@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
@@ -79,7 +79,7 @@ function ArrowRight({ size = 14 }: { size?: number }) {
 /* ── OnboardingScreen ─────────────────────────────────────── */
 export function OnboardingScreen() {
   const navigate = useNavigate();
-  const { login, setMustChangePassword } = useAuth();
+  const { login, setMustChangePassword, loading, user } = useAuth();
 
   const [step, setStep]             = useState<Step>("login");
   const [email, setEmail]           = useState("");
@@ -97,6 +97,12 @@ export function OnboardingScreen() {
   const [resetConfirm, setResetConfirm] = useState("");
   const [resetError, setResetError]     = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) navigate("/dashboard", { replace: true });
+  }, [user, loading, navigate]);
+
+  if (loading) return null;
 
   /* ── Login ────────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
