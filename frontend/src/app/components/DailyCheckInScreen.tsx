@@ -183,7 +183,7 @@ export function DailyCheckInScreen() {
                   value={answer}
                   onChange={e => setAnswer(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSubmit(); }}
-                  placeholder="Type your answer… (Ctrl+Enter to submit)"
+                  placeholder="Type your answer…"
                   rows={4}
                   className="checkin-textarea"
                   style={{
