@@ -67,7 +67,7 @@ async def update_profile(
         elif last == today - timedelta(days=1):
             new_streak = current_streak + 1
         else:
-            new_streak = 1
+            new_streak = 0
 
     # Retention scores — already a dict from Supabase JSONB
     retention = dict(profile.get("retention_scores") or {})
