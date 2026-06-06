@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Google Gemini embedding wrapper for KB ingestion.
 
-Uses text-embedding-004 via the google-genai SDK (same key as the rest of the platform).
+Uses gemini-embedding-2 via the google-genai SDK (same key as the rest of the platform).
 Returns 1536-dim vectors (reduced via output_dimensionality to stay within pgvector HNSW
 2000-dim limit). In MOCK_MODE (no API key), returns zero vectors so ingestion logic can
 be tested without credentials.
@@ -28,7 +28,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 MOCK_MODE = not API_KEY
-EMBED_MODEL = "models/text-embedding-004"
+EMBED_MODEL = "models/gemini-embedding-2"
 EMBED_DIM = 1536  # reduced from 3072 to stay within pgvector HNSW 2000-dim limit
 
 _client = None
