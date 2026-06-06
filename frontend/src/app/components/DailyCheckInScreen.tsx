@@ -167,7 +167,20 @@ export function DailyCheckInScreen() {
                   onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSubmit(); }}
                   placeholder="Type your answer… (Ctrl+Enter to submit)"
                   rows={4}
-                  style={{ width: "100%", padding: "12px 14px", border: "1.5px solid var(--border)", borderRadius: "var(--r-sm)", background: "var(--page)", fontSize: 14, lineHeight: 1.6, resize: "none", outline: "none", marginBottom: 16 }}
+                  className="checkin-textarea"
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: "var(--r-sm)",
+                    background: "var(--page)",
+                    color: "var(--text)",
+                    fontSize: 14,
+                    lineHeight: 1.6,
+                    resize: "none",
+                    outline: "none",
+                    marginBottom: 16
+                  }}
                   autoFocus
                 />
                 <button
