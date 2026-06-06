@@ -17,7 +17,7 @@ from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL, MODEL_PRO
+from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -126,7 +126,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
                 messages=messages,
                 max_tokens=4096,
                 feature="chatbot",
-                model=MODEL_PRO,
+                model=MODEL,
             ):
                 full_response.append(chunk)
                 yield f"data: {json.dumps({'text': chunk})}\n\n"

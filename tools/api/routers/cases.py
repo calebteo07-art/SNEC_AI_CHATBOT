@@ -351,7 +351,7 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
                 messages=messages,
                 max_tokens=3072,
                 feature="case",
-                model=MODEL_PRO,
+                model=MODEL,
             ):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
         except RuntimeError as exc:
