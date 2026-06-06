@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from tools.api.shared import limiter
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
-from tools.shared.gemini_client import ask, MOCK_MODE, MODEL_PRO
+from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -551,7 +551,7 @@ async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_u
             }],
             max_tokens=1024,
             feature="checkin",
-            model=MODEL_PRO,
+            model=MODEL,
         )
     except Exception as exc:
         if "quota_exceeded" in str(exc):
