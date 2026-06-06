@@ -54,6 +54,7 @@ export function DailyCheckInScreen() {
         if (cancelled) return;
         setQuestion(q);
         setPhase("question");
+        setCheckInDone(true);
       } catch {
         if (cancelled) return;
         setLoadError(true);
