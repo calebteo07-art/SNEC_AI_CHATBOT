@@ -2,8 +2,12 @@
 """Token-aware text chunker for KB ingestion.
 
 Splits document text into overlapping chunks sized for the Gemini context window.
-Uses tiktoken (cl100k_base) as an approximate token counter — close enough for
-Gemini's tokenizer without requiring an API call.
+Uses the Google GenAI SDK (client.models.count_tokens) so chunk boundaries are
+measured against Gemini's actual tokenizer rather than an approximation.
+
+An in-process dict cache avoids redundant API calls for repeated text segments
+(overlap paragraphs, common medical terms). In MOCK_MODE (no API key), falls
+back to a word-count estimate so ingestion tests run without credentials.
 
 Usage:
     from tools.kb.chunker import chunk_text
@@ -13,19 +17,44 @@ Self-test:
     python tools/kb/chunker.py
 """
 
+import os
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import tiktoken
+from dotenv import load_dotenv
+load_dotenv(PROJECT_ROOT / ".env")
 
-_ENC = tiktoken.get_encoding("cl100k_base")
+COUNT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+MOCK_MODE = not _API_KEY
+
+_client = None
+_token_cache: dict[str, int] = {}
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        from google import genai
+        _client = genai.Client(api_key=_API_KEY)
+    return _client
 
 
 def _count_tokens(text: str) -> int:
-    return len(_ENC.encode(text))
+    """Count tokens via Gemini SDK; falls back to word-count estimate in MOCK_MODE."""
+    if not text:
+        return 0
+    if MOCK_MODE:
+        return max(1, len(text.split()))
+    if text in _token_cache:
+        return _token_cache[text]
+    result = _get_client().models.count_tokens(model=COUNT_MODEL, contents=text)
+    count = result.total_tokens
+    _token_cache[text] = count
+    return count
 
 
 def chunk_text(
@@ -128,10 +157,14 @@ if __name__ == "__main__":
         "Treatment includes prostaglandin analogue eye drops as first-line therapy.\n\n"
     ) * 10  # Make it long enough to trigger chunking
 
+    mode = "MOCK" if MOCK_MODE else f"LIVE (model={COUNT_MODEL})"
+    print(f"Testing chunker.py ({mode})...\n")
+
     chunks = chunk_text(sample, chunk_tokens=200, overlap_tokens=30)
-    print(f"Input: {_count_tokens(sample)} tokens -> {len(chunks)} chunks")
+    total_tokens = _count_tokens(sample)
+    print(f"Input: ~{total_tokens} tokens -> {len(chunks)} chunks")
     for i, c in enumerate(chunks):
         print(f"  Chunk {i}: {c['token_count']} tokens, starts: {c['text'][:60]!r}")
     assert len(chunks) > 1, "Expected multiple chunks for long input"
-    print("\n[PASS] chunker.py working correctly.")
+    print(f"\n[PASS] chunker.py working correctly.")
     sys.exit(0)

@@ -21,9 +21,9 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-MODEL       = os.getenv("GEMINI_MODEL",       "gemini-2.5-flash")
-MODEL_PRO   = os.getenv("GEMINI_MODEL_PRO",   "gemini-2.5-pro")       # deep reasoning: chat, case eval, debrief
-MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-2.5-flash-lite") # trivial single-token outputs only
+MODEL       = os.getenv("GEMINI_MODEL",       "gemini-3.5-flash")
+MODEL_PRO   = os.getenv("GEMINI_MODEL_PRO",   "gemini-3.1-pro")       # deep reasoning: chat, case eval, debrief
+MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-3.1-flash-lite") # trivial single-token outputs only
 # Load all available API keys — primary required, backups optional.
 # Add GEMINI_API_KEY_2 / GEMINI_API_KEY_3 in Render env vars to enable rotation.
 _API_KEYS: list[str] = [

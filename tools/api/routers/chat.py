@@ -1,4 +1,5 @@
 """Chat and session endpoints."""
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -17,7 +18,7 @@ from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -35,6 +36,43 @@ def _kb_fallback() -> str:
     if _KB_CACHE is None and _KB_PATH.exists():
         _KB_CACHE = _KB_PATH.read_text(encoding="utf-8")
     return _KB_CACHE or ""
+
+
+async def _condense_query(messages: list) -> str:
+    """Rewrite the last user message as a standalone semantic search query.
+
+    No-op when there is only one user turn — the first message is already
+    standalone. On follow-ups, takes the last 3 conversation turns as context
+    and produces a keyword-rich, pronoun-free query for pgvector retrieval.
+    """
+    user_turns = [m for m in messages if m.role == "user"]
+    if len(user_turns) <= 1:
+        return messages[-1].content if messages else ""
+
+    recent = messages[-6:]  # last 3 turns (user+assistant pairs)
+    convo = "\n".join(f"{m.role}: {m.content}" for m in recent)
+
+    prompt = (
+        "You are a search query optimizer for a medical ophthalmology knowledge base. "
+        "Given the conversation excerpt below, rewrite ONLY the last user message as a "
+        "standalone, keyword-rich semantic search query. Remove all pronouns and "
+        "conversational references. Output ONLY the query — no explanation, no punctuation "
+        "beyond what is needed.\n\n"
+        f"Conversation:\n{convo}"
+    )
+    try:
+        result = await asyncio.to_thread(
+            ask,
+            system_prompt=prompt,
+            messages=[{"role": "user", "content": "Output the standalone search query only."}],
+            max_tokens=128,
+            feature="default",
+            model=MODEL_SMALL,
+        )
+        condensed = (result or "").strip()
+        return condensed if condensed else (messages[-1].content if messages else "")
+    except Exception:
+        return messages[-1].content if messages else ""
 
 
 def _get_context(query: str) -> str:
@@ -114,7 +152,10 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
         pass  # Guardrail errors must never block legitimate queries
 
     ctx_block = await _student_context_block(student_id)
-    system_prompt = tutor_system(role) + "\n\n---\n\n" + _get_context(last_user_msg)
+    search_query = await _condense_query(body.messages)
+    if search_query != last_user_msg:
+        print(f"[rag-condense] {last_user_msg[:60]!r} → {search_query[:60]!r}", flush=True)
+    system_prompt = tutor_system(role) + "\n\n---\n\n" + _get_context(search_query)
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt
 
