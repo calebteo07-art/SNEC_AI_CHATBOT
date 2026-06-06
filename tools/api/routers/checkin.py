@@ -553,10 +553,17 @@ async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_u
             feature="checkin",
             model=MODEL_PRO,
         )
-    except RuntimeError as exc:
+    except Exception as exc:
         if "quota_exceeded" in str(exc):
             raise HTTPException(status_code=503, detail="quota_exceeded")
-        raise
+        try:
+            await update_profile(student_id, checkin_done=True)
+        except Exception:
+            pass
+        return CheckinAnswerResponse(
+            correct=True,
+            feedback="Your answer has been recorded. AI grading is temporarily unavailable — well done for completing today's check-in!"
+        )
 
     text = raw.strip()
     if text.startswith("```"):
