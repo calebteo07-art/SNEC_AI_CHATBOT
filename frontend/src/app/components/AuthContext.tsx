@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData);
+    setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
       email: userData.email,
