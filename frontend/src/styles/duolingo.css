@@ -106,12 +106,12 @@ input, textarea {
 }
 
 .checkin-textarea::placeholder {
-  color: #64748b;
+  color: var(--muted);
   opacity: 1;
 }
 
 .checkin-textarea:focus {
-  border-color: var(--primary) !important;
+  border-color: var(--teal) !important;
 }
 
 img {
