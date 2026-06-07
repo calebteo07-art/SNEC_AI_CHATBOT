@@ -56,7 +56,7 @@ export function GuidedTour() {
 
   // Delay initial appearance so the dashboard fully renders
   useEffect(() => {
-    if (!import.meta.env.DEV && localStorage.getItem(TOUR_KEY) === "true") return;
+    if (localStorage.getItem(TOUR_KEY) === "true") return;
     const t = setTimeout(() => setReady(true), 600);
     return () => clearTimeout(t);
   }, []);
@@ -72,7 +72,7 @@ export function GuidedTour() {
 
   const endTour = useCallback(() => {
     cleanupPrev();
-    if (!import.meta.env.DEV) localStorage.setItem(TOUR_KEY, "true");
+    localStorage.setItem(TOUR_KEY, "true");
     setReady(false);
   }, [cleanupPrev]);
 
