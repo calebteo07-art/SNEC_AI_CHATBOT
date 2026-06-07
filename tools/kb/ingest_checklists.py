@@ -121,7 +121,7 @@ def parse_checklist(
             system_instruction=system,
             response_mime_type="application/json",
             max_output_tokens=8192,
-            thinking_config=_types.ThinkingConfig(thinking_level="HIGH"),
+            thinking_config=_types.ThinkingConfig(thinking_budget=16000),
         ),
     )
     raw_json = sdk_response.text or ""

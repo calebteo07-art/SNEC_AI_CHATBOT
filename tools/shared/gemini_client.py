@@ -140,6 +140,15 @@ def _quota_or_raise(exc: Exception) -> None:
     raise exc
 
 
+# Gemini 2.x uses thinking_budget (tokens); thinking_level is a Gemini 3.x-only API.
+# Map our internal level strings to concrete budgets for the current model generation.
+_THINKING_BUDGETS: dict[str, int] = {
+    "LOW":    1024,
+    "MEDIUM": 8192,
+    "HIGH":   16000,
+}
+
+
 def stream_ask(
     system_prompt: str,
     messages: list[dict],
@@ -167,7 +176,9 @@ def stream_ask(
         "max_output_tokens": max_tokens,
     }
     if thinking_level != "MINIMAL":
-        config_kwargs_stream["thinking_config"] = types.ThinkingConfig(thinking_level=thinking_level)
+        config_kwargs_stream["thinking_config"] = types.ThinkingConfig(
+            thinking_budget=_THINKING_BUDGETS.get(thinking_level, 1024)
+        )
     config = types.GenerateContentConfig(**config_kwargs_stream)
 
     last_exc: Exception = RuntimeError("no_api_keys")
@@ -239,7 +250,9 @@ def ask(
         "max_output_tokens": max_tokens,
     }
     if thinking_level != "MINIMAL":
-        config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_level=thinking_level)
+        config_kwargs["thinking_config"] = types.ThinkingConfig(
+            thinking_budget=_THINKING_BUDGETS.get(thinking_level, 1024)
+        )
     if response_json_schema is not None:
         config_kwargs["response_mime_type"] = "application/json"
         config_kwargs["response_schema"] = response_json_schema
@@ -258,7 +271,9 @@ def ask(
                 if not response.candidates:
                     return response.text or ""
                 candidate = response.candidates[0]
-                if getattr(getattr(candidate, 'finish_reason', None), 'name', None) == "MAX_TOKENS":
+                # Only raise on truncation for large-budget calls (short intentional caps are fine)
+                if (max_tokens > 512
+                        and getattr(getattr(candidate, 'finish_reason', None), 'name', None) == "MAX_TOKENS"):
                     raise RuntimeError(f"response_truncated: maxOutputTokens reached for feature={feature}")
                 return response.text or ""
             except RuntimeError:
