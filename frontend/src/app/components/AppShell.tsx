@@ -196,7 +196,7 @@ function EyeSvgLogo() {
 }
 
 function LearnIcon({ active }: { active: boolean }) {
-  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  const c = active ? "#22c55e" : "rgba(255,255,255,0.38)";
   return (
     <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path
@@ -209,7 +209,7 @@ function LearnIcon({ active }: { active: boolean }) {
 }
 
 function CasesIcon({ active }: { active: boolean }) {
-  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  const c = active ? "#22c55e" : "rgba(255,255,255,0.38)";
   return (
     <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3" y="7" width="16" height="12" rx="2" stroke={c} strokeWidth="1.6" />
@@ -221,7 +221,7 @@ function CasesIcon({ active }: { active: boolean }) {
 }
 
 function TutorIcon({ active }: { active: boolean }) {
-  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  const c = active ? "#22c55e" : "rgba(255,255,255,0.38)";
   return (
     <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path
@@ -237,7 +237,7 @@ function TutorIcon({ active }: { active: boolean }) {
 }
 
 function AdminIcon({ active }: { active: boolean }) {
-  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  const c = active ? "#22c55e" : "rgba(255,255,255,0.38)";
   return (
     <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path d="M11 3L19 7V11C19 15.1 16.4 18.9 11 20C5.6 18.9 3 15.1 3 11V7L11 3Z"
@@ -249,12 +249,12 @@ function AdminIcon({ active }: { active: boolean }) {
 }
 
 function ProgressIcon({ active }: { active: boolean }) {
-  const c = active ? "#22d3ee" : "rgba(255,255,255,0.38)";
+  const c = active ? "#22c55e" : "rgba(255,255,255,0.38)";
   return (
     <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3"  y="14" width="4" height="5" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
       <rect x="9"  y="10" width="4" height="9" rx="1" fill={active ? "rgba(34,211,238,0.5)" : c} />
-      <rect x="15" y="6"  width="4" height="13" rx="1" fill={active ? "#22d3ee" : c} />
+      <rect x="15" y="6"  width="4" height="13" rx="1" fill={active ? "#22c55e" : c} />
     </svg>
   );
 }

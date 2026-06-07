@@ -22,14 +22,8 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (next.length < 8) {
-      setError("New password must be at least 8 characters.");
-      return;
-    }
-    if (next !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
+    if (next.length < 8) { setError("New password must be at least 8 characters."); return; }
+    if (next !== confirm)  { setError("Passwords do not match."); return; }
 
     setSubmitting(true);
     try {
@@ -37,15 +31,9 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          current_password: current,
-          new_password: next,
-        }),
+        body: JSON.stringify({ current_password: current, new_password: next }),
       });
-      if (res.status === 401) {
-        setError("Current password is incorrect.");
-        return;
-      }
+      if (res.status === 401) { setError("Current password is incorrect."); return; }
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
         setError((d as { detail?: string }).detail ?? "Something went wrong.");
@@ -60,132 +48,89 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
     }
   };
 
-  interface FieldConfig {
-    label: string;
-    val: string;
-    set: (v: string) => void;
-    show: boolean;
-    canToggle: boolean;
-    onToggle: () => void;
-  }
-
-  const fields: FieldConfig[] = [
-    ...(!forced ? [{
-      label: "Current password",
-      val: current,
-      set: setCurrent,
-      show: showCurrent,
-      canToggle: true,
-      onToggle: () => setShowCurrent((v) => !v),
-    }] : []),
-    {
-      label: "New password (min 8 chars)",
-      val: next,
-      set: setNext,
-      show: showNext,
-      canToggle: true,
-      onToggle: () => setShowNext((v) => !v),
-    },
-    {
-      label: "Confirm new password",
-      val: confirm,
-      set: setConfirm,
-      show: showNext,
-      canToggle: false,
-      onToggle: () => {},
-    },
+  const fields = [
+    ...(!forced ? [{ label: "Current password",       val: current, set: setCurrent, show: showCurrent, toggle: () => setShowCurrent(v => !v) }] : []),
+    { label: "New password (min 8 chars)", val: next,    set: setNext,    show: showNext,    toggle: () => setShowNext(v => !v) },
+    { label: "Confirm new password",       val: confirm, set: setConfirm, show: showNext,    toggle: () => {} },
   ];
 
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+        style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(2,6,23,.85)", backdropFilter: "blur(8px)" }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        onClick={!forced && onClose ? onClose : undefined}
       >
         <motion.div
-          className="glass-card-lg iri-border w-full max-w-md p-8 relative"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="change-pw-card"
+          initial={{ opacity: 0, y: 24, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 24 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          onClick={e => e.stopPropagation()}
         >
           {!forced && onClose && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#A39A8E] hover:text-[#1F1A12] transition-colors"
               aria-label="Close"
+              style={{ position: "absolute", top: 16, right: 16, width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--muted-text)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .12s" }}
             >
-              <X size={18} />
+              <X size={14} />
             </button>
           )}
 
-          <h2
-            className="mb-1"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.5rem",
-              fontWeight: 400,
-              color: "#1F1A12",
-            }}
-          >
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 800, color: "var(--text)", letterSpacing: "-.02em", marginBottom: forced ? 6 : 24 }}>
             {forced ? "Set your password" : "Change password"}
           </h2>
           {forced && (
-            <p className="text-[#5C544A] mb-6" style={{ fontSize: "0.88rem" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--muted-text)", marginBottom: 24, lineHeight: 1.55 }}>
               Your account requires a password change before you can continue.
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5 mt-6">
-            {fields.map(({ label, val, set, show, canToggle, onToggle }) => (
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            {fields.map(({ label, val, set, show, toggle }) => (
               <div key={label}>
-                <label
-                  className="block text-[#5C544A] mb-2"
-                  style={{ fontSize: "0.78rem", letterSpacing: "0.04em" }}
-                >
-                  {label}
-                </label>
-                <div className="relative">
+                <label className="login-field-label">{label}</label>
+                <div style={{ position: "relative" }}>
                   <input
                     type={show ? "text" : "password"}
                     value={val}
-                    onChange={(e) => set(e.target.value)}
-                    className="w-full bg-transparent border-0 border-b border-[#1F1A12]/12 px-0 py-3 pr-8 text-[#1F1A12] outline-none focus:border-[#8C6D3F] transition-colors text-base"
+                    onChange={e => set(e.target.value)}
+                    className="login-input"
+                    style={{ paddingRight: 40 }}
+                    placeholder="••••••••"
                   />
-                  {canToggle && (
-                    <button
-                      type="button"
-                      onClick={onToggle}
-                      className="absolute right-0 top-3 text-[#A39A8E] hover:text-[#5C544A] transition-colors"
-                      aria-label={show ? "Hide password" : "Show password"}
-                    >
-                      {show ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    className="login-input-action"
+                    aria-label={show ? "Hide password" : "Show password"}
+                  >
+                    {show ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
               </div>
             ))}
 
-            {error && <p className="text-[#8B2D2D] text-sm">{error}</p>}
+            {error && <p className="login-error" style={{ marginBottom: 0 }}>{error}</p>}
 
             <motion.button
               type="submit"
               disabled={submitting}
-              className="w-full mt-2 inline-flex items-center justify-center gap-2 px-8 py-4 iri-border-pill transition-all disabled:opacity-50"
-              style={{
-                fontFamily: "var(--font-body)",
-                fontWeight: 500,
-                fontSize: "0.95rem",
-              }}
-              whileHover={{ y: -1 }}
+              className="login-btn"
+              style={{ marginTop: 4 }}
+              whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
             >
               {submitting ? (
-                <span className="w-4 h-4 border-2 border-[#8C6D3F]/40 border-t-[#8C6D3F] rounded-full animate-spin" />
-              ) : (
-                "Update password"
-              )}
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                  Updating…
+                </span>
+              ) : "Update password"}
             </motion.button>
           </form>
         </motion.div>

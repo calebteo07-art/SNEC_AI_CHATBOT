@@ -21,7 +21,7 @@ export function OfflineBanner() {
     <div className="fixed top-0 inset-x-0 z-[9999] flex justify-center pointer-events-none">
       <div
         className="m-3 px-4 py-2.5 rounded-xl flex items-center gap-2.5 shadow-lg pointer-events-auto"
-        style={{ background: "#9C7B1F", color: "#FBF8F1" }}
+        style={{ background: "rgba(249,115,22,.12)", border: "1.5px solid rgba(249,115,22,.4)", color: "#f97316", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}
         role="alert"
         aria-live="assertive"
       >
