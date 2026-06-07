@@ -21,9 +21,15 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
-MODEL       = os.getenv("GEMINI_MODEL",       "gemini-3.5-flash")
-MODEL_PRO   = os.getenv("GEMINI_MODEL_PRO",   "gemini-3.1-pro")       # deep reasoning: chat, case eval, debrief
-MODEL_SMALL = os.getenv("GEMINI_MODEL_SMALL", "gemini-3.1-flash-lite") # trivial single-token outputs only
+# Model spec — edit here to change; env vars do not control model selection
+FLASH_MODEL      = "gemini-3.5-flash"
+FLASH_LITE_MODEL = "gemini-3.1-flash-lite"
+PRO_MODEL        = "gemini-3.1-pro"
+
+# Aliases used at call sites — no behaviour change needed at callers
+MODEL       = FLASH_MODEL
+MODEL_PRO   = PRO_MODEL
+MODEL_SMALL = FLASH_LITE_MODEL
 # Load all available API keys — primary required, backups optional.
 # Add GEMINI_API_KEY_2 / GEMINI_API_KEY_3 in Render env vars to enable rotation.
 _API_KEYS: list[str] = [
@@ -231,6 +237,7 @@ def ask(
     feature: str = "default",
     model: str | None = None,
     thinking_level: str = "MINIMAL",
+    json_mode: bool = False,
     response_json_schema: dict | None = None,
 ) -> str:
     """Send a conversation to Gemini via the google-genai SDK and return the full response text.
@@ -253,6 +260,8 @@ def ask(
         config_kwargs["thinking_config"] = types.ThinkingConfig(
             thinking_budget=_THINKING_BUDGETS.get(thinking_level, 1024)
         )
+    if json_mode and response_json_schema is None:
+        config_kwargs["response_mime_type"] = "application/json"
     if response_json_schema is not None:
         config_kwargs["response_mime_type"] = "application/json"
         config_kwargs["response_schema"] = response_json_schema

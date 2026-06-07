@@ -27,7 +27,8 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from dotenv import load_dotenv
 load_dotenv(PROJECT_ROOT / ".env")
 
-COUNT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+from tools.shared.gemini_client import FLASH_MODEL
+COUNT_MODEL = FLASH_MODEL
 _API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 MOCK_MODE = not _API_KEY
 

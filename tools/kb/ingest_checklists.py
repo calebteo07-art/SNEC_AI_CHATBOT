@@ -23,7 +23,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.kb.extract_pdf import extract_full_text
 from tools.kb.supabase_client import upsert_checklist
-from tools.shared.gemini_client import ask, MOCK_MODE
+from tools.shared.gemini_client import ask, MOCK_MODE, MODEL_PRO
 
 _PARSE_PROMPT = """You are a medical education data extractor. Extract all checklist steps from the ophthalmology procedure checklist below.
 
@@ -104,27 +104,15 @@ def parse_checklist(
 
     system = _PARSE_PROMPT + override_note + override_type
 
-    # Use google-genai SDK with JSON mode to guarantee valid JSON output
-    import os as _os
-    from google import genai as _genai
-    from google.genai import types as _types
-    from dotenv import load_dotenv as _load
-    _load(PROJECT_ROOT / ".env")
-    _api_key = _os.getenv("GEMINI_API_KEY", "").strip()
-    _model = _os.getenv("GEMINI_MODEL_PRO", "gemini-3.1-pro")
-    _sdk_client = _genai.Client(api_key=_api_key)
-
-    sdk_response = _sdk_client.models.generate_content(
-        model=_model,
-        contents=text_excerpt,
-        config=_types.GenerateContentConfig(
-            system_instruction=system,
-            response_mime_type="application/json",
-            max_output_tokens=8192,
-            thinking_config=_types.ThinkingConfig(thinking_budget=16000),
-        ),
+    raw_json = ask(
+        system_prompt=system,
+        messages=[{"role": "user", "content": text_excerpt}],
+        model=MODEL_PRO,
+        thinking_level="HIGH",
+        json_mode=True,
+        max_tokens=8192,
+        feature="default",
     )
-    raw_json = sdk_response.text or ""
     try:
         parsed = json.loads(raw_json)
     except json.JSONDecodeError:
