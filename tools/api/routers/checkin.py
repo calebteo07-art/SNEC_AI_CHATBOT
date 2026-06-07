@@ -1,5 +1,6 @@
 """Check-in endpoints."""
 import json
+import os
 import secrets
 from datetime import date as _date, timedelta
 
@@ -476,6 +477,9 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
             await db.update_profile(student_id, streak=0)
         except Exception:
             pass
+
+    if os.getenv("ENVIRONMENT") == "development":
+        done = False
 
     try:
         weak = profile.get("weak_topics", []) or []

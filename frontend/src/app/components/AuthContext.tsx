@@ -25,15 +25,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
+    if (import.meta.env.DEV) return null;
     try {
       const c = localStorage.getItem("eyebot_user_v1");
       return c ? JSON.parse(c) : null;
     } catch { return null; }
   });
   const [isCheckInDone, setIsCheckInDone] = useState(
-    () => localStorage.getItem("eyebot_checkin_date") === new Date().toDateString()
+    () => import.meta.env.DEV ? false : localStorage.getItem("eyebot_checkin_date") === new Date().toDateString()
   );
-  const [loading, setLoading] = useState(() => !localStorage.getItem("eyebot_user_v1"));
+  const [loading, setLoading] = useState(() => import.meta.env.DEV ? true : !localStorage.getItem("eyebot_user_v1"));
 
   useEffect(() => {
     let cancelled = false;
@@ -65,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           sessionStorage.setItem("eyebot_must_change", restoredUser.mustChangePassword ? "true" : "false");
         }
         setUser(restoredUser);
-        localStorage.setItem("eyebot_user_v1", JSON.stringify(restoredUser));
-        setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
+        if (!import.meta.env.DEV) localStorage.setItem("eyebot_user_v1", JSON.stringify(restoredUser));
+        setIsCheckInDone(import.meta.env.DEV ? false : localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
         setLoading(false);
       } catch {
         if (cancelled) return;
@@ -86,8 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
-    setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
+    if (!import.meta.env.DEV) localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
+    setIsCheckInDone(import.meta.env.DEV ? false : localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
       email: userData.email,
@@ -124,10 +125,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
-    if (done) {
-      localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
-    } else {
-      localStorage.removeItem("eyebot_checkin_date");
+    if (!import.meta.env.DEV) {
+      if (done) {
+        localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+      } else {
+        localStorage.removeItem("eyebot_checkin_date");
+      }
     }
   };
 
