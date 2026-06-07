@@ -1,7 +1,7 @@
 """Check-in endpoints."""
 import json
 import secrets
-from datetime import date as _date
+from datetime import date as _date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from tools.api.shared import limiter
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
+from tools.shared import db
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
@@ -451,6 +452,31 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
 
     done = bool(profile.get("checkin_done_today", False))
     streak = int(profile.get("streak") or 0)
+    today = _date.today()
+
+    # Reset streak if the student missed ≥1 day since their last completed check-in
+    last_checkin_raw = profile.get("last_checkin_date")
+    try:
+        last_checkin = _date.fromisoformat(str(last_checkin_raw)) if last_checkin_raw else None
+    except (ValueError, TypeError):
+        last_checkin = None
+
+    if last_checkin is not None and last_checkin < today - timedelta(days=1):
+        # Gap detected — streak is broken
+        streak = 0
+        done = False
+        try:
+            await db.update_profile(student_id, streak=0, checkin_done_today=False)
+        except Exception:
+            pass
+    elif last_checkin is None and streak > 0:
+        # Stale streak from before last_checkin_date existed — reset defensively
+        streak = 0
+        try:
+            await db.update_profile(student_id, streak=0)
+        except Exception:
+            pass
+
     try:
         weak = profile.get("weak_topics", []) or []
         weak_topic = weak[0] if weak else None
@@ -469,18 +495,27 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
 async def checkin_question(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
-
-    # Return cached question if already generated today (saves API calls, keeps question stable)
     today = _date.today().isoformat()
+
+    # 1. In-memory cache — fastest path (same process, same day)
     cached = _question_cache.get(student_id)
     if cached and cached[0] == today:
         return cached[1]
 
+    # 2. DB cache — survives server restarts (Render free tier restarts frequently)
     try:
         profile = await get_profile(student_id)
+        if profile.get("daily_q_date") == today and profile.get("daily_q_text"):
+            result = CheckinQuestionResponse(
+                question=profile["daily_q_text"],
+                topic=profile.get("daily_q_topic", "Ophthalmology"),
+            )
+            _question_cache[student_id] = (today, result)
+            return result
         weak = profile.get("weak_topics", []) or []
         role = profile.get("role", "")
     except Exception:
+        profile = {}
         weak = []
         role = ""
 
@@ -517,6 +552,15 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
         question_text = _static_fallback(topic)
     result = CheckinQuestionResponse(question=question_text, topic=topic)
     _question_cache[student_id] = (today, result)
+    # Persist to DB so server restarts don't re-trigger Gemini for the same student/day
+    try:
+        await db.update_profile(student_id,
+            daily_q_date=today,
+            daily_q_text=question_text,
+            daily_q_topic=topic,
+        )
+    except Exception:
+        pass   # non-fatal — in-memory cache still serves this session
     return result
 
 

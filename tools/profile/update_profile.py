@@ -108,6 +108,7 @@ async def update_profile(
     if checkin_done:
         updates["streak"] = new_streak
         updates["checkin_done_today"] = True
+        updates["last_checkin_date"] = today.isoformat()
     if role:
         updates["role"] = role
 
