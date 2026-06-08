@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { X, TrendingUp, TrendingDown, Minus, FileDown, Save } from "lucide-react";
+import { X, TrendingUp, TrendingDown, Minus, FileDown, Save, Clock } from "lucide-react";
 import { useAuth } from "./AuthContext";
 
 const API = "";
@@ -18,9 +18,16 @@ interface StudentProfile {
   supervisor_note?: string;
 }
 
+interface BenchmarkTopic {
+  topic: string;
+  avg_score: number;
+  student_count: number;
+}
+
 interface Props {
   studentId: string;
   onClose: () => void;
+  benchmarks: BenchmarkTopic[];
 }
 
 function VelocityIcon({ velocity }: { velocity: string }) {
@@ -29,7 +36,7 @@ function VelocityIcon({ velocity }: { velocity: string }) {
   return <Minus size={14} strokeWidth={1.5} className="text-[#A39A8E]" />;
 }
 
-export function StudentDrillDown({ studentId, onClose }: Props) {
+export function StudentDrillDown({ studentId, onClose, benchmarks }: Props) {
   const {} = useAuth();
 
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -42,6 +49,7 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [noteTimestamp, setNoteTimestamp] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API}/api/supervisor/student/${studentId}`, { credentials: "include" })
@@ -72,6 +80,9 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
       .then((r) => { if (!r.ok) throw new Error(); })
       .then(() => {
         setNoteSaved(true);
+        setNoteTimestamp(new Date().toLocaleString("en-SG", {
+          day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
+        }));
         if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
         savedTimerRef.current = setTimeout(() => setNoteSaved(false), 2500);
       })
@@ -216,6 +227,75 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
                 )}
               </div>
 
+              {/* vs. Cohort */}
+              {(() => {
+                const cohortMap = Object.fromEntries(benchmarks.map(b => [b.topic, b.avg_score]));
+                const overlap = Object.keys(profile.retention_scores).filter(t => t in cohortMap);
+                if (overlap.length === 0) return null;
+                return (
+                  <div>
+                    <p
+                      className="text-[#8C6D3F] mb-3"
+                      style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
+                    >
+                      · vs. cohort
+                    </p>
+                    <div className="space-y-2.5">
+                      {overlap.map((t, idx) => {
+                        const sPct = Math.round(profile.retention_scores[t] * 100);
+                        const cPct = Math.round(cohortMap[t] * 100);
+                        const delta = sPct - cPct;
+                        const deltaColor = delta >= 0 ? "#4F6B3D" : "#8B2D2D";
+                        const deltaLabel = delta >= 0 ? `+${delta}%` : `${delta}%`;
+                        return (
+                          <motion.div
+                            key={t}
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: idx * 0.04 }}
+                            className="flex items-center gap-3"
+                          >
+                            <span
+                              className="text-[#5C544A] truncate text-right shrink-0"
+                              style={{ fontSize: "0.78rem", width: "7rem" }}
+                              title={t.replace(/_/g, " ")}
+                            >
+                              {t.replace(/_/g, " ")}
+                            </span>
+                            <div className="flex-1 flex flex-col gap-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[#A39A8E] shrink-0" style={{ fontSize: "0.62rem", width: "2.4rem" }}>You</span>
+                                <div className="flex-1 h-1.5 rounded-full bg-[#8C6D3F]/8 overflow-hidden">
+                                  <div className="h-full rounded-full bg-[#8C6D3F]" style={{ width: `${sPct}%` }} />
+                                </div>
+                                <span className="text-[#5C544A] tabular-nums shrink-0" style={{ fontSize: "0.72rem", minWidth: "2.2rem" }}>{sPct}%</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[#A39A8E] shrink-0" style={{ fontSize: "0.62rem", width: "2.4rem" }}>Cohort</span>
+                                <div className="flex-1 h-1.5 rounded-full bg-[#4F6B3D]/8 overflow-hidden">
+                                  <div className="h-full rounded-full bg-[#4F6B3D]" style={{ width: `${cPct}%` }} />
+                                </div>
+                                <span className="text-[#5C544A] tabular-nums shrink-0" style={{ fontSize: "0.72rem", minWidth: "2.2rem" }}>{cPct}%</span>
+                              </div>
+                            </div>
+                            <span
+                              className="shrink-0 text-center rounded-full px-1.5 py-0.5 tabular-nums"
+                              style={{
+                                fontSize: "0.7rem", fontWeight: 600, color: deltaColor,
+                                background: delta >= 0 ? "#4F6B3D14" : "#8B2D2D14",
+                                minWidth: "3rem",
+                              }}
+                            >
+                              {deltaLabel}
+                            </span>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div>
                 <p
                   className="text-[#8C6D3F] mb-3"
@@ -244,44 +324,50 @@ export function StudentDrillDown({ studentId, onClose }: Props) {
               </div>
 
               {/* Supervisor note */}
-              <div>
-                <p
-                  className="text-[#8C6D3F] mb-3"
-                  style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
-                >
-                  · Supervisor note
-                </p>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Add a note about this student — e.g. 'Spoke on 2 Jun, will revisit biometry steps next week.'"
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl border border-[#1F1A12]/12 bg-[#FBF8F1] text-[#1F1A12] placeholder-[#C4BBB0] resize-none focus:outline-none focus:border-[#8C6D3F]/40 transition-colors"
-                  style={{ fontSize: "0.88rem", lineHeight: 1.6 }}
-                />
-                <div className="mt-2 flex items-center justify-between">
-                  <span
-                    className="transition-opacity duration-500"
-                    style={{
-                      fontSize: "0.78rem",
-                      color: "#4F6B3D",
-                      opacity: noteSaved ? 1 : 0,
-                    }}
+              <div className="rounded-2xl border border-[#8C6D3F]/20 bg-[#0d1626] overflow-hidden">
+                <div className="px-5 py-3 border-b border-[#8C6D3F]/12 flex items-center justify-between">
+                  <p
+                    className="text-[#8C6D3F]"
+                    style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}
                   >
-                    Saved
-                  </span>
-                  <button
-                    onClick={handleSaveNote}
-                    disabled={noteSaving}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-colors disabled:opacity-50"
-                    style={{ fontSize: "0.78rem", fontWeight: 500 }}
-                  >
-                    {noteSaving
-                      ? <div className="w-3 h-3 border border-[#FBF8F1]/30 border-t-[#FBF8F1] rounded-full animate-spin" />
-                      : <Save size={12} strokeWidth={1.5} />
-                    }
-                    Save note
-                  </button>
+                    · Supervisor note
+                  </p>
+                  {noteTimestamp && (
+                    <span className="flex items-center gap-1 text-[#A39A8E]" style={{ fontSize: "0.72rem" }}>
+                      <Clock size={10} strokeWidth={1.5} />
+                      Saved {noteTimestamp}
+                    </span>
+                  )}
+                </div>
+                <div className="px-5 py-4">
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="Add a note — e.g. 'Spoke 2 Jun, will revisit biometry next week.'"
+                    rows={4}
+                    className="w-full px-0 py-0 bg-transparent text-[#1F1A12] placeholder-[#4a5568] resize-none focus:outline-none border-l-2 border-[#8C6D3F]/40 pl-3 transition-colors"
+                    style={{ fontSize: "0.88rem", lineHeight: 1.65 }}
+                  />
+                  <div className="mt-3 flex items-center justify-between">
+                    <span
+                      className="transition-opacity duration-500"
+                      style={{ fontSize: "0.78rem", color: "#4F6B3D", opacity: noteSaved ? 1 : 0 }}
+                    >
+                      Saved
+                    </span>
+                    <button
+                      onClick={handleSaveNote}
+                      disabled={noteSaving}
+                      className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#1F1A12] text-[#FBF8F1] hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                      style={{ fontSize: "0.78rem", fontWeight: 500 }}
+                    >
+                      {noteSaving
+                        ? <div className="w-3 h-3 border border-[#FBF8F1]/30 border-t-[#FBF8F1] rounded-full animate-spin" />
+                        : <Save size={12} strokeWidth={1.5} />
+                      }
+                      Save note
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

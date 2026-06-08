@@ -30,11 +30,18 @@ async def _get_student_name(student_id: str) -> str:
     return student_id[:8] + "…"
 
 
-async def generate_student_report(student_id: str) -> bytes:
+async def generate_student_report(student_id: str, benchmarks: list[dict] | None = None) -> bytes:
     """Return a one-page PDF report as bytes."""
     profile = await get_profile(student_id)
     name = await _get_student_name(student_id)
     case_rows = await db.get_case_results(student_id)
+
+    if benchmarks is None:
+        try:
+            from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks
+            benchmarks = await get_cohort_benchmarks()
+        except Exception:
+            benchmarks = []
 
     weak_topics: list[str] = profile.get("weak_topics") or []
     retention: dict[str, float] = profile.get("retention_scores") or {}
@@ -162,6 +169,47 @@ async def generate_student_report(student_id: str) -> bytes:
     note_text = supervisor_note.strip() if supervisor_note.strip() else "No notes recorded."
     elements.append(h(note_text, size=10, color=DARK if supervisor_note.strip() else MUTED))
     elements.append(Spacer(1, 0.5 * cm))
+
+    # Cohort context table
+    if benchmarks:
+        relevant = [b for b in benchmarks if b["topic"] in retention]
+        relevant.sort(key=lambda b: retention.get(b["topic"], 1) - b["avg_score"])
+        relevant = relevant[:6]
+
+        if relevant:
+            elements.append(label("· Cohort Context — Topic Benchmarks"))
+            elements.append(Spacer(1, 0.2 * cm))
+
+            table_data = [[
+                h("Topic", bold=True, size=8),
+                h("Student", bold=True, size=8),
+                h("Cohort Avg", bold=True, size=8),
+                h("Delta", bold=True, size=8),
+            ]]
+            for b in relevant:
+                t = b["topic"]
+                student_pct = round(retention.get(t, 0) * 100)
+                cohort_pct = round(b["avg_score"] * 100)
+                delta = student_pct - cohort_pct
+                delta_color = GREEN if delta >= 0 else RED
+                delta_text = f"+{delta}%" if delta >= 0 else f"{delta}%"
+                student_color = GREEN if student_pct >= cohort_pct else RED
+                table_data.append([
+                    h(t.replace("_", " ").title(), size=9),
+                    h(f"{student_pct}%", size=9, color=student_color),
+                    h(f"{cohort_pct}%", size=9, color=MUTED),
+                    h(delta_text, size=9, color=delta_color),
+                ])
+
+            ctx_table = Table(table_data, colWidths=[5 * cm, 3 * cm, 3 * cm, 2.5 * cm])
+            ctx_table.setStyle(TableStyle([
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("GRID", (0, 0), (-1, -1), 0.3, MUTED),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7F4EE")]),
+            ]))
+            elements.append(ctx_table)
+            elements.append(Spacer(1, 0.4 * cm))
 
     # Footer
     elements.append(HRFlowable(width="100%", thickness=0.5, color=MUTED))

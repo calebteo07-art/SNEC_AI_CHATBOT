@@ -241,6 +241,30 @@ export function SupervisorDashboard() {
               )}
             </div>
 
+            {/* Batch alert */}
+            {(() => {
+              const failingTopics = benchmarks.filter(b => b.avg_score < 0.5);
+              if (failingTopics.length === 0) return null;
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="flex items-start gap-3 px-5 py-4 rounded-xl bg-[#8B2D2D]/5 border border-[#8B2D2D]/20 text-[#8B2D2D]"
+                >
+                  <AlertTriangle size={15} strokeWidth={1.5} className="mt-0.5 shrink-0" />
+                  <div>
+                    <p style={{ fontSize: "0.82rem", fontWeight: 600 }}>
+                      {failingTopics.length} topic{failingTopics.length !== 1 ? "s" : ""} below 50% cohort average
+                    </p>
+                    <p style={{ fontSize: "0.78rem", marginTop: 2, opacity: 0.85 }}>
+                      {failingTopics.map(b => b.topic.replace(/_/g, " ")).join(" · ")}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })()}
+
             {/* Cohort benchmarks */}
             {benchmarks.length > 0 && (
               <div className="surface-card-lg p-8">
@@ -318,6 +342,7 @@ export function SupervisorDashboard() {
           <StudentDrillDown
             studentId={selectedStudent}
             onClose={() => setSelectedStudent(null)}
+            benchmarks={benchmarks}
           />
         )}
       </AnimatePresence>
