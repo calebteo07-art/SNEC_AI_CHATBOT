@@ -548,7 +548,7 @@ export function AdminDashboard() {
             <div className="space-y-5">
 
               {/* Top row: Add student + CSV import */}
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                 {/* Add one student */}
                 <motion.div
