@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import { motion } from "motion/react";
+import { Search, X, MessageSquare, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { AdminStudentDetail } from "./AdminStudentDetail";
@@ -26,6 +28,45 @@ function roleBadgeClass(role: string): string {
 }
 
 function fmtTokens(n: number) { return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n); }
+
+function getInitials(name: string) {
+  return name.split(" ").filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
+function roleAvatarColors(role: string): { bg: string; text: string } {
+  if (role === "OA")  return { bg: "#CCFBF1", text: "#0D9488" };
+  if (role === "OT")  return { bg: "#EDE9FE", text: "#7C3AED" };
+  if (role === "PSA") return { bg: "#D1FAE5", text: "#059669" };
+  return { bg: "#F3F4F6", text: "#6B7280" };
+}
+
+function formatFeedTime(ts: string) {
+  try { return new Date(ts).toLocaleTimeString("en-SG", { hour: "2-digit", minute: "2-digit" }); }
+  catch { return ""; }
+}
+
+function formatDayLabel(ts: string) {
+  try {
+    const d = new Date(ts);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === today.toDateString()) return "Today";
+    if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+    return d.toLocaleDateString("en-SG", { day: "numeric", month: "short" });
+  } catch { return ""; }
+}
+
+function groupFeedByDate(items: FeedItem[]): { label: string; items: FeedItem[] }[] {
+  const groups: { label: string; items: FeedItem[] }[] = [];
+  const map = new Map<string, FeedItem[]>();
+  for (const item of items) {
+    const label = formatDayLabel(item.timestamp);
+    if (!map.has(label)) { map.set(label, []); groups.push({ label, items: map.get(label)! }); }
+    map.get(label)!.push(item);
+  }
+  return groups;
+}
 
 /* ── KPI Card ────────────────────────────────────────────── */
 function KpiCard({ value, label, iconBg, icon }: { value: string | number; label: string; iconBg: string; icon: React.ReactNode }) {
@@ -157,6 +198,7 @@ export function AdminDashboard() {
   const [csvPreview, setCsvPreview] = useState<{ count: number } | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [accountSearch, setAccountSearch] = useState("");
 
   // Activity
   const [feed, setFeed] = useState<FeedItem[]>([]);
@@ -496,214 +538,390 @@ export function AdminDashboard() {
         )}
 
         {/* ── ACCOUNTS ───────────────────────────────────────── */}
-        {tab === "accounts" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div className="admin-form-grid">
-              {/* Add one student */}
-              <div className="admin-form-card">
-                <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
-                  <IconAdd /> Add one student
-                </div>
-                <form onSubmit={handleAdd}>
-                  {[
-                    { label: "Full name", val: newName, set: setNewName, type: "text", placeholder: "Jane Doe" },
-                    { label: "Email",     val: newEmail, set: setNewEmail, type: "email", placeholder: "jane@snec.com.sg" },
-                  ].map(({ label, val, set, type, placeholder }) => (
-                    <div key={label} className="admin-field">
-                      <label className="admin-field-label">{label}</label>
-                      <input
-                        type={type}
-                        value={val}
-                        onChange={e => set(e.target.value)}
-                        className="admin-input"
-                        placeholder={placeholder}
-                      />
-                    </div>
-                  ))}
-                  <div className="admin-field">
-                    <label className="admin-field-label">Role</label>
-                    <select value={newRole} onChange={e => setNewRole(e.target.value)} className="admin-input">
-                      <option value="">Select role…</option>
-                      <option value="OA">Ophthalmic Assistant (OA)</option>
-                      <option value="OT">Ophthalmic Technician (OT)</option>
-                      <option value="PSA">Patient Service Associate (PSA)</option>
-                    </select>
-                  </div>
-                  {addError && <p className="admin-msg error">{addError}</p>}
-                  <button type="submit" className="admin-btn full" disabled={adding} style={{ marginTop: 4 }}>
-                    {adding ? "Adding…" : "Add Student"}
-                  </button>
-                </form>
-                {addedCredential && (
-                  <div className="admin-msg success" style={{ marginTop: 12 }}>
-                    Student added. Login credentials emailed to {addedCredential.email}.
-                  </div>
-                )}
-              </div>
+        {tab === "accounts" && (() => {
+          const filteredApproved = approved.filter(s => {
+            if (!accountSearch) return true;
+            const q = accountSearch.toLowerCase();
+            return s.full_name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q);
+          });
+          return (
+            <div className="space-y-5">
 
-              {/* CSV upload */}
-              <div className="admin-form-card">
-                <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
-                  <IconUpload /> Bulk import via CSV
-                </div>
-                <div
-                  className="csv-dropzone"
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={e => e.preventDefault()}
-                  onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
+              {/* Top row: Add student + CSV import */}
+              <div className="grid grid-cols-2 gap-5">
+
+                {/* Add one student */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-white rounded-2xl border border-[#E8E2DA] p-6 shadow-[0_2px_8px_rgba(31,26,18,0.06)]"
                 >
-                  <div className="csv-dropzone-icon">📄</div>
-                  <div className="csv-dropzone-hint">Drop CSV here or click to browse</div>
-                  <div className="csv-dropzone-sub">Columns: full_name, email, role</div>
-                  <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }}
-                    onChange={e => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
-                </div>
-                {csvPreview && (
-                  <div className="admin-msg info">{csvPreview.count} students ready to import</div>
-                )}
-                {csvFile && (
-                  <button onClick={handleCsvImport} disabled={csvUploading} className="admin-btn full" style={{ marginTop: 8 }}>
-                    {csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} Students`}
-                  </button>
-                )}
-                {csvImportSummary && (
-                  <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4 }}>
-                    <div className="admin-msg success">Imported: {csvImportSummary.imported}</div>
-                    {csvImportSummary.skipped > 0 && <div className="admin-msg info">Skipped: {csvImportSummary.skipped}</div>}
-                    {csvErrors.map((e, i) => <div key={i} className="admin-msg error">Row {e.row}: {e.reason}</div>)}
-                  </div>
-                )}
-                {csvCredentials.length > 0 && (
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>
-                      Generated credentials (shown once)
+                  <p className="text-[#8C6D3F] mb-5"
+                     style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
+                    · Add one student
+                  </p>
+                  <form onSubmit={handleAdd}>
+                    {([
+                      { label: "Full name", val: newName, set: setNewName, type: "text", placeholder: "Jane Doe" },
+                      { label: "Email",     val: newEmail, set: setNewEmail, type: "email", placeholder: "jane@snec.com.sg" },
+                    ] as { label: string; val: string; set: (v: string) => void; type: string; placeholder: string }[]).map(({ label, val, set, type, placeholder }) => (
+                      <div key={label} className="mb-4">
+                        <label style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E", display: "block", marginBottom: 6 }}>
+                          {label}
+                        </label>
+                        <input
+                          type={type}
+                          value={val}
+                          onChange={e => set(e.target.value)}
+                          placeholder={placeholder}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#E0DAD0] bg-white text-[#1F1A12] focus:outline-none focus:border-[#8C6D3F]/50 transition-colors"
+                          style={{ fontSize: "0.9rem" }}
+                        />
+                      </div>
+                    ))}
+                    <div className="mb-4">
+                      <label style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E", display: "block", marginBottom: 6 }}>
+                        Role
+                      </label>
+                      <select
+                        value={newRole}
+                        onChange={e => setNewRole(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-[#E0DAD0] bg-white text-[#1F1A12] focus:outline-none focus:border-[#8C6D3F]/50 transition-colors"
+                        style={{ fontSize: "0.9rem" }}
+                      >
+                        <option value="">Select role…</option>
+                        <option value="OA">Ophthalmic Assistant (OA)</option>
+                        <option value="OT">Ophthalmic Technician (OT)</option>
+                        <option value="PSA">Patient Service Associate (PSA)</option>
+                      </select>
                     </div>
-                    <div className="cred-list">
-                      {csvCredentials.map(c => (
-                        <div key={c.email} className="cred-row">
-                          <span className="cred-row-email">{c.email}</span>
-                          <span className="cred-row-pass">{c.password}</span>
+                    {addError && (
+                      <div className="mb-3 px-4 py-3 rounded-xl bg-[#FEE2E2] border border-[#EF4444]/20 text-[#EF4444]"
+                           style={{ fontSize: "0.85rem" }}>
+                        {addError}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={adding}
+                      className="w-full mt-1 px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FAF8F4] font-medium hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                      style={{ fontSize: "0.88rem" }}
+                    >
+                      {adding ? "Adding…" : "Add Student"}
+                    </button>
+                  </form>
+                  {addedCredential && (
+                    <div className="mt-3 px-4 py-3 rounded-xl bg-[#D1FAE5] border border-[#059669]/20 text-[#059669]"
+                         style={{ fontSize: "0.85rem" }}>
+                      Student added. Credentials emailed to {addedCredential.email}.
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* CSV import */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.06 }}
+                  className="bg-white rounded-2xl border border-[#E8E2DA] p-6 shadow-[0_2px_8px_rgba(31,26,18,0.06)]"
+                >
+                  <p className="text-[#8C6D3F] mb-5"
+                     style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
+                    · Bulk import via CSV
+                  </p>
+                  <div
+                    className="border-2 border-dashed border-[#E0DAD0] rounded-2xl p-8 text-center cursor-pointer hover:border-[#8C6D3F]/40 hover:bg-[#FAF8F4] transition-colors"
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
+                  >
+                    <div style={{ fontSize: "2rem", marginBottom: 8 }}>📄</div>
+                    <p style={{ fontSize: "0.9rem", fontWeight: 500, color: "#1F1A12" }}>Drop CSV here or click to browse</p>
+                    <p style={{ fontSize: "0.75rem", color: "#A39A8E", marginTop: 4 }}>Columns: full_name · email · role</p>
+                    <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }}
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
+                  </div>
+                  {csvPreview && (
+                    <div className="mt-3 px-4 py-3 rounded-xl bg-[#EFF6FF] border border-[#3B82F6]/20 text-[#3B82F6]"
+                         style={{ fontSize: "0.85rem" }}>
+                      {csvPreview.count} students ready to import
+                    </div>
+                  )}
+                  {csvFile && (
+                    <button
+                      onClick={handleCsvImport}
+                      disabled={csvUploading}
+                      className="w-full mt-3 px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FAF8F4] font-medium hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                      style={{ fontSize: "0.88rem" }}
+                    >
+                      {csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} Students`}
+                    </button>
+                  )}
+                  {csvImportSummary && (
+                    <div className="mt-3 space-y-2">
+                      <div className="px-4 py-3 rounded-xl bg-[#D1FAE5] border border-[#059669]/20 text-[#059669]"
+                           style={{ fontSize: "0.85rem" }}>
+                        Imported: {csvImportSummary.imported}
+                      </div>
+                      {csvImportSummary.skipped > 0 && (
+                        <div className="px-4 py-3 rounded-xl bg-[#EFF6FF] border border-[#3B82F6]/20 text-[#3B82F6]"
+                             style={{ fontSize: "0.85rem" }}>
+                          Skipped: {csvImportSummary.skipped}
+                        </div>
+                      )}
+                      {csvErrors.map((e, i) => (
+                        <div key={i} className="px-4 py-3 rounded-xl bg-[#FEE2E2] border border-[#EF4444]/20 text-[#EF4444]"
+                             style={{ fontSize: "0.85rem" }}>
+                          Row {e.row}: {e.reason}
                         </div>
                       ))}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
-                      Credentials have been emailed to all students.
+                  )}
+                  {csvCredentials.length > 0 && (
+                    <div className="mt-4 rounded-xl border border-[#E8E2DA] overflow-hidden">
+                      <div className="px-4 py-2 bg-[#FAF8F4] border-b border-[#E8E2DA]">
+                        <p style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E" }}>
+                          Generated credentials (shown once)
+                        </p>
+                      </div>
+                      <div className="divide-y divide-[#E8E2DA] max-h-40 overflow-y-auto">
+                        {csvCredentials.map(c => (
+                          <div key={c.email} className="flex items-center justify-between px-4 py-2.5">
+                            <span className="truncate" style={{ fontSize: "0.82rem", color: "#A39A8E" }}>{c.email}</span>
+                            <span style={{ fontSize: "0.82rem", fontFamily: "monospace", color: "#1F1A12", flexShrink: 0, marginLeft: 12 }}>{c.password}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="px-4 py-2 text-center" style={{ fontSize: "0.75rem", color: "#A39A8E" }}>
+                        Credentials have been emailed to all students.
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+
+              {/* Approved students table */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.12 }}
+                className="bg-white rounded-2xl border border-[#E8E2DA] overflow-hidden shadow-[0_2px_8px_rgba(31,26,18,0.06)]"
+              >
+                <div className="px-6 py-4 border-b border-[#E8E2DA] flex items-center justify-between gap-4">
+                  <p style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E" }}>
+                    Approved students ({approved.length})
+                  </p>
+                  <div className="flex items-center gap-3">
+                    {removeError && (
+                      <span style={{ fontSize: "0.8rem", color: "#EF4444" }}>{removeError}</span>
+                    )}
+                    <div className="relative">
+                      <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A39A8E]" />
+                      <input
+                        value={accountSearch}
+                        onChange={e => setAccountSearch(e.target.value)}
+                        placeholder="Search name or email…"
+                        className="pl-9 pr-4 py-1.5 rounded-xl border border-[#E0DAD0] bg-[#FAF8F4] text-[#1F1A12] focus:outline-none focus:border-[#8C6D3F]/50 transition-colors"
+                        style={{ fontSize: "0.82rem", width: "220px" }}
+                      />
                     </div>
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Approved students table */}
-            <div className="admin-table-wrap">
-              <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)" }}>
-                  Approved students ({approved.length})
-                </span>
-                {removeError && <span className="admin-msg error" style={{ marginTop: 0 }}>{removeError}</span>}
-              </div>
-              {approvedLoading ? (
-                <div style={{ display: "flex", justifyContent: "center", padding: "24px 0" }}>
-                  <span className="spinner spinner--teal" />
                 </div>
-              ) : (
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      {["Name", "Email", "Role", "Status", ""].map(h => <th key={h}>{h}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {approved.map(s => (
-                      <tr key={s.email} style={{ cursor: "default" }}>
-                        <td style={{ fontWeight: 600 }}>{s.full_name}</td>
-                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{s.email}</td>
-                        <td><span className={roleBadgeClass(s.role)}>{s.role}</span></td>
-                        <td>
-                          <span className={s.student_id ? "role-badge status-active" : "role-badge status-pending"}>
+                {approvedLoading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="w-5 h-5 border-2 border-[#E8E2DA] border-t-[#8C6D3F] rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <div>
+                    {filteredApproved.map((s, idx) => {
+                      const { bg, text } = roleAvatarColors(s.role);
+                      return (
+                        <motion.div
+                          key={s.email}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: idx * 0.025 }}
+                          className="flex items-center gap-4 px-6 py-3 hover:bg-[#FAF8F4] transition-colors border-b border-[#E8E2DA] last:border-0"
+                        >
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ background: bg, color: text, fontSize: "0.7rem", fontWeight: 700 }}
+                          >
+                            {getInitials(s.full_name)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#1F1A12] truncate">{s.full_name}</p>
+                            <p className="text-xs text-[#A39A8E] truncate">{s.email}</p>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"
+                                style={{ background: bg, color: text }}>
+                            {s.role}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${s.student_id ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
                             {s.student_id ? "✓ Active" : "Pending"}
                           </span>
-                        </td>
-                        <td style={{ textAlign: "right" }}>
                           <button
-                            className="admin-btn danger"
                             onClick={() => handleRemove(s.email)}
                             disabled={removing === s.email}
-                            style={{ padding: "4px 10px", fontSize: 11, borderBottomWidth: 2 }}
+                            className="p-1.5 rounded-full hover:bg-[#FEE2E2] text-[#C4BBB0] hover:text-[#EF4444] transition-colors disabled:opacity-40 shrink-0"
                           >
-                            {removing === s.email ? "…" : "Remove"}
+                            {removing === s.email
+                              ? <div className="w-3.5 h-3.5 border border-[#EF4444]/30 border-t-[#EF4444] rounded-full animate-spin" />
+                              : <X size={13} strokeWidth={1.5} />
+                            }
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {approved.length === 0 && (
-                      <tr>
-                        <td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "24px 0", fontSize: 13 }}>
-                          No approved students yet.
-                        </td>
-                      </tr>
+                        </motion.div>
+                      );
+                    })}
+                    {filteredApproved.length === 0 && (
+                      <p className="text-center py-8 text-[#A39A8E]" style={{ fontSize: "0.88rem" }}>
+                        {accountSearch ? "No students match your search." : "No approved students yet."}
+                      </p>
                     )}
-                  </tbody>
-                </table>
-              )}
-            </div>
+                  </div>
+                )}
+              </motion.div>
 
-            {/* Promote staff */}
-            <div className="admin-form-card">
-              <div className="admin-section-label" style={{ color: "var(--teal-deep)" }}>
-                <IconShield /> Promote staff
-              </div>
-              <form onSubmit={handlePromote} style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
-                <div className="admin-field" style={{ flex: 1, minWidth: 200, marginBottom: 0 }}>
-                  <label className="admin-field-label">Staff email</label>
-                  <input
-                    type="email"
-                    value={promoteEmail}
-                    onChange={e => setPromoteEmail(e.target.value)}
-                    className="admin-input"
-                    placeholder="staff@snec.com.sg"
-                  />
-                </div>
-                <div className="admin-field" style={{ marginBottom: 0 }}>
-                  <label className="admin-field-label">Role</label>
-                  <select value={promoteRole} onChange={e => setPromoteRole(e.target.value)} className="admin-input">
-                    <option value="supervisor">Supervisor</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <button type="submit" disabled={promoting} className="admin-btn">
-                  {promoting ? "…" : "Promote"}
-                </button>
-              </form>
-              {promoteMsg && <p className="admin-msg success">{promoteMsg}</p>}
+              {/* Promote staff */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.18 }}
+                className="bg-white rounded-2xl border border-[#E8E2DA] p-6 shadow-[0_2px_8px_rgba(31,26,18,0.06)]"
+              >
+                <p className="text-[#8C6D3F] mb-4"
+                   style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
+                  · Promote to staff
+                </p>
+                <form onSubmit={handlePromote} className="flex items-end gap-3 flex-wrap">
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <label style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E", display: "block", marginBottom: 6 }}>
+                      Staff email
+                    </label>
+                    <input
+                      type="email"
+                      value={promoteEmail}
+                      onChange={e => setPromoteEmail(e.target.value)}
+                      placeholder="staff@snec.com.sg"
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#E0DAD0] bg-white text-[#1F1A12] focus:outline-none focus:border-[#8C6D3F]/50 transition-colors"
+                      style={{ fontSize: "0.9rem" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "0.68rem", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, color: "#A39A8E", display: "block", marginBottom: 6 }}>
+                      Role
+                    </label>
+                    <select
+                      value={promoteRole}
+                      onChange={e => setPromoteRole(e.target.value)}
+                      className="px-4 py-2.5 rounded-xl border border-[#E0DAD0] bg-white text-[#1F1A12] focus:outline-none focus:border-[#8C6D3F]/50 transition-colors"
+                      style={{ fontSize: "0.9rem" }}
+                    >
+                      <option value="supervisor">Supervisor</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={promoting}
+                    className="px-5 py-2.5 rounded-full bg-[#1F1A12] text-[#FAF8F4] font-medium hover:bg-[#3A3024] transition-colors disabled:opacity-50"
+                    style={{ fontSize: "0.88rem" }}
+                  >
+                    {promoting ? "…" : "Promote"}
+                  </button>
+                </form>
+                {promoteMsg && (
+                  <div className="mt-3 px-4 py-3 rounded-xl bg-[#D1FAE5] border border-[#059669]/20 text-[#059669]"
+                       style={{ fontSize: "0.85rem" }}>
+                    {promoteMsg}
+                  </div>
+                )}
+              </motion.div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── ACTIVITY ───────────────────────────────────────── */}
         {tab === "activity" && (
-          <div>
+          <div className="space-y-8">
             {feedLoading && (
-              <div style={{ display: "flex", justifyContent: "center", padding: "32px 0" }}>
-                <span className="spinner spinner--teal" />
+              <div className="flex justify-center py-12">
+                <div className="w-5 h-5 border-2 border-[#E8E2DA] border-t-[#8C6D3F] rounded-full animate-spin" />
               </div>
             )}
             {!feedLoading && feed.length === 0 && (
-              <p style={{ fontSize: 13, color: "var(--muted)" }}>No activity yet.</p>
+              <p className="text-center py-12 text-[#A39A8E]" style={{ fontSize: "0.92rem" }}>
+                No activity recorded yet.
+              </p>
             )}
-            {feed.map((item, i) => (
-              <div key={i} className="feed-item">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <button className="feed-item-name" onClick={() => setDetailStudentId(item.student_id)}>
-                    {item.name}
-                  </button>
-                  <span className="feed-item-detail">{item.detail}</span>
-                  {item.token_count ? (
-                    <span className="feed-item-tokens">· {item.token_count.toLocaleString()} tokens</span>
-                  ) : null}
+            {!feedLoading && groupFeedByDate(feed).map((group, gIdx) => (
+              <motion.div
+                key={group.label}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: gIdx * 0.06 }}
+              >
+                {/* Day separator */}
+                <div className="flex items-center gap-4 mb-3">
+                  <span style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "#A39A8E", flexShrink: 0 }}>
+                    {group.label}
+                  </span>
+                  <div className="flex-1 h-px bg-[#E8E2DA]" />
                 </div>
-                <span className="feed-item-date">{item.timestamp?.slice(0, 10)}</span>
-              </div>
+
+                {/* Events */}
+                <div className="space-y-2">
+                  {group.items.map((item, idx) => {
+                    const isCase = item.type === "case";
+                    const failed = item.detail.startsWith("✗");
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: idx * 0.03 }}
+                        className="bg-white rounded-2xl border border-[#E8E2DA] px-5 py-4 flex items-center gap-4 hover:shadow-[0_2px_8px_rgba(31,26,18,0.08)] transition-shadow"
+                      >
+                        {/* Event icon */}
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                          isCase
+                            ? (failed ? "bg-[#FEE2E2]" : "bg-[#D1FAE5]")
+                            : "bg-[#EFF6FF]"
+                        }`}>
+                          {isCase
+                            ? (failed
+                                ? <XCircle size={15} className="text-[#EF4444]" />
+                                : <CheckCircle size={15} className="text-[#059669]" />)
+                            : <MessageSquare size={15} className="text-[#3B82F6]" />
+                          }
+                        </div>
+
+                        {/* Name + detail */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <button
+                              onClick={() => setDetailStudentId(item.student_id)}
+                              className="text-sm font-semibold text-[#8C6D3F] hover:underline shrink-0"
+                            >
+                              {item.name}
+                            </button>
+                            <span className="text-sm text-[#5C544A] truncate">
+                              {item.detail.replace(/^[✓✗]\s*/, "")}
+                            </span>
+                          </div>
+                          {item.token_count ? (
+                            <p style={{ fontSize: "0.75rem", color: "#A39A8E", marginTop: 2 }}>
+                              {item.token_count.toLocaleString()} tokens
+                            </p>
+                          ) : null}
+                        </div>
+
+                        {/* Timestamp */}
+                        <span className="shrink-0 tabular-nums" style={{ fontSize: "0.75rem", color: "#A39A8E" }}>
+                          {formatFeedTime(item.timestamp)}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
