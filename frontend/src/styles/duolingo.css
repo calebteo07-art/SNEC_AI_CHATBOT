@@ -84,6 +84,7 @@ html { height: 100%; }
 
 body {
   height: 100%;
+  overflow: hidden;
   /* fonts.css loads Inter Tight + Fraunces + JetBrains Mono and sets font-family.
      Do NOT re-declare font-family here — it would override those premium fonts. */
   background: var(--page);

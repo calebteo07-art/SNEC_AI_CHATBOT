@@ -41,7 +41,7 @@ export function AppShell() {
   const homeRoute = role === "admin" ? "/admin" : role === "supervisor" ? "/supervisor" : "/dashboard";
 
   return (
-    <div style={{ background: "#181717", minHeight: "100vh" }}>
+    <div style={{ background: "#181717", height: "100vh", overflow: "hidden" }}>
       {/* Fixed top bar */}
       <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
         <div className="flex justify-between items-center px-5 py-4">
@@ -61,7 +61,7 @@ export function AppShell() {
       </div>
 
       {/* Page content */}
-      <div className="pt-16 pb-28">
+      <div style={{ height: "100%", overflowY: "auto", paddingTop: "64px", paddingBottom: "112px" }}>
         <Outlet />
       </div>
 
