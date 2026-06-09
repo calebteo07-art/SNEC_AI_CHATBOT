@@ -82,7 +82,14 @@ app.include_router(student_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "mock_mode": MOCK_MODE, "frontend_built": FRONTEND_DIST.exists()}
+    return {
+        "status": "ok",
+        "mock_mode": MOCK_MODE,
+        "frontend_built": FRONTEND_DIST.exists(),
+        "frontend_path": str(FRONTEND_DIST),
+        "server_file": str(Path(__file__).resolve()),
+        "cwd": str(Path.cwd()),
+    }
 
 
 @app.get("/api/status")
