@@ -9,7 +9,11 @@ import { FlashcardScreen } from "./components/FlashcardScreen";
 import { SummaryScreen } from "./components/SummaryScreen";
 import { DailyCheckInScreen } from "./components/DailyCheckInScreen";
 import { SupervisorDashboard } from "./components/SupervisorDashboard";
-import { AdminDashboard } from "./components/AdminDashboard";
+import { AdminLayout } from "./components/AdminLayout";
+import { AdminOverviewPage } from "./components/AdminOverviewPage";
+import { AdminStudentsPage } from "./components/AdminStudentsPage";
+import { AdminAccountsPage } from "./components/AdminAccountsPage";
+import { AdminActivityPage } from "./components/AdminActivityPage";
 import { ProgressScreen } from "./components/ProgressScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { CheckInGuard } from "./components/CheckInGuard";
@@ -104,9 +108,15 @@ export const router = createBrowserRouter([
         path: "/admin",
         element: (
           <AdminGuard>
-            <AdminDashboard />
+            <AdminLayout />
           </AdminGuard>
         ),
+        children: [
+          { index: true,          element: <AdminOverviewPage /> },
+          { path: "students",     element: <AdminStudentsPage /> },
+          { path: "accounts",     element: <AdminAccountsPage /> },
+          { path: "activity",     element: <AdminActivityPage /> },
+        ],
       },
       {
         path: "/profile",

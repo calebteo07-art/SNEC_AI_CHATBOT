@@ -36,20 +36,20 @@
   --heart-bg:      rgba(248, 113, 113, 0.12);
   --gold:          #fbbf24;
 
-  /* Surfaces — dark clinical workstation */
-  --sidebar-bg:    #060d18;
-  --page:          #080e1a;
-  --card:          #0d1626;
-  --surface-2:     #111d30;
-  --surface-3:     #172035;
-  --border:        #1e2d3d;
-  --border-bright: #2a3f54;
-  --border-subtle: #162230;
+  /* Surfaces — Capsules dark charcoal */
+  --sidebar-bg:    #181717;
+  --page:          #181717;
+  --card:          #332E2B;
+  --surface-2:     #2a2521;
+  --surface-3:     #3a342f;
+  --border:        rgba(244, 239, 231, 0.12);
+  --border-bright: rgba(244, 239, 231, 0.20);
+  --border-subtle: rgba(244, 239, 231, 0.07);
 
   /* Text */
-  --text:          #e2e8f0;
-  --muted:         #94a3b8;
-  --faint:         #4a5568;
+  --text:          #F4EFE7;
+  --muted:         rgba(244, 239, 231, 0.50);
+  --faint:         rgba(244, 239, 231, 0.25);
 
   /* Radius */
   --r-xs:   6px;
@@ -66,9 +66,9 @@
   --sh-lg:  0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
   --sh-xl:  0 20px 60px rgba(0, 0, 0, 0.6);
 
-  /* Sidebar — 220px full panel */
-  --sidebar-w: 220px;
-  --topbar-h:  0px;
+  /* Navigation — top bar + bottom pill (no sidebar) */
+  --sidebar-w: 0px;
+  --topbar-h:  64px;
 }
 
 /* ── 2. Reset ─────────────────────────────────────────────── */
@@ -129,19 +129,9 @@ a { color: inherit; text-decoration: none; }
   background: var(--page);
 }
 
-/* Sidebar — 220px full panel */
+/* Sidebar — hidden, navigation moved to top/bottom pill */
 .sidebar {
-  width: var(--sidebar-w);
-  flex-shrink: 0;
-  background: linear-gradient(180deg, #0d1e38 0%, #060d18 30%, #060d18 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 0;
-  position: relative;
-  overflow: hidden;
-  z-index: 20;
-  box-shadow: 1px 0 0 rgba(255,255,255,0.04), 2px 0 12px rgba(0,0,0,0.3);
+  display: none !important;
 }
 
 .sidebar-ghost {
