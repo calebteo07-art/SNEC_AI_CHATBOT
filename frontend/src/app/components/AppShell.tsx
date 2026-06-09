@@ -25,7 +25,7 @@ const SUPERVISOR_NAV = [
 export function AppShell() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, key: locationKey } = useLocation();
   const { data: progress } = useProgress();
 
   const xp     = progress?.xp     ?? 0;
@@ -158,7 +158,9 @@ export function AppShell() {
       {/* ── Main column ───────────────────────────────────── */}
       <div className="main">
         <main className="content">
-          <Outlet />
+          <div key={locationKey} style={{ animation: `slide-in var(--durationM) var(--bezierFastoutSlowin) both`, display: 'contents' }}>
+            <Outlet />
+          </div>
         </main>
       </div>
 

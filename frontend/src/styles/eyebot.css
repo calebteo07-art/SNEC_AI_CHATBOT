@@ -98,6 +98,11 @@
   /* Sidebar layout */
   --sidebar-w:  220px;
   --topbar-h:   0px;
+
+  --bezierFastoutSlowin: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --durationM: 0.3s;
+  --durationL: 0.5s;
+  --durationXL: 0.8s;
 }
 
 /* ── 1. Base reset ────────────────────────────────────────── */
@@ -1066,6 +1071,12 @@ a { color: inherit; text-decoration: none; }
 @keyframes node-pulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:.15;transform:scale(1.18)} }
 @keyframes deco-float { 0%,100%{transform:translateY(-50%) translateX(0)} 50%{transform:translateY(calc(-50% + 20px)) translateX(12px)} }
 @keyframes online-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes fade-in  { from{opacity:0} to{opacity:1} }
+@keyframes slide-in { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes slide-in { from{opacity:0} to{opacity:1} }
+}
 
 /* ── 22. Spinner variants ─────────────────────────────────── */
 .spinner--teal {
