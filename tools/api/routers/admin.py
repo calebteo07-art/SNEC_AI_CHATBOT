@@ -62,6 +62,8 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
     except Exception as _auth_exc:
         raise HTTPException(status_code=500, detail="Account created but password setup failed. Contact support.")
 
+    email_sent = False
+    email_error = ""
     try:
         from tools.shared.gmail_sender import send_email as _send_email
         _send_email(
@@ -74,10 +76,11 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
 <p>Please log in and change your password when prompted.</p>
 <p>EyeBot · SNEC</p>""",
         )
-    except Exception:
-        pass
+        email_sent = True
+    except Exception as exc:
+        email_error = str(exc)
 
-    return {"ok": True}
+    return {"ok": True, "email_sent": email_sent, "email_error": email_error, "password": plain_pw}
 
 @router.delete("/api/admin/approved/{email}")
 async def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
@@ -301,6 +304,8 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
             continue
         existing.add(email)
 
+        email_sent = False
+        email_error = ""
         try:
             _send_email(
                 to=email,
@@ -312,10 +317,11 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
 <p>Please log in and change your password when prompted.</p>
 <p>EyeBot · SNEC</p>""",
             )
-        except Exception:
-            pass  # email failure does not block import
+            email_sent = True
+        except Exception as exc:
+            email_error = str(exc)
 
-        credentials.append({"full_name": full_name, "email": email, "password": plain_pw})
+        credentials.append({"full_name": full_name, "email": email, "password": plain_pw, "email_sent": email_sent, "email_error": email_error})
         imported += 1
 
     return {"imported": imported, "skipped": skipped, "errors": errors, "credentials": credentials}
