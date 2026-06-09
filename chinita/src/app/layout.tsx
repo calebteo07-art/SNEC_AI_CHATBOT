@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import "./globals.css";
 import { LenisProvider } from "@/components/LenisProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 const hostGrotesk = Host_Grotesk({
   subsets: ["latin"],
@@ -21,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${hostGrotesk.variable}`}>
       <body className="bg-[#181717] text-[#F4EFE7] font-[family-name:var(--font-host-grotesk)] antialiased overflow-x-hidden">
-        <LenisProvider>{children}</LenisProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <LenisProvider>{children}</LenisProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
