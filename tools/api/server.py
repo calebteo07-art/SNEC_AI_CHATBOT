@@ -82,7 +82,7 @@ app.include_router(student_router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "mock_mode": MOCK_MODE}
+    return {"status": "ok", "mock_mode": MOCK_MODE, "frontend_built": FRONTEND_DIST.exists()}
 
 
 @app.get("/api/status")
@@ -102,27 +102,31 @@ if FRONTEND_DIST.exists():
     if _images_dir.exists():
         app.mount("/images", StaticFiles(directory=_images_dir), name="images-static")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        # Security: reject path traversal
-        try:
-            resolved = (FRONTEND_DIST / full_path).resolve()
-            resolved.relative_to(FRONTEND_DIST.resolve())
-        except (ValueError, Exception):
-            raise HTTPException(status_code=404)
 
-        # 1. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html
-        page_html = FRONTEND_DIST / full_path / "index.html"
-        if page_html.is_file():
-            return FileResponse(page_html)
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    if not FRONTEND_DIST.exists():
+        raise HTTPException(status_code=503, detail="Frontend not built — chinita/out/ missing")
 
-        # 2. Direct file: favicon.ico, manifest.json, robots.txt, etc.
-        if resolved.is_file():
-            return FileResponse(resolved)
+    # Security: reject path traversal
+    try:
+        resolved = (FRONTEND_DIST / full_path).resolve()
+        resolved.relative_to(FRONTEND_DIST.resolve())
+    except (ValueError, Exception):
+        raise HTTPException(status_code=404)
 
-        # 3. SPA fallback to root index
-        root_html = FRONTEND_DIST / "index.html"
-        if root_html.is_file():
-            return FileResponse(root_html)
+    # 1. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html
+    page_html = FRONTEND_DIST / full_path / "index.html"
+    if page_html.is_file():
+        return FileResponse(page_html)
 
-        raise HTTPException(status_code=404, detail="Page not found")
+    # 2. Direct file: favicon.ico, manifest.json, robots.txt, etc.
+    if resolved.is_file():
+        return FileResponse(resolved)
+
+    # 3. SPA fallback to root index
+    root_html = FRONTEND_DIST / "index.html"
+    if root_html.is_file():
+        return FileResponse(root_html)
+
+    raise HTTPException(status_code=404, detail="Page not found")

@@ -9,6 +9,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.0"
+      - key: NODE_VERSION
+        value: "22"
       - key: ENVIRONMENT
         value: production
       # After first deploy, set ALLOWED_ORIGINS to your Render URL, e.g.:
