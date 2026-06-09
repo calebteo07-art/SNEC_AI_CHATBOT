@@ -1,9 +1,23 @@
+import { HeroSection } from "@/components/HeroSection";
+import { FloatingNav } from "@/components/FloatingNav";
+import { WelcomeSection } from "@/components/WelcomeSection";
+import { ChooseSection } from "@/components/ChooseSection";
+import { MarqueeSection } from "@/components/MarqueeSection";
+import { CapsulesFeatureSection } from "@/components/CapsulesFeatureSection";
+import { ReviewsSection } from "@/components/ReviewsSection";
+import { Footer } from "@/components/Footer";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <p className="text-muted-foreground">
-        Clone target not yet built. Run <code className="font-mono text-foreground">/clone-website</code> to start.
-      </p>
+    <main className="bg-[#181717] min-h-screen">
+      <FloatingNav />
+      <HeroSection />
+      <WelcomeSection />
+      <ChooseSection />
+      <MarqueeSection />
+      <CapsulesFeatureSection />
+      <ReviewsSection />
+      <Footer />
     </main>
   );
 }
