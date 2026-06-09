@@ -14,8 +14,9 @@ import os
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
@@ -89,7 +90,39 @@ def status():
     return {"status": "ok", "mock_mode": MOCK_MODE}
 
 
-# Serve built React frontend — must be last so API routes take priority
+# Serve Next.js static export — mounts must be last so API routes take priority
 FRONTEND_DIST = PROJECT_ROOT / "chinita" / "out"
+
 if FRONTEND_DIST.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
+    _next_dir = FRONTEND_DIST / "_next"
+    if _next_dir.exists():
+        app.mount("/_next", StaticFiles(directory=_next_dir), name="next-static")
+
+    _images_dir = FRONTEND_DIST / "images"
+    if _images_dir.exists():
+        app.mount("/images", StaticFiles(directory=_images_dir), name="images-static")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # Security: reject path traversal
+        try:
+            resolved = (FRONTEND_DIST / full_path).resolve()
+            resolved.relative_to(FRONTEND_DIST.resolve())
+        except (ValueError, Exception):
+            raise HTTPException(status_code=404)
+
+        # 1. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html
+        page_html = FRONTEND_DIST / full_path / "index.html"
+        if page_html.is_file():
+            return FileResponse(page_html)
+
+        # 2. Direct file: favicon.ico, manifest.json, robots.txt, etc.
+        if resolved.is_file():
+            return FileResponse(resolved)
+
+        # 3. SPA fallback to root index
+        root_html = FRONTEND_DIST / "index.html"
+        if root_html.is_file():
+            return FileResponse(root_html)
+
+        raise HTTPException(status_code=404, detail="Page not found")
