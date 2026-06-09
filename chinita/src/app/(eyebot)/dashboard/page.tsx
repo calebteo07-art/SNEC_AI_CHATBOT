@@ -157,19 +157,13 @@ export default function DashboardPage() {
               <StarRow stars={prog.stars} color={tokens.primary} />
 
               {!isLocked && (
-                <div className="flex gap-1.5 mt-3">
+                <div className="mt-3">
                   <Link
                     href={`/flashcards?topic=${topic.id}`}
-                    className="flex-1 text-center text-[10px] font-semibold py-1 rounded-full transition-colors"
+                    className="w-full block text-center text-[10px] font-semibold py-1 rounded-full transition-colors"
                     style={{ background: tokens.primary, color: "#181717" }}
                   >
                     Learn
-                  </Link>
-                  <Link
-                    href={`/cases?topic=${topic.id}`}
-                    className="flex-1 text-center text-[10px] font-semibold py-1 rounded-full bg-[#F4EFE7]/10 text-[#F4EFE7]/60 hover:bg-[#F4EFE7]/20 transition-colors"
-                  >
-                    Cases
                   </Link>
                 </div>
               )}

@@ -12,9 +12,9 @@ const hostGrotesk = Host_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Capsules® — Closer to Nature, Closer to Yourself",
-  description: "Spend unforgettable and remarkable time in the Californian desert with Capsules®.",
-  icons: { icon: "/seo/favicon.ico" },
+  title: "EyeBot — Singapore National Eye Centre",
+  description: "AI-powered ophthalmic training for SNEC clinical staff.",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({
