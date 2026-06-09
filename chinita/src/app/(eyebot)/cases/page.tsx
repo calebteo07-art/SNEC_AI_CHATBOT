@@ -137,7 +137,7 @@ export default function CasesPage() {
             return (
               <Link
                 key={c.case_id}
-                href={`/cases/${c.case_id}`}
+                href={`/cases/view?id=${c.case_id}`}
                 className="rounded-[30px] overflow-hidden block hover:scale-[1.01] transition-transform"
                 style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.1)" }}
               >

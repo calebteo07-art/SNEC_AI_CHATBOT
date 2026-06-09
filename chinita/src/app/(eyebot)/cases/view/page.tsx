@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 interface CaseInfo {
@@ -28,8 +28,9 @@ const DOMAINS = [
 
 const scoreColor = (s: number) => s >= 8 ? "#22c55e" : s >= 5 ? "#f59e0b" : "#ef4444";
 
-export default function CaseSessionPage({ params }: { params: Promise<{ caseId: string }> }) {
-  const { caseId } = use(params);
+function CaseSessionInner() {
+  const searchParams = useSearchParams();
+  const caseId = searchParams.get("id") ?? "";
   const router = useRouter();
 
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(null);
@@ -418,5 +419,13 @@ export default function CaseSessionPage({ params }: { params: Promise<{ caseId: 
         )}
       </div>
     </div>
+  );
+}
+
+export default function CaseSessionPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-[#F4EFE7]/40 text-sm">Loading case…</div>}>
+      <CaseSessionInner />
+    </Suspense>
   );
 }

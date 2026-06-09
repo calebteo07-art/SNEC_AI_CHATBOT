@@ -90,6 +90,6 @@ def status():
 
 
 # Serve built React frontend — must be last so API routes take priority
-FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
+FRONTEND_DIST = PROJECT_ROOT / "chinita" / "out"
 if FRONTEND_DIST.exists():
     app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
