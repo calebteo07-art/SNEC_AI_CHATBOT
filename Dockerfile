@@ -1,18 +1,4 @@
-# ── Stage 1: Build React frontend ──────────────────────────
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /build/frontend
-
-# Install deps first (layer-cached unless package files change)
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --prefer-offline
-
-# Copy source and build
-COPY frontend/ ./
-RUN npm run build
-
-
-# ── Stage 2: Python runtime ────────────────────────────────
+# ── Python runtime ────────────────────────────────────────────
 FROM python:3.12-slim
 
 # Security: run as non-root user
@@ -28,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY tools/ ./tools/
 COPY cases/ ./cases/
 
-# Copy built frontend from Stage 1
-COPY --from=frontend-builder /build/frontend/dist ./frontend/dist
+# Copy pre-built Next.js static export (chinita/out/ is committed to git)
+COPY chinita/out/ ./chinita/out/
 
-# Pre-create writable directories and hand them to the non-root user
+# Pre-create writable directories
 RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
 
 # Switch to non-root
@@ -39,7 +25,6 @@ USER eyebot
 
 EXPOSE 8000
 
-# Graceful shutdown on SIGTERM (Koyeb/Fly send SIGTERM)
 CMD ["uvicorn", "tools.api.server:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
