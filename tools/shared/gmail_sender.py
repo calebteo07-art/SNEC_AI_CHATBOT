@@ -1,67 +1,51 @@
-﻿#!/usr/bin/env python3
-"""Send email via Gmail API using the existing OAuth token.
+#!/usr/bin/env python3
+"""Send email via SMTP (Gmail).
 
-No SMTP app password needed — reuses the same token.json as the Sheets integration.
-Requires gmail.send scope (included in SCOPES in reauth.py and gsheets.py).
+Requires env vars:
+    SMTP_EMAIL        — sender address, e.g. snec.tne.edu@gmail.com
+    SMTP_APP_PASSWORD — 16-char Google App Password (myaccount.google.com/apppasswords)
 
-If token.json doesn't yet have this scope, run:
-    python tools/shared/reauth.py
+Both must be set in .env locally and in the Render dashboard for production.
 """
 
-import base64
 import os
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
 from dotenv import load_dotenv
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-load_dotenv(PROJECT_ROOT / ".env")
-
-TOKEN_FILE = PROJECT_ROOT / "token.json"
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive",
-    "https://www.googleapis.com/auth/gmail.send",
-]
-
-
-def _gmail_service():
-    if not TOKEN_FILE.exists():
-        raise RuntimeError(
-            "token.json not found. Run: python tools/shared/reauth.py"
-        )
-    creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-        TOKEN_FILE.write_text(creds.to_json(), encoding="utf-8")
-    return build("gmail", "v1", credentials=creds)
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 
 def send_email(to: str | list[str], subject: str, html: str, text: str = "") -> None:
-    """Send an HTML email via Gmail API.
+    """Send an HTML email via Gmail SMTP.
 
     Args:
         to: recipient address or list of addresses
         subject: email subject line
         html: HTML body
         text: plain-text fallback (auto-generated if omitted)
+
+    Raises:
+        KeyError: if SMTP_EMAIL or SMTP_APP_PASSWORD is not set
+        smtplib.SMTPException: on delivery failure
     """
-    sender_email = os.getenv("SMTP_EMAIL", "me")
+    sender = os.environ["SMTP_EMAIL"]
+    password = os.environ["SMTP_APP_PASSWORD"]
     recipients = [to] if isinstance(to, str) else to
     plain = text or f"{subject}\n\nOpen in an HTML-capable email client to view properly."
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
-    msg["From"] = f"EyeBot · SNEC <{sender_email}>"
+    msg["From"] = f"EyeBot · SNEC <{sender}>"
     msg["To"] = ", ".join(recipients)
     msg.attach(MIMEText(plain, "plain"))
     msg.attach(MIMEText(html, "html"))
 
-    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
-    service = _gmail_service()
-    service.users().messages().send(userId="me", body={"raw": raw}).execute()
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.ehlo()
+        server.starttls()
+        server.login(sender, password)
+        server.sendmail(sender, recipients, msg.as_bytes())
