@@ -3,7 +3,7 @@ import { useSpring } from 'motion/react';
 import {
   Scene, PerspectiveCamera, WebGLRenderer,
   MeshPhongMaterial, SphereGeometry, Mesh,
-  AmbientLight, DirectionalLight,
+  AmbientLight, DirectionalLight, Vector2,
 } from 'three';
 
 export function DisplacementSphere() {
@@ -17,13 +17,13 @@ export function DisplacementSphere() {
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(54, window.innerWidth / window.innerHeight, 0.1, 100);
-    const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: false });
+    const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
 
     camera.position.z = 52;
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    const geometry = new SphereGeometry(32, 128, 128);
+    const geometry = new SphereGeometry(32, 64, 64);
     const material = new MeshPhongMaterial({ color: 0x22c55e, emissive: 0x022209, shininess: 10 });
     const sphere = new Mesh(geometry, material);
     scene.add(sphere);
@@ -35,9 +35,13 @@ export function DisplacementSphere() {
 
     canvas.dataset.visible = 'true';
 
+    const mouse = new Vector2();
+
     const onMouseMove = (e: MouseEvent) => {
-      rotationX.set(e.clientY / window.innerHeight / 2);
-      rotationY.set(e.clientX / window.innerWidth / 2);
+      mouse.x = e.clientX / window.innerWidth;
+      mouse.y = e.clientY / window.innerHeight;
+      rotationX.set((mouse.y - 0.5) * 0.5);
+      rotationY.set((mouse.x - 0.5) * 0.5);
     };
 
     const onResize = () => {
@@ -52,7 +56,7 @@ export function DisplacementSphere() {
     let rafId: number;
     const animate = () => {
       rafId = requestAnimationFrame(animate);
-      sphere.rotation.z += 0.001;
+      sphere.rotation.z += 0.0005;
       sphere.rotation.x = rotationX.get();
       sphere.rotation.y = rotationY.get();
       renderer.render(scene, camera);
@@ -63,9 +67,11 @@ export function DisplacementSphere() {
       cancelAnimationFrame(rafId);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', onResize);
+      geometry.dispose();
+      material.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [rotationX, rotationY]);
 
   return <canvas ref={canvasRef} className="sphere-canvas" aria-hidden="true" />;
 }

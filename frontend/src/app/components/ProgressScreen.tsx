@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import styles from '../../styles/animations.module.css';
+import { useInViewport } from '../../hooks/useInViewport';
 import { useProgress } from "../../hooks/useProgress";
 import type { ProgressData } from "../../hooks/useProgress";
 
@@ -47,14 +48,7 @@ function MasteryBar({ topic, score }: { topic: string; score: number }) {
   const pct = Math.round(score * 100);
   const color = trackColor(topic);
   const bg    = trackBg(topic);
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const { ref, isVisible: visible } = useInViewport<HTMLDivElement>({ threshold: 0.3 });
 
   return (
     <div className="mastery-row" ref={ref}>
