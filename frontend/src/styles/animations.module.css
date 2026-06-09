@@ -1,0 +1,18 @@
+.fadeSlideIn {
+  opacity: 0;
+  transform: translateY(20px);
+  transition-property: opacity, transform;
+  transition-duration: 0.8s;
+  transition-timing-function: var(--bezierFastoutSlowin);
+}
+.fadeSlideIn[data-visible='true'] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.item1 { transition-delay: 0.1s; }
+.item2 { transition-delay: 0.2s; }
+.item3 { transition-delay: 0.3s; }
+.item4 { transition-delay: 0.4s; }
+.item5 { transition-delay: 0.5s; }
+.item6 { transition-delay: 0.6s; }

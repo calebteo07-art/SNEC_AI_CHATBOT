@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import styles from '../../styles/animations.module.css';
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "../utils/curriculum";
 import { trackTokens } from "../utils/trackColors";
@@ -107,6 +109,12 @@ export function DashboardScreen() {
 
   const recentSessions = (progress?.sessions ?? []).slice(0, 8);
 
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="screen-curriculum">
       {user?.mustChangePassword && (
@@ -114,7 +122,7 @@ export function DashboardScreen() {
       )}
 
       {/* Role header — non-interactive, locked to assigned track */}
-      <div className="curriculum-tabs">
+      <div className={`curriculum-tabs ${styles.fadeSlideIn} ${styles.item1}`} data-visible={visible ? 'true' : 'false'}>
         <div className="curriculum-tab active" style={{ pointerEvents: "none" }}>
           {TRACK_LABELS[activeTrack]}
         </div>
@@ -132,7 +140,7 @@ export function DashboardScreen() {
       {/* Scrollable content */}
       <div style={{ flex: 1, overflowY: "auto" }}>
 
-        <div className="curriculum-grid">
+        <div className={`curriculum-grid ${styles.fadeSlideIn} ${styles.item2}`} data-visible={visible ? 'true' : 'false'}>
           {topics.map((topic, idx) => {
             const prog = topicProgress[idx];
             const scoreStr = prog.score !== null ? `${prog.score}%` : "—";
@@ -194,7 +202,7 @@ export function DashboardScreen() {
 
         {/* Recent sessions */}
         {recentSessions.length > 0 && (
-          <div className="session-log">
+          <div className={`session-log ${styles.fadeSlideIn} ${styles.item3}`} data-visible={visible ? 'true' : 'false'}>
             <div className="session-log-header">Recent Sessions</div>
             {recentSessions.map((s, i) => {
               const topicInfo = CURRICULUM.find(t => t.id === s.topic);

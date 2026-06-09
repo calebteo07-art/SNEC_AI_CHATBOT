@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import styles from '../../styles/animations.module.css';
 import { useProgress } from "../../hooks/useProgress";
 import type { ProgressData } from "../../hooks/useProgress";
 
@@ -97,13 +98,19 @@ export function ProgressScreen() {
   const DAY_LABELS  = ["M", "T", "W", "T", "F", "S", "S"];
   const today       = new Date().getDay(); // 0=Sun
 
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="progress-two-col">
 
       {/* ── Left column: stats + calendar + focus areas ───── */}
       <div className="progress-left-col">
         {/* Compact header */}
-        <div className="progress-compact-header">
+        <div className={`progress-compact-header ${styles.fadeSlideIn} ${styles.item1}`} data-visible={visible ? 'true' : 'false'}>
           <div className="progress-compact-eyeline">SNEC Clinical Education</div>
           <div className="progress-compact-h1">My Progress</div>
           <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 3 }}>
@@ -128,6 +135,7 @@ export function ProgressScreen() {
         {data && (
           <>
             {/* Compact stat rows */}
+            <div className={`${styles.fadeSlideIn} ${styles.item2}`} data-visible={visible ? 'true' : 'false'}>
             {[
               { label: "Day Streak",     val: streak,       unit: "days", color: "var(--streak)" },
               { label: "Total Sessions", val: sessionCount,  unit: "",     color: "var(--teal)" },
@@ -141,9 +149,10 @@ export function ProgressScreen() {
                 </div>
               </div>
             ))}
+            </div>
 
             {/* 7-day calendar */}
-            <div className="streak-calendar">
+            <div className={`streak-calendar ${styles.fadeSlideIn} ${styles.item3}`} data-visible={visible ? 'true' : 'false'}>
               <div className="cal-header">
                 <p className="section-label" style={{ marginBottom: 0, fontSize: 9 }}>This Week</p>
                 <span style={{ fontSize: 10, color: "var(--muted)" }}>{weekHits.filter(Boolean).length}/7</span>
@@ -168,7 +177,7 @@ export function ProgressScreen() {
 
             {/* Focus areas */}
             {(data.weak_topics ?? []).length > 0 && (
-              <div>
+              <div className={`${styles.fadeSlideIn} ${styles.item4}`} data-visible={visible ? 'true' : 'false'}>
                 <p className="section-label" style={{ marginBottom: 8 }}>Focus Areas</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                   {data.weak_topics.map(t => (
@@ -193,13 +202,15 @@ export function ProgressScreen() {
         )}
         {data && topicPerf.length > 0 && (
           <>
-            <p className="section-label">Topic Mastery</p>
+            <p className={`section-label ${styles.fadeSlideIn} ${styles.item1}`} data-visible={visible ? 'true' : 'false'}>Topic Mastery</p>
+            <div className={`${styles.fadeSlideIn} ${styles.item2}`} data-visible={visible ? 'true' : 'false'}>
             {[...topicPerf]
               .sort((a, b) => b.score - a.score)
               .map(({ topic, score }) => (
                 <MasteryBar key={topic} topic={topic} score={score} />
               ))
             }
+            </div>
           </>
         )}
         {data && topicPerf.length === 0 && (
