@@ -115,12 +115,17 @@ async def serve_spa(full_path: str):
     except (ValueError, Exception):
         raise HTTPException(status_code=404)
 
-    # 1. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html
+    # 1. Next.js App Router flat HTML: /dashboard → out/dashboard.html (Next.js 16 default)
+    flat_html = FRONTEND_DIST / (full_path + ".html")
+    if flat_html.is_file():
+        return FileResponse(flat_html)
+
+    # 2. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html (older pattern)
     page_html = FRONTEND_DIST / full_path / "index.html"
     if page_html.is_file():
         return FileResponse(page_html)
 
-    # 2. Direct file: favicon.ico, manifest.json, robots.txt, etc.
+    # 3. Direct file: favicon.ico, manifest.json, sw.js, etc.
     if resolved.is_file():
         return FileResponse(resolved)
 
