@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
+import { DisplacementSphere } from "./displacement-sphere/DisplacementSphere";
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -175,6 +176,8 @@ export function OnboardingScreen() {
   /* ── Render ───────────────────────────────────────────── */
   return (
     <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", background: "#080e1a" }}>
+      {/* Animated 3D sphere background */}
+      <DisplacementSphere />
       {/* Full-bleed background */}
       <img src="/anatomy/eye-hero.png" className="login-bg" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", maxWidth: "none" }} />
       <div className="login-overlay" style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, rgba(2,6,18,0.94) 0%, rgba(6,25,50,0.78) 60%, rgba(14,116,144,0.3) 100%)" }} />
