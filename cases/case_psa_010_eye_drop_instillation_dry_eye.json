@@ -1,0 +1,99 @@
+{
+  "case_id": "case_psa_010_eye_drop_instillation_dry_eye",
+  "title": "A Drop of Relief",
+  "difficulty": "beginner",
+  "topic": "eye_drop_instillation_dry_eye",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mdm Wong Siok Hwa",
+    "age": 62,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Gritty, burning sensation in both eyes, worse by the end of the day"
+  },
+  "history": {
+    "hpc": "Mdm Wong has been diagnosed with bilateral dry eye disease today after assessment by the doctor, who has prescribed preservative-free artificial tears to be used four times a day in both eyes. She has used eye drops before for conjunctivitis many years ago but never on a regular daily basis. She mentions she finds it awkward to instil drops without help and often ends up with the drop running down her cheek.",
+    "pmhx": "Bilateral dry eye disease (newly characterised today). Hypertension, well-controlled. No diabetes. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Preservative-free artificial tears, both eyes, 4 times a day — newly prescribed today"],
+    "social_hx": "Lives with husband. Spends a lot of time reading and watching TV. Uses an electric fan at home which she says may dry her eyes further."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/7.5 (LogMAR 0.1)"},
+    "iop": {"right": "16 mmHg", "left": "17 mmHg"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — reviewed by doctor"
+  },
+  "investigations": {
+    "note": "VA and IOP already completed by clinical staff before this education session. This session focuses on eye drop instillation technique for newly prescribed artificial tears."
+  },
+  "diagnosis": "Patient education session for self-administered preservative-free artificial tears, four times daily, both eyes. Mdm Wong has minimal prior experience with regular drop instillation. Education goal: patient demonstrates correct single-handed technique for both eyes by end of session.",
+  "management": {
+    "immediate": [
+      "Confirm the prescribed medication (preservative-free artificial tears), the eye(s) to be treated (both), and the frequency (four times a day) with the patient before starting",
+      "Check for any known allergies to eye drop ingredients or preservatives",
+      "Explain the purpose simply: 'These drops add moisture to your eyes to relieve the gritty, burning feeling. Using them regularly through the day will help keep your eyes comfortable.'",
+      "Demonstrate the technique step by step using a demo or capped bottle:",
+      "  Step 1 — Wash hands thoroughly with soap and water",
+      "  Step 2 — Tilt the head back slightly or sit in a reclined position",
+      "  Step 3 — Gently pull the lower eyelid down with one finger to form a small pocket",
+      "  Step 4 — Look up and away from the bottle tip",
+      "  Step 5 — Hold the bottle close to the eye without touching the eye, lashes, or lid",
+      "  Step 6 — Squeeze gently to release one drop into the lower pocket",
+      "  Step 7 — Close the eye gently for a few seconds, blot any excess from the cheek with a clean tissue",
+      "Have Mdm Wong practise the technique on both eyes while you observe, giving constructive feedback",
+      "If preservative-free single-use vials are prescribed, show how to open, use once, and discard the vial — do not reuse"
+    ],
+    "follow_up": [
+      "Confirm Mdm Wong can demonstrate the technique correctly on both eyes before she leaves",
+      "If she is using single-use vials, confirm she understands not to reuse or store opened vials",
+      "Advise her to call the clinic if she continues to have difficulty after trying at home"
+    ],
+    "patient_education": [
+      "Use the drops four times a day as prescribed, even if symptoms improve, unless told otherwise by the doctor",
+      "If using single-dose preservative-free vials, discard each vial after one use — do not save it for later",
+      "Wait at least 5 minutes between different eye drops if she is prescribed more than one type",
+      "Reducing direct exposure to fans or air-conditioning vents may help reduce dryness symptoms"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the correct medication, eye(s), and frequency before starting the education session",
+        "Checks for known drug or preservative allergies",
+        "Identifies the patient's limited prior experience with regular drop instillation",
+        "Asks about the patient's home environment factors relevant to dry eye (e.g., fan use) without making a clinical judgement"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Demonstrates the instillation technique step-by-step before asking the patient to practise",
+        "Observes the patient practise on both eyes and gives specific feedback",
+        "If single-use vials are involved, demonstrates correct opening, one-time use, and disposal",
+        "Checks the patient's understanding using teach-back"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that correct technique is essential for the drops to be effective and comfortable",
+        "Identifies that running drops down the cheek means an incomplete dose was delivered",
+        "Does not provide a clinical diagnosis beyond what the doctor has already told the patient",
+        "Understands that consistent four-times-daily use is part of managing dry eye symptoms"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses teach-back: patient demonstrates the technique on both eyes, not just listens",
+        "Covers practical tips for single-handed instillation appropriate for an independent older adult",
+        "Explains storage/use rules for single-use preservative-free vials if applicable",
+        "Provides relevant lifestyle advice (e.g., reducing fan exposure) as general comfort tips, not medical instructions"
+      ]
+    }
+  }
+}

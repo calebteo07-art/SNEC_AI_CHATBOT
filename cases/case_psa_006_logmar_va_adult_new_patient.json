@@ -1,0 +1,102 @@
+{
+  "case_id": "case_psa_006_logmar_va_adult_new_patient",
+  "title": "First Visit, First Chart",
+  "difficulty": "beginner",
+  "topic": "logmar_va_adult_new_patient",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Distance Vision Testing LogMAR",
+  "patient": {
+    "name": "Mr Lim Wei Jie",
+    "age": 34,
+    "gender": "male",
+    "occupation": "software engineer",
+    "presenting_complaint": "New patient referral from polyclinic for blurred vision when driving at night"
+  },
+  "history": {
+    "hpc": "Mr Lim is a 34-year-old new patient referred from a polyclinic for assessment of blurred distance vision, particularly when driving at night. He reports the blur has been gradual over the past 1-2 years. He wears glasses for distance but says his current pair 'feels weaker than before'. He has brought his current spectacles with him and is wearing them today.",
+    "pmhx": "Myopia since age 12, last spectacle update was 3 years ago. No other ocular history. No diabetes, no hypertension.",
+    "family_hx": "Mother has high myopia and wears thick glasses.",
+    "medications": [],
+    "social_hx": "Works long hours at a computer screen. Drives to work daily. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "6/9 (LogMAR 0.18) with current glasses, improves to 6/6 with pinhole",
+      "left": "6/12 (LogMAR 0.3) with current glasses, improves to 6/6 with pinhole"
+    },
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage — PSA role is VA measurement only",
+    "fundus": "Not assessed — doctor to review after VA and refraction"
+  },
+  "investigations": {
+    "logmar_va": {
+      "right_with_correction": "LogMAR 0.18 (6/9), pinhole improves to LogMAR 0.0 (6/6)",
+      "left_with_correction": "LogMAR 0.3 (6/12), pinhole improves to LogMAR 0.0 (6/6)",
+      "method": "Modified LogMAR (M&S System) chart, calibrated room distance, tested with current spectacles in place, right eye first by convention"
+    }
+  },
+  "diagnosis": "Distance VA measured for both eyes with current correction. Both eyes improve to 6/6 with pinhole, suggesting an uncorrected or under-corrected refractive error rather than ocular pathology. Results recorded for doctor and refraction review.",
+  "management": {
+    "immediate": [
+      "Confirm patient's full name and NRIC against the registration record before starting",
+      "Perform hand hygiene and wipe the occluder with an alcohol wipe",
+      "Position Mr Lim comfortably facing the LogMAR chart at the calibrated distance",
+      "Confirm he is wearing his current spectacles for this test, as instructed",
+      "Test the right eye first — occlude the left eye and ask him to read all 5 letters per line from the top, left to right",
+      "Stop when he cannot read all 5 letters on a line and record the last completed line",
+      "Repeat the same procedure for the left eye, occluding the right eye",
+      "Since both eyes achieve 6/12 or better, apply the pinhole occluder to each eye in turn and re-test to see if vision improves",
+      "Wipe the occluder and pinhole with alcohol wipes and perform hand hygiene after the test"
+    ],
+    "follow_up": [
+      "Record both unaided-with-correction and pinhole results clearly in LogMAR notation in SCM",
+      "Hand the completed VA results to the doctor or technician performing refraction",
+      "Note that this is a new patient — flag that AR/AK and other new-patient investigations may also be required"
+    ],
+    "patient_education": [
+      "Inform Mr Lim that the vision test is complete and the doctor will review the results together with a refraction check",
+      "If he asks whether he needs new glasses, advise him that the doctor or optometrist will discuss this after refraction",
+      "Remind him to bring his current spectacles to all future visits for comparison"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity against the registration record before starting",
+        "Establishes that the patient is a new patient and notes the reason for referral",
+        "Confirms whether the patient is wearing current spectacles and tests with them in place",
+        "Notes relevant background (longstanding myopia, family history) without attempting to interpret it"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes the occluder before and after the test",
+        "Tests the right eye first by convention, occluding the other eye correctly",
+        "Reads top-down, requiring all 5 letters correct before progressing to the next line",
+        "Applies pinhole correctly because vision is 6/12 or better in both eyes",
+        "Records results in correct LogMAR/Snellen notation with and without pinhole"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that improvement with pinhole suggests a refractive (not pathological) cause",
+        "Does not tell the patient he needs new glasses or a new prescription",
+        "Identifies that this is a new patient and additional investigations may be needed",
+        "Defers interpretation of the result to the doctor or refractionist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents results accurately and completely in SCM",
+        "Hands results to the appropriate clinical staff for refraction",
+        "Communicates next steps to the patient without giving a diagnosis",
+        "Maintains a calm, professional, and welcoming manner appropriate for a first visit"
+      ]
+    }
+  }
+}

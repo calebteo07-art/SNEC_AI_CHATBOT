@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_018_triage_chemical_splash_phone",
+  "title": "Splashed at the Worksite",
+  "difficulty": "intermediate",
+  "topic": "triage_chemical_splash_phone",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Iskandar bin Rosli",
+    "age": 35,
+    "gender": "male",
+    "occupation": "construction site worker",
+    "presenting_complaint": "Phone call — splashed with an unknown cleaning chemical in both eyes at his worksite a few minutes ago"
+  },
+  "history": {
+    "hpc": "Mr Iskandar calls the clinic in distress, saying he was mixing cleaning chemicals at his worksite when a splash went into both his eyes about 5 minutes ago. He reports stinging pain, watering, and blurred vision. He says a colleague rinsed his eyes briefly with a water bottle but he is not sure how long or how thoroughly. He does not know the exact name of the chemical but describes it as 'a strong-smelling cleaning liquid, maybe bleach-based'. He is asking whether he should come to the clinic now.",
+    "pmhx": "No known eye conditions. No known drug allergies.",
+    "family_hx": "Not relevant to this presentation",
+    "medications": [],
+    "social_hx": "Construction site worker. Calling from his mobile phone at the worksite, which has access to a tap/water source nearby."
+  },
+  "examination_findings": {
+    "va": {"right": "Not assessed — phone triage, patient not yet at clinic", "left": "Not assessed"},
+    "iop": {"right": "Not assessed — phone triage", "left": "Not assessed"},
+    "anterior_segment": "Not assessed — phone triage; patient reports stinging, watering, and blurred vision in both eyes",
+    "fundus": "Not assessed — phone triage"
+  },
+  "investigations": {
+    "triage_assessment": {
+      "mechanism": "Bilateral chemical splash with an unknown cleaning agent, possibly bleach-based (alkali or hypochlorite-based products are common in cleaning chemicals)",
+      "time_since_exposure": "Approximately 5 minutes ago",
+      "irrigation_so_far": "Brief, uncertain duration/thoroughness — rinsed once with a water bottle by a colleague",
+      "symptoms": "Bilateral stinging pain, watering, blurred vision",
+      "triage_category_assigned": "Category 1 — assessment and treatment within 10 minutes; chemical burns require IMMEDIATE irrigation",
+      "action_required": "Instruct immediate continued copious irrigation at the worksite using clean running water before and during transport to the clinic/A&E"
+    }
+  },
+  "diagnosis": "Phone triage: bilateral chemical splash with an unknown agent is a Category 1 emergency requiring immediate irrigation, which takes priority over coming to the clinic immediately. PSA's primary role is to instruct immediate continued irrigation and arrange the fastest appropriate route to urgent care — not to diagnose the chemical or extent of injury.",
+  "management": {
+    "immediate": [
+      "Stay calm and speak clearly and slowly — the patient is distressed and in pain",
+      "Immediately instruct Mr Iskandar (or ask him to relay to a colleague) to continue irrigating BOTH eyes with copious clean running water RIGHT NOW, before doing anything else — do not wait to finish the phone call first if irrigation has stopped",
+      "Advise him to irrigate continuously for at least 15-20 minutes, holding the eyelids open, tilting the head to the side and back, directing water from the inner corner of the eye outward",
+      "Ask if there is a clean water source (tap, eyewash station, bottled water) readily available at the worksite — guide him to the nearest one",
+      "While irrigation is ongoing, gather essential information: name, NRIC/contact number, location (worksite address), and as much detail as possible about the chemical (name, label, safety data sheet if available) — but do not delay irrigation for this",
+      "Advise that if any contact lenses are worn, these should be removed during irrigation if they have not already dislodged",
+      "Advise him that after thorough irrigation, he should proceed immediately to the nearest A&E or eye emergency department — chemical burns are Category 1 and need assessment within 10 minutes of arrival, so going to the closest emergency facility (which may not be SNEC) may be faster and more appropriate than travelling to SNEC",
+      "If a colleague or supervisor is available, advise that someone accompany him, as his vision may be too blurred to travel safely alone",
+      "Document the call: time of exposure, time of call, chemical description, irrigation advice given, and disposition advised (proceed to nearest emergency facility after irrigation)"
+    ],
+    "follow_up": [
+      "Inform the nurse-in-charge or duty doctor immediately about the call, even though the patient may be directed to the nearest A&E rather than SNEC, in case he calls back or presents to SNEC directly",
+      "If he asks to come to SNEC instead of a nearer A&E, do not refuse, but reinforce that ongoing irrigation now and the fastest possible emergency assessment are the priorities",
+      "Document all advice given clearly, including the time irrigation was advised to start/continue"
+    ],
+    "patient_education": [
+      "Reinforce that irrigation should not stop just because he is now travelling — if possible, continue irrigation en route (e.g., using bottled water) until he reaches emergency care",
+      "Advise him to bring any information about the chemical (container, label, safety data sheet) with him if safe and possible to do so, without delaying his departure",
+      "Reassure him that prompt irrigation is the most important first step and that emergency staff will assess and treat him on arrival",
+      "Advise him not to rub his eyes, as this can worsen chemical injury"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Quickly establishes the mechanism (chemical splash, both eyes), approximate chemical type, and time since exposure",
+        "Asks about irrigation already performed and its adequacy",
+        "Asks about symptom severity (pain, watering, blurred vision) without letting history-taking delay urgent advice",
+        "Obtains contact and location details efficiently without holding up the critical first action (irrigation)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents the phone triage systematically: mechanism, time since exposure, irrigation status, symptoms",
+        "Correctly identifies this as a Category 1 chemical burn presentation per SNEC triage criteria",
+        "Recognises that irrigation is the immediate 'investigation/intervention' priority over any clinic-based assessment",
+        "Documents advice given and disposition (proceed to nearest emergency facility) clearly with timestamps"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly classifies this as Category 1 — requiring action within 10 minutes — and prioritises accordingly",
+        "Recognises that 'within 10 minutes' for a phone call located away from the clinic means directing the patient to immediate irrigation and the nearest emergency facility, not necessarily SNEC",
+        "Does not attempt to identify the chemical or predict the severity of injury",
+        "Escalates to nurse-in-charge/duty doctor promptly despite the patient potentially going elsewhere"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Gives the immediate, correct first instruction: continue/restart copious irrigation with clean water right away, for at least 15-20 minutes",
+        "Provides clear, practical irrigation technique guidance (eyelids open, head tilted, water from inner to outer canthus)",
+        "Advises on safe and timely transport to emergency care, including continuing irrigation en route if possible",
+        "Remains calm, clear, and reassuring throughout a high-stress emergency call"
+      ]
+    }
+  }
+}

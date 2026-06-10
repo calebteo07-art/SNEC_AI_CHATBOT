@@ -1,0 +1,102 @@
+{
+  "case_id": "case_ot_010_nct_glaucoma_suspect",
+  "title": "Checking the Eye Pressure, Carefully",
+  "difficulty": "beginner",
+  "topic": "nct_glaucoma_suspect",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mr Rajendran s/o Muthu",
+    "age": 49,
+    "gender": "male",
+    "occupation": "warehouse supervisor",
+    "presenting_complaint": "Follow-up visit — monitoring of intraocular pressure, glaucoma suspect"
+  },
+  "history": {
+    "hpc": "Mr Rajendran was flagged as a glaucoma suspect 6 months ago after a routine optometrist visit found IOP of 24 mmHg in both eyes and a slightly enlarged optic disc cupping. He was referred to SNEC for further assessment and is currently not on any eye drops, pending the results of monitoring visits including today's IOP check. He has no visual symptoms. He reports he had a strong cup of coffee about 30 minutes before arriving today.",
+    "pmhx": "Glaucoma suspect, under monitoring. No previous eye surgery. Mild myopia, wears glasses for distance.",
+    "family_hx": "Elder brother on glaucoma eye drops",
+    "medications": ["Nil regular eye medications"],
+    "social_hx": "Warehouse supervisor. Non-smoker. Drinks coffee daily."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "23 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally, anterior chambers deep",
+    "fundus": "C:D ratio 0.6 right, 0.65 left (per prior doctor's notes) — under monitoring"
+  },
+  "investigations": {
+    "nct_iop": {
+      "right_eye_readings": "23, 24, 23 mmHg — average 23 mmHg",
+      "left_eye_readings": "24, 25, 24 mmHg — average 24 mmHg",
+      "time_of_measurement": "10:15am",
+      "method": "Non-contact tonometry (air puff), 3 readings per eye averaged",
+      "result": "IOP elevated bilaterally, consistent with previous visits — for doctor's review and trend comparison"
+    },
+    "va_distance": "RE: 6/9. LE: 6/9.",
+    "iop_trend_note": "Previous visit IOP: RE 24 mmHg, LE 25 mmHg (taken at 9:00am) — today's readings broadly consistent"
+  },
+  "diagnosis": "NCT performed correctly with multiple readings averaged for both eyes. IOP remains elevated bilaterally (23-24 mmHg), consistent with prior visits. Findings to be reviewed by doctor alongside disc assessment and visual field results to determine if treatment should be initiated.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be tested",
+      "Perform hand hygiene and wipe all machine parts that contact the patient with alcohol wipes before starting",
+      "Ask patient to remove glasses or contact lenses before the test",
+      "Position patient comfortably at the NCT machine with chin on chinrest and forehead against the rest",
+      "Inform patient that a small puff of air will be blown into each eye and ask him to keep both eyes open and look straight ahead at the target without blinking",
+      "Perform NCT on the right eye first by convention, then the left eye, taking at least 3 readings per eye",
+      "Check that readings are consistent (not widely scattered) — repeat if there is excessive variability",
+      "Note the time of measurement, as IOP fluctuates throughout the day (diurnal variation)",
+      "Wipe machine contact parts with alcohol wipes after the procedure and perform hand hygiene",
+      "Document RE and LE readings (all values and average) with time of measurement, and compare with previous visit's IOP and time"
+    ],
+    "follow_up": [
+      "Doctor to review IOP trend alongside optic disc findings and any visual field results",
+      "If IOP remains persistently elevated with disc changes, doctor may consider starting IOP-lowering treatment",
+      "Patient may be scheduled for HVF or further glaucoma work-up if not already done"
+    ],
+    "patient_education": [
+      "Explain that the air puff may feel like a quick tickle but is not painful",
+      "Explain that eye pressure can vary throughout the day and with factors like caffeine, so results are interpreted alongside other tests",
+      "Advise patient to keep his follow-up appointments for monitoring, as early glaucoma often has no symptoms"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms both eyes are to be tested",
+        "Asks patient to remove glasses or contact lenses before NCT",
+        "Notes contextual factors that can transiently affect IOP, such as recent caffeine intake",
+        "Reviews prior IOP readings and the time they were taken for trend comparison (diurnal variation)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts with alcohol wipes before and after",
+        "Positions patient correctly and gives clear instructions (look at target, do not blink, do not flinch from air puff)",
+        "Takes at least 3 readings per eye and checks for consistency, repeating if widely variable",
+        "Documents the time of measurement alongside the IOP values for both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises IOP of 23-24 mmHg is above the normal range (10-21 mmHg) and consistent with glaucoma suspect status",
+        "Understands that IOP fluctuates diurnally and with factors such as caffeine, and documents the time of testing accordingly",
+        "Does not start or recommend treatment independently — refers trend data to doctor",
+        "Identifies the need to compare today's readings with previous visit readings"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents all IOP readings (individual values, average, time) accurately for both eyes",
+        "Flags the IOP trend to the doctor for correlation with disc and field findings",
+        "Educates patient on the painless nature of NCT and the importance of follow-up monitoring",
+        "Maintains correct infection control practices throughout"
+      ]
+    }
+  }
+}

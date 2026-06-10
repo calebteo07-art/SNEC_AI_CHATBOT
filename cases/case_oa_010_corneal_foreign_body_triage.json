@@ -1,0 +1,95 @@
+{
+  "case_id": "case_oa_010_corneal_foreign_body_triage",
+  "title": "Something Flew Into My Eye",
+  "difficulty": "beginner",
+  "topic": "corneal_foreign_body_triage",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Koh Teck Guan",
+    "age": 41,
+    "gender": "male",
+    "occupation": "carpenter",
+    "presenting_complaint": "Felt something fly into his right eye while sanding wood about an hour ago — eye is red, watery, and feels like there's grit in it"
+  },
+  "history": {
+    "hpc": "Mr Koh was sanding a piece of wood without goggles when he felt a small particle hit his right eye about an hour ago. Since then, the eye has been watering, red, and feels like there is sand or grit under the upper lid. He describes the discomfort as moderate (5/10), worse on blinking. He has not noticed any drop in vision. No history of a high-velocity metal-on-metal mechanism (he was using a manual sanding block, not a power grinder), so a penetrating injury is less likely.",
+    "pmhx": "Nil significant. No previous eye conditions. Tetanus vaccination up to date (had a booster 3 years ago after a workplace cut).",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Carpenter by trade. Came in alone on his motorbike."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Deferred until foreign body assessed", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Right eye: conjunctival hyperaemia, mild watering, a small particle of wood dust visible on the superior bulbar conjunctiva/under the upper lid on eversion. Cornea appears intact, no visible full-thickness defect or irregular pupil. Left eye: normal.",
+    "fundus": "Not assessed — not indicated"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.2 (6/9), slightly reduced likely due to watering and irritation. LE: LogMAR 0.0 (6/6).",
+    "external_inspection": "Wood particle visualised on superior conjunctiva under everted upper lid. No signs of penetrating injury (pupil round and reactive, cornea appears intact).",
+    "fluorescein_staining": "To be performed by doctor to check for corneal abrasion once foreign body is addressed"
+  },
+  "diagnosis": "Corneal/conjunctival foreign body (wood dust particle), right eye, non-penetrating. Triage Category 3 — within 60 minutes.",
+  "management": {
+    "immediate": [
+      "Take a focused history: mechanism of injury, type of material, whether protective eyewear was worn, time since injury",
+      "Ask about tetanus status — relevant for any eye trauma",
+      "Measure VA in both eyes",
+      "Examine the eye including lid eversion to look for a subtarsal foreign body — visualise the wood particle",
+      "Do NOT attempt to remove the foreign body yourself unless trained and authorised — refer to doctor/nurse for removal",
+      "Assign Triage Category 3 — within 60 minutes (foreign body, non-penetrating, painful but stable)",
+      "Document findings: location of foreign body, VA, and mechanism of injury"
+    ],
+    "follow_up": [
+      "Doctor/nurse to remove the foreign body using appropriate technique (e.g. moistened cotton bud)",
+      "Fluorescein staining to check for corneal abrasion after removal",
+      "Topical antibiotic ointment/drops may be prescribed to prevent infection while the corneal surface heals",
+      "Advise patient to return if pain worsens, vision drops, or photophobia develops"
+    ],
+    "patient_education": [
+      "Explain that the gritty sensation is from the wood particle and will improve once it is removed",
+      "Advise him not to rub the eye, which could cause a corneal abrasion or push the particle further in",
+      "Strongly advise wearing safety goggles when sanding or doing similar work in future",
+      "Explain that some residual scratchy feeling after removal is normal and should settle within a day or two with treatment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes mechanism, material, and time of injury (wood dust, sanding, ~1 hour ago)",
+        "Checks tetanus immunisation status",
+        "Asks about pain severity and any vision change",
+        "Considers and reasonably excludes a higher-velocity penetrating mechanism based on the history"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes",
+        "Performs lid eversion to check for a subtarsal foreign body",
+        "Visualises and documents the location of the foreign body",
+        "Does not attempt removal beyond scope — refers to doctor/nurse for removal and fluorescein staining"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies this as a non-penetrating corneal/conjunctival foreign body",
+        "Correctly assigns Triage Category 3 (within 60 minutes)",
+        "Differentiates this from a penetrating injury (Category 1) based on history and examination",
+        "Recognises the need for fluorescein staining to assess for an associated abrasion"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Refers foreign body removal to appropriately trained staff",
+        "Documents mechanism, location, and findings clearly",
+        "Provides appropriate safety-netting advice",
+        "Gives practical occupational safety advice (protective eyewear)"
+      ]
+    }
+  }
+}

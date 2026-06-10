@@ -1,0 +1,104 @@
+{
+  "case_id": "case_ot_009_auto_refraction_myopic_patient",
+  "title": "New Spectacles for a Growing Myope",
+  "difficulty": "beginner",
+  "topic": "auto_refraction_myopic_patient",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "checklist_procedure": "Auto Kerato-Refractometry (SOP)",
+  "patient": {
+    "name": "Master Nicholas Tan Wei Jie",
+    "age": 16,
+    "gender": "male",
+    "occupation": "secondary school student",
+    "presenting_complaint": "New patient referral — increasing difficulty seeing the whiteboard, query increase in spectacle power"
+  },
+  "history": {
+    "hpc": "Nicholas has worn glasses for myopia since age 9. Over the past 6 months, his teachers have moved him to the front of the class, but he still finds it hard to read the whiteboard clearly. His mother feels his current glasses, prescribed about 18 months ago, may no longer be strong enough. He is a new patient at this clinic today and has been sent for auto-refraction and auto-keratometry before seeing the doctor.",
+    "pmhx": "Myopia since age 9, progressive. No previous eye surgery. No known ocular disease.",
+    "family_hx": "Both parents wear glasses for myopia",
+    "medications": ["Nil regular"],
+    "social_hx": "Secondary school student. Spends 2-3 hours daily on near work (homework, phone, tablet)."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 with current glasses (LogMAR 0.6)", "left": "6/18 with current glasses (LogMAR 0.48)"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally",
+    "fundus": "Not assessed today — new patient, to be reviewed by doctor"
+  },
+  "investigations": {
+    "auto_refraction": {
+      "right": "Sphere -4.25 DS, Cylinder -0.50 DC x 180",
+      "left": "Sphere -3.75 DS, Cylinder -0.75 DC x 175",
+      "comparison_to_old_glasses": "Old glasses: RE -3.50 DS, LE -3.00 DS — increase in myopia of approximately -0.75 D each eye"
+    },
+    "auto_keratometry": {
+      "right": "K1 43.0 D / K2 43.7 D, axis 90",
+      "left": "K1 43.2 D / K2 43.9 D, axis 85"
+    },
+    "va_distance_unaided": "RE: 6/60. LE: 6/60.",
+    "va_with_old_glasses": "RE: 6/24. LE: 6/18."
+  },
+  "diagnosis": "Auto-refraction and auto-keratometry completed. Results suggest progression of myopia of approximately -0.75 D in each eye compared to current spectacles, consistent with the reported difficulty seeing the whiteboard. For doctor's review and subjective refraction to confirm new prescription.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and ask whether he is wearing glasses or contact lenses today",
+      "Ask patient to remove glasses (he is not wearing contact lenses) before testing",
+      "Perform hand hygiene and wipe machine chin rest and forehead rest with alcohol wipes",
+      "Position patient comfortably at the auto-refractor/keratometer with chin on rest and forehead against the bar",
+      "Instruct patient to open both eyes wide and look at the fixation target (e.g. a hot air balloon image) without squeezing eyes",
+      "Perform AR and AK as per doctor's order, taking repeat readings if values are inconsistent",
+      "Wipe machine contact parts with alcohol wipes after the procedure and perform hand hygiene",
+      "Document AR and AK readings for both eyes, and record VA with current glasses for comparison",
+      "Hand results to doctor for subjective refraction"
+    ],
+    "follow_up": [
+      "Doctor to perform subjective refraction to confirm final spectacle prescription",
+      "If significant myopia progression confirmed, doctor may discuss myopia control options (e.g. atropine drops, orthokeratology) given his age",
+      "New spectacle prescription to be dispensed if confirmed"
+    ],
+    "patient_education": [
+      "Explain that this machine gives the doctor a starting point — the doctor will still check his vision with different lenses to find the exact prescription",
+      "Advise on the 20-20-20 rule for near work: every 20 minutes, look at something 20 feet away for 20 seconds",
+      "Encourage outdoor time, which has been shown to help slow myopia progression in children and teenagers"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and asks patient to remove glasses before testing",
+        "Confirms patient is not wearing contact lenses",
+        "Asks about duration and progression of symptoms (difficulty seeing whiteboard, time since last prescription)",
+        "Notes family history of myopia and high near-work load as relevant context"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts with alcohol wipes before and after",
+        "Positions patient correctly with both eyes open, looking at fixation target",
+        "Performs AR and AK for both eyes and takes repeat readings if inconsistent",
+        "Records AR and AK readings clearly for both eyes, plus VA with current correction"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that AR/AK provides an objective starting estimate, not the final prescription",
+        "Compares AR result to old spectacle prescription to identify the degree of myopic progression",
+        "Does not finalise the new prescription independently — refers to doctor for subjective refraction",
+        "Identifies this as a case of progressive myopia in an adolescent"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents AR/AK results and VA findings accurately and completely",
+        "Hands results to doctor for subjective refraction",
+        "Provides appropriate patient education on near-work habits and outdoor time for myopia control",
+        "Maintains correct infection control (alcohol wipes, hand hygiene) before and after the procedure"
+      ]
+    }
+  }
+}

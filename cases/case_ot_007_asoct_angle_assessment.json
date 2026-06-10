@@ -1,0 +1,104 @@
+{
+  "case_id": "case_ot_007_asoct_angle_assessment",
+  "title": "Checking the Drainage Angle",
+  "difficulty": "beginner",
+  "topic": "asoct_angle_assessment",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mr Mohamed Faris bin Salim",
+    "age": 58,
+    "gender": "male",
+    "occupation": "taxi driver",
+    "presenting_complaint": "Referred for Anterior Segment OCT (ASOCT) — narrow angles noted on slit lamp, glaucoma suspect"
+  },
+  "history": {
+    "hpc": "Mr Faris attended the eye clinic for a routine check-up arranged by his company. The doctor noted shallow anterior chambers and narrow angles on slit lamp examination in both eyes, more pronounced on the right. He has no symptoms of eye pain, haloes, or headaches. He has been referred for ASOCT to image the anterior chamber angle before deciding if laser peripheral iridotomy is needed.",
+    "pmhx": "No known eye disease previously. Hyperopia (long-sighted), wears reading glasses. No previous eye surgery.",
+    "family_hx": "Mother had 'angle closure glaucoma' and required laser treatment",
+    "medications": ["Nil regular"],
+    "social_hx": "Taxi driver, drives long hours including at night. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "19 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "Shallow anterior chamber bilaterally, right more than left, on slit lamp van Herick assessment. No corneal oedema. Pupils normal and reactive.",
+    "fundus": "C:D ratio 0.4 bilaterally, healthy-appearing discs"
+  },
+  "investigations": {
+    "asoct_right": {
+      "angle_opening_distance_AOD500": "0.15 mm (narrow)",
+      "trabecular_iris_angle": "15 degrees (narrow)",
+      "iris_configuration": "Anteriorly bowed iris, plateau-like configuration suspected",
+      "result": "Narrow angle right eye — appositional closure risk"
+    },
+    "asoct_left": {
+      "angle_opening_distance_AOD500": "0.21 mm (borderline narrow)",
+      "trabecular_iris_angle": "21 degrees (borderline)",
+      "iris_configuration": "Mildly anteriorly bowed iris",
+      "result": "Borderline narrow angle left eye"
+    }
+  },
+  "diagnosis": "ASOCT performed on both eyes without dilation. Right eye shows a narrow angle with appositional closure risk; left eye borderline narrow. Findings consistent with primary angle-closure suspect, for doctor's review and consideration of laser peripheral iridotomy.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be imaged",
+      "Explain the procedure: painless, non-contact imaging, patient looks at a fixation target, takes a few minutes",
+      "Confirm with doctor whether ASOCT should be done BEFORE any dilating drops are given, as dilation changes angle anatomy",
+      "Set up the ASOCT machine and enter patient details correctly",
+      "Position patient at chinrest with forehead against the rest, dim room lights as required for natural pupil size",
+      "Capture angle images for both eyes in primary gaze, ensuring nasal and temporal angle are both visualised",
+      "Check image quality — repeat scan if angle structures are not clearly visualised",
+      "Print/export report showing angle measurements (AOD, TIA) and hand to doctor"
+    ],
+    "follow_up": [
+      "Doctor to review ASOCT findings together with gonioscopy if performed",
+      "If angle closure risk confirmed, patient may be listed for laser peripheral iridotomy",
+      "Advise patient that pupil dilation should be avoided or done cautiously until angle status is clarified"
+    ],
+    "patient_education": [
+      "Explain that this scan checks the drainage angle inside the eye, which is important because his mother had angle-closure glaucoma",
+      "Tell patient the test is quick, painless, and does not require any drops beforehand",
+      "Advise patient to seek urgent review if he ever develops sudden eye pain, headache, haloes around lights, nausea, or blurred vision"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms both eyes are to be imaged",
+        "Asks about family history of angle-closure glaucoma — relevant risk factor",
+        "Asks whether patient has had any dilating drops instilled today, as this affects angle anatomy on ASOCT",
+        "Explains the non-contact nature of the procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up ASOCT machine correctly with accurate patient details",
+        "Performs scan under dim lighting conditions to preserve natural (undilated) pupil size for accurate angle assessment",
+        "Captures both nasal and temporal angle images for each eye",
+        "Checks image quality and repeats scan if angle structures are not clearly visualised"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands that ASOCT is used for angle assessment in glaucoma suspects",
+        "Recognises the importance of performing ASOCT before dilation, as dilation narrows the angle further or alters appearance",
+        "Does not interpret angle-closure risk independently — refers to doctor",
+        "Identifies family history and hyperopia as relevant risk factors for narrow angles"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents AOD and TIA measurements for both eyes accurately",
+        "Hands report promptly to doctor for correlation with gonioscopy",
+        "Educates patient on warning signs of acute angle closure to seek urgent care",
+        "Advises caution regarding dilation pending doctor's review"
+      ]
+    }
+  }
+}

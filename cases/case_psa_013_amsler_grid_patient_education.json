@@ -1,0 +1,97 @@
+{
+  "case_id": "case_psa_013_amsler_grid_patient_education",
+  "title": "Straight Lines at Home",
+  "difficulty": "beginner",
+  "topic": "amsler_grid_patient_education",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Lee Geok Eng",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Follow-up visit for early dry age-related macular degeneration in the right eye"
+  },
+  "history": {
+    "hpc": "Mdm Lee was diagnosed with early dry AMD in her right eye at her last visit 3 months ago. The doctor has reviewed her today and findings remain stable. The doctor has asked the PSA to teach Mdm Lee how to use an Amsler grid at home to monitor for any changes between visits, particularly any new distortion or wavy lines that could indicate progression to wet AMD.",
+    "pmhx": "Early dry AMD, right eye (diagnosed 3 months ago, stable on review today). Left eye unaffected. Hypertension, controlled. No diabetes.",
+    "family_hx": "Sister has AMD in both eyes, diagnosed in her 70s.",
+    "medications": ["Amlodipine 5mg OD", "AREDS2-type vitamin supplement OD (started 3 months ago)"],
+    "social_hx": "Lives with daughter's family. Enjoys reading the newspaper and doing crossword puzzles daily."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Reviewed by doctor today — early dry AMD right eye, stable; left eye normal"
+  },
+  "investigations": {
+    "note": "VA, IOP, and fundus review already completed by clinical staff and doctor before this education session. This session focuses on teaching home Amsler grid self-monitoring."
+  },
+  "diagnosis": "Patient education session on home Amsler grid self-monitoring for early dry AMD (right eye), as advised by the doctor. Education goal: patient demonstrates correct self-testing technique, including testing each eye separately, and understands when to seek urgent review.",
+  "management": {
+    "immediate": [
+      "Confirm with Mdm Lee that the doctor has discussed her AMD diagnosis and the plan for home monitoring with the Amsler grid",
+      "Explain the purpose simply: 'This grid helps you check for any new changes in your central vision at home, between your clinic visits.'",
+      "Provide Mdm Lee with an Amsler grid card to take home",
+      "Demonstrate how to use the grid:",
+      "  Step 1 — Hold the grid at the same reading distance you normally use for near work, in good lighting",
+      "  Step 2 — If you wear reading glasses, wear them for this test",
+      "  Step 3 — Cover one eye completely",
+      "  Step 4 — Look directly at the central dot on the grid with the uncovered eye",
+      "  Step 5 — While looking at the central dot, notice whether any of the lines look wavy, blurred, distorted, or if any areas seem to be missing or grey",
+      "  Step 6 — Repeat with the other eye covered",
+      "Have Mdm Lee demonstrate the technique back to you, testing both eyes separately, while you observe and correct as needed",
+      "Explain how often to check: 'Try to check both eyes once a day, or at least a few times a week, especially the right eye since that is the one with the early changes.'"
+    ],
+    "follow_up": [
+      "Confirm Mdm Lee can demonstrate the correct technique for both eyes before she leaves",
+      "Document that Amsler grid education was provided and that the patient demonstrated correct technique",
+      "Remind her of her next scheduled follow-up appointment date"
+    ],
+    "patient_education": [
+      "If she notices any new wavy lines, distortion, blurring, or missing areas — especially in the right eye — she should contact the clinic promptly rather than waiting for her next scheduled appointment, as this could indicate a change requiring earlier review",
+      "Continue taking the AREDS2-type supplement as advised by the doctor",
+      "Keep the Amsler grid somewhere convenient (e.g., near her reading chair) so checking becomes a regular habit",
+      "Continue to attend all scheduled follow-up appointments even if no changes are noticed, as AMD requires ongoing monitoring"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the doctor has already discussed the AMD diagnosis and home monitoring plan with the patient",
+        "Notes which eye is affected (right eye, early dry AMD) and tailors the education accordingly",
+        "Checks whether the patient wears reading glasses for near work and incorporates this into the demonstration",
+        "Notes relevant family history (sister with AMD) as background context"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Demonstrates correct Amsler grid technique: correct distance, lighting, one eye covered at a time, central fixation",
+        "Has the patient demonstrate the technique back (teach-back) for both eyes",
+        "Confirms the patient understands what to look for (wavy lines, distortion, missing/grey areas)",
+        "Provides the patient with a take-home Amsler grid card"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the purpose of Amsler grid monitoring is to detect early signs of progression (e.g., to wet AMD), without diagnosing this to the patient",
+        "Recognises the right eye (already affected) is the priority for monitoring but both eyes should be checked",
+        "Does not provide new clinical information beyond what the doctor has already discussed",
+        "Understands the urgency of new symptoms — distortion is a red flag requiring prompt clinic contact, not routine follow-up"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Uses teach-back to confirm the patient can perform the test correctly and independently",
+        "Clearly explains the frequency of self-testing recommended",
+        "Clearly explains the action to take if new distortion is noticed (contact clinic promptly, do not wait)",
+        "Documents that education was given and the patient demonstrated competence"
+      ]
+    }
+  }
+}

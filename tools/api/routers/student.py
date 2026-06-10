@@ -5,13 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, _case_cache
-from tools.flashcards.flashcard_store import get_due_cards, insert_cards, update_card_sm2
-from tools.flashcards.generate_cards import generate_cards_from_rag as _gen_cards_rag
+from tools.flashcards.flashcard_store import get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
 from tools.flashcards.sm2 import next_review, due_date
+from tools.flashcards.static_cards import STATIC_FLASHCARDS
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, require_supervisor, CurrentUser
+from tools.shared.static_pools import pick_next_unseen
 
 router = APIRouter()
 
@@ -192,11 +193,9 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
 async def flashcards_generate(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
     role = ""
-    weak_topics: list[str] = []
     try:
         profile = await get_profile(student_id)
         role = profile.get("role", "")
-        weak_topics = profile.get("weak_topics", []) or []
     except Exception:
         pass
 
@@ -206,16 +205,15 @@ async def flashcards_generate(request: Request, current_user: CurrentUser = Depe
     except Exception:
         cards = []
 
-    # No due cards — generate fresh ones from RAG
+    # No due cards — serve from the static pool, rotating through all 30
+    # cards for this role before repeating
     if not cards:
-        try:
-            cards = await _gen_cards_rag(student_id=student_id, role=role, weak_topics=weak_topics, n=6)
-        except RuntimeError as exc:
-            if "quota_exceeded" in str(exc):
-                raise HTTPException(status_code=503, detail="quota_exceeded")
-            raise
-        except Exception:
-            raise HTTPException(status_code=500, detail="Could not generate flashcards. Please try again.")
+        pool = STATIC_FLASHCARDS.get(role.upper()) or STATIC_FLASHCARDS["OA"]
+        served_fronts = await get_served_static_fronts(student_id)
+        served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
+        picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=6)
+        new_cards = [{**pool[i], "source": "static"} for i in picks]
+        cards = await insert_cards(student_id, new_cards)
 
     return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c}) for c in cards]
 

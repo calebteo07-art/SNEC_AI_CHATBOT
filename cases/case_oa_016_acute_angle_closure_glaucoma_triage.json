@@ -1,0 +1,98 @@
+{
+  "case_id": "case_oa_016_acute_angle_closure_glaucoma_triage",
+  "title": "Headache, Vomiting, and a Rock-Hard Eye",
+  "difficulty": "intermediate",
+  "topic": "acute_angle_closure_glaucoma_triage",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Tan Geok Hwa",
+    "age": 61,
+    "gender": "female",
+    "occupation": "tailor",
+    "presenting_complaint": "Sudden severe left-sided headache with eye pain, blurred vision, nausea and vomiting that started about 3 hours ago while watching a movie in a dark cinema"
+  },
+  "history": {
+    "hpc": "Mdm Tan was watching a movie in a dark cinema about 3 hours ago when she developed a sudden severe headache on the left side, centred around and behind her left eye. The pain is severe (8/10) and she describes seeing 'rainbow halos' around the cinema lights before the pain started. She has vomited twice since. Her left eye vision is now very blurry — she describes it as 'looking through a steamed-up mirror'. She has never experienced this before. She is hyperopic (long-sighted) and has never had an eye examination for glaucoma.",
+    "pmhx": "Hyperopia (long-sightedness), uncorrected. No known glaucoma history. Hypertension, well-controlled. No previous eye surgery.",
+    "family_hx": "Mother had 'eye pressure problems' in old age, details unclear",
+    "medications": ["Losartan 50mg OD"],
+    "social_hx": "Works as a tailor — fine near work. Came in with her husband, who is very worried."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "CF (Count Fingers) at 0.5 metre"},
+    "iop": {"right": "19 mmHg (NCT)", "left": "56 mmHg (NCT)"},
+    "anterior_segment": "Left eye: conjunctival hyperaemia (red eye), hazy/oedematous cornea, mid-dilated and fixed oval pupil unresponsive to light, anterior chamber appears shallow. Right eye: also appears to have a shallow anterior chamber on gross inspection, but quiet and comfortable.",
+    "fundus": "Unable to assess left fundus due to corneal oedema. Right fundus not yet assessed."
+  },
+  "investigations": {
+    "iop_nct": "RE: 19 mmHg. LE: 56 mmHg — markedly elevated, multiple readings consistent.",
+    "va_distance": "RE: LogMAR 0.2 (6/9). LE: CF at 0.5m — unable to read LogMAR chart.",
+    "pain_assessment": "8/10 left peri-orbital and headache pain, associated with nausea and two episodes of vomiting — classic triad for acute angle closure glaucoma"
+  },
+  "diagnosis": "Acute Angle-Closure Glaucoma (AACG), left eye, precipitated by pupil dilation in a dark environment (cinema) in a hyperopic patient with anatomically narrow angles. Triage Category 1 — must be seen by doctor within 10 minutes.",
+  "management": {
+    "immediate": [
+      "Recognise the classic triad of severe unilateral eye pain/headache + nausea/vomiting + sudden blurred vision as AACG until proven otherwise",
+      "Triage as Category 1 — alert the doctor immediately, patient must be seen within 10 minutes",
+      "Do NOT leave the patient unattended; keep her seated comfortably and calm",
+      "Measure VA and IOP in both eyes promptly — note the markedly elevated left IOP (56 mmHg) and very low VA",
+      "Document the precipitating factor (dark cinema environment) — relevant clinical clue for AACG",
+      "Do NOT instil any drops, including dilating drops, without the doctor's explicit order",
+      "Note the right eye's shallow anterior chamber on gross inspection and flag this — the right eye is also at risk and may need prophylactic treatment later",
+      "Document triage time, pain score, vomiting episodes, and all findings on the SNEC Triage Form"
+    ],
+    "follow_up": [
+      "Doctor will initiate emergency IOP-lowering treatment (e.g. IV acetazolamide, topical agents) for the left eye",
+      "Likely arrangement for laser peripheral iridotomy (LPI) once the acute attack is controlled",
+      "Right eye (also narrow angle) will likely need prophylactic LPI as well, to be discussed by doctor",
+      "Monitor patient closely, including repeat IOP checks as directed"
+    ],
+    "patient_education": [
+      "Reassure Mdm Tan and her husband that this is a recognised emergency and the team is acting quickly",
+      "Explain simply that the pressure inside her left eye has risen suddenly because the drainage angle has become blocked, often triggered by being in the dark",
+      "Advise her not to rub her eye and to remain seated calmly while waiting for the doctor",
+      "Explain that her right eye may need a preventive laser treatment later, since it has a similar anatomy"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the classic AACG triad: severe pain/headache, nausea/vomiting, sudden blurred vision",
+        "Identifies the precipitating factor (dark cinema environment) as a relevant clue",
+        "Asks about hyperopia/refractive history (hyperopes have shallower anterior chambers, higher AACG risk)",
+        "Asks about prior similar episodes and family history of 'eye pressure problems'",
+        "Uses pain scale to document severity (8/10)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes promptly (right normal, left severely reduced to CF)",
+        "Performs NCT and identifies markedly elevated left IOP (56 mmHg) consistent with AACG",
+        "Observes and documents the mid-dilated fixed pupil, corneal oedema, and shallow anterior chamber",
+        "Notes the right eye's anatomy (shallow anterior chamber) as relevant for future risk"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly identifies this as Acute Angle-Closure Glaucoma, left eye",
+        "Correctly assigns SNEC Triage Category 1 (within 10 minutes)",
+        "Recognises the precipitating role of pupil dilation in low light in a predisposed (hyperopic, narrow angle) patient",
+        "Recognises the fellow eye is also at risk and flags this appropriately"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Alerts doctor immediately and does not delay for full documentation first",
+        "Does not instil any drops without doctor's order",
+        "Stays with the patient and keeps her calm and comfortable",
+        "Documents triage time and all findings completely on the SNEC Triage Form",
+        "Communicates the fellow-eye risk for follow-up planning"
+      ]
+    }
+  }
+}

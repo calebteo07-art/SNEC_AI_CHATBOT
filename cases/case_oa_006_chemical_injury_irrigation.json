@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_006_chemical_injury_irrigation",
+  "title": "Splashed at the Workshop",
+  "difficulty": "beginner",
+  "topic": "chemical_injury_irrigation",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Tan Wee Kiat",
+    "age": 34,
+    "gender": "male",
+    "occupation": "automotive workshop technician",
+    "presenting_complaint": "Splashed battery acid into his left eye about 10 minutes ago, walked into SNEC clinic himself with his eye streaming and very painful"
+  },
+  "history": {
+    "hpc": "Mr Tan was topping up a car battery when it sprayed acidic fluid into his left eye. He immediately rinsed briefly with tap water at the workshop sink for about 30 seconds before his colleague drove him to SNEC, which took about 10 minutes. He is in severe pain, his left eye is watering profusely, and he says everything looks blurry and white/foggy through that eye. He is holding his eye closed and is very distressed.",
+    "pmhx": "Nil significant. No previous eye conditions. No known drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular medications"],
+    "social_hx": "Works at a car workshop. Was not wearing safety goggles at the time. Came in with a colleague."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "Unable to test formally — patient unable to keep eye open, blurred"},
+    "iop": {"right": "Not yet measured", "left": "Not yet measured — irrigation takes priority"},
+    "anterior_segment": "Left eye: marked conjunctival hyperaemia, diffuse corneal haze/opacity visible, eyelids in spasm (blepharospasm). Right eye: normal.",
+    "fundus": "Not assessed — irrigation is the immediate priority"
+  },
+  "investigations": {
+    "ph_testing": "To be performed by doctor/nurse after copious irrigation, using pH litmus paper in the lower fornix",
+    "va_distance": "RE: 6/6. LE: deferred until after irrigation and pain settles."
+  },
+  "diagnosis": "Chemical eye injury (suspected acid — battery fluid), left eye. Triage Category 1 — irrigation must begin immediately, before any other assessment.",
+  "management": {
+    "immediate": [
+      "Recognise this as a Category 1 emergency — do NOT make the patient wait",
+      "Begin copious irrigation of the left eye immediately with normal saline or clean water — do not wait for doctor's order",
+      "Instil a topical anaesthetic drop first if available and trained to do so, to allow the patient to tolerate irrigation (per protocol/doctor order)",
+      "Irrigate continuously for at least 15-20 minutes, holding the eyelids open and asking patient to look in all directions",
+      "Alert the doctor/nurse-in-charge immediately that a chemical injury patient has arrived",
+      "Check the bottle/label of the chemical involved if available — inform the doctor of the substance",
+      "After irrigation, pH testing of the conjunctival sac will be done by doctor/nurse — irrigation continues until pH is neutral (around 7)",
+      "Document time of injury, time irrigation started, substance involved, and irrigation duration"
+    ],
+    "follow_up": [
+      "Doctor to assess corneal and conjunctival damage once irrigation complete and pH neutral",
+      "VA and IOP to be measured once patient is comfortable enough",
+      "Doctor may order fluorescein staining to assess corneal epithelial defect"
+    ],
+    "patient_education": [
+      "Reassure the patient that irrigation is the most important first step and is being done right away",
+      "Explain that some blurring and discomfort is expected and irrigation will help flush out the chemical",
+      "Advise him to wear safety goggles at work going forward to prevent recurrence"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks what substance was involved and obtains the container/label if possible",
+        "Asks about time of exposure and any first-aid/irrigation already done",
+        "Recognises severe pain and blepharospasm as signs requiring urgent action, not detailed history-taking first",
+        "Briefly checks for known allergies relevant to anaesthetic drops to be used"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Understands that irrigation takes priority over VA, IOP, or detailed examination",
+        "Knows pH testing is performed after irrigation to confirm neutralisation",
+        "Defers formal VA/IOP measurement until the eye is irrigated and the patient can cooperate",
+        "Documents substance, exposure time, and irrigation start time accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies this as a chemical eye injury — Category 1 emergency",
+        "Recognises corneal haze/opacity and conjunctival hyperaemia as signs of chemical injury",
+        "Understands that acid and alkali burns both require immediate irrigation regardless of severity",
+        "Does not delay treatment to complete paperwork first"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Begins copious irrigation immediately without waiting for full assessment",
+        "Alerts doctor/nurse-in-charge urgently",
+        "Irrigates for an adequate duration (at least 15-20 minutes) and checks pH before stopping",
+        "Documents the incident accurately including substance and timings",
+        "Keeps the patient calm and reassured throughout"
+      ]
+    }
+  }
+}

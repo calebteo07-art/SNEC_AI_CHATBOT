@@ -1,0 +1,96 @@
+{
+  "case_id": "case_oa_018_retinal_detachment_symptoms",
+  "title": "A Curtain Coming Down",
+  "difficulty": "intermediate",
+  "topic": "retinal_detachment_symptoms",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Ng Boon Huat",
+    "age": 48,
+    "gender": "male",
+    "occupation": "IT systems analyst",
+    "presenting_complaint": "Sudden increase in floaters and flashing lights in his left eye over the past day, and now describes a 'grey curtain' creeping in from the side of his vision"
+  },
+  "history": {
+    "hpc": "Mr Ng has been highly myopic since childhood (-9.00D both eyes, wears glasses since age 8). Yesterday evening he noticed a sudden shower of new floaters — he describes 'like a swarm of black dots or cobwebs' — and flashes of light in his left eye, especially noticeable when he moves his eyes in the dark. This morning he noticed a grey shadow or 'curtain' creeping in from the upper outer (temporal) part of his vision in the left eye, which has been slowly progressing over the past few hours. He has no eye pain. His right eye feels normal.",
+    "pmhx": "High myopia (-9.00D both eyes) since childhood. No previous eye surgery. No previous retinal detachment. No diabetes.",
+    "family_hx": "Father had a retinal detachment in his 50s",
+    "medications": ["Nil"],
+    "social_hx": "Works long hours at a computer. Came in directly after noticing the curtain this morning, very worried."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 with glasses (LogMAR 0.2)", "left": "6/24 with glasses (LogMAR 0.6) — reduced from his usual 6/9"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. Clear lens and cornea both eyes.",
+    "fundus": "Not yet assessed by doctor — patient describes a superior-temporal field defect ('curtain from above and to the side'), correlating with an inferior-nasal retinal detachment if confirmed; urgent dilated fundus examination required"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.2 (6/9) with glasses, baseline. LE: LogMAR 0.6 (6/24) with glasses — significantly reduced compared to his usual vision, raising concern that the macula may be involved or threatened.",
+    "iop_nct": "RE: 14 mmHg. LE: 13 mmHg. Both normal.",
+    "symptom_correlation": "New onset flashes + sudden shower of floaters + progressive curtain-like field loss in a high myope with positive family history — classic symptom triad for rhegmatogenous retinal detachment"
+  },
+  "diagnosis": "Suspected rhegmatogenous retinal detachment, left eye, in a high myope with new flashes, floaters, and a progressive 'curtain' visual field defect, with reduced VA suggesting possible macular involvement. Triage Category 3 at minimum (sudden increase in floaters/flashes with previous retinal risk factors) — but the progressive curtain and reduced VA warrant urgent same-day doctor assessment, escalating concern for macula-threatening detachment.",
+  "management": {
+    "immediate": [
+      "Take a focused history covering the classic retinal detachment symptom triad: flashes, floaters, and field loss (curtain/shadow)",
+      "Establish the timeline — sudden onset yesterday, progressing this morning — progression is a key red flag",
+      "Ask about high myopia, previous retinal detachment, and family history — all increase risk and support urgent triage",
+      "Measure VA in both eyes — note the significant drop in the left eye compared to baseline, suggesting possible macular involvement",
+      "Perform NCT — both normal, helps exclude other causes of acute symptoms",
+      "Recognise this presentation meets at least Category 3 criteria (sudden increase in floaters/flashes with retinal risk factors), but the progressive field defect and VA drop mean it should be flagged as urgent, not routine within-60-minutes",
+      "Alert the doctor promptly with a clear summary: high myope, new flashes/floaters, progressive curtain, VA dropped to 6/24",
+      "Document all findings, including the precise description and direction of the visual field defect given by the patient"
+    ],
+    "follow_up": [
+      "Doctor to perform a dilated fundus examination urgently to confirm retinal detachment and assess macular status",
+      "If retinal detachment confirmed and macula still attached ('macula-on'), this is an emergency requiring same-day surgical referral to preserve central vision",
+      "If macula already involved ('macula-off'), urgent referral is still required though the urgency window for visual outcome differs",
+      "Patient should not be sent home without a clear plan given the progressive nature of his symptoms"
+    ],
+    "patient_education": [
+      "Explain that his symptoms (flashes, floaters, curtain) can indicate the retina at the back of the eye has become detached, especially given his high prescription glasses increase this risk",
+      "Reassure him the team is treating this urgently and he will be examined with dilated pupils to look at the retina directly",
+      "Advise him to avoid rubbing his eyes or strenuous activity while waiting",
+      "Explain that if confirmed, treatment (often surgery) is time-sensitive, especially to protect his central vision"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Elicits the classic symptom triad: flashes, floaters, and curtain/shadow field loss",
+        "Establishes timeline and progression (sudden onset, progressive over hours)",
+        "Identifies high myopia and family history of retinal detachment as major risk factors",
+        "Localises the field defect (superior-temporal) as described by the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes and recognises the significant drop in the affected eye versus baseline",
+        "Performs NCT to help exclude other acute causes (e.g. AACG)",
+        "Does not attempt to diagnose retinal detachment definitively without a dilated fundus exam — appropriately defers to doctor",
+        "Documents the symptom description and timeline precisely for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the classic triad (flashes, floaters, curtain) plus high myopia and family history as highly suggestive of retinal detachment",
+        "Understands at minimum this meets Category 3 (sudden increase in floaters/flashes with retinal history/risk factors)",
+        "Recognises the progressive nature and VA drop as escalating factors warranting urgent same-day assessment",
+        "Does not under-triage this patient as 'just floaters'"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates to the doctor promptly with a clear, structured summary of risk factors and findings",
+        "Recognises the urgency of dilated fundus examination and does not delay",
+        "Documents all findings thoroughly including symptom description, timeline, and VA",
+        "Provides reassuring but accurate education about the urgency and likely next steps"
+      ]
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "case_id": "case_ot_013_eye_drop_instillation_pretest",
+  "title": "A Drop Before the Picture",
+  "difficulty": "beginner",
+  "topic": "eye_drop_instillation_pretest",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "checklist_procedure": "Instillation of Eye Drops",
+  "patient": {
+    "name": "Mdm Fatimah binte Yusoff",
+    "age": 55,
+    "gender": "female",
+    "occupation": "tailor",
+    "presenting_complaint": "Follow-up visit — referred for dilated fundus photography, requires pupil dilation before imaging"
+  },
+  "history": {
+    "hpc": "Mdm Fatimah is a known diabetic attending her annual diabetic eye screening. The doctor has ordered dilated fundus photography to assess for diabetic retinopathy, which requires instillation of mydriatic drops to dilate both pupils before the images can be taken. She has had this drop before without problems. She drove herself to the appointment today.",
+    "pmhx": "Type 2 diabetes for 12 years, on insulin. Hypertension. No previous eye surgery. No known drug allergies.",
+    "family_hx": "Sister has diabetic retinopathy",
+    "medications": ["Insulin glargine OD", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "social_hx": "Tailor, works from home. Drove herself to the clinic today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally, anterior chambers deep, angles open on prior assessment",
+    "fundus": "To be assessed via dilated fundus photography today"
+  },
+  "investigations": {
+    "pre_dilation_pupil_size": {
+      "right": "3.5 mm",
+      "left": "3.5 mm"
+    },
+    "dilating_drops_instilled": {
+      "drug": "Tropicamide 1%",
+      "eye": "Both eyes",
+      "number_of_instillations": "2 drops per eye, 5 minutes apart",
+      "time_instilled": "10:05am and 10:10am",
+      "allergy_check": "No known drug allergies — confirmed with patient before instillation"
+    },
+    "post_dilation_pupil_size_at_30min": {
+      "right": "7.5 mm",
+      "left": "7.5 mm"
+    },
+    "fundus_photography": "Adequate dilation achieved bilaterally — clear fundus images obtained for diabetic retinopathy grading"
+  },
+  "diagnosis": "Mydriatic drops (tropicamide 1%) instilled correctly into both eyes with documentation of pre- and post-dilation pupil sizes. Adequate dilation achieved within 30 minutes, allowing successful dilated fundus photography for diabetic retinopathy screening.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm the order: dilation of both eyes for fundus photography",
+      "Confirm the patient has no known drug allergies, particularly to tropicamide or other mydriatics",
+      "Document pre-dilation pupil size for both eyes (in mm)",
+      "Explain the procedure to the patient: drops will sting briefly, vision will become blurry for near tasks, and eyes will be sensitive to light for a few hours",
+      "Wash hands and instil 1 drop of tropicamide 1% into the lower fornix of each eye, asking the patient to tilt her head back and look up while gently pulling down the lower lid",
+      "Ask patient to close her eyes gently and apply gentle pressure over the nasolacrimal area to reduce systemic absorption",
+      "Repeat instillation after 5 minutes if dilation appears insufficient, as per protocol",
+      "Wait approximately 20-30 minutes and reassess pupil size; document post-dilation pupil size for both eyes",
+      "Once adequately dilated, proceed to dilated fundus photography",
+      "Document drug name, strength, eye(s), number of instillations, and times given"
+    ],
+    "follow_up": [
+      "Photographer/grader to review fundus images for diabetic retinopathy and report findings to doctor",
+      "Doctor to review grading and advise on follow-up interval for diabetic eye screening",
+      "Patient to be reminded that effects of dilation last 4-6 hours"
+    ],
+    "patient_education": [
+      "Warn patient that her near vision will be blurry and she will be more sensitive to bright light for about 4-6 hours",
+      "IMPORTANT: confirm patient has alternative transport home, as she should not drive while dilated — advise her to wait until effects wear off or arrange a ride",
+      "Advise patient to wear sunglasses if available when going outside after dilation"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms the dilation order (both eyes, for fundus photography)",
+        "Checks for known drug allergies before instilling any drops",
+        "Asks how the patient travelled to the clinic today and whether she has a way home, since dilation affects driving",
+        "Explains the procedure and expected effects (blurred near vision, light sensitivity) before instilling drops"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents pre-dilation pupil size for both eyes before instilling drops",
+        "Instils tropicamide 1% correctly using proper technique (lower fornix, head tilted back, gentle pressure on nasolacrimal area after)",
+        "Documents drug name, strength, eye(s), number of instillations, and time(s) given",
+        "Reassesses and documents post-dilation pupil size before proceeding to photography"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that adequate dilation (pupil size and time elapsed) is required before fundus photography can proceed",
+        "Understands the purpose of dilation: to obtain a clear view of the retina for diabetic retinopathy screening",
+        "Knows that narrow angles are a contraindication to dilation and would check this before proceeding (not present in this case)",
+        "Does not proceed to photography if dilation is inadequate — would wait longer or instil an additional drop"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "IMPORTANT: ensures the patient has alternative transport home and does not drive while dilated",
+        "Documents the full dilation record (drug, dose, eye, time, pupil sizes) accurately",
+        "Educates patient clearly on temporary visual effects of dilation",
+        "Advises on sun protection (sunglasses) after dilation"
+      ]
+    }
+  }
+}

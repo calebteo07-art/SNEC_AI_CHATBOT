@@ -1,0 +1,102 @@
+{
+  "case_id": "case_psa_015_history_taking_general_health",
+  "title": "More Than Just the Eyes",
+  "difficulty": "beginner",
+  "topic": "history_taking_general_health",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mr Rajendran s/o Muniandy",
+    "age": 60,
+    "gender": "male",
+    "occupation": "taxi driver",
+    "presenting_complaint": "Routine follow-up for diabetic eye screening, referred from polyclinic"
+  },
+  "history": {
+    "hpc": "Mr Rajendran is attending for a routine diabetic eye screening follow-up, referred from his polyclinic. He has no new visual complaints. The PSA is taking his general health history as part of the standard pre-consultation work-up. He mentions he recently started a new blood pressure medication and isn't sure of its name, only that it is 'a small white tablet'.",
+    "pmhx": "Type 2 diabetes mellitus for 12 years. Hypertension for 8 years, medication recently changed by polyclinic doctor 2 weeks ago. High cholesterol on medication. No previous eye surgery. No known drug allergies.",
+    "family_hx": "Father had diabetes and passed away from a stroke. Mother had hypertension.",
+    "medications": ["Metformin 1g BD", "A new blood pressure tablet — name unknown, started 2 weeks ago, taken once daily", "Atorvastatin 20mg ON", "Aspirin 100mg OD"],
+    "social_hx": "Taxi driver, drives long hours daily. Smokes about 5 cigarettes a day for over 20 years. Drinks alcohol occasionally on weekends."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/12 (LogMAR 0.3)"},
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review for diabetic retinopathy screening"
+  },
+  "investigations": {
+    "history_summary": {
+      "systemic_conditions": "Type 2 diabetes (12 years), hypertension (8 years, recent medication change), hyperlipidaemia",
+      "medications": "Metformin, an unidentified new antihypertensive (started 2 weeks ago), atorvastatin, aspirin",
+      "allergies": "No known drug allergies (NKDA) reported",
+      "smoking_status": "Current smoker, approximately 5 cigarettes/day, >20 years",
+      "alcohol_use": "Occasional, weekends only",
+      "action_taken": "Patient advised to check the name and dosage of his new blood pressure medication (e.g., bring the box or a list from the pharmacy) for the doctor's reference; flagged to doctor that medication name is currently unknown"
+    }
+  },
+  "diagnosis": "General health history taken as part of pre-consultation work-up for diabetic eye screening follow-up. Key points for doctor: long-standing diabetes and hypertension with a recent (2-week-old) antihypertensive medication change of unknown name, current smoking history, and aspirin use. History recorded for doctor review prior to fundus examination.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain that, before his eye check, you will ask some general health questions that help the doctor understand his overall condition",
+      "Ask about systemic conditions, particularly vascular conditions relevant to eye health: diabetes, hypertension, high cholesterol, heart disease",
+      "For diabetes, ask about duration and any recent blood sugar control information he may know (e.g., recent HbA1c if he recalls)",
+      "Ask about all current medications, including prescription, over-the-counter, and supplements — note that he is unsure of the name of his new blood pressure medication",
+      "Specifically ask about anti-coagulants or antiplatelet medications (relevant for any future procedures) — note his aspirin use",
+      "Ask about known drug allergies, including any eye drop allergies",
+      "Ask about smoking and alcohol use as part of social history",
+      "Ask about family history of relevant conditions (diabetes, hypertension, stroke, glaucoma, cataracts)",
+      "Advise Mr Rajendran to bring the box, strip, or a medication list for his new blood pressure tablet to his next visit, or to check with his pharmacy/polyclinic before then",
+      "Document all information accurately and flag the unidentified new medication for the doctor's attention"
+    ],
+    "follow_up": [
+      "Hand the completed history form to the doctor before the consultation",
+      "Clearly flag the unidentified new antihypertensive medication as an outstanding item",
+      "Ensure VA results are also available alongside the history for the doctor's review"
+    ],
+    "patient_education": [
+      "Encourage Mr Rajendran to always carry an updated medication list or bring his medication boxes to all medical appointments, including eye clinic visits",
+      "Remind him that smoking can affect eye health, particularly in the context of diabetes — but do not provide detailed counselling, as this is for the doctor",
+      "Reassure him that the doctor will review his full history along with his eye examination results today"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and explains the purpose of the general health history questions",
+        "Systematically covers systemic conditions, especially vascular ones (diabetes, hypertension, cholesterol)",
+        "Asks about all medications including supplements, and identifies anti-coagulant/antiplatelet use (aspirin)",
+        "Asks about allergies, smoking, and alcohol use as part of a complete social/medical history"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the gap created by the patient not knowing his new medication's name and takes a practical step (advise him to bring the box/list)",
+        "Documents duration of diabetes and hypertension as relevant background for diabetic retinopathy screening",
+        "Records family history relevant to eye conditions",
+        "Ensures VA results are paired with the history for the doctor's review"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Does not attempt to identify or guess the name of the unknown medication",
+        "Flags the recent medication change and unknown medication clearly for the doctor, recognising its potential relevance",
+        "Does not provide any clinical interpretation of the diabetes/hypertension history to the patient",
+        "Recognises smoking and long-standing diabetes as relevant background for the doctor without diagnosing"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the full history accurately and completely",
+        "Hands the completed history to the doctor with the unidentified medication clearly flagged",
+        "Gives the patient practical, actionable advice (bring medication list/box) without overstepping into clinical counselling",
+        "Maintains a respectful, unhurried approach appropriate for a patient with multiple chronic conditions"
+      ]
+    }
+  }
+}

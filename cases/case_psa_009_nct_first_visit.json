@@ -1,0 +1,104 @@
+{
+  "case_id": "case_psa_009_nct_first_visit",
+  "title": "Air Puff for the First Time",
+  "difficulty": "beginner",
+  "topic": "nct_first_visit",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Ms Nur Hidayah binte Rashid",
+    "age": 29,
+    "gender": "female",
+    "occupation": "preschool teacher",
+    "presenting_complaint": "First visit to SNEC for a comprehensive eye check after a colleague was diagnosed with glaucoma"
+  },
+  "history": {
+    "hpc": "Ms Hidayah is attending SNEC for the first time for a general eye check. She has no visual symptoms but became concerned after a colleague at work was recently diagnosed with glaucoma and was advised to get her own eyes checked, especially since eye pressure tests are part of standard screening. She has never had an eye pressure test before and asks the PSA, 'Will the air puff hurt? My friend said it's quite scary.'",
+    "pmhx": "No known eye conditions. Wears soft contact lenses occasionally for sports. No diabetes, no hypertension.",
+    "family_hx": "No known family history of glaucoma or other eye conditions.",
+    "medications": [],
+    "social_hx": "Preschool teacher. Wears contact lenses 1-2 times a week for sports activities; wearing spectacles today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {
+      "right": "16 mmHg — average of three NCT readings (15, 16, 17)",
+      "left": "15 mmHg — average of three NCT readings (14, 15, 16)"
+    },
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "nct": {
+      "right_readings": "15 / 16 / 17 mmHg — average 16 mmHg",
+      "left_readings": "14 / 15 / 16 mmHg — average 15 mmHg",
+      "notes": "First-time NCT patient. Confirmed no contact lenses worn today. All three readings per eye obtained without blinking or movement on first attempt."
+    }
+  },
+  "diagnosis": "NCT completed for a first-visit patient. Both eyes within normal IOP range (10-21 mmHg). Results recorded for doctor review as part of the comprehensive new-patient work-up.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain that this visit will include a general eye check, including a pressure test of the eyes",
+      "Ask whether she is wearing contact lenses today — confirm she is wearing spectacles, so no removal of lenses is needed",
+      "Perform hand hygiene and wipe all parts of the NCT machine that will contact the patient with alcohol wipes",
+      "Explain the procedure clearly since this is her first time: 'I will measure the pressure inside your eye using a gentle puff of air. It may feel like a quick tap of air on your eye — it does not hurt and there is no needle or contact with your eye.'",
+      "Position her comfortably at the machine: forehead against the rest, chin on the chinrest, eyes open and looking at the fixation light",
+      "Reassure her calmly before the first puff: 'You'll hear a small click and feel a puff of air — try to keep your eyes open and look at the green light.'",
+      "Perform NCT on the right eye first, taking three readings",
+      "Repeat for the left eye, taking three readings",
+      "If she blinks or moves during a reading, discard it and repeat — reassure her this is normal and not a problem",
+      "Wipe the machine's contact parts with alcohol wipes and perform hand hygiene after the test",
+      "Record all six readings (three per eye) and the averages clearly in SCM"
+    ],
+    "follow_up": [
+      "Hand the completed IOP results to the doctor along with VA results as part of her new-patient work-up",
+      "Note in the form that this was her first NCT and she tolerated it well"
+    ],
+    "patient_education": [
+      "Reassure Ms Hidayah that the test is now complete and she did well",
+      "Explain that the doctor will review all her results together as part of her comprehensive eye check",
+      "Do not tell her whether her eye pressure is 'normal' or 'high' — this is for the doctor to discuss",
+      "If she asks about her colleague's glaucoma diagnosis and her own risk, advise her to raise this directly with the doctor"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and reason for visit (first visit, general check)",
+        "Checks whether the patient is wearing contact lenses before NCT",
+        "Acknowledges the patient's nervousness about the air puff with reassurance, without over-promising 'it won't hurt at all'",
+        "Notes the family/social context (colleague's glaucoma diagnosis) as background only, without speculating on the patient's own risk"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts before and after the test",
+        "Positions the patient correctly: forehead rest, chin rest, eyes open, fixating on the target",
+        "Takes three readings per eye, right eye first, and calculates the average",
+        "Discards and repeats any reading affected by blinking or movement",
+        "Records all individual readings and averages clearly in SCM"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Does not tell the patient whether her IOP readings are normal or abnormal",
+        "Recognises both readings fall within the normal 10-21 mmHg range but still defers interpretation to the doctor",
+        "Notes that this is part of a new-patient work-up and other tests (VA, etc.) should accompany the IOP results",
+        "Does not speculate about the patient's personal glaucoma risk based on her colleague's diagnosis"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Explains the NCT procedure clearly and reassuringly for a first-time patient",
+        "Handles the patient's anxiety about the air puff with empathy and accurate, non-alarming information",
+        "Documents all results accurately and hands them to the doctor",
+        "Redirects clinical questions about glaucoma risk to the doctor"
+      ]
+    }
+  }
+}

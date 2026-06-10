@@ -1,0 +1,103 @@
+{
+  "case_id": "case_psa_008_near_vision_testing_presbyopia",
+  "title": "Reading Glasses or Just Tired Eyes?",
+  "difficulty": "beginner",
+  "topic": "near_vision_testing_presbyopia",
+  "role": "PSA",
+  "estimated_minutes": 10,
+  "checklist_procedure": "Near Vision Testing (SOP)",
+  "patient": {
+    "name": "Mr Chua Boon Huat",
+    "age": 51,
+    "gender": "male",
+    "occupation": "accountant",
+    "presenting_complaint": "Difficulty reading small print on documents and his phone over the past year"
+  },
+  "history": {
+    "hpc": "Mr Chua reports increasing difficulty reading fine print on financial statements and his mobile phone over the past 12 months. He finds himself holding documents further away to read them clearly. He has not previously worn glasses for reading. His distance vision is unaffected — he drives without glasses with no issues. He is here for a routine check after his optician suggested he see an eye doctor before getting reading glasses.",
+    "pmhx": "No known eye conditions. No diabetes. No hypertension.",
+    "family_hx": "Nil significant",
+    "medications": [],
+    "social_hx": "Works in an office, spends most of the day reading documents and using a computer and phone. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "6/6 (LogMAR 0.0) unaided distance",
+      "left": "6/6 (LogMAR 0.0) unaided distance"
+    },
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage — PSA role is vision testing only",
+    "fundus": "Not assessed — doctor to review"
+  },
+  "investigations": {
+    "near_va": {
+      "right_unaided": "N12 at 35cm",
+      "left_unaided": "N12 at 35cm",
+      "both_eyes_unaided": "N10 at 35cm",
+      "method": "Near Vision (N) chart held at 35cm in adequate lighting, each eye tested separately with the other occluded, then both eyes together, no near correction worn"
+    }
+  },
+  "diagnosis": "Distance VA normal (6/6 both eyes). Near VA reduced to N12 unaided at age 51, consistent with age-related reduction in near focusing ability. Results recorded for doctor review — PSA does not diagnose presbyopia.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain that, as this is part of his routine visit, both distance and near vision will be checked",
+      "Perform hand hygiene and wipe the occluder and N chart holder with alcohol wipes",
+      "First confirm distance VA has been completed (6/6 both eyes unaided)",
+      "Explain the near vision test: 'I will hold this card at about an arm's length from your eyes — please read the smallest print you can manage comfortably'",
+      "Hold the N chart at the standard 35cm distance in a well-lit area",
+      "Test the right eye first, occluding the left eye, and record the smallest line read comfortably",
+      "Repeat for the left eye, occluding the right eye",
+      "Test both eyes together (binocular near vision) and record the result",
+      "Wipe the chart and occluder with alcohol wipes and perform hand hygiene after the test"
+    ],
+    "follow_up": [
+      "Record all near vision results (right, left, and binocular) in N-notation in SCM alongside the distance VA results",
+      "Hand the completed results to the doctor for review",
+      "Note in the form that the patient reports symptoms consistent with near-vision difficulty for the doctor's information"
+    ],
+    "patient_education": [
+      "Inform Mr Chua that both his distance and near vision tests are complete and the doctor will review the results",
+      "If he asks whether he needs reading glasses, explain that the doctor will discuss this with him after reviewing all the findings",
+      "Reassure him that difficulty with near vision in his age group is a common reason patients visit the eye clinic, without naming a specific diagnosis"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and the purpose of the visit",
+        "Notes the symptom pattern (near vision difficulty, normal distance vision) accurately",
+        "Confirms patient is not currently wearing any reading correction before testing unaided near vision",
+        "Records relevant occupational context (reading-intensive work) without speculating on diagnosis"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Uses the N chart at the correct 35cm testing distance with adequate lighting",
+        "Tests each eye separately with correct occlusion before testing both eyes together",
+        "Records results using correct N-notation (e.g., N12, N10)",
+        "Performs hand hygiene and wipes equipment before and after the test",
+        "Ensures distance VA has also been completed as part of the routine check"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that reduced near vision with normal distance vision in a 51-year-old is a common, expected pattern but does not name presbyopia to the patient",
+        "Does not tell the patient he needs reading glasses or a specific add power",
+        "Documents both distance and near results together for the doctor's full picture",
+        "Defers all interpretation and prescribing decisions to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Communicates the test process clearly and sets expectations for next steps",
+        "Documents results accurately and completely in the correct notation",
+        "Avoids giving the patient any diagnosis or treatment recommendation",
+        "Maintains a professional, reassuring manner appropriate for a routine check"
+      ]
+    }
+  }
+}

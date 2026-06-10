@@ -1,0 +1,101 @@
+{
+  "case_id": "case_ot_014_ishihara_documentation",
+  "title": "Numbers in the Dots",
+  "difficulty": "beginner",
+  "topic": "ishihara_documentation",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Master Daniel Goh Jun Wei",
+    "age": 12,
+    "gender": "male",
+    "occupation": "primary school student",
+    "presenting_complaint": "New patient — referred for colour vision assessment after school screening flagged possible colour vision deficiency"
+  },
+  "history": {
+    "hpc": "Daniel's school conducted a routine vision and colour screening as part of the annual health check. He was flagged as having difficulty identifying certain colours during the school screening, particularly distinguishing red and green objects. His mother reports he sometimes confuses the colours of his crayons but otherwise has no visual complaints. He has been referred to SNEC for formal colour vision testing using the Ishihara chart.",
+    "pmhx": "No previous eye surgery. No known ocular disease. Has never worn glasses.",
+    "family_hx": "Maternal uncle is 'colour blind' (red-green colour vision deficiency)",
+    "medications": ["Nil regular"],
+    "social_hx": "Primary 6 student. Lives with parents."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "anterior_segment": "Normal bilaterally",
+    "fundus": "Normal bilaterally on doctor's examination"
+  },
+  "investigations": {
+    "ishihara_test": {
+      "lighting_condition": "Tested under natural daylight near a window, avoiding direct glare",
+      "testing_distance": "75 cm from the chart, plates held perpendicular to line of sight",
+      "right_eye_alone": "Read 6 out of 17 plates correctly (with left eye occluded)",
+      "left_eye_alone": "Read 6 out of 17 plates correctly (with right eye occluded)",
+      "pattern_of_errors": "Consistently misread plates designed to detect red-green deficiency; correctly read the control/demonstration plate",
+      "result": "Pattern of plate readings consistent with a red-green colour vision deficiency, likely congenital given family history (maternal uncle)"
+    },
+    "va_distance": "RE: 6/6. LE: 6/6 — visual acuity normal, colour vision deficiency does not affect VA"
+  },
+  "diagnosis": "Ishihara colour vision testing completed for both eyes under appropriate lighting. Result pattern is consistent with a congenital red-green colour vision deficiency, correlating with the family history and school screening findings. For doctor's review and counselling.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain the test to Daniel and his mother in simple terms: 'finding the number hidden in the dots'",
+      "Ensure testing is conducted in good, even natural light, avoiding glare or dim lighting which can affect results",
+      "Hold the Ishihara plates at the correct distance (approximately 75 cm) and angle (perpendicular to the line of sight)",
+      "Show the demonstration/control plate first to confirm the patient understands the task",
+      "Test the right eye first with the left eye occluded, then the left eye with the right eye occluded — allow only a few seconds per plate",
+      "Record the number of plates read correctly out of the total presented for each eye",
+      "Note which specific plates were missed if possible, as the pattern of errors helps distinguish red-green from blue-yellow deficiencies",
+      "Document the testing conditions (lighting, distance) alongside the results, as these affect reliability",
+      "Hand results to doctor for review and discussion with the patient and parent"
+    ],
+    "follow_up": [
+      "Doctor to confirm the diagnosis and discuss implications with Daniel and his mother",
+      "Inform school of the result if relevant for accommodations (e.g. colour-coded learning materials)",
+      "No treatment is available for congenital colour vision deficiency, but counselling on practical adaptations can be offered"
+    ],
+    "patient_education": [
+      "Explain to Daniel and his mother that colour vision deficiency is usually inherited (often from the mother's side) and is not a disease of the eye itself",
+      "Reassure that his overall vision (6/6 in both eyes) is normal and this does not affect reading or most schoolwork",
+      "Advise that certain careers (e.g. some uniformed services, pilots) have colour vision requirements, which may be relevant for him to know in future, but this should be discussed with the doctor"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and explains the test in age-appropriate language for a 12-year-old",
+        "Asks about family history of colour vision deficiency, which is relevant given the X-linked inheritance pattern",
+        "Confirms visual acuity is normal, establishing that any colour vision issue is isolated and not due to reduced VA",
+        "Notes the context: school screening flagged the issue, prompting referral"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Ensures testing is performed under appropriate lighting (natural daylight, no glare) at the correct distance and angle",
+        "Uses the demonstration/control plate first to confirm the patient understands the task",
+        "Tests each eye separately with correct occlusion and allows only a brief time per plate",
+        "Documents the number of plates read correctly out of the total for each eye, and notes the pattern of errors if possible"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that the Ishihara test screens for red-green colour vision deficiency",
+        "Identifies that the pattern of results (correct demonstration plate, consistent errors on red-green plates) suggests a congenital red-green deficiency",
+        "Does not make a definitive genetic or clinical diagnosis independently — refers to doctor",
+        "Correlates the family history (maternal uncle) with the likely inheritance pattern"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents testing conditions (lighting, distance) and results (plates correct out of total, per eye) accurately",
+        "Hands results to doctor for review and family counselling",
+        "Provides reassurance and age-appropriate education to the child and parent about the nature of colour vision deficiency",
+        "Avoids causing unnecessary alarm while being honest about the finding"
+      ]
+    }
+  }
+}

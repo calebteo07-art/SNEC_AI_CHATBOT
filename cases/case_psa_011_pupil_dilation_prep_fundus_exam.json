@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_011_pupil_dilation_prep_fundus_exam",
+  "title": "Getting Ready for a Closer Look",
+  "difficulty": "beginner",
+  "topic": "pupil_dilation_prep_fundus_exam",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Goh ChinAnn",
+    "age": 45,
+    "gender": "male",
+    "occupation": "warehouse supervisor",
+    "presenting_complaint": "Diabetic eye screening — referred by polyclinic for annual diabetic retinopathy check"
+  },
+  "history": {
+    "hpc": "Mr Goh is attending for his annual diabetic eye screening as referred by his polyclinic. The doctor has reviewed his VA and IOP and ordered pupil dilation in both eyes so the fundus can be examined for signs of diabetic retinopathy. Mr Goh drove himself to the clinic and mentions he needs to drive back to work after this appointment.",
+    "pmhx": "Type 2 diabetes mellitus for 8 years, HbA1c last checked at 7.8%. No previous eye surgery. No known glaucoma.",
+    "family_hx": "Father has type 2 diabetes and diabetic retinopathy.",
+    "medications": ["Metformin 1g BD", "Gliclazide 80mg OD"],
+    "social_hx": "Drove himself to the appointment. Works as a warehouse supervisor — job involves operating a forklift."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Pending — to be examined by doctor after dilation"
+  },
+  "investigations": {
+    "pupil_dilation": {
+      "eye_to_dilate": "Both eyes (DBE)",
+      "pre_dilation_pupil_size": {"right": "3mm", "left": "3mm"},
+      "dilating_drops_used": "Tropicamide 1% and phenylephrine 2.5%, one drop each, both eyes",
+      "number_of_instillations": "1 instillation of each drop per eye, repeated once after 10 minutes as pupils were not yet adequately dilated",
+      "time_taken": "Drops instilled at time of documentation; pupils re-checked after 20-25 minutes before sending for fundus exam"
+    }
+  },
+  "diagnosis": "Both eyes prepared for fundus examination via pupil dilation as ordered by the doctor for diabetic retinopathy screening. Patient counselled on temporary visual effects of dilation and driving safety. Pending doctor's fundus assessment.",
+  "management": {
+    "immediate": [
+      "Confirm the order for dilation — both eyes (DBE) — and the diagnosis/indication (diabetic retinopathy screening) before proceeding",
+      "Confirm patient identity and check for any known allergies to dilating drops",
+      "Document pre-dilation pupil size for both eyes (RE and LE) in mm",
+      "Explain the procedure: 'I will put two types of eye drops in each eye to widen your pupils so the doctor can examine the back of your eyes properly.'",
+      "Instil tropicamide 1% and phenylephrine 2.5%, one drop of each in both eyes, using correct technique (tilt head back, pull down lower lid, instil in lower fornix, gentle eye closure with nasolacrimal occlusion)",
+      "Document the number of instillations and the time given",
+      "Re-check pupil size after about 10-15 minutes; if not adequately dilated, repeat the drops as needed and document the repeat instillation and time",
+      "Before the patient leaves the waiting area, ask specifically: 'How did you get here today — did you drive?'",
+      "Since Mr Goh drove himself, advise him clearly that his vision will be blurred and light-sensitive for 4-6 hours and he should not drive until this resolves — discuss arranging alternative transport home and to work"
+    ],
+    "follow_up": [
+      "Once pupils are adequately dilated, escort or direct the patient to the consultation room for the doctor's fundus examination",
+      "Document the final pupil size and time of adequate dilation in SCM",
+      "Inform the doctor or nurse that the patient drove himself and has been counselled about not driving post-dilation"
+    ],
+    "patient_education": [
+      "Explain that his near vision will be blurred and his eyes will be sensitive to bright light for approximately 4-6 hours after dilation",
+      "Sunglasses can help with light sensitivity — offer disposable sunglasses if available at the clinic",
+      "Strongly advise against driving until the effects wear off — suggest he arrange a colleague, family member, or public transport/taxi for his return journey",
+      "Reassure him that this is a routine and temporary part of the diabetic eye screening process"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the dilation order, indication, and which eye(s) to dilate before proceeding",
+        "Checks for known allergies to dilating drops before instillation",
+        "Documents pre-dilation pupil size for both eyes",
+        "Proactively asks how the patient travelled to the clinic — identifies the driving safety issue"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Uses correct dilating drops (tropicamide 1% and phenylephrine 2.5%) and correct instillation technique",
+        "Documents number of instillations and time given for each round of drops",
+        "Re-checks pupil size and repeats drops if dilation is inadequate, documenting the repeat",
+        "Records all findings (pre-dilation size, drops used, timing) accurately for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that pupil dilation is preparation for the doctor's fundus exam, not a diagnostic step itself",
+        "Identifies driving as a safety risk after dilation given the patient drove himself",
+        "Does not comment on the patient's diabetic retinopathy risk or fundus findings, as these are not yet examined",
+        "Understands the link between diabetes duration/control and the indication for screening, without diagnosing"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Counsels the patient clearly about post-dilation visual effects (blurred near vision, photosensitivity, duration)",
+        "Proactively addresses the driving safety issue and suggests practical alternatives",
+        "Offers practical comfort measures (e.g., sunglasses) for light sensitivity",
+        "Communicates dilation status and driving counselling to the doctor/nurse before handover"
+      ]
+    }
+  }
+}

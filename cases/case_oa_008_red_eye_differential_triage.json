@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_008_red_eye_differential_triage",
+  "title": "Three Red Eyes, One Triage Desk",
+  "difficulty": "beginner",
+  "topic": "red_eye_differential_triage",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Chua Ah Hoon",
+    "age": 52,
+    "gender": "female",
+    "occupation": "hawker stall assistant",
+    "presenting_complaint": "Right eye has been red, watery, and sticky with discharge for the past 3 days, started after her grandson had 'pink eye'"
+  },
+  "history": {
+    "hpc": "Mdm Chua noticed her right eye became red and watery 3 days ago, with yellowish discharge that crusts her eyelashes together especially in the morning. She does not have significant pain — just mild irritation and a gritty feeling. She has no photophobia. Her vision feels normal. Her grandson, whom she babysits, had a similar red eye with discharge last week which has since resolved. She has not had fever or pain.",
+    "pmhx": "Nil significant ocular history. Hypertension on medication.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives with daughter's family including a young grandson. Works at a hawker stall."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Right eye: diffuse conjunctival hyperaemia, mucopurulent discharge with crusted lashes, normal-sized round reactive pupil, clear cornea. Left eye: mild conjunctival injection, no discharge.",
+    "fundus": "Not assessed — not indicated for this presentation"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.1 (6/7.5). LE: LogMAR 0.0 (6/6). Vision is normal/near-normal in both eyes.",
+    "iop_nct": "RE: 15 mmHg. LE: 14 mmHg. Both within normal range.",
+    "differential_assessment": "Discharge MARKED, photophobia NONE, pain NONE/mild, VA normal, pupil normal and reactive — pattern consistent with conjunctivitis rather than iritis, acute glaucoma, or keratitis"
+  },
+  "diagnosis": "Acute conjunctivitis, likely viral or bacterial, right eye greater than left, with probable household contact spread from grandson. Triage Category 4 — can be seen within 2 hours; not an emergency.",
+  "management": {
+    "immediate": [
+      "Apply the red eye differential systematically: ask about discharge, photophobia, pain severity, vision change, and pupil appearance",
+      "Note that discharge is marked, photophobia absent, pain absent/mild, VA normal, pupil normal — this pattern points away from iritis, acute glaucoma, and keratitis",
+      "Measure VA and IOP as part of routine workup — both are normal/expected",
+      "Document findings clearly on the SNEC Triage Form, including the household contact history",
+      "Assign Category 4 — conjunctivitis can be safely seen within 2 hours",
+      "Advise the patient on hygiene measures while she waits to reduce spread to others in the waiting area"
+    ],
+    "follow_up": [
+      "Doctor to confirm diagnosis and prescribe topical antibiotic drops if bacterial conjunctivitis suspected",
+      "Advise patient to return earlier if pain worsens, vision drops, or photophobia develops (would suggest a different diagnosis)",
+      "Document outcome of triage decision for case review/learning"
+    ],
+    "patient_education": [
+      "Explain that conjunctivitis is usually contagious and to avoid sharing towels/pillows with her grandson",
+      "Advise frequent handwashing and not rubbing the eyes",
+      "Reassure her this is a common, usually self-limiting condition that the doctor will manage",
+      "Advise her to come back sooner if she develops eye pain, blurred vision, or sensitivity to light"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about nature and amount of discharge (marked, mucopurulent, crusting)",
+        "Asks about pain severity and presence of photophobia (both absent/minimal)",
+        "Asks about vision change (none reported)",
+        "Asks about contact history (grandson with similar symptoms) — relevant for infectious spread",
+        "Uses a structured approach covering the key red eye differential features"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes — confirms normal/near-normal vision",
+        "Performs NCT — confirms normal IOP, ruling out acute glaucoma",
+        "Observes pupil shape and reactivity — normal and reactive, ruling out iritis/AACG patterns",
+        "Documents discharge characteristics accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Applies the conjunctivitis/iritis/acute glaucoma/keratitis differential table correctly",
+        "Identifies marked discharge + no photophobia + no/mild pain + normal VA + normal pupil as conjunctivitis pattern",
+        "Correctly assigns Triage Category 4 (within 2 hours)",
+        "Recognises this is not an emergency despite the patient's concern about a 'red eye'"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents findings and triage category accurately on the SNEC Triage Form",
+        "Provides hygiene advice appropriate for likely infectious conjunctivitis",
+        "Gives clear safety-netting advice (return if pain, photophobia, or vision changes develop)",
+        "Does not over- or under-triage the patient"
+      ]
+    }
+  }
+}

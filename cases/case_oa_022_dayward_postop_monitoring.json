@@ -1,0 +1,96 @@
+{
+  "case_id": "case_oa_022_dayward_postop_monitoring",
+  "title": "Recovery Bay, Bed 4",
+  "difficulty": "intermediate",
+  "topic": "dayward_postop_monitoring",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Dayward and OT Skills Observation",
+  "patient": {
+    "name": "Mr Heng Soon Huat",
+    "age": 73,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Just returned to the dayward recovery bay after right eye phacoemulsification with IOL implantation under local anaesthesia, performed about 20 minutes ago"
+  },
+  "history": {
+    "hpc": "Mr Heng underwent uncomplicated right eye phacoemulsification with IOL implantation under local anaesthesia this morning. The procedure went smoothly with no intra-operative complications noted by the surgical team. He has just been transferred back to the dayward recovery bay (Bed 4) and needs post-operative monitoring before he can be assessed for discharge. He reports feeling 'a bit woozy' but no significant pain, rating any discomfort as 1/10. He has not yet had anything to eat or drink since before surgery.",
+    "pmhx": "Hypertension, well-controlled. Right eye dense cataract (operated today). Left eye mild cataract. No known drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD (last taken this morning before fasting cut-off, as instructed)"],
+    "social_hx": "Lives with wife, who is waiting in the dayward waiting area to take him home."
+  },
+  "examination_findings": {
+    "va": {"right": "Not tested immediately post-op — eye pad/shield in place", "left": "6/9 (LogMAR 0.2), unchanged"},
+    "iop": {"right": "Not tested immediately post-op", "left": "15 mmHg (NCT), unchanged"},
+    "anterior_segment": "Right eye: covered with protective eye shield/pad as per standard post-op protocol — not yet removed for inspection. Left eye: normal, mild cataract unchanged.",
+    "fundus": "Not assessed — routine post-op recovery monitoring"
+  },
+  "investigations": {
+    "vital_signs_recovery": "On arrival in recovery bay: BP 138/82 mmHg, RR 16/min, PR 78/min regular. Patient alert and oriented, able to converse normally.",
+    "surgery_summary": "DISM: Diagnosis — right eye cataract; Indication — significantly reduced VA; Surgery — phacoemulsification with IOL implantation, right eye; Medical conditions — hypertension (well-controlled). Anaesthesia: Local (sub-Tenon's block). Time in recovery: 20 minutes so far."
+  },
+  "diagnosis": "Uncomplicated post-operative recovery following right eye phacoemulsification with IOL under local anaesthesia. Vital signs currently stable and within normal limits. Patient requires continued monitoring until criteria for safe discharge are met, and TCU (follow-up) details must be documented before discharge.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and the surgery performed (right eye phaco + IOL, local anaesthesia) using the DISM framework and operative notes",
+      "Measure and document vital signs: BP, RR, and PR on arrival in the recovery bay",
+      "Monitor the patient at appropriate intervals as per dayward protocol until he meets discharge criteria (e.g. stable vital signs, alert, no nausea/vomiting, comfortable)",
+      "Ask about pain level, nausea, dizziness ('wooziness'), and any visual symptoms in the operated eye",
+      "Check that the protective eye shield/pad is intact and has not been disturbed",
+      "Offer a light drink/snack once the patient is alert and stable, and confirm he tolerates this without nausea",
+      "Document all vital signs readings and the patient's condition at each check, including the time",
+      "Prepare TCU (follow-up appointment) documentation — date and time of the day-1 post-op review — before discharge"
+    ],
+    "follow_up": [
+      "Continue vital sign monitoring until the patient meets discharge criteria as per dayward protocol",
+      "Doctor/nurse to review before discharge to confirm the patient is fit to go home",
+      "Provide post-operative medication instructions (eye drop regimen) and discharge information leaflet",
+      "Confirm TCU appointment details (date, time) are given to the patient and his wife before they leave"
+    ],
+    "patient_education": [
+      "Explain that feeling slightly woozy after local anaesthesia and the procedure is common and usually settles with rest",
+      "Advise him to keep the eye shield on as instructed and not to touch or rub the operated eye",
+      "Explain the post-operative eye drop regimen that will be prescribed and when to start it",
+      "Remind him of his TCU appointment date/time for the day-1 post-op review, and to come earlier if he develops severe pain, sudden vision loss, or significant discharge"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the surgery performed using DISM (diagnosis, indication, surgery, medical conditions)",
+        "Asks about pain, nausea, dizziness, and any visual symptoms post-operatively",
+        "Confirms anaesthesia type (local) and notes the patient is alert and conversant",
+        "Checks the patient has someone (wife) available to accompany him home"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures and documents BP, RR, and PR on arrival in recovery",
+        "Plans for repeat vital sign monitoring at appropriate intervals until discharge criteria are met",
+        "Checks the integrity of the protective eye shield/pad without removing it unnecessarily",
+        "Documents the time of each observation accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as a routine, stable post-operative recovery with no current complications",
+        "Identifies that current vital signs (BP 138/82, RR 16, PR 78) are within acceptable limits",
+        "Understands ongoing monitoring is still required before discharge criteria are met",
+        "Does not prematurely clear the patient for discharge without completing the monitoring protocol"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents vital signs and observations accurately and at appropriate intervals",
+        "Prepares and documents TCU (follow-up appointment) details before discharge",
+        "Provides clear post-operative instructions regarding the eye shield and drop regimen",
+        "Ensures the patient has appropriate escort home and understands when to seek urgent review"
+      ]
+    }
+  }
+}

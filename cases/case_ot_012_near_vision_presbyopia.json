@@ -1,0 +1,103 @@
+{
+  "case_id": "case_ot_012_near_vision_presbyopia",
+  "title": "Why Is the Menu So Blurry Now?",
+  "difficulty": "beginner",
+  "topic": "near_vision_presbyopia",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mr Yusof bin Ahmad",
+    "age": 47,
+    "gender": "male",
+    "occupation": "restaurant manager",
+    "presenting_complaint": "New patient — difficulty reading menus and small print up close over the past year"
+  },
+  "history": {
+    "hpc": "Mr Yusof has noticed over the past year that he needs to hold menus, phone screens, and price lists further away from his face to read them clearly. His distance vision feels unaffected — he has no trouble seeing across the restaurant. He has come to SNEC for a check-up for the first time and has been sent for near vision testing as part of his initial assessment.",
+    "pmhx": "No previous eye surgery. No known ocular disease. Has never worn glasses.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Restaurant manager. Spends much of his day reading orders, menus, and using a tablet. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally",
+    "fundus": "Normal bilaterally on doctor's examination"
+  },
+  "investigations": {
+    "near_vision": {
+      "right_unaided_at_35cm": "N12",
+      "left_unaided_at_35cm": "N12",
+      "right_with_plus_1_50_trial_lens": "N6",
+      "left_with_plus_1_50_trial_lens": "N6",
+      "right_with_plus_2_00_trial_lens": "N5",
+      "left_with_plus_2_00_trial_lens": "N5",
+      "method": "Near Vision Chart (N chart) held at 35 cm, room adequately lit, each eye tested separately with the other occluded",
+      "result": "Near vision improves from N12 to N5 with +2.00 D addition, consistent with presbyopia"
+    },
+    "distance_va": "RE: 6/6. LE: 6/6 (unaided) — distance vision normal"
+  },
+  "diagnosis": "Near vision testing completed. Distance VA is normal (6/6 bilaterally) but unaided near vision is reduced to N12, improving to N5 with a +2.00 D near addition. Findings consistent with presbyopia, appropriate for his age, for doctor's review and reading glasses prescription.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm the test is for near vision as ordered",
+      "Perform hand hygiene and wipe the occluder with alcohol wipes before starting",
+      "Ensure the room has adequate lighting for the near vision chart",
+      "Hold the N chart at 35 cm from the patient's eyes (or ask patient to hold it at this distance with guidance)",
+      "Test the right eye first by convention, occluding the left eye, and ask the patient to read the smallest line he can read comfortably",
+      "Repeat for the left eye, occluding the right eye",
+      "Since vision is reduced unaided, place a +1.50 D trial lens in front of each eye in turn and reassess the near vision; repeat with +2.00 D as needed",
+      "Document the unaided and corrected near vision results (e.g. N12, N6, N5) for each eye and the trial lens power used",
+      "Wipe the occluder with alcohol wipes after the test and perform hand hygiene"
+    ],
+    "follow_up": [
+      "Doctor to confirm the near addition power required and prescribe reading glasses if appropriate",
+      "Patient to be advised on options: reading glasses, bifocals, or progressive lenses depending on lifestyle needs",
+      "No further follow-up required for this issue alone unless other findings on examination"
+    ],
+    "patient_education": [
+      "Explain that this difficulty reading small print up close is a normal part of ageing called presbyopia, common from the mid-40s onwards",
+      "Reassure patient that his distance vision and overall eye health appear normal",
+      "Explain that reading glasses or a near addition to his current correction can help with near tasks like reading menus and using his phone"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms the near vision test is the one ordered",
+        "Elicits the typical presbyopic history: difficulty with near tasks, normal distance vision, age around mid-40s or older",
+        "Confirms patient is not currently wearing any glasses",
+        "Performs hand hygiene and wipes occluder with alcohol wipes before starting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Holds the N chart at the correct testing distance of 35 cm in adequate lighting",
+        "Tests each eye separately with the other eye correctly occluded, right eye first",
+        "Documents the smallest line read comfortably (unaided) for each eye using correct N notation",
+        "Trials appropriate near addition lenses (e.g. +1.50, +2.00 D) and documents the improved near vision achieved"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the pattern of normal distance VA with reduced near vision improving with plus lenses as presbyopia",
+        "Understands presbyopia is an expected age-related change, not a disease",
+        "Does not finalise the reading glasses prescription independently — refers to doctor",
+        "Documents both unaided and corrected near vision clearly for comparison"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents near vision results (unaided and with trial lenses) accurately for both eyes",
+        "Hands results to doctor for prescription of reading correction",
+        "Reassures and educates patient that presbyopia is a normal, manageable age-related change",
+        "Maintains correct infection control (alcohol wipes, hand hygiene) before and after testing"
+      ]
+    }
+  }
+}

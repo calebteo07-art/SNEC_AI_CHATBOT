@@ -1,0 +1,96 @@
+{
+  "case_id": "case_oa_021_preop_counselling_cataract",
+  "title": "Counselling Before the Big Day",
+  "difficulty": "intermediate",
+  "topic": "preop_counselling_cataract",
+  "role": "OA",
+  "estimated_minutes": 18,
+  "patient": {
+    "name": "Mdm Fatimah binte Othman",
+    "age": 69,
+    "gender": "female",
+    "occupation": "retired seamstress",
+    "presenting_complaint": "Attending pre-operative counselling clinic ahead of left eye cataract surgery scheduled in 2 weeks"
+  },
+  "history": {
+    "hpc": "Mdm Fatimah has been listed for left eye phacoemulsification with IOL implantation under local anaesthesia, scheduled in 2 weeks' time. She is attending today's pre-operative counselling visit to go through the details of the surgery, fasting instructions, and medication management. She is anxious as this will be her first-ever surgery. She has many questions about what to expect, how long it will take, and whether it will be painful.",
+    "pmhx": "Type 2 diabetes mellitus, diet-controlled. Hypertension. Left eye dense cataract (VA 6/36), right eye mild cataract (VA 6/9). No previous surgery of any kind.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Warfarin 3mg OD (for atrial fibrillation, diagnosed 2 years ago)"],
+    "social_hx": "Lives with daughter, who will accompany her on the day of surgery. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/36 (LogMAR 0.8)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Right eye: mild cataract. Left eye: dense nuclear cataract confirmed, suitable for surgery.",
+    "fundus": "Left fundus not fully visualised due to dense cataract; right fundus normal"
+  },
+  "investigations": {
+    "biometry": "A-scan/optical biometry completed at previous visit — IOL power calculated for left eye and ready for surgery day",
+    "va_distance": "RE: LogMAR 0.2 (6/9). LE: LogMAR 0.8 (6/36).",
+    "medication_review": "Patient is on warfarin for atrial fibrillation — this is a significant finding requiring doctor/anaesthetist input regarding whether to continue, adjust, or bridge anticoagulation around the time of surgery"
+  },
+  "diagnosis": "Left eye dense cataract, listed for phacoemulsification with IOL under local anaesthesia in 2 weeks. Patient is on warfarin for atrial fibrillation — this must be flagged to the doctor for a peri-operative anticoagulation plan before the day of surgery, as it cannot be decided on the day itself.",
+  "management": {
+    "immediate": [
+      "Use the DISM mnemonic to structure counselling: Diagnosis (left eye dense cataract), Indication (significantly reduced VA affecting daily activities), Surgery planned (left eye phacoemulsification + IOL, local anaesthesia), Medical conditions (diabetes, hypertension, AF on warfarin)",
+      "Explain the fasting requirement clearly: confirm the time of surgery and instruct the patient on the fasting period required beforehand (typically nil by mouth for a specified number of hours before surgery, as per the surgery time given)",
+      "Review all current medications with the patient, including the exact name, dose, and timing — identify warfarin as a critical medication requiring special instructions",
+      "Flag the warfarin use to the doctor TODAY, well ahead of the surgery date, so an anticoagulation plan (continue/adjust/bridge) can be arranged in time — this is not a decision to leave until the day of surgery",
+      "Confirm that biometry/IOL calculation has already been completed and is on file",
+      "Explain what to expect on the day: arrival time, local anaesthesia (patient will be awake but the eye will be numbed), approximate duration of the procedure, and that it is usually not painful though some pressure sensation may be felt",
+      "Provide written instructions covering fasting time, medications to take/withhold, and what to bring on the day",
+      "Document that pre-op counselling was given, including the warfarin flag and the patient's understanding"
+    ],
+    "follow_up": [
+      "Doctor/anaesthetist to review the warfarin and provide a clear peri-operative plan before the surgery date",
+      "Confirm consent has been signed or arrange for consent to be taken if not yet done",
+      "Patient to return on the day of surgery with a responsible adult (daughter) for escort home"
+    ],
+    "patient_education": [
+      "Explain the fasting instructions clearly and check understanding (e.g. 'no food or drink from [time] before your surgery')",
+      "Explain that she must NOT stop or adjust her warfarin on her own — any changes must be directed by the doctor",
+      "Reassure her that local anaesthesia means she will be awake but her eye will be numbed, and the procedure is usually quick (15-30 minutes) and not painful",
+      "Advise her to arrange for someone (her daughter) to accompany her home after surgery, as she should not drive or travel alone"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Uses the DISM mnemonic systematically (Diagnosis, Indication, Surgery, Medical conditions)",
+        "Reviews all current medications in detail, including dose and timing",
+        "Identifies warfarin use as a critical finding requiring early flagging",
+        "Asks about the patient's understanding/concerns and addresses her anxiety as a first-time surgical patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Confirms biometry/IOL power calculation has been completed and is available for surgery day",
+        "Reviews and documents pre-operative VA and IOP",
+        "Recognises that the warfarin issue requires doctor/anaesthetist input rather than being resolved at this visit alone",
+        "Documents the medication review clearly, highlighting the anticoagulant"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies the surgical diagnosis and plan accurately (left eye dense cataract, phaco + IOL, LA)",
+        "Recognises that warfarin for AF represents a significant peri-operative risk requiring planning, not a same-day decision",
+        "Understands the urgency of flagging this now (2 weeks before surgery) rather than waiting until the day",
+        "Does not give the patient definitive instructions to stop warfarin without doctor input"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides clear fasting instructions tailored to the surgery time",
+        "Flags the warfarin issue to the doctor promptly, well ahead of the surgery date",
+        "Explains what to expect on the day of surgery in reassuring, accessible language",
+        "Provides written/clear instructions and confirms patient understanding",
+        "Documents counselling given comprehensively"
+      ]
+    }
+  }
+}

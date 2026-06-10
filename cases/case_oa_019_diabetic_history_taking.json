@@ -1,0 +1,99 @@
+{
+  "case_id": "case_oa_019_diabetic_history_taking",
+  "title": "Twenty Years with Diabetes",
+  "difficulty": "intermediate",
+  "topic": "diabetic_history_taking",
+  "role": "OA",
+  "estimated_minutes": 18,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mr Krishnan s/o Subramaniam",
+    "age": 59,
+    "gender": "male",
+    "occupation": "lorry driver",
+    "presenting_complaint": "Referred from polyclinic for annual diabetic retinopathy screening — has not had an eye check in 3 years"
+  },
+  "history": {
+    "hpc": "Mr Krishnan has Type 2 diabetes mellitus diagnosed 20 years ago. He was referred by his polyclinic for diabetic eye screening, as his last eye check was 3 years ago and was reportedly 'normal'. He has no specific eye complaints today — no pain, no redness, no sudden vision changes. However, he mentions his distance vision has been 'a bit blur' for driving over the past year, and he has occasional tingling in his feet. He has missed several diabetes follow-up appointments due to work commitments as a long-haul lorry driver.",
+    "pmhx": "Type 2 diabetes mellitus for 20 years (last HbA1c 9.1%, done 8 months ago — poorly controlled). Hypertension for 10 years. Hyperlipidaemia. No previous eye surgery or laser treatment. No known kidney disease, but has not had recent renal function tests.",
+    "family_hx": "Both parents had diabetes. One brother had diabetic retinopathy requiring laser treatment.",
+    "medications": ["Metformin 1g BD", "Gliclazide 80mg OD", "Amlodipine 10mg OD", "Atorvastatin 20mg ON", "Aspirin 100mg OD"],
+    "social_hx": "Long-haul lorry driver — relies on his vocational driving licence for his livelihood. Smokes about 10 cigarettes a day for 30 years. Drinks alcohol socially. Often skips meals due to irregular driving schedule, which affects blood sugar control."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (LogMAR 0.3)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. Mild early cataract changes noted in both lenses.",
+    "fundus": "To be assessed via dilated examination/retinal photography — not yet performed; patient's last screening was 3 years ago and showed no retinopathy at that time"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.3 (6/12). LE: LogMAR 0.2 (6/9). Both reduced from presumed previous normal — relevant given his vocational driving requirements.",
+    "iop_nct": "RE: 16 mmHg. LE: 17 mmHg. Both normal.",
+    "vascular_risk_summary": "20-year history of T2DM with poor control (HbA1c 9.1%), hypertension, hyperlipidaemia, smoking, family history of diabetic retinopathy, peripheral neuropathy symptoms (foot tingling), and 3-year gap since last eye screening — multiple compounding risk factors for diabetic retinopathy"
+  },
+  "diagnosis": "High-risk patient for diabetic retinopathy — long duration of poorly controlled diabetes, multiple vascular risk factors, overdue for screening, with new mild reduction in distance VA relevant to his vocational driving licence. Requires comprehensive dilated fundus examination/retinal photography today.",
+  "management": {
+    "immediate": [
+      "Conduct a structured history covering: duration of diabetes, most recent HbA1c, other vascular risk factors (hypertension, hyperlipidaemia, smoking), and time since last eye screening",
+      "Specifically ask about new visual symptoms, even subtle ones (gradual blurring relevant to driving)",
+      "Ask about systemic symptoms suggestive of other diabetic complications (e.g. peripheral neuropathy — tingling feet, nephropathy)",
+      "Document all current medications, including aspirin (relevant if any future intervention needed) and diabetes medications",
+      "Record family history of diabetic retinopathy",
+      "Measure VA and IOP and document accurately, noting the reduction in VA compared to expected normal",
+      "Flag this patient as high priority for dilated fundus examination/retinal photography today, given the 3-year screening gap and poor glycaemic control",
+      "Note the occupational relevance (vocational driving licence) when documenting visual findings for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to perform dilated fundus examination and grade any diabetic retinopathy present",
+      "If retinopathy is found, doctor to advise on referral pathways (e.g. laser, intravitreal injection) and the implications for his vocational licence if relevant",
+      "Encourage patient to re-engage with his diabetes care team to address poor glycaemic control",
+      "Ensure he is scheduled for annual screening going forward, with reminders given his history of missed appointments"
+    ],
+    "patient_education": [
+      "Explain that diabetic eye disease is often silent — the only way to detect it early is through regular screening, especially given his 20-year history and elevated HbA1c",
+      "Explain the importance of returning to his diabetes clinic to address his blood sugar control, which directly affects his eye health",
+      "Advise him that smoking significantly increases his risk of diabetic eye complications and offer smoking cessation resources/referral",
+      "Explain that any change in his vision could affect his vocational driving licence, so he should not skip future eye screening appointments"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes duration of diabetes and most recent HbA1c/glycaemic control",
+        "Identifies other vascular risk factors: hypertension, hyperlipidaemia, smoking history",
+        "Asks about time since last eye screening and any prior retinopathy/laser treatment",
+        "Asks about symptoms of other diabetic complications (e.g. peripheral neuropathy)",
+        "Documents family history of diabetic retinopathy and current medications including anticoagulant (aspirin)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes and notes the reduction relevant to his driving occupation",
+        "Performs NCT for IOP as part of routine workup",
+        "Recognises the need for dilated fundus examination/retinal photography given the screening gap",
+        "Documents the vascular risk profile clearly for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Synthesises the history into a clear high-risk profile for diabetic retinopathy (duration, control, risk factors, screening gap)",
+        "Recognises the new VA reduction as clinically relevant, not incidental",
+        "Understands the occupational implications (vocational driving licence) of any visual findings",
+        "Does not understate the urgency despite the patient having 'no eye complaints'"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Prioritises this patient for dilated fundus examination/retinal photography today",
+        "Documents the comprehensive vascular and ocular history clearly for doctor handover",
+        "Provides patient education connecting systemic glycaemic control to eye health",
+        "Addresses modifiable risk factors (smoking) with appropriate referral/advice",
+        "Plans for improved follow-up given history of missed appointments"
+      ]
+    }
+  }
+}

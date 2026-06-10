@@ -1,0 +1,100 @@
+{
+  "case_id": "case_ot_020_cover_uncover_test_strabismus",
+  "title": "Tropia or Phoria?",
+  "difficulty": "intermediate",
+  "topic": "cover_uncover_test_strabismus",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Orthoptics Skills Observation",
+  "patient": {
+    "name": "Master Marcus Lim Yu Xuan",
+    "age": 6,
+    "gender": "male",
+    "occupation": "primary school student",
+    "presenting_complaint": "New patient — parents noticed his right eye occasionally 'drifts outward', especially when he is daydreaming or tired"
+  },
+  "history": {
+    "hpc": "Marcus's parents noticed about 4 months ago that his right eye sometimes appears to drift outward, particularly when he is tired, unwell, or staring into the distance without concentrating. When he is alert and focusing on something, his eyes appear straight. He has not complained of double vision, but his parents are concerned. He has been referred to the orthoptic clinic for a cover/uncover test to assess for strabismus.",
+    "pmhx": "Born full term, normal delivery and development. No previous eye surgery. No known ocular disease. Has never worn glasses.",
+    "family_hx": "Maternal cousin has 'lazy eye' and wears a patch",
+    "medications": ["Nil regular"],
+    "social_hx": "Primary 1 student. Lives with parents."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "anterior_segment": "Normal bilaterally",
+    "fundus": "Normal bilaterally on doctor's examination"
+  },
+  "investigations": {
+    "cover_uncover_test": {
+      "method": "Patient asked to fixate on a target at distance (3 metres) and near (33 cm). Each eye covered and uncovered in turn while observing for movement of the uncovered eye and the covered eye on removal of the cover.",
+      "distance_fixation": "Cover-uncover test: when the right eye is covered, the left eye does not move (no refixation). When the left eye is covered, the right eye does not move while covered, but on UNCOVERING the right eye, it is seen to drift in from an outward position back to fixation.",
+      "near_fixation": "Similar finding at near, slightly less pronounced",
+      "alternate_cover_test": "On alternate cover testing, the right eye consistently moves inward (from an exo position) to take up fixation when uncovered, with no movement of the eyes when both are open (no manifest deviation under binocular viewing)",
+      "result": "Findings consistent with an intermittent exotropia of the right eye (manifest only when binocular fusion is disrupted, e.g. by covering), rather than a constant tropia or a pure phoria"
+    },
+    "va_summary": "RE: 6/9. LE: 6/6 — mild reduction in right eye VA, query early amblyopia given intermittent deviation"
+  },
+  "diagnosis": "Cover/uncover and alternate cover testing completed. Findings are consistent with intermittent exotropia of the right eye — a manifest deviation that appears under cover testing (when fusion is broken) but not during normal binocular viewing. Mildly reduced right eye VA noted, raising the possibility of early amblyopia. For doctor/orthoptist's review and further work-up.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain the test to Marcus and his parents in simple terms ('look at the toy, I'm going to cover one eye for a moment')",
+      "Seat the child at an appropriate height with a fixation target at distance (3 metres) and have an accommodative near target (33 cm) ready",
+      "Perform the cover-uncover test on each eye in turn at distance: cover one eye and observe the uncovered eye for any movement (refixation), then remove the cover and observe the just-uncovered eye for movement",
+      "Repeat the cover-uncover test at near fixation",
+      "Perform the alternate cover test, switching the cover rapidly between the two eyes, to assess for the total deviation present (manifest plus latent)",
+      "Document findings systematically: which eye moves, direction of movement (in/out/up/down), and whether the deviation is present under binocular viewing or only on cover testing",
+      "Note the child's visual acuity findings (6/9 right vs 6/6 left) alongside the motility findings",
+      "Hand findings to doctor/orthoptist for further assessment, including possible stereopsis testing"
+    ],
+    "follow_up": [
+      "Doctor/orthoptist to confirm diagnosis of intermittent exotropia and assess control (frequency of manifest deviation)",
+      "Further work-up for amblyopia given the right eye VA difference — may include refraction and consideration of patching",
+      "Follow-up to monitor whether the intermittent exotropia is stable, improving, or becoming more constant over time"
+    ],
+    "patient_education": [
+      "Explain to parents what intermittent exotropia means: the eye drifts outward sometimes, usually when tired or not concentrating, but the brain can usually pull it back to straight",
+      "Reassure parents that this is being assessed further and that early identification is helpful",
+      "Advise parents to note down how often they notice the drifting eye and under what circumstances, to share at follow-up"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and explains the test in age-appropriate, child-friendly language",
+        "Elicits the intermittent nature of the deviation and triggers (tiredness, daydreaming, distance fixation)",
+        "Notes the family history of amblyopia/strabismus as relevant context",
+        "Confirms visual acuity findings for both eyes before proceeding with motility testing"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs the cover-uncover test correctly at both distance and near fixation",
+        "Correctly observes and documents movement of the uncovered eye (for manifest deviation) and the just-uncovered eye (for latent deviation)",
+        "Performs the alternate cover test to assess total deviation",
+        "Documents findings systematically by eye, direction, and whether manifest under binocular viewing"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly distinguishes a tropia (manifest under binocular viewing) from a phoria (only appears on cover testing) based on the test findings",
+        "Identifies the pattern as consistent with intermittent exotropia (manifest only when fusion is disrupted)",
+        "Recognises the mild VA reduction in the right eye as a possible sign of early amblyopia requiring further work-up",
+        "Does not finalise the diagnosis or management plan independently — refers to doctor/orthoptist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents cover test findings clearly and accurately, distinguishing distance and near results",
+        "Hands findings to doctor/orthoptist for further assessment and amblyopia work-up",
+        "Communicates findings to parents in clear, reassuring, age-appropriate language",
+        "Advises parents on useful observations to track before the next visit"
+      ]
+    }
+  }
+}

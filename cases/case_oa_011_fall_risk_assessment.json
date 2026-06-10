@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_011_fall_risk_assessment",
+  "title": "Steady on Her Feet?",
+  "difficulty": "beginner",
+  "topic": "fall_risk_assessment",
+  "role": "OA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mdm Wong Siok Tin",
+    "age": 81,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Came in for routine cataract review and has just had both eyes dilated — now waiting to be seen, vision very blurry"
+  },
+  "history": {
+    "hpc": "Mdm Wong is an 81-year-old attending for cataract assessment. Both eyes were dilated with tropicamide 1% about 20 minutes ago and her vision is now very blurry, especially for near objects, and she is sensitive to the bright clinic lights. She mentions she had a small fall at home about 2 months ago when she tripped over a rug, but did not injure herself badly. She uses a walking stick occasionally but did not bring it today. She came with her domestic helper but the helper has gone to the toilet.",
+    "pmhx": "Bilateral cataracts (moderate). Osteoporosis. Hypertension. History of one fall at home 2 months ago (no fracture).",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Calcium and Vitamin D supplement OD"],
+    "social_hx": "Lives with domestic helper and son's family. Uses a walking stick occasionally. Today the helper has briefly stepped away."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18 (LogMAR 0.5) pre-dilation, now further blurred post-dilation", "left": "6/24 (LogMAR 0.6) pre-dilation, now further blurred post-dilation"},
+    "iop": {"right": "17 mmHg (NCT, pre-dilation)", "left": "18 mmHg (NCT, pre-dilation)"},
+    "anterior_segment": "Bilateral moderate nuclear cataracts. Pupils now well-dilated bilaterally following tropicamide instillation.",
+    "fundus": "To be assessed by doctor now that pupils are dilated"
+  },
+  "investigations": {
+    "fall_risk_assessment": "High risk identified: age >80, recent fall history within past 3 months, osteoporosis, reduced baseline vision further worsened by pupil dilation, walking aid not available today, and currently unaccompanied",
+    "va_distance": "RE: LogMAR 0.5 (6/18). LE: LogMAR 0.6 (6/24). Measured pre-dilation."
+  },
+  "diagnosis": "High fall risk — elderly patient with recent fall history, reduced baseline vision, and acute post-dilation blurring/photosensitivity, currently without her walking aid and temporarily unaccompanied. Requires active fall-prevention measures while waiting.",
+  "management": {
+    "immediate": [
+      "Recognise that ALL patients should be assessed for fall risk at every visit, and that this patient has multiple risk factors",
+      "Do not leave the patient to walk to the waiting area alone — accompany her personally",
+      "Seat her in a safe, well-lit area close to the nursing/OA station where she can be observed",
+      "Offer sunglasses/UV protectors to reduce photosensitivity discomfort while dilated",
+      "Locate her domestic helper or ask staff to find the helper and ask them to remain with the patient",
+      "Document the fall risk assessment and the actions taken (e.g. accompanied to seating, helper informed, sunglasses offered)",
+      "Inform the nurse-in-charge that this patient is high fall risk and post-dilation, so staff are aware when calling her for the next step"
+    ],
+    "follow_up": [
+      "Doctor to proceed with dilated fundus examination for cataract assessment",
+      "Ensure patient is escorted by helper/family for the rest of the visit and on the way out",
+      "Consider flagging in her records that she should bring her walking stick to future visits, especially for appointments involving dilation"
+    ],
+    "patient_education": [
+      "Explain to Mdm Wong that her vision will be blurry and she will be more sensitive to light for the next 4-6 hours due to the dilating drops",
+      "Advise her to move slowly, hold onto rails/furniture, and not to walk around alone until her helper returns",
+      "Advise her to bring her walking stick and a companion for future visits, especially when dilation is expected",
+      "Reassure her that this blurring is temporary and expected after dilation"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about recent falls and any walking aids normally used",
+        "Asks about who accompanied the patient and whether they are currently present",
+        "Notes baseline vision and relevant comorbidities (osteoporosis, hypertension)",
+        "Recognises post-dilation blurring and photosensitivity as additional acute risk factors"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs/documents a fall risk assessment for this patient at this visit",
+        "Identifies multiple specific risk factors (age, recent fall, osteoporosis, reduced VA, post-dilation blurring, no walking aid, currently unaccompanied)",
+        "Considers the timing of dilation relative to current symptoms",
+        "Documents pre-dilation VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly classifies this patient as high fall risk",
+        "Recognises that dilation has acutely increased her fall risk on top of existing chronic risk factors",
+        "Understands that 'high risk' requires an active response, not just documentation",
+        "Does not dismiss the risk because the patient 'seems fine sitting down'"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Takes concrete action: accompanies patient, seats her safely, locates helper/family",
+        "Offers practical measures (sunglasses/UV protectors) for post-dilation photosensitivity",
+        "Documents the fall risk assessment and actions taken, as required",
+        "Communicates the fall risk status to other staff (nurse-in-charge)",
+        "Provides clear patient education about post-dilation effects and safety"
+      ]
+    }
+  }
+}

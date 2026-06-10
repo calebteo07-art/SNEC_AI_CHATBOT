@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_017_triage_floaters_flashes_retinal_history",
+  "title": "Floaters Again — But This Time Is Different",
+  "difficulty": "intermediate",
+  "topic": "triage_floaters_flashes_retinal_history",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Lawrence D'Cruz",
+    "age": 58,
+    "gender": "male",
+    "occupation": "logistics manager",
+    "presenting_complaint": "Sudden increase in floaters and new flashes of light in the left eye since this morning"
+  },
+  "history": {
+    "hpc": "Mr D'Cruz calls the clinic this morning reporting a sudden increase in floaters in his left eye, describing them as 'like a swarm of small flies' that appeared over the last few hours, along with new flashes of light at the edge of his vision, especially when he moves his eyes. He had a retinal detachment in the same left eye 4 years ago, treated with surgery. He has had occasional mild floaters since then but says today's symptoms are 'much worse and different — like something changed suddenly'. He denies any curtain or shadow over his vision so far and his central vision feels unchanged.",
+    "pmhx": "Previous retinal detachment, left eye, treated surgically 4 years ago (scleral buckle). Myopia, both eyes (high myopia, around -7.00D). No diabetes. No hypertension.",
+    "family_hx": "Brother also had a retinal detachment in his 50s.",
+    "medications": [],
+    "social_hx": "Logistics manager, works at a computer most of the day. No smoking. Drives regularly."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0) — by patient report, not yet formally tested", "left": "6/9 (LogMAR 0.18) — by patient report, no acute change noted by patient, not yet formally tested"},
+    "iop": {"right": "Not tested at triage", "left": "Not tested at triage"},
+    "anterior_segment": "Not assessed — phone triage, patient not yet physically at clinic",
+    "fundus": "Not assessed — phone triage; urgent same-day fundus examination to be arranged"
+  },
+  "investigations": {
+    "triage_assessment": {
+      "symptom_type": "Sudden increase in floaters AND new flashes of light, left eye, acute onset (within hours)",
+      "previous_retinal_history": "Yes — previous retinal detachment, same eye (left), 4 years ago",
+      "curtain_or_shadow": "None reported at this time, but patient should be advised this could develop",
+      "central_vision_change": "None reported at this time",
+      "triage_category_assigned": "Category 3 — within 60 minutes (sudden increase in floaters/flashes WITH previous retinal history — suspect retinal detachment)",
+      "section_a_flag": "Yes — 'previous retinal detachment' is a Section A urgent condition flag"
+    }
+  },
+  "diagnosis": "Phone triage assessment: sudden onset of new floaters and flashes in a patient with a previous retinal detachment in the same eye is a recognised Category 3 presentation (within 60 minutes) per SNEC triage criteria, and also triggers a Section A urgent flag due to his retinal detachment history. Same-day urgent appointment to be arranged. PSA does not diagnose retinal detachment — provisional triage category for nurse/doctor confirmation.",
+  "management": {
+    "immediate": [
+      "Answer the call calmly and obtain the patient's full name and NRIC/case number to locate his records",
+      "Ask focused questions: When did the floaters/flashes start? Sudden or gradual? One eye or both? Any curtain, shadow, or 'veil' over the vision? Any change in central vision?",
+      "Specifically ask about previous eye history — confirm his previous retinal detachment in the left eye 4 years ago",
+      "Recognise that 'sudden increase in floaters, especially with previous retinal history' and 'flashes, especially with previous retinal history' both meet Category 3 criteria (within 60 minutes)",
+      "Recognise that previous retinal detachment is also a Section A urgent condition flag on the SNEC triage form",
+      "Inform Mr D'Cruz that, given his history, he needs to be seen urgently today — advise him to come to the clinic as soon as possible",
+      "Advise him that if he develops a curtain, shadow, or veil over his vision, or any sudden drop in central vision, before he arrives, he should mention this immediately to staff on arrival or call back urgently",
+      "Document the call: time of call, symptoms reported, history elicited, and the provisional triage category assigned",
+      "Inform the nurse-in-charge or triage nurse immediately so a same-day urgent slot can be arranged before the patient arrives"
+    ],
+    "follow_up": [
+      "Ensure the urgent same-day appointment is confirmed and communicated back to the patient (time and location)",
+      "Hand over the documented phone triage assessment to the nurse/doctor who will see him",
+      "On arrival, prioritise getting him to the assessment area promptly given the Category 3 / Section A flag"
+    ],
+    "patient_education": [
+      "Explain to Mr D'Cruz that because of his previous retinal surgery in that eye, new floaters and flashes need to be checked promptly today",
+      "Advise him not to drive himself if his vision feels unsafe — suggest he arrange transport or have someone accompany him",
+      "Tell him clearly what to watch for en route (curtain, shadow, sudden vision loss) and what to do if it occurs (seek immediate attention, e.g., A&E, rather than waiting)",
+      "Reassure him that coming in promptly is the right thing to do, without confirming or denying a diagnosis"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Obtains key symptom details: onset (sudden), nature (floaters AND flashes), laterality (left eye), and any associated curtain/shadow or central vision change",
+        "Specifically elicits the previous retinal detachment history in the same eye",
+        "Asks about family history of retinal detachment as additional relevant context",
+        "Confirms patient identity and locates his records efficiently during the phone call"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents the phone triage assessment systematically despite the patient not being physically present",
+        "Correctly applies the SNEC triage criteria for floaters/flashes with previous retinal history (Category 3)",
+        "Identifies the Section A 'previous retinal detachment' flag as an additional urgent marker",
+        "Documents the absence of curtain/shadow and central vision change at the time of the call as a baseline"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly assigns Category 3 (within 60 minutes) based on sudden floaters/flashes with previous retinal history",
+        "Recognises the Section A flag for previous retinal detachment and its implication for urgency",
+        "Does not diagnose retinal detachment over the phone — frames as provisional triage for confirmation",
+        "Recognises the need for escalation to nurse-in-charge to arrange a same-day slot promptly"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Arranges an urgent same-day appointment and communicates this clearly to the patient",
+        "Provides clear safety-netting advice: what new symptoms (curtain/shadow, vision loss) mean and what to do if they occur",
+        "Advises on safe transport to the clinic given his visual symptoms",
+        "Documents the call and hands over to nurse/doctor promptly so the urgent slot is actioned before arrival"
+      ]
+    }
+  }
+}
