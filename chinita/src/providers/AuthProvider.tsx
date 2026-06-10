@@ -29,8 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     if (typeof window === "undefined") return null;
     try {
-      const c = localStorage.getItem("eyebot_user_v1");
-      return c ? JSON.parse(c) : null;
+      const c = sessionStorage.getItem("eyebot_user");
+      if (!c) return null;
+      const base = JSON.parse(c);
+      return {
+        fullName: base.fullName,
+        email: base.email,
+        role: base.role,
+        studentId: base.studentId,
+        studentRole: (sessionStorage.getItem("eyebot_student_role") as "OA" | "OT" | "PSA" | "") ?? "",
+        mustChangePassword: sessionStorage.getItem("eyebot_must_change") === "true",
+      };
     } catch { return null; }
   });
   const [isCheckInDone, setIsCheckInDone] = useState(() => {
@@ -39,10 +48,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
   const [loading, setLoading] = useState(() => {
     if (typeof window === "undefined") return true;
-    return !localStorage.getItem("eyebot_user_v1");
+    return !sessionStorage.getItem("eyebot_user");
   });
 
   useEffect(() => {
+    // Only validate with the server if this is a page refresh (sessionStorage has data).
+    // On a fresh browser session sessionStorage is empty — require explicit login.
+    if (!sessionStorage.getItem("eyebot_user")) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
 
     const check = async (attempt = 0): Promise<void> => {
@@ -59,20 +75,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           studentRole: me.student_role as "OA" | "OT" | "PSA" | "",
           mustChangePassword: me.must_change,
         };
-        // Repopulate sessionStorage if it was cleared (e.g. browser was closed)
-        if (!sessionStorage.getItem("eyebot_user")) {
-          sessionStorage.setItem("eyebot_user", JSON.stringify({
-            fullName: restoredUser.fullName,
-            email: restoredUser.email,
-            studentId: restoredUser.studentId,
-            role: restoredUser.role,
-          }));
-          sessionStorage.setItem("eyebot_student_id", restoredUser.studentId);
-          sessionStorage.setItem("eyebot_student_role", restoredUser.studentRole ?? "");
-          sessionStorage.setItem("eyebot_must_change", restoredUser.mustChangePassword ? "true" : "false");
-        }
+        sessionStorage.setItem("eyebot_user", JSON.stringify({
+          fullName: restoredUser.fullName,
+          email: restoredUser.email,
+          studentId: restoredUser.studentId,
+          role: restoredUser.role,
+        }));
+        sessionStorage.setItem("eyebot_student_id", restoredUser.studentId);
+        sessionStorage.setItem("eyebot_student_role", restoredUser.studentRole ?? "");
+        sessionStorage.setItem("eyebot_must_change", restoredUser.mustChangePassword ? "true" : "false");
         setUser(restoredUser);
-        localStorage.setItem("eyebot_user_v1", JSON.stringify(restoredUser));
         setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
         setLoading(false);
       } catch {
@@ -82,7 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return check(attempt + 1);
         }
         sessionStorage.clear();
-        localStorage.removeItem("eyebot_user_v1");
         setLoading(false);
       }
     };
@@ -93,7 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: User) => {
     setUser(userData);
-    localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
     setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
@@ -124,7 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // best-effort
     }
     sessionStorage.clear();
-    localStorage.removeItem("eyebot_user_v1");
     setUser(null);
     setIsCheckInDone(false);
   };
