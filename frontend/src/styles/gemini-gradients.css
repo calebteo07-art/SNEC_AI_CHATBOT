@@ -1,0 +1,383 @@
+/* ============================================================
+   gemini-gradients.css — Gemini accent layer for EyeBot
+   Blue #4285f4 · Purple #9b72cb · Coral #d96570 · Teal #1aa89c
+   Overlay on eyebot.css — zero layout changes
+   ============================================================ */
+
+/* ── Animated conic gradient property ───────────────────────── */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ── Gradient family tokens ──────────────────────────────────── */
+:root {
+  --grad-aurora:   linear-gradient(135deg, #4285f4 0%, #9b72cb 100%);
+  --grad-dusk:     linear-gradient(135deg, #9b72cb 0%, #d96570 100%);
+  --grad-ocean:    linear-gradient(135deg, #1a73e8 0%, #1aa89c 100%);
+  --grad-sunrise:  linear-gradient(135deg, #d96570 0%, #f4a742 100%);
+  --grad-void:     linear-gradient(135deg, #0d1b4b 0%, #4a2c6e 100%);
+  --grad-gemini:   linear-gradient(135deg, #4285f4 0%, #9b72cb 50%, #d96570 100%);
+
+  --gemini-blue:   #4285f4;
+  --gemini-purple: #9b72cb;
+  --gemini-coral:  #d96570;
+  --gemini-teal:   #1aa89c;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+@keyframes spin-gradient   { to { --angle: 360deg; } }
+
+@keyframes gemini-spin {
+  0%   { border-top-color: #4285f4; }
+  33%  { border-top-color: #9b72cb; }
+  66%  { border-top-color: #d96570; }
+  100% { border-top-color: #4285f4; }
+}
+
+@keyframes progress-shimmer {
+  0%   { background-position: 200% 50%; }
+  100% { background-position:   0% 50%; }
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 1. LOGO / ICON MARK — animated conic + layered glow          */
+/* ───────────────────────────────────────────────────────────── */
+.sidebar-logo-icon,
+.login-logo {
+  background: conic-gradient(
+    from var(--angle),
+    #4285f4, #9b72cb, #d96570, #1aa89c, #4285f4
+  ) !important;
+  animation: spin-gradient 4s linear infinite !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 0 28px rgba(155, 114, 203, 0.65),
+    0 0 56px rgba(66,  133, 244, 0.40),
+    0  4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 2. HERO / MAIN HEADER — gradient text                        */
+/* ───────────────────────────────────────────────────────────── */
+.login-brand {
+  background: var(--grad-gemini) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+.login-tagline {
+  background: var(--grad-gemini);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  opacity: 0.8;
+}
+
+.progress-hero-h1 {
+  background: var(--grad-gemini);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Summary screen big number */
+.summary-hero-val {
+  background: var(--grad-gemini) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 3. PRIMARY CTA BUTTONS — aurora → dusk on hover              */
+/* ───────────────────────────────────────────────────────────── */
+.login-btn:not(:disabled) {
+  background: var(--grad-aurora) !important;
+  border-bottom: none !important;
+  box-shadow: 0 8px 28px rgba(66, 133, 244, 0.35) !important;
+  transition: background 0.35s ease, transform 0.12s, box-shadow 0.35s ease !important;
+}
+.login-btn:not(:disabled):hover {
+  background: var(--grad-dusk) !important;
+  box-shadow: 0 12px 36px rgba(155, 114, 203, 0.45) !important;
+}
+.login-btn:not(:disabled):active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
+}
+
+.check-btn:not(:disabled) {
+  background: var(--grad-aurora) !important;
+  border-bottom: none !important;
+  box-shadow: 0 4px 18px rgba(66, 133, 244, 0.35) !important;
+  transition: background 0.35s ease, transform 0.1s, box-shadow 0.35s ease !important;
+}
+.check-btn:not(:disabled):hover {
+  background: var(--grad-dusk) !important;
+  box-shadow: 0 8px 28px rgba(155, 114, 203, 0.45) !important;
+}
+
+.send-btn {
+  background: var(--grad-aurora) !important;
+  border-bottom: none !important;
+  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.35) !important;
+  transition: background 0.35s ease, transform 0.1s !important;
+}
+.send-btn:hover {
+  background: var(--grad-dusk) !important;
+  box-shadow: 0 6px 20px rgba(155, 114, 203, 0.45) !important;
+}
+
+/* Tooltip primary action */
+.tooltip-action-btn.primary {
+  background: var(--grad-aurora) !important;
+  border-color: transparent !important;
+  border-bottom: none !important;
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.35) !important;
+  transition: background 0.35s ease, transform 0.1s !important;
+}
+.tooltip-action-btn.primary:hover {
+  background: var(--grad-dusk) !important;
+  box-shadow: 0 8px 28px rgba(155, 114, 203, 0.45) !important;
+}
+
+/* Start lesson button */
+.start-lesson-btn {
+  background: var(--grad-aurora) !important;
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.40) !important;
+  border-bottom: none !important;
+  transition: background 0.35s ease, transform 0.1s !important;
+}
+.start-lesson-btn:hover {
+  background: var(--grad-dusk) !important;
+  box-shadow: 0 8px 28px rgba(155, 114, 203, 0.50) !important;
+}
+
+/* Secondary / ghost buttons — aurora border */
+.topic-card-btn--primary {
+  border: 1.5px solid transparent !important;
+  background:
+    rgba(66, 133, 244, 0.12) padding-box,
+    var(--grad-aurora) border-box !important;
+  color: #7aabff !important;
+}
+.topic-card-btn--primary:hover {
+  background:
+    rgba(66, 133, 244, 0.22) padding-box,
+    var(--grad-aurora) border-box !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 4. SIDEBAR / NAV ACCENT — ocean left pill                    */
+/* ───────────────────────────────────────────────────────────── */
+.nav-item.active {
+  background: rgba(26, 115, 232, 0.08) !important;
+  color: #7aabff !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--grad-ocean);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Chat history active item */
+.chat-history-item.active {
+  border-left-color: #4285f4 !important;
+  background: rgba(66, 133, 244, 0.07) !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 5. AI CHAT RESPONSE CARDS — aurora gradient border           */
+/* ───────────────────────────────────────────────────────────── */
+.msg-ai .msg-bubble {
+  border: 1.5px solid transparent !important;
+  background:
+    linear-gradient(var(--surface-1, #0f172a), var(--surface-1, #0f172a)) padding-box,
+    var(--grad-aurora) border-box !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 6. SECTION DIVIDERS — purple → coral 1px                     */
+/* ───────────────────────────────────────────────────────────── */
+.track-divider {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #9b72cb 35%,
+    #d96570 65%,
+    transparent 100%
+  ) !important;
+  border: none !important;
+  height: 1px !important;
+  opacity: 0.45;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 7. LOADING / TYPING INDICATOR — cycling colours              */
+/* ───────────────────────────────────────────────────────────── */
+.spinner--teal {
+  border-color: rgba(66, 133, 244, 0.25) !important;
+  border-top-color: #4285f4 !important;
+  animation: spin 0.7s linear infinite, gemini-spin 2.1s linear infinite !important;
+}
+
+/* ───────────────────────────────────────────────────────────── */
+/* 8. SCROLLBAR — aurora thumb                                  */
+/* ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar         { width: 5px; height: 5px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: var(--grad-aurora); border-radius: 3px; }
+
+/* ───────────────────────────────────────────────────────────── */
+/* GRADIENT FAMILY — extended applications                      */
+/* ───────────────────────────────────────────────────────────── */
+
+/* Feature cards — rotating top accent strip */
+.topic-card {
+  border-top: 3px solid #4285f4 !important;
+}
+.topic-card:nth-child(4n + 2) { border-top-color: #1aa89c !important; }
+.topic-card:nth-child(4n + 3) { border-top-color: #9b72cb !important; }
+.topic-card:nth-child(4n + 4) { border-top-color: #d96570 !important; }
+
+.case-card {
+  border-top: 3px solid #4285f4 !important;
+}
+.case-card:nth-child(4n + 2) { border-top-color: #1aa89c !important; }
+.case-card:nth-child(4n + 3) { border-top-color: #9b72cb !important; }
+.case-card:nth-child(4n + 4) { border-top-color: #d96570 !important; }
+
+/* Progress bars — ocean shimmer */
+.mastery-bar-fill {
+  background: var(--grad-ocean) !important;
+  background-size: 200% 100% !important;
+  animation:
+    bar-grow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    progress-shimmer 1.5s ease-in-out 0.8s infinite !important;
+}
+
+.sidebar-xp-fill     { background: var(--grad-ocean) !important; }
+.topbar-xp-fill      { background: var(--grad-ocean) !important; }
+
+/* Progress exercise dots */
+.progress-dot.done   { background: #4285f4 !important; }
+.progress-dot.active { background: rgba(66, 133, 244, 0.40) !important; }
+
+/* Calendar hit / today — aurora */
+.cal-day.hit,
+.cal-day.today {
+  background: linear-gradient(135deg, #4285f4, #9b72cb) !important;
+  outline-color: rgba(66, 133, 244, 0.40) !important;
+}
+
+/* Streak dots */
+.streak-dot.hit,
+.streak-dot.today {
+  background: linear-gradient(135deg, #4285f4, #9b72cb) !important;
+  outline-color: rgba(66, 133, 244, 0.40) !important;
+}
+
+/* Tags / role badges — rotated family */
+.role-badge.oa         { background: rgba(26,168,156,.12) !important; color: #1aa89c !important; border-color: rgba(26,168,156,.25) !important; }
+.role-badge.ot         { background: rgba(155,114,203,.12) !important; color: #b48ae8 !important; border-color: rgba(155,114,203,.25) !important; }
+.role-badge.psa        { background: rgba(66,133,244,.12) !important; color: #7aabff !important; border-color: rgba(66,133,244,.25) !important; }
+.role-badge.admin      { background: rgba(217,101,112,.12) !important; color: #e88a94 !important; border-color: rgba(217,101,112,.25) !important; }
+.role-badge.supervisor { background: rgba(26,115,232,.12) !important; color: #7aabff !important; border-color: rgba(66,133,244,.25) !important; }
+
+/* Curriculum active tab */
+.curriculum-tab.active {
+  color: #7aabff !important;
+  border-bottom-color: #4285f4 !important;
+}
+
+/* Suggestion chip hover */
+.suggestion-chip:hover {
+  border-color: #4285f4 !important;
+  color: #7aabff !important;
+  background: rgba(66, 133, 244, 0.07) !important;
+}
+
+/* Input focus borders */
+.chat-input:focus  { border-color: #4285f4 !important; }
+.admin-search:focus { border-color: #4285f4 !important; }
+
+.login-input:focus {
+  border-color: #4285f4 !important;
+  background: rgba(66, 133, 244, 0.05) !important;
+}
+
+/* Online status dot */
+.chat-online-dot {
+  background: #1aa89c !important;
+  box-shadow: 0 0 0 2px var(--surface-1, #0f172a), 0 0 8px #1aa89c !important;
+}
+
+/* XP toast */
+.xp-toast {
+  background: rgba(66, 133, 244, 0.10) !important;
+  border-color: #4285f4 !important;
+  color: #7aabff !important;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
+}
+
+/* Stat pill XP */
+.stat-pill--xp {
+  border-color: #4285f4 !important;
+  color: #7aabff !important;
+}
+
+/* Login accent details */
+.login-pdpa-text { border-left-color: #4285f4 !important; }
+
+.login-role-btn:hover {
+  background: rgba(66, 133, 244, 0.08) !important;
+  border-color: #4285f4 !important;
+}
+.login-role-tag { color: #7aabff !important; }
+
+/* Track buttons */
+.track-btn.active-oa {
+  background: rgba(26,168,156,.10) !important;
+  border-color: #1aa89c !important;
+  color: #1aa89c !important;
+}
+.track-btn.active-ot {
+  background: rgba(155,114,203,.10) !important;
+  border-color: #9b72cb !important;
+  color: #b48ae8 !important;
+}
+.track-btn.active-psa {
+  background: rgba(26,115,232,.10) !important;
+  border-color: #4285f4 !important;
+  color: #7aabff !important;
+}
+
+/* Skill node labels */
+.skill-node-label.done   { color: #1aa89c !important; }
+.skill-node-label.active { color: #7aabff !important; }
+
+/* Admin filter active */
+.admin-filter-pill.active {
+  border-color: #4285f4 !important;
+  background: rgba(66, 133, 244, 0.08) !important;
+  color: #7aabff !important;
+}
+.admin-filter-pill:hover { border-color: #4285f4; color: #7aabff; }
+
+/* Check-in textarea focus */
+.checkin-textarea:focus { border-color: #4285f4 !important; }
