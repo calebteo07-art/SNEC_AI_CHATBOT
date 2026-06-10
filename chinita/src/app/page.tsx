@@ -131,7 +131,7 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#FDFDFC" }}>
       {/* Gradient orbs — full bleed */}
-      <GradientBackground className="!h-full" />
+      <GradientBackground className="!h-full !z-0" intensity={0.5} fullBleed />
 
       {/* Wordmark — top left */}
       <div className="absolute top-7 left-8 z-10 flex items-center gap-2.5">
