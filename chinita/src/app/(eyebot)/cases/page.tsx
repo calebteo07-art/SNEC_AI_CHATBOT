@@ -55,24 +55,24 @@ export default function CasesPage() {
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-6">
+    <div className="max-w-6xl mx-auto px-6 py-12 lg:px-10 lg:py-16">
       {/* Header */}
-      <div className="flex items-baseline justify-between mb-8">
+      <div className="flex items-baseline justify-between mb-12">
         <div>
-          <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">Clinical Training</p>
-          <h1 className="gem-gradient-text text-[48px] font-medium tracking-[-0.04em] leading-none">
+          <p className="text-[#1F1F1F]/50 text-xs uppercase tracking-[0.22em] font-semibold mb-2">Clinical Training</p>
+          <h1 className="gem-gradient-text text-[64px] sm:text-[80px] font-medium tracking-[-0.04em] leading-none">
             Clinical Cases
           </h1>
-          <p className="text-[#1F1F1F]/50 text-sm mt-2">
+          <p className="text-[#1F1F1F]/50 text-base mt-3">
             Interview a virtual patient, request investigations, and reach your diagnosis.
           </p>
         </div>
         {!loading && !error && cases.length > 0 && (
           <button
             onClick={fetchCases}
-            className="flex items-center gap-1.5 text-[#1F1F1F]/40 text-xs font-semibold hover:text-[#3C90FF] transition-colors"
+            className="flex items-center gap-1.5 text-[#1F1F1F]/40 text-sm font-semibold hover:text-[#3C90FF] transition-colors"
           >
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M14 8A6 6 0 1 1 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               <path d="M14 4V8H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -91,9 +91,9 @@ export default function CasesPage() {
 
       {/* Loading skeleton */}
       {loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="gem-glass rounded-[30px] animate-pulse" style={{ height: 280 }} />
+            <div key={i} className="gem-glass rounded-[30px] animate-pulse" style={{ height: 320 }} />
           ))}
         </div>
       )}
@@ -105,7 +105,7 @@ export default function CasesPage() {
 
       {/* Case cards */}
       {!loading && !error && cases.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {cases.map((c, i) => {
             const locked = c.locked ?? false;
             const imgSrc = CASE_IMAGES[i % CASE_IMAGES.length];
@@ -116,18 +116,18 @@ export default function CasesPage() {
                   key={c.case_id}
                   className="gem-glass rounded-[30px] overflow-hidden opacity-40"
                 >
-                  <div className="relative h-32 overflow-hidden bg-black/[0.04]">
+                  <div className="relative h-44 overflow-hidden bg-black/[0.04]">
                     <Image src={imgSrc} alt="" fill sizes="400px" className="object-cover grayscale opacity-30" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                         <rect x="5" y="11" width="14" height="10" rx="2" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
                         <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
                       </svg>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <span className="text-[#1F1F1F]/30 text-[10px] uppercase tracking-[0.12em] font-semibold">{c.difficulty} · Locked</span>
-                    <p className="text-[#1F1F1F]/40 text-sm font-medium mt-1">{c.title}</p>
+                  <div className="p-5">
+                    <span className="text-[#1F1F1F]/30 text-xs uppercase tracking-[0.12em] font-semibold">{c.difficulty} · Locked</span>
+                    <p className="text-[#1F1F1F]/40 text-base font-medium mt-1">{c.title}</p>
                   </div>
                 </div>
               );
@@ -140,7 +140,7 @@ export default function CasesPage() {
                 className="gem-glass rounded-[30px] overflow-hidden block hover:scale-[1.01] hover:shadow-md transition-all"
               >
                 {/* Image */}
-                <div className="relative h-36 overflow-hidden">
+                <div className="relative h-44 overflow-hidden">
                   <Image src={imgSrc} alt="" fill sizes="400px" className="object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   {/* Difficulty pill */}
@@ -150,17 +150,17 @@ export default function CasesPage() {
                   >
                     {c.difficulty}
                   </div>
-                  <div className="absolute bottom-3 right-3 text-white/80 text-[10px] font-medium">
+                  <div className="absolute bottom-3 right-3 text-white/80 text-xs font-medium">
                     ~{c.estimated_minutes} min
                   </div>
                 </div>
 
                 {/* Body */}
-                <div className="p-4">
-                  <div className="text-[#3C90FF] text-[10px] uppercase tracking-[0.12em] font-semibold mb-1">{c.topic}</div>
-                  <div className="text-[#1F1F1F] text-sm font-semibold leading-snug mb-1">{c.title}</div>
-                  <div className="text-[#1F1F1F]/40 text-xs">{c.patient.name}, {c.patient.age} yrs</div>
-                  <p className="text-[#1F1F1F]/30 text-xs mt-2 leading-relaxed italic">
+                <div className="p-5">
+                  <div className="text-[#3C90FF] text-xs uppercase tracking-[0.12em] font-semibold mb-1.5">{c.topic}</div>
+                  <div className="text-[#1F1F1F] text-base font-semibold leading-snug mb-1.5">{c.title}</div>
+                  <div className="text-[#1F1F1F]/40 text-sm">{c.patient.name}, {c.patient.age} yrs</div>
+                  <p className="text-[#1F1F1F]/30 text-sm mt-2 leading-relaxed italic">
                     &quot;{c.patient.presenting_complaint}&quot;
                   </p>
                 </div>

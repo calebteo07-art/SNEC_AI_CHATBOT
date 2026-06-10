@@ -258,17 +258,17 @@ export default function AdminPage() {
   const inputCls = "w-full bg-white/70 border border-black/[0.08] rounded-[12px] px-3 py-2.5 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/30 outline-none focus:border-[#3C90FF]/30 transition-colors";
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-6">
+    <div className="max-w-6xl mx-auto px-6 py-10 lg:px-10 lg:py-14">
       {/* Header */}
-      <h1 className="gem-gradient-text text-[52px] font-medium tracking-[-0.04em] leading-none mb-6">Admin</h1>
+      <h1 className="gem-gradient-text text-[64px] sm:text-[76px] font-medium tracking-[-0.04em] leading-none mb-8">Admin</h1>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-8 p-1 rounded-full gem-glass w-fit">
+      <div className="flex items-center gap-1 mb-10 p-1 rounded-full gem-glass w-fit">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => handleTabChange(key)}
-            className="rounded-full px-4 py-1.5 text-sm font-semibold transition-all"
+            className="rounded-full px-5 py-2 text-base font-semibold transition-all"
             style={{
               background: tab === key ? "#3C90FF" : "transparent",
               color: tab === key ? "#FFFFFF" : "rgba(0,0,0,0.45)",
@@ -286,8 +286,8 @@ export default function AdminPage() {
             <span className="w-8 h-8 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
               {[
                 { label: "Total Students", val: cohort?.total_students ?? 0, color: "#3C90FF" },
                 { label: "Active This Week", val: cohort?.active_this_week ?? 0, color: "#22c55e" },
@@ -295,23 +295,23 @@ export default function AdminPage() {
                 { label: "AI Tokens", val: fmtTokens(totalTokens), color: "#f59e0b" },
                 { label: "Momentum", val: "↑", color: "#a78bfa" },
               ].map(({ label, val, color }) => (
-                <div key={label} className="gem-glass rounded-[20px] p-4">
-                  <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold mb-2">{label}</div>
-                  <div className="text-2xl font-medium tracking-[-0.03em]" style={{ color }}>{val}</div>
+                <div key={label} className="gem-glass rounded-[24px] p-5">
+                  <div className="text-[#1F1F1F]/35 text-[11px] uppercase tracking-[0.16em] font-semibold mb-2">{label}</div>
+                  <div className="text-3xl font-medium tracking-[-0.03em]" style={{ color }}>{val}</div>
                 </div>
               ))}
             </div>
 
             {aiInsight && (
-              <div className="gem-glass rounded-[20px] p-5">
-                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.16em] font-semibold mb-2">AI Insight</p>
-                <p className="text-[#1F1F1F]/60 text-sm leading-relaxed italic">&quot;{aiInsight}&quot;</p>
+              <div className="gem-glass rounded-[24px] p-6">
+                <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-2">AI Insight</p>
+                <p className="text-[#1F1F1F]/60 text-base leading-relaxed italic">&quot;{aiInsight}&quot;</p>
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="gem-glass rounded-[20px] p-5">
-                <p className="text-red-500 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">At-Risk Students</p>
+              <div className="gem-glass rounded-[24px] p-6">
+                <p className="text-red-500 text-xs uppercase tracking-[0.18em] font-semibold mb-3">At-Risk Students</p>
                 {atRisk.length === 0 ? (
                   <p className="text-[#1F1F1F]/25 text-sm">No at-risk students.</p>
                 ) : (
@@ -319,14 +319,14 @@ export default function AdminPage() {
                     {atRisk.map(s => (
                       <div key={s.student_id} className="flex items-center justify-between">
                         <span className="text-[#1F1F1F]/70 text-sm font-medium">{s.name}</span>
-                        <span className="text-[#1F1F1F]/30 text-xs">{s.days_inactive}d · {s.weak_topic_count} weak</span>
+                        <span className="text-[#1F1F1F]/30 text-sm">{s.days_inactive}d · {s.weak_topic_count} weak</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="gem-glass rounded-[20px] p-5">
-                <p className="text-amber-600 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">Weak Topics</p>
+              <div className="gem-glass rounded-[24px] p-6">
+                <p className="text-amber-600 text-xs uppercase tracking-[0.18em] font-semibold mb-3">Weak Topics</p>
                 {(cohort?.weakest_topics ?? []).length === 0 ? (
                   <p className="text-[#1F1F1F]/25 text-sm">No data yet.</p>
                 ) : (
@@ -336,7 +336,7 @@ export default function AdminPage() {
                         <div className="flex-1 h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
                           <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.max(20, 90 - i * 15)}%` }} />
                         </div>
-                        <span className="text-[#1F1F1F]/50 text-xs shrink-0 w-28 truncate">{t}</span>
+                        <span className="text-[#1F1F1F]/50 text-sm shrink-0 w-28 truncate">{t}</span>
                       </div>
                     ))}
                   </div>
@@ -350,7 +350,7 @@ export default function AdminPage() {
       {/* STUDENTS */}
       {tab === "students" && (
         <div>
-          <div className="flex gap-3 mb-4 flex-wrap">
+          <div className="flex gap-3 mb-5 flex-wrap">
             <input
               className={`flex-1 min-w-[200px] ${inputCls}`}
               value={studentSearch}
@@ -362,7 +362,7 @@ export default function AdminPage() {
                 <button
                   key={f}
                   onClick={() => setStudentFilter(f)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  className="px-4 py-2 rounded-full text-sm font-semibold transition-all"
                   style={{
                     background: studentFilter === f ? "#3C90FF" : "rgba(0,0,0,0.06)",
                     color: studentFilter === f ? "#FFFFFF" : "rgba(0,0,0,0.45)",
@@ -379,23 +379,23 @@ export default function AdminPage() {
               <span className="w-6 h-6 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="gem-glass rounded-[20px] overflow-hidden">
-              <div className="grid text-[9px] uppercase tracking-[0.14em] font-semibold text-[#1F1F1F]/35 px-4 py-2.5 border-b border-black/[0.06]"
+            <div className="gem-glass rounded-[24px] overflow-hidden">
+              <div className="grid text-[10px] uppercase tracking-[0.14em] font-semibold text-[#1F1F1F]/35 px-5 py-3 border-b border-black/[0.06]"
                 style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 1fr 1fr" }}>
                 <span>Name</span><span>Email</span><span>Role</span><span>Sessions</span><span>Streak</span><span>Tokens</span><span>Last Active</span>
               </div>
               {filteredStudents.map((s, i) => (
                 <div
                   key={s.student_id}
-                  className="grid items-center px-4 py-3 hover:bg-black/[0.02] transition-colors border-b border-black/[0.04] last:border-0"
+                  className="grid items-center px-5 py-3.5 hover:bg-black/[0.02] transition-colors border-b border-black/[0.04] last:border-0"
                   style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 1fr 1fr", animationDelay: `${i * 20}ms` }}
                 >
                   <span className="text-[#1F1F1F]/80 text-sm font-medium truncate">{s.full_name}</span>
-                  <span className="text-[#1F1F1F]/40 text-xs truncate">{s.email}</span>
+                  <span className="text-[#1F1F1F]/40 text-sm truncate">{s.email}</span>
                   <span><RoleBadge role={s.role} /></span>
-                  <span className="text-[#1F1F1F]/50 text-xs font-mono">{s.session_count}</span>
-                  <span className="text-[#1F1F1F]/50 text-xs font-mono">{s.streak}</span>
-                  <span className="text-[#3C90FF] text-xs font-mono font-semibold">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span>
+                  <span className="text-[#1F1F1F]/50 text-sm font-mono">{s.session_count}</span>
+                  <span className="text-[#1F1F1F]/50 text-sm font-mono">{s.streak}</span>
+                  <span className="text-[#3C90FF] text-sm font-mono font-semibold">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span>
                   <span className="text-[#1F1F1F]/25 text-xs font-mono">{s.last_active?.slice(0, 10) || "—"}</span>
                 </div>
               ))}
@@ -412,20 +412,20 @@ export default function AdminPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Add one student */}
-            <div className="gem-glass rounded-[24px] p-6">
-              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Add One Student</p>
+            <div className="gem-glass rounded-[28px] p-7">
+              <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-5">Add One Student</p>
               <form onSubmit={handleAdd} className="space-y-3">
                 {[
                   { label: "Full name", val: newName, set: setNewName, type: "text", placeholder: "Jane Doe" },
                   { label: "Email", val: newEmail, set: setNewEmail, type: "email", placeholder: "jane@snec.com.sg" },
                 ].map(({ label, val, set, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">{label}</label>
+                    <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">{label}</label>
                     <input type={type} value={val} onChange={e => set(e.target.value)} placeholder={placeholder} className={inputCls} />
                   </div>
                 ))}
                 <div>
-                  <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
+                  <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
                   <select value={newRole} onChange={e => setNewRole(e.target.value)} className={`${inputCls} cursor-pointer`}>
                     <option value="">Select role…</option>
                     <option value="OA">Ophthalmic Assistant (OA)</option>
@@ -446,10 +446,10 @@ export default function AdminPage() {
             </div>
 
             {/* CSV import */}
-            <div className="gem-glass rounded-[24px] p-6">
-              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Bulk Import via CSV</p>
+            <div className="gem-glass rounded-[28px] p-7">
+              <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-5">Bulk Import via CSV</p>
               <div
-                className="border-2 border-dashed border-black/10 rounded-[16px] p-8 text-center cursor-pointer hover:border-[#3C90FF]/30 hover:bg-[#3C90FF]/[0.02] transition-colors"
+                className="border-2 border-dashed border-black/10 rounded-[16px] p-10 text-center cursor-pointer hover:border-[#3C90FF]/30 hover:bg-[#3C90FF]/[0.02] transition-colors"
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={e => e.preventDefault()}
                 onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
@@ -474,7 +474,7 @@ export default function AdminPage() {
               {csvCredentials.length > 0 && (
                 <div className="mt-4 gem-glass rounded-[14px] overflow-hidden">
                   <div className="px-4 py-2 border-b border-black/[0.06]">
-                    <p className="text-[#1F1F1F]/30 text-[9px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
+                    <p className="text-[#1F1F1F]/30 text-[10px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
                   </div>
                   <div className="max-h-32 overflow-y-auto divide-y divide-black/[0.04]">
                     {csvCredentials.map(c => (
@@ -492,7 +492,7 @@ export default function AdminPage() {
           {/* Approved list */}
           <div className="gem-glass rounded-[24px] overflow-hidden">
             <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.06]">
-              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">Approved Students ({approved.length})</p>
+              <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold">Approved Students ({approved.length})</p>
             </div>
             {approvedLoading ? (
               <div className="flex justify-center py-8">
@@ -501,8 +501,8 @@ export default function AdminPage() {
             ) : (
               <div className="divide-y divide-black/[0.04]">
                 {approved.map(s => (
-                  <div key={s.email} className="flex items-center gap-4 px-5 py-3 hover:bg-black/[0.02] transition-colors">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold bg-[#3C90FF]/10 text-[#3C90FF]">
+                  <div key={s.email} className="flex items-center gap-4 px-5 py-3.5 hover:bg-black/[0.02] transition-colors">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold bg-[#3C90FF]/10 text-[#3C90FF]">
                       {getInitials(s.full_name)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -530,15 +530,15 @@ export default function AdminPage() {
           </div>
 
           {/* Promote staff */}
-          <div className="gem-glass rounded-[24px] p-6">
-            <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-4">Promote to Staff</p>
+          <div className="gem-glass rounded-[28px] p-7">
+            <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-4">Promote to Staff</p>
             <form onSubmit={handlePromote} className="flex items-end gap-3 flex-wrap">
               <div className="flex-1 min-w-[200px]">
-                <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Staff email</label>
+                <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Staff email</label>
                 <input type="email" value={promoteEmail} onChange={e => setPromoteEmail(e.target.value)} placeholder="staff@snec.com.sg" className={inputCls} />
               </div>
               <div>
-                <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
+                <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
                 <select value={promoteRole} onChange={e => setPromoteRole(e.target.value)} className={`${inputCls} cursor-pointer`} style={{ width: 140 }}>
                   <option value="supervisor">Supervisor</option>
                   <option value="admin">Admin</option>
@@ -567,7 +567,7 @@ export default function AdminPage() {
           {!feedLoading && groupFeedByDate(feed).map(group => (
             <div key={group.label}>
               <div className="flex items-center gap-4 mb-3">
-                <span className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.18em] font-semibold shrink-0">{group.label}</span>
+                <span className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.18em] font-semibold shrink-0">{group.label}</span>
                 <div className="flex-1 h-px bg-black/[0.06]" />
               </div>
               <div className="space-y-2">
@@ -575,12 +575,12 @@ export default function AdminPage() {
                   const isCase = item.type === "case";
                   const failed = item.detail.startsWith("✗");
                   return (
-                    <div key={i} className="gem-glass flex items-center gap-4 rounded-[16px] px-5 py-3.5">
+                    <div key={i} className="gem-glass flex items-center gap-4 rounded-[20px] px-6 py-4">
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                        className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                         style={{ background: isCase ? (failed ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)") : "rgba(60,144,255,0.12)" }}
                       >
-                        <span className="text-sm">
+                        <span className="text-base">
                           {isCase ? (failed ? "✗" : "✓") : "💬"}
                         </span>
                       </div>
