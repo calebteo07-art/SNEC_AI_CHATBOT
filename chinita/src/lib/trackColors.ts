@@ -12,7 +12,7 @@ export interface TrackTokens {
   glow:       string;
   cardBg:     string;
   cardBorder: string;
-  /** CSS var name for the primary colour (matches duolingo.css) */
+  /** CSS var name for the primary colour */
   cssVar:     string;
 }
 
