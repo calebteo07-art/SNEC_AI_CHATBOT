@@ -81,7 +81,7 @@ def require_admin(current_user: CurrentUser = Depends(get_current_user)) -> Curr
 
 
 def set_auth_cookie(response: Response, token: str) -> None:
-    """Write the JWT to an HttpOnly cookie on the response."""
+    """Write the JWT to an HttpOnly session cookie (no max_age = expires on browser close)."""
     is_production = os.getenv("ENVIRONMENT", "development") == "production"
     response.set_cookie(
         key="eyebot_token",
@@ -89,7 +89,6 @@ def set_auth_cookie(response: Response, token: str) -> None:
         httponly=True,
         secure=is_production,
         samesite="lax",
-        max_age=_EXPIRE_HOURS * 3600,
         path="/",
     )
 
