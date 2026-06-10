@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuth } from "@/providers/AuthProvider";
+import { GradientBackground } from "@/components/GradientBackground";
 import type { User } from "@/providers/AuthProvider";
 
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -23,6 +23,8 @@ interface LoginResult {
   must_change: boolean; is_new: boolean; mock_mode: boolean;
   full_name?: string; email?: string;
 }
+
+const inputCls = "w-full bg-white/70 border border-black/[0.08] rounded-[12px] px-4 py-3 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/25 outline-none focus:border-[#3C90FF]/30 transition-colors";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,7 +47,6 @@ export default function LoginPage() {
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  // Redirect if already logged in
   if (user) {
     if (user.role === "admin") { router.replace("/admin"); return null; }
     if (user.role === "supervisor") { router.replace("/supervisor"); return null; }
@@ -128,69 +129,51 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#181717] flex items-center justify-center overflow-hidden">
-      {/* Full-bleed background image */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/eye-hero.png"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#080e1a]/94 via-[#061932]/78 to-[#0e7490]/30" />
-      </div>
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#FDFDFC" }}>
+      {/* Gradient orbs — full bleed */}
+      <GradientBackground className="!h-full" />
 
-      {/* Editorial wordmark — top-left */}
-      <div className="absolute top-8 left-8 z-10">
-        <div className="text-[#F4EFE7] text-2xl font-medium tracking-[-0.04em]">EyeBot®</div>
-        <div className="text-[#F4EFE7]/40 text-xs tracking-[0.15em] uppercase mt-1">Singapore National Eye Centre</div>
+      {/* Wordmark — top left */}
+      <div className="absolute top-7 left-8 z-10 flex items-center gap-2.5">
+        <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+          <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#3C90FF" strokeWidth="1.8" />
+          <circle cx="14" cy="14" r="4.5" fill="#3C90FF" />
+          <circle cx="15.5" cy="12.5" r="1.6" fill="rgba(255,255,255,0.5)" />
+          <circle cx="14" cy="14" r="2" fill="white" />
+        </svg>
+        <div>
+          <div className="text-[#1F1F1F] text-lg font-semibold tracking-[-0.03em] leading-none">EyeBot</div>
+          <div className="text-[#1F1F1F]/30 text-[9px] tracking-[0.15em] uppercase mt-0.5">Singapore National Eye Centre</div>
+        </div>
       </div>
 
       {/* Login card */}
       <div className="relative z-10 w-full max-w-sm mx-4">
-        <div
-          className="rounded-[30px] overflow-hidden p-8"
-          style={{
-            background: "rgba(255,255,255,0.07)",
-            backdropFilter: "blur(32px) saturate(1.8)",
-            WebkitBackdropFilter: "blur(32px) saturate(1.8)",
-            border: "1px solid rgba(255,255,255,0.13)",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
-          }}
-        >
-          {/* Eye logo */}
-          <div className="mb-6">
+        <div className="gem-glass rounded-[30px] overflow-hidden p-8">
+          {/* Logo */}
+          <div className="mb-7">
             <svg width="32" height="32" viewBox="0 0 28 28" fill="none" className="mb-3">
-              <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#F4EFE7" strokeWidth="1.8" />
-              <circle cx="14" cy="14" r="4.5" fill="#F4EFE7" />
-              <circle cx="15.5" cy="12.5" r="1.6" fill="rgba(8,145,178,0.5)" />
-              <circle cx="14" cy="14" r="2" fill="rgba(6,13,24,0.9)" />
+              <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#3C90FF" strokeWidth="1.8" />
+              <circle cx="14" cy="14" r="4.5" fill="#3C90FF" />
+              <circle cx="15.5" cy="12.5" r="1.6" fill="rgba(255,255,255,0.5)" />
+              <circle cx="14" cy="14" r="2" fill="white" />
             </svg>
-            <h1 className="text-[#F4EFE7] text-[42px] font-medium tracking-[-0.04em] leading-none">EyeBot</h1>
-            <p className="text-[#F4EFE7]/40 text-xs mt-2 tracking-wide">an attentive tutor for the eye</p>
+            <h1 className="gem-gradient-text text-[42px] font-medium tracking-[-0.04em] leading-none">EyeBot</h1>
+            <p className="text-[#1F1F1F]/35 text-xs mt-2 tracking-wide">an attentive tutor for the eye</p>
           </div>
 
           {/* STEP: login */}
           {step === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
-              <p className="text-[#F4EFE7]/60 text-xs uppercase tracking-[0.14em] font-semibold mb-5">Sign in to EyeBot</p>
+              <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-5">Sign in to EyeBot</p>
               <div className="space-y-3">
                 <div>
-                  <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="you@snec.com.sg"
-                    autoComplete="email"
-                    className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
-                  />
-                  {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                  <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@snec.com.sg" autoComplete="email" className={inputCls} />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
-                  <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Password</label>
+                  <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Password</label>
                   <div className="relative">
                     <input
                       type={showPw ? "text" : "password"}
@@ -198,26 +181,18 @@ export default function LoginPage() {
                       onChange={e => setPassword(e.target.value)}
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 pr-10 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
+                      className={`${inputCls} pr-10`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPw(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
-                    >
+                    <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1F1F1F]/25 hover:text-[#1F1F1F]/50 transition-colors">
                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                        <path d="M2 10C2 10 5.5 4 10 4C14.5 4 18 10 18 10C18 10 14.5 16 10 16C5.5 16 2 10 2 10Z" stroke="currentColor" strokeWidth="1.4" fill="none" />
+                        <path d="M2 10C2 10 5.5 4 10 4C14.5 4 18 10 18 10C18 10 14.5 16 10 16C5.5 16 2 10 2 10Z" stroke="currentColor" strokeWidth="1.4" />
                         <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4" />
                         {showPw && <line x1="3" y1="3" x2="17" y2="17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />}
                       </svg>
                     </button>
                   </div>
-                  {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
-                  <button
-                    type="button"
-                    onClick={() => { setResetEmail(email); setResetError(""); setStep("forgot"); }}
-                    className="text-[#F4EFE7]/40 text-xs mt-2 hover:text-[#F4EFE7]/70 transition-colors"
-                  >
+                  {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                  <button type="button" onClick={() => { setResetEmail(email); setResetError(""); setStep("forgot"); }} className="text-[#3C90FF]/60 text-xs mt-2 hover:text-[#3C90FF] transition-colors">
                     Forgot password?
                   </button>
                 </div>
@@ -225,21 +200,15 @@ export default function LoginPage() {
 
               {(errors.api || errors.blocked) && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-[12px] p-3">
-                  <p className="text-red-400 text-sm">{errors.blocked ?? errors.api}</p>
-                  {errors.blocked && <p className="text-red-400/60 text-xs mt-1">snec.tne.edu@gmail.com</p>}
+                  <p className="text-red-500 text-sm">{errors.blocked ?? errors.api}</p>
+                  {errors.blocked && <p className="text-red-500/60 text-xs mt-1">snec.tne.edu@gmail.com</p>}
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-[#F4EFE7] text-[#181717] rounded-[12px] py-3 text-sm font-semibold tracking-wide hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
-              >
-                {submitting ? (
-                  <span className="w-4 h-4 border-2 border-[#181717]/20 border-t-[#181717] rounded-full animate-spin" />
-                ) : (
-                  <>Sign in <span>→</span></>
-                )}
+              <button type="submit" disabled={submitting} className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2">
+                {submitting
+                  ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  : <>Sign in <span>→</span></>}
               </button>
             </form>
           )}
@@ -247,21 +216,16 @@ export default function LoginPage() {
           {/* STEP: pdpa */}
           {step === "pdpa" && (
             <form onSubmit={handlePdpa} className="space-y-4">
-              <p className="text-[#F4EFE7]/60 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Data consent</p>
-              <div className="bg-white/5 rounded-[12px] p-4 text-[#F4EFE7]/60 text-xs leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap">
+              <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Data consent</p>
+              <div className="bg-black/[0.03] border border-black/[0.06] rounded-[12px] p-4 text-[#1F1F1F]/50 text-xs leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap">
                 {PDPA_TEXT}
               </div>
               <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={pdpaConsent}
-                  onChange={e => setPdpaConsent(e.target.checked)}
-                  className="mt-0.5 accent-[#F4EFE7]"
-                />
-                <span className="text-[#F4EFE7]/70 text-xs leading-relaxed">I consent to the collection and use of my data as described above.</span>
+                <input type="checkbox" checked={pdpaConsent} onChange={e => setPdpaConsent(e.target.checked)} className="mt-0.5 accent-[#3C90FF]" />
+                <span className="text-[#1F1F1F]/55 text-xs leading-relaxed">I consent to the collection and use of my data as described above.</span>
               </label>
-              {errors.pdpa && <p className="text-red-400 text-xs">{errors.pdpa}</p>}
-              <button type="submit" className="w-full bg-[#F4EFE7] text-[#181717] rounded-[12px] py-3 text-sm font-semibold tracking-wide hover:bg-white transition-colors flex items-center justify-center gap-2">
+              {errors.pdpa && <p className="text-red-500 text-xs">{errors.pdpa}</p>}
+              <button type="submit" className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors flex items-center justify-center gap-2">
                 Continue <span>→</span>
               </button>
             </form>
@@ -270,24 +234,23 @@ export default function LoginPage() {
           {/* STEP: role */}
           {step === "role" && (
             <div className="space-y-3">
-              <p className="text-[#F4EFE7]/60 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Your training track</p>
-              <p className="text-[#F4EFE7]/40 text-xs leading-relaxed mb-4">Select your role — this scopes your cases, flashcards, and daily check-ins.</p>
+              <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Your training track</p>
+              <p className="text-[#1F1F1F]/40 text-xs leading-relaxed mb-4">Select your role — this scopes your cases, flashcards, and daily check-ins.</p>
               {ROLES.map(r => (
                 <button
                   key={r.id}
                   onClick={() => !submitting && handleRoleSelect(r.id)}
                   disabled={submitting}
-                  className="w-full text-left bg-white/5 hover:bg-white/10 border border-white/10 rounded-[16px] p-4 transition-colors flex items-center gap-3 disabled:opacity-50"
+                  className="w-full text-left bg-black/[0.02] hover:bg-[#3C90FF]/[0.04] border border-black/[0.07] hover:border-[#3C90FF]/20 rounded-[16px] p-4 transition-all flex items-center gap-3 disabled:opacity-50"
                 >
                   <div className="flex-1">
-                    <div className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold mb-0.5">{r.label}</div>
-                    <div className="text-[#F4EFE7] text-sm font-medium">{r.title}</div>
-                    <div className="text-[#F4EFE7]/40 text-xs mt-1 leading-relaxed">{r.desc}</div>
+                    <div className="text-[#3C90FF] text-[10px] uppercase tracking-[0.14em] font-semibold mb-0.5">{r.label}</div>
+                    <div className="text-[#1F1F1F]/80 text-sm font-medium">{r.title}</div>
+                    <div className="text-[#1F1F1F]/40 text-xs mt-1 leading-relaxed">{r.desc}</div>
                   </div>
                   {submitting && selectedRole === r.id
-                    ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin shrink-0" />
-                    : <span className="text-[#F4EFE7]/40 shrink-0">→</span>
-                  }
+                    ? <span className="w-4 h-4 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin shrink-0" />
+                    : <span className="text-[#1F1F1F]/30 shrink-0">→</span>}
                 </button>
               ))}
             </div>
@@ -296,23 +259,17 @@ export default function LoginPage() {
           {/* STEP: forgot */}
           {step === "forgot" && (
             <div className="space-y-4">
-              <p className="text-[#F4EFE7]/60 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Reset password</p>
-              <p className="text-[#F4EFE7]/40 text-xs leading-relaxed">Enter your email and we&apos;ll send a 6-digit code.</p>
+              <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Reset password</p>
+              <p className="text-[#1F1F1F]/40 text-xs leading-relaxed">Enter your email and we&apos;ll send a 6-digit code.</p>
               <div>
-                <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
-                <input
-                  type="email"
-                  value={resetEmail}
-                  onChange={e => setResetEmail(e.target.value)}
-                  placeholder="you@snec.com.sg"
-                  className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors"
-                />
+                <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
+                <input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} placeholder="you@snec.com.sg" className={inputCls} />
               </div>
-              {resetError && <p className="text-red-400 text-xs">{resetError}</p>}
+              {resetError && <p className="text-red-500 text-xs">{resetError}</p>}
               <button
                 type="button"
                 disabled={submitting}
-                className="w-full bg-[#F4EFE7] text-[#181717] rounded-[12px] py-3 text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 onClick={async () => {
                   if (!resetEmail.trim()) { setResetError("Please enter your email."); return; }
                   setResetError(""); setSubmitting(true);
@@ -323,9 +280,9 @@ export default function LoginPage() {
                   finally { setSubmitting(false); }
                 }}
               >
-                {submitting ? <span className="w-4 h-4 border-2 border-[#181717]/20 border-t-[#181717] rounded-full animate-spin" /> : <>Send code <span>→</span></>}
+                {submitting ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>Send code <span>→</span></>}
               </button>
-              <button type="button" onClick={() => setStep("login")} className="text-[#F4EFE7]/40 text-xs hover:text-[#F4EFE7]/70 transition-colors block w-full text-center">
+              <button type="button" onClick={() => setStep("login")} className="text-[#1F1F1F]/30 text-xs hover:text-[#1F1F1F]/60 transition-colors block w-full text-center">
                 Back to sign in
               </button>
             </div>
@@ -334,11 +291,11 @@ export default function LoginPage() {
           {/* STEP: reset_code */}
           {step === "reset_code" && (
             <div className="space-y-4">
-              <p className="text-[#F4EFE7]/60 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Enter reset code</p>
+              <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Enter reset code</p>
               {resetSuccess ? (
                 <div className="text-center py-4">
-                  <p className="text-green-400 text-sm mb-4">Password updated. You can now sign in.</p>
-                  <button type="button" onClick={() => { setStep("login"); setResetSuccess(false); }} className="text-[#F4EFE7]/50 text-xs hover:text-[#F4EFE7]/80 transition-colors">
+                  <p className="text-green-600 text-sm mb-4">Password updated. You can now sign in.</p>
+                  <button type="button" onClick={() => { setStep("login"); setResetSuccess(false); }} className="text-[#1F1F1F]/40 text-xs hover:text-[#1F1F1F]/70 transition-colors">
                     Back to sign in
                   </button>
                 </div>
@@ -346,23 +303,23 @@ export default function LoginPage() {
                 <>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">6-digit code</label>
-                      <input type="text" value={resetOtp} onChange={e => setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" maxLength={6} className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors tracking-[0.3em]" />
+                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">6-digit code</label>
+                      <input type="text" value={resetOtp} onChange={e => setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" maxLength={6} className={`${inputCls} tracking-[0.3em]`} />
                     </div>
                     <div>
-                      <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">New password</label>
-                      <input type="password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} placeholder="min 8 characters" className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors" />
+                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">New password</label>
+                      <input type="password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} placeholder="min 8 characters" className={inputCls} />
                     </div>
                     <div>
-                      <label className="text-[#F4EFE7]/50 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Confirm password</label>
-                      <input type="password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} placeholder="repeat password" className="w-full bg-white/8 border border-white/15 rounded-[12px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-white/25 outline-none focus:border-white/30 transition-colors" />
+                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Confirm password</label>
+                      <input type="password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} placeholder="repeat password" className={inputCls} />
                     </div>
                   </div>
-                  {resetError && <p className="text-red-400 text-xs">{resetError}</p>}
+                  {resetError && <p className="text-red-500 text-xs">{resetError}</p>}
                   <button
                     type="button"
                     disabled={submitting}
-                    className="w-full bg-[#F4EFE7] text-[#181717] rounded-[12px] py-3 text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     onClick={async () => {
                       if (resetOtp.length !== 6) { setResetError("Enter the 6-digit code."); return; }
                       if (resetPassword.length < 8) { setResetError("Password must be at least 8 characters."); return; }
@@ -378,18 +335,18 @@ export default function LoginPage() {
                       finally { setSubmitting(false); }
                     }}
                   >
-                    {submitting ? <span className="w-4 h-4 border-2 border-[#181717]/20 border-t-[#181717] rounded-full animate-spin" /> : <>Reset password <span>→</span></>}
+                    {submitting ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>Reset password <span>→</span></>}
                   </button>
                   <div className="flex justify-between">
-                    <button type="button" onClick={() => setStep("forgot")} className="text-[#F4EFE7]/40 text-xs hover:text-[#F4EFE7]/70 transition-colors">Resend code</button>
-                    <button type="button" onClick={() => setStep("login")} className="text-[#F4EFE7]/40 text-xs hover:text-[#F4EFE7]/70 transition-colors">Back to sign in</button>
+                    <button type="button" onClick={() => setStep("forgot")} className="text-[#1F1F1F]/30 text-xs hover:text-[#1F1F1F]/60 transition-colors">Resend code</button>
+                    <button type="button" onClick={() => setStep("login")} className="text-[#1F1F1F]/30 text-xs hover:text-[#1F1F1F]/60 transition-colors">Back to sign in</button>
                   </div>
                 </>
               )}
             </div>
           )}
 
-          <p className="text-[#F4EFE7]/20 text-[10px] text-center mt-6 tracking-wide">Singapore National Eye Centre · 2026</p>
+          <p className="text-[#1F1F1F]/20 text-[10px] text-center mt-6 tracking-wide">Singapore National Eye Centre · 2026</p>
         </div>
       </div>
     </div>
