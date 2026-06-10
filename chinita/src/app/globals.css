@@ -7,10 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Host Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --color-cream: #F4EFE7;
-  --color-dark: #181717;
-  --color-warm-brown: #332E2B;
+  --font-sans: "DM Sans", "Google Sans Flex", "Google Sans", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
   --color-border: var(--border);
   --color-ring: var(--ring);
   --color-card: var(--card);
@@ -20,29 +17,64 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 2);
   --radius-2xl: calc(var(--radius) * 3);
-  --radius-hero: 45px;
+  --radius-pill: 9999px;
+
+  /* Gemini gradient colour stops */
+  --gem-blue:        rgb(60, 144, 255);
+  --gem-violet:      rgb(173, 114, 255);
+  --gem-pink:        rgb(249, 107, 214);
+  --gem-red:         rgb(255, 90, 89);
+  --gem-orange:      rgb(255, 146, 56);
+  --gem-yellow:      rgb(255, 207, 3);
+  --gem-green:       rgb(136, 222, 66);
+  --gem-teal-green:  rgb(96, 214, 115);
+  --gem-cyan:        rgb(0, 189, 210);
+  --gem-light-blue:  rgb(79, 160, 255);
+
+  /* EyeBot track colours (accent chips only) */
+  --track-oa:  #22d3ee;
+  --track-ot:  #a78bfa;
+  --track-psa: #34d399;
 }
 
 :root {
-  --background: #181717;
-  --foreground: #F4EFE7;
-  --card: #332E2B;
-  --card-foreground: #F4EFE7;
-  --popover: #332E2B;
-  --popover-foreground: #F4EFE7;
-  --primary: #F4EFE7;
-  --primary-foreground: #181717;
-  --secondary: #332E2B;
-  --secondary-foreground: #F4EFE7;
-  --muted: #332E2B;
-  --muted-foreground: rgba(244, 239, 231, 0.6);
-  --accent: #332E2B;
-  --accent-foreground: #F4EFE7;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: rgba(244, 239, 231, 0.15);
-  --input: rgba(244, 239, 231, 0.1);
-  --ring: rgba(244, 239, 231, 0.3);
-  --radius: 0.75rem;
+  /* Gemini light palette */
+  --background:            #FDFDFC;   /* rgb(253,252,252) — warm near-white */
+  --foreground:            #1F1F1F;   /* rgb(31,31,31) */
+  --card:                  #FFFFFF;
+  --card-foreground:       #1F1F1F;
+  --popover:               #FFFFFF;
+  --popover-foreground:    #1F1F1F;
+  --primary:               #3C90FF;   /* Gemini blue */
+  --primary-foreground:    #FFFFFF;
+  --secondary:             #F2F0F0;   /* tonal surface */
+  --secondary-foreground:  #1F1F1F;
+  --muted:                 #F2F0F0;
+  --muted-foreground:      rgba(31, 31, 31, 0.55);
+  --accent:                #E6F4EA;   /* active nav tint */
+  --accent-foreground:     #1F1F1F;
+  --destructive:           oklch(0.577 0.245 27.325);
+  --border:                rgba(31, 31, 31, 0.12);
+  --input:                 rgba(31, 31, 31, 0.06);
+  --ring:                  rgba(60, 144, 255, 0.4);
+  --radius:                0.75rem;
+
+  /* Gemini sidebar */
+  --gem-sidebar-bg:        #FFFFFF;
+  --gem-sidebar-width:     288px;
+  --gem-sidebar-rail:      52px;
+
+  /* Gemini input pill */
+  --gem-input-bg:          #FFFFFF;
+  --gem-input-shadow:      rgba(0, 0, 0, 0.16) 0px 2px 8px -2px;
+  --gem-input-radius:      32px;
+
+  /* Gemini gradient layer */
+  --gradient-zoom:         1;
+
+  /* Sign in button */
+  --gem-btn-signin-bg:     #C2E7FF;
+  --gem-btn-signin-text:   #004A77;
 }
 
 @layer base {
@@ -51,60 +83,126 @@
     box-sizing: border-box;
   }
   html {
-    background-color: #181717;
-    color: #F4EFE7;
-    font-family: "Host Grotesk", sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: "DM Sans", "Google Sans Flex", "Google Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    background-color: #181717;
-    color: #F4EFE7;
+    background-color: var(--background);
+    color: var(--foreground);
     margin: 0;
     overflow-x: hidden;
   }
 }
 
-/* Lenis smooth scroll */
-html.lenis, html.lenis body {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
+/* ─── Gemini Gradient Animations ──────────────────────────────────────────── */
+
+@keyframes gemGradientScroll {
+  0%   { background-position: 0px 0px; }
+  100% { background-position: 0 calc(var(--gradient-zoom, 1) * 999px); }
 }
 
-/* Marquee animation */
+/* Fade-in-up for zero state entrance (matches Gemini's lm-fade-in-up) */
+@keyframes gemFadeInUp {
+  0%   { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0px); pointer-events: auto; }
+}
+
+/* Background grow (Gemini's lm-background-grow) */
+@keyframes gemBgGrow {
+  0%   { opacity: 0; transform: translate(-50%, -45%) scale(0); }
+  100% { opacity: 1; transform: translate(-50%, -45%) scale(1); }
+}
+
+/* Shimmer sweep for input focus state */
+@keyframes gemShimmerSweep {
+  0%        { background-position: 100% 100%; }
+  70%, 100% { background-position: 0px 0px; }
+}
+
+/* Sidebar slide-in on load */
+@keyframes gemSidebarSlideIn {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(0px); }
+}
+
+/* Generic fade in */
+@keyframes gemFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Scale in for elements */
+@keyframes gemScaleIn {
+  0%   { opacity: 0.25; transform: scale(0.5); }
+  100% { opacity: 1;    transform: scale(1); }
+}
+
+/* ─── Utility Classes ─────────────────────────────────────────────────────── */
+
+.animate-gem-fade-in-up {
+  animation: gemFadeInUp 0.6s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+.animate-gem-fade-in {
+  animation: gemFadeIn 0.4s ease forwards;
+}
+
+.animate-gem-scale-in {
+  animation: gemScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Glass panel effect for content cards over the gradient */
+.gem-glass {
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* Gradient text (for headings) */
+.gem-gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--gem-blue) 0%,
+    var(--gem-violet) 40%,
+    var(--gem-pink) 70%,
+    var(--gem-cyan) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gemini tonal button */
+.gem-btn-tonal {
+  background-color: var(--secondary);
+  color: var(--foreground);
+  border-radius: var(--radius-pill);
+  padding: 0 12px;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  cursor: pointer;
+}
+.gem-btn-tonal:hover {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+/* Marquee (kept for landing page) */
 @keyframes marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to   { transform: translateX(-50%); }
 }
 .animate-marquee {
   animation: marquee 20s linear infinite;
-}
-
-/* Fade-up animation */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-up {
-  animation: fade-up 0.8s ease forwards;
-}
-
-/* Scale-in animation */
-@keyframes scale-in {
-  from { transform: scale(0); }
-  to { transform: scale(1); }
-}
-.animate-scale-in {
-  animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }

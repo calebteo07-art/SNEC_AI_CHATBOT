@@ -14,7 +14,7 @@ interface AiFeedback { feedback: string; score: number; }
 const RATINGS = [
   { label: "Again", caption: "Try soon", accent: "#ef4444", value: 1 },
   { label: "Hard", caption: "Effortful", accent: "#f59e0b", value: 2 },
-  { label: "Good", caption: "Solid recall", accent: "#60a5fa", value: 3 },
+  { label: "Good", caption: "Solid recall", accent: "#3C90FF", value: 3 },
   { label: "Easy", caption: "Mastered", accent: "#22c55e", value: 4 },
 ];
 
@@ -82,18 +82,18 @@ export default function FlashcardsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4 text-[#F4EFE7]/50">
-        <span className="w-8 h-8 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/70 rounded-full animate-spin" />
-        <span className="text-sm">Loading flashcards…</span>
+      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4">
+        <span className="w-8 h-8 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
+        <span className="text-[#1F1F1F]/40 text-sm">Loading flashcards…</span>
       </div>
     );
   }
 
   if (!isLoading && cards.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4 text-[#F4EFE7]/40">
+      <div className="flex items-center justify-center min-h-[60vh] flex-col gap-4 text-[#1F1F1F]/40">
         <p className="text-sm">No flashcards available.</p>
-        <button onClick={() => router.push("/dashboard")} className="text-[#F4EFE7]/60 text-sm font-semibold hover:text-[#F4EFE7] transition-colors">
+        <button onClick={() => router.push("/dashboard")} className="text-[#3C90FF] text-sm font-semibold hover:opacity-70 transition-opacity">
           Back to Learn
         </button>
       </div>
@@ -111,16 +111,16 @@ export default function FlashcardsPage() {
 
     return (
       <div className="max-w-md mx-auto px-5 py-12 text-center">
-        <p className="text-[#F4EFE7]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-2">Session complete</p>
-        <h2 className="text-[#F4EFE7] text-[48px] font-medium tracking-[-0.04em] leading-none mb-6">Well done®</h2>
+        <p className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-2">Session complete</p>
+        <h2 className="gem-gradient-text text-[48px] font-medium tracking-[-0.04em] leading-none mb-6">Well done</h2>
         <div className="grid grid-cols-4 gap-3 mb-8">
           {[
             { label: "Again", val: ratingCounts.again, color: "#ef4444" },
             { label: "Hard", val: ratingCounts.hard, color: "#f59e0b" },
-            { label: "Good", val: ratingCounts.good, color: "#60a5fa" },
+            { label: "Good", val: ratingCounts.good, color: "#3C90FF" },
             { label: "Easy", val: ratingCounts.easy, color: "#22c55e" },
           ].map(({ label, val, color }) => (
-            <div key={label} className="rounded-[16px] p-3 text-center" style={{ background: `${color}12`, border: `1px solid ${color}30` }}>
+            <div key={label} className="gem-glass rounded-[16px] p-3 text-center">
               <div className="text-2xl font-medium" style={{ color }}>{val}</div>
               <div className="text-[10px] font-semibold mt-1" style={{ color }}>{label}</div>
             </div>
@@ -129,13 +129,13 @@ export default function FlashcardsPage() {
         <div className="flex gap-3 justify-center">
           <button
             onClick={() => { setIdx(0); setDone(false); setSessionRatings({}); resetCard(); }}
-            className="px-6 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors"
+            className="px-6 py-2.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors"
           >
             Restart deck
           </button>
           <button
             onClick={() => router.push("/dashboard")}
-            className="px-6 py-2.5 rounded-full border border-[#F4EFE7]/15 text-[#F4EFE7]/60 text-sm font-semibold hover:border-[#F4EFE7]/30 transition-colors"
+            className="px-6 py-2.5 rounded-full gem-glass text-[#1F1F1F]/60 text-sm font-semibold hover:text-[#1F1F1F] transition-colors"
           >
             Back to Learn
           </button>
@@ -151,12 +151,12 @@ export default function FlashcardsPage() {
   const dotIdx = Math.min(idx, totalDots - 1);
 
   return (
-    <div className="max-w-2xl mx-auto px-5 py-4 flex flex-col" style={{ height: "calc(100vh - 130px)" }}>
+    <div className="max-w-2xl mx-auto px-5 py-4 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
       {/* Progress bar header */}
       <div className="flex items-center gap-4 mb-4">
         <button
           onClick={() => router.push("/dashboard")}
-          className="text-[#F4EFE7]/30 hover:text-[#F4EFE7]/60 transition-colors text-lg"
+          className="text-[#1F1F1F]/30 hover:text-[#1F1F1F]/60 transition-colors text-lg"
         >
           ✕
         </button>
@@ -166,33 +166,33 @@ export default function FlashcardsPage() {
               key={i}
               className="flex-1 h-1.5 rounded-full transition-colors"
               style={{
-                background: i < dotIdx ? "#F4EFE7" : i === dotIdx ? "rgba(244,239,231,0.6)" : "rgba(244,239,231,0.15)"
+                background: i < dotIdx ? "#3C90FF" : i === dotIdx ? "rgba(60,144,255,0.5)" : "rgba(0,0,0,0.1)"
               }}
             />
           ))}
         </div>
-        <span className="text-[#F4EFE7]/40 text-xs font-mono">{idx + 1}/{cards.length}</span>
+        <span className="text-[#1F1F1F]/40 text-xs font-mono">{idx + 1}/{cards.length}</span>
       </div>
 
       {/* Card */}
-      <div className="flex-1 rounded-[30px] overflow-hidden relative" style={{ background: "rgba(244,239,231,0.05)", border: "1px solid rgba(244,239,231,0.1)" }}>
+      <div className="flex-1 gem-glass rounded-[30px] overflow-hidden relative">
         {/* Background anatomy image */}
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-12 pointer-events-none">
           <Image src={imgSrc} alt="" fill sizes="700px" className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#181717]/60 via-transparent to-[#181717]/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-white/80" />
         </div>
 
         {/* Content */}
         <div className="relative z-10 h-full overflow-y-auto p-6 flex flex-col">
           {/* Topic pill */}
           <div className="mb-4">
-            <span className="bg-[#F4EFE7]/10 border border-[#F4EFE7]/15 rounded-full px-3 py-1 text-[10px] font-semibold text-[#F4EFE7]/60">
+            <span className="bg-[#3C90FF]/10 border border-[#3C90FF]/20 rounded-full px-3 py-1 text-[10px] font-semibold text-[#3C90FF]">
               {card.tag}
             </span>
           </div>
 
           {/* Question */}
-          <p className="text-[#F4EFE7] text-lg font-medium leading-snug tracking-[-0.01em] mb-5">{card.question}</p>
+          <p className="text-[#1F1F1F] text-lg font-medium leading-snug tracking-[-0.01em] mb-5">{card.question}</p>
 
           {/* Pre-reveal: user attempt textarea */}
           {!revealed && (
@@ -203,34 +203,34 @@ export default function FlashcardsPage() {
                 onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) { e.preventDefault(); reveal(); } }}
                 placeholder="Write your answer before revealing — optional, but builds retention"
                 rows={3}
-                className="w-full bg-transparent border-b border-[#F4EFE7]/15 py-2 text-[#F4EFE7] text-sm placeholder:text-[#F4EFE7]/25 outline-none resize-none leading-relaxed"
+                className="w-full bg-transparent border-b border-black/[0.1] py-2 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/25 outline-none resize-none leading-relaxed"
               />
-              {userAttempt.trim() && <div className="text-[#F4EFE7]/25 text-[10px] mt-1">Ctrl+Enter to reveal</div>}
+              {userAttempt.trim() && <div className="text-[#1F1F1F]/25 text-[10px] mt-1">Ctrl+Enter to reveal</div>}
             </div>
           )}
 
           {/* Post-reveal: answer */}
           {revealed && (
             <div className="mb-5">
-              <div className="border-l-2 border-[#60a5fa] pl-4 mb-4">
-                <div className="text-[#60a5fa] text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">Answer</div>
-                <p className="text-[#F4EFE7] text-sm leading-relaxed whitespace-pre-wrap">{card.answer}</p>
+              <div className="border-l-2 border-[#3C90FF] pl-4 mb-4">
+                <div className="text-[#3C90FF] text-[10px] uppercase tracking-[0.12em] font-semibold mb-2">Answer</div>
+                <p className="text-[#1F1F1F] text-sm leading-relaxed whitespace-pre-wrap">{card.answer}</p>
               </div>
 
               {/* AI feedback */}
               {(aiChecking || aiFeedback) && (
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-[14px] p-3 mb-4">
                   {aiChecking ? (
-                    <div className="flex items-center gap-2 text-blue-400 text-xs">
+                    <div className="flex items-center gap-2 text-blue-500 text-xs">
                       <span className="w-3 h-3 border border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
                       Reviewing your answer…
                     </div>
                   ) : aiFeedback ? (
                     <>
-                      <div className="text-blue-400 text-[9px] uppercase tracking-[0.12em] font-semibold mb-1.5">
+                      <div className="text-blue-500 text-[9px] uppercase tracking-[0.12em] font-semibold mb-1.5">
                         Tutor · {aiFeedback.score}/10
                       </div>
-                      <p className="text-[#F4EFE7]/60 text-xs leading-relaxed">{aiFeedback.feedback}</p>
+                      <p className="text-[#1F1F1F]/60 text-xs leading-relaxed">{aiFeedback.feedback}</p>
                     </>
                   ) : null}
                 </div>
@@ -238,14 +238,14 @@ export default function FlashcardsPage() {
 
               {/* Rating buttons */}
               <div>
-                <div className="text-[#F4EFE7]/30 text-[10px] uppercase tracking-[0.1em] font-semibold mb-3">How well did you recall this?</div>
+                <div className="text-[#1F1F1F]/30 text-[10px] uppercase tracking-[0.1em] font-semibold mb-3">How well did you recall this?</div>
                 <div className="grid grid-cols-4 gap-2">
                   {RATINGS.map(r => (
                     <button
                       key={r.label}
                       onClick={() => handleRating(r.value)}
                       className="py-3 rounded-[14px] text-center transition-all hover:scale-[1.03] active:scale-[0.97]"
-                      style={{ background: `${r.accent}10`, border: `2px solid ${r.accent}30` }}
+                      style={{ background: `${r.accent}12`, border: `2px solid ${r.accent}30` }}
                     >
                       <div className="text-sm font-bold" style={{ color: r.accent }}>{r.label}</div>
                       <div className="text-[9px] font-medium opacity-70 mt-0.5" style={{ color: r.accent }}>{r.caption}</div>
@@ -262,14 +262,14 @@ export default function FlashcardsPage() {
           {!revealed ? (
             <button
               onClick={reveal}
-              className="w-full py-3.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors"
+              className="w-full py-3.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors"
             >
               Reveal Answer
             </button>
           ) : (
             <button
               onClick={() => router.push("/dashboard")}
-              className="text-[#F4EFE7]/30 text-xs hover:text-[#F4EFE7]/60 transition-colors text-center"
+              className="text-[#1F1F1F]/30 text-xs hover:text-[#1F1F1F]/60 transition-colors text-center"
             >
               End session →
             </button>

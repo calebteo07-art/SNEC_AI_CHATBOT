@@ -34,8 +34,8 @@ const DIFF_BG: Record<string, string> = {
   advanced: "rgba(239,68,68,0.12)",
 };
 
-function diffColor(d: string) { return DIFF_COLORS[d.toLowerCase()] ?? "rgba(244,239,231,0.5)"; }
-function diffBg(d: string) { return DIFF_BG[d.toLowerCase()] ?? "rgba(244,239,231,0.08)"; }
+function diffColor(d: string) { return DIFF_COLORS[d.toLowerCase()] ?? "rgba(0,0,0,0.4)"; }
+function diffBg(d: string) { return DIFF_BG[d.toLowerCase()] ?? "rgba(0,0,0,0.06)"; }
 
 export default function CasesPage() {
   const [cases, setCases] = useState<CaseInfo[]>([]);
@@ -59,18 +59,18 @@ export default function CasesPage() {
       {/* Header */}
       <div className="flex items-baseline justify-between mb-8">
         <div>
-          <p className="text-[#F4EFE7]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">Clinical Training</p>
-          <h1 className="text-[#F4EFE7] text-[48px] font-medium tracking-[-0.04em] leading-none">
-            Clinical Cases®
+          <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">Clinical Training</p>
+          <h1 className="gem-gradient-text text-[48px] font-medium tracking-[-0.04em] leading-none">
+            Clinical Cases
           </h1>
-          <p className="text-[#F4EFE7]/40 text-sm mt-2">
+          <p className="text-[#1F1F1F]/50 text-sm mt-2">
             Interview a virtual patient, request investigations, and reach your diagnosis.
           </p>
         </div>
         {!loading && !error && cases.length > 0 && (
           <button
             onClick={fetchCases}
-            className="flex items-center gap-1.5 text-[#F4EFE7]/50 text-xs font-semibold hover:text-[#F4EFE7]/80 transition-colors"
+            className="flex items-center gap-1.5 text-[#1F1F1F]/40 text-xs font-semibold hover:text-[#3C90FF] transition-colors"
           >
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
               <path d="M14 8A6 6 0 1 1 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -84,8 +84,8 @@ export default function CasesPage() {
       {/* Error */}
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-[16px] p-4 flex items-center justify-between mb-6">
-          <p className="text-red-400 text-sm">{error}</p>
-          <button onClick={fetchCases} className="text-red-400 text-xs font-semibold hover:opacity-70">Retry</button>
+          <p className="text-red-500 text-sm">{error}</p>
+          <button onClick={fetchCases} className="text-red-500 text-xs font-semibold hover:opacity-70">Retry</button>
         </div>
       )}
 
@@ -93,14 +93,14 @@ export default function CasesPage() {
       {loading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="rounded-[30px] overflow-hidden bg-[#F4EFE7]/5 animate-pulse" style={{ height: 280 }} />
+            <div key={i} className="gem-glass rounded-[30px] animate-pulse" style={{ height: 280 }} />
           ))}
         </div>
       )}
 
       {/* Empty */}
       {!loading && !error && cases.length === 0 && (
-        <p className="text-center text-[#F4EFE7]/30 text-sm py-20">No cases available yet.</p>
+        <p className="text-center text-[#1F1F1F]/30 text-sm py-20">No cases available yet.</p>
       )}
 
       {/* Case cards */}
@@ -114,21 +114,20 @@ export default function CasesPage() {
               return (
                 <div
                   key={c.case_id}
-                  className="rounded-[30px] overflow-hidden opacity-40"
-                  style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}
+                  className="gem-glass rounded-[30px] overflow-hidden opacity-40"
                 >
-                  <div className="relative h-32 bg-[#F4EFE7]/5">
+                  <div className="relative h-32 overflow-hidden bg-black/[0.04]">
                     <Image src={imgSrc} alt="" fill sizes="400px" className="object-cover grayscale opacity-30" />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <rect x="5" y="11" width="14" height="10" rx="2" stroke="rgba(244,239,231,0.4)" strokeWidth="1.5" />
-                        <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="rgba(244,239,231,0.4)" strokeWidth="1.5" />
+                        <rect x="5" y="11" width="14" height="10" rx="2" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
+                        <path d="M8 11V8C8 5.8 9.8 4 12 4C14.2 4 16 5.8 16 8V11" stroke="rgba(0,0,0,0.3)" strokeWidth="1.5" />
                       </svg>
                     </div>
                   </div>
                   <div className="p-4">
-                    <span className="text-[#F4EFE7]/30 text-[10px] uppercase tracking-[0.12em] font-semibold">{c.difficulty} · Locked</span>
-                    <p className="text-[#F4EFE7]/40 text-sm font-medium mt-1">{c.title}</p>
+                    <span className="text-[#1F1F1F]/30 text-[10px] uppercase tracking-[0.12em] font-semibold">{c.difficulty} · Locked</span>
+                    <p className="text-[#1F1F1F]/40 text-sm font-medium mt-1">{c.title}</p>
                   </div>
                 </div>
               );
@@ -138,13 +137,12 @@ export default function CasesPage() {
               <Link
                 key={c.case_id}
                 href={`/cases/view?id=${c.case_id}`}
-                className="rounded-[30px] overflow-hidden block hover:scale-[1.01] transition-transform"
-                style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.1)" }}
+                className="gem-glass rounded-[30px] overflow-hidden block hover:scale-[1.01] hover:shadow-md transition-all"
               >
                 {/* Image */}
                 <div className="relative h-36 overflow-hidden">
                   <Image src={imgSrc} alt="" fill sizes="400px" className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#181717]/70 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   {/* Difficulty pill */}
                   <div
                     className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.1em]"
@@ -152,17 +150,17 @@ export default function CasesPage() {
                   >
                     {c.difficulty}
                   </div>
-                  <div className="absolute bottom-3 right-3 text-white/70 text-[10px] font-medium">
+                  <div className="absolute bottom-3 right-3 text-white/80 text-[10px] font-medium">
                     ~{c.estimated_minutes} min
                   </div>
                 </div>
 
                 {/* Body */}
                 <div className="p-4">
-                  <div className="text-[#F4EFE7]/40 text-[10px] uppercase tracking-[0.12em] font-semibold mb-1">{c.topic}</div>
-                  <div className="text-[#F4EFE7] text-sm font-semibold leading-snug mb-1">{c.title}</div>
-                  <div className="text-[#F4EFE7]/40 text-xs">{c.patient.name}, {c.patient.age} yrs</div>
-                  <p className="text-[#F4EFE7]/30 text-xs mt-2 leading-relaxed italic">
+                  <div className="text-[#3C90FF] text-[10px] uppercase tracking-[0.12em] font-semibold mb-1">{c.topic}</div>
+                  <div className="text-[#1F1F1F] text-sm font-semibold leading-snug mb-1">{c.title}</div>
+                  <div className="text-[#1F1F1F]/40 text-xs">{c.patient.name}, {c.patient.age} yrs</div>
+                  <p className="text-[#1F1F1F]/30 text-xs mt-2 leading-relaxed italic">
                     &quot;{c.patient.presenting_complaint}&quot;
                   </p>
                 </div>

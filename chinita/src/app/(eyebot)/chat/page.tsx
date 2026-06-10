@@ -114,47 +114,47 @@ export default function ChatPage() {
   const msgCount = messages.filter(m => m.type === "user").length;
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-6 flex flex-col" style={{ height: "calc(100vh - 130px)" }}>
+    <div className="max-w-4xl mx-auto px-5 py-6 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
           <Image src="/images/eye-hero.png" alt="AI Tutor" fill sizes="40px" className="object-cover" />
         </div>
         <div>
-          <h1 className="text-[#F4EFE7] text-[40px] font-medium tracking-[-0.04em] leading-none">AI Tutor®</h1>
-          <p className="text-[#F4EFE7]/40 text-xs mt-1">Ophthalmology Educator · {msgCount} messages this session</p>
+          <h1 className="gem-gradient-text text-[40px] font-medium tracking-[-0.04em] leading-none">AI Tutor</h1>
+          <p className="text-[#1F1F1F]/40 text-xs mt-1">Ophthalmology Educator · {msgCount} messages this session</p>
         </div>
         {user?.studentRole && (
-          <div className="ml-auto bg-[#F4EFE7]/8 border border-[#F4EFE7]/12 rounded-full px-3 py-1 text-xs font-semibold text-[#F4EFE7]/60">
+          <div className="ml-auto gem-glass rounded-full px-3 py-1 text-xs font-semibold text-[#1F1F1F]/60">
             {user.studentRole} Track
           </div>
         )}
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4 rounded-[20px] p-4" style={{ background: "rgba(244,239,231,0.03)" }}>
+      <div className="flex-1 overflow-y-auto space-y-4 mb-4 gem-glass rounded-[20px] p-4">
         {messages.map(m => (
           <div
             key={m.id}
             className="flex flex-col"
             style={{ alignItems: m.type === "ai" ? "flex-start" : "flex-end" }}
           >
-            <div className="text-[#F4EFE7]/25 text-[9px] uppercase tracking-[0.1em] font-semibold mb-1">
+            <div className="text-[#1F1F1F]/30 text-[9px] uppercase tracking-[0.1em] font-semibold mb-1">
               {m.type === "ai" ? "EyeBot Tutor" : "You"}
             </div>
             <div
               className="max-w-[80%] rounded-[16px] px-4 py-3 text-sm leading-relaxed"
               style={{
-                background: m.type === "user" ? "#F4EFE7" : "rgba(244,239,231,0.07)",
-                color: m.type === "user" ? "#181717" : "#F4EFE7",
-                border: m.type === "user" ? "none" : "1px solid rgba(244,239,231,0.1)",
+                background: m.type === "user" ? "#3C90FF" : "rgba(255,255,255,0.9)",
+                color: m.type === "user" ? "#FFFFFF" : "#1F1F1F",
+                border: m.type === "user" ? "none" : "1px solid rgba(0,0,0,0.08)",
                 borderBottomRightRadius: m.type === "user" ? 4 : 16,
                 borderBottomLeftRadius: m.type === "ai" ? 4 : 16,
               }}
             >
               {m.type === "user" ? m.text : m.content}
               {streamingId === m.id && (
-                <span className="inline-block w-0.5 h-4 bg-[#F4EFE7]/60 ml-0.5 animate-pulse align-[-2px]" />
+                <span className="inline-block w-0.5 h-4 bg-[#3C90FF]/60 ml-0.5 animate-pulse align-[-2px]" />
               )}
             </div>
           </div>
@@ -162,9 +162,9 @@ export default function ChatPage() {
 
         {isTyping && (
           <div className="flex flex-col items-start">
-            <div className="text-[#F4EFE7]/25 text-[9px] uppercase tracking-[0.1em] font-semibold mb-1">EyeBot Tutor</div>
-            <div className="bg-[#F4EFE7]/7 border border-[#F4EFE7]/10 rounded-[16px] rounded-bl-[4px] px-4 py-3">
-              <span className="w-3 h-3 border border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin block" />
+            <div className="text-[#1F1F1F]/25 text-[9px] uppercase tracking-[0.1em] font-semibold mb-1">EyeBot Tutor</div>
+            <div className="bg-white/90 border border-black/[0.08] rounded-[16px] rounded-bl-[4px] px-4 py-3">
+              <span className="w-3 h-3 border border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin block" />
             </div>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function ChatPage() {
           <button
             key={s}
             onClick={() => sendMessage(s)}
-            className="bg-[#F4EFE7]/8 border border-[#F4EFE7]/12 rounded-full px-3 py-1.5 text-xs text-[#F4EFE7]/60 hover:bg-[#F4EFE7]/15 hover:text-[#F4EFE7]/80 transition-colors"
+            className="gem-glass rounded-full px-3 py-1.5 text-xs text-[#1F1F1F]/60 hover:text-[#3C90FF] transition-colors"
           >
             {s}
           </button>
@@ -186,7 +186,10 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="flex gap-3 items-end">
+      <div
+        className="gem-glass rounded-[32px] flex gap-3 items-end px-4 py-3"
+        style={{ boxShadow: "rgba(0,0,0,0.16) 0px 2px 8px -2px" }}
+      >
         <textarea
           ref={inputRef}
           value={input}
@@ -194,15 +197,15 @@ export default function ChatPage() {
           onKeyDown={handleKeyDown}
           placeholder="Ask about any ophthalmic topic…"
           rows={1}
-          className="flex-1 bg-[#F4EFE7]/7 border border-[#F4EFE7]/12 rounded-[16px] px-4 py-3 text-[#F4EFE7] text-sm placeholder:text-[#F4EFE7]/25 outline-none focus:border-[#F4EFE7]/22 resize-none transition-colors leading-relaxed"
+          className="flex-1 bg-transparent text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/30 outline-none resize-none leading-relaxed"
         />
         <button
           onClick={() => sendMessage()}
           disabled={!input.trim() || isTyping || !!streamingId}
-          className="w-11 h-11 rounded-full bg-[#F4EFE7] flex items-center justify-center shrink-0 hover:bg-white transition-colors disabled:opacity-40"
+          className="w-9 h-9 rounded-full bg-[#3C90FF] flex items-center justify-center shrink-0 hover:bg-[#5AA6FF] transition-colors disabled:opacity-40"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M2 14L14 8L2 2V6.5L10 8L2 9.5V14Z" fill="#181717" />
+            <path d="M2 14L14 8L2 2V6.5L10 8L2 9.5V14Z" fill="#FFFFFF" />
           </svg>
         </button>
       </div>

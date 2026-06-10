@@ -1,28 +1,40 @@
 import type { Metadata } from "next";
-import { Host_Grotesk } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { LenisProvider } from "@/components/LenisProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { QueryProvider } from "@/providers/QueryProvider";
 
-const hostGrotesk = Host_Grotesk({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-host-grotesk",
+  variable: "--font-dm-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "EyeBot — Singapore National Eye Centre",
   description: "AI-powered ophthalmic training for SNEC clinical staff.",
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: "/seo/gemini-sparkle.svg",
+    apple: "/seo/gemini-sparkle.png",
+  },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${hostGrotesk.variable}`}>
-      <body className="bg-[#181717] text-[#F4EFE7] font-[family-name:var(--font-host-grotesk)] antialiased overflow-x-hidden">
+    <html lang="en" className={dmSans.variable}>
+      <body
+        className="antialiased overflow-x-hidden"
+        style={{
+          fontFamily:
+            '"DM Sans", "Google Sans Flex", "Google Sans", "Helvetica Neue", sans-serif',
+          backgroundColor: "var(--background)",
+          color: "var(--foreground)",
+        }}
+      >
         <QueryProvider>
           <AuthProvider>
             <LenisProvider>{children}</LenisProvider>
