@@ -1,62 +1,48 @@
-# Capsules Site Behaviors
+# Gemini App — Behaviors
 
-## Global
-- **Font:** Host Grotesk (sans-serif) — 400/500/600/700 weights
-- **Body color:** #F4EFE7 (warm cream) — rgb(244, 239, 231)
-- **Smooth scroll:** Lenis is active (check `.lenis` class on html). Native scrollBehavior is 'auto' but Lenis intercepts.
-- **Global scale:** Site renders at 0.75 scale factor. All `@` prefixed utility values are 0.75× actual. Use computed values.
-- **Background dark:** #181717 (rgb(24,23,23)) — used as page bg in dark sections
-- **Gradient:** linear-gradient(#181717, #332E2B, #181717) — used in dark sections
-
-## Fixed Overlays (z-index layers)
-- **Reserve button** — `fixed top-0 w-full`, z-auto. Contains pill button top-right.
-- **Menu button** — `fixed bottom center`, z-100, cream bg (#F4EFE7), border-radius 37.5px, initially `scale-0` then animates in.
-- **Menu drawer** — `fixed inset-0`, z-11, initially `opacity-0 pointer-events-none`. Full-screen nav overlay.
-- **Reservation drawer** — `fixed inset-0`, z-10, right-side panel, initially `opacity-0 pointer-events-none`.
-- **Loading overlay** — `fixed inset-0`, z-101, black bg, covers initial load.
-- **Custom cursor** — `fixed`, z-250, custom cursor element (.mf-cursor).
-
-## Scroll Behaviors
-- **Hero:** static, no scroll trigger. Image has `scale(1.2)` applied.
-- **Welcome:** text reveals via scroll animation (text appears to scroll/clone — likely GSAP split text).
-- **Choose section:** appear-on-scroll for the capsule listing items.
-- **Capsules section (#capsules):** scroll-driven panel switching. Three numbered panels (01/03, 02/03, 03/03) cycle as user scrolls. INTERACTION MODEL: scroll-driven (IntersectionObserver or scroll listener with sticky positioning).
-- **Discover section:** very tall (4046px). Scroll-driven activity reveal — activities scroll into view as user scrolls.
-- **Marquee section:** horizontal scrolling marquee text ("Why Capsules®?*" repeated).
-
-## Hover States
-- Cards in choose section: likely scale or overlay on hover.
-- Reserve button: hover state unknown (opacity/color change).
-- Menu button: hover state unknown.
-- Review cards: static (no observed hover).
+Extracted from `https://gemini.google.com/app` interaction sweep.
 
 ## Interaction Models
-- **Hero:** static display. Video overlay plays on loop.
-- **Welcome:** scroll-driven text animation.
-- **Choose (#choose):** click-driven — clicking a capsule type reveals details.
-- **Gallery (#gallery):** click-driven — full-screen image gallery.
-- **Map (#map):** Google Maps embed. "Ready to reserve?" CTA.
-- **Capsules (#capsules):** scroll-driven panel switching (3 panels, numbered).
-- **Discover (#discover):** scroll-driven — activities reveal on scroll.
-- **Reviews (#reviews):** static display of 3 testimonial cards.
-- **Footer:** static.
 
-## Video
-- Hero background video: `smoke_final.mp4` — atmospheric smoke effect
-- Applied with: `position: absolute, objectFit: cover, opacity: 0.6, mix-blend-mode: hard-light`
+### Sidebar
+- **Model:** Click-driven toggle
+- **Trigger:** Click "Open sidebar" / "Close sidebar" icon button
+- **State A (closed):** `bard-sidenav` ~52px rail, `chat-app` lacks `side-nav-open` class
+- **State B (open):** `bard-sidenav` 288px, `chat-app` gains `side-nav-open` class
+- **Transition:** `background-color 0.3s cubic-bezier(0.2, 0, 0, 1)`, width animates
+- **On load open:** `on-load-slide-in`: `translateX(-100%) → translateX(0)` + `on-load-fade-in`: `opacity 0 → 1`
 
-## Images (all from site)
-- cap1.png — Desert Capsule hero (2912×1632)
-- cap2.png — Terrace Capsule (2912×1632)
-- cap3.png — Classic Capsule (3800×1960)
-- welcome-1.png, welcome-2.png — Small welcome images (340×235)
-- cap3-square.jpg, cap2-square.jpg, cap1-square.jpg — Square feature images
-- activities-1.png, activities-2.png, activities-3.png — Activities
-- review1.png, review2.png, review3.png — Avatar photos
-- pin.png — Map pin (106×150)
-- Mobile variants: cap1-mobile.png, cap2-mobile.png, cap3-mobile.png
+### Gradient Background
+- **Model:** Time-driven (CSS animation only)
+- **Animation:** `gradientScroll` scrolls `background-position` `0 0 → 0 calc(999px)` over 1498.5s
+- **Two layers:** Two `gradient-strip` divs (different sizes) create depth
+- **Both rotated:** `rotate(36deg)` (matrix equivalent)
+- **Blur container:** `filter: blur(146px)` → creates soft blob look
+- **Opacity:** `0.29` on parent layer → ensures gradients don't overpower content
 
-## Responsive Behavior
-- **Desktop 1440px:** full layout as described
-- **Mobile 390px:** mobile image variants used, single column layout
-- Marquee text scales
+### Zero-State Entrance
+- **Model:** Time-driven (on page load)
+- **`lm-fade-in-up`:** `opacity 0 + translateY(40px) → opacity 1 + translateY(0)` — heading
+- **`lm-background-grow`:** `opacity 0 + scale(0) → opacity 1 + scale(1)` — bg element
+- **`fade-in`:** simple opacity 0→1 for delayed elements
+
+### Input Area
+- **Default:** White pill, box-shadow
+- **Focus:** `gem-shimmer-sweep` shimmer animation on border/bg
+  - `0% { background-position: 100% 100%; }` → `70%, 100% { background-position: 0 0; }`
+- **Submit spinner:** `input-area-spin` — `rotate(0deg) → rotate(360deg)`
+
+### Scroll
+- **No smooth scroll library** — standard browser scroll
+- **Chat area:** Overflow scroll when messages fill viewport
+- **Sidebar history:** `overflow: hidden scroll`
+
+## Hover States
+- Icon buttons: Material ripple (Angular CDK), no standalone CSS hover
+- "Sign in" button: `box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1)` — elevation on hover
+
+## State Classes
+- `.side-nav-open` on `chat-app` — sidebar open
+- `.zero-state-theme` on nav — empty/welcome state
+- `.light-theme` on nav — light mode
+- `.is-zero-state` on `.input-area` — welcome state input styling

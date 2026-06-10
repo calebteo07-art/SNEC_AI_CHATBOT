@@ -1,84 +1,95 @@
-# Page Topology — capsules.moyra.co
+# Gemini App — Page Topology
 
-## Z-Index Stack (top to bottom)
-- z-250: Custom cursor (.mf-cursor)
-- z-101: Loading overlay (black, full-screen, fades out)
-- z-100: Menu button (fixed bottom-center)
-- z-11: Menu drawer, Map overlay, Gallery detail overlay
-- z-10: Reservation drawer panel
-- z-auto: Reserve button bar (fixed top)
-- z-base: Page sections (flow content)
-- z-[-1]: Image layers behind section content
+Extracted from `https://gemini.google.com/app` at 1440×900 desktop.
 
-## Scroll Flow (top to bottom)
+## Overall Layout
+
 ```
-[FIXED] Reserve bar (top, full-width) — pill button top-right
-[FIXED] Menu button (bottom-center, cream pill)
-
-#hero           — 100svh, full-bleed image + video overlay + SVG logo + tagline
-#welcome        — ~866px, scroll-driven text animation + 2 small images
-#choose         — ~818px, capsule selection cards (3 options)
-[marquee]       — ~230px, horizontal scrolling "Why Capsules®?*" text
-#gallery        — 100vh, full-screen clickable image gallery (3 capsule types)
-#map            — 100vh, "Closer than you think" + Google Maps
-#capsules       — 100vh, scroll-driven 3-panel feature showcase
-#discover       — ~4046px (very tall), scroll-driven activities
-#reviews        — ~730px, 3 testimonial cards
-<footer>        — static, tagline + CTA + marquee text + copyright
+body (flex column, rgb(253,252,252))
+├── .boqOnegoogleliteOgbOneGoogleBar   [FIXED, z-index 988, height 48px]
+│   └── #gb  — Google sign-in button bar (top-right)
+└── chat-app#app-root  [full viewport flex column, z-index 1, overflow: auto hidden]
+    └── main.chat-app  [relative, flex column, full viewport]
+        ├── bard-sidenav                     [SIDEBAR]
+        └── bard-sidenav-content             [MAIN PANEL]
+            ├── div.chat-container           [flex column, z-index 1]
+            │   ├── GRADIENT LAYER           [absolute, z-index -1]
+            │   └── ZERO-STATE / CHAT AREA
+            └── input-container              [flex column, z-index 2, bottom]
+                └── div.input-area
+                    └── input-area-v2        [THE PILL]
 ```
 
-## Section Details
+## Sections (top to bottom)
 
-### #hero
-- Container: padding 7.5px, inner div border-radius 45px, overflow hidden
-- Background: full-bleed `cap1.png` (scale 1.2, object-cover absolute)
-- Video overlay: `smoke_final.mp4` (absolute, opacity 0.6, mix-blend-mode hard-light)
-- Content overlay: absolute flex column justify-between, padding 22.5px
-  - Top: SVG "Capsules®" logo wordmark (261×61 viewBox, ~773px wide rendered)
-  - Bottom row: left="Closer to Nature—Closer to Yourself" (36px/500/37.5px leading), right=tagline text (13.5px/600)
+### 1. Google Account Bar (fixed overlay)
+- **Type:** Fixed, z-index 988, top-right corner
+- **Height:** 48px
+- **Content:** "About Gemini", "Get Gemini App", "Subscriptions", "For Business", "Sign in" button
+- **Interaction model:** Static — just links + button
+- **EyeBot equivalent:** Replaced by EyeBot's own top header
 
-### #welcome
-- Two columns: animated text left, two stacked images right
-- Text animation: per-character or per-word fade-in on scroll
+### 2. Sidebar (`bard-sidenav`)
+- **Type:** Flow, leftmost column
+- **Width open:** 288px | **Width closed (rail):** ~52px
+- **Height:** 100vh
+- **Background:** `rgb(255, 255, 255)`
+- **Transition:** `background-color 0.3s cubic-bezier(0.2, 0, 0, 1)`, width animated
+- **Content (open):**
+  - Top: Gemini logo + "Gemini" title + close button
+  - "New chat" button
+  - "Sign in to save activity" message
+  - Chat history (infinite scroller)
+  - Bottom: Settings icon
+  - Bottom: "Sign in" button (tonal pill)
+- **Interaction model:** Click-driven toggle
+- **Mobile:** Overlays full screen when open, `×` to close
 
-### #choose
-- Section heading: "Discover available Capsules®"
-- Per-character animated subheading: "Choose the one you like best"
-- 3 capsule types with images (cap3, cap2, cap1) and descriptions
-- Attributes list: Sustainable, Nature-Care, Smart Privacy, Spacious, Glassed-in
+### 3. Main Panel (`bard-sidenav-content`)
+- **Type:** Flow, flex-1
+- **Width (sidebar open):** 1152px | **Width (sidebar closed):** ~1388px
+- **Height:** 100vh
+- **Overflow:** hidden
+- **Z-layers inside:**
+  - `z-index -1`: Gradient background (nl-canvas/nl-blob)
+  - `z-index 0`: Zero-state content / chat messages
+  - `z-index 2`: Input container (always at bottom)
 
-### [marquee section]
-- Dark background (#181717 → #332E2B gradient)
-- "Why Capsules®?*" repeated, horizontal scroll animation
+### 4. Gradient Background System
+- **Type:** Absolute, z-index -1 (behind all content)
+- **Container:** `div.nl-canvas` (absolute, width of main panel × 500px)
+  - `div.nl-bg-layer` (opacity: 0.29)
+    - `div.nl-bg-blob` (filter: blur(146px), top: -673px, overflow: hidden)
+      - `div.gradient-strip` × 2 (the animated rainbow gradient)
+      - `div.top-gradient` (white fade-out at top)
+      - `div.bottom-gradient` (white fade-out at bottom)
+- **Interaction model:** Time-driven (CSS animation 1498.5s loop)
 
-### #gallery
-- Full-screen image gallery
-- 3 capsule images (cap3-square, cap2-square, cap1-square)
-- Click reveals detail overlay (fixed, z-11)
+### 5. Zero-State Center Content
+- **Type:** Absolute, centered in main panel
+- **Content:** "Meet Gemini, your personal AI assistant" heading + input pill
+- **Entrance animation:** `lm-fade-in-up` (opacity 0 + translateY 40px → opacity 1 + translateY 0)
+- **Interaction model:** Static
 
-### #map
-- "Closer than you think" heading
-- Google Maps embed
-- Location: Maricopa, CA 93252
+### 6. Input Pill (`input-area-v2`)
+- **Type:** Positioned at bottom of main panel
+- **Width:** 660px (max), centered
+- **Height:** 64px
+- **Background:** `rgb(255, 255, 255)`
+- **Border-radius:** 32px
+- **Box-shadow:** `rgba(0,0,0,0.16) 0px 2px 8px -2px`
+- **Interaction model:** Click-to-focus, shimmer on streaming
 
-### #capsules
-- Full-screen, dark background
-- 3 scroll-driven panels, each numbered (01/03, 02/03, 03/03)
-- Panel 1: "Enjoy the view through—the wide panoramic glass window"
-- Panel 2: "Sound of silence—out of the city rush with completely privacy"
-- Panel 3: "Relax yourself in—Wooden Jacuzzi"
+## Z-Index Layers
+| Layer | z-index | Element |
+|-------|---------|---------|
+| Top bar | 988 | Google account bar |
+| Shell | 1 | chat-app root |
+| Input | 2 | input-container |
+| Content | 0 | chat/zero-state |
+| Gradient | -1 | nl-canvas (behind content) |
 
-### #discover
-- "Ready for an adventure? Discover the desert activities"
-- 3 activities: Buggy Tours (Easy, 3-5h), Desert Hikes (Medium, 8-12h), Rock Climbing (Hard, 24h)
-- Scroll-driven reveal with activity images
-
-### #reviews
-- "Do people like us?" heading
-- 3 testimonial cards with avatar images
-- Reviewers: Marcus Simpson (NY), Lena Morrison (LA), Jason Whitaker (SF)
-
-### footer
-- Tagline: "Closer to Nature—Closer to Yourself"
-- Scrolling "Book your capsule—" marquee
-- Copyright note: "This website is just the concept work done"
+## Responsive Behavior
+- **Desktop (1440px):** Sidebar 288px open, main 1152px, input pill 660px
+- **Mobile (390px):** Sidebar overlays full screen, bottom nav appears
+- **Breakpoint:** ~768px — sidebar collapses to overlay mode
