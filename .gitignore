@@ -60,3 +60,7 @@ proposal/previews/
 proposal/backgrounds/
 proposal/pptx_preview/
 proposal/layout.json
+portfolio/
+
+# Playwright MCP debug output
+.playwright-mcp/
