@@ -35,7 +35,7 @@ export function GradientBackground({ className, intensity = 0.29, fullBleed = fa
         width: "100%",
         height: "500px",
         overflow: "visible",
-        zIndex: -1,
+        zIndex: fullBleed ? 0 : -1,
         pointerEvents: "none",
       }}
     >
