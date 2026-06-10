@@ -1,0 +1,116 @@
+{
+  "case_id": "case_ot_017_hvf_24_2_glaucoma_monitoring",
+  "title": "Tracking the Arc of Vision Loss",
+  "difficulty": "intermediate",
+  "topic": "hvf_24_2_glaucoma_monitoring",
+  "role": "OT",
+  "estimated_minutes": 20,
+  "checklist_procedure": "Humphrey Visual Field",
+  "patient": {
+    "name": "Mr Ng Boon Huat",
+    "age": 61,
+    "gender": "male",
+    "occupation": "retired civil servant",
+    "presenting_complaint": "Follow-up visit — known primary open-angle glaucoma, due for repeat Humphrey Visual Field"
+  },
+  "history": {
+    "hpc": "Mr Ng has been diagnosed with primary open-angle glaucoma (POAG) in both eyes for the past 5 years and is on topical IOP-lowering therapy. His IOP has been reasonably controlled (16-18 mmHg) on current medications. He is due for his routine 6-monthly HVF 24-2 SITA Standard to monitor for progression of his visual field defects. He reports no new symptoms but mentions he sometimes bumps into the door frame on his left side.",
+    "pmhx": "POAG both eyes, diagnosed 5 years ago. Hypertension. No previous eye surgery.",
+    "family_hx": "Father had glaucoma and was registered blind in one eye",
+    "medications": ["Latanoprost 0.005% eye drops both eyes nocte", "Brinzolamide 1% eye drops both eyes BD", "Amlodipine 5mg OD"],
+    "social_hx": "Retired. Lives with wife. Compliant with eye drops, uses a phone reminder."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/12 (LogMAR 0.3)"},
+    "iop": {"right": "17 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally, on topical therapy",
+    "fundus": "C:D ratio 0.7 right, 0.75 left (per prior doctor's notes) — increased from 0.65/0.7 a year ago"
+  },
+  "investigations": {
+    "hvf_right": {
+      "programme": "SITA Standard 24-2",
+      "mean_deviation": "-4.8 dB",
+      "pattern_sd": "6.2 dB",
+      "vfi": "89%",
+      "reliability": "Fixation losses 1/15 (7%), False positive 3%, False negative 5%",
+      "result": "Superior arcuate scotoma, denser than previous visit — consistent with progression"
+    },
+    "hvf_left": {
+      "programme": "SITA Standard 24-2",
+      "mean_deviation": "-7.1 dB",
+      "pattern_sd": "8.5 dB",
+      "vfi": "81%",
+      "reliability": "Fixation losses 0/15, False positive 2%, False negative 6%",
+      "result": "Superior and inferior arcuate scotomas with partial ring scotoma, denser than previous visit — consistent with progression, correlates with patient's reported difficulty on left side"
+    },
+    "previous_hvf_comparison": {
+      "right_eye_MD_6_months_ago": "-3.5 dB",
+      "left_eye_MD_6_months_ago": "-5.4 dB",
+      "trend": "Both eyes show worsening mean deviation compared to 6 months ago, left eye more affected"
+    }
+  },
+  "diagnosis": "HVF 24-2 SITA Standard performed on both eyes, both tests reliable. Findings show arcuate scotomas in both eyes, denser than the previous visit, with worsening mean deviation — consistent with glaucomatous progression, more marked in the left eye. For doctor's review and consideration of treatment escalation.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be tested with the 24-2 SITA Standard programme as per his routine monitoring schedule",
+      "Ask if patient has done HVF before (he has — less learning effect expected, but still explain briefly)",
+      "Check if patient wears glasses for near/intermediate distance and insert the correct trial lens (age-appropriate near correction) into the perimeter's trial frame",
+      "Position patient comfortably with chin on chinrest and forehead on forehead rest, patch the eye not being tested",
+      "Demonstrate the test: press the button when a light is seen, maintain steady fixation on the central target, do not anticipate",
+      "Run the test for the right eye, monitoring for fixation losses, excessive false positives/negatives, and patient fatigue, allowing a short break between eyes if needed",
+      "Repeat for the left eye",
+      "Print reports for both eyes and check reliability indices are within acceptable limits before ending the session",
+      "Pull up the previous HVF report for comparison and attach both to the patient's file",
+      "Hand reports and the comparison to the doctor"
+    ],
+    "follow_up": [
+      "Doctor to review HVF results and trend of mean deviation/VFI alongside IOP and disc findings (increased C:D ratio noted)",
+      "If progression confirmed despite IOP in target range, doctor may consider escalating treatment (additional medication, laser, or surgery)",
+      "Repeat HVF in 6 months or sooner if treatment is escalated, to assess response"
+    ],
+    "patient_education": [
+      "Explain that this test maps his side vision and helps track how his glaucoma is doing over time",
+      "Acknowledge his observation about bumping into the door frame and reassure him this information is helpful for the doctor",
+      "Remind him to continue his eye drops as prescribed, as consistent use helps slow progression",
+      "Advise him that test results will be discussed with the doctor, who may adjust his treatment plan"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms test programme (24-2 SITA Standard) for both eyes as per monitoring schedule",
+        "Elicits the patient's functional symptom (bumping into door frame on left side) as relevant clinical context",
+        "Checks for and inserts the correct near/intermediate trial lens correction appropriate to the patient's age and refraction",
+        "Reviews medication compliance, which is relevant to interpreting any progression"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up the HVF machine correctly with the ordered programme and accurate patient data",
+        "Positions patient correctly, patches the untested eye, and gives a clear demonstration of the test",
+        "Monitors reliability indices during testing and ensures both tests are reliable before concluding",
+        "Retrieves the previous HVF report for direct comparison and attaches it alongside the new results"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the pattern of arcuate scotoma as classic for glaucomatous field loss",
+        "Identifies that worsening mean deviation/VFI compared to the prior visit indicates possible progression",
+        "Correlates the patient's reported functional symptom (bumping on the left) with the more advanced left eye field loss",
+        "Does not make treatment decisions independently — flags progression to doctor for review"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents HVF results, reliability indices, and trend comparison clearly for both eyes",
+        "Hands reports and comparison promptly to doctor given the suspicion of progression",
+        "Reinforces medication compliance with the patient",
+        "Communicates results in a way that is informative without causing undue alarm"
+      ]
+    }
+  }
+}

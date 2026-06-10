@@ -1,0 +1,96 @@
+{
+  "case_id": "case_oa_023_uveitis_history_taking",
+  "title": "Aching, Light-Sensitive, and Stiff in the Mornings",
+  "difficulty": "intermediate",
+  "topic": "uveitis_history_taking",
+  "role": "OA",
+  "estimated_minutes": 18,
+  "patient": {
+    "name": "Mr Daniel Pereira",
+    "age": 33,
+    "gender": "male",
+    "occupation": "software engineer",
+    "presenting_complaint": "Left eye has been aching dully and sensitive to light for the past 4 days, with mild blurring of vision — second episode in the past year"
+  },
+  "history": {
+    "hpc": "Mr Pereira reports a dull aching pain in his left eye for the past 4 days, rated 4/10, accompanied by marked sensitivity to bright light and mild blurring of vision. He had a very similar episode in his right eye about 8 months ago, which was treated with steroid eye drops by a doctor and resolved after a few weeks. He has noticed his left eye looks 'a bit red' especially around the iris. He denies any discharge. He also mentions that for the past 6 months he has had intermittent lower back pain and stiffness, especially in the mornings, which improves with movement during the day — he has not seen a doctor for this as he attributed it to his desk job.",
+    "pmhx": "Previous episode of uveitis, right eye, 8 months ago, treated with topical steroids. No known systemic diagnosis currently, but has not been formally worked up for the back pain. No known drug allergies.",
+    "family_hx": "Father has ankylosing spondylitis (diagnosed in his 50s). No family history of glaucoma or cataracts noted.",
+    "medications": ["Nil regular medications. Occasional ibuprofen for back pain."],
+    "social_hx": "Works long hours at a desk. Non-smoker. Came in alone after work."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/9 (LogMAR 0.2)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "anterior_segment": "Left eye: circumlimbal (ciliary) injection — redness concentrated around the cornea/iris border rather than diffusely, pupil appears slightly smaller than the right and slightly irregular. No discharge. Right eye: quiet, no active inflammation currently, but patient reports this eye was affected previously.",
+    "fundus": "Not yet assessed — to be examined by doctor for posterior involvement"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.0 (6/6). LE: LogMAR 0.2 (6/9), mildly reduced.",
+    "iop_nct": "RE: 15 mmHg. LE: 13 mmHg. Both within normal range.",
+    "differential_assessment": "Dull pain, marked photophobia, mildly reduced VA, smaller/irregular pupil, circumlimbal injection, no discharge — pattern consistent with iritis/anterior uveitis rather than conjunctivitis or acute glaucoma (which would show a large fixed oval pupil and very high IOP)"
+  },
+  "diagnosis": "Recurrent anterior uveitis, left eye (previous episode right eye 8 months ago), in a patient with a 6-month history of inflammatory-pattern lower back pain (morning stiffness improving with activity) and a family history of ankylosing spondylitis — raising concern for an underlying HLA-B27-associated systemic inflammatory condition. Requires doctor assessment and likely systemic work-up referral.",
+  "management": {
+    "immediate": [
+      "Take a structured ocular history: onset, laterality, pain character (dull vs sharp), photophobia, discharge, and vision change",
+      "Specifically ask about previous similar episodes — identify the prior right eye episode 8 months ago treated with steroids",
+      "Apply the red eye differential: dull-to-marked pain, marked photophobia, reduced VA, smaller/same pupil, no discharge — consistent with iritis, not conjunctivitis or acute glaucoma",
+      "Take a focused systemic review of systems — ask about joint pain/stiffness, back pain, skin rashes, gut symptoms, and any known autoimmune conditions, given uveitis is often associated with systemic inflammatory disease",
+      "Document the family history of ankylosing spondylitis as highly relevant",
+      "Measure VA and IOP in both eyes",
+      "Document the pattern and location of redness (circumlimbal/ciliary flush) and pupil appearance carefully",
+      "Hand over a clear summary to the doctor highlighting both the recurrent uveitis pattern and the systemic symptoms (back pain, family history)"
+    ],
+    "follow_up": [
+      "Doctor to perform slit-lamp examination to confirm anterior chamber inflammation (cells/flare) and assess for posterior involvement",
+      "Doctor likely to prescribe topical steroids and cycloplegic drops for the acute episode",
+      "Given recurrent uveitis plus inflammatory back pain pattern and family history, doctor may refer for systemic work-up (e.g. HLA-B27 testing, rheumatology referral) to identify an underlying associated condition such as ankylosing spondylitis",
+      "Schedule close follow-up to monitor response to treatment and IOP (steroids can raise IOP)"
+    ],
+    "patient_education": [
+      "Explain that this appears to be a recurrence of the eye inflammation (uveitis) he had before, now in the other eye",
+      "Explain that recurrent uveitis can sometimes be linked to inflammation elsewhere in the body, such as the joints, which is why his back pain history is relevant and worth discussing with the doctor",
+      "Advise him to use any prescribed steroid drops exactly as directed and attend follow-up, as untreated uveitis can affect vision and IOP",
+      "Advise him to mention his back pain and family history of ankylosing spondylitis to the doctor today, as this may need further assessment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Takes a structured ocular history covering pain character, photophobia, discharge, and vision change",
+        "Identifies the previous uveitis episode in the other eye 8 months ago as highly relevant (recurrent pattern)",
+        "Actively asks about systemic symptoms — specifically joint/back pain and morning stiffness pattern",
+        "Documents the family history of ankylosing spondylitis"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes and notes the mild reduction in the affected eye",
+        "Performs NCT and confirms IOP is currently normal (relevant baseline before steroids, which can raise IOP)",
+        "Applies the red eye differential table correctly to distinguish iritis from conjunctivitis and acute glaucoma",
+        "Documents the pattern of redness (circumlimbal) and pupil findings (smaller/irregular) accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly identifies this as anterior uveitis/iritis based on the differential pattern",
+        "Recognises the recurrent, alternating-eye pattern as significant",
+        "Connects the ocular findings with the systemic history (inflammatory back pain, family history of ankylosing spondylitis) to suggest a possible underlying systemic association",
+        "Does not treat this as an isolated, unrelated eye problem"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Hands over a clear summary to the doctor highlighting both ocular and systemic findings",
+        "Recognises the need for possible systemic referral (e.g. rheumatology) given the pattern",
+        "Provides education connecting eye and systemic symptoms in patient-friendly language",
+        "Emphasises adherence to treatment and follow-up given recurrence risk and IOP monitoring needs with steroids"
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_014_fall_risk_screening_elderly",
+  "title": "A Routine Question for Every Patient",
+  "difficulty": "beginner",
+  "topic": "fall_risk_screening_elderly",
+  "role": "PSA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mdm Aw Bee Choo",
+    "age": 79,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Routine annual eye check, no new visual complaints"
+  },
+  "history": {
+    "hpc": "Mdm Aw is a 79-year-old attending for her routine annual eye check. She walks into the clinic unassisted, without any mobility aid, and reports no new visual symptoms. As part of standard registration, the PSA performs a fall risk screen for every patient regardless of presenting complaint, as required at every visit.",
+    "pmhx": "Mild cataract both eyes (stable, monitored). Hypertension on medication. Osteoporosis diagnosed 5 years ago, on calcium and vitamin D supplements.",
+    "family_hx": "Not relevant to this visit",
+    "medications": ["Amlodipine 5mg OD", "Calcium carbonate + Vitamin D3 OD", "Alendronate 70mg once weekly"],
+    "social_hx": "Lives alone in a one-room flat. Independent with all activities of daily living. No history of falls in the past year. Walks to the nearby market daily."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/9 (LogMAR 0.18)"},
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "fall_risk_screen": {
+      "age_over_65": "Yes — applicable",
+      "history_of_falls_in_past_year": "No",
+      "mobility_aid": "No — walks unassisted",
+      "visual_impairment": "No significant impairment — VA 6/9 both eyes, mild cataract only",
+      "on_sedating_or_high_risk_medication": "No",
+      "overall_assessment": "Low risk based on screening — age is the only contributing factor present",
+      "action_required": "No additional fall prevention measures required today; document screen as completed with low-risk outcome"
+    }
+  },
+  "diagnosis": "Fall risk screening completed at registration as required for every patient at every visit. Mdm Aw screens as low risk today — age over 65 is the only factor present, with no falls history, no mobility aid use, no significant visual impairment, and no sedating medications. Result documented; routine eye check to proceed.",
+  "management": {
+    "immediate": [
+      "As part of standard registration for every patient, ask Mdm Aw the fall risk screening questions regardless of the fact she presents with no mobility issues",
+      "Ask whether she has had any falls in the past year — confirm 'No'",
+      "Note whether she uses any mobility aid (cane, walker, wheelchair) — confirm she walks unassisted",
+      "Note her current vision level (VA 6/9 both eyes) and any known visual impairment affecting mobility — none significant",
+      "Review her medication list for sedating or high-risk medications (e.g., opioids, benzodiazepines, sedating antihistamines) — none identified",
+      "Calculate and document the overall fall risk outcome based on the factors present (age >65 only)",
+      "Since the result is low risk, no special fall prevention measures (e.g., wristband, escort) are required today",
+      "Document the completed fall risk screen in SCM as part of her registration record",
+      "Proceed with the routine VA and other tests for her annual check as normal"
+    ],
+    "follow_up": [
+      "File the completed fall risk screen with her registration documentation",
+      "Note that the screen should be repeated at her next visit, as required for every visit",
+      "No escalation to nurse-in-charge required given the low-risk outcome"
+    ],
+    "patient_education": [
+      "Briefly explain to Mdm Aw that fall risk screening is a routine safety check done for all patients at every visit, not because of any specific concern about her",
+      "General fall prevention advice can be offered: ensure good lighting at home, wear well-fitted footwear, and use handrails where available",
+      "Encourage her to inform staff if she ever feels unsteady or dizzy during a future visit, even if her screen was previously low risk"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Performs the fall risk screen for every patient regardless of presenting complaint or apparent mobility",
+        "Asks specifically about falls history in the past year",
+        "Asks about mobility aid use and reviews the medication list for sedating/high-risk drugs",
+        "Considers visual impairment level as part of the screen, using the VA results available"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Systematically goes through each fall risk domain rather than skipping the screen because the patient appears independent",
+        "Correctly identifies that age >65 is the only risk factor present for this patient",
+        "Arrives at an overall low-risk outcome based on the absence of other risk factors",
+        "Documents the screen and its outcome clearly in the patient's record"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly classifies the patient as low risk based on the screening criteria",
+        "Does not over- or under-estimate risk based on the patient's appearance alone",
+        "Recognises that a low-risk result still requires documentation, not just verbal acknowledgement",
+        "Understands that the screen must be repeated at every visit, not just once"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Completes and documents the fall risk screen as part of routine registration",
+        "Does not apply unnecessary fall prevention measures for a low-risk patient",
+        "Provides general, non-alarming fall prevention advice appropriate for an independent elderly patient",
+        "Proceeds smoothly with the rest of the patient's routine visit without unnecessary delay"
+      ]
+    }
+  }
+}

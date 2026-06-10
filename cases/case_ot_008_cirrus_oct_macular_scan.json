@@ -1,0 +1,106 @@
+{
+  "case_id": "case_ot_008_cirrus_oct_macular_scan",
+  "title": "A Closer Look at the Macula",
+  "difficulty": "beginner",
+  "topic": "cirrus_oct_macular_scan",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cirrus OCT",
+  "patient": {
+    "name": "Mdm Wong Siew Lan",
+    "age": 71,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for Cirrus OCT macular scan — distortion of vision in left eye"
+  },
+  "history": {
+    "hpc": "Mdm Wong noticed that straight lines, such as door frames and tiles, appear wavy when she looks at them with her left eye over the past 2 weeks. She has no pain. Her right eye vision feels normal to her. The doctor examined her fundus and noted some changes at the macula in the left eye, and has ordered a Cirrus OCT macular scan to evaluate the retinal layers in detail.",
+    "pmhx": "Hypertension. No previous eye surgery. Wears reading glasses for near work.",
+    "family_hx": "Mother had 'macular degeneration' and lost central vision in old age",
+    "medications": ["Amlodipine 5mg OD", "Aspirin 100mg OD"],
+    "social_hx": "Retired. Lives with daughter. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/18 (LogMAR 0.5)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Mild nuclear sclerosis bilaterally, otherwise unremarkable",
+    "fundus": "Right eye: normal macula. Left eye: drusen and pigmentary changes at macula, doctor notes possible subretinal fluid"
+  },
+  "investigations": {
+    "amsler_grid": "Left eye: patient reports wavy distortion of horizontal lines near central area. Right eye: grid appears normal.",
+    "cirrus_oct_right": {
+      "scan_pattern": "Macular Cube 512x128",
+      "central_subfield_thickness": "265 microns (normal)",
+      "signal_strength": "9/10",
+      "result": "Normal foveal contour, no fluid or oedema"
+    },
+    "cirrus_oct_left": {
+      "scan_pattern": "Macular Cube 512x128",
+      "central_subfield_thickness": "342 microns (increased)",
+      "signal_strength": "8/10",
+      "result": "Subretinal fluid and intraretinal cystic changes at the macula, drusen present"
+    }
+  },
+  "diagnosis": "Cirrus OCT macular scan completed bilaterally. Left eye shows increased central subfield thickness with subretinal fluid and intraretinal cysts, consistent with the doctor's suspicion of exudative age-related macular degeneration, for further review and possible referral to medical retina.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be scanned",
+      "Explain the procedure to patient: non-contact, sits at a machine, looks at a green fixation light, takes about 5 minutes",
+      "Set up the Cirrus OCT machine, enter patient details accurately",
+      "Position patient comfortably at chinrest with forehead against the rest, adjust table height",
+      "Select the macular cube scan protocol as ordered by the doctor",
+      "Ask patient to keep both eyes open and fixate steadily on the green target, blinking normally between captures",
+      "Check signal strength for each scan (aim for signal strength 7/10 or higher) — repeat scan if signal is poor or patient blinked during capture",
+      "Review scan for obvious motion artefacts or eye movement and rescan if needed",
+      "Print/export report showing retinal thickness map and cross-sectional images, hand to doctor"
+    ],
+    "follow_up": [
+      "Doctor to review OCT findings and correlate with fundus examination and Amsler grid result",
+      "If exudative AMD confirmed, patient may be referred urgently to medical retina for consideration of intravitreal injection",
+      "Repeat OCT at follow-up to monitor response to treatment"
+    ],
+    "patient_education": [
+      "Explain that this scan takes detailed pictures of the layers at the back of the eye, near where she sees the wavy lines",
+      "Tell patient the test is quick, painless, and does not touch the eye",
+      "Advise patient to monitor her vision at home with the Amsler grid and report any sudden worsening promptly, as this may need urgent treatment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms both eyes are to be scanned",
+        "Elicits the symptom of metamorphopsia (wavy lines) and which eye is affected",
+        "Asks about family history of macular degeneration as a relevant risk factor",
+        "Explains the non-contact nature of the OCT procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up Cirrus OCT machine correctly with accurate patient details and selects the macular cube protocol",
+        "Positions patient correctly at chinrest and obtains steady fixation",
+        "Checks signal strength for each scan and repeats scans with poor signal or motion artefact",
+        "Records central subfield thickness and qualitative findings (fluid, cysts, drusen) for both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that increased central subfield thickness with subretinal/intraretinal fluid suggests macular pathology",
+        "Understands the purpose of OCT: detailed cross-sectional imaging of retinal layers at the macula",
+        "Does not diagnose AMD independently — reports findings to doctor",
+        "Correlates Amsler grid distortion with the affected eye on OCT"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents central subfield thickness and signal strength for both eyes accurately",
+        "Hands report promptly to doctor, especially given suspicion of exudative AMD requiring urgent review",
+        "Educates patient on home Amsler grid monitoring and when to seek urgent review",
+        "Ensures good quality scans before ending the session"
+      ]
+    }
+  }
+}

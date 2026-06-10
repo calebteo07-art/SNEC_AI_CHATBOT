@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_019_history_taking_contact_lens_overwear",
+  "title": "The Lenses She Forgot to Mention",
+  "difficulty": "intermediate",
+  "topic": "history_taking_contact_lens_overwear",
+  "role": "PSA",
+  "estimated_minutes": 20,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Ms Cheryl Lim Xin Yi",
+    "age": 21,
+    "gender": "female",
+    "occupation": "university student",
+    "presenting_complaint": "Red, painful right eye for 1 day, mild blurring of vision"
+  },
+  "history": {
+    "hpc": "Ms Lim presents with a red, painful right eye that started yesterday evening, with mild blurring of vision and a sensation of 'something in my eye'. When initially asked about contact lens use, she says 'no, not really' and only mentions wearing glasses. However, during further questioning about her daily routine, she mentions she 'sometimes' wears 'the cheap monthly lenses' she bought online for special occasions, and admits she wore the same pair of disposable daily lenses for the past 3 days because she 'didn't have new ones' and 'they still felt fine'. She also admits she sometimes sleeps in her lenses and occasionally tops up the lens case solution rather than replacing it fully.",
+    "pmhx": "No known eye conditions previously. No previous eye surgery. No known drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": [],
+    "social_hx": "University student, uses contact lenses occasionally for social events and exams (so glasses don't fog under a mask). Lives in a hostel, shares a room with a roommate."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (LogMAR 0.3) — reduced from her usual 6/6 with lenses", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed by PSA — gross observation only: right eye visibly red (conjunctival injection), mild watering, patient reports photophobia and pain on this side; doctor to perform slit-lamp examination",
+    "fundus": "Not assessed — not indicated at this stage"
+  },
+  "investigations": {
+    "history_summary": {
+      "contact_lens_use_initially_reported": "Denied / 'not really'",
+      "contact_lens_use_on_further_questioning": "Daily disposable lenses worn for 3 consecutive days (overwear); occasional use of separate 'cheap monthly lenses' bought online; reports occasionally sleeping in lenses; tops up lens case solution instead of replacing fully",
+      "symptom_pattern": "Unilateral (right eye) red, painful eye with photophobia, watering, and reduced VA — pattern raising concern for keratitis (e.g., contact-lens-related microbial keratitis) rather than simple conjunctivitis",
+      "red_eye_differential_features": "Pain present, photophobia present (slight to marked), VA reduced — these features point away from simple conjunctivitis and toward keratitis or another more significant cause",
+      "action_taken": "Full contact lens history documented and flagged prominently for doctor; patient's right eye flagged as warranting prompt assessment"
+    }
+  },
+  "diagnosis": "History taking revealed significant contact lens overwear and poor lens hygiene practices (3-day continuous wear of daily disposables, occasional sleeping in lenses, topping up rather than replacing solution) only on further questioning, despite initial denial. Combined with a painful, photophobic, red right eye with reduced VA, this raises concern for contact-lens-related keratitis. PSA does not diagnose — history and findings flagged for prompt doctor review.",
+  "management": {
+    "immediate": [
+      "Take the presenting complaint seriously — note that pain and photophobia (not just discharge) are present, which differs from a simple 'pink eye' picture",
+      "Ask the standard ocular history questions: when did it start, one eye or both, any pain, any change in vision, any photophobia, any discharge",
+      "Specifically and non-judgementally ask about contact lens use as part of the standard history — when the initial answer is 'not really', gently probe further: 'Do you ever wear any type of contact lenses, even occasionally — for example, for special occasions, sports, or under a mask?'",
+      "If contact lens use is identified, ask follow-up questions: type of lens (daily/monthly), how long each pair is worn before replacement, whether she sleeps in them, how lens cases and solution are managed, and when lenses were last worn",
+      "Avoid a judgemental tone when she admits to overwear and poor hygiene practices — maintain a non-judgemental, factual approach to encourage honesty",
+      "Document the full contact lens history clearly and prominently, as this is highly relevant given the painful, photophobic, reduced-vision presentation",
+      "Flag this case for prompt doctor review given the combination of pain, photophobia, and reduced VA in a contact lens wearer — this pattern can indicate microbial keratitis, which requires timely assessment",
+      "Advise Ms Lim to remove her contact lenses now if she is wearing any, and not to wear any lenses until reviewed by the doctor",
+      "Ask her to bring her lens case, solution bottle, and lens packaging if she has them, as the doctor may wish to see them"
+    ],
+    "follow_up": [
+      "Hand the completed history, including the full contact lens history, to the doctor promptly — highlight the pain/photophobia/reduced VA combination",
+      "Ensure VA results for both eyes are available for the doctor",
+      "If the doctor's schedule allows, suggest this patient may need to be seen sooner given the symptom pattern — communicate this to the nurse-in-charge"
+    ],
+    "patient_education": [
+      "Advise Ms Lim not to wear any contact lenses (including her 'cheap monthly lenses') until she has been examined and given clearance",
+      "Do not provide detailed contact lens hygiene education at this stage — focus on getting her seen by the doctor first, as immediate management of her symptoms takes priority",
+      "Reassure her that she did the right thing by mentioning the contact lens use, even though it took a few extra questions — this information is helpful for the doctor",
+      "Avoid making her feel embarrassed or blamed for her lens-wearing habits — frame this as important medical information, not a lecture"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about contact lens use as a standard part of history taking, even when the chief complaint doesn't obviously suggest it",
+        "Recognises the initial 'not really' answer may be incomplete and gently probes further with non-judgemental follow-up questions",
+        "Once lens use is uncovered, asks targeted follow-up questions: wear schedule, overwear, sleeping in lenses, case/solution hygiene",
+        "Maintains a non-judgemental, factual tone throughout to encourage full disclosure"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents the full contact lens history clearly, including the discrepancy between the initial answer and the fuller picture uncovered later",
+        "Notes the red-eye differential features present (pain, photophobia, reduced VA) and how they differ from simple conjunctivitis",
+        "Records VA for both eyes, noting the reduction in the affected eye",
+        "Makes a gross observation of the eye (redness, watering) without attempting a slit-lamp assessment"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that pain + photophobia + reduced VA + contact lens overwear is a pattern that should not be dismissed as simple conjunctivitis",
+        "Does not diagnose keratitis or any specific condition to the patient — flags the pattern for doctor review",
+        "Understands the clinical significance of contact lens overwear and poor hygiene as risk factors for infection",
+        "Recognises the case may need to be prioritised for earlier doctor review given the symptom pattern"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Advises the patient to remove and stop wearing any contact lenses until reviewed",
+        "Asks her to bring lens-related items (case, solution, packaging) for the doctor's information",
+        "Flags the case to the doctor/nurse-in-charge with the relevant history clearly highlighted, suggesting earlier review where appropriate",
+        "Handles the disclosure of poor lens hygiene with empathy and without judgement, encouraging future honesty"
+      ]
+    }
+  }
+}

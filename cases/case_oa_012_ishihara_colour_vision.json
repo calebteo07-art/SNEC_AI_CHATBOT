@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_012_ishihara_colour_vision",
+  "title": "Can You See the Number?",
+  "difficulty": "beginner",
+  "topic": "ishihara_colour_vision",
+  "role": "OA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Master Nigel Lim Jun Wei",
+    "age": 16,
+    "gender": "male",
+    "occupation": "secondary school student",
+    "presenting_complaint": "Needs a colour vision test as part of his application to a polytechnic course that requires normal colour vision (electrical engineering)"
+  },
+  "history": {
+    "hpc": "Nigel has been referred for a colour vision assessment as part of a medical check-up required for his polytechnic course application. He reports no known issues with colour vision himself, but his mother mentions that his maternal uncle is 'colour blind' and has difficulty distinguishing red and green. Nigel has never been tested before. He has no other visual symptoms — no blurred vision, no eye pain, no headaches.",
+    "pmhx": "Nil significant ocular history. Wears spectacles for mild myopia, both eyes.",
+    "family_hx": "Maternal uncle has red-green colour vision deficiency (congenital, X-linked pattern suspected)",
+    "medications": ["Nil"],
+    "social_hx": "Secondary 4 student. Came with his mother."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 with glasses (LogMAR 0.0)", "left": "6/6 with glasses (LogMAR 0.0)"},
+    "iop": {"right": "Not indicated for this visit", "left": "Not indicated for this visit"},
+    "anterior_segment": "Normal bilaterally. Wears glasses for mild myopia.",
+    "fundus": "Not assessed — not indicated for this visit"
+  },
+  "investigations": {
+    "ishihara_colour_vision": "Tested binocularly with glasses on, in a well-lit room, each plate shown for approximately 3-5 seconds at the recommended distance. Patient correctly identified 9 out of 10 standard plates. Plate 5 (a red-green confusion plate) was misread.",
+    "va_distance": "RE: LogMAR 0.0 (6/6) with glasses. LE: LogMAR 0.0 (6/6) with glasses."
+  },
+  "diagnosis": "Possible mild red-green colour vision deficiency, suggested by missing one Ishihara plate and a relevant family history (maternal uncle affected, consistent with X-linked inheritance). To be confirmed by doctor/further testing — result to be documented and reported for the polytechnic medical form.",
+  "management": {
+    "immediate": [
+      "Confirm patient's identity and explain the purpose and procedure of the Ishihara test in simple terms",
+      "Ensure correct testing conditions: well-lit room with natural or daylight-equivalent lighting, plates held at the recommended distance, patient wearing his usual glasses",
+      "Test binocularly (both eyes together) as per standard Ishihara protocol, allowing about 3-5 seconds per plate",
+      "Record the patient's response to each plate accurately, noting which plate(s) were misread",
+      "Document the total number of plates read correctly out of the total presented",
+      "Note the relevant family history of colour vision deficiency in the records",
+      "Hand over results to the doctor for interpretation and completion of the medical form"
+    ],
+    "follow_up": [
+      "Doctor to interpret the Ishihara result in the context of the family history",
+      "If deficiency is confirmed, doctor may discuss implications for the specific polytechnic course requirements",
+      "Result to be documented on the required medical examination form for the school"
+    ],
+    "patient_education": [
+      "Explain to Nigel and his mother what the Ishihara test checks for (red-green colour discrimination)",
+      "Reassure them that colour vision deficiency is common, often inherited, and does not affect general eye health or other aspects of vision",
+      "Explain that the doctor will review the result and advise on what it means for his course application",
+      "Avoid making definitive statements about pass/fail — this is for the doctor to confirm"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about the reason for referral (polytechnic medical requirement)",
+        "Asks about any known colour vision issues and relevant family history",
+        "Confirms whether the patient wears glasses/contact lenses and ensures they are worn for testing",
+        "Establishes there are no other visual symptoms needing separate attention"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs the Ishihara test under correct lighting conditions",
+        "Tests at the appropriate distance and viewing time per plate",
+        "Records the number of plates read correctly and specifically which plate(s) were missed",
+        "Documents results clearly for handover to the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that missing a red-green confusion plate, combined with family history, suggests possible red-green colour vision deficiency",
+        "Does not over-interpret a single missed plate as a definitive diagnosis",
+        "Understands the test's purpose is screening, not a complete diagnosis",
+        "Appropriately defers final interpretation to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents results accurately and completely for the medical form",
+        "Provides clear, non-alarming patient education about colour vision deficiency",
+        "Hands over findings appropriately to the doctor for interpretation",
+        "Avoids giving definitive pass/fail judgments outside their scope"
+      ]
+    }
+  }
+}

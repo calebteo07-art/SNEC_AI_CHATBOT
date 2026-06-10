@@ -1,0 +1,100 @@
+{
+  "case_id": "case_ot_015_pinhole_test_interpretation",
+  "title": "Glasses or Something Else?",
+  "difficulty": "beginner",
+  "topic": "pinhole_test_interpretation",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mr Koh Teck Huat",
+    "age": 64,
+    "gender": "male",
+    "occupation": "retired bus driver",
+    "presenting_complaint": "Follow-up visit — gradual painless reduction of vision in the right eye over several months"
+  },
+  "history": {
+    "hpc": "Mr Koh has noticed his right eye vision has become progressively dimmer and hazier over the past 6 months, like looking through a 'foggy window'. His left eye vision feels unchanged. He has no pain, redness, or flashes/floaters. He last changed his glasses about 3 years ago. He has come in for a follow-up visit and visual acuity testing with pinhole has been ordered to help differentiate the cause of his reduced vision.",
+    "pmhx": "Hypertension. No previous eye surgery. Known early cataract right eye noted at last visit 8 months ago.",
+    "family_hx": "Mother had cataract surgery in both eyes in her 70s",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Retired bus driver. Wears distance glasses, prescription last updated 3 years ago."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 with current glasses (LogMAR 0.6)", "left": "6/9 with current glasses (LogMAR 0.2)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Right eye: moderate nuclear sclerotic cataract, increased compared to 8 months ago. Left eye: mild nuclear sclerosis, stable.",
+    "fundus": "Right eye: hazy view due to cataract, no obvious posterior pathology seen. Left eye: normal."
+  },
+  "investigations": {
+    "pinhole_test": {
+      "right_eye_with_current_glasses": "6/24",
+      "right_eye_with_pinhole_over_glasses": "6/24 (no improvement)",
+      "left_eye_with_current_glasses": "6/9",
+      "left_eye_with_pinhole_over_glasses": "6/6 (improves by one line)",
+      "method": "Pinhole occluder placed over current spectacle correction for each eye in turn, right eye tested first",
+      "result": "Right eye shows NO improvement with pinhole — suggests reduced vision is NOT primarily refractive, consistent with the known progressing cataract. Left eye shows mild improvement with pinhole — suggests a small residual refractive component."
+    },
+    "va_summary": "RE: 6/24 unaided/with glasses, no improvement with pinhole. LE: 6/9 with glasses, improves to 6/6 with pinhole."
+  },
+  "diagnosis": "Pinhole testing completed for both eyes. Right eye vision does not improve with pinhole, consistent with the known progressing nuclear cataract as the cause of reduced vision rather than a change in refractive error. Left eye shows mild improvement with pinhole, suggesting a minor refractive update may help. For doctor's review regarding cataract surgery referral for the right eye.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm current spectacles are being worn for the test",
+      "Perform hand hygiene and wipe occluders (including pinhole occluder) with alcohol wipes before starting",
+      "Measure VA with current glasses for each eye first (right eye first by convention), occluding the other eye",
+      "For any eye with VA of 6/12 or worse, place the pinhole occluder over the current spectacle correction and retest that eye",
+      "Document whether vision improves, stays the same, or worsens with pinhole for each eye",
+      "Compare today's findings with the cataract findings noted 8 months ago to assess progression",
+      "Wipe occluders with alcohol wipes after the test and perform hand hygiene",
+      "Document all VA and pinhole results clearly and pass to doctor along with the anterior segment findings"
+    ],
+    "follow_up": [
+      "Doctor to review pinhole results alongside cataract grading and decide if right eye cataract surgery referral is appropriate",
+      "Left eye may benefit from updated refraction given mild pinhole improvement",
+      "Patient to be scheduled for biometry if cataract surgery is being considered for the right eye"
+    ],
+    "patient_education": [
+      "Explain that the pinhole test helps the doctor understand whether his blurry vision could be improved with new glasses or whether it is due to the cataract",
+      "Explain that since the right eye does not improve with the pinhole, his cataract is likely the main cause of the haziness he describes",
+      "Reassure patient that cataract surgery is a common and generally successful procedure if the doctor recommends it"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms current glasses are worn for testing",
+        "Elicits the gradual, painless nature of the visual decline and absence of red flag symptoms (no flashes/floaters/pain)",
+        "Reviews previous documented findings (known early cataract 8 months ago) for comparison",
+        "Performs hand hygiene and wipes occluders with alcohol wipes before starting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA with current correction for each eye, right eye first, with correct occlusion technique",
+        "Applies pinhole correctly only to eyes with VA 6/12 or worse (or as per protocol) and documents the result",
+        "Clearly documents whether pinhole improves, does not change, or worsens vision for each eye",
+        "Compares results with prior visit findings to assess for progression"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly interprets no improvement with pinhole in the right eye as suggesting a non-refractive cause (consistent with progressing cataract)",
+        "Correctly interprets improvement with pinhole in the left eye as suggesting a refractive component",
+        "Does not diagnose the final cause independently — presents pinhole findings alongside anterior segment findings to doctor",
+        "Recognises the value of comparing serial findings over time to track cataract progression"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents VA and pinhole results accurately and clearly for both eyes",
+        "Hands findings to doctor with relevant context (known cataract, prior visit comparison)",
+        "Educates patient on what the pinhole result suggests in plain language",
+        "Provides reassurance regarding cataract surgery as a common and generally successful procedure"
+      ]
+    }
+  }
+}

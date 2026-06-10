@@ -1,0 +1,105 @@
+{
+  "case_id": "case_ot_022_pam_dense_cataract",
+  "title": "What Lies Behind the Cataract?",
+  "difficulty": "intermediate",
+  "topic": "pam_dense_cataract",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mr Abdul Rahman bin Ismail",
+    "age": 76,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for Potential Acuity Meter (PAM) testing — dense cataract right eye, query retinal function before surgery"
+  },
+  "history": {
+    "hpc": "Mr Abdul Rahman has a dense brunescent cataract in his right eye that has reduced his vision to counting fingers over the past 2 years. He is keen for cataract surgery to improve his vision but the doctor is concerned about his visual potential, as he also has a history of poorly controlled diabetes with possible diabetic retinopathy in the past, though the fundus cannot currently be visualised due to the cataract. He has been referred for PAM testing after pupil dilation to estimate his potential vision after cataract surgery.",
+    "pmhx": "Dense cataract right eye. Type 2 diabetes for 20 years, history of diabetic retinopathy treated with laser in both eyes 8 years ago. Hypertension. No previous eye surgery.",
+    "family_hx": "Brother lost vision in one eye due to 'diabetes complications'",
+    "medications": ["Insulin glargine OD", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "social_hx": "Retired. Lives with son. Does not drive."
+  },
+  "examination_findings": {
+    "va": {"right": "CF at 1m (counting fingers at 1 metre)", "left": "6/12 (LogMAR 0.3)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Right eye: dense brunescent (brown) nuclear cataract, red reflex barely visible. Left eye: moderate cataract, clear enough for fundus view.",
+    "fundus": "Right eye: not visualised due to dense cataract. Left eye: scattered laser photocoagulation scars in periphery, macula appears dry, no active diabetic macular oedema seen."
+  },
+  "investigations": {
+    "pam_right": {
+      "preparation": "Pupil dilated with tropicamide 1% and phenylephrine 2.5%, both eyes, 30 minutes before testing",
+      "method": "PAM projects a Snellen chart image directly onto the retina through a clear portion of the lens, bypassing the cataract",
+      "predicted_post_op_va": "6/18 (PAM result)",
+      "result": "Reduced potential acuity, likely due to past diabetic retinopathy affecting macular function — surgeon to counsel patient that vision may not return to 6/6 even after successful cataract surgery"
+    },
+    "pam_left": {
+      "preparation": "Pupil dilated as above",
+      "method": "PAM testing performed for comparison",
+      "predicted_post_op_va": "6/9 (PAM result) — correlates reasonably with current measured VA of 6/12, suggesting PAM is functioning reliably for this patient",
+      "result": "Used as a reference to validate the right eye PAM result given the patient's media clarity allows direct VA comparison"
+    }
+  },
+  "diagnosis": "PAM testing performed on both eyes after adequate dilation. Right eye predicted post-operative VA is 6/18, lower than the typical 6/6 expected after uncomplicated cataract surgery, likely reflecting reduced macular function from previous diabetic retinopathy. Left eye PAM result correlates reasonably with measured VA, supporting the reliability of the right eye result. For surgeon's review and patient counselling regarding realistic visual expectations after right eye cataract surgery.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be tested for PAM",
+      "Confirm pupils have been adequately dilated (minimum 30 minutes after dilating drops) before starting — check with nurse/doctor if dilation status is unclear",
+      "Explain the procedure to the patient: he will look into a machine and try to read letters on a chart, similar to a normal eye chart, but the light is projected past the cataract",
+      "Set up the PAM device and align it with the clearest part of the visualised cataract in the right eye (using the slit lamp-mounted PAM if available)",
+      "Project the Snellen chart image onto the retina and ask the patient to read the smallest line he can see, recording the predicted VA",
+      "Repeat for the left eye for comparison and to validate the reliability of the device for this patient",
+      "Document the predicted post-operative VA for each eye and the dilation details (drops used, time)",
+      "Note any relevant retinal history (e.g. past diabetic retinopathy) that may affect interpretation",
+      "Hand the PAM results to the surgeon for pre-operative counselling"
+    ],
+    "follow_up": [
+      "Surgeon to counsel patient on realistic visual expectations after right eye cataract surgery, given the reduced PAM prediction",
+      "Surgeon may consider additional pre-operative imaging (e.g. B-scan ultrasound) if the macula cannot be assessed and PAM result is uncertain",
+      "Proceed with biometry and surgical planning as appropriate"
+    ],
+    "patient_education": [
+      "Explain to the patient that this test gives the doctor an idea of how well his eye might see after the cataract is removed",
+      "Manage expectations: explain that because of his past diabetes-related eye changes, his vision may improve significantly but might not become perfectly clear even after successful surgery",
+      "Advise patient that his eyes will remain dilated and sensitive to light for a few hours, and he should avoid driving"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms both eyes are to be tested",
+        "Confirms adequate pupil dilation has been achieved before starting PAM testing",
+        "Reviews relevant history of diabetic retinopathy that may affect retinal function and interpretation of PAM results",
+        "Explains the procedure to the patient in understandable terms"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Confirms dilation status and timing before proceeding with PAM",
+        "Sets up and aligns the PAM device with the clearest visual axis through the cataract",
+        "Performs PAM testing on both eyes, using the better eye as a reliability check/reference",
+        "Documents the predicted post-operative VA for each eye accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands that PAM estimates retinal function/potential vision by bypassing the cataract",
+        "Recognises that a PAM result lower than expected for routine cataract surgery may indicate underlying retinal pathology (e.g. diabetic maculopathy)",
+        "Uses the better eye's PAM result, compared with its actual measured VA, to assess the reliability of the PAM prediction for this patient",
+        "Does not counsel the patient on definitive surgical outcomes independently — refers to surgeon"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents PAM results, dilation details, and relevant retinal history accurately for both eyes",
+        "Hands results to surgeon to support pre-operative counselling",
+        "Helps set realistic patient expectations regarding visual outcomes given the reduced PAM prediction",
+        "Provides appropriate post-dilation safety advice (light sensitivity, no driving)"
+      ]
+    }
+  }
+}

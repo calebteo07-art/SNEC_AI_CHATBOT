@@ -1,0 +1,105 @@
+{
+  "case_id": "case_ot_019_flare_test_uveitis_monitoring",
+  "title": "Measuring the Inflammation You Cannot See",
+  "difficulty": "intermediate",
+  "topic": "flare_test_uveitis_monitoring",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mr Benjamin Oh Wei Liang",
+    "age": 35,
+    "gender": "male",
+    "occupation": "software engineer",
+    "presenting_complaint": "Follow-up visit — known anterior uveitis right eye, on treatment, for flare measurement to monitor inflammation"
+  },
+  "history": {
+    "hpc": "Mr Oh was diagnosed with acute anterior uveitis in his right eye 3 weeks ago, presenting with redness, pain, and photophobia. He was started on intensive topical steroid drops with a tapering schedule. He reports his symptoms have improved significantly — pain and photophobia have largely resolved, though he notices mild residual blurring. He has been referred for a flare eye test to objectively measure the level of inflammation remaining in the anterior chamber before the doctor decides on tapering the steroid further.",
+    "pmhx": "Anterior uveitis right eye, first episode, diagnosed 3 weeks ago. No known systemic autoimmune disease (currently being investigated). No previous eye surgery.",
+    "family_hx": "Father has ankylosing spondylitis",
+    "medications": ["Prednisolone acetate 1% eye drops right eye, currently 4 times daily on taper", "Cyclopentolate 1% eye drops right eye OD"],
+    "social_hx": "Software engineer. Non-smoker. No known drug allergies."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2) — improved from 6/18 at diagnosis", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "17 mmHg (NCT) — slightly raised, possibly steroid-related", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Right eye: mild residual conjunctival injection, few fine keratic precipitates on corneal endothelium, pupil sluggish from cycloplegic. Left eye: normal.",
+    "fundus": "Not assessed today — anterior segment focus"
+  },
+  "investigations": {
+    "flare_test_right": {
+      "method": "Laser flare meter, non-contact, patient fixates on internal target while a low-power laser beam is passed through the anterior chamber",
+      "flare_value": "18.5 photon counts/ms (elevated)",
+      "previous_flare_value_3_weeks_ago": "45.2 photon counts/ms",
+      "result": "Significant reduction in flare compared to diagnosis, but still above normal range — indicates residual but improving anterior chamber inflammation"
+    },
+    "flare_test_left": {
+      "method": "Laser flare meter, non-contact",
+      "flare_value": "4.1 photon counts/ms (within normal range)",
+      "result": "Normal — no significant inflammation in left eye"
+    },
+    "iop_note": "Right eye IOP 17 mmHg, mildly elevated compared to left — to monitor for steroid-induced IOP rise given prolonged topical steroid use"
+  },
+  "diagnosis": "Flare eye test performed on both eyes using laser flare meter. Right eye flare value has decreased substantially from 45.2 to 18.5 photon counts/ms, indicating improving but still active anterior chamber inflammation. Left eye normal. For doctor's review regarding steroid tapering schedule and IOP monitoring.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be tested for comparison",
+      "Explain the procedure: a low-power laser beam (not visible/harmful) is passed through the front of the eye to measure protein levels, painless, non-contact",
+      "Set up the laser flare meter and enter patient details accurately",
+      "Position patient at chinrest with forehead against the rest in a darkened room for accurate measurement",
+      "Ask patient to fixate on the internal fixation target and keep the eye still during measurement",
+      "Take repeated measurements for the right (affected) eye and the left (unaffected) eye for comparison, recording the flare value in photon counts/ms for each",
+      "Retrieve the flare value from the diagnosis visit 3 weeks ago for comparison",
+      "Document IOP findings alongside flare results, given the patient is on intensive topical steroids",
+      "Print/document the report and hand to doctor, highlighting both the flare trend and the IOP value"
+    ],
+    "follow_up": [
+      "Doctor to review flare trend and decide on steroid tapering schedule",
+      "Doctor to review IOP given mild elevation on prolonged steroid use — may need to monitor for steroid response",
+      "Repeat flare test at next follow-up to continue tracking resolution of inflammation"
+    ],
+    "patient_education": [
+      "Explain that the flare value measures inflammation that may not be visible just by looking at the eye, helping guide how quickly to taper his steroid drops",
+      "Reinforce the importance of not stopping steroid drops abruptly, as this can cause rebound inflammation — follow the doctor's tapering schedule",
+      "Advise patient to report any new eye pain, redness, or visual changes promptly, as uveitis can recur"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and reviews the clinical context (known anterior uveitis on steroid taper)",
+        "Asks about current symptoms and compares with symptoms at diagnosis to gauge clinical improvement",
+        "Reviews current medication regimen, including steroid dose and tapering status",
+        "Explains the non-contact, painless nature of the flare test to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up the laser flare meter correctly in a darkened room and enters patient data accurately",
+        "Positions patient correctly and obtains stable fixation for accurate measurement",
+        "Tests both the affected and unaffected eye for comparison and takes repeated measurements",
+        "Documents flare values in correct units (photon counts/ms) and retrieves prior values for trend comparison"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that a decreasing flare value indicates improving anterior chamber inflammation",
+        "Identifies that the flare value remains above normal, indicating inflammation has not fully resolved",
+        "Notes the mildly elevated IOP in the right eye as a possible steroid response requiring monitoring",
+        "Does not adjust the steroid tapering schedule independently — refers trend data to doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents flare values and IOP for both eyes accurately, including trend comparison with prior visit",
+        "Hands report to doctor highlighting both the flare trend and the IOP finding",
+        "Educates patient on the importance of adherence to the steroid tapering schedule",
+        "Advises patient on symptoms of recurrence and when to seek urgent review"
+      ]
+    }
+  }
+}

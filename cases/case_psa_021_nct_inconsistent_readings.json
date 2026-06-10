@@ -1,0 +1,104 @@
+{
+  "case_id": "case_psa_021_nct_inconsistent_readings",
+  "title": "The Numbers Don't Match",
+  "difficulty": "intermediate",
+  "topic": "nct_inconsistent_readings",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Non-Contact Tonometry (SOP)",
+  "patient": {
+    "name": "Mr Yusof bin Ahmad",
+    "age": 67,
+    "gender": "male",
+    "occupation": "retired security officer",
+    "presenting_complaint": "Routine glaucoma suspect follow-up — IOP monitoring"
+  },
+  "history": {
+    "hpc": "Mr Yusof attends for routine IOP monitoring as a glaucoma suspect (raised IOP noted at a previous visit, currently under observation, not yet on treatment). During NCT, the PSA notices the readings for the right eye are unusually scattered: 14, 28, 17 mmHg across three attempts — a wider spread than typically expected. Mr Yusof appears anxious during the test, gripping the chair tightly, and the PSA notices he tends to blink hard or squeeze his eyes shut just as the air puff is released.",
+    "pmhx": "Glaucoma suspect (raised IOP on one previous occasion, optic discs and visual fields under monitoring, not yet diagnosed with glaucoma). Hypertension on medication. No diabetes.",
+    "family_hx": "No known family history of glaucoma.",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Retired security officer. Lives with wife. No known anxiety disorder, but reports disliking 'anything near my eyes' and finds the air-puff test uncomfortable."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/9 (LogMAR 0.18)"},
+    "iop": {
+      "right": "Initial three readings scattered (14, 28, 17 mmHg) — repeat set after troubleshooting: 16, 17, 16 mmHg — average of repeat set used (16 mmHg)",
+      "left": "17 mmHg — average of three readings (16, 17, 18), consistent on first attempt"
+    },
+    "anterior_segment": "Not assessed at this stage",
+    "fundus": "Not assessed at this stage — doctor to review"
+  },
+  "investigations": {
+    "nct": {
+      "right_initial_readings": "14 / 28 / 17 mmHg — wide scatter, considered unreliable",
+      "right_troubleshooting": "Observed patient blinking/squeezing eyes shut just before air puff release on at least 2 of 3 attempts; re-positioned patient, re-explained procedure, encouraged him to keep eyes open and relaxed, allowed a brief break",
+      "right_repeat_readings": "16 / 17 / 16 mmHg — consistent, average 16 mmHg used as the recorded result",
+      "left_readings": "16 / 17 / 18 mmHg — average 17 mmHg, consistent on first attempt, no troubleshooting needed",
+      "notes": "Right eye initial reading of 28 mmHg coincided with patient blinking hard during air puff release — discarded along with the full initial set due to overall inconsistency; repeat set after troubleshooting used for documentation"
+    }
+  },
+  "diagnosis": "NCT completed with troubleshooting required for the right eye due to inconsistent initial readings, attributed to patient blinking/squeezing eyes during air puff release. After re-positioning and reassurance, a consistent repeat set was obtained (average 16 mmHg). Left eye consistent on first attempt (average 17 mmHg). Results, including the troubleshooting performed, recorded for doctor review.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain the NCT procedure as usual, noting Mr Yusof's known discomfort with anything near his eyes",
+      "Perform hand hygiene and wipe the machine's contact parts with alcohol wipes",
+      "Position Mr Yusof at the machine and begin testing the right eye first as per convention",
+      "After obtaining three widely scattered readings (14, 28, 17 mmHg), recognise this as an unreliable result rather than simply averaging and recording it",
+      "Observe the patient during the next attempt — note that he blinks or squeezes his eyes shut just before the air puff is released",
+      "Troubleshoot: pause the test, reassure Mr Yusof calmly ('I noticed you're blinking just as the puff comes — that's very common, let's try again. There's nothing to be afraid of, it's just a quick puff of air.'), re-confirm correct positioning (forehead and chin rest, eyes open, fixating on the target), and offer a short break if needed",
+      "Repeat the NCT for the right eye after troubleshooting — obtain a new set of three readings",
+      "If the repeat readings are now consistent (e.g., 16, 17, 16 mmHg), use this set as the recorded result, and document both the initial unreliable set and the repeat set with an explanation",
+      "Proceed to test the left eye as normal — if consistent on the first attempt, no troubleshooting is needed",
+      "Wipe the machine's contact parts with alcohol wipes and perform hand hygiene after the test"
+    ],
+    "follow_up": [
+      "Document both the initial scattered readings and the repeat readings for the right eye, with a clear note explaining why the repeat set was used",
+      "Hand the completed IOP results, including the troubleshooting note, to the doctor for review",
+      "Flag for the doctor that the right eye required repeat measurement due to blink artefact — this may be relevant context for interpreting the result"
+    ],
+    "patient_education": [
+      "Reassure Mr Yusof that the test is now complete and that needing a few extra attempts is common and nothing to worry about",
+      "Do not tell him whether his IOP readings are 'normal' or 'high' — the doctor will review and explain",
+      "If he expresses ongoing anxiety about future tests, acknowledge this and let him know staff can take extra time with him at future visits"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and the purpose of the visit (glaucoma suspect monitoring)",
+        "Notes the patient's known discomfort with eye-related procedures before starting",
+        "Explains the procedure clearly, anticipating potential anxiety based on his history",
+        "Confirms no contact lenses are worn before NCT"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises that a wide spread of readings (e.g., 14/28/17) is unreliable and should not simply be averaged and recorded as-is",
+        "Identifies the likely cause (blinking/squeezing during air puff) through observation of the patient",
+        "Applies appropriate troubleshooting: reassurance, re-positioning, re-explanation, brief break before repeating",
+        "Obtains a consistent repeat set and uses this for the recorded result, while documenting both sets with an explanation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Does not record or report the unreliable initial readings as the patient's IOP without qualification",
+        "Does not interpret the IOP result (whether 16-17 mmHg is 'fine' for a glaucoma suspect) for the patient",
+        "Recognises that documenting the troubleshooting process is itself clinically useful information for the doctor",
+        "Understands that patient anxiety/behaviour can be a legitimate source of measurement artefact, not just equipment error"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Handles the patient's anxiety with empathy and practical reassurance during troubleshooting",
+        "Documents both the initial and repeat reading sets clearly, with an explanatory note",
+        "Hands over results with the troubleshooting context flagged for the doctor",
+        "Performs equipment cleaning and hand hygiene correctly before and after the procedure"
+      ]
+    }
+  }
+}

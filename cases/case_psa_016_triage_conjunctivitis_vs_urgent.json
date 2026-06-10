@@ -1,0 +1,103 @@
+{
+  "case_id": "case_psa_016_triage_conjunctivitis_vs_urgent",
+  "title": "Just Pink Eye, or Something More?",
+  "difficulty": "intermediate",
+  "topic": "triage_conjunctivitis_vs_urgent",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Ms Tan Hui Min",
+    "age": 26,
+    "gender": "female",
+    "occupation": "retail assistant",
+    "presenting_complaint": "Red, sticky right eye for 2 days, walked in without an appointment"
+  },
+  "history": {
+    "hpc": "Ms Tan walks into the clinic without an appointment, asking to be seen because her right eye has been red and producing yellowish discharge for the past 2 days, with her eyelashes crusted together when she wakes up. She reports mild irritation but denies pain, photophobia, or any change in vision. She mentions her young niece, whom she babysat over the weekend, had 'pink eye' from school. The PSA must triage her appropriately, distinguishing this presentation from more urgent red eye causes.",
+    "pmhx": "No known eye conditions. No contact lens use. No previous eye surgery. No known drug allergies.",
+    "family_hx": "Not relevant to this presentation",
+    "medications": [],
+    "social_hx": "Works in retail, in close contact with customers and colleagues. Lives with parents and young niece visits regularly."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0) — patient reports no change in vision", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not tested at triage", "left": "Not tested at triage"},
+    "anterior_segment": "Not assessed by PSA — triage observation only: right eye appears red with mucopurulent discharge and crusted lashes; no visible foreign body, no corneal opacity noted on gross observation",
+    "fundus": "Not assessed — not indicated at triage"
+  },
+  "investigations": {
+    "triage_assessment": {
+      "discharge": "Marked, mucopurulent, yellowish — present",
+      "photophobia": "None reported",
+      "pain": "None — only mild irritation/grittiness",
+      "visual_acuity": "Normal (6/6), no change reported",
+      "pupil": "Appears normal and reactive on gross observation",
+      "differential_pattern": "Discharge marked + no pain + no photophobia + normal VA + normal pupil — pattern most consistent with conjunctivitis rather than iritis, acute glaucoma, or keratitis",
+      "exposure_history": "Recent close contact with a child diagnosed with 'pink eye' — supports an infective conjunctivitis picture",
+      "triage_category_assigned": "Category 4 — within 2 hours (consistent with conjunctivitis)"
+    }
+  },
+  "diagnosis": "Triage assessment completed. Presentation pattern (marked discharge, no pain, no photophobia, normal VA, normal pupil, recent exposure to a child with conjunctivitis) is consistent with Category 4 (conjunctivitis) rather than a Category 1-3 urgent red eye. Provisional triage category assigned for nurse/doctor confirmation — PSA does not give a final diagnosis.",
+  "management": {
+    "immediate": [
+      "Approach Ms Tan calmly and ask her to describe her symptoms in her own words first, including onset, which eye(s), and any pain or vision changes",
+      "Systematically ask the key red-eye differentiating questions: Is there discharge? What does it look like? Any pain (and if so, how severe)? Any sensitivity to light? Any change in vision?",
+      "Ask about recent exposure to anyone with a similar 'red eye' or 'pink eye', and about contact lens use (she reports none)",
+      "Make a gross visual observation of the eye from a safe distance — note the type of discharge, presence of crusting, and overall appearance — without touching the eye",
+      "Confirm visual acuity is unaffected (6/6, no change) by asking the patient directly and/or a quick check if appropriate",
+      "Compare findings against the red-eye differential pattern: marked discharge + no pain + no photophobia + normal VA + normal pupil points away from iritis, acute glaucoma, and keratitis, and toward conjunctivitis",
+      "Assign a provisional triage category (Category 4 — conjunctivitis pattern, within 2 hours) based on the assessment",
+      "Advise Ms Tan on basic hygiene precautions while she waits, given the likely infective cause: avoid touching/rubbing the eye, wash hands frequently, avoid sharing towels",
+      "Hand the triage assessment to the nurse/doctor for confirmation, clearly documenting the symptoms, findings, and provisional category assigned"
+    ],
+    "follow_up": [
+      "Ensure the nurse or doctor confirms or revises the triage category before Ms Tan is seen",
+      "Document the exposure history (niece with 'pink eye') as it may be clinically relevant",
+      "If at any point Ms Tan reports new pain, photophobia, or visual change while waiting, immediately re-escalate and inform the nurse/doctor"
+    ],
+    "patient_education": [
+      "Advise Ms Tan that her symptoms will be assessed by the doctor shortly",
+      "Give general hygiene advice while waiting: avoid touching or rubbing the affected eye, wash hands after any contact with the eye, avoid sharing pillows/towels with family members",
+      "Do not tell her she 'has conjunctivitis' or that it is 'just pink eye' — this is for the doctor to confirm",
+      "If she develops new pain, blurred vision, or light sensitivity while waiting, tell staff immediately"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Systematically asks about discharge, pain, photophobia, and visual change — the key red-eye differentiating features",
+        "Asks about exposure history (contact with someone with similar symptoms) and contact lens use",
+        "Confirms which eye(s) are affected and the duration of symptoms",
+        "Takes the walk-in patient seriously and does not dismiss her based on her own self-diagnosis of 'pink eye'"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Makes a gross observation of the eye without touching it, noting discharge type and appearance",
+        "Confirms visual acuity is unaffected as part of the triage assessment",
+        "Systematically applies the red-eye differential pattern (discharge/pain/photophobia/VA/pupil) to support the triage decision",
+        "Documents all triage findings clearly and completely"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly identifies the pattern (marked discharge, no pain, no photophobia, normal VA, normal pupil) as consistent with conjunctivitis rather than iritis, acute glaucoma, or keratitis",
+        "Assigns an appropriate provisional triage category (Category 4) based on the SNEC triage framework",
+        "Frames the assessment as 'provisional' and for nurse/doctor confirmation — does not give the patient a final diagnosis",
+        "Recognises the exposure history as supporting evidence for an infective cause without over-stating certainty"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides appropriate hygiene advice while the patient waits, given a likely infective red eye",
+        "Sets up a clear safety-net: instructs the patient to alert staff immediately if symptoms change (new pain, photophobia, vision loss)",
+        "Documents and hands over the triage assessment with the provisional category for confirmation",
+        "Avoids alarming the patient while still treating the walk-in request seriously and efficiently"
+      ]
+    }
+  }
+}

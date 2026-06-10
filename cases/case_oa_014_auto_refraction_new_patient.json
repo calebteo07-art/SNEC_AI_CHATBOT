@@ -1,0 +1,95 @@
+{
+  "case_id": "case_oa_014_auto_refraction_new_patient",
+  "title": "First Visit, First Numbers",
+  "difficulty": "beginner",
+  "topic": "auto_refraction_new_patient",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Ms Priya d/o Manogaran",
+    "age": 23,
+    "gender": "female",
+    "occupation": "graphic design intern",
+    "presenting_complaint": "New patient referred by polyclinic for blurred distance vision, especially when driving at night — has never had a proper eye test before"
+  },
+  "history": {
+    "hpc": "Ms Priya reports that her distance vision has been gradually getting blurrier over the past 1-2 years, especially noticeable at night when driving — oncoming headlights appear to have 'starbursts' and road signs are hard to read until she is close. She has never worn glasses or contact lenses. She does not have eye pain, redness, or double vision. She was referred by her polyclinic doctor for a comprehensive eye assessment as a new patient at SNEC.",
+    "pmhx": "Nil significant medical or ocular history. No previous eye examinations.",
+    "family_hx": "Both parents wear glasses for myopia",
+    "medications": ["Nil"],
+    "social_hx": "Works as a graphic design intern — spends long hours on a computer. Drives occasionally at night. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18 unaided (LogMAR 0.5)", "left": "6/24 unaided (LogMAR 0.6)"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. Clear cornea and lens both eyes.",
+    "fundus": "Not yet assessed — to be done by doctor as part of new patient comprehensive examination"
+  },
+  "investigations": {
+    "auto_refraction": "RE: -2.25 / -0.50 x 180. LE: -2.75 / -0.75 x 175. Suggestive of myopia with mild astigmatism, both eyes.",
+    "auto_keratometry": "RE: K1 43.25D / K2 43.75D. LE: K1 43.00D / K2 43.50D. Corneal curvature within normal range, mild corneal astigmatism consistent with AR findings.",
+    "va_distance": "RE: LogMAR 0.5 (6/18) unaided. LE: LogMAR 0.6 (6/24) unaided. Pinhole testing performed as VA was 6/12 or above threshold for the worse eye is borderline — pinhole improved both eyes towards 6/6, suggesting refractive cause."
+  },
+  "diagnosis": "Uncorrected myopia with mild astigmatism, both eyes, in a new patient — consistent with her symptoms of blurred distance vision and night driving glare (starbursts). Pinhole improvement supports a refractive cause. For doctor review and formal subjective refraction.",
+  "management": {
+    "immediate": [
+      "Confirm this is a new patient visit and explain the sequence of tests that will be performed today",
+      "Perform AR/AK first (objective measurements) before VA testing with correction, as AR provides a useful starting point for refraction",
+      "Ensure patient removes any spectacles/contact lenses before AR/AK (none in this case, but confirm)",
+      "Wipe machine contact parts with alcohol wipes before and after, and perform hand hygiene",
+      "Perform unaided distance VA testing using the Modified LogMAR chart, right eye first",
+      "Apply pinhole since VA is reduced, to check for improvement suggesting refractive cause",
+      "Perform NCT for IOP as part of routine new patient workup",
+      "Document all findings (AR, AK, VA aided/unaided, pinhole result, IOP) clearly for the doctor"
+    ],
+    "follow_up": [
+      "Doctor/optometrist to perform subjective refraction to confirm final spectacle prescription",
+      "Doctor to complete comprehensive new patient assessment including fundus examination",
+      "Discuss options: spectacles vs contact lenses, given her symptoms with night driving"
+    ],
+    "patient_education": [
+      "Explain that the blurriness and night-time glare she describes are consistent with needing glasses for short-sightedness (myopia)",
+      "Reassure her this is very common and easily corrected with spectacles",
+      "Explain that today's machine readings (AR/AK) are a useful starting point, but the doctor/optometrist will fine-tune the exact prescription",
+      "Advise her to bring her current habitual prescription (if any) and any old glasses to future visits, though she has none currently"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes this is a first-ever eye examination — no previous correction",
+        "Asks about specific visual symptoms (gradual blurring, night driving glare/starbursts)",
+        "Asks about family history of refractive error (both parents myopic)",
+        "Confirms occupation/visual demands (computer work, occasional night driving) relevant to correction needs"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs AR and AK correctly: hand hygiene, alcohol wipe, removal of any correction, correct positioning and instructions",
+        "Performs unaided distance VA using Modified LogMAR chart, right eye first",
+        "Applies pinhole appropriately given reduced VA, and documents improvement",
+        "Performs and documents NCT for IOP as part of the new patient workup"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies the AR/AK results as consistent with myopia and mild astigmatism in both eyes",
+        "Connects the objective findings (AR/AK, pinhole improvement) with the patient's symptoms",
+        "Recognises pinhole improvement supports a refractive (not pathological) cause for reduced VA",
+        "Appropriately defers final prescription to subjective refraction by doctor/optometrist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents AR, AK, VA (aided/unaided), pinhole, and IOP results accurately and completely",
+        "Explains findings to the patient in clear, reassuring, non-technical language",
+        "Correctly sequences the new patient workup (AR/AK before VA with trial correction, etc.)",
+        "Hands over to doctor/optometrist for subjective refraction and comprehensive assessment"
+      ]
+    }
+  }
+}

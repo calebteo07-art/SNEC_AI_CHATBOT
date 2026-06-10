@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_013_amsler_grid_amd_monitoring",
+  "title": "The Lines Look Wavy Today",
+  "difficulty": "beginner",
+  "topic": "amsler_grid_amd_monitoring",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Eusoff bin Karim",
+    "age": 74,
+    "gender": "male",
+    "occupation": "retired taxi driver",
+    "presenting_complaint": "Routine follow-up for known dry age-related macular degeneration in both eyes — also mentions the lines on his kitchen tiles 'look a bit wavy' in his left eye over the past week"
+  },
+  "history": {
+    "hpc": "Mr Eusoff has known dry AMD in both eyes, diagnosed 3 years ago, and attends regular follow-ups. Today he mentions that over the past week, when he covers his right eye, the grout lines on his kitchen floor tiles appear 'wavy' or 'bent' when viewed with his left eye only. He has not noticed this with his right eye. He has no eye pain. He has been taking his AREDS2 vitamin supplements as advised.",
+    "pmhx": "Dry age-related macular degeneration, both eyes, diagnosed 3 years ago. Hypertension. Type 2 diabetes mellitus, diet-controlled.",
+    "family_hx": "Mother had 'eye problems in old age' — possibly AMD, not formally diagnosed",
+    "medications": ["AREDS2 vitamin supplement OD", "Amlodipine 5mg OD", "Metformin 500mg BD"],
+    "social_hx": "Retired. Lives with wife. Non-smoker (quit 20 years ago)."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2) — unchanged from last visit", "left": "6/12 (LogMAR 0.3) — slightly reduced from 6/9 at last visit"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. Early cataract changes noted previously, unchanged.",
+    "fundus": "To be assessed by doctor — patient reports new distortion in left eye, raising concern for possible conversion to wet AMD"
+  },
+  "investigations": {
+    "amsler_grid": "Right eye: patient reports straight lines, no distortion or missing areas, central dot visible — unchanged from baseline. Left eye: patient reports the horizontal and vertical lines near the centre appear wavy/bent, and there is a small area near the centre that looks slightly grey — this is a NEW finding compared to his last Amsler grid recorded 6 months ago.",
+    "va_distance": "RE: LogMAR 0.2 (6/9), unchanged. LE: LogMAR 0.3 (6/12), reduced from previous 6/9."
+  },
+  "diagnosis": "New metamorphopsia (wavy lines) and a central grey/missing area on Amsler grid testing in the left eye, together with a drop in VA from 6/9 to 6/12 — concerning for possible conversion of dry AMD to wet (neovascular) AMD in the left eye. Requires urgent doctor review and likely OCT imaging today.",
+  "management": {
+    "immediate": [
+      "Take a focused history: ask specifically about new distortion, missing areas, or sudden vision changes since the last visit",
+      "Perform Amsler grid testing one eye at a time, with the patient using their reading glasses if normally worn for near work, covering one eye and fixating on the central dot",
+      "Compare today's Amsler grid findings with the patient's previous recorded results",
+      "Measure VA in both eyes and compare with previous recorded values",
+      "Recognise that NEW distortion plus a drop in VA in a known AMD patient is a red flag for wet AMD conversion",
+      "Alert the doctor promptly that this patient has new Amsler grid changes and reduced VA — do not simply file this as a routine review",
+      "Document the Amsler grid findings clearly, including which areas of the grid were affected"
+    ],
+    "follow_up": [
+      "Doctor to examine the fundus and likely arrange urgent OCT macula imaging same day if possible",
+      "If wet AMD is confirmed, urgent referral for anti-VEGF intravitreal injection may be needed",
+      "Patient should be given a clear plan and timeline before leaving, given the urgency"
+    ],
+    "patient_education": [
+      "Explain that the wavy lines and grey patch he is noticing are important new symptoms that need to be checked promptly",
+      "Reassure him that the team is taking this seriously and will arrange further tests today",
+      "Teach him to continue checking each eye separately at home with the Amsler grid and to come in immediately if distortion worsens or new blank areas appear",
+      "Reinforce continued use of AREDS2 supplements as advised, pending doctor's review"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Specifically asks about any new visual symptoms since the last visit, including distortion or missing areas",
+        "Establishes which eye is affected and the duration of the new symptom (1 week, left eye only)",
+        "Reviews known AMD history and compares with previous documented findings",
+        "Confirms ongoing AREDS2 supplement use"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs Amsler grid testing correctly, one eye at a time, with near correction if used",
+        "Compares today's Amsler grid result with the previous recorded baseline",
+        "Measures VA in both eyes and notes the drop in left eye VA compared to baseline",
+        "Documents the specific location and nature of the distortion/grey area"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises new metamorphopsia plus a central grey area plus reduced VA as signs suggestive of wet AMD conversion",
+        "Understands this represents a change from the patient's stable baseline, not a routine finding",
+        "Does not dismiss the patient's report as 'just old age' or normal AMD progression without escalation",
+        "Recognises the urgency — this should not wait for the next routine appointment"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Alerts the doctor promptly with clear, specific findings (new distortion, VA drop, comparison to baseline)",
+        "Documents Amsler grid and VA findings accurately for comparison and handover",
+        "Supports urgent same-day escalation (e.g. OCT imaging) rather than routine follow-up",
+        "Educates the patient on home Amsler grid monitoring and when to seek urgent review"
+      ]
+    }
+  }
+}

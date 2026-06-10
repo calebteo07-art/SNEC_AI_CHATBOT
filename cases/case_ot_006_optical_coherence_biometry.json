@@ -1,0 +1,104 @@
+{
+  "case_id": "case_ot_006_optical_coherence_biometry",
+  "title": "A Painless Way to Measure the Eye",
+  "difficulty": "beginner",
+  "topic": "optical_coherence_biometry",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Basic Biometry",
+  "patient": {
+    "name": "Mdm Lee Geok Hoon",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for optical coherence biometry before left eye cataract surgery"
+  },
+  "history": {
+    "hpc": "Mdm Lee has a visually significant cortical cataract in her left eye that has been gradually worsening over the past year, causing glare while driving at night. She has been listed for left eye phacoemulsification with IOL implantation. The doctor has ordered optical coherence biometry (IOLMaster or equivalent) to calculate the IOL power, as her cornea is clear enough for the non-contact method. She has never had this test before and is slightly anxious about a 'machine touching her eye'.",
+    "pmhx": "Cataract left eye (cortical). Mild cataract right eye, not yet visually significant. No previous eye surgery. Mild hyperopia.",
+    "family_hx": "Sister had cataract surgery in her 60s",
+    "medications": ["Atorvastatin 20mg ON"],
+    "social_hx": "Retired teacher. Lives alone. Still drives during the day."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/24 (LogMAR 0.6)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Right eye: early cortical lens changes. Left eye: moderate cortical cataract, clear cornea.",
+    "fundus": "Right eye: normal. Left eye: hazy view due to cataract but no obvious posterior pathology"
+  },
+  "investigations": {
+    "optical_biometry": {
+      "right_axial_length": "23.10 mm",
+      "left_axial_length": "23.05 mm",
+      "corneal_power_K1": "44.10 D",
+      "corneal_power_K2": "44.85 D",
+      "anterior_chamber_depth_left": "3.05 mm",
+      "white_to_white_left": "11.8 mm",
+      "iol_power_calculated": "+22.0 D (left eye, SRK/T formula)",
+      "signal_quality": "Good signal-to-noise ratio bilaterally, no measurement excluded"
+    },
+    "va_distance": "RE: 6/9. LE: 6/24."
+  },
+  "diagnosis": "Optical coherence biometry completed successfully on both eyes via non-contact method. Left eye axial length, keratometry, anterior chamber depth, and white-to-white obtained with good signal quality. IOL power calculated for surgeon review for left eye phacoemulsification.",
+  "management": {
+    "immediate": [
+      "Confirm correct patient identity and confirm left eye is the surgical eye to be measured",
+      "Explain the procedure to patient: non-contact, no anaesthetic drops needed, patient just looks at a fixation light",
+      "Ask patient to remove contact lenses if worn (not applicable here, but check routinely)",
+      "Set up the optical biometer and enter patient details accurately into the system",
+      "Position patient comfortably with chin on chinrest and forehead against the rest, instruct to blink normally then keep eyes open and fixate on the target",
+      "Capture measurements for both eyes — axial length, keratometry, anterior chamber depth, white-to-white",
+      "Check signal quality indicator for each measurement; repeat any scan with poor signal",
+      "Take repeated measurements until consistent readings obtained, then select the best set",
+      "Print report including IOL power calculation and hand to doctor / upload to patient record"
+    ],
+    "follow_up": [
+      "Surgeon to review biometry results and confirm IOL power and formula",
+      "If signal quality remains poor due to dense cataract, contact (immersion) A-scan may be required as backup",
+      "Biometry data filed in pre-operative record"
+    ],
+    "patient_education": [
+      "Reassure patient that the machine does not touch the eye",
+      "Explain the test takes about 5-10 minutes and is painless",
+      "Tell patient that this measurement helps choose the correct lens implant for her surgery"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms correct patient identity and confirms which eye is the surgical eye",
+        "Asks about contact lens wear (soft lenses removed at least 1 week, RGP 2 weeks before accurate keratometry)",
+        "Asks about previous eye surgery, which can affect axial length and IOL calculation",
+        "Explains the non-contact nature of the test to reduce patient anxiety"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up optical biometer correctly and enters patient data accurately",
+        "Positions patient correctly at chinrest and obtains good fixation",
+        "Checks signal quality for each measurement and repeats poor-quality scans",
+        "Records axial length, keratometry (K1/K2), anterior chamber depth, white-to-white, and IOL power"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies that optical biometry is non-contact and generally preferred over A-scan when cornea is clear enough",
+        "Recognises that dense cataract may cause poor signal quality requiring contact A-scan as backup",
+        "Identifies the purpose: IOL power calculation for cataract surgery",
+        "Does not proceed with incorrect patient identity or wrong eye"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents all biometry parameters accurately and completely",
+        "Hands printed report to surgeon or uploads to records",
+        "Educates patient on the painless, non-contact nature of the test",
+        "Recognises when to escalate to contact A-scan if signal quality is inadequate"
+      ]
+    }
+  }
+}

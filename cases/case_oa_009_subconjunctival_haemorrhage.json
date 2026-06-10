@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_009_subconjunctival_haemorrhage",
+  "title": "The Bright Red Eye That Looked Worse Than It Was",
+  "difficulty": "beginner",
+  "topic": "subconjunctival_haemorrhage",
+  "role": "OA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Ms Farah binte Ahmad",
+    "age": 27,
+    "gender": "female",
+    "occupation": "primary school teacher",
+    "presenting_complaint": "Woke up this morning and saw in the mirror that the white of her left eye is completely bright red — she is very alarmed and walked in without an appointment"
+  },
+  "history": {
+    "hpc": "Ms Farah noticed on waking up this morning that the white part of her left eye looks completely bright red, like 'blood has filled the whole eye'. She has no pain, no change in vision, and no discharge. She did have a bad coughing fit yesterday evening due to a cold. She is very anxious, thinking something is seriously wrong with her eye, and came to SNEC directly without an appointment.",
+    "pmhx": "Nil significant. Mild upper respiratory tract infection (common cold) for the past 3 days, on over-the-counter cold medicine. No history of bleeding disorders. Not on blood thinners.",
+    "family_hx": "Nil significant",
+    "medications": ["Paracetamol 500mg PRN", "Over-the-counter cold/flu tablets"],
+    "social_hx": "Non-smoker. Came alone, quite anxious."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Left eye: well-demarcated bright red patch of blood under the conjunctiva over the temporal sclera, sparing the cornea. Conjunctiva otherwise white and quiet. Pupil normal, round, and reactive. Cornea clear. Right eye: normal.",
+    "fundus": "Not assessed — not indicated for this presentation"
+  },
+  "investigations": {
+    "va_distance": "RE: 6/6. LE: 6/6. Vision unaffected.",
+    "iop_nct": "RE: 16 mmHg. LE: 15 mmHg. Both within normal range.",
+    "blood_pressure": "Not yet checked — to be measured as part of routine assessment, especially given recurrent or spontaneous subconjunctival haemorrhage can sometimes be associated with hypertension"
+  },
+  "diagnosis": "Subconjunctival haemorrhage, left eye, likely related to the coughing fit yesterday. Vision and IOP normal, no pain, cornea clear. Triage Category 4 — reassurance and routine review; not an emergency.",
+  "management": {
+    "immediate": [
+      "Take a calm, structured history — ask about pain, vision change, discharge, and any preceding strain (coughing, sneezing, straining, rubbing)",
+      "Measure VA and IOP — both are normal, which is reassuring",
+      "Examine the eye to confirm the haemorrhage is confined under the conjunctiva, sparing the cornea, with a normal reactive pupil",
+      "Reassure the patient early — explain in simple terms what a subconjunctival haemorrhage is",
+      "Document findings and assign Triage Category 4",
+      "Check blood pressure as part of routine assessment and note for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to confirm diagnosis and advise on expected resolution timeline (usually 1-2 weeks)",
+      "If haemorrhage is recurrent or very extensive, doctor may consider checking for bleeding disorders or blood pressure issues",
+      "No specific treatment usually required"
+    ],
+    "patient_education": [
+      "Explain that a subconjunctival haemorrhage is just a small burst blood vessel under the clear surface of the eye, similar to a bruise on the skin",
+      "Reassure her it looks alarming but does not affect vision or harm the eye",
+      "Explain it will gradually change colour (like a bruise) and resolve on its own over 1-2 weeks",
+      "Advise her to avoid rubbing the eye and to return if she develops pain, vision changes, or recurrent episodes"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about pain, vision change, and discharge (all absent — reassuring)",
+        "Identifies a likely precipitant (coughing fit from her cold) for the haemorrhage",
+        "Asks about medications, especially anticoagulants/blood thinners (none in this case)",
+        "Approaches the anxious patient calmly and acknowledges her concern before proceeding"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes — confirms normal vision",
+        "Performs NCT — confirms normal IOP",
+        "Examines the eye to confirm haemorrhage is subconjunctival only, sparing the cornea, with normal pupil",
+        "Considers checking blood pressure as part of a thorough workup"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly identifies this as a subconjunctival haemorrhage, not an emergency",
+        "Recognises the absence of pain, vision change, and corneal involvement as reassuring features",
+        "Correctly assigns Triage Category 4",
+        "Does not over-investigate or alarm the patient unnecessarily"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides clear, reassuring patient education using simple language (e.g. 'like a bruise')",
+        "Explains the expected timeline for resolution",
+        "Documents findings and triage category appropriately",
+        "Gives safety-netting advice for recurrence or new symptoms"
+      ]
+    }
+  }
+}

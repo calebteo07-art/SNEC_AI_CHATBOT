@@ -1,0 +1,97 @@
+{
+  "case_id": "case_oa_017_hyphaema_blunt_trauma",
+  "title": "Hit by a Squash Ball",
+  "difficulty": "intermediate",
+  "topic": "hyphaema_blunt_trauma",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Aaron Goh Wei Ming",
+    "age": 19,
+    "gender": "male",
+    "occupation": "polytechnic student",
+    "presenting_complaint": "Was struck directly in the right eye by a squash ball during a game about 1 hour ago — eye is painful, red, and vision is blurry"
+  },
+  "history": {
+    "hpc": "Aaron was playing squash without protective eyewear when his opponent's shot struck him directly in the right eye at close range about an hour ago. He felt immediate sharp pain and his vision in that eye became blurry almost straight away, like 'looking through reddish fog'. He has mild ongoing pain (4/10), some sensitivity to light, and says he can see a 'line of blood' in the lower part of his right eye when he looks in the mirror. He did not lose consciousness and has no other injuries. He has not vomited.",
+    "pmhx": "Nil significant. No previous eye conditions. No known bleeding disorders. Not on any blood-thinning medication.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular medications"],
+    "social_hx": "Polytechnic student, plays squash recreationally. Came in with a teammate."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (LogMAR 0.6)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "24 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Right eye: conjunctival hyperaemia, a layer of blood (hyphaema) occupying approximately 20% of the anterior chamber inferiorly, pupil round but sluggish. No visible corneal laceration or irregular pupil to suggest globe rupture. Left eye: normal.",
+    "fundus": "Not assessed — view obscured by hyphaema; fundus assessment deferred"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.6 (6/24). LE: LogMAR 0.0 (6/6).",
+    "iop_nct": "RE: 24 mmHg (mildly elevated). LE: 15 mmHg (normal). Performed gently, confirming no signs of globe rupture before proceeding.",
+    "hyphaema_grading": "Approximately 20% fill of the anterior chamber inferiorly — graded as a small/partial (non-total) hyphaema by visual estimation, to be confirmed by doctor"
+  },
+  "diagnosis": "Traumatic hyphaema (partial, ~20%) with mildly elevated IOP, right eye, following blunt trauma from a squash ball. No signs of globe rupture. Triage Category 3 (small hyphaema) — within 60 minutes, but requires careful monitoring as hyphaemas can enlarge (re-bleed risk).",
+  "management": {
+    "immediate": [
+      "Take a focused history of the mechanism (direct blunt impact from squash ball, no protective eyewear) and time of injury",
+      "First exclude signs of a more severe injury (globe rupture, irregular pupil, visible laceration) before proceeding with VA/IOP — none found here",
+      "Measure VA in both eyes",
+      "Perform NCT gently — note mildly elevated IOP (24 mmHg) which can occur with hyphaema due to blood blocking the trabecular meshwork",
+      "Estimate and document the size of the hyphaema (approx. 20% fill, layered inferiorly)",
+      "Assign Triage Category 3 (small/partial hyphaema, non-total) — within 60 minutes",
+      "Advise the patient to remain upright/semi-reclined (not lying flat) while waiting, so the hyphaema layers inferiorly and does not obscure the visual axis or pupil",
+      "Document mechanism, time of injury, VA, IOP, and hyphaema size on the triage form"
+    ],
+    "follow_up": [
+      "Doctor to confirm hyphaema grading and assess for any associated injuries (e.g. lens subluxation, angle recession)",
+      "Doctor may prescribe topical steroids and cycloplegics, and advise activity restriction (no strenuous activity, no straining)",
+      "Patient to be counselled on signs of re-bleed (sudden increase in pain, sudden vision drop, increase in blood level) — re-bleed risk is highest in the first 5 days",
+      "IOP to be monitored closely over the following days as hyphaema can cause secondary glaucoma"
+    ],
+    "patient_education": [
+      "Advise him to avoid strenuous activity, heavy lifting, and straining for at least the next few days as advised by the doctor",
+      "Advise him to sleep with his head elevated (e.g. extra pillows) to help the blood settle",
+      "Explain warning signs of re-bleed: sudden worsening pain, sudden drop in vision, or the blood level rising — return immediately if these occur",
+      "Strongly recommend wearing protective eyewear for racquet sports in future, including for the unaffected eye"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes mechanism (direct blunt impact, squash ball, no eyewear) and time since injury",
+        "Asks about pain severity, photophobia, and vision change",
+        "Checks for any bleeding disorders or anticoagulant use (relevant to hyphaema management and re-bleed risk)",
+        "Asks about associated symptoms suggesting more severe injury (loss of consciousness, other facial injuries)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "First screens for signs of globe rupture before proceeding with VA/IOP testing",
+        "Measures VA in both eyes",
+        "Performs NCT gently and notes the mildly elevated IOP",
+        "Estimates and documents the size/extent of the hyphaema"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies this as a traumatic (partial) hyphaema with secondary IOP elevation",
+        "Distinguishes a small/partial hyphaema (Category 3) from a total hyphaema (Category 2)",
+        "Recognises the absence of globe rupture signs and documents this reasoning",
+        "Understands the clinical significance of an elevated IOP in the context of hyphaema"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Positions the patient appropriately (upright/semi-reclined, not flat) while waiting",
+        "Assigns the correct triage category (Category 3) and documents reasoning",
+        "Advises on activity restriction and re-bleed warning signs",
+        "Provides practical injury-prevention advice (protective eyewear for racquet sports)",
+        "Documents all findings clearly for doctor handover"
+      ]
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "case_id": "case_oa_015_eye_drop_instillation_teaching",
+  "title": "One Drop, Right Eye, Three Times a Day",
+  "difficulty": "beginner",
+  "topic": "eye_drop_instillation_teaching",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Lim Chin Huat",
+    "age": 70,
+    "gender": "male",
+    "occupation": "retired clerk",
+    "presenting_complaint": "Newly diagnosed with glaucoma in the right eye and prescribed eye drops for the first time — needs to learn how to use them correctly"
+  },
+  "history": {
+    "hpc": "Mr Lim was seen by the doctor today and diagnosed with primary open-angle glaucoma in the right eye. He has been prescribed latanoprost 0.005% eye drops, one drop to the right eye every night. He has never used eye drops before and is nervous about putting anything in his eye. He mentions he sometimes has trouble with his hands shaking slightly. He asks the OA to show him how to do it before he goes home.",
+    "pmhx": "Newly diagnosed primary open-angle glaucoma, right eye. Hypertension. Mild essential tremor in both hands (longstanding, not on treatment).",
+    "family_hx": "Father had glaucoma and used eye drops for many years",
+    "medications": ["Amlodipine 5mg OD", "New: Latanoprost 0.005% eye drops, one drop right eye at night"],
+    "social_hx": "Lives alone. Independent with daily activities but has mild hand tremor."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/7.5 (LogMAR 0.1)"},
+    "iop": {"right": "26 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally. No allergic conjunctivitis or signs of drop intolerance (first dose not yet given).",
+    "fundus": "Glaucomatous optic disc changes noted in right eye by doctor — cup-to-disc ratio increased compared to left"
+  },
+  "investigations": {
+    "iop_nct": "RE: 26 mmHg (elevated). LE: 19 mmHg (upper normal). Confirms need for IOP-lowering treatment in the right eye.",
+    "drop_technique_assessment": "Patient demonstrates instillation technique under OA supervision: initial attempt shows patient tilting head back insufficiently and aiming drop directly at the cornea, causing him to blink and miss. With coaching on pulling down the lower lid to create a pocket and aiming for the lower fornix, second attempt is successful with one drop correctly instilled into the lower conjunctival sac."
+  },
+  "diagnosis": "New diagnosis of primary open-angle glaucoma, right eye, IOP 26 mmHg, requiring topical latanoprost. Patient is a first-time eye drop user with mild hand tremor — correct instillation technique must be taught and confirmed before discharge.",
+  "management": {
+    "immediate": [
+      "Confirm the diagnosis, the eye to be treated (right eye only), the drop name, strength, and frequency (latanoprost 0.005%, one drop right eye at night)",
+      "Check the patient is not allergic to the medication or its preservatives",
+      "Explain the procedure step by step before demonstrating: wash hands, tilt head back or lie down, look up, gently pull down the lower eyelid to form a pocket, instil one drop into the lower fornix without touching the bottle tip to the eye or lashes",
+      "Demonstrate the technique using a practice/demo bottle if available, then observe the patient performing it themselves",
+      "Coach the patient through correction of his initial technique error (aiming at cornea instead of lower fornix)",
+      "Advise him to apply gentle pressure over the inner corner of the eye (nasolacrimal duct) for about 1 minute after instillation to reduce systemic absorption",
+      "Confirm the patient can correctly identify the right eye and demonstrate the technique successfully before he leaves",
+      "Document that drop teaching was given, technique demonstrated, and patient successfully return-demonstrated correct technique"
+    ],
+    "follow_up": [
+      "Doctor to review IOP response to latanoprost at next follow-up visit",
+      "If hand tremor makes instillation consistently difficult, consider involving a family member or exploring drop-aid devices at a future visit",
+      "Schedule follow-up appointment for IOP recheck"
+    ],
+    "patient_education": [
+      "Use latanoprost one drop in the right eye every night at the same time, even if the eye feels normal — glaucoma has no symptoms",
+      "Do not stop the drops without speaking to the doctor, even if vision seems fine",
+      "Store the drops as per the label instructions and note how long the bottle has been open",
+      "Common side effects include mild stinging, redness, and gradual darkening/lengthening of eyelashes — these are usually not concerning, but he should mention them at follow-up",
+      "If he has difficulty due to his hand tremor, he can ask a family member to help or discuss drop-aid devices with the team"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the new diagnosis, the correct eye, and the prescribed medication name/strength/frequency",
+        "Checks for known drug allergies before instillation",
+        "Identifies the patient's hand tremor as a factor that may affect his ability to self-administer drops",
+        "Establishes that this is the patient's first time using eye drops"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Reviews the documented IOP findings (26 mmHg right eye) that justify the new treatment",
+        "Assesses the patient's actual instillation technique through observation/return-demonstration, not just verbal explanation",
+        "Identifies the specific technique error (aiming at the cornea instead of the lower fornix)",
+        "Documents the outcome of the technique assessment"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this is a teaching/competency case, not a diagnostic dilemma — diagnosis (POAG, right eye) is already established",
+        "Identifies that correct technique is essential for the treatment to be effective",
+        "Recognises the hand tremor as a potential ongoing barrier to correct self-administration",
+        "Understands that confirming successful return-demonstration is part of safe discharge"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Follows the correct instillation procedure: confirm diagnosis/purpose/eye, check allergy, explain, demonstrate, supervise return-demonstration",
+        "Coaches the patient to correct his technique (lower fornix, not cornea) and confirms successful instillation",
+        "Teaches punctal occlusion (pressure on inner corner) to reduce systemic absorption",
+        "Provides clear medication adherence education appropriate for an asymptomatic chronic condition (glaucoma)",
+        "Documents teaching given and competency demonstrated"
+      ]
+    }
+  }
+}

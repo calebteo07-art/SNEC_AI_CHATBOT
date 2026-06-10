@@ -1,0 +1,99 @@
+{
+  "case_id": "case_psa_012_ishihara_colour_vision_screening",
+  "title": "Numbers in the Dots",
+  "difficulty": "beginner",
+  "topic": "ishihara_colour_vision_screening",
+  "role": "PSA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mr Muhammad Faiz bin Salim",
+    "age": 23,
+    "gender": "male",
+    "occupation": "trainee pilot",
+    "presenting_complaint": "Colour vision screening required as part of flight school medical examination"
+  },
+  "history": {
+    "hpc": "Mr Faiz has been referred by his flight school's medical examiner for formal colour vision screening using the Ishihara test, as part of his pilot medical certification. He has no visual symptoms and reports never having had a formal colour vision test before, though he recalls occasionally being teased as a child for mixing up the colours of certain markers.",
+    "pmhx": "No known eye conditions. No diabetes. No history of optic nerve disease.",
+    "family_hx": "Maternal uncle is known to be 'colour blind' according to the patient, though never formally tested.",
+    "medications": [],
+    "social_hx": "Trainee pilot undergoing flight school medical clearance. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested"},
+    "anterior_segment": "Not assessed — PSA role is colour vision screening for this visit",
+    "fundus": "Not assessed — not indicated for this visit"
+  },
+  "investigations": {
+    "ishihara_test": {
+      "right_eye": "Read 6 out of 17 plates correctly (with both eyes also tested together per protocol)",
+      "left_eye": "Read 6 out of 17 plates correctly",
+      "both_eyes": "Read 6 out of 17 plates correctly",
+      "method": "Standard 17-plate Ishihara pseudoisochromatic plate set, viewed in good natural daylight-equivalent lighting at the recommended distance, each plate shown for approximately 3 seconds"
+    }
+  },
+  "diagnosis": "Ishihara colour vision screening completed. Patient correctly identified 6 of 17 plates, which is below the typical pass threshold for normal colour vision. Result recorded for doctor/medical examiner review and certification — PSA does not interpret or certify colour vision status.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and the purpose of the visit (colour vision screening for flight school medical certification)",
+      "Explain the test: 'I will show you a series of plates with coloured dots. Please tell me the number you see in each plate, or tell me if you cannot see a number.'",
+      "Ensure the test is conducted in a well-lit room with lighting conditions appropriate for the Ishihara plates (avoid testing in dim or strongly tinted lighting)",
+      "Hold each plate at the recommended distance and angle, showing each plate for approximately 3 seconds",
+      "Record the patient's response for each plate as correct, incorrect, or 'no number seen'",
+      "Test in the order specified by the plate set, including the demonstration plate first",
+      "Tally the total number of plates read correctly out of the total number of plates",
+      "Avoid giving any verbal cues or reactions (positive or negative) to the patient's responses during the test",
+      "Record the result clearly on the form for the doctor or medical examiner"
+    ],
+    "follow_up": [
+      "Hand the completed Ishihara result to the doctor for review and certification purposes",
+      "Note on the form that this is for flight school medical examination purposes",
+      "If the doctor requests further colour vision testing (e.g., more detailed testing), assist as directed"
+    ],
+    "patient_education": [
+      "Inform Mr Faiz that the screening is complete and the results will be reviewed by the doctor as part of his medical examination",
+      "Do not tell him whether he has 'passed' or 'failed' or whether he has colour vision deficiency — this is for the doctor/medical examiner to determine and communicate",
+      "If he asks about the implications for his pilot training, advise him to discuss this with the medical examiner"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and the specific purpose of the visit (medical certification screening)",
+        "Notes relevant family history (maternal uncle reportedly colour blind) as background information only",
+        "Confirms no other visual symptoms requiring separate attention",
+        "Does not make assumptions about the result based on the family history before testing"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Conducts the test in appropriate lighting conditions as required for valid Ishihara results",
+        "Follows the correct plate sequence including the demonstration plate",
+        "Shows each plate for the standard duration and records each response accurately",
+        "Avoids giving verbal or non-verbal cues that could influence the patient's responses",
+        "Tallies and records the total score clearly (plates correct out of total)"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the result is below the typical normal threshold but does not state the patient has colour vision deficiency",
+        "Understands that formal certification of colour vision status is the medical examiner/doctor's responsibility",
+        "Does not speculate on implications for the patient's pilot training or career",
+        "Records the raw result objectively without added interpretation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the result accurately and completely for the doctor/medical examiner",
+        "Communicates next steps to the patient without revealing or interpreting the result",
+        "Maintains a neutral, professional manner throughout to avoid biasing the patient",
+        "Refers the patient's questions about career implications to the appropriate clinical authority"
+      ]
+    }
+  }
+}

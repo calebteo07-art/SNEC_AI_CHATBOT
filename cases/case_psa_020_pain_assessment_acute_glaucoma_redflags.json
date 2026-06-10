@@ -1,0 +1,102 @@
+{
+  "case_id": "case_psa_020_pain_assessment_acute_glaucoma_redflags",
+  "title": "A Headache That Started in the Eye",
+  "difficulty": "intermediate",
+  "topic": "pain_assessment_acute_glaucoma_redflags",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mdm Chong Mei Foong",
+    "age": 64,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Severe right eye pain with headache, nausea, and blurred vision since this afternoon"
+  },
+  "history": {
+    "hpc": "Mdm Chong presents to the clinic accompanied by her son, reporting severe pain in her right eye that started suddenly about 3 hours ago while she was watching a movie in a dark cinema. The pain has progressively worsened and is now associated with a severe headache on the right side, and she has vomited once on the way to the clinic. She describes the right eye pain as 'deep, like pressure pushing from inside', rated 9 out of 10. She also reports the right eye looks 'red' and her vision in that eye is blurry, and she sees 'rainbow-coloured rings' around lights. She denies any injury or foreign body sensation.",
+    "pmhx": "Long-standing hyperopia (farsightedness), wears reading glasses only. No diabetes. Hypertension on medication. No previous eye surgery or laser.",
+    "family_hx": "Sister has glaucoma (type unknown to patient).",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives with son's family. Was at the cinema (dark environment) when symptoms began."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (LogMAR 1.0) — markedly reduced, by patient report/quick check", "left": "6/9 (LogMAR 0.18)"},
+    "iop": {"right": "Not yet tested — to be prioritised", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed by PSA in detail — gross observation: right eye visibly red/injected, patient reports the right pupil 'looks bigger' than the left to her son; doctor to assess urgently",
+    "fundus": "Not assessed — not indicated at this stage, urgent doctor review required first"
+  },
+  "investigations": {
+    "pain_assessment": {
+      "pain_score": "9/10, right eye, described as deep pressure-type pain",
+      "associated_symptoms": "Severe headache (right-sided), nausea, one episode of vomiting, halos/rainbow rings around lights, markedly blurred vision right eye",
+      "onset_circumstances": "Sudden onset in a dark environment (cinema) — pupil dilation in low light is a recognised trigger for angle-closure",
+      "photophobia": "Mild to moderate, right eye",
+      "red_flag_pattern": "Severe pain + headache + nausea/vomiting + halos around lights + markedly reduced VA + onset in darkness — this combination is consistent with the red-flag pattern for acute angle-closure glaucoma (AACG) as per SNEC emergency criteria",
+      "triage_category_assigned": "Category 1 — severe eye pain with possible acute angle-closure glaucoma; assessment within 10 minutes"
+    }
+  },
+  "diagnosis": "Pain assessment reveals a red-flag symptom cluster (severe pain, headache, nausea/vomiting, halos, markedly reduced VA, onset in a dark environment) consistent with the acute angle-closure glaucoma pattern described in the SNEC emergency criteria. This is a Category 1 presentation requiring assessment within 10 minutes. PSA does not diagnose AACG — findings escalated immediately to nurse/doctor for urgent assessment.",
+  "management": {
+    "immediate": [
+      "Recognise the urgency immediately from the presenting symptoms — do not have this patient wait in the normal queue",
+      "Conduct a focused pain assessment: ask Mdm Chong to rate her pain (0-10), describe its character (deep, pressure-type) and exact location",
+      "Ask about associated symptoms specifically: headache, nausea, vomiting, and whether she sees halos or rainbow rings around lights",
+      "Ask about the circumstances of onset — note that sudden onset in a dark environment (cinema) is a recognised precipitant for acute angle-closure (pupil dilates in the dark)",
+      "Quickly assess vision in both eyes — note the marked reduction in the right eye",
+      "Make a gross observation of the right eye for redness and pupil appearance (son has noted the pupil 'looks bigger') without attempting detailed examination",
+      "Recognise this symptom cluster — severe pain + headache + nausea/vomiting + halos + reduced VA — as the red-flag pattern for acute angle-closure glaucoma described in the SNEC emergency framework",
+      "Assign Category 1 (assessment within 10 minutes) and alert the nurse-in-charge or duty doctor IMMEDIATELY — do not wait to complete full registration paperwork first",
+      "Keep Mdm Chong seated comfortably in a quiet area while waiting for urgent assessment — provide a vomit bag/basin given her nausea",
+      "Document the pain assessment, associated symptoms, and time of escalation clearly"
+    ],
+    "follow_up": [
+      "Ensure the duty doctor is aware this patient needs IOP measurement and assessment as a priority — IOP is likely to be a key finding",
+      "Stay with or near the patient until clinical staff take over, given her distress and nausea",
+      "Document the time symptoms started, time of arrival, and time escalated to clinical staff for the record"
+    ],
+    "patient_education": [
+      "Reassure Mdm Chong and her son that she will be seen urgently by the doctor because of how she is feeling",
+      "Do not name acute angle-closure glaucoma or any diagnosis to the patient or family — this is for the doctor to explain after assessment",
+      "Advise her to remain seated and avoid sudden movements given her nausea, and offer a basin if needed",
+      "Acknowledge her son's concern and explain that staff are prioritising her care because of her symptoms"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Conducts a focused pain assessment including pain score, character, and location",
+        "Specifically asks about associated red-flag symptoms: headache, nausea, vomiting, halos around lights",
+        "Elicits the circumstance of onset (dark cinema) as a relevant precipitating factor",
+        "Quickly establishes that vision is markedly reduced in the affected eye"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the cluster of symptoms (severe pain, headache, nausea/vomiting, halos, reduced VA) as the AACG red-flag pattern from the KB",
+        "Makes a gross observation of the eye (redness, pupil appearance) without delaying escalation for detailed examination",
+        "Documents the pain assessment and red-flag findings clearly and promptly",
+        "Does not perform routine VA/IOP testing in the normal sequence — recognises this patient needs to bypass the usual queue"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correctly assigns Category 1 (within 10 minutes) based on 'severe eye pain — possible acute angle-closure glaucoma'",
+        "Does not name or confirm a diagnosis to the patient or family",
+        "Recognises nausea/vomiting with severe eye pain as a specific red flag for AACG, not just 'a bad headache'",
+        "Understands that IOP measurement will be a priority for the doctor given this presentation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates to nurse-in-charge/duty doctor immediately, ahead of normal registration processes",
+        "Keeps the patient comfortable and safe while waiting (seated, basin for nausea, quiet area)",
+        "Documents timings and findings clearly for the clinical team",
+        "Communicates calmly and reassuringly with the patient and her son without revealing a diagnosis"
+      ]
+    }
+  }
+}

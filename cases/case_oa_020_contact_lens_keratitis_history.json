@@ -1,0 +1,98 @@
+{
+  "case_id": "case_oa_020_contact_lens_keratitis_history",
+  "title": "Three Days in the Same Lenses",
+  "difficulty": "intermediate",
+  "topic": "contact_lens_keratitis_history",
+  "role": "OA",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Ms Vanessa Tan Hui Min",
+    "age": 24,
+    "gender": "female",
+    "occupation": "flight stewardess",
+    "presenting_complaint": "Right eye has been painful, red, and watering since yesterday, with blurred vision and sensitivity to light — she wears monthly contact lenses"
+  },
+  "history": {
+    "hpc": "Vanessa wears monthly disposable soft contact lenses, but admits she often wears the same pair of lenses for 2-3 days continuously without removing them, including sleeping in them, especially during long-haul flights. She last changed her lenses 3 weeks ago. Yesterday she developed right eye pain (6/10), redness, watering, and noticed her vision was blurry. This morning the pain has worsened and she is now very sensitive to bright light. She topped up her contact lens solution in the case rather than replacing it fully, and sometimes uses tap water to rinse her lens case when travelling.",
+    "pmhx": "Myopia, both eyes, wears monthly soft contact lenses for about 5 years. No previous eye infections. No known drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Flight stewardess — frequent long-haul flights, often sleeps in contact lenses during flights. Single. Came in alone, removed her contact lenses just before arriving as they felt 'too uncomfortable'."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18 (LogMAR 0.5)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Deferred — examination findings take priority", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Right eye: marked conjunctival hyperaemia, a visible greyish-white corneal infiltrate/opacity centrally with overlying epithelial defect, significant photophobia and watering. Left eye: normal, no lens-related changes noted.",
+    "fundus": "Not assessed — anterior segment finding takes priority for urgent referral"
+  },
+  "investigations": {
+    "va_distance": "RE: LogMAR 0.5 (6/18), reduced. LE: LogMAR 0.0 (6/6), normal.",
+    "differential_assessment": "Marked pain, photophobia, reduced VA, corneal infiltrate with epithelial defect in a contact lens wearer with significant overwear and poor lens hygiene — pattern highly consistent with keratitis (possibly microbial), distinct from conjunctivitis (which would have marked discharge but normal VA/pupil/cornea)",
+    "contact_lens_history": "Lenses worn continuously 2-3 days at a time including overnight, lens case topped up rather than replaced, occasional tap water rinsing — multiple significant risk factors for microbial keratitis identified"
+  },
+  "diagnosis": "Suspected microbial keratitis, right eye, in a contact lens wearer with significant overwear, overnight wear, and poor lens hygiene practices. Triage Category 3 (painful red eye) at minimum, but a corneal infiltrate with epithelial defect in a contact lens wearer is a sight-threatening emergency requiring same-day urgent doctor assessment, and Section A of the SNEC Triage Form (contact lens user) should be flagged.",
+  "management": {
+    "immediate": [
+      "Take a detailed contact lens history: type of lens, wear schedule, replacement frequency, overnight wear, lens case hygiene, and use of tap water — all identified as abnormal here",
+      "Ask about onset, progression, pain severity, photophobia, and discharge",
+      "Measure VA in both eyes — note the significant reduction in the right eye",
+      "Examine the eye and document the corneal infiltrate and epithelial defect carefully without touching the cornea",
+      "Flag Section A of the SNEC Triage Form — this patient is a contact lens user with a painful red eye and corneal involvement",
+      "Advise the patient NOT to wear contact lenses in either eye until reviewed by the doctor",
+      "Ask the patient to bring her contact lenses, lens case, and solution if possible — these may be useful for the doctor/microbiology if cultures are needed",
+      "Escalate to the doctor promptly — a corneal infiltrate in a contact lens wearer requires urgent same-day assessment, not routine queueing",
+      "Document the full contact lens history and examination findings clearly"
+    ],
+    "follow_up": [
+      "Doctor to perform slit-lamp examination, likely take corneal scrapings for microbiology if microbial keratitis suspected",
+      "Likely intensive topical antibiotic treatment to be initiated urgently",
+      "Patient to be advised to discontinue contact lens wear in both eyes until the infection resolves and cleared by doctor",
+      "Close follow-up required — microbial keratitis can progress rapidly and threaten vision if untreated"
+    ],
+    "patient_education": [
+      "Explain that her symptoms may be due to an eye infection related to contact lens wear, and this needs urgent assessment and treatment",
+      "Educate on correct contact lens hygiene: never sleep in lenses unless specifically approved for extended wear, replace lenses on schedule, never top up old solution — always use fresh solution, never rinse lens cases with tap water",
+      "Advise her not to wear any contact lenses until the doctor confirms it is safe to resume",
+      "Explain the importance of completing the full course of any prescribed antibiotic drops and attending all follow-up appointments, as microbial keratitis can threaten vision if not properly treated"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Takes a detailed contact lens wear history: type, replacement schedule, overnight wear, lens case hygiene",
+        "Identifies multiple specific risk factors for microbial keratitis (overwear, sleeping in lenses, topping up solution, tap water use)",
+        "Asks about pain, photophobia, discharge, and vision change with onset/progression",
+        "Establishes contact lens use is directly relevant to the presenting complaint, not incidental"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures VA in both eyes and recognises the significant reduction in the affected eye",
+        "Observes and documents the corneal infiltrate and epithelial defect without touching the cornea",
+        "Recognises this presentation differs from conjunctivitis using the red eye differential (marked pain/photophobia, reduced VA vs conjunctivitis pattern)",
+        "Flags Section A (contact lens user) on the SNEC Triage Form"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies this as suspected microbial keratitis in a contact lens wearer",
+        "Recognises a corneal infiltrate with epithelial defect in a contact lens wearer as sight-threatening and requiring urgent same-day assessment",
+        "Correctly differentiates this from conjunctivitis or simple contact lens discomfort",
+        "Understands the multiple compounding risk factors increase the likelihood and severity of infection"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Advises the patient to stop contact lens wear immediately in both eyes",
+        "Escalates urgently to the doctor rather than placing in routine queue",
+        "Asks patient to retain lenses/case/solution for possible microbiology",
+        "Provides clear contact lens hygiene education to prevent recurrence",
+        "Documents the contact lens history and findings thoroughly for doctor handover"
+      ]
+    }
+  }
+}

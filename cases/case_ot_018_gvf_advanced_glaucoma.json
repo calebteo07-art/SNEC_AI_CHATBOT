@@ -1,0 +1,104 @@
+{
+  "case_id": "case_ot_018_gvf_advanced_glaucoma",
+  "title": "Mapping What Remains",
+  "difficulty": "intermediate",
+  "topic": "gvf_advanced_glaucoma",
+  "role": "OT",
+  "estimated_minutes": 20,
+  "patient": {
+    "name": "Mdm Zainab binte Karim",
+    "age": 79,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Follow-up visit — advanced bilateral glaucoma, referred for Goldmann Visual Field as automated perimetry has been unsuccessful"
+  },
+  "history": {
+    "hpc": "Mdm Zainab has advanced primary open-angle glaucoma in both eyes, with very constricted visual fields on previous testing. At her last two visits, she was unable to complete the Humphrey Visual Field test — she found the automated machine confusing, became fatigued quickly, and the results were unreliable with very high false negative rates. The doctor has now ordered a Goldmann Visual Field (GVF), which is a manual, examiner-led test, to better characterise her remaining field of vision.",
+    "pmhx": "Advanced POAG both eyes, diagnosed 15 years ago. Mild cognitive slowing noted by family. Hypertension. Cataract surgery both eyes 5 years ago.",
+    "family_hx": "Two siblings with glaucoma",
+    "medications": ["Latanoprost 0.005% eye drops both eyes nocte", "Timolol 0.5% eye drops both eyes BD", "Amlodipine 5mg OD"],
+    "social_hx": "Retired. Lives with daughter who accompanies her to all appointments. Uses a walking stick due to poor vision."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (LogMAR 0.6)", "left": "6/36 (LogMAR 0.78)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "Pseudophakic both eyes (previous cataract surgery), otherwise unremarkable",
+    "fundus": "C:D ratio 0.9 right, 0.95 left (per prior doctor's notes) — advanced glaucomatous cupping"
+  },
+  "investigations": {
+    "previous_hvf_attempts": "Two previous HVF 24-2 attempts both terminated early due to patient fatigue and false negative rates exceeding 30% — results deemed unreliable by doctor",
+    "gvf_right": {
+      "isopters_tested": "III4e, I4e, I2e",
+      "result": "Severe constriction of visual field to within approximately 10 degrees of fixation centrally, with a small temporal island of vision remaining",
+      "examiner": "Performed manually by orthoptist with patient's chin on chinrest, examiner moving test targets from non-seeing to seeing areas"
+    },
+    "gvf_left": {
+      "isopters_tested": "III4e, I4e, I2e",
+      "result": "Severe constriction of visual field to within approximately 5 degrees of fixation, with only a small central island remaining — tunnel vision pattern",
+      "examiner": "Performed manually by orthoptist with patient's chin on chinrest, examiner moving test targets from non-seeing to seeing areas"
+    }
+  },
+  "diagnosis": "Goldmann Visual Field performed successfully on both eyes after automated perimetry proved unreliable. Findings show severe constriction of visual fields bilaterally, with tunnel vision pattern in the left eye, consistent with advanced glaucomatous damage. For doctor's review regarding visual disability assessment and continued management.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain that today's test will be done differently from before — the examiner will move a light around and she just needs to say when she first sees it",
+      "Review previous HVF attempts and reliability issues to understand why GVF has been ordered as an alternative",
+      "Position patient comfortably at the Goldmann perimeter bowl with chin on chinrest and appropriate near correction in place if needed",
+      "Patch the eye not being tested",
+      "Select the appropriate test targets (isopters) as ordered, e.g. III4e, I4e, I2e, varying in size and brightness",
+      "Move each target slowly from the periphery (non-seeing area) towards the centre (seeing area) along multiple meridians, asking the patient to respond as soon as she sees it",
+      "Plot the points where the patient first responds for each target size/brightness to map the isopters",
+      "Allow rest breaks as needed given the patient's fatigue history, and proceed at a pace the patient can tolerate",
+      "Document the resulting field maps for both eyes and compare with any prior GVF if available",
+      "Hand the completed field charts to the doctor"
+    ],
+    "follow_up": [
+      "Doctor to review GVF results for assessment of visual disability/low vision support eligibility",
+      "Continue current IOP-lowering medications and monitor IOP closely",
+      "Consider referral to low vision services given the severity of field constriction"
+    ],
+    "patient_education": [
+      "Explain to the patient and her daughter that this test helps the doctor understand exactly how much side vision remains",
+      "Reassure the patient that there is no right or wrong answer and that taking her time is fine",
+      "Discuss home safety given the very constricted fields — daughter to be involved in safety planning (e.g. mobility aids, home modifications)"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and reviews why GVF has been ordered (failed/unreliable HVF attempts)",
+        "Explains the GVF procedure clearly, noting it is examiner-led and different from the automated test she struggled with",
+        "Considers the patient's fatigue and possible cognitive factors when planning the pace of testing",
+        "Involves the accompanying family member appropriately for communication and safety planning"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Positions patient correctly at the Goldmann perimeter with appropriate occlusion of the untested eye",
+        "Selects and uses appropriate test targets (isopters) of varying size/brightness as ordered",
+        "Correctly performs kinetic perimetry technique — moving targets from non-seeing to seeing areas and plotting response points",
+        "Allows rest breaks as needed and completes testing for both eyes, documenting the field maps"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises GVF as an appropriate alternative when automated perimetry (HVF) is unreliable due to patient factors",
+        "Identifies the severe constriction pattern (tunnel vision) as consistent with advanced glaucoma",
+        "Understands that GVF results are useful for visual disability/low vision assessment in addition to monitoring",
+        "Does not make disability determinations independently — refers to doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents GVF field maps clearly for both eyes and hands to doctor",
+        "Considers and discusses home safety and low vision support given the severity of field loss",
+        "Communicates with patience and appropriate pacing given the patient's fatigue and possible cognitive slowing",
+        "Engages the accompanying family member in education and safety discussion"
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "case_id": "case_psa_007_snellen_va_pinhole",
+  "title": "The Pinhole Difference",
+  "difficulty": "beginner",
+  "topic": "snellen_va_pinhole",
+  "role": "PSA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mdm Fatimah binte Yusof",
+    "age": 47,
+    "gender": "female",
+    "occupation": "tailor",
+    "presenting_complaint": "Reduced vision in the left eye noticed over the past few months, no glasses worn currently"
+  },
+  "history": {
+    "hpc": "Mdm Fatimah reports that her left eye vision has become noticeably blurry over the past 3-4 months, especially when threading needles or reading labels at her tailoring shop. She has never worn glasses. She is not sure if it is just 'old age eyes' or something else and is mildly anxious about whether she will need surgery.",
+    "pmhx": "No known eye conditions. No diabetes. Mild hypertension, diet-controlled.",
+    "family_hx": "Father had cataract surgery in his 60s.",
+    "medications": [],
+    "social_hx": "Works as a tailor — relies heavily on near and intermediate vision for her trade. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {
+      "right": "6/6 (LogMAR 0.0) unaided",
+      "left": "6/24 (LogMAR 0.6) unaided, improves to 6/9 (LogMAR 0.18) with pinhole"
+    },
+    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "anterior_segment": "Not assessed at this stage — PSA role is VA measurement only",
+    "fundus": "Not assessed — doctor to review"
+  },
+  "investigations": {
+    "snellen_va": {
+      "right_unaided": "6/6, no pinhole required (already 6/6 or better)",
+      "left_unaided": "6/24, pinhole improves to 6/9",
+      "method": "Snellen chart projector at 6 metres, right eye tested first, pinhole occluder applied to left eye as vision was reduced"
+    }
+  },
+  "diagnosis": "Snellen VA recorded: right eye 6/6 unaided, left eye 6/24 unaided improving to 6/9 with pinhole. The improvement with pinhole suggests the reduced left eye vision is at least partly refractive in origin, though the residual reduction (6/9 vs 6/6) may warrant further doctor assessment. Results recorded for doctor review.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain that you will be checking her vision using the Snellen chart on the wall",
+      "Perform hand hygiene and wipe the occluder with an alcohol wipe before starting",
+      "Position Mdm Fatimah at the standard 6-metre testing distance, seated comfortably",
+      "Test the right eye first — occlude the left eye and ask her to read the smallest line she can manage, letter by letter",
+      "Record the right eye result — since it is 6/6, no pinhole is needed for this eye",
+      "Test the left eye — occlude the right eye and ask her to read down the chart as far as possible",
+      "Because the left eye result is below 6/12, place the pinhole occluder over the left eye and ask her to read the chart again",
+      "Record the pinhole result for the left eye, noting any improvement",
+      "Wipe the occluder and pinhole with alcohol wipes and perform hand hygiene after the test"
+    ],
+    "follow_up": [
+      "Document all four results (RE unaided, LE unaided, LE with pinhole, and note RE pinhole not required) clearly in SCM",
+      "Hand the completed VA form to the doctor for review, noting the asymmetry between the two eyes",
+      "Flag that the left eye improved but did not fully reach 6/6 with pinhole"
+    ],
+    "patient_education": [
+      "Reassure Mdm Fatimah that the vision test has been completed and the doctor will review the results and explain what they mean",
+      "Do not tell her whether she needs glasses, surgery, or has a serious condition — this is for the doctor to discuss",
+      "Acknowledge her concern calmly: 'I understand this is worrying. The doctor will go through everything with you shortly.'"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity before starting the test",
+        "Notes that the patient has never worn glasses and identifies the affected eye from her description",
+        "Acknowledges the patient's anxiety appropriately without giving reassurance that implies a diagnosis",
+        "Records the occupation as relevant context (near-vision-dependent work) without over-interpreting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Tests the right eye first at the correct 6-metre Snellen distance",
+        "Occludes the non-tested eye correctly for each eye",
+        "Recognises that pinhole is indicated because the left eye is worse than 6/12",
+        "Does not apply pinhole to the right eye since it is already 6/6",
+        "Records both unaided and pinhole results in correct Snellen notation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that improvement with pinhole suggests a refractive component to the reduced vision",
+        "Notes that the left eye does not fully normalise with pinhole, which may need further doctor assessment",
+        "Does not diagnose cataract, refractive error, or any other condition to the patient",
+        "Correctly defers all interpretation to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and equipment cleaning before and after the test",
+        "Documents all results accurately and flags the asymmetry for doctor review",
+        "Manages the patient's anxiety with empathy without providing clinical interpretation",
+        "Maintains correct testing sequence and technique throughout"
+      ]
+    }
+  }
+}

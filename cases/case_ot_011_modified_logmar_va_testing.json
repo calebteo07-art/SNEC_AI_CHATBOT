@@ -1,0 +1,102 @@
+{
+  "case_id": "case_ot_011_modified_logmar_va_testing",
+  "title": "Reading the Chart, One Line at a Time",
+  "difficulty": "beginner",
+  "topic": "modified_logmar_va_testing",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mdm Chua Bee Choo",
+    "age": 60,
+    "gender": "female",
+    "occupation": "hawker stall assistant",
+    "presenting_complaint": "New patient — referred for general eye check-up, occasional blurred distance vision"
+  },
+  "history": {
+    "hpc": "Mdm Chua has noticed that road signs and bus numbers appear blurry from a distance over the past year. She does not own a pair of glasses. She has come to SNEC for the first time, referred by her GP after a community vision screening flagged reduced vision. She is to undergo Modified LogMAR distance visual acuity testing as part of her initial work-up before seeing the doctor.",
+    "pmhx": "No previous eye surgery. No known ocular disease. Type 2 diabetes diagnosed 3 years ago, on medication.",
+    "family_hx": "Father had cataract surgery in his 70s",
+    "medications": ["Metformin 500mg BD"],
+    "social_hx": "Works at a hawker stall. Does not currently wear any glasses."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (LogMAR 0.3, +1)", "left": "6/18 (LogMAR 0.48)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Early nuclear sclerosis bilaterally, otherwise unremarkable",
+    "fundus": "To be assessed by doctor — query diabetic retinopathy screening required"
+  },
+  "investigations": {
+    "modified_logmar_va": {
+      "right_unaided": "6/12, plus 1 letter on the 6/9 line (recorded as 6/12 +1)",
+      "left_unaided": "6/18",
+      "right_with_pinhole": "6/9 (improves with pinhole)",
+      "left_with_pinhole": "6/12 (improves with pinhole)",
+      "method": "Modified LogMAR (M&S System), tested at calibrated working distance, right eye first, occluder used and wiped with alcohol before and after",
+      "result": "Vision improves with pinhole in both eyes, suggesting refractive error as the main cause of reduced vision"
+    },
+    "near_va": "Not tested today — distance VA only as ordered"
+  },
+  "diagnosis": "Modified LogMAR distance visual acuity testing completed for both eyes. Vision is reduced unaided (6/12 right, 6/18 left) but improves significantly with pinhole, suggesting an uncorrected refractive error is the predominant cause. For doctor's review, including diabetic eye screening given her history of diabetes.",
+  "management": {
+    "immediate": [
+      "Perform hand hygiene and wipe the occluder with alcohol wipes before starting",
+      "Position patient comfortably facing the Modified LogMAR chart at the calibrated working distance (check the displayed working distance on screen)",
+      "Confirm patient is not wearing any glasses or contact lenses (none owned)",
+      "Test the right eye first by convention, occluding the left eye",
+      "Ask patient to read all 5 letters/numbers on each line from left to right, starting from the top (largest) line, proceeding down until she cannot read all 5 letters on a line",
+      "Document the last line on which all 5 letters were read correctly, noting any extra correct letters on the next line as +1, +2, etc.",
+      "Repeat the same process for the left eye, occluding the right eye",
+      "Since both eyes read 6/12 or worse, apply the pinhole occluder and repeat the test for each eye to assess for improvement",
+      "Wipe the occluder with alcohol wipes again and perform hand hygiene after the test",
+      "Document all results (unaided and pinhole) clearly for both eyes and pass to doctor"
+    ],
+    "follow_up": [
+      "Doctor to perform refraction to confirm spectacle prescription",
+      "Doctor to assess for diabetic retinopathy given her history of diabetes — fundus examination/dilated retinal photo may be ordered",
+      "Patient to be scheduled for spectacle dispensing if refraction confirms need"
+    ],
+    "patient_education": [
+      "Explain that the chart test helps find out how clearly she can see at a distance",
+      "Explain that the pinhole result suggests glasses may significantly improve her vision",
+      "Advise patient on the importance of regular diabetic eye screening, even without visual symptoms"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms whether patient wears any glasses or contact lenses",
+        "Explains the Modified LogMAR chart procedure clearly to a first-time patient",
+        "Notes relevant medical history (diabetes) that may affect overall eye assessment",
+        "Performs hand hygiene and wipes occluder with alcohol wipes before starting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Tests the right eye first by convention, with the other eye correctly occluded",
+        "Requires patient to read ALL 5 letters on a line before proceeding to the next line down, stopping at the first line not fully read",
+        "Documents the last completed line correctly, including any +1/+2/+3/+4 extra letters read on the next line",
+        "Applies pinhole correctly since vision is 6/12 or worse, and documents the pinhole result for each eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that improvement with pinhole indicates a refractive cause for reduced vision",
+        "Understands VA testing is a baseline measurement and does not replace formal refraction",
+        "Does not prescribe glasses independently — refers to doctor for refraction",
+        "Identifies the need for diabetic eye screening given the patient's history"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents unaided and pinhole VA results accurately for both eyes using correct notation",
+        "Wipes occluder with alcohol wipes before and after testing (infection control)",
+        "Hands results to doctor and flags diabetic history for retinal screening",
+        "Provides clear explanation to the patient about the purpose and result of the test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "case_id": "case_ot_016_versions_and_ductions",
+  "title": "Watching the Eyes Move Together",
+  "difficulty": "beginner",
+  "topic": "versions_and_ductions",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Orthoptics Skills Observation",
+  "patient": {
+    "name": "Miss Priya d/o Suresh",
+    "age": 8,
+    "gender": "female",
+    "occupation": "primary school student",
+    "presenting_complaint": "New patient — referred by school nurse for double vision when looking to the side"
+  },
+  "history": {
+    "hpc": "Priya's mother reports that Priya occasionally complains of 'seeing two of everything' when looking towards her left side, especially when tired in the evenings. This has been happening for about 2 months. There is no double vision when looking straight ahead or to the right. She has no headaches. She has been referred to the orthoptic clinic for an eye movement assessment (versions and ductions) before further work-up.",
+    "pmhx": "Born full term, normal delivery. No previous eye surgery. No known ocular disease. Has never worn glasses.",
+    "family_hx": "Nil significant — no known squint or eye movement problems in family",
+    "medications": ["Nil regular"],
+    "social_hx": "Primary 2 student. Lives with parents and one younger sibling."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "anterior_segment": "Normal bilaterally",
+    "fundus": "Normal bilaterally on doctor's examination"
+  },
+  "investigations": {
+    "versions_and_ductions": {
+      "method": "Patient asked to follow a target (toy/penlight) into the 9 cardinal positions of gaze with both eyes open (versions), then with one eye occluded at a time (ductions)",
+      "right_eye": "Full range of movement in all 9 positions of gaze, no restriction",
+      "left_eye": "Reduced abduction (limited movement outward/temporally) — left eye does not fully reach the left lateral position, mild under-action noted on left gaze",
+      "versions_finding": "On left gaze, the left eye lags behind the right eye, consistent with a left lateral rectus under-action",
+      "result": "Mild left lateral rectus under-action identified on versions and ductions testing — correlates with the patient's reported double vision on left gaze"
+    },
+    "cover_test_note": "Cover/uncover test not performed today — to be assessed at follow-up orthoptic visit"
+  },
+  "diagnosis": "Versions and ductions assessment completed. Findings show a mild left lateral rectus under-action, with the left eye failing to fully abduct on left gaze, consistent with the child's reported diplopia in left gaze. For doctor's review — further orthoptic and possibly neuro-ophthalmic work-up may be indicated.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and explain the test to Priya and her mother in simple, child-friendly terms ('follow the toy with your eyes without moving your head')",
+      "Seat the child comfortably at an appropriate height, with head held straight by the parent or examiner if needed to prevent head turning to compensate",
+      "Hold a fixation target (penlight or small toy) at an appropriate working distance and move it slowly into each of the 9 cardinal positions of gaze, observing both eyes together (versions)",
+      "Occlude one eye at a time and repeat the movements to assess each eye individually (ductions)",
+      "Observe and document any restriction, under-action, or over-action of eye movement in each position, for each eye",
+      "Note any compensatory head posture the child may adopt",
+      "Document findings clearly: which eye, which direction of gaze, and the nature of the restriction (under-action vs over-action)",
+      "Hand findings to doctor/orthoptist for further assessment"
+    ],
+    "follow_up": [
+      "Doctor/orthoptist to perform further assessment, including cover/uncover test and possibly imaging if a neurological cause is suspected",
+      "Priya may need follow-up to monitor for progression or resolution of the under-action",
+      "Parents to be counselled on what to observe at home (frequency and triggers of double vision)"
+    ],
+    "patient_education": [
+      "Explain to the parent in simple terms what was observed (the left eye does not move as far outward as the right eye in certain directions)",
+      "Reassure that this is being looked into further by the doctor and that early assessment is helpful",
+      "Advise parents to note down when Priya experiences double vision (time of day, activities, duration) to share at the next visit"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and explains the test in age-appropriate, child-friendly language",
+        "Elicits the specific direction of gaze associated with diplopia (left gaze) and timing (worse when tired)",
+        "Confirms visual acuity is normal in both eyes, establishing the issue is likely motility-related rather than refractive",
+        "Asks about any compensatory head posture the child may use"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs versions testing with both eyes open, observing movement into all 9 cardinal positions of gaze",
+        "Performs ductions testing with each eye occluded in turn to assess monocular movement",
+        "Identifies and documents the specific under-action (left lateral rectus, reduced abduction of left eye)",
+        "Documents findings systematically by eye and gaze direction"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Correlates the observed left lateral rectus under-action with the patient's reported diplopia on left gaze",
+        "Understands that versions/ductions testing is part of a broader orthoptic and neuro-ophthalmic work-up",
+        "Does not make a definitive neurological diagnosis independently — refers to doctor/orthoptist",
+        "Recognises the importance of further assessment (e.g. cover test) to fully characterise the deviation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the versions and ductions findings clearly and accurately for both eyes",
+        "Hands findings to doctor/orthoptist for further work-up",
+        "Communicates findings to the parent in clear, reassuring, age-appropriate language",
+        "Advises parents on useful observations to track before the next visit"
+      ]
+    }
+  }
+}
