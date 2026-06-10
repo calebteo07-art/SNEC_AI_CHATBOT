@@ -22,7 +22,10 @@ const sharedStripStyle: CSSProperties = {
   pointerEvents: "none",
 };
 
-export function GradientBackground({ className }: { className?: string }) {
+export function GradientBackground({ className, intensity = 0.29, fullBleed = false }: { className?: string; intensity?: number; fullBleed?: boolean }) {
+  // Shifts the sampled window of the repeating rainbow gradient toward the
+  // blue/violet/pink stops (instead of the default pink/red/orange band).
+  const stripPhaseShift = fullBleed ? 1100 : 0;
   return (
     <div
       className={cn("gem-gradient-canvas", className)}
@@ -41,7 +44,7 @@ export function GradientBackground({ className }: { className?: string }) {
         style={{
           position: "absolute",
           inset: 0,
-          opacity: 0.29,
+          opacity: intensity,
           pointerEvents: "none",
         }}
       >
@@ -50,8 +53,8 @@ export function GradientBackground({ className }: { className?: string }) {
           style={{
             position: "absolute",
             width: "calc(100% + 384px)",
-            height: "766px",
-            top: "-673px",
+            height: fullBleed ? "100%" : "766px",
+            top: fullBleed ? 0 : "-673px",
             left: "-192px",
             overflow: "hidden",
             filter: "blur(146px)",
@@ -64,7 +67,7 @@ export function GradientBackground({ className }: { className?: string }) {
               ...sharedStripStyle,
               width: "5760px",
               height: "3830px",
-              top: "-1149px",
+              top: `${-1149 + stripPhaseShift}px`,
               right: "-1440px",
               bottom: "-1149px",
               left: "-1440px",
@@ -76,7 +79,7 @@ export function GradientBackground({ className }: { className?: string }) {
               ...sharedStripStyle,
               width: "4224px",
               height: "4600px",
-              top: "-1380px",
+              top: `${-1380 + stripPhaseShift}px`,
               right: "-1056px",
               bottom: "-1380px",
               left: "-1056px",
