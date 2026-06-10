@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/AuthProvider";
 
 interface ApprovedStudent { email: string; full_name: string; role: string; added_by: string; added_at: string; student_id: string; }
@@ -64,8 +65,17 @@ function groupFeedByDate(items: FeedItem[]): { label: string; items: FeedItem[] 
 }
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const adminId = user?.studentId ?? "";
+
+  useEffect(() => {
+    if (!loading && user?.role !== "admin") {
+      router.replace("/dashboard");
+    }
+  }, [user, loading, router]);
+
+  if (loading || user?.role !== "admin") return null;
 
   const [tab, setTab] = useState<Tab>("overview");
 
