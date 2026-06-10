@@ -114,15 +114,15 @@ export default function ChatPage() {
   const msgCount = messages.filter(m => m.type === "user").length;
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-6 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
+    <div className="max-w-5xl mx-auto px-5 py-6 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0">
-          <Image src="/images/eye-hero.png" alt="AI Tutor" fill sizes="40px" className="object-cover" />
+        <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
+          <Image src="/images/eye-hero.png" alt="AI Tutor" fill sizes="48px" className="object-cover" />
         </div>
         <div>
-          <h1 className="gem-gradient-text text-[40px] font-medium tracking-[-0.04em] leading-none">AI Tutor</h1>
-          <p className="text-[#1F1F1F]/40 text-xs mt-1">Ophthalmology Educator · {msgCount} messages this session</p>
+          <h1 className="gem-gradient-text text-[56px] font-medium tracking-[-0.04em] leading-none">AI Tutor</h1>
+          <p className="text-[#1F1F1F]/40 text-sm mt-1">Ophthalmology Educator · {msgCount} messages this session</p>
         </div>
         {user?.studentRole && (
           <div className="ml-auto gem-glass rounded-full px-3 py-1 text-xs font-semibold text-[#1F1F1F]/60">
@@ -132,7 +132,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4 gem-glass rounded-[20px] p-4">
+      <div className="flex-1 overflow-y-auto space-y-4 mb-4 gem-glass rounded-[20px] p-5">
         {messages.map(m => (
           <div
             key={m.id}
@@ -143,7 +143,7 @@ export default function ChatPage() {
               {m.type === "ai" ? "EyeBot Tutor" : "You"}
             </div>
             <div
-              className="max-w-[80%] rounded-[16px] px-4 py-3 text-sm leading-relaxed"
+              className="max-w-[80%] rounded-[16px] px-4 py-3 text-[15px] leading-relaxed"
               style={{
                 background: m.type === "user" ? "#3C90FF" : "rgba(255,255,255,0.9)",
                 color: m.type === "user" ? "#FFFFFF" : "#1F1F1F",
@@ -178,7 +178,7 @@ export default function ChatPage() {
           <button
             key={s}
             onClick={() => sendMessage(s)}
-            className="gem-glass rounded-full px-3 py-1.5 text-xs text-[#1F1F1F]/60 hover:text-[#3C90FF] transition-colors"
+            className="gem-glass rounded-full px-4 py-2 text-sm text-[#1F1F1F]/60 hover:text-[#3C90FF] transition-colors"
           >
             {s}
           </button>
@@ -187,7 +187,7 @@ export default function ChatPage() {
 
       {/* Input */}
       <div
-        className="gem-glass rounded-[32px] flex gap-3 items-end px-4 py-3"
+        className="gem-glass rounded-[32px] flex gap-3 items-end px-5 py-3.5"
         style={{ boxShadow: "rgba(0,0,0,0.16) 0px 2px 8px -2px" }}
       >
         <textarea
@@ -197,14 +197,14 @@ export default function ChatPage() {
           onKeyDown={handleKeyDown}
           placeholder="Ask about any ophthalmic topic…"
           rows={1}
-          className="flex-1 bg-transparent text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/30 outline-none resize-none leading-relaxed"
+          className="flex-1 bg-transparent text-[#1F1F1F] text-[15px] placeholder:text-[#1F1F1F]/30 outline-none resize-none leading-relaxed"
         />
         <button
           onClick={() => sendMessage()}
           disabled={!input.trim() || isTyping || !!streamingId}
-          className="w-9 h-9 rounded-full bg-[#3C90FF] flex items-center justify-center shrink-0 hover:bg-[#5AA6FF] transition-colors disabled:opacity-40"
+          className="w-10 h-10 rounded-full bg-[#3C90FF] flex items-center justify-center shrink-0 hover:bg-[#5AA6FF] transition-colors disabled:opacity-40"
         >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 14L14 8L2 2V6.5L10 8L2 9.5V14Z" fill="#FFFFFF" />
           </svg>
         </button>

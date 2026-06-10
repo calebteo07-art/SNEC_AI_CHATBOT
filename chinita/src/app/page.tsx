@@ -24,7 +24,7 @@ interface LoginResult {
   full_name?: string; email?: string;
 }
 
-const inputCls = "w-full bg-white/70 border border-black/[0.08] rounded-[12px] px-4 py-3 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/25 outline-none focus:border-[#3C90FF]/30 transition-colors";
+const inputCls = "w-full bg-white/70 border border-black/[0.08] rounded-[12px] px-4 py-3.5 text-[#1F1F1F] text-base placeholder:text-[#1F1F1F]/25 outline-none focus:border-[#3C90FF]/30 transition-colors";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -148,32 +148,32 @@ export default function LoginPage() {
       </div>
 
       {/* Login card */}
-      <div className="relative z-10 w-full max-w-sm mx-4">
-        <div className="gem-glass rounded-[30px] overflow-hidden p-8">
+      <div className="relative z-10 w-full max-w-md mx-4">
+        <div className="gem-glass rounded-[30px] overflow-hidden p-10">
           {/* Logo */}
           <div className="mb-7">
-            <svg width="32" height="32" viewBox="0 0 28 28" fill="none" className="mb-3">
+            <svg width="40" height="40" viewBox="0 0 28 28" fill="none" className="mb-3">
               <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#3C90FF" strokeWidth="1.8" />
               <circle cx="14" cy="14" r="4.5" fill="#3C90FF" />
               <circle cx="15.5" cy="12.5" r="1.6" fill="rgba(255,255,255,0.5)" />
               <circle cx="14" cy="14" r="2" fill="white" />
             </svg>
-            <h1 className="gem-gradient-text text-[42px] font-medium tracking-[-0.04em] leading-none">EyeBot</h1>
-            <p className="text-[#1F1F1F]/35 text-xs mt-2 tracking-wide">an attentive tutor for the eye</p>
+            <h1 className="gem-gradient-text text-[52px] font-medium tracking-[-0.04em] leading-none">EyeBot</h1>
+            <p className="text-[#1F1F1F]/35 text-sm mt-2 tracking-wide">an attentive tutor for the eye</p>
           </div>
 
           {/* STEP: login */}
           {step === "login" && (
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-5">
               <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-5">Sign in to EyeBot</p>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
+                  <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@snec.com.sg" autoComplete="email" className={inputCls} />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
-                  <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Password</label>
+                  <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">Password</label>
                   <div className="relative">
                     <input
                       type={showPw ? "text" : "password"}
@@ -205,7 +205,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <button type="submit" disabled={submitting} className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2">
+              <button type="submit" disabled={submitting} className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3.5 text-base font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-2">
                 {submitting
                   ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   : <>Sign in <span>→</span></>}
@@ -215,7 +215,7 @@ export default function LoginPage() {
 
           {/* STEP: pdpa */}
           {step === "pdpa" && (
-            <form onSubmit={handlePdpa} className="space-y-4">
+            <form onSubmit={handlePdpa} className="space-y-5">
               <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Data consent</p>
               <div className="bg-black/[0.03] border border-black/[0.06] rounded-[12px] p-4 text-[#1F1F1F]/50 text-xs leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap">
                 {PDPA_TEXT}
@@ -225,7 +225,7 @@ export default function LoginPage() {
                 <span className="text-[#1F1F1F]/55 text-xs leading-relaxed">I consent to the collection and use of my data as described above.</span>
               </label>
               {errors.pdpa && <p className="text-red-500 text-xs">{errors.pdpa}</p>}
-              <button type="submit" className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors flex items-center justify-center gap-2">
+              <button type="submit" className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3.5 text-base font-semibold hover:bg-[#5AA6FF] transition-colors flex items-center justify-center gap-2">
                 Continue <span>→</span>
               </button>
             </form>
@@ -233,7 +233,7 @@ export default function LoginPage() {
 
           {/* STEP: role */}
           {step === "role" && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Your training track</p>
               <p className="text-[#1F1F1F]/40 text-xs leading-relaxed mb-4">Select your role — this scopes your cases, flashcards, and daily check-ins.</p>
               {ROLES.map(r => (
@@ -241,12 +241,12 @@ export default function LoginPage() {
                   key={r.id}
                   onClick={() => !submitting && handleRoleSelect(r.id)}
                   disabled={submitting}
-                  className="w-full text-left bg-black/[0.02] hover:bg-[#3C90FF]/[0.04] border border-black/[0.07] hover:border-[#3C90FF]/20 rounded-[16px] p-4 transition-all flex items-center gap-3 disabled:opacity-50"
+                  className="w-full text-left bg-black/[0.02] hover:bg-[#3C90FF]/[0.04] border border-black/[0.07] hover:border-[#3C90FF]/20 rounded-[16px] p-5 transition-all flex items-center gap-3 disabled:opacity-50"
                 >
                   <div className="flex-1">
-                    <div className="text-[#3C90FF] text-[10px] uppercase tracking-[0.14em] font-semibold mb-0.5">{r.label}</div>
-                    <div className="text-[#1F1F1F]/80 text-sm font-medium">{r.title}</div>
-                    <div className="text-[#1F1F1F]/40 text-xs mt-1 leading-relaxed">{r.desc}</div>
+                    <div className="text-[#3C90FF] text-xs uppercase tracking-[0.14em] font-semibold mb-0.5">{r.label}</div>
+                    <div className="text-[#1F1F1F]/80 text-base font-medium">{r.title}</div>
+                    <div className="text-[#1F1F1F]/40 text-sm mt-1 leading-relaxed">{r.desc}</div>
                   </div>
                   {submitting && selectedRole === r.id
                     ? <span className="w-4 h-4 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin shrink-0" />
@@ -258,18 +258,18 @@ export default function LoginPage() {
 
           {/* STEP: forgot */}
           {step === "forgot" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Reset password</p>
               <p className="text-[#1F1F1F]/40 text-xs leading-relaxed">Enter your email and we&apos;ll send a 6-digit code.</p>
               <div>
-                <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
+                <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">Email</label>
                 <input type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} placeholder="you@snec.com.sg" className={inputCls} />
               </div>
               {resetError && <p className="text-red-500 text-xs">{resetError}</p>}
               <button
                 type="button"
                 disabled={submitting}
-                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3.5 text-base font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 onClick={async () => {
                   if (!resetEmail.trim()) { setResetError("Please enter your email."); return; }
                   setResetError(""); setSubmitting(true);
@@ -290,7 +290,7 @@ export default function LoginPage() {
 
           {/* STEP: reset_code */}
           {step === "reset_code" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <p className="text-[#1F1F1F]/35 text-xs uppercase tracking-[0.14em] font-semibold mb-2">Enter reset code</p>
               {resetSuccess ? (
                 <div className="text-center py-4">
@@ -301,17 +301,17 @@ export default function LoginPage() {
                 </div>
               ) : (
                 <>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div>
-                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">6-digit code</label>
+                      <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">6-digit code</label>
                       <input type="text" value={resetOtp} onChange={e => setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" maxLength={6} className={`${inputCls} tracking-[0.3em]`} />
                     </div>
                     <div>
-                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">New password</label>
+                      <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">New password</label>
                       <input type="password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} placeholder="min 8 characters" className={inputCls} />
                     </div>
                     <div>
-                      <label className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Confirm password</label>
+                      <label className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.14em] font-semibold block mb-1.5">Confirm password</label>
                       <input type="password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} placeholder="repeat password" className={inputCls} />
                     </div>
                   </div>
@@ -319,7 +319,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     disabled={submitting}
-                    className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3.5 text-base font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     onClick={async () => {
                       if (resetOtp.length !== 6) { setResetError("Enter the 6-digit code."); return; }
                       if (resetPassword.length < 8) { setResetError("Password must be at least 8 characters."); return; }

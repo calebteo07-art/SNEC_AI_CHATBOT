@@ -80,24 +80,24 @@ export default function SupervisorPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-6">
+    <div className="max-w-6xl mx-auto px-6 py-12 lg:px-10 lg:py-16">
       {/* Header */}
-      <div className="flex items-end justify-between mb-8">
+      <div className="flex items-end justify-between mb-12">
         <div>
-          <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">Clinical Oversight</p>
-          <h1 className="gem-gradient-text text-[52px] font-medium tracking-[-0.04em] leading-none">Cohort Overview</h1>
+          <p className="text-[#1F1F1F]/50 text-xs uppercase tracking-[0.22em] font-semibold mb-2">Clinical Oversight</p>
+          <h1 className="gem-gradient-text text-[64px] sm:text-[80px] font-medium tracking-[-0.04em] leading-none">Cohort Overview</h1>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={fetchData}
-            className="gem-glass rounded-full px-3 py-2 text-xs text-[#1F1F1F]/50 hover:text-[#1F1F1F] transition-colors"
+            className="gem-glass rounded-full px-4 py-2.5 text-sm text-[#1F1F1F]/50 hover:text-[#1F1F1F] transition-colors"
           >
             ↺ Refresh
           </button>
           <button
             onClick={handleSendDigest}
             disabled={digestSending}
-            className="bg-[#3C90FF] text-white rounded-full px-4 py-2 text-xs font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50"
+            className="bg-[#3C90FF] text-white rounded-full px-5 py-2.5 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50"
           >
             {digestSending ? "Sending…" : digestStatus === "sent" ? "Sent!" : digestStatus === "error" ? "Failed" : "Send digest"}
           </button>
@@ -123,8 +123,8 @@ export default function SupervisorPage() {
       {/* AI narrative */}
       {insights && (
         <blockquote
-          className="border-l-2 border-[#3C90FF]/30 pl-6 mb-8 max-w-2xl"
-          style={{ fontSize: "1.15rem", lineHeight: 1.55, fontWeight: 400, color: "rgba(31,31,31,0.6)", fontStyle: "italic" }}
+          className="border-l-2 border-[#3C90FF]/30 pl-6 mb-10 max-w-3xl"
+          style={{ fontSize: "1.3rem", lineHeight: 1.55, fontWeight: 400, color: "rgba(31,31,31,0.6)", fontStyle: "italic" }}
         >
           &quot;{insights}&quot;
         </blockquote>
@@ -133,16 +133,16 @@ export default function SupervisorPage() {
       {cohort && (
         <>
           {/* KPI grid */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-4 mb-10">
             {[
               { label: "Total Students", value: cohort.total, icon: "👥", color: "#3C90FF" },
               { label: "Active This Week", value: cohort.active_this_week, icon: "⚡", color: "#22c55e" },
               { label: "At Risk", value: cohort.at_risk_count, icon: "⚠️", color: cohort.at_risk_count > 0 ? "#ef4444" : "#22c55e" },
             ].map(({ label, value, icon, color }) => (
               <div key={label} className="gem-glass rounded-[24px] p-6">
-                <div className="text-2xl mb-3">{icon}</div>
-                <div className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-2">{label}</div>
-                <div className="text-4xl font-medium tracking-[-0.03em]" style={{ color }}>{value}</div>
+                <div className="text-3xl mb-3">{icon}</div>
+                <div className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-2">{label}</div>
+                <div className="text-5xl font-medium tracking-[-0.03em]" style={{ color }}>{value}</div>
               </div>
             ))}
           </div>
@@ -150,12 +150,12 @@ export default function SupervisorPage() {
           {/* Weakest topics */}
           {cohort.weakest_topics.length > 0 && (
             <div className="gem-glass rounded-[24px] p-6 mb-6">
-              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-4">Weakest Topics</p>
+              <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-4">Weakest Topics</p>
               <div className="flex flex-wrap gap-2">
                 {cohort.weakest_topics.map((t, i) => (
                   <span
                     key={t}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold"
+                    className="px-4 py-2 rounded-full text-sm font-semibold"
                     style={{
                       background: `rgba(239,68,68,${0.15 - i * 0.02})`,
                       border: `1px solid rgba(239,68,68,${0.3 - i * 0.04})`,
@@ -172,19 +172,19 @@ export default function SupervisorPage() {
           {/* Benchmarks */}
           {benchmarks.length > 0 && (
             <div className="gem-glass rounded-[24px] p-6 mb-6">
-              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-4">Cohort Benchmarks</p>
-              <div className="space-y-3">
+              <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-4">Cohort Benchmarks</p>
+              <div className="space-y-4">
                 {benchmarks.map((b, i) => {
                   const pct = Math.round(b.avg_score * 100);
                   const color = scoreColor(pct);
                   return (
                     <div key={b.topic} className="flex items-center gap-4" style={{ animationDelay: `${i * 40}ms` }}>
-                      <span className="text-[#1F1F1F]/50 text-xs w-44 truncate text-right shrink-0">{topicLabel(b.topic)}</span>
-                      <div className="flex-1 h-2 bg-black/[0.06] rounded-full overflow-hidden">
+                      <span className="text-[#1F1F1F]/50 text-sm w-48 truncate text-right shrink-0">{topicLabel(b.topic)}</span>
+                      <div className="flex-1 h-2.5 bg-black/[0.06] rounded-full overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
                       </div>
-                      <span className="text-xs font-semibold shrink-0 w-10" style={{ color }}>{pct}%</span>
-                      <span className="text-[#1F1F1F]/25 text-xs shrink-0">{b.student_count}s</span>
+                      <span className="text-sm font-semibold shrink-0 w-12" style={{ color }}>{pct}%</span>
+                      <span className="text-[#1F1F1F]/25 text-sm shrink-0">{b.student_count}s</span>
                     </div>
                   );
                 })}
@@ -196,22 +196,22 @@ export default function SupervisorPage() {
           {atRisk.length > 0 && (
             <div className="gem-glass rounded-[24px] overflow-hidden">
               <div className="p-5 border-b border-black/[0.06]">
-                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">Students Needing Attention ({atRisk.length})</p>
+                <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold">Students Needing Attention ({atRisk.length})</p>
               </div>
               <div className="divide-y divide-black/[0.04]">
                 {atRisk.map(s => (
-                  <div key={s.student_id} className="flex items-center gap-4 p-4 hover:bg-black/[0.02] transition-colors">
-                    <div className="w-9 h-9 rounded-full bg-red-500/12 border border-red-500/20 flex items-center justify-center text-red-500 text-xs font-bold shrink-0">
+                  <div key={s.student_id} className="flex items-center gap-4 p-5 hover:bg-black/[0.02] transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-red-500/12 border border-red-500/20 flex items-center justify-center text-red-500 text-sm font-bold shrink-0">
                       {s.days_inactive}d
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[#1F1F1F]/70 text-sm font-medium">{s.student_id}</div>
-                      <div className="text-[#1F1F1F]/35 text-xs">{s.days_inactive} days inactive · {s.weak_count} weak topics</div>
+                      <div className="text-[#1F1F1F]/70 text-base font-medium">{s.student_id}</div>
+                      <div className="text-[#1F1F1F]/35 text-sm">{s.days_inactive} days inactive · {s.weak_count} weak topics</div>
                     </div>
                     {s.weak_topics.length > 0 && (
                       <div className="flex gap-1 flex-wrap justify-end max-w-[200px]">
                         {s.weak_topics.slice(0, 3).map(t => (
-                          <span key={t} className="bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-0.5 text-[9px] font-semibold text-amber-600">
+                          <span key={t} className="bg-amber-500/10 border border-amber-500/20 rounded-full px-2 py-0.5 text-[10px] font-semibold text-amber-600">
                             {topicLabel(t)}
                           </span>
                         ))}
@@ -225,7 +225,7 @@ export default function SupervisorPage() {
 
           {atRisk.length === 0 && !loading && (
             <div className="gem-glass rounded-[24px] p-8 text-center border-emerald-200">
-              <p className="text-emerald-600 text-sm font-medium">No at-risk students — great cohort health.</p>
+              <p className="text-emerald-600 text-base font-medium">No at-risk students — great cohort health.</p>
             </div>
           )}
         </>

@@ -46,12 +46,12 @@ export default function ProgressPage() {
   const today = new Date().getDay();
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-6">
+    <div className="max-w-6xl mx-auto px-6 py-12 lg:px-10 lg:py-16">
       {/* Hero */}
-      <div className="mb-8">
-        <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-2">SNEC Clinical Education</p>
-        <h1 className="gem-gradient-text text-[52px] font-medium tracking-[-0.04em] leading-none">My Progress</h1>
-        <p className="text-[#1F1F1F]/50 text-sm mt-2">
+      <div className="mb-12">
+        <p className="text-[#1F1F1F]/50 text-xs uppercase tracking-[0.22em] font-semibold mb-2">SNEC Clinical Education</p>
+        <h1 className="gem-gradient-text text-[64px] sm:text-[80px] font-medium tracking-[-0.04em] leading-none">My Progress</h1>
+        <p className="text-[#1F1F1F]/50 text-base mt-3">
           {velocity === "improving" ? "↑ Improving" : velocity === "declining" ? "↓ Needs attention" : "→ Stable"}
         </p>
       </div>
@@ -75,18 +75,18 @@ export default function ProgressPage() {
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left column */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {[
                 { label: "Day Streak", val: streak, unit: "days", color: "#f59e0b" },
                 { label: "Total Sessions", val: sessionCount, unit: "", color: "#3C90FF" },
                 { label: "Avg Accuracy", val: `${avgScore}%`, unit: "", color: avgScore >= 80 ? "#22c55e" : avgScore >= 60 ? "#f59e0b" : "#ef4444" },
                 { label: "Topics Studied", val: topicPerf.length, unit: "", color: "#a78bfa" },
               ].map(s => (
-                <div key={s.label} className="gem-glass rounded-[20px] p-4">
-                  <div className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.14em] font-semibold mb-2">{s.label}</div>
-                  <div className="text-2xl font-medium tracking-[-0.03em]" style={{ color: s.color }}>
+                <div key={s.label} className="gem-glass rounded-[24px] p-6">
+                  <div className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-2">{s.label}</div>
+                  <div className="text-4xl font-medium tracking-[-0.03em]" style={{ color: s.color }}>
                     {s.val}{s.unit ? ` ${s.unit}` : ""}
                   </div>
                 </div>
@@ -94,17 +94,17 @@ export default function ProgressPage() {
             </div>
 
             {/* 7-day calendar */}
-            <div className="gem-glass rounded-[20px] p-5">
+            <div className="gem-glass rounded-[24px] p-6">
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.16em] font-semibold">This Week</p>
-                <span className="text-[#1F1F1F]/30 text-xs">{weekHits.filter(Boolean).length}/7</span>
+                <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold">This Week</p>
+                <span className="text-[#1F1F1F]/30 text-sm">{weekHits.filter(Boolean).length}/7</span>
               </div>
               <div className="grid grid-cols-7 gap-1.5">
                 {DAY_LABELS.map((d, i) => (
                   <div key={i} className="text-center">
-                    <div className="text-[#1F1F1F]/30 text-[10px] mb-1.5">{d}</div>
+                    <div className="text-[#1F1F1F]/30 text-xs mb-1.5">{d}</div>
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold mx-auto"
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold mx-auto"
                       style={{
                         background: weekHits[i] ? ((1 + i) % 7 === today ? "#3C90FF" : "rgba(60,144,255,0.15)") : "rgba(0,0,0,0.04)",
                         color: weekHits[i] ? ((1 + i) % 7 === today ? "#FFFFFF" : "#3C90FF") : "rgba(0,0,0,0.2)",
@@ -121,12 +121,12 @@ export default function ProgressPage() {
             {/* Focus areas */}
             {(data.weak_topics ?? []).length > 0 && (
               <div>
-                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">Focus Areas</p>
+                <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-3">Focus Areas</p>
                 <div className="flex flex-wrap gap-2">
                   {data.weak_topics.map(t => (
                     <span
                       key={t}
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold"
+                      className="px-4 py-2 rounded-full text-sm font-semibold"
                       style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.25)", color: "#ef4444" }}
                     >
                       {topicLabel(t)}
@@ -141,30 +141,30 @@ export default function ProgressPage() {
           <div>
             {topicPerf.length > 0 ? (
               <>
-                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.16em] font-semibold mb-4">Topic Mastery</p>
-                <div className="gem-glass rounded-[20px] p-5 space-y-3">
+                <p className="text-[#1F1F1F]/40 text-xs uppercase tracking-[0.18em] font-semibold mb-4">Topic Mastery</p>
+                <div className="gem-glass rounded-[24px] p-6 space-y-4">
                   {[...topicPerf].sort((a, b) => b.score - a.score).map(({ topic, score }) => {
                     const pct = Math.round(score * 100);
                     const color = trackColor(topic);
                     const bg = trackBg(topic);
                     return (
                       <div key={topic} className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: bg }}>
-                          <svg width="12" height="12" viewBox="0 0 28 28" fill="none">
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: bg }}>
+                          <svg width="14" height="14" viewBox="0 0 28 28" fill="none">
                             <ellipse cx="14" cy="14" rx="9" ry="6" stroke={color} strokeWidth="1.8" />
                             <circle cx="14" cy="14" r="3.5" fill={color} />
                           </svg>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-[#1F1F1F]/70 text-xs font-medium truncate mb-1">{topicLabel(topic)}</div>
-                          <div className="h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
+                          <div className="text-[#1F1F1F]/70 text-sm font-medium truncate mb-1">{topicLabel(topic)}</div>
+                          <div className="h-2 bg-black/[0.06] rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-700"
                               style={{ width: `${pct}%`, background: color }}
                             />
                           </div>
                         </div>
-                        <div className="text-xs font-semibold shrink-0" style={{ color }}>{pct}%</div>
+                        <div className="text-sm font-semibold shrink-0" style={{ color }}>{pct}%</div>
                       </div>
                     );
                   })}

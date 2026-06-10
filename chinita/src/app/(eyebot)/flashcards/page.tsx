@@ -110,19 +110,19 @@ export default function FlashcardsPage() {
     });
 
     return (
-      <div className="max-w-md mx-auto px-5 py-12 text-center">
+      <div className="max-w-lg mx-auto px-5 py-12 text-center">
         <p className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-2">Session complete</p>
-        <h2 className="gem-gradient-text text-[48px] font-medium tracking-[-0.04em] leading-none mb-6">Well done</h2>
-        <div className="grid grid-cols-4 gap-3 mb-8">
+        <h2 className="gem-gradient-text text-[64px] font-medium tracking-[-0.04em] leading-none mb-6">Well done</h2>
+        <div className="grid grid-cols-4 gap-4 mb-8">
           {[
             { label: "Again", val: ratingCounts.again, color: "#ef4444" },
             { label: "Hard", val: ratingCounts.hard, color: "#f59e0b" },
             { label: "Good", val: ratingCounts.good, color: "#3C90FF" },
             { label: "Easy", val: ratingCounts.easy, color: "#22c55e" },
           ].map(({ label, val, color }) => (
-            <div key={label} className="gem-glass rounded-[16px] p-3 text-center">
-              <div className="text-2xl font-medium" style={{ color }}>{val}</div>
-              <div className="text-[10px] font-semibold mt-1" style={{ color }}>{label}</div>
+            <div key={label} className="gem-glass rounded-[20px] p-4 text-center">
+              <div className="text-3xl font-medium" style={{ color }}>{val}</div>
+              <div className="text-xs font-semibold mt-1" style={{ color }}>{label}</div>
             </div>
           ))}
         </div>
@@ -151,7 +151,7 @@ export default function FlashcardsPage() {
   const dotIdx = Math.min(idx, totalDots - 1);
 
   return (
-    <div className="max-w-2xl mx-auto px-5 py-4 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
+    <div className="max-w-3xl mx-auto px-5 py-4 flex flex-col" style={{ height: "calc(100vh - 0px)" }}>
       {/* Progress bar header */}
       <div className="flex items-center gap-4 mb-4">
         <button
@@ -171,7 +171,7 @@ export default function FlashcardsPage() {
             />
           ))}
         </div>
-        <span className="text-[#1F1F1F]/40 text-xs font-mono">{idx + 1}/{cards.length}</span>
+        <span className="text-[#1F1F1F]/40 text-sm font-mono">{idx + 1}/{cards.length}</span>
       </div>
 
       {/* Card */}
@@ -192,7 +192,7 @@ export default function FlashcardsPage() {
           </div>
 
           {/* Question */}
-          <p className="text-[#1F1F1F] text-lg font-medium leading-snug tracking-[-0.01em] mb-5">{card.question}</p>
+          <p className="text-[#1F1F1F] text-xl font-medium leading-snug tracking-[-0.01em] mb-5">{card.question}</p>
 
           {/* Pre-reveal: user attempt textarea */}
           {!revealed && (
@@ -244,11 +244,11 @@ export default function FlashcardsPage() {
                     <button
                       key={r.label}
                       onClick={() => handleRating(r.value)}
-                      className="py-3 rounded-[14px] text-center transition-all hover:scale-[1.03] active:scale-[0.97]"
+                      className="py-3.5 rounded-[14px] text-center transition-all hover:scale-[1.03] active:scale-[0.97]"
                       style={{ background: `${r.accent}12`, border: `2px solid ${r.accent}30` }}
                     >
-                      <div className="text-sm font-bold" style={{ color: r.accent }}>{r.label}</div>
-                      <div className="text-[9px] font-medium opacity-70 mt-0.5" style={{ color: r.accent }}>{r.caption}</div>
+                      <div className="text-base font-bold" style={{ color: r.accent }}>{r.label}</div>
+                      <div className="text-[10px] font-medium opacity-70 mt-0.5" style={{ color: r.accent }}>{r.caption}</div>
                     </button>
                   ))}
                 </div>
@@ -262,14 +262,14 @@ export default function FlashcardsPage() {
           {!revealed ? (
             <button
               onClick={reveal}
-              className="w-full py-3.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors"
+              className="w-full py-4 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors"
             >
               Reveal Answer
             </button>
           ) : (
             <button
               onClick={() => router.push("/dashboard")}
-              className="text-[#1F1F1F]/30 text-xs hover:text-[#1F1F1F]/60 transition-colors text-center"
+              className="text-[#1F1F1F]/30 text-sm hover:text-[#1F1F1F]/60 transition-colors text-center"
             >
               End session →
             </button>

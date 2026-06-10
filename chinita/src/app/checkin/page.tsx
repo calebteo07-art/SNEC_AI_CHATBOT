@@ -93,18 +93,18 @@ export default function CheckInPage() {
       </div>
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-md mx-4 animate-gem-fade-in-up">
+      <div className="relative z-10 w-full max-w-lg mx-4 animate-gem-fade-in-up">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-[16px] gem-glass flex items-center justify-center mx-auto mb-4">
-            <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+          <div className="w-16 h-16 rounded-[18px] gem-glass flex items-center justify-center mx-auto mb-4">
+            <svg width="30" height="30" viewBox="0 0 28 28" fill="none">
               <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#3C90FF" strokeWidth="1.8" />
               <circle cx="14" cy="14" r="4.5" fill="#3C90FF" />
               <circle cx="14" cy="14" r="2" fill="rgba(255,255,255,0.9)" />
             </svg>
           </div>
           <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-2">Daily Check-In</p>
-          <h1 className="text-[#1F1F1F] text-[36px] font-medium tracking-[-0.04em] leading-none">Today&apos;s question</h1>
+          <h1 className="text-[#1F1F1F] text-[44px] font-medium tracking-[-0.04em] leading-none">Today&apos;s question</h1>
 
           {streak > 0 && phase === "question" && (
             <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-[14px] p-3 flex items-center gap-3">
@@ -118,7 +118,7 @@ export default function CheckInPage() {
         </div>
 
         {/* Main card body */}
-        <div className="gem-glass rounded-[30px] p-6 overflow-hidden">
+        <div className="gem-glass rounded-[30px] p-8 overflow-hidden">
           {weakTopic && phase !== "loading" && (
             <div className="mb-5 pb-4 border-b border-black/[0.08]">
               <div className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.14em] font-semibold mb-1">Today&apos;s Focus</div>
@@ -142,7 +142,7 @@ export default function CheckInPage() {
               </p>
               <button
                 onClick={() => { setLoadError(false); setPhase("loading"); setLoadAttempt(a => a + 1); }}
-                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold mb-3 hover:bg-[#5AA6FF] transition-colors"
+                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-base font-semibold mb-3 hover:bg-[#5AA6FF] transition-colors"
               >
                 Try again
               </button>
@@ -163,13 +163,13 @@ export default function CheckInPage() {
                 onKeyDown={e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSubmit(); }}
                 placeholder="Type your answer…"
                 rows={4}
-                className="w-full bg-white/70 border border-black/10 rounded-[14px] px-4 py-3 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/30 outline-none focus:border-[#3C90FF]/40 transition-colors resize-none mb-4"
+                className="w-full bg-white/70 border border-black/10 rounded-[14px] px-4 py-3 text-[#1F1F1F] text-base placeholder:text-[#1F1F1F]/30 outline-none focus:border-[#3C90FF]/40 transition-colors resize-none mb-4"
                 autoFocus
               />
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !answer.trim()}
-                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-base font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -194,7 +194,7 @@ export default function CheckInPage() {
               </div>
               <button
                 onClick={() => router.push("/dashboard")}
-                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-sm font-semibold hover:bg-[#5AA6FF] transition-colors"
+                className="w-full bg-[#3C90FF] text-white rounded-[12px] py-3 text-base font-semibold hover:bg-[#5AA6FF] transition-colors"
               >
                 Start Learning →
               </button>

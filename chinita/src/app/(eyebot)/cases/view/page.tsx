@@ -170,20 +170,20 @@ function CaseSessionInner() {
       {caseInfo && (
         <div className="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-black/[0.08]">
           <div>
-            <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold">Patient</div>
-            <div className="text-[#1F1F1F] text-sm font-semibold">{caseInfo.patient.name}</div>
+            <div className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold">Patient</div>
+            <div className="text-[#1F1F1F] text-base font-semibold">{caseInfo.patient.name}</div>
           </div>
           <div>
-            <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold">Age</div>
-            <div className="text-[#1F1F1F] text-sm font-semibold">{caseInfo.patient.age} yr</div>
+            <div className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold">Age</div>
+            <div className="text-[#1F1F1F] text-base font-semibold">{caseInfo.patient.age} yr</div>
           </div>
           <div>
-            <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold">Topic</div>
-            <div className="text-[#3C90FF] text-sm font-semibold">{caseInfo.topic}</div>
+            <div className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold">Topic</div>
+            <div className="text-[#3C90FF] text-base font-semibold">{caseInfo.topic}</div>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold">Chief Complaint</div>
-            <div className="text-[#1F1F1F]/60 text-xs italic truncate">&quot;{caseInfo.patient.presenting_complaint}&quot;</div>
+            <div className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.14em] font-semibold">Chief Complaint</div>
+            <div className="text-[#1F1F1F]/60 text-sm italic truncate">&quot;{caseInfo.patient.presenting_complaint}&quot;</div>
           </div>
           <div className="ml-auto">
             <button
@@ -198,10 +198,10 @@ function CaseSessionInner() {
 
       <div className="flex gap-4" style={{ height: "calc(100vh - 260px)", minHeight: 400 }}>
         {/* Left panel */}
-        <div className="gem-glass rounded-[24px] overflow-hidden flex flex-col shrink-0" style={{ width: 220 }}>
+        <div className="gem-glass rounded-[24px] overflow-hidden flex flex-col shrink-0" style={{ width: 240 }}>
           {/* Anatomy banner */}
           <div className="relative h-24 shrink-0 overflow-hidden">
-            <Image src="/images/eye-anterior.png" alt="" fill sizes="220px" className="object-cover opacity-50" />
+            <Image src="/images/eye-anterior.png" alt="" fill sizes="240px" className="object-cover opacity-50" />
             <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent flex items-end p-3">
               <span className="text-[#1F1F1F]/50 text-[9px] uppercase tracking-[0.14em] font-semibold">Patient Guide</span>
             </div>
@@ -245,7 +245,7 @@ function CaseSessionInner() {
                         <span className="text-sm shrink-0 mt-px" style={{ color: ticked ? "#22c55e" : step.critical ? "#3C90FF" : "rgba(0,0,0,0.2)" }}>
                           {ticked ? "✓" : step.critical ? "●" : "○"}
                         </span>
-                        <span className="text-xs leading-snug" style={{ color: ticked ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.6)", textDecoration: ticked ? "line-through" : "none" }}>
+                        <span className="text-[13px] leading-snug" style={{ color: ticked ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.6)", textDecoration: ticked ? "line-through" : "none" }}>
                           {step.action}
                         </span>
                       </button>
@@ -380,9 +380,9 @@ function CaseSessionInner() {
 
         {/* Right panel — assessment */}
         {showRight && !result && (
-          <div className="gem-glass rounded-[24px] overflow-hidden flex flex-col shrink-0 p-4 space-y-3" style={{ width: 200 }}>
+          <div className="gem-glass rounded-[24px] overflow-hidden flex flex-col shrink-0 p-4 space-y-3" style={{ width: 220 }}>
             <div>
-              <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.12em] font-semibold block mb-1.5">Diagnosis</label>
+              <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.12em] font-semibold block mb-1.5">Diagnosis</label>
               <textarea
                 value={diagnosis}
                 onChange={e => setDiagnosis(e.target.value)}
@@ -392,7 +392,7 @@ function CaseSessionInner() {
               />
             </div>
             <div>
-              <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.12em] font-semibold block mb-1.5">Management</label>
+              <label className="text-[#1F1F1F]/35 text-[10px] uppercase tracking-[0.12em] font-semibold block mb-1.5">Management</label>
               <textarea
                 value={managementPlan}
                 onChange={e => setManagementPlan(e.target.value)}
