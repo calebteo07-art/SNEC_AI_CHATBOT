@@ -19,15 +19,15 @@ function getInitials(name: string) {
 }
 
 const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
-  OA:  { bg: "rgba(34,197,94,0.15)", color: "#22c55e" },
-  OT:  { bg: "rgba(167,139,250,0.15)", color: "#a78bfa" },
-  PSA: { bg: "rgba(52,211,153,0.15)", color: "#34d399" },
-  admin:      { bg: "rgba(244,239,231,0.1)", color: "#F4EFE7" },
-  supervisor: { bg: "rgba(96,165,250,0.15)", color: "#60a5fa" },
+  OA:  { bg: "rgba(34,197,94,0.12)", color: "#16a34a" },
+  OT:  { bg: "rgba(167,139,250,0.12)", color: "#7c3aed" },
+  PSA: { bg: "rgba(52,211,153,0.12)", color: "#059669" },
+  admin:      { bg: "rgba(60,144,255,0.1)", color: "#3C90FF" },
+  supervisor: { bg: "rgba(96,165,250,0.12)", color: "#2563eb" },
 };
 
 function RoleBadge({ role }: { role: string }) {
-  const c = ROLE_COLORS[role] ?? { bg: "rgba(244,239,231,0.08)", color: "rgba(244,239,231,0.5)" };
+  const c = ROLE_COLORS[role] ?? { bg: "rgba(0,0,0,0.06)", color: "rgba(0,0,0,0.4)" };
   return (
     <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: c.bg, color: c.color }}>
       {role}
@@ -69,14 +69,12 @@ export default function AdminPage() {
 
   const [tab, setTab] = useState<Tab>("overview");
 
-  // Overview
   const [cohort, setCohort] = useState<CohortData | null>(null);
   const [atRisk, setAtRisk] = useState<AtRiskItem[]>([]);
   const [totalTokens, setTotalTokens] = useState(0);
   const [aiInsight, setAiInsight] = useState("");
   const [overviewLoading, setOverviewLoading] = useState(true);
 
-  // Students
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [tokensByStudent, setTokensByStudent] = useState<Record<string, number>>({});
   const [studentsLoading, setStudentsLoading] = useState(false);
@@ -84,7 +82,6 @@ export default function AdminPage() {
   const [studentSearch, setStudentSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState<"all" | "OA" | "OT" | "PSA" | "at-risk">("all");
 
-  // Accounts
   const [approved, setApproved] = useState<ApprovedStudent[]>([]);
   const [approvedLoading, setApprovedLoading] = useState(true);
   const [newEmail, setNewEmail] = useState("");
@@ -106,7 +103,6 @@ export default function AdminPage() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Activity
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [feedLoading, setFeedLoading] = useState(false);
   const [feedLoaded, setFeedLoaded] = useState(false);
@@ -249,23 +245,23 @@ export default function AdminPage() {
     { key: "activity", label: "Activity" },
   ];
 
-  const inputCls = "w-full bg-[#F4EFE7]/5 border border-[#F4EFE7]/10 rounded-[12px] px-3 py-2.5 text-[#F4EFE7] text-sm placeholder:text-[#F4EFE7]/25 outline-none focus:border-[#F4EFE7]/25 transition-colors";
+  const inputCls = "w-full bg-white/70 border border-black/[0.08] rounded-[12px] px-3 py-2.5 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/30 outline-none focus:border-[#3C90FF]/30 transition-colors";
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-6">
       {/* Header */}
-      <h1 className="text-[#F4EFE7] text-[52px] font-medium tracking-[-0.04em] leading-none mb-6">Admin®</h1>
+      <h1 className="gem-gradient-text text-[52px] font-medium tracking-[-0.04em] leading-none mb-6">Admin</h1>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-8 p-1 rounded-full bg-[#F4EFE7]/5 border border-[#F4EFE7]/8 w-fit">
+      <div className="flex items-center gap-1 mb-8 p-1 rounded-full gem-glass w-fit">
         {TABS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => handleTabChange(key)}
             className="rounded-full px-4 py-1.5 text-sm font-semibold transition-all"
             style={{
-              background: tab === key ? "#F4EFE7" : "transparent",
-              color: tab === key ? "#181717" : "rgba(244,239,231,0.5)",
+              background: tab === key ? "#3C90FF" : "transparent",
+              color: tab === key ? "#FFFFFF" : "rgba(0,0,0,0.45)",
             }}
           >
             {label}
@@ -277,60 +273,60 @@ export default function AdminPage() {
       {tab === "overview" && (
         overviewLoading ? (
           <div className="flex justify-center py-16">
-            <span className="w-8 h-8 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin" />
+            <span className="w-8 h-8 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
           </div>
         ) : (
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {[
-                { label: "Total Students", val: cohort?.total_students ?? 0, color: "#60a5fa" },
+                { label: "Total Students", val: cohort?.total_students ?? 0, color: "#3C90FF" },
                 { label: "Active This Week", val: cohort?.active_this_week ?? 0, color: "#22c55e" },
                 { label: "At Risk", val: cohort?.at_risk_count ?? 0, color: "#ef4444" },
                 { label: "AI Tokens", val: fmtTokens(totalTokens), color: "#f59e0b" },
                 { label: "Momentum", val: "↑", color: "#a78bfa" },
               ].map(({ label, val, color }) => (
-                <div key={label} className="rounded-[20px] p-4" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-                  <div className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold mb-2">{label}</div>
+                <div key={label} className="gem-glass rounded-[20px] p-4">
+                  <div className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold mb-2">{label}</div>
                   <div className="text-2xl font-medium tracking-[-0.03em]" style={{ color }}>{val}</div>
                 </div>
               ))}
             </div>
 
             {aiInsight && (
-              <div className="rounded-[20px] p-5" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-                <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.16em] font-semibold mb-2">AI Insight</p>
-                <p className="text-[#F4EFE7]/60 text-sm leading-relaxed italic">&quot;{aiInsight}&quot;</p>
+              <div className="gem-glass rounded-[20px] p-5">
+                <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.16em] font-semibold mb-2">AI Insight</p>
+                <p className="text-[#1F1F1F]/60 text-sm leading-relaxed italic">&quot;{aiInsight}&quot;</p>
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-[20px] p-5" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-                <p className="text-red-400 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">At-Risk Students</p>
+              <div className="gem-glass rounded-[20px] p-5">
+                <p className="text-red-500 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">At-Risk Students</p>
                 {atRisk.length === 0 ? (
-                  <p className="text-[#F4EFE7]/25 text-sm">No at-risk students.</p>
+                  <p className="text-[#1F1F1F]/25 text-sm">No at-risk students.</p>
                 ) : (
                   <div className="space-y-2">
                     {atRisk.map(s => (
                       <div key={s.student_id} className="flex items-center justify-between">
-                        <span className="text-[#F4EFE7]/70 text-sm font-medium">{s.name}</span>
-                        <span className="text-[#F4EFE7]/30 text-xs">{s.days_inactive}d · {s.weak_topic_count} weak</span>
+                        <span className="text-[#1F1F1F]/70 text-sm font-medium">{s.name}</span>
+                        <span className="text-[#1F1F1F]/30 text-xs">{s.days_inactive}d · {s.weak_topic_count} weak</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="rounded-[20px] p-5" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-                <p className="text-amber-400 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">Weak Topics</p>
+              <div className="gem-glass rounded-[20px] p-5">
+                <p className="text-amber-600 text-[9px] uppercase tracking-[0.16em] font-semibold mb-3">Weak Topics</p>
                 {(cohort?.weakest_topics ?? []).length === 0 ? (
-                  <p className="text-[#F4EFE7]/25 text-sm">No data yet.</p>
+                  <p className="text-[#1F1F1F]/25 text-sm">No data yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {(cohort?.weakest_topics ?? []).slice(0, 5).map((t, i) => (
                       <div key={t} className="flex items-center gap-3">
-                        <div className="flex-1 h-1.5 bg-[#F4EFE7]/8 rounded-full overflow-hidden">
+                        <div className="flex-1 h-1.5 bg-black/[0.06] rounded-full overflow-hidden">
                           <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.max(20, 90 - i * 15)}%` }} />
                         </div>
-                        <span className="text-[#F4EFE7]/50 text-xs shrink-0 w-28 truncate">{t}</span>
+                        <span className="text-[#1F1F1F]/50 text-xs shrink-0 w-28 truncate">{t}</span>
                       </div>
                     ))}
                   </div>
@@ -358,8 +354,8 @@ export default function AdminPage() {
                   onClick={() => setStudentFilter(f)}
                   className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                   style={{
-                    background: studentFilter === f ? "#F4EFE7" : "rgba(244,239,231,0.08)",
-                    color: studentFilter === f ? "#181717" : "rgba(244,239,231,0.5)",
+                    background: studentFilter === f ? "#3C90FF" : "rgba(0,0,0,0.06)",
+                    color: studentFilter === f ? "#FFFFFF" : "rgba(0,0,0,0.45)",
                   }}
                 >
                   {f === "all" ? "All" : f === "at-risk" ? "At Risk" : f}
@@ -370,31 +366,31 @@ export default function AdminPage() {
 
           {studentsLoading ? (
             <div className="flex justify-center py-12">
-              <span className="w-6 h-6 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin" />
+              <span className="w-6 h-6 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="rounded-[20px] overflow-hidden" style={{ border: "1px solid rgba(244,239,231,0.08)" }}>
-              <div className="grid text-[9px] uppercase tracking-[0.14em] font-semibold text-[#F4EFE7]/30 px-4 py-2.5 border-b border-[#F4EFE7]/8"
+            <div className="gem-glass rounded-[20px] overflow-hidden">
+              <div className="grid text-[9px] uppercase tracking-[0.14em] font-semibold text-[#1F1F1F]/35 px-4 py-2.5 border-b border-black/[0.06]"
                 style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 1fr 1fr" }}>
                 <span>Name</span><span>Email</span><span>Role</span><span>Sessions</span><span>Streak</span><span>Tokens</span><span>Last Active</span>
               </div>
               {filteredStudents.map((s, i) => (
                 <div
                   key={s.student_id}
-                  className="grid items-center px-4 py-3 hover:bg-[#F4EFE7]/4 transition-colors border-b border-[#F4EFE7]/5 last:border-0"
+                  className="grid items-center px-4 py-3 hover:bg-black/[0.02] transition-colors border-b border-black/[0.04] last:border-0"
                   style={{ gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr 1fr 1fr", animationDelay: `${i * 20}ms` }}
                 >
-                  <span className="text-[#F4EFE7]/80 text-sm font-medium truncate">{s.full_name}</span>
-                  <span className="text-[#F4EFE7]/35 text-xs truncate">{s.email}</span>
+                  <span className="text-[#1F1F1F]/80 text-sm font-medium truncate">{s.full_name}</span>
+                  <span className="text-[#1F1F1F]/40 text-xs truncate">{s.email}</span>
                   <span><RoleBadge role={s.role} /></span>
-                  <span className="text-[#F4EFE7]/50 text-xs font-mono">{s.session_count}</span>
-                  <span className="text-[#F4EFE7]/50 text-xs font-mono">{s.streak}</span>
-                  <span className="text-[#60a5fa] text-xs font-mono font-semibold">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span>
-                  <span className="text-[#F4EFE7]/25 text-xs font-mono">{s.last_active?.slice(0, 10) || "—"}</span>
+                  <span className="text-[#1F1F1F]/50 text-xs font-mono">{s.session_count}</span>
+                  <span className="text-[#1F1F1F]/50 text-xs font-mono">{s.streak}</span>
+                  <span className="text-[#3C90FF] text-xs font-mono font-semibold">{fmtTokens(tokensByStudent[s.student_id] ?? 0)}</span>
+                  <span className="text-[#1F1F1F]/25 text-xs font-mono">{s.last_active?.slice(0, 10) || "—"}</span>
                 </div>
               ))}
               {filteredStudents.length === 0 && (
-                <div className="text-center py-10 text-[#F4EFE7]/25 text-sm">No students found.</div>
+                <div className="text-center py-10 text-[#1F1F1F]/25 text-sm">No students found.</div>
               )}
             </div>
           )}
@@ -406,20 +402,20 @@ export default function AdminPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Add one student */}
-            <div className="rounded-[24px] p-6" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-              <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Add One Student</p>
+            <div className="gem-glass rounded-[24px] p-6">
+              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Add One Student</p>
               <form onSubmit={handleAdd} className="space-y-3">
                 {[
                   { label: "Full name", val: newName, set: setNewName, type: "text", placeholder: "Jane Doe" },
                   { label: "Email", val: newEmail, set: setNewEmail, type: "email", placeholder: "jane@snec.com.sg" },
                 ].map(({ label, val, set, type, placeholder }) => (
                   <div key={label}>
-                    <label className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">{label}</label>
+                    <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">{label}</label>
                     <input type={type} value={val} onChange={e => set(e.target.value)} placeholder={placeholder} className={inputCls} />
                   </div>
                 ))}
                 <div>
-                  <label className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
+                  <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
                   <select value={newRole} onChange={e => setNewRole(e.target.value)} className={`${inputCls} cursor-pointer`}>
                     <option value="">Select role…</option>
                     <option value="OA">Ophthalmic Assistant (OA)</option>
@@ -427,54 +423,54 @@ export default function AdminPage() {
                     <option value="PSA">Patient Service Associate (PSA)</option>
                   </select>
                 </div>
-                {addError && <p className="text-red-400 text-xs">{addError}</p>}
-                <button type="submit" disabled={adding} className="w-full py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50">
+                {addError && <p className="text-red-500 text-xs">{addError}</p>}
+                <button type="submit" disabled={adding} className="w-full py-2.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50">
                   {adding ? "Adding…" : "Add Student"}
                 </button>
               </form>
               {addedCredential && (
                 <div className="mt-3 p-3 rounded-[12px] bg-green-500/10 border border-green-500/20">
-                  <p className="text-green-400 text-xs">Added. Credentials emailed to {addedCredential.email}.</p>
+                  <p className="text-green-600 text-xs">Added. Credentials emailed to {addedCredential.email}.</p>
                 </div>
               )}
             </div>
 
             {/* CSV import */}
-            <div className="rounded-[24px] p-6" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-              <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Bulk Import via CSV</p>
+            <div className="gem-glass rounded-[24px] p-6">
+              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-5">Bulk Import via CSV</p>
               <div
-                className="border-2 border-dashed border-[#F4EFE7]/12 rounded-[16px] p-8 text-center cursor-pointer hover:border-[#F4EFE7]/25 hover:bg-[#F4EFE7]/3 transition-colors"
+                className="border-2 border-dashed border-black/10 rounded-[16px] p-8 text-center cursor-pointer hover:border-[#3C90FF]/30 hover:bg-[#3C90FF]/[0.02] transition-colors"
                 onClick={() => fileInputRef.current?.click()}
                 onDragOver={e => e.preventDefault()}
                 onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
               >
-                <p className="text-[#F4EFE7]/50 text-sm font-medium mb-1">Drop CSV here or click to browse</p>
-                <p className="text-[#F4EFE7]/25 text-xs">Columns: full_name · email · role</p>
+                <p className="text-[#1F1F1F]/50 text-sm font-medium mb-1">Drop CSV here or click to browse</p>
+                <p className="text-[#1F1F1F]/30 text-xs">Columns: full_name · email · role</p>
                 <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }} onChange={e => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
               </div>
-              {csvPreview && <p className="mt-2 text-blue-400 text-xs">{csvPreview.count} students ready to import</p>}
+              {csvPreview && <p className="mt-2 text-[#3C90FF] text-xs">{csvPreview.count} students ready to import</p>}
               {csvFile && (
-                <button onClick={handleCsvImport} disabled={csvUploading} className="w-full mt-3 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50">
+                <button onClick={handleCsvImport} disabled={csvUploading} className="w-full mt-3 py-2.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50">
                   {csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} Students`}
                 </button>
               )}
               {csvImportSummary && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-green-400 text-xs">Imported: {csvImportSummary.imported}</p>
-                  {csvImportSummary.skipped > 0 && <p className="text-blue-400 text-xs">Skipped: {csvImportSummary.skipped}</p>}
-                  {csvErrors.map((e, i) => <p key={i} className="text-red-400 text-xs">Row {e.row}: {e.reason}</p>)}
+                  <p className="text-green-600 text-xs">Imported: {csvImportSummary.imported}</p>
+                  {csvImportSummary.skipped > 0 && <p className="text-[#3C90FF] text-xs">Skipped: {csvImportSummary.skipped}</p>}
+                  {csvErrors.map((e, i) => <p key={i} className="text-red-500 text-xs">Row {e.row}: {e.reason}</p>)}
                 </div>
               )}
               {csvCredentials.length > 0 && (
-                <div className="mt-4 rounded-[14px] overflow-hidden border border-[#F4EFE7]/10">
-                  <div className="px-4 py-2 border-b border-[#F4EFE7]/8">
-                    <p className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
+                <div className="mt-4 gem-glass rounded-[14px] overflow-hidden">
+                  <div className="px-4 py-2 border-b border-black/[0.06]">
+                    <p className="text-[#1F1F1F]/30 text-[9px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
                   </div>
-                  <div className="max-h-32 overflow-y-auto divide-y divide-[#F4EFE7]/5">
+                  <div className="max-h-32 overflow-y-auto divide-y divide-black/[0.04]">
                     {csvCredentials.map(c => (
                       <div key={c.email} className="flex items-center justify-between px-4 py-2">
-                        <span className="text-[#F4EFE7]/40 text-xs truncate">{c.email}</span>
-                        <span className="text-[#F4EFE7]/70 text-xs font-mono shrink-0 ml-3">{c.password}</span>
+                        <span className="text-[#1F1F1F]/40 text-xs truncate">{c.email}</span>
+                        <span className="text-[#1F1F1F]/70 text-xs font-mono shrink-0 ml-3">{c.password}</span>
                       </div>
                     ))}
                   </div>
@@ -484,33 +480,33 @@ export default function AdminPage() {
           </div>
 
           {/* Approved list */}
-          <div className="rounded-[24px] overflow-hidden" style={{ border: "1px solid rgba(244,239,231,0.08)" }}>
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#F4EFE7]/8">
-              <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">Approved Students ({approved.length})</p>
+          <div className="gem-glass rounded-[24px] overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.06]">
+              <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">Approved Students ({approved.length})</p>
             </div>
             {approvedLoading ? (
               <div className="flex justify-center py-8">
-                <span className="w-5 h-5 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
               </div>
             ) : (
-              <div className="divide-y divide-[#F4EFE7]/5">
+              <div className="divide-y divide-black/[0.04]">
                 {approved.map(s => (
-                  <div key={s.email} className="flex items-center gap-4 px-5 py-3 hover:bg-[#F4EFE7]/3 transition-colors">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold" style={{ background: "rgba(244,239,231,0.1)", color: "#F4EFE7" }}>
+                  <div key={s.email} className="flex items-center gap-4 px-5 py-3 hover:bg-black/[0.02] transition-colors">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold bg-[#3C90FF]/10 text-[#3C90FF]">
                       {getInitials(s.full_name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[#F4EFE7]/80 text-sm font-medium truncate">{s.full_name}</p>
-                      <p className="text-[#F4EFE7]/35 text-xs truncate">{s.email}</p>
+                      <p className="text-[#1F1F1F]/80 text-sm font-medium truncate">{s.full_name}</p>
+                      <p className="text-[#1F1F1F]/40 text-xs truncate">{s.email}</p>
                     </div>
                     <RoleBadge role={s.role} />
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.student_id ? "bg-green-500/12 text-green-400" : "bg-[#F4EFE7]/8 text-[#F4EFE7]/30"}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.student_id ? "bg-green-500/10 text-green-600" : "bg-black/[0.06] text-[#1F1F1F]/35"}`}>
                       {s.student_id ? "Active" : "Pending"}
                     </span>
                     <button
                       onClick={() => handleRemove(s.email)}
                       disabled={removing === s.email}
-                      className="text-[#F4EFE7]/20 hover:text-red-400 transition-colors disabled:opacity-40 shrink-0"
+                      className="text-[#1F1F1F]/20 hover:text-red-500 transition-colors disabled:opacity-40 shrink-0"
                     >
                       {removing === s.email ? (
                         <span className="w-3.5 h-3.5 border border-red-400/30 border-t-red-400 rounded-full animate-spin block" />
@@ -518,31 +514,31 @@ export default function AdminPage() {
                     </button>
                   </div>
                 ))}
-                {approved.length === 0 && <p className="text-center py-8 text-[#F4EFE7]/25 text-sm">No approved students yet.</p>}
+                {approved.length === 0 && <p className="text-center py-8 text-[#1F1F1F]/25 text-sm">No approved students yet.</p>}
               </div>
             )}
           </div>
 
           {/* Promote staff */}
-          <div className="rounded-[24px] p-6" style={{ background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" }}>
-            <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-4">Promote to Staff</p>
+          <div className="gem-glass rounded-[24px] p-6">
+            <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold mb-4">Promote to Staff</p>
             <form onSubmit={handlePromote} className="flex items-end gap-3 flex-wrap">
               <div className="flex-1 min-w-[200px]">
-                <label className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Staff email</label>
+                <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Staff email</label>
                 <input type="email" value={promoteEmail} onChange={e => setPromoteEmail(e.target.value)} placeholder="staff@snec.com.sg" className={inputCls} />
               </div>
               <div>
-                <label className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
+                <label className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5">Role</label>
                 <select value={promoteRole} onChange={e => setPromoteRole(e.target.value)} className={`${inputCls} cursor-pointer`} style={{ width: 140 }}>
                   <option value="supervisor">Supervisor</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              <button type="submit" disabled={promoting} className="px-5 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50">
+              <button type="submit" disabled={promoting} className="px-5 py-2.5 rounded-full bg-[#3C90FF] text-white text-sm font-semibold hover:bg-[#5AA6FF] transition-colors disabled:opacity-50">
                 {promoting ? "…" : "Promote"}
               </button>
             </form>
-            {promoteMsg && <p className="text-green-400 text-xs mt-3">{promoteMsg}</p>}
+            {promoteMsg && <p className="text-green-600 text-xs mt-3">{promoteMsg}</p>}
           </div>
         </div>
       )}
@@ -552,27 +548,27 @@ export default function AdminPage() {
         <div className="space-y-8">
           {feedLoading && (
             <div className="flex justify-center py-12">
-              <span className="w-6 h-6 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin" />
+              <span className="w-6 h-6 border-2 border-[#3C90FF]/20 border-t-[#3C90FF] rounded-full animate-spin" />
             </div>
           )}
           {!feedLoading && feed.length === 0 && (
-            <p className="text-center py-12 text-[#F4EFE7]/25 text-sm">No activity recorded yet.</p>
+            <p className="text-center py-12 text-[#1F1F1F]/25 text-sm">No activity recorded yet.</p>
           )}
           {!feedLoading && groupFeedByDate(feed).map(group => (
             <div key={group.label}>
               <div className="flex items-center gap-4 mb-3">
-                <span className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.18em] font-semibold shrink-0">{group.label}</span>
-                <div className="flex-1 h-px bg-[#F4EFE7]/8" />
+                <span className="text-[#1F1F1F]/35 text-[9px] uppercase tracking-[0.18em] font-semibold shrink-0">{group.label}</span>
+                <div className="flex-1 h-px bg-black/[0.06]" />
               </div>
               <div className="space-y-2">
                 {group.items.map((item, i) => {
                   const isCase = item.type === "case";
                   const failed = item.detail.startsWith("✗");
                   return (
-                    <div key={i} className="flex items-center gap-4 rounded-[16px] px-5 py-3.5 hover:bg-[#F4EFE7]/3 transition-colors" style={{ background: "rgba(244,239,231,0.03)", border: "1px solid rgba(244,239,231,0.06)" }}>
+                    <div key={i} className="gem-glass flex items-center gap-4 rounded-[16px] px-5 py-3.5">
                       <div
                         className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                        style={{ background: isCase ? (failed ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)") : "rgba(96,165,250,0.15)" }}
+                        style={{ background: isCase ? (failed ? "rgba(239,68,68,0.12)" : "rgba(34,197,94,0.12)") : "rgba(60,144,255,0.12)" }}
                       >
                         <span className="text-sm">
                           {isCase ? (failed ? "✗" : "✓") : "💬"}
@@ -580,14 +576,14 @@ export default function AdminPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-[#F4EFE7]/70 text-sm font-semibold shrink-0">{item.name}</span>
-                          <span className="text-[#F4EFE7]/40 text-sm truncate">{item.detail.replace(/^[✓✗]\s*/, "")}</span>
+                          <span className="text-[#1F1F1F]/70 text-sm font-semibold shrink-0">{item.name}</span>
+                          <span className="text-[#1F1F1F]/40 text-sm truncate">{item.detail.replace(/^[✓✗]\s*/, "")}</span>
                         </div>
                         {item.token_count ? (
-                          <p className="text-[#F4EFE7]/25 text-xs mt-0.5">{item.token_count.toLocaleString()} tokens</p>
+                          <p className="text-[#1F1F1F]/25 text-xs mt-0.5">{item.token_count.toLocaleString()} tokens</p>
                         ) : null}
                       </div>
-                      <span className="text-[#F4EFE7]/25 text-xs font-mono shrink-0">{formatFeedTime(item.timestamp)}</span>
+                      <span className="text-[#1F1F1F]/25 text-xs font-mono shrink-0">{formatFeedTime(item.timestamp)}</span>
                     </div>
                   );
                 })}
