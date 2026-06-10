@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useAuth } from "@/providers/AuthProvider";
 import { useProgress } from "@/hooks/useProgress";
-import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS } from "@/lib/curriculum";
+import { OA_TOPICS, OT_TOPICS, PSA_TOPICS } from "@/lib/curriculum";
 import { trackTokens } from "@/lib/trackColors";
 import type { Track } from "@/lib/curriculum";
 import { cn } from "@/lib/utils";
@@ -23,18 +23,11 @@ function scoreToStars(score: number): number {
   return 0;
 }
 
-function formatRelativeDate(ts: string): string {
-  const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 86_400_000);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
-  return `${diff}d ago`;
-}
-
 function StarRow({ stars, color }: { stars: number; color: string }) {
   return (
-    <div className="flex gap-0.5 mt-1">
+    <div className="flex gap-1 mt-1.5">
       {[1, 2, 3].map(i => (
-        <svg key={i} width="10" height="10" viewBox="0 0 14 14">
+        <svg key={i} width="16" height="16" viewBox="0 0 14 14">
           <polygon
             points="7,1.5 8.8,5.5 13,5.9 10,8.6 11,12.5 7,10.2 3,12.5 4,8.6 1,5.9 5.2,5.5"
             fill={i <= stars ? color : "rgba(0,0,0,0.12)"}
@@ -77,44 +70,43 @@ export default function DashboardPage() {
     };
   });
 
-  const recentSessions = (progress?.sessions ?? []).slice(0, 8);
   const xp = progress?.xp ?? 0;
   const streak = progress?.streak ?? 0;
   const hearts = progress?.hearts ?? 5;
 
   return (
-    <div className="max-w-4xl mx-auto px-5 py-6">
+    <div className="max-w-6xl mx-auto px-6 py-12 lg:px-10 lg:py-16">
       {/* Hero stats bar */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-12">
         <div>
-          <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">
+          <p className="text-[#1F1F1F]/50 text-xs uppercase tracking-[0.22em] font-semibold mb-2">
             {TRACK_LABELS[activeTrack]}
           </p>
-          <h1 className="gem-gradient-text text-[48px] font-medium tracking-[-0.04em] leading-none">
+          <h1 className="gem-gradient-text text-[64px] sm:text-[80px] font-medium tracking-[-0.04em] leading-none">
             Learn
           </h1>
         </div>
 
-        <div className="gem-glass rounded-full px-4 py-2 flex items-center gap-4 text-sm font-semibold text-[#1F1F1F]">
-          <span title="XP">⚡ {xp}</span>
+        <div className="gem-glass rounded-full px-7 py-4 flex items-center gap-6 text-lg font-semibold text-[#1F1F1F]">
+          <span title="XP" className="flex items-center gap-2">⚡ {xp}</span>
           <span className="text-black/20">·</span>
-          <span title="Streak">🔥 {streak}</span>
+          <span title="Streak" className="flex items-center gap-2">🔥 {streak}</span>
           <span className="text-black/20">·</span>
-          <span title="Hearts">❤️ {hearts}</span>
+          <span title="Hearts" className="flex items-center gap-2">❤️ {hearts}</span>
         </div>
       </div>
 
       {/* Track badge */}
       <div
-        className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-6 text-xs font-semibold"
+        className="inline-flex items-center gap-2.5 rounded-full px-5 py-2 mb-10 text-sm font-semibold"
         style={{ background: tokens.bg, border: `1px solid ${tokens.cardBorder}`, color: tokens.primary }}
       >
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: tokens.primary }} />
+        <span className="w-2 h-2 rounded-full" style={{ background: tokens.primary }} />
         {activeTrack} Track
       </div>
 
       {/* Topic grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {topics.map((topic, idx) => {
           const prog = topicProgress[idx];
           const isLocked = prog.state === "locked";
@@ -124,77 +116,52 @@ export default function DashboardPage() {
             <div
               key={topic.id}
               className={cn(
-                "gem-glass rounded-[24px] p-4 transition-all",
-                isLocked ? "opacity-50" : "hover:shadow-md"
+                "gem-glass rounded-[28px] p-7 transition-all flex flex-col",
+                isLocked ? "opacity-50" : "hover:shadow-lg hover:-translate-y-0.5"
               )}
               style={!isLocked ? { borderColor: tokens.cardBorder } : {}}
             >
               {/* Index + state icon */}
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[#1F1F1F]/30 text-[10px] font-mono">#{idx + 1}</span>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[#1F1F1F]/30 text-xs font-mono font-semibold tracking-wide">#{idx + 1}</span>
                 {isLocked && (
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <rect x="3" y="7" width="10" height="8" rx="2" fill="rgba(0,0,0,0.15)" />
                     <path d="M5 7V5a3 3 0 016 0v2" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
                   </svg>
                 )}
                 {isDone && (
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M3 8L6.5 11.5L13 5" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
               </div>
 
-              <div className="text-[#1F1F1F]/80 text-sm font-medium mb-1 leading-tight">{topic.label}</div>
-              <div className="text-[10px] mb-2" style={{ color: prog.score !== null && !isLocked ? tokens.primary : "rgba(0,0,0,0.25)" }}>
+              <div className="text-[#1F1F1F]/80 text-xl font-semibold mb-1.5 leading-tight">{topic.label}</div>
+              <div className="text-sm font-medium mb-1" style={{ color: prog.score !== null && !isLocked ? tokens.primary : "rgba(0,0,0,0.25)" }}>
                 {prog.score !== null ? `${prog.score}%` : "—"}
               </div>
               <StarRow stars={prog.stars} color={tokens.primary} />
 
-              {!isLocked && (
-                <div className="mt-3">
+              <div className="mt-6 flex-1 flex items-end">
+                {!isLocked && (
                   <Link
                     href={`/flashcards?topic=${topic.id}`}
-                    className="w-full block text-center text-[10px] font-semibold py-1 rounded-full transition-colors"
+                    className="w-full block text-center text-sm font-semibold py-2.5 rounded-full transition-colors"
                     style={{ background: tokens.primary, color: "#FFFFFF" }}
                   >
                     Learn
                   </Link>
-                </div>
-              )}
+                )}
 
-              {isLocked && idx > 0 && (
-                <div className="text-[10px] text-[#1F1F1F]/25 mt-2">Complete #{idx} first</div>
-              )}
+                {isLocked && idx > 0 && (
+                  <div className="text-xs text-[#1F1F1F]/25">Complete #{idx} first</div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
-
-      {/* Recent sessions */}
-      {recentSessions.length > 0 && (
-        <div>
-          <p className="text-[#1F1F1F]/50 text-[10px] uppercase tracking-[0.18em] font-semibold mb-4">Recent Sessions</p>
-          <div className="gem-glass rounded-[20px] overflow-hidden">
-            {recentSessions.map((s, i) => {
-              const topicInfo = CURRICULUM.find(t => t.id === s.topic);
-              return (
-                <div key={i} className="flex items-center gap-4 px-5 py-3 border-b border-black/[0.05] last:border-0">
-                  <span className="text-[#1F1F1F]/30 text-xs font-mono w-16 shrink-0">{formatRelativeDate(s.timestamp)}</span>
-                  <span className="text-[#1F1F1F]/80 text-xs font-medium flex-1 truncate">{topicInfo?.label ?? s.topic}</span>
-                  <span className="text-[#1F1F1F]/30 text-xs font-mono shrink-0">{s.mode}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {recentSessions.length === 0 && (
-        <div className="text-center py-10 text-[#1F1F1F]/30 text-sm">
-          No sessions yet — click <span className="text-[#3C90FF] font-semibold">Learn</span> on any topic to start.
-        </div>
-      )}
     </div>
   );
 }
