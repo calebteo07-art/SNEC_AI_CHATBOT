@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext";
 import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
 import { GuidedTour } from "./GuidedTour";
-import { useFx, useWipeNavigate, useAudio, ScrollProvider } from "../../fx";
+import { useFx, useWipeNavigate, useAudio, ScrollProvider, Magnetic } from "../../fx";
 import { springs, focusPull, focusPullLite } from "../utils/springs";
 
 const STUDENT_NAV = [
@@ -135,14 +135,16 @@ export function AppShell() {
                     aria-hidden="true"
                   />
                 )}
-                <span
+                <Magnetic
+                  strength={0.22}
                   className={`relative z-[1] flex flex-col items-center gap-0.5 transition-colors duration-200${
                     active ? " text-[#F4EFE7]" : " text-[#181717]/60 hover:text-[#181717]"
                   }`}
+                  style={{ display: "flex" }}
                 >
                   <Icon active={active} />
                   <span>{label}</span>
-                </span>
+                </Magnetic>
               </button>
             );
           })}

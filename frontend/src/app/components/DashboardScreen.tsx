@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router";
+import { motion } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "../utils/curriculum";
 import { trackTokens } from "../utils/trackColors";
 import { useProgress } from "../../hooks/useProgress";
+import { SplitText } from "../../fx";
+import { staggerContainer, saccadeItem } from "../utils/springs";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = {
   OA: OA_TOPICS,
@@ -90,17 +93,28 @@ export function DashboardScreen() {
         <ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} />
       )}
 
-      {/* Hero stats bar */}
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div>
-          <p className="text-[#F4EFE7]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">
+      {/* Hero — the acuity chart masthead */}
+      <div className="flex items-end justify-between mb-3 flex-wrap gap-4">
+        <motion.div variants={staggerContainer(0.06)} initial="hidden" animate="visible">
+          <motion.p variants={saccadeItem} className="text-[#F4EFE7]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">
             {TRACK_LABELS[activeTrack]}
-          </p>
-          <h1 className="text-[#F4EFE7] font-medium tracking-[-0.04em] leading-none"
-              style={{ fontSize: "clamp(2.5rem, 8vw, 3rem)" }}>
-            Learn®
-          </h1>
-        </div>
+          </motion.p>
+          <SplitText
+            text="Learn"
+            as="h1"
+            className="text-[#F4EFE7] font-medium tracking-[-0.045em] leading-none"
+            style={{ fontSize: "clamp(2.8rem, 9vw, 4.4rem)" }}
+          />
+          {/* Snellen sub-row: acuity sharpens as topics complete */}
+          <motion.div
+            variants={saccadeItem}
+            style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.16em", color: "rgba(244,239,231,0.42)", marginTop: 10 }}
+          >
+            {completedIds.length}/{topics.length} TOPICS · VA 20/
+            {Math.round(80 - (completedIds.length / Math.max(topics.length, 1)) * 60)} ·{" "}
+            <span style={{ color: tokens.primary }}>{activeTrack} TRACK</span>
+          </motion.div>
+        </motion.div>
 
         {/* Stats pill */}
         <div data-tour="gamification" className="bg-[#F4EFE7] text-[#181717] rounded-full px-4 py-2 flex items-center gap-3 text-sm font-semibold">
@@ -112,29 +126,40 @@ export function DashboardScreen() {
         </div>
       </div>
 
-      {/* Track badge */}
-      <div
-        className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-6 text-xs font-semibold"
-        style={{ background: tokens.bg, border: `1px solid ${tokens.cardBorder}`, color: tokens.primary }}
-      >
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: tokens.primary }} />
-        {activeTrack} Track
-      </div>
+      {/* Slit-beam divider — sweeps once on entry */}
+      <motion.div
+        aria-hidden="true"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+        style={{
+          height: 1,
+          transformOrigin: "left center",
+          background: `linear-gradient(90deg, ${tokens.primary}99, rgba(244,239,231,0.12) 55%, transparent)`,
+          marginBottom: 28,
+        }}
+      />
 
-      {/* Topic grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
+      {/* Topic grid — the visual field */}
+      <motion.div
+        variants={staggerContainer(0.045, 0.2)}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-10">
         {topics.map((topic, idx) => {
           const prog = topicProgress[idx];
           const isLocked = prog.state === "locked";
           const isDone = prog.state === "done";
 
           return (
-            <div
+            <motion.div
               key={topic.id}
-              className="rounded-[24px] p-4 border transition-all"
+              variants={saccadeItem}
+              whileHover={isLocked ? undefined : { y: -4 }}
+              className="rounded-[24px] p-4 border transition-colors"
               style={isLocked
                 ? { background: "rgba(244,239,231,0.03)", borderColor: "rgba(244,239,231,0.08)", opacity: 0.5 }
-                : { background: tokens.cardBg, borderColor: tokens.cardBorder, cursor: "pointer" }
+                : { background: tokens.cardBg, borderColor: tokens.cardBorder, cursor: "pointer", boxShadow: `0 0 0 0 transparent` }
               }
               onClick={() => !isLocked && navigate(`/flashcards?topic=${topic.id}`)}
             >
@@ -191,10 +216,10 @@ export function DashboardScreen() {
               {isLocked && idx > 0 && (
                 <div className="text-[10px] text-[#F4EFE7]/25 mt-2">Complete #{idx} first</div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Recent sessions */}
       {recentSessions.length > 0 && (

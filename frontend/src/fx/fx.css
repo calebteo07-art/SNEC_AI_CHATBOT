@@ -68,6 +68,69 @@
   }
 }
 
+/* ── The reticle: custom cursor ── */
+.fx-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: var(--fx-z-cursor);
+  pointer-events: none;
+}
+.fx-cursor[data-hidden="true"] .fx-cursor-dot,
+.fx-cursor[data-hidden="true"] .fx-cursor-ring {
+  opacity: 0;
+}
+.fx-cursor-dot {
+  position: fixed;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fx-paper);
+  will-change: transform;
+  transition: width 0.2s ease, height 0.2s ease, top 0.2s ease, left 0.2s ease, opacity 0.25s ease;
+}
+.fx-cursor-ring {
+  position: fixed;
+  top: -17px;
+  left: -17px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(244, 239, 231, 0.55);
+  will-change: transform;
+  transition: width 0.22s ease, height 0.22s ease, top 0.22s ease, left 0.22s ease,
+    border-color 0.22s ease, border-radius 0.22s ease, opacity 0.25s ease;
+}
+.fx-cursor[data-mode="ring"] .fx-cursor-ring {
+  width: 46px;
+  height: 46px;
+  top: -23px;
+  left: -23px;
+  border-color: #22c55e;
+}
+.fx-cursor[data-mode="ring"] .fx-cursor-dot {
+  width: 4px;
+  height: 4px;
+  top: -2px;
+  left: -2px;
+}
+.fx-cursor[data-mode="text"] .fx-cursor-ring {
+  width: 3px;
+  height: 26px;
+  top: -13px;
+  left: -1.5px;
+  border-radius: 2px;
+  border-color: rgba(244, 239, 231, 0.8);
+}
+.fx-cursor[data-mode="text"] .fx-cursor-dot {
+  opacity: 0;
+}
+.fx-cursor-active,
+.fx-cursor-active * {
+  cursor: none !important;
+}
+
 /* The real global reduced-motion kill-switch.
  * (The previous one lived in duolingo.css, which is dead code.) */
 @media (prefers-reduced-motion: reduce) {

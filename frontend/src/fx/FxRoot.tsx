@@ -9,6 +9,7 @@ import { MotionProvider } from "./MotionProvider";
 import { AudioProvider } from "./audio/useAudio";
 import { TransitionProvider } from "./TransitionProvider";
 import { TransitionLayer } from "./TransitionLayer";
+import { CursorLayer } from "./cursor/CursorLayer";
 
 export function FxRoot() {
   return (
@@ -17,6 +18,7 @@ export function FxRoot() {
         <TransitionProvider>
           <Outlet />
           <TransitionLayer />
+          <CursorLayer />
         </TransitionProvider>
       </AudioProvider>
     </MotionProvider>

@@ -26,7 +26,7 @@ function diffColor(d: string) { return DIFFICULTY_COLOR[d.toLowerCase()] ?? "var
 function diffBg(d: string)    { return DIFFICULTY_BG[d.toLowerCase()] ?? "var(--page)"; }
 
 const CASE_IMAGES = [
-  "/anatomy/clinic-slitlamp.png",
+  "/anatomy/eye-hero.png",
   "/anatomy/eye-oct.png",
   "/anatomy/eye-anterior.png",
   "/anatomy/eye-fundus.png",
