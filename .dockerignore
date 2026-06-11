@@ -4,9 +4,8 @@
 credentials.json
 token.json
 
-# Build artifacts (frontend is built in Dockerfile Stage 1)
+# Build artifacts (frontend/dist/ is pre-built and committed — keep it)
 frontend/node_modules/
-frontend/dist/
 
 # Python artifacts
 __pycache__/
