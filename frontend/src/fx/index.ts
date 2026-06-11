@@ -8,4 +8,5 @@ export {
   type WipePhase,
 } from "./TransitionProvider";
 export { TransitionLayer } from "./TransitionLayer";
-export { ScrollProvider, useShellScroll } from "./ScrollProvider";
+export { ScrollProvider, useShellScroll, useShellScrollMaybe } from "./ScrollProvider";
+export { LiquidImage } from "./liquid/lazy";
