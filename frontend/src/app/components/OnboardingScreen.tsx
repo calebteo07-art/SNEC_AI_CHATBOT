@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { DisplacementSphere } from "./displacement-sphere/DisplacementSphere";
+import { useWipeNavigate } from "../../fx";
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -80,6 +81,7 @@ function ArrowRight({ size = 14 }: { size?: number }) {
 /* ── OnboardingScreen ─────────────────────────────────────── */
 export function OnboardingScreen() {
   const navigate = useNavigate();
+  const { wipe } = useWipeNavigate();
   const { login, setMustChangePassword, user } = useAuth();
 
   const [step, setStep]             = useState<Step>("login");
@@ -145,10 +147,14 @@ export function OnboardingScreen() {
   };
 
   const completeLogin = (data: LoginResult, studentRole?: "OA" | "OT" | "PSA") => {
-    login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "supervisor" | "admin", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
-    if (data.role === "admin")      navigate("/admin");
-    else if (data.role === "supervisor") navigate("/supervisor");
-    else navigate("/checkin");
+    /* Auth state flips under the wipe cover so the user≠null redirect on this
+       screen never flashes; Phase 3 swaps the student path to the pupil handoff. */
+    void wipe(() => {
+      login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "supervisor" | "admin", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
+      if (data.role === "admin")      navigate("/admin");
+      else if (data.role === "supervisor") navigate("/supervisor");
+      else navigate("/checkin");
+    });
   };
 
   const handlePdpa = (e: React.FormEvent) => {

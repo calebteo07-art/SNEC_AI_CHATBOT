@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend } from "../utils/gamification";
+import { useWipeNavigate } from "../../fx";
 
 /* ── Types (unchanged) ────────────────────────────────────── */
 type Phase = "loading" | "question" | "result";
@@ -12,6 +13,7 @@ interface QuestionData { question: string; topic: string; }
 /* ── DailyCheckInScreen ───────────────────────────────────── */
 export function DailyCheckInScreen() {
   const navigate = useNavigate();
+  const { wipe } = useWipeNavigate();
   const { setCheckInDone } = useAuth();
 
   const [streak, setStreak]     = useState(0);
@@ -27,7 +29,7 @@ export function DailyCheckInScreen() {
 
   const handleSkip = () => {
     setCheckInDone(true);
-    navigate("/dashboard");
+    void wipe("/dashboard");
   };
 
   const handleRetry = () => {
@@ -246,7 +248,7 @@ export function DailyCheckInScreen() {
                   <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)" }}>{feedback}</p>
                 </div>
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => void wipe("/dashboard")}
                   style={{ width: "100%", padding: 14, borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
                 >
                   Start Learning →

@@ -48,10 +48,12 @@ export const saccadeItem = {
   visible: { opacity: 1, y: 0, scale: 1, transition: springs.snappy },
 };
 
-/** Accommodation: the incoming screen pulls into focus. Tier-"high" only (blur). */
+/** Accommodation: the incoming screen pulls into focus. Tier-"high" only (blur).
+ * transitionEnd clears the filter so fixed-position descendants (modals)
+ * don't inherit a containing block after the entrance settles. */
 export const focusPull = {
   initial: { opacity: 0, scale: 0.985, filter: "blur(6px)" },
-  enter:   { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } },
+  enter:   { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const }, transitionEnd: { filter: "none" } },
   exit:    { opacity: 0, scale: 1.01, filter: "blur(4px)", transition: { duration: 0.16, ease: "easeIn" as const } },
 };
 

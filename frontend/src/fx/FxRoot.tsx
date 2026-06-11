@@ -6,11 +6,16 @@
  */
 import { Outlet } from "react-router";
 import { MotionProvider } from "./MotionProvider";
+import { TransitionProvider } from "./TransitionProvider";
+import { TransitionLayer } from "./TransitionLayer";
 
 export function FxRoot() {
   return (
     <MotionProvider>
-      <Outlet />
+      <TransitionProvider>
+        <Outlet />
+        <TransitionLayer />
+      </TransitionProvider>
     </MotionProvider>
   );
 }

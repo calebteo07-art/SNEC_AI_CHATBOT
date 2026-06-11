@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
+import { useWipeNavigate } from "../../fx";
 
 /* ── Types (preserved) ────────────────────────────────────── */
 interface CaseInfo {
@@ -36,6 +37,7 @@ const CASE_IMAGES = [
 /* ── CaseListScreen ───────────────────────────────────────── */
 export function CaseListScreen() {
   const navigate = useNavigate();
+  const { wipe } = useWipeNavigate();
   const [cases, setCases]   = useState<CaseInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState<string | null>(null);
@@ -142,7 +144,7 @@ export function CaseListScreen() {
                 <motion.button
                   key={c.case_id}
                   className="case-card"
-                  onClick={() => navigate(`/cases/${c.case_id}`, { state: { caseInfo: c } })}
+                  onClick={() => void wipe(() => navigate(`/cases/${c.case_id}`, { state: { caseInfo: c } }))}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.3 }}
