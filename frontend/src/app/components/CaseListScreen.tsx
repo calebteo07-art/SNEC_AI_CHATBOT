@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "motion/react";
-import { useWipeNavigate } from "../../fx";
+import { useWipeNavigate, LiquidImage } from "../../fx";
 
 /* ── Types (preserved) ────────────────────────────────────── */
 interface CaseInfo {
@@ -151,10 +151,11 @@ export function CaseListScreen() {
                   transition={{ delay: i * 0.04, duration: 0.3 }}
                   style={{ textAlign: "left", width: "100%" }}
                 >
-                  {/* Card image */}
+                  {/* Card image — liquid lens on hover */}
                   <div style={{ height: 130, position: "relative", overflow: "hidden", background: "var(--sidebar-bg)" }}>
-                    <img className="case-card-img" src={imgSrc} alt="" />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
+                    <LiquidImage src={imgSrc} alt="" style={{ position: "absolute", inset: 0 }} />
+                    {/* decorative overlays must not eat the liquid hover */}
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)", pointerEvents: "none" }} />
                     {/* Difficulty pill on image */}
                     <div style={{
                       position: "absolute", top: 10, left: 12,
@@ -163,11 +164,12 @@ export function CaseListScreen() {
                       border: `1px solid ${diffColor(c.difficulty)}`,
                       fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
                       textTransform: "uppercase", color: diffColor(c.difficulty),
+                      pointerEvents: "none",
                     }}>
                       {c.difficulty}
                     </div>
                     {/* Time on image */}
-                    <div style={{ position: "absolute", bottom: 10, right: 12, fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                    <div style={{ position: "absolute", bottom: 10, right: 12, fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: 600, pointerEvents: "none" }}>
                       ~{c.estimated_minutes} min
                     </div>
                   </div>

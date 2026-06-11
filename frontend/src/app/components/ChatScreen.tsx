@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "motion/react";
+import { LiquidImage } from "../../fx";
 import { AchievementManager } from "./AchievementToast";
 import { getUserProgress, addXP, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
 import { useAuth } from "./AuthContext";
@@ -253,7 +254,7 @@ export function ChatScreen() {
       {/* ── Context panel ─────────────────────────────────── */}
       <aside className="chat-context-panel" aria-label="Session info">
         <div className="context-card">
-          <img className="context-card-img" src="/anatomy/clinic-slitlamp.png" alt="Clinical context" />
+          <LiquidImage className="context-card-img" src="/anatomy/clinic-slitlamp.png" alt="Clinical context" />
           <div className="context-card-body">
             <div className="context-card-label">Current topic</div>
             <div className="context-card-title">Ophthalmology</div>
@@ -261,7 +262,7 @@ export function ChatScreen() {
         </div>
 
         <div className="context-card">
-          <img className="context-card-img" src="/anatomy/eye-fundus.png" alt="Anatomy reference" />
+          <LiquidImage className="context-card-img" src="/anatomy/eye-fundus.png" alt="Anatomy reference" />
           <div className="context-card-body">
             <div className="context-card-label">Reference</div>
             <div className="context-card-title">Fundus anatomy</div>

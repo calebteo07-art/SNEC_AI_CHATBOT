@@ -105,3 +105,8 @@ export function useShellScroll(): ScrollContextValue {
   if (!ctx) throw new Error("useShellScroll must be used inside AppShell's ScrollProvider");
   return ctx;
 }
+
+/** Null-safe variant for components that may render outside the shell. */
+export function useShellScrollMaybe(): ScrollContextValue | null {
+  return useContext(ScrollContext);
+}
