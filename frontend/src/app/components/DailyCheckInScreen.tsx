@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend } from "../utils/gamification";
-import { useWipeNavigate } from "../../fx";
+import { useWipeNavigate, useAudio } from "../../fx";
 
 /* ── Types (unchanged) ────────────────────────────────────── */
 type Phase = "loading" | "question" | "result";
@@ -14,6 +14,7 @@ interface QuestionData { question: string; topic: string; }
 export function DailyCheckInScreen() {
   const navigate = useNavigate();
   const { wipe } = useWipeNavigate();
+  const { play } = useAudio();
   const { setCheckInDone } = useAuth();
 
   const [streak, setStreak]     = useState(0);
@@ -82,6 +83,7 @@ export function DailyCheckInScreen() {
       setFeedback(data.feedback);
       setCheckInDone(true);
       setPhase("result");
+      play(data.correct ? "chime" : "thud");
     } catch {
       toast.error("Couldn't submit answer — please try again.");
     } finally {
@@ -241,7 +243,20 @@ export function DailyCheckInScreen() {
                   background: correct ? "var(--emerald-bg)" : "var(--heart-bg)",
                   border: `2px solid ${correct ? "var(--emerald)" : "var(--heart)"}`,
                   marginBottom: 20,
+                  position: "relative", overflow: "hidden",
                 }}>
+                  {/* slit-beam sweep across the verdict */}
+                  <motion.div
+                    aria-hidden="true"
+                    initial={{ x: "-130%" }}
+                    animate={{ x: "130%" }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                    style={{
+                      position: "absolute", top: 0, bottom: 0, left: 0, width: "60%",
+                      background: `linear-gradient(105deg, transparent 0%, ${correct ? "rgba(52,211,153,0.22)" : "rgba(248,113,113,0.18)"} 50%, transparent 100%)`,
+                      pointerEvents: "none",
+                    }}
+                  />
                   <div style={{ fontSize: 16, fontWeight: 800, color: correct ? "var(--emerald-deep)" : "#991b1b", marginBottom: 6 }}>
                     {correct ? "Correct!" : "Not quite"}
                   </div>

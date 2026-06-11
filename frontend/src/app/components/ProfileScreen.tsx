@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
+import { useAudio, useWipeNavigate } from "../../fx";
 
 function roleBadgeClass(role: string): string {
   const r = role.toLowerCase();
@@ -25,6 +26,8 @@ function roleLabel(role: string, studentRole: string): string {
 export function ProfileScreen() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { muted, toggleMute, play } = useAudio();
+  const { wipe } = useWipeNavigate();
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   const initials = (user?.fullName ?? "?")
@@ -34,9 +37,11 @@ export function ProfileScreen() {
     .join("")
     .toUpperCase();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
+  const handleLogout = () => {
+    void wipe(() => {
+      void logout();
+      navigate("/");
+    });
   };
 
   return (
@@ -66,6 +71,15 @@ export function ProfileScreen() {
 
         {/* Actions */}
         <div className="profile-actions">
+          <button
+            className="profile-action-btn"
+            onClick={() => { toggleMute(); if (muted) play("tick"); }}
+            aria-pressed={!muted}
+          >
+            <SoundIcon muted={muted} />
+            {muted ? "Sound effects: Off" : "Sound effects: On"}
+          </button>
+
           <button
             className="profile-action-btn"
             onClick={() => setShowChangePassword(true)}
@@ -107,6 +121,23 @@ export function ProfileScreen() {
 }
 
 /* ── Icons ───────────────────────────────────────────────── */
+function SoundIcon({ muted }: { muted: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+      <path d="M3 7H5.5L9 4V14L5.5 11H3C2.45 11 2 10.55 2 10V8C2 7.45 2.45 7 3 7Z"
+        stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      {muted ? (
+        <path d="M12 7L16 11M16 7L12 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      ) : (
+        <>
+          <path d="M11.5 6.5C12.4 7.4 12.4 10.6 11.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M13.5 4.5C15.5 6.5 15.5 11.5 13.5 13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function LockIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 18 18" fill="none">

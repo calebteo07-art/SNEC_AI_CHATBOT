@@ -6,16 +6,19 @@
  */
 import { Outlet } from "react-router";
 import { MotionProvider } from "./MotionProvider";
+import { AudioProvider } from "./audio/useAudio";
 import { TransitionProvider } from "./TransitionProvider";
 import { TransitionLayer } from "./TransitionLayer";
 
 export function FxRoot() {
   return (
     <MotionProvider>
-      <TransitionProvider>
-        <Outlet />
-        <TransitionLayer />
-      </TransitionProvider>
+      <AudioProvider>
+        <TransitionProvider>
+          <Outlet />
+          <TransitionLayer />
+        </TransitionProvider>
+      </AudioProvider>
     </MotionProvider>
   );
 }
