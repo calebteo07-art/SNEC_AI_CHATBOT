@@ -60,6 +60,14 @@
   outline-offset: 2px;
 }
 
+/* ── Login stage: form panel left, The Gaze owns the right of the stage ── */
+@media (min-width: 1024px) {
+  .screen-login {
+    justify-content: flex-start;
+    padding-left: clamp(48px, 8vw, 150px);
+  }
+}
+
 /* The real global reduced-motion kill-switch.
  * (The previous one lived in duolingo.css, which is dead code.) */
 @media (prefers-reduced-motion: reduce) {
