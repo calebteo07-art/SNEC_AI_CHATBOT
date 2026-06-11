@@ -241,7 +241,7 @@ export function CaseSessionScreen() {
           {/* Patient info */}
           {caseInfo ? (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.02em" }}>{caseInfo.patient.name}</div>
+              <h1 style={{ fontSize: 18, fontWeight: 400, color: "var(--text)", letterSpacing: "-0.01em", fontFamily: "var(--font-serif)", fontStyle: "italic" }}>{caseInfo.patient.name}</h1>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{caseInfo.patient.age} years old · {caseInfo.topic}</div>
               <div style={{ marginTop: 10, padding: "10px 12px", background: "var(--teal-bg)", borderRadius: "var(--r-sm)", borderLeft: "3px solid var(--teal)" }}>
                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 4 }}>Presenting complaint</div>

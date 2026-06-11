@@ -220,6 +220,7 @@ export function FlashcardScreen() {
 
   return (
     <div className="screen-exercise">
+      <h1 className="sr-only">Flashcards</h1>
       <AchievementManager
         achievements={newAchievements}
         onDismiss={id => setNewAchievements(prev => prev.filter(a => a !== id))}
