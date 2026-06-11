@@ -10,3 +10,5 @@ export {
 export { TransitionLayer } from "./TransitionLayer";
 export { ScrollProvider, useShellScroll, useShellScrollMaybe } from "./ScrollProvider";
 export { LiquidImage } from "./liquid/lazy";
+export { AudioProvider, useAudio } from "./audio/useAudio";
+export type { AudioCue } from "./audio/AudioEngine";

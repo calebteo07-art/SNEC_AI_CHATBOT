@@ -18,6 +18,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router";
 import { useFx } from "./MotionProvider";
+import { useAudio } from "./audio/useAudio";
 
 export type WipePhase = "idle" | "closing" | "covered" | "opening";
 
@@ -51,6 +52,7 @@ const nextFrames = (n: number) =>
 export function TransitionProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const { reducedMotion } = useFx();
+  const { play } = useAudio();
   const [phase, setPhase] = useState<WipePhase>("idle");
   const [instant, setInstant] = useState(false);
   const busyRef = useRef(false);
@@ -71,6 +73,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         return;
       }
       busyRef.current = true;
+      play("whoosh");
       setInstant(false);
       setPhase("closing");
       await delay(CLOSE_MS + 40);
@@ -82,7 +85,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setPhase("idle");
       busyRef.current = false;
     },
-    [run, reducedMotion],
+    [run, reducedMotion, play],
   );
 
   const handoff = useCallback(

@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext";
 import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
 import { GuidedTour } from "./GuidedTour";
-import { useFx, useWipeNavigate, ScrollProvider } from "../../fx";
+import { useFx, useWipeNavigate, useAudio, ScrollProvider } from "../../fx";
 import { springs, focusPull, focusPullLite } from "../utils/springs";
 
 const STUDENT_NAV = [
@@ -46,6 +46,7 @@ export function AppShell() {
   const { pathname } = useLocation();
   const { data: progress } = useProgress();
   const { wipe } = useWipeNavigate();
+  const { play } = useAudio();
   const { tier } = useFx();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -120,7 +121,7 @@ export function AppShell() {
             return (
               <button
                 key={path}
-                onClick={() => navigate(path)}
+                onClick={() => { if (!active) play("tick"); navigate(path); }}
                 data-tour={tour}
                 data-cursor="ring"
                 aria-current={active ? "page" : undefined}
