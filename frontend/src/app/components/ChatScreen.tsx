@@ -162,7 +162,7 @@ export function ChatScreen() {
             <img src="/anatomy/eye-hero.png" alt="AI Tutor" />
           </div>
           <div>
-            <div className="chat-avatar-name">EyeBot Tutor</div>
+            <h1 className="chat-avatar-name">EyeBot Tutor</h1>
             <div className="chat-avatar-sub">AI Ophthalmology Educator</div>
           </div>
           <div className="chat-online-dot" title="Online" />
