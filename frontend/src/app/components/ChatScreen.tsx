@@ -31,13 +31,17 @@ export function ChatScreen() {
   const [streamingId, setStreamingId]   = useState<string | null>(null);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [sessionStart]                  = useState(() => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesBoxRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { updateStreak(); }, []);
 
+  /* Container-local autoscroll: scrollIntoView would also scroll every
+     ancestor scrollport (the shell scroller included) — this pins only
+     the thread itself to the bottom while streaming. */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const box = messagesBoxRef.current;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
   }, [messages, isTyping]);
 
   /* Preserved: SSE streaming send */
@@ -132,7 +136,7 @@ export function ChatScreen() {
       />
 
       {/* ── Left: session history panel ───────────────────── */}
-      <div className="chat-history-panel">
+      <div className="chat-history-panel" data-lenis-prevent>
         <button className="chat-new-btn" onClick={() => { setMessages(INITIAL_MESSAGES); }}>
           + New session
         </button>
@@ -164,7 +168,7 @@ export function ChatScreen() {
         </div>
 
         {/* Messages */}
-        <div className="chat-messages" role="log" aria-live="polite" aria-label="Conversation">
+        <div ref={messagesBoxRef} className="chat-messages" data-lenis-prevent role="log" aria-live="polite" aria-label="Conversation">
           {messages.map(m => (
             <motion.div
               key={m.id}
@@ -203,7 +207,6 @@ export function ChatScreen() {
             </div>
           )}
 
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Input area */}

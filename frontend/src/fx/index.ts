@@ -8,3 +8,4 @@ export {
   type WipePhase,
 } from "./TransitionProvider";
 export { TransitionLayer } from "./TransitionLayer";
+export { ScrollProvider, useShellScroll } from "./ScrollProvider";

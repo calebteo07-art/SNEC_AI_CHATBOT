@@ -5,7 +5,7 @@ import { useAuth } from "./AuthContext";
 import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
 import { GuidedTour } from "./GuidedTour";
-import { useFx, useWipeNavigate } from "../../fx";
+import { useFx, useWipeNavigate, ScrollProvider } from "../../fx";
 import { springs, focusPull, focusPullLite } from "../utils/springs";
 
 const STUDENT_NAV = [
@@ -56,12 +56,6 @@ export function AppShell() {
     syncHeartsFromBackend(progress.hearts);
   }, [progress]);
 
-  /* Scroll reset happens while the wipe still covers (or during the
-     crossfade) so the new page always starts at the top. */
-  useEffect(() => {
-    scrollerRef.current?.scrollTo({ top: 0, behavior: "auto" });
-  }, [pathname]);
-
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
   const homeRoute = role === "admin" ? "/admin" : role === "supervisor" ? "/supervisor" : "/dashboard";
@@ -89,28 +83,30 @@ export function AppShell() {
         </div>
       </header>
 
-      {/* Page content — the shell scroller (Lenis wrapper in Phase 2) */}
-      <div
-        ref={scrollerRef}
-        style={{ height: "100%", overflowY: "auto", paddingTop: "64px", paddingBottom: "112px" }}
-      >
-        <div ref={contentRef} style={{ position: "relative", minHeight: "100%" }}>
-          <main id="main" style={{ minHeight: "100%" }}>
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.div
-                key={routeKey(pathname)}
-                variants={pageVariants}
-                initial="initial"
-                animate="enter"
-                exit="exit"
-                style={{ position: "relative", minHeight: "100%" }}
-              >
-                <AnimatedOutlet />
-              </motion.div>
-            </AnimatePresence>
-          </main>
+      {/* Page content — the shell scroller (Lenis wrapper on flowing routes) */}
+      <ScrollProvider scrollerRef={scrollerRef} contentRef={contentRef}>
+        <div
+          ref={scrollerRef}
+          style={{ height: "100%", overflowY: "auto", paddingTop: "64px", paddingBottom: "112px" }}
+        >
+          <div ref={contentRef} style={{ position: "relative", minHeight: "100%" }}>
+            <main id="main" style={{ minHeight: "100%" }}>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.div
+                  key={routeKey(pathname)}
+                  variants={pageVariants}
+                  initial="initial"
+                  animate="enter"
+                  exit="exit"
+                  style={{ position: "relative", minHeight: "100%" }}
+                >
+                  <AnimatedOutlet />
+                </motion.div>
+              </AnimatePresence>
+            </main>
+          </div>
         </div>
-      </div>
+      </ScrollProvider>
 
       {/* Fixed bottom pill nav */}
       <nav

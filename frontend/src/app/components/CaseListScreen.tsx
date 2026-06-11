@@ -55,9 +55,10 @@ export function CaseListScreen() {
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
   return (
-    <div style={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    /* Flows tall in the shell scroller — Lenis carries the momentum. */
+    <div style={{ maxWidth: 1100, margin: "0 auto" }}>
       {/* Page header */}
-      <div style={{ padding: "20px 24px 0", flexShrink: 0 }}>
+      <div style={{ padding: "20px 24px 0" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
           <div>
             <p className="section-label">Clinical Cases</p>
@@ -82,7 +83,7 @@ export function CaseListScreen() {
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "0 24px 32px" }}>
+      <div style={{ padding: "0 24px 32px" }}>
         {/* Loading */}
         {loading && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14, paddingTop: 16 }}>
