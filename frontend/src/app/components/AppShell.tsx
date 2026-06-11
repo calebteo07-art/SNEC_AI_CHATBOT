@@ -1,31 +1,54 @@
-import { useEffect } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useOutlet } from "react-router";
+import { AnimatePresence, motion } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { useProgress } from "../../hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "../utils/gamification";
 import { GuidedTour } from "./GuidedTour";
+import { useFx, useWipeNavigate } from "../../fx";
+import { springs, focusPull, focusPullLite } from "../utils/springs";
 
 const STUDENT_NAV = [
-  { path: "/dashboard",  label: "Learn",    icon: LearnIcon    },
-  { path: "/cases",      label: "Cases",    icon: CasesIcon    },
-  { path: "/flashcards", label: "Cards",    icon: CardsIcon    },
-  { path: "/chat",       label: "Chat",     icon: ChatIcon     },
-  { path: "/progress",   label: "Progress", icon: ProgressIcon },
+  { path: "/dashboard",  label: "Learn",    icon: LearnIcon,    tour: "learn"    },
+  { path: "/cases",      label: "Cases",    icon: CasesIcon,    tour: "cases"    },
+  { path: "/flashcards", label: "Cards",    icon: CardsIcon,    tour: undefined  },
+  { path: "/chat",       label: "Chat",     icon: ChatIcon,     tour: "chat"     },
+  { path: "/progress",   label: "Progress", icon: ProgressIcon, tour: "progress" },
 ] as const;
 
 const ADMIN_NAV = [
-  { path: "/admin", label: "Admin", icon: AdminIcon },
+  { path: "/admin", label: "Admin", icon: AdminIcon, tour: undefined },
 ] as const;
 
 const SUPERVISOR_NAV = [
-  { path: "/supervisor", label: "Reports", icon: ProgressIcon },
+  { path: "/supervisor", label: "Reports", icon: ProgressIcon, tour: undefined },
 ] as const;
+
+/** Collapse nested admin tabs to one key so AdminLayout's own Outlet
+ *  never gets crossfaded by the shell-level transition. */
+function routeKey(pathname: string): string {
+  if (pathname.startsWith("/admin")) return "/admin";
+  return pathname;
+}
+
+/** Frozen outlet: captures the outlet element at mount so the exiting
+ *  route keeps rendering its own tree during the crossfade. This is the
+ *  pattern that makes AnimatePresence work with the data router. */
+function AnimatedOutlet() {
+  const outlet = useOutlet();
+  const [frozen] = useState(outlet);
+  return frozen;
+}
 
 export function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: progress } = useProgress();
+  const { wipe } = useWipeNavigate();
+  const { tier } = useFx();
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!progress) return;
@@ -33,56 +56,101 @@ export function AppShell() {
     syncHeartsFromBackend(progress.hearts);
   }, [progress]);
 
+  /* Scroll reset happens while the wipe still covers (or during the
+     crossfade) so the new page always starts at the top. */
+  useEffect(() => {
+    scrollerRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname]);
+
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
-  const ALL_PATHS = [...STUDENT_NAV, ...ADMIN_NAV, ...SUPERVISOR_NAV];
-  const activeRoute = ALL_PATHS.find(n => pathname === n.path || pathname.startsWith(n.path + "/"))?.path ?? "";
-
   const homeRoute = role === "admin" ? "/admin" : role === "supervisor" ? "/supervisor" : "/dashboard";
+  const pageVariants = tier === "high" ? focusPull : focusPullLite;
 
   return (
     <div style={{ background: "#181717", height: "100vh", overflow: "hidden" }}>
       {/* Fixed top bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+      <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
         <div className="flex justify-between items-center px-5 py-4">
           <button
             onClick={() => navigate(homeRoute)}
             className="pointer-events-auto text-[#F4EFE7] text-base font-medium tracking-[-0.03em]"
+            data-cursor="ring"
           >
             EyeBot®
           </button>
           <button
-            onClick={() => { logout(); navigate("/"); }}
+            onClick={() => void wipe(() => { logout(); navigate("/"); })}
             className="pointer-events-auto text-[#F4EFE7]/40 text-xs hover:text-[#F4EFE7]/70 transition-colors"
+            data-cursor="ring"
           >
             Sign out
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Page content */}
-      <div style={{ height: "100%", overflowY: "auto", paddingTop: "64px", paddingBottom: "112px" }}>
-        <Outlet />
+      {/* Page content — the shell scroller (Lenis wrapper in Phase 2) */}
+      <div
+        ref={scrollerRef}
+        style={{ height: "100%", overflowY: "auto", paddingTop: "64px", paddingBottom: "112px" }}
+      >
+        <div ref={contentRef} style={{ position: "relative", minHeight: "100%" }}>
+          <main id="main" style={{ minHeight: "100%" }}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={routeKey(pathname)}
+                variants={pageVariants}
+                initial="initial"
+                animate="enter"
+                exit="exit"
+                style={{ position: "relative", minHeight: "100%" }}
+              >
+                <AnimatedOutlet />
+              </motion.div>
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
 
       {/* Fixed bottom pill nav */}
-      <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 pointer-events-none">
+      <nav
+        aria-label="Primary"
+        data-tour-host
+        className="fixed bottom-8 left-0 right-0 flex justify-center z-50 pointer-events-none"
+      >
         <div className="pointer-events-auto flex items-center gap-1 bg-[#F4EFE7] rounded-full px-3 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-          {NAV.map(({ path, label, icon: Icon }) => {
+          {NAV.map(({ path, label, icon: Icon, tour }) => {
             const active = pathname === path || pathname.startsWith(path + "/");
             return (
               <button
                 key={path}
                 onClick={() => navigate(path)}
-                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full transition-all text-[10px] font-semibold${active ? " bg-[#181717] text-[#F4EFE7]" : " text-[#181717]/60 hover:text-[#181717]"}`}
+                data-tour={tour}
+                data-cursor="ring"
+                aria-current={active ? "page" : undefined}
+                className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-semibold"
               >
-                <Icon active={active} />
-                <span>{label}</span>
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-pill"
+                    className="absolute inset-0 rounded-full bg-[#181717]"
+                    transition={springs.snappy}
+                    aria-hidden="true"
+                  />
+                )}
+                <span
+                  className={`relative z-[1] flex flex-col items-center gap-0.5 transition-colors duration-200${
+                    active ? " text-[#F4EFE7]" : " text-[#181717]/60 hover:text-[#181717]"
+                  }`}
+                >
+                  <Icon active={active} />
+                  <span>{label}</span>
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
+      </nav>
 
       {role === "student" && <GuidedTour />}
     </div>

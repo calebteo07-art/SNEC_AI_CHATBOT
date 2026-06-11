@@ -103,7 +103,7 @@ export function DashboardScreen() {
         </div>
 
         {/* Stats pill */}
-        <div className="bg-[#F4EFE7] text-[#181717] rounded-full px-4 py-2 flex items-center gap-3 text-sm font-semibold">
+        <div data-tour="gamification" className="bg-[#F4EFE7] text-[#181717] rounded-full px-4 py-2 flex items-center gap-3 text-sm font-semibold">
           <span title="XP">⚡ {xp}</span>
           <span className="text-[#181717]/20">·</span>
           <span title="Streak">🔥 {streak}</span>

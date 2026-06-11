@@ -6,8 +6,52 @@
 :root {
   --fx-stage: #181717;
   --fx-paper: #F4EFE7;
-  --fx-z-wipe: 200;
+  --fx-z-wipe: 220; /* above app modals (200), below cursor (300) */
   --fx-z-cursor: 300;
+}
+
+/* ── The blink: route-wipe eyelids ── */
+.fx-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: var(--fx-z-wipe);
+  pointer-events: none;
+}
+.fx-wipe[data-phase="closing"],
+.fx-wipe[data-phase="covered"] {
+  pointer-events: auto; /* block input while the eye is shut */
+}
+.fx-wipe-lid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%; /* lids overlap 1% to kill the seam */
+  background: var(--fx-stage);
+  transform: scaleY(0);
+  will-change: transform;
+  transition: transform 280ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+.fx-wipe-lid--top {
+  top: 0;
+  transform-origin: top center;
+  border-radius: 0 0 28px 28px;
+}
+.fx-wipe-lid--bottom {
+  bottom: 0;
+  transform-origin: bottom center;
+  border-radius: 28px 28px 0 0;
+}
+.fx-wipe[data-phase="closing"] .fx-wipe-lid,
+.fx-wipe[data-phase="covered"] .fx-wipe-lid {
+  transform: scaleY(1.02);
+}
+.fx-wipe[data-instant="true"] .fx-wipe-lid {
+  transition-duration: 0ms;
+}
+/* declared last so its duration beats the instant rule during the open */
+.fx-wipe[data-phase="opening"] .fx-wipe-lid {
+  transform: scaleY(0);
+  transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* House-lights focus ring — visible on every surface of the theatre. */

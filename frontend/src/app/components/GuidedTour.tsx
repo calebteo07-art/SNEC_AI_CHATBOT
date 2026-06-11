@@ -93,9 +93,15 @@ export function GuidedTour() {
       return;
     }
 
-    el.style.position = "relative";
-    el.style.zIndex = "101";
-    prevElRef.current = el;
+    /* Elevate the nearest stacking host (e.g. the fixed bottom nav) — raising
+       a child inside a z-indexed fixed container can never escape the dim
+       overlay, so the host carries the z-bump instead. */
+    const host = el.closest<HTMLElement>("[data-tour-host]") ?? el;
+    if (getComputedStyle(host).position === "static") {
+      host.style.position = "relative";
+    }
+    host.style.zIndex = "101";
+    prevElRef.current = host;
     setTargetRect(el.getBoundingClientRect());
   }, [step, ready, cleanupPrev]);
 
