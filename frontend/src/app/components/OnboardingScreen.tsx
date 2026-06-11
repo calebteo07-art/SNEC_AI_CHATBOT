@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { DisplacementSphere } from "./displacement-sphere/DisplacementSphere";
 import { useWipeNavigate } from "../../fx";
+import type { GazeHandle } from "../../fx/gaze/TheGaze";
+
+/* The Gaze rides in its own chunk — three.js stays out of the main bundle. */
+const TheGaze = lazy(() =>
+  import("../../fx/gaze/TheGaze").then((m) => ({ default: m.TheGaze })),
+);
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -81,8 +86,9 @@ function ArrowRight({ size = 14 }: { size?: number }) {
 /* ── OnboardingScreen ─────────────────────────────────────── */
 export function OnboardingScreen() {
   const navigate = useNavigate();
-  const { wipe } = useWipeNavigate();
+  const { wipe, handoff } = useWipeNavigate();
   const { login, setMustChangePassword, user } = useAuth();
+  const gazeRef = useRef<GazeHandle>(null);
 
   const [step, setStep]             = useState<Step>("login");
   const [email, setEmail]           = useState("");
@@ -147,14 +153,26 @@ export function OnboardingScreen() {
   };
 
   const completeLogin = (data: LoginResult, studentRole?: "OA" | "OT" | "PSA") => {
-    /* Auth state flips under the wipe cover so the user≠null redirect on this
-       screen never flashes; Phase 3 swaps the student path to the pupil handoff. */
-    void wipe(() => {
+    /* Auth state flips under the cover so the user≠null redirect on this
+       screen never flashes. */
+    const apply = () => {
       login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "supervisor" | "admin", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
       if (data.role === "admin")      navigate("/admin");
       else if (data.role === "supervisor") navigate("/supervisor");
       else navigate("/checkin");
-    });
+    };
+    if (data.role === "student") {
+      /* The signature exit: the pupil engulfs the screen, then the route
+         swaps beneath the cover. Timeout race so a stalled GPU never
+         blocks login. */
+      void (async () => {
+        const engulf = gazeRef.current?.expandPupil() ?? Promise.resolve();
+        await Promise.race([engulf, new Promise<void>((r) => setTimeout(r, 1100))]);
+        void handoff(apply);
+      })();
+    } else {
+      void wipe(apply);
+    }
   };
 
   const handlePdpa = (e: React.FormEvent) => {
@@ -181,12 +199,16 @@ export function OnboardingScreen() {
 
   /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", background: "#080e1a" }}>
-      {/* Animated 3D sphere background */}
-      <DisplacementSphere />
-      {/* Full-bleed background */}
-      <img src="/anatomy/eye-hero.png" className="login-bg" alt="" aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block", maxWidth: "none" }} />
-      <div className="login-overlay" style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, rgba(2,6,18,0.94) 0%, rgba(6,25,50,0.78) 60%, rgba(14,116,144,0.3) 100%)" }} />
+    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#020617" }}>
+      {/* The void — CSS fallback while The Gaze loads (or without WebGL) */}
+      <div
+        aria-hidden="true"
+        style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(26,168,156,0.10) 0%, rgba(66,133,244,0.05) 42%, rgba(2,6,23,0) 72%), #020617" }}
+      />
+      {/* The Gaze — the eye that watches you */}
+      <Suspense fallback={null}>
+        <TheGaze ref={gazeRef} />
+      </Suspense>
 
       {/* Forced password change modal (floats on top) */}
       {step === "change_password" && loginResult && (
@@ -206,7 +228,7 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.075)", backdropFilter: "blur(32px) saturate(1.8)", WebkitBackdropFilter: "blur(32px) saturate(1.8)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}
+        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(2,6,23,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(244,239,231,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
@@ -227,7 +249,9 @@ export function OnboardingScreen() {
                       type="email"
                       className="login-input"
                       value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      onChange={e => { setEmail(e.target.value); gazeRef.current?.saccade(); }}
+                      onFocus={() => gazeRef.current?.setFocus(true)}
+                      onBlur={() => gazeRef.current?.setFocus(false)}
                       autoComplete="email"
                       placeholder="you@snec.com.sg"
                     />
@@ -242,7 +266,9 @@ export function OnboardingScreen() {
                         className="login-input"
                         style={{ paddingRight: 40 }}
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={e => { setPassword(e.target.value); gazeRef.current?.saccade(); }}
+                        onFocus={() => gazeRef.current?.setFocus(true)}
+                        onBlur={() => gazeRef.current?.setFocus(false)}
                         autoComplete="current-password"
                         placeholder="••••••••"
                       />
