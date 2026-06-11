@@ -97,48 +97,41 @@ def status():
     return {"status": "ok", "mock_mode": MOCK_MODE}
 
 
-# Serve Next.js static export — mounts must be last so API routes take priority
-FRONTEND_DIST = PROJECT_ROOT / "chinita" / "out"
+# Serve the Vite SPA build (frontend/dist) — mounts must be last so API routes take priority
+FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
 
 if FRONTEND_DIST.exists():
-    _next_dir = FRONTEND_DIST / "_next"
-    if _next_dir.exists():
-        app.mount("/_next", StaticFiles(directory=_next_dir), name="next-static")
+    _assets_dir = FRONTEND_DIST / "assets"
+    if _assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="vite-assets")
 
-    _images_dir = FRONTEND_DIST / "images"
-    if _images_dir.exists():
-        app.mount("/images", StaticFiles(directory=_images_dir), name="images-static")
+    _anatomy_dir = FRONTEND_DIST / "anatomy"
+    if _anatomy_dir.exists():
+        app.mount("/anatomy", StaticFiles(directory=_anatomy_dir), name="anatomy-static")
 
 
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str):
     if not FRONTEND_DIST.exists():
-        raise HTTPException(status_code=503, detail="Frontend not built — chinita/out/ missing")
+        raise HTTPException(status_code=503, detail="Frontend not built — frontend/dist/ missing")
 
     # Security: reject path traversal
     try:
         resolved = (FRONTEND_DIST / full_path).resolve()
         resolved.relative_to(FRONTEND_DIST.resolve())
-    except (ValueError, Exception):
+    except Exception:
         raise HTTPException(status_code=404)
 
-    # 1. Next.js App Router flat HTML: /dashboard → out/dashboard.html (Next.js 16 default)
-    flat_html = FRONTEND_DIST / (full_path + ".html")
-    if flat_html.is_file():
-        return FileResponse(flat_html)
-
-    # 2. Next.js App Router dir HTML: /dashboard → out/dashboard/index.html (older pattern)
-    page_html = FRONTEND_DIST / full_path / "index.html"
-    if page_html.is_file():
-        return FileResponse(page_html)
-
-    # 3. Direct file: favicon.ico, manifest.json, sw.js, etc.
-    if resolved.is_file():
+    # 1. Direct file: favicon, manifest.json, sw.js, icon.svg, etc.
+    if full_path and resolved.is_file():
+        # The service worker must never be served stale or deploys won't roll out
+        if full_path == "sw.js":
+            return FileResponse(resolved, headers={"Cache-Control": "no-cache"})
         return FileResponse(resolved)
 
-    # 3. SPA fallback to root index
+    # 2. SPA fallback — react-router resolves the path client-side
     root_html = FRONTEND_DIST / "index.html"
     if root_html.is_file():
-        return FileResponse(root_html)
+        return FileResponse(root_html, headers={"Cache-Control": "no-cache"})
 
     raise HTTPException(status_code=404, detail="Page not found")

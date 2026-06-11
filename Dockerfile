@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY tools/ ./tools/
 COPY cases/ ./cases/
 
-# Copy pre-built Next.js static export (chinita/out/ is committed to git)
-COPY chinita/out/ ./chinita/out/
+# Copy pre-built Vite SPA (frontend/dist/ is committed to git)
+COPY frontend/dist/ ./frontend/dist/
 
 # Pre-create writable directories
 RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
