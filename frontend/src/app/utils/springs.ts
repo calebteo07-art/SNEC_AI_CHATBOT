@@ -32,3 +32,32 @@ export const feedbackBarVariant = {
   visible: { y: 0, opacity: 1, transition: springs.slideUp },
   exit:    { y: "100%", opacity: 0, transition: { duration: 0.2 } },
 };
+
+/* ── DARK ADAPTATION orchestration ──────────────────────────
+ * Saccade timing: children dart in with 30–60ms offsets, the way the eye
+ * jumps between fixation points. Nothing on screen is allowed to load flat.
+ */
+
+export const staggerContainer = (stagger = 0.045, delayChildren = 0) => ({
+  hidden:  {},
+  visible: { transition: { staggerChildren: stagger, delayChildren } },
+});
+
+export const saccadeItem = {
+  hidden:  { opacity: 0, y: 14, scale: 0.985 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: springs.snappy },
+};
+
+/** Accommodation: the incoming screen pulls into focus. Tier-"high" only (blur). */
+export const focusPull = {
+  initial: { opacity: 0, scale: 0.985, filter: "blur(6px)" },
+  enter:   { opacity: 1, scale: 1, filter: "blur(0px)", transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] as const } },
+  exit:    { opacity: 0, scale: 1.01, filter: "blur(4px)", transition: { duration: 0.16, ease: "easeIn" as const } },
+};
+
+/** Same accommodation cue without filter work, for low-tier devices. */
+export const focusPullLite = {
+  initial: { opacity: 0, scale: 0.985 },
+  enter:   { opacity: 1, scale: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] as const } },
+  exit:    { opacity: 0, scale: 1.01, transition: { duration: 0.14, ease: "easeIn" as const } },
+};

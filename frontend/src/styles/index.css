@@ -5,6 +5,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import './gemini-gradients.css';
+@import '../fx/fx.css';
 
 @custom-variant dark (&:is(.dark *));
 

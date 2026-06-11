@@ -1,13 +1,15 @@
-/* EyeBot Typography Stack — Capsules design system
- * Primary: Host Grotesk (matches capsules.moyra.co)
- * Mono:    JetBrains Mono (data/code)
+/* EyeBot Typography Stack — DARK ADAPTATION
+ * Primary: Host Grotesk (UI/body)
+ * Mono:    JetBrains Mono (clinical readouts/data)
+ * Serif:   Instrument Serif 400 + italic (editorial display accents only)
  */
-@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   --font-display: 'Host Grotesk', system-ui, sans-serif;
   --font-body:    'Host Grotesk', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --font-serif:   'Instrument Serif', Georgia, serif;
   --font-ui: var(--font-body);
 }
 

@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router";
+import { FxRoot } from "../fx";
 import { AppShell } from "./components/AppShell";
 import { OnboardingScreen } from "./components/OnboardingScreen";
 import { DashboardScreen } from "./components/DashboardScreen";
@@ -20,6 +21,10 @@ import { CheckInGuard } from "./components/CheckInGuard";
 import { AdminGuard } from "./components/AdminGuard";
 
 export const router = createBrowserRouter([
+  /* Pathless fx root — providers + wipe overlay persist across ALL navigations */
+  {
+    Component: FxRoot,
+    children: [
   /* Login — no shell */
   {
     path: "/",
@@ -130,4 +135,6 @@ export const router = createBrowserRouter([
   },
 
   { path: "*", element: <Navigate to="/" replace /> },
+    ],
+  },
 ]);
