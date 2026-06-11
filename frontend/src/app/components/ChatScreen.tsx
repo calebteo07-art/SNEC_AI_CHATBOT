@@ -254,7 +254,7 @@ export function ChatScreen() {
       {/* ── Context panel ─────────────────────────────────── */}
       <aside className="chat-context-panel" aria-label="Session info">
         <div className="context-card">
-          <LiquidImage className="context-card-img" src="/anatomy/clinic-slitlamp.png" alt="Clinical context" />
+          <LiquidImage className="context-card-img" src="/anatomy/eye-hero.png" alt="Clinical context" />
           <div className="context-card-body">
             <div className="context-card-label">Current topic</div>
             <div className="context-card-title">Ophthalmology</div>

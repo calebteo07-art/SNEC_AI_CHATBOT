@@ -9,6 +9,10 @@ import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
 import { useAuth } from "./AuthContext";
 import { useFlashcards, useFlashcardCheck } from "../../hooks/useFlashcards";
 import { useGamificationSync } from "../../hooks/useGamification";
+import { useAudio, Magnetic } from "../../fx";
+
+/* Frozen brand palette only. */
+const CONFETTI_COLORS = ["#22C55E", "#FBBF24", "#A78BFA", "#34D399", "#F4EFE7"];
 
 /* ── Types ────────────────────────────────────────────────── */
 interface Flashcard {
@@ -51,6 +55,7 @@ function tagToImage(tag: string): string {
 /* ── FlashcardScreen ──────────────────────────────────────── */
 export function FlashcardScreen() {
   const navigate = useNavigate();
+  const { play } = useAudio();
   useAuth();
 
   const sessionCards = useMemo(() => loadSessionCards(), []);
@@ -117,11 +122,13 @@ export function FlashcardScreen() {
   const reveal = () => {
     if (animating || revealed) return;
     if (userAttempt.trim() && !aiFeedback) checkWithAi(userAttempt);
+    play("flip");
     setRevealed(true);
   };
 
   const handleRating = (value: number) => {
     if (!card) return;
+    play(value === 1 ? "thud" : value === 2 ? "tick" : "chime");
     setRatedCards(prev => ({ ...prev, [card.id]: value }));
 
     const xpMap: Record<number, number> = {
@@ -152,8 +159,8 @@ export function FlashcardScreen() {
       setSessionEasy(prev => prev + 1);
     }
 
-    if (value === 4) confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#0891b2", "#059669", "#d97706"] });
-    if (result.leveledUp) confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+    if (value === 4) confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: CONFETTI_COLORS });
+    if (result.leveledUp) { play("xp"); confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 }, colors: CONFETTI_COLORS }); }
 
     const unlocked = checkAndUnlockAchievements();
     if (unlocked.length > 0) setNewAchievements(prev => [...prev, ...unlocked]);
@@ -331,8 +338,8 @@ export function FlashcardScreen() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
                     {RATINGS.map(r => (
+                      <Magnetic key={r.label} strength={0.18} style={{ display: "block" }}>
                       <motion.button
-                        key={r.label}
                         onClick={() => handleRating(r.value)}
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.94 }}
@@ -351,6 +358,7 @@ export function FlashcardScreen() {
                         <div style={{ fontSize: 13, marginBottom: 2 }}>{r.label}</div>
                         <div style={{ fontSize: 9, fontWeight: 600, opacity: 0.7 }}>{r.caption}</div>
                       </motion.button>
+                      </Magnetic>
                     ))}
                   </div>
                 </div>

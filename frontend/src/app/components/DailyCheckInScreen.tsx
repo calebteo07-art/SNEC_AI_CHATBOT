@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend } from "../utils/gamification";
-import { useWipeNavigate, useAudio } from "../../fx";
+import { useWipeNavigate, useAudio, Magnetic } from "../../fx";
 
 /* ── Types (unchanged) ────────────────────────────────────── */
 type Phase = "loading" | "question" | "result";
@@ -262,12 +262,14 @@ export function DailyCheckInScreen() {
                   </div>
                   <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)" }}>{feedback}</p>
                 </div>
-                <button
-                  onClick={() => void wipe("/dashboard")}
-                  style={{ width: "100%", padding: 14, borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
-                >
-                  Start Learning →
-                </button>
+                <Magnetic strength={0.2} style={{ display: "block", width: "100%" }}>
+                  <button
+                    onClick={() => void wipe("/dashboard")}
+                    style={{ width: "100%", padding: 14, borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+                  >
+                    Start Learning →
+                  </button>
+                </Magnetic>
               </motion.div>
             )}
           </AnimatePresence>

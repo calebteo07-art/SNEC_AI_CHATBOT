@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { motion } from "motion/react";
+import { motion, animate, useMotionValue, useTransform } from "motion/react";
 import confetti from "canvas-confetti";
 import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "../utils/gamification";
+import { useWipeNavigate, useAudio, Magnetic } from "../../fx";
+
+/* Frozen brand palette only — no stray hues in the celebration. */
+const CONFETTI_COLORS = ["#22C55E", "#FBBF24", "#A78BFA", "#34D399", "#F4EFE7"];
 
 /* ── Helpers (unchanged) ──────────────────────────────────── */
 function loadSession() {
@@ -23,19 +27,33 @@ function loadSession() {
 /* ── SummaryScreen ────────────────────────────────────────── */
 export function SummaryScreen() {
   const navigate = useNavigate();
+  const { wipe } = useWipeNavigate();
+  const { play } = useAudio();
   const [xp, setXp] = useState(0);
   const sessionData = loadSession();
+
+  /* The debrief number counts itself up like a settling instrument. */
+  const heroCount = useMotionValue(0);
+  const heroText = useTransform(heroCount, v => `+${Math.round(v)}`);
 
   useEffect(() => {
     // XP already awarded and synced by FlashcardScreen at session end
     const p = getUserProgress();
     setXp(p.xp);
     checkAndUnlockAchievements();
+    play("xp");
 
-    confetti({ particleCount: 40, spread: 65, origin: { y: 0.6 }, colors: ["#0891b2", "#059669", "#7c3aed"] });
-    const t = setTimeout(() => confetti({ particleCount: 25, angle: 120, spread: 55, origin: { x: 0, y: 0.65 } }), 220);
-    const t2 = setTimeout(() => confetti({ particleCount: 25, angle: 60, spread: 55, origin: { x: 1, y: 0.65 } }), 380);
-    return () => { clearTimeout(t); clearTimeout(t2); };
+    const controls = animate(heroCount, XP_REWARDS.sessionComplete, {
+      duration: 1.1,
+      ease: [0.22, 1, 0.36, 1],
+      delay: 0.25,
+    });
+
+    confetti({ particleCount: 40, spread: 65, origin: { y: 0.6 }, colors: CONFETTI_COLORS });
+    const t = setTimeout(() => confetti({ particleCount: 25, angle: 120, spread: 55, origin: { x: 0, y: 0.65 }, colors: CONFETTI_COLORS }), 220);
+    const t2 = setTimeout(() => confetti({ particleCount: 25, angle: 60, spread: 55, origin: { x: 1, y: 0.65 }, colors: CONFETTI_COLORS }), 380);
+    return () => { clearTimeout(t); clearTimeout(t2); controls.stop(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -55,10 +73,15 @@ export function SummaryScreen() {
         style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", maxWidth: 480, width: "100%" }}
       >
         {/* XP hero number */}
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 8 }}>
+        <h1 style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 8 }}>
           Session Complete
-        </div>
-        <div className="summary-hero-val">+{XP_REWARDS.sessionComplete}</div>
+        </h1>
+        <motion.div
+          className="summary-hero-val"
+          style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400 }}
+        >
+          {heroText}
+        </motion.div>
         <div className="summary-hero-label">XP earned</div>
 
         {/* Stats */}
@@ -90,12 +113,14 @@ export function SummaryScreen() {
           >
             Review Cards
           </button>
-          <button
-            onClick={() => navigate("/dashboard")}
-            style={{ flex: 1, padding: "14px", borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 16px var(--teal-glow)" }}
-          >
-            Continue Learning
-          </button>
+          <Magnetic strength={0.2} style={{ flex: 1, display: "block" }}>
+            <button
+              onClick={() => void wipe("/dashboard")}
+              style={{ width: "100%", padding: "14px", borderRadius: "var(--r-sm)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 13, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 16px var(--teal-glow)" }}
+            >
+              Continue Learning
+            </button>
+          </Magnetic>
         </div>
 
         <button
