@@ -1,0 +1,30 @@
+/* DARK ADAPTATION · fx layer base styles
+ * Frozen palette only: #181717 stage, #F4EFE7 house lights.
+ * z-order contract: GuidedTour 100–103 < wipe overlay 200 < cursor 300.
+ */
+
+:root {
+  --fx-stage: #181717;
+  --fx-paper: #F4EFE7;
+  --fx-z-wipe: 200;
+  --fx-z-cursor: 300;
+}
+
+/* House-lights focus ring — visible on every surface of the theatre. */
+:focus-visible {
+  outline: 2px solid rgba(244, 239, 231, 0.85);
+  outline-offset: 2px;
+}
+
+/* The real global reduced-motion kill-switch.
+ * (The previous one lived in duolingo.css, which is dead code.) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
