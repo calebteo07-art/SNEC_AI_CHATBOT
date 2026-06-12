@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { useWipeNavigate } from "@/fx";
-import type { GazeHandle } from "@/fx/gaze/TheGaze";
+import type { GazeHandle } from "@/fx/canvas/GazeIris";
 
 /* The Gaze rides in its own chunk — three.js stays out of the main bundle. */
 const TheGaze = lazy(() =>
-  import("@/fx/gaze/TheGaze").then((m) => ({ default: m.TheGaze })),
+  import("@/fx/canvas/GazeIris").then((m) => ({ default: m.GazeIris })),
 );
 
 /* ── Types (unchanged from original) ─────────────────────── */
@@ -89,6 +89,10 @@ export function OnboardingScreen() {
   const { wipe, handoff } = useWipeNavigate();
   const { login, setMustChangePassword, user } = useAuth();
   const gazeRef = useRef<GazeHandle>(null);
+  /* App Router navigations are async: login() re-renders this screen with a
+   * user BEFORE the route swap commits. Suppress the signed-in redirect while
+   * our own login choreography owns the navigation. */
+  const loggingInRef = useRef(false);
 
   const [step, setStep]             = useState<Step>("login");
   const [email, setEmail]           = useState("");
@@ -107,7 +111,7 @@ export function OnboardingScreen() {
   const [resetError, setResetError]     = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user && !loggingInRef.current) return <Navigate to="/dashboard" replace />;
 
   /* ── Login ────────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
@@ -153,6 +157,7 @@ export function OnboardingScreen() {
   };
 
   const completeLogin = (data: LoginResult, studentRole?: "OA" | "OT" | "PSA") => {
+    loggingInRef.current = true;
     /* Auth state flips under the cover so the user≠null redirect on this
        screen never flashes. */
     const apply = () => {

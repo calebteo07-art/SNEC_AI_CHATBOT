@@ -20,6 +20,7 @@ import { MotionProvider } from "@/fx/MotionProvider";
 import { AudioProvider } from "@/fx/audio/useAudio";
 import { TransitionProvider } from "@/fx/TransitionProvider";
 import { TransitionLayer } from "@/fx/TransitionLayer";
+import { Preloader } from "@/fx/preloader/Preloader";
 
 /* The living canvas (WebGL) must never prerender. */
 const FluidCanvas = dynamic(
@@ -51,6 +52,7 @@ export function Providers({ children }: { children: ReactNode }) {
                   {children}
                 </div>
                 <TransitionLayer />
+                <Preloader />
               </TransitionProvider>
             </AudioProvider>
           </MotionProvider>
