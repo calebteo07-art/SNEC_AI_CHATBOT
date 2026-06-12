@@ -3,14 +3,19 @@
  * pixels of spring-loaded attraction, gone the moment the pointer leaves.
  * Inert on touch and under reduced motion.
  */
-import { type HTMLAttributes, type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { motion, useSpring } from "motion/react";
 import { useFx } from "../MotionProvider";
 
-interface MagneticProps extends HTMLAttributes<HTMLSpanElement> {
+/* Props are intentionally narrow (motion@12.40's HTMLMotionProps no longer
+ * tolerates a React.HTMLAttributes spread — drag/animation handler names
+ * collide). Every call site only ever passes these. */
+interface MagneticProps {
   children: ReactNode;
   /** Fraction of the pointer offset transferred to the element. */
   strength?: number;
+  className?: string;
+  style?: CSSProperties;
 }
 
 export function Magnetic({ children, strength = 0.3, style, ...rest }: MagneticProps) {

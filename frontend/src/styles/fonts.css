@@ -2,9 +2,9 @@
  * Primary: Host Grotesk (UI/body)
  * Mono:    JetBrains Mono (clinical readouts/data)
  * Serif:   Instrument Serif 400 + italic (editorial display accents only)
+ * NOTE: the Google Fonts @import lives at the top of index.css — url()
+ * imports must precede every other rule once the bundler merges the sheets.
  */
-@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
   --font-display: 'Host Grotesk', system-ui, sans-serif;
   --font-body:    'Host Grotesk', system-ui, sans-serif;

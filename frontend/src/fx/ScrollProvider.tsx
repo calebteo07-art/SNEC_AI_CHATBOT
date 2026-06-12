@@ -14,7 +14,7 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { useLocation } from "react-router";
+import { usePathname } from "next/navigation";
 import { useMotionValue, type MotionValue } from "motion/react";
 import Lenis from "lenis";
 import { subscribeTicker } from "./ticker";
@@ -47,7 +47,7 @@ export function ScrollProvider({
   contentRef: RefObject<HTMLDivElement | null>;
   children: ReactNode;
 }) {
-  const { pathname } = useLocation();
+  const pathname = usePathname();
   const { reducedMotion } = useFx();
   const velocity = useMotionValue(0);
   const [lenis, setLenis] = useState<Lenis | null>(null);

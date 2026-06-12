@@ -1,5 +1,26 @@
-# ── Python runtime ────────────────────────────────────────────
+# ── Frontend build (Next 16 standalone) ──────────────────────
+FROM node:24-slim AS frontend-build
+
+WORKDIR /build/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build \
+ && cp -r public .next/standalone/public \
+ && mkdir -p .next/standalone/.next \
+ && cp -r .next/static .next/standalone/.next/static
+
+# ── Python + Node runtime ─────────────────────────────────────
 FROM python:3.12-slim
+
+# Node 24 for the Next standalone server (single-container topology)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
+ && apt-get purge -y curl \
+ && apt-get autoremove -y \
+ && rm -rf /var/lib/apt/lists/*
 
 # Security: run as non-root user
 RUN groupadd -r eyebot && useradd -r -g eyebot eyebot
@@ -13,9 +34,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY tools/ ./tools/
 COPY cases/ ./cases/
+COPY scripts/start-prod.sh ./scripts/start-prod.sh
 
-# Copy pre-built Vite SPA (frontend/dist/ is committed to git)
-COPY frontend/dist/ ./frontend/dist/
+# Copy the self-contained Next server (includes traced node_modules)
+COPY --from=frontend-build /build/frontend/.next/standalone ./frontend/.next/standalone
 
 # Pre-create writable directories
 RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
@@ -23,9 +45,6 @@ RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
 # Switch to non-root
 USER eyebot
 
-EXPOSE 8000
+EXPOSE 3000
 
-CMD ["uvicorn", "tools.api.server:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--timeout-graceful-shutdown", "10"]
+CMD ["bash", "scripts/start-prod.sh"]

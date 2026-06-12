@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-  # FastAPI application server
+  # Next.js (public, :3000) + FastAPI (internal, 127.0.0.1:8000) in one container
   api:
     build: .
     env_file: .env
     environment:
       REDIS_URL: redis://redis:6379/0
     ports:
-      - "8000:8000"
+      - "3000:3000"
     depends_on:
       redis:
         condition: service_healthy

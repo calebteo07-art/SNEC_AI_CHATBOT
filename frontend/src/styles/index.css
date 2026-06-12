@@ -1,13 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import './fonts.css';
 @import './eyebot.css';
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import './gemini-gradients.css';
 @import '../fx/fx.css';
 
 @custom-variant dark (&:is(.dark *));
+
+/* Host styles previously inlined in the Vite index.html */
+html, body { height: 100%; margin: 0; }
 
 @theme inline {
     --font-heading: var(--font-sans);

@@ -1,5 +1,5 @@
-const CACHE = 'eyeq-v2';
-const SHELL = ['/', '/index.html'];
+const CACHE = 'eyeq-v3'; // bumped for the Next.js topology — old caches are purged on activate
+const SHELL = ['/'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
@@ -35,25 +35,27 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Network-first for page navigations — otherwise deploys stay invisible
-  // until the second visit (the shell HTML would be served from cache).
+  // until the second visit. Each route's HTML is cached under its own URL
+  // (Next renders per-route documents, unlike the single SPA shell).
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request)
         .then((res) => {
           if (res.ok) {
             const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put('/index.html', copy));
+            caches.open(CACHE).then((c) => c.put(e.request, copy));
           }
           return res;
         })
         .catch(() =>
-          caches.match('/index.html').then((c) => c ?? caches.match('/'))
+          caches.match(e.request).then((c) => c ?? caches.match('/'))
         )
     );
     return;
   }
 
-  // Cache-first for everything else (hashed JS/CSS, images)
+  // Cache-first for everything else (hashed /_next/static chunks, anatomy
+  // images, generated media, icons)
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request).then((res) => {

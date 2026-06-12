@@ -5,10 +5,12 @@ services:
     region: singapore
     plan: free
     buildCommand: bash render-build.sh
-    startCommand: uvicorn tools.api.server:app --host 0.0.0.0 --port $PORT
+    startCommand: bash scripts/start-prod.sh
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.0"
+      - key: NODE_VERSION
+        value: "24.13.0"
       - key: ENVIRONMENT
         value: production
       # After first deploy, set ALLOWED_ORIGINS to your Render URL, e.g.:
