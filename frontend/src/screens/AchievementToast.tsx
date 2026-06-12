@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
-import confetti from "canvas-confetti";
+import { confetti } from "@/fx/confetti";
 import { ACHIEVEMENTS } from "@/lib/legacy/gamification";
 
 interface AchievementToastProps {

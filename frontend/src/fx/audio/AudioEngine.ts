@@ -1,7 +1,8 @@
-/* DARK ADAPTATION · choreographed audio
+/* PHOTOPIC · choreographed audio
  * A tiny synthesizer — every cue is generated, zero audio files shipped.
- * Volumes sit deliberately low (master 0.16): these are haptics for the
- * ear, not sound design that announces itself in a hospital corridor.
+ * Volumes sit deliberately low (master 0.13, softened a step for the
+ * daylight theme): these are haptics for the ear, not sound design that
+ * announces itself in a hospital corridor.
  */
 
 export type AudioCue = "tick" | "flip" | "chime" | "thud" | "xp" | "whoosh";
@@ -45,7 +46,7 @@ class AudioEngine {
     try {
       this.ctx = new AudioContext();
       this.master = this.ctx.createGain();
-      this.master.gain.value = 0.16;
+      this.master.gain.value = 0.13;
       this.master.connect(this.ctx.destination);
     } catch {
       this.ctx = null;

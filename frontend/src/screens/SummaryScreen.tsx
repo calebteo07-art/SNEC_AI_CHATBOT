@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@/lib/nav";
 import { motion, animate, useMotionValue, useTransform } from "motion/react";
-import confetti from "canvas-confetti";
+import { confetti } from "@/fx/confetti";
 import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
 import { AccentSvg } from "@/fx/media/AccentSvg";
