@@ -62,3 +62,6 @@ portfolio/
 
 # Playwright MCP debug output
 .playwright-mcp/
+
+# TypeScript incremental build state
+*.tsbuildinfo

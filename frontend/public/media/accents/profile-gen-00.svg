@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Iridescent & Gem Gradients (Strictly Palette-Compliant) -->
+    <linearGradient id="gem-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00BDD2" />
+      <stop offset="50%" stop-color="#3C90FF" />
+      <stop offset="100%" stop-color="#AD72FF" />
+    </linearGradient>
+    
+    <linearGradient id="irised-gradient-warm" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF5A59" />
+      <stop offset="60%" stop-color="#FF9238" />
+      <stop offset="100%" stop-color="#FFCF03" />
+    </linearGradient>
+
+    <radialGradient id="blue-bloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00BDD2" stop-opacity="0.25" />
+      <stop offset="50%" stop-color="#4FA0FF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#3C90FF" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="warm-bloom" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F96BD6" stop-opacity="0.18" />
+      <stop offset="60%" stop-color="#FF9238" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#FF5A59" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Organic Ink-Bleed Filter -->
+    <filter id="organic-bleed" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      <feGaussianBlur in="displaced" stdDeviation="1.2" result="blur-tight" />
+      <feGaussianBlur in="displaced" stdDeviation="7" result="blur-wide" />
+      <feMerge>
+        <feMergeNode in="blur-wide" opacity="0.3" />
+        <feMergeNode in="blur-tight" opacity="0.5" />
+        <feMergeNode in="displaced" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Translucent Ink Wash (Background Blooms - No Solid Fills) -->
+  <circle cx="360" cy="285" r="170" fill="url(#blue-bloom)" />
+  <circle cx="450" cy="315" r="150" fill="url(#warm-bloom)" />
+
+  <!-- Schematic Ophthalmic Elements (Ultra-low opacity, diagrammatic) -->
+  <g opacity="0.4">
+    <!-- Center Axes -->
+    <line x1="120" y1="300" x2="680" y2="300" stroke="#1F1F1F" stroke-width="0.5" stroke-dasharray="80 6 3 6" opacity="0.15" />
+    <line x1="400" y1="80" x2="400" y2="520" stroke="#1F1F1F" stroke-width="0.5" stroke-dasharray="80 6 3 6" opacity="0.15" />
+
+    <!-- Concentric Ophthalmic Radii -->
+    <circle cx="400" cy="300" r="190" fill="none" stroke="#3C90FF" stroke-width="0.5" stroke-dasharray="2 8" opacity="0.2" />
+    <circle cx="400" cy="300" r="240" fill="none" stroke="#AD72FF" stroke-width="0.5" stroke-dasharray="12 12" opacity="0.15" />
+    <circle cx="390" cy="300" r="85" fill="none" stroke="#00BDD2" stroke-width="0.5" stroke-dasharray="1 5" opacity="0.25" />
+
+    <!-- Technical Alignment Ticks -->
+    <path d="M 400,65 L 400,85 M 400,515 L 400,535 M 105,300 L 125,300 M 675,300 L 695,300" stroke="#1F1F1F" stroke-width="0.75" opacity="0.25" />
+
+    <!-- Angular Projection Lines -->
+    <line x1="400" y1="300" x2="535" y2="165" stroke="#FF5A59" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.15" />
+    <line x1="400" y1="300" x2="265" y2="435" stroke="#FF5A59" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.15" />
+  </g>
+
+  <!-- Central Schematic Pupil & Reflection (Very Faint) -->
+  <g filter="url(#organic-bleed)">
+    <circle cx="390" cy="300" r="28" fill="none" stroke="url(#irised-gradient-warm)" stroke-width="1.2" opacity="0.2" />
+    <circle cx="390" cy="300" r="11" fill="#1F1F1F" opacity="0.15" />
+    <path d="M 369,269 L 375,263" stroke="#00BDD2" stroke-width="2" stroke-linecap="round" opacity="0.3" />
+  </g>
+
+  <!-- THE GEM-BLUE LIMBUS ARC -->
+  <g>
+    <!-- Soft Bleed Underlayer -->
+    <path d="M 347.5,226.4 A 85,85 0 0,0 347.5,373.6" fill="none" stroke="url(#gem-gradient)" stroke-width="9.5" stroke-linecap="round" opacity="0.22" filter="url(#organic-bleed)" />
+    <!-- Sharp Core Layer -->
+    <path d="M 347.5,226.4 A 85,85 0 0,0 347.5,373.6" fill="none" stroke="url(#gem-gradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.48" filter="url(#organic-bleed)" />
+    <!-- Chromatic Accent Edge -->
+    <path d="M 343.5,245 A 85,85 0 0,0 340.5,315" fill="none" stroke="#4FA0FF" stroke-width="1.2" stroke-linecap="round" opacity="0.35" />
+  </g>
+
+  <!-- THE TWO-STROKE ELEGANT EYE OUTLINE -->
+  <!-- Stroke 1: Upper Eyelid (Graceful sweep with chromatic ink bleed) -->
+  <g>
+    <!-- Soft Bleed Layers -->
+    <path d="M 180,315 C 280,165 520,165 620,315" fill="none" stroke="url(#gem-gradient)" stroke-width="5.5" stroke-linecap="round" opacity="0.18" filter="url(#organic-bleed)" />
+    <path d="M 180,315 C 280,165 520,165 620,315" fill="none" stroke="url(#irised-gradient-warm)" stroke-width="3.5" stroke-linecap="round" opacity="0.12" filter="url(#organic-bleed)" />
+    <!-- Core Ink Layer -->
+    <path d="M 180,315 C 280,165 520,165 620,315" fill="none" stroke="#1F1F1F" stroke-width="1.6" stroke-linecap="round" opacity="0.45" filter="url(#organic-bleed)" />
+  </g>
+
+  <!-- Stroke 2: Lower Eyelid (Fine, balancing lower counter-curve) -->
+  <g>
+    <!-- Soft Bleed Layers -->
+    <path d="M 210,325 C 290,405 510,405 590,325" fill="none" stroke="url(#irised-gradient-warm)" stroke-width="4.5" stroke-linecap="round" opacity="0.16" filter="url(#organic-bleed)" />
+    <path d="M 210,325 C 290,405 510,405 590,325" fill="none" stroke="url(#gem-gradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.1" filter="url(#organic-bleed)" />
+    <!-- Core Ink Layer -->
+    <path d="M 210,325 C 290,405 510,405 590,325" fill="none" stroke="#1F1F1F" stroke-width="1.2" stroke-linecap="round" opacity="0.38" filter="url(#organic-bleed)" />
+  </g>
+</svg>

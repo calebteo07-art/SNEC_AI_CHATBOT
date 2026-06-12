@@ -1,0 +1,309 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <!-- Linear Gradients for Cards (Palette Colors) -->
+    <linearGradient id="g1" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3C90FF" />
+      <stop offset="100%" stop-color="#00BDD2" />
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00BDD2" />
+      <stop offset="100%" stop-color="#60D673" />
+    </linearGradient>
+    <linearGradient id="g3" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60D673" />
+      <stop offset="100%" stop-color="#88DE42" />
+    </linearGradient>
+    <linearGradient id="g4" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#88DE42" />
+      <stop offset="100%" stop-color="#FFCF03" />
+    </linearGradient>
+    <linearGradient id="g5" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFCF03" />
+      <stop offset="100%" stop-color="#FF9238" />
+    </linearGradient>
+    <linearGradient id="g6" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF9238" />
+      <stop offset="100%" stop-color="#FF5A59" />
+    </linearGradient>
+    <linearGradient id="g7" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF5A59" />
+      <stop offset="100%" stop-color="#F96BD6" />
+    </linearGradient>
+    <linearGradient id="g8" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F96BD6" />
+      <stop offset="100%" stop-color="#AD72FF" />
+    </linearGradient>
+    <linearGradient id="g9" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#AD72FF" />
+      <stop offset="100%" stop-color="#4FA0FF" />
+    </linearGradient>
+
+    <!-- Radial Gradients for Iridescent Blooming Effects -->
+    <radialGradient id="rad-blue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3C90FF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#3C90FF" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-cyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00BDD2" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#00BDD2" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-green" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#60D673" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#60D673" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-yellow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFCF03" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#FFCF03" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-red" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF5A59" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#FF5A59" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-purple" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#AD72FF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#AD72FF" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="rad-pink" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F96BD6" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#F96BD6" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Filters for Bloom and Softness -->
+    <filter id="glow-fine" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" />
+    </filter>
+    <filter id="glow-heavy" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="25" />
+    </filter>
+  </defs>
+
+  <!-- BACKGROUND BLOOMS (To simulate photopic ink bleeding through paper) -->
+  <g filter="url(#glow-heavy)" opacity="0.15">
+    <circle cx="300" cy="250" r="180" fill="url(#rad-blue)" />
+    <circle cx="500" cy="230" r="190" fill="url(#rad-pink)" />
+    <circle cx="400" cy="350" r="220" fill="url(#rad-yellow)" />
+  </g>
+
+  <!-- SCHEMATIC BACKGROUND LENS GRID (Ophthalmic Diagram Style) -->
+  <g transform="translate(400, 520)" fill="none" stroke="#1F1F1F">
+    <!-- Concentric Calibration Arcs -->
+    <path d="M -360 0 A 360 360 0 0 1 360 0" stroke-opacity="0.08" stroke-width="1" />
+    <path d="M -340 0 A 340 340 0 0 1 340 0" stroke-opacity="0.15" stroke-width="0.8" />
+    <path d="M -340 0 A 340 340 0 0 1 340 0" stroke-opacity="0.12" stroke-width="3" stroke-dasharray="1, 7" />
+    <path d="M -260 0 A 260 260 0 0 1 260 0" stroke-opacity="0.08" stroke-width="1" />
+    <path d="M -200 0 A 200 200 0 0 1 200 0" stroke-opacity="0.15" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <path d="M -120 0 A 120 120 0 0 1 120 0" stroke-opacity="0.05" stroke-width="1" />
+
+    <!-- Outer Fine Tick Circular Scale -->
+    <path d="M -370 0 A 370 370 0 0 1 370 0" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="0.5, 3.5" />
+    <path d="M -375 0 A 375 375 0 0 1 375 0" stroke-opacity="0.1" stroke-width="6" stroke-dasharray="1, 19" />
+
+    <!-- Radiating Axis Lines -->
+    <line x1="0" y1="0" x2="-335" y2="-193" stroke-opacity="0.08" stroke-width="0.8" /> <!-- -150 deg -->
+    <line x1="0" y1="0" x2="-275" y2="-275" stroke-opacity="0.08" stroke-width="0.8" /> <!-- -135 deg -->
+    <line x1="0" y1="0" x2="-193" y2="-335" stroke-opacity="0.08" stroke-width="0.8" /> <!-- -120 deg -->
+    <line x1="0" y1="0" x2="0" y2="-390" stroke-opacity="0.15" stroke-width="0.8" stroke-dasharray="5, 5" />  <!-- -90 deg -->
+    <line x1="0" y1="0" x2="193" y2="-335" stroke-opacity="0.08" stroke-width="0.8" />  <!-- -60 deg -->
+    <line x1="0" y1="0" x2="275" y2="-275" stroke-opacity="0.08" stroke-width="0.8" />  <!-- -45 deg -->
+    <line x1="0" y1="0" x2="335" y2="-193" stroke-opacity="0.08" stroke-width="0.8" />  <!-- -30 deg -->
+
+    <!-- Baseline and Center Pivot Indicator -->
+    <line x1="-390" y1="0" x2="390" y2="0" stroke-opacity="0.2" stroke-width="1" />
+    <circle cx="0" cy="0" r="8" stroke-opacity="0.3" stroke-width="1" />
+    <circle cx="0" cy="0" r="3" fill="#1F1F1F" fill-opacity="0.3" stroke="none" />
+  </g>
+
+  <!-- THE FANNING RECALL DECK (9 Overlapping Translucent Cards) -->
+  <!-- Card 1 (Angle -60) -->
+  <g transform="translate(400, 520) rotate(-60)">
+    <!-- Base Glow -->
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-blue)" opacity="0.12" filter="url(#glow-fine)" />
+    <!-- Card Boundary -->
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g1)" fill-opacity="0.14" stroke="url(#g1)" stroke-opacity="0.35" stroke-width="1" />
+    <!-- Glass Specular Highlight -->
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <!-- Inner Technical Frame -->
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Card Schematic Content -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <circle cx="0" cy="-240" r="30" />
+      <circle cx="0" cy="-240" r="15" stroke-dasharray="2, 2" />
+      <line x1="-45" y1="-240" x2="45" y2="-240" />
+      <line x1="0" y1="-285" x2="0" y2="-195" />
+      <!-- Barcode Graphic at bottom -->
+      <path d="M -50 -95 h 10 M -35 -95 h 25 M -5 -95 h 5 M 10 -95 h 15 M 30 -95 h 20" stroke-width="6" stroke-opacity="0.1" />
+    </g>
+  </g>
+
+  <!-- Card 2 (Angle -45) -->
+  <g transform="translate(400, 520) rotate(-45)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-cyan)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g2)" fill-opacity="0.14" stroke="url(#g2)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Matrix Grid Schematic -->
+    <g stroke="#1F1F1F" stroke-opacity="0.12" fill="none" stroke-width="0.8">
+      <path d="M -50 -280 h 100 M -50 -250 h 100 M -50 -220 h 100 M -50 -190 h 100" />
+      <path d="M -35 -290 v 110 M 0 -290 v 110 M 35 -290 v 110" />
+      <circle cx="0" cy="-220" r="6" fill="#00BDD2" fill-opacity="0.2" stroke="none" />
+      <circle cx="-35" cy="-250" r="4" fill="#1F1F1F" fill-opacity="0.15" stroke="none" />
+      <circle cx="35" cy="-190" r="4" fill="#1F1F1F" fill-opacity="0.15" stroke="none" />
+    </g>
+  </g>
+
+  <!-- Card 3 (Angle -30) -->
+  <g transform="translate(400, 520) rotate(-30)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-green)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g3)" fill-opacity="0.14" stroke="url(#g3)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Ray Optics Diagram -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <path d="M -55 -260 L 55 -200 M -55 -200 L 55 -260" />
+      <path d="M -55 -230 h 110" stroke-dasharray="2, 2" />
+      <ellipse cx="0" cy="-230" rx="20" ry="40" stroke="#60D673" stroke-opacity="0.3" stroke-width="1.2" />
+      <line x1="-55" y1="-120" x2="55" y2="-120" stroke-opacity="0.1" />
+      <path d="M -40 -120 L 0 -150 L 40 -120" stroke-opacity="0.1" />
+    </g>
+  </g>
+
+  <!-- Card 4 (Angle -15) -->
+  <g transform="translate(400, 520) rotate(-15)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-yellow)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g4)" fill-opacity="0.14" stroke="url(#g4)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Waveform / Oscillation Schematic -->
+    <g fill="none">
+      <path d="M -55 -230 Q -27.5 -290 0 -230 T 55 -230" stroke="#88DE42" stroke-opacity="0.4" stroke-width="1.2" />
+      <path d="M -55 -230 Q -27.5 -170 0 -230 T 55 -230" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="2, 2" />
+      <line x1="-55" y1="-230" x2="55" y2="-230" stroke="#1F1F1F" stroke-opacity="0.15" stroke-width="0.8" />
+      <!-- Calibration Ticks -->
+      <path d="M -55 -270 v 80 M 55 -270 v 80" stroke="#1F1F1F" stroke-opacity="0.1" stroke-width="0.8" stroke-dasharray="1, 4" />
+    </g>
+  </g>
+
+  <!-- Card 5 (Angle 0 - Center Card) -->
+  <g transform="translate(400, 520) rotate(0)">
+    <!-- Extra luminous bloom for the center card -->
+    <circle cx="0" cy="-210" r="70" fill="url(#rad-yellow)" opacity="0.25" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g5)" fill-opacity="0.16" stroke="url(#g5)" stroke-opacity="0.45" stroke-width="1.5" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.12" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Optical Refraction / Focal Eye Graphic -->
+    <g fill="none">
+      <!-- Light beam path -->
+      <polygon points="-30,-310 30,-310 5,-210 -5,-210" fill="url(#g4)" fill-opacity="0.15" />
+      <polygon points="-5,-210 5,-210 40,-110 -40,-110" fill="url(#g6)" fill-opacity="0.1" />
+      <!-- Focal Lens -->
+      <path d="M -45 -210 Q 0 -185 45 -210 Q 0 -235 -45 -210" fill="none" stroke="#FF9238" stroke-opacity="0.5" stroke-width="1.5" />
+      <circle cx="0" cy="-210" r="8" stroke="#1F1F1F" stroke-opacity="0.3" stroke-width="0.8" />
+      <line x1="-55" y1="-210" x2="55" y2="-210" stroke="#1F1F1F" stroke-opacity="0.2" stroke-width="0.8" />
+    </g>
+  </g>
+
+  <!-- Card 6 (Angle 15) -->
+  <g transform="translate(400, 520) rotate(15)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-red)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g6)" fill-opacity="0.14" stroke="url(#g6)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Triangle Prism Refraction -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <polygon points="0,-260 -40,-190 40,-190" stroke="#FF5A59" stroke-opacity="0.3" stroke-width="1" />
+      <line x1="-60" y1="-220" x2="0" y2="-220" />
+      <path d="M 0 -220 L 25 -190 L 55 -175" stroke="#FF9238" stroke-opacity="0.4" />
+      <path d="M 0 -220 L 28 -190 L 58 -165" stroke="#FF5A59" stroke-opacity="0.4" />
+      <circle cx="0" cy="-213" r="12" stroke-dasharray="2, 2" />
+    </g>
+  </g>
+
+  <!-- Card 7 (Angle 30) -->
+  <g transform="translate(400, 520) rotate(30)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-pink)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g7)" fill-opacity="0.14" stroke="url(#g7)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Overlapping Geometry (Diamonds / Rings) -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <polygon points="0,-270 35,-235 0,-200 -35,-235" />
+      <polygon points="0,-255 20,-235 0,-215 -20,-235" stroke="#F96BD6" stroke-opacity="0.3" />
+      <circle cx="0" cy="-235" r="45" stroke-opacity="0.08" />
+      <path d="M -45 -140 h 90 M -45 -130 h 90" stroke-opacity="0.1" />
+      <circle cx="-25" cy="-135" r="2" fill="#1F1F1F" fill-opacity="0.2" stroke="none" />
+      <circle cx="25" cy="-135" r="2" fill="#1F1F1F" fill-opacity="0.2" stroke="none" />
+    </g>
+  </g>
+
+  <!-- Card 8 (Angle 45) -->
+  <g transform="translate(400, 520) rotate(45)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-purple)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g8)" fill-opacity="0.14" stroke="url(#g8)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Spiral / Polar Grid Lines -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <path d="M 0 -275 A 40 40 0 0 1 40 -235 A 30 30 0 0 1 10 -205 A 20 20 0 0 1 -10 -225 A 10 10 0 0 1 0 -235" stroke="#AD72FF" stroke-opacity="0.4" stroke-width="1.2" />
+      <line x1="-45" y1="-235" x2="45" y2="-235" stroke-opacity="0.1" />
+      <line x1="0" y1="-280" x2="0" y2="-190" stroke-opacity="0.1" />
+      <!-- Bar Graph Graphic at bottom -->
+      <path d="M -50 -105 v 20 M -38 -105 v 15 M -26 -105 v 25 M -14 -105 v 10 M -2 -105 v 30 M 10 -105 v 18 M 22 -105 v 5" stroke-width="4" stroke-opacity="0.1" />
+    </g>
+  </g>
+
+  <!-- Card 9 (Angle 60) -->
+  <g transform="translate(400, 520) rotate(60)">
+    <ellipse cx="0" cy="-195" rx="75" ry="145" fill="url(#rad-blue)" opacity="0.12" filter="url(#glow-fine)" />
+    <rect x="-75" y="-340" width="150" height="290" rx="14" fill="url(#g9)" fill-opacity="0.14" stroke="url(#g9)" stroke-opacity="0.35" stroke-width="1" />
+    <rect x="-74" y="-339" width="148" height="288" rx="13" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="0.8" />
+    <rect x="-67" y="-332" width="134" height="274" rx="9" fill="none" stroke="#1F1F1F" stroke-opacity="0.08" stroke-width="0.8" stroke-dasharray="4, 4" />
+    <!-- Concentric Target & Coordinates -->
+    <g stroke="#1F1F1F" stroke-opacity="0.15" fill="none" stroke-width="0.8">
+      <rect x="-40" y="-270" width="80" height="60" rx="5" stroke-opacity="0.1" />
+      <circle cx="0" cy="-240" r="22" stroke="#4FA0FF" stroke-opacity="0.4" />
+      <circle cx="0" cy="-240" r="4" fill="#1F1F1F" fill-opacity="0.3" stroke="none" />
+      <path d="M -50 -240 h 10 M 40 -240 h 10" />
+      <line x1="0" y1="-150" x2="0" y2="-120" stroke-opacity="0.2" />
+      <circle cx="0" cy="-135" r="15" stroke-dasharray="3, 1" />
+    </g>
+  </g>
+
+  <!-- FOREGROUND SCHEMATIC OVERLAYS (Unifying Ophthalmic Structure) -->
+  <g fill="none" stroke="#1F1F1F" stroke-opacity="0.2" stroke-width="0.8">
+    <!-- Horizontal Scale Bar -->
+    <line x1="120" y1="220" x2="680" y2="220" stroke-opacity="0.3" />
+    <!-- Tic marks on Horizontal Scale -->
+    <path d="M 120 215 v 10 M 170 217 v 6 M 220 217 v 6 M 270 217 v 6 M 320 217 v 6 M 370 217 v 6 M 420 217 v 6 M 470 217 v 6 M 520 217 v 6 M 570 217 v 6 M 620 217 v 6 M 680 215 v 10" stroke-opacity="0.25" />
+    
+    <!-- Large Concentric Intersecting Ellipses (Chromatic Aberration Effect) -->
+    <!-- Cyan Path -->
+    <ellipse cx="400" cy="290" rx="310" ry="140" stroke="#00BDD2" stroke-opacity="0.25" stroke-width="1" />
+    <!-- Pink Path Offset -->
+    <ellipse cx="402" cy="291" rx="311" ry="140.5" stroke="#F96BD6" stroke-opacity="0.2" stroke-width="0.8" />
+    <!-- Dark Ink Path Offset -->
+    <ellipse cx="400" cy="290" rx="305" ry="135" stroke-opacity="0.15" stroke-dasharray="6, 6" />
+
+    <!-- Technical Reticles (Left & Right Focal Points) -->
+    <!-- Left Reticle -->
+    <g transform="translate(180, 220)">
+      <circle cx="0" cy="0" r="16" stroke-opacity="0.25" />
+      <circle cx="0" cy="0" r="6" stroke-opacity="0.15" />
+      <line x1="-22" y1="0" x2="22" y2="0" stroke-opacity="0.3" />
+      <line x1="0" y1="-22" x2="0" y2="22" stroke-opacity="0.3" />
+      <path d="M -12 -12 L 12 12 M -12 12 L 12 -12" stroke-opacity="0.1" stroke-dasharray="1, 2" />
+    </g>
+
+    <!-- Right Reticle -->
+    <g transform="translate(620, 220)">
+      <circle cx="0" cy="0" r="16" stroke-opacity="0.25" />
+      <circle cx="0" cy="0" r="6" stroke-opacity="0.15" />
+      <line x1="-22" y1="0" x2="22" y2="0" stroke-opacity="0.3" />
+      <line x1="0" y1="-22" x2="0" y2="22" stroke-opacity="0.3" />
+      <polygon points="0,-10 -8,5 8,5" stroke="#FF9238" stroke-opacity="0.3" stroke-width="0.8" />
+    </g>
+
+    <!-- Subtly angled optical alignment triangles -->
+    <polygon points="400,165 394,175 406,175" fill="#1F1F1F" fill-opacity="0.3" stroke="none" />
+    <polygon points="400,415 394,405 406,405" fill="#1F1F1F" fill-opacity="0.3" stroke="none" />
+  </g>
+</svg>

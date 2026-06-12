@@ -55,11 +55,22 @@ def generate_svg(contexts: list[str], per_context: int = 1) -> list[Path]:
         if not prompt:
             continue
         for n in range(per_context):
-            raw = ask(prompt)
             try:
+                # Gemini 3.x spends "thinking" tokens from the same output budget;
+                # 8192 starved the SVG body (observed MAX_TOKENS on every context).
+                raw = ask(
+                    "You are a precision vector illustrator. Reply with exactly one "
+                    "standalone <svg> document and nothing else.",
+                    [{"role": "user", "content": prompt}],
+                    max_tokens=32768,
+                    feature="media_accent",
+                )
                 svg = sanitize_svg(_extract_svg(raw))
             except SvgRejected as exc:
                 print(f"  REJECTED {ctx} #{n}: rejected ({exc})")
+                continue
+            except Exception as exc:  # API/server errors must not kill the sweep
+                print(f"  ERROR {ctx} #{n}: {type(exc).__name__}: {str(exc)[:160]}")
                 continue
             out = ACCENTS_DIR / f"{ctx}-gen-{n:02d}.svg"
             out.write_text(svg, encoding="utf-8")

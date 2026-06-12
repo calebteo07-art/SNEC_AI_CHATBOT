@@ -21,7 +21,9 @@ _SVG_RULES = (
     "ellipse,rect,line,polyline,polygon,defs,linearGradient,radialGradient,stop,"
     "clipPath,mask,filter,feTurbulence,feDisplacementMap,feGaussianBlur,"
     "feColorMatrix,feBlend; NO script, NO style attributes, NO foreignObject, "
-    "NO external references, NO event handlers. "
+    "NO external references, NO event handlers, NO <use>, NO <text>, NO <image>, "
+    "NO font attributes of any kind. The document must be strictly well-formed "
+    "XML — every tag closed, no stray characters. "
     "Palette only: #3C90FF #4FA0FF #00BDD2 #60D673 #88DE42 #FFCF03 #FF9238 "
     "#FF5A59 #F96BD6 #AD72FF, ink #1F1F1F at low opacity, on transparent. "
     "Aesthetic: PHOTOPIC — translucent iridescent ink blooming through paper; "
@@ -57,7 +59,8 @@ RASTER_PROMPTS: dict[str, str] = {
 }
 
 LOOP_PROMPTS: dict[str, str] = {
-    "login":   "Seamless 6s loop: extreme macro of a calm blue-cyan human iris on a paper-white field, micro contractions of the pupil, soft daylight, iridescent limbal shimmer. Clinical, serene, premium. Loop start/end identical.",
-    "checkin": "Seamless 6s loop: a single drop of iridescent gem-spectrum ink (blue to violet) blooming slowly through white water on paper, ultra soft light. Loop start/end identical.",
-    "summary": "Seamless 5s loop: gentle caustic light patterns in gem blues and violets drifting across warm white paper, barely-there. Loop start/end identical.",
+    "login":     "Seamless 5s loop: extreme macro of a calm blue-cyan human iris on a paper-white field, micro contractions of the pupil, soft daylight, iridescent limbal shimmer. Clinical, serene, premium. Loop start/end identical.",
+    "checkin":   "Seamless 5s loop: a single drop of iridescent gem-spectrum ink (blue to violet) blooming slowly through white water on paper, ultra soft light. Loop start/end identical.",
+    "dashboard": "Seamless 5s loop: a sculptural clear glass lens resting on warm paper white, slowly drifting gem-spectrum caustic light (blue, cyan, violet) refracting across the paper, bright clinical daylight, premium calm. Loop start/end identical.",
+    "summary":   "Seamless 5s loop: several tiny droplets of different gem-coloured inks (blue, cyan, violet, gold) blooming at once through clear water over warm white paper, a quiet celebration, ultra soft light. Loop start/end identical.",
 }

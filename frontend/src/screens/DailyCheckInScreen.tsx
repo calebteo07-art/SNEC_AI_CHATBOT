@@ -5,6 +5,7 @@ import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
 import { AccentSvg } from "@/fx/media/AccentSvg";
+import { HiggsfieldLoop } from "@/fx/media/HiggsfieldLoop";
 
 /* ── Types (unchanged) ────────────────────────────────────── */
 type Phase = "loading" | "question" | "result";
@@ -92,6 +93,8 @@ export function DailyCheckInScreen() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, position: "relative", overflow: "hidden", background: "transparent" }}>
+      {/* Ambient ink-bloom loop beneath the deco layers */}
+      <HiggsfieldLoop context="checkin" style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none" }} />
       {/* Floating deco — generative sunrise accent over the anatomy ghost */}
       <img src="/anatomy/eye-scan.png" aria-hidden="true" alt="" style={{ position: "absolute", width: 400, height: 400, objectFit: "cover", opacity: 0.07, mixBlendMode: "multiply", top: "50%", left: "50%", transform: "translate(-50%,-50%)", borderRadius: "50%", pointerEvents: "none" }} />
       <AccentSvg
