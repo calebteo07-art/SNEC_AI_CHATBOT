@@ -17,8 +17,10 @@ import {
 import { usePathname } from "next/navigation";
 import { useMotionValue, type MotionValue } from "motion/react";
 import Lenis from "lenis";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { subscribeTicker } from "./ticker";
 import { useFx } from "./MotionProvider";
+import { pushSplat } from "./canvas/fluidBus";
 
 const LENIS_ROUTES = new Set([
   "/dashboard",
@@ -68,7 +70,32 @@ export function ScrollProvider({
       smoothWheel: true,
       syncTouch: false, // touch scrolling stays fully native
     });
-    instance.on("scroll", (l: Lenis) => velocity.set(l.velocity));
+    let lastBurst = 0;
+    instance.on("scroll", (l: Lenis) => {
+      velocity.set(l.velocity);
+      ScrollTrigger.update();
+      /* momentum disturbs the ink — edge splats rising with the scroll */
+      const v = l.velocity;
+      const now = performance.now();
+      if (Math.abs(v) > 2 && now - lastBurst > 33) {
+        lastBurst = now;
+        const push = Math.max(-80, Math.min(80, v));
+        pushSplat({ x: 0.15, y: 0.06, dx: -push * 0.004, dy: push * 0.014 });
+        pushSplat({ x: 0.85, y: 0.06, dx: push * 0.004, dy: push * 0.014 });
+      }
+    });
+    /* Let ScrollTrigger read/write the Lenis-managed scroller. */
+    ScrollTrigger.scrollerProxy(wrapper, {
+      scrollTop(value?: number) {
+        if (value !== undefined) instance.scrollTo(value, { immediate: true });
+        return instance.scroll;
+      },
+      getBoundingClientRect() {
+        return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+      },
+    });
+    ScrollTrigger.defaults({ scroller: wrapper });
+    ScrollTrigger.refresh();
     const unsubscribe = subscribeTicker((time) => instance.raf(time));
     lenisRef.current = instance;
     setLenis(instance);
@@ -79,6 +106,7 @@ export function ScrollProvider({
       lenisRef.current = null;
       setLenis(null);
       velocity.set(0);
+      ScrollTrigger.defaults({ scroller: undefined });
     };
   }, [enabled, scrollerRef, contentRef, velocity]);
 

@@ -1,10 +1,17 @@
-/* DARK ADAPTATION · motion governance
+"use client";
+/* PHOTOPIC · motion governance
  * Single source of truth for reduced-motion and the device performance tier.
- * Every effect layer (Lenis, cursor, gaze, liquid, blur) consults this context;
- * tier "off" means the user asked for reduced motion — everything degrades to static.
+ * Every effect layer (Lenis, fluid, gaze, liquid, GSAP) consults this context;
+ * tier "off" means motion is reduced — everything degrades to static.
+ *
+ * Two inputs can reduce motion: the OS media query, and the user's in-app
+ * toggle (persisted at localStorage["eyebot_motion"]). The resolved state is
+ * mirrored to <html data-motion="on|off"> so CSS and gsap.matchMedia can key
+ * off it without React.
  */
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,19 +21,27 @@ import {
 import { MotionConfig } from "motion/react";
 
 export type FxTier = "high" | "low" | "off";
+export type MotionPref = "auto" | "reduced";
+
+const MOTION_PREF_KEY = "eyebot_motion";
 
 interface FxContextValue {
-  /** "high" = full effects, "low" = no blur/WebGL extras, "off" = reduced motion. */
+  /** "high" = full effects, "low" = no WebGL extras, "off" = reduced motion. */
   tier: FxTier;
   reducedMotion: boolean;
-  /** Mouse-like pointer present — gates cursor, magnetic, hover shaders. */
+  /** Mouse-like pointer present — gates magnetic pull and hover shaders. */
   finePointer: boolean;
+  /** The user's in-app override (profile toggle). */
+  motionPref: MotionPref;
+  setMotionPref: (pref: MotionPref) => void;
 }
 
 const FxContext = createContext<FxContextValue>({
   tier: "high",
   reducedMotion: false,
   finePointer: true,
+  motionPref: "auto",
+  setMotionPref: () => {},
 });
 
 function useMedia(query: string): boolean {
@@ -57,17 +72,41 @@ function detectHardwareTier(): "high" | "low" {
 }
 
 export function MotionProvider({ children }: { children: ReactNode }) {
-  const reducedMotion = useMedia("(prefers-reduced-motion: reduce)");
+  const mediaReduced = useMedia("(prefers-reduced-motion: reduce)");
   const finePointer = useMedia("(pointer: fine)");
   const [hwTier] = useState<"high" | "low">(detectHardwareTier);
+  const [motionPref, setMotionPrefState] = useState<MotionPref>("auto");
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(MOTION_PREF_KEY) === "reduced") setMotionPrefState("reduced");
+    } catch { /* private mode */ }
+  }, []);
+
+  const setMotionPref = useCallback((pref: MotionPref) => {
+    setMotionPrefState(pref);
+    try {
+      if (pref === "reduced") localStorage.setItem(MOTION_PREF_KEY, "reduced");
+      else localStorage.removeItem(MOTION_PREF_KEY);
+    } catch { /* private mode */ }
+  }, []);
+
+  const reducedMotion = mediaReduced || motionPref === "reduced";
+
+  /* CSS + gsap.matchMedia hook: html[data-motion="off"] */
+  useEffect(() => {
+    document.documentElement.setAttribute("data-motion", reducedMotion ? "off" : "on");
+  }, [reducedMotion]);
 
   const value = useMemo<FxContextValue>(
     () => ({
       tier: reducedMotion ? "off" : hwTier,
       reducedMotion,
       finePointer,
+      motionPref,
+      setMotionPref,
     }),
-    [reducedMotion, finePointer, hwTier],
+    [reducedMotion, finePointer, hwTier, motionPref, setMotionPref],
   );
 
   return (
