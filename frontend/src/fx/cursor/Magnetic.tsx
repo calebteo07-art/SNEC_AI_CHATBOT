@@ -1,15 +1,16 @@
-/* DARK ADAPTATION · magnetic pull
+"use client";
+/* PHOTOPIC · magnetic pull (GSAP quickTo)
  * Interface elements lean toward the cursor like iron filings — a few
- * pixels of spring-loaded attraction, gone the moment the pointer leaves.
+ * pixels of attraction, gone the moment the pointer leaves. The internal
+ * content shifts toward the pointer to acknowledge focus.
  * Inert on touch and under reduced motion.
  */
-import { type CSSProperties, type ReactNode } from "react";
-import { motion, useSpring } from "motion/react";
+import { useRef, type CSSProperties, type ReactNode } from "react";
+import { gsap, useGSAP } from "../gsapSetup";
 import { useFx } from "../MotionProvider";
 
-/* Props are intentionally narrow (motion@12.40's HTMLMotionProps no longer
- * tolerates a React.HTMLAttributes spread — drag/animation handler names
- * collide). Every call site only ever passes these. */
+const MAX_SHIFT = 8; // px — subtle acknowledgement, never displacement
+
 interface MagneticProps {
   children: ReactNode;
   /** Fraction of the pointer offset transferred to the element. */
@@ -20,8 +21,18 @@ interface MagneticProps {
 
 export function Magnetic({ children, strength = 0.3, style, ...rest }: MagneticProps) {
   const { finePointer, reducedMotion } = useFx();
-  const x = useSpring(0, { stiffness: 380, damping: 26, mass: 0.5 });
-  const y = useSpring(0, { stiffness: 380, damping: 26, mass: 0.5 });
+  const ref = useRef<HTMLSpanElement>(null);
+  const toX = useRef<((v: number) => void) | null>(null);
+  const toY = useRef<((v: number) => void) | null>(null);
+
+  useGSAP(
+    () => {
+      if (!ref.current || !finePointer || reducedMotion) return;
+      toX.current = gsap.quickTo(ref.current, "x", { duration: 0.4, ease: "power3.out" });
+      toY.current = gsap.quickTo(ref.current, "y", { duration: 0.4, ease: "power3.out" });
+    },
+    { dependencies: [finePointer, reducedMotion], scope: ref },
+  );
 
   if (!finePointer || reducedMotion) {
     return (
@@ -31,21 +42,24 @@ export function Magnetic({ children, strength = 0.3, style, ...rest }: MagneticP
     );
   }
 
+  const clamp = (v: number) => Math.max(-MAX_SHIFT, Math.min(MAX_SHIFT, v));
+
   return (
-    <motion.span
-      style={{ display: "inline-block", x, y, ...style }}
+    <span
+      ref={ref}
+      style={{ display: "inline-block", willChange: "transform", ...style }}
       onPointerMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
-        x.set((e.clientX - (r.left + r.width / 2)) * strength);
-        y.set((e.clientY - (r.top + r.height / 2)) * strength);
+        toX.current?.(clamp((e.clientX - (r.left + r.width / 2)) * strength));
+        toY.current?.(clamp((e.clientY - (r.top + r.height / 2)) * strength));
       }}
       onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
+        toX.current?.(0);
+        toY.current?.(0);
       }}
       {...rest}
     >
       {children}
-    </motion.span>
+    </span>
   );
 }
