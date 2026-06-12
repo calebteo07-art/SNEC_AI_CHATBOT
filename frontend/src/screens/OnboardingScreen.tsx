@@ -211,13 +211,21 @@ export function OnboardingScreen() {
         aria-hidden="true"
         style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(26,168,156,0.10) 0%, rgba(66,133,244,0.05) 42%, rgba(255,255,255,0) 72%), #FDFDFC" }}
       />
-      {/* Cinematic backdrop slot — lights up once a Higgsfield loop lands in
-          the library; renders nothing until then. Sits beneath The Gaze. */}
-      <HiggsfieldLoop context="login" style={{ position: "absolute", inset: 0, opacity: 0.5 }} />
       {/* The Gaze — the eye that watches you */}
       <Suspense fallback={null}>
         <TheGaze ref={gazeRef} />
       </Suspense>
+      {/* Cinematic macro-iris loop — masked to the card zone so it breathes
+          through the glass card's blur while The Gaze stays the hero. */}
+      <HiggsfieldLoop
+        context="login"
+        style={{
+          position: "absolute", top: 0, bottom: 0, left: 0, width: "min(40vw, 620px)",
+          opacity: 0.35, pointerEvents: "none",
+          maskImage: "radial-gradient(closest-side at 50% 50%, black 45%, transparent 100%)",
+          WebkitMaskImage: "radial-gradient(closest-side at 50% 50%, black 45%, transparent 100%)",
+        }}
+      />
 
       {/* Forced password change modal (floats on top) */}
       {step === "change_password" && loginResult && (

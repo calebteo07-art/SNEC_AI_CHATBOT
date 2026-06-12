@@ -1,8 +1,19 @@
 {
-  "version": 1,
-  "generatedAt": "2026-06-12T07:56:45.196740+00:00",
+  "version": 8,
+  "generatedAt": "2026-06-12T12:55:11.200432+00:00",
   "palette": "photopic-v2",
   "accents": [
+    {
+      "id": "case-session-gen-00",
+      "kind": "svg",
+      "context": [
+        "case-session"
+      ],
+      "path": "/media/accents/case-session-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-d00481595f577599e31d7df3"
+    },
     {
       "id": "cases-seed-00",
       "kind": "svg",
@@ -13,6 +24,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-241dcc0873a05a89ad540102"
+    },
+    {
+      "id": "checkin-gen-00",
+      "kind": "svg",
+      "context": [
+        "checkin"
+      ],
+      "path": "/media/accents/checkin-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-c0f987589ff5aafb49745632"
     },
     {
       "id": "checkin-seed-00",
@@ -26,6 +48,17 @@
       "hash": "sha256-afc420f34b6aaee8efa34612"
     },
     {
+      "id": "dashboard-photo-00",
+      "kind": "raster",
+      "context": [
+        "dashboard"
+      ],
+      "path": "/media/accents/dashboard-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-48313e39658a1fb26bb53c1e"
+    },
+    {
       "id": "dashboard-seed-00",
       "kind": "svg",
       "context": [
@@ -35,6 +68,28 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-c499313c4a7bf52864fe7da9"
+    },
+    {
+      "id": "flashcards-gen-00",
+      "kind": "svg",
+      "context": [
+        "flashcards"
+      ],
+      "path": "/media/accents/flashcards-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-8bab79c74ed9bfaa881bc1a5"
+    },
+    {
+      "id": "login-photo-00",
+      "kind": "raster",
+      "context": [
+        "login"
+      ],
+      "path": "/media/accents/login-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-22b9cb0bbca003f16a345b21"
     },
     {
       "id": "login-seed-00",
@@ -48,6 +103,28 @@
       "hash": "sha256-a5882c412df3866e877ae700"
     },
     {
+      "id": "profile-gen-00",
+      "kind": "svg",
+      "context": [
+        "profile"
+      ],
+      "path": "/media/accents/profile-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-7b2667b56fb962eb060e4237"
+    },
+    {
+      "id": "summary-photo-00",
+      "kind": "raster",
+      "context": [
+        "summary"
+      ],
+      "path": "/media/accents/summary-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-5441740c018d4e9dbb91fd1f"
+    },
+    {
       "id": "summary-seed-00",
       "kind": "svg",
       "context": [
@@ -59,5 +136,42 @@
       "hash": "sha256-c89e64a16be61cc0424f6410"
     }
   ],
-  "loops": []
+  "loops": [
+    {
+      "id": "checkin-loop-00",
+      "src": "/media/loops/checkin-loop-00.mp4",
+      "poster": "/media/loops/checkin-loop-00.jpg",
+      "context": [
+        "checkin"
+      ],
+      "hash": "sha256-e8ee8b591f1210efe5b4d4ed"
+    },
+    {
+      "id": "dashboard-loop-00",
+      "src": "/media/loops/dashboard-loop-00.mp4",
+      "poster": "/media/loops/dashboard-loop-00.jpg",
+      "context": [
+        "dashboard"
+      ],
+      "hash": "sha256-46c3e20773f0eeed932b18ae"
+    },
+    {
+      "id": "login-loop-00",
+      "src": "/media/loops/login-loop-00.mp4",
+      "poster": "/media/loops/login-loop-00.jpg",
+      "context": [
+        "login"
+      ],
+      "hash": "sha256-8b4e60c235ca90122b09ef93"
+    },
+    {
+      "id": "summary-loop-00",
+      "src": "/media/loops/summary-loop-00.mp4",
+      "poster": "/media/loops/summary-loop-00.jpg",
+      "context": [
+        "summary"
+      ],
+      "hash": "sha256-0cb540e5eee3408b37fe4e85"
+    }
+  ]
 }

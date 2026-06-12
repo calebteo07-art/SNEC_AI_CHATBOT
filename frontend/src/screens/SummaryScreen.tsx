@@ -5,6 +5,7 @@ import { confetti } from "@/fx/confetti";
 import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
 import { AccentSvg } from "@/fx/media/AccentSvg";
+import { HiggsfieldLoop } from "@/fx/media/HiggsfieldLoop";
 
 /* Frozen brand palette only — no stray hues in the celebration. */
 const CONFETTI_COLORS = ["#3C90FF", "#D97706", "#A78BFA", "#34D399", "#1F1F1F"];
@@ -59,6 +60,8 @@ export function SummaryScreen() {
 
   return (
     <div className="screen-summary">
+      {/* Quiet celebration-ink loop beneath the deco layers */}
+      <HiggsfieldLoop context="summary" style={{ position: "absolute", inset: 0, opacity: 0.35, pointerEvents: "none" }} />
       {/* Decorative bg anatomy + generative celebration burst */}
       <img
         src="/anatomy/eye-hero.png"

@@ -45,9 +45,12 @@ export function accentsFor(
   manifest: MediaManifest | undefined,
   ctx: NavContext,
   n = 1,
+  // AccentSvg slots are designed for translucent linework — opaque 16:9
+  // rasters live in the library as a separate class and must be opted into.
+  kind: Accent["kind"] = "svg",
 ): Accent[] {
   if (!manifest) return [];
-  const pool = manifest.accents.filter((a) => a.context.includes(ctx));
+  const pool = manifest.accents.filter((a) => a.kind === kind && a.context.includes(ctx));
   if (pool.length === 0) return [];
   const start = sessionSeed(ctx) % pool.length;
   return Array.from({ length: Math.min(n, pool.length) }, (_, i) => pool[(start + i) % pool.length]);
