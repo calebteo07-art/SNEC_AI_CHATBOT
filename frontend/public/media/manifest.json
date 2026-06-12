@@ -1,8 +1,19 @@
 {
-  "version": 8,
-  "generatedAt": "2026-06-12T12:55:11.200432+00:00",
+  "version": 10,
+  "generatedAt": "2026-06-12T17:35:55.974062+00:00",
   "palette": "photopic-v2",
   "accents": [
+    {
+      "id": "admin-gen-00",
+      "kind": "svg",
+      "context": [
+        "admin"
+      ],
+      "path": "/media/accents/admin-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-e36af38c22f908fa62ae4d86"
+    },
     {
       "id": "case-session-gen-00",
       "kind": "svg",
@@ -13,6 +24,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-d00481595f577599e31d7df3"
+    },
+    {
+      "id": "cases-gen-00",
+      "kind": "svg",
+      "context": [
+        "cases"
+      ],
+      "path": "/media/accents/cases-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-5d7cf76dd179f4bff44f8cdc"
     },
     {
       "id": "cases-seed-00",
@@ -48,6 +70,17 @@
       "hash": "sha256-afc420f34b6aaee8efa34612"
     },
     {
+      "id": "dashboard-gen-00",
+      "kind": "svg",
+      "context": [
+        "dashboard"
+      ],
+      "path": "/media/accents/dashboard-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-7968310eef680a58b3df7d2d"
+    },
+    {
       "id": "dashboard-photo-00",
       "kind": "raster",
       "context": [
@@ -79,6 +112,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-8bab79c74ed9bfaa881bc1a5"
+    },
+    {
+      "id": "login-gen-00",
+      "kind": "svg",
+      "context": [
+        "login"
+      ],
+      "path": "/media/accents/login-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-e60ce7660c94fcad6c326a9f"
     },
     {
       "id": "login-photo-00",
@@ -114,6 +158,28 @@
       "hash": "sha256-7b2667b56fb962eb060e4237"
     },
     {
+      "id": "progress-gen-00",
+      "kind": "svg",
+      "context": [
+        "progress"
+      ],
+      "path": "/media/accents/progress-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-8eba62724cc67b6dc1a71e5e"
+    },
+    {
+      "id": "summary-gen-00",
+      "kind": "svg",
+      "context": [
+        "summary"
+      ],
+      "path": "/media/accents/summary-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-0000bfdbbdbdfb8471aa1c48"
+    },
+    {
       "id": "summary-photo-00",
       "kind": "raster",
       "context": [
@@ -134,6 +200,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-c89e64a16be61cc0424f6410"
+    },
+    {
+      "id": "supervisor-gen-00",
+      "kind": "svg",
+      "context": [
+        "supervisor"
+      ],
+      "path": "/media/accents/supervisor-gen-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-a8d3c90169d5c84ee093fe59"
     }
   ],
   "loops": [
