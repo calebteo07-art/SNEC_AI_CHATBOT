@@ -8,7 +8,8 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60_000,
       gcTime: 24 * 60 * 60_000,
-      retry: (failureCount) => (navigator.onLine ? failureCount < 2 : false),
+      retry: (failureCount) =>
+        typeof navigator !== "undefined" && navigator.onLine ? failureCount < 2 : false,
       networkMode: "offlineFirst",
     },
     mutations: {
@@ -17,15 +18,19 @@ export const queryClient = new QueryClient({
   },
 });
 
-const persister = createAsyncStoragePersister({
-  storage: idbStorage,
-  key: "EYEBOT_QUERY_CACHE",
-});
+/* Persistence is browser-only — this module is also evaluated during server
+ * prerendering of the client provider tree. */
+if (typeof window !== "undefined") {
+  const persister = createAsyncStoragePersister({
+    storage: idbStorage,
+    key: "EYEBOT_QUERY_CACHE",
+  });
 
-const [, persistPromise] = persistQueryClient({
-  queryClient,
-  persister,
-  maxAge: 24 * 60 * 60_000,
-});
-// Suppress unhandled rejection — IDB unavailable (private browsing, quota exceeded) is non-fatal
-persistPromise.catch(() => {});
+  const [, persistPromise] = persistQueryClient({
+    queryClient,
+    persister,
+    maxAge: 24 * 60 * 60_000,
+  });
+  // Suppress unhandled rejection — IDB unavailable (private browsing, quota exceeded) is non-fatal
+  persistPromise.catch(() => {});
+}

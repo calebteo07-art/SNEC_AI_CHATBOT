@@ -6,18 +6,24 @@ log_session, generate_cards). Automatically runs in MOCK MODE when
 GEMINI_API_KEY is not set in .env — the full frontend flow works without
 an API key.
 
-Run:
+Topology (PHOTOPIC Phase 0): this server is API-only. The Next.js standalone
+server is the public process; it proxies /api/* and /health here via
+next.config.ts rewrites. Page-level security headers (CSP etc.) are owned by
+Next; this server only ever returns JSON/SSE.
+
+Run (dev):
     uvicorn tools.api.server:app --reload --port 8000
 """
 
+import asyncio
 import os
 import sys
+import time
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import StreamingResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
@@ -38,7 +44,7 @@ app = FastAPI(title="EyeBot API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000")
 _allow_all = _raw_origins.strip() == "*"
 _ALLOWED_ORIGINS = ["*"] if _allow_all else [o.strip() for o in _raw_origins.split(",") if o.strip()]
 
@@ -59,15 +65,6 @@ async def add_security_headers(request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-XSS-Protection"] = "0"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-    if os.getenv("ENVIRONMENT") != "production":
-        response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: blob:; "
-            "connect-src 'self'; "
-            "frame-ancestors 'none'"
-        )
     return response
 
 
@@ -85,8 +82,7 @@ def health():
     return {
         "status": "ok",
         "mock_mode": MOCK_MODE,
-        "frontend_built": FRONTEND_DIST.exists(),
-        "frontend_path": str(FRONTEND_DIST),
+        "topology": "api-only (Next.js standalone is the public server)",
         "server_file": str(Path(__file__).resolve()),
         "cwd": str(Path.cwd()),
     }
@@ -97,41 +93,23 @@ def status():
     return {"status": "ok", "mock_mode": MOCK_MODE}
 
 
-# Serve the Vite SPA build (frontend/dist) — mounts must be last so API routes take priority
-FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
+if os.getenv("ENVIRONMENT") != "production":
 
-if FRONTEND_DIST.exists():
-    _assets_dir = FRONTEND_DIST / "assets"
-    if _assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=_assets_dir), name="vite-assets")
+    @app.get("/api/dev/sse-test")
+    async def sse_test():
+        """Dev-only probe for the Phase-0 migration gate: proves SSE chunks
+        traverse the Next rewrite proxy unbuffered (5 chunks, 300 ms apart)."""
 
-    _anatomy_dir = FRONTEND_DIST / "anatomy"
-    if _anatomy_dir.exists():
-        app.mount("/anatomy", StaticFiles(directory=_anatomy_dir), name="anatomy-static")
+        async def gen():
+            for i in range(5):
+                yield f"data: chunk-{i} t={time.time():.3f}\n\n"
+                await asyncio.sleep(0.3)
 
-
-@app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    if not FRONTEND_DIST.exists():
-        raise HTTPException(status_code=503, detail="Frontend not built — frontend/dist/ missing")
-
-    # Security: reject path traversal
-    try:
-        resolved = (FRONTEND_DIST / full_path).resolve()
-        resolved.relative_to(FRONTEND_DIST.resolve())
-    except Exception:
-        raise HTTPException(status_code=404)
-
-    # 1. Direct file: favicon, manifest.json, sw.js, icon.svg, etc.
-    if full_path and resolved.is_file():
-        # The service worker must never be served stale or deploys won't roll out
-        if full_path == "sw.js":
-            return FileResponse(resolved, headers={"Cache-Control": "no-cache"})
-        return FileResponse(resolved)
-
-    # 2. SPA fallback — react-router resolves the path client-side
-    root_html = FRONTEND_DIST / "index.html"
-    if root_html.is_file():
-        return FileResponse(root_html, headers={"Cache-Control": "no-cache"})
-
-    raise HTTPException(status_code=404, detail="Page not found")
+        return StreamingResponse(
+            gen(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache, no-transform",
+                "X-Accel-Buffering": "no",
+            },
+        )

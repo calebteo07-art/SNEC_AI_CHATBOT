@@ -30,9 +30,10 @@ const FxContext = createContext<FxContextValue>({
 });
 
 function useMedia(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(
-    () => typeof window !== "undefined" && window.matchMedia(query).matches,
-  );
+  /* Hydration-safe: server and first client render agree on `false`; the
+   * effect corrects immediately after mount (consumers render in providers
+   * that ARE server-rendered, unlike the ssr:false screens). */
+  const [matches, setMatches] = useState(false);
   useEffect(() => {
     const mql = window.matchMedia(query);
     const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
@@ -44,6 +45,7 @@ function useMedia(query: string): boolean {
 }
 
 function detectHardwareTier(): "high" | "low" {
+  if (typeof navigator === "undefined") return "high";
   const nav = navigator as Navigator & {
     deviceMemory?: number;
     connection?: { saveData?: boolean };

@@ -1,3 +1,4 @@
+"use client";
 /* DARK ADAPTATION · route wipe state machine
  * Tier-1 transitions: the screen blinks. Eyelid panels close over the old
  * route, navigation happens beneath the opaque cover, then the lids open on
@@ -6,24 +7,29 @@
  *
  * Promise-based so call-sites (and the audio layer) can sequence against it.
  * Reduced motion ⇒ instant cut, no overlay.
+ *
+ * App Router port: navigations commit asynchronously, so the cover is held
+ * until the new pathname actually renders (with a short timeout fallback for
+ * actions that don't change the path).
  */
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
-import { useNavigate } from "react-router";
+import { usePathname, useRouter } from "next/navigation";
 import { useFx } from "./MotionProvider";
 import { useAudio } from "./audio/useAudio";
 
 export type WipePhase = "idle" | "closing" | "covered" | "opening";
 
 /** A path to navigate to, or a callback that performs the navigation itself
- *  (needed when auth state must change or router state must be passed). */
+ *  (needed when auth state must change or storage must be written first). */
 export type WipeAction = string | (() => void);
 
 interface TransitionContextValue {
@@ -38,6 +44,9 @@ interface TransitionContextValue {
 
 const CLOSE_MS = 280;
 const OPEN_MS = 460;
+/** Upper bound on waiting for the App Router to commit — covers actions that
+ *  navigate to the current path or don't navigate at all. */
+const ROUTE_COMMIT_TIMEOUT_MS = 600;
 
 const TransitionContext = createContext<TransitionContextValue | null>(null);
 
@@ -50,20 +59,45 @@ const nextFrames = (n: number) =>
   });
 
 export function TransitionProvider({ children }: { children: ReactNode }) {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = usePathname();
   const { reducedMotion } = useFx();
   const { play } = useAudio();
   const [phase, setPhase] = useState<WipePhase>("idle");
   const [instant, setInstant] = useState(false);
   const busyRef = useRef(false);
+  const pendingCommit = useRef<{ fromPath: string; resolve: () => void } | null>(null);
+
+  /* Resolve the in-flight wipe as soon as the new route's pathname renders. */
+  useEffect(() => {
+    const pending = pendingCommit.current;
+    if (pending && pathname !== pending.fromPath) {
+      pendingCommit.current = null;
+      pending.resolve();
+    }
+  }, [pathname]);
 
   const run = useCallback(
     (action: WipeAction) => {
       if (typeof action === "function") action();
-      else navigate(action);
+      else router.push(action);
     },
-    [navigate],
+    [router],
   );
+
+  const waitForCommit = useCallback((fromPath: string) => {
+    return new Promise<void>((resolve) => {
+      const settle = () => {
+        clearTimeout(timer);
+        resolve();
+      };
+      const timer = setTimeout(() => {
+        if (pendingCommit.current?.resolve === settle) pendingCommit.current = null;
+        resolve();
+      }, ROUTE_COMMIT_TIMEOUT_MS);
+      pendingCommit.current = { fromPath, resolve: settle };
+    });
+  }, []);
 
   const wipe = useCallback(
     async (action: WipeAction) => {
@@ -77,15 +111,17 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setInstant(false);
       setPhase("closing");
       await delay(CLOSE_MS + 40);
+      const committed = waitForCommit(window.location.pathname);
       run(action);
       setPhase("covered");
+      await committed;
       await nextFrames(2);
       setPhase("opening");
       await delay(OPEN_MS);
       setPhase("idle");
       busyRef.current = false;
     },
-    [run, reducedMotion, play],
+    [run, reducedMotion, play, waitForCommit],
   );
 
   const handoff = useCallback(
@@ -99,7 +135,9 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setInstant(true);
       setPhase("covered");
       await nextFrames(1);
+      const committed = waitForCommit(window.location.pathname);
       run(action);
+      await committed;
       await nextFrames(2);
       setInstant(false);
       setPhase("opening");
@@ -107,7 +145,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setPhase("idle");
       busyRef.current = false;
     },
-    [run, reducedMotion],
+    [run, reducedMotion, waitForCommit],
   );
 
   const value = useMemo(
@@ -120,6 +158,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
 export function useWipeNavigate(): TransitionContextValue {
   const ctx = useContext(TransitionContext);
-  if (!ctx) throw new Error("useWipeNavigate must be used inside FxRoot");
+  if (!ctx) throw new Error("useWipeNavigate must be used inside the fx providers");
   return ctx;
 }

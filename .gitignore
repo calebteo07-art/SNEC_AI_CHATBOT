@@ -10,17 +10,15 @@ venv/
 *.egg-info/
 dist/
 build/
-# …except the production SPA build, which is committed for Render/Docker deploys
-!frontend/dist/
-!frontend/dist/**
 
 # Environment variables
 .env
 .env.local
 .env.*.local
 
-# Node
+# Node / Next.js
 node_modules/
+.next/
 npm-debug.log*
 yarn-error.log*
 

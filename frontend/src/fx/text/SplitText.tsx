@@ -6,7 +6,7 @@
 import { type CSSProperties } from "react";
 import { motion } from "motion/react";
 import { useFx } from "../MotionProvider";
-import { springs, staggerContainer } from "../../app/utils/springs";
+import { springs, staggerContainer } from "@/lib/legacy/springs";
 
 const unitVariant = {
   hidden: { opacity: 0, y: "0.55em", rotate: 2.5 },
