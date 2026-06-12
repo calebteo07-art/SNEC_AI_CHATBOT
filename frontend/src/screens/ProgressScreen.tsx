@@ -1,11 +1,16 @@
-/* DARK ADAPTATION · "Your Scan"
+/* PHOTOPIC · "Your Scan"
  * The progress page reads like an ophthalmic diagnostic report. Its core
  * is an OCT-style cross-section of the student's knowledge: topics as
- * retinal strata, mastery revealed as a slit-beam scan line sweeps the
- * section — driven by scroll, pinned in place while the story scrubs.
+ * retinal strata, mastery revealed as a slit-beam scan line sweeping the
+ * section — a ScrollTrigger scrub timeline riding the Lenis scroller.
+ * The section stays CSS-sticky (proven inside the custom scroller) while
+ * GSAP drives every scrubbed value; the beam tip seeds ink into the fluid
+ * canvas as it sweeps.
  */
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useRef } from "react";
+import { motion } from "motion/react";
+import { gsap, ScrollTrigger, useGSAP } from "@/fx/gsapSetup";
+import { pushSplat } from "@/fx/canvas/fluidBus";
 import { useProgress } from "@/hooks/useProgress";
 import type { ProgressData } from "@/hooks/useProgress";
 import { useFx, useShellScroll } from "@/fx";
@@ -56,27 +61,16 @@ const VELOCITY_META: Record<string, { glyph: string; color: string; label: strin
   declining: { glyph: "▼", color: "#E11D48", label: "NEEDS ATTENTION" },
 };
 
-/* ── One OCT stratum (topic layer) ────────────────────────── */
+/* ── One OCT stratum (topic layer) — dumb markup; GSAP scrubs it ── */
 function ScanStratum({
   topic,
   score,
-  index,
-  total,
-  progress,
   reduced,
 }: {
   topic: string;
   score: number;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
   reduced: boolean;
 }) {
-  const start = 0.06 + (index / Math.max(total, 1)) * 0.62;
-  const end = start + 0.26;
-  const fill = useTransform(progress, [start, end], [0, score], { clamp: true });
-  const labelOpacity = useTransform(progress, [start, start + 0.08], [0.3, 1]);
-  const pctText = useTransform(fill, v => `${Math.round(v * 100)}%`);
   const pct = Math.round(score * 100);
   const hex = trackHex(topic);
 
@@ -98,8 +92,10 @@ function ScanStratum({
         style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${hex}14, transparent 72%)` }}
       />
       {/* mastery core — revealed by the scan line */}
-      <motion.div
+      <div
         aria-hidden="true"
+        className="scan-core"
+        data-score={score}
         style={{
           position: "absolute",
           left: 0,
@@ -107,15 +103,16 @@ function ScanStratum({
           bottom: "32%",
           width: "100%",
           transformOrigin: "left center",
-          scaleX: reduced ? score : fill,
+          transform: `scaleX(${reduced ? score : 0})`,
           background: `linear-gradient(90deg, ${hex}22, ${hex}55)`,
           borderRight: `2px solid ${hex}`,
           boxShadow: `0 0 18px ${hex}30`,
         }}
       />
-      <motion.div
+      <div
+        className="scan-label-row"
         style={{
-          opacity: reduced ? 1 : labelOpacity,
+          opacity: reduced ? 1 : 0.3,
           position: "relative",
           display: "flex",
           justifyContent: "space-between",
@@ -142,12 +139,14 @@ function ScanStratum({
             {trackLabel(topic)}
           </span>
         </div>
-        <motion.span
+        <span
+          className="scan-pct"
+          data-score={score}
           style={{ fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 500, color: hex, fontVariantNumeric: "tabular-nums" }}
         >
-          {reduced ? `${pct}%` : pctText}
-        </motion.span>
-      </motion.div>
+          {reduced ? `${pct}%` : "0%"}
+        </span>
+      </div>
     </div>
   );
 }
@@ -163,25 +162,87 @@ function TheScan({
   const { scrollerRef } = useShellScroll();
   const sectionRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [panelW, setPanelW] = useState(0);
 
-  const { scrollYProgress } = useScroll({
-    container: scrollerRef,
-    target: sectionRef,
-    offset: ["start 0.9", "end 1.1"],
-  });
+  useGSAP(
+    () => {
+      if (reduced) return;
+      const section = sectionRef.current;
+      const panel = panelRef.current;
+      const scroller = scrollerRef.current;
+      if (!section || !panel || !scroller) return;
 
-  useEffect(() => {
-    const el = panelRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setPanelW(el.clientWidth));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+      const beam = panel.querySelector<HTMLElement>(".scan-beam");
+      const readout = section.querySelector<HTMLElement>(".scan-readout");
+      const cores = panel.querySelectorAll<HTMLElement>(".scan-core");
+      const labels = panel.querySelectorAll<HTMLElement>(".scan-label-row");
+      const pcts = panel.querySelectorAll<HTMLElement>(".scan-pct");
+      const total = Math.max(cores.length, 1);
 
-  const lineX = useTransform(scrollYProgress, [0.04, 0.94], [8, Math.max(panelW - 10, 8)], { clamp: true });
-  const scanPct = useTransform(scrollYProgress, v =>
-    `${Math.max(0, Math.min(100, Math.round(v * 100)))}%`,
+      let lastBurst = -1;
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: section,
+          scroller,
+          start: "top 88%",
+          end: "bottom 108%",
+          scrub: 0.8,
+          onUpdate(self) {
+            if (readout) readout.textContent = `${Math.round(self.progress * 100)}%`;
+            /* the beam tip seeds ink into the living canvas every ~8% */
+            const step = Math.floor(self.progress * 12);
+            if (step !== lastBurst && self.progress > 0.02 && self.progress < 0.98) {
+              lastBurst = step;
+              const r = panel.getBoundingClientRect();
+              const beamX = r.left + 8 + (r.width - 18) * Math.min(Math.max((self.progress - 0.04) / 0.9, 0), 1);
+              pushSplat({
+                x: beamX / window.innerWidth,
+                y: 1 - (r.top + r.height / 2) / window.innerHeight,
+                dx: (self.direction || 1) * 0.35,
+                dy: 0.12,
+              });
+            }
+          },
+        },
+      });
+
+      /* beam sweep across the panel */
+      if (beam) {
+        tl.fromTo(
+          beam,
+          { x: 8 },
+          { x: () => Math.max(panel.clientWidth - 10, 8), duration: 0.9 },
+          0.04,
+        );
+      }
+      /* strata fills + counters staggered along the sweep, matching the
+         v1 windows: start 0.06 + i/total*0.62, width 0.26 */
+      cores.forEach((core, i) => {
+        const score = Number(core.dataset.score) || 0;
+        const at = 0.06 + (i / total) * 0.62;
+        tl.fromTo(core, { scaleX: 0 }, { scaleX: score, duration: 0.26 }, at);
+        if (labels[i]) tl.fromTo(labels[i], { opacity: 0.3 }, { opacity: 1, duration: 0.08 }, at);
+        if (pcts[i]) {
+          const counter = { v: 0 };
+          tl.to(
+            counter,
+            {
+              v: score,
+              duration: 0.26,
+              onUpdate() {
+                pcts[i].textContent = `${Math.round(counter.v * 100)}%`;
+              },
+            },
+            at,
+          );
+        }
+      });
+
+      const ro = new ResizeObserver(() => ScrollTrigger.refresh());
+      ro.observe(panel);
+      return () => ro.disconnect();
+    },
+    { dependencies: [reduced, topics.length], scope: sectionRef },
   );
 
   const sectionHeight = reduced ? "auto" : `${Math.min(110 + topics.length * 28, 260)}vh`;
@@ -194,12 +255,13 @@ function TheScan({
             Mastery Cross-Section
           </h2>
           {!reduced && (
-            <motion.span
+            <span
+              className="scan-readout"
               aria-hidden="true"
               style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(31,31,31,0.55)", letterSpacing: "0.14em" }}
             >
-              {scanPct}
-            </motion.span>
+              0%
+            </span>
           )}
         </div>
 
@@ -228,20 +290,13 @@ function TheScan({
               pointerEvents: "none",
             }}
           />
-          {topics.map((t, i) => (
-            <ScanStratum
-              key={t.topic}
-              topic={t.topic}
-              score={t.score}
-              index={i}
-              total={topics.length}
-              progress={scrollYProgress}
-              reduced={reduced}
-            />
+          {topics.map((t) => (
+            <ScanStratum key={t.topic} topic={t.topic} score={t.score} reduced={reduced} />
           ))}
-          {/* the slit-beam scan line */}
+          {/* the slit-beam scan line — chromatic edge, GSAP-scrubbed */}
           {!reduced && (
-            <motion.div
+            <div
+              className="scan-beam"
               aria-hidden="true"
               style={{
                 position: "absolute",
@@ -249,10 +304,10 @@ function TheScan({
                 bottom: 6,
                 left: 0,
                 width: 2,
-                x: lineX,
                 background:
                   "linear-gradient(180deg, transparent 0%, rgba(31,31,31,0.85) 16%, rgba(60,144,255,0.9) 50%, rgba(31,31,31,0.85) 84%, transparent 100%)",
-                boxShadow: "0 0 22px rgba(60,144,255,0.55), 0 0 6px rgba(31,31,31,0.6)",
+                boxShadow:
+                  "0 0 22px rgba(60,144,255,0.55), -3px 0 8px rgba(249,107,214,0.25), 3px 0 8px rgba(0,189,210,0.3), 0 0 6px rgba(31,31,31,0.6)",
                 pointerEvents: "none",
               }}
             />
