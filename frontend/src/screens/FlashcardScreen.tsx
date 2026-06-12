@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "@/lib/nav";
 import { motion, AnimatePresence } from "motion/react";
-import confetti from "canvas-confetti";
+import { confetti } from "@/fx/confetti";
 import { AchievementManager } from "./AchievementToast";
 import { ExerciseSplit } from "./ExerciseSplit";
 import { getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
