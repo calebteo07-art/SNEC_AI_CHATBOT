@@ -7,13 +7,12 @@ const API_ORIGIN = process.env.API_ORIGIN ?? "http://127.0.0.1:8000";
 const isProd = process.env.NODE_ENV === "production";
 
 /* Dev builds need Next's HMR/eval runtime, so the CSP ships only in
- * production. Production previously shipped NO CSP from FastAPI — this is a
- * strict tightening. Google Fonts hosts stay until Phase 1 moves to next/font. */
+ * production. Fonts are self-hosted via next/font — no external hosts. */
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data: blob:",
   "media-src 'self'",
   "connect-src 'self'",

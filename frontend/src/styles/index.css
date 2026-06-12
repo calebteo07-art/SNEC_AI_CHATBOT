@@ -1,20 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import './fonts.css';
 @import './eyebot.css';
 @import "tw-animate-css";
-@import "@fontsource-variable/geist";
 @import './gemini-gradients.css';
 @import '../fx/fx.css';
-
-@custom-variant dark (&:is(.dark *));
 
 /* Host styles previously inlined in the Vite index.html */
 html, body { height: 100%; margin: 0; }
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Figtree', 'Noto Sans', system-ui, sans-serif;
+    --font-sans: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+    --font-mono: var(--font-jetbrains), 'JetBrains Mono', monospace;
+    --font-serif: var(--font-instrument), 'Instrument Serif', Georgia, serif;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,6 +44,20 @@ html, body { height: 100%; margin: 0; }
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    /* PHOTOPIC gem spectrum (chinita) — iridescent accent family */
+    --color-gem-blue:   #3C90FF;
+    --color-gem-violet: #AD72FF;
+    --color-gem-pink:   #F96BD6;
+    --color-gem-red:    #FF5A59;
+    --color-gem-orange: #FF9238;
+    --color-gem-yellow: #FFCF03;
+    --color-gem-green:  #88DE42;
+    --color-gem-teal:   #60D673;
+    --color-gem-cyan:   #00BDD2;
+    --color-gem-sky:    #4FA0FF;
+    --color-track-oa:   #22d3ee;
+    --color-track-ot:   #a78bfa;
+    --color-track-psa:  #34d399;
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -55,74 +67,70 @@ html, body { height: 100%; margin: 0; }
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* EyeBot Dark Claymorphism Clinical — always dark */
+/* PHOTOPIC — daylight clinical canvas (chinita-grounded). The scotopic v1
+ * theme inverted: paper instead of stage, ink instead of cream, Gemini blue
+ * instead of instrument green. */
 :root {
-    --background:             oklch(0.04 0.02 264);
-    --foreground:             oklch(0.97 0.005 240);
-    --card:                   oklch(0.09 0.025 264);
-    --card-foreground:        oklch(0.97 0.005 240);
-    --popover:                oklch(0.09 0.025 264);
-    --popover-foreground:     oklch(0.97 0.005 240);
-    --primary:                oklch(0.62 0.19 145);
-    --primary-foreground:     oklch(0.08 0.02 264);
-    --secondary:              oklch(0.12 0.025 264);
-    --secondary-foreground:   oklch(0.97 0.005 240);
-    --muted:                  oklch(0.12 0.025 264);
-    --muted-foreground:       oklch(0.58 0.02 240);
-    --accent:                 oklch(0.62 0.19 145);
-    --accent-foreground:      oklch(0.08 0.02 264);
-    --destructive:            oklch(0.58 0.22 25);
-    --border:                 oklch(0.22 0.03 240);
-    --input:                  oklch(0.15 0.025 264);
-    --ring:                   oklch(0.62 0.19 145);
-    --chart-1:                oklch(0.62 0.19 145);
-    --chart-2:                oklch(0.65 0.18 170);
-    --chart-3:                oklch(0.58 0.16 265);
-    --chart-4:                oklch(0.72 0.17 55);
-    --chart-5:                oklch(0.64 0.20 345);
-    --radius:                 1.5rem;
-    --sidebar:                oklch(0.06 0.022 264);
-    --sidebar-foreground:     oklch(0.97 0.005 240);
-    --sidebar-primary:        oklch(0.62 0.19 145);
-    --sidebar-primary-foreground: oklch(0.08 0.02 264);
-    --sidebar-accent:         oklch(0.12 0.025 264);
-    --sidebar-accent-foreground: oklch(0.97 0.005 240);
-    --sidebar-border:         oklch(0.15 0.025 264);
-    --sidebar-ring:           oklch(0.62 0.19 145);
-}
+    --background:             #FDFDFC;
+    --foreground:             #1F1F1F;
+    --card:                   #FFFFFF;
+    --card-foreground:        #1F1F1F;
+    --popover:                #FFFFFF;
+    --popover-foreground:     #1F1F1F;
+    --primary:                #3C90FF;
+    --primary-foreground:     #FFFFFF;
+    --secondary:              #F2F0F0;
+    --secondary-foreground:   #1F1F1F;
+    --muted:                  #F2F0F0;
+    --muted-foreground:       rgba(31, 31, 31, 0.55);
+    --accent:                 #E6F4EA;
+    --accent-foreground:      #1F1F1F;
+    --destructive:            #DC362E;
+    --border:                 rgba(31, 31, 31, 0.12);
+    --input:                  rgba(31, 31, 31, 0.06);
+    --ring:                   rgba(60, 144, 255, 0.4);
+    --chart-1:                #3C90FF;
+    --chart-2:                #00BDD2;
+    --chart-3:                #AD72FF;
+    --chart-4:                #FFCF03;
+    --chart-5:                #F96BD6;
+    --radius:                 0.75rem;
+    --sidebar:                #FFFFFF;
+    --sidebar-foreground:     #1F1F1F;
+    --sidebar-primary:        #3C90FF;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent:         #F2F0F0;
+    --sidebar-accent-foreground: #1F1F1F;
+    --sidebar-border:         rgba(31, 31, 31, 0.12);
+    --sidebar-ring:           rgba(60, 144, 255, 0.4);
 
-.dark {
-    --background:             oklch(0.04 0.02 264);
-    --foreground:             oklch(0.97 0.005 240);
-    --card:                   oklch(0.09 0.025 264);
-    --card-foreground:        oklch(0.97 0.005 240);
-    --popover:                oklch(0.09 0.025 264);
-    --popover-foreground:     oklch(0.97 0.005 240);
-    --primary:                oklch(0.62 0.19 145);
-    --primary-foreground:     oklch(0.08 0.02 264);
-    --secondary:              oklch(0.12 0.025 264);
-    --secondary-foreground:   oklch(0.97 0.005 240);
-    --muted:                  oklch(0.12 0.025 264);
-    --muted-foreground:       oklch(0.58 0.02 240);
-    --accent:                 oklch(0.62 0.19 145);
-    --accent-foreground:      oklch(0.08 0.02 264);
-    --destructive:            oklch(0.58 0.22 25);
-    --border:                 oklch(0.22 0.03 240);
-    --input:                  oklch(0.15 0.025 264);
-    --ring:                   oklch(0.62 0.19 145);
-    --chart-1:                oklch(0.62 0.19 145);
-    --chart-2:                oklch(0.65 0.18 170);
-    --chart-3:                oklch(0.58 0.16 265);
-    --chart-4:                oklch(0.72 0.17 55);
-    --chart-5:                oklch(0.64 0.20 345);
-    --sidebar:                oklch(0.06 0.022 264);
-    --sidebar-foreground:     oklch(0.97 0.005 240);
-    --sidebar-primary:        oklch(0.62 0.19 145);
-    --sidebar-primary-foreground: oklch(0.08 0.02 264);
-    --sidebar-accent:         oklch(0.12 0.025 264);
-    --sidebar-accent-foreground: oklch(0.97 0.005 240);
-    --sidebar-border:         oklch(0.15 0.025 264);
-    --sidebar-ring:           oklch(0.62 0.19 145);
+    /* Canvas/ink aliases (semantic names used by new PHOTOPIC styles) */
+    --canvas:        #FDFDFC;
+    --surface:       #FFFFFF;
+    --surface-tonal: #F2F0F0;
+    --ink:           #1F1F1F;
+    --ink-muted:     rgba(31, 31, 31, 0.55);
+    --ink-faint:     rgba(31, 31, 31, 0.38);
+    --brand:         #3C90FF;
+    --highlight:     #E6F4EA;
+    --pill-signin-bg:  #C2E7FF;
+    --pill-signin-ink: #004A77;
+
+    /* Light elevation scale — replaces the dark clay glow */
+    --shadow-1: 0 1px 2px rgba(31,31,31,.05), 0 1px 3px rgba(31,31,31,.06);
+    --shadow-2: rgba(0,0,0,.16) 0 2px 8px -2px;
+    --shadow-3: 0 12px 32px -8px rgba(31,31,31,.14);
+    --shadow-brand: 0 8px 40px -8px rgba(60,144,255,.25);
+
+    /* Fluid type — 1.2 ratio @360px → ~1.33 @1440px */
+    --step--1: clamp(0.83rem, 0.80rem + 0.15vw, 0.94rem);
+    --step-0:  clamp(1.00rem, 0.95rem + 0.25vw, 1.13rem);
+    --step-1:  clamp(1.20rem, 1.11rem + 0.43vw, 1.50rem);
+    --step-2:  clamp(1.44rem, 1.30rem + 0.70vw, 2.00rem);
+    --step-3:  clamp(1.73rem, 1.51rem + 1.10vw, 2.66rem);
+    --step-4:  clamp(2.07rem, 1.74rem + 1.67vw, 3.55rem);
+    --step-5:  clamp(2.49rem, 1.99rem + 2.49vw, 4.73rem);
+    --step-6:  clamp(2.99rem, 2.27rem + 3.64vw, 6.31rem);
 }
 
 @layer base {

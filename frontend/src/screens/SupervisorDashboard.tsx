@@ -102,7 +102,7 @@ export function SupervisorDashboard() {
       <div style={{ borderBottom: "1px solid var(--border)", background: "var(--card)", position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 52, flexShrink: 0, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 16, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.01em" }}>Supervisor</span>
-          <span style={{ fontSize: 12, color: "var(--muted)" }}>· Cohort Analytics</span>
+          <span style={{ fontSize: 12, color: "var(--muted-text)" }}>· Cohort Analytics</span>
         </div>
           <div className="flex items-center gap-4">
             <button

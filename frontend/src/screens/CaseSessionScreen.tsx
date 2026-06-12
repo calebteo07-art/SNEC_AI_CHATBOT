@@ -187,7 +187,7 @@ export function CaseSessionScreen() {
   if (loadError) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16 }}>
-        <p style={{ fontSize: 14, color: "var(--muted)" }}>{loadError}</p>
+        <p style={{ fontSize: 14, color: "var(--muted-text)" }}>{loadError}</p>
         <button onClick={() => navigate("/cases")} style={{ color: "var(--teal)", fontWeight: 700, fontSize: 13 }}>← Back to cases</button>
       </div>
     );
@@ -239,7 +239,7 @@ export function CaseSessionScreen() {
         <div style={{ height: 100, position: "relative", overflow: "hidden", flexShrink: 0, background: "var(--sidebar-bg)" }}>
           <img src="/anatomy/eye-anterior.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(6,13,24,0.85) 0%, transparent 60%)", display: "flex", alignItems: "flex-end", padding: "10px 14px" }}>
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.7)" }}>Patient Guide</span>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(31,31,31,0.7)" }}>Patient Guide</span>
           </div>
         </div>
 
@@ -248,7 +248,7 @@ export function CaseSessionScreen() {
           {caseInfo ? (
             <div style={{ marginBottom: 16 }}>
               <h1 style={{ fontSize: 18, fontWeight: 400, color: "var(--text)", letterSpacing: "-0.01em", fontFamily: "var(--font-serif)", fontStyle: "italic" }}>{caseInfo.patient.name}</h1>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{caseInfo.patient.age} years old · {caseInfo.topic}</div>
+              <div style={{ fontSize: 11, color: "var(--muted-text)", marginTop: 2 }}>{caseInfo.patient.age} years old · {caseInfo.topic}</div>
               <div style={{ marginTop: 10, padding: "10px 12px", background: "var(--teal-bg)", borderRadius: "var(--r-sm)", borderLeft: "3px solid var(--teal)" }}>
                 <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 4 }}>Presenting complaint</div>
                 <p style={{ fontSize: 12, color: "var(--text)", lineHeight: 1.5, fontStyle: "italic" }}>"{caseInfo.patient.presenting_complaint}"</p>
@@ -440,7 +440,7 @@ export function CaseSessionScreen() {
                   <div style={{ height: 4, borderRadius: "var(--r-full)", background: "var(--border)", overflow: "hidden", marginBottom: 6 }}>
                     <div style={{ height: "100%", borderRadius: "var(--r-full)", background: scoreColor(result[d.scoreKey] as number), width: `${(result[d.scoreKey] as number / 10) * 100}%`, transition: "width 0.8s ease" }} />
                   </div>
-                  <p style={{ fontSize: 11.5, color: "var(--muted)", lineHeight: 1.55 }}>{result[d.feedbackKey] as string}</p>
+                  <p style={{ fontSize: 11.5, color: "var(--muted-text)", lineHeight: 1.55 }}>{result[d.feedbackKey] as string}</p>
                 </div>
               ))}
               {debrief && (
@@ -461,7 +461,7 @@ export function CaseSessionScreen() {
                 </div>
               )}
               <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
-                <button onClick={() => navigate("/cases")} style={{ padding: "10px 20px", borderRadius: "var(--r-full)", border: "1.5px solid var(--border)", background: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "var(--muted)" }}>
+                <button onClick={() => navigate("/cases")} style={{ padding: "10px 20px", borderRadius: "var(--r-full)", border: "1.5px solid var(--border)", background: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "var(--muted-text)" }}>
                   More cases
                 </button>
                 <button onClick={() => navigate("/dashboard")} style={{ padding: "10px 20px", borderRadius: "var(--r-full)", background: "var(--teal)", color: "#fff", border: "none", borderBottom: "4px solid var(--teal-shadow)", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
@@ -586,7 +586,7 @@ export function CaseSessionScreen() {
               <button onClick={() => navigate("/dashboard")} style={{ width: "100%", padding: "9px", borderRadius: "var(--r-xs)", background: "var(--teal)", color: "#000", border: "none", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
                 Back to Learn
               </button>
-              <button onClick={() => navigate("/cases")} style={{ width: "100%", padding: "9px", borderRadius: "var(--r-xs)", border: "1px solid var(--border)", background: "none", fontSize: 11, fontWeight: 600, color: "var(--muted)", cursor: "pointer" }}>
+              <button onClick={() => navigate("/cases")} style={{ width: "100%", padding: "9px", borderRadius: "var(--r-xs)", border: "1px solid var(--border)", background: "none", fontSize: 11, fontWeight: 600, color: "var(--muted-text)", cursor: "pointer" }}>
                 More Cases
               </button>
             </div>

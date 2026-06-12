@@ -3,7 +3,7 @@
  * main.tsx: QueryClientProvider[ App, Devtools(dev) ]
  * App.tsx:  ErrorBoundary[ OfflineBanner, AuthProvider[ <router>, Toaster ] ]
  * FxRoot:   MotionProvider[ AudioProvider[ TransitionProvider[ outlet,
- *           TransitionLayer, CursorLayer ] ] ]
+ *           TransitionLayer ] ] ]  (v1's CursorLayer removed in PHOTOPIC)
  * The fx chain persists across all navigations because it lives in the root
  * layout — the App Router equivalent of v1's pathless FxRoot route. */
 import { useEffect, type ReactNode } from "react";
@@ -18,7 +18,6 @@ import { MotionProvider } from "@/fx/MotionProvider";
 import { AudioProvider } from "@/fx/audio/useAudio";
 import { TransitionProvider } from "@/fx/TransitionProvider";
 import { TransitionLayer } from "@/fx/TransitionLayer";
-import { CursorLayer } from "@/fx/cursor/CursorLayer";
 
 export function Providers({ children }: { children: ReactNode }) {
   /* v1 registered the service worker from main.tsx on window load. */
@@ -35,10 +34,11 @@ export function Providers({ children }: { children: ReactNode }) {
         <AuthProvider>
           <MotionProvider>
             <AudioProvider>
+              {/* PHOTOPIC keeps the native system cursor — the v1 reticle
+                  (CursorLayer) is gone; hover affordances live on elements. */}
               <TransitionProvider>
                 {children}
                 <TransitionLayer />
-                <CursorLayer />
               </TransitionProvider>
             </AudioProvider>
           </MotionProvider>

@@ -199,11 +199,11 @@ export function OnboardingScreen() {
 
   /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#020617" }}>
+    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#FDFDFC" }}>
       {/* The void — CSS fallback while The Gaze loads (or without WebGL) */}
       <div
         aria-hidden="true"
-        style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(26,168,156,0.10) 0%, rgba(66,133,244,0.05) 42%, rgba(2,6,23,0) 72%), #020617" }}
+        style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(26,168,156,0.10) 0%, rgba(66,133,244,0.05) 42%, rgba(255,255,255,0) 72%), #FDFDFC" }}
       />
       {/* The Gaze — the eye that watches you */}
       <Suspense fallback={null}>
@@ -228,7 +228,7 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(2,6,23,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(244,239,231,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(0,0,0,0.5)" }}
+        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(31,31,31,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(31,31,31,0.14)" }}
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
@@ -322,7 +322,7 @@ export function OnboardingScreen() {
           {step === "role" && (
             <motion.div key="role" {...slide}>
               <p className="login-step-label">Your training track</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
                 Select your role — this scopes your cases, flashcards, and daily check-ins.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -352,7 +352,7 @@ export function OnboardingScreen() {
           {step === "forgot" && (
             <motion.div key="forgot" {...slide}>
               <p className="login-step-label">Reset password</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
                 Enter your email and we'll send a 6-digit code.
               </p>
               <div className="login-field-group">
@@ -387,7 +387,7 @@ export function OnboardingScreen() {
           {step === "reset_code" && (
             <motion.div key="reset_code" {...slide}>
               <p className="login-step-label">Enter reset code</p>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
                 Check your email for a 6-digit code. Expires in 15 minutes.
               </p>
               {resetSuccess ? (

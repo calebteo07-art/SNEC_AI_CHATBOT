@@ -5,9 +5,9 @@ import { ApprovedStudent, Credential, getInitials, roleAvatarColors } from "./ad
 
 const API = "";
 
-const inputCls = "w-full bg-[#F4EFE7]/5 border border-[#F4EFE7]/10 rounded-[12px] px-3 py-2.5 text-[#F4EFE7] text-sm placeholder:text-[#F4EFE7]/25 outline-none focus:border-[#F4EFE7]/25 transition-colors";
-const cardStyle = { background: "rgba(244,239,231,0.04)", border: "1px solid rgba(244,239,231,0.08)" };
-const labelCls = "text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5";
+const inputCls = "w-full bg-[#1F1F1F]/5 border border-[#1F1F1F]/10 rounded-[12px] px-3 py-2.5 text-[#1F1F1F] text-sm placeholder:text-[#1F1F1F]/25 outline-none focus:border-[#1F1F1F]/25 transition-colors";
+const cardStyle = { background: "rgba(31,31,31,0.04)", border: "1px solid rgba(31,31,31,0.08)" };
+const labelCls = "text-[#1F1F1F]/30 text-[9px] uppercase tracking-[0.14em] font-semibold block mb-1.5";
 
 export function AdminAccountsPage() {
   const { user } = useAuth();
@@ -139,7 +139,7 @@ export function AdminAccountsPage() {
           className="rounded-[24px] p-6"
           style={cardStyle}
         >
-          <p className={`mb-5 text-[#F4EFE7]/50`}
+          <p className={`mb-5 text-[#1F1F1F]/50`}
              style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
             · Add one student
           </p>
@@ -159,7 +159,7 @@ export function AdminAccountsPage() {
                 value={newRole}
                 onChange={e => setNewRole(e.target.value)}
                 className={`${inputCls} cursor-pointer`}
-                style={{ background: "rgba(244,239,231,0.05)", colorScheme: "dark" }}
+                style={{ background: "rgba(31,31,31,0.05)", colorScheme: "light" }}
               >
                 <option value="">Select role…</option>
                 <option value="OA">Ophthalmic Assistant (OA)</option>
@@ -171,7 +171,7 @@ export function AdminAccountsPage() {
             <button
               type="submit"
               disabled={adding}
-              className="w-full mt-1 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
+              className="w-full mt-1 py-2.5 rounded-full bg-[#1F1F1F] text-[#FDFDFC] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
             >
               {adding ? "Adding…" : "Add Student"}
             </button>
@@ -190,22 +190,22 @@ export function AdminAccountsPage() {
           className="rounded-[24px] p-6"
           style={cardStyle}
         >
-          <p className="text-[#F4EFE7]/50 mb-5"
+          <p className="text-[#1F1F1F]/50 mb-5"
              style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
             · Bulk import via CSV
           </p>
           <div
             className="rounded-[16px] p-8 text-center cursor-pointer transition-colors"
-            style={{ border: "2px dashed rgba(244,239,231,0.12)" }}
+            style={{ border: "2px dashed rgba(31,31,31,0.12)" }}
             onClick={() => fileInputRef.current?.click()}
             onDragOver={e => e.preventDefault()}
             onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
-            onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(244,239,231,0.25)")}
-            onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(244,239,231,0.12)")}
+            onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(31,31,31,0.25)")}
+            onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(31,31,31,0.12)")}
           >
             <div style={{ fontSize: "2rem", marginBottom: 8 }}>📄</div>
-            <p className="text-[#F4EFE7]/50 text-sm font-medium mb-1">Drop CSV here or click to browse</p>
-            <p className="text-[#F4EFE7]/25 text-xs">Columns: full_name · email · role</p>
+            <p className="text-[#1F1F1F]/50 text-sm font-medium mb-1">Drop CSV here or click to browse</p>
+            <p className="text-[#1F1F1F]/25 text-xs">Columns: full_name · email · role</p>
             <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }}
               onChange={e => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
           </div>
@@ -214,7 +214,7 @@ export function AdminAccountsPage() {
             <button
               onClick={handleCsvImport}
               disabled={csvUploading}
-              className="w-full mt-3 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
+              className="w-full mt-3 py-2.5 rounded-full bg-[#1F1F1F] text-[#FDFDFC] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
             >
               {csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} Students`}
             </button>
@@ -227,19 +227,19 @@ export function AdminAccountsPage() {
             </div>
           )}
           {csvCredentials.length > 0 && (
-            <div className="mt-4 rounded-[14px] overflow-hidden" style={{ border: "1px solid rgba(244,239,231,0.10)" }}>
-              <div className="px-4 py-2" style={{ borderBottom: "1px solid rgba(244,239,231,0.08)" }}>
-                <p className="text-[#F4EFE7]/30 text-[9px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
+            <div className="mt-4 rounded-[14px] overflow-hidden" style={{ border: "1px solid rgba(31,31,31,0.10)" }}>
+              <div className="px-4 py-2" style={{ borderBottom: "1px solid rgba(31,31,31,0.08)" }}>
+                <p className="text-[#1F1F1F]/30 text-[9px] uppercase tracking-[0.14em] font-semibold">Generated credentials (shown once)</p>
               </div>
               <div className="divide-y max-h-40 overflow-y-auto">
                 {csvCredentials.map(c => (
                   <div key={c.email} className="flex items-center justify-between px-4 py-2">
-                    <span className="text-[#F4EFE7]/40 text-xs truncate">{c.email}</span>
-                    <span className="text-[#F4EFE7]/70 text-xs font-mono shrink-0 ml-3">{c.password}</span>
+                    <span className="text-[#1F1F1F]/40 text-xs truncate">{c.email}</span>
+                    <span className="text-[#1F1F1F]/70 text-xs font-mono shrink-0 ml-3">{c.password}</span>
                   </div>
                 ))}
               </div>
-              <p className="px-4 py-2 text-center text-[#F4EFE7]/25 text-xs">
+              <p className="px-4 py-2 text-center text-[#1F1F1F]/25 text-xs">
                 Credentials have been emailed to all students.
               </p>
             </div>
@@ -254,8 +254,8 @@ export function AdminAccountsPage() {
         className="rounded-[24px] overflow-hidden"
         style={cardStyle}
       >
-        <div className="px-6 py-4 flex items-center justify-between gap-4" style={{ borderBottom: "1px solid rgba(244,239,231,0.08)" }}>
-          <p className="text-[#F4EFE7]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">
+        <div className="px-6 py-4 flex items-center justify-between gap-4" style={{ borderBottom: "1px solid rgba(31,31,31,0.08)" }}>
+          <p className="text-[#1F1F1F]/40 text-[9px] uppercase tracking-[0.18em] font-semibold">
             Approved students ({approved.length})
           </p>
           <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export function AdminAccountsPage() {
               value={accountSearch}
               onChange={e => setAccountSearch(e.target.value)}
               placeholder="Search…"
-              className="bg-[#F4EFE7]/5 border border-[#F4EFE7]/10 rounded-[10px] px-3 py-1.5 text-[#F4EFE7] text-xs placeholder:text-[#F4EFE7]/25 outline-none focus:border-[#F4EFE7]/25 transition-colors"
+              className="bg-[#1F1F1F]/5 border border-[#1F1F1F]/10 rounded-[10px] px-3 py-1.5 text-[#1F1F1F] text-xs placeholder:text-[#1F1F1F]/25 outline-none focus:border-[#1F1F1F]/25 transition-colors"
               style={{ width: "180px" }}
             />
           </div>
@@ -272,7 +272,7 @@ export function AdminAccountsPage() {
 
         {approvedLoading ? (
           <div className="flex justify-center py-8">
-            <span className="w-5 h-5 border-2 border-[#F4EFE7]/20 border-t-[#F4EFE7]/60 rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-[#1F1F1F]/20 border-t-[#1F1F1F]/60 rounded-full animate-spin" />
           </div>
         ) : (
           <div>
@@ -285,8 +285,8 @@ export function AdminAccountsPage() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: idx * 0.025 }}
                   className="flex items-center gap-4 px-6 py-3 transition-colors"
-                  style={{ borderBottom: "1px solid rgba(244,239,231,0.05)" }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.background = "rgba(244,239,231,0.03)")}
+                  style={{ borderBottom: "1px solid rgba(31,31,31,0.05)" }}
+                  onMouseEnter={e => ((e.currentTarget as HTMLDivElement).style.background = "rgba(31,31,31,0.03)")}
                   onMouseLeave={e => ((e.currentTarget as HTMLDivElement).style.background = "transparent")}
                 >
                   <div
@@ -296,20 +296,20 @@ export function AdminAccountsPage() {
                     {getInitials(s.full_name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#F4EFE7]/80 truncate">{s.full_name}</p>
-                    <p className="text-xs text-[#F4EFE7]/30 truncate">{s.email}</p>
+                    <p className="text-sm font-semibold text-[#1F1F1F]/80 truncate">{s.full_name}</p>
+                    <p className="text-xs text-[#1F1F1F]/30 truncate">{s.email}</p>
                   </div>
                   <span className="px-2 py-0.5 rounded-full text-xs font-semibold shrink-0"
                         style={{ background: bg, color: text }}>
                     {s.role}
                   </span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${s.student_id ? "bg-green-500/15 text-green-400" : "bg-[#F4EFE7]/8 text-[#F4EFE7]/30"}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${s.student_id ? "bg-green-500/15 text-green-400" : "bg-[#1F1F1F]/8 text-[#1F1F1F]/30"}`}>
                     {s.student_id ? "✓ Active" : "Pending"}
                   </span>
                   <button
                     onClick={() => handleRemove(s.email)}
                     disabled={removing === s.email}
-                    className="p-1.5 rounded-full text-[#F4EFE7]/20 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40 shrink-0"
+                    className="p-1.5 rounded-full text-[#1F1F1F]/20 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-40 shrink-0"
                   >
                     {removing === s.email
                       ? <span className="w-3.5 h-3.5 border border-red-400/30 border-t-red-400 rounded-full animate-spin block" />
@@ -320,7 +320,7 @@ export function AdminAccountsPage() {
               );
             })}
             {filteredApproved.length === 0 && (
-              <p className="text-center py-8 text-[#F4EFE7]/25 text-sm">
+              <p className="text-center py-8 text-[#1F1F1F]/25 text-sm">
                 {accountSearch ? "No students match your search." : "No approved students yet."}
               </p>
             )}
@@ -335,7 +335,7 @@ export function AdminAccountsPage() {
         className="rounded-[24px] p-6"
         style={cardStyle}
       >
-        <p className="text-[#F4EFE7]/50 mb-4"
+        <p className="text-[#1F1F1F]/50 mb-4"
            style={{ fontSize: "0.68rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600 }}>
           · Promote to staff
         </p>
@@ -356,7 +356,7 @@ export function AdminAccountsPage() {
               value={promoteRole}
               onChange={e => setPromoteRole(e.target.value)}
               className={`${inputCls} cursor-pointer w-auto`}
-              style={{ background: "rgba(244,239,231,0.05)", colorScheme: "dark" }}
+              style={{ background: "rgba(31,31,31,0.05)", colorScheme: "light" }}
             >
               <option value="supervisor">Supervisor</option>
               <option value="admin">Admin</option>
@@ -365,7 +365,7 @@ export function AdminAccountsPage() {
           <button
             type="submit"
             disabled={promoting}
-            className="px-5 py-2.5 rounded-full bg-[#F4EFE7] text-[#181717] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 rounded-full bg-[#1F1F1F] text-[#FDFDFC] text-sm font-semibold hover:bg-white transition-colors disabled:opacity-50"
           >
             {promoting ? "…" : "Promote"}
           </button>

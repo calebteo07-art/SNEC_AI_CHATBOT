@@ -1,15 +1,15 @@
-/* EyeBot Typography Stack — DARK ADAPTATION
- * Primary: Host Grotesk (UI/body)
+/* EyeBot Typography Stack — PHOTOPIC
+ * Primary: DM Sans (UI/body — chinita/Gemini tone)
  * Mono:    JetBrains Mono (clinical readouts/data)
  * Serif:   Instrument Serif 400 + italic (editorial display accents only)
- * NOTE: the Google Fonts @import lives at the top of index.css — url()
- * imports must precede every other rule once the bundler merges the sheets.
+ * All three self-hosted via next/font in app/layout.tsx — the --font-*
+ * variables below resolve to next/font's generated families.
  */
 :root {
-  --font-display: 'Host Grotesk', system-ui, sans-serif;
-  --font-body:    'Host Grotesk', system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
-  --font-serif:   'Instrument Serif', Georgia, serif;
+  --font-display: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --font-mono:    var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --font-serif:   var(--font-instrument), 'Instrument Serif', Georgia, serif;
   --font-ui: var(--font-body);
 }
 

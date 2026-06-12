@@ -149,7 +149,7 @@ export function GuidedTour() {
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.65)",
+          background: "rgba(31,31,31,0.145)",
           zIndex: 100,
           pointerEvents: "none",
         }}
@@ -164,23 +164,23 @@ export function GuidedTour() {
           right: 16,
           zIndex: 103,
           background: "none",
-          border: "1px solid rgba(255,255,255,0.15)",
+          border: "1px solid rgba(31,31,31,0.15)",
           borderRadius: 6,
           cursor: "pointer",
           fontSize: "0.78rem",
           letterSpacing: "0.03em",
-          color: "rgba(255,255,255,0.55)",
+          color: "rgba(31,31,31,0.55)",
           padding: "5px 12px",
           backdropFilter: "blur(8px)",
           transition: "color 0.15s, border-color 0.15s",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.color = "rgba(255,255,255,0.9)";
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.35)";
+          e.currentTarget.style.color = "rgba(31,31,31,0.9)";
+          e.currentTarget.style.borderColor = "rgba(31,31,31,0.35)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.color = "rgba(255,255,255,0.55)";
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+          e.currentTarget.style.color = "rgba(31,31,31,0.55)";
+          e.currentTarget.style.borderColor = "rgba(31,31,31,0.15)";
         }}
       >
         Skip tour
@@ -213,7 +213,7 @@ export function GuidedTour() {
                 style={{
                   height: 4,
                   borderRadius: 2,
-                  background: i === step ? "var(--teal, #22d3ee)" : "rgba(255,255,255,0.18)",
+                  background: i === step ? "var(--teal, #22d3ee)" : "rgba(31,31,31,0.18)",
                   width: i === step ? 16 : 4,
                   transition: "all 0.25s ease",
                 }}
@@ -250,7 +250,7 @@ export function GuidedTour() {
               marginTop: 16,
               height: 2,
               borderRadius: 1,
-              background: "rgba(255,255,255,0.1)",
+              background: "rgba(31,31,31,0.1)",
               overflow: "hidden",
             }}
           >

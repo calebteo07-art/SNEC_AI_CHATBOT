@@ -55,7 +55,7 @@
   box-shadow:
     0 0 28px rgba(155, 114, 203, 0.65),
     0 0 56px rgba(66,  133, 244, 0.40),
-    0  4px 14px rgba(0, 0, 0, 0.35) !important;
+    0  4px 14px rgba(31, 31, 31, 0.14) !important;
 }
 
 /* ───────────────────────────────────────────────────────────── */
@@ -166,7 +166,7 @@
   background:
     rgba(66, 133, 244, 0.12) padding-box,
     var(--grad-aurora) border-box !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
 }
 .topic-card-btn--primary:hover {
   background:
@@ -179,7 +179,7 @@
 /* ───────────────────────────────────────────────────────────── */
 .nav-item.active {
   background: rgba(26, 115, 232, 0.08) !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
   overflow: hidden;
   position: relative;
 }
@@ -207,7 +207,7 @@
 .msg-ai .msg-bubble {
   border: 1.5px solid transparent !important;
   background:
-    linear-gradient(var(--surface-1, #0f172a), var(--surface-1, #0f172a)) padding-box,
+    linear-gradient(var(--surface-1, #FFFFFF), var(--surface-1, #FFFFFF)) padding-box,
     var(--grad-aurora) border-box !important;
 }
 
@@ -294,21 +294,21 @@
 
 /* Tags / role badges — rotated family */
 .role-badge.oa         { background: rgba(26,168,156,.12) !important; color: #1aa89c !important; border-color: rgba(26,168,156,.25) !important; }
-.role-badge.ot         { background: rgba(155,114,203,.12) !important; color: #b48ae8 !important; border-color: rgba(155,114,203,.25) !important; }
-.role-badge.psa        { background: rgba(66,133,244,.12) !important; color: #7aabff !important; border-color: rgba(66,133,244,.25) !important; }
-.role-badge.admin      { background: rgba(217,101,112,.12) !important; color: #e88a94 !important; border-color: rgba(217,101,112,.25) !important; }
-.role-badge.supervisor { background: rgba(26,115,232,.12) !important; color: #7aabff !important; border-color: rgba(66,133,244,.25) !important; }
+.role-badge.ot         { background: rgba(155,114,203,.12) !important; color: #7C3AED !important; border-color: rgba(155,114,203,.25) !important; }
+.role-badge.psa        { background: rgba(66,133,244,.12) !important; color: #1A73E8 !important; border-color: rgba(66,133,244,.25) !important; }
+.role-badge.admin      { background: rgba(217,101,112,.12) !important; color: #C2414E !important; border-color: rgba(217,101,112,.25) !important; }
+.role-badge.supervisor { background: rgba(26,115,232,.12) !important; color: #1A73E8 !important; border-color: rgba(66,133,244,.25) !important; }
 
 /* Curriculum active tab */
 .curriculum-tab.active {
-  color: #7aabff !important;
+  color: #1A73E8 !important;
   border-bottom-color: #4285f4 !important;
 }
 
 /* Suggestion chip hover */
 .suggestion-chip:hover {
   border-color: #4285f4 !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
   background: rgba(66, 133, 244, 0.07) !important;
 }
 
@@ -324,21 +324,21 @@
 /* Online status dot */
 .chat-online-dot {
   background: #1aa89c !important;
-  box-shadow: 0 0 0 2px var(--surface-1, #0f172a), 0 0 8px #1aa89c !important;
+  box-shadow: 0 0 0 2px var(--surface-1, #FFFFFF), 0 0 8px #1aa89c !important;
 }
 
 /* XP toast */
 .xp-toast {
   background: rgba(66, 133, 244, 0.10) !important;
   border-color: #4285f4 !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
   box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
 }
 
 /* Stat pill XP */
 .stat-pill--xp {
   border-color: #4285f4 !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
 }
 
 /* Login accent details */
@@ -348,7 +348,7 @@
   background: rgba(66, 133, 244, 0.08) !important;
   border-color: #4285f4 !important;
 }
-.login-role-tag { color: #7aabff !important; }
+.login-role-tag { color: #1A73E8 !important; }
 
 /* Track buttons */
 .track-btn.active-oa {
@@ -359,25 +359,25 @@
 .track-btn.active-ot {
   background: rgba(155,114,203,.10) !important;
   border-color: #9b72cb !important;
-  color: #b48ae8 !important;
+  color: #7C3AED !important;
 }
 .track-btn.active-psa {
   background: rgba(26,115,232,.10) !important;
   border-color: #4285f4 !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
 }
 
 /* Skill node labels */
 .skill-node-label.done   { color: #1aa89c !important; }
-.skill-node-label.active { color: #7aabff !important; }
+.skill-node-label.active { color: #1A73E8 !important; }
 
 /* Admin filter active */
 .admin-filter-pill.active {
   border-color: #4285f4 !important;
   background: rgba(66, 133, 244, 0.08) !important;
-  color: #7aabff !important;
+  color: #1A73E8 !important;
 }
-.admin-filter-pill:hover { border-color: #4285f4; color: #7aabff; }
+.admin-filter-pill:hover { border-color: #4285f4; color: #1A73E8; }
 
 /* Check-in textarea focus */
 .checkin-textarea:focus { border-color: #4285f4 !important; }

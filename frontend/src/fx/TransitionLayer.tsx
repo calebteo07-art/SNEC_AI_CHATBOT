@@ -1,11 +1,12 @@
-/* DARK ADAPTATION · the blink
- * Two eyelid panels in stage charcoal. Pure CSS transitions on transform —
- * the state machine in TransitionProvider drives them via data attributes.
+/* PHOTOPIC · the blink in daylight
+ * Two paper shutters with a gem-spectrum seam. Pure CSS transitions on
+ * transform — TransitionProvider's state machine drives them via data
+ * attributes. The login engulf uses the ink cover variant.
  */
 import { useWipeNavigate } from "./TransitionProvider";
 
 export function TransitionLayer() {
-  const { phase, instant } = useWipeNavigate();
+  const { phase, instant, cover } = useWipeNavigate();
 
   return (
     <div
@@ -13,6 +14,7 @@ export function TransitionLayer() {
       className="fx-wipe"
       data-phase={phase}
       data-instant={instant ? "true" : "false"}
+      data-cover={cover}
     >
       <div className="fx-wipe-lid fx-wipe-lid--top" />
       <div className="fx-wipe-lid fx-wipe-lid--bottom" />

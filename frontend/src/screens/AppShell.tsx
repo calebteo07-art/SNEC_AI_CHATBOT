@@ -54,21 +54,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pageVariants = tier === "high" ? focusPull : focusPullLite;
 
   return (
-    <div style={{ background: "#181717", height: "100vh", overflow: "hidden" }}>
+    <div style={{ background: "#FDFDFC", height: "100vh", overflow: "hidden" }}>
       {/* Fixed top bar */}
       <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
         <div className="flex justify-between items-center px-5 py-4">
           <button
             onClick={() => navigate(homeRoute)}
-            className="pointer-events-auto text-[#F4EFE7] text-base font-medium tracking-[-0.03em]"
-            data-cursor="ring"
+            className="pointer-events-auto text-[#1F1F1F] text-base font-medium tracking-[-0.03em]"
           >
             EyeBot®
           </button>
           <button
             onClick={() => void wipe(() => { logout(); navigate("/"); })}
-            className="pointer-events-auto text-[#F4EFE7]/40 text-xs hover:text-[#F4EFE7]/70 transition-colors"
-            data-cursor="ring"
+            className="pointer-events-auto text-[#1F1F1F]/40 text-xs hover:text-[#1F1F1F]/70 transition-colors"
           >
             Sign out
           </button>
@@ -105,7 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         data-tour-host
         className="fixed bottom-8 left-0 right-0 flex justify-center z-50 pointer-events-none"
       >
-        <div className="pointer-events-auto flex items-center gap-1 bg-[#F4EFE7] rounded-full px-3 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="pointer-events-auto flex items-center gap-1 bg-[#1F1F1F] rounded-full px-3 py-2 shadow-[0_8px_32px_rgba(31,31,31,0.12)]">
           {NAV.map(({ path, label, icon: Icon, tour }) => {
             const active = pathname === path || pathname.startsWith(path + "/");
             return (
@@ -113,14 +111,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={path}
                 onClick={() => { if (!active) play("tick"); navigate(path); }}
                 data-tour={tour}
-                data-cursor="ring"
                 aria-current={active ? "page" : undefined}
                 className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-full text-[10px] font-semibold"
               >
                 {active && (
                   <motion.span
                     layoutId="nav-active-pill"
-                    className="absolute inset-0 rounded-full bg-[#181717]"
+                    className="absolute inset-0 rounded-full bg-[#FDFDFC]"
                     transition={springs.snappy}
                     aria-hidden="true"
                   />
@@ -128,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Magnetic
                   strength={0.22}
                   className={`relative z-[1] flex flex-col items-center gap-0.5 transition-colors duration-200${
-                    active ? " text-[#F4EFE7]" : " text-[#181717]/60 hover:text-[#181717]"
+                    active ? " text-[#1F1F1F]" : " text-[#FDFDFC]/60 hover:text-[#FDFDFC]"
                   }`}
                   style={{ display: "flex" }}
                 >
@@ -149,7 +146,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 /* ── Icons (active = cream on dark pill, inactive = dark on cream pill) ── */
 
 function LearnIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path d="M3 11L11 3L19 11V19H14V14H8V19H3V11Z" stroke={c} strokeWidth="1.6" strokeLinejoin="round" />
@@ -158,7 +155,7 @@ function LearnIcon({ active }: { active: boolean }) {
 }
 
 function CasesIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3" y="7" width="16" height="12" rx="2" stroke={c} strokeWidth="1.6" />
@@ -168,7 +165,7 @@ function CasesIcon({ active }: { active: boolean }) {
 }
 
 function CardsIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3" y="5" width="14" height="10" rx="2" stroke={c} strokeWidth="1.4" />
@@ -178,7 +175,7 @@ function CardsIcon({ active }: { active: boolean }) {
 }
 
 function ChatIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path d="M4 5H18C18.55 5 19 5.45 19 6V14C19 14.55 18.55 15 18 15H8L4 18V6C4 5.45 4.45 5 5 5H4Z"
@@ -191,7 +188,7 @@ function ChatIcon({ active }: { active: boolean }) {
 }
 
 function ProgressIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <rect x="3"  y="14" width="4" height="5" rx="1" fill={c} />
@@ -202,7 +199,7 @@ function ProgressIcon({ active }: { active: boolean }) {
 }
 
 function AdminIcon({ active }: { active: boolean }) {
-  const c = active ? "#F4EFE7" : "rgba(24,23,23,0.6)";
+  const c = active ? "#1F1F1F" : "rgba(31,31,31,0.6)";
   return (
     <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
       <path d="M11 3L19 7V11C19 15.1 16.4 18.9 11 20C5.6 18.9 3 15.1 3 11V7L11 3Z" stroke={c} strokeWidth="1.6" strokeLinejoin="round" />

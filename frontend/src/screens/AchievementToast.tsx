@@ -13,7 +13,7 @@ export function AchievementToast({ achievementId, onClose }: AchievementToastPro
   const achievement = ACHIEVEMENTS.find((a) => a.id === achievementId);
 
   useEffect(() => {
-    confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#22c55e", "#16a34a", "#a78bfa", "#fbbf24"] });
+    confetti({ particleCount: 50, spread: 55, origin: { y: 0.6 }, colors: ["#3C90FF", "#1A73E8", "#a78bfa", "#D97706"] });
     const timer = setTimeout(onClose, 5000);
     return () => clearTimeout(timer);
   }, [onClose]);
@@ -28,23 +28,23 @@ export function AchievementToast({ achievementId, onClose }: AchievementToastPro
       transition={{ type: "spring", damping: 18, stiffness: 280 }}
       style={{ position: "fixed", top: 24, right: 24, zIndex: 50, maxWidth: 340 }}
     >
-      <div style={{ background: "rgba(15,23,42,.92)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(34,197,94,.3)", borderRadius: 20, padding: "16px 20px", boxShadow: "0 16px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(34,197,94,.1)", position: "relative" }}>
+      <div style={{ background: "rgba(255,255,255,.92)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(60,144,255,.3)", borderRadius: 20, padding: "16px 20px", boxShadow: "0 16px 48px rgba(31,31,31,.14), 0 0 0 1px rgba(60,144,255,.1)", position: "relative" }}>
         {/* Green top shimmer */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, borderRadius: "20px 20px 0 0", background: "linear-gradient(90deg, transparent, #22c55e, transparent)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, borderRadius: "20px 20px 0 0", background: "linear-gradient(90deg, transparent, #3C90FF, transparent)", pointerEvents: "none" }} />
 
         <button
           onClick={onClose}
           aria-label="Dismiss"
-          style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", background: "rgba(255,255,255,.07)", border: "none", color: "var(--muted-text)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+          style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", background: "rgba(31,31,31,.07)", border: "none", color: "var(--muted-text)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
         >
           <X size={12} strokeWidth={2} />
         </button>
 
-        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "#22c55e", marginBottom: 10 }}>Achievement Unlocked</p>
+        <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 700, color: "#3C90FF", marginBottom: 10 }}>Achievement Unlocked</p>
 
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <motion.div
-            style={{ flexShrink: 0, width: 44, height: 44, borderRadius: "50%", background: "rgba(34,197,94,.12)", border: "1.5px solid rgba(34,197,94,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ flexShrink: 0, width: 44, height: 44, borderRadius: "50%", background: "rgba(60,144,255,.12)", border: "1.5px solid rgba(60,144,255,.3)", display: "flex", alignItems: "center", justifyContent: "center" }}
             animate={{ scale: [1, 1.08, 1] }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >

@@ -12,7 +12,7 @@ import { useGamificationSync } from "@/hooks/useGamification";
 import { useAudio, Magnetic } from "@/fx";
 
 /* Frozen brand palette only. */
-const CONFETTI_COLORS = ["#22C55E", "#FBBF24", "#A78BFA", "#34D399", "#F4EFE7"];
+const CONFETTI_COLORS = ["#3C90FF", "#D97706", "#A78BFA", "#34D399", "#1F1F1F"];
 
 /* ── Types ────────────────────────────────────────────────── */
 interface Flashcard {
@@ -198,7 +198,7 @@ export function FlashcardScreen() {
   /* ── Loading / empty ────────────────────────────────────── */
   if (generating || cards.length === 0) {
     return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16, color: "var(--muted)" }}>
+      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 16, color: "var(--muted-text)" }}>
         {generating ? (
           <>
             <span className="spinner spinner--teal" />
@@ -326,7 +326,7 @@ export function FlashcardScreen() {
                         <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--teal)", marginBottom: 6 }}>
                           Tutor · {aiFeedback.score}/10
                         </div>
-                        <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)" }}>{aiFeedback.feedback}</p>
+                        <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted-text)" }}>{aiFeedback.feedback}</p>
                       </>
                     ) : null}
                   </div>
