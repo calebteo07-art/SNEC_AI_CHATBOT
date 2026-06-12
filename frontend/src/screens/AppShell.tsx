@@ -5,8 +5,8 @@ import { useAuth } from "./AuthContext";
 import { useProgress } from "@/hooks/useProgress";
 import { syncStreakFromBackend, syncHeartsFromBackend } from "@/lib/legacy/gamification";
 import { GuidedTour } from "./GuidedTour";
-import { useFx, useWipeNavigate, useAudio, ScrollProvider, Magnetic } from "@/fx";
-import { springs, focusPull, focusPullLite } from "@/lib/legacy/springs";
+import { useWipeNavigate, useAudio, ScrollProvider, Magnetic } from "@/fx";
+import { springs } from "@/lib/legacy/springs";
 
 const STUDENT_NAV = [
   { path: "/dashboard",  label: "Learn",    icon: LearnIcon,    tour: "learn"    },
@@ -24,13 +24,6 @@ const SUPERVISOR_NAV = [
   { path: "/supervisor", label: "Reports", icon: ProgressIcon, tour: undefined },
 ] as const;
 
-/** Collapse nested admin tabs to one key so AdminLayout's own Outlet
- *  never gets crossfaded by the shell-level transition. */
-function routeKey(pathname: string): string {
-  if (pathname.startsWith("/admin")) return "/admin";
-  return pathname;
-}
-
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -38,7 +31,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: progress } = useProgress();
   const { wipe } = useWipeNavigate();
   const { play } = useAudio();
-  const { tier } = useFx();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -51,10 +43,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const role = user?.role ?? "student";
   const NAV = role === "admin" ? ADMIN_NAV : role === "supervisor" ? SUPERVISOR_NAV : STUDENT_NAV;
   const homeRoute = role === "admin" ? "/admin" : role === "supervisor" ? "/supervisor" : "/dashboard";
-  const pageVariants = tier === "high" ? focusPull : focusPullLite;
 
   return (
-    <div style={{ background: "#FDFDFC", height: "100vh", overflow: "hidden" }}>
+    /* transparent — the fluid canvas breathes behind every surface */
+    <div style={{ background: "transparent", height: "100vh", overflow: "hidden" }}>
       {/* Fixed top bar */}
       <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
         <div className="flex justify-between items-center px-5 py-4">
@@ -81,17 +73,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           <div ref={contentRef} style={{ position: "relative", minHeight: "100%" }}>
             <main id="main" style={{ minHeight: "100%" }}>
-              {/* Enter-only choreography — the App Router has no exit-animation
-                  outlet; the Tier-1 wipe covers marquee transitions. */}
-              <motion.div
-                key={routeKey(pathname)}
-                variants={pageVariants}
-                initial="initial"
-                animate="enter"
-                style={{ position: "relative", minHeight: "100%" }}
-              >
-                {children}
-              </motion.div>
+              {/* Enter choreography lives in (shell)/template.tsx (GSAP). */}
+              {children}
             </main>
           </div>
         </div>
