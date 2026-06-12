@@ -6,6 +6,7 @@ import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/
 import { trackTokens } from "@/lib/legacy/trackColors";
 import { useProgress } from "@/hooks/useProgress";
 import { SplitText } from "@/fx";
+import { AccentSvg } from "@/fx/media/AccentSvg";
 import { staggerContainer, saccadeItem } from "@/lib/legacy/springs";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = {
@@ -93,8 +94,13 @@ export function DashboardScreen() {
         <ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} />
       )}
 
-      {/* Hero — the acuity chart masthead */}
-      <div className="flex items-end justify-between mb-3 flex-wrap gap-4">
+      {/* Hero — the acuity chart masthead, with a generative constellation
+          accent breathing behind the type */}
+      <div className="flex items-end justify-between mb-3 flex-wrap gap-4" style={{ position: "relative" }}>
+        <AccentSvg
+          context="dashboard"
+          style={{ position: "absolute", right: -40, top: -56, width: 380, opacity: 0.8, zIndex: -1 }}
+        />
         <motion.div variants={staggerContainer(0.06)} initial="hidden" animate="visible">
           <motion.p variants={saccadeItem} className="text-[#1F1F1F]/40 text-[10px] uppercase tracking-[0.18em] font-semibold mb-1">
             {TRACK_LABELS[activeTrack]}

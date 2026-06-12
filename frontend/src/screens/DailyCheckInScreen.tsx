@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
+import { AccentSvg } from "@/fx/media/AccentSvg";
 
 /* ── Types (unchanged) ────────────────────────────────────── */
 type Phase = "loading" | "question" | "result";
@@ -91,8 +92,12 @@ export function DailyCheckInScreen() {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, position: "relative", overflow: "hidden", background: "transparent" }}>
-      {/* Floating deco */}
+      {/* Floating deco — generative sunrise accent over the anatomy ghost */}
       <img src="/anatomy/eye-scan.png" aria-hidden="true" alt="" style={{ position: "absolute", width: 400, height: 400, objectFit: "cover", opacity: 0.07, mixBlendMode: "multiply", top: "50%", left: "50%", transform: "translate(-50%,-50%)", borderRadius: "50%", pointerEvents: "none" }} />
+      <AccentSvg
+        context="checkin"
+        style={{ position: "absolute", width: 640, top: "54%", left: "50%", transform: "translate(-50%,-50%)", opacity: 0.55 }}
+      />
 
       <motion.div
         style={{ width: "100%", maxWidth: 480, position: "relative", zIndex: 1 }}

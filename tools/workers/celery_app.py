@@ -25,6 +25,7 @@ app = Celery(
     include=[
         "tools.workers.tasks.card_generation",
         "tools.workers.tasks.sm2_review",
+        "tools.workers.tasks.media_refresh",
     ],
 )
 
@@ -37,5 +38,6 @@ app.conf.update(
     task_routes={
         "tools.workers.tasks.card_generation.*": {"queue": "cards"},
         "tools.workers.tasks.sm2_review.*":      {"queue": "sm2"},
+        "tools.workers.tasks.media_refresh.*":   {"queue": "media"},
     },
 )

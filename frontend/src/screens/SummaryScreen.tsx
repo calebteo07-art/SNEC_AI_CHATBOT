@@ -4,6 +4,7 @@ import { motion, animate, useMotionValue, useTransform } from "motion/react";
 import confetti from "canvas-confetti";
 import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
+import { AccentSvg } from "@/fx/media/AccentSvg";
 
 /* Frozen brand palette only — no stray hues in the celebration. */
 const CONFETTI_COLORS = ["#3C90FF", "#D97706", "#A78BFA", "#34D399", "#1F1F1F"];
@@ -58,12 +59,16 @@ export function SummaryScreen() {
 
   return (
     <div className="screen-summary">
-      {/* Decorative bg anatomy */}
+      {/* Decorative bg anatomy + generative celebration burst */}
       <img
         src="/anatomy/eye-hero.png"
         aria-hidden="true"
         alt=""
         style={{ position: "absolute", width: 500, height: 500, objectFit: "cover", opacity: 0.06, mixBlendMode: "multiply", top: "50%", left: "50%", transform: "translate(-50%,-50%)", borderRadius: "50%", pointerEvents: "none" }}
+      />
+      <AccentSvg
+        context="summary"
+        style={{ position: "absolute", width: 720, top: "50%", left: "50%", transform: "translate(-50%,-50%)", opacity: 0.5 }}
       />
 
       <motion.div
