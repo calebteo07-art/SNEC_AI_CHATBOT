@@ -55,6 +55,11 @@ sanitizer-validated).
   `max_tokens=32768` — Gemini 3.x thinking tokens drain the output budget
   (8192 truncated every SVG). `gemini-3.5-flash` throws 503 "high demand"
   spikes; the sweep skips failed contexts — just rerun those contexts later.
+- Sustained flash 503s (hours+, not a spike): fall over with
+  `--model gemini-3.1-pro-preview` — 2026-06-13 it generated all 7 retry
+  contexts first-try, perfectly palette-locked, every doc sanitizer-clean.
+  Model IDs drift: verify with a free ListModels call before assuming
+  (`gemini-3.1-pro` 404s; only the `-preview` id serves generateContent).
 - Higgsfield CLI: `higgsfield generate create <model> --prompt … --duration …
   --resolution 720p --aspect_ratio 16:9 --wait --json`, then download
   `result_url`. Session expiry → user runs `higgsfield auth login`.

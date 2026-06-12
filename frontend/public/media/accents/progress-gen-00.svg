@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <filter id="bloom" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      <feGaussianBlur in="displaced" stdDeviation="2.5" result="blurred" />
+    </filter>
+
+    <filter id="inkBleed" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4FA0FF" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#00BDD2" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00BDD2" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#60D673" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60D673" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#88DE42" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g4" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#88DE42" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#3C90FF" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g5" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3C90FF" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#AD72FF" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g7" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF5A59" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#F96BD6" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="g8" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#AD72FF" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#3C90FF" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <linearGradient id="beamGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFCF03" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#FF5A59" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <g id="schematic-base" opacity="0.3">
+    <line x1="50" y1="550" x2="750" y2="550" stroke="#1F1F1F" stroke-width="0.5" />
+    <path d="M 100 550 L 100 555 M 200 550 L 200 555 M 300 550 L 300 555 M 400 550 L 400 560 M 500 550 L 500 555 M 600 550 L 600 555 M 700 550 L 700 555" fill="none" stroke="#1F1F1F" stroke-width="0.5" />
+
+    <line x1="750" y1="200" x2="750" y2="520" stroke="#1F1F1F" stroke-width="0.5" />
+    <path d="M 745 200 L 750 200 M 745 250 L 750 250 M 745 300 L 750 300 M 740 350 L 750 350 M 745 400 L 750 400 M 745 450 L 750 450 M 745 500 L 750 500 M 745 520 L 750 520" fill="none" stroke="#1F1F1F" stroke-width="0.5" />
+
+    <circle cx="100" cy="100" r="30" fill="none" stroke="#3C90FF" stroke-width="0.5" />
+    <circle cx="100" cy="100" r="20" fill="none" stroke="#3C90FF" stroke-width="0.5" />
+    <line x1="60" y1="100" x2="140" y2="100" stroke="#3C90FF" stroke-width="0.5" />
+    <line x1="100" y1="60" x2="100" y2="140" stroke="#3C90FF" stroke-width="0.5" />
+
+    <path d="M 195 100 L 205 100 M 200 95 L 200 105 M 595 100 L 605 100 M 600 95 L 600 105 M 195 500 L 205 500 M 200 495 L 200 505 M 595 500 L 605 500 M 600 495 L 600 505" fill="none" stroke="#1F1F1F" stroke-width="0.5" />
+  </g>
+
+  <g id="a-scan-profile" opacity="0.5">
+    <line x1="100" y1="200" x2="100" y2="520" stroke="#1F1F1F" stroke-width="0.5" />
+    <polyline points="100,200 100,220 135,225 100,230 100,235 130,240 100,245 100,260 145,265 100,270 100,275 140,280 100,285 90,320 100,350 180,365 100,375 190,390 100,400 150,420 120,440 140,460 100,480 100,520" fill="none" stroke="#FFCF03" stroke-width="1" filter="url(#inkBleed)" />
+  </g>
+
+  <g id="strata-bloom" filter="url(#bloom)">
+    <path d="M 50 220 C 150 222, 250 228, 320 245 C 360 280, 380 320, 400 320 C 420 320, 440 280, 480 245 C 550 228, 650 222, 750 220 L 750 235 C 650 237, 550 243, 480 255 C 440 285, 420 325, 400 325 C 380 325, 360 285, 320 255 C 250 243, 150 237, 50 235 Z" fill="url(#g1)" opacity="0.3" />
+    <path d="M 50 235 C 150 237, 250 243, 320 255 C 360 285, 380 325, 400 325 C 420 325, 440 285, 480 255 C 550 243, 650 237, 750 235 L 750 260 C 650 262, 550 268, 480 280 C 440 300, 420 325, 400 325 C 380 325, 360 300, 320 280 C 250 268, 150 262, 50 260 Z" fill="url(#g2)" opacity="0.3" />
+    <path d="M 50 260 C 150 262, 250 268, 320 280 C 360 300, 380 325, 400 325 C 420 325, 440 300, 480 280 C 550 268, 650 262, 750 260 L 750 275 C 650 277, 550 283, 480 295 C 440 310, 420 330, 400 330 C 380 330, 360 310, 320 295 C 250 283, 150 277, 50 275 Z" fill="url(#g3)" opacity="0.3" />
+    <path d="M 50 275 C 150 277, 250 283, 320 295 C 360 310, 380 330, 400 330 C 420 330, 440 310, 480 295 C 550 283, 650 277, 750 275 L 750 290 C 650 292, 550 298, 480 310 C 440 325, 420 340, 400 340 C 380 340, 360 325, 320 310 C 250 298, 150 292, 50 290 Z" fill="url(#g4)" opacity="0.3" />
+    <path d="M 50 290 C 150 292, 250 298, 320 310 C 360 325, 380 340, 400 340 C 420 340, 440 325, 480 310 C 550 298, 650 292, 750 290 L 750 350 C 650 352, 550 358, 480 365 C 440 370, 420 372, 400 372 C 380 372, 360 370, 320 365 C 250 358, 150 352, 50 350 Z" fill="url(#g5)" opacity="0.4" />
+    <path d="M 50 370 C 150 372, 250 378, 320 385 C 360 390, 380 392, 400 392 C 420 392, 440 390, 480 385 C 550 378, 650 372, 750 370 L 750 395 C 650 397, 550 403, 480 410 C 440 415, 420 417, 400 417 C 380 417, 360 415, 320 410 C 250 403, 150 397, 50 395 Z" fill="url(#g7)" opacity="0.4" />
+    <path d="M 50 395 C 150 397, 250 403, 320 410 C 360 415, 380 417, 400 417 C 420 417, 440 415, 480 410 C 550 403, 650 397, 750 395 L 750 520 Q 650 480, 550 530 T 350 490 T 150 540 L 50 500 Z" fill="url(#g8)" opacity="0.25" />
+  </g>
+
+  <g id="strata-core">
+    <path d="M 50 220 C 150 222, 250 228, 320 245 C 360 280, 380 320, 400 320 C 420 320, 440 280, 480 245 C 550 228, 650 222, 750 220 L 750 235 C 650 237, 550 243, 480 255 C 440 285, 420 325, 400 325 C 380 325, 360 285, 320 255 C 250 243, 150 237, 50 235 Z" fill="url(#g1)" opacity="0.15" />
+    <path d="M 50 235 C 150 237, 250 243, 320 255 C 360 285, 380 325, 400 325 C 420 325, 440 285, 480 255 C 550 243, 650 237, 750 235 L 750 260 C 650 262, 550 268, 480 280 C 440 300, 420 325, 400 325 C 380 325, 360 300, 320 280 C 250 268, 150 262, 50 260 Z" fill="url(#g2)" opacity="0.15" />
+    <path d="M 50 260 C 150 262, 250 268, 320 280 C 360 300, 380 325, 400 325 C 420 325, 440 300, 480 280 C 550 268, 650 262, 750 260 L 750 275 C 650 277, 550 283, 480 295 C 440 310, 420 330, 400 330 C 380 330, 360 310, 320 295 C 250 283, 150 277, 50 275 Z" fill="url(#g3)" opacity="0.15" />
+    <path d="M 50 275 C 150 277, 250 283, 320 295 C 360 310, 380 330, 400 330 C 420 330, 440 310, 480 295 C 550 283, 650 277, 750 275 L 750 290 C 650 292, 550 298, 480 310 C 440 325, 420 340, 400 340 C 380 340, 360 325, 320 310 C 250 298, 150 292, 50 290 Z" fill="url(#g4)" opacity="0.15" />
+    <path d="M 50 290 C 150 292, 250 298, 320 310 C 360 325, 380 340, 400 340 C 420 340, 440 325, 480 310 C 550 298, 650 292, 750 290 L 750 350 C 650 352, 550 358, 480 365 C 440 370, 420 372, 400 372 C 380 372, 360 370, 320 365 C 250 358, 150 352, 50 350 Z" fill="url(#g5)" opacity="0.2" />
+    <path d="M 50 370 C 150 372, 250 378, 320 385 C 360 390, 380 392, 400 392 C 420 392, 440 390, 480 385 C 550 378, 650 372, 750 370 L 750 395 C 650 397, 550 403, 480 410 C 440 415, 420 417, 400 417 C 380 417, 360 415, 320 410 C 250 403, 150 397, 50 395 Z" fill="url(#g7)" opacity="0.2" />
+    <path d="M 50 395 C 150 397, 250 403, 320 410 C 360 415, 380 417, 400 417 C 420 417, 440 415, 480 410 C 550 403, 650 397, 750 395 L 750 520 Q 650 480, 550 530 T 350 490 T 150 540 L 50 500 Z" fill="url(#g8)" opacity="0.1" />
+  </g>
+
+  <g id="strata-lines">
+    <path d="M 50 220 C 150 222, 250 228, 320 245 C 360 280, 380 320, 400 320 C 420 320, 440 280, 480 245 C 550 228, 650 222, 750 220" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 235 C 150 237, 250 243, 320 255 C 360 285, 380 325, 400 325 C 420 325, 440 285, 480 255 C 550 243, 650 237, 750 235" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 260 C 150 262, 250 268, 320 280 C 360 300, 380 325, 400 325 C 420 325, 440 300, 480 280 C 550 268, 650 262, 750 260" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 275 C 150 277, 250 283, 320 295 C 360 310, 380 330, 400 330 C 420 330, 440 310, 480 295 C 550 283, 650 277, 750 275" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 290 C 150 292, 250 298, 320 310 C 360 325, 380 340, 400 340 C 420 340, 440 325, 480 310 C 550 298, 650 292, 750 290" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 350 C 150 352, 250 358, 320 365 C 360 370, 380 372, 400 372 C 420 372, 440 370, 480 365 C 550 358, 650 352, 750 350" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    
+    <path d="M 50 360 C 150 362, 250 368, 320 375 C 360 380, 380 382, 400 382 C 420 382, 440 380, 480 375 C 550 368, 650 362, 750 360" fill="none" stroke="#FFCF03" stroke-width="1.5" opacity="0.4" />
+    <path d="M 50 365 C 150 367, 250 373, 320 380 C 360 385, 380 387, 400 387 C 420 387, 440 385, 480 380 C 550 373, 650 367, 750 365" fill="none" stroke="#FF9238" stroke-width="1" opacity="0.5" />
+    
+    <path d="M 50 370 C 150 372, 250 378, 320 385 C 360 390, 380 392, 400 392 C 420 392, 440 390, 480 385 C 550 378, 650 372, 750 370" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 50 395 C 150 397, 250 403, 320 410 C 360 415, 380 417, 400 417 C 420 417, 440 415, 480 410 C 550 403, 650 397, 750 395" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+    <path d="M 750 520 Q 650 480, 550 530 T 350 490 T 150 540 L 50 500" fill="none" stroke="#1F1F1F" stroke-width="0.5" opacity="0.3" filter="url(#inkBleed)" />
+  </g>
+
+  <g id="annotations" opacity="0.5">
+    <path d="M 350 260 L 350 240 L 370 240 M 430 240 L 450 240 L 450 260 M 350 400 L 350 420 L 370 420 M 430 420 L 450 420 L 450 400" fill="none" stroke="#00BDD2" stroke-width="1" />
+    <circle cx="400" cy="350" r="45" fill="none" stroke="#00BDD2" stroke-width="0.5" />
+    <line x1="345" y1="350" x2="455" y2="350" stroke="#00BDD2" stroke-width="0.5" />
+    <line x1="400" y1="295" x2="400" y2="405" stroke="#00BDD2" stroke-width="0.5" />
+    <line x1="300" y1="550" x2="350" y2="480" stroke="#FF5A59" stroke-width="0.5" />
+    <line x1="500" y1="550" x2="450" y2="480" stroke="#FF5A59" stroke-width="0.5" />
+    <polyline points="350,180 350,160 450,160 450,180" fill="none" stroke="#1F1F1F" stroke-width="0.5" />
+    <line x1="400" y1="160" x2="400" y2="200" stroke="#1F1F1F" stroke-width="0.5" />
+  </g>
+
+  <g id="scanning-beam">
+    <polygon points="400,20 280,580 520,580" fill="url(#beamGrad)" opacity="0.15" />
+    <line x1="400" y1="20" x2="400" y2="580" stroke="#FFCF03" stroke-width="1" opacity="0.5" />
+    <line x1="400" y1="20" x2="400" y2="580" stroke="#FFCF03" stroke-width="3" opacity="0.3" />
+    <line x1="400" y1="20" x2="400" y2="580" stroke="#FF9238" stroke-width="8" opacity="0.2" />
+    <line x1="400" y1="20" x2="400" y2="580" stroke="#F96BD6" stroke-width="20" opacity="0.1" />
+  </g>
+</svg>

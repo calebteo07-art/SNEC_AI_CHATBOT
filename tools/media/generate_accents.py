@@ -45,7 +45,7 @@ def _extract_svg(text: str) -> str:
     return text[start : end + len("</svg>")].strip()
 
 
-def generate_svg(contexts: list[str], per_context: int = 1) -> list[Path]:
+def generate_svg(contexts: list[str], per_context: int = 1, model: str | None = None) -> list[Path]:
     from tools.shared.gemini_client import ask  # late import — needs API key
 
     written: list[Path] = []
@@ -64,6 +64,7 @@ def generate_svg(contexts: list[str], per_context: int = 1) -> list[Path]:
                     [{"role": "user", "content": prompt}],
                     max_tokens=32768,
                     feature="media_accent",
+                    model=model,
                 )
                 svg = sanitize_svg(_extract_svg(raw))
             except SvgRejected as exc:
@@ -114,6 +115,11 @@ def main() -> int:
     parser.add_argument("--kinds", default="svg", help="comma list: svg,raster")
     parser.add_argument("--contexts", nargs="*", default=NAV_CONTEXTS)
     parser.add_argument("--per-context", type=int, default=1)
+    parser.add_argument(
+        "--model", default=None,
+        help="override the text model for SVGs (e.g. gemini-3.1-pro when "
+             "gemini-3.5-flash is throwing sustained 503 demand spikes)",
+    )
     args = parser.parse_args()
 
     if not os.getenv("GEMINI_API_KEY"):
@@ -123,7 +129,7 @@ def main() -> int:
     kinds = {k.strip() for k in args.kinds.split(",")}
     if "svg" in kinds:
         print("Generating SVG accents…")
-        generate_svg(args.contexts, args.per_context)
+        generate_svg(args.contexts, args.per_context, model=args.model)
     if "raster" in kinds:
         print("Generating raster accents (Nano Banana Pro)…")
         generate_raster(args.contexts)

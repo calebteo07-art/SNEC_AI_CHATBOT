@@ -24,7 +24,9 @@ load_dotenv(PROJECT_ROOT / ".env")
 # Model spec — edit here to change; env vars do not control model selection
 FLASH_MODEL      = "gemini-3.5-flash"
 FLASH_LITE_MODEL = "gemini-3.1-flash-lite"
-PRO_MODEL        = "gemini-3.1-pro"
+# 2026-06-13: "gemini-3.1-pro" 404s on this key — ListModels shows only the
+# -preview id is served for generateContent.
+PRO_MODEL        = "gemini-3.1-pro-preview"
 
 # Aliases used at call sites — no behaviour change needed at callers
 MODEL       = FLASH_MODEL
