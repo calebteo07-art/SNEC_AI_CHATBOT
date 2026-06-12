@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "@/lib/nav";
 import { motion } from "motion/react";
 import { useWipeNavigate, LiquidImage } from "@/fx";
+import { AccentSvg } from "@/fx/media/AccentSvg";
 
 /* ── Types (preserved) ────────────────────────────────────── */
 interface CaseInfo {
@@ -103,7 +104,10 @@ export function CaseListScreen() {
 
         {/* Empty */}
         {!loading && !error && cases.length === 0 && (
-          <p style={{ textAlign: "center", color: "var(--muted-text)", fontSize: 13, padding: "60px 0" }}>No cases available yet.</p>
+          <div style={{ textAlign: "center", padding: "40px 0 60px" }}>
+            <AccentSvg context="cases" style={{ width: 360, margin: "0 auto 8px", opacity: 0.8 }} />
+            <p style={{ color: "var(--muted-text)", fontSize: 13 }}>No cases available yet.</p>
+          </div>
         )}
 
         {/* Case cards */}

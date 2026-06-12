@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-12T07:56:45.196740+00:00",
+  "palette": "photopic-v2",
+  "accents": [
+    {
+      "id": "cases-seed-00",
+      "kind": "svg",
+      "context": [
+        "cases"
+      ],
+      "path": "/media/accents/cases-seed-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-241dcc0873a05a89ad540102"
+    },
+    {
+      "id": "checkin-seed-00",
+      "kind": "svg",
+      "context": [
+        "checkin"
+      ],
+      "path": "/media/accents/checkin-seed-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-afc420f34b6aaee8efa34612"
+    },
+    {
+      "id": "dashboard-seed-00",
+      "kind": "svg",
+      "context": [
+        "dashboard"
+      ],
+      "path": "/media/accents/dashboard-seed-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-c499313c4a7bf52864fe7da9"
+    },
+    {
+      "id": "login-seed-00",
+      "kind": "svg",
+      "context": [
+        "login"
+      ],
+      "path": "/media/accents/login-seed-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-a5882c412df3866e877ae700"
+    },
+    {
+      "id": "summary-seed-00",
+      "kind": "svg",
+      "context": [
+        "summary"
+      ],
+      "path": "/media/accents/summary-seed-00.svg",
+      "width": 800,
+      "height": 600,
+      "hash": "sha256-c89e64a16be61cc0424f6410"
+    }
+  ],
+  "loops": []
+}

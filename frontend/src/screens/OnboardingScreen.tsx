@@ -5,6 +5,7 @@ import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { useWipeNavigate } from "@/fx";
 import type { GazeHandle } from "@/fx/canvas/GazeIris";
+import { HiggsfieldLoop } from "@/fx/media/HiggsfieldLoop";
 
 /* The Gaze rides in its own chunk — three.js stays out of the main bundle. */
 const TheGaze = lazy(() =>
@@ -210,6 +211,9 @@ export function OnboardingScreen() {
         aria-hidden="true"
         style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(26,168,156,0.10) 0%, rgba(66,133,244,0.05) 42%, rgba(255,255,255,0) 72%), #FDFDFC" }}
       />
+      {/* Cinematic backdrop slot — lights up once a Higgsfield loop lands in
+          the library; renders nothing until then. Sits beneath The Gaze. */}
+      <HiggsfieldLoop context="login" style={{ position: "absolute", inset: 0, opacity: 0.5 }} />
       {/* The Gaze — the eye that watches you */}
       <Suspense fallback={null}>
         <TheGaze ref={gazeRef} />

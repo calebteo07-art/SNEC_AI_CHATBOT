@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useAdminOutlet, CohortData, AtRiskItem, fmtTokens } from "./adminShared";
 
 const API = "";
@@ -44,8 +45,57 @@ export function AdminOverviewPage() {
 
   const cardStyle = { background: "rgba(31,31,31,0.04)", border: "1px solid rgba(31,31,31,0.08)" };
 
+  /* Queue a generative-media refresh on the Celery workers and follow the job. */
+  const refreshMedia = async () => {
+    try {
+      const res = await fetch("/api/media/refresh", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kinds: ["svg"] }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.detail ?? "Media refresh unavailable.");
+        return;
+      }
+      if (data.status !== "queued") {
+        toast.info(data.detail ?? "Nothing to queue.");
+        return;
+      }
+      toast.info("Media refresh queued — regenerating accents…");
+      const poll = setInterval(async () => {
+        try {
+          const jr = await fetch(`/api/media/jobs/${data.job_id}`, { credentials: "include" });
+          const job = await jr.json();
+          if (job.status === "success") {
+            clearInterval(poll);
+            toast.success(`Media library v${job.result?.manifest_version} ready (${job.result?.accents} accents).`);
+          } else if (job.status === "failure") {
+            clearInterval(poll);
+            toast.error(`Media refresh failed: ${job.detail ?? "unknown error"}`);
+          }
+        } catch {
+          clearInterval(poll);
+        }
+      }, 4000);
+    } catch {
+      toast.error("Media refresh unavailable.");
+    }
+  };
+
   return (
     <div className="space-y-5">
+      {/* Generative media controls */}
+      <div className="flex justify-end">
+        <button
+          onClick={refreshMedia}
+          className="rounded-full px-4 py-1.5 text-xs font-semibold transition-all"
+          style={{ border: "1px solid rgba(60,144,255,0.4)", color: "#1A73E8", background: "rgba(60,144,255,0.06)" }}
+        >
+          ↻ Refresh media library
+        </button>
+      </div>
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {kpis.map(({ label, val, color }) => (
