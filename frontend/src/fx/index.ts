@@ -11,6 +11,5 @@ export { ScrollProvider, useShellScroll, useShellScrollMaybe } from "./ScrollPro
 export { LiquidImage } from "./liquid/lazy";
 export { AudioProvider, useAudio } from "./audio/useAudio";
 export type { AudioCue } from "./audio/AudioEngine";
-export { CursorLayer } from "./cursor/CursorLayer";
 export { Magnetic } from "./cursor/Magnetic";
 export { SplitText } from "./text/SplitText";

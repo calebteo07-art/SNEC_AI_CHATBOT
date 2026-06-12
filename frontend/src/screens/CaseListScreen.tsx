@@ -63,7 +63,7 @@ export function CaseListScreen() {
           <div>
             <p className="section-label">Clinical Cases</p>
             <h1 style={{ fontSize: 26, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em" }}>Choose a Case</h1>
-            <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 4, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "var(--muted-text)", marginTop: 4, lineHeight: 1.5 }}>
               Interview a virtual patient, request investigations, and reach your diagnosis.
             </p>
           </div>
@@ -103,7 +103,7 @@ export function CaseListScreen() {
 
         {/* Empty */}
         {!loading && !error && cases.length === 0 && (
-          <p style={{ textAlign: "center", color: "var(--muted)", fontSize: 13, padding: "60px 0" }}>No cases available yet.</p>
+          <p style={{ textAlign: "center", color: "var(--muted-text)", fontSize: 13, padding: "60px 0" }}>No cases available yet.</p>
         )}
 
         {/* Case cards */}
@@ -135,7 +135,7 @@ export function CaseListScreen() {
                     </div>
                     <div style={{ padding: "12px 14px" }}>
                       <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--faint)" }}>{c.difficulty} · Locked</span>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--muted)", marginTop: 4, lineHeight: 1.3 }}>{c.title}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--muted-text)", marginTop: 4, lineHeight: 1.3 }}>{c.title}</p>
                     </div>
                   </div>
                 );
@@ -161,7 +161,7 @@ export function CaseListScreen() {
                   <div style={{ height: 130, position: "relative", overflow: "hidden", background: "var(--sidebar-bg)" }}>
                     <LiquidImage src={imgSrc} alt="" style={{ position: "absolute", inset: 0 }} />
                     {/* decorative overlays must not eat the liquid hover */}
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)", pointerEvents: "none" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(31,31,31,0.14) 0%, transparent 55%)", pointerEvents: "none" }} />
                     {/* Difficulty pill on image */}
                     <div style={{
                       position: "absolute", top: 10, left: 12,
@@ -175,7 +175,7 @@ export function CaseListScreen() {
                       {c.difficulty}
                     </div>
                     {/* Time on image */}
-                    <div style={{ position: "absolute", bottom: 10, right: 12, fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: 600, pointerEvents: "none" }}>
+                    <div style={{ position: "absolute", bottom: 10, right: 12, fontSize: 10, color: "rgba(31,31,31,0.7)", fontWeight: 600, pointerEvents: "none" }}>
                       ~{c.estimated_minutes} min
                     </div>
                   </div>
@@ -187,7 +187,7 @@ export function CaseListScreen() {
                     <div className="case-card-sub">
                       {c.patient.name}, {c.patient.age} yrs
                     </div>
-                    <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6, lineHeight: 1.4, fontStyle: "italic" }}>
+                    <p style={{ fontSize: 11, color: "var(--muted-text)", marginTop: 6, lineHeight: 1.4, fontStyle: "italic" }}>
                       "{c.patient.presenting_complaint}"
                     </p>
                   </div>

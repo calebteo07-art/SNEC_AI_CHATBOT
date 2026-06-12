@@ -32,10 +32,15 @@ export type WipePhase = "idle" | "closing" | "covered" | "opening";
  *  (needed when auth state must change or storage must be written first). */
 export type WipeAction = string | (() => void);
 
+export type WipeCover = "paper" | "ink";
+
 interface TransitionContextValue {
   phase: WipePhase;
   /** True while the cover must appear without a closing animation. */
   instant: boolean;
+  /** Cover material: regular blinks use paper shutters; the login engulf
+   *  hands off from The Gaze's ink-flooded pupil, so its cover is ink. */
+  cover: WipeCover;
   /** Blink: close → act under cover → open. Resolves when idle again. */
   wipe: (action: WipeAction) => Promise<void>;
   /** Cover appears instantly (caller already filled the screen) → act → open. */
@@ -65,6 +70,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   const { play } = useAudio();
   const [phase, setPhase] = useState<WipePhase>("idle");
   const [instant, setInstant] = useState(false);
+  const [cover, setCover] = useState<WipeCover>("paper");
   const busyRef = useRef(false);
   const pendingCommit = useRef<{ fromPath: string; resolve: () => void } | null>(null);
 
@@ -108,6 +114,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       }
       busyRef.current = true;
       play("whoosh");
+      setCover("paper");
       setInstant(false);
       setPhase("closing");
       await delay(CLOSE_MS + 40);
@@ -132,6 +139,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         return;
       }
       busyRef.current = true;
+      setCover("ink");
       setInstant(true);
       setPhase("covered");
       await nextFrames(1);
@@ -149,8 +157,8 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ phase, instant, wipe, handoff }),
-    [phase, instant, wipe, handoff],
+    () => ({ phase, instant, cover, wipe, handoff }),
+    [phase, instant, cover, wipe, handoff],
   );
 
   return <TransitionContext.Provider value={value}>{children}</TransitionContext.Provider>;

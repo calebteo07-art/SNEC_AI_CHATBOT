@@ -6,7 +6,7 @@ import { getUserProgress, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/l
 import { useWipeNavigate, useAudio, Magnetic } from "@/fx";
 
 /* Frozen brand palette only — no stray hues in the celebration. */
-const CONFETTI_COLORS = ["#22C55E", "#FBBF24", "#A78BFA", "#34D399", "#F4EFE7"];
+const CONFETTI_COLORS = ["#3C90FF", "#D97706", "#A78BFA", "#34D399", "#1F1F1F"];
 
 /* ── Helpers (unchanged) ──────────────────────────────────── */
 function loadSession() {
@@ -88,15 +88,15 @@ export function SummaryScreen() {
         <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
           <div style={{ textAlign: "center", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "16px 24px", boxShadow: "var(--sh-sm)" }}>
             <div style={{ fontSize: 26, fontWeight: 900, color: "var(--text)", letterSpacing: "-0.03em" }}>{sessionData.questionsAnswered}</div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted)", marginTop: 3 }}>Questions answered</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted-text)", marginTop: 3 }}>Questions answered</div>
           </div>
           <div style={{ textAlign: "center", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "16px 24px", boxShadow: "var(--sh-sm)" }}>
             <div style={{ fontSize: 26, fontWeight: 900, color: "var(--teal)", letterSpacing: "-0.03em" }}>{xp}</div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted)", marginTop: 3 }}>Total XP</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted-text)", marginTop: 3 }}>Total XP</div>
           </div>
           <div style={{ textAlign: "center", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "16px 24px", boxShadow: "var(--sh-sm)" }}>
             <div style={{ fontSize: 26, fontWeight: 900, color: "var(--purple)", letterSpacing: "-0.03em" }}>{sessionData.flashcardsGenerated}</div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted)", marginTop: 3 }}>Cards reviewed</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--muted-text)", marginTop: 3 }}>Cards reviewed</div>
           </div>
         </div>
 
@@ -109,7 +109,7 @@ export function SummaryScreen() {
         <div style={{ display: "flex", gap: 12, width: "100%" }}>
           <button
             onClick={() => navigate("/flashcards")}
-            style={{ flex: 1, padding: "14px", borderRadius: "var(--r-sm)", background: "var(--page)", border: "1.5px solid var(--border)", fontSize: 13, fontWeight: 700, color: "var(--muted)", cursor: "pointer" }}
+            style={{ flex: 1, padding: "14px", borderRadius: "var(--r-sm)", background: "var(--page)", border: "1.5px solid var(--border)", fontSize: 13, fontWeight: 700, color: "var(--muted-text)", cursor: "pointer" }}
           >
             Review Cards
           </button>

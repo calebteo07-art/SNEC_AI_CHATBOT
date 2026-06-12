@@ -1,16 +1,14 @@
-/* DARK ADAPTATION · fx layer base styles
- * Frozen palette only: #181717 stage, #F4EFE7 house lights.
- * z-order contract: GuidedTour 100–103 < wipe overlay 200 < cursor 300.
+/* PHOTOPIC · fx layer base styles
+ * Daylight clinical: paper shutters instead of eyelids, native cursor.
+ * z-order contract: GuidedTour 100–103 < wipe overlay 220 < preloader 400.
  */
 
 :root {
-  --fx-stage: #181717;
-  --fx-paper: #F4EFE7;
-  --fx-z-wipe: 220; /* above app modals (200), below cursor (300) */
-  --fx-z-cursor: 300;
+  --fx-paper: #FAFAF9;
+  --fx-z-wipe: 220; /* above app modals (200) */
 }
 
-/* ── The blink: route-wipe eyelids ── */
+/* ── The blink, in daylight: paper shutters with a chromatic seam ── */
 .fx-wipe {
   position: fixed;
   inset: 0;
@@ -19,31 +17,60 @@
 }
 .fx-wipe[data-phase="closing"],
 .fx-wipe[data-phase="covered"] {
-  pointer-events: auto; /* block input while the eye is shut */
+  pointer-events: auto; /* block input while the shutter is closed */
 }
 .fx-wipe-lid {
   position: absolute;
   left: 0;
   right: 0;
   height: 50.5%; /* lids overlap 1% to kill the seam */
-  background: var(--fx-stage);
+  background: var(--fx-paper);
   transform: scaleY(0);
   will-change: transform;
   transition: transform 280ms cubic-bezier(0.65, 0, 0.35, 1);
 }
+/* Gem-spectrum fringe along each shutter's leading edge — the light
+ * refracting where the paper sheets meet. */
+.fx-wipe-lid::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3C90FF 0%, #AD72FF 30%, #F96BD6 55%, #FF9238 80%, #00BDD2 100%);
+  opacity: 0.85;
+}
 .fx-wipe-lid--top {
   top: 0;
   transform-origin: top center;
+  border-radius: 0 0 28px 28px;
+  box-shadow: 0 12px 40px -12px rgba(31, 31, 31, 0.18);
+}
+.fx-wipe-lid--top::after {
+  bottom: 0;
   border-radius: 0 0 28px 28px;
 }
 .fx-wipe-lid--bottom {
   bottom: 0;
   transform-origin: bottom center;
   border-radius: 28px 28px 0 0;
+  box-shadow: 0 -12px 40px -12px rgba(31, 31, 31, 0.18);
+}
+.fx-wipe-lid--bottom::after {
+  top: 0;
+  border-radius: 28px 28px 0 0;
 }
 .fx-wipe[data-phase="closing"] .fx-wipe-lid,
 .fx-wipe[data-phase="covered"] .fx-wipe-lid {
   transform: scaleY(1.02);
+}
+/* Ink cover — the login engulf hands off from The Gaze's ink-flooded pupil,
+ * so its shutters match the ink before retracting off the new route. */
+.fx-wipe[data-cover="ink"] .fx-wipe-lid {
+  background: #1F1F1F;
+}
+.fx-wipe[data-cover="ink"] .fx-wipe-lid::after {
+  opacity: 0.55;
 }
 .fx-wipe[data-instant="true"] .fx-wipe-lid {
   transition-duration: 0ms;
@@ -54,9 +81,9 @@
   transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* House-lights focus ring — visible on every surface of the theatre. */
+/* Brand-blue focus ring — visible on every paper surface. */
 :focus-visible {
-  outline: 2px solid rgba(244, 239, 231, 0.85);
+  outline: 2px solid rgba(60, 144, 255, 0.85);
   outline-offset: 2px;
 }
 
@@ -68,71 +95,7 @@
   }
 }
 
-/* ── The reticle: custom cursor ── */
-.fx-cursor {
-  position: fixed;
-  inset: 0;
-  z-index: var(--fx-z-cursor);
-  pointer-events: none;
-}
-.fx-cursor[data-hidden="true"] .fx-cursor-dot,
-.fx-cursor[data-hidden="true"] .fx-cursor-ring {
-  opacity: 0;
-}
-.fx-cursor-dot {
-  position: fixed;
-  top: -3px;
-  left: -3px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--fx-paper);
-  will-change: transform;
-  transition: width 0.2s ease, height 0.2s ease, top 0.2s ease, left 0.2s ease, opacity 0.25s ease;
-}
-.fx-cursor-ring {
-  position: fixed;
-  top: -17px;
-  left: -17px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(244, 239, 231, 0.55);
-  will-change: transform;
-  transition: width 0.22s ease, height 0.22s ease, top 0.22s ease, left 0.22s ease,
-    border-color 0.22s ease, border-radius 0.22s ease, opacity 0.25s ease;
-}
-.fx-cursor[data-mode="ring"] .fx-cursor-ring {
-  width: 46px;
-  height: 46px;
-  top: -23px;
-  left: -23px;
-  border-color: #22c55e;
-}
-.fx-cursor[data-mode="ring"] .fx-cursor-dot {
-  width: 4px;
-  height: 4px;
-  top: -2px;
-  left: -2px;
-}
-.fx-cursor[data-mode="text"] .fx-cursor-ring {
-  width: 3px;
-  height: 26px;
-  top: -13px;
-  left: -1.5px;
-  border-radius: 2px;
-  border-color: rgba(244, 239, 231, 0.8);
-}
-.fx-cursor[data-mode="text"] .fx-cursor-dot {
-  opacity: 0;
-}
-.fx-cursor-active,
-.fx-cursor-active * {
-  cursor: none !important;
-}
-
-/* The real global reduced-motion kill-switch.
- * (The previous one lived in duolingo.css, which is dead code.) */
+/* The real global reduced-motion kill-switch. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,8 +1,8 @@
-/* DARK ADAPTATION · The Gaze — procedural iris
- * All colours are the frozen brand palette, expressed as light:
- *   #15803D→#22C55E core, #1AA89C mid, #4285F4 limbus, #F4EFE7 catchlight,
- *   #020617 void, #181717 pupil (== the wipe cover, so the engulf hands off
- *   seamlessly to the route transition).
+/* PHOTOPIC · The Gaze — procedural iris (interim recolor; full R3F port in P3)
+ * Gemini-blue iris on a paper field:
+ *   #1A73E8→#3C90FF core, #1AA89C mid, #4285F4 limbus, white catchlight,
+ *   #F8F7F4 paper field, #1F1F1F ink pupil (== the handoff cover colour, so
+ *   the engulf hands off seamlessly to the route transition).
  */
 
 export const IRIS_VERTEX = /* glsl */ `
@@ -46,13 +46,13 @@ void main() {
   float r = length(d) / uIris;
   float theta = atan(d.y, d.x);
 
-  vec3 stage  = vec3(0.094, 0.090, 0.090); /* #181717 */
-  vec3 deep   = vec3(0.008, 0.024, 0.090); /* #020617 */
-  vec3 green  = vec3(0.133, 0.773, 0.369); /* #22C55E */
-  vec3 greenD = vec3(0.082, 0.502, 0.239); /* #15803D */
+  vec3 stage  = vec3(0.122, 0.122, 0.122); /* #1F1F1F ink — pupil + engulf flood */
+  vec3 deep   = vec3(0.973, 0.969, 0.961); /* #F8F7F4 paper field */
+  vec3 green  = vec3(0.235, 0.565, 1.000); /* #3C90FF brand blue (legacy name) */
+  vec3 greenD = vec3(0.102, 0.451, 0.910); /* #1A73E8 deep blue */
   vec3 teal   = vec3(0.102, 0.659, 0.612); /* #1AA89C */
   vec3 blue   = vec3(0.259, 0.522, 0.957); /* #4285F4 */
-  vec3 cream  = vec3(0.957, 0.937, 0.906); /* #F4EFE7 */
+  vec3 cream  = vec3(1.000, 1.000, 1.000); /* white catchlight */
 
   /* pupil with hippus — the real physiological tremor — and an organic,
      slightly irregular margin */
@@ -97,7 +97,7 @@ void main() {
   float pm = 1.0 - smoothstep(pupilR, pupilR + 0.03, r);
   col = mix(col, stage, pm);
 
-  /* film grain against banding in the dark field */
+  /* film grain against banding in the paper field */
   col += (hash(frag + fract(uTime) * 91.7) - 0.5) * 0.014;
 
   gl_FragColor = vec4(col, 1.0);

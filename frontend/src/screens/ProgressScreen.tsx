@@ -33,7 +33,7 @@ function trackHex(topic: string): string {
   const t = topic.toLowerCase();
   if (t.includes("ot-") || t.startsWith("ot")) return "#A78BFA";
   if (t.includes("psa-") || t.startsWith("psa")) return "#34D399";
-  return "#22C55E";
+  return "#3C90FF";
 }
 
 function trackLabel(topic: string): string {
@@ -51,9 +51,9 @@ function relativeDay(ts: string): string {
 }
 
 const VELOCITY_META: Record<string, { glyph: string; color: string; label: string }> = {
-  improving: { glyph: "▲", color: "#22C55E", label: "IMPROVING" },
-  stable:    { glyph: "▶", color: "#94A3B8", label: "STABLE" },
-  declining: { glyph: "▼", color: "#F87171", label: "NEEDS ATTENTION" },
+  improving: { glyph: "▲", color: "#3C90FF", label: "IMPROVING" },
+  stable:    { glyph: "▶", color: "rgba(31,31,31,0.55)", label: "STABLE" },
+  declining: { glyph: "▼", color: "#E11D48", label: "NEEDS ATTENTION" },
 };
 
 /* ── One OCT stratum (topic layer) ────────────────────────── */
@@ -86,7 +86,7 @@ function ScanStratum({
         position: "relative",
         flex: 1,
         minHeight: 0,
-        borderTop: "1px solid rgba(244,239,231,0.06)",
+        borderTop: "1px solid rgba(31,31,31,0.06)",
         display: "flex",
         alignItems: "center",
         overflow: "hidden",
@@ -129,7 +129,7 @@ function ScanStratum({
             style={{
               fontSize: 14,
               fontWeight: 700,
-              color: "#F4EFE7",
+              color: "#1F1F1F",
               letterSpacing: "-0.01em",
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -196,7 +196,7 @@ function TheScan({
           {!reduced && (
             <motion.span
               aria-hidden="true"
-              style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8", letterSpacing: "0.14em" }}
+              style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(31,31,31,0.55)", letterSpacing: "0.14em" }}
             >
               {scanPct}
             </motion.span>
@@ -209,8 +209,8 @@ function TheScan({
             position: "relative",
             height: `min(${Math.max(topics.length * 76, 280)}px, 62vh)`,
             borderRadius: 20,
-            border: "1px solid rgba(244,239,231,0.09)",
-            background: "linear-gradient(180deg, #0F172A 0%, #111827 100%)",
+            border: "1px solid rgba(31,31,31,0.09)",
+            background: "linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 100%)",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
@@ -224,7 +224,7 @@ function TheScan({
               inset: 0,
               opacity: 0.05,
               background:
-                "repeating-linear-gradient(0deg, transparent 0 2px, rgba(244,239,231,0.5) 2px 3px)",
+                "repeating-linear-gradient(0deg, transparent 0 2px, rgba(31,31,31,0.5) 2px 3px)",
               pointerEvents: "none",
             }}
           />
@@ -251,14 +251,14 @@ function TheScan({
                 width: 2,
                 x: lineX,
                 background:
-                  "linear-gradient(180deg, transparent 0%, rgba(244,239,231,0.85) 16%, rgba(34,197,94,0.9) 50%, rgba(244,239,231,0.85) 84%, transparent 100%)",
-                boxShadow: "0 0 22px rgba(34,197,94,0.55), 0 0 6px rgba(244,239,231,0.6)",
+                  "linear-gradient(180deg, transparent 0%, rgba(31,31,31,0.85) 16%, rgba(60,144,255,0.9) 50%, rgba(31,31,31,0.85) 84%, transparent 100%)",
+                boxShadow: "0 0 22px rgba(60,144,255,0.55), 0 0 6px rgba(31,31,31,0.6)",
                 pointerEvents: "none",
               }}
             />
           )}
         </div>
-        <p style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "rgba(244,239,231,0.3)", letterSpacing: "0.12em", marginTop: 8 }}>
+        <p style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "rgba(31,31,31,0.3)", letterSpacing: "0.12em", marginTop: 8 }}>
           {reduced ? "TOPIC MASTERY BY TRACK" : "SCROLL TO SCAN · TOPIC MASTERY BY TRACK"}
         </p>
       </div>
@@ -293,9 +293,9 @@ export function ProgressScreen() {
     .toUpperCase();
 
   const vitals = [
-    { label: "Day Streak", val: String(streak), color: "#FB923C" },
-    { label: "Sessions", val: String(sessionCount), color: "#22C55E" },
-    { label: "Avg Accuracy", val: `${avgScore}%`, color: avgScore >= 80 ? "#34D399" : avgScore >= 60 ? "#FBBF24" : "#F87171" },
+    { label: "Day Streak", val: String(streak), color: "#EA580C" },
+    { label: "Sessions", val: String(sessionCount), color: "#3C90FF" },
+    { label: "Avg Accuracy", val: `${avgScore}%`, color: avgScore >= 80 ? "#34D399" : avgScore >= 60 ? "#D97706" : "#E11D48" },
     { label: "Topics", val: String(topicPerf.length), color: "#A78BFA" },
   ];
 
@@ -318,11 +318,11 @@ export function ProgressScreen() {
             fontWeight: 650,
             letterSpacing: "-0.04em",
             lineHeight: 0.98,
-            color: "#F4EFE7",
+            color: "#1F1F1F",
           }}
         >
           Your{" "}
-          <em style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, color: "#22C55E" }}>
+          <em style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontWeight: 400, color: "#3C90FF" }}>
             scan
           </em>
         </motion.h1>
@@ -335,7 +335,7 @@ export function ProgressScreen() {
             fontFamily: "var(--font-mono)",
             fontSize: 10,
             letterSpacing: "0.14em",
-            color: "rgba(244,239,231,0.45)",
+            color: "rgba(31,31,31,0.45)",
           }}
         >
           <span>{dateRow}</span>
@@ -347,7 +347,7 @@ export function ProgressScreen() {
 
       {/* ── Loading / error ── */}
       {loading && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted-text)", fontSize: 12 }}>
           <span className="spinner spinner--teal" />
           Developing your scan…
         </div>
@@ -391,10 +391,10 @@ export function ProgressScreen() {
                 key={v.label}
                 variants={saccadeItem}
                 style={{
-                  border: "1px solid rgba(244,239,231,0.09)",
+                  border: "1px solid rgba(31,31,31,0.09)",
                   borderRadius: 16,
                   padding: "14px 16px",
-                  background: "rgba(244,239,231,0.025)",
+                  background: "rgba(31,31,31,0.025)",
                 }}
               >
                 <div
@@ -415,7 +415,7 @@ export function ProgressScreen() {
                     fontWeight: 700,
                     letterSpacing: "0.16em",
                     textTransform: "uppercase",
-                    color: "rgba(244,239,231,0.4)",
+                    color: "rgba(31,31,31,0.4)",
                     marginTop: 7,
                   }}
                 >
@@ -440,7 +440,7 @@ export function ProgressScreen() {
               <h2 className="section-label" style={{ marginBottom: 0 }}>
                 Visual Field · This Week
               </h2>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#94A3B8" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "rgba(31,31,31,0.55)" }}>
                 {weekHits.filter(Boolean).length}/7
               </span>
             </div>
@@ -456,12 +456,12 @@ export function ProgressScreen() {
                         width: 34,
                         height: 34,
                         borderRadius: "50%",
-                        border: hit ? "1px solid #34D399" : "1px solid rgba(244,239,231,0.14)",
+                        border: hit ? "1px solid #34D399" : "1px solid rgba(31,31,31,0.14)",
                         background: hit
                           ? "radial-gradient(circle, rgba(52,211,153,0.4) 0%, rgba(52,211,153,0.06) 70%)"
                           : "transparent",
                         boxShadow: hit ? "0 0 16px rgba(52,211,153,0.25)" : "none",
-                        outline: isToday ? "1px solid rgba(244,239,231,0.35)" : "none",
+                        outline: isToday ? "1px solid rgba(31,31,31,0.35)" : "none",
                         outlineOffset: 3,
                         opacity: isFuture && !hit ? 0.3 : 1,
                       }}
@@ -470,7 +470,7 @@ export function ProgressScreen() {
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontSize: 9,
-                        color: isToday ? "#F4EFE7" : "rgba(244,239,231,0.35)",
+                        color: isToday ? "#1F1F1F" : "rgba(31,31,31,0.35)",
                         marginTop: 6,
                         letterSpacing: "0.1em",
                       }}
@@ -530,7 +530,7 @@ export function ProgressScreen() {
                       alignItems: "baseline",
                       gap: 14,
                       padding: "11px 2px",
-                      borderTop: "1px solid rgba(244,239,231,0.07)",
+                      borderTop: "1px solid rgba(31,31,31,0.07)",
                       fontFamily: "var(--font-mono)",
                       fontSize: 11,
                     }}
@@ -538,10 +538,10 @@ export function ProgressScreen() {
                     <span style={{ color: trackHex(s.topic), minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {topicLabel(s.topic)}
                     </span>
-                    <span style={{ color: "rgba(244,239,231,0.45)", textTransform: "uppercase", fontSize: 9, letterSpacing: "0.12em", flexShrink: 0 }}>
+                    <span style={{ color: "rgba(31,31,31,0.45)", textTransform: "uppercase", fontSize: 9, letterSpacing: "0.12em", flexShrink: 0 }}>
                       {s.mode}
                     </span>
-                    <span style={{ color: "rgba(244,239,231,0.3)", fontSize: 9, letterSpacing: "0.1em", flexShrink: 0 }}>
+                    <span style={{ color: "rgba(31,31,31,0.3)", fontSize: 9, letterSpacing: "0.1em", flexShrink: 0 }}>
                       {relativeDay(s.timestamp)}
                     </span>
                   </motion.div>

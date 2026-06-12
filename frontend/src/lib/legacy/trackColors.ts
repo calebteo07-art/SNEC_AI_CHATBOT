@@ -12,57 +12,60 @@ export interface TrackTokens {
   glow:       string;
   cardBg:     string;
   cardBorder: string;
-  /** CSS var name for the primary colour (matches duolingo.css) */
+  /** CSS var name for the primary colour */
   cssVar:     string;
 }
 
+/* PHOTOPIC track identities (chinita --track-* values):
+ * OA = cyan, OT = violet, PSA = emerald, core = amber — all deepened a step
+ * where used as text/fills on paper surfaces. */
 const TOKENS: Record<TrackOrCore, TrackTokens> = {
   OA: {
-    primary:    "#22c55e",
-    deep:       "#16a34a",
-    shadow:     "#15803d",
-    gradient:   "linear-gradient(145deg, #4ade80, #22c55e, #16a34a)",
-    bg:         "rgba(34,197,94,0.10)",
-    muted:      "rgba(34,197,94,0.10)",
-    glow:       "rgba(34,197,94,0.28)",
-    cardBg:     "rgba(34,197,94,0.08)",
-    cardBorder: "rgba(34,197,94,0.25)",
-    cssVar:     "var(--teal)",
+    primary:    "#06b6d4",
+    deep:       "#0891b2",
+    shadow:     "#0e7490",
+    gradient:   "linear-gradient(145deg, #67e8f9, #22d3ee, #0891b2)",
+    bg:         "rgba(34,211,238,0.12)",
+    muted:      "rgba(34,211,238,0.12)",
+    glow:       "rgba(34,211,238,0.28)",
+    cardBg:     "rgba(34,211,238,0.08)",
+    cardBorder: "rgba(34,211,238,0.30)",
+    cssVar:     "var(--cyan)",
   },
   OT: {
-    primary:    "#a78bfa",
+    primary:    "#8b5cf6",
     deep:       "#7c3aed",
-    shadow:     "#4c1d95",
+    shadow:     "#5b21b6",
     gradient:   "linear-gradient(145deg, #c4b5fd, #a78bfa, #7c3aed)",
-    bg:         "rgba(167,139,250,0.10)",
-    muted:      "rgba(167,139,250,0.10)",
+    bg:         "rgba(167,139,250,0.12)",
+    muted:      "rgba(167,139,250,0.12)",
     glow:       "rgba(167,139,250,0.28)",
     cardBg:     "rgba(167,139,250,0.08)",
-    cardBorder: "rgba(167,139,250,0.25)",
+    cardBorder: "rgba(167,139,250,0.30)",
     cssVar:     "var(--purple)",
   },
   PSA: {
-    primary:    "#34d399",
+    primary:    "#10b981",
     deep:       "#059669",
-    shadow:     "#064e3b",
+    shadow:     "#047857",
     gradient:   "linear-gradient(145deg, #6ee7b7, #34d399, #059669)",
-    bg:         "rgba(52,211,153,0.10)",
-    muted:      "rgba(52,211,153,0.10)",
+    bg:         "rgba(52,211,153,0.12)",
+    muted:      "rgba(52,211,153,0.12)",
     glow:       "rgba(52,211,153,0.28)",
     cardBg:     "rgba(52,211,153,0.08)",
-    cardBorder: "rgba(52,211,153,0.25)",
+    cardBorder: "rgba(52,211,153,0.30)",
     cssVar:     "var(--emerald)",
   },
   core: {
-    primary:    "#fbbf24",
-    deep:       "#d97706",
+    primary:    "#d97706",
+    deep:       "#b45309",
     shadow:     "#92400e",
-    gradient:   "linear-gradient(145deg, #fde68a, #fbbf24, #f59e0b)",
-    bg:         "rgba(251,191,36,0.10)",
-    muted:      "rgba(251,191,36,0.10)",
-    glow:       "rgba(251,191,36,0.28)",
-    cardBg:     "rgba(251,191,36,0.08)",
-    cardBorder: "rgba(251,191,36,0.25)",
+    gradient:   "linear-gradient(145deg, #fcd34d, #f59e0b, #d97706)",
+    bg:         "rgba(217,119,6,0.10)",
+    muted:      "rgba(217,119,6,0.10)",
+    glow:       "rgba(217,119,6,0.25)",
+    cardBg:     "rgba(217,119,6,0.08)",
+    cardBorder: "rgba(217,119,6,0.28)",
     cssVar:     "var(--gold)",
   },
 };

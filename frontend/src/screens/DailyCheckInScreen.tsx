@@ -128,7 +128,7 @@ export function DailyCheckInScreen() {
                 <div style={{ color: "var(--streak)", fontWeight: 700, fontSize: 13, lineHeight: 1.4 }}>
                   {streak}-day streak at risk!
                 </div>
-                <div style={{ color: "var(--muted)", fontSize: 12, lineHeight: 1.4 }}>
+                <div style={{ color: "var(--muted-text)", fontSize: 12, lineHeight: 1.4 }}>
                   Submit your answer today to keep it alive.
                 </div>
               </div>
@@ -149,7 +149,7 @@ export function DailyCheckInScreen() {
           {phase === "loading" && (
             <div style={{ textAlign: "center", padding: "32px 0" }}>
               <span className="spinner spinner--teal" style={{ width: 28, height: 28, borderWidth: 3, margin: "0 auto 12px" }} />
-              <p style={{ fontSize: 13, color: "var(--muted)" }}>Preparing your question…</p>
+              <p style={{ fontSize: 13, color: "var(--muted-text)" }}>Preparing your question…</p>
             </div>
           )}
 
@@ -157,7 +157,7 @@ export function DailyCheckInScreen() {
           <AnimatePresence mode="wait">
             {phase === "question" && loadError && (
               <motion.div key="err" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: "center", padding: "24px 0" }}>
-                <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 20, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 14, color: "var(--muted-text)", marginBottom: 20, lineHeight: 1.5 }}>
                   Couldn't load today's question.<br />Check your connection and try again.
                 </p>
                 <button
@@ -219,7 +219,7 @@ export function DailyCheckInScreen() {
                 >
                   {submitting ? (
                     <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                      <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2, borderTopColor: "#fff", borderColor: "rgba(255,255,255,0.25)" }} />
+                      <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2, borderTopColor: "#fff", borderColor: "rgba(31,31,31,0.25)" }} />
                       Checking…
                     </span>
                   ) : "Submit Answer →"}
@@ -258,7 +258,7 @@ export function DailyCheckInScreen() {
                   <div style={{ fontSize: 16, fontWeight: 800, color: correct ? "var(--emerald-deep)" : "#991b1b", marginBottom: 6 }}>
                     {correct ? "Correct!" : "Not quite"}
                   </div>
-                  <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted)" }}>{feedback}</p>
+                  <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--muted-text)" }}>{feedback}</p>
                 </div>
                 <Magnetic strength={0.2} style={{ display: "block", width: "100%" }}>
                   <button

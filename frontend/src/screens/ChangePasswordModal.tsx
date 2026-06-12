@@ -57,7 +57,7 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
   return (
     <AnimatePresence>
       <motion.div
-        style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(2,6,23,.85)", backdropFilter: "blur(8px)" }}
+        style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(255,255,255,.85)", backdropFilter: "blur(8px)" }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -75,7 +75,7 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
             <button
               onClick={onClose}
               aria-label="Close"
-              style={{ position: "absolute", top: 16, right: 16, width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.1)", color: "var(--muted-text)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .12s" }}
+              style={{ position: "absolute", top: 16, right: 16, width: 28, height: 28, borderRadius: "50%", background: "rgba(31,31,31,.07)", border: "1px solid rgba(31,31,31,.1)", color: "var(--muted-text)", display: "flex", alignItems: "center", justifyContent: "center", transition: "background .12s" }}
             >
               <X size={14} />
             </button>

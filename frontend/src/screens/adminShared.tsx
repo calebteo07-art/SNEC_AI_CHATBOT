@@ -38,15 +38,15 @@ export function useAdminOutlet(): AdminOutletContext {
 
 /* ── Role colours ─────────────────────────────────────────── */
 const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
-  OA:         { bg: "rgba(34,197,94,0.15)",   color: "#22c55e" },
+  OA:         { bg: "rgba(60,144,255,0.15)",   color: "#3C90FF" },
   OT:         { bg: "rgba(167,139,250,0.15)", color: "#a78bfa" },
   PSA:        { bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
-  admin:      { bg: "rgba(244,239,231,0.10)", color: "#F4EFE7" },
+  admin:      { bg: "rgba(31,31,31,0.10)", color: "#1F1F1F" },
   supervisor: { bg: "rgba(96,165,250,0.15)",  color: "#60a5fa" },
 };
 
 export function RoleBadge({ role }: { role: string }) {
-  const c = ROLE_COLORS[role] ?? { bg: "rgba(244,239,231,0.08)", color: "rgba(244,239,231,0.5)" };
+  const c = ROLE_COLORS[role] ?? { bg: "rgba(31,31,31,0.08)", color: "rgba(31,31,31,0.5)" };
   return (
     <span
       className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
@@ -78,7 +78,7 @@ export function getInitials(name: string) {
 export function roleAvatarColors(role: string): { bg: string; text: string } {
   const c = ROLE_COLORS[role];
   if (c) return { bg: c.bg, text: c.color };
-  return { bg: "rgba(244,239,231,0.08)", text: "rgba(244,239,231,0.5)" };
+  return { bg: "rgba(31,31,31,0.08)", text: "rgba(31,31,31,0.5)" };
 }
 
 export function formatFeedTime(ts: string) {
