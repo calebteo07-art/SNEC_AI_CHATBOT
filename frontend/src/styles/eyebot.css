@@ -372,11 +372,11 @@ a { color: inherit; text-decoration: none; }
 .login-eye {
   position: absolute;
   top: 50%;
-  right: clamp(-6vw, 1vw, 48px);   /* a big iris disc on the right, on white */
+  right: clamp(-10vw, -1vw, 24px);  /* a large iris disc on the right, can kiss the edge */
   transform: translateY(-50%);
-  width: min(66vh, 52vw, 720px);
-  height: min(66vh, 52vw, 720px);
-  overflow: visible;               /* gaze drift must not be clipped */
+  width: min(88vh, 60vw, 980px);
+  height: min(88vh, 60vw, 980px);
+  overflow: visible;                /* gaze drift must not be clipped */
   pointer-events: none;
   z-index: 0;
 }
