@@ -1,8 +1,9 @@
-/* PHOTOPIC · The Gaze — procedural iris (interim recolor; full R3F port in P3)
- * Gemini-blue iris on a paper field:
- *   #1A73E8→#3C90FF core, #1AA89C mid, #4285F4 limbus, white catchlight,
- *   #F8F7F4 paper field, #1F1F1F ink pupil (== the handoff cover colour, so
- *   the engulf hands off seamlessly to the route transition).
+/* AURORA · The Gaze — procedural iris on a paper field.
+ * Natural brown iris (the most common human eye colour, ~79% worldwide): a warm
+ * honey-amber peripupillary zone deepening through medium brown to a dark-brown
+ * limbal ring, lit by golden stromal fibres. White catchlight, #F8F7F4 paper
+ * field, #1F1F1F ink pupil (== the handoff cover colour, so the engulf hands off
+ * seamlessly to the route transition).
  */
 
 export const IRIS_VERTEX = /* glsl */ `
@@ -46,13 +47,13 @@ void main() {
   float r = length(d) / uIris;
   float theta = atan(d.y, d.x);
 
-  vec3 stage  = vec3(0.122, 0.122, 0.122); /* #1F1F1F ink — pupil + engulf flood */
-  vec3 deep   = vec3(0.973, 0.969, 0.961); /* #F8F7F4 paper field */
-  vec3 green  = vec3(0.235, 0.565, 1.000); /* #3C90FF brand blue (legacy name) */
-  vec3 greenD = vec3(0.102, 0.451, 0.910); /* #1A73E8 deep blue */
-  vec3 teal   = vec3(0.102, 0.659, 0.612); /* #1AA89C */
-  vec3 blue   = vec3(0.259, 0.522, 0.957); /* #4285F4 */
-  vec3 cream  = vec3(1.000, 1.000, 1.000); /* white catchlight */
+  vec3 stage     = vec3(0.122, 0.122, 0.122); /* #1F1F1F ink — pupil + engulf flood */
+  vec3 deep      = vec3(0.973, 0.969, 0.961); /* #F8F7F4 paper field */
+  vec3 irisInner = vec3(0.710, 0.502, 0.235); /* #B5803C honey-amber peripupillary zone */
+  vec3 irisCore  = vec3(0.549, 0.353, 0.173); /* #8C5A2C warm honey-brown */
+  vec3 irisMid   = vec3(0.369, 0.239, 0.122); /* #5E3D1F medium-brown stroma */
+  vec3 irisRim   = vec3(0.220, 0.141, 0.059); /* #38240F dark-brown limbal ring */
+  vec3 cream     = vec3(1.000, 1.000, 1.000); /* white catchlight */
 
   /* pupil with hippus — the real physiological tremor — and an organic,
      slightly irregular margin */
@@ -67,25 +68,25 @@ void main() {
   /* fine striations — the crisp radial threads of a real iris */
   float stria = smoothstep(0.3, 0.8, noise(vec2(theta * 34.0, r * 8.0)));
 
-  /* radial colour ramp: deep green core → brand green → teal → blue limbus */
-  vec3 irisCol = mix(greenD, green, smoothstep(0.10, 0.55, r));
-  irisCol = mix(irisCol, teal, smoothstep(0.45, 0.85, r));
-  irisCol = mix(irisCol, blue, smoothstep(0.80, 1.00, r) * 0.8);
+  /* radial colour ramp: honey-amber core → warm brown → medium brown → dark limbal ring */
+  vec3 irisCol = mix(irisInner, irisCore, smoothstep(0.10, 0.55, r));
+  irisCol = mix(irisCol, irisMid, smoothstep(0.45, 0.85, r));
+  irisCol = mix(irisCol, irisRim, smoothstep(0.80, 1.00, r) * 0.8);
   irisCol *= 0.38 + fiber * 1.18;
   irisCol *= 0.82 + stria * 0.34;
 
   /* collarette — brighter weave just outside the pupil */
   float coll = smoothstep(0.045, 0.0, abs(r - (pupil + 0.14)));
-  irisCol += green * coll * (0.25 + fiber * 0.45);
+  irisCol += irisCore * coll * (0.25 + fiber * 0.45);
 
   /* limbal glow ring */
   float limbus = smoothstep(1.07, 0.99, r) * smoothstep(0.90, 0.99, r);
-  irisCol += blue * limbus * 0.55;
+  irisCol += irisRim * limbus * 0.55;
 
   /* the void, with an ambient halo breathing off the eye */
   float irisMask = smoothstep(1.07, 0.97, r);
   float halo = exp(-max(r - 1.0, 0.0) * 2.4);
-  vec3 voidCol = deep + (green * 0.45 + blue * 0.55) * halo * 0.16;
+  vec3 voidCol = deep + (irisCore * 0.45 + irisRim * 0.55) * halo * 0.16;
   vec3 col = mix(voidCol, irisCol, irisMask);
 
   /* catchlight — the exam lamp's reflection; fades during the engulf */
