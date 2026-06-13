@@ -36,3 +36,9 @@
 html[data-motion="reduce"] {
   --aurora-anim: 0s;
 }
+
+:root {
+  --font-sans: var(--font-sans-src), system-ui, sans-serif;
+  --font-mono: var(--font-mono-src), ui-monospace, monospace;
+}
+body { font-family: var(--font-sans); color: var(--ink); background: var(--canvas); }
