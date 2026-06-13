@@ -34,8 +34,9 @@ export interface GazeHandle {
 }
 
 const SRC = "/brand/login-eye.png";
-/* Max parallax travel in px — subtle; the eye drifts, it doesn't slide. */
-const TRAVEL = 14;
+/* Max travel in px — the iris looks toward the cursor (bigger now that it's an
+   isolated iris disc, so the gaze read clearly). */
+const TRAVEL = 34;
 
 function prefersReduced(): boolean {
   if (typeof window === "undefined") return false;
@@ -116,8 +117,8 @@ export const EyeHero = forwardRef<GazeHandle>(function EyeHero(_props, ref) {
 
       // Slow breathing + focus lean, applied as scale; parallax as translate.
       const breathe = 1.035 + Math.sin(t * 0.5) * 0.006 + st.focus * 0.022;
-      const dx = -st.px * TRAVEL;
-      const dy = -st.py * TRAVEL;
+      const dx = st.px * TRAVEL;
+      const dy = st.py * TRAVEL;
       img.style.transform =
         `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0) scale(${breathe.toFixed(4)})`;
 
