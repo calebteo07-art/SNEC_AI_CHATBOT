@@ -1,0 +1,96 @@
+{
+  "case_id": "case_psa_022_pfaer_fall_risk_va_iop_new_patient",
+  "title": "First Visit, Sudden Blur",
+  "difficulty": "intermediate",
+  "topic": "pfaer_fall_risk_va_iop",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "PFAER and Fall Risk Assessment",
+  "patient": {
+    "name": "Mdm Halimah Binte Yusof",
+    "age": 62,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "First visit, referred from polyclinic for sudden blurring of vision for the past 2 days"
+  },
+  "history": {
+    "hpc": "Mdm Halimah says 'My vision suddenly become blur two days ago, I never see like that before.' This is her first visit to SNEC, referred from the polyclinic. She is anxious. She refuses to do the near vision test, saying 'Cannot lah, I cannot see properly, no point.' You are required to perform the Patient & Family Assessment and Education and Fall Risk assessment, distance visual acuity and IOP measurement, and to recognise that sudden visual loss needs to be flagged.",
+    "pmhx": "First visit — history to be taken. Walks in slowly and is a little unsteady.",
+    "family_hx": "To be elicited as part of the assessment",
+    "medications": ["To be confirmed during assessment"],
+    "social_hx": "Lives with her husband. Came to clinic by herself."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (LogMAR, distance, with usual correction)", "left": "6/9 (LogMAR, distance, with usual correction)"},
+    "iop": {"right": "18 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Not assessed by the PSA — for doctor review",
+    "fundus": "Not assessed by the PSA — for doctor review"
+  },
+  "investigations": {
+    "pfaer": "Patient and Family Assessment and Education completed: orientation to clinic, identification of needs, and explanation of what to expect; documented appropriately",
+    "fall_risk": "Fall risk screen completed — patient is unsteady on her feet and is a new, anxious, visually impaired elderly patient; identified as higher fall risk, safety measures put in place",
+    "distance_va_method": "Modified LogMAR distance VA performed with the patient's usual correction; pinhole offered",
+    "near_vision": "Patient declined near vision testing — declination documented and respected after explanation",
+    "iop_method": "Non-contact tonometry performed after explaining the air puff"
+  },
+  "diagnosis": "Patient and Family Assessment and Education and fall risk screening completed and documented; the patient is identified as a higher fall risk and safety measures are applied. Distance visual acuity shows markedly reduced right eye vision (6/60) with sudden onset over 2 days, and IOP is within normal limits. The sudden, significant unilateral visual loss is recognised as needing prompt escalation to the nurse/doctor rather than routine queueing. Near vision testing was declined and this was documented. The PSA does not make a medical diagnosis.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity with two identifiers and orient the new patient to the clinic (PFAER)",
+      "Complete the fall risk screen; given unsteadiness and visual impairment, apply fall precautions (e.g. assist with walking, alert staff, appropriate seating)",
+      "Explain each test in simple language and gain cooperation; respect and document the patient's refusal of near vision after explaining its purpose",
+      "Measure distance visual acuity using the modified LogMAR method with usual correction, offer pinhole, and record both eyes accurately",
+      "Perform non-contact tonometry after explaining the air puff, and record IOP for both eyes",
+      "Recognise the sudden reduced vision (6/60, onset 2 days) as a red flag and escalate promptly to the nurse/doctor",
+      "Document all findings, the fall risk level and the near-vision declination clearly"
+    ],
+    "follow_up": [
+      "Flag the sudden unilateral visual loss for prioritised doctor review",
+      "Ensure fall precautions remain in place while the patient is in the clinic",
+      "Hand over assessment findings clearly to the nurse/doctor"
+    ],
+    "patient_education": [
+      "Reassure the anxious patient and explain what each assessment is for",
+      "Explain why sudden blurring needs to be seen promptly and that she should not leave before review",
+      "Advise on fall safety within the clinic (e.g. ask for help when walking)"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and completes patient & family assessment and education for a new patient",
+        "Completes a fall risk screen and identifies the patient as higher risk",
+        "Explains tests clearly and respects/documents the refusal of near vision after explanation",
+        "Elicits the sudden onset (2 days) of the visual symptom"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs modified LogMAR distance VA correctly with usual correction and offers pinhole",
+        "Records visual acuity for both eyes accurately",
+        "Performs non-contact tonometry correctly after explaining the air puff",
+        "Records IOP for both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises sudden markedly reduced unilateral vision as a red flag needing escalation",
+        "Does not attempt a medical diagnosis — escalates to nurse/doctor",
+        "Understands the purpose of PFAER and fall risk assessment",
+        "Identifies the patient as higher fall risk and applies precautions"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Applies fall precautions appropriate to an unsteady, visually impaired patient",
+        "Escalates the sudden visual loss promptly rather than routine queueing",
+        "Documents VA, IOP, fall risk and the near-vision declination clearly",
+        "Reassures and educates the anxious new patient"
+      ]
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "case_id": "case_psa_023_dilation_fundus_prep_phenylephrine_allergy",
+  "title": "Check Before You Drop",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_dilation_allergy",
+  "role": "PSA",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Subramaniam s/o Rajaratnam",
+    "age": 62,
+    "gender": "male",
+    "occupation": "retired bus driver",
+    "presenting_complaint": "First visit, referred for blurring of vision for 2 days; doctor has ordered dilation for fundus examination"
+  },
+  "history": {
+    "hpc": "Mr Subramaniam says 'Doctor want to open up my eye to check the back, is it? Two days my eye blur already.' This is his first visit. He declined the near vision test earlier. Importantly, he tells you 'I allergic to one of the eye drop — the one that make eye big, Phenylephrine.' Following the first eye examination, the doctor has ordered the patient's eyes to be dilated for a fundus examination, and Goldmann applanation tonometry has been done.",
+    "pmhx": "First visit. Known allergy to Phenylephrine eye drops. No other allergies stated.",
+    "family_hx": "To be elicited as part of the assessment",
+    "medications": ["To be confirmed; note the Phenylephrine allergy"],
+    "social_hx": "Retired. Came with his son."
+  },
+  "examination_findings": {
+    "va": {"right": "Reduced — for doctor review", "left": "Reduced — for doctor review"},
+    "iop": {"right": "18 mmHg (GAT)", "left": "20 mmHg (GAT)"},
+    "anterior_segment": "For doctor review; no contraindication to dilation noted by the doctor who ordered it",
+    "fundus": "To be examined by the doctor after dilation"
+  },
+  "investigations": {
+    "allergy_check": "Patient reports allergy to Phenylephrine — this must be confirmed and acted upon: Phenylephrine-containing dilating drops must NOT be instilled",
+    "dilation_plan": "Use a dilating regimen that avoids Phenylephrine (e.g. Tropicamide alone, or as directed by the doctor/protocol for a Phenylephrine-allergic patient); confirm with the nurse/doctor before instilling",
+    "gat_done": "Goldmann applanation tonometry already performed: right 18 mmHg, left 20 mmHg",
+    "instillation_method": "Aseptic, no-touch instillation into the lower fornix with correct positioning and post-instillation advice"
+  },
+  "diagnosis": "Dilation prepared safely for fundus examination. The critical step is recognising and acting on the patient's Phenylephrine allergy: Phenylephrine-containing drops are withheld and an alternative dilating agent is used or confirmed with the doctor before instillation. Identity, consent, allergy confirmation and correct instillation technique are completed, and the patient is advised about temporary blurred near vision and light sensitivity after dilation. The PSA does not make a medical diagnosis.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity using two identifiers and confirm the doctor's order to dilate",
+      "Confirm the allergy: the patient is allergic to Phenylephrine — do NOT instil any Phenylephrine-containing dilating drop",
+      "Select/confirm an appropriate alternative dilating drop (e.g. Tropicamide alone) and check with the nurse/doctor or protocol before instilling",
+      "Explain the purpose of dilation and that vision will be blurred and light-sensitive for a few hours; obtain consent",
+      "Perform hand hygiene; check drop label, strength and expiry and confirm the correct drop and eye(s)",
+      "Instil the drop into the lower fornix using a no-touch technique, then apply gentle punctal occlusion / give a tissue",
+      "Document the allergy, the drug withheld, the drug given, time, eye(s) and that GAT was completed before dilation"
+    ],
+    "follow_up": [
+      "Inform the doctor that dilation has been instilled and note the time so the fundus exam is done when adequately dilated",
+      "Monitor for any allergic or adverse reaction and report immediately",
+      "Advise the patient not to drive until the dilation wears off and to wait for review"
+    ],
+    "patient_education": [
+      "Explain why the eye is being dilated (to let the doctor see the back of the eye)",
+      "Warn about temporary blurred near vision and sensitivity to light, and to avoid driving until it wears off",
+      "Reassure the patient that the Phenylephrine allergy has been noted and avoided"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity with two identifiers and confirms the order to dilate",
+        "Actively confirms drug allergy and identifies the Phenylephrine allergy",
+        "Explains the purpose and effects of dilation and obtains consent",
+        "Confirms which eye(s) are to be dilated"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Withholds Phenylephrine-containing drops because of the allergy",
+        "Selects/confirms an appropriate alternative dilating agent with the doctor/protocol",
+        "Checks drop label, strength, expiry and correct eye before instilling",
+        "Uses an aseptic, no-touch instillation technique into the lower fornix"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the allergy check as the critical safety step before dilation",
+        "Understands the purpose of dilation for fundus examination",
+        "Knows that GAT/IOP is typically measured before dilation",
+        "Does not make a medical diagnosis — acts within the PSA role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the allergy, drug withheld, drug given, eye and time clearly",
+        "Applies punctal occlusion and gives post-dilation safety advice (no driving, light sensitivity)",
+        "Monitors for and would report any adverse reaction",
+        "Communicates the dilation time to the doctor for the fundus exam"
+      ]
+    }
+  }
+}

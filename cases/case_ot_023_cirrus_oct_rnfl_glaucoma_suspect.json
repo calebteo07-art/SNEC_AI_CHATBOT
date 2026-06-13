@@ -1,0 +1,103 @@
+{
+  "case_id": "case_ot_023_cirrus_oct_rnfl_glaucoma_suspect",
+  "title": "Pressure Building Behind the Scenes",
+  "difficulty": "intermediate",
+  "topic": "cirrus_oct_rnfl_glaucoma",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cirrus OCT",
+  "patient": {
+    "name": "Mr Daniel Tan Wei Jie",
+    "age": 23,
+    "gender": "male",
+    "occupation": "university student",
+    "presenting_complaint": "Referred for Cirrus OCT optic disc / RNFL scan — raised eye pressure with a family history of glaucoma"
+  },
+  "history": {
+    "hpc": "Mr Tan tells you 'My vision a bit blur for the past few months lah, especially the left side.' He came in worried after a screening found his eye pressure was high. He has no eye pain, no redness, and no headache. The doctor reviewed him, noted the raised pressures, and ordered a Cirrus OCT scan of the optic nerve and retinal nerve fibre layer in both eyes before the next clinic review.",
+    "pmhx": "No medical history. Short-sighted, wears glasses. No previous eye surgery or eye injury.",
+    "family_hx": "Grandmother had glaucoma and went blind in one eye in old age",
+    "medications": ["Nil"],
+    "social_hx": "Full-time student. Non-smoker. Long hours on the computer."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/24, improving to 6/9 with pinhole"},
+    "iop": {"right": "24 mmHg (NCT)", "left": "27 mmHg (NCT)"},
+    "anterior_segment": "Clear cornea, deep anterior chambers, no anterior segment abnormality (NAD)",
+    "fundus": "Doctor notes mildly enlarged cup-to-disc ratio bilaterally, suspicious for early glaucomatous change"
+  },
+  "investigations": {
+    "manifest_refraction": {
+      "right": "-1.25 DS / -0.25 DC x 90 → 6/6",
+      "left": "-2.00 DS / -0.50 DC x 90 → 6/24"
+    },
+    "cirrus_oct_optic_disc": {
+      "scan_pattern": "Optic Disc Cube 200x200",
+      "rnfl_average_right": "82 microns (borderline)",
+      "rnfl_average_left": "74 microns (borderline-thin, inferior quadrant reduced)",
+      "cup_to_disc_ratio": "Right 0.6, Left 0.65",
+      "signal_strength": "9/10 right, 8/10 left",
+      "result": "Borderline average RNFL thickness with inferior quadrant thinning in the left eye; symmetry and disc parameters flagged for doctor review"
+    }
+  },
+  "diagnosis": "Cirrus OCT optic disc and RNFL scan completed bilaterally with good signal strength. Findings show borderline RNFL thinning, more marked inferiorly in the left eye, alongside raised intraocular pressures and a positive family history. Findings reported to the doctor as a glaucoma suspect for correlation and possible visual field testing — no independent diagnosis made by the technician.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity (full name and a second identifier) and confirm both eyes are to be scanned",
+      "Explain the procedure: non-contact, patient sits at the machine and looks at a fixation target, takes a few minutes per eye",
+      "Enter patient details accurately and select the Optic Disc Cube 200x200 protocol as ordered",
+      "Position patient at the chinrest with forehead against the rest and align the optic disc within the scan window",
+      "Ensure the optic disc is centred and focused before capture; ask the patient to keep the eye open and fixate steadily",
+      "Check signal strength (aim 6/10 or higher) and repeat any scan with poor signal, blinks, or motion artefact",
+      "Print/export the RNFL thickness map, ONH analysis and symmetry report for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to correlate OCT RNFL findings with IOP, optic disc appearance and any visual field results",
+      "Patient may be booked for Humphrey visual field testing and repeat IOP/pachymetry",
+      "Baseline OCT to be repeated at intervals to monitor for progression if glaucoma is confirmed"
+    ],
+    "patient_education": [
+      "Explain the scan measures the thickness of the nerve layer at the back of the eye, which can be affected by high eye pressure",
+      "Reassure the patient the test is quick, painless and does not touch the eye",
+      "Advise the patient that raised eye pressure often has no symptoms, so attending follow-up and any field tests is important"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and confirms both eyes are to be scanned",
+        "Elicits the relevant risk factors: raised IOP and family history of glaucoma",
+        "Confirms which scan the doctor ordered (optic disc / RNFL, not macular)",
+        "Explains the non-contact nature of the OCT procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Selects the Optic Disc Cube 200x200 protocol and enters patient details accurately",
+        "Centres and focuses on the optic disc and obtains steady fixation",
+        "Checks signal strength and repeats scans with poor signal or motion artefact",
+        "Captures both eyes and records RNFL average, quadrant values and cup-to-disc ratio"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that borderline/reduced RNFL with raised IOP raises suspicion of glaucoma",
+        "Understands the purpose of the RNFL/ONH scan in glaucoma assessment",
+        "Does not diagnose glaucoma independently — reports findings to the doctor",
+        "Notes the inter-eye asymmetry and inferior thinning as findings to highlight"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Produces good-quality scans (adequate signal strength, no motion artefact) for both eyes",
+        "Hands the RNFL and ONH report promptly to the doctor",
+        "Educates the patient that raised eye pressure is often symptomless and follow-up matters",
+        "Documents IOP and scan quality accurately"
+      ]
+    }
+  }
+}

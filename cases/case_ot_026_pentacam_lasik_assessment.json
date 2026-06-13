@@ -1,0 +1,105 @@
+{
+  "case_id": "case_ot_026_pentacam_lasik_assessment",
+  "title": "A Map Before the Laser",
+  "difficulty": "intermediate",
+  "topic": "pentacam_corneal_tomography_refractive",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cornea Topography",
+  "patient": {
+    "name": "Mr Marcus Lim Jun Hao",
+    "age": 28,
+    "gender": "male",
+    "occupation": "software engineer",
+    "presenting_complaint": "Self-referred enquiry for LASIK suitability — Pentacam corneal tomography requested"
+  },
+  "history": {
+    "hpc": "Mr Lim says 'I very sian of wearing glasses already, want to check whether I can do LASIK.' He is highly short-sighted and wants to explore refractive surgery. No eye pain, no eye rubbing habit reported, no previous eye surgery. The doctor ordered a Pentacam corneal tomography scan to assess the cornea before deciding on refractive surgery suitability.",
+    "pmhx": "Myopia with astigmatism. No medical history. No history of keratoconus or eye rubbing.",
+    "family_hx": "No known family history of keratoconus",
+    "medications": ["Nil"],
+    "social_hx": "Office worker, long screen hours. Non-smoker. Has not worn contact lenses recently."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5-1 (with glasses)", "left": "6/9-1 (with glasses)"},
+    "iop": {"right": "20 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "Clear corneas, no scarring or signs of corneal ectasia on slit lamp",
+    "fundus": "Myopic fundus, no retinal tears or detachment noted on the report provided"
+  },
+  "investigations": {
+    "auto_refraction": {
+      "right": "-5.00 DS / -2.12 DC x 12",
+      "left": "-4.50 DS / -1.60 DC x 153"
+    },
+    "near_vision": {"right": "N5 (with glasses), N10 (without)", "left": "N5 (with glasses), N5 (without)"},
+    "pentacam": {
+      "device": "Pentacam Scheimpflug tomography",
+      "central_corneal_thickness_right": "532 microns",
+      "central_corneal_thickness_left": "528 microns",
+      "keratometry_right": "K1 43.2 D / K2 45.4 D",
+      "anterior_posterior_elevation": "Within normal limits, no localised elevation island",
+      "quality_specification": "QS = OK on both captures",
+      "result": "Regular astigmatism, normal pachymetry and elevation maps, no tomographic signs of keratoconus or forme fruste; handed to doctor for refractive surgery decision"
+    }
+  },
+  "diagnosis": "Pentacam corneal tomography completed with acceptable quality specification on both eyes. Pachymetry, keratometry and anterior/posterior elevation maps are within normal limits with regular astigmatism and no signs of keratoconus or forme fruste keratoconus. The maps were provided to the doctor to inform the LASIK suitability assessment — the technician does not make the surgical decision.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm both eyes are to be scanned for refractive assessment",
+      "Confirm any contact lens wear has been stopped for the required washout period before mapping",
+      "Explain the procedure: non-contact, look at the central target, the camera rotates and takes a few seconds, no touching the eye",
+      "Enter patient details and select the corneal tomography scan",
+      "Position the patient at the chinrest, align on the corneal apex and ask the patient to open the eye wide and fixate",
+      "Capture and check the quality specification (QS = OK); repeat captures with poor quality, blinks, or misalignment",
+      "Generate the pachymetry, keratometry and elevation maps and provide to the doctor"
+    ],
+    "follow_up": [
+      "Doctor to assess corneal thickness, elevation and topography to determine suitability and treatment depth",
+      "If any ectasia risk is flagged, further assessment or alternative procedures may be considered",
+      "Document any recent contact lens wear that could affect the maps"
+    ],
+    "patient_education": [
+      "Explain that the scan maps the shape and thickness of the cornea, which is essential to decide if LASIK is safe",
+      "Reassure the patient it is quick, painless and does not touch the eye",
+      "Advise that contact lenses must be left out for the advised period before mapping to avoid distorting the cornea"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and that both eyes are to be mapped",
+        "Checks and confirms the required contact-lens washout period before scanning",
+        "Asks about eye-rubbing / keratoconus risk relevant to refractive surgery",
+        "Explains the non-contact tomography procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Aligns on the corneal apex and obtains steady fixation with the eye open",
+        "Checks the quality specification (QS = OK) and repeats poor-quality captures",
+        "Captures pachymetry, keratometry and anterior/posterior elevation for both eyes",
+        "Recognises blinks/misalignment as causes to repeat the scan"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the purpose of corneal tomography in refractive surgery screening",
+        "Recognises pachymetry and elevation maps as key to ectasia screening",
+        "Does not decide surgical suitability independently — provides maps to the doctor",
+        "Identifies recent contact lens wear as a confounder of corneal shape"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains good-quality maps (QS OK) for both eyes",
+        "Repeats poor captures rather than accepting low quality",
+        "Provides complete maps to the doctor for the suitability decision",
+        "Educates the patient on contact lens washout and the purpose of the scan"
+      ]
+    }
+  }
+}

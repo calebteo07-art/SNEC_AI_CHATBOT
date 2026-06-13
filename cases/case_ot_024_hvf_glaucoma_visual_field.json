@@ -1,0 +1,99 @@
+{
+  "case_id": "case_ot_024_hvf_glaucoma_visual_field",
+  "title": "Mapping the Edges of Sight",
+  "difficulty": "intermediate",
+  "topic": "humphrey_visual_field_glaucoma",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Humphrey Visual Field",
+  "patient": {
+    "name": "Mr Ravi Pillai",
+    "age": 27,
+    "gender": "male",
+    "occupation": "logistics assistant",
+    "presenting_complaint": "Referred for Humphrey visual field test — gradual reduced vision in the left eye and a suspicious optic disc"
+  },
+  "history": {
+    "hpc": "Mr Pillai says 'My left eye slowly become more blur over the past one year, doctor.' He has worn glasses since young. No eye pain or redness. The doctor found raised eye pressure and an enlarged optic cup, and has ordered a Humphrey visual field (24-2) test to check for any loss in his side vision.",
+    "pmhx": "High myopia, glasses since childhood. No diabetes or hypertension. No previous eye surgery.",
+    "family_hx": "No known family history of glaucoma",
+    "medications": ["Nil"],
+    "social_hx": "Works in a warehouse. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (with glasses)", "left": "6/12 (with glasses)"},
+    "iop": {"right": "21 mmHg (GAT)", "left": "22 mmHg (GAT)"},
+    "anterior_segment": "Right eye within normal limits. Left eye: nuclear sclerosis 2+ and posterior subcapsular cataract 3+",
+    "fundus": "No retinal detachment. Cup-to-disc ratio 0.6 in both eyes"
+  },
+  "investigations": {
+    "nct_iop": {"right": "18 mmHg", "left": "21 mmHg"},
+    "humphrey_visual_field": {
+      "test_pattern": "24-2 SITA Standard, both eyes, near add in place",
+      "reliability_right": "Fixation losses 1/15, false positives 2%, false negatives 0% — reliable",
+      "reliability_left": "Fixation losses 2/16, false positives 3%, false negatives 4% — reliable",
+      "result_right": "Within normal limits",
+      "result_left": "Early superior nasal step / paracentral depression; MD -3.5 dB, flagged for doctor review"
+    }
+  },
+  "diagnosis": "Humphrey 24-2 visual fields completed with reliable indices in both eyes. The right field is within normal limits; the left field shows an early superior nasal defect consistent with the raised pressures and suspicious disc. Results reported to the doctor for correlation with IOP and optic nerve findings — no diagnosis made by the technician. The dense posterior subcapsular cataract in the left eye is noted as a possible confounder of the field result.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm which eye(s) and test pattern were ordered (24-2)",
+      "Enter patient details and the correct near refractive correction / trial lens for the patient's age",
+      "Explain the test clearly: look straight at the central light, press the buzzer each time a flashing light is seen, even if faint; do not search for the lights",
+      "Patch the eye not being tested and start with the right eye",
+      "Position the patient comfortably at the machine, align the eye, and monitor the live eye-monitor and fixation throughout",
+      "Watch reliability indices (fixation losses, false positives/negatives) and pause/coach or repeat if reliability is poor",
+      "Print both fields with reliability indices and grayscale/probability plots for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to correlate the field defect with IOP, optic disc and OCT RNFL",
+      "Repeat fields to establish a baseline and monitor for progression if glaucoma is confirmed",
+      "Note the dense cataract as a possible cause of generalised depression that may improve after cataract surgery"
+    ],
+    "patient_education": [
+      "Reassure the patient the test does not touch the eye and there are no eye drops needed",
+      "Explain that staring steadily at the central target and pressing the button promptly gives an accurate map of the side vision",
+      "Advise the patient that the test can be tiring and they may blink and rest briefly between eyes"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and the ordered test pattern (24-2) and eye(s)",
+        "Selects and enters the correct near correction / trial lens for the test",
+        "Gives clear instructions on fixating centrally and responding to seen stimuli",
+        "Explains the non-contact nature of the test and reassures the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Patches the non-tested eye and positions/aligns the tested eye correctly",
+        "Monitors fixation and gaze tracking throughout the test",
+        "Checks reliability indices (fixation losses, false positives/negatives) and repeats if poor",
+        "Tests both eyes and prints fields with reliability and probability plots"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises an early nasal/paracentral defect as a glaucoma-suspicious finding",
+        "Understands the role of the visual field in glaucoma assessment",
+        "Reports the result to the doctor without making an independent diagnosis",
+        "Identifies the dense cataract as a possible confounder of the field"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains reliable fields (acceptable fixation losses and false responses)",
+        "Hands the printed fields with reliability indices promptly to the doctor",
+        "Educates the patient on steady fixation and prompt responses",
+        "Documents reliability and any confounders such as the cataract"
+      ]
+    }
+  }
+}
