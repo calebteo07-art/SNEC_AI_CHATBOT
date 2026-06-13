@@ -371,13 +371,10 @@ a { color: inherit; text-decoration: none; }
    paper field toward the card. Motion is applied to the <img> by EyeHero. */
 .login-eye {
   position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: min(54vw, 780px);
+  inset: 0;                 /* full-bleed: skin fills the whole screen, eye to the right */
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 26%, #000 100%);
-          mask-image: linear-gradient(to right, transparent 0%, #000 26%, #000 100%);
 }
 .login-eye img {
   position: absolute;
@@ -385,8 +382,8 @@ a { color: inherit; text-decoration: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 46%;
-  transform-origin: 62% 50%;
+  object-position: 66% 44%; /* eye sits right-of-centre; skin spreads to the left */
+  transform-origin: 70% 46%;
   will-change: transform;
   user-select: none;
   -webkit-user-drag: none;
@@ -407,15 +404,9 @@ a { color: inherit; text-decoration: none; }
   -webkit-clip-path: circle(150% at 72% 50%);
 }
 @media (max-width: 720px) {
-  /* On phones the card nearly fills the width, so demote the eye to a faint
-     ambient backdrop centred behind it rather than a side hero. */
-  .login-eye {
-    width: 100%;
-    opacity: .4;
-    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, #000 30%, transparent 78%);
-            mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, #000 30%, transparent 78%);
-  }
-  .login-eye img { object-position: center 30%; }
+  /* Full-bleed skin behind the card on phones too; the frosted card keeps the
+     form readable. Nudge the eye so it sits beside/above the card. */
+  .login-eye img { object-position: 60% 38%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .login-eye-engulf { transition: none; }
