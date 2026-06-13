@@ -61,6 +61,10 @@ await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
   { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
 ] })));
+await navCtx.route("**/api/flashcards/generate", (r) => r.fulfill(JSON_OK([
+  { card_id: "f1", front: "What is the normal IOP range?", back: "Roughly 10–21 mmHg.", topic_tag: "IOP", repetitions: 0, easiness: 2.5, interval_days: 0 },
+  { card_id: "f2", front: "Name the layers of the cornea.", back: "Epithelium, Bowman, stroma, Descemet, endothelium.", topic_tag: "Anterior", repetitions: 0, easiness: 2.5, interval_days: 0 },
+])));
 const np = await navCtx.newPage();
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
@@ -143,5 +147,23 @@ await np.waitForTimeout(350);
 const progOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 if (progOverflow > 2) { console.error(`FAIL: progress horizontal overflow at 390px = ${progOverflow}px`); process.exit(1); }
 console.log("PASS: Progress — one h1, mastery bars, heatmap, no 390 overflow");
+
+// flashcards: deck renders, one h1, reveal flips to the rating chips.
+await np.setViewportSize({ width: 1440, height: 900 });
+await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-deck-card", { timeout: 15000 });
+const deckH1 = await np.locator("main h1").count();
+if (deckH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${deckH1}`); process.exit(1); }
+await np.locator(".aurora-reveal-btn").click();
+await np.waitForSelector(".aurora-rate-grid .aurora-rate", { timeout: 6000 });
+const rateCount = await np.locator(".aurora-rate-grid .aurora-rate").count();
+if (rateCount !== 4) { console.error(`FAIL: expected 4 rating chips, got ${rateCount}`); process.exit(1); }
+console.log("PASS: Flashcards — deck renders, one h1, reveal shows 4 rating chips");
+
+// SNEC co-brand: the rail carries the SNEC logo on authenticated screens.
+if ((await np.locator('.aurora-snec[alt="Singapore National Eye Centre"]').count()) < 1) {
+  console.error("FAIL: SNEC logo missing from the Atlas Rail"); process.exit(1);
+}
+console.log("PASS: SNEC logo present in the Atlas Rail");
 
 await b.close();

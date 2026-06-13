@@ -82,6 +82,10 @@ export function AtlasRail({ onOpenPalette }: { onOpenPalette: () => void }) {
       </div>
 
       <div className="aurora-rail-foot">
+        <div className="aurora-snec-wrap" title="A Singapore National Eye Centre initiative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
+        </div>
         <Link href="/profile" className="aurora-profile" aria-label="Profile">
           <span className="aurora-avatar">{initials}</span>
           <span className="aurora-profile-meta">
