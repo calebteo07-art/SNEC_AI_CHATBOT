@@ -464,6 +464,25 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .01em;
 }
 
+/* "EyeBot · by [SNEC logo]" brand lockup, moved up from the footer. */
+.login-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 30px;
+}
+.login-by-label {
+  font-size: 11px;
+  color: rgba(31,31,31,.4);
+  letter-spacing: .02em;
+}
+.login-by-logo {
+  width: 116px;
+  height: auto;
+  opacity: .9;
+}
+
 .login-step-label {
   font-size: 9px;
   font-weight: 700;
