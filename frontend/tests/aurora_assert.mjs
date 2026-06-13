@@ -61,6 +61,9 @@ await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
   { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
 ] })));
+await navCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 4, weak_topic: "Glaucoma staging" })));
+await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma" })));
+await navCtx.route("**/api/checkin/answer", (r) => r.fulfill(JSON_OK({ correct: true, feedback: "Yes — about 0.3 in most eyes." })));
 await navCtx.route("**/api/flashcards/generate", (r) => r.fulfill(JSON_OK([
   { card_id: "f1", front: "What is the normal IOP range?", back: "Roughly 10–21 mmHg.", topic_tag: "IOP", repetitions: 0, easiness: 2.5, interval_days: 0 },
   { card_id: "f2", front: "Name the layers of the cornea.", back: "Epithelium, Bowman, stroma, Descemet, endothelium.", topic_tag: "Anterior", repetitions: 0, easiness: 2.5, interval_days: 0 },
@@ -165,5 +168,26 @@ if ((await np.locator('.aurora-snec[alt="Singapore National Eye Centre"]').count
   console.error("FAIL: SNEC logo missing from the Atlas Rail"); process.exit(1);
 }
 console.log("PASS: SNEC logo present in the Atlas Rail");
+
+// profile: one h1 + the reduced-motion toggle flips html[data-motion] both ways.
+await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-profile-card", { timeout: 15000 });
+const profH1 = await np.locator("main h1").count();
+if (profH1 !== 1) { console.error(`FAIL: profile h1 count = ${profH1}`); process.exit(1); }
+const motionToggle = np.locator('.aurora-profile-action[aria-pressed]').first();
+await motionToggle.click();
+let dm = await np.evaluate(() => document.documentElement.dataset.motion);
+if (dm !== "reduce") { console.error(`FAIL: reduced-motion toggle did not set data-motion (got '${dm}')`); process.exit(1); }
+await motionToggle.click();
+dm = await np.evaluate(() => document.documentElement.dataset.motion);
+if (dm === "reduce") { console.error("FAIL: reduced-motion toggle did not turn off"); process.exit(1); }
+console.log("PASS: Profile — one h1, reduced-motion toggle flips data-motion");
+
+// daily check-in (auth group, no rail): the question card renders with one h1.
+await np.goto(base + "/checkin", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-checkin-textarea", { timeout: 15000 });
+const ciH1 = await np.locator("h1").count();
+if (ciH1 !== 1) { console.error(`FAIL: checkin h1 count = ${ciH1}`); process.exit(1); }
+console.log("PASS: Daily check-in renders the question with one h1");
 
 await b.close();
