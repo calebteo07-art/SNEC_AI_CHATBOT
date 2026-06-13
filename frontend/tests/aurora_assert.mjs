@@ -43,8 +43,18 @@ const JSON_OK = (body) => ({ status: 200, contentType: "application/json", body:
 await navCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
 await navCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
 await navCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
-  xp: 0, hearts: 3, level: 1, streak: 4, session_count: 0,
-  learning_velocity: "stable", weak_topics: [], topic_performance: [], sessions: [],
+  xp: 1240, hearts: 3, level: 7, streak: 4, session_count: 18,
+  learning_velocity: "improving",
+  weak_topics: ["Glaucoma staging", "Cataract grading"],
+  topic_performance: [
+    { topic: "anterior_segment", score: 0.82 },
+    { topic: "glaucoma", score: 0.55 },
+    { topic: "retina", score: 0.7 },
+  ],
+  sessions: [
+    { session_id: "s1", timestamp: new Date(Date.now() - 3600e3).toISOString(), topic: "glaucoma", summary: "Acute angle closure.", mode: "case" },
+    { session_id: "s2", timestamp: new Date(Date.now() - 90000e3).toISOString(), topic: "retina", summary: "OCT layers.", mode: "chat" },
+  ],
 })));
 await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12, patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
@@ -119,5 +129,19 @@ await np.locator(".aurora-composer-field").fill("Tell me about the optic disc");
 await np.locator(".aurora-send").click();
 await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
 console.log("PASS: Tutor SSE stream appends the assistant reply");
+
+// progress: one h1, mastery bars, an activity heatmap, no 390 overflow.
+await np.setViewportSize({ width: 1440, height: 900 });
+await np.goto(base + "/progress", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-prog .aurora-progress", { timeout: 15000 });
+const progH1 = await np.locator("main h1").count();
+if (progH1 !== 1) { console.error(`FAIL: progress main h1 count = ${progH1}`); process.exit(1); }
+if ((await np.locator(".aurora-prog .aurora-progress").count()) < 1) { console.error("FAIL: mastery bars missing"); process.exit(1); }
+if ((await np.locator(".aurora-heatmap").count()) < 1) { console.error("FAIL: activity heatmap missing"); process.exit(1); }
+await np.setViewportSize({ width: 390, height: 844 });
+await np.waitForTimeout(350);
+const progOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+if (progOverflow > 2) { console.error(`FAIL: progress horizontal overflow at 390px = ${progOverflow}px`); process.exit(1); }
+console.log("PASS: Progress — one h1, mastery bars, heatmap, no 390 overflow");
 
 await b.close();

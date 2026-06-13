@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const SummaryScreen = dynamic(
-  () => import("@/screens/SummaryScreen").then((m) => m.SummaryScreen),
+const Summary = dynamic(
+  () => import("@/aurora/screens/Summary").then((m) => m.Summary),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <SummaryScreen />
+      <Summary />
     </CheckInGuard>
   );
 }

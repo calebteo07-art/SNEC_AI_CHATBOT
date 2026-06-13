@@ -34,9 +34,9 @@ const progress = {
   learning_velocity: "improving",
   weak_topics: ["Glaucoma staging", "Cataract grading"],
   topic_performance: [
-    { topic: "Anterior segment", score: 8 },
-    { topic: "Glaucoma", score: 5 },
-    { topic: "Retina", score: 7 },
+    { topic: "Anterior segment", score: 0.82 },
+    { topic: "Glaucoma", score: 0.55 },
+    { topic: "Retina", score: 0.7 },
   ],
   sessions: [
     { session_id: "sess-1", timestamp: new Date(Date.now() - 86400000).toISOString(), topic: "Cornea", summary: "Reviewed keratometry basics and corneal layers.", mode: "chat" },

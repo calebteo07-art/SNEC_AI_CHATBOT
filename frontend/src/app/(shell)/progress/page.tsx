@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const ProgressScreen = dynamic(
-  () => import("@/screens/ProgressScreen").then((m) => m.ProgressScreen),
+const Progress = dynamic(
+  () => import("@/aurora/screens/Progress").then((m) => m.Progress),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <ProgressScreen />
+      <Progress />
     </CheckInGuard>
   );
 }
