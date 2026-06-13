@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -18,6 +18,13 @@ const mono = JetBrains_Mono({
   weight: ["400", "500"],
   subsets: ["latin"],
   variable: "--font-mono-src",
+  display: "swap",
+});
+/* Sleek geometric display face for the login (larger, smoother wordmark + card). */
+const display = Outfit({
+  weight: ["300", "400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -50,7 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable}`}
       data-motion=""
     >
       <body>
