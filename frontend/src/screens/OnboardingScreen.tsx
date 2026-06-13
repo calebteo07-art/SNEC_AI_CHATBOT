@@ -199,11 +199,13 @@ export function OnboardingScreen() {
 
   /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#FDFDFC" }}>
-      {/* The void — CSS fallback while The Gaze loads (or without WebGL) */}
+    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#EFE7DC" }}>
+      {/* Warm field — cool paper on the left (behind the card) melting into a soft
+          sand on the right so the eye's faded edge blends in, with an amber glow
+          behind the iris. Also the CSS fallback while the eye image loads. */}
       <div
         aria-hidden="true"
-        style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(181,128,60,0.12) 0%, rgba(140,90,44,0.05) 42%, rgba(255,255,255,0) 72%), #FDFDFC" }}
+        style={{ position: "absolute", inset: 0, background: "radial-gradient(58% 66% at 80% 48%, rgba(196,134,78,0.20) 0%, rgba(196,134,78,0) 62%), linear-gradient(104deg, #EFE7DC 0%, #EADCCD 46%, #E3CDB7 72%, #DBBEA4 100%)" }}
       />
       {/* The Gaze, made real — a living macro photograph that watches you */}
       <EyeHero ref={gazeRef} />
@@ -230,7 +232,12 @@ export function OnboardingScreen() {
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
-        <p className="login-tagline">an attentive tutor for the eye</p>
+        <p className="login-tagline" style={{ marginBottom: 12 }}>an attentive tutor for the eye</p>
+        <div className="login-by">
+          <span className="login-by-label">by</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="login-by-logo" src="/brand/snec-logo.png" alt="Singapore National Eye Centre" />
+        </div>
 
         <AnimatePresence mode="wait">
 
@@ -443,15 +450,7 @@ export function OnboardingScreen() {
 
         </AnimatePresence>
 
-        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/snec-logo.png"
-            alt="Singapore National Eye Centre"
-            style={{ width: 132, height: "auto", opacity: 0.9 }}
-          />
-          <p className="login-footer" style={{ margin: 0 }}>A Singapore National Eye Centre initiative · 2026</p>
-        </div>
+        <p className="login-footer" style={{ marginTop: 22 }}>A Singapore National Eye Centre initiative · 2026</p>
       </motion.div>
     </div>
   );
