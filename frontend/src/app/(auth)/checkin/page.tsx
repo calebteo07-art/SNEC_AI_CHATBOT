@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const DailyCheckInScreen = dynamic(
-  () => import("@/screens/DailyCheckInScreen").then((m) => m.DailyCheckInScreen),
+const CheckIn = dynamic(
+  () => import("@/aurora/screens/CheckIn").then((m) => m.CheckIn),
   { ssr: false },
 );
 
 export default function CheckInPage() {
   return (
     <CheckInGuard>
-      <DailyCheckInScreen />
+      <CheckIn />
     </CheckInGuard>
   );
 }
