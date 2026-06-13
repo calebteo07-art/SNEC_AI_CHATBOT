@@ -221,45 +221,9 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
         model=model_name,
     )
 
-    try:
-        _role = (await get_profile(student_id)).get("role", "")
-    except Exception:
-        _role = ""
-
-    # Fire card generation as a background Celery task — returns immediately
-    cards_pending = False
-    try:
-        from tools.workers.tasks.card_generation import generate_cards_bg
-        generate_cards_bg.delay(
-            student_id=student_id,
-            session_id=session_id,
-            messages=messages,
-            role=_role,
-        )
-        cards_pending = True
-    except Exception:
-        # Celery unavailable (no Redis) — fall back to synchronous generation
-        from tools.flashcards.generate_cards import generate_and_return_cards
-        try:
-            _cards = await generate_and_return_cards(
-                student_id=student_id,
-                session_id=session_id,
-                messages=messages,
-                role=_role,
-            )
-        except Exception:
-            _cards = []
-        try:
-            await update_profile(student_id)
-        except Exception:
-            pass
-        return EndSessionResponse(
-            session_id=session_id,
-            cards=[Flashcard(**c) for c in _cards],
-            cards_pending=False,
-            mock_mode=MOCK_MODE,
-        )
-
+    # No AI card generation — flashcards are served from the pre-authored static
+    # pool (GET /api/flashcards/generate). The Summary screen reads card counts
+    # from sessionStorage, so returning an empty list here is expected.
     try:
         await update_profile(student_id)
     except Exception:
@@ -268,7 +232,7 @@ async def end_session(request: Request, body: EndSessionRequest, current_user: C
     return EndSessionResponse(
         session_id=session_id,
         cards=[],
-        cards_pending=cards_pending,
+        cards_pending=False,
         mock_mode=MOCK_MODE,
     )
 

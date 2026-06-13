@@ -1,7 +1,7 @@
 """Celery application — broker and worker configuration.
 
 Start worker:
-    celery -A tools.workers.celery_app worker --loglevel=info --queues=cards,sm2
+    celery -A tools.workers.celery_app worker --loglevel=info --queues=sm2,media
 
 Or via Docker Compose:
     docker compose up worker
@@ -23,7 +23,6 @@ app = Celery(
     broker=REDIS_URL,
     backend=REDIS_URL,
     include=[
-        "tools.workers.tasks.card_generation",
         "tools.workers.tasks.sm2_review",
         "tools.workers.tasks.media_refresh",
     ],
@@ -36,7 +35,6 @@ app.conf.update(
     task_acks_late=True,          # re-queue on worker crash
     worker_prefetch_multiplier=1,  # fair dispatch — no head-of-line blocking
     task_routes={
-        "tools.workers.tasks.card_generation.*": {"queue": "cards"},
         "tools.workers.tasks.sm2_review.*":      {"queue": "sm2"},
         "tools.workers.tasks.media_refresh.*":   {"queue": "media"},
     },
