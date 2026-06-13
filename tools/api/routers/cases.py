@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 from tools.ai.guardrails.input_filter import filter_input
 from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM
 from tools.cases.evaluate_response import evaluate_case
-from tools.cases.generate_case import generate_cases as _generate_cases
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.log_case_completion import log_case_completion
@@ -17,6 +16,11 @@ from tools.profile.get_profile import get_profile
 from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
+from tools.shared.static_pools import pick_next_unseen
+
+# How many cases to surface per student per visit (a small rotating set, not the
+# whole library). The student cycles through every unlocked case before repeats.
+CASE_WINDOW = 6
 
 router = APIRouter()
 
@@ -110,43 +114,16 @@ class ChecklistResponse(BaseModel):
 async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
 
-    # Determine student role and weak topics for case generation
+    # Determine the student's role; cases are filtered to it.
     role = "OA"
-    weak_topics: list[str] = []
     if student_id:
         try:
             profile = await get_profile(student_id)
             role = profile.get("role", "OA") or "OA"
-            weak_topics = profile.get("weak_topics", []) or []
         except Exception:
             pass
 
-    # Try AI generation first
-    try:
-        generated = _generate_cases(role=role, weak_topics=weak_topics, n=5)
-        if generated:
-            _case_cache.clear()
-            for c in generated:
-                _case_cache[c["case_id"]] = c
-            return CasesResponse(cases=[
-                CaseInfo(
-                    case_id=c["case_id"],
-                    title=c["title"],
-                    difficulty=c.get("difficulty", "intermediate"),
-                    topic=c.get("topic", ""),
-                    estimated_minutes=c.get("estimated_minutes", 15),
-                    patient=CasePatientInfo(
-                        name=c["patient"]["name"],
-                        age=int(c["patient"].get("age", 30)),
-                        presenting_complaint=c["patient"].get("presenting_complaint", ""),
-                    ),
-                )
-                for c in generated if "patient" in c
-            ])
-    except Exception as exc:
-        print(f"[case-gen] AI generation failed, using pre-stored cases: {exc}", flush=True)
-
-    # Fallback: load pre-stored case files
+    # Load pre-stored case files (content is pre-authored — no AI generation).
     raw_cases = []
     for case_id in list_available_cases():
         try:
@@ -202,6 +179,22 @@ async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
             ),
             locked=locked,
         ))
+
+    # Per-student no-repeat rotation: surface a small window of unlocked cases the
+    # student hasn't completed yet, cycling through all of them before repeating.
+    # "Served" = completed (from case_progress) — reuses existing tracking, no new table.
+    unlocked = [c for c in cases if not c.locked]
+    if unlocked:
+        completed_ids = set(case_progress.keys())
+        served = {i for i, c in enumerate(unlocked) if c.case_id in completed_ids}
+        picks = pick_next_unseen(student_id, len(unlocked), "cases", served, n=CASE_WINDOW)
+        seen: set[int] = set()
+        window = []
+        for i in picks:
+            if i not in seen:
+                seen.add(i)
+                window.append(unlocked[i])
+        cases = window
     return CasesResponse(cases=cases)
 
 
@@ -388,32 +381,16 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
 
     raw_result = evaluate_case(case, messages, student_id, body.performed_steps)
 
-    session_id = await log_session(
+    await log_session(
         student_id=student_id,
         topic=f"Case: {case['title']}",
         messages=messages,
         token_count=0,
         model="mock" if MOCK_MODE else MODEL,
     )
-    try:
-        from tools.profile.get_profile import get_profile as _get_profile
-        _case_role = (await _get_profile(student_id)).get("role", "")
-    except Exception:
-        _case_role = ""
 
-    # Fire card generation as a background Celery task
+    # No card generation — flashcards are served from the pre-authored static pool.
     cards: list = []
-    try:
-        from tools.workers.tasks.card_generation import generate_cards_bg
-        generate_cards_bg.delay(
-            student_id=student_id,
-            session_id=session_id,
-            messages=messages,
-            role=_case_role,
-        )
-    except Exception:
-        # Celery unavailable — skip card generation (case submit should never fail for this)
-        pass
 
     # Update profile: retention score = total_score / 40
     try:
