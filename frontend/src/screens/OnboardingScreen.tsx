@@ -1,15 +1,10 @@
-import React, { lazy, Suspense, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Navigate, useNavigate } from "@/lib/nav";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { useWipeNavigate } from "@/fx";
-import type { GazeHandle } from "@/fx/canvas/GazeIris";
-
-/* The Gaze rides in its own chunk — three.js stays out of the main bundle. */
-const TheGaze = lazy(() =>
-  import("@/fx/canvas/GazeIris").then((m) => ({ default: m.GazeIris })),
-);
+import { EyeHero, type GazeHandle } from "./EyeHero";
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -210,10 +205,8 @@ export function OnboardingScreen() {
         aria-hidden="true"
         style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 62% 52% at 50% 46%, rgba(181,128,60,0.12) 0%, rgba(140,90,44,0.05) 42%, rgba(255,255,255,0) 72%), #FDFDFC" }}
       />
-      {/* The Gaze — the eye that watches you */}
-      <Suspense fallback={null}>
-        <TheGaze ref={gazeRef} />
-      </Suspense>
+      {/* The Gaze, made real — a living macro photograph that watches you */}
+      <EyeHero ref={gazeRef} />
 
       {/* Forced password change modal (floats on top) */}
       {step === "change_password" && loginResult && (
@@ -233,7 +226,7 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "relative", width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(31,31,31,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(31,31,31,0.14)" }}
+        style={{ position: "relative", zIndex: 2, width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(31,31,31,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(31,31,31,0.14)" }}
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>

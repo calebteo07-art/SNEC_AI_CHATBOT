@@ -367,6 +367,60 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(140deg, rgba(255,255,255,.96) 0%, rgba(2,10,30,.85) 60%, rgba(6,30,60,.5) 100%);
 }
 
+/* The Gaze, made real — macro eye photograph on the right, melting into the
+   paper field toward the card. Motion is applied to the <img> by EyeHero. */
+.login-eye {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(54vw, 780px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 26%, #000 100%);
+          mask-image: linear-gradient(to right, transparent 0%, #000 26%, #000 100%);
+}
+.login-eye img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  transform-origin: 62% 50%;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+/* The signature exit: charcoal floods from the pupil to cover the route swap. */
+.login-eye-engulf {
+  position: fixed;
+  inset: 0;
+  background: #1F1F1F;
+  pointer-events: none;
+  z-index: 40;
+  clip-path: circle(0% at 72% 50%);
+  -webkit-clip-path: circle(0% at 72% 50%);
+  transition: clip-path .56s cubic-bezier(0.7, 0, 0.84, 0), -webkit-clip-path .56s cubic-bezier(0.7, 0, 0.84, 0);
+}
+.login-eye-engulf.is-on {
+  clip-path: circle(150% at 72% 50%);
+  -webkit-clip-path: circle(150% at 72% 50%);
+}
+@media (max-width: 720px) {
+  /* On phones the card nearly fills the width, so demote the eye to a faint
+     ambient backdrop centred behind it rather than a side hero. */
+  .login-eye {
+    width: 100%;
+    opacity: .4;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, #000 30%, transparent 78%);
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, #000 30%, transparent 78%);
+  }
+  .login-eye img { object-position: center 30%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-eye-engulf { transition: none; }
+}
+
 .login-card {
   position: relative;
   width: 440px;
