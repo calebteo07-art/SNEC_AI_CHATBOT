@@ -462,7 +462,15 @@ export function OnboardingScreen() {
 
         </AnimatePresence>
 
-        <p className="login-footer">Singapore National Eye Centre · 2026</p>
+        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/snec-logo.jpg"
+            alt="Singapore National Eye Centre"
+            style={{ width: 132, height: "auto", opacity: 0.82, mixBlendMode: "multiply" }}
+          />
+          <p className="login-footer" style={{ margin: 0 }}>A Singapore National Eye Centre initiative · 2026</p>
+        </div>
       </motion.div>
     </div>
   );
