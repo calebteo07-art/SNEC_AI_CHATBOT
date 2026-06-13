@@ -1,28 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { DM_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
-/* PHOTOPIC type system — self-hosted via next/font (no Google CDN request):
- * DM Sans (UI/body, chinita tone) · Instrument Serif (editorial display
- * accents) · JetBrains Mono (clinical readouts). */
-const dmSans = DM_Sans({
+/* AURORA type system — Google Sans isn't on the public Google Fonts CDN, so
+ * we use the documented analog (path b): Inter (display/body) + JetBrains
+ * Mono (mono), both via next/font/google (zero external CDN at runtime).
+ * Swappable to self-hosted Google Sans later without touching consumers,
+ * since they read the --font-sans / --font-mono CSS vars. */
+const sans = Inter({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-sans-src",
   display: "swap",
 });
-const instrumentSerif = Instrument_Serif({
-  weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-instrument",
-  display: "swap",
-});
-const jetbrainsMono = JetBrains_Mono({
+const mono = JetBrains_Mono({
   weight: ["400", "500"],
   subsets: ["latin"],
-  variable: "--font-jetbrains",
+  variable: "--font-mono-src",
   display: "swap",
 });
 
@@ -48,14 +43,15 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#FDFDFC",
+  themeColor: "#EEF0F8",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      className={`${sans.variable} ${mono.variable}`}
+      data-motion=""
     >
       <body>
         <Providers>{children}</Providers>
