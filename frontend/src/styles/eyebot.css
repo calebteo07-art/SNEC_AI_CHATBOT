@@ -371,8 +371,12 @@ a { color: inherit; text-decoration: none; }
    paper field toward the card. Motion is applied to the <img> by EyeHero. */
 .login-eye {
   position: absolute;
-  inset: 0;                 /* full-bleed: skin fills the whole screen, eye to the right */
-  overflow: hidden;
+  top: 50%;
+  right: clamp(-6vw, 1vw, 48px);   /* a big iris disc on the right, on white */
+  transform: translateY(-50%);
+  width: min(66vh, 52vw, 720px);
+  height: min(66vh, 52vw, 720px);
+  overflow: visible;               /* gaze drift must not be clipped */
   pointer-events: none;
   z-index: 0;
 }
@@ -381,9 +385,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 66% 44%; /* eye sits right-of-centre; skin spreads to the left */
-  transform-origin: 70% 46%;
+  object-fit: contain;             /* the round iris+pupil disc on transparent/white */
+  transform-origin: center;
   will-change: transform;
   user-select: none;
   -webkit-user-drag: none;
@@ -404,9 +407,14 @@ a { color: inherit; text-decoration: none; }
   -webkit-clip-path: circle(150% at 72% 50%);
 }
 @media (max-width: 720px) {
-  /* Full-bleed skin behind the card on phones too; the frosted card keeps the
-     form readable. Nudge the eye so it sits beside/above the card. */
-  .login-eye img { object-position: 60% 38%; }
+  /* On phones the card nearly fills the width, so centre the iris faintly behind it. */
+  .login-eye {
+    right: 50%;
+    transform: translate(50%, -50%);
+    width: min(82vw, 440px);
+    height: min(82vw, 440px);
+    opacity: .3;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .login-eye-engulf { transition: none; }
