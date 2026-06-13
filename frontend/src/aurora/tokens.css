@@ -42,3 +42,9 @@ html[data-motion="reduce"] {
   --font-mono: var(--font-mono-src), ui-monospace, monospace;
 }
 body { font-family: var(--font-sans); color: var(--ink); background: var(--canvas); }
+
+/* MotionSurface tints — low-alpha washes + matching subtle borders so
+   StatCards read as soft tonal cards on a light background. */
+.aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(66,133,244,.14), rgba(155,114,203,.10), rgba(66,133,244,.14)); border: 1px solid rgba(66,133,244,.22); }
+.aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(155,114,203,.16), rgba(217,101,112,.10), rgba(155,114,203,.16)); border: 1px solid rgba(155,114,203,.22); }
+.aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(217,101,112,.15), rgba(155,114,203,.10), rgba(217,101,112,.15)); border: 1px solid rgba(217,101,112,.22); }

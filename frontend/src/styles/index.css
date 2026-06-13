@@ -147,3 +147,14 @@ html, body { height: 100%; margin: 0; }
     @apply font-sans;
     }
 }
+
+/* AURORA — shared gradient sweep animation, reduced-motion aware. */
+@keyframes aurora-flow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+.aurora-flow {
+  background-image: var(--gemini-loop);
+  background-size: 200% 100%;
+  animation: aurora-flow var(--aurora-anim) linear infinite;
+}
+html[data-motion="reduce"] .aurora-flow { animation: none; }
+/* OS-level reduced motion stops the sweep with no JS dependency. */
+@media (prefers-reduced-motion: reduce) { .aurora-flow { animation: none; } }
