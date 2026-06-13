@@ -47,11 +47,30 @@ PROMPT = (
     "off-white background. No text, no logos, no graphics, no illustration."
 )
 
+# Wide full-bleed login background: the eye sits in the RIGHT THIRD, smooth skin
+# (nose bridge, brow, cheek) fills the frame to the LEFT so the whole screen is
+# skin + eye. Used full-bleed behind the login card. ASCII-only.
+WIDE_PROMPT = (
+    "Wide cinematic macro photograph of the eye region of a human face. A single "
+    "real human eye with a natural medium-brown iris - fine radial stromal fibres, a "
+    "darker limbal ring, a warm golden zone around a deep black pupil with one crisp "
+    "pinpoint catchlight - positioned in the RIGHT THIRD of the frame, gazing toward "
+    "the camera, framed by upper and lower eyelids with natural dark lashes and a moist "
+    "sclera. The entire LEFT and centre of the frame is filled edge to edge with smooth "
+    "real human skin - the bridge of the nose, the brow and the cheek - warm medium skin "
+    "tone with natural pores, fine vellus hair and lifelike texture. No second eye, no "
+    "mouth, no nostrils, no hairline. Soft diffused natural daylight from the upper left, "
+    "shallow depth of field with the iris in razor-sharp focus and the surrounding skin "
+    "gently soft. Editorial clinical-beauty photography, hyper-detailed, photorealistic, "
+    "true-to-life warm colour. No text, no logos, no graphics, no illustration."
+)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--count", type=int, default=3, help="candidates to generate")
-    parser.add_argument("--aspect", default="3:4", help="aspect ratio (e.g. 3:4, 1:1, 4:3)")
+    parser.add_argument("--aspect", default=None, help="aspect ratio (e.g. 3:4, 16:9, 1:1)")
+    parser.add_argument("--wide", action="store_true", help="wide full-bleed bg: eye right, skin left")
     args = parser.parse_args()
 
     if not os.getenv("GEMINI_API_KEY"):
@@ -65,21 +84,26 @@ def main() -> int:
     model = os.getenv("NB_MODEL", "gemini-3-pro-image")
     BRAND_DIR.mkdir(parents=True, exist_ok=True)
 
+    prompt = WIDE_PROMPT if args.wide else PROMPT
+    aspect = args.aspect or ("16:9" if args.wide else "3:4")
+    stem = "login-bg" if args.wide else "login-eye"
+    print(f"generating {args.count} x {stem} @ {aspect} ({model})")
+
     written = 0
     for n in range(args.count):
         try:
             res = client.models.generate_content(
                 model=model,
-                contents=PROMPT,
+                contents=prompt,
                 config=types.GenerateContentConfig(
                     response_modalities=["IMAGE"],
-                    image_config=types.ImageConfig(aspect_ratio=args.aspect),
+                    image_config=types.ImageConfig(aspect_ratio=aspect),
                 ),
             )
             saved = False
             for part in res.candidates[0].content.parts:
                 if getattr(part, "inline_data", None):
-                    out = BRAND_DIR / f"login-eye-{n:02d}.png"
+                    out = BRAND_DIR / f"{stem}-{n:02d}.png"
                     out.write_bytes(part.inline_data.data)
                     print(f"  ok {out.name} ({len(part.inline_data.data) // 1024} KB)")
                     written += 1

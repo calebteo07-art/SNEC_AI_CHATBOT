@@ -199,13 +199,12 @@ export function OnboardingScreen() {
 
   /* ── Render ───────────────────────────────────────────── */
   return (
-    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#EFE7DC" }}>
-      {/* Warm field — cool paper on the left (behind the card) melting into a soft
-          sand on the right so the eye's faded edge blends in, with an amber glow
-          behind the iris. Also the CSS fallback while the eye image loads. */}
+    <div className="screen-login" style={{ position: "fixed", inset: 0, display: "flex", alignItems: "center", overflow: "hidden", background: "#C7AD92" }}>
+      {/* Skin-tone fallback while the full-bleed eye/skin photo loads, so there's
+          never a white/cream flash behind the card. */}
       <div
         aria-hidden="true"
-        style={{ position: "absolute", inset: 0, background: "radial-gradient(58% 66% at 80% 48%, rgba(196,134,78,0.20) 0%, rgba(196,134,78,0) 62%), linear-gradient(104deg, #EFE7DC 0%, #EADCCD 46%, #E3CDB7 72%, #DBBEA4 100%)" }}
+        style={{ position: "absolute", inset: 0, background: "radial-gradient(80% 90% at 66% 44%, #D9C1A8 0%, #C2A88D 100%)" }}
       />
       {/* The Gaze, made real — a living macro photograph that watches you */}
       <EyeHero ref={gazeRef} />
@@ -228,7 +227,7 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "relative", zIndex: 2, width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(20px) saturate(1.5)", WebkitBackdropFilter: "blur(20px) saturate(1.5)", border: "1px solid rgba(31,31,31,0.12)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(31,31,31,0.14)" }}
+        style={{ position: "relative", zIndex: 2, width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(250,245,239,0.58)", backdropFilter: "blur(28px) saturate(1.4)", WebkitBackdropFilter: "blur(28px) saturate(1.4)", border: "1px solid rgba(255,255,255,0.55)", borderRadius: 24, padding: 36, boxShadow: "0 34px 90px rgba(64,42,26,0.28)" }}
       >
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
