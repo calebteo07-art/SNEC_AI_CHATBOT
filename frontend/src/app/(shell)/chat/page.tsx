@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const ChatScreen = dynamic(
-  () => import("@/screens/ChatScreen").then((m) => m.ChatScreen),
+const Tutor = dynamic(
+  () => import("@/aurora/screens/Tutor").then((m) => m.Tutor),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <ChatScreen />
+      <Tutor />
     </CheckInGuard>
   );
 }

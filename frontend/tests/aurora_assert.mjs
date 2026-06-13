@@ -93,4 +93,31 @@ if (!(regionCases >= 1 && regionCases < allCases)) {
 }
 console.log("PASS: Atlas Map region filters the case list");
 
+// tutor: lavender wash, composer renders, the EyeBot avatar uses the Spark Eye logo, one h1.
+await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-chat-thread", { timeout: 15000 });
+const wash = await np.locator(".aurora-chat-thread").evaluate((el) => getComputedStyle(el).backgroundImage);
+if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat lavender wash missing (bg=${wash})`); process.exit(1); }
+if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: composer not rendered"); process.exit(1); }
+if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar [data-testid="aurora-logo"]').count()) < 1) {
+  console.error("FAIL: EyeBot avatar not using the logo"); process.exit(1);
+}
+const chatH1 = await np.locator("main h1").count();
+if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
+console.log("PASS: Tutor chat — lavender wash, composer, logo avatar, one h1");
+
+// SSE: mock /api/chat as an event-stream; sending must append the streamed reply
+// through the new composer + thread (proves the streaming reader path survived the rebuild).
+await navCtx.route("**/api/chat", (r) => r.fulfill({
+  status: 200,
+  contentType: "text/event-stream",
+  body: 'data: {"text":"The optic "}\n\ndata: {"text":"disc is pale."}\n\ndata: [DONE]\n\n',
+}));
+await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-composer-field", { timeout: 15000 });
+await np.locator(".aurora-composer-field").fill("Tell me about the optic disc");
+await np.locator(".aurora-send").click();
+await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
+console.log("PASS: Tutor SSE stream appends the assistant reply");
+
 await b.close();
