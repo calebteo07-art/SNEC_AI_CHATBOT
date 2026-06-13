@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const CaseSessionScreen = dynamic(
-  () => import("@/screens/CaseSessionScreen").then((m) => m.CaseSessionScreen),
+const CaseSession = dynamic(
+  () => import("@/aurora/screens/CaseSession").then((m) => m.CaseSession),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <CaseSessionScreen />
+      <CaseSession />
     </CheckInGuard>
   );
 }
