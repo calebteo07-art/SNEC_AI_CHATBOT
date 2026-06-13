@@ -190,4 +190,62 @@ const ciH1 = await np.locator("h1").count();
 if (ciH1 !== 1) { console.error(`FAIL: checkin h1 count = ${ciH1}`); process.exit(1); }
 console.log("PASS: Daily check-in renders the question with one h1");
 
+// admin: AdminGuard admits an admin; the shell renders tabs + KPIs; the students
+// tab lists rows; the supervisor dashboard renders KPIs + the at-risk table.
+const adminUser = { full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001", role: "admin", student_role: "", must_change: false };
+const adminCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await adminCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  localStorage.setItem("eyebot_tour_seen", "true");
+}, adminUser);
+await adminCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+await adminCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await adminCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(adminUser)));
+await adminCtx.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
+await adminCtx.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
+await adminCtx.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
+await adminCtx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
+await adminCtx.route("**/api/admin/token-summary", (r) => r.fulfill(JSON_OK({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
+await adminCtx.route("**/api/admin/students", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
+await adminCtx.route("**/api/admin/approved", (r) => r.fulfill(JSON_OK({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
+await adminCtx.route("**/api/admin/activity", (r) => r.fulfill(JSON_OK({ feed: [{ type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 }] })));
+const ap = await adminCtx.newPage();
+await ap.goto(base + "/admin", { waitUntil: "domcontentloaded" });
+await ap.waitForSelector('.aurora-tab:has-text("Overview")', { timeout: 15000 });
+await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 8000 });
+const adminH1 = await ap.locator("main h1").count();
+if (adminH1 !== 1) { console.error(`FAIL: admin main h1 count = ${adminH1}`); process.exit(1); }
+await ap.locator('.aurora-tab:has-text("Students")').click();
+await ap.waitForSelector('[data-testid="admin-student-table"] .aurora-trow.is-clickable', { timeout: 8000 });
+console.log("PASS: Admin — guard admits admin, tabs + KPIs render, students table lists rows");
+
+// supervisor: a supervisor-role user is admitted on /supervisor (CheckInGuard sends
+// admins to /admin, supervisors to /supervisor); KPIs + the at-risk table render.
+const supUser = { full_name: "Cohort Supervisor", email: "sup@snec.com.sg", student_id: "V001", role: "supervisor", student_role: "", must_change: false };
+const supCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await supCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  localStorage.setItem("eyebot_tour_seen", "true");
+}, supUser);
+await supCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+await supCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await supCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(supUser)));
+await supCtx.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total: 24, total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
+await supCtx.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
+await supCtx.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
+await supCtx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }] })));
+const sp = await supCtx.newPage();
+await sp.goto(base + "/supervisor", { waitUntil: "domcontentloaded" });
+await sp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
+const supH1 = await sp.locator("main h1").count();
+if (supH1 !== 1) { console.error(`FAIL: supervisor main h1 count = ${supH1}`); process.exit(1); }
+await sp.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
+console.log("PASS: Supervisor — KPIs + at-risk table render");
+
 await b.close();

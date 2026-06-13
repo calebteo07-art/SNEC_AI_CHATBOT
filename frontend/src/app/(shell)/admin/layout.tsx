@@ -7,15 +7,15 @@ const AdminGuard = dynamic(
   () => import("@/screens/AdminGuard").then((m) => m.AdminGuard),
   { ssr: false },
 );
-const AdminLayout = dynamic(
-  () => import("@/screens/AdminLayout").then((m) => m.AdminLayout),
+const AdminShell = dynamic(
+  () => import("@/aurora/screens/AdminShell").then((m) => m.AdminShell),
   { ssr: false },
 );
 
 export default function AdminSectionLayout({ children }: { children: ReactNode }) {
   return (
     <AdminGuard>
-      <AdminLayout>{children}</AdminLayout>
+      <AdminShell>{children}</AdminShell>
     </AdminGuard>
   );
 }
