@@ -46,6 +46,11 @@ await navCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
   xp: 0, hearts: 3, level: 1, streak: 4, session_count: 0,
   learning_velocity: "stable", weak_topics: [], topic_performance: [], sessions: [],
 })));
+await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
+  { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12, patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
+  { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
+  { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
+] })));
 const np = await navCtx.newPage();
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
@@ -73,5 +78,19 @@ await np.waitForTimeout(400);
 const overflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 if (overflow > 2) { console.error(`FAIL: horizontal overflow at 390px = ${overflow}px`); process.exit(1); }
 console.log("PASS: dashboard has no horizontal overflow at 390px");
+
+// cases: the Atlas Map renders and a region pin filters the case list.
+await np.setViewportSize({ width: 1440, height: 900 });
+await np.goto(base + "/cases", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('[data-testid="case-list"] .aurora-case', { timeout: 15000 });
+if ((await np.locator(".aurora-atlas-plate").count()) < 1) { console.error("FAIL: Atlas Map not rendered"); process.exit(1); }
+const allCases = await np.locator('[data-testid="case-list"] .aurora-case').count();
+await np.locator('.aurora-pin:has-text("Optic disc")').click();
+await np.waitForTimeout(350);
+const regionCases = await np.locator('[data-testid="case-list"] .aurora-case').count();
+if (!(regionCases >= 1 && regionCases < allCases)) {
+  console.error(`FAIL: region filter did not narrow the list (all=${allCases}, region=${regionCases})`); process.exit(1);
+}
+console.log("PASS: Atlas Map region filters the case list");
 
 await b.close();
