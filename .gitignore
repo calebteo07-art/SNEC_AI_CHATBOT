@@ -65,3 +65,6 @@ portfolio/
 
 # TypeScript incremental build state
 *.tsbuildinfo
+
+# AURORA visual-sweep screenshots (regenerated, never committed)
+frontend/*.png

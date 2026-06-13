@@ -3,11 +3,11 @@
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
-/* The shell (topbar, pill nav, Lenis scroller) persists across all
- * authenticated routes — App Router layouts don't remount on child
- * navigations, matching v1's <AppShell> layout route. */
+/* The AURORA shell (Atlas Rail + command palette + drifting mesh) persists
+ * across all authenticated routes — App Router layouts don't remount on child
+ * navigations. Replaces the legacy topbar/pill-nav shell. */
 const AppShell = dynamic(
-  () => import("@/screens/AppShell").then((m) => m.AppShell),
+  () => import("@/aurora/AppShell").then((m) => m.AppShell),
   { ssr: false },
 );
 

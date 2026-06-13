@@ -130,8 +130,13 @@ export function ScrollProvider({
 
 export function useShellScroll(): ScrollContextValue {
   const ctx = useContext(ScrollContext);
-  if (!ctx) throw new Error("useShellScroll must be used inside AppShell's ScrollProvider");
-  return ctx;
+  const fallbackRef = useRef<HTMLDivElement | null>(null);
+  const fallbackVelocity = useMotionValue(0);
+  /* AURORA teardown: with no ScrollProvider mounted (the AURORA shell uses
+   * native scroll), return an inert context so legacy screens that read it keep
+   * rendering — their scroll-driven effects simply no-op until rebuilt. */
+  if (ctx) return ctx;
+  return { scrollerRef: fallbackRef, velocity: fallbackVelocity, lenis: null };
 }
 
 /** Null-safe variant for components that may render outside the shell. */

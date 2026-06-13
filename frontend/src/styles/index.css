@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../aurora/tokens.css";
+@import "../aurora/aurora.css";
 @import './fonts.css';
 @import './eyebot.css';
 @import './gemini-gradients.css';

@@ -25,4 +25,37 @@ if (animationName !== "none") {
 }
 console.log("PASS: reduced motion stops gradient animation");
 
+// authenticated shell: the Atlas Rail renders role-gated nav and routes on click.
+const studentUser = {
+  full_name: "Test Student", email: "student@snec.com.sg", student_id: "S001",
+  role: "student", student_role: "OA", must_change: false,
+};
+const navCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await navCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  localStorage.setItem("eyebot_tour_seen", "true");
+}, studentUser);
+await navCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+const JSON_OK = (body) => ({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+await navCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await navCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
+await navCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
+  xp: 0, hearts: 3, level: 1, streak: 4, session_count: 0,
+  learning_velocity: "stable", weak_topics: [], topic_performance: [], sessions: [],
+})));
+const np = await navCtx.newPage();
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+// wait for the rail to actually populate (first dev compile can be slow)
+await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
+for (const label of ["Dashboard", "Tutor", "Cases", "Flashcards", "Progress"]) {
+  const count = await np.locator(`.aurora-navitem:has-text("${label}")`).count();
+  if (count < 1) { console.error(`FAIL: Atlas Rail missing "${label}"`); process.exit(1); }
+}
+await np.locator('.aurora-navitem:has-text("Cases")').first().click();
+await np.waitForURL("**/cases", { timeout: 6000 });
+console.log("PASS: Atlas Rail renders nav and routes to /cases");
+
 await b.close();
