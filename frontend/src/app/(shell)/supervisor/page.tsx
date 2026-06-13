@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const SupervisorDashboard = dynamic(
-  () => import("@/screens/SupervisorDashboard").then((m) => m.SupervisorDashboard),
+const Supervisor = dynamic(
+  () => import("@/aurora/screens/Supervisor").then((m) => m.Supervisor),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <SupervisorDashboard />
+      <Supervisor />
     </CheckInGuard>
   );
 }

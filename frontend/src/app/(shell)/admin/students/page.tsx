@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-const AdminStudentsPage = dynamic(
-  () => import("@/screens/AdminStudentsPage").then((m) => m.AdminStudentsPage),
+const AdminStudents = dynamic(
+  () => import("@/aurora/screens/AdminStudents").then((m) => m.AdminStudents),
   { ssr: false },
 );
 
 export default function Page() {
-  return <AdminStudentsPage />;
+  return <AdminStudents />;
 }
