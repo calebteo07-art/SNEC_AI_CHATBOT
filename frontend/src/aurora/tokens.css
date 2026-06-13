@@ -1,0 +1,38 @@
+/* AURORA tokens — the only chromatic source is the Gemini gradient.
+   Legacy PHOTOPIC vars are intentionally superseded. */
+:root {
+  --paper: #F6F7F9;
+  --canvas: #EEF0F8;
+  --surface: #FFFFFF;
+  --hairline: rgba(31, 31, 31, 0.10);
+
+  --ink: #1F1F1F;
+  --ink-2: #5F6368;
+  --ink-3: #9AA0A6;
+
+  /* Gemini gradient stops */
+  --g-blue: #4285F4;
+  --g-purple: #9B72CB;
+  --g-rose: #D96570;
+  --gemini: linear-gradient(100deg, var(--g-blue), var(--g-purple), var(--g-rose));
+  /* 5-stop loopable variant for animated surfaces (background-size:200%) */
+  --gemini-loop: linear-gradient(100deg, #4285F4, #9B72CB, #D96570, #9B72CB, #4285F4);
+
+  /* per-stop deep text shades for tonal fills */
+  --on-blue: #0C447C;  --on-blue-2: #1A5FB4;
+  --on-purple: #4A2C7A; --on-purple-2: #6A4A9A;
+  --on-rose: #A33B52;  --on-rose-2: #C0496A;
+
+  /* chat lavender wash */
+  --wash-lavender: linear-gradient(160deg, #EAEBFB, #EFEAF6 52%, #F6ECF1);
+
+  --radius-sm: 8px; --radius: 12px; --radius-lg: 14px; --radius-xl: 16px;
+
+  --logo-ink: #15161B; /* logo monochrome on light */
+
+  --aurora-anim: 4.5s; /* canonical gradient sweep duration */
+}
+
+html[data-motion="reduce"] {
+  --aurora-anim: 0s;
+}
