@@ -58,4 +58,20 @@ await np.locator('.aurora-navitem:has-text("Cases")').first().click();
 await np.waitForURL("**/cases", { timeout: 6000 });
 console.log("PASS: Atlas Rail renders nav and routes to /cases");
 
+// dashboard structure: one h1, an NBA card, exactly three stat cards.
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('[data-testid="nba-card"]', { timeout: 15000 });
+const h1count = await np.locator("main h1").count();
+if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
+const statCards = await np.locator('[data-testid="stat-card"]').count();
+if (statCards !== 3) { console.error(`FAIL: stat-card count = ${statCards}`); process.exit(1); }
+console.log("PASS: dashboard has one h1, an NBA card, three stat cards");
+
+// mobile: no horizontal overflow at 390x844.
+await np.setViewportSize({ width: 390, height: 844 });
+await np.waitForTimeout(400);
+const overflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+if (overflow > 2) { console.error(`FAIL: horizontal overflow at 390px = ${overflow}px`); process.exit(1); }
+console.log("PASS: dashboard has no horizontal overflow at 390px");
+
 await b.close();
