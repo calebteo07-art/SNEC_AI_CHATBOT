@@ -31,12 +31,10 @@ const slide = { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, e
 /* ── Eye logo ─────────────────────────────────────────────── */
 function EyeLogo() {
   return (
-    <div className="login-logo">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <ellipse cx="14" cy="14" rx="11" ry="7" stroke="#fff" strokeWidth="1.8" />
-        <circle cx="14" cy="14" r="4.5" fill="#fff" />
-        <circle cx="15.5" cy="12.5" r="1.6" fill="rgba(8,145,178,0.5)" />
-        <circle cx="14" cy="14" r="2" fill="rgba(6,13,24,0.9)" />
+    <div className="login-logo" aria-hidden="true">
+      <svg width="46" height="46" viewBox="0 0 48 48">
+        <path d="M4 24 Q24 7 44 24 Q24 41 4 24 Z" fill="none" stroke="#15161B" strokeWidth="3" strokeLinejoin="round" />
+        <path d="M24 18.4c.32 2.76 2.04 4.48 4.8 4.8-2.76.32-4.48 2.04-4.8 4.8-.32-2.76-2.04-4.48-4.8-4.8 2.76-.32 4.48-2.04 4.8-4.8z" fill="#15161B" />
       </svg>
     </div>
   );
@@ -223,8 +221,10 @@ export function OnboardingScreen() {
         initial={{ opacity: 0, y: 28, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        style={{ position: "relative", zIndex: 2, width: 420, maxWidth: "calc(100vw - 32px)", background: "rgba(255,255,255,0.5)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1px solid rgba(31,31,31,0.10)", borderRadius: 24, padding: 36, boxShadow: "0 24px 80px rgba(31,31,31,0.14)" }}
+        style={{ position: "relative", zIndex: 2, overflow: "hidden", width: 424, maxWidth: "calc(100vw - 32px)", background: "#FFFFFF", backdropFilter: "none", WebkitBackdropFilter: "none", border: "1px solid rgba(31,31,31,0.07)", borderRadius: 28, padding: 40, boxShadow: "0 2px 6px rgba(31,31,31,0.04), 0 40px 80px -28px rgba(31,31,31,0.26)" }}
       >
+        {/* animated Gemini accent at the very top of the card */}
+        <div className="aurora-flow" aria-hidden style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4 }} />
         <EyeLogo />
         <h1 className="login-brand">EyeBot</h1>
         <p className="login-tagline" style={{ marginBottom: 12 }}>an attentive tutor for the eye</p>

@@ -44,8 +44,7 @@
 /* ───────────────────────────────────────────────────────────── */
 /* 1. LOGO / ICON MARK — animated conic + layered glow          */
 /* ───────────────────────────────────────────────────────────── */
-.sidebar-logo-icon,
-.login-logo {
+.sidebar-logo-icon {
   background: conic-gradient(
     from var(--angle),
     #4285f4, #9b72cb, #d96570, #1aa89c, #4285f4
@@ -57,26 +56,15 @@
     0 0 56px rgba(66,  133, 244, 0.40),
     0  4px 14px rgba(31, 31, 31, 0.14) !important;
 }
+/* .login-logo intentionally NOT gradient — the redesigned login card is monochrome
+   except the top accent bar + Sign in button. The Spark Eye mark is ink (set in SVG). */
 
 /* ───────────────────────────────────────────────────────────── */
 /* 2. HERO / MAIN HEADER — gradient text                        */
 /* ───────────────────────────────────────────────────────────── */
-.login-brand {
-  background: var(--grad-gemini) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-}
-
-.login-tagline {
-  background: var(--grad-gemini);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  opacity: 0.8;
-}
+/* .login-brand / .login-tagline are monochrome ink on the redesigned card
+   (styled in eyebot.css) — the gradient text overrides were removed so only the
+   accent bar + Sign in button carry colour. */
 
 .progress-hero-h1 {
   background: var(--grad-gemini);
