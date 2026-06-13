@@ -1,0 +1,261 @@
+/* AURORA shell + components — layout, the Atlas Rail, drifting mesh canvas,
+   and the command palette. Colour comes only from the Gemini gradient tokens.
+   Motion is calm and freezes under reduced motion. */
+
+/* ───────────────────────── Shell ───────────────────────── */
+.aurora-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--canvas);
+  color: var(--ink);
+  --rail-w: 248px;
+}
+
+.aurora-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+}
+
+.aurora-main-scroll {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Drifting mesh canvas — three slow gradient blobs pinned behind content. */
+.aurora-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-mesh span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.aurora-mesh span:nth-child(1) {
+  width: 44vmax; height: 44vmax; left: -12vmax; top: -14vmax;
+  background: radial-gradient(circle, rgba(66, 133, 244, 0.20), transparent 68%);
+  animation: aurora-drift-a 30s ease-in-out infinite;
+}
+.aurora-mesh span:nth-child(2) {
+  width: 40vmax; height: 40vmax; right: -14vmax; top: 18vmax;
+  background: radial-gradient(circle, rgba(155, 114, 203, 0.18), transparent 68%);
+  animation: aurora-drift-b 36s ease-in-out infinite;
+}
+.aurora-mesh span:nth-child(3) {
+  width: 38vmax; height: 38vmax; left: 24vmax; bottom: -16vmax;
+  background: radial-gradient(circle, rgba(217, 101, 112, 0.16), transparent 68%);
+  animation: aurora-drift-c 33s ease-in-out infinite;
+}
+@keyframes aurora-drift-a { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(7vmax, 5vmax); } }
+@keyframes aurora-drift-b { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-6vmax, 6vmax); } }
+@keyframes aurora-drift-c { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(4vmax, -6vmax); } }
+html[data-motion="reduce"] .aurora-mesh span { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-mesh span { animation: none; } }
+
+/* ──────────────────────── Atlas Rail ──────────────────────── */
+.aurora-rail {
+  position: relative;
+  z-index: 30;
+  width: var(--rail-w);
+  flex-shrink: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 14px 14px;
+  background: var(--surface);
+  border-right: 1px solid var(--hairline);
+}
+.aurora-rail-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 12px;
+}
+.aurora-cmdk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+.aurora-cmdk:hover { color: var(--ink); border-color: rgba(31, 31, 31, 0.22); }
+.aurora-cmdk kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 0 4px;
+  color: var(--ink-3);
+}
+
+.aurora-rail-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 4px 0; }
+.aurora-rail-section { display: flex; flex-direction: column; gap: 2px; }
+.aurora-rail-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0 10px 4px;
+}
+.aurora-navitem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  overflow: hidden;
+  transition: color 0.18s, background-color 0.18s;
+}
+.aurora-navitem svg { flex-shrink: 0; opacity: 0.7; }
+.aurora-navitem:hover { color: var(--ink); background: rgba(31, 31, 31, 0.04); }
+.aurora-navitem[data-active="true"] { color: var(--ink); }
+.aurora-navitem[data-active="true"] svg { opacity: 1; }
+/* active background = calm low-alpha Gemini tint, animated within its border */
+.aurora-navitem[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(100deg, rgba(66, 133, 244, 0.16), rgba(155, 114, 203, 0.13), rgba(217, 101, 112, 0.14), rgba(155, 114, 203, 0.13), rgba(66, 133, 244, 0.16));
+  background-size: 200% 100%;
+  animation: aurora-flow var(--aurora-anim) linear infinite;
+  border: 1px solid rgba(120, 110, 200, 0.20);
+  border-radius: inherit;
+}
+html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animation: none; }
+
+.aurora-rail-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--hairline); }
+.aurora-profile { display: flex; align-items: center; gap: 10px; padding: 4px 6px; min-width: 0; }
+.aurora-avatar {
+  width: 32px; height: 32px; flex-shrink: 0;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+}
+.aurora-profile-meta { min-width: 0; display: flex; flex-direction: column; }
+.aurora-profile-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aurora-profile-role { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-3); text-transform: uppercase; }
+.aurora-signout {
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  color: var(--ink-3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.18s, background-color 0.18s;
+}
+.aurora-signout:hover { color: var(--ink); background: rgba(31, 31, 31, 0.04); }
+
+.aurora-streak {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-2);
+}
+.aurora-streak b { color: var(--ink); font-weight: 600; }
+
+/* ─────────────────────── Mobile bottom bar ─────────────────────── */
+@media (max-width: 860px) {
+  .aurora-shell { flex-direction: column; --rail-w: 0px; }
+  .aurora-main { order: 0; height: 0; flex: 1; }
+  .aurora-main-scroll { padding-bottom: 76px; }
+  .aurora-rail {
+    order: 1;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    width: 100%; height: auto;
+    flex-direction: row; gap: 2px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-right: none;
+    border-top: 1px solid var(--hairline);
+    box-shadow: 0 -6px 24px rgba(31, 31, 31, 0.06);
+  }
+  .aurora-rail-top, .aurora-rail-label, .aurora-rail-foot { display: none; }
+  .aurora-rail-scroll { flex-direction: row; gap: 2px; overflow-x: auto; overflow-y: hidden; padding: 0; }
+  .aurora-rail-section { flex-direction: row; gap: 2px; }
+  .aurora-navitem { flex-direction: column; gap: 3px; padding: 6px 12px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .aurora-navitem svg { width: 20px; height: 20px; }
+}
+
+/* ─────────────────────── Command palette ─────────────────────── */
+.aurora-palette-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 14vh;
+  background: rgba(31, 31, 31, 0.28);
+  backdrop-filter: blur(2px);
+}
+.aurora-palette {
+  width: min(560px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 70px -20px rgba(31, 31, 31, 0.35);
+  overflow: hidden;
+}
+.aurora-palette-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  padding: 16px 18px;
+  font-size: 15px;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: transparent;
+  outline: none;
+}
+.aurora-palette-input::placeholder { color: var(--ink-3); }
+.aurora-palette-list { max-height: 320px; overflow-y: auto; padding: 6px; }
+.aurora-palette-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none; background: none;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  font-size: 14px; text-align: left; cursor: pointer;
+}
+.aurora-palette-item[data-active="true"] { background: rgba(31, 31, 31, 0.05); color: var(--ink); }
+.aurora-palette-item svg { opacity: 0.6; flex-shrink: 0; }
+.aurora-palette-empty { padding: 18px; color: var(--ink-3); font-size: 13px; text-align: center; }
+.aurora-palette-hint {
+  display: flex; gap: 12px; justify-content: flex-end;
+  padding: 8px 14px;
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
+}
+
+:where(.aurora-shell) :focus-visible {
+  outline: 2px solid var(--g-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

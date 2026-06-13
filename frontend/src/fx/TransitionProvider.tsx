@@ -166,6 +166,15 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
 export function useWipeNavigate(): TransitionContextValue {
   const ctx = useContext(TransitionContext);
-  if (!ctx) throw new Error("useWipeNavigate must be used inside the fx providers");
-  return ctx;
+  const router = useRouter();
+  if (ctx) return ctx;
+  /* AURORA teardown: with no TransitionProvider mounted, degrade to a plain
+   * navigation — no blink choreography. Keeps legacy screens (and the login)
+   * working until they're rebuilt. */
+  const navigate = (action: WipeAction) => {
+    if (typeof action === "function") action();
+    else router.push(action);
+    return Promise.resolve();
+  };
+  return { phase: "idle", instant: false, cover: "paper", wipe: navigate, handoff: navigate };
 }
