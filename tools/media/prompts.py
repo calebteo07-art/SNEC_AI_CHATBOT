@@ -45,17 +45,23 @@ SVG_PROMPTS: dict[str, str] = {
     "profile":     f"A single elegant eye outline in two strokes with a gem-blue limbus arc. {_SVG_RULES}",
 }
 
+# AURORA rasters — realistic clinical eye imagery for the dark PlateWell / AtlasMap
+# wells (#07080c-ish), lit with the Gemini gradient. Supersedes the PHOTOPIC
+# paper-white rasters; ASCII-only (Windows console). 16:9 source, object-fit cover.
 _RASTER_BASE = (
-    "PHOTOPIC clinical-editorial photography: bright daylight studio, warm "
-    "paper-white background #FDFDFC, soft shadows, a single subject with "
-    "iridescent gem-spectrum reflections (blue, cyan, violet). Premium, "
-    "calm, medical-grade cleanliness. No text, no people, no dark scenes."
+    "Clinical ophthalmic macro photography on a deep near-black field (#07080c), "
+    "a single ocular subject, soft volumetric rim light in the Google Gemini "
+    "gradient (blue #4285F4 to purple #9B72CB to rose #D96570) grazing the "
+    "subject, ultra-clean medical-grade detail, shallow depth of field, premium "
+    "and calm. No text, no people, no faces, no UI, no paper-white background, "
+    "photorealistic."
 )
 
 RASTER_PROMPTS: dict[str, str] = {
-    "login":     f"Macro photograph of a human iris in bright daylight, blue-cyan, floating on paper white. {_RASTER_BASE}",
-    "dashboard": f"A sculptural glass lens resting on paper, refracting a gem-spectrum caustic. {_RASTER_BASE}",
-    "summary":   f"Iridescent ink drop blooming in clear water over white, suspended mid-swirl. {_RASTER_BASE}",
+    "dashboard":    f"Extreme macro of a single calm human iris with intricate fibre detail and a deep black pupil, floating on a deep near-black clinical field; a soft Gemini-gradient rim light grazes the limbus. {_RASTER_BASE}",
+    "cases":        f"A photorealistic human anterior segment - cornea, a detailed iris and a sliver of sclera - centred on a near-black field with even soft illumination so overlaid markers stay legible; a faint Gemini-gradient glow at the edges. {_RASTER_BASE}",
+    "case-session": f"A photorealistic retinal fundus photograph: the optic disc, branching retinal vessels and the macula, clinically plausible, on a dark vignette with a subtle Gemini-gradient sheen. {_RASTER_BASE}",
+    "flashcards":   f"A different human iris in extreme macro with crisp crypts and collarette detail and a deep black pupil, on a near-black field with a thin Gemini-gradient rim. {_RASTER_BASE}",
 }
 
 LOOP_PROMPTS: dict[str, str] = {

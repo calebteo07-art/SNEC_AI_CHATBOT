@@ -1,8 +1,9 @@
 "use client";
 /* AtlasMap — the Cases centrepiece. A realistic eye in a dark plate with
    anatomical region pins; the active region glows in the Gemini gradient and
-   filters the case list. Until Nano Banana imagery lands (Phase 8) the plate
-   shows a CSS iris placeholder. */
+   filters the case list. Falls back to a CSS iris placeholder if the Nano Banana
+   image is missing. */
+import { useState } from "react";
 
 export type RegionId = "all" | "cornea" | "iris" | "lens" | "optic" | "macula" | "retina";
 
@@ -24,12 +25,14 @@ export function AtlasMap({
   onRegion: (region: RegionId) => void;
   imageSrc?: string;
 }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImg = imageSrc && !imgFailed;
   return (
     <div className="aurora-atlas">
       <div className="aurora-atlas-plate">
-        {imageSrc ? (
+        {showImg ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageSrc} alt="Anatomical eye atlas" className="aurora-atlas-img" />
+          <img src={imageSrc} alt="Anatomical eye atlas" className="aurora-atlas-img" onError={() => setImgFailed(true)} />
         ) : (
           <span className="aurora-atlas-iris" aria-hidden />
         )}
