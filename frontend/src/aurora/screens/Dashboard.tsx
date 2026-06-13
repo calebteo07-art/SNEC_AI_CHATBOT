@@ -10,6 +10,7 @@ import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { StatCard } from "@/aurora/components/StatCard";
 import { PlateWell } from "@/aurora/components/PlateWell";
+import { PLATE } from "@/aurora/media";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { Sparkline } from "@/aurora/components/Sparkline";
 
@@ -81,7 +82,7 @@ export function Dashboard() {
         <div className="aurora-card aurora-nba" data-testid="nba-card">
           <div className="aurora-nba-inner">
             <p className="aurora-nba-eyebrow">Next best action</p>
-            <PlateWell alt={`${nba.title} reference eye`} ratio={2.4} />
+            <PlateWell src={PLATE.dashboard} alt={`${nba.title} reference eye`} ratio={2.4} />
             <p className="aurora-nba-title">{nba.title}</p>
             <p className="aurora-nba-sub">{nba.sub}</p>
             <Link href={nba.href} className="aurora-cta aurora-flow"><span>{nba.cta} →</span></Link>

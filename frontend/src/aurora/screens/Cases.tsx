@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AtlasMap, caseInRegion, type RegionId } from "@/aurora/components/AtlasMap";
 import { TrackChips, type TrackFilter } from "@/aurora/components/TrackChips";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
+import { PLATE } from "@/aurora/media";
 
 const TRACK_KEYWORDS: Record<Exclude<TrackFilter, "All">, string[]> = {
   OA: ["iop", "pressure", "glaucoma", "dilation", "history", "red eye", "pain", "anterior"],
@@ -84,7 +85,7 @@ export function Cases() {
         <div className={`aurora-cases-body ${listView ? "is-list" : ""}`}>
           {!listView && (
             <div className="aurora-cases-map">
-              <AtlasMap activeRegion={region} onRegion={setRegion} />
+              <AtlasMap activeRegion={region} onRegion={setRegion} imageSrc={PLATE.cases} />
             </div>
           )}
           <div className="aurora-cases-list" data-testid="case-list">

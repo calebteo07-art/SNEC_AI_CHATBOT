@@ -1,6 +1,6 @@
 {
-  "version": 10,
-  "generatedAt": "2026-06-12T17:35:55.974062+00:00",
+  "version": 11,
+  "generatedAt": "2026-06-13T10:22:52.143654+00:00",
   "palette": "photopic-v2",
   "accents": [
     {
@@ -26,6 +26,17 @@
       "hash": "sha256-d00481595f577599e31d7df3"
     },
     {
+      "id": "case-session-photo-00",
+      "kind": "raster",
+      "context": [
+        "case-session"
+      ],
+      "path": "/media/accents/case-session-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-fea5bf7bf524f0115d3da10d"
+    },
+    {
       "id": "cases-gen-00",
       "kind": "svg",
       "context": [
@@ -35,6 +46,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-5d7cf76dd179f4bff44f8cdc"
+    },
+    {
+      "id": "cases-photo-00",
+      "kind": "raster",
+      "context": [
+        "cases"
+      ],
+      "path": "/media/accents/cases-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-c379f7d6f1b038bddbb1e172"
     },
     {
       "id": "cases-seed-00",
@@ -89,7 +111,7 @@
       "path": "/media/accents/dashboard-photo-00.png",
       "width": null,
       "height": null,
-      "hash": "sha256-48313e39658a1fb26bb53c1e"
+      "hash": "sha256-6e51f087df9a6dff2557cc5a"
     },
     {
       "id": "dashboard-seed-00",
@@ -112,6 +134,17 @@
       "width": 800,
       "height": 600,
       "hash": "sha256-8bab79c74ed9bfaa881bc1a5"
+    },
+    {
+      "id": "flashcards-photo-00",
+      "kind": "raster",
+      "context": [
+        "flashcards"
+      ],
+      "path": "/media/accents/flashcards-photo-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-7a70175b6db12ac71913967c"
     },
     {
       "id": "login-gen-00",

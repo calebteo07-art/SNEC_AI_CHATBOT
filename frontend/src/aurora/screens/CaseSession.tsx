@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PlateWell } from "@/aurora/components/PlateWell";
+import { PLATE } from "@/aurora/media";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 
 interface CaseInfo {
@@ -203,7 +204,7 @@ export function CaseSession() {
       <div className="aurora-session-body">
         {/* Imagery + patient + checklist */}
         <aside className="aurora-session-aside">
-          <PlateWell alt={`${caseInfo?.topic ?? "Eye"} reference plate`} ratio={1.5} />
+          <PlateWell src={PLATE.caseSession} alt={`${caseInfo?.topic ?? "Eye"} reference plate`} ratio={1.5} />
           {caseInfo && (
             <div className="aurora-session-patient">
               <h1 className="aurora-session-patient-name">{caseInfo.patient.name}</h1>

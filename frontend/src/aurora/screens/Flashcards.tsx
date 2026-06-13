@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlateWell } from "@/aurora/components/PlateWell";
+import { PLATE } from "@/aurora/media";
 import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
 import {
@@ -167,7 +168,7 @@ export function Flashcards() {
 
       <div className="aurora-deck-body">
         <section className="aurora-card aurora-deck-card">
-          <div className="aurora-deck-plate"><PlateWell alt={`${card.tag} reference eye`} ratio={1} /></div>
+          <div className="aurora-deck-plate"><PlateWell src={PLATE.flashcards} alt={`${card.tag} reference eye`} ratio={1} /></div>
           <div className="aurora-deck-content">
             <span className="aurora-deck-topic">{card.tag} · {deckTitle}</span>
             <p className="aurora-deck-q">{card.question}</p>
