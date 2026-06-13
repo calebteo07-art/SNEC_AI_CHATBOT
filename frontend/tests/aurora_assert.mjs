@@ -1,29 +1,6 @@
 import { chromium } from "playwright";
 const base = process.argv[2] ?? "http://127.0.0.1:3000";
 const b = await chromium.launch();
-const ctx = await b.newContext();
-const p = await ctx.newPage();
-
-// scratch route renders the logo with a stable testid
-await p.goto(base + "/aurora-scratch");
-const logo = await p.locator('[data-testid="aurora-logo"]').count();
-if (logo < 1) { console.error("FAIL: logo not rendered"); process.exit(1); }
-console.log("PASS: logo renders");
-
-// reduced motion (OS-level): the pure-CSS @media (prefers-reduced-motion: reduce)
-// rule stops the sweep with no JS dependency — deterministic and independent of the
-// legacy motion provider (removed in Phase 1) that still also writes html[data-motion].
-await p.emulateMedia({ reducedMotion: "reduce" });
-await p.goto(base + "/aurora-scratch");
-await p.waitForSelector('[data-testid="aurora-surface"]');
-const animationName = await p.locator('[data-testid="aurora-surface"]').evaluate(
-  (el) => getComputedStyle(el).animationName,
-);
-if (animationName !== "none") {
-  console.error(`FAIL: reduced motion did not stop animation (animationName=${animationName})`);
-  process.exit(1);
-}
-console.log("PASS: reduced motion stops gradient animation");
 
 // authenticated shell: the Atlas Rail renders role-gated nav and routes on click.
 const studentUser = {
@@ -72,6 +49,8 @@ const np = await navCtx.newPage();
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
 await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
+if ((await np.locator('[data-testid="aurora-logo"]').count()) < 1) { console.error("FAIL: Spark Eye logo not rendered in the rail"); process.exit(1); }
+console.log("PASS: Spark Eye logo renders in the Atlas Rail");
 for (const label of ["Dashboard", "Tutor", "Cases", "Flashcards", "Progress"]) {
   const count = await np.locator(`.aurora-navitem:has-text("${label}")`).count();
   if (count < 1) { console.error(`FAIL: Atlas Rail missing "${label}"`); process.exit(1); }
@@ -189,6 +168,39 @@ await np.waitForSelector(".aurora-checkin-textarea", { timeout: 15000 });
 const ciH1 = await np.locator("h1").count();
 if (ciH1 !== 1) { console.error(`FAIL: checkin h1 count = ${ciH1}`); process.exit(1); }
 console.log("PASS: Daily check-in renders the question with one h1");
+
+// a11y sweep: every shell route has one <main>, one <h1> in main, a <nav>, and
+// no horizontal overflow at 390px.
+const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/progress", "/summary", "/profile"];
+await np.setViewportSize({ width: 1440, height: 900 });
+for (const r of A11Y_ROUTES) {
+  await np.goto(base + r, { waitUntil: "domcontentloaded" });
+  await np.waitForSelector("main h1", { timeout: 15000 }); // wait for the screen body, not just the shell
+  const mains = await np.locator("main").count();
+  const h1s = await np.locator("main h1").count();
+  const navs = await np.locator("nav").count();
+  if (mains !== 1 || h1s !== 1 || navs < 1) { console.error(`FAIL: a11y landmarks on ${r} (main=${mains}, h1=${h1s}, nav=${navs})`); process.exit(1); }
+}
+console.log("PASS: a11y — every route has one main, one h1, a nav");
+await np.setViewportSize({ width: 390, height: 844 });
+for (const r of A11Y_ROUTES) {
+  await np.goto(base + r, { waitUntil: "domcontentloaded" });
+  await np.waitForSelector("main h1", { timeout: 15000 });
+  await np.waitForTimeout(250);
+  const o = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (o > 2) { console.error(`FAIL: 390px overflow on ${r} = ${o}px`); process.exit(1); }
+}
+console.log("PASS: a11y — no horizontal overflow at 390px on any route");
+await np.setViewportSize({ width: 1440, height: 900 });
+
+// reduced motion: emulate prefers-reduced-motion; a .aurora-flow surface freezes.
+const rmPage = await navCtx.newPage();
+await rmPage.emulateMedia({ reducedMotion: "reduce" });
+await rmPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await rmPage.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
+const rmAnim = await rmPage.locator(".aurora-flow").first().evaluate((el) => getComputedStyle(el).animationName);
+if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze .aurora-flow (animationName=${rmAnim})`); process.exit(1); }
+console.log("PASS: reduced motion freezes the gradient animation");
 
 // admin: AdminGuard admits an admin; the shell renders tabs + KPIs; the students
 // tab lists rows; the supervisor dashboard renders KPIs + the at-risk table.

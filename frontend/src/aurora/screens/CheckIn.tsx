@@ -82,7 +82,7 @@ export function CheckIn() {
   return (
     <div className="aurora-checkin">
       <div className="aurora-checkin-mesh" aria-hidden><span /><span /></div>
-      <div className="aurora-checkin-wrap">
+      <main className="aurora-checkin-wrap">
         <header className="aurora-checkin-head">
           <p className="aurora-eyebrow">Daily check-in</p>
           <h1 className="aurora-checkin-h1">Today&apos;s question</h1>
@@ -139,7 +139,7 @@ export function CheckIn() {
             </>
           )}
         </section>
-      </div>
+      </main>
     </div>
   );
 }
