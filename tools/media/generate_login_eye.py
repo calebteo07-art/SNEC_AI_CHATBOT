@@ -85,16 +85,18 @@ HIGHKEY_PROMPT = (
 # Iris-only login hero: just the round iris + pupil on pure white, no eyelids / lashes /
 # sclera / skin. Placed big on the right; gaze-follows the cursor. ASCII-only.
 IRIS_PROMPT = (
-    "Extreme macro photograph of a single human iris and pupil ONLY, perfectly round and "
-    "centred, filling most of the frame. A natural medium-brown iris with hyper-detailed "
-    "anatomy: dense fine radial stromal fibres, Fuchs crypts, contraction furrows, a warm "
-    "golden inner ring blending into deeper brown, a distinct darker limbal ring at the "
-    "outer edge, and a perfectly round deep-black central pupil with one small crisp "
-    "pinpoint catchlight. Wet, glossy, lifelike surface with true-to-life colour and "
-    "micro-detail. Pure clean bright WHITE background completely surrounding the iris. "
-    "Absolutely NO eyelid, NO eyelashes, NO sclera, NO skin, NO face - only the round iris "
-    "and pupil on white. Hyper-detailed, photorealistic, studio macro photography. No text, "
-    "no logos, no graphics, no illustration."
+    "A real high-resolution DSLR macro PHOTOGRAPH of a single real human iris and pupil, "
+    "photographed extremely close up. This is a REAL PHOTOGRAPH - NOT a 3D render, NOT CGI, "
+    "NOT an illustration, NOT a glass marble or sphere, NOT stylised. Perfectly round and "
+    "centred, filling most of the frame. A natural brown iris with realistic slight "
+    "irregularity and asymmetry: dense fine radial stromal fibres, Fuchs crypts, contraction "
+    "furrows, subtle amber and faint green flecks, natural darker pigment patches, a soft "
+    "darker limbal ring, and a real round deep-black pupil with one small soft realistic "
+    "specular catchlight. Real wet corneal sheen, true photographic shallow depth of field "
+    "with the fibres tack-sharp, lifelike micro-texture, natural skin-free colour. Pure clean "
+    "bright WHITE seamless background completely surrounding the iris. Absolutely NO eyelid, "
+    "NO eyelashes, NO sclera, NO skin, NO face - only the round iris and pupil on white. "
+    "Photorealistic real macro photograph. No text, no logos, no graphics, no illustration."
 )
 
 
