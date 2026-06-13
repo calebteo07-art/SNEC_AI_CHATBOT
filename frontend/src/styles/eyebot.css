@@ -395,7 +395,9 @@ a { color: inherit; text-decoration: none; }
 .login-eye-engulf {
   position: fixed;
   inset: 0;
-  background: #1F1F1F;
+  /* Light bloom (not charcoal) — the iris opens to white during the route swap,
+     matching the white login + light app instead of flashing a black square. */
+  background: #FFFFFF;
   pointer-events: none;
   z-index: 40;
   clip-path: circle(0% at 72% 50%);
