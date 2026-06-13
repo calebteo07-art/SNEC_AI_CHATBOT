@@ -1,0 +1,102 @@
+{
+  "case_id": "case_ot_025_optical_biometry_cataract",
+  "title": "Measuring Up for a New Lens",
+  "difficulty": "intermediate",
+  "topic": "optical_biometry_iol_calculation",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Basic Biometry",
+  "patient": {
+    "name": "Mdm Fatimah Binte Hassan",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for optical biometry — listed for right cataract surgery (phaco + IOL)"
+  },
+  "history": {
+    "hpc": "Mdm Fatimah says 'My right eye blur already, more than six months, slowly slowly, no pain one.' She was referred from a polyclinic and seen at another hospital before. The doctor has confirmed cataracts in both eyes, listed her for right eye phacoemulsification with intraocular lens, and ordered optical biometry to calculate the lens power.",
+    "pmhx": "Bilateral cataracts. Dry eyes in both eyes. No diabetes. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Lubricating eye drops PRN"],
+    "social_hx": "Retired homemaker. Lives with family. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/45, pinhole 6/12; near (aided) N12", "left": "6/12, pinhole 6/12; near (aided) N10"},
+    "iop": {"right": "13 mmHg (NCT)", "left": "12 mmHg (NCT)"},
+    "anterior_segment": "Right eye: nuclear sclerosis 2+ with posterior subcapsular cataract. Left eye: nuclear sclerosis 1+. Reduced tear film in both eyes",
+    "fundus": "No retinal detachment. Cup-to-disc ratio 0.4 in both eyes"
+  },
+  "investigations": {
+    "optical_biometry": {
+      "device": "Optical biometer (IOLMaster-type, non-contact)",
+      "axial_length_right": "23.62 mm",
+      "axial_length_left": "23.58 mm",
+      "keratometry_right": "K1 43.50 D @ 8, K2 44.25 D @ 98",
+      "acd_right": "3.10 mm",
+      "lens_thickness_right": "4.55 mm",
+      "white_to_white_right": "11.8 mm",
+      "signal_to_noise": "Good (SNR above threshold on repeated measurements)",
+      "iol_power": "Calculated with an appropriate modern formula for the surgeon's target refraction; values handed to surgeon"
+    }
+  },
+  "diagnosis": "Optical biometry of the right eye completed with good signal quality and consistent repeat measurements. Axial length, keratometry, anterior chamber depth and lens thickness obtained and the IOL power calculated for the surgeon's chosen lens and target refraction. The dry eye / unstable tear film was noted as it can affect keratometry, and measurements were repeated after the surface was optimised. Results provided to the surgeon for IOL selection.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity and confirm the operative eye (right) against the surgical listing",
+      "Optimise the ocular surface before keratometry (ensure a stable tear film; ask the patient to blink fully) as dry eye can distort K readings",
+      "Explain the procedure: non-contact, look at the fixation light, takes a few minutes, no eye drops or touching the eye needed",
+      "Enter patient details accurately and select the biometry program",
+      "Position the patient at the chinrest, align on the visual axis and capture axial length, keratometry, ACD, lens thickness and white-to-white",
+      "Take repeated measurements and check the signal-to-noise / consistency; repeat any reading that is inconsistent or low quality",
+      "Enter the surgeon's IOL constant and target, review the calculated IOL powers and hand the printout to the surgeon"
+    ],
+    "follow_up": [
+      "Surgeon to select the IOL power and lens model based on the biometry and target refraction",
+      "If measurements are unreliable (e.g. dense cataract blocking axial length), arrange immersion ultrasound A-scan as a backup",
+      "Confirm biometry is filed against the correct eye before surgery"
+    ],
+    "patient_education": [
+      "Explain that the measurements decide the power of the new lens that will replace the cloudy lens",
+      "Reassure the patient it is quick, painless and does not touch the eye",
+      "Advise on using her lubricating drops to keep the eye surface healthy before surgery"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms patient identity and verifies the correct operative eye against the listing",
+        "Notes the dry eye history as relevant to keratometry accuracy",
+        "Confirms the surgery booked and the purpose of biometry (IOL power)",
+        "Explains the non-contact procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Optimises the tear film before keratometry and obtains a stable surface",
+        "Aligns the patient correctly and captures axial length, K, ACD, lens thickness and white-to-white",
+        "Takes repeat measurements and checks signal quality/consistency, repeating poor readings",
+        "Enters the correct IOL constant and surgeon target before calculating"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands that biometry provides the measurements for IOL power calculation",
+        "Recognises that dry eye and dense cataract can affect measurement quality",
+        "Does not select the IOL independently — provides results to the surgeon",
+        "Knows immersion A-scan is the backup if optical axial length cannot be obtained"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Captures consistent, good-quality biometry for the correct eye",
+        "Repeats inconsistent measurements rather than accepting poor data",
+        "Hands accurate results to the surgeon and files against the correct eye",
+        "Educates the patient on the purpose of the test and ocular surface care"
+      ]
+    }
+  }
+}

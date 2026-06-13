@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_027_eye_drop_instillation_communication",
+  "title": "A Drop, Done Right",
+  "difficulty": "beginner",
+  "topic": "eye_drop_instillation_technique",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Instillation of Eye Drops",
+  "patient": {
+    "name": "Mdm Goh Lay Hoon",
+    "age": 64,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Attending for eye drop instillation as part of her clinic visit"
+  },
+  "history": {
+    "hpc": "Mdm Goh is here for her eye drops to be instilled before her review. She is a little unsure of the process — when asked to look up she just looks up with her chin down and says 'Like that can or not?', and needs to be guided to tilt her head back. She is cooperative once instructed clearly. When you verify her identity she says 'Aiyoh, my IC number I cannot remember leh.'",
+    "pmhx": "Attends the eye clinic regularly. No known drug allergies on file, but this must be confirmed before instillation.",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Eye drops as charted for today's visit"],
+    "social_hx": "Retired. Comes to clinic with her daughter."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection or discharge noted that would change instillation technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Correctly and safely instil the charted eye drop using good technique, identity verification, allergy check, communication and aftercare",
+    "patient_cooperation": "Patient initially positions her head incorrectly (looks up without tilting head back) and cannot recall her IC — tests the student's verification and clear instruction"
+  },
+  "diagnosis": "Eye drop successfully instilled into the correct eye using aseptic, no-touch technique after confirming patient identity using two identifiers, checking for drug allergy, and clearly guiding the patient to tilt her head back and look up. Patient comfort and aftercare addressed. This is a procedural/communication station rather than a diagnostic one.",
+  "management": {
+    "immediate": [
+      "Confirm patient identity using two identifiers (e.g. full name plus date of birth or address) — when the patient cannot recall her IC, use an alternative second identifier rather than proceeding unverified",
+      "Explain the purpose of the eye drop and gain consent",
+      "Ask about and confirm any drug/eye-drop allergy before instilling",
+      "Perform hand hygiene and check the drop label, strength, expiry and the correct eye",
+      "Position the patient: ask her to tilt her head back and look up; guide her clearly when she positions incorrectly",
+      "Gently pull down the lower lid to form a pocket and instil one drop into the lower fornix without touching the eye, lashes or dropper tip to the eye",
+      "Ask the patient to close the eye gently; apply punctal occlusion / give a tissue and avoid hard squeezing or rubbing",
+      "Confirm comfort, document the drop given, eye, time and that allergy was checked"
+    ],
+    "follow_up": [
+      "Advise the patient when the next drop or review is due",
+      "Report any stinging, allergy or adverse reaction to the nurse/doctor",
+      "Ensure the drop is recorded so it is not repeated in error"
+    ],
+    "patient_education": [
+      "Reassure the patient and explain each step in simple language she understands",
+      "Teach the correct head position (tilt back and look up) for instilling drops",
+      "Explain gentle eye closure and not rubbing the eye after the drop, and basic drop hygiene for home use"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity with two identifiers and uses an alternative when IC cannot be recalled",
+        "Explains the purpose of the drop and obtains consent",
+        "Checks for drug/eye-drop allergy before instilling",
+        "Communicates clearly and reassures the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and checks drop label, strength, expiry and correct eye",
+        "Positions the patient correctly, guiding her to tilt head back and look up",
+        "Instils one drop into the lower fornix using a no-touch technique",
+        "Avoids touching the dropper tip to the eye, lashes or skin"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as a safe-instillation and communication task, not a diagnostic one",
+        "Understands why correct head position improves delivery into the fornix",
+        "Knows the importance of confirming the correct eye and drop against the chart",
+        "Identifies allergy checking as a critical safety step before instillation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Applies punctal occlusion or gentle closure and avoids rubbing",
+        "Documents the drop, eye, time and allergy check",
+        "Educates the patient on technique and aftercare in simple language",
+        "Maintains patient comfort and dignity throughout"
+      ]
+    }
+  }
+}
