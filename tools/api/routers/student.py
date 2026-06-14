@@ -131,15 +131,18 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
     student_answer = (body.student_answer or "")[:600]
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
-        + "You are an ophthalmology tutor grading a student's active-recall attempt. "
+        + "You are a warm, encouraging ophthalmology tutor grading a student's active-recall attempt. "
         "Grade the attempt ONLY against the model answer provided — that model answer is the "
         "authoritative reference drawn from the training material, so treat it as the source of truth. "
-        "Score how well the student's answer captures the key facts in the model answer "
-        "(0 = blank or wrong, 10 = fully correct). "
-        "Write feedback in short, natural, plain language — 1 to 2 sentences. Say briefly what was right "
-        "and what was missing. Use clinical jargon only when it is the clearest word; otherwise keep it simple. "
+        "Give a score from 0 to 100 for how well the student's answer captures the key ideas in the model answer. "
+        "Be VERY lenient and generous: reward any correct idea, give partial credit freely, ignore spelling, "
+        "phrasing, grammar and word order, and always give the benefit of the doubt. A reasonable attempt that "
+        "shows understanding should land in the 70-100 range; only a blank or entirely wrong answer scores low. "
+        "Write feedback in short, natural, plain language — 1 to 2 sentences. Keep it warm and motivating: "
+        "say what they got right first, then gently mention anything to add. Use clinical jargon only when it is "
+        "the clearest word; otherwise keep it simple. "
         "Return ONLY valid JSON with no other text:\n"
-        '{"score": <0-10>, "feedback": "<1-2 short, natural sentences>"}'
+        '{"score": <0-100>, "feedback": "<1-2 short, warm, natural sentences>"}'
     )
     try:
         raw = ask(
@@ -167,15 +170,16 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
         text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
     try:
         parsed = json.loads(text)
-        score = int(parsed.get("score", 5))
+        score = int(parsed.get("score", 70))
         feedback = parsed.get("feedback", raw[:300])
     except Exception:
-        score = 5
+        score = 70
         feedback = raw[:300]
+    score = max(0, min(100, score))  # clamp to the 0-100 grading scale
 
     # Persist SM-2 schedule update in background (non-critical — never blocks response)
     if body.card_id:
-        quality = round(score / 2)  # map 0-10 → 0-5 for SM-2
+        quality = round(score / 20)  # map 0-100 → 0-5 for SM-2
         try:
             from tools.workers.tasks.sm2_review import process_review
             process_review.delay(

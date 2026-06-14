@@ -675,14 +675,21 @@ html[data-motion="reduce"] .aurora-dot.is-active { animation: none; }
 .aurora-answer-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-purple-2); }
 .aurora-answer p { font-size: 14px; line-height: 1.7; color: var(--ink); margin: 6px 0 0; white-space: pre-wrap; }
 .aurora-feedback { background: rgba(120, 110, 200, 0.06); border: 1px solid rgba(120, 110, 200, 0.2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; }
-.aurora-feedback-head { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); }
+.aurora-feedback-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); }
+.aurora-feedback-xp { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: none; color: var(--on-green-2); background: rgba(52, 168, 83, 0.10); border: 1px solid rgba(52, 168, 83, 0.22); border-radius: 999px; padding: 2px 9px; flex-shrink: 0; }
 .aurora-feedback p { font-size: 13px; line-height: 1.6; color: var(--ink-2); margin: 5px 0 0; }
-.aurora-rate-head { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
-.aurora-rate-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.aurora-rate { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border: none; border-radius: var(--radius); color: #fff; cursor: pointer; background-size: 140% 140%; transition: transform 0.15s; }
-.aurora-rate:hover { transform: translateY(-2px); }
-.aurora-rate-label { font-size: 13px; font-weight: 600; }
-.aurora-rate-cap { font-size: 9px; opacity: 0.85; }
+
+/* Coach — encouraging side bubbles. Gradient Spark-eye avatar + speech bubbles
+   that pop in when the message changes; motion freezes under reduced motion. */
+.aurora-coach { display: flex; flex-direction: column; gap: 8px; }
+.aurora-coach-top { display: flex; align-items: center; gap: 8px; }
+.aurora-coach-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--gemini-loop); background-size: 200% 200%; display: grid; place-items: center; color: #fff; font-size: 13px; line-height: 1; flex-shrink: 0; box-shadow: 0 3px 10px rgba(120, 110, 200, 0.3); animation: aurora-coach-pulse var(--aurora-anim) ease-in-out infinite; }
+.aurora-coach-bubble { background: var(--wash-lavender); border: 1px solid rgba(120, 110, 200, 0.18); border-radius: 12px 12px 12px 4px; padding: 10px 12px; font-size: 13px; line-height: 1.5; color: var(--ink); animation: aurora-bubble-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.aurora-coach-bubble.is-tip { background: rgba(66, 133, 244, 0.06); border-color: rgba(66, 133, 244, 0.16); border-radius: 12px; color: var(--ink-2); font-size: 12px; }
+@keyframes aurora-bubble-in { from { opacity: 0; transform: translateY(5px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes aurora-coach-pulse { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+html[data-motion="reduce"] .aurora-coach-bubble, html[data-motion="reduce"] .aurora-coach-avatar { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-coach-bubble, .aurora-coach-avatar { animation: none; } }
 
 .aurora-deck-side { display: flex; flex-direction: column; gap: 14px; }
 .aurora-side-card { padding: 14px 15px; }
@@ -706,7 +713,6 @@ html[data-motion="reduce"] .aurora-dot.is-active { animation: none; }
 @media (max-width: 560px) {
   .aurora-deck-card { grid-template-columns: 1fr; }
   .aurora-deck-plate { max-width: 220px; }
-  .aurora-rate-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ─────────────────── Profile ─────────────────── */
