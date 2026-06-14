@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_029_eye_drop_instillation_first_time_teaching",
+  "title": "First Time With Drops",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_first_time_teaching",
+  "topic_set": "eye_drops",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Yeo Chin Huat",
+    "age": 54,
+    "gender": "male",
+    "occupation": "lorry driver",
+    "presenting_complaint": "Newly prescribed eye drops, has never used eye drops before"
+  },
+  "history": {
+    "hpc": "Mr Yeo says 'Doctor give me eye drop, but I never use before, dunno how.' He needs his charted drop instilled and to be taught the technique so he can do it himself at home.",
+    "pmhx": "No previous eye drop use. No drug allergies (confirm).",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Newly charted eye drop"],
+    "social_hx": "Lorry driver; lives alone."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Instil the charted drop and teach a first-time user the correct, safe technique for home",
+    "key_points": "Confirm identity, correct eye, drop name/strength and allergy; demonstrate head-back, lower-lid-pocket, one drop, no-touch; have the patient try; teach gentle closure and not to touch the tip"
+  },
+  "diagnosis": "The charted drop is instilled and a first-time user is taught the correct technique: confirming identity, correct eye, the drop and allergy; demonstrating the head-back, lower-fornix, no-touch method; and checking the patient can do it himself. This is a procedural/teaching station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the correct eye and the charted drop and strength",
+      "Check for drug/eye-drop allergy before instilling",
+      "Perform hand hygiene and explain the steps simply",
+      "Demonstrate: tilt head back, pull the lower lid to form a pocket, instil one drop without touching the eye or tip",
+      "Have the patient try once with guidance",
+      "Teach gentle closure / light pressure near the nose afterwards",
+      "Document the drop, eye, time and allergy check"
+    ],
+    "follow_up": [
+      "Confirm the home schedule and that he can manage alone",
+      "Advise reporting stinging, allergy or worsening symptoms"
+    ],
+    "patient_education": [
+      "Teach the head-back, lower-pocket, one-drop technique in simple language",
+      "Stress not touching the bottle tip to the eye or fingers",
+      "Reassure that one drop is enough and to keep a routine"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, correct eye and the charted drop",
+        "Checks for drug/eye-drop allergy",
+        "Establishes that the patient is a first-time user",
+        "Explains the steps in simple language"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and demonstrates the technique",
+        "Instils one drop into the lower fornix with a no-touch method",
+        "Has the patient try with guidance",
+        "Teaches gentle closure / nasolacrimal pressure"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as a safe-instillation and teaching task",
+        "Knows allergy checking is essential before instilling",
+        "Understands why a no-touch technique matters",
+        "Confirms the patient can self-administer"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents drop, eye, time and allergy check",
+        "Confirms the home schedule and self-management",
+        "Teaches tip hygiene and one-drop dosing",
+        "Maintains patient comfort and confidence"
+      ]
+    }
+  }
+}
