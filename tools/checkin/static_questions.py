@@ -1,650 +1,344 @@
-"""Static check-in question pool — 30 questions per student role (OA/OT/PSA).
+"""Static daily check-in MCQ pool — easy "brain icebreaker" questions per role.
 
-Reorganized from the former AI fallback question bank (tools/api/routers/checkin.py).
-Each role's 30 questions = its 20 role-specific topics + 10 of the shared
-general ophthalmology topics, selected for relevance to that role. Content
-is reused verbatim — no new questions were authored.
+Every entry is a multiple-choice question grounded in the SNEC knowledge base
+(Module 1 markdown, the skill checklists, and the OSCE scripts), tagged with its
+`source`. Difficulty is deliberately the easiest of all features (single-fact
+recall). Language is short and neutral.
 
-Used by GET /api/checkin/question via tools.shared.static_pools.pick_by_day_count
-to deterministically rotate each student through the full 30-question pool
-before any repeats.
+Shape:
+    {"topic", "question", "options": [4 strings], "answer": int,
+     "explanation", "source"}
+
+Convention: the CORRECT option is authored FIRST (answer index 0). The API
+(GET /api/checkin/question) shuffles option order per serve so the answer is not
+always in the same position, and grading is deterministic (selected option text
+== correct option text) — no AI marks the check-in.
+
+Role mapping (each question only touches its role's field of study):
+- OT  -> ophthalmic investigations / imaging field (OT_POOL).
+- OA and PSA study almost the same course, so they SHARE the clinical base
+  pool (CLINICAL_POOL): emergencies, triage, history, basic eye evaluation,
+  OPD skills, abbreviations.
+
+Served one-per-day, rotated so a student cycles the whole pool before repeats
+(tools.shared.static_pools.pick_by_day_count).
 """
 
+# ── Clinical base pool — OA + PSA (they study almost the same thing) ──────────
+CLINICAL_POOL: list[dict] = [
+    {"topic": "ocular emergencies", "question": "Which of these is classed as an ocular emergency?",
+     "options": ["Acute glaucoma", "Mild long-term floaters", "A stable squint", "Needing new glasses"], "answer": 0,
+     "explanation": "Acute glaucoma is one of the listed ocular emergencies.", "source": "Module 1 — Ocular Emergencies"},
+    {"topic": "chemical injury", "question": "The first step for a chemical splash to the eye is to:",
+     "options": ["Start irrigation immediately", "Patch the eye", "Book a routine clinic", "Give painkillers and wait"], "answer": 0,
+     "explanation": "Chemical injury is Triage Category 1 — irrigate immediately.", "source": "Module 1 — Triage (Cat 1)"},
+    {"topic": "triage", "question": "A Triage Category 1 case should be seen within:",
+     "options": ["10 minutes", "30 minutes", "2 hours", "1 day"], "answer": 0,
+     "explanation": "Category 1 (e.g. chemical burns, CRAO) is within 10 minutes.", "source": "Module 1 — Triage Categories"},
+    {"topic": "triage", "question": "Which condition is Triage Category 4 (within 2 hours)?",
+     "options": ["Conjunctivitis", "Chemical burn", "Penetrating eye injury", "Central retinal artery occlusion"], "answer": 0,
+     "explanation": "Conjunctivitis is a Category 4 minor/chronic condition.", "source": "Module 1 — Triage (Cat 4)"},
+    {"topic": "ocular emergencies", "question": "Sudden painless loss of vision should be treated as:",
+     "options": ["An emergency", "A routine review", "Normal ageing", "A minor issue"], "answer": 0,
+     "explanation": "Sudden painless visual loss (e.g. CRAO/CRVO) is an emergency.", "source": "Module 1 — Triage (Cat 1/2)"},
+    {"topic": "acute glaucoma", "question": "Acute angle-closure glaucoma typically shows a pupil that is:",
+     "options": ["Fixed and mid-dilated (large oval)", "Small and reactive", "Normal", "Constantly moving"], "answer": 0,
+     "explanation": "Acute glaucoma gives a fixed, mid-dilated oval pupil.", "source": "Module 1 — Ocular Emergencies"},
+    {"topic": "red eye", "question": "A red eye with marked discharge but no pain or photophobia is most likely:",
+     "options": ["Conjunctivitis", "Acute glaucoma", "Iritis", "Keratitis"], "answer": 0,
+     "explanation": "Marked discharge with no pain/photophobia points to conjunctivitis.", "source": "Module 1 — Red Eye DDx"},
+    {"topic": "red eye", "question": "In the red-eye comparison, marked photophobia is most typical of:",
+     "options": ["Iritis", "Conjunctivitis", "A normal eye", "A stye"], "answer": 0,
+     "explanation": "Iritis classically has marked photophobia.", "source": "Module 1 — Red Eye DDx"},
+    {"topic": "trauma", "question": "For a suspected penetrating eye injury you should:",
+     "options": ["Apply a shield and not press on the eye", "Irrigate forcefully", "Pad firmly", "Massage the eye"], "answer": 0,
+     "explanation": "Protect with a shield; do not put pressure on a penetrating injury.", "source": "Module 1 — Triage (Cat 1)"},
+    {"topic": "retinal detachment", "question": "New floaters and flashes, especially with a retinal history, should raise suspicion of:",
+     "options": ["Retinal detachment", "Conjunctivitis", "Dry eye", "Blepharitis"], "answer": 0,
+     "explanation": "Sudden floaters/flashes suggest possible retinal detachment.", "source": "Module 1 — Triage (Cat 3)"},
+    {"topic": "history taking", "question": "Severe eye pain with nausea and vomiting should make you consider:",
+     "options": ["Acute angle-closure glaucoma", "Dry eye", "A stye", "Allergy"], "answer": 0,
+     "explanation": "Severe pain + nausea/vomiting suggests acute angle-closure glaucoma.", "source": "Module 1 — Pain Assessment"},
+    {"topic": "history taking", "question": "Pain should be documented using a scale of:",
+     "options": ["0 to 10", "0 to 3", "1 to 100", "A to E"], "answer": 0,
+     "explanation": "Use a 0–10 pain scale.", "source": "Module 1 — Pain Assessment"},
+    {"topic": "history taking", "question": "Which family history is important to ask about in eye care?",
+     "options": ["Glaucoma", "Broken bones", "Hearing loss", "Tonsillitis"], "answer": 0,
+     "explanation": "Family history of glaucoma (and squint, etc.) is relevant.", "source": "Module 1 — Family History"},
+    {"topic": "history taking", "question": "Which medication is important to ask about because of bleeding risk?",
+     "options": ["Anti-coagulants", "Paracetamol", "Vitamin C", "Antacids"], "answer": 0,
+     "explanation": "Anti-coagulants matter for bleeding risk in eye care/surgery.", "source": "Module 1 — General Health History"},
+    {"topic": "history taking", "question": "When a patient reports reduced vision, an important question is whether it was:",
+     "options": ["Sudden or gradual", "Funny or sad", "Loud or quiet", "Hot or cold"], "answer": 0,
+     "explanation": "Establish if the visual change was sudden or gradual, one or both eyes.", "source": "Module 1 — Ocular History"},
+    {"topic": "visual acuity", "question": "Normal distance visual acuity on the Snellen chart is:",
+     "options": ["6/6", "6/60", "3/6", "20/200"], "answer": 0,
+     "explanation": "6/6 is normal distance acuity.", "source": "Module 1 — Visual Acuity"},
+    {"topic": "visual acuity", "question": "In '6/12', the bottom number refers to the distance at which a:",
+     "options": ["Normal eye could read that line", "Doctor stands", "Chart is stored", "Pupil dilates"], "answer": 0,
+     "explanation": "VA = testing distance / distance a normal eye reads the line.", "source": "Module 1 — Visual Acuity"},
+    {"topic": "visual acuity", "question": "By convention, which eye is tested first?",
+     "options": ["The right eye", "The left eye", "Both together", "Either, randomly"], "answer": 0,
+     "explanation": "Always start with the right eye by convention.", "source": "Module 1 — VA Procedure"},
+    {"topic": "pinhole", "question": "A pinhole is applied when vision is:",
+     "options": ["6/12 or above", "Always", "Only 6/6", "Never"], "answer": 0,
+     "explanation": "Use a pinhole if vision is 6/12 or above.", "source": "Module 1 — VA Procedure"},
+    {"topic": "pinhole", "question": "If vision improves with a pinhole, the cause is likely:",
+     "options": ["A refractive error", "Glaucoma", "A blocked tear duct", "A brain tumour"], "answer": 0,
+     "explanation": "Pinhole improvement indicates a refractive cause.", "source": "Module 1 — Pinhole Test"},
+    {"topic": "visual acuity", "question": "If a patient cannot read 6/60 at all, the next step is to:",
+     "options": ["Move to the 6/120 line", "Stop the test", "Dilate the pupil", "Switch off the lights"], "answer": 0,
+     "explanation": "Proceed to 6/120 if 6/60 cannot be read.", "source": "Module 1 — VA Scenarios"},
+    {"topic": "visual acuity", "question": "The correct order when vision is very poor is:",
+     "options": ["Count Fingers, Hand Movement, Perception of Light, NPL", "NPL, PL, HM, CF", "HM, CF, NPL, PL", "PL, HM, NPL, CF"], "answer": 0,
+     "explanation": "CF → HM → PL → NPL.", "source": "Module 1 — VA Scenarios"},
+    {"topic": "visual acuity", "question": "The E chart is useful for patients who:",
+     "options": ["Cannot read letters (children, non-readers)", "Wear glasses", "Have high IOP", "Are colour blind"], "answer": 0,
+     "explanation": "The E chart suits young children, illiterate or non-English-speaking patients.", "source": "Module 1 — VA Charts"},
+    {"topic": "near vision", "question": "The near vision chart is usually held at:",
+     "options": ["About 35 cm", "6 metres", "1 metre", "10 cm"], "answer": 0,
+     "explanation": "Near vision is tested at ~35 cm.", "source": "Module 1 — Near Vision"},
+    {"topic": "near vision", "question": "Normal near vision is recorded as:",
+     "options": ["N5", "N48", "6/6", "20/20"], "answer": 0,
+     "explanation": "N5 is the finest normal near print.", "source": "Module 1 — Near Vision"},
+    {"topic": "intraocular pressure", "question": "The normal range of intraocular pressure (IOP) is:",
+     "options": ["10–21 mmHg", "21–35 mmHg", "0–7 mmHg", "35–50 mmHg"], "answer": 0,
+     "explanation": "Normal IOP is about 10–21 mmHg.", "source": "Module 1 — IOP / NCT"},
+    {"topic": "tonometry", "question": "Non-contact tonometry (NCT) measures pressure using:",
+     "options": ["A puff of air", "A contact probe", "An eye drop", "A laser"], "answer": 0,
+     "explanation": "NCT uses an air puff.", "source": "Module 1 — IOP / NCT"},
+    {"topic": "tonometry", "question": "Before NCT you should ask the patient to:",
+     "options": ["Remove glasses or contact lenses", "Close both eyes", "Look away", "Hold their breath"], "answer": 0,
+     "explanation": "Glasses/contact lenses are removed before NCT.", "source": "Module 1 — NCT Procedure"},
+    {"topic": "infection control", "question": "Between patients, the key infection-control step is to:",
+     "options": ["Perform hand hygiene and wipe contact parts", "Change the chart", "Dim the lights", "Restart the computer"], "answer": 0,
+     "explanation": "Hand hygiene and wiping machine contact parts prevent cross-infection.", "source": "Module 1 — Procedures"},
+    {"topic": "auto-refraction", "question": "Auto-refraction provides an objective measure of:",
+     "options": ["Refractive error", "Eye pressure", "Colour vision", "Tear volume"], "answer": 0,
+     "explanation": "AR objectively measures refractive error.", "source": "Module 1 — Auto-Refraction"},
+    {"topic": "keratometry", "question": "Auto-keratometry measures the:",
+     "options": ["Corneal curvature", "Retinal thickness", "Visual field", "Pupil colour"], "answer": 0,
+     "explanation": "AK measures corneal curvature (used for IOL calculation).", "source": "Module 1 — Auto-Keratometry"},
+    {"topic": "colour vision", "question": "The Ishihara test screens for:",
+     "options": ["Colour vision deficiency", "Glaucoma", "Cataract", "Squint"], "answer": 0,
+     "explanation": "Ishihara plates screen for red-green colour deficiency.", "source": "Module 1 — Colour Vision"},
+    {"topic": "macular function", "question": "The Amsler grid is used to detect:",
+     "options": ["Central distortion (macular problems)", "High eye pressure", "Colour blindness", "Squint"], "answer": 0,
+     "explanation": "The Amsler grid detects central field distortion/metamorphopsia.", "source": "Module 1 — Amsler Grid"},
+    {"topic": "fall risk", "question": "Fall risk should be assessed in:",
+     "options": ["All patients at each visit", "Only children", "Only inpatients", "No one"], "answer": 0,
+     "explanation": "Assess every patient for fall risk at each visit.", "source": "Module 1 — Fall Risk"},
+    {"topic": "fall risk", "question": "Which patient is at higher fall risk?",
+     "options": ["A just-dilated, visually impaired elderly patient", "A young patient reading well", "A patient with new glasses", "A colour-blind patient"], "answer": 0,
+     "explanation": "Post-dilation, elderly and visually impaired patients are higher risk.", "source": "Module 1 — Fall Risk"},
+    {"topic": "eye drops", "question": "Before instilling any eye drop you must check the patient's:",
+     "options": ["Allergy status", "Shoe size", "Postcode", "Favourite colour"], "answer": 0,
+     "explanation": "Confirm the patient is not allergic before instilling.", "source": "Module 1 — Instillation of Eye Drops"},
+    {"topic": "eye drops", "question": "An eye drop is instilled into the:",
+     "options": ["Lower fornix (lower lid pocket)", "Centre of the cornea", "Upper lid skin", "Inner ear"], "answer": 0,
+     "explanation": "Pull the lower lid down and drop into the lower fornix.", "source": "Module 1 — Instillation of Eye Drops"},
+    {"topic": "eye drops", "question": "After instilling a drop you ask the patient to close the eye and:",
+     "options": ["Apply gentle pressure near the nose", "Rub firmly", "Blink hard 10 times", "Look at a bright light"], "answer": 0,
+     "explanation": "Gentle nasolacrimal pressure reduces systemic absorption.", "source": "Module 1 — Instillation of Eye Drops"},
+    {"topic": "dilation", "question": "Common dilating drops include:",
+     "options": ["Tropicamide and phenylephrine", "Timolol and latanoprost", "Saline and water", "Antibiotic ointment"], "answer": 0,
+     "explanation": "Tropicamide 1% and phenylephrine 2.5% are common mydriatics.", "source": "Module 1 — Pupil Dilation"},
+    {"topic": "dilation", "question": "After dilation, warn the patient about:",
+     "options": ["Blurred near vision and light sensitivity", "Hearing changes", "Loss of taste", "Permanent blindness"], "answer": 0,
+     "explanation": "Dilation blurs near vision and increases light sensitivity for 4–6 hours.", "source": "Module 1 — Pupil Dilation"},
+    {"topic": "dilation safety", "question": "Dilation should be discussed with the nurse/doctor first if the patient has:",
+     "options": ["Narrow angles", "Dry eyes", "Short sight", "Colour blindness"], "answer": 0,
+     "explanation": "Narrow angles are a contraindication — check before dilating.", "source": "Module 1 — Pupil Dilation"},
+    {"topic": "pre-operative", "question": "The dayward pre-op mnemonic 'DISM' stands for:",
+     "options": ["Diagnosis, Indication, Surgery, Medical condition", "Drop, Inject, Scan, Measure", "Distance, IOP, Sight, Macula", "Dilate, Irrigate, Suture, Monitor"], "answer": 0,
+     "explanation": "DISM = Diagnosis, Indication, Surgery planned, Medical conditions.", "source": "Module 1 — Dayward Pre-Op"},
+    {"topic": "post-operative", "question": "During post-op eye dressing you observe the lids, wound and:",
+     "options": ["Conjunctiva", "Eyebrows", "Hairline", "Earlobes"], "answer": 0,
+     "explanation": "Observe lids, conjunctiva and the wound section during dressing.", "source": "Module 1 — Post-Op Dressing"},
+    {"topic": "triaging", "question": "Triage is best described as:",
+     "options": ["Assessing patients to determine clinical priority", "Booking surgery", "Cleaning equipment", "Filing records"], "answer": 0,
+     "explanation": "Triage determines clinical priority.", "source": "Module 1 — Triaging"},
+    {"topic": "abbreviations", "question": "'OD' refers to the:",
+     "options": ["Right eye", "Left eye", "Both eyes", "Optic disc"], "answer": 0,
+     "explanation": "OD = oculus dexter = right eye.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'OS' refers to the:",
+     "options": ["Left eye", "Right eye", "Both eyes", "Outer sclera"], "answer": 0,
+     "explanation": "OS = oculus sinister = left eye.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'TCU' in clinic notes means:",
+     "options": ["To Come Up (follow-up)", "Total Cup Unit", "Treat Current Ulcer", "Two Colour Use"], "answer": 0,
+     "explanation": "TCU = To Come Up, the next follow-up appointment.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'IOL' stands for:",
+     "options": ["Intraocular Lens", "Inner Optic Layer", "Intraocular Light", "Iris Outer Line"], "answer": 0,
+     "explanation": "IOL = intraocular lens, implanted in cataract surgery.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'SCM' refers to the:",
+     "options": ["Electronic patient record system", "Slit-lamp camera", "Standard cornea map", "Surgical checklist"], "answer": 0,
+     "explanation": "SCM is the electronic patient record where results are documented.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'CRAO' stands for:",
+     "options": ["Central Retinal Artery Occlusion", "Corneal Refractive Angle Opacity", "Chronic Red Allergic Outbreak", "Central Retinal Anterior Opening"], "answer": 0,
+     "explanation": "CRAO = central retinal artery occlusion, a cause of sudden visual loss.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'AMD' stands for:",
+     "options": ["Age-Related Macular Degeneration", "Anterior Membrane Disorder", "Acute Macular Detachment", "Average Macular Density"], "answer": 0,
+     "explanation": "AMD = age-related macular degeneration.", "source": "Module 1 — Abbreviations"},
+]
+
+# ── Ophthalmic investigations pool — OT field ────────────────────────────────
+OT_POOL: list[dict] = [
+    {"topic": "a-scan biometry", "question": "A-scan biometry mainly measures the eye's:",
+     "options": ["Axial length", "Colour vision", "Visual field", "Tear film"], "answer": 0,
+     "explanation": "A-scan measures axial length for IOL power calculation.", "source": "Module 1 — A-Scan Biometry"},
+    {"topic": "a-scan biometry", "question": "A-scan biometry is mainly indicated for:",
+     "options": ["Pre-cataract IOL power calculation", "Glaucoma fields", "Colour vision testing", "Squint measurement"], "answer": 0,
+     "explanation": "It is used pre-cataract surgery for IOL power.", "source": "Module 1 — A-Scan Biometry"},
+    {"topic": "a-scan biometry", "question": "A-scan biometry uses:",
+     "options": ["Ultrasound", "X-ray", "An air puff", "A coloured filter"], "answer": 0,
+     "explanation": "A-scan is an ultrasound technique (contact or immersion).", "source": "Module 1 — A-Scan Biometry"},
+    {"topic": "optical biometry", "question": "Optical coherence biometry is best described as:",
+     "options": ["A non-contact biometry method", "A contact ultrasound", "A blood test", "A dilation drop"], "answer": 0,
+     "explanation": "Optical biometry is non-contact and accurate for IOL calculation.", "source": "Module 1 — Optical Coherence Biometry"},
+    {"topic": "optical biometry", "question": "An advantage of optical biometry over A-scan is that it is:",
+     "options": ["Non-contact and often more accurate", "Cheaper but less accurate", "Faster but contact-based", "Only for children"], "answer": 0,
+     "explanation": "Optical biometry is non-contact and more accurate in most eyes.", "source": "Module 1 — Optical Coherence Biometry"},
+    {"topic": "biometry", "question": "Biometry for cataract surgery measures axial length, corneal curvature and:",
+     "options": ["Anterior chamber depth", "Colour vision", "Eye movements", "Tear break-up time"], "answer": 0,
+     "explanation": "Optical biometry captures axial length, K and anterior chamber depth.", "source": "Module 1 — Optical Coherence Biometry"},
+    {"topic": "endothelial count", "question": "Endothelial cell count measures the density of cells in the:",
+     "options": ["Corneal endothelium", "Retina", "Optic nerve", "Eyelid"], "answer": 0,
+     "explanation": "It measures corneal endothelial cell density (cells/mm²).", "source": "Module 1 — Endothelial Cell Count"},
+    {"topic": "endothelial count", "question": "A normal endothelial cell count is generally:",
+     "options": ["Above 2000 cells/mm²", "Below 500 cells/mm²", "Exactly 100 cells/mm²", "Around 50 cells/mm²"], "answer": 0,
+     "explanation": "Normal is >2000 cells/mm²; concern if <1500.", "source": "Module 1 — Endothelial Cell Count"},
+    {"topic": "endothelial count", "question": "Endothelial cell count is commonly done before:",
+     "options": ["Cataract surgery", "A visual field test", "Colour vision testing", "A fall risk assessment"], "answer": 0,
+     "explanation": "Indications include pre-cataract surgery and Fuchs dystrophy.", "source": "Module 1 — Endothelial Cell Count"},
+    {"topic": "flare test", "question": "The flare eye test measures aqueous protein as an indicator of:",
+     "options": ["Intraocular inflammation", "Eye pressure", "Refractive error", "Tear volume"], "answer": 0,
+     "explanation": "Flare reflects protein in the anterior chamber — intraocular inflammation.", "source": "Module 1 — Flare Test"},
+    {"topic": "flare test", "question": "The flare test is mainly used to monitor:",
+     "options": ["Uveitis", "Cataract", "Squint", "Colour blindness"], "answer": 0,
+     "explanation": "It is used for uveitis and post-surgical inflammation.", "source": "Module 1 — Flare Test"},
+    {"topic": "hrt", "question": "Heidelberg Retinal Tomography (HRT) scans the:",
+     "options": ["Optic nerve head", "Cornea surface", "Eyelid", "Tear ducts"], "answer": 0,
+     "explanation": "HRT is 3D laser scanning of the optic nerve head / RNFL.", "source": "Module 1 — HRT"},
+    {"topic": "hrt", "question": "HRT is mainly indicated for:",
+     "options": ["Glaucoma diagnosis and monitoring", "Cataract grading", "Squint measurement", "Tear film testing"], "answer": 0,
+     "explanation": "HRT is used in glaucoma.", "source": "Module 1 — HRT"},
+    {"topic": "asoct", "question": "Anterior Segment OCT (ASOCT) images the:",
+     "options": ["Cornea, anterior chamber and angle", "Retina only", "Optic nerve only", "Eyelids"], "answer": 0,
+     "explanation": "ASOCT gives cross-sectional imaging of the anterior segment.", "source": "Module 1 — ASOCT"},
+    {"topic": "asoct", "question": "ASOCT is useful for assessing the drainage angle in:",
+     "options": ["Glaucoma", "Conjunctivitis", "Dry eye", "Colour blindness"], "answer": 0,
+     "explanation": "Angle assessment (glaucoma) is a key ASOCT indication.", "source": "Module 1 — ASOCT"},
+    {"topic": "hvf", "question": "The Humphrey Visual Field (HVF) test maps the patient's:",
+     "options": ["Visual field", "Eye pressure", "Corneal thickness", "Colour vision"], "answer": 0,
+     "explanation": "HVF is automated perimetry that maps field sensitivity.", "source": "Module 1 — HVF"},
+    {"topic": "hvf", "question": "The most common HVF programmes for glaucoma are:",
+     "options": ["24-2 or 30-2", "10-1 or 5-5", "60-4 only", "1-1"], "answer": 0,
+     "explanation": "24-2 or 30-2 (SITA Standard/Fast) are standard for glaucoma.", "source": "Module 1 — HVF"},
+    {"topic": "hvf", "question": "Which tells you whether an HVF test was reliable?",
+     "options": ["Fixation losses and false positive/negative rates", "The patient's age", "Room temperature", "The chart colour"], "answer": 0,
+     "explanation": "Reliability indices are fixation losses and false pos/neg.", "source": "Module 1 — HVF"},
+    {"topic": "hvf", "question": "An arcuate (Bjerrum) scotoma on a field points to:",
+     "options": ["Glaucoma", "A cataract", "Dry eye", "Conjunctivitis"], "answer": 0,
+     "explanation": "Arcuate/Bjerrum scotoma is a glaucomatous pattern.", "source": "Module 1 — HVF"},
+    {"topic": "hvf", "question": "A hemianopia (half-field loss) suggests a problem that is:",
+     "options": ["Neurological", "In the eyelid", "In the tear duct", "On the cornea"], "answer": 0,
+     "explanation": "Hemianopia points to a chiasm/optic tract (neurological) lesion.", "source": "Module 1 — HVF"},
+    {"topic": "gvf", "question": "Goldman Visual Field (GVF) testing is:",
+     "options": ["Manual kinetic perimetry", "An automated air-puff test", "An ultrasound scan", "A colour test"], "answer": 0,
+     "explanation": "GVF is manual kinetic perimetry mapping isopters.", "source": "Module 1 — GVF"},
+    {"topic": "gvf", "question": "A key advantage of GVF is that it can:",
+     "options": ["Test very large fields and uncooperative patients", "Replace cataract surgery", "Measure IOP", "Map the cornea"], "answer": 0,
+     "explanation": "GVF suits large fields and patients who cannot do automated tests.", "source": "Module 1 — GVF"},
+    {"topic": "pam", "question": "The Potential Acuity Meter (PAM) predicts:",
+     "options": ["Likely vision after cataract surgery", "Eye pressure", "Colour vision", "Tear volume"], "answer": 0,
+     "explanation": "PAM projects a chart onto the retina to predict post-op VA.", "source": "Module 1 — PAM"},
+    {"topic": "pam", "question": "PAM testing usually requires:",
+     "options": ["Pupil dilation", "An air puff", "A blood sample", "A contact lens"], "answer": 0,
+     "explanation": "Dilation is needed for PAM.", "source": "Module 1 — PAM"},
+    {"topic": "corneal topography", "question": "Corneal topography maps the cornea's:",
+     "options": ["Curvature and elevation", "Colour", "Pressure", "Tear volume"], "answer": 0,
+     "explanation": "Topography maps corneal curvature and elevation.", "source": "Module 1 — Corneal Topography"},
+    {"topic": "corneal topography", "question": "Corneal topography is commonly used to screen for:",
+     "options": ["Keratoconus and pre-LASIK suitability", "Glaucoma fields", "Colour blindness", "Cataract density"], "answer": 0,
+     "explanation": "Indications include keratoconus screening and pre-LASIK.", "source": "Module 1 — Corneal Topography"},
+    {"topic": "corneal topography", "question": "A keratoconus pattern on topography shows:",
+     "options": ["Inferior corneal steepening / asymmetric bow-tie", "A flat, regular cornea", "A normal symmetric map", "A clear lens"], "answer": 0,
+     "explanation": "Keratoconus shows inferior steepening and irregular astigmatism.", "source": "Module 1 — Corneal Topography"},
+    {"topic": "pentacam", "question": "A Pentacam scan maps the:",
+     "options": ["Cornea (shape and thickness)", "Retina", "Optic nerve", "Tear ducts"], "answer": 0,
+     "explanation": "Pentacam is Scheimpflug imaging of corneal shape and thickness.", "source": "OSCE — Pentacam"},
+    {"topic": "oct", "question": "'OCT' stands for:",
+     "options": ["Optical Coherence Tomography", "Ocular Contact Test", "Optic Curve Tracing", "Outer Cornea Test"], "answer": 0,
+     "explanation": "OCT = Optical Coherence Tomography.", "source": "Module 1 — Investigations"},
+    {"topic": "oct", "question": "An OCT scan is:",
+     "options": ["A non-contact scan of the retinal layers", "A contact ultrasound", "An eye-pressure test", "A blood test"], "answer": 0,
+     "explanation": "OCT is a non-contact optical scan of the retina/optic nerve.", "source": "OSCE — Cirrus OCT"},
+    {"topic": "macular oct", "question": "Increased central macular thickness with fluid on OCT suggests:",
+     "options": ["Macular oedema / fluid", "A healthy macula", "A cataract", "Dry eye"], "answer": 0,
+     "explanation": "Increased thickness with fluid indicates macular oedema.", "source": "OSCE — Cirrus OCT"},
+    {"topic": "rnfl", "question": "Thinning of the retinal nerve fibre layer (RNFL) on OCT is associated with:",
+     "options": ["Glaucoma", "Dry eye", "Conjunctivitis", "Refractive error"], "answer": 0,
+     "explanation": "RNFL thinning reflects the optic nerve damage of glaucoma.", "source": "OSCE — Cirrus OCT"},
+    {"topic": "intraocular pressure", "question": "The normal range of intraocular pressure is:",
+     "options": ["10–21 mmHg", "21–35 mmHg", "0–7 mmHg", "35–50 mmHg"], "answer": 0,
+     "explanation": "Normal IOP is about 10–21 mmHg.", "source": "Module 1 — IOP / NCT"},
+    {"topic": "basic evaluation", "question": "By convention, which eye is tested first?",
+     "options": ["The right eye", "The left eye", "Both together", "Either, randomly"], "answer": 0,
+     "explanation": "Start with the right eye by convention.", "source": "Module 1 — Basic Eye Evaluation"},
+    {"topic": "auto-refraction", "question": "Auto-refraction objectively measures:",
+     "options": ["Refractive error", "Eye pressure", "Colour vision", "Tear volume"], "answer": 0,
+     "explanation": "AR measures refractive error (myopia, hyperopia, astigmatism).", "source": "Module 1 — Auto-Refraction"},
+    {"topic": "keratometry", "question": "Auto-keratometry is especially important before:",
+     "options": ["Cataract surgery (IOL calculation)", "A colour vision test", "A fall risk assessment", "Lid hygiene"], "answer": 0,
+     "explanation": "AK measures corneal curvature for IOL power calculation.", "source": "Module 1 — Auto-Keratometry"},
+    {"topic": "biometry accuracy", "question": "An unstable tear film (dry eye) most affects which measurement?",
+     "options": ["Keratometry (K) readings", "Axial length only", "The patient's name", "Pupil colour"], "answer": 0,
+     "explanation": "Keratometry reads the front surface, so dry eye distorts K values.", "source": "OSCE — Optical biometer"},
+    {"topic": "dayward", "question": "The pre-op mnemonic 'DISM' stands for:",
+     "options": ["Diagnosis, Indication, Surgery, Medical condition", "Drop, Inject, Scan, Measure", "Distance, IOP, Sight, Macula", "Dilate, Irrigate, Suture, Monitor"], "answer": 0,
+     "explanation": "DISM = Diagnosis, Indication, Surgery planned, Medical conditions.", "source": "Module 1 — Dayward Pre-Op"},
+    {"topic": "anaesthesia", "question": "Anaesthesia for eye surgery may be GA, topical or:",
+     "options": ["Local anaesthesia (LA)", "Herbal", "Inhaled only", "None ever"], "answer": 0,
+     "explanation": "Types are GA, LA and topical.", "source": "Module 1 — Dayward / OT"},
+    {"topic": "dayward", "question": "Post-operative monitoring in dayward includes recording:",
+     "options": ["BP, RR and PR", "Colour vision", "Tear volume", "Glasses power"], "answer": 0,
+     "explanation": "Monitor blood pressure, respiratory rate and pulse rate.", "source": "Module 1 — Dayward Post-Op"},
+    {"topic": "abbreviations", "question": "'HVF' stands for:",
+     "options": ["Humphrey Visual Field", "High Vision Filter", "Half Visual Focus", "Hyperopia Vision Factor"], "answer": 0,
+     "explanation": "HVF = Humphrey Visual Field.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'GVF' stands for:",
+     "options": ["Goldman Visual Field", "Glaucoma Vision Filter", "General Visual Function", "Grey Visual Field"], "answer": 0,
+     "explanation": "GVF = Goldman Visual Field.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'HRT' stands for:",
+     "options": ["Heidelberg Retinal Tomography", "High Resolution Tonometry", "Hyperopic Refraction Test", "Hand-held Retinal Torch"], "answer": 0,
+     "explanation": "HRT = Heidelberg Retinal Tomography.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'ASOCT' stands for:",
+     "options": ["Anterior Segment Optical Coherence Tomography", "Auto-Scan Ocular Contact Test", "Angle Sweep Ocular CT", "Anterior Sclera Optic CT"], "answer": 0,
+     "explanation": "ASOCT = anterior segment OCT.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'PAM' stands for:",
+     "options": ["Potential Acuity Meter", "Pupil Angle Monitor", "Posterior Anterior Map", "Peripheral Acuity Measure"], "answer": 0,
+     "explanation": "PAM = Potential Acuity Meter.", "source": "Module 1 — Abbreviations"},
+    {"topic": "abbreviations", "question": "'RNFL' stands for:",
+     "options": ["Retinal Nerve Fibre Layer", "Refractive Near Focus Lens", "Retinal Normal Fluid Level", "Rapid Non-contact Field Light"], "answer": 0,
+     "explanation": "RNFL = retinal nerve fibre layer.", "source": "Module 1 — Abbreviations"},
+    {"topic": "imaging quality", "question": "If a scan shows motion artefact or the patient blinked, you should:",
+     "options": ["Repeat the scan", "Accept it anyway", "Delete the record", "Lower the lights only"], "answer": 0,
+     "explanation": "Poor-quality captures should be repeated.", "source": "OSCE — imaging scripts"},
+    {"topic": "patient safety", "question": "Before any scan you must confirm the patient's identity and the:",
+     "options": ["Correct eye / test ordered", "Weather", "Lunch time", "Wi-Fi password"], "answer": 0,
+     "explanation": "Confirm identity and the correct eye/test before scanning.", "source": "OSCE — imaging scripts"},
+    {"topic": "scope of practice", "question": "If a scan shows an abnormality, the technician should:",
+     "options": ["Report the findings to the doctor", "Diagnose and prescribe", "Tell the patient the diagnosis", "Ignore it"], "answer": 0,
+     "explanation": "Technicians report findings; the doctor diagnoses.", "source": "Module 1 — Investigations"},
+    {"topic": "optical biometry", "question": "Besides cataract surgery, optical biometry can also be used for:",
+     "options": ["Contact lens fitting", "Colour vision testing", "Fall risk scoring", "Lid hygiene"], "answer": 0,
+     "explanation": "Optical biometry is also indicated for contact lens fitting.", "source": "Module 1 — Optical Coherence Biometry"},
+]
+
+# OA and PSA share the clinical base (they study almost the same course);
+# OT gets the ophthalmic investigations pool.
 CHECKIN_QUESTION_POOL: dict[str, list[dict]] = {
-    "OA": [
-        {
-            "topic": "IOP measurement technique",
-            "question": (
-                "A patient is being prepared for routine glaucoma monitoring. What is the normal IOP range in mmHg, "
-                "and what are three key steps you must complete before measuring IOP to ensure an accurate reading?"
-            ),
-        },
-        {
-            "topic": "Goldmann tonometry",
-            "question": (
-                "During Goldmann applanation tonometry, you notice the fluorescein mires are not aligned correctly. "
-                "Describe how to achieve proper mire alignment and state the endpoint you are looking for."
-            ),
-        },
-        {
-            "topic": "non-contact tonometry",
-            "question": (
-                "You are performing NCT and keep getting inconsistent readings across three attempts. "
-                "What are two common causes of unreliable NCT results, and when would you refer the patient for Goldmann tonometry instead?"
-            ),
-        },
-        {
-            "topic": "pupil dilation procedure",
-            "question": (
-                "Before instilling dilating drops, what three contraindications must you check for, "
-                "and what do you tell the patient to expect in terms of vision changes and duration of effect?"
-            ),
-        },
-        {
-            "topic": "dilating drops and contraindications",
-            "question": (
-                "A patient mentions they have a narrow drainage angle. Which class of dilating drops is absolutely contraindicated, "
-                "and why? Name one alternative procedure you could perform without dilating."
-            ),
-        },
-        {
-            "topic": "visual acuity testing",
-            "question": (
-                "You are testing distance VA on an elderly patient who struggles to read the chart. "
-                "Describe the correction-in-use protocol and at what point you would switch to a pinhole occluder."
-            ),
-        },
-        {
-            "topic": "Snellen chart technique",
-            "question": (
-                "A patient achieves 6/9 vision with their glasses. Explain what this fraction means, "
-                "at what distance the chart should be placed, and how you would document this finding in the EMR."
-            ),
-        },
-        {
-            "topic": "pinhole test",
-            "question": (
-                "A patient's unaided VA is 6/18 but improves to 6/6 with pinhole. "
-                "What does this tell you about the likely cause of their reduced vision, and what is the clinical significance?"
-            ),
-        },
-        {
-            "topic": "patient history taking",
-            "question": (
-                "A patient presents with sudden onset floaters in the right eye. "
-                "List five key questions you must ask in the history, and which symptom — if also present — would prompt immediate escalation."
-            ),
-        },
-        {
-            "topic": "chief complaint documentation",
-            "question": (
-                "You are documenting a patient's presenting complaint of sudden blurred vision in the right eye. "
-                "What six key elements must be captured in the history of presenting complaint for the ophthalmologist's review?"
-            ),
-        },
-        {
-            "topic": "pre-operative checklist",
-            "question": (
-                "A patient is scheduled for cataract surgery on the right eye. "
-                "List four items on the pre-operative checklist that you, as an OA, are responsible for confirming on the day of surgery."
-            ),
-        },
-        {
-            "topic": "post-operative instructions",
-            "question": (
-                "After uncomplicated cataract surgery, what are the three most important post-operative instructions "
-                "you must give the patient regarding activity restrictions and warning signs requiring urgent review?"
-            ),
-        },
-        {
-            "topic": "anterior chamber assessment",
-            "question": (
-                "Using the pen-torch test, how do you assess anterior chamber depth as shallow or deep? "
-                "What finding would make you reluctant to dilate this patient?"
-            ),
-        },
-        {
-            "topic": "confrontation visual field test",
-            "question": (
-                "Describe how you perform a confrontation visual field test. "
-                "If you detect a temporal field defect in the left eye only, what does this localise in the visual pathway?"
-            ),
-        },
-        {
-            "topic": "colour vision testing",
-            "question": (
-                "You are administering the Ishihara test to a patient referred for possible optic neuritis. "
-                "How many plates do you show, and what pattern of failure would be consistent with an acquired dyschromatopsia?"
-            ),
-        },
-        {
-            "topic": "Amsler grid",
-            "question": (
-                "A patient with known AMD is asked to use the Amsler grid at home. "
-                "Describe the correct viewing conditions and the two abnormal findings the patient should immediately report to the clinic."
-            ),
-        },
-        {
-            "topic": "cover-uncover test",
-            "question": (
-                "Describe how you perform the cover-uncover test and the alternate cover test. "
-                "What specific eye movement on uncovering indicates a tropia versus a phoria?"
-            ),
-        },
-        {
-            "topic": "documentation and EMR entry",
-            "question": (
-                "You notice a previous IOP entry in the EMR appears to have been entered for the wrong eye. "
-                "What is the correct process for amending a clinical record, and what must never be done?"
-            ),
-        },
-        {
-            "topic": "infection control in ophthalmology",
-            "question": (
-                "Between slit-lamp examinations on different patients, what are the standard infection control steps "
-                "you must complete for the chin rest, forehead rest, and any contact instruments?"
-            ),
-        },
-        {
-            "topic": "patient consent and counselling",
-            "question": (
-                "A patient refuses pupil dilation because they are worried about driving home. "
-                "How do you counsel them about the risks and alternatives, and what must be documented if they decline?"
-            ),
-        },
-        {
-            "topic": "anatomy of the anterior segment",
-            "question": (
-                "Name the five main structures of the anterior segment in order from most anterior to most posterior, "
-                "and state the primary function of the corneal endothelium."
-            ),
-        },
-        {
-            "topic": "common causes of red eye",
-            "question": (
-                "A patient presents with unilateral red eye, photophobia, and reduced vision. "
-                "Rank these four conditions in order of clinical urgency: conjunctivitis, corneal ulcer, acute anterior uveitis, acute angle-closure glaucoma."
-            ),
-        },
-        {
-            "topic": "acute angle-closure glaucoma",
-            "question": (
-                "A patient presents with sudden headache, nausea, haloes around lights, and a rock-hard eye on palpation. "
-                "What is the likely diagnosis, and what is the first pharmacological treatment given to rapidly lower IOP?"
-            ),
-        },
-        {
-            "topic": "cataract grading and management",
-            "question": (
-                "Using the LOCS III system, what three lens parameters are graded? "
-                "At what point does the clinician typically recommend surgery — based on symptoms, objective grade, or both?"
-            ),
-        },
-        {
-            "topic": "corneal abrasion management",
-            "question": (
-                "A contact lens wearer presents with a painful, photophobic red eye and a 3×3 mm fluorescein-positive epithelial defect centrally. "
-                "List three management steps and one specific follow-up instruction."
-            ),
-        },
-        {
-            "topic": "retinal detachment symptoms",
-            "question": (
-                "A patient calls to report new floaters, flashes of light, and a dark curtain in their peripheral vision. "
-                "Which symptom is most alarming, and what is the appropriate clinical response within the same day?"
-            ),
-        },
-        {
-            "topic": "refractive errors overview",
-            "question": (
-                "Differentiate myopia, hyperopia, and astigmatism by where the focal point falls relative to the retina. "
-                "For each, state the type of corrective lens used."
-            ),
-        },
-        {
-            "topic": "fluorescein staining",
-            "question": (
-                "During slit-lamp examination with fluorescein, a triangular staining area is seen nasally near the limbus. "
-                "What is the likely diagnosis, and what does cobalt blue filter illumination reveal about corneal epithelial integrity?"
-            ),
-        },
-        {
-            "topic": "emergency ocular trauma",
-            "question": (
-                "A patient presents with a penetrating eye injury from a wire. "
-                "List three things you must NOT do at initial assessment, and describe the appropriate first-aid and referral pathway."
-            ),
-        },
-        {
-            "topic": "uveitis classification",
-            "question": (
-                "Using anatomical location, classify uveitis into four types and describe the hallmark slit-lamp finding for anterior uveitis. "
-                "Which systemic condition is most commonly associated with HLA-B27 and recurrent uveitis?"
-            ),
-        },
-    ],
-    "OT": [
-        {
-            "topic": "A-scan biometry",
-            "question": (
-                "You are performing A-scan biometry on a pseudophakic eye for IOL power calculation. "
-                "What mode should the ultrasound be set to, and why does the sound velocity setting matter for accuracy?"
-            ),
-        },
-        {
-            "topic": "IOL power calculation",
-            "question": (
-                "A patient has an axial length of 22.5 mm and corneal power (K) of 44.0 / 44.5 D. "
-                "Would you expect a higher or lower IOL power compared to a 24 mm eye, and why?"
-            ),
-        },
-        {
-            "topic": "AL measurement",
-            "question": (
-                "You obtain three axial length readings of 23.42, 23.44, and 23.80 mm. "
-                "Which reading is an outlier, and what is the maximum acceptable standard deviation before you must re-measure?"
-            ),
-        },
-        {
-            "topic": "Humphrey Visual Field interpretation",
-            "question": (
-                "On a Humphrey 24-2 report, you see fixation losses of 4/18, false positives of 28%, and false negatives of 12%. "
-                "Which reliability index most significantly invalidates the test, and why?"
-            ),
-        },
-        {
-            "topic": "glaucoma HVF patterns",
-            "question": (
-                "Describe the typical Humphrey visual field pattern associated with an early superior arcuate scotoma in glaucoma. "
-                "Which area of the optic nerve fibre layer does this correspond to?"
-            ),
-        },
-        {
-            "topic": "OCT retinal nerve fibre layer",
-            "question": (
-                "An OCT RNFL report shows a red sector at 7 o'clock in the left eye on the deviation map. "
-                "What quadrant of the RNFL does this represent, and how does this correlate to glaucoma staging?"
-            ),
-        },
-        {
-            "topic": "OCT macular scan interpretation",
-            "question": (
-                "An OCT macular scan shows a hyporeflective space between the neurosensory retina and the RPE. "
-                "What condition does this suggest, and which measurement is used to monitor treatment response?"
-            ),
-        },
-        {
-            "topic": "corneal topography and Ks",
-            "question": (
-                "A patient's Pentacam shows SimK values of 42.5 D @ 90° and 48.2 D @ 180°. "
-                "Calculate the astigmatism magnitude and state whether this is with-the-rule or against-the-rule astigmatism."
-            ),
-        },
-        {
-            "topic": "specular microscopy ECC",
-            "question": (
-                "A pre-cataract patient has an endothelial cell count (ECC) of 1,200 cells/mm². "
-                "What is the clinical significance, and at what ECC threshold would you flag concern for corneal decompensation post-operatively?"
-            ),
-        },
-        {
-            "topic": "pachymetry and central corneal thickness",
-            "question": (
-                "A LASIK candidate has a central corneal thickness (CCT) of 490 µm. "
-                "How does this affect IOP measurement reliability, and what is the minimum residual stromal bed required post-ablation?"
-            ),
-        },
-        {
-            "topic": "fluorescein angiography",
-            "question": (
-                "During fluorescein angiography, the patient suddenly reports nausea and urticaria. "
-                "List your immediate steps and identify which reaction requires emergency epinephrine administration."
-            ),
-        },
-        {
-            "topic": "B-scan ultrasonography",
-            "question": (
-                "The ophthalmologist requests a B-scan on a patient with a dense cataract and no red reflex. "
-                "What two posterior segment conditions are you specifically trying to exclude, and in what scanning position would you best detect a retinal detachment?"
-            ),
-        },
-        {
-            "topic": "slit-lamp biomicroscopy technique",
-            "question": (
-                "You are setting up the slit-lamp for an anterior segment examination. "
-                "Describe the correct patient positioning, initial illumination settings, and the first structure to examine systematically."
-            ),
-        },
-        {
-            "topic": "gonioscopy principles",
-            "question": (
-                "Using the Shaffer grading system in gonioscopy, what grade would you assign if the trabecular meshwork is visible "
-                "but the scleral spur cannot be identified? What is the clinical implication of this grade?"
-            ),
-        },
-        {
-            "topic": "contact lens fitting",
-            "question": (
-                "A patient is being fitted with a rigid gas-permeable lens. "
-                "Describe the fluorescein pattern that indicates ideal central fitting, and what adjustment you would make if the lens shows a flat fit centrally."
-            ),
-        },
-        {
-            "topic": "anterior segment OCT",
-            "question": (
-                "Anterior segment OCT shows an anterior chamber depth of 2.1 mm. "
-                "What condition does this raise concern for, and how does this finding influence the decision to dilate the patient?"
-            ),
-        },
-        {
-            "topic": "refraction and keratometry",
-            "question": (
-                "A patient's manifest refraction is −2.50 / −1.00 × 180 and keratometry reads 42.50 D @ 90° / 43.50 D @ 180°. "
-                "Is there significant residual refractive astigmatism, and what does this suggest about lenticular astigmatism?"
-            ),
-        },
-        {
-            "topic": "retinal imaging and fundus photography",
-            "question": (
-                "You are capturing fundus photographs for diabetic retinal screening. "
-                "List three image quality criteria to check before accepting the image, and state the ETDRS protocol for number and position of fields required."
-            ),
-        },
-        {
-            "topic": "ERG principles",
-            "question": (
-                "A patient is referred for a full-field ERG. "
-                "Describe what the a-wave and b-wave represent, and what diagnosis you would consider if the ERG shows a markedly reduced b-wave with a relatively preserved a-wave."
-            ),
-        },
-        {
-            "topic": "tear film assessment and TBUT",
-            "question": (
-                "You perform a tear break-up time (TBUT) on a patient with ocular surface discomfort. "
-                "What value is considered abnormally low, and how does the pattern of break-up (central vs peripheral) help distinguish aqueous-deficient from evaporative dry eye?"
-            ),
-        },
-        {
-            "topic": "anatomy of the posterior segment",
-            "question": (
-                "Describe the retinal layers from innermost to outermost, "
-                "and identify which layer is affected first in age-related macular degeneration."
-            ),
-        },
-        {
-            "topic": "acute angle-closure glaucoma",
-            "question": (
-                "A patient presents with sudden headache, nausea, haloes around lights, and a rock-hard eye on palpation. "
-                "What is the likely diagnosis, and what is the first pharmacological treatment given to rapidly lower IOP?"
-            ),
-        },
-        {
-            "topic": "diabetic retinopathy staging",
-            "question": (
-                "Using the ETDRS classification, distinguish between moderate NPDR and severe NPDR using the 4-2-1 rule. "
-                "What single finding marks the transition from severe NPDR to proliferative diabetic retinopathy?"
-            ),
-        },
-        {
-            "topic": "age-related macular degeneration",
-            "question": (
-                "Describe the difference between dry and wet AMD in terms of fundoscopic appearance, speed of progression, "
-                "and currently available treatment options."
-            ),
-        },
-        {
-            "topic": "cataract grading and management",
-            "question": (
-                "Using the LOCS III system, what three lens parameters are graded? "
-                "At what point does the clinician typically recommend surgery — based on symptoms, objective grade, or both?"
-            ),
-        },
-        {
-            "topic": "retinal detachment symptoms",
-            "question": (
-                "A patient calls to report new floaters, flashes of light, and a dark curtain in their peripheral vision. "
-                "Which symptom is most alarming, and what is the appropriate clinical response within the same day?"
-            ),
-        },
-        {
-            "topic": "optic nerve assessment",
-            "question": (
-                "On fundoscopy, the optic disc appears pale with a cup-to-disc ratio of 0.8. "
-                "What two conditions does this raise concern for, and which additional investigation would you request to evaluate the visual pathway?"
-            ),
-        },
-        {
-            "topic": "strabismus basics",
-            "question": (
-                "What is the difference between a manifest strabismus (tropia) and a latent strabismus (phoria)? "
-                "Describe one clinical test that distinguishes them and the specific finding that confirms each."
-            ),
-        },
-        {
-            "topic": "ocular pharmacology",
-            "question": (
-                "A patient starts long-term chloroquine therapy for rheumatoid arthritis. "
-                "What ophthalmic side effect must be monitored, and how frequently should eye screening occur?"
-            ),
-        },
-        {
-            "topic": "uveitis classification",
-            "question": (
-                "Using anatomical location, classify uveitis into four types and describe the hallmark slit-lamp finding for anterior uveitis. "
-                "Which systemic condition is most commonly associated with HLA-B27 and recurrent uveitis?"
-            ),
-        },
-    ],
-    "PSA": [
-        {
-            "topic": "non-contact tonometry procedure",
-            "question": (
-                "You are about to perform NCT on a patient wearing soft contact lenses. "
-                "What must you instruct the patient to do before the test, and how many valid readings per eye should you record?"
-            ),
-        },
-        {
-            "topic": "LogMAR visual acuity",
-            "question": (
-                "A patient scores 3 errors on the 0.1 LogMAR line and 1 error on the 0.2 line. "
-                "What is their final recorded LogMAR score? Convert this to an approximate Snellen equivalent."
-            ),
-        },
-        {
-            "topic": "ETDRS chart",
-            "question": (
-                "The ETDRS chart is repositioned to 1 metre because the patient cannot read the top letter at 4 metres. "
-                "Explain how you adjust the score to give the equivalent LogMAR result at 4 metres."
-            ),
-        },
-        {
-            "topic": "near visual acuity testing",
-            "question": (
-                "A patient presents with difficulty reading fine print. "
-                "Describe how you set up near visual acuity testing, specifying the test distance, correction used, and lighting conditions required."
-            ),
-        },
-        {
-            "topic": "eye drop instillation technique",
-            "question": (
-                "A patient requires pilocarpine drops but is anxious about self-instillation. "
-                "Describe the correct instillation technique step by step, including how to minimise systemic absorption and prevent cross-contamination between eyes."
-            ),
-        },
-        {
-            "topic": "patient fall risk assessment",
-            "question": (
-                "You are assessing an elderly patient with known bilateral low vision and a walking frame. "
-                "Identify three environmental risk factors in the clinic you should modify, and two mobility assessments relevant to fall risk."
-            ),
-        },
-        {
-            "topic": "PFAER documentation",
-            "question": (
-                "A patient scores 3 on the PFAER. What level of fall risk does this represent, "
-                "and what three specific interventions must be documented and initiated before the patient is mobilised?"
-            ),
-        },
-        {
-            "topic": "wheelchair and mobility assistance",
-            "question": (
-                "You are assisting a visually impaired patient who prefers to walk rather than use a wheelchair. "
-                "Describe the correct sighted-guide technique, and state when you must insist on wheelchair transfer instead."
-            ),
-        },
-        {
-            "topic": "queue management and patient flow",
-            "question": (
-                "The clinic is running 45 minutes behind schedule. A patient who has been waiting 2 hours becomes frustrated and raises their voice. "
-                "Describe your communication approach and the two escalation steps if the delay extends further."
-            ),
-        },
-        {
-            "topic": "ophthalmic emergency triage",
-            "question": (
-                "A patient walks in reporting sudden unilateral vision loss in the right eye that started 30 minutes ago. "
-                "What is your immediate priority action, and which two diagnoses require ophthalmologist review within 30 minutes?"
-            ),
-        },
-        {
-            "topic": "appointment scheduling and referrals",
-            "question": (
-                "A GP referral for routine cataract assessment has no urgency flagged. "
-                "Under what circumstances would you escalate the booking to a priority slot, and what referral information must be confirmed before scheduling?"
-            ),
-        },
-        {
-            "topic": "patient identification protocols",
-            "question": (
-                "Before instilling dilating drops in the left eye, what three patient identification checks must you perform, "
-                "and how do you confirm you are treating the correct eye?"
-            ),
-        },
-        {
-            "topic": "informed consent for imaging",
-            "question": (
-                "A patient declines fluorescein angiography after you explain the procedure and its risks. "
-                "What must be documented, and who has the authority to override a patient's informed refusal?"
-            ),
-        },
-        {
-            "topic": "infection control hand hygiene",
-            "question": (
-                "State the WHO five moments of hand hygiene as they apply to an ophthalmic clinic setting. "
-                "In which moment is alcohol hand rub insufficient and soap-and-water washing is required instead?"
-            ),
-        },
-        {
-            "topic": "handling anxious or visually impaired patients",
-            "question": (
-                "A patient who is functionally blind in both eyes arrives unaccompanied for their appointment. "
-                "Describe the communication adjustments and physical assistance you must provide from reception to the consultation chair."
-            ),
-        },
-        {
-            "topic": "billing codes for ophthalmic procedures",
-            "question": (
-                "A patient has undergone NCT, LogMAR testing, and OCT in the same visit. "
-                "What documentation is required to support accurate billing, and what is a PSA's responsibility if they identify a potential coding error?"
-            ),
-        },
-        {
-            "topic": "pre-visit instructions",
-            "question": (
-                "A patient booked for a Humphrey visual field test calls to ask whether to take their glaucoma drops before coming. "
-                "What is the correct advice, and what other pre-visit instructions are standard for this test?"
-            ),
-        },
-        {
-            "topic": "post-dilation patient safety",
-            "question": (
-                "A patient has received 1% tropicamide and 2.5% phenylephrine for dilation. "
-                "When is it generally safe for the patient to drive, and what two written instructions must be given before they leave?"
-            ),
-        },
-        {
-            "topic": "spectacle dispensing basics",
-            "question": (
-                "A patient's prescription reads +2.00 / −0.75 × 90 for the right eye. "
-                "In lay terms, describe what this correction means and one daily activity where they will most notice the improvement."
-            ),
-        },
-        {
-            "topic": "low vision aids overview",
-            "question": (
-                "A patient with best corrected VA of 6/60 due to AMD is referred for low vision assessment. "
-                "Name two optical aids and two non-optical aids that might improve daily functioning, and what determines which is most appropriate."
-            ),
-        },
-        {
-            "topic": "anatomy of the anterior segment",
-            "question": (
-                "Name the five main structures of the anterior segment in order from most anterior to most posterior, "
-                "and state the primary function of the corneal endothelium."
-            ),
-        },
-        {
-            "topic": "common causes of red eye",
-            "question": (
-                "A patient presents with unilateral red eye, photophobia, and reduced vision. "
-                "Rank these four conditions in order of clinical urgency: conjunctivitis, corneal ulcer, acute anterior uveitis, acute angle-closure glaucoma."
-            ),
-        },
-        {
-            "topic": "acute angle-closure glaucoma",
-            "question": (
-                "A patient presents with sudden headache, nausea, haloes around lights, and a rock-hard eye on palpation. "
-                "What is the likely diagnosis, and what is the first pharmacological treatment given to rapidly lower IOP?"
-            ),
-        },
-        {
-            "topic": "age-related macular degeneration",
-            "question": (
-                "Describe the difference between dry and wet AMD in terms of fundoscopic appearance, speed of progression, "
-                "and currently available treatment options."
-            ),
-        },
-        {
-            "topic": "corneal abrasion management",
-            "question": (
-                "A contact lens wearer presents with a painful, photophobic red eye and a 3×3 mm fluorescein-positive epithelial defect centrally. "
-                "List three management steps and one specific follow-up instruction."
-            ),
-        },
-        {
-            "topic": "refractive errors overview",
-            "question": (
-                "Differentiate myopia, hyperopia, and astigmatism by where the focal point falls relative to the retina. "
-                "For each, state the type of corrective lens used."
-            ),
-        },
-        {
-            "topic": "ocular pharmacology",
-            "question": (
-                "A patient starts long-term chloroquine therapy for rheumatoid arthritis. "
-                "What ophthalmic side effect must be monitored, and how frequently should eye screening occur?"
-            ),
-        },
-        {
-            "topic": "fluorescein staining",
-            "question": (
-                "During slit-lamp examination with fluorescein, a triangular staining area is seen nasally near the limbus. "
-                "What is the likely diagnosis, and what does cobalt blue filter illumination reveal about corneal epithelial integrity?"
-            ),
-        },
-        {
-            "topic": "emergency ocular trauma",
-            "question": (
-                "A patient presents with a penetrating eye injury from a wire. "
-                "List three things you must NOT do at initial assessment, and describe the appropriate first-aid and referral pathway."
-            ),
-        },
-        {
-            "topic": "uveitis classification",
-            "question": (
-                "Using anatomical location, classify uveitis into four types and describe the hallmark slit-lamp finding for anterior uveitis. "
-                "Which systemic condition is most commonly associated with HLA-B27 and recurrent uveitis?"
-            ),
-        },
-    ],
+    "OA": CLINICAL_POOL,
+    "PSA": CLINICAL_POOL,
+    "OT": OT_POOL,
 }
