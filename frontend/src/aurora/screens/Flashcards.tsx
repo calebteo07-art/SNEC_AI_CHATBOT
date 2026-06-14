@@ -73,7 +73,7 @@ export function Flashcards() {
 
   const generating = sessionCards.length === 0 && apiLoading;
   const [idx, setIdx] = useState(0);
-  const [revealed, setRevealed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [userAttempt, setUserAttempt] = useState("");
   const [aiFeedback, setAiFeedback] = useState<AiFeedback | null>(null);
   const [aiChecking, setAiChecking] = useState(false);
@@ -91,24 +91,26 @@ export function Flashcards() {
 
   const card = cards[idx];
 
-  const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setRevealed(false); };
+  const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); };
 
-  const checkWithAi = (attempt: string) => {
-    if (!attempt.trim() || aiFeedback || !card) return;
+  // Answering is compulsory: the typed attempt is submitted, the AI grades it
+  // against the crafted model answer (the card's KB-grounded back), and only then
+  // is the model answer revealed for comparison. A grading failure still lets the
+  // student see the model answer and continue.
+  const submitAnswer = () => {
+    if (!userAttempt.trim() || submitted || !card) return;
+    setSubmitted(true);
     setAiChecking(true);
     checkCard.mutate(
       {
-        question: card.question, student_answer: attempt, correct_answer: card.answer,
+        question: card.question, student_answer: userAttempt, correct_answer: card.answer,
         card_id: card.card_id, repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
       },
-      { onSuccess: (d) => { setAiFeedback(d); setAiChecking(false); }, onError: () => setAiChecking(false) },
+      {
+        onSuccess: (d) => { setAiFeedback(d); setAiChecking(false); },
+        onError: () => setAiChecking(false),
+      },
     );
-  };
-
-  const reveal = () => {
-    if (revealed) return;
-    if (userAttempt.trim() && !aiFeedback) checkWithAi(userAttempt);
-    setRevealed(true);
   };
 
   const handleRating = (value: number) => {
@@ -246,49 +248,67 @@ export function Flashcards() {
             <span className="aurora-deck-topic">{card.tag} · {deckTitle}</span>
             <p className="aurora-deck-q">{card.question}</p>
 
-            {!revealed && (
+            {!submitted && (
               <>
                 <textarea
                   className="aurora-deck-recall"
                   value={userAttempt}
                   onChange={(e) => setUserAttempt(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) { e.preventDefault(); reveal(); } }}
-                  placeholder="Write your answer before revealing — optional, but builds retention"
+                  onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) { e.preventDefault(); submitAnswer(); } }}
+                  placeholder="Type your answer — you must answer before it's graded"
                   rows={3}
+                  aria-label="Your answer"
                 />
-                <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn" onClick={reveal}><span>Reveal answer</span></button>
+                <button
+                  type="button"
+                  className="aurora-cta aurora-flow aurora-reveal-btn"
+                  onClick={submitAnswer}
+                  disabled={!userAttempt.trim()}
+                >
+                  <span>Submit for grading</span>
+                </button>
+                {!userAttempt.trim() && <p className="aurora-recall-hint">Answering is required — this is active recall.</p>}
               </>
             )}
 
-            {revealed && (
+            {submitted && (
               <>
-                <div className="aurora-answer">
-                  <span className="aurora-answer-label">Answer</span>
-                  <p>{card.answer}</p>
+                <div className="aurora-answer aurora-your-answer">
+                  <span className="aurora-answer-label">Your answer</span>
+                  <p>{userAttempt}</p>
                 </div>
 
-                {(aiChecking || aiFeedback) && (
-                  <div className="aurora-feedback">
-                    {aiChecking ? (
-                      <p className="aurora-muted">Reviewing your answer…</p>
-                    ) : aiFeedback ? (
-                      <>
-                        <span className="aurora-feedback-head">Tutor · {aiFeedback.score}/10</span>
-                        <p>{aiFeedback.feedback}</p>
-                      </>
-                    ) : null}
-                  </div>
+                {aiChecking ? (
+                  <div className="aurora-feedback"><p className="aurora-muted">Grading your answer…</p></div>
+                ) : (
+                  <>
+                    <div className="aurora-feedback">
+                      {aiFeedback ? (
+                        <>
+                          <span className="aurora-feedback-head">Tutor · {aiFeedback.score}/10</span>
+                          <p>{aiFeedback.feedback}</p>
+                        </>
+                      ) : (
+                        <p className="aurora-muted">Couldn&apos;t grade automatically — compare your answer with the model answer below.</p>
+                      )}
+                    </div>
+
+                    <div className="aurora-answer">
+                      <span className="aurora-answer-label">Model answer</span>
+                      <p>{card.answer}</p>
+                    </div>
+
+                    <p className="aurora-rate-head">How well did you recall this?</p>
+                    <div className="aurora-rate-grid">
+                      {RATINGS.map((r) => (
+                        <button key={r.label} type="button" className="aurora-rate" style={{ backgroundImage: r.grad }} onClick={() => handleRating(r.value)}>
+                          <span className="aurora-rate-label">{r.label}</span>
+                          <span className="aurora-rate-cap">{r.cap}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
-
-                <p className="aurora-rate-head">How well did you recall this?</p>
-                <div className="aurora-rate-grid">
-                  {RATINGS.map((r) => (
-                    <button key={r.label} type="button" className="aurora-rate" style={{ backgroundImage: r.grad }} onClick={() => handleRating(r.value)}>
-                      <span className="aurora-rate-label">{r.label}</span>
-                      <span className="aurora-rate-cap">{r.cap}</span>
-                    </button>
-                  ))}
-                </div>
               </>
             )}
           </div>
