@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_036_triage_welder_flash_burn",
+  "title": "Pain Hours After Welding",
+  "difficulty": "intermediate",
+  "topic": "triage_flash_burn_welder_painful_red_eye",
+  "topic_set": "triage_referral",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Muthu Kumar",
+    "age": 34,
+    "gender": "male",
+    "occupation": "welder",
+    "presenting_complaint": "Both eyes very painful, gritty and watering since the middle of the night, after welding earlier in the day without a proper visor"
+  },
+  "history": {
+    "hpc": "Mr Muthu was welding in the afternoon without a proper visor. He says: 'In the afternoon I do welding, then midnight my eyes super pain, like sand inside, cannot open, keep tearing.' Both eyes are red and very light-sensitive. The pain after welding is typically delayed by several hours — this fits a flash burn (welder's flash / photokeratitis).",
+    "pmhx": "Nil significant",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Welder; not using adequate eye protection at the time."
+  },
+  "examination_findings": {
+    "va": {"right": "mildly reduced by tearing/photophobia", "left": "mildly reduced by tearing/photophobia"},
+    "iop": {"right": "not a priority at triage", "left": "not a priority at triage"},
+    "anterior_segment": "Both eyes: conjunctival redness, tearing, marked photophobia; corneal surface irritation consistent with flash burn",
+    "fundus": "Not assessed at triage"
+  },
+  "investigations": {
+    "front_line_triage": "Recognise the delayed-onset painful red eyes after welding as a flash burn (welder's flash) — a Category 3 presentation (painful red eye / flash burn; assess within 60 minutes). Triage appropriately (urgent but not Category 1), keep the patient comfortable in reduced lighting, and refer to the doctor.",
+    "va_distance": "Both eyes mildly reduced due to tearing/photophobia."
+  },
+  "diagnosis": "Bilateral flash burn (photokeratitis) from welding without eye protection — painful red eyes with the classic delayed onset. Triaged as Category 3 (painful red eye / flash burn). The PSA competency is recognising the mechanism and pattern, triaging correctly, comforting the patient, and referring to the doctor.",
+  "management": {
+    "immediate": [
+      "Recognise the welding mechanism with delayed-onset pain as a flash burn",
+      "Triage as Category 3 (painful red eye / flash burn — within 60 minutes)",
+      "Keep the patient comfortable in dimmed lighting to ease photophobia",
+      "Do not instil drops without the doctor's order; advise not to rub the eyes",
+      "Refer to the doctor for assessment and pain relief",
+      "Document the mechanism, time of welding vs onset, symptoms, and triage category"
+    ],
+    "follow_up": [
+      "Doctor to examine, provide pain relief, and manage the corneal surface injury",
+      "Advise on recovery and the importance of proper eye protection",
+      "Record the triage outcome on the SNEC triage form"
+    ],
+    "patient_education": [
+      "Explain that the pain came hours later because that is typical of a welding flash burn",
+      "Reassure him the surface usually heals, and the doctor will help with the pain",
+      "Advise dim lighting and not rubbing the eyes while waiting",
+      "Strongly advise a proper welding visor/eye protection to prevent recurrence"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the welding exposure and the delayed onset of pain",
+        "Identifies bilateral pain, tearing, and photophobia",
+        "Notes the lack of adequate eye protection",
+        "Recognises the classic delayed-onset pattern of flash burn"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the presentation as a flash burn (photokeratitis)",
+        "Assigns Category 3 urgency (painful red eye / flash burn)",
+        "Avoids instilling drops without the doctor's order",
+        "Documents mechanism, timing, symptoms, and triage category"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Links the welding exposure and delayed pain to a flash burn",
+        "Differentiates this Category 3 condition from a Category 1 emergency",
+        "Understands the corneal surface is affected",
+        "Knows treatment/pain relief is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Triages correctly and refers to the doctor",
+        "Keeps the patient comfortable in reduced lighting",
+        "Documents the triage category and mechanism",
+        "Advises on eye protection to prevent recurrence"
+      ]
+    }
+  }
+}
