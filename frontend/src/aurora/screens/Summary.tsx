@@ -19,9 +19,11 @@ function loadSession() {
       cardsReviewed: Number(s.cardsReviewed ?? (Array.isArray(s.cards) ? s.cards.length : 0)) || 0,
       avgScore: Number(s.avgScore ?? 0) || 0,
       earnedXp: Number(s.earnedXp ?? XP_REWARDS.sessionComplete) || 0,
+      cardXp: Number(s.cardXp ?? 0) || 0,
+      bonusXp: Number(s.bonusXp ?? XP_REWARDS.sessionComplete) || 0,
     };
   } catch {
-    return { topic: "Ophthalmology", cardsReviewed: 0, avgScore: 0, earnedXp: XP_REWARDS.sessionComplete };
+    return { topic: "Ophthalmology", cardsReviewed: 0, avgScore: 0, earnedXp: XP_REWARDS.sessionComplete, cardXp: 0, bonusXp: XP_REWARDS.sessionComplete };
   }
 }
 
@@ -57,7 +59,11 @@ export function Summary() {
         <p className="aurora-eyebrow">Session complete</p>
         <h1 className="aurora-summary-xp"><span className="aurora-clip">+{shown}</span></h1>
         <p className="aurora-summary-xp-label">XP earned this session</p>
-        <p className="aurora-summary-xp-note">Includes a +{XP_REWARDS.sessionComplete} bonus for finishing. Added to your running total below.</p>
+        <p className="aurora-summary-xp-note">
+          {session.cardXp > 0
+            ? `${session.cardXp} XP from ${session.cardsReviewed} card${session.cardsReviewed === 1 ? "" : "s"} + ${session.bonusXp} finish bonus. Added to your running total below.`
+            : `Includes a +${session.bonusXp} bonus for finishing. Added to your running total below.`}
+        </p>
 
         <div className="aurora-summary-stats">
           <StatCard tone="blue" label="Cards reviewed" value={session.cardsReviewed} />
