@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_047_dayward_preop_assessment_dism",
+  "title": "Ready for Theatre",
+  "difficulty": "intermediate",
+  "topic": "dayward_preoperative_assessment_dism",
+  "topic_set": "dayward_theatre",
+  "role": "OT",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Mr Lee Chin Huat",
+    "age": 70,
+    "gender": "male",
+    "occupation": "retired clerk",
+    "presenting_complaint": "Admitted to the day ward for left eye cataract surgery; here for the pre-operative assessment"
+  },
+  "history": {
+    "hpc": "Mr Lee is in the day ward for left eye cataract surgery under local anaesthesia. He says: 'Today my turn to do the cataract operation, nurse say need to check me first before go in.' The OT must complete the dayward pre-operative assessment, confirming the key details and recording vital signs.",
+    "pmhx": "Left cataract (for surgery). Type 2 diabetes, hypertension — both controlled.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 500mg BD (withheld per fasting instruction)", "Amlodipine 5mg OD (taken with a sip of water as advised)"],
+    "social_hx": "Lives with wife who is waiting outside. Fasted as instructed."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12", "left": "6/36 (cataract, for surgery)"},
+    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "anterior_segment": "Left cataract; eye marked for surgery per protocol",
+    "fundus": "Documented pre-op as available"
+  },
+  "investigations": {
+    "dayward_preop_assessment": "Pre-operative assessment completed using the DISM framework — Diagnosis (left cataract), Indication for surgery (visually significant cataract), Surgery planned (phacoemulsification with IOL, left eye), Medical conditions (diabetes, hypertension — controlled). Anaesthesia type: local. Eye to be operated: LEFT (confirmed and marked). Vital signs recorded; fasting and medication instructions verified.",
+    "vital_signs": "BP, pulse, and (if required) blood sugar documented within acceptable ranges.",
+    "va_distance": "RE 6/12, LE 6/36."
+  },
+  "diagnosis": "A complete, correct dayward pre-operative assessment for left eye cataract surgery using the DISM framework, with the correct eye confirmed/marked, anaesthesia type noted, and vitals and fasting status checked. The OT competency is thorough, accurate pre-op documentation and safety checks; the surgery is the surgeon's.",
+  "management": {
+    "immediate": [
+      "Complete the DISM assessment: Diagnosis, Indication, Surgery planned, Medical conditions",
+      "Confirm and document the anaesthesia type (local) and the correct eye (LEFT), checking it is marked",
+      "Record vital signs and confirm fasting status and which medications were withheld/taken",
+      "Check for relevant issues (e.g., diabetes control, blood thinners) and flag any abnormal result",
+      "Document everything clearly and ensure the notes accompany the patient to theatre",
+      "Escalate any abnormal vitals or unclear consent/eye-marking before the patient proceeds"
+    ],
+    "follow_up": [
+      "Surgeon/nurse to proceed once the assessment and safety checks are complete",
+      "Ensure documentation accompanies the patient into theatre",
+      "Hand over any flagged issues (e.g., glucose) to the nurse/doctor"
+    ],
+    "patient_education": [
+      "Reassure him the checks are routine safety steps before surgery",
+      "Confirm with him which eye is being operated as part of the safety check",
+      "Explain what to expect next (going into theatre, local anaesthesia)",
+      "Answer simple questions and defer surgical details to the surgeon"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the planned surgery and the operative eye with the patient",
+        "Verifies fasting status and which medications were withheld or taken",
+        "Notes relevant medical conditions (diabetes, hypertension)",
+        "Explains the pre-op checks to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Completes the DISM framework (Diagnosis, Indication, Surgery, Medical conditions)",
+        "Documents anaesthesia type and confirms/checks the correct marked eye",
+        "Records vital signs and notes any out-of-range results",
+        "Documents clearly so notes accompany the patient to theatre"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the purpose of a structured pre-op assessment for safety",
+        "Recognises correct-eye confirmation/marking as a critical safety step",
+        "Knows abnormal vitals or unclear marking must be escalated before surgery",
+        "Knows the OT role is assessment/documentation, not the surgery"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Completes and documents the full DISM assessment accurately",
+        "Escalates any abnormal result or safety concern before the patient proceeds",
+        "Ensures documentation accompanies the patient to theatre",
+        "Reassures the patient and confirms the operative eye with them"
+      ]
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_050_auto_refraction_unreliable_dry_eye",
+  "title": "Blinking Through the Readings",
+  "difficulty": "intermediate",
+  "topic": "auto_refraction_keratometry_unreliable_dry_eye",
+  "topic_set": "refraction_acuity",
+  "role": "OT",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Phua Siew Eng",
+    "age": 59,
+    "gender": "female",
+    "occupation": "administrative assistant",
+    "presenting_complaint": "Here for auto-refraction and keratometry; the readings keep coming out inconsistent"
+  },
+  "history": {
+    "hpc": "Mdm Phua attends for auto-refraction and keratometry as a new patient work-up. The machine keeps producing scattered, inconsistent values. She says: 'My eyes very dry, the machine ask me to look but I keep wanting to blink.' She has dry eye symptoms, worse with air-conditioning and screen work. The OT must recognise the unreliable readings and improve the tear film and technique.",
+    "pmhx": "Dry eye disease. Otherwise well.",
+    "family_hx": "Nil significant",
+    "medications": ["Lubricant eye drops PRN"],
+    "social_hx": "Office worker, long screen hours in an air-conditioned office. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Dry ocular surface; otherwise normal. An unstable tear film degrades auto-refraction/keratometry readings.",
+    "fundus": "Not the focus today"
+  },
+  "investigations": {
+    "auto_refraction_keratometry": "Initial AR/AK readings inconsistent (scattered sphere/cylinder and K values) due to an unstable tear film. The OT asked the patient to blink fully to refresh the tear film (and instilled a lubricant), optimised positioning and fixation, and re-acquired. Repeat readings became consistent and were documented as a useful starting point for refraction.",
+    "measurement_quality": "First attempt scattered/unreliable; after blinking/lubrication and re-positioning, readings consistent across repeats.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "Unreliable auto-refraction/keratometry caused by an unstable tear film (dry eye), corrected by refreshing the tear film and optimising technique to obtain consistent readings. The OT competency is recognising unreliable readings, improving the surface/technique, and documenting; the final prescription is set by the doctor/optometrist on subjective refraction.",
+  "management": {
+    "immediate": [
+      "Recognise scattered, inconsistent AR/AK values as unreliable rather than a true measurement",
+      "Ask the patient to blink fully to refresh the tear film and instil a lubricant drop if needed",
+      "Optimise positioning, fixation, and alignment before re-acquiring",
+      "Take multiple readings and confirm consistency before accepting",
+      "Document the AR/AK values as an objective starting point and note the tear-film issue",
+      "Avoid using a single unstable reading; present consistent values for the doctor/optometrist"
+    ],
+    "follow_up": [
+      "Doctor/optometrist to perform subjective refraction to confirm the prescription",
+      "Consider managing the dry eye to improve future measurements and comfort",
+      "Keep the AR/AK as a starting reference for refraction"
+    ],
+    "patient_education": [
+      "Explain that dry eyes can make the machine readings jump around, so blinking helps",
+      "Explain the lubricant drop and full blinks improve accuracy",
+      "Explain the readings are a starting point and the doctor/optometrist fine-tunes the glasses",
+      "Offer simple dry-eye advice (regular blinking breaks from screens, lubricants)"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the dry eye symptoms contributing to the difficulty",
+        "Confirms the indication (new patient AR/AK work-up)",
+        "Notes screen/air-conditioning exposure relevant to dry eye",
+        "Explains the procedure and the need to blink/repeat"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the scattered readings as unreliable, not a true measurement",
+        "Refreshes the tear film (blink/lubricant) and optimises positioning/fixation",
+        "Takes multiple readings and confirms consistency before accepting",
+        "Documents the AR/AK values and the tear-film issue"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands an unstable tear film degrades AR/AK accuracy",
+        "Knows the readings are an objective starting point, not the final prescription",
+        "Recognises the need to repeat after improving the surface/technique",
+        "Knows subjective refraction by the doctor/optometrist sets the prescription"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains consistent AR/AK readings after correcting the tear film/technique",
+        "Avoids accepting a single unstable reading and documents consistent values",
+        "Explains the dry-eye effect and the procedure to the patient",
+        "Hands the readings to the doctor/optometrist and gives dry-eye advice"
+      ]
+    }
+  }
+}
