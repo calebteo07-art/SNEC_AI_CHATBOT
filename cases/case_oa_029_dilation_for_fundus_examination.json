@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_029_dilation_for_fundus_examination",
+  "title": "Opening Up for a Look",
+  "difficulty": "intermediate",
+  "topic": "dilation_for_fundus_examination",
+  "topic_set": "pupil_dilation",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Pupil Dilation",
+  "patient": {
+    "name": "Mr Goh Wei Ming",
+    "age": 55,
+    "gender": "male",
+    "occupation": "engineer",
+    "presenting_complaint": "Doctor has ordered pupil dilation so the back of both eyes can be examined"
+  },
+  "history": {
+    "hpc": "Mr Goh says 'Doctor want to dilate my eyes to check the back, then I will be blur for a while is it?' Both eyes are to be dilated for a fundus examination. He drove himself to clinic today.",
+    "pmhx": "No narrow-angle history. No drug allergies (confirm). Wears glasses for distance.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Drove himself to the clinic — relevant to post-dilation advice."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "Measured before dilation if ordered", "left": "Measured before dilation if ordered"},
+    "anterior_segment": "Deep anterior chambers, no contraindication to dilation noted by the doctor",
+    "fundus": "To be examined by the doctor after dilation"
+  },
+  "investigations": {
+    "task": "Dilate both eyes safely for the fundus examination, documenting pre-dilation pupil size, the drops and dosage used, and the time",
+    "key_points": "Confirm identity, eyes to dilate and allergy; check there is no narrow-angle contraindication; record pre-dilation pupil size for each eye; instil tropicamide (and phenylephrine if charted); note the time; warn about blur and light sensitivity"
+  },
+  "diagnosis": "Both eyes are dilated safely for the fundus examination. Identity, eyes to dilate, allergy and the absence of a narrow-angle contraindication are confirmed; pre-dilation pupil size, the drops/dosage and the time are documented; and the patient is warned about temporary blurred near vision and light sensitivity. This is a procedural station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the eyes to dilate (both) and the doctor's order",
+      "Check for drug allergy and confirm no narrow-angle contraindication",
+      "Record the pre-dilation pupil size in mm for each eye",
+      "Perform hand hygiene and instil the charted dilating drop(s) into the lower fornix (no-touch)",
+      "Note the dosage (number of instillations) and the time of instillation",
+      "Apply gentle nasolacrimal pressure and advise on the effects",
+      "Document the eyes, drops, dosage, pupil sizes and time"
+    ],
+    "follow_up": [
+      "Inform the doctor of the dilation time so the fundus exam is done when adequately dilated",
+      "Re-check dilation if the pupils are not yet wide enough"
+    ],
+    "patient_education": [
+      "Explain why the eyes are being dilated and that vision will be blurred for a few hours",
+      "Warn about light sensitivity and advise not to drive until it wears off",
+      "Advise returning if there is eye pain or marked discomfort after dilation"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, the eyes to dilate and the order",
+        "Checks for drug allergy",
+        "Confirms no narrow-angle contraindication before dilating",
+        "Asks how the patient travelled (driving) for post-dilation advice"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Records pre-dilation pupil size in mm for each eye",
+        "Instils the charted dilating drop with a no-touch technique",
+        "Notes the dosage and the time of instillation",
+        "Applies gentle nasolacrimal pressure"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the purpose of dilation for fundus examination",
+        "Knows narrow angles are a contraindication to check first",
+        "Knows what to document (pupil size, drops, dosage, time)",
+        "Recognises adequate dilation is needed before the exam"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents eyes, drops, dosage, pupil sizes and time",
+        "Informs the doctor of the dilation time",
+        "Warns about blur, light sensitivity and not driving",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}

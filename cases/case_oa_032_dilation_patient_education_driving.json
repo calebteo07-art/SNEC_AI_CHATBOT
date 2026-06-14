@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_032_dilation_patient_education_driving",
+  "title": "Better Not Drive Home",
+  "difficulty": "intermediate",
+  "topic": "dilation_patient_education_driving",
+  "topic_set": "pupil_dilation",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Pupil Dilation",
+  "patient": {
+    "name": "Mr Anand Krishnan",
+    "age": 52,
+    "gender": "male",
+    "occupation": "sales manager",
+    "presenting_complaint": "About to be dilated, but plans to drive to a meeting straight after"
+  },
+  "history": {
+    "hpc": "Mr Anand says 'After this I drive to my meeting, can right?' He is charted for dilation of both eyes for a fundus check and intends to drive immediately after, which needs to be addressed.",
+    "pmhx": "No narrow-angle history. No drug allergies (confirm).",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Drove himself; busy work schedule."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6"},
+    "iop": {"right": "Measured if ordered before dilation", "left": "Measured if ordered before dilation"},
+    "anterior_segment": "Deep chambers, safe to dilate",
+    "fundus": "To be examined after dilation"
+  },
+  "investigations": {
+    "task": "Dilate both eyes and clearly educate the patient that he should not drive until the dilation wears off",
+    "key_points": "Dilation blurs near vision and causes light sensitivity for about 4–6 hours; advise not to drive afterwards and to arrange alternative transport; offer to dilate after addressing his plans"
+  },
+  "diagnosis": "Both eyes are dilated and the patient is clearly counselled that dilation blurs vision and causes light sensitivity for several hours, so he should not drive until it wears off. The OA addresses his plan to drive, advises alternative transport, and documents the dilation. This is a procedural/education station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the eyes to dilate and the order",
+      "Check for drug allergy and absence of a narrow-angle contraindication",
+      "Explain that dilation will blur vision and cause light sensitivity for about 4–6 hours",
+      "Advise clearly that he should not drive until it wears off and suggest alternative transport",
+      "Record pre-dilation pupil sizes, instil the charted drops (no-touch), note dosage and time",
+      "Offer sunglasses for light sensitivity",
+      "Document the dilation and the advice given"
+    ],
+    "follow_up": [
+      "Confirm the patient has a safe way home / onward",
+      "Inform the doctor of the dilation time for the fundus exam"
+    ],
+    "patient_education": [
+      "Explain dilation blurs near vision and increases light sensitivity for a few hours",
+      "Advise not to drive until vision returns to normal",
+      "Suggest sunglasses and arranging a lift or public transport"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, eyes to dilate and the order",
+        "Checks for drug allergy and narrow-angle contraindication",
+        "Asks about the patient's plans after the appointment",
+        "Explains the procedure"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Records pre-dilation pupil sizes",
+        "Instils the charted dilating drops with a no-touch technique",
+        "Notes the dosage and time",
+        "Offers measures for light sensitivity (e.g. sunglasses)"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Knows dilation causes blur and light sensitivity for ~4–6 hours",
+        "Recognises driving after dilation is unsafe",
+        "Confirms no contraindication before dilating",
+        "Understands what to document"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Clearly advises not to drive and suggests alternative transport",
+        "Documents the dilation and the advice given",
+        "Confirms a safe way home",
+        "Maintains patient comfort and rapport"
+      ]
+    }
+  }
+}
