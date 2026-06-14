@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_038_nct_screening_elevated_iop_flag",
+  "title": "High Pressure at the Screening",
+  "difficulty": "intermediate",
+  "topic": "nct_screening_elevated_iop",
+  "topic_set": "screening",
+  "role": "OT",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Goh Wee Kiat",
+    "age": 55,
+    "gender": "male",
+    "occupation": "logistics manager",
+    "presenting_complaint": "Attending a community eye screening; NCT reading comes back high"
+  },
+  "history": {
+    "hpc": "Mr Goh attends a community eye screening. He says: 'I come for the free eye screening, they say must check eye pressure.' He has no eye symptoms. On NCT his readings are elevated in both eyes. The OT must perform reliable NCT, repeat to confirm, and flag the high readings appropriately.",
+    "pmhx": "Hypertension. No known eye disease.",
+    "family_hx": "Father had glaucoma",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Office-based manager. Non-smoker. Asymptomatic, here for screening."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "27 mmHg (NCT, confirmed on repeat)", "left": "25 mmHg (NCT, confirmed on repeat)"},
+    "anterior_segment": "Normal anterior segments both eyes",
+    "fundus": "Not assessed at screening; optic discs to be assessed by doctor"
+  },
+  "investigations": {
+    "nct_screening": "NCT performed with correct technique: machine contact parts wiped, glasses/contact lenses removed, patient positioned and informed about the air puff, right eye first. Readings elevated, so repeated to confirm consistency. RE 27 mmHg, LE 25 mmHg — above the normal 10-21 mmHg range.",
+    "va_distance": "RE 6/9, LE 6/9.",
+    "family_history": "Father had glaucoma — a relevant risk factor to flag."
+  },
+  "diagnosis": "Elevated IOP on NCT screening (both eyes) in an asymptomatic patient with a family history of glaucoma — a screen-positive result that should be flagged for formal assessment (including GAT and optic disc/field evaluation). The OT competency is reliable NCT and appropriate flagging, not diagnosing glaucoma.",
+  "management": {
+    "immediate": [
+      "Perform NCT with correct technique (wipe parts, remove glasses/lenses, inform patient, right eye first)",
+      "Repeat the readings to confirm the elevated IOP is consistent, not a one-off artefact",
+      "Note the family history of glaucoma as an additional risk factor",
+      "Flag the elevated IOP as a screen-positive result for formal assessment (e.g., GAT, doctor review)",
+      "Document the readings, technique, and that the result was confirmed on repeat",
+      "Reassure the patient and explain the need for further checks without diagnosing"
+    ],
+    "follow_up": [
+      "Refer for formal IOP measurement (Goldmann), optic disc, and visual field assessment by the clinic/doctor",
+      "Advise the patient to attend the recommended follow-up appointment",
+      "Record the screening outcome clearly"
+    ],
+    "patient_education": [
+      "Explain NCT is a quick air-puff test and that his pressure reading is higher than normal",
+      "Explain that high pressure alone is not a diagnosis, but it needs further checking, especially with his family history",
+      "Encourage him to attend the follow-up assessment",
+      "Reassure him that he has no symptoms now and this is exactly why screening is useful"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the screening context and absence of symptoms",
+        "Elicits the family history of glaucoma as a risk factor",
+        "Confirms no contraindication and that glasses/lenses are removed",
+        "Explains the air-puff test to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs NCT with correct hygiene, positioning, and right-eye-first technique",
+        "Repeats readings to confirm the elevated IOP is consistent",
+        "Records the readings against the normal range (10-21 mmHg)",
+        "Documents the technique and confirmation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the elevated IOP as a screen-positive result needing further assessment",
+        "Considers the family history as raising glaucoma risk",
+        "Understands NCT alone does not diagnose glaucoma",
+        "Knows formal GAT/disc/field assessment is required"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the result and refers for formal assessment appropriately",
+        "Documents the readings and screening outcome clearly",
+        "Explains the result to the patient without over-stating it",
+        "Encourages attendance at follow-up"
+      ]
+    }
+  }
+}

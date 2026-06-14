@@ -1,0 +1,93 @@
+{
+  "case_id": "case_ot_039_ishihara_screening_documentation",
+  "title": "Counting the Plates",
+  "difficulty": "intermediate",
+  "topic": "ishihara_colour_vision_screening_documentation",
+  "topic_set": "screening",
+  "role": "OT",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Ms Nurul Aini binte Rahman",
+    "age": 21,
+    "gender": "female",
+    "occupation": "polytechnic student",
+    "presenting_complaint": "Colour vision screening required before a clinical placement; has never been tested"
+  },
+  "history": {
+    "hpc": "Ms Nurul attends for colour vision screening before a healthcare placement. She says: 'Never do colour test before, I think I'm okay one.' She has no visual complaints. The OT must administer the Ishihara test correctly for each eye and document the number of plates read correctly.",
+    "pmhx": "Nil significant",
+    "family_hx": "No known colour blindness",
+    "medications": ["Nil"],
+    "social_hx": "Student. Non-smoker. Otherwise well."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6"},
+    "iop": {"right": "13 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "Not required for this screening"
+  },
+  "investigations": {
+    "colour_vision_ishihara": "Ishihara plates administered in good, consistent lighting, each eye tested separately, a few seconds per plate, no coaching. Documented as the number of plates read correctly per eye. She read all test plates correctly in both eyes — a normal screen.",
+    "va_distance": "RE 6/6, LE 6/6."
+  },
+  "diagnosis": "Normal colour vision screen on the Ishihara test (all plates read correctly, both eyes). The OT competency is correct, standardised administration and accurate per-eye documentation, with the doctor confirming interpretation if needed.",
+  "management": {
+    "immediate": [
+      "Explain the task: identify the number formed by the coloured dots on each plate",
+      "Ensure good, consistent lighting and that no tinted lenses are worn",
+      "Test each eye separately, present plates at the recommended distance, allow only a few seconds per plate",
+      "Avoid coaching or hinting to keep the screen valid",
+      "Document the number of plates read correctly for each eye",
+      "Report the documented result for review/certification as required"
+    ],
+    "follow_up": [
+      "Provide the documented result for the placement requirement",
+      "If any plates were missed, refer for fuller colour vision assessment and doctor interpretation",
+      "File the result in the record"
+    ],
+    "patient_education": [
+      "Explain the test checks the ability to distinguish certain colours (commonly red-green)",
+      "Reassure her the test is quick and painless",
+      "Explain the result will be documented for her placement",
+      "If abnormal, explain calmly that further testing would be arranged"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the purpose of the screening (clinical placement)",
+        "Confirms no visual complaints and asks about family history of colour blindness",
+        "Confirms she has not been tested before",
+        "Explains the procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Ensures good lighting and that no tinted lenses are worn",
+        "Tests each eye separately with correct plate presentation and timing",
+        "Avoids coaching or hinting",
+        "Documents the number of plates read correctly per eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises all plates correct as a normal colour vision screen",
+        "Understands the Ishihara test screens for red-green deficiency",
+        "Knows a reduced plate count would require further assessment",
+        "Defers formal interpretation/certification to the doctor where needed"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the per-eye result accurately",
+        "Provides the result for the placement requirement",
+        "Explains the test and outcome to the patient",
+        "Refers appropriately if any plates are missed"
+      ]
+    }
+  }
+}
