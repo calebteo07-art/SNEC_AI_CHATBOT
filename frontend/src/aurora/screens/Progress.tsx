@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useProgress } from "@/hooks/useProgress";
 import { ACHIEVEMENTS, getUserProgress } from "@/lib/legacy/gamification";
+import { useLeaderboard, useLeaderboardOptIn } from "@/hooks/useLeaderboard";
 import { StatCard } from "@/aurora/components/StatCard";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { Sparkline } from "@/aurora/components/Sparkline";
@@ -45,6 +46,10 @@ export function Progress() {
   // Earned badges live in localStorage — read after mount to avoid an SSR mismatch.
   const [earned, setEarned] = useState<string[]>([]);
   useEffect(() => { setEarned(getUserProgress().achievements ?? []); }, []);
+
+  // Cohort leaderboard (only shown when a supervisor has enabled it).
+  const { data: lb } = useLeaderboard();
+  const optIn = useLeaderboardOptIn();
 
   const topicPerf = data?.topic_performance ?? [];
   const topicsSorted = [...topicPerf].sort((a, b) => b.score - a.score);
@@ -162,6 +167,42 @@ export function Progress() {
               Earn badges by reviewing flashcards and keeping your daily check-in streak alive.
             </p>
           </section>
+
+          {lb?.enabled && (
+            <section className="aurora-card" aria-label="Cohort leaderboard">
+              <div className="aurora-prog-card-head">
+                <p className="aurora-activity-head">Cohort leaderboard</p>
+                {lb.opted_in && (
+                  <button type="button" className="aurora-summary-link" onClick={() => optIn.mutate(false)} disabled={optIn.isPending}>
+                    Leave
+                  </button>
+                )}
+              </div>
+              {!lb.opted_in ? (
+                <>
+                  <p className="aurora-muted" style={{ marginBottom: 12, lineHeight: 1.6 }}>
+                    Your supervisor has opened an optional cohort leaderboard. Join to see how your XP compares with classmates — you&apos;ll appear as your first name + last initial, and you can leave any time. It&apos;s just for a bit of friendly motivation.
+                  </p>
+                  <button type="button" className="aurora-cta aurora-flow" style={{ maxWidth: 280 }} onClick={() => optIn.mutate(true)} disabled={optIn.isPending}>
+                    <span>Join the leaderboard →</span>
+                  </button>
+                </>
+              ) : lb.entries.length > 0 ? (
+                <div className="aurora-lb">
+                  {lb.entries.slice(0, 20).map((e) => (
+                    <div key={e.rank} className={`aurora-lb-row${e.is_you ? " is-you" : ""}`}>
+                      <span className="aurora-lb-rank">{e.rank}</span>
+                      <span className="aurora-lb-name">{e.name}{e.is_you ? " · you" : ""}</span>
+                      <span className="aurora-lb-lv">Lv {e.level}</span>
+                      <span className="aurora-lb-xp">{e.xp.toLocaleString()} XP</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="aurora-muted">You&apos;re on the leaderboard — check back as classmates join.</p>
+              )}
+            </section>
+          )}
 
           {sessions.length > 0 && (
             <section className="aurora-card" aria-label="Session log">

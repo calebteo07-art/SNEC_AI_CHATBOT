@@ -646,6 +646,17 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-badge-name { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
 .aurora-badge-desc { font-size: 10.5px; line-height: 1.35; color: var(--ink-3); }
 
+/* Cohort leaderboard (opt-in, supervisor-gated) */
+.aurora-lb { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.aurora-lb-row { display: grid; grid-template-columns: 28px 1fr auto auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--paper); font-size: 13px; }
+.aurora-lb-row.is-you { border-color: transparent; background: rgba(66, 133, 244, 0.08); color: var(--on-blue-2); font-weight: 600; }
+.aurora-lb-rank { font-family: var(--font-mono); font-weight: 700; color: var(--ink-3); text-align: center; }
+.aurora-lb-row.is-you .aurora-lb-rank { color: var(--on-blue-2); }
+.aurora-lb-name { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aurora-lb-row.is-you .aurora-lb-name { color: var(--on-blue-2); }
+.aurora-lb-lv { font-size: 11px; color: var(--ink-3); }
+.aurora-lb-xp { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink-2); }
+
 .aurora-heatmap { display: grid; gap: 5px; }
 .aurora-heatcell { position: relative; aspect-ratio: 1; border-radius: 4px; background: rgba(31, 31, 31, 0.05); }
 .aurora-heatcell::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); opacity: var(--v, 0); }
