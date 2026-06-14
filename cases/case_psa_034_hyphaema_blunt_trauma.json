@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_034_hyphaema_blunt_trauma",
+  "title": "Blood in the Front of the Eye",
+  "difficulty": "intermediate",
+  "topic": "hyphaema_blunt_trauma_escalate",
+  "topic_set": "ocular_emergencies",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Daniel Wong",
+    "age": 27,
+    "gender": "male",
+    "occupation": "sales executive",
+    "presenting_complaint": "Hit in the right eye by a squash ball an hour ago; now sees blurred and there is blood visible in the front of the eye"
+  },
+  "history": {
+    "hpc": "Mr Daniel was hit in the right eye by a squash ball. He says: 'The ball hit my eye, now my vision blur and I see like got blood inside the front part.' There is a visible layer of blood in the anterior chamber (hyphaema). He has eye ache and light sensitivity. Blunt trauma with hyphaema is a serious injury that needs prompt assessment and rest.",
+    "pmhx": "Nil significant",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Plays squash; was not wearing protective eyewear."
+  },
+  "examination_findings": {
+    "va": {"right": "reduced (e.g. 6/24) with the hyphaema", "left": "6/6"},
+    "iop": {"right": "may be raised; measure gently/per protocol once it is safe", "left": "15 mmHg"},
+    "anterior_segment": "Right eye: visible blood layer in the anterior chamber (hyphaema); conjunctival redness",
+    "fundus": "View may be limited by the hyphaema; for doctor"
+  },
+  "investigations": {
+    "front_line_action": "Recognise a hyphaema (blood in the anterior chamber) after blunt trauma as a serious injury (a total hyphaema is Category 2; a small hyphaema Category 3) needing prompt doctor assessment. Avoid any pressure on the eye, keep the patient upright and resting, and escalate. Watch for an associated rise in eye pressure.",
+    "va_distance": "RE reduced, LE 6/6."
+  },
+  "diagnosis": "Traumatic hyphaema (blood in the anterior chamber) from blunt injury — a serious eye injury that can be complicated by raised IOP and re-bleeding. The PSA competency is recognising the hyphaema, escalating promptly, advising rest, and avoiding pressure on the eye; medical management is the doctor's.",
+  "management": {
+    "immediate": [
+      "Recognise the blood layer in the anterior chamber as a hyphaema from blunt trauma",
+      "Escalate promptly to the doctor (total hyphaema is Category 2; small hyphaema Category 3)",
+      "Keep the patient upright/seated and resting; advise minimal movement and no straining",
+      "Avoid any pressure on the eye; do not instil drops without the doctor's order",
+      "Measure VA; defer/measure IOP gently only as protocol allows, watching for raised pressure",
+      "Document the mechanism, time, the hyphaema, VA, and the escalation"
+    ],
+    "follow_up": [
+      "Doctor to assess the hyphaema and IOP and arrange management/monitoring",
+      "Advise rest with head elevated and avoidance of strenuous activity as directed",
+      "Check tetanus status if any associated surface injury; document on the record"
+    ],
+    "patient_education": [
+      "Explain that the blood inside the eye needs the doctor to review promptly",
+      "Advise him to rest, stay upright, and avoid bending, straining, or rubbing the eye",
+      "Explain the importance of follow-up to watch for pressure rise or re-bleeding",
+      "Advise protective eyewear for racquet sports in future"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the blunt trauma mechanism (squash ball) and time",
+        "Identifies the visual blurring and visible blood in the eye",
+        "Asks about pain and light sensitivity",
+        "Notes the lack of protective eyewear"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the anterior chamber blood as a hyphaema",
+        "Measures VA and assigns appropriate triage urgency",
+        "Avoids pressure on the eye and defers/gentle IOP per protocol",
+        "Documents mechanism, time, hyphaema, and VA"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies traumatic hyphaema as a serious injury",
+        "Knows total hyphaema is Category 2 and small hyphaema Category 3",
+        "Recognises the risk of raised IOP and re-bleeding",
+        "Knows medical management is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates promptly to the doctor",
+        "Advises rest, upright posture, and no straining or rubbing",
+        "Avoids drops/pressure without the doctor's order",
+        "Documents the injury and escalation accurately"
+      ]
+    }
+  }
+}
