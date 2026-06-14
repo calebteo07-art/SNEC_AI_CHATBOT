@@ -357,6 +357,9 @@ html[data-motion="reduce"] .aurora-clip { animation: none; }
   gap: 16px;
 }
 .aurora-nba { grid-row: span 1; }
+/* Recent activity rides the dashboard grid beside "Due today", filling the two
+   remaining columns of that row. */
+.aurora-activity-card { grid-column: span 2; }
 .aurora-card {
   background: var(--surface);
   border: 1px solid var(--hairline);
@@ -390,6 +393,7 @@ html[data-motion="reduce"] .aurora-clip { animation: none; }
 @media (max-width: 900px) {
   .aurora-dash-grid { grid-template-columns: 1fr 1fr; }
   .aurora-nba { grid-column: span 2; }
+  .aurora-activity-card { grid-column: span 1; }
 }
 @media (max-width: 560px) {
   .aurora-dash-grid { grid-template-columns: 1fr; }

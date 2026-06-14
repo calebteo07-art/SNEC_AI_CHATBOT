@@ -109,28 +109,28 @@ export function Dashboard() {
             <p className="aurora-muted">All clear — no recall due.</p>
           )}
         </StatCard>
-      </div>
 
-      {/* Recent activity */}
-      <section className="aurora-card">
-        <p className="aurora-activity-head">Recent activity</p>
-        {recentSessions.length > 0 ? (
-          <div className="aurora-activity">
-            {recentSessions.map((s, i) => {
-              const label = CURRICULUM.find((t) => t.id === s.topic)?.label ?? s.topic;
-              return (
-                <div key={s.session_id ?? i} className="aurora-activity-row">
-                  <span className="aurora-activity-date">{relativeDate(s.timestamp)}</span>
-                  <span className="aurora-activity-topic">{label}</span>
-                  <span className="aurora-activity-mode">{s.mode}</span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="aurora-muted">No sessions yet — pick a topic above to begin.</p>
-        )}
-      </section>
+        {/* Recent activity — sits beside Due today, spanning the remaining columns */}
+        <section className="aurora-card aurora-activity-card">
+          <p className="aurora-activity-head">Recent activity</p>
+          {recentSessions.length > 0 ? (
+            <div className="aurora-activity">
+              {recentSessions.map((s, i) => {
+                const label = CURRICULUM.find((t) => t.id === s.topic)?.label ?? s.topic;
+                return (
+                  <div key={s.session_id ?? i} className="aurora-activity-row">
+                    <span className="aurora-activity-date">{relativeDate(s.timestamp)}</span>
+                    <span className="aurora-activity-topic">{label}</span>
+                    <span className="aurora-activity-mode">{s.mode}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="aurora-muted">No sessions yet — pick a topic above to begin.</p>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
