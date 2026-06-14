@@ -1,0 +1,95 @@
+{
+  "case_id": "case_ot_028_pam_good_potential_dense_cataract",
+  "title": "Seeing Past the Cataract",
+  "difficulty": "intermediate",
+  "topic": "pam_good_potential_dense_cataract",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mdm Lee Bee Choo",
+    "age": 72,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for Potential Acuity Meter (PAM) before cataract surgery — dense cataract in the right eye"
+  },
+  "history": {
+    "hpc": "Mdm Lee says 'My right eye very blur now, like looking through frosted glass.' The doctor found a dense cataract and ordered a PAM test to estimate how well she might see after surgery, since the dense lens makes it hard to assess the retina.",
+    "pmhx": "Dense right cataract. No diabetes. No known macular disease.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Retired. Lives with family."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (dense cataract)", "left": "6/9"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Dense nuclear cataract in the right eye limiting the fundus view",
+    "fundus": "Right fundus view obscured by the cataract"
+  },
+  "investigations": {
+    "pam": {
+      "device": "Potential Acuity Meter (projects a chart onto the retina, bypassing the cataract)",
+      "preparation": "Pupil dilated as required for PAM",
+      "result_right": "Predicted potential acuity 6/9 — good potential",
+      "interpretation": "Despite the dense cataract, the retina appears to have good potential, suggesting a good visual outcome after surgery"
+    }
+  },
+  "diagnosis": "PAM completed on the right eye after dilation, projecting a chart through the dense cataract. Predicted potential acuity is good (around 6/9), suggesting the retina is healthy and a good visual outcome is likely after cataract surgery. The result is reported to the surgeon; the OT does not make the surgical decision.",
+  "management": {
+    "immediate": [
+      "Confirm identity and confirm the eye to be tested against the order",
+      "Confirm the pupil is adequately dilated (required for PAM)",
+      "Explain the test: looks into a machine and reads a chart projected into the eye, quick and painless",
+      "Set up the PAM and position the patient at the chinrest",
+      "Obtain the best predicted acuity, repeating to confirm consistency",
+      "Record the predicted acuity and provide the result to the doctor"
+    ],
+    "follow_up": [
+      "Surgeon to use the PAM result when counselling the patient on expected outcome",
+      "Correlate with fundus assessment once the cataract is removed"
+    ],
+    "patient_education": [
+      "Explain the test estimates how well she may see after the cataract is removed",
+      "Reassure the test is quick and painless",
+      "Explain dilation will blur near vision for a few hours"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the correct eye to test",
+        "Confirms the pupil is dilated as required for PAM",
+        "Explains the purpose and nature of the test",
+        "Checks the order from the doctor"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up the PAM correctly and positions the patient",
+        "Obtains the predicted potential acuity",
+        "Repeats to confirm a consistent result",
+        "Records the predicted acuity accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands PAM predicts vision behind a cataract",
+        "Recognises a good predicted acuity suggests a good outcome",
+        "Does not make the surgical decision — reports to the doctor",
+        "Knows dilation is required for the test"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides the result to the surgeon",
+        "Documents the predicted acuity and the eye",
+        "Educates the patient on the test and dilation effects",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}
