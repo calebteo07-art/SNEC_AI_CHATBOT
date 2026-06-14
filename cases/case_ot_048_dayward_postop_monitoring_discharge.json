@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_048_dayward_postop_monitoring_discharge",
+  "title": "Stable Enough to Go Home",
+  "difficulty": "intermediate",
+  "topic": "dayward_postoperative_monitoring_discharge",
+  "topic_set": "dayward_theatre",
+  "role": "OT",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Rahimah binte Osman",
+    "age": 65,
+    "gender": "female",
+    "occupation": "retired cook",
+    "presenting_complaint": "Back in the day ward after right eye cataract surgery; asking when she can go home"
+  },
+  "history": {
+    "hpc": "Mdm Rahimah has returned to the day ward after uneventful right eye cataract surgery under local anaesthesia. She says: 'Operation finish already, can go home now or not?' She feels well, mild scratchy sensation in the eye, no severe pain or nausea. The OT must monitor her recovery, record vital signs, and confirm she is stable before discharge.",
+    "pmhx": "Right cataract (operated today). Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Post-op antibiotic and steroid eye drops (right eye, to start as directed)"],
+    "social_hx": "Lives with son who will take her home. Fasted pre-op, now able to take light refreshment."
+  },
+  "examination_findings": {
+    "va": {"right": "shielded post-op", "left": "6/9"},
+    "iop": {"right": "not routinely measured immediately post-op", "left": "15 mmHg"},
+    "anterior_segment": "Right eye shield in place; no excessive pain or discharge reported",
+    "fundus": "Not assessed post-op"
+  },
+  "investigations": {
+    "dayward_postop_care": "Post-operative monitoring documented: blood pressure (BP), respiratory rate (RR), and pulse rate (PR) recorded and stable. Patient comfortable, no severe pain, bleeding, or nausea. TCU (next follow-up appointment time/date) documented. Post-op medications (eye drops) recorded with instructions. Patient observed until stable for discharge.",
+    "vital_signs": "BP, RR, PR within acceptable ranges and stable on repeat.",
+    "comfort": "Mild scratchiness only; no red-flag symptoms."
+  },
+  "diagnosis": "Uncomplicated recovery after day-case cataract surgery: stable vital signs, comfortable patient, and completed discharge documentation (TCU and post-op medications). The OT competency is correct post-op monitoring, recognising when a patient is stable for discharge, and clear documentation; clinical decisions remain the nurse's/doctor's.",
+  "management": {
+    "immediate": [
+      "Monitor and record vital signs (BP, RR, PR) and check for pain, bleeding, or nausea",
+      "Confirm the patient is comfortable and observe until stable for discharge",
+      "Document the TCU (time and date of next follow-up appointment)",
+      "Record the post-op medications prescribed and explain how/when to use them",
+      "Ensure a responsible person will accompany her home",
+      "Escalate to the nurse/doctor if any vital sign is abnormal or red-flag symptoms appear"
+    ],
+    "follow_up": [
+      "Attend the TCU appointment for the post-op review",
+      "Use the prescribed eye drops as directed and keep the shield as advised",
+      "Return urgently if increasing pain, redness, discharge, or vision drop occurs"
+    ],
+    "patient_education": [
+      "Explain she can go home once her observations are stable and she is comfortable",
+      "Teach the eye drop schedule and shield use, and to avoid rubbing the eye",
+      "Give the warning signs (increasing pain, redness, discharge, vision loss) and when to return",
+      "Confirm her son will take her home and remind her of the follow-up date"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the surgery done and the operated eye",
+        "Checks for post-op red-flag symptoms (severe pain, nausea, bleeding)",
+        "Confirms a responsible escort home",
+        "Acknowledges the patient's question about discharge"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Records BP, RR, and PR and confirms they are stable",
+        "Assesses comfort and checks for complications",
+        "Documents the TCU and post-op medications",
+        "Observes the patient until stable for discharge"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises stable vitals and comfort as criteria for safe discharge",
+        "Distinguishes normal early recovery from red-flag complications",
+        "Knows abnormal vitals/symptoms must be escalated, not discharged",
+        "Knows clinical discharge decisions rest with the nurse/doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents vitals, TCU, and post-op medications clearly",
+        "Provides clear drop/shield instructions and warning signs",
+        "Confirms a safe escort home",
+        "Escalates appropriately if any concern arises"
+      ]
+    }
+  }
+}

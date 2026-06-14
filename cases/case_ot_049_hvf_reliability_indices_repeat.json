@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_049_hvf_reliability_indices_repeat",
+  "title": "An Unreliable Field",
+  "difficulty": "intermediate",
+  "topic": "humphrey_visual_field_reliability_indices",
+  "topic_set": "visual_fields",
+  "role": "OT",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Mr Tan Kok Leong",
+    "age": 62,
+    "gender": "male",
+    "occupation": "retired engineer",
+    "presenting_complaint": "Here for a Humphrey visual field test for glaucoma monitoring; first attempt looks unreliable"
+  },
+  "history": {
+    "hpc": "Mr Tan attends for an HVF (24-2) for glaucoma monitoring. During the first test he was anxious and kept pressing the button. He says: 'I think I press the button too much, scared I miss the light.' The printout shows high false positives and fixation losses. The OT must recognise the unreliable indices, re-instruct the patient, and repeat the test.",
+    "pmhx": "Primary open-angle glaucoma, both eyes. Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Latanoprost ON both eyes", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife. Compliant with drops. Non-smoker; first HVF was some time ago."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "18 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "Normal media; glaucomatous discs (known)",
+    "fundus": "Glaucomatous optic discs, for doctor review with reliable fields"
+  },
+  "investigations": {
+    "humphrey_visual_field": "HVF 24-2 (SITA) performed. First test unreliable: high false positives and fixation losses (reliability indices flagged). The OT re-instructed the patient (respond only when a light is seen, do not guess; keep fixation on the central target), ensured correct trial lens and alignment, and repeated. The repeat showed acceptable reliability indices, allowing meaningful interpretation by the doctor.",
+    "reliability_indices": "First run: high false positives and fixation losses (unreliable). Repeat: indices within acceptable limits.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "An initially unreliable Humphrey visual field (high false positives and fixation losses) corrected by re-instruction and repetition to produce a reliable test. Reliability indices must be acceptable before a field is interpreted. The OT competency is recognising poor reliability, coaching, and repeating; interpretation of the field is the doctor's.",
+  "management": {
+    "immediate": [
+      "Check the reliability indices (fixation losses, false positives, false negatives) before accepting the test",
+      "Recognise that high false positives/fixation losses make the field unreliable",
+      "Re-instruct the patient: press only when a light is seen, do not guess, keep fixation central",
+      "Ensure the correct near trial lens is used and the eye is correctly aligned and the other eye occluded",
+      "Repeat the test and confirm the reliability indices are now acceptable",
+      "Document the test type (24-2), the reliability indices, and that a reliable result was obtained for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to interpret the reliable field and compare with previous tests",
+      "Continue glaucoma drops and monitoring as scheduled",
+      "Note coaching needs for future tests if the patient struggles again"
+    ],
+    "patient_education": [
+      "Reassure him it is fine to miss some lights — he should respond only when he actually sees one",
+      "Explain not to guess or press repeatedly, and to keep looking at the central target",
+      "Explain why a reliable test matters for tracking his glaucoma",
+      "Encourage him to take short breaks if tired during the test"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the patient's anxiety and button-pressing behaviour",
+        "Confirms the indication (glaucoma monitoring) and test type",
+        "Notes drop compliance and prior field tests for comparison",
+        "Explains how to perform the test correctly"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Checks reliability indices (fixation losses, false positives/negatives)",
+        "Recognises the first test as unreliable rather than a true result",
+        "Ensures correct trial lens, alignment, and occlusion, then repeats",
+        "Documents test type, reliability indices, and the reliable result"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands a field must be reliable before it can be interpreted",
+        "Knows high false positives/fixation losses indicate unreliability",
+        "Recognises re-instruction and repetition as the correct response",
+        "Knows interpretation of the field is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Coaches the patient effectively and repeats to obtain a reliable test",
+        "Documents the indices and reliable outcome for the doctor",
+        "Explains the test technique and reassures the patient",
+        "Notes future coaching needs if relevant"
+      ]
+    }
+  }
+}
