@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_037_macular_oct_low_signal_troubleshoot_amd",
+  "title": "When the Signal Drops",
+  "difficulty": "intermediate",
+  "topic": "macular_oct_signal_strength_troubleshooting_amd",
+  "topic_set": "oct_imaging",
+  "role": "OT",
+  "estimated_minutes": 14,
+  "patient": {
+    "name": "Mr Lim Teck Soon",
+    "age": 76,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Comes monthly for wet AMD injections; needs a macular OCT before review, but the first scan looks poor quality"
+  },
+  "history": {
+    "hpc": "Mr Lim attends for his regular wet AMD follow-up and macular OCT. He says: 'I come every month for the injection, today need do the scan first right?' On the first attempt the scan shows low signal strength and a dark, grainy image. He has a cataract and dry eyes. The OT must troubleshoot to obtain a usable scan.",
+    "pmhx": "Wet AMD (right eye) on anti-VEGF injections. Cataract both eyes. Dry eye disease.",
+    "family_hx": "Nil significant",
+    "medications": ["Anti-VEGF injections (right eye, ongoing)", "Lubricant eye drops PRN"],
+    "social_hx": "Lives with daughter. Attends regularly for injections. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (wet AMD)", "left": "6/12"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Cataract both eyes and dry ocular surface — both can reduce OCT signal",
+    "fundus": "Wet AMD changes right eye; OCT needed to assess fluid for treatment decision"
+  },
+  "investigations": {
+    "macular_oct": "Initial macular OCT showed low signal strength and a grainy image. Troubleshooting performed: cleaned the lens/optics, asked the patient to blink fully to refresh the tear film (and instilled lubricant), optimised focus and centration, and re-acquired. The repeat scan reached adequate signal strength and showed persistent intraretinal/subretinal fluid right eye.",
+    "va_distance": "RE 6/24, LE 6/12.",
+    "scan_quality": "First attempt poor (low signal); after troubleshooting, adequate signal and clear foveal centration achieved."
+  },
+  "diagnosis": "A low-quality macular OCT caused by media opacity (cataract) and a poor tear film, resolved by correct troubleshooting to obtain a usable scan showing persistent fluid in wet AMD. The OT competency is recognising poor scan quality and systematically improving it before saving.",
+  "management": {
+    "immediate": [
+      "Recognise the low signal strength/grainy image as an inadequate scan, not a true finding",
+      "Troubleshoot systematically: clean the instrument optics, ask the patient to blink/instil lubricant to refresh the tear film",
+      "Re-optimise focus, centration on the fovea, and alignment, then re-acquire",
+      "Confirm the repeat scan reaches adequate signal strength before saving",
+      "Document the indication, eye, scan quality, and findings (persistent fluid) for the doctor",
+      "Do not save or report the poor-quality scan as the result"
+    ],
+    "follow_up": [
+      "Doctor to review the fluid status and decide on continuing anti-VEGF treatment",
+      "Note in records that media/tear film reduce signal, for future scan planning",
+      "Continue regular injection follow-up"
+    ],
+    "patient_education": [
+      "Explain you need to repeat the scan to get a clear picture, and ask him to blink fully before the scan",
+      "Reassure him the repeat is normal and not a problem with his eye",
+      "Explain lubricant drops can help the scan quality",
+      "Explain the doctor will use the scan to decide on today's treatment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (wet AMD follow-up) and eye to scan",
+        "Identifies factors that reduce signal (cataract, dry eye)",
+        "Confirms the regular injection context relevant to the scan",
+        "Explains the procedure and the need to repeat if needed"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the poor-quality scan rather than accepting it as a finding",
+        "Troubleshoots systematically (optics, tear film/blink, focus, centration)",
+        "Re-acquires and confirms adequate signal strength before saving",
+        "Documents indication, eye, scan quality, and findings"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands media opacity and tear film can degrade OCT signal",
+        "Distinguishes an artefact/poor scan from a true pathological finding",
+        "Recognises persistent fluid on the corrected scan",
+        "Knows the OT role is acquisition/quality control, not treatment"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains a usable, quality-checked scan after troubleshooting",
+        "Does not save/report the poor-quality scan as the result",
+        "Documents the scan quality and findings clearly",
+        "Explains the repeat to the patient and reassures him"
+      ]
+    }
+  }
+}

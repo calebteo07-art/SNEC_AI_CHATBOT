@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_035_macular_oct_diabetic_macular_oedema",
+  "title": "Scanning the Swollen Macula",
+  "difficulty": "intermediate",
+  "topic": "macular_oct_diabetic_macular_oedema",
+  "topic_set": "oct_imaging",
+  "role": "OT",
+  "estimated_minutes": 14,
+  "patient": {
+    "name": "Mr Hassan bin Yusof",
+    "age": 58,
+    "gender": "male",
+    "occupation": "taxi driver",
+    "presenting_complaint": "Referred for a macular OCT scan because of blurred central vision; has diabetes"
+  },
+  "history": {
+    "hpc": "Mr Hassan is referred for a macular OCT to assess blurred central vision in both eyes, worse on the right. He says: 'Doctor say my sugar high, my middle vision blur, ask me come do this scan.' He has diabetes with sub-optimal control. No pain or redness. The OT's task is to acquire a good-quality macular OCT and document the findings for the doctor.",
+    "pmhx": "Type 2 diabetes (HbA1c high), hypertension. Known diabetic retinopathy under monitoring.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 1g BD", "Amlodipine 5mg OD"],
+    "social_hx": "Taxi driver; long driving hours. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24", "left": "6/12"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Clear media adequate for imaging; mild lens changes",
+    "fundus": "Diabetic retinopathy with suspected macular oedema, right worse than left — for OCT and doctor review"
+  },
+  "investigations": {
+    "macular_oct": "Macular cube/line OCT acquired both eyes. Right eye shows increased central retinal/macular thickness with intraretinal fluid (cystoid spaces) consistent with diabetic macular oedema. Scan acquired with good signal strength and correct centration on the fovea. Findings documented with the scan pattern used.",
+    "va_distance": "RE 6/24, LE 6/12.",
+    "scan_quality": "Signal strength adequate; fixation stable; foveal centration confirmed before saving."
+  },
+  "diagnosis": "Macular OCT shows diabetic macular oedema (worse in the right eye) — increased macular thickness with intraretinal fluid. The OT competency is correct acquisition (centration, focus, signal strength) and accurate documentation; diagnosis and treatment are the doctor's.",
+  "management": {
+    "immediate": [
+      "Confirm the diagnosis/indication (diabetic, blurred central vision) and which eye(s) to scan",
+      "Explain the OCT is a quick, non-contact light scan and position the patient with chin/forehead on the rest",
+      "Ensure correct focus and centration on the fovea, and check signal strength before saving",
+      "Acquire the macular scan for both eyes and re-acquire if fixation loss or low signal degrades quality",
+      "Document diagnosis, indication, eye(s), scan pattern, and findings (central thickness, fluid) for the doctor",
+      "Avoid interpreting/treating — present the quality-checked scan for doctor review"
+    ],
+    "follow_up": [
+      "Doctor to confirm diabetic macular oedema and decide on treatment (e.g., anti-VEGF/laser)",
+      "Baseline scan saved for comparison at future visits",
+      "Encourage diabetic control and regular review"
+    ],
+    "patient_education": [
+      "Explain the scan is painless and only takes a short time, no eye drops needed for this scan",
+      "Ask him to keep his chin steady and look at the fixation target",
+      "Explain the doctor will review the scan and discuss results and any treatment",
+      "Encourage good blood sugar control to protect his vision"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (diabetes, blurred central vision) and eye(s) to scan",
+        "Checks diabetic control/retinopathy context relevant to the scan",
+        "Confirms no contraindication to imaging and adequate media",
+        "Explains the procedure to gain cooperation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Positions the patient correctly and ensures correct focus and foveal centration",
+        "Checks signal strength/quality before saving and re-acquires if poor",
+        "Acquires the appropriate macular scan pattern for both eyes",
+        "Documents diagnosis, indication, eye(s), scan pattern, and findings"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises increased macular thickness with intraretinal fluid as macular oedema",
+        "Identifies the right eye as more affected",
+        "Understands the OT role is acquisition and documentation, not diagnosis",
+        "Defers treatment decisions to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Produces a quality-checked, well-centred scan for both eyes",
+        "Documents the scan details and findings accurately",
+        "Explains the scan to the patient and gains cooperation",
+        "Hands the scan to the doctor and saves a baseline for comparison"
+      ]
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_036_rnfl_oct_glaucoma_monitoring",
+  "title": "Measuring the Nerve Fibre Layer",
+  "difficulty": "intermediate",
+  "topic": "rnfl_oct_glaucoma_monitoring",
+  "topic_set": "oct_imaging",
+  "role": "OT",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Mdm Tan Hwee Cheng",
+    "age": 64,
+    "gender": "female",
+    "occupation": "retired accountant",
+    "presenting_complaint": "Referred for an RNFL OCT scan to monitor her glaucoma"
+  },
+  "history": {
+    "hpc": "Mdm Tan is a glaucoma patient referred for a peripapillary RNFL OCT for monitoring. She says: 'My doctor want to check my nerve, see got thinning or not.' She is on glaucoma drops and attends regularly. No new symptoms. The OT must acquire a well-centred RNFL scan and document for comparison with previous scans.",
+    "pmhx": "Primary open-angle glaucoma, both eyes. Hypertension.",
+    "family_hx": "Father had glaucoma",
+    "medications": ["Latanoprost ON both eyes", "Losartan 50mg OD"],
+    "social_hx": "Lives with husband. Compliant with drops and follow-up. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "18 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "anterior_segment": "Clear media; optic discs show glaucomatous cupping (known)",
+    "fundus": "Glaucomatous optic discs; RNFL OCT to quantify and monitor — for doctor review"
+  },
+  "investigations": {
+    "rnfl_oct": "Peripapillary RNFL OCT acquired both eyes. Scan centred on the optic disc with the measurement circle correctly placed; good signal strength and stable fixation confirmed. Findings show inferior RNFL thinning, more on the right, consistent with glaucomatous loss. Saved for comparison with prior scans.",
+    "va_distance": "RE 6/9, LE 6/9.",
+    "scan_quality": "Disc-centred, measurement ring well-positioned, signal strength adequate, no major motion artefact."
+  },
+  "diagnosis": "RNFL OCT shows inferior RNFL thinning consistent with glaucoma, useful for monitoring progression against previous scans. The OT competency is correct disc-centred acquisition, quality control, and documentation for trend comparison; interpretation is the doctor's.",
+  "management": {
+    "immediate": [
+      "Confirm the indication (glaucoma monitoring) and which eye(s) to scan",
+      "Position the patient and ensure the scan is centred on the optic disc with the measurement circle correctly placed",
+      "Confirm good signal strength and stable fixation; re-acquire if decentred or motion-degraded",
+      "Acquire RNFL scans for both eyes",
+      "Document diagnosis, indication, eye(s), and findings, and ensure it can be compared with prior scans",
+      "Avoid interpreting beyond quality control — present for doctor review"
+    ],
+    "follow_up": [
+      "Doctor to compare RNFL with previous scans to assess progression",
+      "Continue glaucoma drops and monitoring as scheduled",
+      "Save the scan for serial comparison"
+    ],
+    "patient_education": [
+      "Explain the scan is a painless light scan to measure the nerve fibre layer",
+      "Ask her to keep still and look at the fixation light",
+      "Explain the doctor will compare with previous scans to see if the glaucoma is stable",
+      "Reinforce the importance of continuing her drops and follow-up"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (glaucoma monitoring) and eye(s) to scan",
+        "Confirms drop compliance and that there are no new symptoms",
+        "Notes the relevance of prior scans for comparison",
+        "Explains the procedure to gain cooperation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Centres the scan on the optic disc with the measurement circle correctly placed",
+        "Confirms signal strength and stable fixation, re-acquiring if needed",
+        "Acquires RNFL scans for both eyes",
+        "Documents diagnosis, indication, eye(s), and findings for comparison"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises inferior RNFL thinning as consistent with glaucoma",
+        "Understands the scan's role in monitoring progression",
+        "Knows the OT role is acquisition and documentation, not diagnosis",
+        "Defers interpretation to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Produces a disc-centred, quality-checked RNFL scan for both eyes",
+        "Documents details to allow serial comparison",
+        "Explains the scan to the patient and gains cooperation",
+        "Reinforces adherence to drops and follow-up"
+      ]
+    }
+  }
+}
