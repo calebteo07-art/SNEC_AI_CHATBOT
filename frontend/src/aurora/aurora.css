@@ -742,8 +742,8 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .aurora-checkin-option:active:not(:disabled):not(.is-static) { transform: scale(0.99); }
 .aurora-checkin-option:disabled { opacity: 0.6; cursor: default; }
 .aurora-checkin-option.is-static { cursor: default; opacity: 1; }
-.aurora-checkin-option.is-correct { border-color: rgba(120, 110, 200, 0.5); background: rgba(66, 133, 244, 0.08); color: var(--on-blue-2); font-weight: 600; }
-.aurora-checkin-option.is-wrong { border-color: rgba(217, 101, 112, 0.4); background: rgba(217, 101, 112, 0.08); color: var(--on-rose); }
+.aurora-checkin-option.is-correct { border-color: rgba(52, 168, 83, 0.55); background: rgba(52, 168, 83, 0.10); color: var(--on-green); font-weight: 600; }
+.aurora-checkin-option.is-wrong { border-color: rgba(217, 101, 112, 0.5); background: rgba(217, 101, 112, 0.10); color: var(--on-rose); font-weight: 600; }
 .aurora-checkin-mark { font-weight: 700; flex-shrink: 0; }
 .aurora-checkin-submit { position: relative; display: block; width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; overflow: hidden; }
 .aurora-checkin-submit span { position: relative; z-index: 1; }
@@ -751,10 +751,10 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .aurora-checkin-skip { display: block; width: 100%; margin-top: 10px; padding: 8px; background: none; border: none; font-size: 12px; color: var(--ink-3); cursor: pointer; }
 .aurora-checkin-skip:hover { color: var(--ink-2); }
 .aurora-checkin-verdict { padding: 14px 16px; border-radius: var(--radius); margin-bottom: 16px; }
-.aurora-checkin-verdict.is-correct { background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(120, 110, 200, 0.3); }
-.aurora-checkin-verdict.is-wrong { background: rgba(217, 101, 112, 0.08); border: 1px solid rgba(217, 101, 112, 0.3); }
+.aurora-checkin-verdict.is-correct { background: rgba(52, 168, 83, 0.10); border: 1px solid rgba(52, 168, 83, 0.32); }
+.aurora-checkin-verdict.is-wrong { background: rgba(217, 101, 112, 0.10); border: 1px solid rgba(217, 101, 112, 0.32); }
 .aurora-checkin-verdict-head { font-size: 15px; font-weight: 600; color: var(--ink); }
-.aurora-checkin-verdict.is-correct .aurora-checkin-verdict-head { color: var(--on-blue-2); }
+.aurora-checkin-verdict.is-correct .aurora-checkin-verdict-head { color: var(--on-green-2); }
 .aurora-checkin-verdict.is-wrong .aurora-checkin-verdict-head { color: var(--on-rose); }
 .aurora-checkin-verdict p { font-size: 13px; line-height: 1.6; color: var(--ink-2); margin: 6px 0 0; }
 

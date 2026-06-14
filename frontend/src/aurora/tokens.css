@@ -23,6 +23,9 @@
   --on-purple: #4A2C7A; --on-purple-2: #6A4A9A;
   --on-rose: #A33B52;  --on-rose-2: #C0496A;
 
+  /* semantic correct/incorrect — Google green for "correct", rose stands in for "wrong" */
+  --g-green: #34A853;  --on-green: #1E7E34;  --on-green-2: #2A8C43;
+
   /* chat lavender wash */
   --wash-lavender: linear-gradient(160deg, #EAEBFB, #EFEAF6 52%, #F6ECF1);
 
