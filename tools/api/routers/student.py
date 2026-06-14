@@ -14,6 +14,7 @@ from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, require_supervisor, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
+from tools.shared import db
 
 router = APIRouter()
 
@@ -313,6 +314,91 @@ async def flashcards_due_count(current_user: CurrentUser = Depends(get_current_u
     except Exception:
         count = 0
     return DueCountResponse(count=count)
+
+
+# ── Cohort leaderboard (opt-in, supervisor-gated) ───────────────────────────
+
+def _short_name(full: str) -> str:
+    """First name + last initial, e.g. 'Caleb T.' — shown for opted-in students."""
+    parts = (full or "").strip().split()
+    if not parts:
+        return "Student"
+    if len(parts) == 1:
+        return parts[0]
+    return f"{parts[0]} {parts[-1][0]}."
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    name: str
+    xp: int
+    level: int
+    is_you: bool
+
+
+class LeaderboardResponse(BaseModel):
+    enabled: bool
+    opted_in: bool
+    entries: list[LeaderboardEntry]
+
+
+class OptInRequest(BaseModel):
+    opt_in: bool
+
+
+@router.get("/api/leaderboard", response_model=LeaderboardResponse)
+async def leaderboard(current_user: CurrentUser = Depends(get_current_user)):
+    """The cohort leaderboard — only populated when a supervisor has enabled it
+    AND the calling student has opted in. Entries are the opted-in students,
+    ranked by XP and shown as first name + last initial."""
+    student_id = current_user["sub"]
+    try:
+        enabled = await db.get_leaderboard_enabled()
+    except Exception:
+        enabled = False
+
+    opted_in = False
+    try:
+        prof = await get_profile(student_id)
+        opted_in = bool(prof.get("leaderboard_opt_in"))
+    except Exception:
+        pass
+
+    entries: list[LeaderboardEntry] = []
+    if enabled and opted_in:
+        try:
+            profiles = await db.get_all_profiles()
+            consent = await db.get_all_consent()
+            name_map = {r["student_id"]: (r.get("student_name") or "") for r in consent}
+            ranked = sorted(
+                [p for p in profiles if p.get("leaderboard_opt_in")],
+                key=lambda p: int(p.get("xp") or 0),
+                reverse=True,
+            )
+            for i, p in enumerate(ranked):
+                sid = p["student_id"]
+                entries.append(LeaderboardEntry(
+                    rank=i + 1,
+                    name=_short_name(name_map.get(sid, "Student")),
+                    xp=int(p.get("xp") or 0),
+                    level=int(p.get("level") or 1),
+                    is_you=(sid == student_id),
+                ))
+        except Exception:
+            entries = []
+
+    return LeaderboardResponse(enabled=enabled, opted_in=opted_in, entries=entries)
+
+
+@router.post("/api/leaderboard/opt-in")
+async def leaderboard_opt_in(body: OptInRequest, current_user: CurrentUser = Depends(get_current_user)):
+    """Student joins or leaves the cohort leaderboard."""
+    student_id = current_user["sub"]
+    try:
+        await db.update_profile(student_id, leaderboard_opt_in=body.opt_in)
+    except Exception:
+        raise HTTPException(status_code=503, detail="The leaderboard isn't available yet.")
+    return {"ok": True, "opted_in": body.opt_in}
 
 
 # ── Study suggestion ───────────────────────────────────────────────────────
