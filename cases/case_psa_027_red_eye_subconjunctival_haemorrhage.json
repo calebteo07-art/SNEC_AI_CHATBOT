@@ -1,0 +1,91 @@
+{
+  "case_id": "case_psa_027_red_eye_subconjunctival_haemorrhage",
+  "title": "A Patch of Red",
+  "difficulty": "intermediate",
+  "topic": "red_eye_subconjunctival_haemorrhage",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mr Wong Ah Kow",
+    "age": 68,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Bright red patch on the white of one eye, no pain, vision normal"
+  },
+  "history": {
+    "hpc": "Mr Wong says 'This morning I see one big red patch on my eye, look very scary, but no pain and I can see okay.' One eye, a flat bright-red patch on the sclera, no pain, no discharge, no change in vision. No injury he can recall.",
+    "pmhx": "High blood pressure. Takes aspirin daily.",
+    "family_hx": "Nil specific",
+    "medications": ["Aspirin 100mg daily", "Amlodipine for blood pressure"],
+    "social_hx": "Retired. Was straining/coughing recently."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
+    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "anterior_segment": "Flat bright-red area over the sclera, cornea clear by observation, no discharge",
+    "fundus": "Not assessed by the PSA"
+  },
+  "investigations": {
+    "history_and_triage": "Focused history shows a painless red patch with normal vision and no discharge — typical of a subconjunctival haemorrhage, often benign, with relevant aspirin use and high blood pressure noted.",
+    "red_flags_checked": "No pain, no visual loss, no discharge, no injury — no sight-threatening red flags.",
+    "triage_category": "Routine — reassure; note the anticoagulant and blood pressure for the doctor; advise a blood pressure check."
+  },
+  "diagnosis": "A painless, flat, bright-red scleral patch with normal vision and no discharge is consistent with a subconjunctival haemorrhage, which is usually benign. The PSA reassures the patient, notes the aspirin and blood pressure as relevant, and routes routinely. No medical diagnosis is made by the PSA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and take a focused red-eye history including injury and straining",
+      "Recognise the painless, normal-vision, no-discharge pattern of a subconjunctival haemorrhage",
+      "Ask about and note blood thinners (aspirin) and high blood pressure",
+      "Record visual acuity and triage routinely",
+      "Document findings clearly"
+    ],
+    "follow_up": [
+      "Suggest a blood pressure check and note the aspirin use for the doctor",
+      "Advise return if pain, vision change or recurrence"
+    ],
+    "patient_education": [
+      "Reassure that it usually looks worse than it is and clears over 1–2 weeks",
+      "Advise not to rub the eye",
+      "Advise reviewing blood pressure and returning if it recurs often"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and takes a focused red-eye history",
+        "Asks about pain, vision, discharge and injury/straining",
+        "Asks about blood thinners and blood pressure",
+        "Records visual acuity"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the benign subconjunctival haemorrhage pattern",
+        "Confirms no red flags (no pain, normal vision)",
+        "Notes aspirin and high blood pressure as relevant",
+        "Distinguishes it from a painful or sight-threatening red eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a likely benign red eye",
+        "Does not make a medical diagnosis — routes routinely",
+        "Understands the relevance of anticoagulants and blood pressure",
+        "Knows which features would change the urgency"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Reassures the patient appropriately",
+        "Notes the aspirin/blood pressure and suggests a BP check",
+        "Documents findings clearly",
+        "Advises return if symptoms change"
+      ]
+    }
+  }
+}

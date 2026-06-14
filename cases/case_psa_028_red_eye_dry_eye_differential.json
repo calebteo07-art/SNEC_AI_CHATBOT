@@ -1,0 +1,91 @@
+{
+  "case_id": "case_psa_028_red_eye_dry_eye_differential",
+  "title": "Gritty and Tired Eyes",
+  "difficulty": "intermediate",
+  "topic": "red_eye_dry_eye_differential",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mdm Koh Siew Eng",
+    "age": 58,
+    "gender": "female",
+    "occupation": "accountant",
+    "presenting_complaint": "Both eyes red and gritty, worse with screen use, no pain"
+  },
+  "history": {
+    "hpc": "Mdm Koh says 'My eyes feel gritty and red, like got sand inside, worse when I look at computer whole day. No pain, just tired and dry.' Both eyes, mild redness, burning/gritty feeling, no discharge, vision normal but fluctuates a bit.",
+    "pmhx": "No serious eye problems. Long screen hours at work. Uses the air-con office all day.",
+    "family_hx": "Nil specific",
+    "medications": ["Occasional lubricant drops"],
+    "social_hx": "Office worker, long screen time, dry air-conditioned environment."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6 (fluctuates slightly)"},
+    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "anterior_segment": "Mild bilateral redness, no discharge; surface dryness suspected (for doctor to confirm)",
+    "fundus": "Not assessed by the PSA"
+  },
+  "investigations": {
+    "history_and_triage": "Focused history shows a chronic, mild, gritty bilateral red eye with no pain, no discharge and normal vision, worse with screens and dry air — a dry-eye pattern rather than an acute infective or painful red eye.",
+    "red_flags_checked": "No pain, no photophobia, no visual loss, no contact lens use — no sight-threatening red flags.",
+    "triage_category": "Routine (Category 4) — minor/chronic; advise eye-care habits and routine review."
+  },
+  "diagnosis": "A mild, chronic, gritty bilateral red eye with no pain or discharge, worse with screen use and dry air, fits a dry-eye pattern. The PSA recognises there are no red flags, triages routinely, and advises simple measures. No medical diagnosis is made by the PSA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and take a focused red-eye history including screen use and environment",
+      "Apply the red-eye differential and recognise the dry-eye pattern",
+      "Confirm there are no red flags (pain, photophobia, vision loss, contact lens use)",
+      "Record visual acuity and triage routinely",
+      "Document findings clearly"
+    ],
+    "follow_up": [
+      "Doctor to confirm and advise lubricants if needed",
+      "Advise return if pain, light sensitivity or reduced vision develop"
+    ],
+    "patient_education": [
+      "Explain screen breaks (look away regularly) and blinking often",
+      "Suggest reducing direct air-con/fan flow and using lubricant drops",
+      "Advise return if the eyes become painful or vision drops"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and takes a focused red-eye history",
+        "Asks about screen use, environment and discharge",
+        "Asks about pain, photophobia and vision",
+        "Records visual acuity"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Applies the red-eye differential and recognises the dry-eye pattern",
+        "Distinguishes it from an acute infective or painful red eye",
+        "Confirms there are no red flags",
+        "Notes screen use and dry environment as relevant"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a likely minor (Category 4) chronic red eye",
+        "Does not make a medical diagnosis — routes routinely",
+        "Understands which features would raise the urgency",
+        "Links lifestyle factors to the symptoms"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Triages routinely and documents clearly",
+        "Gives screen-break and environment advice",
+        "Suggests lubricant drops appropriately",
+        "Advises return if red-flag symptoms develop"
+      ]
+    }
+  }
+}
