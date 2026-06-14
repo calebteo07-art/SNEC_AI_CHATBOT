@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_032_chemical_injury_alkali_irrigation",
+  "title": "Cement in the Eye",
+  "difficulty": "intermediate",
+  "topic": "chemical_injury_alkali_immediate_irrigation",
+  "topic_set": "ocular_emergencies",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Saravanan s/o Ganesan",
+    "age": 38,
+    "gender": "male",
+    "occupation": "construction worker",
+    "presenting_complaint": "Wet cement splashed into the right eye 15 minutes ago; eye is painful, red and watering"
+  },
+  "history": {
+    "hpc": "Mr Saravanan rushes to the counter holding his right eye. He says: 'Cement splash into my eye just now at the worksite, very pain and cannot open!' The eye is red, tearing, and he is in distress. Wet cement is alkaline. This is a chemical eye injury — a Category 1 emergency where immediate irrigation must start without delay.",
+    "pmhx": "Nil significant",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Construction worker; was not wearing eye protection. Came straight from the worksite."
+  },
+  "examination_findings": {
+    "va": {"right": "reduced and difficult to assess due to pain/blepharospasm", "left": "6/9"},
+    "iop": {"right": "not measured at this stage — irrigation takes priority", "left": "not measured"},
+    "anterior_segment": "Right eye: conjunctival hyperaemia, possible corneal haze/oedema; chemical (alkali) exposure",
+    "fundus": "Not assessed — emergency irrigation first"
+  },
+  "investigations": {
+    "front_line_action": "Recognise an alkali chemical injury as a Category 1 emergency requiring IMMEDIATE copious irrigation. Begin irrigation with saline (or clean water if saline not immediately available) without waiting to measure VA/IOP. Alert the doctor/nurse immediately while irrigating.",
+    "va_distance": "Formal VA deferred until after irrigation has begun and the doctor is alerted."
+  },
+  "diagnosis": "Alkali chemical eye injury (wet cement) — a sight-threatening Category 1 ocular emergency. The single most important front-line action is to START IRRIGATION IMMEDIATELY and alert the doctor, before formal assessment. The PSA competency is recognition and immediate correct action, not diagnosis or definitive treatment.",
+  "management": {
+    "immediate": [
+      "Recognise this as a chemical (alkali) injury — Category 1, treat within 10 minutes",
+      "START IRRIGATION IMMEDIATELY with saline (or clean water if saline is not at hand) — do not delay to measure VA/IOP",
+      "Alert the doctor/nurse to the emergency at once while irrigation continues",
+      "Continue copious irrigation as directed; help the patient keep the eye open and reassure him",
+      "Do NOT instil any other drops without the doctor's order and do not let him rub the eye",
+      "Document the substance (cement/alkali), time of injury, time irrigation started, and the actions taken"
+    ],
+    "follow_up": [
+      "Doctor to assess the eye after irrigation (including checking the pH) and direct further treatment",
+      "Continue irrigation until the doctor confirms it can stop",
+      "Document the chemical, eye, and timings on the triage/emergency record"
+    ],
+    "patient_education": [
+      "Reassure him that washing the eye out is the priority and is being done now",
+      "Ask him to try to keep the eye open during irrigation and not to rub it",
+      "Explain the doctor will see him urgently after the wash-out",
+      "Advise on eye protection at work to prevent future injuries (once stable)"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Quickly establishes the chemical (cement/alkali) nature and time of injury",
+        "Recognises distress and does not delay care to take a full history",
+        "Identifies lack of eye protection/mechanism briefly",
+        "Gathers only the essentials before acting"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises a chemical injury as a Category 1 emergency",
+        "Prioritises immediate irrigation over measuring VA/IOP",
+        "Alerts the doctor/nurse without delay",
+        "Documents the substance and the time irrigation started"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Identifies alkali chemical injury as sight-threatening",
+        "Knows irrigation must begin immediately, before formal assessment",
+        "Understands the 10-minute Category 1 urgency",
+        "Knows not to instil other drops without the doctor's order"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Starts copious irrigation immediately with saline/clean water",
+        "Escalates to the doctor/nurse at once and continues irrigation as directed",
+        "Reassures the patient and prevents eye rubbing",
+        "Documents chemical, eye, and key timings accurately"
+      ]
+    }
+  }
+}
