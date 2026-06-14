@@ -1,0 +1,93 @@
+{
+  "case_id": "case_ot_040_nct_unreliable_readings_difficult_patient",
+  "title": "Scared of the Air Puff",
+  "difficulty": "intermediate",
+  "topic": "nct_screening_unreliable_readings_technique",
+  "topic_set": "screening",
+  "role": "OT",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Chong Mei Ling",
+    "age": 60,
+    "gender": "female",
+    "occupation": "hawker assistant",
+    "presenting_complaint": "At a screening station; very anxious about the air-puff tonometer and keeps flinching, giving inconsistent readings"
+  },
+  "history": {
+    "hpc": "Mdm Chong is at the NCT screening station but is very nervous. She says: 'The air puff make me scared, I keep blinking and pull back.' The first few NCT attempts give widely inconsistent readings. The OT must settle the patient, improve technique, obtain reliable readings, and decide when to escalate to Goldmann tonometry.",
+    "pmhx": "Hypertension. No known eye disease.",
+    "family_hx": "Nil significant",
+    "medications": ["Hydrochlorothiazide 25mg OD"],
+    "social_hx": "Works at a hawker stall. Non-smoker. Generally anxious in clinical settings."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "inconsistent initially (e.g. 14, 22, 17); 16 mmHg after settling", "left": "15 mmHg after settling"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "Not assessed at screening"
+  },
+  "investigations": {
+    "nct_screening": "Initial NCT readings inconsistent due to blinking/flinching. The OT reassured the patient, demonstrated the puff on her hand, asked her to keep both eyes open and look at the target, and re-attempted. Consistent readings were then obtained (RE 16, LE 15 mmHg). Two common causes of unreliable NCT are blinking/poor cooperation and poor positioning/alignment.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "Initially unreliable NCT due to patient anxiety and blinking, resolved with reassurance and better technique to give consistent normal readings. The OT competency is recognising unreliable readings, correcting technique, and knowing that persistently unreliable NCT should be referred for Goldmann tonometry.",
+  "management": {
+    "immediate": [
+      "Recognise the widely inconsistent readings as unreliable, not true IOP values",
+      "Reassure the patient and explain/demonstrate the air puff (e.g., on the back of her hand) to reduce fear",
+      "Optimise technique: correct positioning and alignment, ask her to keep both eyes open and fixate the target",
+      "Re-attempt and confirm the readings are now consistent before recording",
+      "Document the technique used and the final consistent readings",
+      "If readings remain unreliable despite this, refer for Goldmann applanation tonometry"
+    ],
+    "follow_up": [
+      "If unable to obtain reliable NCT, arrange Goldmann tonometry",
+      "Record the screening outcome and any difficulty for future reference",
+      "Advise routine follow-up as per screening protocol"
+    ],
+    "patient_education": [
+      "Reassure her the puff is harmless and quick, and demonstrate it to ease anxiety",
+      "Coach her to keep both eyes open and look straight at the light",
+      "Explain why a steady, unflinching moment is needed for an accurate reading",
+      "Praise her cooperation once reliable readings are obtained"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies the patient's anxiety and blinking as the source of difficulty",
+        "Confirms the screening context and relevant history",
+        "Confirms glasses/lenses removed and no contraindication",
+        "Explains and demonstrates the procedure to reduce fear"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the inconsistent readings as unreliable rather than true IOP",
+        "Optimises positioning, alignment, and patient cooperation before repeating",
+        "Confirms consistent readings before recording",
+        "Identifies common causes of unreliable NCT (blinking, poor alignment)"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands when NCT readings are unreliable",
+        "Knows persistently unreliable NCT should be referred for Goldmann tonometry",
+        "Interprets the final consistent readings as normal",
+        "Does not record an artefactual reading as the result"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Reassures and coaches the patient to obtain reliable readings",
+        "Documents technique and the final consistent readings",
+        "Escalates to Goldmann tonometry if NCT stays unreliable",
+        "Communicates supportively and praises cooperation"
+      ]
+    }
+  }
+}
