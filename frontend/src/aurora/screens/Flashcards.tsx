@@ -12,7 +12,7 @@ import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
 import {
   getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
-  getStoredHearts, setStoredHearts,
+  getStoredHearts,
 } from "@/lib/legacy/gamification";
 import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
@@ -29,12 +29,12 @@ interface Flashcard {
 }
 interface AiFeedback { feedback: string; score: number; }
 
-const RATINGS = [
-  { label: "Again", cap: "Try soon",   value: 1, grad: "linear-gradient(120deg, #D96570, #C0496A)" },
-  { label: "Hard",  cap: "Effortful",  value: 2, grad: "linear-gradient(120deg, #D96570, #9B72CB)" },
-  { label: "Good",  cap: "Solid",      value: 3, grad: "linear-gradient(120deg, #9B72CB, #4285F4)" },
-  { label: "Easy",  cap: "Mastered",   value: 4, grad: "linear-gradient(120deg, #4285F4, #6AA3FF)" },
-];
+/** The AI's 0-100 grade decides the XP, on the same 5-35 per-card scale the old
+ *  self-rating used. A floor of 5 rewards every genuine attempt. */
+function xpForScore(score: number): number {
+  const s = Math.max(0, Math.min(100, score));
+  return Math.max(5, Math.round((s / 100) * 35));
+}
 
 function loadSessionCards(): Flashcard[] {
   try {
@@ -83,7 +83,9 @@ export function Flashcards() {
   const [aiChecking, setAiChecking] = useState(false);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const [sessionXp, setSessionXp] = useState(0);
-  const [matrix, setMatrix] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
+  const [cardXp, setCardXp] = useState(0);            // XP the AI awarded for the current card
+  const [gradedCount, setGradedCount] = useState(0);
+  const [scoreSum, setScoreSum] = useState(0);
   const [displayHearts, setDisplayHearts] = useState(() => getStoredHearts());
 
   const deckTitle = useMemo(() => {
@@ -95,12 +97,13 @@ export function Flashcards() {
 
   const card = cards[idx];
 
-  const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); };
+  const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); setCardXp(0); };
 
   // Answering is compulsory: the typed attempt is submitted, the AI grades it
-  // against the crafted model answer (the card's KB-grounded back), and only then
-  // is the model answer revealed for comparison. A grading failure still lets the
-  // student see the model answer and continue.
+  // out of 100 against the crafted model answer (the card's KB-grounded back),
+  // and that grade decides the XP — awarded the moment it's known. Only then is
+  // the model answer revealed. A grading failure still rewards the attempt and
+  // lets the student continue.
   const submitAnswer = () => {
     if (!userAttempt.trim() || submitted || !card) return;
     setSubmitted(true);
@@ -111,40 +114,39 @@ export function Flashcards() {
         card_id: card.card_id, repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
       },
       {
-        onSuccess: (d) => { setAiFeedback(d); setAiChecking(false); },
-        onError: () => setAiChecking(false),
+        onSuccess: (d) => {
+          setAiFeedback(d);
+          setAiChecking(false);
+          const xp = xpForScore(d.score);
+          setCardXp(xp);
+          addXP(xp);
+          setSessionXp((p) => p + xp);
+          setGradedCount((n) => n + 1);
+          setScoreSum((s) => s + Math.max(0, Math.min(100, d.score)));
+          const unlocked = checkAndUnlockAchievements();
+          if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
+        },
+        onError: () => {
+          setAiChecking(false);
+          // Grading unavailable — still reward the attempt generously so nobody is stuck.
+          const xp = xpForScore(60);
+          setCardXp(xp);
+          addXP(xp);
+          setSessionXp((p) => p + xp);
+        },
       },
     );
   };
 
-  const handleRating = (value: number) => {
-    if (!card) return;
-    const xpMap: Record<number, number> = {
-      1: XP_REWARDS.flashcardAgain, 2: XP_REWARDS.flashcardHard, 3: XP_REWARDS.flashcardGood, 4: XP_REWARDS.flashcardEasy,
-    };
-    const xpAmount = xpMap[value] ?? 0;
-    addXP(xpAmount);
-    setSessionXp((p) => p + xpAmount);
-
-    let nextAgain = matrix.again;
-    if (value === 1) {
-      const newH = Math.max(0, getStoredHearts() - 1);
-      setStoredHearts(newH); setDisplayHearts(newH);
-      nextAgain = matrix.again + 1;
-      setMatrix((m) => ({ ...m, again: m.again + 1 }));
-    } else if (value === 2) setMatrix((m) => ({ ...m, hard: m.hard + 1 }));
-    else if (value === 3) setMatrix((m) => ({ ...m, good: m.good + 1 }));
-    else setMatrix((m) => ({ ...m, easy: m.easy + 1 }));
-
-    const unlocked = checkAndUnlockAchievements();
-    if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
-
+  // No more self-rating — the AI's grade already set the XP. Advancing just moves
+  // to the next card, or finishes the run and syncs the session XP.
+  const advance = () => {
     resetCardState();
     if (idx < cards.length - 1) {
       setIdx((i) => i + 1);
     } else {
-      const totalXp = sessionXp + xpAmount + XP_REWARDS.sessionComplete;
-      syncGamification({ xp_delta: totalXp, hearts_used: nextAgain }).finally(() => router.push("/summary"));
+      syncGamification({ xp_delta: sessionXp + XP_REWARDS.sessionComplete, hearts_used: 0 })
+        .finally(() => router.push("/summary"));
     }
   };
 
@@ -230,6 +232,34 @@ export function Flashcards() {
   const dotIdx = Math.min(idx, totalDots - 1);
   const xpTotal = getUserProgress().xp;
 
+  // Encouraging coach bubbles — informal, lighthearted, and context-aware. Phrasing
+  // is keyed off idx (stable per card) so it never flickers while the student types.
+  const remaining = Math.max(0, cards.length - idx - 1);
+  const progressTip =
+    remaining === 0 ? "🏁 Last card — finish strong!"
+    : remaining <= 2 ? `Almost there — ${remaining} to go! 🙌`
+    : `${remaining} cards left · ${sessionXp} XP so far ⚡`;
+  const coach: { msg: string; tip: string } = (() => {
+    const pick = (arr: string[]) => arr[idx % arr.length];
+    if (!submitted) return {
+      msg: pick([
+        "Give it a real go — even a rough guess wires it in 🧠",
+        "Type what you remember. Half-right still earns XP 💪",
+        "No peeking! Your brain learns most when it has to reach 🤓",
+      ]),
+      tip: "Answer well for up to +35 XP a card ⚡",
+    };
+    if (aiChecking) return { msg: "Marking your answer… ✍️", tip: "" };
+    if (!aiFeedback) return { msg: `Nice try! +${cardXp} XP — peek at the model answer 👇`, tip: progressTip };
+    const s = aiFeedback.score;
+    const msg =
+      s >= 85 ? `🔥 Smashed it! +${cardXp} XP in the bank.`
+      : s >= 60 ? `💪 Solid — +${cardXp} XP. You're really getting it.`
+      : s >= 40 ? `📈 Good effort — +${cardXp} XP. The model answer will top you up.`
+      : `🌱 +${cardXp} XP for trying — read the model answer, you've got this.`;
+    return { msg, tip: progressTip };
+  })();
+
   return (
     <div className="aurora-deck">
       <h1 className="sr-only">Flashcards</h1>
@@ -300,11 +330,20 @@ export function Flashcards() {
                     <div className="aurora-feedback">
                       {aiFeedback ? (
                         <>
-                          <span className="aurora-feedback-head">Tutor · {aiFeedback.score}/10</span>
+                          <span className="aurora-feedback-head">
+                            <span>Tutor · {aiFeedback.score}/100</span>
+                            <span className="aurora-feedback-xp">+{cardXp} XP</span>
+                          </span>
                           <p>{aiFeedback.feedback}</p>
                         </>
                       ) : (
-                        <p className="aurora-muted">Couldn&apos;t grade automatically — compare your answer with the model answer below.</p>
+                        <>
+                          <span className="aurora-feedback-head">
+                            <span>Graded offline</span>
+                            <span className="aurora-feedback-xp">+{cardXp} XP</span>
+                          </span>
+                          <p className="aurora-muted">Couldn&apos;t grade automatically — compare your answer with the model answer below.</p>
+                        </>
                       )}
                     </div>
 
@@ -313,15 +352,9 @@ export function Flashcards() {
                       <p>{card.answer}</p>
                     </div>
 
-                    <p className="aurora-rate-head">How well did you recall this?</p>
-                    <div className="aurora-rate-grid">
-                      {RATINGS.map((r) => (
-                        <button key={r.label} type="button" className="aurora-rate" style={{ backgroundImage: r.grad }} onClick={() => handleRating(r.value)}>
-                          <span className="aurora-rate-label">{r.label}</span>
-                          <span className="aurora-rate-cap">{r.cap}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn" onClick={advance}>
+                      <span>{idx < cards.length - 1 ? "Next card →" : "Finish session →"}</span>
+                    </button>
                   </>
                 )}
               </>
@@ -330,6 +363,15 @@ export function Flashcards() {
         </section>
 
         <aside className="aurora-deck-side" aria-label="Session">
+          <div className="aurora-card aurora-coach">
+            <div className="aurora-coach-top">
+              <span className="aurora-coach-avatar" aria-hidden>✦</span>
+              <span className="aurora-side-label">Coach</span>
+            </div>
+            <div key={coach.msg} className="aurora-coach-bubble" aria-live="polite">{coach.msg}</div>
+            {coach.tip && <div key={coach.tip} className="aurora-coach-bubble is-tip">{coach.tip}</div>}
+          </div>
+
           <div className="aurora-card aurora-side-card">
             <p className="aurora-side-label">Queue · {Math.max(0, cards.length - idx - 1)} left</p>
             {cards.slice(idx + 1, idx + 6).map((c, i) => (
@@ -342,18 +384,10 @@ export function Flashcards() {
           </div>
 
           <div className="aurora-card aurora-side-card">
-            <p className="aurora-side-label">Session</p>
-            {([["Again", matrix.again], ["Hard", matrix.hard], ["Good", matrix.good], ["Easy", matrix.easy]] as const).map(([label, val]) => (
-              <div key={label} className="aurora-matrix-row">
-                <span>{label}</span>
-                <span className="aurora-matrix-val">{val}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="aurora-card aurora-side-card">
             <p className="aurora-side-label">This session</p>
             <p className="aurora-side-xp"><span className="aurora-clip">+{sessionXp}</span> <small>XP</small></p>
+            <div className="aurora-matrix-row"><span>Graded</span><span className="aurora-matrix-val">{gradedCount}</span></div>
+            <div className="aurora-matrix-row"><span>Avg score</span><span className="aurora-matrix-val">{gradedCount ? Math.round(scoreSum / gradedCount) : "—"}</span></div>
             <div className="aurora-matrix-row"><span>Total XP</span><span className="aurora-matrix-val">{xpTotal}</span></div>
             <div className="aurora-deck-progress">
               <div className="aurora-progress"><div className="aurora-progress-fill aurora-flow" style={{ width: `${((idx + 1) / cards.length) * 100}%` }} /></div>
