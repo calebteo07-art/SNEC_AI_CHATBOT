@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_044_history_ocular_presenting_blurring",
+  "title": "Asking the Right Questions",
+  "difficulty": "intermediate",
+  "topic": "history_taking_ocular_presenting_problem",
+  "topic_set": "history_taking",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Subramaniam s/o Raju",
+    "age": 60,
+    "gender": "male",
+    "occupation": "security supervisor",
+    "presenting_complaint": "Blurred vision in the right eye; here as a walk-in and needs a focused history before being seen"
+  },
+  "history": {
+    "hpc": "Mr Subramaniam reports blurred vision in the right eye. He says: 'My right eye blur, I not sure when start, on and off.' The PSA must take a focused ocular presenting-problem history to help triage: whether the change was sudden or gradual, partial or total, one or both eyes, with associated flashes, floaters, pain, or redness.",
+    "pmhx": "Type 2 diabetes, hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "social_hx": "Security supervisor doing shift work. Wears glasses for reading."
+  },
+  "examination_findings": {
+    "va": {"right": "6/15", "left": "6/9"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "To be assessed by doctor; history guides urgency",
+    "fundus": "For doctor (diabetic — fundus relevant)"
+  },
+  "investigations": {
+    "history_documentation": "Focused ocular presenting-problem history taken: onset (sudden vs gradual), partial vs total loss, one or both eyes, blurry vs double vision, any sudden drop, flashes/floaters/headaches, recent surgery or trauma, red/sore/itchy eye, and current correction. The structured history clarifies the complaint and flags any red flags for the doctor.",
+    "va_distance": "RE 6/15, LE 6/9."
+  },
+  "diagnosis": "A focused ocular history clarifies a vague 'blurring' complaint and screens for red flags (e.g., sudden loss, flashes/floaters) that would change urgency, in a diabetic patient. The PSA competency is structured history taking and documentation to support triage; diagnosis is the doctor's.",
+  "management": {
+    "immediate": [
+      "Take a structured ocular presenting-problem history: sudden vs gradual, partial vs total, one or both eyes",
+      "Ask about blurry vs double vision, any sudden drop, and flashes/floaters/headaches",
+      "Ask about recent eye surgery or trauma and any red/sore/itchy eye",
+      "Confirm current correction (glasses/contact lenses) and relevant systemic history (diabetes)",
+      "Identify any red-flag answers that would raise triage urgency",
+      "Document the history clearly and measure VA for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to assess, with the history guiding the focus (e.g., diabetic eye disease)",
+      "Triage urgency adjusted if any red flags emerged",
+      "Record the history on the patient's record"
+    ],
+    "patient_education": [
+      "Explain that the questions help the doctor understand and prioritise his problem",
+      "Encourage him to mention any sudden changes, flashes, or floaters",
+      "Reassure him he will be assessed and advise him to report new symptoms while waiting",
+      "Encourage good diabetic control and regular eye checks"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Clarifies onset (sudden vs gradual) and whether one or both eyes",
+        "Asks about partial vs total loss and associated flashes/floaters/headaches",
+        "Asks about recent surgery/trauma and red/sore/itchy eye",
+        "Confirms current correction and relevant systemic history (diabetes)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Uses a structured ocular presenting-problem framework",
+        "Measures VA in both eyes",
+        "Identifies any red-flag responses",
+        "Documents the history clearly for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands that history shapes triage urgency",
+        "Recognises red-flag symptoms that would escalate urgency",
+        "Considers the diabetic context relevant to the complaint",
+        "Knows diagnosis is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents a clear, structured history and VA",
+        "Adjusts/raises triage if red flags emerge",
+        "Explains the purpose of the questions to the patient",
+        "Advises reporting new symptoms while waiting"
+      ]
+    }
+  }
+}

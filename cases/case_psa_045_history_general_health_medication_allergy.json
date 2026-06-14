@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_045_history_general_health_medication_allergy",
+  "title": "The Full Picture",
+  "difficulty": "intermediate",
+  "topic": "history_taking_general_health_medication_allergy",
+  "topic_set": "history_taking",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Halimah binte Yusof",
+    "age": 64,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "New patient registering for an eye clinic visit; needs a general health, medication and allergy history"
+  },
+  "history": {
+    "hpc": "Mdm Halimah is a new patient. The PSA must take a general health history. She initially mentions only diabetes, then on prompting adds: 'Oh, I also take the blood-thinner one, and sometimes herbal jamu from my neighbour. And one time the nurse gave me an eye drop, my eye became very itchy and swollen.' Capturing systemic conditions, all medications, and allergies is essential for safe care.",
+    "pmhx": "Type 2 diabetes, hypertension, atrial fibrillation (on anticoagulant).",
+    "family_hx": "Glaucoma in a sibling",
+    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Anticoagulant (for AF)", "Herbal supplement (jamu)"],
+    "social_hx": "Lives with family. Takes traditional supplements occasionally."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12", "left": "6/12"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "To be assessed by doctor",
+    "fundus": "For doctor (diabetic)"
+  },
+  "investigations": {
+    "history_documentation": "Structured general health history obtained: systemic conditions (diabetes, hypertension, AF), all medications including the anticoagulant and herbal supplement, and a clear drug allergy (previous reaction to an eye drop). Family history of glaucoma noted. The allergy is flagged prominently.",
+    "va_distance": "RE 6/12, LE 6/12."
+  },
+  "diagnosis": "A thorough general health, medication, and allergy history for a new patient uncovers an anticoagulant, a herbal supplement, and an eye-drop allergy — all important for safe care and any future procedure. This case is about complete, safe history taking; clinical decisions are the doctor's.",
+  "management": {
+    "immediate": [
+      "Take a structured general health history: systemic conditions, all medications, allergies",
+      "Specifically ask about blood thinners (anticoagulants), herbal supplements, and vitamins, which are often omitted",
+      "Elicit and prominently flag the drug allergy (previous eye-drop reaction)",
+      "Note the family history of glaucoma",
+      "Measure VA and document the full history clearly for the doctor",
+      "Ensure the allergy is recorded so the offending drop is not given"
+    ],
+    "follow_up": [
+      "Doctor to factor the anticoagulant into any planned procedure/surgery",
+      "Advise the patient to bring a list of all medicines and supplements to future visits",
+      "Confirm the specific herbal supplement where possible"
+    ],
+    "patient_education": [
+      "Explain that blood thinners, herbal supplements, and allergies are important for safe treatment",
+      "Reassure her that sharing this keeps her safe",
+      "Advise keeping an up-to-date medication list",
+      "Explain the allergy will be flagged so she is not given that drop again"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Takes a structured general health and medication history",
+        "Specifically probes for anticoagulants, herbal supplements, and vitamins",
+        "Elicits and records the eye-drop allergy",
+        "Notes relevant family history (glaucoma)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents all systemic conditions and the full medication list",
+        "Flags the drug allergy prominently",
+        "Measures VA",
+        "Records the history completely for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the anticoagulant as important for any future procedure",
+        "Understands why herbal supplements must be elicited",
+        "Identifies the eye-drop allergy as a key safety item",
+        "Frames the task as complete, safe history taking"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents medications, supplements, and allergy accurately",
+        "Ensures the allergy is flagged in the record",
+        "Educates the patient on why these details matter",
+        "Advises bringing an updated medication list to future visits"
+      ]
+    }
+  }
+}
