@@ -126,6 +126,9 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
     from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
     ctx_block = await _student_context_block(student_id)
+    # Defensive cap — the UI limits answers to 300 chars; truncate generously here
+    # so an oversized payload can never bloat the grader prompt.
+    student_answer = (body.student_answer or "")[:600]
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
         + "You are an ophthalmology tutor grading a student's active-recall attempt. "
@@ -146,7 +149,7 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
                 "content": (
                     f"Question: {body.question}\n\n"
                     f"Model answer (authoritative reference): {body.correct_answer}\n\n"
-                    f"Student answer: {body.student_answer}"
+                    f"Student answer: {student_answer}"
                 ),
             }],
             max_tokens=1024,
