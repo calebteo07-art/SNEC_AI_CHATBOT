@@ -14,8 +14,10 @@ import {
   getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
   getStoredHearts, setStoredHearts,
 } from "@/lib/legacy/gamification";
-import { useFlashcards, useFlashcardCheck } from "@/hooks/useFlashcards";
+import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
+
+type Difficulty = "easy" | "medium";
 
 interface Flashcard {
   id: number; question: string; answer: string; tag: string;
@@ -45,7 +47,18 @@ function loadSessionCards(): Flashcard[] {
 export function Flashcards() {
   const router = useRouter();
   const sessionCards = useMemo(() => loadSessionCards(), []);
-  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards();
+
+  // Topic + difficulty picker — skipped when arriving from a tutor session.
+  const fromSession = sessionCards.length > 0;
+  const { data: topicSets } = useFlashcardTopics();
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [setKey, setSetKey] = useState<string | null>(null);
+  const [pickerDone, setPickerDone] = useState(false);
+
+  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(
+    setKey,
+    !fromSession && pickerDone,
+  );
   const checkCard = useFlashcardCheck();
   const { mutateAsync: syncGamification } = useGamificationSync();
 
@@ -131,16 +144,76 @@ export function Flashcards() {
 
   useEffect(() => { /* keep hearts mirror fresh on mount */ setDisplayHearts(getStoredHearts()); }, []);
 
+  // Topic + difficulty picker (shown until a set is chosen; skipped from a session).
+  if (!fromSession && !pickerDone) {
+    const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
+    return (
+      <div style={{ maxWidth: 780, margin: "0 auto", padding: "32px 20px", width: "100%" }}>
+        <header style={{ marginBottom: 20 }}>
+          <p className="aurora-eyebrow">Flashcards</p>
+          <h1 className="aurora-h1">Choose a topic</h1>
+          <p className="aurora-sub">Pick a difficulty and a topic. Cards don&apos;t repeat until you&apos;ve seen the whole set.</p>
+        </header>
+
+        <div className="aurora-topic-picker" role="tablist" aria-label="Difficulty">
+          {(["easy", "medium"] as Difficulty[]).map((d) => (
+            <button
+              key={d}
+              type="button"
+              role="tab"
+              aria-selected={difficulty === d}
+              className={`aurora-topic-chip${difficulty === d ? " is-active" : ""}`}
+              onClick={() => setDifficulty(d)}
+            >
+              {d === "easy" ? "Easy" : "Medium"}
+            </button>
+          ))}
+        </div>
+
+        <div className="aurora-topic-picker" role="tablist" aria-label="Topics" style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            className="aurora-topic-chip"
+            onClick={() => { setSetKey(null); setPickerDone(true); }}
+          >
+            Mixed (all topics)
+          </button>
+          {sets.map((s) => (
+            <button
+              key={s.set_key}
+              type="button"
+              className="aurora-topic-chip"
+              disabled={s.total === 0}
+              onClick={() => { setSetKey(s.set_key); setPickerDone(true); }}
+            >
+              {s.label}
+              <span className="aurora-topic-count">{s.completed}/{s.total}</span>
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className="aurora-toggle"
+          style={{ marginTop: 24 }}
+          onClick={() => router.push("/dashboard")}
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+
   if (generating || cards.length === 0) {
     return (
       <div className="aurora-deck-empty">
         <h1 className="sr-only">Flashcards</h1>
         {generating ? (
-          <p className="aurora-muted">Generating flashcards…</p>
+          <p className="aurora-muted">Loading your cards…</p>
         ) : (
           <>
-            <p className="aurora-muted">No flashcards available yet.</p>
-            <button type="button" className="aurora-toggle" onClick={() => router.push("/dashboard")}>Back to Dashboard</button>
+            <p className="aurora-muted">No cards in this set yet — more are on the way.</p>
+            <button type="button" className="aurora-toggle" onClick={() => { setPickerDone(false); }}>Choose another topic</button>
           </>
         )}
       </div>
