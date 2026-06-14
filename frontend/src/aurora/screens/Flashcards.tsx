@@ -1,10 +1,10 @@
 "use client";
-/* AURORA Flashcards — active-recall spaced repetition, rebuilt calm. A focused
-   card (plate + question + optional recall + answer + AI check), SM-2 rating chips
-   that ride the gradient by position, and a session side panel. Data + AI check +
-   gamification sync are ported from the legacy FlashcardScreen; the fx layer
-   (confetti / audio / swipe / framer) is dropped. */
-import { useMemo, useState } from "react";
+/* AURORA Flashcards — active-recall with a compulsory typed answer, AI grading
+   out of 100 against the KB-grounded model answer, and a coach panel. Phase 2
+   adds: choosable session length (Quick 5 / Standard 10 / Deep 20), a Review
+   mode that blends SM-2 due + new cards, weak answers (<40) re-queued once for a
+   second attempt, and keyboard-first controls. Grading stays the only AI. */
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { PlateWell } from "@/aurora/components/PlateWell";
@@ -23,6 +23,16 @@ type Difficulty = "easy" | "medium";
 /** Hard cap on a student's typed recall answer — keeps answers concise (matching
  *  the short model answers) and bounds the tokens sent to the AI grader. */
 const MAX_ANSWER_CHARS = 300;
+
+/** F4 — session length presets. */
+const LENGTHS: { n: number; label: string }[] = [
+  { n: 5, label: "Quick" },
+  { n: 10, label: "Standard" },
+  { n: 20, label: "Deep" },
+];
+
+/** A weak answer (graded below this) is re-queued once for a second attempt. */
+const RETRY_THRESHOLD = 40;
 
 interface Flashcard {
   id: number; question: string; answer: string; tag: string;
@@ -53,16 +63,25 @@ export function Flashcards() {
   const router = useRouter();
   const sessionCards = useMemo(() => loadSessionCards(), []);
 
-  // Topic + difficulty picker — skipped when arriving from a tutor session.
+  // Review mode (from the dashboard "Due today" CTA) skips the picker and loads a
+  // blended due + new deck straight away.
+  const reviewMode = useMemo(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("mode") === "review",
+    [],
+  );
+
+  // Topic + difficulty + session-length picker — skipped from a tutor session or review.
   const fromSession = sessionCards.length > 0;
   const { data: topicSets } = useFlashcardTopics();
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [setKey, setSetKey] = useState<string | null>(null);
-  const [pickerDone, setPickerDone] = useState(false);
+  const [sessionLength, setSessionLength] = useState(10);   // F4
+  const [pickerDone, setPickerDone] = useState(reviewMode);
 
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(
     setKey,
     !fromSession && pickerDone,
+    sessionLength,
   );
   const checkCard = useFlashcardCheck();
   const { mutateAsync: syncGamification } = useGamificationSync();
@@ -87,6 +106,12 @@ export function Flashcards() {
   const [cardXp, setCardXp] = useState(0);            // XP the AI awarded for the current card
   const [gradedCount, setGradedCount] = useState(0);
   const [scoreSum, setScoreSum] = useState(0);
+  // F2 — cards graded below RETRY_THRESHOLD are re-queued once at the end.
+  const [retries, setRetries] = useState<Flashcard[]>([]);
+  const weakRef = useRef<Flashcard[]>([]);
+  const retriedRef = useRef<Set<number>>(new Set());
+  const advanceRef = useRef<() => void>(() => {});
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const deckTitle = useMemo(() => {
     if (cards.length === 0) return "Flashcards";
@@ -95,15 +120,18 @@ export function Flashcards() {
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
   }, [cards]);
 
-  const card = cards[idx];
+  // The working deck = the loaded cards plus any re-queued weak cards (F2).
+  const deck = useMemo(() => [...cards, ...retries], [cards, retries]);
+  const total = deck.length;
+  const card = deck[idx];
+  const isRetry = idx >= cards.length;
 
   const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); setCardXp(0); };
 
   // Answering is compulsory: the typed attempt is submitted, the AI grades it
   // out of 100 against the crafted model answer (the card's KB-grounded back),
   // and that grade decides the XP — awarded the moment it's known. Only then is
-  // the model answer revealed. A grading failure still rewards the attempt and
-  // lets the student continue.
+  // the model answer revealed. A grading failure still rewards the attempt.
   const submitAnswer = () => {
     if (!userAttempt.trim() || submitted || !card) return;
     setSubmitted(true);
@@ -117,12 +145,15 @@ export function Flashcards() {
         onSuccess: (d) => {
           setAiFeedback(d);
           setAiChecking(false);
-          const xp = xpForScore(d.score);
+          const score = Math.max(0, Math.min(100, d.score));
+          const xp = xpForScore(score);
           setCardXp(xp);
           const res = addXP(xp);
           setSessionXp((p) => p + xp);
           setGradedCount((n) => n + 1);
-          setScoreSum((s) => s + Math.max(0, Math.min(100, d.score)));
+          setScoreSum((s) => s + score);
+          // Re-queue this card once if the answer was weak (F2).
+          if (score < RETRY_THRESHOLD && !retriedRef.current.has(card.id)) weakRef.current.push(card);
           if (res.leveledUp) {
             const rank = rankForLevel(res.newLevel);
             toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
@@ -142,28 +173,52 @@ export function Flashcards() {
     );
   };
 
-  // No more self-rating — the AI's grade already set the XP. Advancing just moves
-  // to the next card, or finishes the run and syncs the session XP.
-  const advance = () => {
-    resetCardState();
-    if (idx < cards.length - 1) {
-      setIdx((i) => i + 1);
-    } else {
-      // Hand the real session result to the Summary screen (so it shows the XP
-      // actually earned, not a flat bonus), then sync the run to the backend.
-      const earnedXp = sessionXp + XP_REWARDS.sessionComplete;
-      const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : 0;
-      try {
-        sessionStorage.setItem("eyebot_session", JSON.stringify({
-          topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
-        }));
-      } catch { /* sessionStorage unavailable — Summary falls back to defaults */ }
-      syncGamification({ xp_delta: earnedXp, hearts_used: 0 })
-        .finally(() => router.push("/summary"));
-    }
+  const finishSession = () => {
+    // Hand the real session result to the Summary screen, then sync to the backend.
+    const earnedXp = sessionXp + XP_REWARDS.sessionComplete;
+    const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : 0;
+    try {
+      sessionStorage.setItem("eyebot_session", JSON.stringify({
+        topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
+      }));
+    } catch { /* sessionStorage unavailable — Summary falls back to defaults */ }
+    syncGamification({ xp_delta: earnedXp, hearts_used: 0 }).finally(() => router.push("/summary"));
   };
 
-  // Topic + difficulty picker (shown until a set is chosen; skipped from a session).
+  // Advancing moves to the next card; at the end of the deck it re-queues any
+  // weak (<40) cards once for a second attempt (F2), otherwise finishes the run.
+  const advance = () => {
+    resetCardState();
+    if (idx < cards.length + retries.length - 1) {
+      setIdx((i) => i + 1);
+      return;
+    }
+    const pending = weakRef.current.filter((c) => !retriedRef.current.has(c.id));
+    if (pending.length > 0) {
+      pending.forEach((c) => retriedRef.current.add(c.id));
+      weakRef.current = [];
+      setRetries((prev) => [...prev, ...pending]);
+      setIdx((i) => i + 1);
+      return;
+    }
+    finishSession();
+  };
+  advanceRef.current = advance;
+
+  // Keyboard-first (F4): once graded, Enter / → advances to the next card.
+  useEffect(() => {
+    if (!submitted || aiChecking) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); advanceRef.current(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [submitted, aiChecking]);
+
+  // Focus the answer box on each new card so the student can type immediately.
+  useEffect(() => { if (!submitted) textareaRef.current?.focus(); }, [idx, submitted]);
+
+  // Topic + difficulty + length picker (shown until a set is chosen; skipped from a session/review).
   if (!fromSession && !pickerDone) {
     const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
     return (
@@ -171,9 +226,10 @@ export function Flashcards() {
         <header style={{ marginBottom: 20 }}>
           <p className="aurora-eyebrow">Flashcards</p>
           <h1 className="aurora-h1">Choose a topic</h1>
-          <p className="aurora-sub">Pick a difficulty and a topic. Cards don&apos;t repeat until you&apos;ve seen the whole set.</p>
+          <p className="aurora-sub">Pick a difficulty, a session length and a topic. Cards don&apos;t repeat until you&apos;ve seen the whole set.</p>
         </header>
 
+        <p className="aurora-side-label" style={{ marginBottom: 8 }}>Difficulty</p>
         <div className="aurora-topic-picker" role="tablist" aria-label="Difficulty">
           {(["easy", "medium"] as Difficulty[]).map((d) => (
             <button
@@ -189,7 +245,28 @@ export function Flashcards() {
           ))}
         </div>
 
-        <div className="aurora-topic-picker" role="tablist" aria-label="Topics" style={{ marginTop: 12 }}>
+        <p className="aurora-side-label" style={{ margin: "16px 0 8px" }}>Session length</p>
+        <div className="aurora-topic-picker" role="tablist" aria-label="Session length">
+          {LENGTHS.map((l) => (
+            <button
+              key={l.n}
+              type="button"
+              role="tab"
+              aria-selected={sessionLength === l.n}
+              className={`aurora-topic-chip${sessionLength === l.n ? " is-active" : ""}`}
+              onClick={() => setSessionLength(l.n)}
+            >
+              {l.label}
+              <span className="aurora-topic-count">{l.n}</span>
+            </button>
+          ))}
+        </div>
+        <p className="aurora-recall-hint" style={{ margin: "6px 2px 0" }}>
+          Length applies to a Mixed or Review deck — a single topic set is always 5 cards.
+        </p>
+
+        <p className="aurora-side-label" style={{ margin: "16px 0 8px" }}>Topic</p>
+        <div className="aurora-topic-picker" role="tablist" aria-label="Topics">
           <button
             type="button"
             className="aurora-topic-chip"
@@ -231,21 +308,21 @@ export function Flashcards() {
           <p className="aurora-muted">Loading your cards…</p>
         ) : (
           <>
-            <p className="aurora-muted">No cards in this set yet — more are on the way.</p>
-            <button type="button" className="aurora-toggle" onClick={() => { setPickerDone(false); }}>Choose another topic</button>
+            <p className="aurora-muted">{reviewMode ? "Nothing due to review right now — great job staying on top of it!" : "No cards in this set yet — more are on the way."}</p>
+            <button type="button" className="aurora-toggle" onClick={() => router.push("/dashboard")}>Back to Dashboard</button>
           </>
         )}
       </div>
     );
   }
 
-  const totalDots = Math.min(cards.length, 10);
+  const totalDots = Math.min(total, 10);
   const dotIdx = Math.min(idx, totalDots - 1);
   const xpTotal = getUserProgress().xp;
 
   // Encouraging coach bubbles — informal, lighthearted, and context-aware. Phrasing
   // is keyed off idx (stable per card) so it never flickers while the student types.
-  const remaining = Math.max(0, cards.length - idx - 1);
+  const remaining = Math.max(0, total - idx - 1);
   const progressTip =
     remaining === 0 ? "🏁 Last card — finish strong!"
     : remaining <= 2 ? `Almost there — ${remaining} to go! 🙌`
@@ -253,11 +330,13 @@ export function Flashcards() {
   const coach: { msg: string; tip: string } = (() => {
     const pick = (arr: string[]) => arr[idx % arr.length];
     if (!submitted) return {
-      msg: pick([
-        "Give it a real go — even a rough guess wires it in 🧠",
-        "Type what you remember. Half-right still earns XP 💪",
-        "No peeking! Your brain learns most when it has to reach 🤓",
-      ]),
+      msg: isRetry
+        ? "🔁 Round two on this one — you've got it now!"
+        : pick([
+          "Give it a real go — even a rough guess wires it in 🧠",
+          "Type what you remember. Half-right still earns XP 💪",
+          "No peeking! Your brain learns most when it has to reach 🤓",
+        ]),
       tip: "Answer well for up to +35 XP a card ⚡",
     };
     if (aiChecking) return { msg: "Marking your answer… ✍️", tip: "" };
@@ -267,7 +346,7 @@ export function Flashcards() {
       s >= 85 ? `🔥 Smashed it! +${cardXp} XP in the bank.`
       : s >= 60 ? `💪 Solid — +${cardXp} XP. You're really getting it.`
       : s >= 40 ? `📈 Good effort — +${cardXp} XP. The model answer will top you up.`
-      : `🌱 +${cardXp} XP for trying — read the model answer, you've got this.`;
+      : `🌱 +${cardXp} XP for trying — we'll revisit this one before the end.`;
     return { msg, tip: progressTip };
   })();
 
@@ -278,24 +357,25 @@ export function Flashcards() {
 
       <div className="aurora-deck-head">
         <button type="button" className="aurora-deck-close" onClick={() => router.push("/dashboard")} aria-label="Exit deck"><Icon.close size={18} /></button>
-        <div className="aurora-deck-dots" role="progressbar" aria-valuenow={idx + 1} aria-valuemax={cards.length}>
+        <div className="aurora-deck-dots" role="progressbar" aria-valuenow={idx + 1} aria-valuemax={total}>
           {Array.from({ length: totalDots }).map((_, i) => (
             <span key={i} className={`aurora-dot${i < dotIdx ? " is-done" : i === dotIdx ? " is-active" : ""}`} />
           ))}
         </div>
-        <span className="aurora-deck-count-pill" aria-label={`Card ${idx + 1} of ${cards.length}`}>{idx + 1}/{cards.length}</span>
+        <span className="aurora-deck-count-pill" aria-label={`Card ${idx + 1} of ${total}`}>{idx + 1}/{total}</span>
       </div>
 
       <div className="aurora-deck-body">
         <section className="aurora-card aurora-deck-card">
           <div className="aurora-deck-plate"><PlateWell src={PLATE.flashcards} alt={`${card.tag} reference eye`} ratio={1} /></div>
           <div className="aurora-deck-content">
-            <span className="aurora-deck-topic">{card.tag} · {deckTitle}</span>
+            <span className="aurora-deck-topic">{card.tag} · {deckTitle}{isRetry ? " · 🔁 revisit" : ""}</span>
             <p className="aurora-deck-q">{card.question}</p>
 
             {!submitted && (
               <>
                 <textarea
+                  ref={textareaRef}
                   className="aurora-deck-recall"
                   value={userAttempt}
                   onChange={(e) => setUserAttempt(e.target.value.slice(0, MAX_ANSWER_CHARS))}
@@ -307,7 +387,7 @@ export function Flashcards() {
                 />
                 <div className="aurora-recall-meta">
                   {!userAttempt.trim()
-                    ? <span className="aurora-recall-hint">Answering is required — this is active recall.</span>
+                    ? <span className="aurora-recall-hint">Answering is required — this is active recall. Press ⌘/Ctrl+Enter to submit.</span>
                     : <span aria-hidden />}
                   <span
                     className={`aurora-recall-count${userAttempt.length >= MAX_ANSWER_CHARS - 20 ? " is-warn" : ""}`}
@@ -364,8 +444,9 @@ export function Flashcards() {
                     </div>
 
                     <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn" onClick={advance}>
-                      <span>{idx < cards.length - 1 ? "Next card →" : "Finish session →"}</span>
+                      <span>{idx < total - 1 ? "Next card →" : (weakRef.current.length > 0 ? "Revisit weak cards →" : "Finish session →")}</span>
                     </button>
+                    <p className="aurora-recall-hint" style={{ textAlign: "center", marginTop: 6 }}>Press Enter or → for the next card</p>
                   </>
                 )}
               </>
@@ -384,14 +465,14 @@ export function Flashcards() {
           </div>
 
           <div className="aurora-card aurora-side-card">
-            <p className="aurora-side-label">Queue · {Math.max(0, cards.length - idx - 1)} left</p>
-            {cards.slice(idx + 1, idx + 6).map((c, i) => (
-              <div key={c.id} className="aurora-queue-item">
+            <p className="aurora-side-label">Queue · {Math.max(0, total - idx - 1)} left</p>
+            {deck.slice(idx + 1, idx + 6).map((c, i) => (
+              <div key={`${c.id}-${idx + 1 + i}`} className="aurora-queue-item">
                 <span className="aurora-queue-num">{idx + 2 + i}</span>
                 <span className="aurora-queue-q">{c.question.length > 38 ? c.question.slice(0, 38) + "…" : c.question}</span>
               </div>
             ))}
-            {cards.slice(idx + 1, idx + 6).length === 0 && <p className="aurora-muted">Last card</p>}
+            {deck.slice(idx + 1, idx + 6).length === 0 && <p className="aurora-muted">Last card</p>}
           </div>
 
           <div className="aurora-card aurora-side-card">
@@ -401,8 +482,8 @@ export function Flashcards() {
             <div className="aurora-matrix-row"><span>Avg score</span><span className="aurora-matrix-val">{gradedCount ? Math.round(scoreSum / gradedCount) : "—"}</span></div>
             <div className="aurora-matrix-row"><span>Total XP</span><span className="aurora-matrix-val">{xpTotal}</span></div>
             <div className="aurora-deck-progress">
-              <div className="aurora-progress"><div className="aurora-progress-fill aurora-flow" style={{ width: `${((idx + 1) / cards.length) * 100}%` }} /></div>
-              <span className="aurora-deck-count">{idx + 1} / {cards.length}</span>
+              <div className="aurora-progress"><div className="aurora-progress-fill aurora-flow" style={{ width: `${((idx + 1) / total) * 100}%` }} /></div>
+              <span className="aurora-deck-count">{idx + 1} / {total}</span>
             </div>
           </div>
         </aside>

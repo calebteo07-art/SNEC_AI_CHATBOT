@@ -50,21 +50,36 @@ export function useFlashcardTopics() {
 }
 
 /** Load a study deck. Pass a setKey ("topic__difficulty") to study one set,
- *  or null for the mixed no-repeat rotation across the whole role pool. */
-export function useFlashcards(setKey: string | null, enabled = true) {
+ *  or null for the mixed/review no-repeat rotation across the whole role pool.
+ *  `n` is the session length (Quick 5 / Standard 10 / Deep 20); a chosen set
+ *  stays a fixed 5-card unit (n only caps it). */
+export function useFlashcards(setKey: string | null, enabled = true, n = 6) {
   return useQuery<FlashcardItem[]>({
-    queryKey: ["flashcards", setKey ?? "mixed"],
+    queryKey: ["flashcards", setKey ?? "mixed", n],
     queryFn: async () => {
-      const url = setKey
-        ? `/api/flashcards/generate?set_key=${encodeURIComponent(setKey)}`
-        : "/api/flashcards/generate";
-      const res = await fetch(url, { credentials: "include" });
+      const params = new URLSearchParams({ n: String(n) });
+      if (setKey) params.set("set_key", setKey);
+      const res = await fetch(`/api/flashcards/generate?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to load flashcards");
       return res.json();
     },
     enabled,
     staleTime: 10 * 60_000,
     placeholderData: (prev) => prev,
+  });
+}
+
+/** How many cards are due for review today (SM-2) — for the dashboard widget. */
+export function useDueCount() {
+  return useQuery<number>({
+    queryKey: ["flashcard-due-count"],
+    queryFn: async () => {
+      const res = await fetch("/api/flashcards/due-count", { credentials: "include" });
+      if (!res.ok) return 0;
+      const d = await res.json();
+      return d.count ?? 0;
+    },
+    staleTime: 5 * 60_000,
   });
 }
 
