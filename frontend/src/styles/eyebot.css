@@ -372,7 +372,7 @@ a { color: inherit; text-decoration: none; }
 .login-eye {
   position: absolute;
   top: 50%;
-  right: clamp(-10vw, -1vw, 24px);  /* a large iris disc on the right, can kiss the edge */
+  right: clamp(-2vw, calc(30vw - 410px), 240px);  /* pulled inward as the viewport widens, so it stays near the card instead of clinging to the right edge */
   transform: translateY(-50%);
   width: min(88vh, 60vw, 980px);
   height: min(88vh, 60vw, 980px);

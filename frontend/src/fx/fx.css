@@ -91,7 +91,9 @@
 @media (min-width: 1024px) {
   .screen-login {
     justify-content: flex-start;
-    padding-left: clamp(48px, 8vw, 150px);
+    /* Card sits left; padding grows with width so it tracks toward centre on
+       wide monitors instead of clinging to the edge. */
+    padding-left: clamp(48px, calc(9vw + 40px), 320px);
   }
 }
 
