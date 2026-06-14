@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_037_triage_postop_red_eye_urgent_flag",
+  "title": "Sore Eye After Recent Surgery",
+  "difficulty": "intermediate",
+  "topic": "triage_recent_surgery_red_flag_referral",
+  "topic_set": "triage_referral",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Ang Bee Choo",
+    "age": 71,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Walk-in with an increasingly painful, red right eye and worsening vision four days after cataract surgery"
+  },
+  "history": {
+    "hpc": "Mdm Ang had right cataract surgery four days ago and comes in without an appointment. She says: 'After my operation a few days okay, but now my eye more red, more pain and the vision getting worse.' Increasing pain, redness, and falling vision after recent intraocular surgery is a red flag (possible endophthalmitis) and the recent-surgery status is a SNEC triage Section A urgent factor.",
+    "pmhx": "Right cataract surgery 4 days ago. Diabetes, hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Post-op antibiotic and steroid drops (right eye)", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with daughter who brought her in."
+  },
+  "examination_findings": {
+    "va": {"right": "worse than at the post-op review (e.g. 6/60)", "left": "6/9"},
+    "iop": {"right": "to be assessed by the doctor", "left": "16 mmHg"},
+    "anterior_segment": "Right eye: increased redness and discomfort post-op; possible anterior chamber inflammation — for urgent doctor review",
+    "fundus": "For doctor"
+  },
+  "investigations": {
+    "front_line_triage": "Recognise that recent intraocular surgery (Section A urgent factor) with increasing pain, redness, and worsening vision is a red flag for a serious post-operative complication (e.g., endophthalmitis). Triage as urgent — same-day assessment / escalate to the doctor — rather than booking a routine appointment.",
+    "va_distance": "RE worse than at post-op review, LE 6/9."
+  },
+  "diagnosis": "A post-operative red flag: increasing pain, redness, and worsening vision after recent cataract surgery, which can indicate a serious complication such as endophthalmitis and must be seen urgently. The PSA competency is recognising the recent-surgery red flag (Section A), triaging it urgently, and escalating rather than queueing routinely.",
+  "management": {
+    "immediate": [
+      "Recognise recent intraocular surgery plus increasing pain/redness/worsening vision as a red flag",
+      "Treat recent surgery as a SNEC triage Section A urgent factor",
+      "Triage as urgent (same-day assessment) and escalate to the doctor promptly",
+      "Check VA and compare with the post-op review where available",
+      "Do not book a routine future appointment for this presentation",
+      "Document the surgery date, symptoms, VA, and the urgent triage outcome"
+    ],
+    "follow_up": [
+      "Doctor to assess urgently for a post-operative complication (e.g., endophthalmitis)",
+      "Ensure the patient is seen the same day and notes follow her",
+      "Record the triage outcome on the SNEC triage form"
+    ],
+    "patient_education": [
+      "Explain that symptoms getting worse after surgery need to be checked quickly",
+      "Reassure her she will be seen today rather than given a later appointment",
+      "Advise her to continue her drops until the doctor reviews unless told otherwise",
+      "Ask her to report any further worsening immediately while waiting"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the recent cataract surgery and the time since",
+        "Identifies the worsening pain, redness, and falling vision",
+        "Recognises recent surgery as a key urgent (Section A) factor",
+        "Confirms current post-op medications"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Checks VA and compares with the post-op review where possible",
+        "Treats the recent-surgery status as a red flag in triage",
+        "Assigns urgent (same-day) triage rather than a routine slot",
+        "Documents surgery date, symptoms, VA, and triage outcome"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises post-op worsening as a red flag for serious complication",
+        "Understands endophthalmitis is a sight-threatening possibility",
+        "Knows recent surgery elevates triage urgency (Section A)",
+        "Knows diagnosis/management is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates urgently for same-day assessment",
+        "Avoids booking a routine appointment for this red-flag presentation",
+        "Documents the urgent triage outcome",
+        "Reassures the patient and advises on interim care"
+      ]
+    }
+  }
+}

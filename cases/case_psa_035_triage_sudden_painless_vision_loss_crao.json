@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_035_triage_sudden_painless_vision_loss_crao",
+  "title": "Everything Went Dark, No Pain",
+  "difficulty": "intermediate",
+  "topic": "triage_sudden_painless_vision_loss_crao",
+  "topic_set": "triage_referral",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Yeo Kah Wai",
+    "age": 69,
+    "gender": "male",
+    "occupation": "retired taxi driver",
+    "presenting_complaint": "Sudden, painless loss of vision in the right eye about 40 minutes ago"
+  },
+  "history": {
+    "hpc": "Mr Yeo walks up to the counter looking worried. He says: 'Suddenly my right eye cannot see, like curtain come down, but no pain at all.' It happened about 40 minutes ago and has not improved. Sudden painless loss of vision is a red flag — central retinal artery occlusion (CRAO) with VA <6/60 is a Category 1 emergency where time is critical.",
+    "pmhx": "Hypertension, high cholesterol, atrial fibrillation.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Atorvastatin 20mg ON"],
+    "social_hx": "Retired. Smoker. Came in by himself."
+  },
+  "examination_findings": {
+    "va": {"right": "counting fingers / worse (markedly reduced)", "left": "6/9"},
+    "iop": {"right": "to be checked but must not delay escalation", "left": "15 mmHg"},
+    "anterior_segment": "Quiet, white eye (no redness) — typical of painless vision loss",
+    "fundus": "For urgent doctor assessment"
+  },
+  "investigations": {
+    "front_line_triage": "Recognise sudden painless severe vision loss as a Category 1 emergency (CRAO with VA <6/60 — within 10 minutes). Check VA quickly, flag the vascular risk factors (hypertension, AF, smoking), and escalate to the doctor immediately. Do not place this patient in a routine queue.",
+    "va_distance": "RE markedly reduced (CF or worse), LE 6/9."
+  },
+  "diagnosis": "Sudden painless severe loss of vision, suspicious of central retinal artery occlusion (CRAO) — a time-critical Category 1 emergency. The PSA competency is recognising the red flag, triaging it as Category 1, and escalating immediately rather than booking a routine slot.",
+  "management": {
+    "immediate": [
+      "Recognise sudden painless vision loss as a major red flag, not a routine complaint",
+      "Triage as Category 1 (CRAO with VA <6/60 — see doctor within 10 minutes)",
+      "Quickly check VA in both eyes without delaying escalation",
+      "Alert the doctor immediately and do not leave the patient waiting in a routine queue",
+      "Note the time of onset and vascular risk factors (hypertension, AF, smoking) for the doctor",
+      "Document the presenting complaint, onset time, VA, and the triage category"
+    ],
+    "follow_up": [
+      "Doctor to assess urgently and manage as indicated",
+      "Record the triage outcome on the SNEC triage form (same-day/urgent)",
+      "Ensure the patient is escorted to the assessment area promptly"
+    ],
+    "patient_education": [
+      "Reassure him calmly that he is being seen urgently because this is time-sensitive",
+      "Ask him not to leave and to tell staff if anything changes",
+      "Avoid giving a diagnosis or prognosis — defer to the doctor",
+      "Explain the doctor will examine him very soon"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the sudden, painless nature and time of onset",
+        "Identifies the absence of pain/redness as fitting painless vision loss",
+        "Notes vascular risk factors (hypertension, AF, smoking)",
+        "Gathers essentials quickly without delaying escalation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Checks VA in both eyes promptly",
+        "Recognises VA <6/60 with sudden painless loss as Category 1",
+        "Does not delay escalation to perform extra tests",
+        "Documents onset time, VA, and triage category"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises sudden painless vision loss as a red flag (possible CRAO)",
+        "Assigns Category 1 urgency (within 10 minutes)",
+        "Understands the time-critical nature of the presentation",
+        "Knows diagnosis/management is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates to the doctor immediately and avoids a routine queue",
+        "Records the triage category and onset time on the triage form",
+        "Reassures the patient and keeps him in the assessment area",
+        "Hands over risk factors and timing to the doctor"
+      ]
+    }
+  }
+}
