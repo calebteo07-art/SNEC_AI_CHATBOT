@@ -128,10 +128,15 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
     ctx_block = await _student_context_block(student_id)
     system = (
         (ctx_block + "\n\n" if ctx_block else "")
-        + "You are an ophthalmology tutor evaluating a student's active recall attempt. "
-        "Consider the student's role and weak areas above when giving feedback — connect the concept to their clinical context. "
+        + "You are an ophthalmology tutor grading a student's active-recall attempt. "
+        "Grade the attempt ONLY against the model answer provided — that model answer is the "
+        "authoritative reference drawn from the training material, so treat it as the source of truth. "
+        "Score how well the student's answer captures the key facts in the model answer "
+        "(0 = blank or wrong, 10 = fully correct). "
+        "Write feedback in short, natural, plain language — 1 to 2 sentences. Say briefly what was right "
+        "and what was missing. Use clinical jargon only when it is the clearest word; otherwise keep it simple. "
         "Return ONLY valid JSON with no other text:\n"
-        '{"score": <0-10>, "feedback": "<2-3 sentences: what they got right, what they missed, and a clinical tip relevant to their role>"}'
+        '{"score": <0-10>, "feedback": "<1-2 short, natural sentences>"}'
     )
     try:
         raw = ask(
@@ -140,7 +145,7 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
                 "role": "user",
                 "content": (
                     f"Question: {body.question}\n\n"
-                    f"Correct answer: {body.correct_answer}\n\n"
+                    f"Model answer (authoritative reference): {body.correct_answer}\n\n"
                     f"Student answer: {body.student_answer}"
                 ),
             }],

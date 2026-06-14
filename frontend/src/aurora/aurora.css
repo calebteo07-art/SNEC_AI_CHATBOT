@@ -662,7 +662,12 @@ html[data-motion="reduce"] .aurora-dot.is-active { animation: none; }
 .aurora-deck-recall { width: 100%; border: none; border-bottom: 1.5px solid var(--hairline); background: none; font-family: var(--font-sans); font-size: 14px; color: var(--ink); resize: none; outline: none; line-height: 1.6; padding: 8px 0; }
 .aurora-deck-recall:focus-visible { border-color: var(--g-blue); }
 .aurora-reveal-btn { margin-top: 16px; }
+.aurora-reveal-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.35); }
+.aurora-recall-hint { font-size: 12px; color: var(--ink-3); margin: 10px 0 0; }
 .aurora-answer { border-left: 3px solid var(--g-purple); padding-left: 14px; margin-bottom: 16px; }
+/* The student's own submitted attempt — neutral accent, distinct from the purple model answer. */
+.aurora-your-answer { border-left-color: var(--ink-3); }
+.aurora-your-answer .aurora-answer-label { color: var(--ink-2); }
 .aurora-answer-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-purple-2); }
 .aurora-answer p { font-size: 14px; line-height: 1.7; color: var(--ink); margin: 6px 0 0; white-space: pre-wrap; }
 .aurora-feedback { background: rgba(120, 110, 200, 0.06); border: 1px solid rgba(120, 110, 200, 0.2); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; }
