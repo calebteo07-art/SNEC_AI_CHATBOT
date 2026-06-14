@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_038_dilation_prep_diabetic_fundus_photo",
+  "title": "Drops Before the Retina Photo",
+  "difficulty": "intermediate",
+  "topic": "pupil_dilation_prep_diabetic_screening",
+  "topic_set": "pupil_dilation",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Ramli bin Osman",
+    "age": 57,
+    "gender": "male",
+    "occupation": "bus captain",
+    "presenting_complaint": "Here for diabetic retinal photography; needs dilating drops before the photos"
+  },
+  "history": {
+    "hpc": "Mr Ramli attends for diabetic eye screening with retinal photography, which needs his pupils dilated. He says: 'Nurse say must put drops to make my eye big big before take photo, then cannot drive after right?' He has no history of narrow angles or acute glaucoma. The PSA must prepare and instil dilating drops correctly and document the procedure.",
+    "pmhx": "Type 2 diabetes. No previous acute glaucoma or narrow-angle problems.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 1g BD"],
+    "social_hx": "Bus captain; drove himself today (relevant to post-dilation advice)."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "15 mmHg (NCT, before dilation)", "left": "16 mmHg (NCT, before dilation)"},
+    "anterior_segment": "Normal; no shallow anterior chamber concerns reported",
+    "fundus": "To be photographed after dilation"
+  },
+  "investigations": {
+    "pupil_dilation": "Dilation prepared: confirm the eye(s) to dilate (both), record pre-dilation pupil size in mm (RE and LE), check for contraindications (narrow angles/previous acute glaucoma — none here), confirm no drop allergy. Instil dilating drops (e.g., tropicamide 1% +/- phenylephrine 2.5%) with correct technique, record dosage (number of instillations) and time. Allow time to take effect before photography.",
+    "documentation": "Eye(s) to dilate, pre-dilation pupil sizes, drops used, number of instillations, time given."
+  },
+  "diagnosis": "Routine pupil dilation to enable diabetic retinal photography. The PSA competency is the correct, safe dilation workflow — checking contraindications/allergy, correct instillation technique, accurate documentation, and clear post-dilation safety advice (especially about driving).",
+  "management": {
+    "immediate": [
+      "Confirm the indication and which eye(s) to dilate, and check for contraindications (narrow angles/previous acute glaucoma) and drop allergy",
+      "Record the pre-dilation pupil size in mm for each eye",
+      "Instil the dilating drops with correct technique (head back, pull down lower lid, drop into the lower fornix, ask the patient to close gently)",
+      "Record the drug, dosage (number of instillations), eye(s), and the time given",
+      "Warn the patient about blurred near vision and light sensitivity for 4-6 hours",
+      "Advise he should not drive after dilation and arrange alternative transport"
+    ],
+    "follow_up": [
+      "Proceed to retinal photography once adequately dilated",
+      "Doctor/screening service to review the images",
+      "Document the dilation details in the record"
+    ],
+    "patient_education": [
+      "Explain the drops make the pupil big so the retina can be photographed",
+      "Warn that near vision will be blurry and eyes light-sensitive for about 4-6 hours",
+      "Advise not to drive while dilated and to arrange another way home",
+      "Offer sunglasses/UV protectors for comfort after dilation"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (diabetic retinal photography) and eye(s) to dilate",
+        "Checks for contraindications (narrow angle/previous acute glaucoma)",
+        "Checks for drop allergy",
+        "Identifies that the patient drove himself (relevant to advice)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Records pre-dilation pupil size in mm for each eye",
+        "Uses correct instillation technique into the lower fornix",
+        "Records the drug, dosage (instillations), eye(s), and time",
+        "Allows adequate time for dilation before photography"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the purpose of dilation for fundus photography",
+        "Knows the common dilating drops and the need to check contraindications",
+        "Recognises the expected duration of blurred near vision/photosensitivity (4-6 hours)",
+        "Knows dilation increases short-term risk (driving, falls)"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the dilation details accurately",
+        "Warns about blurred vision and photosensitivity",
+        "Advises against driving and helps arrange transport",
+        "Offers sunglasses and clear post-dilation advice"
+      ]
+    }
+  }
+}

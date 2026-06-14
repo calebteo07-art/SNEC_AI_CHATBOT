@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_039_dilation_narrow_angle_contraindication",
+  "title": "Check Before You Dilate",
+  "difficulty": "intermediate",
+  "topic": "pupil_dilation_narrow_angle_contraindication",
+  "topic_set": "pupil_dilation",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Tham Yoke Lan",
+    "age": 66,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Sent for dilation before a fundus check, but mentions she once had a sudden very painful red eye that was treated as 'narrow angle'"
+  },
+  "history": {
+    "hpc": "Mdm Tham is sent for pupil dilation. While preparing her, she mentions: 'Last time my eye suddenly very pain and red, doctor say my angle narrow, must be careful with dilating drops.' This history of a narrow drainage angle / previous acute angle-closure is a contraindication to routine dilation that must be checked with the nurse/doctor first.",
+    "pmhx": "Previous acute angle-closure episode (narrow angles). Hypertension.",
+    "family_hx": "Sister had 'eye pressure problem'",
+    "medications": ["Amlodipine 5mg OD", "possibly prior laser iridotomy — to confirm"],
+    "social_hx": "Lives with husband. Came for routine review."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "17 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "History of narrow angles; shallow anterior chamber possible — do not dilate before clarifying",
+    "fundus": "Pending decision on whether/how to dilate"
+  },
+  "investigations": {
+    "front_line_action": "Recognise the history of narrow angles / previous acute angle-closure as a contraindication to routine dilation. Do NOT instil dilating drops. Check with the nurse/doctor before dilating — they may confirm a prior laser iridotomy or choose a safer approach (or a procedure that does not need dilation).",
+    "documentation": "Record the narrow-angle history and that dilation was held pending doctor/nurse confirmation."
+  },
+  "diagnosis": "A relative contraindication to routine pupil dilation: a history of narrow angles / previous acute angle-closure, where dilating drops could precipitate an angle-closure attack. The PSA competency is eliciting and recognising this history, withholding dilation, and checking with the nurse/doctor before proceeding.",
+  "management": {
+    "immediate": [
+      "Before dilating, ask about and recognise the narrow-angle / previous acute glaucoma history as a contraindication",
+      "Do NOT instil dilating drops until cleared",
+      "Check with the nurse/doctor before dilating (they may confirm a prior iridotomy or choose a safer option)",
+      "Document the history and that dilation was held pending confirmation",
+      "Keep the patient informed and reassured while you check",
+      "Proceed only as directed by the nurse/doctor"
+    ],
+    "follow_up": [
+      "Doctor/nurse to decide whether dilation is safe (e.g., post-iridotomy) or to use an alternative",
+      "If dilated after clearance, give standard post-dilation advice and watch for symptoms of angle closure",
+      "Record the decision and any instructions"
+    ],
+    "patient_education": [
+      "Thank her for telling you about the narrow-angle history — explain it is important",
+      "Explain you need to check with the doctor/nurse before using dilating drops for safety",
+      "If cleared and dilated, advise her to report any sudden pain, redness, or haloes immediately",
+      "Reassure her this caution is to protect her eye"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Asks about previous acute red/painful eye and narrow-angle history before dilating",
+        "Recognises the significance of the previous acute angle-closure episode",
+        "Checks for prior treatment (e.g., laser iridotomy)",
+        "Confirms the indication for the planned dilation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Identifies the narrow-angle history as a contraindication to routine dilation",
+        "Withholds dilating drops pending clarification",
+        "Checks with the nurse/doctor before proceeding",
+        "Documents the history and the held dilation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands dilation can precipitate angle closure in narrow angles",
+        "Recognises this as a contraindication needing clearance",
+        "Knows a prior iridotomy may change the decision",
+        "Knows the decision to dilate rests with the doctor/nurse"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Does not dilate before checking with the nurse/doctor",
+        "Documents the contraindication and the action taken",
+        "Keeps the patient informed and reassured",
+        "Gives appropriate warning advice if later dilated"
+      ]
+    }
+  }
+}
