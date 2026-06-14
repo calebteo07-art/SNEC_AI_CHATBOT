@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_047_history_flashes_floaters_myopia",
+  "title": "Flies and Lightning",
+  "difficulty": "intermediate",
+  "topic": "history_taking_flashes_floaters",
+  "topic_set": "history_taking",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Tan Wei Ming",
+    "age": 55,
+    "gender": "male",
+    "occupation": "lorry driver",
+    "presenting_complaint": "Sudden new floaters and flashes of light in the right eye for the past two days"
+  },
+  "history": {
+    "hpc": "Mr Tan reports new symptoms in the right eye for two days. He says: 'Suddenly I see like got black flies floating, and sometimes flash flash like lightning at the corner.' He is highly myopic and wears thick glasses. He denies a curtain or shadow over his vision so far, no pain, no redness. He is worried because it came on suddenly.",
+    "pmhx": "High myopia (about -8.00 both eyes). No previous eye surgery or trauma.",
+    "family_hx": "Brother had retinal detachment",
+    "medications": ["Nil"],
+    "social_hx": "Lorry driver — vision important for work. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 with glasses", "left": "6/9 with glasses"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal anterior segments both eyes",
+    "fundus": "Requires dilated examination by doctor (high-risk symptoms in a myope) — to be arranged"
+  },
+  "investigations": {
+    "history_documentation": "Targeted ocular history obtained: onset (sudden, 2 days), nature (floaters described as black flies, flashes like lightning), laterality (right eye), absence of a curtain/shadow so far, high myopia, family history of retinal detachment, no prior surgery/trauma. These features raise concern for a retinal tear/detachment risk and warrant prompt dilated review.",
+    "va_distance": "RE 6/9, LE 6/9 with correction."
+  },
+  "diagnosis": "New flashes and floaters in a high myope with a family history of retinal detachment — history features that warrant urgent dilated fundus examination by the doctor to exclude a retinal tear/detachment. The competency is taking a focused, red-flag-aware history and escalating appropriately.",
+  "management": {
+    "immediate": [
+      "Take a focused ocular history: sudden vs gradual, one or both eyes, nature of floaters and flashes",
+      "Specifically ask about a curtain/shadow or field loss (red flag for detachment) and document its absence/presence",
+      "Note high myopia and the family history of retinal detachment as risk factors",
+      "Recognise these as red-flag symptoms and inform the doctor/nurse promptly for a dilated examination",
+      "Perform baseline VA and IOP and document the history clearly",
+      "Do not reassure the patient that it is nothing — escalate for assessment"
+    ],
+    "follow_up": [
+      "Doctor to perform a dilated fundus examination to look for a retinal tear/detachment",
+      "Arrange dilation as ordered and prepare the patient for it",
+      "Advise urgent return if a curtain/shadow, worsening floaters, or vision loss develops"
+    ],
+    "patient_education": [
+      "Explain that sudden flashes and floaters need to be checked, especially with his short-sightedness and family history",
+      "Tell him the warning sign to watch for: a dark curtain or shadow coming across the vision",
+      "Advise him to return immediately if that happens, and to avoid heavy straining meanwhile",
+      "Reassure him that prompt checking is precautionary and important for his eye and his driving job"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes onset (sudden), laterality (right), and nature of floaters/flashes",
+        "Specifically asks about a curtain/shadow or field loss (detachment red flag)",
+        "Identifies high myopia and family history of retinal detachment as risk factors",
+        "Confirms no pain/redness and no prior surgery/trauma"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents the focused ocular history accurately",
+        "Performs baseline VA and IOP",
+        "Recognises the symptoms require a dilated fundus examination",
+        "Records the risk factors clearly for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises flashes/floaters in a myope with family history as high-risk",
+        "Knows these features warrant prompt dilated review to exclude retinal tear/detachment",
+        "Identifies the curtain/shadow as the key escalation red flag",
+        "Does not falsely reassure the patient"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates promptly to the doctor/nurse for dilated examination",
+        "Prepares the patient for dilation and documents the history",
+        "Gives clear red-flag advice (curtain/shadow) and when to return urgently",
+        "Communicates supportively without dismissing the symptoms"
+      ]
+    }
+  }
+}

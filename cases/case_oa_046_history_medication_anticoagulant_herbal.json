@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_046_history_medication_anticoagulant_herbal",
+  "title": "What Else Are You Taking?",
+  "difficulty": "intermediate",
+  "topic": "history_taking_medication_allergy",
+  "topic_set": "history_taking",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Lim Guek Eng",
+    "age": 70,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "New patient referred for cataract assessment; here for history taking and baseline tests"
+  },
+  "history": {
+    "hpc": "Mdm Lim is a new patient referred for cataract assessment. During the medication history she initially lists only her blood pressure pill. On gentle prompting she adds: 'I take some Chinese herbs from my friend, that one also need to tell you meh? And the doctor gave me a blood-thinning tablet for my heart.' She also recalls feeling itchy and swollen once after an antibiotic eye drop years ago. No current eye pain or red eye.",
+    "pmhx": "Hypertension, atrial fibrillation (on anticoagulant). Cataracts (for assessment).",
+    "family_hx": "Mother had glaucoma",
+    "medications": ["Amlodipine 5mg OD", "Warfarin (anticoagulant) as prescribed", "Unspecified Chinese herbal supplement"],
+    "social_hx": "Lives with husband. Takes traditional supplements from friends. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18", "left": "6/24"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "Bilateral lens opacities (cataract). No redness.",
+    "fundus": "For doctor as part of assessment"
+  },
+  "investigations": {
+    "history_documentation": "Complete medication history obtained: antihypertensive, anticoagulant (warfarin) for atrial fibrillation, and an unspecified herbal supplement. A drug allergy was elicited (previous reaction to an antibiotic eye drop). Family history of glaucoma noted.",
+    "va_distance": "RE 6/18, LE 6/24."
+  },
+  "diagnosis": "A thorough general health and medication history uncovered an anticoagulant, a herbal supplement, and a previous eye-drop allergy — all important before any procedure or surgery. This case is about complete, safe history taking rather than an eye disease per se.",
+  "management": {
+    "immediate": [
+      "Take a structured general health history: systemic conditions, medications, allergies",
+      "Specifically ask about anti-coagulants, herbal supplements, vitamins, and steroids, which patients often omit",
+      "Document the anticoagulant (relevant to bleeding risk for surgery) and clarify it with the patient",
+      "Record the eye-drop allergy clearly and prominently so the wrong drop is not given",
+      "Note the family history of glaucoma for the doctor",
+      "Perform baseline VA and IOP, and document the full history for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to review the anticoagulant in planning any cataract surgery (bleeding risk)",
+      "Advise the patient to bring all her medications and supplements (or a list) to the next visit",
+      "Confirm the exact herbal supplement where possible"
+    ],
+    "patient_education": [
+      "Explain that herbal supplements and blood thinners are important to tell us because they can affect procedures and bleeding",
+      "Reassure her that sharing this information keeps her safe",
+      "Advise her to keep an updated medication list and bring it to appointments",
+      "Explain the recorded allergy will be flagged so she is not given that drop again"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Takes a structured general health and medication history",
+        "Specifically probes for anticoagulants, herbal supplements, vitamins, and steroids",
+        "Elicits and records the previous eye-drop allergy",
+        "Asks about relevant family history (glaucoma)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Documents the full medication list including the herbal supplement and anticoagulant",
+        "Flags the drug allergy prominently in the record",
+        "Performs baseline VA and IOP",
+        "Records the history completely and clearly for the doctor"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the anticoagulant as significant for surgical bleeding risk",
+        "Understands why herbal supplements must be elicited (interactions/bleeding)",
+        "Identifies the eye-drop allergy as a key safety item",
+        "Frames the task as complete, safe history taking"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents medications, supplements, and allergy accurately",
+        "Communicates the anticoagulant to the doctor for surgical planning",
+        "Educates the patient on why supplements and blood thinners matter",
+        "Advises bringing an updated medication list to future visits"
+      ]
+    }
+  }
+}
