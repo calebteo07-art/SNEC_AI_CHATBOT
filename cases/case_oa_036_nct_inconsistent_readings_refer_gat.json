@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_036_nct_inconsistent_readings_refer_gat",
+  "title": "The Numbers Keep Jumping",
+  "difficulty": "intermediate",
+  "topic": "nct_inconsistent_readings_refer_gat",
+  "topic_set": "tonometry_iop",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Mdm Nur Aisyah",
+    "age": 61,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Non-contact tonometry giving inconsistent readings across attempts"
+  },
+  "history": {
+    "hpc": "Mdm Nur says 'Every time the air blow I blink, cannot help it.' The NCT readings vary widely between attempts, partly because she blinks and tears up with each puff.",
+    "pmhx": "No known glaucoma. Watery eyes. No drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Retired."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "NCT readings inconsistent (e.g. 16, 24, 19 mmHg)", "left": "NCT readings inconsistent"},
+    "anterior_segment": "Watery eyes; otherwise normal by observation",
+    "fundus": "Not the focus of this station"
+  },
+  "investigations": {
+    "task": "Recognise unreliable NCT readings, repeat with good technique, and know when to refer for Goldmann applanation tonometry",
+    "key_points": "Blinking, tearing and poor fixation cause unreliable NCT; reposition and repeat; if still inconsistent, refer for Goldmann tonometry for an accurate reading rather than recording a doubtful number"
+  },
+  "diagnosis": "The NCT readings are unreliable due to blinking and tearing. The OA recognises the inconsistency, repeats the test with better technique and patient cooperation, and — if still inconsistent — refers for Goldmann applanation tonometry rather than recording a doubtful value. This is a procedural/judgement station.",
+  "management": {
+    "immediate": [
+      "Confirm identity and perform hand hygiene; wipe machine contact parts",
+      "Ask the patient to remove glasses or contact lenses",
+      "Explain the air puff and reassure to reduce blinking",
+      "Reposition and repeat NCT, encouraging steady fixation and minimal blinking",
+      "Recognise that widely inconsistent readings are unreliable",
+      "If still inconsistent, arrange referral for Goldmann applanation tonometry",
+      "Document the attempts and the action taken"
+    ],
+    "follow_up": [
+      "Goldmann tonometry for an accurate IOP if NCT remains unreliable",
+      "Flag to the doctor if pressures cannot be reliably obtained"
+    ],
+    "patient_education": [
+      "Reassure the patient and coach steady fixation to reduce blinking",
+      "Explain why an accurate pressure reading matters",
+      "Explain a contact method (Goldmann) may be used if needed"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and explains the test",
+        "Asks the patient to remove glasses/contact lenses",
+        "Reassures to reduce blinking",
+        "Communicates clearly"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts",
+        "Repositions and repeats NCT with better technique",
+        "Recognises inconsistent readings as unreliable",
+        "Does not record a doubtful single value"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Knows blinking/tearing cause unreliable NCT",
+        "Knows when to refer for Goldmann tonometry",
+        "Understands the need for an accurate IOP",
+        "Uses judgement rather than recording a doubtful number"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Arranges Goldmann tonometry if NCT remains unreliable",
+        "Documents the attempts and action",
+        "Coaches the patient to reduce blinking",
+        "Flags to the doctor as needed"
+      ]
+    }
+  }
+}

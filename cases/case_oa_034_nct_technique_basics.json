@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_034_nct_technique_basics",
+  "title": "A Puff of Air",
+  "difficulty": "intermediate",
+  "topic": "nct_technique_basics",
+  "topic_set": "tonometry_iop",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Mdm Ong Siew Hong",
+    "age": 50,
+    "gender": "female",
+    "occupation": "shop assistant",
+    "presenting_complaint": "Routine non-contact tonometry — focus on correct technique"
+  },
+  "history": {
+    "hpc": "Mdm Ong says 'I scared of the air puff, will it pain?' She wears glasses and is a little nervous about the test. This station focuses on performing NCT correctly and putting her at ease.",
+    "pmhx": "No eye problems. Wears glasses. No drug allergies.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Shop assistant."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Normal by observation",
+    "fundus": "Not the focus of this station"
+  },
+  "investigations": {
+    "task": "Perform non-contact tonometry with correct technique and infection control, and record the readings",
+    "key_points": "Hand hygiene; wipe machine contact parts before and after; remove glasses/contact lenses; explain the air puff; position comfortably; right eye first; record both in mmHg"
+  },
+  "diagnosis": "Non-contact tonometry is performed correctly: hand hygiene and wiping of machine contact parts, removing glasses, explaining the air puff to reassure the patient, testing the right eye first, and recording both readings in mmHg (15/16, within the normal 10–21 mmHg range). This is a procedural/technique station.",
+  "management": {
+    "immediate": [
+      "Confirm identity and perform hand hygiene",
+      "Wipe the machine parts that contact the patient with alcohol wipes before starting",
+      "Ask the patient to remove glasses or contact lenses",
+      "Reassure her and explain that a puff of air will be blown into each eye, and it does not hurt",
+      "Position the patient comfortably at the machine",
+      "Perform NCT right eye first, then left, and record both readings in mmHg",
+      "Wipe machine contact parts and perform hand hygiene afterwards; document the readings"
+    ],
+    "follow_up": [
+      "Flag to the doctor if the readings are outside the normal range",
+      "Repeat if a reading seems unreliable"
+    ],
+    "patient_education": [
+      "Reassure that the air puff is quick and painless",
+      "Explain why glasses must be removed for the test",
+      "Explain the readings will be reviewed by the doctor"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and explains the test to reassure the patient",
+        "Asks the patient to remove glasses/contact lenses",
+        "Gains cooperation from an anxious patient",
+        "Communicates clearly"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts before and after",
+        "Positions the patient comfortably",
+        "Performs NCT right eye first",
+        "Records both readings in mmHg"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Knows the normal IOP range (~10–21 mmHg)",
+        "Understands the air-puff principle of NCT",
+        "Knows to test the right eye first by convention",
+        "Knows readings outside normal need flagging"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Maintains infection control (wiping, hand hygiene)",
+        "Documents both readings accurately",
+        "Reassures and educates the patient",
+        "Repeats or flags readings appropriately"
+      ]
+    }
+  }
+}

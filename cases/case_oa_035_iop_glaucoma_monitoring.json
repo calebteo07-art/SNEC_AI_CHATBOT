@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_035_iop_glaucoma_monitoring",
+  "title": "Keeping Watch on the Pressure",
+  "difficulty": "intermediate",
+  "topic": "iop_glaucoma_monitoring",
+  "topic_set": "tonometry_iop",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Mr Chong Ah Beng",
+    "age": 67,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Known glaucoma on eye drops — here for routine IOP monitoring"
+  },
+  "history": {
+    "hpc": "Mr Chong says 'I using the glaucoma drop, but sometimes I forget at night.' He is a known glaucoma patient on treatment, attending for routine IOP monitoring. He admits occasionally missing his evening drop.",
+    "pmhx": "Primary open-angle glaucoma on a topical glaucoma drop. No drug allergies.",
+    "family_hx": "Glaucoma in the family",
+    "medications": ["Glaucoma eye drop (sometimes missed)"],
+    "social_hx": "Retired; manages his own medications."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/12"},
+    "iop": {"right": "22 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "anterior_segment": "Normal by observation",
+    "fundus": "For doctor — known glaucomatous discs"
+  },
+  "investigations": {
+    "task": "Measure IOP for glaucoma monitoring, note the slightly raised readings and the missed-drop history, and report both to the doctor",
+    "key_points": "Compare to target/normal range; readings of 22/24 are above normal; the missed evening drops are relevant to control; report adherence and readings to the doctor"
+  },
+  "diagnosis": "IOP monitoring for a known glaucoma patient shows readings slightly above normal (22/24 mmHg) in the context of occasionally missed evening drops. The OA records the readings, notes the adherence issue, and reports both to the doctor for review of control. No medical diagnosis is made by the OA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and perform hand hygiene; wipe machine contact parts",
+      "Ask the patient to remove glasses or contact lenses",
+      "Explain the air puff and perform NCT right eye first",
+      "Record both readings in mmHg and note they are above the normal range",
+      "Ask about and note adherence to the glaucoma drops (missed doses)",
+      "Report the readings and the adherence issue to the doctor",
+      "Document the readings and history"
+    ],
+    "follow_up": [
+      "Doctor to review glaucoma control and reinforce adherence",
+      "Consider Goldmann tonometry if a more accurate reading is needed"
+    ],
+    "patient_education": [
+      "Reinforce taking the glaucoma drops regularly, including the evening dose",
+      "Explain that pressure control protects the optic nerve",
+      "Encourage attending monitoring appointments"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and explains the test",
+        "Asks the patient to remove glasses/contact lenses",
+        "Asks about glaucoma drop adherence",
+        "Communicates clearly"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts",
+        "Performs NCT right eye first and records both in mmHg",
+        "Recognises the readings are above normal",
+        "Notes the missed-drop history"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands IOP monitoring in glaucoma",
+        "Links missed drops to poorer pressure control",
+        "Reports readings and adherence to the doctor",
+        "Knows Goldmann tonometry may be used for accuracy"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Reports readings and adherence issue to the doctor",
+        "Reinforces drop adherence with the patient",
+        "Documents readings and history",
+        "Encourages monitoring attendance"
+      ]
+    }
+  }
+}
