@@ -3,12 +3,15 @@
    a Next-Best-Action card, three tonal stat cards (recall / mastery / due), and
    a recent-activity timeline. Real data from useProgress + curriculum. */
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
+import { GoalRing } from "@/aurora/components/GoalRing";
 import { rankForLevel } from "@/lib/rank";
+import { getDailyXp, DAILY_XP_GOAL } from "@/lib/legacy/gamification";
 import { StatCard } from "@/aurora/components/StatCard";
 import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
@@ -39,6 +42,10 @@ function relativeDate(ts: string): string {
 export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
+
+  // Today's XP toward the daily goal — read after mount to avoid an SSR/localStorage mismatch.
+  const [dailyXp, setDailyXp] = useState(0);
+  useEffect(() => { setDailyXp(getDailyXp()); }, []);
 
   const activeTrack = ((user?.studentRole as Track) || "OA");
   const trackLabel = TRACK_LABELS[activeTrack] ?? "Trainee";
@@ -81,6 +88,14 @@ export function Dashboard() {
         eyebrow={`${trackLabel} · ${activeTrack} track`}
         title={`${greeting()}, ${firstName}`}
         readouts={readouts}
+        action={
+          <GoalRing
+            onDark
+            value={dailyXp}
+            goal={DAILY_XP_GOAL}
+            caption={dailyXp >= DAILY_XP_GOAL ? "Daily goal done! 🎉" : `${dailyXp} / ${DAILY_XP_GOAL} XP today`}
+          />
+        }
       />
 
       <div className="aurora-dash-grid">

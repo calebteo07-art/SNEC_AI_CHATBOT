@@ -9,6 +9,34 @@
 
 export const XP_PER_LEVEL = 500;
 
+/** Daily XP goal — roughly one focused study session. Drives the Dashboard ring. */
+export const DAILY_XP_GOAL = 100;
+
+function dailyXpKey(): string {
+  return "eyebot_daily_xp_" + new Date().toDateString();
+}
+
+/** XP earned so far today (resets automatically each calendar day). */
+export function getDailyXp(): number {
+  try {
+    const v = localStorage.getItem(dailyXpKey());
+    return v ? Math.max(0, parseInt(v, 10)) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Add to today's XP tally and return the new total. */
+export function addDailyXp(amount: number): number {
+  try {
+    const next = getDailyXp() + Math.max(0, amount);
+    localStorage.setItem(dailyXpKey(), String(next));
+    return next;
+  } catch {
+    return getDailyXp();
+  }
+}
+
 export function calculateLevel(xp: number): number {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
 }
@@ -118,6 +146,7 @@ export function addXP(amount: number): { newXP: number; leveledUp: boolean; newL
   progress.xp = newXP;
   progress.level = newLevel;
   saveUserProgress(progress);
+  addDailyXp(amount);  // every XP gain also counts toward today's goal ring
 
   return {
     newXP,

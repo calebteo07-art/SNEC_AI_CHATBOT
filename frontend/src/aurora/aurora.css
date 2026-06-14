@@ -302,8 +302,25 @@ html[data-motion="reduce"] .aurora-clip { animation: none; }
   color: #fff;
   text-shadow: 0 1px 18px rgba(31, 31, 31, 0.18);
 }
+.aurora-hero-text { margin-right: auto; }
 .aurora-hero-readouts { display: flex; gap: 22px; }
-.aurora-readout { display: flex; flex-direction: column; gap: 2px; }
+.aurora-readout { display: flex; flex-direction: column; gap: 2px; cursor: default; }
+
+/* Daily-goal ring (GoalRing). Gradient arc on light surfaces; white on the hero. */
+.aurora-ring { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.aurora-ring-dial { position: relative; display: grid; place-items: center; }
+.aurora-ring-arc { transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-ring-arc { transition: none; } }
+.aurora-ring-center { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.aurora-ring-value { font-family: var(--font-mono); font-size: 24px; font-weight: 600; color: var(--ink); }
+.aurora-ring-value small { font-size: 12px; font-weight: 500; color: var(--ink-3); }
+.aurora-ring-done { font-size: 32px; color: var(--on-green-2); }
+.aurora-ring-caption { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--ink-3); }
+.aurora-ring.is-on-dark .aurora-ring-value { color: #fff; }
+.aurora-ring.is-on-dark .aurora-ring-value small { color: rgba(255, 255, 255, 0.78); }
+.aurora-ring.is-on-dark .aurora-ring-done { color: #fff; }
+.aurora-ring.is-on-dark .aurora-ring-caption { color: rgba(255, 255, 255, 0.85); }
 .aurora-readout-value { font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #fff; line-height: 1; }
 .aurora-readout-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.72); }
 
