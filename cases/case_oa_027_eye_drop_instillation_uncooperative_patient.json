@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_027_eye_drop_instillation_uncooperative_patient",
+  "title": "Eyes Shut Tight",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_blepharospasm",
+  "topic_set": "eye_drops",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mdm Rosnah Binte Ali",
+    "age": 58,
+    "gender": "female",
+    "occupation": "homemaker",
+    "presenting_complaint": "Needs eye drops but squeezes her eyes shut and is anxious about the procedure"
+  },
+  "history": {
+    "hpc": "Mdm Rosnah says 'I scared, every time you want to put I close my eyes tight.' She is cooperative in conversation but reflexively shuts her eyes when a drop approaches, making instillation difficult.",
+    "pmhx": "Attends the clinic regularly. No drug allergies (confirm).",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Charted eye drop for today"],
+    "social_hx": "Anxious about eye procedures."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Instil the charted drop safely in a patient who squeezes her eyes shut, using reassurance and a good technique",
+    "key_points": "Reassure and explain; ask her to look up at a fixed point; gently pull the lower lid to form a pocket; instil into the lower fornix; if she squeezes, the drop in the pocket still reaches the eye when she blinks; never force the eye open"
+  },
+  "diagnosis": "The charted drop is instilled safely in an anxious patient who tends to squeeze her eyes shut. Reassurance, asking her to look up at a fixed point, and placing the drop into the lower fornix pocket allow successful instillation without forcing the eye open. Identity, correct eye and allergy are confirmed. This is a procedural/communication station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the correct eye and the charted drop and strength",
+      "Check for drug/eye-drop allergy before instilling",
+      "Reassure the patient and explain the step calmly",
+      "Ask her to look up at a fixed point and gently pull the lower lid to form a pocket",
+      "Instil one drop into the lower fornix without touching the eye or lashes",
+      "Do not force the eyelids open; if she blinks, the drop in the pocket still reaches the eye",
+      "Ask her to close gently afterwards and document the drop, eye, time and allergy check"
+    ],
+    "follow_up": [
+      "If instillation repeatedly fails, seek help from the nurse",
+      "Advise on a relaxed technique for home use"
+    ],
+    "patient_education": [
+      "Reassure that the drop does not hurt and the eye will not be forced open",
+      "Teach looking up and relaxing rather than squeezing",
+      "Explain that a drop placed in the lower pocket still works when she blinks"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, correct eye and charted drop",
+        "Checks for drug/eye-drop allergy",
+        "Reassures and explains to an anxious patient",
+        "Gains cooperation without forcing"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Asks the patient to look up at a fixed point",
+        "Pulls the lower lid to form a pocket and instils into the lower fornix",
+        "Uses a no-touch technique",
+        "Does not force the eyelids open"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as a safe-instillation and communication task",
+        "Understands a drop in the lower pocket still reaches the eye on blinking",
+        "Knows not to force the eye open",
+        "Confirms allergy before instilling"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents drop, eye, time and allergy check",
+        "Seeks help if instillation repeatedly fails",
+        "Teaches a relaxed technique for home",
+        "Maintains patient comfort and dignity"
+      ]
+    }
+  }
+}

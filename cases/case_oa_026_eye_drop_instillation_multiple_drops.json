@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_026_eye_drop_instillation_multiple_drops",
+  "title": "Too Many Drops",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_multiple_drops",
+  "topic_set": "eye_drops",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Tan Hock Seng",
+    "age": 70,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "On several eye drops for glaucoma and dry eye — confused about how to use them together"
+  },
+  "history": {
+    "hpc": "Mr Tan says 'I got so many bottles, I just put one after another, correct or not?' He is on a glaucoma drop and a lubricant and is unsure about timing and order.",
+    "pmhx": "Glaucoma on topical treatment; dry eye. No drug allergies (confirm).",
+    "family_hx": "Glaucoma in the family",
+    "medications": ["Glaucoma eye drop", "Lubricant eye drop"],
+    "social_hx": "Retired, manages his own medications."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "Monitored for glaucoma", "left": "Monitored for glaucoma"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not the focus of this station"
+  },
+  "investigations": {
+    "task": "Instil the charted drops correctly and teach the patient to space multiple drops and use the correct order",
+    "key_points": "Wait about 5 minutes between different drops so the first is not washed out; instil the more important (e.g. glaucoma) drop first if charted; one drop is enough per dose"
+  },
+  "diagnosis": "Multiple drops instilled and explained: the patient is taught to leave about 5 minutes between different drops so they are not washed out, to use one drop per dose, and to follow the charted order. Identity, correct eye and allergy are confirmed and a no-touch technique is used. This is a procedural/teaching station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the correct eye(s) and each charted drop and strength",
+      "Check for drug/eye-drop allergy before instilling",
+      "Perform hand hygiene and instil one drop into the lower fornix with a no-touch technique",
+      "Leave about 5 minutes before instilling a different drop so it is not washed out",
+      "Use one drop per dose and follow the charted order",
+      "Apply gentle closure / nasolacrimal pressure after each",
+      "Document the drops given, eye, time and allergy check"
+    ],
+    "follow_up": [
+      "Give the patient a simple written schedule for home",
+      "Advise reporting stinging, allergy or worsening symptoms"
+    ],
+    "patient_education": [
+      "Explain one drop is enough — more just overflows",
+      "Teach spacing different drops by a few minutes",
+      "Advise keeping a routine and not running out of glaucoma drops"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, correct eye and each charted drop",
+        "Checks for drug/eye-drop allergy",
+        "Explains the plan and gains cooperation",
+        "Clarifies the patient's current routine"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Instils one drop per dose into the lower fornix (no-touch)",
+        "Spaces different drops by about 5 minutes",
+        "Follows the charted order",
+        "Applies gentle closure / nasolacrimal pressure"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands why drops must be spaced (wash-out)",
+        "Knows one drop per dose is sufficient",
+        "Recognises adherence to glaucoma drops as important",
+        "Confirms allergy before instilling"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides a clear home schedule",
+        "Documents drops, eye, time and allergy check",
+        "Educates on spacing and one-drop dosing",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}
