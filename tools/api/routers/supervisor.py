@@ -117,6 +117,36 @@ async def supervisor_save_note(
     return {"ok": True}
 
 
+# ── Cohort leaderboard control (opt-in, supervisor-gated) ───────────────────
+
+class LeaderboardSettingResponse(BaseModel):
+    enabled: bool
+
+class LeaderboardSettingRequest(BaseModel):
+    enabled: bool
+
+
+@router.get("/api/supervisor/leaderboard", response_model=LeaderboardSettingResponse)
+async def supervisor_get_leaderboard(current_user: CurrentUser = Depends(require_supervisor)):
+    try:
+        enabled = await db.get_leaderboard_enabled()
+    except Exception:
+        enabled = False
+    return LeaderboardSettingResponse(enabled=enabled)
+
+
+@router.post("/api/supervisor/leaderboard", response_model=LeaderboardSettingResponse)
+async def supervisor_set_leaderboard(
+    body: LeaderboardSettingRequest,
+    current_user: CurrentUser = Depends(require_supervisor),
+):
+    try:
+        await db.set_leaderboard_enabled("SNEC", body.enabled)
+    except Exception:
+        raise HTTPException(status_code=503, detail="Leaderboard settings aren't available yet — run migration 004.")
+    return LeaderboardSettingResponse(enabled=body.enabled)
+
+
 @router.get("/api/supervisor/student/{student_id}/report")
 async def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
     try:

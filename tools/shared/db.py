@@ -294,6 +294,31 @@ async def update_consent(student_id: str, **fields) -> None:
     await client.table("student_consent").update(fields).eq("student_id", student_id).execute()
 
 
+# ── leaderboard_settings (opt-in, supervisor-gated leaderboard) ───────────────
+
+async def get_leaderboard_enabled(cohort: str = "SNEC") -> bool:
+    """Whether the cohort leaderboard is enabled by a supervisor. False if the
+    settings table does not exist yet (pre-migration) — caller should catch."""
+    client = await _get_client()
+    result = (
+        await client.table("leaderboard_settings")
+        .select("enabled")
+        .eq("cohort", cohort)
+        .limit(1)
+        .execute()
+    )
+    return bool(result.data[0]["enabled"]) if result.data else False
+
+
+async def set_leaderboard_enabled(cohort: str, enabled: bool) -> None:
+    """Enable/disable the cohort leaderboard (supervisor action)."""
+    client = await _get_client()
+    await client.table("leaderboard_settings").upsert(
+        {"cohort": cohort, "enabled": enabled, "updated_at": "now()"},
+        on_conflict="cohort",
+    ).execute()
+
+
 # ── supervisors ───────────────────────────────────────────────────────────────
 
 async def get_supervisor(email: str) -> dict | None:
