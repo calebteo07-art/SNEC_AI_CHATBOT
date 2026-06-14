@@ -661,9 +661,13 @@ html[data-motion="reduce"] .aurora-dot.is-active { animation: none; }
 .aurora-deck-q { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); line-height: 1.3; margin: 8px 0 16px; }
 .aurora-deck-recall { width: 100%; border: none; border-bottom: 1.5px solid var(--hairline); background: none; font-family: var(--font-sans); font-size: 14px; color: var(--ink); resize: none; outline: none; line-height: 1.6; padding: 8px 0; }
 .aurora-deck-recall:focus-visible { border-color: var(--g-blue); }
-.aurora-reveal-btn { margin-top: 16px; }
+.aurora-reveal-btn { margin-top: 14px; }
 .aurora-reveal-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.35); }
-.aurora-recall-hint { font-size: 12px; color: var(--ink-3); margin: 10px 0 0; }
+/* Recall helper row — required-answer hint on the left, live character quota on the right. */
+.aurora-recall-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.aurora-recall-hint { font-size: 12px; color: var(--ink-3); margin: 0; }
+.aurora-recall-count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.aurora-recall-count.is-warn { color: var(--on-rose); }
 .aurora-answer { border-left: 3px solid var(--g-purple); padding-left: 14px; margin-bottom: 16px; }
 /* The student's own submitted attempt — neutral accent, distinct from the purple model answer. */
 .aurora-your-answer { border-left-color: var(--ink-3); }

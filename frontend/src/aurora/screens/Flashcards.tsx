@@ -19,6 +19,10 @@ import { useGamificationSync } from "@/hooks/useGamification";
 
 type Difficulty = "easy" | "medium";
 
+/** Hard cap on a student's typed recall answer — keeps answers concise (matching
+ *  the short model answers) and bounds the tokens sent to the AI grader. */
+const MAX_ANSWER_CHARS = 300;
+
 interface Flashcard {
   id: number; question: string; answer: string; tag: string;
   card_id?: string; repetitions?: number; easiness?: number; interval_days?: number;
@@ -253,12 +257,24 @@ export function Flashcards() {
                 <textarea
                   className="aurora-deck-recall"
                   value={userAttempt}
-                  onChange={(e) => setUserAttempt(e.target.value)}
+                  onChange={(e) => setUserAttempt(e.target.value.slice(0, MAX_ANSWER_CHARS))}
                   onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && userAttempt.trim()) { e.preventDefault(); submitAnswer(); } }}
                   placeholder="Type your answer — you must answer before it's graded"
                   rows={3}
+                  maxLength={MAX_ANSWER_CHARS}
                   aria-label="Your answer"
                 />
+                <div className="aurora-recall-meta">
+                  {!userAttempt.trim()
+                    ? <span className="aurora-recall-hint">Answering is required — this is active recall.</span>
+                    : <span aria-hidden />}
+                  <span
+                    className={`aurora-recall-count${userAttempt.length >= MAX_ANSWER_CHARS - 20 ? " is-warn" : ""}`}
+                    aria-live="polite"
+                  >
+                    {userAttempt.length} / {MAX_ANSWER_CHARS}
+                  </span>
+                </div>
                 <button
                   type="button"
                   className="aurora-cta aurora-flow aurora-reveal-btn"
@@ -267,7 +283,6 @@ export function Flashcards() {
                 >
                   <span>Submit for grading</span>
                 </button>
-                {!userAttempt.trim() && <p className="aurora-recall-hint">Answering is required — this is active recall.</p>}
               </>
             )}
 
