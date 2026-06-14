@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_043_fall_risk_postural_dizziness_post_dilation",
+  "title": "Head Spins When He Stands",
+  "difficulty": "intermediate",
+  "topic": "fall_risk_postural_dizziness_medication",
+  "topic_set": "fall_risk",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Abdullah bin Hassan",
+    "age": 72,
+    "gender": "male",
+    "occupation": "retired technician",
+    "presenting_complaint": "Feeling giddy when standing up; has just been dilated for a fundus examination"
+  },
+  "history": {
+    "hpc": "Mr Abdullah was dilated about 25 minutes ago for a fundus check. While waiting, he tells you he feels giddy whenever he stands up quickly. He says: 'When I stand up fast, my head spin spin, like want to fall, must hold the chair first.' His near vision is now blurry and he is light-sensitive from the dilation. He has not eaten much today.",
+    "pmhx": "Hypertension on multiple medications. Type 2 diabetes. Background diabetic retinopathy under monitoring.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 10mg OD", "Hydrochlorothiazide 25mg OD", "Metformin 500mg BD"],
+    "social_hx": "Lives with wife. Came by himself today on the bus. Skipped breakfast before coming."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 pre-dilation, blurred post-dilation", "left": "6/12 pre-dilation, blurred post-dilation"},
+    "iop": {"right": "15 mmHg (NCT, pre-dilation)", "left": "16 mmHg (NCT, pre-dilation)"},
+    "anterior_segment": "Pupils well dilated bilaterally; otherwise normal",
+    "fundus": "Background diabetic retinopathy, for doctor review now that pupils are dilated"
+  },
+  "investigations": {
+    "fall_risk_assessment": "High risk: postural (orthostatic) dizziness on standing, on multiple blood-pressure-lowering medications and a diuretic, skipped a meal (possible low blood sugar), post-dilation blurring and photosensitivity, and currently unaccompanied.",
+    "va_distance": "RE and LE 6/12 pre-dilation, both now blurred post-dilation."
+  },
+  "diagnosis": "High fall risk from postural dizziness, likely contributed to by his antihypertensives/diuretic and skipped meal, compounded by acute post-dilation visual blurring. The systemic contributors and the dilation together make standing and walking hazardous right now.",
+  "management": {
+    "immediate": [
+      "Recognise the postural dizziness as a significant fall risk and do not let the patient stand or walk unaided right now",
+      "Advise him to stand up slowly in stages (sit, pause, then stand with support) rather than quickly",
+      "Seat him safely in a supervised area and stay with or observe him while symptoms settle",
+      "Inform the nurse-in-charge about the dizziness and that he skipped a meal, so blood pressure/sugar can be reviewed if needed",
+      "Offer sunglasses/UV protectors for post-dilation photosensitivity",
+      "Document the fall risk assessment, the contributing factors, and the actions taken"
+    ],
+    "follow_up": [
+      "Doctor/nurse to assess the postural dizziness (e.g., blood pressure, blood sugar) before he leaves",
+      "Doctor to proceed with the dilated fundus examination once he is stable",
+      "Ensure he is escorted out and advise attending with a companion in future"
+    ],
+    "patient_education": [
+      "Explain that standing up too fast and his medications can make him giddy, and to rise slowly in stages",
+      "Advise him not to skip meals before clinic visits",
+      "Explain the post-dilation blurring and light sensitivity will last 4-6 hours",
+      "Advise him to ask for help before walking and to come with a companion next time"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Elicits the postural nature of the dizziness (worse on standing quickly)",
+        "Identifies the multiple antihypertensives and diuretic as possible contributors",
+        "Notes the skipped meal as a possible low-blood-sugar contributor",
+        "Recognises post-dilation blurring and photosensitivity as added acute risks"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs and documents a fall risk assessment at this visit",
+        "Identifies the combination of systemic and dilation-related risk factors",
+        "Recognises the need to escalate the dizziness for review (BP/sugar)",
+        "Documents pre-dilation VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Classifies the patient as high fall risk",
+        "Links the dizziness to medications and the skipped meal, compounded by dilation",
+        "Understands this requires active measures and escalation, not just a note",
+        "Does not dismiss the dizziness as trivial"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Prevents unaided standing/walking and advises slow staged rising",
+        "Seats him safely under supervision and escalates to the nurse-in-charge",
+        "Offers practical measures (sunglasses) and documents the assessment and actions",
+        "Provides clear education on medications, meals, and post-dilation safety"
+      ]
+    }
+  }
+}

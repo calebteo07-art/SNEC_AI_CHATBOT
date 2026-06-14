@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_042_fall_risk_severe_visual_impairment",
+  "title": "Tunnel Vision in a Busy Clinic",
+  "difficulty": "intermediate",
+  "topic": "fall_risk_visual_impairment_glaucoma",
+  "topic_set": "fall_risk",
+  "role": "OA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Goh Lai Heng",
+    "age": 84,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Came alone by taxi for her glaucoma review; has severe tunnel vision and is unsure of the clinic layout"
+  },
+  "history": {
+    "hpc": "Mdm Goh has advanced glaucoma with severe constriction of her side vision. She came alone today. She says: 'I can only see a bit in the middle, the side all dark, so I walk slowly slowly, scared knock into things.' She finds the busy clinic with chairs and other patients hard to navigate. No new symptoms, here for routine review.",
+    "pmhx": "Advanced primary open-angle glaucoma, both eyes. Osteoarthritis of the knees.",
+    "family_hx": "Sister also has glaucoma",
+    "medications": ["Latanoprost eye drops ON both eyes", "Timolol eye drops BD both eyes"],
+    "social_hx": "Lives alone, manages with help from a neighbour. Came alone by taxi today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (central vision preserved)", "left": "6/18"},
+    "iop": {"right": "19 mmHg (NCT)", "left": "20 mmHg (NCT)"},
+    "anterior_segment": "Normal anterior segments; optic discs show advanced glaucomatous cupping (known)",
+    "fundus": "Known advanced glaucomatous optic neuropathy, for doctor review"
+  },
+  "investigations": {
+    "fall_risk_assessment": "High risk: elderly, severe peripheral field loss (tunnel vision) making navigation hazardous, osteoarthritis affecting mobility, and currently unaccompanied in a busy environment.",
+    "va_distance": "RE 6/12, LE 6/18 (central acuity relatively preserved despite severe field loss)."
+  },
+  "diagnosis": "High fall risk driven mainly by severe visual field loss rather than central acuity — a patient can have 'good' central VA yet be at high risk because of tunnel vision. Active guidance and a safe path through the clinic are needed.",
+  "management": {
+    "immediate": [
+      "Recognise that good central VA does not exclude high fall risk when peripheral field is severely constricted",
+      "Personally guide the patient through the clinic, describing obstacles and offering an arm to hold",
+      "Seat her in a clear, well-lit spot with a direct, unobstructed path, away from clutter",
+      "Keep walkways near her clear of bags, chairs, and equipment",
+      "Accompany her for each move (to testing, to the doctor, to the exit) rather than letting her navigate alone",
+      "Document the fall risk assessment and the actions taken (guided, seated safely, escorted)"
+    ],
+    "follow_up": [
+      "Doctor to review glaucoma control and visual fields",
+      "Arrange for a volunteer or staff escort to the taxi at the end of the visit",
+      "Encourage her to attend future visits with a companion and flag this in her records"
+    ],
+    "patient_education": [
+      "Acknowledge her own caution and reassure her that staff will guide her",
+      "Explain that her side vision loss makes busy areas risky, so she should ask for help to move around",
+      "Advise her to keep taking her glaucoma drops as prescribed to protect remaining vision",
+      "Encourage bringing a companion and arranging escort help for appointments"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the severe peripheral field loss and difficulty navigating",
+        "Confirms she came alone and has mobility-affecting comorbidity (knee osteoarthritis)",
+        "Recognises her own safety strategy (walking slowly) as a clue to high risk",
+        "Confirms she is here for routine glaucoma review with no new symptoms"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs and documents a fall risk assessment at this visit",
+        "Identifies field loss (tunnel vision) as the dominant risk factor despite fair central VA",
+        "Notes the unaccompanied status and busy environment as added risks",
+        "Documents VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that central acuity alone does not determine fall risk",
+        "Classifies the patient as high fall risk due to severe field loss",
+        "Understands the clinic environment contributes to the risk",
+        "Knows high risk requires active guidance, not just documentation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Personally guides and escorts the patient and offers an arm to hold",
+        "Seats her safely with a clear path and keeps walkways uncluttered",
+        "Documents the assessment and actions taken",
+        "Arranges escort to the taxi and flags the need for a companion at future visits"
+      ]
+    }
+  }
+}

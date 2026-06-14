@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_044_fall_risk_routine_screening_hidden_risk",
+  "title": "She Says She's Fine",
+  "difficulty": "intermediate",
+  "topic": "fall_risk_routine_screening_all_patients",
+  "topic_set": "fall_risk",
+  "role": "OA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Chia Bee Lian",
+    "age": 63,
+    "gender": "female",
+    "occupation": "part-time cleaner",
+    "presenting_complaint": "Here for a routine diabetic eye screening; appears well and walks in independently"
+  },
+  "history": {
+    "hpc": "Mdm Chia attends for routine diabetic eye screening. She looks well and walks in without aids. On routine fall-risk screening she initially brushes it off: 'Aiya I'm okay one lah.' On gentle questioning she admits: 'But last week I almost fall in the toilet, luckily I grab the rail. And I just started new sleeping pill, sometimes morning still groggy.' No injury occurred. She will be dilated today for the screening.",
+    "pmhx": "Type 2 diabetes. Insomnia, recently started a sleeping tablet.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 850mg BD", "Zolpidem 5mg ON (recently started)"],
+    "social_hx": "Lives with husband. Works as a part-time cleaner. Came alone today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "For dilated diabetic screening by doctor/photography"
+  },
+  "investigations": {
+    "fall_risk_assessment": "Risk identified on screening despite a well appearance: a recent near-fall within the past week, a newly started sedative (zolpidem) with morning grogginess, and planned dilation today which will blur vision and increase photosensitivity.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "A patient who looks low risk but is not — screening uncovered a recent near-fall and a new sedative, and planned dilation will add acute risk. This illustrates why ALL patients must be screened for fall risk at every visit, not only those who look frail.",
+  "management": {
+    "immediate": [
+      "Screen every patient for fall risk regardless of how well they appear, and ask specifically about recent falls/near-falls and new medications",
+      "Recognise the recent near-fall, new sedative, and planned dilation as genuine risk factors",
+      "Advise her that her vision will blur after dilation and to move carefully and ask for help while waiting",
+      "Seat her in a safe area and offer sunglasses/UV protectors after dilation",
+      "Flag to the nurse/doctor that she is now higher risk due to the near-fall and new sedative",
+      "Document the fall risk assessment, the factors uncovered, and the actions taken"
+    ],
+    "follow_up": [
+      "Doctor to proceed with the dilated diabetic screening",
+      "Advise her to mention the near-fall and the new sleeping tablet to her regular doctor",
+      "Arrange for her to be escorted out post-dilation and advise a companion for future dilated visits"
+    ],
+    "patient_education": [
+      "Explain kindly that even people who feel fine can be at risk, which is why we always ask",
+      "Advise her that the new sleeping pill can cause morning grogginess and to be careful, especially at night/in the toilet",
+      "Explain post-dilation blurring and photosensitivity (4-6 hours) and to avoid driving",
+      "Encourage simple home safety (grab bars, good lighting) and bringing a companion when dilated"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Screens for fall risk despite the patient appearing well",
+        "Asks specifically about recent falls or near-falls",
+        "Identifies the newly started sedative and morning grogginess",
+        "Notes that dilation is planned today, adding acute risk"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs and documents a fall risk assessment at this visit for ALL patients",
+        "Uncovers hidden risk factors through targeted questioning",
+        "Recognises the combination (near-fall, sedative, planned dilation) raises her risk",
+        "Documents VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands that a well appearance does not exclude fall risk",
+        "Correctly identifies the patient as at-risk after screening",
+        "Recognises medication and dilation as modifiable/acute contributors",
+        "Applies the principle that all patients are screened every visit"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Acts on the identified risk (safe seating, sunglasses, escort, staff alerted)",
+        "Educates the patient sensitively without dismissing her 'I'm fine' response",
+        "Documents the assessment and the factors uncovered",
+        "Advises follow-up with her regular doctor about the near-fall and new sedative"
+      ]
+    }
+  }
+}
