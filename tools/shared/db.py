@@ -297,8 +297,10 @@ async def update_consent(student_id: str, **fields) -> None:
 # ── leaderboard_settings (opt-in, supervisor-gated leaderboard) ───────────────
 
 async def get_leaderboard_enabled(cohort: str = "SNEC") -> bool:
-    """Whether the cohort leaderboard is enabled by a supervisor. False if the
-    settings table does not exist yet (pre-migration) — caller should catch."""
+    """Whether the cohort leaderboard is on. ON by default (no explicit row) so it
+    is there for students without setup; a supervisor can still turn it OFF, which
+    stores an explicit row. Raises if the table is missing (pre-migration) — the
+    caller catches and treats that as disabled."""
     client = await _get_client()
     result = (
         await client.table("leaderboard_settings")
@@ -307,7 +309,7 @@ async def get_leaderboard_enabled(cohort: str = "SNEC") -> bool:
         .limit(1)
         .execute()
     )
-    return bool(result.data[0]["enabled"]) if result.data else False
+    return bool(result.data[0]["enabled"]) if result.data else True
 
 
 async def set_leaderboard_enabled(cohort: str, enabled: bool) -> None:

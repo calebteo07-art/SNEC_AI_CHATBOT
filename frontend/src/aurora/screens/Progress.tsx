@@ -181,7 +181,7 @@ export function Progress() {
               {!lb.opted_in ? (
                 <>
                   <p className="aurora-muted" style={{ marginBottom: 12, lineHeight: 1.6 }}>
-                    Your supervisor has opened an optional cohort leaderboard. Join to see how your XP compares with classmates — you&apos;ll appear as your first name + last initial, and you can leave any time. It&apos;s just for a bit of friendly motivation.
+                    There&apos;s an optional cohort leaderboard. Join to see how your XP compares with classmates — you&apos;ll appear as your first name + last initial, and you can leave any time. It&apos;s just for a bit of friendly motivation.
                   </p>
                   <button type="button" className="aurora-cta aurora-flow" style={{ maxWidth: 280 }} onClick={() => optIn.mutate(true)} disabled={optIn.isPending}>
                     <span>Join the leaderboard →</span>
