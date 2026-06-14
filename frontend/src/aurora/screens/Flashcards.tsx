@@ -210,6 +210,13 @@ export function Flashcards() {
   };
   advanceRef.current = advance;
 
+  // F3 — hand the current question to the Tutor, pre-seeded, for a deeper explanation.
+  const explainThis = () => {
+    if (!card) return;
+    try { sessionStorage.setItem("eyebot_tutor_seed", card.question); } catch { /* ignore */ }
+    router.push("/chat");
+  };
+
   // Keyboard-first (F4): once graded, Enter / → advances to the next card.
   useEffect(() => {
     if (!submitted || aiChecking) return;
@@ -448,6 +455,9 @@ export function Flashcards() {
                       <p>{card.answer}</p>
                     </div>
 
+                    <button type="button" className="aurora-toggle" style={{ width: "100%", marginBottom: 8 }} onClick={explainThis}>
+                      🎓 Explain this in the Tutor
+                    </button>
                     <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn" onClick={advance}>
                       <span>{idx < total - 1 ? "Next card →" : (weakRef.current.length > 0 ? "Revisit weak cards →" : "Finish session →")}</span>
                     </button>
