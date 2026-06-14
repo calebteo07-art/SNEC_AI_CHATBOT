@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_030_eye_drop_instillation_arthritis_dexterity",
+  "title": "Shaky Hands, Steady Drops",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_arthritis_dexterity",
+  "topic_set": "eye_drops",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mdm Lim Guek Eng",
+    "age": 74,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "On daily eye drops but struggles to instil them due to arthritic, shaky hands"
+  },
+  "history": {
+    "hpc": "Mdm Lim says 'My hand got arthritis, cannot squeeze the bottle and aim, always miss my eye.' She needs her drops instilled and practical advice as her hand dexterity makes self-instillation difficult.",
+    "pmhx": "Arthritis affecting the hands. On daily eye drops. No drug allergies (confirm).",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Daily eye drop", "Arthritis medication"],
+    "social_hx": "Lives with her son who could help with drops."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Instil the charted drop and give practical strategies for a patient with poor hand dexterity",
+    "key_points": "Confirm identity, eye, drop and allergy; suggest techniques such as resting the hand on the forehead, lying down, the pocket method, a drop-aid device, or asking a family member to help; ensure she can manage at home"
+  },
+  "diagnosis": "The charted drop is instilled and practical strategies are given for a patient whose arthritis limits self-instillation: stabilising the hand on the forehead, lying down, using the lower-lid pocket, a drop-aid device, or family help. Identity, eye, drop and allergy are confirmed. This is a procedural/teaching station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the correct eye and the charted drop and strength",
+      "Check for drug/eye-drop allergy before instilling",
+      "Instil one drop into the lower fornix using a no-touch technique",
+      "Suggest stabilising strategies: rest the bottle hand on the forehead, lie down, or use the pocket method",
+      "Suggest a drop-aid device or family member assistance if needed",
+      "Confirm she or a helper can manage the drops at home",
+      "Document the drop, eye, time and allergy check"
+    ],
+    "follow_up": [
+      "Arrange a drop aid or family support if self-instillation remains difficult",
+      "Advise reporting if she cannot get the drops in reliably"
+    ],
+    "patient_education": [
+      "Teach steadying the hand on the forehead and using the lower-lid pocket",
+      "Suggest lying down to make aiming easier",
+      "Reassure that a drop in the pocket still works and family/aids can help"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, correct eye and the charted drop",
+        "Checks for drug/eye-drop allergy",
+        "Identifies the dexterity difficulty and home support",
+        "Communicates clearly and supportively"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Instils one drop into the lower fornix (no-touch)",
+        "Suggests hand-stabilising strategies",
+        "Suggests a drop aid or family help",
+        "Confirms reliable home administration"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises poor dexterity as the key barrier",
+        "Knows practical aids and techniques to overcome it",
+        "Confirms allergy before instilling",
+        "Understands the importance of reliable dosing"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Arranges aids/support for home use",
+        "Documents drop, eye, time and allergy check",
+        "Teaches practical self-instillation strategies",
+        "Maintains patient dignity and confidence"
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_031_eye_drop_instillation_child_parent",
+  "title": "Drops for a Wriggly Child",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_child_parent",
+  "topic_set": "eye_drops",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Baby Nurul (with mother)",
+    "age": 4,
+    "gender": "female",
+    "occupation": "preschooler",
+    "presenting_complaint": "Charted eye drops for a young child; mother needs to learn how to instil them at home"
+  },
+  "history": {
+    "hpc": "The mother says 'My girl keep struggling and crying, I scared to put the drop wrongly.' The child is prescribed drops and the mother needs to be taught a safe technique for a wriggly young child at home.",
+    "pmhx": "Young child, otherwise well. No known drug allergies (confirm with parent).",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Charted paediatric eye drop"],
+    "social_hx": "Cared for by her mother at home."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Instil the drop safely in a young child and teach the parent a practical home technique",
+    "key_points": "Confirm identity and allergy with the parent; lay the child down or gently wrap if needed; pull the lower lid and place a drop in the inner corner / lower pocket; if the child squeezes, the drop in the corner runs in when the eye opens; never force or touch the eye with the tip"
+  },
+  "diagnosis": "The drop is instilled safely in a young child and the parent is taught a practical home technique: laying the child down, placing a drop in the inner corner / lower lid pocket, and letting it run in when the eye opens, without forcing the eye or touching the tip. Identity and allergy are confirmed with the parent. This is a procedural/teaching station.",
+  "management": {
+    "immediate": [
+      "Confirm the child's identity and check allergy with the parent",
+      "Confirm the correct eye and the charted drop and strength",
+      "Position the child lying down, gently steadied/wrapped if needed, with the parent assisting",
+      "Pull the lower lid and place one drop in the inner corner / lower pocket without touching the eye or tip",
+      "If the child squeezes the eye shut, the drop in the corner runs in when the eye opens",
+      "Reassure and comfort the child afterwards",
+      "Document the drop, eye, time and allergy check, and teach the parent"
+    ],
+    "follow_up": [
+      "Confirm the parent feels able to do the drops at home",
+      "Advise returning if the eye worsens or the child cannot tolerate the drops"
+    ],
+    "patient_education": [
+      "Teach the parent the lying-down, inner-corner technique",
+      "Reassure that a drop in the corner still works when the eye opens",
+      "Advise never to force the eye or touch the bottle tip to the eye"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the child's identity and the charted drop with the parent",
+        "Checks allergy with the parent",
+        "Explains the plan to the parent",
+        "Engages calmly with the child and parent"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Positions the child safely (lying down, gently steadied)",
+        "Places a drop in the inner corner / lower pocket with a no-touch technique",
+        "Does not force the eye open",
+        "Confirms the drop reaches the eye when it opens"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the challenge of drops in a young child",
+        "Knows the inner-corner technique for an uncooperative child",
+        "Confirms allergy before instilling",
+        "Prioritises safety and comfort"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Teaches the parent a practical home technique",
+        "Documents the drop, eye, time and allergy check",
+        "Comforts the child and reassures the parent",
+        "Advises on when to return"
+      ]
+    }
+  }
+}
