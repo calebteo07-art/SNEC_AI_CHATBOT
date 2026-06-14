@@ -26,14 +26,43 @@ export interface CheckResponse {
   mock_mode: boolean;
 }
 
-export function useFlashcards() {
-  return useQuery<FlashcardItem[]>({
-    queryKey: ["flashcards"],
+export interface FlashcardSetInfo {
+  set_key: string;
+  topic_key: string;
+  label: string;
+  difficulty: string;
+  total: number;
+  completed: number;
+}
+
+/** The 30 selectable sets (15 topics x easy/medium) for the student's role. */
+export function useFlashcardTopics() {
+  return useQuery<FlashcardSetInfo[]>({
+    queryKey: ["flashcard-topics"],
     queryFn: async () => {
-      const res = await fetch("/api/flashcards/generate", { credentials: "include" });
+      const res = await fetch("/api/flashcards/topics", { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load flashcard topics");
+      const data = await res.json();
+      return data.sets ?? [];
+    },
+    staleTime: 10 * 60_000,
+  });
+}
+
+/** Load a study deck. Pass a setKey ("topic__difficulty") to study one set,
+ *  or null for the mixed no-repeat rotation across the whole role pool. */
+export function useFlashcards(setKey: string | null, enabled = true) {
+  return useQuery<FlashcardItem[]>({
+    queryKey: ["flashcards", setKey ?? "mixed"],
+    queryFn: async () => {
+      const url = setKey
+        ? `/api/flashcards/generate?set_key=${encodeURIComponent(setKey)}`
+        : "/api/flashcards/generate";
+      const res = await fetch(url, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to load flashcards");
       return res.json();
     },
+    enabled,
     staleTime: 10 * 60_000,
     placeholderData: (prev) => prev,
   });

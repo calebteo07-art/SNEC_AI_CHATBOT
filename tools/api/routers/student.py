@@ -7,7 +7,8 @@ from pydantic import BaseModel
 from tools.api.shared import limiter, _case_cache
 from tools.flashcards.flashcard_store import get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
 from tools.flashcards.sm2 import next_review, due_date
-from tools.flashcards.static_cards import STATIC_FLASHCARDS
+from tools.flashcards.static_cards import get_set_cards, get_all_cards, set_card_counts
+from tools.flashcards.flashcard_sets import sets_for, split_set_key
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
@@ -186,34 +187,98 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
     return FlashcardCheckResponse(feedback=feedback, score=score, mock_mode=MOCK_MODE)
 
 
-# ── On-demand flashcard generation (RAG-backed) ────────────────────────────
+# ── Flashcard topic + difficulty picker ────────────────────────────────────
 
-@router.get("/api/flashcards/generate", response_model=list[Flashcard])
-@limiter.limit("5/minute")
-async def flashcards_generate(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+class FlashcardSetInfo(BaseModel):
+    set_key: str
+    topic_key: str
+    label: str
+    difficulty: str
+    total: int
+    completed: int
+
+class FlashcardTopicsResponse(BaseModel):
+    sets: list[FlashcardSetInfo]
+
+
+@router.get("/api/flashcards/topics", response_model=FlashcardTopicsResponse)
+async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user)):
+    """The 30 selectable sets (15 topics x easy/medium) for the caller's role,
+    with how many cards each set has and how many the student has already seen."""
     student_id = current_user["sub"]
     role = ""
     try:
-        profile = await get_profile(student_id)
-        role = profile.get("role", "")
+        role = (await get_profile(student_id)).get("role", "")
     except Exception:
         pass
 
-    # Serve due cards from Supabase first
+    counts = set_card_counts(role)
+    served_fronts: set[str] = set()
+    try:
+        served_fronts = await get_served_static_fronts(student_id)
+    except Exception:
+        pass
+
+    sets: list[FlashcardSetInfo] = []
+    for s in sets_for(role):
+        set_cards = get_set_cards(role, s["topic_key"], s["difficulty"])
+        completed = sum(1 for c in set_cards if c["front"] in served_fronts)
+        sets.append(FlashcardSetInfo(
+            set_key=s["set_key"], topic_key=s["topic_key"], label=s["label"],
+            difficulty=s["difficulty"], total=counts.get(s["set_key"], 0),
+            completed=completed,
+        ))
+    return FlashcardTopicsResponse(sets=sets)
+
+
+# ── On-demand flashcard serving (static pool, per-user no-repeat) ───────────
+
+@router.get("/api/flashcards/generate", response_model=list[Flashcard])
+@limiter.limit("10/minute")
+async def flashcards_generate(
+    request: Request,
+    topic: str | None = None,
+    difficulty: str | None = None,
+    set_key: str | None = None,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    student_id = current_user["sub"]
+    role = ""
+    try:
+        role = (await get_profile(student_id)).get("role", "")
+    except Exception:
+        pass
+
+    # Accept either set_key="topic__difficulty" or explicit topic+difficulty.
+    if set_key and not (topic and difficulty):
+        topic, difficulty = split_set_key(set_key)
+
+    # A specific set was chosen → serve that set with per-user no-repeat rotation.
+    if topic and difficulty:
+        pool = get_set_cards(role, topic, difficulty)
+        if pool:
+            served_fronts = await get_served_static_fronts(student_id)
+            served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
+            picks = pick_next_unseen(student_id, len(pool), f"flash_{topic}_{difficulty}", served_indices, n=min(5, len(pool)))
+            new_cards = [{**pool[i], "source": "static"} for i in picks]
+            return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c})
+                    for c in await insert_cards(student_id, new_cards)]
+        return []
+
+    # No set chosen → due cards first, then rotate across the whole role pool.
     try:
         cards = await get_due_cards(student_id, limit=6)
     except Exception:
         cards = []
 
-    # No due cards — serve from the static pool, rotating through all 30
-    # cards for this role before repeating
     if not cards:
-        pool = STATIC_FLASHCARDS.get(role.upper()) or STATIC_FLASHCARDS["OA"]
-        served_fronts = await get_served_static_fronts(student_id)
-        served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
-        picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=6)
-        new_cards = [{**pool[i], "source": "static"} for i in picks]
-        cards = await insert_cards(student_id, new_cards)
+        pool = get_all_cards(role)
+        if pool:
+            served_fronts = await get_served_static_fronts(student_id)
+            served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
+            picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=6)
+            new_cards = [{**pool[i], "source": "static"} for i in picks]
+            cards = await insert_cards(student_id, new_cards)
 
     return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c}) for c in cards]
 
