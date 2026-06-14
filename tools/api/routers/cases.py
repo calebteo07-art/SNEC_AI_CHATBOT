@@ -17,6 +17,7 @@ from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
+from tools.cases.topic_sets import resolve_set, sets_for, label_for
 
 # How many cases to surface per student per visit (a small rotating set, not the
 # whole library). The student cycles through every unlocked case before repeats.
@@ -40,9 +41,20 @@ class CaseInfo(BaseModel):
     estimated_minutes: int
     patient: CasePatientInfo
     locked: bool = False
+    set_key: str = ""
+    set_label: str = ""
 
 class CasesResponse(BaseModel):
     cases: list[CaseInfo]
+
+class CaseTopicInfo(BaseModel):
+    set_key: str
+    label: str
+    total: int
+    completed: int
+
+class CaseTopicsResponse(BaseModel):
+    topics: list[CaseTopicInfo]
 
 class ChatMessage(BaseModel):
     role: str
@@ -111,7 +123,7 @@ class ChecklistResponse(BaseModel):
 # ── Case endpoints ─────────────────────────────────────────────────────────
 
 @router.get("/api/cases", response_model=CasesResponse)
-async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
+async def get_cases(topic_set: str | None = None, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
 
     # Determine the student's role; cases are filtered to it.
@@ -166,6 +178,7 @@ async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
             locked = not advanced_unlocked
         else:
             locked = False
+        sk = resolve_set(role, c.get("topic", ""))
         cases.append(CaseInfo(
             case_id=c["case_id"],
             title=c["title"],
@@ -178,11 +191,19 @@ async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
                 presenting_complaint=c["patient"]["presenting_complaint"],
             ),
             locked=locked,
+            set_key=sk,
+            set_label=label_for(role, sk),
         ))
 
-    # Per-student no-repeat rotation: surface a small window of unlocked cases the
-    # student hasn't completed yet, cycling through all of them before repeating.
-    # "Served" = completed (from case_progress) — reuses existing tracking, no new table.
+    # Topic-set view: the student picked a topic, so return that whole set
+    # (keeping difficulty-lock flags) instead of a rotating window.
+    if topic_set:
+        cases = [c for c in cases if c.set_key == topic_set]
+        return CasesResponse(cases=cases)
+
+    # Default view — per-student no-repeat rotation: surface a small window of
+    # unlocked cases the student hasn't completed yet, cycling through all of
+    # them before repeating. "Served" = completed (from case_progress).
     unlocked = [c for c in cases if not c.locked]
     if unlocked:
         completed_ids = set(case_progress.keys())
@@ -196,6 +217,42 @@ async def get_cases(current_user: CurrentUser = Depends(get_current_user)):
                 window.append(unlocked[i])
         cases = window
     return CasesResponse(cases=cases)
+
+
+@router.get("/api/cases/topics", response_model=CaseTopicsResponse)
+async def get_case_topics(current_user: CurrentUser = Depends(get_current_user)):
+    """List the student's 10 topic-sets with case counts (for the topic picker)."""
+    student_id = current_user["sub"]
+    role = "OA"
+    try:
+        role = (await get_profile(student_id)).get("role", "OA") or "OA"
+    except Exception:
+        pass
+    try:
+        completed = set((await get_case_progress(student_id)).keys())
+    except Exception:
+        completed = set()
+
+    total: dict[str, int] = {}
+    done: dict[str, int] = {}
+    for case_id in list_available_cases():
+        try:
+            c = load_case(case_id)
+        except Exception:
+            continue
+        case_role = c.get("role", "any") or "any"
+        if case_role not in (role, "any"):
+            continue
+        sk = resolve_set(role, c.get("topic", ""))
+        total[sk] = total.get(sk, 0) + 1
+        if c["case_id"] in completed:
+            done[sk] = done.get(sk, 0) + 1
+
+    topics = [
+        CaseTopicInfo(set_key=k, label=lbl, total=total.get(k, 0), completed=done.get(k, 0))
+        for k, lbl in sets_for(role)
+    ]
+    return CaseTopicsResponse(topics=topics)
 
 
 async def _check_case_access(student_id: str, case: dict) -> None:
