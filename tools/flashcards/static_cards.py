@@ -142,6 +142,70 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 {"front": "Why remove glasses or contact lenses before NCT?", "back": "They interfere with the air-puff measurement."},
             ],
         },
+        "near_vision": {
+            "easy": [
+                {"front": "At what distance is the near vision (N) chart held?", "back": "35 cm."},
+                {"front": "What is normal near vision?", "back": "N5 (the finest print)."},
+                {"front": "When is near vision tested?", "back": "On the first visit and when ordered."},
+                {"front": "How is each eye tested for near vision?", "back": "Separately, with the other eye occluded."},
+                {"front": "Should correction be worn for the near VA test?", "back": "Yes — record near VA with correction in place."},
+            ],
+            "medium": [
+                {"front": "A 50-year-old reads N10 unaided but N5 with a reading add. Diagnosis?", "back": "Presbyopia."},
+                {"front": "Distance VA is 6/6 but near VA is reduced. What does this pattern suggest?", "back": "Presbyopia (age-related loss of near focusing)."},
+                {"front": "Why ensure adequate lighting for near VA?", "back": "Poor lighting falsely reduces the recorded near acuity."},
+                {"front": "How are near vision results documented?", "back": "As N5, N6, N8, N10, etc. — the smallest line read comfortably."},
+                {"front": "A patient holds reading material further away to focus. What does this suggest?", "back": "Presbyopia."},
+            ],
+        },
+        "pinhole": {
+            "easy": [
+                {"front": "What does a pinhole occluder do?", "back": "It blocks peripheral light rays so only central rays enter the eye."},
+                {"front": "When is the pinhole used?", "back": "When VA is reduced (6/12 or worse)."},
+                {"front": "Vision improves with the pinhole — refractive or not?", "back": "Refractive (likely correctable with glasses)."},
+                {"front": "Vision does not improve with the pinhole — refractive or not?", "back": "Non-refractive (a media, retinal, or optic nerve cause)."},
+                {"front": "Can the pinhole replace a formal refraction?", "back": "No — it only screens for a refractive cause."},
+            ],
+            "medium": [
+                {"front": "A cataract patient's VA does not improve with the pinhole. Why?", "back": "The reduced vision is from media opacity (the cloudy lens), not refractive error."},
+                {"front": "A myope's VA improves markedly with the pinhole. Interpretation?", "back": "Uncorrected refractive error — glasses are likely to help."},
+                {"front": "Why does the pinhole sharpen vision in uncorrected refractive error?", "back": "It removes blur from peripheral rays, sharpening the retinal image."},
+                {"front": "Pinhole gives only slight improvement in a dense cataract. Interpretation?", "back": "A mainly non-refractive (media) cause, perhaps with a small refractive component."},
+                {"front": "At what VA threshold do you apply the pinhole?", "back": "6/12 or worse."},
+            ],
+        },
+        "eye_drops": {
+            "easy": [
+                {"front": "Before instilling an eye drop, what must you confirm about the eye?", "back": "The correct eye (right, left, or both)."},
+                {"front": "What must you check about the patient before instilling a drop?", "back": "That they are not allergic to it."},
+                {"front": "Where is the drop instilled?", "back": "Into the lower fornix (gently pull the lower lid down)."},
+                {"front": "After instilling, what should the patient do?", "back": "Close the eye gently and apply light pressure over the nasolacrimal area."},
+                {"front": "Name two things to document for eye drop instillation.", "back": "Diagnosis/purpose and the drop name and strength."},
+            ],
+            "medium": [
+                {"front": "Why apply pressure over the nasolacrimal area after instillation?", "back": "To reduce systemic absorption and keep the drop in the eye."},
+                {"front": "Why confirm the correct eye and drug before instilling?", "back": "To avoid wrong-eye or wrong-drug errors (patient safety)."},
+                {"front": "A patient says a past drop made the eye itchy and swollen. What do you do?", "back": "Treat it as a drug allergy — do not use that drop and flag it clearly."},
+                {"front": "Why tilt the head back and pull the lower lid down?", "back": "To expose the lower fornix so the drop lands correctly."},
+                {"front": "Two drops are ordered for the same eye. What is good practice?", "back": "Wait a short interval between them so the first drop is not washed out."},
+            ],
+        },
+        "pupil_dilation": {
+            "easy": [
+                {"front": "Name a common dilating drop.", "back": "Tropicamide 1% (or phenylephrine 2.5%)."},
+                {"front": "How long do dilation effects usually last?", "back": "About 4-6 hours."},
+                {"front": "Name two effects to warn the patient about after dilation.", "back": "Blurred near vision and light sensitivity (photophobia)."},
+                {"front": "Name a contraindication to routine pupil dilation.", "back": "Narrow (drainage) angles."},
+                {"front": "Name two things to document for dilation.", "back": "Eye(s) dilated, pre-dilation pupil size, dosage, and time."},
+            ],
+            "medium": [
+                {"front": "A patient mentions a previous acute angle-closure attack. What do you do before dilating?", "back": "Do not dilate routinely — check with the nurse/doctor (narrow-angle contraindication)."},
+                {"front": "Why warn a driver about dilation?", "back": "Blurred vision and glare make driving unsafe for several hours."},
+                {"front": "After dilation, what comfort measure can you offer?", "back": "Sunglasses/UV protectors for photosensitivity."},
+                {"front": "Why record the pre-dilation pupil size?", "back": "To document the baseline and monitor the dilation response."},
+                {"front": "Why does dilation raise fall risk in the elderly?", "back": "It blurs vision and adds photosensitivity on top of existing risks."},
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
@@ -258,6 +322,70 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 {"front": "Besides density, what else is recorded?", "back": "Cell morphology (e.g. irregular cell shapes)."},
                 {"front": "A count of 1300 cells/mm2 — normal or concerning?", "back": "Concerning — it is below the 1500 threshold."},
                 {"front": "Why might a long-term contact lens wearer need this test?", "back": "Long-term lens wear can reduce endothelial cell density."},
+            ],
+        },
+        "optical_biometry": {
+            "easy": [
+                {"front": "Is optical biometry contact or non-contact?", "back": "Non-contact."},
+                {"front": "Name two measurements optical biometry provides.", "back": "Axial length, corneal curvature (keratometry), and anterior chamber depth (any two)."},
+                {"front": "What is the main indication for optical biometry?", "back": "Pre-cataract surgery IOL power calculation."},
+                {"front": "Optical vs A-scan — which is more accurate in most eyes?", "back": "Optical biometry."},
+                {"front": "What does the measurement feed into?", "back": "The IOL power calculation."},
+            ],
+            "medium": [
+                {"front": "Why is optical biometry preferred over A-scan when possible?", "back": "It is non-contact and more accurate for IOL calculation in most eyes."},
+                {"front": "When does optical biometry fail, needing A-scan instead?", "back": "With a dense cataract that blocks the light signal."},
+                {"front": "Why take multiple optical biometry readings?", "back": "To confirm consistency before the values are used."},
+                {"front": "Besides cataract surgery, name one other use.", "back": "Contact lens fitting."},
+                {"front": "Who selects the IOL power from the biometry?", "back": "The doctor — the OT measures and documents."},
+            ],
+        },
+        "asoct": {
+            "easy": [
+                {"front": "What does ASOCT image?", "back": "The anterior segment — cornea, anterior chamber, angle, iris, and lens."},
+                {"front": "Is ASOCT contact or non-contact?", "back": "Non-contact."},
+                {"front": "Name one indication for ASOCT.", "back": "Anterior chamber angle assessment in glaucoma (also corneal disease, post-surgery, refractive planning)."},
+                {"front": "What kind of image does ASOCT give?", "back": "A high-resolution cross-sectional image."},
+                {"front": "Which angle does ASOCT help assess?", "back": "The anterior chamber (drainage) angle."},
+            ],
+            "medium": [
+                {"front": "Why is ASOCT useful in a narrow-angle glaucoma suspect?", "back": "It images the anterior chamber angle to assess how narrow or open it is."},
+                {"front": "ASOCT vs macular OCT — what is the difference in target?", "back": "ASOCT images the anterior segment; macular OCT images the retina/macula."},
+                {"front": "Name a corneal use of ASOCT.", "back": "Assessing corneal disease, thickness, or post-surgical/refractive planning."},
+                {"front": "Why is ASOCT preferred over a contact method for the angle?", "back": "It is non-contact, comfortable, and high-resolution."},
+                {"front": "What does the OT document for ASOCT?", "back": "Diagnosis, indication, eye(s), and findings."},
+            ],
+        },
+        "flare": {
+            "easy": [
+                {"front": "What does the flare test measure?", "back": "Aqueous flare — protein concentration in the anterior chamber."},
+                {"front": "Flare is an indicator of what?", "back": "Intraocular inflammation."},
+                {"front": "Name one indication for the flare test.", "back": "Uveitis monitoring (or post-surgical inflammation assessment)."},
+                {"front": "Is the flare test contact or non-contact?", "back": "Non-contact (laser flare photometry)."},
+                {"front": "A higher flare value means what?", "back": "More intraocular inflammation."},
+            ],
+            "medium": [
+                {"front": "Why use the flare test in uveitis?", "back": "To objectively measure and monitor anterior chamber inflammation over time."},
+                {"front": "How does flare help after surgery?", "back": "It quantifies post-operative inflammation to guide treatment such as steroid tapering."},
+                {"front": "Mildly raised flare a week after cataract surgery — interpretation?", "back": "Expected early post-operative inflammation (lower than acute uveitis)."},
+                {"front": "Why also measure the fellow eye?", "back": "As a baseline for comparison."},
+                {"front": "Who decides on treatment from the flare value?", "back": "The doctor — the OT measures and documents."},
+            ],
+        },
+        "corneal_topography": {
+            "easy": [
+                {"front": "What does corneal topography map?", "back": "Corneal curvature and elevation across the whole corneal surface."},
+                {"front": "Name one indication for corneal topography.", "back": "Keratoconus screening (also pre-LASIK and contact lens fitting)."},
+                {"front": "What pattern suggests keratoconus?", "back": "Inferior corneal steepening / asymmetric bow-tie / irregular astigmatism."},
+                {"front": "What does the test document?", "back": "K readings, the pattern, and any irregularity."},
+                {"front": "Is corneal topography used before refractive surgery?", "back": "Yes — for pre-LASIK assessment."},
+            ],
+            "medium": [
+                {"front": "A young patient has inferior steepening and irregular astigmatism. Suspect?", "back": "Keratoconus."},
+                {"front": "Why is topography done before LASIK?", "back": "To screen for keratoconus and irregular corneas that contraindicate surgery."},
+                {"front": "How does topography help contact lens fitting?", "back": "It maps the corneal shape to select a well-fitting lens."},
+                {"front": "Topography vs keratometry — what is topography's advantage?", "back": "It maps the entire corneal surface, not just central curvature."},
+                {"front": "What does an asymmetric bow-tie pattern suggest?", "back": "Irregular astigmatism, possibly early keratoconus."},
             ],
         },
     },
