@@ -56,6 +56,10 @@ export function Progress() {
   const sessionCount = data?.session_count ?? 0;
   const weak = data?.weak_topics ?? [];
   const sessions = (data?.sessions ?? []).slice(0, 10);
+  // Weekly recap — sessions and distinct active days in the last 7 days.
+  const weekAgo = Date.now() - 7 * 86_400_000;
+  const weekSessions = (data?.sessions ?? []).filter((s) => new Date(s.timestamp).getTime() >= weekAgo);
+  const weekDays = new Set(weekSessions.map((s) => new Date(s.timestamp).toDateString())).size;
   const { values: activity, active: activeDays } = buildActivity(data?.sessions ?? []);
   const velocity = data?.learning_velocity ?? "stable";
   const date = new Date()
@@ -88,6 +92,15 @@ export function Progress() {
             </StatCard>
             <StatCard tone="blue" label="Topics" value={topicPerf.length} />
           </div>
+
+          <section className="aurora-card" aria-label="This week">
+            <p className="aurora-activity-head">This week</p>
+            <p className="aurora-muted" style={{ marginTop: 6, lineHeight: 1.6 }}>
+              {weekSessions.length > 0
+                ? `${weekSessions.length} session${weekSessions.length === 1 ? "" : "s"} across ${weekDays} active day${weekDays === 1 ? "" : "s"} in the last 7 days. ${weekDays >= 5 ? "Outstanding consistency — keep it up! 🔥" : weekDays >= 2 ? "Nice rhythm — a little each day adds up. 💪" : "A daily check-in or a Quick 5 deck keeps the momentum going. 🌱"}`
+                : "No sessions yet this week — a Quick 5-card deck is a perfect restart. 🌱"}
+            </p>
+          </section>
 
           <section className="aurora-card aurora-prog-mastery" aria-label="Mastery by topic">
             <p className="aurora-activity-head">Mastery by topic</p>
