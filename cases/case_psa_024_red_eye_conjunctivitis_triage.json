@@ -1,0 +1,91 @@
+{
+  "case_id": "case_psa_024_red_eye_conjunctivitis_triage",
+  "title": "Sticky Red Eyes",
+  "difficulty": "intermediate",
+  "topic": "red_eye_conjunctivitis",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mdm Tan Geok Hua",
+    "age": 45,
+    "gender": "female",
+    "occupation": "office administrator",
+    "presenting_complaint": "Both eyes red with sticky discharge for 3 days, no pain"
+  },
+  "history": {
+    "hpc": "Mdm Tan says 'My two eyes red already, got a lot of 'gum' when I wake up, but never pain one.' Both eyes are affected, with watery-sticky discharge. No pain, no light sensitivity, and her vision is normal. A colleague had the same thing last week.",
+    "pmhx": "No eye problems before. No contact lens use.",
+    "family_hx": "Nil",
+    "medications": ["Nil"],
+    "social_hx": "Office worker. Shares a desk with a colleague who had red eyes recently."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6"},
+    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "anterior_segment": "Bilateral conjunctival redness with discharge; cornea clear by observation (for doctor to confirm)",
+    "fundus": "Not assessed by the PSA"
+  },
+  "investigations": {
+    "history_and_triage": "Take a focused history and apply the red-eye differential: discharge present, no pain, no photophobia, normal vision and normal pupil point to conjunctivitis.",
+    "red_flags_checked": "No pain, no photophobia, no visual loss, not a contact lens wearer — no red flags for a sight-threatening cause.",
+    "triage_category": "Routine (Category 4) — minor condition; advise hygiene and book a same-session or routine review per protocol."
+  },
+  "diagnosis": "History and red-eye differential are consistent with conjunctivitis (marked discharge, no pain or photophobia, normal vision). The PSA recognises there are no red flags, triages it as a minor (Category 4) condition, and gives hygiene advice. No medical diagnosis is made by the PSA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and take a focused red-eye history (onset, discharge, pain, photophobia, vision, contact lens use)",
+      "Apply the red-eye differential and recognise the conjunctivitis pattern",
+      "Confirm there are no red flags (pain, photophobia, vision loss, contact lens use)",
+      "Triage as a minor (Category 4) condition and route per clinic protocol",
+      "Document findings clearly"
+    ],
+    "follow_up": [
+      "Doctor/nurse to confirm and treat as needed",
+      "Advise return if pain, light sensitivity or reduced vision develop"
+    ],
+    "patient_education": [
+      "Explain it is likely a contagious eye infection — wash hands, do not share towels",
+      "Avoid rubbing the eyes and do not share eye make-up",
+      "Return promptly if vision drops or the eye becomes painful"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and takes a focused red-eye history",
+        "Asks about discharge, pain, photophobia and vision",
+        "Asks about contact lens use",
+        "Communicates clearly with the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Applies the red-eye differential correctly",
+        "Recognises the conjunctivitis pattern (discharge, no pain, normal vision)",
+        "Checks for red flags and finds none",
+        "Records visual acuity"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a likely minor (Category 4) red eye",
+        "Does not make a medical diagnosis — routes appropriately",
+        "Understands which features would change the urgency",
+        "Identifies the infective/contagious nature for advice"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Triages as routine and documents clearly",
+        "Gives hand-hygiene and no-sharing advice",
+        "Advises return if red-flag symptoms develop",
+        "Maintains a calm, clear manner"
+      ]
+    }
+  }
+}

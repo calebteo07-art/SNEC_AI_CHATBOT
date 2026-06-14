@@ -1,0 +1,91 @@
+{
+  "case_id": "case_psa_025_red_eye_contact_lens_keratitis",
+  "title": "Slept in My Lenses",
+  "difficulty": "intermediate",
+  "topic": "red_eye_contact_lens_keratitis",
+  "role": "PSA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "History Taking",
+  "patient": {
+    "name": "Mr Lim Jun Wei",
+    "age": 24,
+    "gender": "male",
+    "occupation": "university student",
+    "presenting_complaint": "One painful red eye with blurred vision and light sensitivity, wears contact lenses"
+  },
+  "history": {
+    "hpc": "Mr Lim says 'My right eye very pain and blur, cannot see the light also. I wear contact lens, sometimes I sleep with it never take out.' One eye, painful, watery, photophobic, getting worse since yesterday.",
+    "pmhx": "Wears monthly soft contact lenses; admits overnight wear and topping up old solution.",
+    "family_hx": "Nil",
+    "medications": ["Nil"],
+    "social_hx": "Student, long hours, frequent contact lens overwear."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (reduced)", "left": "6/6"},
+    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "anterior_segment": "Right eye markedly red with watering; cornea to be examined urgently by the doctor",
+    "fundus": "Not assessed by the PSA"
+  },
+  "investigations": {
+    "history_and_triage": "Focused history identifies a painful, photophobic red eye with reduced vision in a contact lens wearer who overwears and sleeps in lenses — a high-risk picture for microbial keratitis.",
+    "red_flags_checked": "Pain, photophobia, reduced vision and contact lens use are all red flags.",
+    "triage_category": "Urgent — escalate promptly for same-day doctor assessment; this is not a routine red eye."
+  },
+  "diagnosis": "A painful, photophobic red eye with reduced vision in a contact lens overwearer is a high-risk presentation for microbial keratitis. The PSA recognises the red flags, escalates urgently for doctor assessment, and advises the patient to stop lens wear. No medical diagnosis is made by the PSA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and take a focused red-eye history including contact lens habits",
+      "Identify the red flags: pain, photophobia, reduced vision and contact lens overwear",
+      "Record visual acuity for both eyes",
+      "Escalate urgently for same-day doctor review rather than routine queueing",
+      "Advise the patient to stop wearing the lens and bring the lens/case if available"
+    ],
+    "follow_up": [
+      "Urgent doctor assessment with slit lamp examination",
+      "Keep the patient from rubbing or further lens wear while waiting"
+    ],
+    "patient_education": [
+      "Explain that sleeping in lenses and reusing solution raises infection risk",
+      "Advise stopping lens wear until reviewed",
+      "Stress the importance of being seen quickly to protect vision"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and takes a focused red-eye history",
+        "Specifically asks about contact lens use and overwear",
+        "Asks about pain, photophobia and vision",
+        "Records visual acuity for both eyes"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Recognises the high-risk contact-lens red-eye pattern",
+        "Identifies pain, photophobia and reduced vision as red flags",
+        "Does not treat the eye as routine conjunctivitis",
+        "Notes contact lens overwear as the key risk"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a sight-threatening red eye needing urgent review",
+        "Does not make a medical diagnosis — escalates",
+        "Understands why contact lens wearers with a painful red eye are high risk",
+        "Knows to advise stopping lens wear"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Escalates urgently rather than routine queueing",
+        "Advises stopping lens wear and not rubbing the eye",
+        "Documents findings and red flags clearly",
+        "Communicates the urgency calmly"
+      ]
+    }
+  }
+}
