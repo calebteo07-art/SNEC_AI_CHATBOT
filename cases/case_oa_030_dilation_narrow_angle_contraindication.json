@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_030_dilation_narrow_angle_contraindication",
+  "title": "Check the Angle First",
+  "difficulty": "intermediate",
+  "topic": "dilation_narrow_angle_contraindication",
+  "topic_set": "pupil_dilation",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Pupil Dilation",
+  "patient": {
+    "name": "Mdm Yeo Lai Kuan",
+    "age": 64,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Charted for dilation, but has a history of narrow drainage angles"
+  },
+  "history": {
+    "hpc": "Mdm Yeo says 'Last time the doctor say my eye angle very narrow, must be careful.' She is charted for dilation today but mentions this narrow-angle history, which must be acted on before instilling any dilating drop.",
+    "pmhx": "Known narrow anterior chamber angles. No drug allergies (confirm).",
+    "family_hx": "Glaucoma in the family",
+    "medications": ["Nil regular"],
+    "social_hx": "Retired."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "Measured before any dilation", "left": "Measured before any dilation"},
+    "anterior_segment": "Shallow anterior chambers / narrow angles by history — dilation could precipitate acute angle-closure",
+    "fundus": "Not yet examined"
+  },
+  "investigations": {
+    "task": "Recognise the narrow-angle contraindication and do not dilate until checked with the nurse/doctor",
+    "key_points": "Confirm identity and the order; recognise the narrow-angle history as a contraindication; do not instil dilating drops; escalate to the nurse/doctor to confirm whether and how to dilate; document the history"
+  },
+  "diagnosis": "The key step is recognising the narrow-angle history as a contraindication to routine dilation: dilating a narrow angle can precipitate acute angle-closure glaucoma. The OA withholds the dilating drops and checks with the nurse/doctor before proceeding, and documents the history. Patient safety is prioritised. This is a procedural/safety station.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the dilation order",
+      "Recognise the narrow-angle history as a contraindication to routine dilation",
+      "Do NOT instil dilating drops at this point",
+      "Escalate to the nurse/doctor to confirm whether and how dilation should proceed",
+      "Record the narrow-angle history clearly",
+      "Only dilate if and as directed, then document pupil size, drops, dosage and time",
+      "Warn the patient to report any eye pain, headache or nausea urgently"
+    ],
+    "follow_up": [
+      "Doctor to decide on safe dilation or an alternative",
+      "Flag the narrow-angle history in the record"
+    ],
+    "patient_education": [
+      "Explain why dilation needs to be checked first given her angle history",
+      "Advise reporting eye pain, headache, nausea or haloes urgently",
+      "Reassure that her safety is the priority"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the dilation order",
+        "Actively elicits/notes the narrow-angle history",
+        "Checks for drug allergy",
+        "Communicates clearly with the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Withholds dilating drops because of the contraindication",
+        "Escalates to the nurse/doctor before proceeding",
+        "Documents the narrow-angle history",
+        "Only dilates if and as directed, with full documentation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises narrow angles as a contraindication to dilation",
+        "Understands dilation could precipitate acute angle-closure glaucoma",
+        "Prioritises safety over completing the task",
+        "Knows to confirm with the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the narrow-angle history in the record",
+        "Warns the patient about acute glaucoma red flags",
+        "Documents the decision and any dilation given",
+        "Maintains patient safety and reassurance"
+      ]
+    }
+  }
+}

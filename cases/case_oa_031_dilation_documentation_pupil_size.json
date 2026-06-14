@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_031_dilation_documentation_pupil_size",
+  "title": "Record It Properly",
+  "difficulty": "intermediate",
+  "topic": "dilation_documentation_pupil_size",
+  "topic_set": "pupil_dilation",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Pupil Dilation",
+  "patient": {
+    "name": "Mr Ramesh Pillai",
+    "age": 60,
+    "gender": "male",
+    "occupation": "school teacher",
+    "presenting_complaint": "Charted for dilation of the right eye before review — focus on correct documentation"
+  },
+  "history": {
+    "hpc": "Mr Ramesh says 'Doctor only want to dilate my right eye today.' Only the right eye is to be dilated. This station focuses on correct technique and documentation of the dilation.",
+    "pmhx": "No narrow-angle history. No drug allergies (confirm).",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Teacher; came with a family member."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/6"},
+    "iop": {"right": "Measured if ordered before dilation", "left": "Not being dilated"},
+    "anterior_segment": "Right eye deep chamber, safe to dilate; left eye not to be dilated",
+    "fundus": "Right fundus to be examined after dilation"
+  },
+  "investigations": {
+    "task": "Dilate only the correct (right) eye and document the eye, pre-dilation pupil size, drops and dosage, and the time accurately",
+    "key_points": "Confirm the correct single eye; record pre-dilation pupil size in mm; instil the charted drop into the right eye only; note the dosage and time; do not dilate the left eye"
+  },
+  "diagnosis": "Only the correct (right) eye is dilated and the dilation is documented properly: the eye dilated, the pre-dilation pupil size in mm, the drops and dosage, and the time are all recorded. Confirming the single correct eye prevents dilating the wrong eye. This is a procedural/documentation station.",
+  "management": {
+    "immediate": [
+      "Confirm identity and that only the RIGHT eye is to be dilated",
+      "Check for drug allergy and absence of a narrow-angle contraindication",
+      "Record the pre-dilation pupil size in mm for the right eye",
+      "Instil the charted dilating drop into the right eye only, using a no-touch technique",
+      "Do not instil into the left eye",
+      "Note the dosage and the time of instillation",
+      "Document the eye dilated, pupil size, drops, dosage and time"
+    ],
+    "follow_up": [
+      "Inform the doctor of the dilation time for the right-eye fundus exam",
+      "Re-check if the right pupil is not adequately dilated"
+    ],
+    "patient_education": [
+      "Explain only one eye is being dilated and why",
+      "Warn the right eye will be blurred and light-sensitive for a few hours",
+      "Advise not to drive until the dilation wears off"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and that only the right eye is to be dilated",
+        "Checks for drug allergy and narrow-angle contraindication",
+        "Explains the procedure to the patient",
+        "Confirms the order from the doctor"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Records pre-dilation pupil size in mm",
+        "Dilates the correct (right) eye only",
+        "Uses a no-touch instillation technique",
+        "Notes the dosage and time"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Knows what must be documented for dilation (eye, pupil size, drops, dosage, time)",
+        "Understands the importance of dilating the correct single eye",
+        "Confirms no contraindication before dilating",
+        "Recognises adequate dilation is needed for the exam"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the eye, pupil size, drops, dosage and time accurately",
+        "Informs the doctor of the dilation time",
+        "Warns about blur, light sensitivity and not driving",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}
