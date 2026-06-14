@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
 import { useReducedMotion } from "@/aurora/motion";
-import { syncStreakFromBackend, syncHeartsFromBackend } from "@/lib/legacy/gamification";
+import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { AtlasRail } from "./components/AtlasRail";
 import { CommandPalette, type Destination } from "./components/CommandPalette";
 
@@ -32,11 +32,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: progress } = useProgress();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
-  /* Keep the gamification mirror in sync, as the legacy shell did. */
+  /* Mirror the backend streak into the local cache, as the legacy shell did. */
   useEffect(() => {
     if (!progress) return;
     syncStreakFromBackend(progress.streak);
-    syncHeartsFromBackend(progress.hearts);
   }, [progress]);
 
   /* Global ⌘K / Ctrl+K toggles the palette. */

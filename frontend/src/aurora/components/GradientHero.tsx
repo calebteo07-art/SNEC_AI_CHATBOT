@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 import { MotionSurface } from "@/aurora/MotionSurface";
 
-export type Readout = { label: string; value: string };
+export type Readout = { label: string; value: string; hint?: string };
 
 export function GradientHero({
   title,
@@ -28,7 +28,7 @@ export function GradientHero({
         {readouts && readouts.length > 0 && (
           <div className="aurora-hero-readouts">
             {readouts.map((r) => (
-              <div key={r.label} className="aurora-readout">
+              <div key={r.label} className="aurora-readout" title={r.hint}>
                 <span className="aurora-readout-value">{r.value}</span>
                 <span className="aurora-readout-label">{r.label}</span>
               </div>

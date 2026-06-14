@@ -8,6 +8,7 @@ import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
+import { rankForLevel } from "@/lib/rank";
 import { StatCard } from "@/aurora/components/StatCard";
 import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
@@ -55,10 +56,15 @@ export function Dashboard() {
   const recall = weakTopics.length;
   const recentSessions = (progress?.sessions ?? []).slice(0, 6);
 
+  const rank = rankForLevel(progress?.level ?? 1);
   const readouts: Readout[] = [
-    { label: "Streak", value: `${progress?.streak ?? 0}d` },
-    { label: "Rank", value: `Lv ${progress?.level ?? 1}` },
-    { label: "XP", value: `${progress?.xp ?? 0}` },
+    { label: "Streak", value: `${progress?.streak ?? 0}d`, hint: "Your daily streak — complete the daily check-in each day to keep it alive." },
+    {
+      label: rank.title,
+      value: `Lv ${progress?.level ?? 1}`,
+      hint: rank.nextTitle ? `${rank.levelsToNext} level${rank.levelsToNext === 1 ? "" : "s"} to ${rank.nextTitle}` : "Top rank reached — nice work!",
+    },
+    { label: "XP", value: `${progress?.xp ?? 0}`, hint: "Experience points — earn them from flashcards, cases and the tutor. 500 XP per level." },
   ];
 
   const nba = nextTopic
