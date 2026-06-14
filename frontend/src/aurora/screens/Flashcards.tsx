@@ -4,15 +4,16 @@
    that ride the gradient by position, and a session side panel. Data + AI check +
    gamification sync are ported from the legacy FlashcardScreen; the fx layer
    (confetti / audio / swipe / framer) is dropped. */
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { PlateWell } from "@/aurora/components/PlateWell";
+import { rankForLevel } from "@/lib/rank";
 import { PLATE } from "@/aurora/media";
 import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
 import {
   getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
-  getStoredHearts,
 } from "@/lib/legacy/gamification";
 import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
@@ -86,7 +87,6 @@ export function Flashcards() {
   const [cardXp, setCardXp] = useState(0);            // XP the AI awarded for the current card
   const [gradedCount, setGradedCount] = useState(0);
   const [scoreSum, setScoreSum] = useState(0);
-  const [displayHearts, setDisplayHearts] = useState(() => getStoredHearts());
 
   const deckTitle = useMemo(() => {
     if (cards.length === 0) return "Flashcards";
@@ -119,10 +119,14 @@ export function Flashcards() {
           setAiChecking(false);
           const xp = xpForScore(d.score);
           setCardXp(xp);
-          addXP(xp);
+          const res = addXP(xp);
           setSessionXp((p) => p + xp);
           setGradedCount((n) => n + 1);
           setScoreSum((s) => s + Math.max(0, Math.min(100, d.score)));
+          if (res.leveledUp) {
+            const rank = rankForLevel(res.newLevel);
+            toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
+          }
           const unlocked = checkAndUnlockAchievements();
           if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
         },
@@ -145,12 +149,19 @@ export function Flashcards() {
     if (idx < cards.length - 1) {
       setIdx((i) => i + 1);
     } else {
-      syncGamification({ xp_delta: sessionXp + XP_REWARDS.sessionComplete, hearts_used: 0 })
+      // Hand the real session result to the Summary screen (so it shows the XP
+      // actually earned, not a flat bonus), then sync the run to the backend.
+      const earnedXp = sessionXp + XP_REWARDS.sessionComplete;
+      const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : 0;
+      try {
+        sessionStorage.setItem("eyebot_session", JSON.stringify({
+          topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
+        }));
+      } catch { /* sessionStorage unavailable — Summary falls back to defaults */ }
+      syncGamification({ xp_delta: earnedXp, hearts_used: 0 })
         .finally(() => router.push("/summary"));
     }
   };
-
-  useEffect(() => { /* keep hearts mirror fresh on mount */ setDisplayHearts(getStoredHearts()); }, []);
 
   // Topic + difficulty picker (shown until a set is chosen; skipped from a session).
   if (!fromSession && !pickerDone) {
@@ -272,7 +283,7 @@ export function Flashcards() {
             <span key={i} className={`aurora-dot${i < dotIdx ? " is-done" : i === dotIdx ? " is-active" : ""}`} />
           ))}
         </div>
-        <span className="aurora-deck-hearts" aria-label={`${displayHearts} hearts`}>♥ {displayHearts}</span>
+        <span className="aurora-deck-count-pill" aria-label={`Card ${idx + 1} of ${cards.length}`}>{idx + 1}/{cards.length}</span>
       </div>
 
       <div className="aurora-deck-body">
