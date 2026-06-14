@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_044_flare_test_postop_inflammation",
+  "title": "Measuring the Inflammation",
+  "difficulty": "intermediate",
+  "topic": "flare_test_postoperative_inflammation",
+  "topic_set": "anterior_segment",
+  "role": "OT",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Chia Hock Lai",
+    "age": 66,
+    "gender": "male",
+    "occupation": "retired civil servant",
+    "presenting_complaint": "Recent cataract surgery; doctor wants an aqueous flare measurement to check post-operative inflammation"
+  },
+  "history": {
+    "hpc": "Mr Chia had left eye cataract surgery about a week ago. The eye is still slightly red and the doctor has ordered a flare test to objectively assess inflammation. He says: 'After my operation the eye still a bit red, doctor want check the inflammation inside.' No severe pain or sudden vision drop. The OT must perform the laser flare test and document the flare value.",
+    "pmhx": "Left cataract surgery 1 week ago. Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Post-op steroid and antibiotic eye drops (left eye)", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife. Compliant with post-op drops. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/12 (improving post-op)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Left eye mild residual conjunctival redness; anterior chamber to be quantified by flare test",
+    "fundus": "Not the focus today"
+  },
+  "investigations": {
+    "flare_test": "Laser flare photometry performed on the left (operated) eye, with the right eye as a baseline comparison. The flare value reflects the protein concentration (inflammation) in the anterior chamber. The operated eye shows a mildly raised flare value consistent with expected early post-operative inflammation, lower than an acute uveitis level. Documented for the doctor.",
+    "va_distance": "RE 6/9, LE 6/12.",
+    "measurement_quality": "Good alignment in the anterior chamber; repeat readings consistent."
+  },
+  "diagnosis": "Mildly raised aqueous flare in the operated eye, consistent with expected early post-operative inflammation, providing the doctor an objective measure to guide steroid drop tapering. The OT competency is correct flare measurement and documentation; the treatment decision is the doctor's.",
+  "management": {
+    "immediate": [
+      "Confirm the indication (post-op inflammation assessment) and which eye to measure",
+      "Explain the non-contact flare test and position the patient correctly",
+      "Measure the operated eye and the fellow eye for comparison, taking consistent repeat readings",
+      "Record the flare value(s) and note they reflect anterior chamber inflammation",
+      "Document diagnosis, indication, RE/LE, and the flare findings for the doctor",
+      "Avoid adjusting medications yourself — present the result for the doctor's decision"
+    ],
+    "follow_up": [
+      "Doctor to use the flare value to guide steroid drop tapering and follow-up timing",
+      "Continue post-op drops as currently prescribed until the doctor advises",
+      "Repeat flare measurement at review if ordered to track the trend"
+    ],
+    "patient_education": [
+      "Explain the test measures inflammation inside the eye after surgery, painlessly",
+      "Reassure him that some inflammation is expected early after cataract surgery",
+      "Advise him to keep using his drops as prescribed until the doctor changes them",
+      "Tell him the warning signs (increasing pain, redness, or vision drop) and to return if they occur"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the recent surgery and the indication for the flare test",
+        "Confirms the operated eye and current post-op drops",
+        "Checks for warning symptoms (severe pain, vision drop)",
+        "Explains the procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs flare photometry on the operated eye with the fellow eye for comparison",
+        "Ensures correct alignment and consistent repeat readings",
+        "Records the flare value as a measure of anterior chamber inflammation",
+        "Documents diagnosis, indication, RE/LE, and findings"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a mildly raised flare as consistent with expected early post-op inflammation",
+        "Understands the flare value helps guide steroid tapering",
+        "Distinguishes expected post-op flare from a higher acute-uveitis level",
+        "Knows the OT role is measurement/documentation, not treatment"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Produces consistent flare readings and documents them clearly",
+        "Does not adjust medications and presents the result to the doctor",
+        "Explains the test and reassures the patient",
+        "Advises on continuing drops and warning signs"
+      ]
+    }
+  }
+}
