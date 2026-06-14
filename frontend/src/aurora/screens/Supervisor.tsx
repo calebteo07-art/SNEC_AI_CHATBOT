@@ -21,6 +21,9 @@ export function Supervisor() {
   const [error, setError] = useState(false);
   const [digestSending, setDigestSending] = useState(false);
   const [digestStatus, setDigestStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [lbEnabled, setLbEnabled] = useState<boolean | null>(null);
+  const [lbSaving, setLbSaving] = useState(false);
+  const [lbError, setLbError] = useState(false);
 
   const fetchData = useCallback(() => {
     setLoading(true); setError(false);
@@ -32,7 +35,21 @@ export function Supervisor() {
       .finally(() => setLoading(false));
     fetch("/api/supervisor/insights", { credentials: "include" }).then((r) => r.json()).then((d) => setInsights(d.narrative ?? d.insight ?? null)).catch(() => null);
     fetch("/api/supervisor/benchmarks", { credentials: "include" }).then((r) => r.json()).then((d) => setBenchmarks(d.topics ?? [])).catch(() => null);
+    fetch("/api/supervisor/leaderboard", { credentials: "include" }).then((r) => r.json()).then((d) => setLbEnabled(!!d.enabled)).catch(() => setLbEnabled(false));
   }, []);
+
+  const toggleLeaderboard = () => {
+    if (lbSaving || lbEnabled === null) return;
+    const next = !lbEnabled;
+    setLbSaving(true); setLbError(false);
+    fetch("/api/supervisor/leaderboard", {
+      method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+      body: JSON.stringify({ enabled: next }),
+    }).then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d) => setLbEnabled(!!d.enabled))
+      .catch(() => setLbError(true))
+      .finally(() => setLbSaving(false));
+  };
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -114,6 +131,31 @@ export function Supervisor() {
               </div>
             </section>
           )}
+
+          <section className="aurora-card" aria-label="Cohort leaderboard">
+            <div className="aurora-prog-card-head">
+              <p className="aurora-activity-head">Cohort leaderboard</p>
+              <button
+                type="button"
+                className={`aurora-topic-chip${lbEnabled ? " is-active" : ""}`}
+                onClick={toggleLeaderboard}
+                disabled={lbSaving || lbEnabled === null}
+                aria-pressed={!!lbEnabled}
+              >
+                {lbEnabled === null ? "…" : lbEnabled ? "On" : "Off"}
+              </button>
+            </div>
+            <p className="aurora-muted" style={{ marginTop: 6, lineHeight: 1.6 }}>
+              {lbEnabled
+                ? "Visible to students who opt in. Only students who choose to join appear, shown as first name + last initial — no one is listed without consent."
+                : "Off by default. Turn it on to let students optionally join a friendly cohort XP leaderboard. Each student must still opt in individually."}
+            </p>
+            {lbError && (
+              <p className="aurora-muted" style={{ marginTop: 6, color: "var(--on-rose)" }}>
+                Couldn&apos;t update — the leaderboard tables may need database migration 004.
+              </p>
+            )}
+          </section>
 
           <section className="aurora-card" aria-label="Students needing attention" style={{ padding: 0 }}>
             <p className="aurora-activity-head" style={{ padding: "16px 16px 0" }}>Students needing attention</p>
