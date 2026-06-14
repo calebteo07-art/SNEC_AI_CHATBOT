@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_045_postop_dressing_observation_cataract",
+  "title": "Day One After Cataract Surgery",
+  "difficulty": "intermediate",
+  "topic": "postop_eye_dressing_observation_cataract",
+  "topic_set": "perioperative",
+  "role": "OA",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Mr Koh Beng Huat",
+    "age": 67,
+    "gender": "male",
+    "occupation": "retired contractor",
+    "presenting_complaint": "Came for day-1 post-operative review after left eye cataract surgery; here for dressing removal and check"
+  },
+  "history": {
+    "hpc": "Mr Koh had uncomplicated left eye cataract surgery yesterday. He returns for the day-1 dressing removal and post-operative check. He says: 'After operation my eye got a bit watery and gritty, normal or not ah?' He denies severe pain, sudden vision loss, or large amounts of discharge. He has been using the shield over the eye at night as advised.",
+    "pmhx": "Bilateral cataracts (left operated). Hypertension. No diabetes.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Post-op antibiotic and steroid eye drops (started today)"],
+    "social_hx": "Lives with wife. Came with wife today. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (unoperated)", "left": "6/12 on day 1 post-op (improving), pre-surgery was 6/60"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "to be checked gently / per protocol post-op"},
+    "anterior_segment": "Left eye on dressing removal: lids mild oedema, no significant redness or discharge; conjunctiva mild redness; surgical wound clean, no haematoma, no loose sutures, no signs of infection.",
+    "fundus": "Not the focus today; for doctor as needed"
+  },
+  "investigations": {
+    "postop_dressing_observation": "On dressing removal, structured observation documented — Lids: mild oedema, no discharge. Conjunctiva: mild redness, no chemosis. Wound section: clean, no haematoma, no loose sutures, no infection signs. Vision recorded pre-surgery (6/60) and post-surgery day 1 (6/12).",
+    "va_distance": "RE 6/9, LE 6/12 (day 1 post-op, improved from pre-op 6/60)."
+  },
+  "diagnosis": "Normal, expected day-1 appearance after uncomplicated cataract surgery: mild lid oedema and mild conjunctival redness with a clean wound, and improving vision. The mild watering/grittiness is common early post-op. Any abnormal finding would be reported to the nurse-in-charge.",
+  "management": {
+    "immediate": [
+      "Confirm the diagnosis and surgery performed (left eye cataract) and document the eye operated",
+      "Remove the dressing using clean technique with hand hygiene",
+      "Perform a structured post-op observation: lids (oedema/redness/discharge), conjunctiva (redness/chemosis), wound (haematoma/loose sutures/infection)",
+      "Record vision pre-surgery and post-surgery (with/without visual aid) as required for cataract surgery",
+      "Report any abnormal finding (significant pain, marked redness, purulent discharge, wound problem, sudden vision drop) immediately to the nurse-in-charge",
+      "Document all observations clearly in the record"
+    ],
+    "follow_up": [
+      "Doctor to review the eye and confirm normal post-op progress",
+      "Reinforce the post-op eye drop schedule and shield use at night",
+      "Advise on the next review appointment"
+    ],
+    "patient_education": [
+      "Reassure him that mild watering and grittiness are common and expected early after surgery",
+      "Explain to use the prescribed drops as scheduled and the shield at night",
+      "Advise him to avoid rubbing the eye, heavy lifting, and getting dirty water in the eye",
+      "Tell him the warning signs (increasing pain, redness, discharge, or vision drop) and to return urgently if they occur"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the surgery performed and which eye was operated",
+        "Asks about warning symptoms (severe pain, vision loss, discharge)",
+        "Checks compliance with post-op drops and shield use",
+        "Acknowledges the patient's concern about watering/grittiness"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Removes the dressing with hand hygiene and clean technique",
+        "Performs a structured observation of lids, conjunctiva, and wound section",
+        "Records vision pre-surgery and post-surgery as required",
+        "Documents the observations clearly"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the appearance as normal expected day-1 post-op findings",
+        "Distinguishes expected mild findings from warning signs of complications",
+        "Understands that abnormal findings must be reported to the nurse-in-charge",
+        "Notes the improving vision compared with pre-surgery"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the diagnosis, surgery, eye, observations, and vision pre/post",
+        "Escalates any abnormal finding immediately and appropriately",
+        "Reinforces the drop schedule and shield use",
+        "Provides clear post-op safety advice and warning signs"
+      ]
+    }
+  }
+}

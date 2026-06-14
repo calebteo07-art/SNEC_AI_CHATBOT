@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_048_history_pain_assessment_aacg",
+  "title": "Pain That Makes Her Vomit",
+  "difficulty": "intermediate",
+  "topic": "history_taking_pain_assessment",
+  "topic_set": "history_taking",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Devi d/o Ramasamy",
+    "age": 62,
+    "gender": "female",
+    "occupation": "homemaker",
+    "presenting_complaint": "Severe right eye pain with headache and nausea that started this evening"
+  },
+  "history": {
+    "hpc": "Mdm Devi presents with severe right eye pain that began a few hours ago. She says: 'My eye very pain, like someone press very hard, until I want to vomit, and my head also pain.' She rates the pain 9/10. She reports seeing haloes around lights and her vision is blurred. She feels nauseated and has vomited once. Bright light worsens the discomfort.",
+    "pmhx": "Hyperopia (long-sighted). Otherwise well. No previous eye conditions.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Lives with family. Brought in by her daughter this evening."
+  },
+  "examination_findings": {
+    "va": {"right": "markedly blurred (e.g. 6/60 or worse)", "left": "6/9"},
+    "iop": {"right": "high on NCT (e.g. ~50 mmHg)", "left": "16 mmHg"},
+    "anterior_segment": "Right eye: red, hazy/cloudy cornea, mid-dilated poorly reactive pupil. Left eye: normal.",
+    "fundus": "Right fundus view poor due to corneal haze"
+  },
+  "investigations": {
+    "pain_assessment_history": "Structured pain history: severity 9/10, deep pressing pain in and around the right eye, associated headache, nausea and vomiting, haloes around lights, photophobia, and blurred vision. This symptom cluster (severe pain + nausea/vomiting) should raise suspicion of acute angle-closure glaucoma.",
+    "va_distance": "RE markedly reduced, LE 6/9.",
+    "iop_nct": "RE markedly elevated, LE normal."
+  },
+  "diagnosis": "History and findings strongly suggest acute angle-closure glaucoma of the right eye — an ocular emergency. The pain assessment (severe pain with nausea/vomiting, haloes, photophobia) is the key history clue prompting urgent escalation. The competency is a thorough pain history with red-flag recognition.",
+  "management": {
+    "immediate": [
+      "Take a structured pain history: severity (0-10), exact type and location, photophobia, associated nausea/vomiting and haloes",
+      "Recognise that severe eye pain with nausea/vomiting and haloes suggests acute angle-closure glaucoma",
+      "Treat this as an emergency: alert the doctor immediately and do not delay",
+      "Measure VA and IOP (expect markedly raised IOP on the affected side) and document",
+      "Do not instil any drops without the doctor's order",
+      "Stay with the patient, keep her calm, and document the pain assessment and findings"
+    ],
+    "follow_up": [
+      "Doctor to manage acute IOP reduction (e.g., medications, possible laser iridotomy)",
+      "Continue to monitor the patient closely while waiting for the doctor",
+      "Document triage time and escalation in the record"
+    ],
+    "patient_education": [
+      "Reassure her that help is being arranged urgently and to stay as calm as possible",
+      "Advise her not to rub the eye and to remain seated comfortably",
+      "Explain that the doctor will see her quickly because this is urgent",
+      "Avoid giving detailed prognosis — defer clinical explanation to the doctor"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Uses a pain scale (0-10) and asks the exact type and location of pain",
+        "Asks about associated nausea/vomiting, haloes, and photophobia",
+        "Establishes the sudden onset and blurred vision",
+        "Recognises the red-flag symptom cluster during history taking"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Measures and documents VA and IOP for both eyes",
+        "Notes the markedly raised IOP and reduced VA on the affected side",
+        "Documents the structured pain assessment",
+        "Does not delay escalation to perform extra tests"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises severe pain + nausea/vomiting + haloes as suggestive of acute angle-closure glaucoma",
+        "Identifies this as an ocular emergency",
+        "Understands the urgency and the need to alert the doctor immediately",
+        "Does not attribute the symptoms to a minor cause"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Alerts the doctor immediately and treats it as an emergency",
+        "Does not instil any drops without the doctor's order",
+        "Stays with and reassures the patient and documents the assessment",
+        "Documents triage time and escalation appropriately"
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_049_ishihara_colour_vision_vocational",
+  "title": "The Colour Test for the Job",
+  "difficulty": "intermediate",
+  "topic": "ishihara_colour_vision_screening",
+  "topic_set": "colour_macular",
+  "role": "OA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Sng Jun Kai",
+    "age": 24,
+    "gender": "male",
+    "occupation": "trainee pilot applicant",
+    "presenting_complaint": "Needs a colour vision test as part of his job application; has never had his colour vision checked before"
+  },
+  "history": {
+    "hpc": "Mr Sng is applying for a job that requires good colour vision. He says: 'They say I must pass the colour test for my job, I never check before.' He has no visual complaints and good vision. He is unsure if anyone in his family is colour blind. He is anxious about the result because it affects his application.",
+    "pmhx": "Nil significant. No eye conditions.",
+    "family_hx": "Uncertain — possibly a maternal uncle who 'cannot see some colours'",
+    "medications": ["Nil"],
+    "social_hx": "Recent graduate. Non-smoker. Otherwise well."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6", "left": "6/6"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "Not required for this screening"
+  },
+  "investigations": {
+    "colour_vision_ishihara": "Ishihara plates used to test for red-green colour deficiency. The patient identifies the numbers within the coloured dot plates. Each eye is tested as required, in good lighting. The result is documented as the number of plates read correctly.",
+    "va_distance": "RE 6/6, LE 6/6."
+  },
+  "diagnosis": "Colour vision screening using the Ishihara chart for a vocational requirement. A reduced number of plates read correctly suggests a red-green colour vision deficiency (often congenital and more common in males). The competency is correct administration and documentation of the Ishihara test.",
+  "management": {
+    "immediate": [
+      "Explain the Ishihara test simply: identify the number formed by the coloured dots on each plate",
+      "Ensure good, consistent lighting and that the patient is not wearing tinted lenses",
+      "Present the plates correctly and at the recommended distance, allowing only a few seconds per plate",
+      "Test as required and record the number of plates read correctly",
+      "Avoid coaching or hinting at answers, to keep the result valid",
+      "Document the result clearly for the doctor and the patient's record"
+    ],
+    "follow_up": [
+      "Doctor to interpret the result and advise on its implication for the job requirement",
+      "If a deficiency is found, the doctor may explain it is usually congenital and stable",
+      "Provide the documented result as needed for the application process"
+    ],
+    "patient_education": [
+      "Explain that the test checks for difficulty distinguishing certain colours (commonly red-green)",
+      "Reassure him that a colour deficiency, if present, is common and usually inherited, not a disease",
+      "Explain the result will be reviewed by the doctor who will advise on the job requirement",
+      "Keep the explanation factual and avoid giving him a verdict before the doctor reviews it"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the purpose of the test (vocational requirement)",
+        "Confirms no visual complaints and asks about family history of colour blindness",
+        "Acknowledges the patient's anxiety about the result",
+        "Confirms he has not been tested before"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Explains the Ishihara task clearly and ensures good lighting",
+        "Checks the patient is not wearing tinted lenses and presents plates correctly",
+        "Tests as required and avoids coaching or hinting",
+        "Records the number of plates read correctly"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the Ishihara test screens for red-green colour deficiency",
+        "Knows a reduced plate count suggests a colour vision deficiency",
+        "Recognises congenital colour deficiency is common, especially in males",
+        "Defers interpretation and advice to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the result clearly as plates read correctly",
+        "Explains the test and result process to the patient factually",
+        "Reassures the patient appropriately without pre-judging the outcome",
+        "Hands the documented result to the doctor for interpretation"
+      ]
+    }
+  }
+}

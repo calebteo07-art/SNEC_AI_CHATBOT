@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_050_amsler_new_distortion_amd",
+  "title": "The Lines Look Wavy",
+  "difficulty": "intermediate",
+  "topic": "amsler_grid_metamorphopsia_amd",
+  "topic_set": "colour_macular",
+  "role": "OA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Yeo Poh Choo",
+    "age": 73,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Noticed straight lines looking wavy in the left eye while checking her home Amsler grid"
+  },
+  "history": {
+    "hpc": "Mdm Yeo has dry age-related macular degeneration (AMD) and checks an Amsler grid at home. This week she noticed a change in the left eye. She says: 'The straight line on the grid, now look like got bend bend, wavy wavy, last time straight one.' She also feels the centre is a bit blurry. No pain, no redness. She came in promptly as advised.",
+    "pmhx": "Dry AMD both eyes (left worse). Hypertension.",
+    "family_hx": "Mother had 'old age blindness' (possible AMD)",
+    "medications": ["Amlodipine 5mg OD", "AREDS eye vitamins"],
+    "social_hx": "Lives with daughter. Diligent with home Amsler monitoring. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12", "left": "6/24 (reduced from previous 6/15)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "Normal anterior segments; lens mild changes",
+    "fundus": "Macular changes consistent with AMD; new distortion raises concern for progression — for doctor review"
+  },
+  "investigations": {
+    "amsler_grid": "Amsler grid tested in clinic: patient covers one eye, looks at the central dot, and reports any distortion, missing areas, or wavy lines. Left eye shows new metamorphopsia (wavy/bent lines) near the centre. This is an abnormal finding suggesting macular involvement and should be flagged.",
+    "va_distance": "RE 6/12, LE 6/24 (reduced from previous)."
+  },
+  "diagnosis": "New metamorphopsia on Amsler testing with reduced left-eye VA in a patient with AMD — concerning for progression (e.g., to wet AMD), which can need prompt treatment. The competency is correct Amsler administration, recognising the abnormal result, and timely escalation.",
+  "management": {
+    "immediate": [
+      "Administer the Amsler grid correctly: one eye covered, fixate the central dot, report distortion/missing areas/wavy lines",
+      "Test with the patient's reading correction if used, at the usual near distance, each eye separately",
+      "Recognise new wavy/bent lines (metamorphopsia) as an abnormal finding",
+      "Document the abnormal Amsler result and the reduced VA, comparing with previous VA",
+      "Flag promptly to the doctor, as new distortion in AMD can signal treatable progression",
+      "Reassure the patient and praise her prompt attendance"
+    ],
+    "follow_up": [
+      "Doctor to examine the macula and consider imaging (e.g., OCT) for possible wet AMD",
+      "If wet AMD is confirmed, prompt treatment (e.g., anti-VEGF) may be arranged",
+      "Reinforce continued home Amsler monitoring and prompt return for any change"
+    ],
+    "patient_education": [
+      "Explain that the wavy lines suggest a change at the macula that the doctor should review quickly",
+      "Praise her for monitoring at home and coming in promptly",
+      "Advise her to keep using the Amsler grid for each eye separately and to return urgently if distortion worsens",
+      "Reassure her that prompt review gives the best chance to act if treatment is needed"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the new onset of distortion in the left eye",
+        "Confirms the known AMD and home Amsler monitoring habit",
+        "Notes associated central blurring and absence of pain/redness",
+        "Acknowledges her prompt attendance as advised"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Administers the Amsler grid correctly (one eye, central fixation, near distance, with correction)",
+        "Tests each eye separately and asks specifically about distortion/missing areas",
+        "Performs VA and compares with the previous reading",
+        "Documents the abnormal Amsler finding and reduced VA"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises new metamorphopsia as an abnormal macular sign",
+        "Understands new distortion in AMD can indicate treatable progression (wet AMD)",
+        "Links the Amsler finding with the reduced VA",
+        "Knows this warrants prompt escalation"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the abnormal result promptly to the doctor",
+        "Documents the Amsler result and VA comparison",
+        "Reinforces continued home monitoring and urgent return advice",
+        "Reassures and praises the patient appropriately"
+      ]
+    }
+  }
+}
