@@ -8,8 +8,9 @@ import { MessageBubble } from "@/aurora/components/MessageBubble";
 import { Composer } from "@/aurora/components/Composer";
 import { FollowupChip } from "@/aurora/components/FollowupChip";
 import { Logo } from "@/aurora/Logo";
+import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
-import { addXP, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
+import { addChatXp, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -34,6 +35,7 @@ export function Tutor() {
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const threadRef = useRef<HTMLDivElement>(null);
+  const chatCapNotified = useRef(false);
 
   useEffect(() => { updateStreak(); }, []);
 
@@ -52,7 +54,12 @@ export function Tutor() {
     setInput("");
     setIsTyping(true);
 
-    addXP(XP_REWARDS.chatMessage);
+    // Chat XP is capped per day so it can't be farmed by spamming messages.
+    const granted = addChatXp(XP_REWARDS.chatMessage);
+    if (granted === 0 && !chatCapNotified.current) {
+      chatCapNotified.current = true;
+      toast("You've reached today's chat XP — keep asking questions to learn; chat XP resumes tomorrow 🙂");
+    }
     const unlocked = checkAndUnlockAchievements();
     if (unlocked.length > 0) setNewAchievements((prev) => [...prev, ...unlocked]);
 

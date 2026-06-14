@@ -184,6 +184,7 @@ export function Flashcards() {
     try {
       sessionStorage.setItem("eyebot_session", JSON.stringify({
         topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
+        cardXp: sessionXp, bonusXp: XP_REWARDS.sessionComplete,   // G7 — XP breakdown
       }));
     } catch { /* sessionStorage unavailable — Summary falls back to defaults */ }
     syncGamification({ xp_delta: earnedXp, hearts_used: 0 }).finally(() => router.push("/summary"));
