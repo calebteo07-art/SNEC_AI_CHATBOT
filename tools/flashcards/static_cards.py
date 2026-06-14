@@ -206,6 +206,86 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 {"front": "Why does dilation raise fall risk in the elderly?", "back": "It blurs vision and adds photosensitivity on top of existing risks."},
             ],
         },
+        "colour_vision": {
+            "easy": [
+                {"front": "What does the Ishihara chart test for?", "back": "Colour vision deficiency (commonly red-green)."},
+                {"front": "How does the patient respond to Ishihara plates?", "back": "By identifying the number formed within the coloured dots."},
+                {"front": "How is the Ishihara result documented?", "back": "As the number of plates read correctly."},
+                {"front": "How is each eye tested with the Ishihara chart?", "back": "Separately."},
+                {"front": "Which plate version helps patients who cannot read numbers?", "back": "The winding-line (tracing) plates."},
+            ],
+            "medium": [
+                {"front": "A reduced number of plates read correctly suggests what?", "back": "A colour vision deficiency (commonly red-green)."},
+                {"front": "Is congenital colour deficiency usually symmetrical or asymmetrical?", "back": "Symmetrical (both eyes) and lifelong."},
+                {"front": "A recent, one-eye-worse colour change suggests congenital or acquired?", "back": "Acquired — it needs doctor review."},
+                {"front": "Why ensure good lighting and no tinted lenses for Ishihara?", "back": "To keep the test valid and avoid false results."},
+                {"front": "How do you adapt the Ishihara test for a non-English-reading patient?", "back": "Use the winding-line (tracing) plates."},
+            ],
+        },
+        "amsler_macula": {
+            "easy": [
+                {"front": "What does the Amsler grid detect?", "back": "Central field defects and metamorphopsia (distortion)."},
+                {"front": "What does the patient fixate on during the Amsler test?", "back": "The central dot."},
+                {"front": "How is each eye tested with the Amsler grid?", "back": "One eye at a time (cover the other)."},
+                {"front": "Which condition is monitored with the Amsler grid?", "back": "Macular disease, e.g. age-related macular degeneration (AMD)."},
+                {"front": "What does 'metamorphopsia' mean?", "back": "Distortion — straight lines appear wavy."},
+            ],
+            "medium": [
+                {"front": "A patient reports wavy lines on the Amsler grid. What does this suggest?", "back": "Metamorphopsia — possible macular disease; flag for review."},
+                {"front": "A new missing patch (scotoma) appears on the grid. What do you do?", "back": "Treat it as abnormal and escalate to the doctor promptly."},
+                {"front": "Why should AMD patients monitor with an Amsler grid at home?", "back": "To detect new distortion early, which can signal treatable progression."},
+                {"front": "Should reading correction be worn for the Amsler test?", "back": "Yes, at the usual near distance."},
+                {"front": "New distortion plus reduced VA in an AMD patient — urgency?", "back": "Prompt doctor review (possible wet AMD)."},
+            ],
+        },
+        "fall_risk": {
+            "easy": [
+                {"front": "How often are patients assessed for fall risk?", "back": "Every visit (all patients)."},
+                {"front": "Name two high-risk groups for falls.", "back": "The elderly, the visually impaired, and post-dilation patients."},
+                {"front": "If a patient is high fall risk, what must you document?", "back": "The action taken (e.g. accompany the patient, provide a wheelchair)."},
+                {"front": "Why does dilation increase fall risk?", "back": "It blurs vision and causes light sensitivity."},
+                {"front": "Is documenting the risk enough?", "back": "No — you must also take active measures."},
+            ],
+            "medium": [
+                {"front": "Elderly, post-dilation, unaccompanied, no walking aid. Risk level?", "back": "High fall risk — take active measures."},
+                {"front": "Name two active measures for a high-fall-risk patient.", "back": "Accompany and seat them safely; alert the nurse; offer a wheelchair."},
+                {"front": "A patient looks well but admits a recent near-fall and a new sedative. Risk?", "back": "At risk — screening uncovers hidden risk, so act on it."},
+                {"front": "Why does severe visual field loss raise fall risk despite good central VA?", "back": "Loss of side vision makes navigating obstacles hazardous."},
+                {"front": "Who should you inform about a high-fall-risk patient?", "back": "The nurse-in-charge / relevant staff."},
+            ],
+        },
+        "perioperative": {
+            "easy": [
+                {"front": "Name two results recorded in a pre-operative assessment.", "back": "ECG, blood pressure, blood sugar, urine sugar (any two)."},
+                {"front": "What is covered in pre-op counselling?", "back": "Date of surgery, current medications, and the fasting requirement."},
+                {"front": "For cataract surgery, what vision is recorded at the post-op dressing?", "back": "Vision pre-surgery and post-surgery."},
+                {"front": "Name one structure observed during a post-op dressing.", "back": "Lids, conjunctiva, or the wound section."},
+                {"front": "Abnormal post-op findings should be reported to whom?", "back": "The nurse-in-charge."},
+            ],
+            "medium": [
+                {"front": "Name two abnormal lid/conjunctiva findings to watch for post-op.", "back": "Lid oedema/redness/discharge; conjunctival redness/chemosis."},
+                {"front": "Name two wound-section problems to look for post-op.", "back": "Haematoma, loose sutures, or signs of infection."},
+                {"front": "Why document fasting status before surgery?", "back": "To ensure the patient is safely prepared for anaesthesia/surgery."},
+                {"front": "Why is an anticoagulant important in pre-op planning?", "back": "It increases bleeding risk and may affect the surgical plan."},
+                {"front": "Increasing pain, redness and worse vision days after surgery — concern?", "back": "A serious complication such as endophthalmitis — escalate urgently."},
+            ],
+        },
+        "abbreviations": {
+            "easy": [
+                {"front": "What does VA stand for?", "back": "Visual acuity."},
+                {"front": "What does IOP stand for?", "back": "Intraocular pressure."},
+                {"front": "What do RE and LE mean?", "back": "Right eye and left eye."},
+                {"front": "What does NCT stand for?", "back": "Non-contact tonometry."},
+                {"front": "What does TCU mean?", "back": "To come (back) — the next follow-up appointment."},
+            ],
+            "medium": [
+                {"front": "What does CF mean in a VA record?", "back": "Count Fingers."},
+                {"front": "What do HM, PL and NPL stand for?", "back": "Hand Movement, Perception of Light, No Perception of Light."},
+                {"front": "What does AACG stand for?", "back": "Acute angle-closure glaucoma."},
+                {"front": "What does AMD stand for?", "back": "Age-related macular degeneration."},
+                {"front": "What does IOL stand for?", "back": "Intraocular lens."},
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
@@ -386,6 +466,86 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 {"front": "How does topography help contact lens fitting?", "back": "It maps the corneal shape to select a well-fitting lens."},
                 {"front": "Topography vs keratometry — what is topography's advantage?", "back": "It maps the entire corneal surface, not just central curvature."},
                 {"front": "What does an asymmetric bow-tie pattern suggest?", "back": "Irregular astigmatism, possibly early keratoconus."},
+            ],
+        },
+        "pam": {
+            "easy": [
+                {"front": "What does the PAM (Potential Acuity Meter) predict?", "back": "The potential visual acuity after cataract surgery."},
+                {"front": "How does PAM work?", "back": "It projects a Snellen chart onto the retina, bypassing the cataract."},
+                {"front": "What preparation does PAM need?", "back": "Pupil dilation."},
+                {"front": "What is the main indication for PAM?", "back": "A dense cataract — to assess retinal function before surgery."},
+                {"front": "What does a good PAM result suggest?", "back": "Good potential vision after the cataract is removed."},
+            ],
+            "medium": [
+                {"front": "Why use PAM in a dense cataract?", "back": "To estimate how much vision is limited by the lens versus the retina."},
+                {"front": "A dense cataract with a good PAM result — interpretation?", "back": "The retina likely functions well; surgery may improve vision."},
+                {"front": "Why is dilation needed for PAM?", "back": "To project the chart through the clearest part of the lens onto the retina."},
+                {"front": "Does PAM measure lens or retinal function?", "back": "Retinal (and visual pathway) function, bypassing the lens."},
+                {"front": "What does the OT document for PAM?", "back": "Diagnosis, indication, preparation, and the predicted post-op VA."},
+            ],
+        },
+        "hrt": {
+            "easy": [
+                {"front": "What does HRT (Heidelberg Retinal Tomography) scan?", "back": "The optic nerve head (a 3D laser scan)."},
+                {"front": "What does HRT measure?", "back": "The retinal nerve fibre layer (RNFL) and optic disc parameters."},
+                {"front": "What is the main indication for HRT?", "back": "Glaucoma diagnosis and monitoring."},
+                {"front": "What technology does HRT use?", "back": "3D laser scanning."},
+                {"front": "What does HRT document?", "back": "Optic disc classification and RNFL data."},
+            ],
+            "medium": [
+                {"front": "How does HRT help in glaucoma?", "back": "It quantifies the optic disc and RNFL to detect and monitor glaucomatous change."},
+                {"front": "HRT and RNFL OCT both assess which structure?", "back": "The optic nerve head / RNFL (structural glaucoma assessment)."},
+                {"front": "Why repeat HRT over time?", "back": "To monitor progression of optic disc/RNFL change."},
+                {"front": "Is HRT structural or functional testing?", "back": "Structural (the visual field is the functional test)."},
+                {"front": "What does the OT document for HRT?", "back": "Diagnosis, indication, eye(s), and the disc/RNFL findings."},
+            ],
+        },
+        "orthoptics": {
+            "easy": [
+                {"front": "What do cover/uncover tests detect?", "back": "Manifest (tropia) or latent (phoria) strabismus."},
+                {"front": "What does the Hirschberg test use?", "back": "The corneal light reflex to estimate eye alignment."},
+                {"front": "What is the normal near point of convergence (NPC)?", "back": "Less than 10 cm."},
+                {"front": "What do versions and ductions assess?", "back": "Eye movements in the directions of gaze."},
+                {"front": "What does the Krimsky test estimate?", "back": "The angle of deviation, using prisms over the light reflex."},
+            ],
+            "medium": [
+                {"front": "A child's corneal light reflex is displaced temporally in one eye. Suggest?", "back": "Esotropia (an inward turn)."},
+                {"front": "Why assess a child's squint early?", "back": "Childhood squint can cause amblyopia (lazy eye)."},
+                {"front": "A patient cannot do automated fields — which gross field test can you do?", "back": "The confrontation visual field test."},
+                {"front": "What does a remote (reduced) near point of convergence indicate?", "back": "Convergence insufficiency."},
+                {"front": "Cover/uncover reveals a deviation only when an eye is uncovered. Which type?", "back": "A latent deviation (phoria); a manifest deviation (tropia) is present with both eyes open."},
+            ],
+        },
+        "dayward_theatre": {
+            "easy": [
+                {"front": "What does the DISM mnemonic stand for?", "back": "Diagnosis, Indication, Surgery planned, Medical conditions."},
+                {"front": "Name the anaesthesia types recorded pre-op.", "back": "GA (general), LA (local), or topical."},
+                {"front": "Name two vital signs monitored in post-op care.", "back": "BP, RR, PR (any two)."},
+                {"front": "What does TCU document post-op?", "back": "The time and date of the next follow-up appointment."},
+                {"front": "What must be confirmed about the eye before theatre?", "back": "The correct eye to be operated (and that it is marked)."},
+            ],
+            "medium": [
+                {"front": "Why use the DISM framework pre-operatively?", "back": "To capture the key surgical details (diagnosis, indication, surgery, medical conditions) for safety."},
+                {"front": "When is a patient ready for discharge after day surgery?", "back": "When vital signs are stable and the patient is comfortable."},
+                {"front": "Why confirm and mark the correct eye?", "back": "To prevent wrong-eye surgery — a critical safety step."},
+                {"front": "Abnormal pre-op vitals — what do you do?", "back": "Escalate to the nurse/doctor before the patient proceeds."},
+                {"front": "Name two things recorded for post-op discharge.", "back": "The TCU and the post-op medications prescribed."},
+            ],
+        },
+        "auto_refraction": {
+            "easy": [
+                {"front": "What does auto-refraction (AR) measure?", "back": "Refractive error objectively (myopia, hyperopia, astigmatism)."},
+                {"front": "What does auto-keratometry (AK) measure?", "back": "Corneal curvature and corneal astigmatism."},
+                {"front": "When is AR/AK typically done?", "back": "For new patients and pre-operative assessment."},
+                {"front": "Should glasses/contact lenses be removed for AR/AK?", "back": "Yes."},
+                {"front": "AK is especially important for which calculation?", "back": "IOL power calculation in cataract surgery."},
+            ],
+            "medium": [
+                {"front": "Why might AR/AK readings be inconsistent?", "back": "An unstable tear film (dry eye) or poor fixation."},
+                {"front": "How do you improve unreliable AR/AK from dry eye?", "back": "Ask the patient to blink or instil a lubricant, then re-acquire."},
+                {"front": "Is the AR result a final prescription?", "back": "No — it is an objective starting point; subjective refraction confirms it."},
+                {"front": "Why is AK used before cataract surgery?", "back": "Corneal curvature is needed for IOL power calculation."},
+                {"front": "Who sets the final spectacle prescription?", "back": "The doctor/optometrist via subjective refraction."},
             ],
         },
     },
