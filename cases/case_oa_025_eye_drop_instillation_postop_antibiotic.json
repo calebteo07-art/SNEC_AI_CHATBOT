@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_025_eye_drop_instillation_postop_antibiotic",
+  "title": "Drops After the Operation",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_postop_antibiotic",
+  "topic_set": "eye_drops",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mdm Chua Mei Ling",
+    "age": 66,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Post cataract surgery — needs her antibiotic and steroid eye drops instilled and technique taught"
+  },
+  "history": {
+    "hpc": "Mdm Chua says 'I just did my cataract operation, doctor give me eye drops but I don't know how to put properly.' She needs her post-op drops instilled into the operated right eye and to be taught the technique for home.",
+    "pmhx": "Recent right cataract surgery. No drug allergies on file (confirm).",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Post-op antibiotic drops", "Post-op steroid drops"],
+    "social_hx": "Lives with her daughter who can help with drops at home."
+  },
+  "examination_findings": {
+    "va": {"right": "Post-op, improving", "left": "6/9"},
+    "iop": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "anterior_segment": "Recent surgical eye — handle gently, no pressure on the globe",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Instil the charted post-op drops into the correct (operated) eye with correct, gentle technique and teach the patient for home use",
+    "key_points": "Confirm identity, correct eye and the drop name/strength; check allergy; no-touch technique into the lower fornix; gentle closure and nasolacrimal pressure; avoid pressure on the operated eye"
+  },
+  "diagnosis": "Post-operative drops instilled safely into the correct operated eye using a gentle no-touch technique after confirming identity, the correct eye, the drop and allergy status. The patient is taught the technique for home and the importance of hand hygiene around a recently operated eye. This is a procedural/teaching station.",
+  "management": {
+    "immediate": [
+      "Confirm identity, the operated (right) eye and the charted drop name and strength",
+      "Check for drug/eye-drop allergy before instilling",
+      "Perform hand hygiene and avoid any pressure on the operated globe",
+      "Tilt the head back, pull the lower lid down and instil one drop into the lower fornix without touching the eye or lashes",
+      "Ask the patient to close gently and apply light pressure near the nose",
+      "If more than one drop is charted, wait a few minutes between them",
+      "Document the drops given, eye, time and allergy check"
+    ],
+    "follow_up": [
+      "Confirm the home drop schedule and who will help instil them",
+      "Advise reporting increasing pain, redness or reduced vision urgently"
+    ],
+    "patient_education": [
+      "Teach the head-back, lower-lid-pocket technique in simple language",
+      "Stress hand hygiene before touching a recently operated eye",
+      "Explain to space out different drops and not to rub the eye"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity, the operated eye and the charted drops",
+        "Checks for drug/eye-drop allergy before instilling",
+        "Explains the procedure and gains cooperation",
+        "Confirms who will help with drops at home"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and avoids pressure on the operated eye",
+        "Instils one drop into the lower fornix with a no-touch technique",
+        "Spaces multiple drops appropriately",
+        "Applies gentle closure / nasolacrimal pressure"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises this as a safe-instillation and teaching task",
+        "Understands extra care is needed around a recently operated eye",
+        "Knows allergy checking is essential before instilling",
+        "Understands the purpose of the post-op drops"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents drops, eye, time and allergy check",
+        "Teaches the home technique clearly",
+        "Advises on hygiene and post-op red flags",
+        "Maintains patient comfort and dignity"
+      ]
+    }
+  }
+}

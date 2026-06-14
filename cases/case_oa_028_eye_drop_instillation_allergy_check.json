@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_028_eye_drop_instillation_allergy_check",
+  "title": "Check the Allergy First",
+  "difficulty": "intermediate",
+  "topic": "eye_drop_instillation_allergy_check",
+  "topic_set": "eye_drops",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
+  "patient": {
+    "name": "Mr Lim Cheng Hock",
+    "age": 62,
+    "gender": "male",
+    "occupation": "taxi driver",
+    "presenting_complaint": "Charted for an eye drop, but mentions he reacted badly to an eye drop before"
+  },
+  "history": {
+    "hpc": "Mr Lim says 'Last time one eye drop make my eye very red and swollen, I think I allergic.' He is charted for a drop today but cannot remember the exact name of the one he reacted to.",
+    "pmhx": "Previous adverse reaction to an unspecified eye drop. Otherwise well.",
+    "family_hx": "Not relevant to this station",
+    "medications": ["Charted eye drop for today"],
+    "social_hx": "Taxi driver; needs clear vision for work."
+  },
+  "examination_findings": {
+    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "anterior_segment": "No active infection that would change technique",
+    "fundus": "Not examined at this station"
+  },
+  "investigations": {
+    "task": "Recognise and act on a reported eye-drop allergy before instilling — do not proceed until the allergy is clarified and the charted drop confirmed safe",
+    "key_points": "Confirm identity; actively ask about and document the reported reaction; do not instil the charted drop until the allergy is clarified and the drop confirmed safe with the nurse/doctor; record the allergy"
+  },
+  "diagnosis": "The key step is recognising and acting on a reported eye-drop allergy before instillation: the OA confirms identity, takes details of the previous reaction, withholds the charted drop, and checks with the nurse/doctor before proceeding. The allergy is documented. Patient safety is prioritised over completing the task. This is a procedural/safety station.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the charted drop and strength",
+      "Actively ask about drug/eye-drop allergies and the details of the previous reaction",
+      "Do NOT instil the charted drop until the reported allergy is clarified",
+      "Check with the nurse/doctor whether the charted drop is safe or needs changing",
+      "Document the reported allergy clearly in the record",
+      "Only proceed with instillation once the drop is confirmed safe, using correct no-touch technique",
+      "Record the drop, eye, time and that allergy was checked"
+    ],
+    "follow_up": [
+      "Ensure the allergy is flagged in the patient's record to prevent future errors",
+      "Advise the patient to mention this allergy at every visit"
+    ],
+    "patient_education": [
+      "Reassure the patient that his reaction is taken seriously",
+      "Explain why the drop is being checked before use",
+      "Advise him to always report eye-drop reactions to staff"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the charted drop",
+        "Actively asks about allergies and the previous reaction",
+        "Takes details of what happened and which drop if known",
+        "Communicates clearly and reassures"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Withholds the charted drop until the allergy is clarified",
+        "Checks with the nurse/doctor before proceeding",
+        "Documents the reported allergy",
+        "Only instils once the drop is confirmed safe (no-touch technique)"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the allergy check as the critical safety step",
+        "Prioritises patient safety over completing the task",
+        "Knows not to instil an unverified drop in a patient reporting an allergy",
+        "Understands the importance of documenting allergies"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the allergy in the record to prevent future errors",
+        "Documents the drop, eye, time and allergy check",
+        "Advises the patient to report the allergy at every visit",
+        "Maintains patient safety and comfort"
+      ]
+    }
+  }
+}
