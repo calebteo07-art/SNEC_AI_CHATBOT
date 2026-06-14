@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_039_near_vision_presbyopia_n_chart",
+  "title": "Arms Too Short for the Menu",
+  "difficulty": "intermediate",
+  "topic": "near_vision_presbyopia_logmar",
+  "topic_set": "visual_acuity",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Lim Boon Heng",
+    "age": 49,
+    "gender": "male",
+    "occupation": "bank officer",
+    "presenting_complaint": "Difficulty reading small print up close for the past few months, especially the phone and restaurant menus"
+  },
+  "history": {
+    "hpc": "Mr Lim has noticed that small print is getting harder to read over the past few months. He says: 'Far away I can see clearly, but small letters on my handphone, I must stretch my arm until very far also still a bit blur.' It is worse in dim restaurant lighting and at the end of the day. Distance vision is fine. No pain, no double vision, no headaches.",
+    "pmhx": "Nil significant. No previous eye conditions.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Office worker, long hours on computer and phone. Reads physical documents daily. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 unaided (distance)", "left": "6/6 unaided (distance)"},
+    "iop": {"right": "13 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal bilaterally, clear lens both eyes",
+    "fundus": "To be assessed by doctor as needed"
+  },
+  "investigations": {
+    "va_distance": "Modified LogMAR: RE 6/6, LE 6/6 unaided — distance vision is normal.",
+    "va_near": "Near vision chart (N chart) held at 35 cm in good lighting, each eye tested separately: N10 unaided in each eye, improving to N5 when a +1.50 reading add is held up. Distance VA normal with reduced unaided near vision is the classic pattern of presbyopia.",
+    "iop_nct": "RE 13 mmHg, LE 14 mmHg — normal range."
+  },
+  "diagnosis": "Presbyopia — age-related reduction in near focusing ability, shown by normal distance VA but reduced unaided near VA that improves with a near add. Typical onset around the late 40s. For doctor/optometrist to prescribe a reading correction.",
+  "management": {
+    "immediate": [
+      "Perform distance VA first (Modified LogMAR) to confirm distance vision is normal",
+      "Perform near VA using the N chart held at 35 cm in adequate lighting, testing each eye separately",
+      "Record the smallest line the patient can read comfortably (e.g., N10), and the improvement with a trial near add",
+      "Perform NCT for IOP as part of routine assessment",
+      "Maintain hand hygiene and alcohol-wipe the occluder and any near chart handling as per protocol",
+      "Document distance and near VA, the near add tested, and IOP for the doctor"
+    ],
+    "follow_up": [
+      "Doctor/optometrist to confirm the reading prescription (near add)",
+      "Discuss options: reading glasses, bifocals, or progressive lenses given his computer and phone use",
+      "Advise return if distance vision changes or other symptoms develop"
+    ],
+    "patient_education": [
+      "Explain that this is presbyopia — a normal age-related change in the eye's focusing, not a disease",
+      "Reassure him that distance vision is normal and only a reading correction is needed",
+      "Explain why he instinctively holds things further away (to bring the print into focus)",
+      "Suggest good lighting for near tasks and discuss suitable lens options with the doctor/optometrist"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes that the difficulty is specifically with near print while distance vision is fine",
+        "Identifies the habit of holding things further away and worse vision in dim light",
+        "Asks about age-relevant onset and visual demands (computer, phone, documents)",
+        "Rules out red flags (pain, double vision, headaches)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Confirms normal distance VA with Modified LogMAR first",
+        "Performs near VA with the N chart held at 35 cm in good lighting, each eye separately",
+        "Records the smallest comfortable near line and the improvement with a trial near add",
+        "Performs and documents NCT for IOP"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the pattern of normal distance VA with reduced unaided near VA",
+        "Identifies this as presbyopia consistent with the patient's age",
+        "Understands that improvement with a near add confirms a focusing (not pathological) cause",
+        "Defers the final near prescription to the doctor/optometrist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents distance VA, near VA, near add tested, and IOP accurately",
+        "Explains presbyopia in simple, reassuring terms",
+        "Addresses the patient's lifestyle needs (computer/phone) when discussing options",
+        "Hands over to the doctor/optometrist for the reading correction"
+      ]
+    }
+  }
+}

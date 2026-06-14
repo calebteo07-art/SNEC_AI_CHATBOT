@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_037_logmar_low_vision_progression",
+  "title": "When the Chart Runs Out",
+  "difficulty": "intermediate",
+  "topic": "logmar_distance_va_low_vision",
+  "topic_set": "visual_acuity",
+  "role": "OA",
+  "estimated_minutes": 14,
+  "patient": {
+    "name": "Mr Tan Ah Kow",
+    "age": 74,
+    "gender": "male",
+    "occupation": "retired hawker",
+    "presenting_complaint": "Gradual painless blurring of vision in both eyes over the past year, much worse in the right eye"
+  },
+  "history": {
+    "hpc": "Mr Tan says his vision has slowly become more blurred over the past year, like looking through fog, and the right eye is now much worse than the left. There is no pain, no redness, and no sudden change. He says: 'Doctor ah, my right eye getting more and more blur lah, like got fog inside, cannot see the TV already, must use left eye to see.' He has difficulty recognising faces across the room. He wears an old pair of glasses but says they no longer help.",
+    "pmhx": "Type 2 diabetes (diet-controlled), hypertension. Cataract mentioned at a previous polyclinic visit but never followed up.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife. Used to run a hawker stall. Non-smoker, occasional beer."
+  },
+  "examination_findings": {
+    "va": {"right": "Cannot read 6/60 line; CF (Count Fingers) at 1 metre", "left": "6/36 unaided, improves to 6/24 with pinhole"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Right eye: dense lens opacity (cataract) visible. Left eye: moderate lens opacity. No redness, cornea clear both eyes.",
+    "fundus": "Right fundus poor view due to dense cataract; left fundus hazy view, to be assessed by doctor"
+  },
+  "investigations": {
+    "va_distance": "Modified LogMAR: RE unable to read all 5 letters on the 6/60 line even with pinhole, so proceeded to 6/120 — still unable, then tested CF at 1m. LE read partial 6/36, pinhole applied (VA worse than 6/12) with slight improvement to 6/24.",
+    "pinhole": "RE: no meaningful improvement with pinhole. LE: slight improvement only.",
+    "iop_nct": "RE 15 mmHg, LE 16 mmHg — within normal range, both eyes."
+  },
+  "diagnosis": "Reduced vision both eyes from dense cataract (media opacity), worse in the right eye. The lack of meaningful pinhole improvement and the dense lens opacity point to a media/lens cause rather than a simple refractive error. For doctor review and likely cataract surgery work-up.",
+  "management": {
+    "immediate": [
+      "Follow the Modified LogMAR low-vision sequence correctly: when patient cannot read all 5 letters on 6/60, proceed to 6/120, then CF, HM, PL, NPL in order",
+      "Apply pinhole appropriately when VA is reduced, and document whether it improves",
+      "Perform NCT for IOP in both eyes as part of routine assessment",
+      "Wipe occluder and machine contact parts with alcohol wipes and perform hand hygiene before and after",
+      "Document RE and LE VA accurately, including the CF distance for the right eye",
+      "Highlight to the doctor that the right eye vision has dropped to CF and that the patient has an untreated cataract"
+    ],
+    "follow_up": [
+      "Doctor to confirm cataract and assess suitability for surgery",
+      "Likely referral for biometry (A-scan / optical biometry) for IOL power calculation if surgery planned",
+      "Diabetic and fundus assessment by doctor once view allows or post-surgery"
+    ],
+    "patient_education": [
+      "Explain in simple terms that the blur is mainly due to a cataract (cloudy lens), not just needing new glasses",
+      "Reassure him that cataract is common and treatable with surgery",
+      "Advise him to take care moving around given his poor right-eye vision, to reduce fall risk",
+      "Explain the next steps: doctor review, then tests to plan possible cataract surgery"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the blurring is gradual, painless, and worse in the right eye",
+        "Asks about previous cataract mention and why it was not followed up",
+        "Asks about systemic history relevant to the eye (diabetes, hypertension)",
+        "Checks whether current glasses still help (they do not)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Tests right eye first by convention, occluding the other eye, with hand hygiene and alcohol-wiped occluder",
+        "Correctly follows the low-vision progression: 6/60 to 6/120 to CF when the patient cannot read all 5 letters",
+        "Applies pinhole because VA is reduced and documents the (minimal) improvement",
+        "Performs and documents NCT for IOP in both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises reduced VA with poor pinhole improvement suggests a media (lens) cause, not refractive",
+        "Links the dense lens opacity to the reduced vision and poor fundus view",
+        "Identifies the right eye as significantly worse (CF) than the left",
+        "Defers the formal diagnosis and surgical decision appropriately to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents VA (including CF distance), pinhole result, and IOP accurately for both eyes",
+        "Highlights the drop in right-eye vision and the untreated cataract to the doctor",
+        "Explains findings to the patient in simple, reassuring language",
+        "Advises on safety (fall risk) given the poor vision and outlines next steps"
+      ]
+    }
+  }
+}

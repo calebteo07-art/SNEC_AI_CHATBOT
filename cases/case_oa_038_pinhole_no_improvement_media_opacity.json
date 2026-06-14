@@ -1,0 +1,94 @@
+{
+  "case_id": "case_oa_038_pinhole_no_improvement_media_opacity",
+  "title": "New Glasses Won't Fix This",
+  "difficulty": "intermediate",
+  "topic": "pinhole_test_media_opacity_va",
+  "topic_set": "visual_acuity",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mdm Fatimah binte Salleh",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retired teacher",
+    "presenting_complaint": "Blurred vision in the left eye that new spectacles did not improve"
+  },
+  "history": {
+    "hpc": "Mdm Fatimah changed her glasses two months ago hoping to see better, but the left eye is still blurred. She says: 'I thought maybe need change glasses only, but new glasses also cannot help leh.' The blur is gradual and painless, with some glare in bright sunlight. No flashes, no floaters, no eye pain. She wants to know why new glasses did not work.",
+    "pmhx": "Hypertension. No previous eye surgery.",
+    "family_hx": "Mother had cataract surgery",
+    "medications": ["Losartan 50mg OD"],
+    "social_hx": "Lives with her son's family. Enjoys reading and sewing. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 with current glasses", "left": "6/36 with current glasses, no improvement with pinhole"},
+    "iop": {"right": "17 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "anterior_segment": "Left eye: central lens opacity (cataract). Right eye: early lens changes. Cornea clear, no redness both eyes.",
+    "fundus": "Left fundus hazy view due to lens opacity; right fundus to be assessed by doctor"
+  },
+  "investigations": {
+    "va_distance": "Modified LogMAR with habitual correction: RE 6/9, LE 6/36. As LE VA was worse than 6/12, pinhole was applied — there was NO improvement, suggesting the reduced vision is not due to refractive error.",
+    "pinhole": "LE: no improvement with pinhole (key finding pointing away from a refractive cause).",
+    "iop_nct": "RE 17 mmHg, LE 18 mmHg — normal range."
+  },
+  "diagnosis": "Reduced left-eye vision due to a media opacity (cataract), not refractive error — explaining why new spectacles did not help. The absence of pinhole improvement is the key clue. For doctor review and cataract assessment.",
+  "management": {
+    "immediate": [
+      "Test distance VA with the patient's current (habitual) correction in place, right eye first",
+      "Apply pinhole to the left eye because VA is reduced, and carefully document that there is NO improvement",
+      "Explain that pinhole helps tell whether blur is from glasses power or from inside the eye",
+      "Perform NCT for IOP in both eyes",
+      "Maintain hand hygiene and alcohol-wipe the occluder before and after",
+      "Document VA, pinhole result, and IOP clearly for the doctor"
+    ],
+    "follow_up": [
+      "Doctor to examine the lens and confirm cataract",
+      "If cataract surgery is considered, refer for biometry for IOL power calculation",
+      "Review the right eye's early lens changes over time"
+    ],
+    "patient_education": [
+      "Explain simply that new glasses cannot fix this because the blur is from a cloudy lens (cataract), not the glasses power",
+      "Reassure her that cataract is common and can be treated with surgery",
+      "Explain the pinhole test result in lay terms — it pointed to a problem inside the eye, not the glasses",
+      "Outline next steps: doctor review and possible surgery work-up"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes that recently changed glasses did not improve the vision",
+        "Confirms the blur is gradual, painless, with glare and no flashes/floaters",
+        "Asks about family history (mother had cataract) and relevant systemic history",
+        "Clarifies the patient's concern (why new glasses did not help)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Tests VA with habitual correction, right eye first, with proper hygiene",
+        "Applies pinhole to the reduced eye and correctly documents NO improvement",
+        "Understands that pinhole distinguishes refractive from non-refractive causes",
+        "Performs and documents NCT for IOP in both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises that absence of pinhole improvement points away from a refractive cause",
+        "Links the central lens opacity to the reduced left-eye vision",
+        "Explains why new spectacles did not help (media opacity, not glasses power)",
+        "Defers confirmation of cataract and management to the doctor"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents VA, pinhole result, and IOP accurately",
+        "Explains the pinhole result and the likely cause to the patient in simple terms",
+        "Reassures the patient and addresses her specific concern",
+        "Hands over to the doctor with a clear summary and outlines next steps"
+      ]
+    }
+  }
+}
