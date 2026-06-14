@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_048_pfaer_fall_risk_postdilation_elderly",
+  "title": "Steady After the Drops",
+  "difficulty": "intermediate",
+  "topic": "pfaer_fall_risk_postdilation_elderly",
+  "topic_set": "fall_risk",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Quek Lai Cheng",
+    "age": 83,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Elderly patient just dilated for a fundus check; unsteady on her feet and using a walking frame"
+  },
+  "history": {
+    "hpc": "Mdm Quek, aged 83, has just been dilated. Her vision is now blurry and she is light-sensitive. She uses a walking frame and says: 'My legs not so steady, now the eye also blur, scared I fall.' She is waiting to be seen. The PSA must complete a fall-risk (PFAER) assessment and put active fall-prevention measures in place.",
+    "pmhx": "Osteoarthritis, hypertension. Previous fall at home last year.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD", "Paracetamol PRN"],
+    "social_hx": "Lives with a domestic helper who is with her today. Uses a walking frame."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18 pre-dilation, now blurred", "left": "6/18 pre-dilation, now blurred"},
+    "iop": {"right": "17 mmHg (pre-dilation)", "left": "18 mmHg (pre-dilation)"},
+    "anterior_segment": "Pupils dilated; otherwise age-appropriate",
+    "fundus": "To be examined by doctor now that pupils are dilated"
+  },
+  "investigations": {
+    "fall_risk_assessment": "Fall-risk (PFAER) assessment: high risk identified — advanced age (>80), reduced baseline vision now worsened by dilation, photosensitivity, mobility impairment (walking frame, osteoarthritis), and a previous fall. Although accompanied by a helper, active measures are needed.",
+    "va_distance": "RE and LE 6/18 pre-dilation, both now blurred."
+  },
+  "diagnosis": "High fall risk on PFAER assessment: an elderly, mobility-impaired patient with reduced and now further-blurred vision after dilation. The PSA competency is completing the fall-risk assessment and taking active prevention measures, not just documenting the risk.",
+  "management": {
+    "immediate": [
+      "Complete the PFAER fall-risk assessment and identify the multiple risk factors",
+      "Do not let her walk unaided; accompany her and ensure she uses her walking frame",
+      "Seat her safely in a well-lit area near the station where she can be observed",
+      "Offer sunglasses/UV protectors for the post-dilation photosensitivity",
+      "Ensure the helper stays with her and inform the nurse that she is high fall risk",
+      "Document the fall-risk assessment and the actions taken"
+    ],
+    "follow_up": [
+      "Doctor to proceed with the dilated fundus examination",
+      "Ensure she is escorted for the rest of the visit and on the way out",
+      "Flag in records that she is high fall risk, especially when dilated"
+    ],
+    "patient_education": [
+      "Explain her vision will be blurry and light-sensitive for about 4-6 hours after the drops",
+      "Advise her to move slowly with her frame and to ask for help, not to walk alone",
+      "Reassure her that staff and her helper will assist her",
+      "Advise bringing her frame and a companion to future visits"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes advanced age, mobility impairment, and walking-frame use",
+        "Notes the previous fall and reduced baseline vision",
+        "Recognises post-dilation blurring/photosensitivity as added acute risk",
+        "Confirms whether a companion/helper is present"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Completes the PFAER fall-risk assessment at this visit",
+        "Identifies the multiple specific risk factors",
+        "Recognises dilation has acutely increased the risk",
+        "Documents pre-dilation VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Classifies the patient as high fall risk",
+        "Recognises the combined chronic and acute (dilation) contributors",
+        "Understands high risk requires active measures, not just a note",
+        "Does not dismiss the risk because a helper is present"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Accompanies the patient and ensures walking-frame use and safe seating",
+        "Offers sunglasses and keeps the helper with her",
+        "Informs the nurse and documents the assessment and actions",
+        "Provides clear post-dilation safety advice"
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_049_pfaer_fall_risk_visually_impaired_alone",
+  "title": "Came Alone, Can Barely See",
+  "difficulty": "intermediate",
+  "topic": "pfaer_fall_risk_visual_impairment_unaccompanied",
+  "topic_set": "fall_risk",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Krishnan s/o Subramaniam",
+    "age": 76,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Severely reduced vision in both eyes; came alone by public transport and is having trouble finding his way around the clinic"
+  },
+  "history": {
+    "hpc": "Mr Krishnan has advanced eye disease with severely reduced vision in both eyes. He came alone by bus and train. He says: 'I cannot see well already, I come by myself, just now I nearly trip at the door.' He is at clear risk of falling while navigating the clinic. The PSA must complete a fall-risk (PFAER) assessment and take active measures.",
+    "pmhx": "Advanced glaucoma and diabetic eye disease, both eyes. Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Glaucoma eye drops both eyes", "Metformin 500mg BD"],
+    "social_hx": "Lives alone; limited family support. Travelled alone today."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60", "left": "3/60 (severely reduced)"},
+    "iop": {"right": "18 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "anterior_segment": "Advanced disease; severely reduced vision both eyes",
+    "fundus": "Known advanced pathology, for doctor review"
+  },
+  "investigations": {
+    "fall_risk_assessment": "Fall-risk (PFAER) assessment: high risk — severe bilateral visual impairment, elderly, unaccompanied, already had a near-trip on arrival, in an unfamiliar busy environment. Active guidance and supervision are required throughout the visit.",
+    "va_distance": "RE 6/60, LE 3/60."
+  },
+  "diagnosis": "High fall risk on PFAER assessment driven by severe visual impairment in an unaccompanied elderly patient. The PSA competency is identifying the high risk and actively guiding/supervising the patient and arranging escort support, not merely documenting it.",
+  "management": {
+    "immediate": [
+      "Complete the PFAER fall-risk assessment and recognise the high risk from severe visual impairment",
+      "Personally guide the patient, offering an arm and describing the route and any obstacles",
+      "Seat him safely in a clear, well-lit area with an unobstructed path, away from clutter",
+      "Accompany him for each move (to testing, to the doctor, to the exit) rather than letting him navigate alone",
+      "Arrange staff/volunteer escort and inform the nurse he is high fall risk and unaccompanied",
+      "Document the fall-risk assessment and the actions taken"
+    ],
+    "follow_up": [
+      "Doctor to review his eye condition",
+      "Arrange escort to public transport/taxi at the end of the visit",
+      "Flag in records that he needs an escort and ideally a companion for future visits, and consider social support referral"
+    ],
+    "patient_education": [
+      "Reassure him that staff will guide him around safely",
+      "Encourage him to ask for help to move rather than walking alone",
+      "Discuss coming with a companion in future and accepting escort help",
+      "Advise on keeping to clear, well-lit paths to reduce trips and falls"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the severe bilateral visual impairment",
+        "Identifies that he came alone and nearly tripped on arrival",
+        "Notes the unfamiliar, busy environment as an added risk",
+        "Recognises limited family/social support"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Completes the PFAER fall-risk assessment at this visit",
+        "Identifies severe visual impairment plus unaccompanied status as key risks",
+        "Recognises the high risk despite no other acute change",
+        "Documents VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Classifies the patient as high fall risk",
+        "Recognises visual impairment as the dominant risk factor",
+        "Understands the unaccompanied status compounds the risk",
+        "Knows high risk requires active guidance, not just a note"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Personally guides and supervises the patient and offers an arm",
+        "Seats him safely and keeps paths clear",
+        "Arranges escort and informs the nurse; documents the assessment",
+        "Advises on companions/escort and considers social support referral"
+      ]
+    }
+  }
+}
