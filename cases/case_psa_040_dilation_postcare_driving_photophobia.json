@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_040_dilation_postcare_driving_photophobia",
+  "title": "After the Dilating Drops",
+  "difficulty": "intermediate",
+  "topic": "pupil_dilation_post_care_driving_safety",
+  "topic_set": "pupil_dilation",
+  "role": "PSA",
+  "estimated_minutes": 10,
+  "patient": {
+    "name": "Mr Foo Jia Hao",
+    "age": 52,
+    "gender": "male",
+    "occupation": "delivery driver",
+    "presenting_complaint": "Just had both eyes dilated; vision is now blurry and he is worried because he drove to the clinic"
+  },
+  "history": {
+    "hpc": "Mr Foo has just been dilated for a fundus examination. His near vision is now blurry and he is light-sensitive. He says: 'Now everything blur and the light very glaring, but I drive here leh, how ah?' He is a delivery driver and drove himself. The PSA must give clear post-dilation safety advice and help him plan safe transport.",
+    "pmhx": "Myopia. Otherwise well. No narrow-angle history.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil"],
+    "social_hx": "Delivery driver; drove his own van to the clinic today."
+  },
+  "examination_findings": {
+    "va": {"right": "distance 6/9 but near now blurred post-dilation", "left": "distance 6/9 but near now blurred post-dilation"},
+    "iop": {"right": "15 mmHg (pre-dilation)", "left": "15 mmHg (pre-dilation)"},
+    "anterior_segment": "Pupils dilated bilaterally; otherwise normal",
+    "fundus": "Examined/being examined by the doctor"
+  },
+  "investigations": {
+    "post_dilation_care": "Provide post-dilation advice: blurred near vision and light sensitivity (photophobia) are expected and last about 4-6 hours. Advise NOT to drive while dilated, offer sunglasses/UV protectors, and consider fall/road-safety risks. Help the patient arrange alternative transport.",
+    "va_distance": "Distance VA preserved; near vision blurred from dilation."
+  },
+  "diagnosis": "Expected post-dilation blurred near vision and photosensitivity in a patient who drove himself — the key issue is safe post-dilation advice and transport. The PSA competency is clear patient education on the effects/duration and ensuring he does not drive while dilated.",
+  "management": {
+    "immediate": [
+      "Explain that the blurred near vision and light sensitivity are expected effects of the dilating drops",
+      "Explain the effects usually last about 4-6 hours",
+      "Advise clearly that he should NOT drive while his vision is blurred and he is light-sensitive",
+      "Offer sunglasses/UV protectors to ease the glare",
+      "Help him arrange alternative transport (taxi/family) and a plan to collect his vehicle later",
+      "Advise care with steps/kerbs to avoid trips or falls while vision is affected"
+    ],
+    "follow_up": [
+      "Confirm the doctor has completed or will complete the fundus examination",
+      "Advise that vision should return to normal within a few hours",
+      "Document the advice given"
+    ],
+    "patient_education": [
+      "Reassure him the blur and glare are temporary and normal after dilation",
+      "Stress not driving until vision is back to normal, for his and others' safety",
+      "Suggest sunglasses outdoors and taking care on stairs/roads",
+      "Advise arranging transport and collecting his van once the effects wear off"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Identifies that the patient drove himself and is now dilated",
+        "Confirms the symptoms (blurred near vision, photophobia) are post-dilation",
+        "Checks there are no unexpected/severe symptoms (e.g., severe pain)",
+        "Acknowledges his concern about getting home"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Confirms the expected post-dilation effects and their typical 4-6 hour duration",
+        "Assesses the road-safety and fall risk while dilated",
+        "Determines his transport situation",
+        "Documents the advice provided"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the symptoms as expected dilation effects, not a complication",
+        "Understands dilation impairs near vision and increases glare",
+        "Knows driving while dilated is unsafe",
+        "Recognises the short-term fall/road-safety risk"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Clearly advises against driving while dilated",
+        "Helps arrange alternative transport and vehicle collection",
+        "Offers sunglasses and safety advice for stairs/roads",
+        "Reassures the patient and documents the advice"
+      ]
+    }
+  }
+}
