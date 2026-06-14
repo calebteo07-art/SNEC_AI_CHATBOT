@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_041_fall_risk_wheelchair_transfer",
+  "title": "Safe Transfer, Steady Hands",
+  "difficulty": "intermediate",
+  "topic": "fall_risk_mobility_wheelchair_transfer",
+  "topic_set": "fall_risk",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Rajoo s/o Krishnan",
+    "age": 78,
+    "gender": "male",
+    "occupation": "retired bus driver",
+    "presenting_complaint": "Attending the injection clinic for his regular eye injection; uses a wheelchair after a stroke and needs help to move to the examination chair"
+  },
+  "history": {
+    "hpc": "Mr Rajoo comes for his scheduled intravitreal injection review. He had a stroke two years ago with left-sided weakness and uses a wheelchair, but can stand briefly with support. He says: 'My leg not so strong after the stroke, cannot stand long, must hold something.' He is alert and cooperative. He needs to transfer from his wheelchair to the examination chair for assessment.",
+    "pmhx": "Previous stroke with left hemiparesis. Diabetes, hypertension. Wet AMD (right eye) on anti-VEGF injections.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Aspirin 100mg OD"],
+    "social_hx": "Lives with wife and son. Wheelchair user, son pushes him to appointments. Son is parking the car."
+  },
+  "examination_findings": {
+    "va": {"right": "6/60 (wet AMD)", "left": "6/12"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal anterior segments both eyes",
+    "fundus": "Right eye: known wet AMD changes (for doctor review). Left eye: to be assessed."
+  },
+  "investigations": {
+    "fall_risk_assessment": "High risk: elderly, post-stroke left-sided weakness, wheelchair-dependent with limited standing ability, reduced vision (RE 6/60), and requires assisted transfer. Companion (son) temporarily absent.",
+    "va_distance": "RE 6/60, LE 6/12."
+  },
+  "diagnosis": "High fall risk during transfer due to post-stroke weakness, wheelchair dependence, and reduced vision. The key safety task is a safe assisted transfer and continuous supervision, not just documentation.",
+  "management": {
+    "immediate": [
+      "Recognise that all patients are assessed for fall risk each visit, and this patient is high risk for falls during transfer",
+      "Do not attempt the transfer alone if unsafe — get a second staff member to assist and use the wheelchair brakes",
+      "Position the wheelchair correctly, lock the brakes, and guide the patient to stand and pivot with support to the examination chair",
+      "Keep the patient supervised at all times; do not leave him standing or transferring unaccompanied",
+      "Wait for or call the son to return, and ensure the patient is escorted for the rest of the visit",
+      "Document the fall risk assessment and the action taken (assisted transfer, brakes locked, supervised, son informed)"
+    ],
+    "follow_up": [
+      "Doctor to proceed with the injection review for the right eye",
+      "Ensure assisted transfer back to the wheelchair after the procedure",
+      "Flag in records that this patient needs assisted transfer and an escort at every visit"
+    ],
+    "patient_education": [
+      "Explain each step before moving him so he is not startled and can help safely",
+      "Advise him to tell staff before trying to stand or move so help is on hand",
+      "Reassure him that staff will assist with every transfer",
+      "Encourage him to attend with his son or a companion for safety"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the post-stroke weakness and limited standing ability",
+        "Confirms wheelchair dependence and the need for an assisted transfer",
+        "Notes the reduced vision (RE 6/60) as an added risk factor",
+        "Checks whether a companion is present (son temporarily away)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs and documents a fall risk assessment at this visit",
+        "Identifies the specific transfer-related risk factors (weakness, wheelchair, reduced vision)",
+        "Recognises that the highest-risk moment is the transfer itself",
+        "Documents VA and IOP appropriately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Classifies the patient as high fall risk",
+        "Recognises that assisted transfer with supervision is required",
+        "Understands that high risk requires active measures, not just a note",
+        "Does not assume the patient can transfer independently"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Gets help and uses wheelchair brakes for a safe, supervised transfer",
+        "Never leaves the patient unsupervised during standing/transfer",
+        "Documents the fall risk assessment and the actions taken",
+        "Communicates the need for an escort and flags it for future visits"
+      ]
+    }
+  }
+}
