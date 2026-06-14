@@ -1,0 +1,95 @@
+{
+  "case_id": "case_ot_031_potential_acuity_meter_technique",
+  "title": "Setting Up the PAM",
+  "difficulty": "intermediate",
+  "topic": "potential_acuity_meter_technique",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mr Goh Teck Seng",
+    "age": 70,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for a Potential Acuity Meter test before cataract surgery"
+  },
+  "history": {
+    "hpc": "Mr Goh says 'Doctor want to check what is my vision can become after operation.' He has a cataract and the doctor has ordered a PAM. This station focuses on performing the test with correct preparation and technique.",
+    "pmhx": "Cataract. No diabetes. No known macular disease.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Retired."
+  },
+  "examination_findings": {
+    "va": {"right": "6/36 (cataract)", "left": "6/12"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Cataract present; the OT must ensure adequate dilation before testing",
+    "fundus": "Partial view through the cataract"
+  },
+  "investigations": {
+    "pam_technique": {
+      "principle": "PAM projects a Snellen chart directly onto the retina, bypassing the cataract, to predict potential post-operative acuity",
+      "preparation": "Pupil dilation is required; confirm the eye is adequately dilated before testing",
+      "steps": "Confirm identity and eye, set up and align the machine, instruct the patient to read the smallest line they can see, repeat to confirm",
+      "result_right": "Predicted potential acuity recorded as the best line read reliably"
+    }
+  },
+  "diagnosis": "The PAM is performed with correct preparation and technique: the pupil is confirmed dilated, the patient is correctly positioned and aligned, and the best reliably-read line is recorded as the predicted potential acuity. The result is reported to the doctor. This station emphasises correct test setup rather than a single clinical outcome.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the correct eye against the order",
+      "Confirm the pupil is adequately dilated — required for PAM",
+      "Explain the test simply and gain cooperation",
+      "Set up and align the PAM correctly at the chinrest",
+      "Instruct the patient to read the smallest visible line and repeat to confirm reliability",
+      "Record the predicted acuity and report it to the doctor"
+    ],
+    "follow_up": [
+      "Doctor to use the result in surgical counselling",
+      "Repeat or escalate if a reliable reading cannot be obtained"
+    ],
+    "patient_education": [
+      "Explain the test estimates vision after the cataract is removed",
+      "Reassure the test is quick and painless",
+      "Explain dilation will blur near vision for a few hours"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the correct eye",
+        "Confirms the order and the purpose of the test",
+        "Confirms the pupil is dilated as required",
+        "Explains the test to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up and aligns the PAM correctly",
+        "Instructs the patient appropriately",
+        "Repeats the reading to confirm reliability",
+        "Records the predicted acuity accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands the PAM principle (projecting a chart past the cataract)",
+        "Knows dilation is required before testing",
+        "Reports the result to the doctor without making the surgical decision",
+        "Knows to repeat if the reading is unreliable"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains a reliable predicted acuity",
+        "Documents the result and the eye",
+        "Educates the patient on the test and dilation",
+        "Maintains patient comfort and cooperation"
+      ]
+    }
+  }
+}

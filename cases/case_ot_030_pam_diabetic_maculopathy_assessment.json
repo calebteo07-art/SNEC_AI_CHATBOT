@@ -1,0 +1,95 @@
+{
+  "case_id": "case_ot_030_pam_diabetic_maculopathy_assessment",
+  "title": "Sugar and the Macula",
+  "difficulty": "intermediate",
+  "topic": "pam_diabetic_maculopathy_assessment",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mdm Siti Aishah",
+    "age": 65,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for PAM before cataract surgery — diabetic with possible maculopathy"
+  },
+  "history": {
+    "hpc": "Mdm Siti says 'My sugar high for many years already, now my eye also blur.' She has a cataract and long-standing diabetes with possible diabetic maculopathy. The doctor ordered a PAM to estimate the potential vision before deciding on cataract surgery.",
+    "pmhx": "Type 2 diabetes for 15 years. Cataract. Possible diabetic maculopathy under review.",
+    "family_hx": "Diabetes in the family",
+    "medications": ["Metformin", "Insulin"],
+    "social_hx": "Retired. Attends diabetic eye screening."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (cataract + possible maculopathy)", "left": "6/18"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "anterior_segment": "Moderate cataract; partial fundus view",
+    "fundus": "Doctor notes possible diabetic macular changes"
+  },
+  "investigations": {
+    "pam": {
+      "device": "Potential Acuity Meter",
+      "preparation": "Pupil dilated as required",
+      "result_right": "Predicted potential acuity around 6/18 — borderline",
+      "interpretation": "A borderline predicted acuity suggests the diabetic maculopathy may partly limit the benefit; correlate with macular imaging"
+    }
+  },
+  "diagnosis": "PAM completed after dilation, giving a borderline predicted acuity that suggests the diabetic maculopathy may partly limit the benefit of cataract surgery. The OT reports the result and recommends correlation with macular imaging; the OT does not make the surgical decision.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the correct eye against the order",
+      "Confirm adequate dilation for PAM",
+      "Explain the test and position the patient",
+      "Obtain a consistent predicted acuity",
+      "Note the diabetic maculopathy as a relevant confounder",
+      "Record and report the result to the doctor"
+    ],
+    "follow_up": [
+      "Correlate with macular OCT / diabetic eye assessment",
+      "Doctor to counsel on realistic expectations given the maculopathy"
+    ],
+    "patient_education": [
+      "Explain the test estimates likely vision after the cataract is removed",
+      "Reassure that the diabetic eye will also be assessed",
+      "Explain dilation will blur near vision for a few hours"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the correct eye",
+        "Confirms dilation as required for PAM",
+        "Notes diabetes and possible maculopathy as relevant",
+        "Explains the purpose of the test"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs PAM correctly after dilation",
+        "Obtains a consistent predicted acuity",
+        "Recognises a borderline result",
+        "Records the result accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands PAM estimates the benefit of surgery",
+        "Links the borderline result to diabetic maculopathy",
+        "Recommends correlation with macular imaging",
+        "Does not make the surgical decision"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Reports the result and confounder to the doctor",
+        "Documents the predicted acuity and diabetic history",
+        "Educates the patient realistically",
+        "Explains dilation effects"
+      ]
+    }
+  }
+}

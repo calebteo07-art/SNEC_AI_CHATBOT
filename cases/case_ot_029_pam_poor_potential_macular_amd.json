@@ -1,0 +1,95 @@
+{
+  "case_id": "case_ot_029_pam_poor_potential_macular_amd",
+  "title": "Cataract Plus a Tired Macula",
+  "difficulty": "intermediate",
+  "topic": "pam_poor_potential_amd",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "patient": {
+    "name": "Mr Raj Anand",
+    "age": 78,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Referred for PAM before cataract surgery — cataract with known macular degeneration"
+  },
+  "history": {
+    "hpc": "Mr Raj says 'My eye blur and the centre also got a dark patch, doctor say my macula not so good.' He has a cataract but also known age-related macular degeneration. The doctor ordered a PAM to estimate how much the cataract surgery alone could improve his vision.",
+    "pmhx": "Cataract with co-existing dry age-related macular degeneration (AMD).",
+    "family_hx": "Mother had AMD",
+    "medications": ["Eye vitamin supplements"],
+    "social_hx": "Retired. Uses a magnifier to read."
+  },
+  "examination_findings": {
+    "va": {"right": "6/36 (cataract + macular changes)", "left": "6/24"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Moderate cataract; partial fundus view",
+    "fundus": "Macular drusen and pigmentary changes noted by the doctor"
+  },
+  "investigations": {
+    "pam": {
+      "device": "Potential Acuity Meter",
+      "preparation": "Pupil dilated as required",
+      "result_right": "Predicted potential acuity around 6/60 — poor potential",
+      "interpretation": "Poor predicted acuity suggests the macular disease limits the benefit of cataract surgery; flagged for the doctor"
+    }
+  },
+  "diagnosis": "PAM completed after dilation. The predicted potential acuity is poor (around 6/60), consistent with the known macular degeneration limiting the visual benefit of cataract surgery. The OT reports the limited predicted outcome to the doctor for counselling and does not make the surgical decision.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the correct eye against the order",
+      "Confirm adequate dilation for PAM",
+      "Explain the test simply and position the patient",
+      "Obtain the best predicted acuity and repeat to confirm",
+      "Flag the poor predicted result clearly for the doctor",
+      "Record the predicted acuity and the co-existing macular history"
+    ],
+    "follow_up": [
+      "Doctor to counsel the patient that macular disease may limit improvement",
+      "Consider macular imaging (e.g. OCT) for fuller assessment"
+    ],
+    "patient_education": [
+      "Explain the test estimates how much surgery alone could help",
+      "Avoid over-promising — the doctor will discuss realistic expectations",
+      "Explain dilation will blur near vision for a few hours"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the correct eye",
+        "Confirms dilation as required for PAM",
+        "Notes the co-existing macular disease as relevant",
+        "Explains the purpose of the test"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Sets up and performs PAM correctly",
+        "Obtains a consistent predicted acuity",
+        "Recognises a poor predicted result",
+        "Records the result accurately"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands PAM estimates the benefit of cataract surgery",
+        "Links poor potential to the macular disease",
+        "Does not make the surgical decision — reports to the doctor",
+        "Knows further macular imaging may be useful"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the poor predicted outcome to the doctor",
+        "Documents the result and macular history",
+        "Avoids over-promising to the patient",
+        "Educates on dilation effects"
+      ]
+    }
+  }
+}

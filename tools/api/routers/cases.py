@@ -178,7 +178,7 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
             locked = not advanced_unlocked
         else:
             locked = False
-        sk = resolve_set(role, c.get("topic", ""))
+        sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
         cases.append(CaseInfo(
             case_id=c["case_id"],
             title=c["title"],
@@ -243,7 +243,7 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
         case_role = c.get("role", "any") or "any"
         if case_role not in (role, "any"):
             continue
-        sk = resolve_set(role, c.get("topic", ""))
+        sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
         total[sk] = total.get(sk, 0) + 1
         if c["case_id"] in completed:
             done[sk] = done.get(sk, 0) + 1
