@@ -1,0 +1,97 @@
+{
+  "case_id": "case_ot_034_corneal_topography_toric_iol_astigmatism",
+  "title": "Astigmatism Before Surgery",
+  "difficulty": "intermediate",
+  "topic": "corneal_topography_toric_iol_astigmatism",
+  "topic_set": "corneal_topography",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cornea Topography",
+  "patient": {
+    "name": "Mr Krishnan Murugan",
+    "age": 69,
+    "gender": "male",
+    "occupation": "retiree",
+    "presenting_complaint": "Listed for cataract surgery with significant astigmatism — topography requested for planning"
+  },
+  "history": {
+    "hpc": "Mr Krishnan says 'Doctor say my eye got a lot of astigmatism, need special lens for the operation.' He has a cataract with significant corneal astigmatism, and topography/keratometry is requested to plan a toric intraocular lens.",
+    "pmhx": "Cataract with significant corneal astigmatism. No previous eye surgery. Dry eye.",
+    "family_hx": "Nil significant",
+    "medications": ["Lubricant drops"],
+    "social_hx": "Retired."
+  },
+  "examination_findings": {
+    "va": {"right": "6/24 (cataract)", "left": "6/9"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Cataract; regular corneal astigmatism; reduced tear film",
+    "fundus": "Partial view through the cataract"
+  },
+  "investigations": {
+    "corneal_topography": {
+      "device": "Corneal topography / keratometry",
+      "purpose": "Map the magnitude and axis of corneal astigmatism to plan a toric IOL",
+      "result": "Regular astigmatism with a defined steep axis recorded for the surgeon",
+      "quality": "Good capture after optimising the tear film; consistent on repeat"
+    }
+  },
+  "diagnosis": "Corneal topography/keratometry maps the magnitude and axis of regular corneal astigmatism to plan a toric intraocular lens for cataract surgery. The tear film is optimised first (dry eye can distort readings), good-quality consistent maps are obtained, and the values are provided to the surgeon. The OT does not select the lens.",
+  "management": {
+    "immediate": [
+      "Confirm identity and the operative eye against the surgical listing",
+      "Optimise the ocular surface (stable tear film) before mapping, as dry eye distorts readings",
+      "Explain the non-contact scan and position the patient on the corneal apex",
+      "Capture good-quality maps and confirm the astigmatism magnitude and axis on repeat",
+      "Record the keratometry values and steep axis accurately",
+      "Provide the values to the surgeon for toric IOL planning",
+      "Document the findings and capture quality"
+    ],
+    "follow_up": [
+      "Surgeon to plan the toric IOL power and alignment axis",
+      "Re-map if readings are inconsistent due to dry eye"
+    ],
+    "patient_education": [
+      "Explain the scan measures the astigmatism to choose the right lens",
+      "Advise using lubricant drops to keep the surface healthy before surgery",
+      "Reassure it is quick and non-contact"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and the correct operative eye",
+        "Notes the dry eye as relevant to accuracy",
+        "Explains the procedure and its purpose",
+        "Confirms the surgical plan (toric IOL)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Optimises the tear film before mapping",
+        "Captures good-quality, consistent maps",
+        "Records the astigmatism magnitude and steep axis accurately",
+        "Repeats inconsistent captures"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands topography/keratometry guides toric IOL planning",
+        "Knows dry eye can distort the readings",
+        "Does not select the lens — provides values to the surgeon",
+        "Recognises the importance of an accurate axis"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides accurate values to the surgeon",
+        "Documents findings and capture quality",
+        "Advises on ocular surface care before surgery",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}

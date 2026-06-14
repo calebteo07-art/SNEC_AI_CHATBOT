@@ -1,0 +1,97 @@
+{
+  "case_id": "case_ot_032_pentacam_keratoconus_screening",
+  "title": "A Steeper Cornea",
+  "difficulty": "intermediate",
+  "topic": "pentacam_keratoconus_screening",
+  "topic_set": "corneal_topography",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cornea Topography",
+  "patient": {
+    "name": "Mr Hafiz Bin Rahman",
+    "age": 22,
+    "gender": "male",
+    "occupation": "polytechnic student",
+    "presenting_complaint": "Referred for corneal topography — worsening, hard-to-correct astigmatism and frequent eye rubbing"
+  },
+  "history": {
+    "hpc": "Mr Hafiz says 'My glasses keep changing, and the optical shop say my astigmatism very high. I always rub my eyes also.' His refraction is unstable with high irregular astigmatism, and the doctor ordered topography to screen for keratoconus.",
+    "pmhx": "Allergic eyes with frequent rubbing. No previous eye surgery.",
+    "family_hx": "Nil known keratoconus",
+    "medications": ["Antihistamine eye drops occasionally"],
+    "social_hx": "Student; rubs his eyes frequently."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12 (with glasses)", "left": "6/18 (with glasses)"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Clear corneas on slit lamp; high astigmatism",
+    "fundus": "Not the focus of this station"
+  },
+  "investigations": {
+    "corneal_topography": {
+      "device": "Corneal topography / Scheimpflug tomography",
+      "pattern": "Inferior corneal steepening with an asymmetric bow-tie and irregular astigmatism",
+      "interpretation": "Pattern is suspicious for keratoconus; flagged for the doctor",
+      "quality": "Good capture quality on repeated scans"
+    }
+  },
+  "diagnosis": "Corneal topography shows inferior steepening with an asymmetric bow-tie and irregular astigmatism — a pattern suspicious for keratoconus, fitting the picture of unstable high astigmatism and frequent eye rubbing. The OT obtains good-quality maps and flags the suspicious pattern for the doctor; the OT does not diagnose.",
+  "management": {
+    "immediate": [
+      "Confirm identity and that both eyes are to be mapped",
+      "Confirm any contact lens washout period before mapping",
+      "Explain the non-contact scan and position the patient on the corneal apex",
+      "Capture good-quality topography for both eyes, repeating poor captures",
+      "Recognise the inferior steepening / asymmetric bow-tie as a keratoconus-suspicious pattern",
+      "Provide the maps to the doctor and flag the suspicious pattern",
+      "Document the findings and capture quality"
+    ],
+    "follow_up": [
+      "Doctor to assess for keratoconus and consider monitoring / treatment",
+      "Advise the patient to avoid eye rubbing"
+    ],
+    "patient_education": [
+      "Explain the scan maps the shape of the cornea",
+      "Advise strongly against rubbing the eyes, which can worsen the cornea",
+      "Reassure that the doctor will review the maps"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and that both eyes are mapped",
+        "Asks about eye rubbing and unstable astigmatism",
+        "Confirms contact lens washout if relevant",
+        "Explains the non-contact procedure"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Aligns on the corneal apex and captures good-quality maps",
+        "Repeats poor-quality captures",
+        "Maps both eyes",
+        "Recognises a keratoconus-suspicious pattern"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Knows the keratoconus pattern (inferior steepening, asymmetric bow-tie)",
+        "Links eye rubbing and unstable astigmatism as risk features",
+        "Does not diagnose — flags for the doctor",
+        "Understands topography screens for keratoconus"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides maps and flags the suspicious pattern to the doctor",
+        "Advises the patient against eye rubbing",
+        "Documents findings and capture quality",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}
