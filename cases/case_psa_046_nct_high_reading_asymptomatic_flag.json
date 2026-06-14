@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_046_nct_high_reading_asymptomatic_flag",
+  "title": "High Pressure, No Symptoms",
+  "difficulty": "intermediate",
+  "topic": "nct_high_iop_asymptomatic_flag",
+  "topic_set": "tonometry_iop",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Cheong Kok Wah",
+    "age": 58,
+    "gender": "male",
+    "occupation": "bank manager",
+    "presenting_complaint": "Routine review; NCT readings are higher than normal but he has no symptoms"
+  },
+  "history": {
+    "hpc": "Mr Cheong attends a routine review and has NCT done. He has no eye pain, redness, or visual symptoms. He says: 'I feel completely fine, my eyes no problem one.' His NCT readings come back above the normal range in both eyes. The PSA must obtain reliable readings, repeat to confirm, and flag the elevated IOP even though he is asymptomatic.",
+    "pmhx": "Hypertension. No known eye disease.",
+    "family_hx": "Father had glaucoma",
+    "medications": ["Losartan 50mg OD"],
+    "social_hx": "Office-based. Non-smoker. Asymptomatic."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "26 mmHg (NCT, confirmed on repeat)", "left": "24 mmHg (NCT, confirmed on repeat)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "Optic discs to be assessed by doctor"
+  },
+  "investigations": {
+    "nct": "NCT performed correctly: contact parts wiped, glasses removed, patient informed about the air puff, right eye first. Elevated readings repeated to confirm consistency. RE 26 mmHg, LE 24 mmHg — both above the normal 10-21 mmHg range. Family history of glaucoma noted.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "Elevated IOP on NCT in an asymptomatic patient with a family history of glaucoma — a result that must still be flagged for assessment because glaucoma is often symptomless. The PSA competency is reliable NCT, confirming the elevated reading, and flagging it; diagnosis is the doctor's.",
+  "management": {
+    "immediate": [
+      "Perform NCT correctly (wipe parts, remove glasses, inform patient, right eye first)",
+      "Repeat the elevated readings to confirm they are consistent",
+      "Note the family history of glaucoma as an additional risk factor",
+      "Flag the elevated IOP for doctor review even though the patient is asymptomatic",
+      "Document the readings against the normal range and that they were confirmed",
+      "Reassure the patient and explain why further checks are needed"
+    ],
+    "follow_up": [
+      "Doctor to assess with Goldmann tonometry, optic disc, and visual field as indicated",
+      "Advise the patient to attend the recommended follow-up",
+      "Record the result clearly"
+    ],
+    "patient_education": [
+      "Explain that the eye pressure is higher than normal even though he feels fine",
+      "Explain that glaucoma often has no symptoms, so the high reading needs checking, especially with his family history",
+      "Encourage him to attend follow-up",
+      "Reassure him that finding it early is exactly the benefit of the check"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the patient is asymptomatic",
+        "Elicits the family history of glaucoma",
+        "Confirms no contraindication and that glasses are removed",
+        "Explains the air-puff test"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs NCT with correct hygiene, positioning, and technique",
+        "Repeats to confirm the elevated readings are consistent",
+        "Records readings against the normal 10-21 mmHg range",
+        "Documents the technique and confirmation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises elevated IOP needs flagging despite no symptoms",
+        "Understands glaucoma is often asymptomatic",
+        "Considers the family history as raising risk",
+        "Knows NCT alone does not diagnose glaucoma"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the result for doctor review and refers appropriately",
+        "Documents the readings clearly",
+        "Explains the result to the patient without over-stating it",
+        "Encourages follow-up"
+      ]
+    }
+  }
+}

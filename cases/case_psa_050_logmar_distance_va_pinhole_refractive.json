@@ -1,0 +1,94 @@
+{
+  "case_id": "case_psa_050_logmar_distance_va_pinhole_refractive",
+  "title": "Clearer Through the Pinhole",
+  "difficulty": "intermediate",
+  "topic": "logmar_distance_va_pinhole_refractive",
+  "topic_set": "visual_acuity",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Ms Wong Hui Shan",
+    "age": 29,
+    "gender": "female",
+    "occupation": "retail assistant",
+    "presenting_complaint": "Blurred distance vision; here for a visual acuity check"
+  },
+  "history": {
+    "hpc": "Ms Wong reports her distance vision has become blurry over the past year, especially for signboards. She says: 'Far things blur, but when I squeeze my eyes a bit, can see clearer.' Squinting that improves vision hints at a refractive cause. She wears no correction. The PSA must measure distance VA on the Modified LogMAR chart and apply the pinhole.",
+    "pmhx": "Nil significant",
+    "family_hx": "Both parents short-sighted",
+    "medications": ["Nil"],
+    "social_hx": "Retail assistant. Long screen time. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/18 unaided, improves to ~6/7.5 with pinhole", "left": "6/24 unaided, improves to ~6/9 with pinhole"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "For doctor as needed"
+  },
+  "investigations": {
+    "va_distance": "Modified LogMAR distance VA: RE 6/18, LE 6/24 unaided, right eye tested first. As VA was reduced, the pinhole was applied and improved vision in both eyes towards 6/6, suggesting a refractive cause.",
+    "pinhole": "Both eyes improve with pinhole — points to a refractive (correctable with glasses) cause rather than a media or retinal cause.",
+    "iop_nct": "RE 14 mmHg, LE 14 mmHg — normal."
+  },
+  "diagnosis": "Reduced distance VA that improves with the pinhole, suggesting uncorrected refractive error (likely myopia) in a young patient — for refraction and spectacles. The PSA competency is correct LogMAR VA measurement, appropriate pinhole use, and interpreting the improvement as a refractive clue; the prescription is set by the doctor/optometrist.",
+  "management": {
+    "immediate": [
+      "Perform distance VA on the Modified LogMAR chart, right eye first, with hand hygiene and an alcohol-wiped occluder",
+      "Ask the patient to read all 5 letters per line, stopping when she cannot read all 5",
+      "Apply the pinhole because VA is reduced, and record the improvement",
+      "Perform NCT for IOP as part of the workup",
+      "Document unaided VA, pinhole VA, and IOP for both eyes",
+      "Explain that pinhole improvement suggests glasses are likely to help"
+    ],
+    "follow_up": [
+      "Doctor/optometrist to perform subjective refraction and prescribe spectacles",
+      "Discuss spectacles vs contact lenses with the optometrist",
+      "Advise return if vision changes further"
+    ],
+    "patient_education": [
+      "Explain that her vision improving with the pinhole suggests she needs glasses (short-sightedness)",
+      "Reassure her this is common and easily corrected",
+      "Explain the doctor/optometrist will fine-tune the exact prescription",
+      "Suggest screen breaks for comfort"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes gradual blurred distance vision and that squinting helps",
+        "Notes the family history of myopia",
+        "Confirms she wears no correction currently",
+        "Rules out red-flag symptoms (pain, sudden loss, flashes/floaters)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs LogMAR distance VA correctly, right eye first, reading all 5 letters per line",
+        "Applies the pinhole because VA is reduced and records the improvement",
+        "Performs and documents NCT for IOP",
+        "Documents unaided and pinhole VA for both eyes"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises pinhole improvement as suggesting a refractive cause",
+        "Links the symptoms (squinting helps, family myopia) to likely myopia",
+        "Distinguishes a refractive cause from a media/retinal cause",
+        "Defers the final prescription to the doctor/optometrist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents unaided VA, pinhole VA, and IOP accurately",
+        "Explains the pinhole result to the patient in simple terms",
+        "Refers to the doctor/optometrist for refraction",
+        "Reassures the patient that glasses are likely to help"
+      ]
+    }
+  }
+}
