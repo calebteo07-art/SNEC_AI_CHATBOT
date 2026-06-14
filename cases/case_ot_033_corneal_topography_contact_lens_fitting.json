@@ -1,0 +1,97 @@
+{
+  "case_id": "case_ot_033_corneal_topography_contact_lens_fitting",
+  "title": "Mapping for a Lens",
+  "difficulty": "intermediate",
+  "topic": "corneal_topography_contact_lens_fitting",
+  "topic_set": "corneal_topography",
+  "role": "OT",
+  "estimated_minutes": 15,
+  "checklist_procedure": "Cornea Topography",
+  "patient": {
+    "name": "Ms Tan Hui Xin",
+    "age": 30,
+    "gender": "female",
+    "occupation": "graphic designer",
+    "presenting_complaint": "Referred for corneal topography to help fit specialised contact lenses"
+  },
+  "history": {
+    "hpc": "Ms Tan says 'My normal contact lens never fit well, the doctor want to map my cornea first.' She has high astigmatism and is being assessed for specialised contact lenses, for which topography of the corneal surface is needed.",
+    "pmhx": "High astigmatism. Previous soft contact lens use. No previous eye surgery.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Designer; wants contact lenses for work."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Clear corneas; high astigmatism",
+    "fundus": "Not the focus of this station"
+  },
+  "investigations": {
+    "corneal_topography": {
+      "device": "Corneal topography",
+      "purpose": "Map corneal curvature and shape to guide specialised contact lens fitting",
+      "result": "Regular astigmatic map obtained; values provided to the fitter",
+      "quality": "Good capture; lenses left out for the required washout period beforehand"
+    }
+  },
+  "diagnosis": "Corneal topography is performed to guide specialised contact lens fitting, mapping the corneal curvature and shape after the required lens washout period. Good-quality maps are obtained and provided to the fitter/doctor. This is a procedural station; the OT does not select the lens.",
+  "management": {
+    "immediate": [
+      "Confirm identity and that both eyes are to be mapped",
+      "Confirm the contact lenses have been left out for the required washout period",
+      "Explain the non-contact scan and position the patient on the corneal apex",
+      "Capture good-quality curvature maps for both eyes, repeating poor captures",
+      "Record the keratometry/curvature values",
+      "Provide the maps to the fitter/doctor for lens selection",
+      "Document the findings and capture quality"
+    ],
+    "follow_up": [
+      "Fitter/doctor to select the specialised lens using the maps",
+      "Re-map if recent lens wear affected the cornea"
+    ],
+    "patient_education": [
+      "Explain the scan maps the curvature of the cornea to fit the lens",
+      "Reassure it is quick and non-contact",
+      "Explain why lenses must be left out before mapping"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and that both eyes are mapped",
+        "Confirms the required contact lens washout period",
+        "Explains the non-contact procedure",
+        "Confirms the purpose (lens fitting)"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Aligns on the corneal apex and captures good-quality maps",
+        "Repeats poor-quality captures",
+        "Maps both eyes",
+        "Records the curvature/keratometry values"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands topography guides contact lens fitting",
+        "Knows recent lens wear distorts the map",
+        "Does not select the lens — provides maps to the fitter",
+        "Recognises the need for good-quality captures"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Provides the maps to the fitter/doctor",
+        "Documents the findings and capture quality",
+        "Educates the patient on washout and the procedure",
+        "Maintains patient comfort"
+      ]
+    }
+  }
+}
