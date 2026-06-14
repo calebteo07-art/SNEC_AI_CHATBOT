@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
+import { useDueCount } from "@/hooks/useFlashcards";
 import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { GoalRing } from "@/aurora/components/GoalRing";
@@ -42,6 +43,7 @@ function relativeDate(ts: string): string {
 export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
+  const { data: dueCount = 0 } = useDueCount();   // SM-2 cards due for review today (F1)
 
   // Today's XP toward the daily goal — read after mount to avoid an SSR/localStorage mismatch.
   const [dailyXp, setDailyXp] = useState(0);
@@ -120,14 +122,26 @@ export function Dashboard() {
           <ProgressBar percent={masteryPct} label={`${activeTrack} mastery`} />
         </StatCard>
 
-        {/* Due today (rose) list */}
-        <StatCard tone="rose" label="Due today">
-          {weakTopics.length > 0 ? (
-            <ul className="aurora-rose-list">
-              {weakTopics.slice(0, 4).map((t) => <li key={t}>{t}</li>)}
-            </ul>
+        {/* Due today (rose) — SM-2 cards scheduled for review, with a review CTA */}
+        <StatCard tone="rose" label="Due today" value={dueCount}>
+          {dueCount > 0 ? (
+            <>
+              <p className="aurora-muted" style={{ marginBottom: 8 }}>
+                {dueCount} card{dueCount === 1 ? "" : "s"} ready for spaced-repetition review.
+              </p>
+              <Link href="/flashcards?mode=review" className="aurora-toggle" style={{ display: "inline-block", textDecoration: "none" }}>
+                Review now →
+              </Link>
+            </>
+          ) : weakTopics.length > 0 ? (
+            <>
+              <p className="aurora-muted" style={{ marginBottom: 6 }}>Nothing scheduled — brush up a weak topic:</p>
+              <ul className="aurora-rose-list">
+                {weakTopics.slice(0, 4).map((t) => <li key={t}>{t}</li>)}
+              </ul>
+            </>
           ) : (
-            <p className="aurora-muted">All clear — no recall due.</p>
+            <p className="aurora-muted">All clear — no recall due. Cards you review will reappear here when they&apos;re due.</p>
           )}
         </StatCard>
 
