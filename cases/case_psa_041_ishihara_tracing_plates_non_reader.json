@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_041_ishihara_tracing_plates_non_reader",
+  "title": "Tracing the Winding Line",
+  "difficulty": "intermediate",
+  "topic": "ishihara_colour_vision_tracing_non_reader",
+  "topic_set": "colour_macular",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mdm Saraswathy d/o Pillai",
+    "age": 73,
+    "gender": "female",
+    "occupation": "retiree",
+    "presenting_complaint": "Colour vision check requested; she cannot read numbers, so the usual number plates cannot be used"
+  },
+  "history": {
+    "hpc": "Mdm Saraswathy is sent for a colour vision check. She did not have formal schooling and cannot read numbers. Her daughter says: 'My mother cannot read the number, but she can follow the line with her finger.' The PSA must adapt by using the winding-line (tracing) Ishihara plates instead of the number plates and document the result.",
+    "pmhx": "Hypertension. No known eye disease.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives with daughter; speaks Tamil. Did not attend formal schooling."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "Not required for this screening"
+  },
+  "investigations": {
+    "colour_vision_ishihara": "The standard number Ishihara plates are unsuitable as the patient cannot read numbers. The winding-line (tracing) plates are used instead — the patient traces the coloured line with a finger or brush. Good lighting ensured, each eye tested separately, no coaching. The result is documented (lines traced correctly).",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "Colour vision screening adapted with the winding-line (tracing) Ishihara plates for a patient who cannot read numbers. The PSA competency is recognising the need to adapt the test method, administering it correctly per eye, and documenting the result; interpretation/certification is the doctor's where needed.",
+  "management": {
+    "immediate": [
+      "Recognise that number plates are unsuitable and select the winding-line (tracing) Ishihara plates",
+      "Use the daughter to explain/demonstrate tracing the line with a finger",
+      "Ensure good, consistent lighting and that no tinted lenses are worn",
+      "Test each eye separately, allow only a few seconds per plate, and avoid coaching",
+      "Document the lines traced correctly for each eye",
+      "Report the documented result for review/certification as needed"
+    ],
+    "follow_up": [
+      "Provide the documented result for the requesting purpose",
+      "If results suggest a deficiency, refer for fuller assessment and doctor interpretation",
+      "File the result in the record"
+    ],
+    "patient_education": [
+      "Explain (via the daughter) that she only needs to trace the coloured line, not read numbers",
+      "Reassure her the test is quick and painless",
+      "Explain the result will be documented and reviewed if needed",
+      "Thank her and the daughter for their cooperation"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes that the patient cannot read numbers",
+        "Confirms the purpose of the colour vision check",
+        "Engages the daughter as interpreter/helper",
+        "Confirms no visual complaints"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Selects the winding-line (tracing) plates instead of number plates",
+        "Ensures good lighting and no tinted lenses",
+        "Tests each eye separately and avoids coaching",
+        "Documents lines traced correctly per eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises the need to adapt the test for a non-reader",
+        "Understands the Ishihara test screens for colour deficiency",
+        "Knows a poor result needs further assessment",
+        "Defers interpretation/certification to the doctor where needed"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Administers the tracing plates correctly per eye",
+        "Communicates via the daughter respectfully",
+        "Documents the per-eye result accurately",
+        "Refers appropriately if the result is abnormal"
+      ]
+    }
+  }
+}
