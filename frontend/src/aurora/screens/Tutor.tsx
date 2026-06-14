@@ -39,6 +39,17 @@ export function Tutor() {
 
   useEffect(() => { updateStreak(); }, []);
 
+  // F3 — "Explain this" from a flashcard pre-seeds the composer with the question.
+  useEffect(() => {
+    try {
+      const seed = sessionStorage.getItem("eyebot_tutor_seed");
+      if (seed) {
+        sessionStorage.removeItem("eyebot_tutor_seed");
+        setInput(`Please explain this and the key concepts behind it: ${seed}`);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
   /* Container-local autoscroll: pin the thread to the bottom while streaming
      without scrolling any ancestor scrollport. */
   useEffect(() => {
