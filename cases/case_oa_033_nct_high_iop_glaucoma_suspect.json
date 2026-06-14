@@ -1,0 +1,93 @@
+{
+  "case_id": "case_oa_033_nct_high_iop_glaucoma_suspect",
+  "title": "The Pressure Is Up",
+  "difficulty": "intermediate",
+  "topic": "nct_high_iop_glaucoma_suspect",
+  "topic_set": "tonometry_iop",
+  "role": "OA",
+  "estimated_minutes": 12,
+  "checklist_procedure": "Non-Contact Tonometry",
+  "patient": {
+    "name": "Mr Sim Kah Wai",
+    "age": 58,
+    "gender": "male",
+    "occupation": "manager",
+    "presenting_complaint": "Routine visit — non-contact tonometry shows raised eye pressure, no symptoms"
+  },
+  "history": {
+    "hpc": "Mr Sim says 'I feel okay, no pain, just come for routine check.' He has no eye symptoms, but his non-contact tonometry readings are high in both eyes.",
+    "pmhx": "No known glaucoma. Family history of glaucoma. No drug allergies.",
+    "family_hx": "Father had glaucoma",
+    "medications": ["Nil regular"],
+    "social_hx": "Office manager."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "28 mmHg (NCT)", "left": "30 mmHg (NCT)"},
+    "anterior_segment": "Clear, deep chambers by observation",
+    "fundus": "For doctor to assess optic discs"
+  },
+  "investigations": {
+    "task": "Measure IOP correctly with NCT, recognise the raised readings as abnormal, and flag for doctor assessment",
+    "key_points": "Normal IOP is about 10–21 mmHg; readings of 28/30 are raised; with a family history of glaucoma and no symptoms, flag for the doctor rather than reassure"
+  },
+  "diagnosis": "Non-contact tonometry shows raised intraocular pressure (28/30 mmHg; normal is about 10–21 mmHg) in an asymptomatic patient with a family history of glaucoma. The OA recognises this as abnormal and flags it for doctor assessment, understanding that glaucoma is often symptomless. No medical diagnosis is made by the OA.",
+  "management": {
+    "immediate": [
+      "Confirm identity and perform hand hygiene; wipe the machine contact parts",
+      "Ask the patient to remove glasses or contact lenses",
+      "Explain that a puff of air will be blown into each eye",
+      "Perform NCT, right eye first, and record both readings in mmHg",
+      "Recognise 28/30 mmHg as raised (normal ~10–21 mmHg)",
+      "Flag the raised pressures and the family history for the doctor",
+      "Document the readings and the action taken"
+    ],
+    "follow_up": [
+      "Doctor to assess optic discs and consider visual fields / further glaucoma work-up",
+      "Advise the patient to attend follow-up even without symptoms"
+    ],
+    "patient_education": [
+      "Explain that high eye pressure often has no symptoms but needs checking",
+      "Reassure that the doctor will assess further",
+      "Stress the importance of attending follow-up given the family history"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms identity and explains the test",
+        "Asks the patient to remove glasses/contact lenses",
+        "Asks about glaucoma and family history",
+        "Communicates clearly"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs hand hygiene and wipes machine contact parts",
+        "Performs NCT right eye first and records both in mmHg",
+        "Knows the normal IOP range (~10–21 mmHg)",
+        "Recognises the readings as raised"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises raised IOP as abnormal needing review",
+        "Understands glaucoma is often symptomless",
+        "Does not reassure or diagnose — flags for the doctor",
+        "Links the family history as relevant"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the raised pressures and family history to the doctor",
+        "Documents the readings and action",
+        "Educates the patient on follow-up importance",
+        "Maintains a calm, clear manner"
+      ]
+    }
+  }
+}
