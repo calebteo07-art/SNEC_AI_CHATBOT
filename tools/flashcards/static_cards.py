@@ -78,6 +78,70 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                  "back": "Category 3 (within 60 minutes) — painful red eye / flash burn."},
             ],
         },
+        "red_eye": {
+            "easy": [
+                {"front": "In conjunctivitis, what is the discharge like?", "back": "Marked discharge."},
+                {"front": "Which red-eye condition has no discharge but marked photophobia?", "back": "Iritis (anterior uveitis)."},
+                {"front": "What is the pupil like in acute glaucoma?", "back": "Large, oval and fixed."},
+                {"front": "Does conjunctivitis usually reduce visual acuity?", "back": "No — visual acuity is normal."},
+                {"front": "Which red-eye conditions cause the most severe pain?", "back": "Acute glaucoma and keratitis (marked pain)."},
+            ],
+            "medium": [
+                {"front": "Marked discharge, no pain, no photophobia, normal vision, normal pupil. Diagnosis?", "back": "Conjunctivitis."},
+                {"front": "Marked pain, photophobia, reduced vision and a small pupil. Diagnosis?", "back": "Iritis (anterior uveitis)."},
+                {"front": "Severe pain, reduced vision and a large fixed oval pupil. Diagnosis?", "back": "Acute (angle-closure) glaucoma."},
+                {"front": "How does the pupil separate iritis from acute glaucoma?", "back": "Iritis: small or normal pupil. Acute glaucoma: large, oval, fixed pupil."},
+                {"front": "Keratitis or a corneal abrasion typically causes what pain and discharge?", "back": "Marked pain with slight or no discharge; visual acuity varies with the lesion site."},
+            ],
+        },
+        "history_taking": {
+            "easy": [
+                {"front": "Name two systemic conditions especially important in an eye history.", "back": "Diabetes and hypertension (vascular); inflammatory conditions like arthritis/uveitis also matter."},
+                {"front": "Which medication groups must you specifically ask about?", "back": "Anticoagulants, steroids, herbal supplements, vitamins, anti-malarials."},
+                {"front": "For a visual complaint, name two key questions.", "back": "Was the change sudden or gradual? One eye or both (and partial or total)?"},
+                {"front": "What scale is used for pain assessment?", "back": "A 0-10 pain scale."},
+                {"front": "Name two conditions to ask about in the family ocular history.", "back": "Glaucoma and cataract (also retinal detachment, dystrophies, squint)."},
+            ],
+            "medium": [
+                {"front": "Why ask about anticoagulants before a procedure?", "back": "They increase bleeding risk during procedures or after trauma."},
+                {"front": "Severe eye pain with nausea and vomiting in the history suggests what?", "back": "Acute angle-closure glaucoma."},
+                {"front": "A contact lens wearer with a red eye — two history points that raise infection risk?", "back": "Overwear (e.g. daily lenses worn 2-3 days) and incorrect lens-care solution."},
+                {"front": "Why ask about recent overseas travel when there is purulent discharge?", "back": "It may indicate an acquired infection or poor hygiene."},
+                {"front": "A myopic patient reports new flashes and floaters — why does it matter?", "back": "Myopia raises retinal detachment risk; new flashes/floaters need prompt review."},
+            ],
+        },
+        "distance_va": {
+            "easy": [
+                {"front": "What is normal distance VA on the Snellen scale?", "back": "6/6."},
+                {"front": "Which eye is tested first by convention?", "back": "The right eye."},
+                {"front": "At what VA do you apply the pinhole?", "back": "When VA is 6/12 or worse (reduced)."},
+                {"front": "In the fraction 6/18, what does the top number mean?", "back": "The testing distance (6 metres)."},
+                {"front": "Which chart is used for patients who cannot read letters?", "back": "The E chart (tumbling E)."},
+            ],
+            "medium": [
+                {"front": "A patient cannot read any of the 6/60 line. What is the next step?", "back": "Proceed to 6/120; if still unable, move to CF, then HM, PL, NPL."},
+                {"front": "Order the low-vision steps after 6/120 cannot be read.", "back": "Count Fingers (CF) → Hand Movement (HM) → Perception of Light (PL) → No Perception of Light (NPL)."},
+                {"front": "VA improves with the pinhole — what does this suggest?", "back": "A refractive cause (correctable with glasses)."},
+                {"front": "VA does not improve with the pinhole — what does this suggest?", "back": "A non-refractive cause such as media opacity or retinal/optic nerve disease."},
+                {"front": "VA dropped from 6/12 to 6/120 since the last visit. What should you do?", "back": "Highlight the drop to the doctor."},
+            ],
+        },
+        "iop_nct": {
+            "easy": [
+                {"front": "What is the normal IOP range?", "back": "10-21 mmHg."},
+                {"front": "What does NCT use to measure IOP?", "back": "A puff of air (non-contact air-puff tonometer)."},
+                {"front": "When is IOP measured?", "back": "For all patients, all visits."},
+                {"front": "What must you do to machine contact parts before and after NCT?", "back": "Wipe them with alcohol wipes (and perform hand hygiene)."},
+                {"front": "Which eye is measured first?", "back": "The right eye (by convention)."},
+            ],
+            "medium": [
+                {"front": "Name two causes of unreliable NCT readings.", "back": "Blinking/poor cooperation and poor positioning or alignment."},
+                {"front": "NCT readings remain unreliable. What should you do?", "back": "Refer for Goldmann applanation tonometry."},
+                {"front": "Why might the air-puff tonometer overestimate at high IOP?", "back": "Air-puff (NCT) tends to overestimate at higher IOP values."},
+                {"front": "An asymptomatic patient has IOP 26/24 mmHg. What do you do?", "back": "Confirm on repeat and flag for assessment — it is above normal and glaucoma is often symptomless."},
+                {"front": "Why remove glasses or contact lenses before NCT?", "back": "They interfere with the air-puff measurement."},
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
@@ -130,6 +194,70 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                  "back": "To correct for near focus so the central field points are tested accurately."},
                 {"front": "What must be acceptable before an HVF is interpreted?",
                  "back": "The reliability indices (fixation losses, false positives and false negatives)."},
+            ],
+        },
+        "oct_rnfl": {
+            "easy": [
+                {"front": "What does an RNFL OCT measure?", "back": "The retinal nerve fibre layer thickness around the optic disc."},
+                {"front": "RNFL OCT is mainly used to monitor which disease?", "back": "Glaucoma."},
+                {"front": "Where must the RNFL scan be centred?", "back": "On the optic disc (peripapillary)."},
+                {"front": "Is RNFL OCT contact or non-contact?", "back": "Non-contact."},
+                {"front": "Why save an RNFL scan?", "back": "For serial comparison to track glaucoma progression."},
+            ],
+            "medium": [
+                {"front": "What RNFL finding is typical of glaucoma?", "back": "RNFL thinning (often inferior or superior)."},
+                {"front": "Why is correct disc centration important for RNFL OCT?", "back": "An off-centre measurement ring gives inaccurate, non-comparable thickness values."},
+                {"front": "Name two quality checks before saving an RNFL scan.", "back": "Adequate signal strength and stable fixation (minimal motion artefact)."},
+                {"front": "How is RNFL OCT used alongside the visual field?", "back": "Structural RNFL change is correlated with functional field loss to monitor glaucoma."},
+                {"front": "A decentred RNFL scan shows asymmetric thinning. What do you do?", "back": "Re-acquire a properly centred scan before it is used."},
+            ],
+        },
+        "gvf": {
+            "easy": [
+                {"front": "What does the Goldmann visual field (GVF) use?", "back": "Manual kinetic perimetry that maps isopters."},
+                {"front": "Is GVF static or kinetic perimetry?", "back": "Kinetic (a moving target)."},
+                {"front": "Name one advantage of GVF over automated fields.", "back": "It can test very large fields and suits patients who cannot do automated testing."},
+                {"front": "Name one indication for GVF.", "back": "Advanced glaucoma, neurological conditions, low vision, or disability certification."},
+                {"front": "What does an isopter represent?", "back": "A line joining points of equal retinal sensitivity."},
+            ],
+            "medium": [
+                {"front": "A patient cannot cooperate with automated HVF. What alternative field test?", "back": "Goldmann visual field (GVF)."},
+                {"front": "Why is GVF useful in advanced glaucoma?", "back": "It maps the remaining field, including large/peripheral areas automated tests handle poorly."},
+                {"front": "GVF vs HVF — which is automated static perimetry?", "back": "HVF is automated static; GVF is manual kinetic."},
+                {"front": "What is documented for a GVF?", "back": "Diagnosis, indication, and interpretation of the isopter results."},
+                {"front": "For disability or low-vision certification, which field test is often used?", "back": "GVF."},
+            ],
+        },
+        "ascan_biometry": {
+            "easy": [
+                {"front": "What does A-scan biometry measure?", "back": "The axial length of the eye."},
+                {"front": "What is the main indication for A-scan biometry?", "back": "Pre-cataract surgery IOL power calculation."},
+                {"front": "What kind of energy does A-scan use?", "back": "Ultrasound."},
+                {"front": "For the contact method, what is instilled first?", "back": "A topical anaesthetic."},
+                {"front": "Name the two A-scan techniques.", "back": "Contact (applanation) and immersion."},
+            ],
+            "medium": [
+                {"front": "When is A-scan preferred over optical biometry?", "back": "When a dense cataract blocks the optical (light) signal."},
+                {"front": "What error does corneal indentation cause in contact A-scan?", "back": "It falsely shortens the axial length."},
+                {"front": "How does the immersion technique avoid that error?", "back": "It avoids pressing on (indenting) the cornea."},
+                {"front": "Why take multiple A-scan readings?", "back": "To confirm consistency before accepting the axial length."},
+                {"front": "A-scan gives axial length — what else is needed for IOL power?", "back": "Keratometry (corneal curvature)."},
+            ],
+        },
+        "endothelial": {
+            "easy": [
+                {"front": "What does an endothelial cell count measure?", "back": "Corneal endothelial cell density (cells/mm2)."},
+                {"front": "What is a normal endothelial cell density?", "back": "Above 2000 cells/mm2."},
+                {"front": "Below what count is concern raised?", "back": "Below 1500 cells/mm2."},
+                {"front": "Name one indication for an endothelial cell count.", "back": "Pre-cataract surgery, Fuchs dystrophy, contact lens wearers, or post-corneal transplant."},
+                {"front": "Is the test contact or non-contact?", "back": "Non-contact (specular microscopy)."},
+            ],
+            "medium": [
+                {"front": "Why does a low endothelial count matter before cataract surgery?", "back": "It raises the risk of corneal decompensation (oedema) after surgery."},
+                {"front": "Vision worse in the morning, better later — which corneal condition?", "back": "Endothelial dysfunction such as Fuchs dystrophy."},
+                {"front": "Besides density, what else is recorded?", "back": "Cell morphology (e.g. irregular cell shapes)."},
+                {"front": "A count of 1300 cells/mm2 — normal or concerning?", "back": "Concerning — it is below the 1500 threshold."},
+                {"front": "Why might a long-term contact lens wearer need this test?", "back": "Long-term lens wear can reduce endothelial cell density."},
             ],
         },
     },
