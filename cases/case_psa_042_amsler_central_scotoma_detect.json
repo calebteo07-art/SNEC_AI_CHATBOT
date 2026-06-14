@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_042_amsler_central_scotoma_detect",
+  "title": "A Missing Patch on the Grid",
+  "difficulty": "intermediate",
+  "topic": "amsler_grid_central_scotoma_escalate",
+  "topic_set": "colour_macular",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Heng Chee Meng",
+    "age": 68,
+    "gender": "male",
+    "occupation": "retired teacher",
+    "presenting_complaint": "Reports a blurred/missing patch in the centre of vision in the left eye for the past week"
+  },
+  "history": {
+    "hpc": "Mr Heng reports a blurred area in the centre of his left vision for about a week. He says: 'When I look at the grid, the middle part got one area missing, like a hole, cannot see.' No pain or redness. The PSA administers the Amsler grid, which shows a central missing area (scotoma) — an abnormal finding needing escalation.",
+    "pmhx": "Age-related macular changes noted previously. Hypertension.",
+    "family_hx": "Mother had AMD",
+    "medications": ["Amlodipine 5mg OD", "AREDS eye vitamins"],
+    "social_hx": "Lives with wife. Reads daily. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/18 (reduced)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Normal; macular pathology suspected",
+    "fundus": "Macular changes likely; for doctor review with the Amsler finding"
+  },
+  "investigations": {
+    "amsler_grid": "Amsler grid administered correctly: one eye covered, reading correction worn, central dot fixated at the usual near distance, each eye tested separately. The left eye shows a central missing area (scotoma); the patient also reports some wavy lines nearby. This is an abnormal result and is documented and flagged.",
+    "va_distance": "RE 6/9, LE 6/18."
+  },
+  "diagnosis": "A central scotoma (missing area) with some distortion on Amsler testing of the left eye, plus reduced VA, suggesting macular pathology that needs prompt doctor review. The PSA competency is correct Amsler administration, recognising the abnormal result, documenting, and escalating.",
+  "management": {
+    "immediate": [
+      "Administer the Amsler grid correctly: cover one eye, wear reading correction, fixate the central dot at near distance, test each eye separately",
+      "Ask specifically about missing areas, dark patches, and wavy/bent lines",
+      "Recognise the central scotoma and distortion as an abnormal result",
+      "Measure VA and note the reduced left-eye VA",
+      "Document the Amsler finding (location of the scotoma/distortion) and the VA",
+      "Flag promptly to the doctor for macular assessment"
+    ],
+    "follow_up": [
+      "Doctor to examine the macula and consider imaging (e.g., OCT)",
+      "Advise continued home Amsler monitoring and prompt return for any change",
+      "Record the finding on the patient's record"
+    ],
+    "patient_education": [
+      "Explain the grid shows a missing area in the centre that the doctor should review soon",
+      "Reassure him that prompt review is the right step",
+      "Show him how to monitor each eye separately at home with the grid",
+      "Advise returning urgently if the missing area or distortion worsens"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the central missing-area symptom and its duration",
+        "Identifies the affected eye and absence of pain/redness",
+        "Notes risk factors (prior macular changes, family AMD)",
+        "Explains the test to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Administers the Amsler grid correctly (one eye, central fixation, near, with correction)",
+        "Asks specifically about scotoma and distortion",
+        "Measures VA and notes the reduced left-eye VA",
+        "Documents the location of the abnormal finding"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a central scotoma/distortion as an abnormal macular sign",
+        "Links the finding with the reduced VA",
+        "Understands this needs prompt doctor review",
+        "Knows diagnosis/management is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Flags the abnormal result promptly to the doctor",
+        "Documents the Amsler finding and VA",
+        "Teaches correct home monitoring and return advice",
+        "Reassures the patient appropriately"
+      ]
+    }
+  }
+}

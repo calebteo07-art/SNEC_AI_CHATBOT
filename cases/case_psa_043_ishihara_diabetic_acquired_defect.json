@@ -1,0 +1,93 @@
+{
+  "case_id": "case_psa_043_ishihara_diabetic_acquired_defect",
+  "title": "Colours Look Washed Out",
+  "difficulty": "intermediate",
+  "topic": "ishihara_colour_vision_per_eye_documentation",
+  "topic_set": "colour_macular",
+  "role": "PSA",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Goh Wei Liang",
+    "age": 50,
+    "gender": "male",
+    "occupation": "warehouse assistant",
+    "presenting_complaint": "Says colours look duller in the left eye over the past few weeks; sent for a colour vision check"
+  },
+  "history": {
+    "hpc": "Mr Goh reports that colours look 'washed out' in the left eye recently. He says: 'My left eye the colour all dull dull, not so bright like the right side.' He is diabetic with irregular follow-up. The PSA administers the Ishihara test for each eye separately and documents the number of plates read correctly per eye.",
+    "pmhx": "Type 2 diabetes (poor control). No previous colour vision problems.",
+    "family_hx": "No known colour blindness",
+    "medications": ["Metformin 1g BD"],
+    "social_hx": "Warehouse assistant. Non-smoker. Irregular diabetic follow-up."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/15"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "For doctor; diabetic eye disease possible given the asymmetric colour change and reduced left VA"
+  },
+  "investigations": {
+    "colour_vision_ishihara": "Ishihara number plates administered for EACH eye separately in good lighting, no coaching. Result documented per eye: the right eye reads most plates; the left reads noticeably fewer. A recent, one-sided colour change differs from lifelong (congenital) colour deficiency and suggests an acquired ocular cause.",
+    "va_distance": "RE 6/9, LE 6/15."
+  },
+  "diagnosis": "A recent, asymmetric (left-worse) reduction in colour vision with reduced left VA in a diabetic patient — an acquired pattern that needs doctor review (unlike a symmetrical congenital deficiency). The PSA competency is testing each eye separately, documenting per eye, and recognising/flagging the acquired pattern.",
+  "management": {
+    "immediate": [
+      "Administer the Ishihara test for EACH eye separately (acquired defects can be asymmetric)",
+      "Ensure good lighting and avoid coaching",
+      "Document the number of plates read correctly per eye",
+      "Note the recent onset and the difference between the eyes as features of an acquired defect",
+      "Measure VA and note the reduced left-eye VA",
+      "Flag the asymmetric, recently-acquired colour change with reduced VA to the doctor"
+    ],
+    "follow_up": [
+      "Doctor to assess for an ocular cause (e.g., diabetic eye disease) with dilation/imaging",
+      "Encourage the patient to resume regular diabetic eye follow-up",
+      "Document and hand over the per-eye results"
+    ],
+    "patient_education": [
+      "Explain that testing each eye separately shows the change is mainly in one eye",
+      "Explain a recent one-sided colour change is different from being colour blind from birth and should be checked",
+      "Encourage better diabetic control and regular eye review",
+      "Reassure him the doctor will look into the cause"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the recent, one-sided dulling of colours",
+        "Notes the diabetes and irregular follow-up",
+        "Confirms no lifelong colour vision problem",
+        "Explains the test to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Tests the Ishihara plates for each eye separately",
+        "Ensures good lighting and avoids coaching",
+        "Documents plates read correctly per eye",
+        "Measures VA and notes the reduced left VA"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises an asymmetric, recently-acquired colour defect differs from congenital",
+        "Links the colour change with reduced VA in the same eye",
+        "Considers an acquired ocular cause in a diabetic",
+        "Knows this warrants doctor review"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents per-eye Ishihara and VA results clearly",
+        "Flags the acquired, asymmetric pattern to the doctor",
+        "Encourages diabetic control and follow-up",
+        "Explains the findings simply to the patient"
+      ]
+    }
+  }
+}
