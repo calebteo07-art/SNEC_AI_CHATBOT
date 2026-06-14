@@ -2,7 +2,9 @@
 /* AURORA Progress — the diagnostic report, rebuilt calm. Tonal vitals, mastery
    bars by topic, an activity heatmap (gradient intensity), focus areas, and a
    session log. Real data from useProgress; colour only from the gradient. */
+import { useEffect, useState } from "react";
 import { useProgress } from "@/hooks/useProgress";
+import { ACHIEVEMENTS, getUserProgress } from "@/lib/legacy/gamification";
 import { StatCard } from "@/aurora/components/StatCard";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { Sparkline } from "@/aurora/components/Sparkline";
@@ -39,6 +41,10 @@ function buildActivity(sessions: { timestamp: string }[], days = 35) {
 
 export function Progress() {
   const { data, isLoading, isError, refetch } = useProgress();
+
+  // Earned badges live in localStorage — read after mount to avoid an SSR mismatch.
+  const [earned, setEarned] = useState<string[]>([]);
+  useEffect(() => { setEarned(getUserProgress().achievements ?? []); }, []);
 
   const topicPerf = data?.topic_performance ?? [];
   const topicsSorted = [...topicPerf].sort((a, b) => b.score - a.score);
@@ -121,6 +127,28 @@ export function Progress() {
               )}
             </section>
           </div>
+
+          <section className="aurora-card" aria-label="Badge case">
+            <div className="aurora-prog-card-head">
+              <p className="aurora-activity-head">Badge case</p>
+              <span className="aurora-prog-count">{earned.length}/{ACHIEVEMENTS.length} earned</span>
+            </div>
+            <div className="aurora-badges">
+              {ACHIEVEMENTS.map((a) => {
+                const got = earned.includes(a.id);
+                return (
+                  <div key={a.id} className={`aurora-badge${got ? "" : " is-locked"}`} title={a.description}>
+                    <span className="aurora-badge-icon" aria-hidden>{got ? a.icon : "🔒"}</span>
+                    <span className="aurora-badge-name">{a.name}</span>
+                    <span className="aurora-badge-desc">{a.description}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="aurora-muted" style={{ marginTop: 12, fontSize: 12 }}>
+              Earn badges by reviewing flashcards and keeping your daily check-in streak alive.
+            </p>
+          </section>
 
           {sessions.length > 0 && (
             <section className="aurora-card" aria-label="Session log">
