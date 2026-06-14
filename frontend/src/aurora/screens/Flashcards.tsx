@@ -13,7 +13,7 @@ import { PLATE } from "@/aurora/media";
 import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
 import {
-  getUserProgress, addXP, checkAndUnlockAchievements, XP_REWARDS,
+  getUserProgress, addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS,
 } from "@/lib/legacy/gamification";
 import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
@@ -158,6 +158,7 @@ export function Flashcards() {
             const rank = rankForLevel(res.newLevel);
             toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
           }
+          incrementTotalCards();   // count this reviewed card toward card achievements (G5)
           const unlocked = checkAndUnlockAchievements();
           if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
         },
@@ -168,6 +169,9 @@ export function Flashcards() {
           setCardXp(xp);
           addXP(xp);
           setSessionXp((p) => p + xp);
+          incrementTotalCards();
+          const unlocked = checkAndUnlockAchievements();
+          if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
         },
       },
     );

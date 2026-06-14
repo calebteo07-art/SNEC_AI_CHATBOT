@@ -63,15 +63,14 @@ export const XP_REWARDS = {
 };
 
 export const ACHIEVEMENTS = [
-  { id: "first_session", name: "First Steps", description: "Complete your first study session", icon: "🎯" },
+  { id: "first_session", name: "First Steps", description: "Review your first flashcard", icon: "🎯" },
   { id: "streak_3", name: "Getting Consistent", description: "Maintain a 3-day streak", icon: "🔥" },
   { id: "streak_7", name: "Week Warrior", description: "Maintain a 7-day streak", icon: "⚡" },
   { id: "streak_30", name: "Monthly Master", description: "Maintain a 30-day streak", icon: "👑" },
-  { id: "cards_50", name: "Flashcard Enthusiast", description: "Review 50 flashcards", icon: "📚" },
+  { id: "cards_50", name: "Half Century", description: "Review 50 flashcards", icon: "📚" },
   { id: "cards_100", name: "Century Club", description: "Review 100 flashcards", icon: "💯" },
-  { id: "level_5", name: "Rising Star", description: "Reach level 5", icon: "⭐" },
-  { id: "level_10", name: "Expert", description: "Reach level 10", icon: "🌟" },
-  { id: "perfect_session", name: "Perfect Performance", description: "Rate all cards as Easy in one session", icon: "✨" },
+  { id: "level_5", name: "Rising Practitioner", description: "Reach level 5", icon: "⭐" },
+  { id: "level_10", name: "Seasoned Clinician", description: "Reach level 10", icon: "🌟" },
 ];
 
 export function getUserProgress(): UserProgress {
@@ -153,6 +152,17 @@ export function addXP(amount: number): { newXP: number; leveledUp: boolean; newL
     leveledUp: newLevel > oldLevel,
     newLevel,
   };
+}
+
+/** Count reviewed flashcards toward lifetime totals — this is what drives the
+ *  card-count achievements (first_session / cards_50 / cards_100). Previously
+ *  these could never fire because nothing incremented totalCards. Returns the
+ *  new lifetime total. */
+export function incrementTotalCards(n = 1): number {
+  const progress = getUserProgress();
+  progress.totalCards = (progress.totalCards ?? 0) + Math.max(0, n);
+  saveUserProgress(progress);
+  return progress.totalCards;
 }
 
 export function updateStreak(): { streak: number; isNewRecord: boolean } {
