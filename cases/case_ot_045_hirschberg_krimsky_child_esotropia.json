@@ -1,0 +1,93 @@
+{
+  "case_id": "case_ot_045_hirschberg_krimsky_child_esotropia",
+  "title": "The Eye That Turns In",
+  "difficulty": "intermediate",
+  "topic": "hirschberg_krimsky_strabismus_child",
+  "topic_set": "orthoptics",
+  "role": "OT",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Ethan Tan (child)",
+    "age": 5,
+    "gender": "male",
+    "occupation": "kindergarten student",
+    "presenting_complaint": "Parents notice the right eye turns inwards, especially when he is tired"
+  },
+  "history": {
+    "hpc": "Ethan is brought by his mother who noticed his right eye turning inwards. She says: 'My boy one eye look like turning in, especially when he tired or not feeling well.' It has been noticed over a few months. He is otherwise well and active. The OT must assess the eye alignment using the corneal light reflex (Hirschberg) and estimate the angle with the Krimsky prism test.",
+    "pmhx": "Born full term, normal development. No previous eye treatment.",
+    "family_hx": "Father wore glasses as a child for 'lazy eye'",
+    "medications": ["Nil"],
+    "social_hx": "Lives with parents. Attends kindergarten."
+  },
+  "examination_findings": {
+    "va": {"right": "tested with age-appropriate method", "left": "tested with age-appropriate method"},
+    "iop": {"right": "not routinely measured in a young child unless indicated", "left": "not routinely measured"},
+    "anterior_segment": "Normal; corneal light reflex decentred (displaced temporally) in the right eye suggesting esotropia",
+    "fundus": "For doctor as part of squint assessment"
+  },
+  "investigations": {
+    "hirschberg_krimsky": "Hirschberg corneal light reflex test: a light is shone and the reflex position compared between eyes — the right eye reflex is displaced temporally, indicating an inward turn (esotropia). Krimsky test: prisms are used over the fixing eye to centre the reflex and estimate the angle of deviation. Cover/uncover testing supports a manifest deviation (tropia). Findings documented for each eye.",
+    "alignment": "Hirschberg suggests right esotropia; Krimsky used to estimate the angle in prism dioptres."
+  },
+  "diagnosis": "Right esotropia (manifest inward turn) in a child, assessed by the Hirschberg light reflex and quantified with the Krimsky prism test. Early assessment matters because childhood squint can lead to amblyopia (lazy eye). The OT competency is correct orthoptic technique and documentation; diagnosis and management are the doctor's/orthoptist's.",
+  "management": {
+    "immediate": [
+      "Build rapport with the child and use an engaging fixation target to keep attention",
+      "Perform the Hirschberg test: compare the corneal light reflex position between the two eyes",
+      "Perform the Krimsky test: use prisms to centre the reflex and estimate the deviation angle",
+      "Support the finding with cover/uncover testing to confirm a manifest deviation",
+      "Document the findings for each eye (reflex position, estimated angle, cover test result)",
+      "Refer to the doctor/orthoptist for full assessment, including refraction and amblyopia check"
+    ],
+    "follow_up": [
+      "Doctor/orthoptist to perform full squint assessment and cycloplegic refraction",
+      "Assess for and treat amblyopia if present (e.g., glasses, patching)",
+      "Arrange appropriate follow-up"
+    ],
+    "patient_education": [
+      "Reassure the mother that the turning eye is being assessed properly",
+      "Explain that childhood squint can affect vision development, so early review is important",
+      "Explain the next steps (doctor/orthoptist assessment, possibly glasses or patching)",
+      "Encourage attendance at follow-up to protect the child's vision"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the onset and pattern of the inward turn (worse when tired)",
+        "Asks about birth/developmental history and previous eye treatment",
+        "Notes the family history of childhood 'lazy eye'",
+        "Engages the child and parent to enable testing"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs the Hirschberg corneal light reflex test correctly",
+        "Performs the Krimsky prism test to estimate the angle of deviation",
+        "Supports the finding with cover/uncover testing",
+        "Documents reflex position, estimated angle, and cover test for each eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a temporally displaced reflex as indicating esotropia",
+        "Understands the risk of amblyopia with childhood squint",
+        "Knows the OT/orthoptic role is assessment and documentation",
+        "Defers diagnosis and management to the doctor/orthoptist"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains and documents reliable alignment findings in a young child",
+        "Refers to the doctor/orthoptist for full assessment and refraction",
+        "Explains the importance of early review to the parent",
+        "Encourages follow-up to protect vision development"
+      ]
+    }
+  }
+}

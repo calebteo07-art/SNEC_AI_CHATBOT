@@ -1,0 +1,93 @@
+{
+  "case_id": "case_ot_046_confrontation_visual_field_stroke",
+  "title": "Knocking Into Things on the Left",
+  "difficulty": "intermediate",
+  "topic": "confrontation_visual_field_hemianopia",
+  "topic_set": "orthoptics",
+  "role": "OT",
+  "estimated_minutes": 11,
+  "patient": {
+    "name": "Mr Ng Cheng Watt",
+    "age": 68,
+    "gender": "male",
+    "occupation": "retired draughtsman",
+    "presenting_complaint": "Bumps into objects and people on his left side since a recent stroke"
+  },
+  "history": {
+    "hpc": "Mr Ng had a stroke two months ago and since then keeps bumping into things on his left. He says: 'After my stroke, I keep knocking into things on my left side, the wife say I don't see that side.' He cannot sit still long enough for a full automated field test today. The OT must perform a confrontation visual field test as a gross assessment of his field.",
+    "pmhx": "Recent ischaemic stroke. Hypertension, atrial fibrillation.",
+    "family_hx": "Nil significant",
+    "medications": ["Apixaban (anticoagulant)", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife who accompanies him. Uses a walking stick."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9", "left": "6/9"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Normal both eyes",
+    "fundus": "For doctor; field loss here is likely neurological (post-stroke) rather than ocular"
+  },
+  "investigations": {
+    "confrontation_visual_field": "Confrontation visual field test performed: examiner faces the patient, each eye tested separately, comparing the patient's field with the examiner's using finger/hand movements in each quadrant. The patient consistently misses targets on the left side in both eyes, suggesting a left homonymous field defect (hemianopia) consistent with his stroke. Documented per eye.",
+    "va_distance": "RE 6/9, LE 6/9."
+  },
+  "diagnosis": "A left homonymous visual field defect detected on confrontation testing, consistent with a post-stroke (neurological) cause rather than an eye disease. Confrontation fields are a useful gross test when a patient cannot do formal automated perimetry. The OT competency is correct technique, recognising the pattern, and documenting/escalating; formal fields and diagnosis are the doctor's.",
+  "management": {
+    "immediate": [
+      "Recognise that a patient unable to do automated perimetry can still have a useful confrontation field test",
+      "Perform confrontation fields correctly: face the patient, test each eye separately, compare quadrants with finger/hand movements",
+      "Identify that targets are consistently missed on the left in both eyes (homonymous pattern)",
+      "Document the findings per eye and note the likely neurological cause given the stroke history",
+      "Flag the field defect to the doctor and suggest formal fields (e.g., GVF) if the patient can cooperate later",
+      "Advise on safety given the field loss (fall/collision risk)"
+    ],
+    "follow_up": [
+      "Doctor to review and arrange formal visual field testing (e.g., GVF for poorly cooperative patients) if needed",
+      "Liaise with the stroke/neurology team as appropriate",
+      "Reinforce safety strategies for the field loss"
+    ],
+    "patient_education": [
+      "Explain in simple terms that the test shows he is missing the left side of his vision",
+      "Explain this is likely related to the stroke and the doctor will review it",
+      "Advise scanning his head/eyes to the left and taking care to reduce bumping/falls",
+      "Encourage attending with his wife and using his walking stick"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Establishes the left-sided bumping since the stroke",
+        "Recognises he cannot complete automated perimetry today",
+        "Notes the stroke and relevant systemic history (AF, anticoagulant)",
+        "Confirms he is accompanied and uses a walking aid"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs confrontation fields correctly, testing each eye separately",
+        "Compares the patient's field with the examiner's across quadrants",
+        "Identifies the consistent left-sided defect in both eyes",
+        "Documents the findings per eye"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Recognises a homonymous (same-side) defect suggests a neurological cause",
+        "Links the field loss to the recent stroke rather than an eye disease",
+        "Understands confrontation fields are a gross test when formal perimetry is not possible",
+        "Knows formal fields/diagnosis are the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the confrontation field findings and likely cause",
+        "Flags the defect to the doctor and suggests formal fields if feasible later",
+        "Advises on safety given the field loss",
+        "Explains the finding to the patient in simple terms"
+      ]
+    }
+  }
+}
