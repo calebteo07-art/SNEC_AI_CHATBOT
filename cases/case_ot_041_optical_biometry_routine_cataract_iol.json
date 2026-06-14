@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_041_optical_biometry_routine_cataract_iol",
+  "title": "Measuring for the New Lens",
+  "difficulty": "intermediate",
+  "topic": "optical_coherence_biometry_iol_power",
+  "topic_set": "biometry",
+  "role": "OT",
+  "estimated_minutes": 13,
+  "patient": {
+    "name": "Mdm Koh Siew Ling",
+    "age": 68,
+    "gender": "female",
+    "occupation": "retired seamstress",
+    "presenting_complaint": "Booked for cataract surgery; here for biometry to calculate the lens implant power"
+  },
+  "history": {
+    "hpc": "Mdm Koh is listed for right eye cataract surgery and attends for biometry. She says: 'Doctor say want to operate my cataract, must measure my eye for the lens.' Her cataract is moderate and she can still fixate. The OT must perform non-contact optical biometry, obtain reliable measurements, and document them for IOL power calculation.",
+    "pmhx": "Bilateral cataracts (right for surgery). Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Amlodipine 5mg OD"],
+    "social_hx": "Lives with daughter. Non-smoker. Keen to proceed with surgery."
+  },
+  "examination_findings": {
+    "va": {"right": "6/36 (cataract)", "left": "6/12"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Moderate nuclear cataract right eye; media still permits optical biometry",
+    "fundus": "For doctor as part of pre-op assessment"
+  },
+  "investigations": {
+    "optical_biometry": "Non-contact optical coherence biometry performed: axial length, corneal curvature (keratometry), and anterior chamber depth measured for the right (operative) eye, with the left eye for comparison. Multiple readings taken and checked for consistency; good fixation confirmed. Values documented for IOL power calculation.",
+    "va_distance": "RE 6/36, LE 6/12.",
+    "measurement_quality": "Readings consistent across repeats; fixation stable; no warning flags on the measurement."
+  },
+  "diagnosis": "Routine pre-cataract optical biometry to obtain axial length, keratometry, and anterior chamber depth for IOL power calculation. Optical (non-contact) biometry is the preferred method in most eyes and is more accurate than A-scan when the media allow. The OT competency is reliable measurement and documentation; the IOL choice is the doctor's.",
+  "management": {
+    "immediate": [
+      "Confirm the diagnosis/indication (cataract surgery) and which eye is to be operated",
+      "Explain the non-contact scan and position the patient with good fixation on the target",
+      "Acquire axial length, keratometry, and anterior chamber depth; take multiple readings and check consistency",
+      "Confirm there are no quality/warning flags before saving",
+      "Document diagnosis, indication, RE/LE, and the biometry values for IOL calculation",
+      "Hand the measurements to the doctor for IOL power selection (do not select the IOL)"
+    ],
+    "follow_up": [
+      "Doctor to calculate and select the IOL power from the biometry",
+      "Complete the rest of the pre-op assessment",
+      "Keep the measurements on file for the surgical plan"
+    ],
+    "patient_education": [
+      "Explain the scan is painless and non-contact, just looking at a light",
+      "Ask her to keep still and fixate to get accurate measurements",
+      "Explain the numbers are used to choose the correct lens implant power",
+      "Reassure her this is a routine step before cataract surgery"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (cataract surgery) and the operative eye",
+        "Confirms the patient can fixate and the media allow optical biometry",
+        "Checks relevant history before the measurement",
+        "Explains the procedure to gain cooperation"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Performs non-contact optical biometry with good fixation",
+        "Acquires axial length, keratometry, and anterior chamber depth",
+        "Takes multiple readings and checks consistency/quality flags",
+        "Documents diagnosis, indication, RE/LE, and values for IOL calculation"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands optical biometry is preferred and more accurate when media allow",
+        "Knows the measurements are for IOL power calculation",
+        "Recognises the need for consistent, quality-checked readings",
+        "Knows IOL selection is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Produces reliable, quality-checked biometry for the operative eye",
+        "Documents the values clearly for IOL calculation",
+        "Explains the scan to the patient and gains cooperation",
+        "Hands measurements to the doctor for IOL selection"
+      ]
+    }
+  }
+}

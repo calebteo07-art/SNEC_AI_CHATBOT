@@ -1,0 +1,94 @@
+{
+  "case_id": "case_ot_042_ascan_biometry_dense_cataract",
+  "title": "When the Light Can't Get Through",
+  "difficulty": "intermediate",
+  "topic": "ascan_biometry_axial_length_dense_cataract",
+  "topic_set": "biometry",
+  "role": "OT",
+  "estimated_minutes": 14,
+  "patient": {
+    "name": "Mr Rajendran s/o Muthu",
+    "age": 72,
+    "gender": "male",
+    "occupation": "retired security officer",
+    "presenting_complaint": "Here for biometry before cataract surgery; the optical (light) biometer could not get a reading because the cataract is very dense"
+  },
+  "history": {
+    "hpc": "Mr Rajendran is booked for left eye cataract surgery. Optical biometry failed to capture the axial length because the cataract is very dense and blocks the light. He asks: 'My cataract very thick already, the machine just now cannot read is it?' The OT must switch to A-scan ultrasound biometry to obtain the axial length.",
+    "pmhx": "Dense mature cataract left eye. Type 2 diabetes, hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife. Non-smoker."
+  },
+  "examination_findings": {
+    "va": {"right": "6/12", "left": "Hand movements (dense cataract)"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Left eye: dense (mature) cataract blocking optical biometry; right eye moderate lens changes",
+    "fundus": "Left fundus not visible due to dense cataract"
+  },
+  "investigations": {
+    "ascan_biometry": "A-scan ultrasound biometry performed for the left eye to obtain axial length when optical biometry failed. Using the contact (applanation) technique, a topical anaesthetic was instilled first; care taken to avoid corneal indentation (which falsely shortens axial length). Immersion technique is an alternative that avoids indentation. Multiple consistent axial length readings obtained and documented; keratometry obtained separately.",
+    "va_distance": "RE 6/12, LE hand movements.",
+    "measurement_quality": "Several consistent A-scan readings; minimal corneal compression; values within a plausible range."
+  },
+  "diagnosis": "A-scan ultrasound biometry used to measure axial length for IOL calculation when optical biometry failed due to a dense cataract. The OT competency is choosing A-scan appropriately, preparing the patient (topical anaesthetic for contact method), avoiding corneal indentation error, and documenting reliable measurements.",
+  "management": {
+    "immediate": [
+      "Recognise that a dense cataract blocking optical biometry is an indication for A-scan ultrasound",
+      "Explain the procedure; for the contact method, instil topical anaesthetic and confirm no allergy",
+      "Use correct technique to avoid corneal indentation (or use the immersion method), which can falsely shorten the axial length",
+      "Take multiple readings and check they are consistent before accepting",
+      "Document diagnosis, indication, RE/LE, preparation (anaesthetic), and axial length findings",
+      "Obtain keratometry separately and hand measurements to the doctor for IOL calculation"
+    ],
+    "follow_up": [
+      "Doctor to calculate IOL power using the A-scan axial length and keratometry",
+      "Complete the pre-op assessment",
+      "Document the reason optical biometry was not used"
+    ],
+    "patient_education": [
+      "Explain that because the cataract is very dense, an ultrasound (touch) method is needed instead of the light scan",
+      "Explain the numbing drop and that the probe gently touches the eye briefly",
+      "Reassure him it is quick and that the measurements help choose the lens",
+      "Advise not to rub the eye until the anaesthetic wears off"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms the indication (cataract surgery) and the operative eye",
+        "Recognises why optical biometry failed (dense cataract)",
+        "Checks for anaesthetic drop allergy before the contact method",
+        "Explains the A-scan procedure to the patient"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Selects A-scan ultrasound appropriately when optical biometry fails",
+        "Prepares correctly (topical anaesthetic for contact technique)",
+        "Avoids corneal indentation error or uses the immersion method",
+        "Takes multiple consistent readings and documents axial length"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Understands a dense cataract is an indication for A-scan biometry",
+        "Knows corneal indentation falsely shortens axial length",
+        "Recognises the measurements are for IOL power calculation",
+        "Knows IOL selection is the doctor's role"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Obtains reliable axial length and keratometry and documents them",
+        "Documents the reason optical biometry was not used and the preparation",
+        "Explains the contact ultrasound method and aftercare to the patient",
+        "Hands measurements to the doctor for IOL calculation"
+      ]
+    }
+  }
+}
