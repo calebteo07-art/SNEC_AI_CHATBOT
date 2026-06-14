@@ -147,8 +147,8 @@ export function Supervisor() {
             </div>
             <p className="aurora-muted" style={{ marginTop: 6, lineHeight: 1.6 }}>
               {lbEnabled
-                ? "Visible to students who opt in. Only students who choose to join appear, shown as first name + last initial — no one is listed without consent."
-                : "Off by default. Turn it on to let students optionally join a friendly cohort XP leaderboard. Each student must still opt in individually."}
+                ? "On — students can optionally join. Only students who choose to join appear, shown as first name + last initial, so no one is listed without consent."
+                : "You've turned the leaderboard off, so it's hidden from all students. Turn it back on to let them optionally join a friendly cohort XP leaderboard."}
             </p>
             {lbError && (
               <p className="aurora-muted" style={{ marginTop: 6, color: "var(--on-rose)" }}>
