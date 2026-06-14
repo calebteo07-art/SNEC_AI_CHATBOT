@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, _case_cache
-from tools.flashcards.flashcard_store import get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
+from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
 from tools.flashcards.sm2 import next_review, due_date
 from tools.flashcards.static_cards import get_set_cards, get_all_cards, set_card_counts
 from tools.flashcards.flashcard_sets import sets_for, split_set_key
@@ -252,9 +252,12 @@ async def flashcards_generate(
     topic: str | None = None,
     difficulty: str | None = None,
     set_key: str | None = None,
+    n: int = 6,
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
+    # Session length (F4): Quick 5 / Standard 10 / Deep 20. Clamp defensively.
+    n = max(1, min(20, n))
     role = ""
     try:
         role = (await get_profile(student_id)).get("role", "")
@@ -266,33 +269,50 @@ async def flashcards_generate(
         topic, difficulty = split_set_key(set_key)
 
     # A specific set was chosen → serve that set with per-user no-repeat rotation.
+    # A set is a fixed 5-card unit, so the session length only caps it (never extends).
     if topic and difficulty:
         pool = get_set_cards(role, topic, difficulty)
         if pool:
             served_fronts = await get_served_static_fronts(student_id)
             served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
-            picks = pick_next_unseen(student_id, len(pool), f"flash_{topic}_{difficulty}", served_indices, n=min(5, len(pool)))
+            picks = pick_next_unseen(student_id, len(pool), f"flash_{topic}_{difficulty}", served_indices, n=min(n, len(pool)))
             new_cards = [{**pool[i], "source": "static"} for i in picks]
             return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c})
                     for c in await insert_cards(student_id, new_cards)]
         return []
 
-    # No set chosen → due cards first, then rotate across the whole role pool.
+    # Mixed / Review (no set) → blend SM-2 due cards first, then top up with new
+    # cards from the role pool until the chosen session length is reached.
     try:
-        cards = await get_due_cards(student_id, limit=6)
+        cards = await get_due_cards(student_id, limit=n)
     except Exception:
         cards = []
 
-    if not cards:
+    if len(cards) < n:
         pool = get_all_cards(role)
         if pool:
             served_fronts = await get_served_static_fronts(student_id)
             served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
-            picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=6)
+            picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=(n - len(cards)))
             new_cards = [{**pool[i], "source": "static"} for i in picks]
-            cards = await insert_cards(student_id, new_cards)
+            cards = cards + await insert_cards(student_id, new_cards)
 
     return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c}) for c in cards]
+
+
+class DueCountResponse(BaseModel):
+    count: int
+
+
+@router.get("/api/flashcards/due-count", response_model=DueCountResponse)
+async def flashcards_due_count(current_user: CurrentUser = Depends(get_current_user)):
+    """How many cards are due for review today (SM-2) — surfaced on the dashboard."""
+    student_id = current_user["sub"]
+    try:
+        count = await count_due_cards(student_id)
+    except Exception:
+        count = 0
+    return DueCountResponse(count=count)
 
 
 # ── Study suggestion ───────────────────────────────────────────────────────

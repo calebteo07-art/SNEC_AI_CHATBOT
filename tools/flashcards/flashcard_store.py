@@ -68,6 +68,20 @@ async def get_due_cards(student_id: str, limit: int = 10) -> list[dict]:
     return result.data or []
 
 
+async def count_due_cards(student_id: str) -> int:
+    """Number of cards due today or earlier for the student (for the dashboard)."""
+    client = await _get_client()
+    today = date.today().isoformat()
+    result = (
+        await client.table("flashcards")
+        .select("card_id", count="exact")
+        .eq("student_id", student_id)
+        .lte("next_due", today)
+        .execute()
+    )
+    return result.count or 0
+
+
 async def update_card_sm2(
     card_id: str,
     interval: int,
