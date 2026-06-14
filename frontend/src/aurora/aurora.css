@@ -730,6 +730,15 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .aurora-checkin-q { font-size: 17px; font-weight: 600; line-height: 1.45; letter-spacing: -0.01em; color: var(--ink); margin: 10px 0 18px; }
 .aurora-checkin-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--hairline); border-radius: var(--radius-sm); background: var(--paper); color: var(--ink); font-family: var(--font-sans); font-size: 14px; line-height: 1.6; resize: none; outline: none; margin-bottom: 16px; }
 .aurora-checkin-textarea:focus-visible { border-color: var(--g-blue); }
+.aurora-checkin-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.aurora-checkin-option { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 13px 16px; border: 1.5px solid var(--hairline); border-radius: var(--radius-sm); background: var(--paper); color: var(--ink); font-family: var(--font-sans); font-size: 14px; font-weight: 500; line-height: 1.4; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.08s; }
+.aurora-checkin-option:hover:not(:disabled):not(.is-static) { border-color: var(--g-blue); background: rgba(66, 133, 244, 0.04); }
+.aurora-checkin-option:active:not(:disabled):not(.is-static) { transform: scale(0.99); }
+.aurora-checkin-option:disabled { opacity: 0.6; cursor: default; }
+.aurora-checkin-option.is-static { cursor: default; opacity: 1; }
+.aurora-checkin-option.is-correct { border-color: rgba(120, 110, 200, 0.5); background: rgba(66, 133, 244, 0.08); color: var(--on-blue-2); font-weight: 600; }
+.aurora-checkin-option.is-wrong { border-color: rgba(217, 101, 112, 0.4); background: rgba(217, 101, 112, 0.08); color: var(--on-rose); }
+.aurora-checkin-mark { font-weight: 700; flex-shrink: 0; }
 .aurora-checkin-submit { position: relative; display: block; width: 100%; padding: 13px; border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; overflow: hidden; }
 .aurora-checkin-submit span { position: relative; z-index: 1; }
 .aurora-checkin-submit:disabled { opacity: 0.45; cursor: not-allowed; }

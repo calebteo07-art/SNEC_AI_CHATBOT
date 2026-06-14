@@ -1,8 +1,7 @@
 "use client";
-/* AURORA Daily check-in — a light, quick gate on the AURORA surface (it lives in
-   the (auth) group, so there is no Atlas Rail). Loads status + question, accepts
-   an answer, shows the verdict. The /api/checkin/* flow is ported verbatim; fx
-   (framer, audio, accent media) is dropped. */
+/* AURORA Daily check-in — an easy multiple-choice "brain icebreaker". One MCQ a
+   day; tapping an option auto-submits and shows the verdict. Grading is
+   deterministic on the server (no AI). The /api/checkin/* flow is preserved. */
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,7 +9,7 @@ import { useAuth } from "@/screens/AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 
 type Phase = "loading" | "question" | "result";
-interface QuestionData { question: string; topic: string; }
+interface QuestionData { question: string; topic: string; options: string[]; question_id: string; }
 
 export function CheckIn() {
   const router = useRouter();
@@ -19,9 +18,10 @@ export function CheckIn() {
   const [streak, setStreak] = useState(0);
   const [weakTopic, setWeakTopic] = useState<string | null>(null);
   const [question, setQuestion] = useState<QuestionData | null>(null);
-  const [answer, setAnswer] = useState("");
+  const [selected, setSelected] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("loading");
   const [correct, setCorrect] = useState<boolean | null>(null);
+  const [correctAnswer, setCorrectAnswer] = useState("");
   const [feedback, setFeedback] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -57,23 +57,26 @@ export function CheckIn() {
     return () => { cancelled = true; };
   }, [loadAttempt]);
 
-  const handleSubmit = async () => {
-    if (!answer.trim() || !question) return;
+  const handleSelect = async (option: string) => {
+    if (submitting || !question || phase === "result") return;
+    setSelected(option);
     setSubmitting(true);
     try {
       const res = await fetch("/api/checkin/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ question: question.question, answer: answer.trim(), topic: question.topic }),
+        body: JSON.stringify({ question_id: question.question_id, answer: option }),
       });
       const data = await res.json();
       setCorrect(data.correct);
-      setFeedback(data.feedback);
+      setCorrectAnswer(data.correct_answer ?? "");
+      setFeedback(data.feedback ?? "");
       setCheckInDone(true);
       setPhase("result");
     } catch {
       toast.error("Couldn't submit answer — please try again.");
+      setSelected(null);
     } finally {
       setSubmitting(false);
     }
@@ -113,24 +116,41 @@ export function CheckIn() {
             <>
               <span className="aurora-checkin-q-topic">{question.topic}</span>
               <p className="aurora-checkin-q">{question.question}</p>
-              <textarea
-                className="aurora-checkin-textarea"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleSubmit(); }}
-                placeholder="Type your answer…"
-                rows={4}
-                autoFocus
-              />
-              <button type="button" className="aurora-checkin-submit aurora-flow" onClick={handleSubmit} disabled={submitting || !answer.trim()}>
-                <span>{submitting ? "Checking…" : "Submit answer →"}</span>
-              </button>
+              <div className="aurora-checkin-options">
+                {question.options.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    className="aurora-checkin-option"
+                    disabled={submitting}
+                    onClick={() => handleSelect(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
               <button type="button" className="aurora-checkin-skip" onClick={goDashboard}>Skip for today</button>
             </>
           )}
 
-          {phase === "result" && (
+          {phase === "result" && question && (
             <>
+              <span className="aurora-checkin-q-topic">{question.topic}</span>
+              <p className="aurora-checkin-q">{question.question}</p>
+              <div className="aurora-checkin-options is-revealed">
+                {question.options.map((opt) => {
+                  const isCorrect = opt === correctAnswer;
+                  const isChosen = opt === selected;
+                  const cls = isCorrect ? "is-correct" : isChosen ? "is-wrong" : "";
+                  return (
+                    <div key={opt} className={`aurora-checkin-option is-static ${cls}`}>
+                      <span>{opt}</span>
+                      {isCorrect && <span className="aurora-checkin-mark">✓</span>}
+                      {isChosen && !isCorrect && <span className="aurora-checkin-mark">✕</span>}
+                    </div>
+                  );
+                })}
+              </div>
               <div className={`aurora-checkin-verdict ${correct ? "is-correct" : "is-wrong"}`}>
                 <span className="aurora-checkin-verdict-head">{correct ? "Correct" : "Not quite"}</span>
                 <p>{feedback}</p>

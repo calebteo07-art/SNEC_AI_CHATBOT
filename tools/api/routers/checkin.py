@@ -1,5 +1,12 @@
-"""Check-in endpoints."""
-import json
+"""Check-in endpoints — daily multiple-choice "brain icebreaker".
+
+Each day a student is served one easy MCQ, rotated through the role pool with no
+repeat until the pool is exhausted (pick_by_day_count). Options are shuffled
+deterministically per student/day so the correct answer is not always in the same
+position. Grading is fully deterministic (selected option text == correct option
+text) — no AI marks the check-in.
+"""
+import random as _random
 from datetime import date as _date, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -10,7 +17,6 @@ from tools.checkin.static_questions import CHECKIN_QUESTION_POOL
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared import db
-from tools.shared.gemini_client import ask, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_by_day_count
 
@@ -30,15 +36,38 @@ class CheckinStatusResponse(BaseModel):
 class CheckinQuestionResponse(BaseModel):
     question: str
     topic: str
+    options: list[str]
+    question_id: str
 
 class CheckinAnswerRequest(BaseModel):
-    question: str
-    answer: str
-    topic: str
+    question_id: str
+    answer: str          # the selected option's text
 
 class CheckinAnswerResponse(BaseModel):
     correct: bool
     feedback: str
+    correct_answer: str
+
+
+# ── Helpers ────────────────────────────────────────────────────────────────
+
+def _shuffle_options(options: list[str], seed: str) -> list[str]:
+    """Deterministic per (student, question, day) option order."""
+    opts = list(options)
+    _random.Random(seed).shuffle(opts)
+    return opts
+
+
+def _lookup(question_id: str) -> dict | None:
+    """Resolve a question_id ('ROLE-idx') back to its canonical pool entry."""
+    try:
+        role, idx = question_id.rsplit("-", 1)
+        pool = CHECKIN_QUESTION_POOL.get(role.upper())
+        if pool is None:
+            return None
+        return pool[int(idx)]
+    except (ValueError, IndexError, KeyError):
+        return None
 
 
 # ── Check-in endpoints ─────────────────────────────────────────────────────
@@ -55,7 +84,7 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
     streak = int(profile.get("streak") or 0)
     today = _date.today()
 
-    # Reset streak if the student missed ≥1 day since their last completed check-in
+    # Reset streak if the student missed >=1 day since their last completed check-in
     last_checkin_raw = profile.get("last_checkin_date")
     try:
         last_checkin = _date.fromisoformat(str(last_checkin_raw)) if last_checkin_raw else None
@@ -63,7 +92,6 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
         last_checkin = None
 
     if last_checkin is not None and last_checkin < today - timedelta(days=1):
-        # Gap detected — streak is broken
         streak = 0
         done = False
         try:
@@ -71,7 +99,6 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
         except Exception:
             pass
     elif last_checkin is None and streak > 0:
-        # Stale streak from before last_checkin_date existed — reset defensively
         streak = 0
         try:
             await db.update_profile(student_id, streak=0)
@@ -84,11 +111,7 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
     except Exception:
         weak_topic = None
 
-    return CheckinStatusResponse(
-        checkin_done_today=done,
-        streak=streak,
-        weak_topic=weak_topic,
-    )
+    return CheckinStatusResponse(checkin_done_today=done, streak=streak, weak_topic=weak_topic)
 
 
 @router.get("/api/checkin/question", response_model=CheckinQuestionResponse)
@@ -97,108 +120,52 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
     student_id = current_user["sub"]
     today = _date.today().isoformat()
 
-    # 1. In-memory cache — fastest path (same process, same day)
     cached = _question_cache.get(student_id)
     if cached and cached[0] == today:
         return cached[1]
 
-    # 2. DB cache — survives server restarts (Render free tier restarts frequently)
+    role = "OA"
     try:
         profile = await get_profile(student_id)
-        if profile.get("daily_q_date") == today and profile.get("daily_q_text"):
-            result = CheckinQuestionResponse(
-                question=profile["daily_q_text"],
-                topic=profile.get("daily_q_topic", "Ophthalmology"),
-            )
-            _question_cache[student_id] = (today, result)
-            return result
-        role = profile.get("role", "")
+        role = (profile.get("role") or "OA").upper()
     except Exception:
-        profile = {}
-        role = ""
+        role = "OA"
 
-    role_pool = CHECKIN_QUESTION_POOL.get(role.upper()) or CHECKIN_QUESTION_POOL["OA"]
-    idx = pick_by_day_count(student_id, len(role_pool), "checkin")
-    entry = role_pool[idx]
-    topic, question_text = entry["topic"], entry["question"]
-    result = CheckinQuestionResponse(question=question_text, topic=topic)
+    pool = CHECKIN_QUESTION_POOL.get(role) or CHECKIN_QUESTION_POOL["OA"]
+    idx = pick_by_day_count(student_id, len(pool), "checkin")
+    entry = pool[idx]
+    question_id = f"{role}-{idx}"
+    options = _shuffle_options(entry["options"], f"{student_id}:{question_id}:{today}")
+
+    result = CheckinQuestionResponse(
+        question=entry["question"],
+        topic=entry["topic"],
+        options=options,
+        question_id=question_id,
+    )
     _question_cache[student_id] = (today, result)
-    # Persist to DB so the DB-cache fast path (step 2 above) serves the rest of today
-    try:
-        await db.update_profile(student_id,
-            daily_q_date=today,
-            daily_q_text=question_text,
-            daily_q_topic=topic,
-        )
-    except Exception:
-        pass   # non-fatal — in-memory cache still serves this session
     return result
 
 
 @router.post("/api/checkin/answer", response_model=CheckinAnswerResponse)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_user: CurrentUser = Depends(get_current_user)):
-    from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
-    ctx_block = await _student_context_block(student_id)
-    system = (
-        (ctx_block + "\n\n" if ctx_block else "")
-        + "You are a rigorous ophthalmology clinical educator evaluating a daily warm-up answer. "
-        "Be honest and critical — if the answer is incomplete, vague, or missing key details, say so. "
-        "Do not inflate scores or praise weak answers. "
-        "Frame your feedback using the student's role and target the specific gaps listed above.\n\n"
-        "Return ONLY valid JSON with no other text:\n"
-        "{\n"
-        '  "correct": true or false,\n'
-        '  "feedback": "2–4 sentences: (1) directly assess what the student got right or wrong, '
-        "being specific about gaps or misconceptions; (2) provide the accurate, complete clinical answer "
-        "with precise values, protocols, or mechanisms a competent allied health professional should know; "
-        '(3) explain why this matters in practice at SNEC — patient safety, workflow, or clinical outcome."\n'
-        "}"
-    )
-    try:
-        raw = ask(
-            system_prompt=system,
-            messages=[{
-                "role": "user",
-                "content": (
-                    f"Question: {body.question}\n"
-                    f"Student answer: {body.answer}"
-                ),
-            }],
-            max_tokens=1024,
-            feature="checkin",
-            model=MODEL_SMALL,
-            thinking_level="LOW",
-        )
-    except Exception as exc:
-        if "quota_exceeded" in str(exc):
-            raise HTTPException(status_code=503, detail="quota_exceeded")
-        try:
-            await update_profile(student_id, checkin_done=True)
-        except Exception:
-            pass
-        return CheckinAnswerResponse(
-            correct=True,
-            feedback="Your answer has been recorded. AI grading is temporarily unavailable — well done for completing today's check-in!"
-        )
+    entry = _lookup(body.question_id)
+    if entry is None:
+        raise HTTPException(status_code=400, detail="Unknown question.")
 
-    text = raw.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-    try:
-        parsed = json.loads(text)
-        correct = bool(parsed.get("correct", False))
-        feedback = str(parsed.get("feedback", raw.strip()))
-    except Exception:
-        correct = "true" in raw.lower().split("correct:")[-1][:10]
-        feedback_parts = raw.split("FEEDBACK:")
-        feedback = feedback_parts[-1].strip() if len(feedback_parts) > 1 else raw.strip()
+    correct_text = entry["options"][entry["answer"]]
+    is_correct = body.answer.strip() == correct_text.strip()
 
+    # Completing the check-in marks it done (keeps the streak alive) regardless of score.
     try:
         await update_profile(student_id, checkin_done=True)
     except Exception:
         pass
 
-    return CheckinAnswerResponse(correct=correct, feedback=feedback)
+    return CheckinAnswerResponse(
+        correct=is_correct,
+        feedback=entry.get("explanation", ""),
+        correct_answer=correct_text,
+    )
