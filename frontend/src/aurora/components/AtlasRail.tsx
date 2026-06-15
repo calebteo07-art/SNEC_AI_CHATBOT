@@ -51,9 +51,9 @@ export function AtlasRail({ onOpenPalette }: { onOpenPalette: () => void }) {
   );
 
   return (
-    <nav className="aurora-rail" aria-label="Primary">
+    <nav className="aurora-rail aurora-rail-night" aria-label="Primary">
       <div className="aurora-rail-top">
-        <Wordmark size={18} />
+        <Wordmark size={18} tone="white" />
       </div>
       <div className="aurora-rail-top" style={{ paddingTop: 0 }}>
         <span className="aurora-streak" title="Day streak">

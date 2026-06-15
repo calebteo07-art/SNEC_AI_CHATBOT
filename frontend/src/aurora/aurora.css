@@ -228,6 +228,104 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
   .aurora-navitem svg { width: 20px; height: 20px; }
 }
 
+/* ─────────────── Atlas Rail · Night spine (student) ───────────────
+   The student rail now mirrors the Dashboard's deep-indigo living canvas so the
+   sidebar and the command-centre read as one continuous surface: the same indigo
+   base (#14172F→#0A0D1A, lifted a touch from the dash so the rail is a sibling
+   plane, not a copy), the same violet + cyan corner glows, a slow-drifting orb
+   echoing the dash mesh, and active items lit with the cyan→violet→amber gradient
+   of the stat cards. Everything is scoped to .aurora-rail-night so the staff
+   ConsoleRail (.console-dark) and the light inner pages stay untouched. */
+.aurora-rail-night {
+  background:
+    radial-gradient(135% 30% at 0% 0%, rgba(124, 92, 246, 0.22), transparent 60%),
+    radial-gradient(120% 26% at 0% 100%, rgba(34, 184, 212, 0.16), transparent 58%),
+    linear-gradient(176deg, #14172F 0%, #0E1124 54%, #0A0D1A 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 22px 0 60px -44px rgba(0, 0, 0, 0.7);
+  isolation: isolate;
+  overflow: hidden;
+}
+/* one slow-drifting violet orb keeps the spine alive like the dash mesh */
+.aurora-rail-night::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -8%; left: -30%;
+  width: 150%; height: 40%;
+  background: radial-gradient(circle, rgba(124, 92, 246, 0.20), transparent 70%);
+  filter: blur(34px);
+  pointer-events: none;
+  animation: aurora-rail-glow 26s ease-in-out infinite;
+}
+@keyframes aurora-rail-glow {
+  0%, 100% { transform: translate(0, 0); opacity: 0.85; }
+  50% { transform: translate(8%, 12%); opacity: 1; }
+}
+html[data-motion="reduce"] .aurora-rail-night::before { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-rail-night::before { animation: none; } }
+
+/* Top strip — streak + ⌘K become glass on the dark spine. */
+.aurora-rail-night .aurora-streak { color: rgba(228, 231, 250, 0.6); }
+.aurora-rail-night .aurora-streak b { color: #F3F4FC; }
+.aurora-rail-night .aurora-cmdk {
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: rgba(228, 231, 250, 0.66);
+}
+.aurora-rail-night .aurora-cmdk:hover { color: #fff; border-color: rgba(255, 255, 255, 0.24); background: rgba(255, 255, 255, 0.07); }
+.aurora-rail-night .aurora-cmdk kbd { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.10); color: rgba(228, 231, 250, 0.6); }
+
+/* Section labels + nav items. */
+.aurora-rail-night .aurora-rail-label { color: rgba(186, 192, 228, 0.62); }
+.aurora-rail-night .aurora-navitem { color: rgba(223, 226, 246, 0.64); }
+.aurora-rail-night .aurora-navitem svg { opacity: 0.62; }
+.aurora-rail-night .aurora-navitem:hover { color: #F3F4FC; background: rgba(255, 255, 255, 0.055); }
+.aurora-rail-night .aurora-navitem:hover svg { opacity: 0.9; }
+.aurora-rail-night .aurora-navitem[data-active="true"] {
+  color: #fff;
+  box-shadow: 0 10px 26px -16px rgba(34, 184, 212, 0.55);
+}
+.aurora-rail-night .aurora-navitem[data-active="true"] svg { opacity: 1; }
+/* active fill = the stat-card gradient, swept by the shared aurora-flow loop */
+.aurora-rail-night .aurora-navitem[data-active="true"]::before {
+  background-image: linear-gradient(100deg, rgba(34, 184, 212, 0.32), rgba(124, 92, 246, 0.30), rgba(251, 168, 56, 0.22), rgba(124, 92, 246, 0.30), rgba(34, 184, 212, 0.32));
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+/* a thin gradient tick on the leading edge — the cyan→violet card signature */
+.aurora-rail-night .aurora-navitem[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 3px; height: 18px;
+  transform: translateY(-50%);
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #2EC5DE, #8B6CF6);
+  box-shadow: 0 0 10px rgba(46, 197, 222, 0.7);
+}
+
+/* Footer — flip the SNEC mark, give the avatar a stat-card gradient. */
+.aurora-rail-night .aurora-rail-foot { border-top-color: rgba(255, 255, 255, 0.08); }
+.aurora-rail-night .aurora-snec { mix-blend-mode: normal; opacity: 0.66; filter: invert(1) grayscale(1) brightness(1.7); }
+.aurora-rail-night .aurora-avatar {
+  background: linear-gradient(150deg, #19B6D4, #7C5CF6);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  box-shadow: 0 4px 14px -6px rgba(34, 184, 212, 0.6);
+}
+.aurora-rail-night .aurora-profile { border-radius: var(--radius-sm); transition: background-color 0.18s; }
+.aurora-rail-night .aurora-profile:hover { background: rgba(255, 255, 255, 0.045); }
+.aurora-rail-night .aurora-profile-name { color: #F3F4FC; }
+.aurora-rail-night .aurora-profile-role { color: rgba(200, 205, 235, 0.46); }
+.aurora-rail-night .aurora-signout { color: rgba(223, 226, 246, 0.5); }
+.aurora-rail-night .aurora-signout:hover { color: #fff; background: rgba(255, 255, 255, 0.055); }
+
+/* Mobile bottom bar inherits the indigo spine; just flip its top edge + lift. */
+@media (max-width: 860px) {
+  .aurora-rail-night { border-top: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.4); }
+}
+
 /* ─────────────────────── Command palette ─────────────────────── */
 .aurora-palette-backdrop {
   position: fixed; inset: 0; z-index: 200;
