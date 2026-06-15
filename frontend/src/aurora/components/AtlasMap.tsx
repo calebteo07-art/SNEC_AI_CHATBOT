@@ -24,12 +24,15 @@ export const REGIONS: {
   posterior?: boolean;
   keywords: string[];
 }[] = [
-  { id: "cornea", label: "Cornea", pos: { top: "44%", left: "17%" }, side: "down", keywords: ["cornea", "anterior", "keratit", "conjunctiv", "dry eye", "abrasion", "red eye"] },
-  { id: "iris", label: "Iris & pupil", pos: { top: "39%", left: "28%" }, side: "up", keywords: ["iris", "pupil", "uveitis", "chamber", "angle"] },
-  { id: "lens", label: "Lens", pos: { top: "52%", left: "35%" }, side: "down", keywords: ["lens", "cataract", "biometry", "phaco"] },
-  { id: "optic", label: "Optic disc", pos: { top: "42%", left: "76%" }, side: "right", posterior: true, keywords: ["optic", "glaucoma", "disc", "iop", "pressure", "nerve"] },
-  { id: "macula", label: "Macula", pos: { top: "51%", left: "78%" }, side: "right", posterior: true, keywords: ["macula", "amd", "oct", "dmo", "drusen"] },
-  { id: "retina", label: "Peripheral retina", pos: { top: "84%", left: "59%" }, side: "down", posterior: true, keywords: ["retina", "floater", "detachment", "diabetic", "vitreous", "flash"] },
+  // Coordinates calibrated to the generated plate (eye-atlas-plate-00.png):
+  // anterior pole on the left (cornea → iris → lens), posterior on the right
+  // (optic disc → macula), peripheral retina on the lower wall.
+  { id: "cornea", label: "Cornea", pos: { top: "48%", left: "12%" }, side: "down", keywords: ["cornea", "anterior", "keratit", "conjunctiv", "dry eye", "abrasion", "red eye"] },
+  { id: "iris", label: "Iris & pupil", pos: { top: "51%", left: "22%" }, side: "up", keywords: ["iris", "pupil", "uveitis", "chamber", "angle"] },
+  { id: "lens", label: "Lens", pos: { top: "51%", left: "31%" }, side: "down", keywords: ["lens", "cataract", "biometry", "phaco"] },
+  { id: "optic", label: "Optic disc", pos: { top: "40%", left: "63%" }, side: "right", posterior: true, keywords: ["optic", "glaucoma", "disc", "iop", "pressure", "nerve"] },
+  { id: "macula", label: "Macula", pos: { top: "50%", left: "61%" }, side: "down", posterior: true, keywords: ["macula", "amd", "oct", "dmo", "drusen"] },
+  { id: "retina", label: "Peripheral retina", pos: { top: "73%", left: "48%" }, side: "down", posterior: true, keywords: ["retina", "floater", "detachment", "diabetic", "vitreous", "flash"] },
 ];
 
 /* One-line clinical teaching note per region — surfaced in the readout when a
