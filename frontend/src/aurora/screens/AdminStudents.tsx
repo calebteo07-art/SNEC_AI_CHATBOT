@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useAdminOutlet, type StudentProfile, fmtTokens } from "@/screens/adminShared";
 
 const PAGE_SIZE = 20;
-const COLS = "2fr 2fr 70px 70px 64px 70px 90px";
+const COLS = "2.2fr 2.4fr 84px 92px 78px 92px 112px";
 type Filter = "all" | "OA" | "OT" | "PSA" | "at-risk";
 
 function roleTone(role: string): "blue" | "purple" | "rose" | undefined {

@@ -56,7 +56,7 @@ export function ConsoleRail({ onOpenPalette }: { onOpenPalette: () => void }) {
     <>
       <nav className="aurora-rail" aria-label="Staff console">
         <div className="aurora-rail-top" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
-          <Wordmark size={18} />
+          <Wordmark size={20} />
           <p className="aurora-rail-label" style={{ margin: 0 }}>Control console</p>
         </div>
         <div className="aurora-rail-top" style={{ paddingTop: 0 }}>
