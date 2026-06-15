@@ -28,9 +28,13 @@ FLASH_LITE_MODEL = "gemini-3.1-flash-lite"
 # -preview id is served for generateContent.
 PRO_MODEL        = "gemini-3.1-pro-preview"
 
-# Aliases used at call sites — no behaviour change needed at callers
-MODEL       = FLASH_MODEL
-MODEL_PRO   = PRO_MODEL
+# Aliases used at call sites — no behaviour change needed at callers.
+# Per request (2026-06-15): every runtime AI feature — student and admin —
+# uses gemini-3.1-flash-lite. All three call-site aliases point at the flash-lite
+# model so no individual call site needs editing. (Text embeddings and image
+# generation are different model classes, configured separately and unaffected.)
+MODEL       = FLASH_LITE_MODEL
+MODEL_PRO   = FLASH_LITE_MODEL
 MODEL_SMALL = FLASH_LITE_MODEL
 # Load all available API keys — primary required, backups optional.
 # Add GEMINI_API_KEY_2 / GEMINI_API_KEY_3 in Render env vars to enable rotation.
