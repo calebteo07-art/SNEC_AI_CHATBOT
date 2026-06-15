@@ -24,7 +24,7 @@ export function AdminAccounts() {
   const [newRole, setNewRole] = useState("");
   const [addError, setAddError] = useState("");
   const [adding, setAdding] = useState(false);
-  const [addedCredential, setAddedCredential] = useState<{ email: string } | null>(null);
+  const [addedCredential, setAddedCredential] = useState<{ email: string; password: string; emailSent: boolean; emailError: string } | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState("");
   const [promoteEmail, setPromoteEmail] = useState("");
@@ -59,8 +59,13 @@ export function AdminAccounts() {
         body: JSON.stringify({ email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setAddError((d as { detail?: string }).detail ?? "Failed to add student."); setAdding(false); return; }
-      await res.json();
-      setAddedCredential({ email: newEmail.trim().toLowerCase() });
+      const data = await res.json().catch(() => ({})) as { email_sent?: boolean; email_error?: string; password?: string };
+      setAddedCredential({
+        email: newEmail.trim().toLowerCase(),
+        password: data.password ?? "",
+        emailSent: !!data.email_sent,
+        emailError: data.email_error ?? "",
+      });
       setApproved((prev) => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
       setNewEmail(""); setNewName(""); setNewRole("");
     } catch { setAddError("Network error."); }
@@ -154,7 +159,23 @@ export function AdminAccounts() {
             {addError && <p className="aurora-note is-err">{addError}</p>}
             <button type="submit" className="aurora-btn" disabled={adding}>{adding ? "Adding…" : "Add student"}</button>
           </form>
-          {addedCredential && <p className="aurora-note is-ok" style={{ marginTop: 10 }}>Student added. Credentials emailed to {addedCredential.email}.</p>}
+          {addedCredential && (
+            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+              {addedCredential.emailSent ? (
+                <p className="aurora-note is-ok">Student added. Login details emailed to {addedCredential.email}.</p>
+              ) : (
+                <p className="aurora-note is-err">
+                  Student added, but the email didn’t send{addedCredential.emailError ? ` — ${addedCredential.emailError}` : ""}. Give them the temporary password below so they can sign in (they’ll be asked to change it).
+                </p>
+              )}
+              {addedCredential.password && (
+                <p className="aurora-note">
+                  Temporary password (shown once):{" "}
+                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{addedCredential.password}</span>
+                </p>
+              )}
+            </div>
+          )}
         </section>
 
         {/* CSV import */}
