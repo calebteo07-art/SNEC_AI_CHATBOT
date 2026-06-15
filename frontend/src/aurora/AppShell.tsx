@@ -11,6 +11,7 @@ import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { AtlasRail } from "./components/AtlasRail";
 import { ConsoleRail } from "./components/ConsoleRail";
 import { CommandPalette, type Destination } from "./components/CommandPalette";
+import { RouteReveal } from "@/fx/Reveal";
 
 const STUDY: Destination[] = [
   { href: "/dashboard", label: "Dashboard" },
@@ -89,7 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <AtlasRail onOpenPalette={() => setPaletteOpen(true)} />
       <main id="main" className="aurora-main">
         <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
-        <div className="aurora-main-scroll">{children}</div>
+        <div className="aurora-main-scroll"><RouteReveal>{children}</RouteReveal></div>
       </main>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
     </div>

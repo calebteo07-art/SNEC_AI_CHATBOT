@@ -1,0 +1,51 @@
+/* AURORA motion system — student app. Bold, GPU-only (transform/opacity), and
+   fully reduced-motion-safe (one reset scope at the bottom). These utilities are
+   only applied on student screens; the staff console never opts in. */
+:root {
+  --mo-over: cubic-bezier(.34, 1.56, .64, 1);
+  --mo-ease: cubic-bezier(.22, .61, .36, 1);
+  --mo-dur: 560ms;
+}
+
+@keyframes aurora-rise-over { 0% { opacity: 0; transform: translateY(26px) scale(.965); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes aurora-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes aurora-pop { 0% { opacity: 0; transform: scale(.8); } 100% { opacity: 1; transform: none; } }
+@keyframes aurora-bloom { 0% { opacity: .85; transform: scale(.95); } 100% { opacity: 0; transform: scale(1.2); } }
+@keyframes aurora-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
+@keyframes aurora-shimmer-x { from { background-position: 180% 0; } to { background-position: -60% 0; } }
+
+/* Page-enter — RouteReveal wraps each route, keyed by pathname. */
+.aurora-page-enter { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; }
+
+/* Reveal-on-scroll. */
+.aurora-reveal { opacity: 0; transform: translateY(22px); transition: opacity .62s var(--mo-ease), transform .62s var(--mo-over); transition-delay: var(--reveal-delay, 0ms); }
+.aurora-reveal[data-revealed="true"] { opacity: 1; transform: none; }
+
+/* Stagger container — each direct child delayed by its --i index. */
+.aurora-stagger > * { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; animation-delay: calc(var(--i, 0) * 78ms); }
+
+/* Micro-interactions. */
+.aurora-press { transition: transform .12s var(--mo-ease); }
+.aurora-press:active { transform: scale(.97); }
+.aurora-lift { transition: transform .26s var(--mo-over), box-shadow .26s var(--mo-ease); }
+.aurora-lift:hover { transform: translateY(-3px); }
+
+/* Bloom ring (check-in correct answer + milestone pops). */
+.aurora-bloom-ring { position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--g-green, #16a34a); opacity: 0; pointer-events: none; }
+.aurora-bloom-ring[data-on="true"] { animation: aurora-bloom .62s cubic-bezier(.2, .7, .3, 1) both; }
+
+/* Shimmer sweep for streaming/loading surfaces. */
+.aurora-shimmer { background-image: linear-gradient(100deg, transparent 20%, rgba(60, 144, 255, 0.12) 50%, transparent 80%); background-size: 220% 100%; animation: aurora-shimmer-x 1.5s linear infinite; }
+
+/* Reduced motion — kill every student animation, render the final state. */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-page-enter, .aurora-stagger > *, .aurora-reveal, .aurora-bloom-ring,
+  .aurora-press, .aurora-lift, .aurora-shimmer { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+}
+html[data-motion="reduce"] .aurora-page-enter,
+html[data-motion="reduce"] .aurora-stagger > *,
+html[data-motion="reduce"] .aurora-reveal,
+html[data-motion="reduce"] .aurora-bloom-ring,
+html[data-motion="reduce"] .aurora-press,
+html[data-motion="reduce"] .aurora-lift,
+html[data-motion="reduce"] .aurora-shimmer { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
