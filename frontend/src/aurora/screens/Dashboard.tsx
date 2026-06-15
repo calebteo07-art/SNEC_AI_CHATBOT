@@ -1,7 +1,8 @@
 "use client";
-/* AURORA Dashboard — the command centre. Gradient hero greeting + mono readouts,
-   a Next-Best-Action card, three tonal stat cards (recall / mastery / due), and
-   a recent-activity timeline. Real data from useProgress + curriculum. */
+/* AURORA Dashboard — the command centre. Gradient hero greeting + readouts, a
+   bold Next-Best-Action band, three saturated colour stat cards (recall /
+   mastery / due) with big numbers, and a clean recent-activity list. Real data
+   from useProgress + curriculum. */
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/screens/AuthContext";
@@ -13,11 +14,6 @@ import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { GoalRing } from "@/aurora/components/GoalRing";
 import { rankForLevel } from "@/lib/rank";
 import { getDailyXp, DAILY_XP_GOAL } from "@/lib/legacy/gamification";
-import { StatCard } from "@/aurora/components/StatCard";
-import { PlateWell } from "@/aurora/components/PlateWell";
-import { PLATE } from "@/aurora/media";
-import { ProgressBar } from "@/aurora/components/ProgressBar";
-import { Sparkline } from "@/aurora/components/Sparkline";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = { OA: OA_TOPICS, OT: OT_TOPICS, PSA: PSA_TOPICS };
@@ -60,7 +56,6 @@ export function Dashboard() {
   const nextTopic = topics.find((t) => !completedIds.includes(t.id)) ?? null;
 
   const masteryPct = Math.round((topics.reduce((s, t) => s + perfFor(t.id), 0) / Math.max(topics.length, 1)) * 100);
-  const trendSeries = topics.map((t) => Math.round(perfFor(t.id) * 100));
 
   const weakTopics = progress?.weak_topics ?? [];
   const recall = weakTopics.length;
@@ -106,72 +101,63 @@ export function Dashboard() {
         }
       />
 
-      <div className="aurora-dash-grid aurora-stagger">
-        {/* Next-Best-Action */}
-        <div className="aurora-card aurora-nba" data-testid="nba-card">
-          <div className="aurora-nba-inner">
+      {/* Primary action — bold, clean band with a big title + gradient CTA */}
+      <div className="aurora-card aurora-nba" data-testid="nba-card">
+        <div className="aurora-nba-inner">
+          <div className="aurora-nba-text">
             <p className="aurora-nba-eyebrow">Next best action</p>
-            <PlateWell src={PLATE.dashboard} alt={`${nba.title} reference eye`} ratio={2.4} />
             <p className="aurora-nba-title">{nba.title}</p>
             <p className="aurora-nba-sub">{nba.sub}</p>
-            <Link href={nba.href} className="aurora-cta aurora-flow aurora-press"><span>{nba.cta} →</span></Link>
           </div>
+          <Link href={nba.href} className="aurora-cta aurora-flow aurora-press"><span>{nba.cta} →</span></Link>
+        </div>
+      </div>
+
+      {/* Three saturated colour stat cards with big numbers */}
+      <div className="aurora-bigstats aurora-stagger">
+        <div className="aurora-bigstat" data-tone="blue" data-testid="stat-card">
+          <p className="aurora-bigstat-label">Recall queue</p>
+          <p className="aurora-bigstat-value"><span ref={recallCU.ref}>{recallCU.display}</span></p>
+          <p className="aurora-bigstat-foot">{recall > 0 ? "weak topics to revisit" : "nothing flagged — nice work"}</p>
         </div>
 
-        {/* Recall queue (blue) + sparkline */}
-        <StatCard tone="blue" label="Recall queue" value={<span ref={recallCU.ref}>{recallCU.display}</span>}>
-          {trendSeries.length >= 2 ? <Sparkline data={trendSeries} /> : <p className="aurora-muted">No trend yet</p>}
-        </StatCard>
+        <div className="aurora-bigstat" data-tone="purple" data-testid="stat-card">
+          <p className="aurora-bigstat-label">{activeTrack} mastery</p>
+          <p className="aurora-bigstat-value"><span ref={masteryCU.ref}>{masteryCU.display}</span></p>
+          <p className="aurora-bigstat-foot">{completedIds.length} of {topics.length} topics cleared</p>
+        </div>
 
-        {/* Track mastery (purple) + progress */}
-        <StatCard tone="purple" label={`${activeTrack} mastery`} value={<span ref={masteryCU.ref}>{masteryCU.display}</span>}>
-          <ProgressBar percent={masteryPct} label={`${activeTrack} mastery`} />
-        </StatCard>
-
-        {/* Due today (rose) — SM-2 cards scheduled for review, with a review CTA */}
-        <StatCard tone="rose" label="Due today" value={<span ref={dueCU.ref}>{dueCU.display}</span>}>
+        <div className="aurora-bigstat" data-tone="rose" data-testid="stat-card">
+          <p className="aurora-bigstat-label">Due today</p>
+          <p className="aurora-bigstat-value"><span ref={dueCU.ref}>{dueCU.display}</span></p>
           {dueCount > 0 ? (
-            <>
-              <p className="aurora-muted" style={{ marginBottom: 8 }}>
-                {dueCount} card{dueCount === 1 ? "" : "s"} ready for spaced-repetition review.
-              </p>
-              <Link href="/flashcards?mode=review" className="aurora-toggle" style={{ display: "inline-block", textDecoration: "none" }}>
-                Review now →
-              </Link>
-            </>
-          ) : weakTopics.length > 0 ? (
-            <>
-              <p className="aurora-muted" style={{ marginBottom: 6 }}>Nothing scheduled — brush up a weak topic:</p>
-              <ul className="aurora-rose-list">
-                {weakTopics.slice(0, 4).map((t) => <li key={t}>{t}</li>)}
-              </ul>
-            </>
+            <Link href="/flashcards?mode=review" className="aurora-bigstat-cta">Review now →</Link>
           ) : (
-            <p className="aurora-muted">All clear — no recall due. Cards you review will reappear here when they&apos;re due.</p>
+            <p className="aurora-bigstat-foot">{weakTopics.length > 0 ? `brush up: ${weakTopics[0]}` : "all caught up"}</p>
           )}
-        </StatCard>
-
-        {/* Recent activity — sits beside Due today, spanning the remaining columns */}
-        <section className="aurora-card aurora-activity-card">
-          <p className="aurora-activity-head">Recent activity</p>
-          {recentSessions.length > 0 ? (
-            <div className="aurora-activity">
-              {recentSessions.map((s, i) => {
-                const label = CURRICULUM.find((t) => t.id === s.topic)?.label ?? s.topic;
-                return (
-                  <div key={s.session_id ?? i} className="aurora-activity-row">
-                    <span className="aurora-activity-date">{relativeDate(s.timestamp)}</span>
-                    <span className="aurora-activity-topic">{label}</span>
-                    <span className="aurora-activity-mode">{s.mode}</span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="aurora-muted">No sessions yet — pick a topic above to begin.</p>
-          )}
-        </section>
+        </div>
       </div>
+
+      {/* Recent activity — clean list, larger text */}
+      <section className="aurora-card">
+        <p className="aurora-activity-head">Recent activity</p>
+        {recentSessions.length > 0 ? (
+          <div className="aurora-activity">
+            {recentSessions.map((s, i) => {
+              const label = CURRICULUM.find((t) => t.id === s.topic)?.label ?? s.topic;
+              return (
+                <div key={s.session_id ?? i} className="aurora-activity-row">
+                  <span className="aurora-activity-date">{relativeDate(s.timestamp)}</span>
+                  <span className="aurora-activity-topic">{label}</span>
+                  <span className="aurora-activity-mode">{s.mode}</span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="aurora-muted">No sessions yet — pick a topic above to begin.</p>
+        )}
+      </section>
     </div>
   );
 }
