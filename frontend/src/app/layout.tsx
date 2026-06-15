@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Outfit, Dancing_Script } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Playfair_Display } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -27,9 +27,11 @@ const display = Outfit({
   variable: "--font-outfit",
   display: "swap",
 });
-/* Flamboyant flowing script — used only for the dashboard greeting flourish. */
-const flourish = Dancing_Script({
-  weight: ["600", "700"],
+/* Flamboyant high-contrast editorial serif — used only for the dashboard greeting
+   flourish (italic for extra flair). */
+const flourish = Playfair_Display({
+  weight: ["600", "700", "800"],
+  style: ["italic"],
   subsets: ["latin"],
   variable: "--font-flourish",
   display: "swap",
