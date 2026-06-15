@@ -958,11 +958,11 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   --paper:   #14161F;   /* input wells, recessed surfaces */
   --canvas:  #0E1016;   /* app background */
   --surface: #181B26;   /* cards, rail, table */
-  --hairline: rgba(255, 255, 255, 0.09);
+  --hairline: rgba(255, 255, 255, 0.15);   /* brighter so card/table edges are visible */
 
-  --ink:   #F3F4F8;
-  --ink-2: #AEB4C2;
-  --ink-3: #7C8295;
+  --ink:   #F4F5F9;
+  --ink-2: #C9CED9;   /* brightened for low-vision legibility (was #AEB4C2) */
+  --ink-3: #9CA2B2;   /* brightened for low-vision legibility (was #7C8295) */
 
   /* accents brighten so they glow against the slate */
   --g-blue: #5B9DFF; --g-purple: #B68BE6; --g-rose: #F07A86; --g-green: #43C76B;
@@ -1064,3 +1064,79 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 
 /* Small rose marker for at-risk rows in the Students table. */
 .console-risk-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g-rose); flex-shrink: 0; box-shadow: 0 0 6px rgba(240,122,134,.6); }
+
+/* ════════════════ Legibility tuning — low-vision staff ════════════════
+   Larger type, stronger contrast and bigger targets for older reviewers, scoped
+   to the console so the student app is unaffected. The slate aesthetic stays;
+   it's just clearer. (Contrast also boosted via the brighter --ink-2/--ink-3/
+   --hairline tokens above.) */
+
+/* Rail nav items are the only chrome visible in the mobile bottom bar, so their
+   size bump is desktop-only; everything else in the rail is hidden < 861px. */
+@media (min-width: 861px) {
+  .console-dark .aurora-navitem { font-size: 16px; padding: 12px 12px; gap: 13px; }
+  .console-dark .aurora-navitem svg { width: 21px; height: 21px; opacity: 0.9; }
+}
+.console-dark .aurora-rail-label { font-size: 12px; letter-spacing: 0.12em; }
+.console-dark .aurora-cmdk { font-size: 13px; padding: 7px 11px; }
+.console-dark .aurora-cmdk kbd { font-size: 11px; }
+.console-dark .aurora-profile-name { font-size: 15.5px; }
+.console-dark .aurora-profile-role { font-size: 11.5px; }
+.console-dark .aurora-admin-link { font-size: 14px; }
+.console-dark .aurora-signout { font-size: 14px; }
+
+/* Section headers */
+.console-dark .aurora-eyebrow { font-size: 13px; letter-spacing: 0.12em; color: var(--ink-2); }
+.console-dark .console-section-head .aurora-h1 { font-size: clamp(1.9rem, 3vw, 2.5rem); }
+.console-dark .console-tick { height: 30px; width: 5px; }
+
+/* KPIs — the headline numbers staff scan first */
+.console-dark .aurora-statcard { min-height: 130px; }
+.console-dark .aurora-statcard-label { font-size: 13px; letter-spacing: 0.1em; }
+.console-dark .aurora-statcard-value { font-size: 36px; }
+
+/* Cards / body copy */
+.console-dark .aurora-activity-head { font-size: 13px; letter-spacing: 0.1em; }
+.console-dark .aurora-muted { font-size: 15px; }
+.console-dark .aurora-insight p { font-size: 17px; }
+
+/* Tables — more row height + readable cells/headers */
+.console-dark .aurora-trow { padding: 14px 16px; }
+.console-dark .aurora-thead { font-size: 11px; letter-spacing: 0.1em; }
+.console-dark .aurora-tcell { font-size: 15px; }
+.console-dark .aurora-tcell.is-mono,
+.console-dark .aurora-tcell.is-accent { font-size: 14px; }
+.console-dark .aurora-tempty { font-size: 15px; }
+
+/* Forms / buttons — bigger hit targets */
+.console-dark .aurora-field,
+.console-dark .aurora-select { font-size: 15.5px; padding: 11px 14px; }
+.console-dark .aurora-form-label { font-size: 11px; letter-spacing: 0.1em; }
+.console-dark .aurora-btn { font-size: 15px; padding: 12px 22px; }
+.console-dark .aurora-btn-ghost { font-size: 14.5px; padding: 10px 18px; }
+.console-dark .aurora-note { font-size: 14px; }
+.console-dark .aurora-dropzone-title { font-size: 16px; }
+.console-dark .aurora-dropzone-sub { font-size: 13.5px; }
+
+/* Accounts roster */
+.console-dark .aurora-acct-row { padding: 14px 16px; }
+.console-dark .aurora-acct-name { font-size: 15px; }
+.console-dark .aurora-acct-email { font-size: 13.5px; }
+
+/* Activity feed */
+.console-dark .aurora-feed-name { font-size: 15px; }
+.console-dark .aurora-feed-detail { font-size: 14.5px; }
+.console-dark .aurora-feed-time { font-size: 12.5px; }
+.console-dark .aurora-feed-day span { font-size: 12px; }
+
+/* Bars / chips / badges */
+.console-dark .aurora-bar-label,
+.console-dark .aurora-bar-pct { font-size: 14px; }
+.console-dark .aurora-prog-chip { font-size: 13px; padding: 6px 13px; }
+.console-dark .aurora-badge { font-size: 12px; padding: 3px 11px; letter-spacing: 0.05em; }
+
+/* Console extras */
+.console-dark .console-segment button { font-size: 14px; padding: 8px 18px; }
+.console-dark .console-disclosure > summary { font-size: 15px; padding: 15px 18px; }
+.console-dark .console-disclosure > summary .console-disc-sub { font-size: 11.5px; }
+.console-dark .console-attn-count { font-size: 13px; padding: 3px 11px; }
