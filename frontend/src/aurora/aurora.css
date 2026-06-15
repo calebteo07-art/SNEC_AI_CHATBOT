@@ -620,7 +620,6 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-chat {
   --ig-sent: linear-gradient(135deg, #5B51D8, #833AB4, #C13584);
   --ig-think: linear-gradient(135deg, #3C90FF, #00BDD2, #88DE42);
-  --ig-cam: linear-gradient(135deg, #4F5BD5, #C13584);
   --ig-ring: linear-gradient(45deg, #F09433, #E6683C, #DC2743, #CC2366, #BC1888);
   display: flex; flex-direction: column; height: 100%; min-height: 0; background: #fff;
 }
@@ -636,10 +635,9 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-chat-ring { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; padding: 2px; background: var(--ig-ring); }
 .aurora-chat-ring > svg { background: #fff; border-radius: 50%; padding: 2px; box-sizing: content-box; width: 22px; height: 22px; }
 .aurora-chat-name { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); margin: 0; flex: 1; min-width: 0; line-height: 1.1; }
-.aurora-chat-actions { display: inline-flex; align-items: center; gap: 16px; color: var(--ink); flex-shrink: 0; }
 
-/* Thread */
-.aurora-chat-thread { flex: 1; min-height: 0; overflow-y: auto; background: #fff; }
+/* Thread — soft cloud-lavender reading surface (header/composer stay white) */
+.aurora-chat-thread { flex: 1; min-height: 0; overflow-y: auto; background: #EEF1FB; }
 .aurora-chat-inner { max-width: none; min-height: 100%; box-sizing: border-box; margin: 0 auto; padding: 22px clamp(14px, 2.5vw, 32px) 14px; display: flex; flex-direction: column; gap: 14px; }
 /* Bottom-anchor a sparse thread (IG/iMessage style) so there's no empty white
    space below the composer; collapses cleanly once the thread overflows. */
@@ -679,13 +677,10 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 
 .aurora-composer { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid rgba(31, 31, 31, 0.15); border-radius: 28px; padding: 7px 10px 7px 8px; }
 .aurora-composer:focus-within { border-color: rgba(60, 144, 255, 0.4); }
-.aurora-composer-cam { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--ig-cam); flex-shrink: 0; transition: transform .2s var(--mo-ease); }
-.aurora-composer-cam:hover { transform: scale(1.08); }
 .aurora-composer-field { flex: 1; min-width: 0; border: none; background: none; outline: none; resize: none; font-family: var(--font-sans); font-size: 20px; line-height: 1.5; color: var(--ink); padding: 11px 4px; max-height: 176px; }
 .aurora-composer-field::placeholder { color: var(--ink-3); }
 .aurora-composer-send { flex-shrink: 0; border: none; background: none; color: #3C90FF; font-weight: 600; font-size: 18px; font-family: var(--font-sans); cursor: pointer; padding: 6px 8px; }
 .aurora-composer-send:disabled { opacity: 0.5; cursor: not-allowed; }
-.aurora-composer-glyphs { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); flex-shrink: 0; padding-right: 4px; }
 
 /* Immersive /chat — full-bleed; rail + mesh are not rendered (AppShell) */
 .aurora-shell-immersive .aurora-main { width: 100%; }
