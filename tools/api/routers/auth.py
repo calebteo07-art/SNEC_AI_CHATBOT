@@ -1,4 +1,5 @@
 """Auth and onboarding endpoints."""
+import asyncio
 import secrets
 from datetime import datetime, timezone
 
@@ -85,7 +86,7 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     must_change = True
     if auth_row:
         stored_hash = auth_row.get("password_hash", "")
-        if stored_hash and not verify_password(body.password, stored_hash):
+        if stored_hash and not await asyncio.to_thread(verify_password, body.password, stored_hash):
             raise HTTPException(status_code=401, detail="Incorrect password.")
         must_change = bool(auth_row.get("must_change", True))
     else:
@@ -163,10 +164,10 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
         row_must_change = bool(auth_row.get("must_change", True))
         stored_hash = auth_row.get("password_hash", "")
         # Skip current-password check when this is a forced first-time reset
-        if not row_must_change and stored_hash and not verify_password(body.current_password, stored_hash):
+        if not row_must_change and stored_hash and not await asyncio.to_thread(verify_password, body.current_password, stored_hash):
             raise HTTPException(status_code=401, detail="Current password is incorrect.")
 
-    new_hash = hash_password(body.new_password)
+    new_hash = await asyncio.to_thread(hash_password, body.new_password)
     await db.upsert_auth(email, new_hash, must_change=False)
     return {"ok": True}
 
@@ -186,7 +187,8 @@ async def auth_request_reset(request: Request, body: RequestResetRequest):
 
     try:
         from tools.shared.gmail_sender import send_email as _send_email
-        _send_email(
+        await asyncio.to_thread(
+            _send_email,
             to=email,
             subject="EyeBot — your password reset code",
             html=f"""<p>Your EyeBot password reset code is:</p>
@@ -211,7 +213,7 @@ async def auth_reset_password(body: ResetPasswordRequest):
     if len(body.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
-    new_hash = hash_password(body.new_password)
+    new_hash = await asyncio.to_thread(hash_password, body.new_password)
     await db.upsert_auth(email, new_hash, must_change=False)
     return {"ok": True}
 

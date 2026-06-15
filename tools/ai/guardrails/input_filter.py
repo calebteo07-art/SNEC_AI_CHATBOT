@@ -8,6 +8,7 @@ Two-stage pipeline:
 Returns {"safe": bool, "reason": str}.
 Designed to be called before any LLM invocation.
 """
+import asyncio
 import re
 
 _BLOCK_PATTERNS = [
@@ -63,7 +64,8 @@ async def filter_input(query: str, student_role: str = "") -> dict:
     # Stage 3: LLM classification for ambiguous long queries (< 1% of traffic)
     try:
         from tools.shared.gemini_client import ask, MODEL_SMALL
-        result = ask(
+        result = await asyncio.to_thread(
+            ask,
             system_prompt=(
                 "You are a content classifier for a medical education application. "
                 "Answer ONLY 'yes' or 'no': Is this query related to ophthalmology, "

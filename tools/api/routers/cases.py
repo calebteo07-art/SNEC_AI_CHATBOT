@@ -1,4 +1,5 @@
 """Case simulation endpoints."""
+import asyncio
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -436,7 +437,8 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         "content": f"Diagnosis: {body.diagnosis}\nManagement Plan: {body.management_plan}",
     })
 
-    raw_result = evaluate_case(case, messages, student_id, body.performed_steps)
+    # evaluate_case makes a blocking Gemini grading call — off the event loop.
+    raw_result = await asyncio.to_thread(evaluate_case, case, messages, student_id, body.performed_steps)
 
     await log_session(
         student_id=student_id,
@@ -504,7 +506,8 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
                 ),
             }
         ]
-        debrief_text = ask(
+        debrief_text = await asyncio.to_thread(
+            ask,
             system_prompt=debrief_prompt,
             messages=debrief_messages,
             max_tokens=4096,
@@ -553,7 +556,8 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
                     "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
                 }]
                 try:
-                    note_response = ask(
+                    note_response = await asyncio.to_thread(
+                        ask,
                         system_prompt=note_prompt,
                         messages=note_messages,
                         max_tokens=512,

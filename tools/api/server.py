@@ -69,6 +69,22 @@ async def add_security_headers(request, call_next):
     return response
 
 
+@app.on_event("startup")
+async def _configure_concurrency() -> None:
+    """Bound the worker threadpool that runs blocking calls (Gemini, bcrypt, SMTP)
+    off the event loop. This caps how many blocking ops run at once so a load
+    spike queues instead of exhausting the 512MB instance, while the event loop
+    itself stays free to serve /health and stream responses. Tune via env on a
+    larger plan."""
+    import anyio
+    tokens = int(os.getenv("THREAD_POOL_TOKENS", "64"))
+    try:
+        anyio.to_thread.current_default_thread_limiter().total_tokens = tokens
+        print(f"[startup] thread-pool tokens = {tokens}", flush=True)
+    except Exception as exc:  # never block startup on this
+        print(f"[startup] could not set thread-pool tokens: {exc}", flush=True)
+
+
 app.include_router(auth_router)
 app.include_router(cases_router)
 app.include_router(admin_router)
