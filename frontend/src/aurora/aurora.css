@@ -407,8 +407,9 @@ html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
 .aurora-dash .aurora-readout-label { font-size: 12.5px; }
 .aurora-dash .aurora-hero-readouts { gap: 32px; }
 
-/* Next best action — clean white band, big title + gradient CTA */
-.aurora-nba-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 28px; }
+/* Next best action — dark frosted slab on the dashboard (re-skinned below), big
+   title + gradient CTA */
+.aurora-nba-inner { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 28px; }
 .aurora-nba-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .aurora-nba-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-blue-2); font-weight: 600; margin: 0; }
 .aurora-nba-title { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin: 0; line-height: 1.1; }
@@ -450,6 +451,87 @@ html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
   transition: background-color 0.18s;
 }
 .aurora-bigstat-cta:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* ════════ Dashboard cards — dark-canvas restyle + distinct per-card motion ════════
+   Scoped to .aurora-dash so the shared .aurora-card / .aurora-hero stay light on
+   other screens. Each card has its own continuous, GPU-light signature motion; the
+   one-shot entrances (page rise + .aurora-bigstats stagger) survive because every
+   ambient animation lives on a pseudo-element, never the card's own `animation`. */
+
+/* TOP — hero keeps its flowing Gemini gradient; add a slow diagonal sheen glint. */
+.aurora-dash .aurora-hero::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(108deg, transparent 41%, rgba(255, 255, 255, 0.16) 49%, rgba(255, 255, 255, 0.24) 51%, transparent 59%);
+  background-size: 280% 100%; background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  animation: aurora-sheen-x 8.5s ease-in-out infinite;
+}
+
+/* MIDDLE — next-best-action re-skinned for the dark canvas: a frosted glass slab
+   with a slowly rotating conic aurora rim that ties the hero to the stat row. */
+.aurora-dash .aurora-nba {
+  position: relative; isolation: isolate; overflow: hidden;
+  background: transparent; border: none;
+  box-shadow: 0 24px 64px -28px rgba(98, 84, 230, 0.6);
+}
+.aurora-dash .aurora-nba::before {
+  content: ""; position: absolute; inset: -55%; z-index: -2;
+  background: conic-gradient(from 0deg,
+    rgba(124, 92, 246, 0) 0deg, #7C5CF6 55deg, #22B8D4 130deg, rgba(34, 184, 212, 0) 188deg,
+    #FBA838 256deg, #F0397E 312deg, rgba(124, 92, 246, 0) 360deg);
+  animation: aurora-nba-spin 9s linear infinite;
+}
+.aurora-dash .aurora-nba::after {
+  content: ""; position: absolute; inset: 1.6px; z-index: -1; border-radius: inherit;
+  background: linear-gradient(135deg, rgba(26, 28, 60, 0.90), rgba(13, 15, 36, 0.93));
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.aurora-dash .aurora-nba-eyebrow { color: #7FE6FF; }
+.aurora-dash .aurora-nba-title { color: #F3F4FC; text-shadow: 0 1px 16px rgba(0, 0, 0, 0.4); }
+.aurora-dash .aurora-nba-sub { color: rgba(236, 236, 247, 0.66); }
+
+/* BOTTOM ROW — shared hover lift, then a distinct ambient motion per tone. */
+.aurora-dash .aurora-bigstat { isolation: isolate; transition: transform .32s var(--mo-over), box-shadow .32s var(--mo-ease); }
+.aurora-dash .aurora-bigstat:hover { transform: translateY(-5px); box-shadow: 0 28px 64px -22px rgba(0, 0, 0, 0.6); }
+/* cyan — a breathing radial glow */
+.aurora-dash .aurora-bigstat[data-tone="cyan"]::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(125% 95% at 82% 4%, rgba(150, 244, 255, 0.5), transparent 58%);
+  animation: aurora-glow-pulse 5.5s ease-in-out infinite;
+}
+/* green — a slow living-gradient drift */
+.aurora-dash .aurora-bigstat[data-tone="green"]::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(150deg, #2BE39A, #1FC780, #0E8C53, #0A6E42);
+  background-size: 200% 200%;
+  animation: aurora-grad-drift 9s ease-in-out infinite;
+}
+/* amber — a diagonal sheen sweep across the face */
+.aurora-dash .aurora-bigstat[data-tone="amber"]::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.22) 50%, transparent 60%);
+  background-size: 250% 100%; background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  animation: aurora-sheen-x 6.5s ease-in-out infinite 1.1s;
+}
+
+@keyframes aurora-sheen-x { 0% { background-position: 165% 0; } 58%, 100% { background-position: -65% 0; } }
+@keyframes aurora-nba-spin { to { transform: rotate(1turn); } }
+@keyframes aurora-glow-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.95; } }
+@keyframes aurora-grad-drift { 0%, 100% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-dash .aurora-bigstat { transition: none !important; }
+  .aurora-dash .aurora-hero::after, .aurora-dash .aurora-nba::before,
+  .aurora-dash .aurora-bigstat[data-tone="cyan"]::before,
+  .aurora-dash .aurora-bigstat[data-tone="green"]::before,
+  .aurora-dash .aurora-bigstat[data-tone="amber"]::after { animation: none !important; }
+}
+html[data-motion="reduce"] .aurora-dash .aurora-hero::after,
+html[data-motion="reduce"] .aurora-dash .aurora-nba::before,
+html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="cyan"]::before,
+html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="green"]::before,
+html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::after { animation: none !important; }
 
 .aurora-muted { color: var(--ink-2); font-size: 14px; line-height: 1.5; }
 
