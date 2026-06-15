@@ -332,6 +332,7 @@ html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
 .aurora-statcard[data-tone="blue"] .aurora-statcard-label { color: var(--on-blue-2); }
 .aurora-statcard[data-tone="purple"] .aurora-statcard-label { color: var(--on-purple-2); }
 .aurora-statcard[data-tone="rose"] .aurora-statcard-label { color: var(--on-rose-2); }
+.aurora-statcard[data-tone="green"] .aurora-statcard-label { color: var(--on-green-2); }
 
 /* PlateWell */
 .aurora-plate {
@@ -947,3 +948,101 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 @media (max-width: 600px) {
   .aurora-bar-label { width: 7rem; }
 }
+
+/* ════════════════ Control console — dark scope (staff only) ════════════════
+   Applied to .aurora-shell.console-dark for admin + supervisor. Re-themes the
+   AURORA token vars to a deep slate "command-center" palette, then patches the
+   handful of rules that hardcode light values. Students never receive this
+   scope, so the light app is untouched. */
+.console-dark {
+  --paper:   #14161F;   /* input wells, recessed surfaces */
+  --canvas:  #0E1016;   /* app background */
+  --surface: #181B26;   /* cards, rail, table */
+  --hairline: rgba(255, 255, 255, 0.09);
+
+  --ink:   #F3F4F8;
+  --ink-2: #AEB4C2;
+  --ink-3: #7C8295;
+
+  /* accents brighten so they glow against the slate */
+  --g-blue: #5B9DFF; --g-purple: #B68BE6; --g-rose: #F07A86; --g-green: #43C76B;
+  --on-blue: #8FBEFF;   --on-blue-2: #8FBEFF;
+  --on-purple: #CBA6F0; --on-purple-2: #CBA6F0;
+  --on-rose: #F4969F;   --on-rose-2: #F4969F;
+  --on-green: #6FD89A;  --on-green-2: #6FD89A;
+
+  --logo-ink: #E8EAF2;
+  color-scheme: dark;
+}
+
+/* Faint aurora glow on the dark canvas — retint the shared mesh blobs. */
+.console-dark .aurora-mesh span { opacity: 0.40; filter: blur(74px); }
+.console-dark .aurora-mesh span:nth-child(1) { background: radial-gradient(circle, rgba(91, 157, 255, 0.22), transparent 70%); }
+.console-dark .aurora-mesh span:nth-child(2) { background: radial-gradient(circle, rgba(182, 139, 230, 0.16), transparent 70%); }
+.console-dark .aurora-mesh span:nth-child(3) { background: radial-gradient(circle, rgba(240, 122, 134, 0.13), transparent 70%); }
+
+/* Rail / nav hovers: light alpha → white alpha. */
+.console-dark .aurora-navitem:hover { background: rgba(255, 255, 255, 0.05); }
+.console-dark .aurora-signout:hover { background: rgba(255, 255, 255, 0.05); }
+.console-dark .aurora-cmdk:hover,
+.console-dark .aurora-btn-ghost:hover { border-color: rgba(255, 255, 255, 0.22); }
+/* SNEC logo is a dark-on-light JPG — flip it to read on the slate rail. */
+.console-dark .aurora-snec { mix-blend-mode: normal; opacity: 0.7; filter: invert(1) grayscale(1) brightness(1.7); }
+
+/* Primary button: var(--ink) would invert to a near-white slab — use the brand
+   gradient with dark text instead. */
+.console-dark .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
+.console-dark .aurora-btn:hover { opacity: 0.92; }
+
+/* Tables, badges, tracks, inputs. */
+.console-dark .aurora-trow.is-clickable:hover { background: rgba(255, 255, 255, 0.04); }
+.console-dark .aurora-badge { background: rgba(255, 255, 255, 0.07); }
+.console-dark .aurora-bar-track,
+.console-dark .aurora-progress { background: rgba(255, 255, 255, 0.09); }
+.console-dark .aurora-select { color-scheme: dark; }
+
+/* StatCard tints glow brighter on dark (per-domain colour coding). */
+.console-dark .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
+.console-dark .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(182,139,230,.22), rgba(240,122,134,.10), rgba(182,139,230,.22)); border-color: rgba(182,139,230,.32); }
+.console-dark .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
+.console-dark .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
+
+/* Insight band reads on slate. */
+.console-dark .aurora-insight { background: rgba(182, 139, 230, 0.12); border-left-color: var(--g-purple); }
+
+/* Modals (student detail / drill-down) render inside the scope — darken scrim. */
+.console-dark .aurora-modal-backdrop { background: rgba(0, 0, 0, 0.55); }
+.console-dark .aurora-modal-close:hover { background: rgba(255, 255, 255, 0.06); }
+
+/* ── Console chrome extras (used by ConsoleRail + redesigned screens) ── */
+/* Section eyebrow with a coloured leading tick — gives each screen a domain hue. */
+.console-rail-brand { padding: 2px 6px 14px; }
+.console-section-head { display: flex; align-items: center; gap: 9px; margin: 0 0 2px; }
+.console-section-head .aurora-h1 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); }
+.console-tick { width: 4px; height: 22px; border-radius: 3px; background: var(--g-blue); flex-shrink: 0; }
+.console-tick[data-hue="blue"]   { background: var(--g-blue); }
+.console-tick[data-hue="green"]  { background: var(--g-green); }
+.console-tick[data-hue="rose"]   { background: var(--g-rose); }
+.console-tick[data-hue="purple"] { background: var(--g-purple); }
+
+/* A card whose top edge carries its domain hue (declutter cue). */
+.console-card-accent { border-top: 2px solid var(--accent, var(--g-blue)); }
+
+/* Segmented control (Accounts: One student | Import CSV). */
+.console-segment { display: inline-flex; gap: 3px; padding: 3px; background: var(--paper); border: 1px solid var(--hairline); border-radius: 999px; }
+.console-segment button { border: none; background: none; padding: 6px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: color .15s, background .15s; }
+.console-segment button:hover { color: var(--ink); }
+.console-segment button[data-active="true"] { color: var(--ink); background: var(--surface); box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 8px -4px rgba(0,0,0,.6); }
+
+/* Collapsible utility panel (Promote to staff, media tools). */
+.console-disclosure { border: 1px solid var(--hairline); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+.console-disclosure > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 16px; font-size: 13px; font-weight: 600; color: var(--ink); }
+.console-disclosure > summary::-webkit-details-marker { display: none; }
+.console-disclosure > summary .console-disc-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.console-disclosure > summary .console-disc-chevron { transition: transform .2s; color: var(--ink-3); }
+.console-disclosure[open] > summary .console-disc-chevron { transform: rotate(180deg); }
+.console-disclosure-body { padding: 4px 16px 16px; border-top: 1px solid var(--hairline); }
+
+/* "Needs attention" focal panel (Overview at-risk). */
+.console-focus { border: 1px solid rgba(240, 122, 134, 0.30); background: linear-gradient(180deg, rgba(240,122,134,0.06), transparent 60%); border-radius: var(--radius-lg); padding: 16px; }
+.console-attn-count { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--on-rose); background: rgba(240,122,134,0.12); border: 1px solid rgba(240,122,134,0.28); border-radius: 999px; padding: 2px 9px; }

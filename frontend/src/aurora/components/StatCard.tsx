@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 import { MotionSurface } from "@/aurora/MotionSurface";
 
-export type StatTone = "blue" | "purple" | "rose";
+export type StatTone = "blue" | "purple" | "rose" | "green";
 
 export function StatCard({
   tone,
