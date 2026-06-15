@@ -255,7 +255,7 @@ export function OnboardingScreen() {
                       autoComplete="email"
                       placeholder="you@snec.com.sg"
                     />
-                    {errors.email && <p role="alert" style={{ color: "#fca5a5", fontSize: 11, marginTop: 5 }}>{errors.email}</p>}
+                    {errors.email && <p role="alert" style={{ color: "#d23b3b", fontSize: 12.5, marginTop: 5 }}>{errors.email}</p>}
                   </div>
                   <div>
                     <label className="login-field-label" htmlFor="password">Password</label>
@@ -274,7 +274,7 @@ export function OnboardingScreen() {
                       />
                       <EyeToggle show={showPw} onToggle={() => setShowPw(v => !v)} />
                     </div>
-                    {errors.password && <p role="alert" style={{ color: "#fca5a5", fontSize: 11, marginTop: 5 }}>{errors.password}</p>}
+                    {errors.password && <p role="alert" style={{ color: "#d23b3b", fontSize: 12.5, marginTop: 5 }}>{errors.password}</p>}
                     <button
                       type="button"
                       className="login-link"
@@ -289,7 +289,7 @@ export function OnboardingScreen() {
                 {(errors.api || errors.blocked) && (
                   <div className="login-error" role="alert">
                     {errors.blocked ?? errors.api}
-                    {errors.blocked && <div style={{ fontSize: 11, marginTop: 4, opacity: 0.7 }}>snec.tne.edu@gmail.com</div>}
+                    {errors.blocked && <div style={{ fontSize: 12.5, marginTop: 4, opacity: 0.8 }}>snec.tne.edu@gmail.com</div>}
                   </div>
                 )}
 
@@ -322,7 +322,7 @@ export function OnboardingScreen() {
           {step === "role" && (
             <motion.div key="role" {...slide}>
               <p className="login-step-label">Your training track</p>
-              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13.5, color: "rgba(31,31,31,0.58)", marginBottom: 18, lineHeight: 1.5 }}>
                 Select your role — this scopes your cases, flashcards, and daily check-ins.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -352,7 +352,7 @@ export function OnboardingScreen() {
           {step === "forgot" && (
             <motion.div key="forgot" {...slide}>
               <p className="login-step-label">Reset password</p>
-              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13.5, color: "rgba(31,31,31,0.58)", marginBottom: 18, lineHeight: 1.5 }}>
                 Enter your email and we'll send a 6-digit code.
               </p>
               <div className="login-field-group">
@@ -387,12 +387,12 @@ export function OnboardingScreen() {
           {step === "reset_code" && (
             <motion.div key="reset_code" {...slide}>
               <p className="login-step-label">Enter reset code</p>
-              <p style={{ fontSize: 12, color: "rgba(31,31,31,0.4)", marginBottom: 18, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13.5, color: "rgba(31,31,31,0.58)", marginBottom: 18, lineHeight: 1.5 }}>
                 Check your email for a 6-digit code. Expires in 15 minutes.
               </p>
               {resetSuccess ? (
                 <div style={{ textAlign: "center", padding: "12px 0" }}>
-                  <p style={{ color: "#6ee7b7", fontSize: 13, marginBottom: 16 }}>Password updated. You can now sign in.</p>
+                  <p style={{ color: "#15803d", fontSize: 14, marginBottom: 16 }}>Password updated. You can now sign in.</p>
                   <button type="button" className="login-link" onClick={() => { setStep("login"); setResetSuccess(false); }}>Back to sign in</button>
                 </div>
               ) : (
