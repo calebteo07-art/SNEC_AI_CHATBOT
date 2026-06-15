@@ -670,20 +670,27 @@ html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::afte
 
 /* ─────────────────── Cases + Atlas Map ─────────────────── */
 .aurora-cases { max-width: 1180px; margin: 0 auto; padding: clamp(20px, 3vw, 34px); display: flex; flex-direction: column; gap: 20px; }
-.aurora-cases-head { display: flex; flex-direction: column; gap: 6px; }
+.aurora-cases-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
+.aurora-cases-head-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .aurora-cases-head .aurora-h1 { margin: 2px 0 0; }
 .aurora-cases-head .aurora-h1 em { font-family: var(--font-serif, "Playfair Display", Georgia, serif); font-style: italic; font-weight: 400; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-.aurora-cases-head .aurora-sub { max-width: 54ch; }
 
-/* Topics — demoted to a single quiet, scrollable rail */
-.aurora-topic-rail { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.aurora-topic-rail-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); flex-shrink: 0; }
-.aurora-topic-picker { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0; scrollbar-width: thin; }
-.aurora-topic-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
-.aurora-topic-chip:hover:not(:disabled) { border-color: var(--g-blue); color: var(--ink); }
-.aurora-topic-chip.is-active { border-color: transparent; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); color: #fff; }
-.aurora-topic-chip:disabled { opacity: 0.4; cursor: not-allowed; }
-.aurora-topic-count { font-family: var(--font-mono); font-size: 10px; font-weight: 600; opacity: 0.7; }
+/* Topics — folded into one quiet popover trigger (no chip wall) */
+.aurora-topic-pop { position: relative; flex-shrink: 0; }
+.aurora-topic-trigger { display: inline-flex; align-items: center; gap: 9px; padding: 8px 14px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); cursor: pointer; transition: border-color 0.15s, box-shadow 0.2s; }
+.aurora-topic-trigger:hover { border-color: rgba(155, 114, 200, 0.5); }
+.aurora-topic-trigger.is-set { border-color: transparent; box-shadow: inset 0 0 0 1px rgba(155, 114, 203, 0.5), 0 4px 14px -8px rgba(155, 114, 203, 0.6); background: linear-gradient(100deg, rgba(66, 133, 244, 0.08), rgba(155, 114, 203, 0.08)); }
+.aurora-topic-trigger-k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-topic-trigger-v { font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; }
+.aurora-topic-caret { font-size: 10px; color: var(--ink-3); }
+.aurora-topic-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; min-width: 240px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; padding: 6px; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); box-shadow: 0 24px 60px -28px rgba(20, 18, 60, 0.5); animation: aurora-pop-in 0.16s ease-out; }
+@keyframes aurora-pop-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+html[data-motion="reduce"] .aurora-topic-menu { animation: none; }
+.aurora-topic-opt { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 11px; border: none; border-radius: 10px; background: none; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; text-align: left; transition: background 0.12s, color 0.12s; }
+.aurora-topic-opt:hover:not(:disabled) { background: rgba(155, 114, 203, 0.08); color: var(--ink); }
+.aurora-topic-opt.is-active { background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); }
+.aurora-topic-opt:disabled { opacity: 0.4; cursor: not-allowed; }
+.aurora-topic-opt-count { font-family: var(--font-mono); font-size: 10px; font-weight: 600; opacity: 0.7; }
 
 /* Layout: eye atlas (left) + patient journey (right) */
 .aurora-cases-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
@@ -692,54 +699,65 @@ html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::afte
 /* The Eye Atlas — sagittal cross-section on a lit-specimen plate */
 .aurora-atlas { display: flex; flex-direction: column; gap: 14px; }
 .aurora-atlas-plate {
-  position: relative; width: 100%; aspect-ratio: 600 / 470; border-radius: var(--radius-xl); overflow: hidden;
+  position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-xl); overflow: hidden;
   background: radial-gradient(120% 100% at 30% 20%, #161B3C 0%, #0C1024 52%, #05060F 100%);
   box-shadow: 0 30px 70px -34px rgba(20, 18, 60, 0.6), inset 0 0 90px rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.aurora-atlas-svg { display: block; width: 100%; height: 100%; }
-.aurora-atlas-tag { position: absolute; top: 14px; left: 16px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.42); }
+.aurora-atlas-svg { display: block; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; transition: opacity 0.4s ease; }
+/* Generated hero plate fades in over the SVG; SVG stays as the fallback. */
+.aurora-atlas-photo { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; animation: aurora-plate-in 0.7s ease forwards; }
+@keyframes aurora-plate-in { to { opacity: 1; } }
+html[data-motion="reduce"] .aurora-atlas-photo { animation: none; opacity: 1; }
+.aurora-atlas-plate[data-photo="true"] .aurora-atlas-svg { opacity: 0; }
+/* Vignette so overlaid pins/labels always read on the plate (above image, below pins) */
+.aurora-atlas-plate::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(5, 6, 15, 0.55) 100%); }
+.aurora-atlas-tag { position: absolute; top: 14px; left: 16px; z-index: 3; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.42); }
 .aurora-atlas-tag b { color: rgba(255, 255, 255, 0.7); font-weight: 600; }
-.aurora-atlas-axis { position: absolute; bottom: 14px; right: 16px; font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.34); }
+.aurora-atlas-axis { position: absolute; bottom: 14px; right: 16px; z-index: 3; font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.34); }
 
 /* Soft focus glow behind the active region */
-.aurora-atlas-focus { position: absolute; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(155, 114, 220, 0.5), rgba(120, 110, 220, 0) 70%); animation: aurora-focus-pulse 2.6s ease-in-out infinite; }
+.aurora-atlas-focus { position: absolute; z-index: 2; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(155, 114, 220, 0.5), rgba(120, 110, 220, 0) 70%); animation: aurora-focus-pulse 2.6s ease-in-out infinite; }
 @keyframes aurora-focus-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.9; } }
 html[data-motion="reduce"] .aurora-atlas-focus { animation: none; }
 
-/* Region pins, positioned on the real structures */
-.aurora-pin { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; }
-.aurora-pin-dot { width: 13px; height: 13px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); border: 2px solid rgba(255, 255, 255, 0.88); transition: transform 0.2s, box-shadow 0.3s; flex-shrink: 0; }
-.aurora-pin-label { position: absolute; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.66); white-space: nowrap; background: rgba(8, 7, 18, 0.62); padding: 2px 7px; border-radius: 6px; transition: color 0.2s, background 0.2s; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-.aurora-pin[data-side="up"] .aurora-pin-label { bottom: 18px; }
-.aurora-pin[data-side="down"] .aurora-pin-label { top: 18px; }
-.aurora-pin[data-side="right"] .aurora-pin-label { left: 18px; }
-.aurora-pin[data-side="left"] .aurora-pin-label { right: 18px; }
-.aurora-pin:hover .aurora-pin-dot { transform: scale(1.18); }
-.aurora-pin:hover .aurora-pin-label { color: #fff; background: rgba(8, 7, 18, 0.85); }
+/* Region pins, positioned on the real structures. Labels stay in the DOM (the
+   smoke test reads their text) but reveal on hover/active for a clean hero. */
+.aurora-pin { position: absolute; z-index: 4; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; }
+.aurora-pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.32); border: 2px solid rgba(255, 255, 255, 0.92); box-shadow: 0 0 0 6px rgba(8, 7, 18, 0.28), 0 2px 8px rgba(0, 0, 0, 0.5); transition: transform 0.2s, box-shadow 0.3s, background 0.2s; flex-shrink: 0; }
+.aurora-pin-label { position: absolute; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em; color: #fff; white-space: nowrap; background: rgba(8, 7, 18, 0.78); padding: 3px 8px; border-radius: 7px; opacity: 0; transform: scale(0.9); transform-origin: center; transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); pointer-events: none; box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.7); }
+.aurora-pin[data-side="up"] .aurora-pin-label { bottom: 20px; }
+.aurora-pin[data-side="down"] .aurora-pin-label { top: 20px; }
+.aurora-pin[data-side="right"] .aurora-pin-label { left: 20px; }
+.aurora-pin[data-side="left"] .aurora-pin-label { right: 20px; }
+.aurora-pin:hover .aurora-pin-dot, .aurora-pin:focus-visible .aurora-pin-dot { transform: scale(1.22); background: rgba(255, 255, 255, 0.7); }
+.aurora-pin:hover .aurora-pin-label, .aurora-pin:focus-visible .aurora-pin-label, .aurora-pin[data-active="true"] .aurora-pin-label { opacity: 1; transform: scale(1); }
+.aurora-pin-count { font-style: normal; font-weight: 700; font-size: 8.5px; line-height: 1; padding: 2px 5px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); }
+.aurora-pin[data-empty="true"] .aurora-pin-dot { opacity: 0.45; }
 .aurora-pin[data-active="true"] .aurora-pin-dot { background: transparent; border-color: #fff; box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.35), 0 0 18px 4px rgba(120, 110, 220, 0.6); animation: aurora-pin-pulse 2.4s ease-in-out infinite; }
-.aurora-pin[data-active="true"] .aurora-pin-label { color: #fff; background: linear-gradient(100deg, rgba(66, 133, 244, 0.92), rgba(155, 114, 203, 0.92)); }
+.aurora-pin[data-active="true"] .aurora-pin-label { background: linear-gradient(100deg, rgba(66, 133, 244, 0.95), rgba(155, 114, 203, 0.95)); }
+.aurora-pin[data-active="true"] .aurora-pin-count { background: rgba(255, 255, 255, 0.28); }
 @keyframes aurora-pin-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.3), 0 0 16px 3px rgba(120, 110, 220, 0.5); } 50% { box-shadow: 0 0 0 6px rgba(155, 114, 200, 0.16), 0 0 24px 6px rgba(120, 110, 220, 0.72); } }
 html[data-motion="reduce"] .aurora-pin[data-active="true"] .aurora-pin-dot { animation: none; }
 
-/* Ophthalmoscope porthole — the back of the eye */
-.aurora-scope-row { display: flex; align-items: center; gap: 16px; padding: 0 2px; }
-.aurora-scope { position: relative; width: 92px; height: 92px; border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 0 5px rgba(13, 12, 26, 0.9), 0 0 0 6px rgba(155, 114, 203, 0.4), 0 14px 30px -12px rgba(155, 114, 203, 0.45); transition: box-shadow 0.3s, transform 0.3s; }
-.aurora-scope[data-focus="true"] { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(13, 12, 26, 0.9), 0 0 0 7px rgba(155, 114, 203, 0.9), 0 0 26px 4px rgba(155, 114, 203, 0.55); }
-.aurora-scope-img, .aurora-scope-svg { display: block; width: 100%; height: 100%; object-fit: cover; }
-.aurora-scope-glint { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: radial-gradient(60% 50% at 32% 26%, rgba(255, 255, 255, 0.32), transparent 60%); }
-.aurora-scope-meta { min-width: 0; }
-.aurora-scope-k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-purple-2); }
-.aurora-scope-t { font-size: 13px; font-weight: 600; color: var(--ink); margin: 3px 0 2px; }
-.aurora-scope-d { font-size: 12px; color: var(--ink-3); line-height: 1.45; margin: 0; }
+/* Ophthalmoscope readout — a teaching caption under the plate (the fundus now
+   lives inside the plate). Updates as the student explores the eye. */
+.aurora-atlas-readout { display: flex; align-items: center; gap: 13px; padding: 11px 14px; border: 1px solid var(--hairline); border-radius: var(--radius-lg); background: var(--surface); transition: border-color 0.25s, background 0.25s; }
+.aurora-atlas-readout[data-focus="true"] { border-color: rgba(155, 114, 203, 0.4); background: linear-gradient(100deg, rgba(66, 133, 244, 0.05), rgba(155, 114, 203, 0.06)); }
+.aurora-atlas-readout-scope { position: relative; width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 0 3px rgba(13, 12, 26, 0.9), 0 0 0 4px rgba(155, 114, 203, 0.45), 0 8px 18px -8px rgba(155, 114, 203, 0.5); }
+.aurora-scope-svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+.aurora-atlas-readout-body { min-width: 0; }
+.aurora-atlas-readout-k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-purple-2); }
+.aurora-atlas-readout-text { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; margin: 2px 0 0; }
 
 /* Patient journey */
 .aurora-cases-list { min-width: 0; }
 .aurora-journey-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .aurora-journey-title { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
 .aurora-journey-sub { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
-.aurora-region-reset { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); font-size: 12px; font-weight: 600; cursor: pointer; }
-.aurora-region-reset span { opacity: 0.7; }
+.aurora-region-reset { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 13px; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); font-size: 12px; font-weight: 600; cursor: pointer; }
+.aurora-region-reset > span:last-child { opacity: 0.65; }
+.aurora-region-reset-n { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.6); color: var(--on-purple-2); }
 .aurora-region-reset:hover { background: linear-gradient(100deg, rgba(66, 133, 244, 0.22), rgba(155, 114, 203, 0.22)); }
 
 .aurora-journey { position: relative; padding-left: 30px; }
@@ -783,6 +801,11 @@ html[data-motion="reduce"] .aurora-pin[data-active="true"] .aurora-pin-dot { ani
 @media (max-width: 920px) {
   .aurora-cases-body { grid-template-columns: 1fr; }
   .aurora-cases-map { position: static; }
+  .aurora-cases-head { align-items: flex-start; }
+  .aurora-topic-pop { width: 100%; }
+  .aurora-topic-trigger { width: 100%; justify-content: flex-start; }
+  .aurora-topic-trigger-v { max-width: none; margin-right: auto; }
+  .aurora-topic-menu { right: auto; left: 0; width: 100%; min-width: 0; }
 }
 
 /* ─────────────────── Case session ─────────────────── */
