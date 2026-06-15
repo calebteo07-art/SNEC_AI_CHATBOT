@@ -1083,12 +1083,23 @@ html[data-motion="reduce"] .aurora-coach-bubble, html[data-motion="reduce"] .aur
 .aurora-switch[data-on="true"] .aurora-switch-knob { transform: translateX(17px); }
 
 /* ─────────────────── Daily check-in ─────────────────── */
-.aurora-checkin { position: relative; min-height: 100vh; display: grid; place-items: center; padding: clamp(20px, 4vw, 48px); background: var(--canvas); overflow: hidden; }
+/* Check-in backdrop — a vivid-but-airy Gemini gem wash (blue → violet → amber →
+   teal) layered with soft tinted glows, so the white question card pops. The card
+   (.aurora-checkin-card) is intentionally left untouched. */
+.aurora-checkin { position: relative; min-height: 100vh; display: grid; place-items: center; padding: clamp(20px, 4vw, 48px); overflow: hidden;
+  background:
+    radial-gradient(72% 58% at 14% 6%, rgba(66, 133, 244, 0.16), transparent 60%),
+    radial-gradient(64% 52% at 90% 14%, rgba(26, 168, 156, 0.15), transparent 60%),
+    radial-gradient(78% 62% at 86% 94%, rgba(155, 114, 203, 0.16), transparent 62%),
+    radial-gradient(70% 56% at 8% 96%, rgba(244, 167, 66, 0.12), transparent 62%),
+    linear-gradient(135deg, #eaf1ff 0%, #f3ecff 38%, #fff4ec 72%, #eafaf2 100%);
+}
 .aurora-checkin-mesh { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.aurora-checkin-mesh span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
-.aurora-checkin-mesh span:nth-child(1) { width: 40vmax; height: 40vmax; top: -14vmax; right: -10vmax; background: radial-gradient(circle, rgba(66, 133, 244, 0.22), transparent 68%); animation: aurora-drift-a 30s ease-in-out infinite; }
-.aurora-checkin-mesh span:nth-child(2) { width: 36vmax; height: 36vmax; bottom: -14vmax; left: -10vmax; background: radial-gradient(circle, rgba(217, 101, 112, 0.18), transparent 68%); animation: aurora-drift-c 34s ease-in-out infinite; }
+.aurora-checkin-mesh span { position: absolute; border-radius: 50%; filter: blur(72px); opacity: 0.6; }
+.aurora-checkin-mesh span:nth-child(1) { width: 42vmax; height: 42vmax; top: -16vmax; right: -12vmax; background: radial-gradient(circle, rgba(66, 133, 244, 0.30), rgba(26, 168, 156, 0.18) 45%, transparent 70%); animation: aurora-drift-a 30s ease-in-out infinite; }
+.aurora-checkin-mesh span:nth-child(2) { width: 38vmax; height: 38vmax; bottom: -16vmax; left: -12vmax; background: radial-gradient(circle, rgba(155, 114, 203, 0.28), rgba(217, 101, 112, 0.16) 48%, transparent 70%); animation: aurora-drift-c 34s ease-in-out infinite; }
 html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-checkin-mesh span { animation: none; } }
 .aurora-checkin-wrap { position: relative; z-index: 1; width: 100%; max-width: 480px; }
 .aurora-checkin-head { text-align: center; margin-bottom: 22px; }
 .aurora-checkin-h1 { font-size: clamp(1.7rem, 5vw, 2.2rem); font-weight: 600; letter-spacing: -0.03em; color: var(--ink); margin: 4px 0 0; }
