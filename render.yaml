@@ -29,9 +29,16 @@ services:
       # GOOGLE_FOLDER_CASES
       # GOOGLE_FOLDER_IMAGES
       # GOOGLE_FOLDER_AUDIT
-      # SMTP_EMAIL
-      # SMTP_APP_PASSWORD
       # SUPER_ADMIN_EMAIL
+      # --- Email: Render BLOCKS outbound SMTP, so production must use an HTTPS
+      #     provider. Set EMAIL_PROVIDER + EMAIL_FROM + the chosen provider key.
+      # EMAIL_PROVIDER        # brevo | sendgrid | resend  (default smtp = local dev only)
+      # EMAIL_FROM            # sender address, e.g. snec.tne.edu@gmail.com
+      # BREVO_API_KEY         # if EMAIL_PROVIDER=brevo   (single-sender, 300/day free, no domain needed)
+      # SENDGRID_API_KEY      # if EMAIL_PROVIDER=sendgrid (single-sender verification)
+      # RESEND_API_KEY        # if EMAIL_PROVIDER=resend   (needs a verified domain)
+      # SMTP_EMAIL            # local dev only (SMTP is blocked on Render)
+      # SMTP_APP_PASSWORD     # local dev only
 
   - type: cron
     name: eyebot-keep-alive
