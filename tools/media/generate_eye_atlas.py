@@ -82,7 +82,7 @@ FUNDUS_PROMPT = (
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--count", type=int, default=4, help="candidates to generate")
-    parser.add_argument("--aspect", default=None, help="aspect ratio (e.g. 3:2, 16:9, 1:1)")
+    parser.add_argument("--aspect", default=None, help="aspect ratio (e.g. 4:3, 3:2, 1:1)")
     parser.add_argument("--fundus", action="store_true", help="standalone fundus instead of the combined plate")
     args = parser.parse_args()
 
@@ -98,7 +98,7 @@ def main() -> int:
     ACCENTS_DIR.mkdir(parents=True, exist_ok=True)
 
     prompt = FUNDUS_PROMPT if args.fundus else PLATE_PROMPT
-    aspect = args.aspect or ("1:1" if args.fundus else "3:2")
+    aspect = args.aspect or ("1:1" if args.fundus else "4:3")
     stem = "eye-atlas-fundus" if args.fundus else "eye-atlas-plate"
     print(f"generating {args.count} x {stem} @ {aspect} ({model})")
 
