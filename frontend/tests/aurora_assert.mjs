@@ -39,9 +39,9 @@ await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
 ] })));
 await navCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 4, weak_topic: "Glaucoma staging" })));
-await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma" })));
+await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question_id: "OA-0", question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma", options: ["About 0.3", "About 0.7", "Exactly 1.0", "About 0.9"] })));
 await navCtx.route("**/api/checkin/answer", (r) => r.fulfill(JSON_OK({ correct: true, feedback: "Yes — about 0.3 in most eyes." })));
-await navCtx.route("**/api/flashcards/generate", (r) => r.fulfill(JSON_OK([
+await navCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
   { card_id: "f1", front: "What is the normal IOP range?", back: "Roughly 10–21 mmHg.", topic_tag: "IOP", repetitions: 0, easiness: 2.5, interval_days: 0 },
   { card_id: "f2", front: "Name the layers of the cornea.", back: "Epithelium, Bowman, stroma, Descemet, endothelium.", topic_tag: "Anterior", repetitions: 0, easiness: 2.5, interval_days: 0 },
 ])));
@@ -89,18 +89,19 @@ if (!(regionCases >= 1 && regionCases < allCases)) {
 }
 console.log("PASS: Atlas Map region filters the case list");
 
-// tutor: lavender wash, composer renders, the EyeBot avatar uses the Spark Eye logo, one h1.
+// tutor: cosmic gradient wash, composer renders, the EyeBot avatar uses the Spark Eye logo, one h1.
+// (the dark-cosmos redesign moved the wash to the parent .aurora-chat; .aurora-chat-thread is transparent.)
 await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-chat-thread", { timeout: 15000 });
-const wash = await np.locator(".aurora-chat-thread").evaluate((el) => getComputedStyle(el).backgroundImage);
-if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat lavender wash missing (bg=${wash})`); process.exit(1); }
+await np.waitForSelector(".aurora-chat", { timeout: 15000 });
+const wash = await np.locator(".aurora-chat").evaluate((el) => getComputedStyle(el).backgroundImage);
+if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat cosmic wash missing (bg=${wash})`); process.exit(1); }
 if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: composer not rendered"); process.exit(1); }
 if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar [data-testid="aurora-logo"]').count()) < 1) {
   console.error("FAIL: EyeBot avatar not using the logo"); process.exit(1);
 }
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
-console.log("PASS: Tutor chat — lavender wash, composer, logo avatar, one h1");
+console.log("PASS: Tutor chat — cosmic wash, composer, logo avatar, one h1");
 
 // SSE: mock /api/chat as an event-stream; sending must append the streamed reply
 // through the new composer + thread (proves the streaming reader path survived the rebuild).
@@ -112,7 +113,7 @@ await navCtx.route("**/api/chat", (r) => r.fulfill({
 await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
 await np.waitForSelector(".aurora-composer-field", { timeout: 15000 });
 await np.locator(".aurora-composer-field").fill("Tell me about the optic disc");
-await np.locator(".aurora-send").click();
+await np.locator(".aurora-composer-send").click();
 await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
 console.log("PASS: Tutor SSE stream appends the assistant reply");
 
@@ -130,17 +131,26 @@ const progOverflow = await np.evaluate(() => document.documentElement.scrollWidt
 if (progOverflow > 2) { console.error(`FAIL: progress horizontal overflow at 390px = ${progOverflow}px`); process.exit(1); }
 console.log("PASS: Progress — one h1, mastery bars, heatmap, no 390 overflow");
 
-// flashcards: deck renders, one h1, reveal flips to the rating chips.
+// flashcards: the screen is active-recall now — a set-picker gates the deck, then a
+// typed answer is graded by the AI (no self-rating chips). Choose "Mixed", type a
+// recall answer, submit for grading, and confirm the grade + model answer surface.
+await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 82, feedback: "Close — IOP runs about 10–21 mmHg.", mock_mode: true })));
 await np.setViewportSize({ width: 1440, height: 900 });
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('.aurora-topic-chip:has-text("Mixed (all topics)")', { timeout: 15000 });
+await np.locator('.aurora-topic-chip:has-text("Mixed (all topics)")').click();
 await np.waitForSelector(".aurora-deck-card", { timeout: 15000 });
 const deckH1 = await np.locator("main h1").count();
 if (deckH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${deckH1}`); process.exit(1); }
-await np.locator(".aurora-reveal-btn").click();
-await np.waitForSelector(".aurora-rate-grid .aurora-rate", { timeout: 6000 });
-const rateCount = await np.locator(".aurora-rate-grid .aurora-rate").count();
-if (rateCount !== 4) { console.error(`FAIL: expected 4 rating chips, got ${rateCount}`); process.exit(1); }
-console.log("PASS: Flashcards — deck renders, one h1, reveal shows 4 rating chips");
+await np.locator(".aurora-deck-recall").fill("About 10 to 21 mmHg");
+await np.locator(".aurora-reveal-btn").click();   // "Submit for grading"
+await np.waitForSelector(".aurora-feedback-head", { timeout: 8000 });
+const graded = await np.locator(".aurora-feedback-head").first().innerText();
+if (!graded.includes("82")) { console.error(`FAIL: flashcards AI grade not shown (head='${graded}')`); process.exit(1); }
+if ((await np.locator('.aurora-answer-label:has-text("Model answer")').count()) < 1) {
+  console.error("FAIL: flashcards model answer not revealed after grading"); process.exit(1);
+}
+console.log("PASS: Flashcards — set-picker, typed recall is AI-graded, model answer revealed");
 
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens.
 if ((await np.locator('.aurora-snec[alt="Singapore National Eye Centre"]').count()) < 1) {
@@ -162,12 +172,15 @@ dm = await np.evaluate(() => document.documentElement.dataset.motion);
 if (dm === "reduce") { console.error("FAIL: reduced-motion toggle did not turn off"); process.exit(1); }
 console.log("PASS: Profile — one h1, reduced-motion toggle flips data-motion");
 
-// daily check-in (auth group, no rail): the question card renders with one h1.
+// daily check-in (auth group, no rail): the MCQ icebreaker renders its 4 options + one h1.
+// (the redesign replaced the free-text textarea with a tap-to-answer multiple choice.)
 await np.goto(base + "/checkin", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-checkin-textarea", { timeout: 15000 });
+await np.waitForSelector(".aurora-checkin-option", { timeout: 15000 });
+const ciOpts = await np.locator(".aurora-checkin-options .aurora-checkin-option").count();
+if (ciOpts !== 4) { console.error(`FAIL: checkin expected 4 MCQ options, got ${ciOpts}`); process.exit(1); }
 const ciH1 = await np.locator("h1").count();
 if (ciH1 !== 1) { console.error(`FAIL: checkin h1 count = ${ciH1}`); process.exit(1); }
-console.log("PASS: Daily check-in renders the question with one h1");
+console.log("PASS: Daily check-in renders the MCQ question with one h1");
 
 // a11y sweep: every shell route has one <main>, one <h1> in main, a <nav>, and
 // no horizontal overflow at 390px.
@@ -178,10 +191,18 @@ for (const r of A11Y_ROUTES) {
   await np.waitForSelector("main h1", { timeout: 15000 }); // wait for the screen body, not just the shell
   const mains = await np.locator("main").count();
   const h1s = await np.locator("main h1").count();
-  const navs = await np.locator("nav").count();
-  if (mains !== 1 || h1s !== 1 || navs < 1) { console.error(`FAIL: a11y landmarks on ${r} (main=${mains}, h1=${h1s}, nav=${navs})`); process.exit(1); }
+  if (r === "/chat") {
+    // The Tutor is the one immersive route (IG-DM full screen): the Atlas Rail falls
+    // away, so there is no <nav> landmark — navigation is the labelled in-chat back
+    // link to the dashboard (plus ⌘K). Still demand exactly one main + one h1.
+    const back = await np.locator(".aurora-chat-back").count();
+    if (mains !== 1 || h1s !== 1 || back < 1) { console.error(`FAIL: a11y landmarks on ${r} (main=${mains}, h1=${h1s}, back=${back})`); process.exit(1); }
+  } else {
+    const navs = await np.locator("nav").count();
+    if (mains !== 1 || h1s !== 1 || navs < 1) { console.error(`FAIL: a11y landmarks on ${r} (main=${mains}, h1=${h1s}, nav=${navs})`); process.exit(1); }
+  }
 }
-console.log("PASS: a11y — every route has one main, one h1, a nav");
+console.log("PASS: a11y — every route has one main + one h1; rail nav off-chat, back link on the immersive Tutor");
 await np.setViewportSize({ width: 390, height: 844 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
@@ -202,8 +223,9 @@ const rmAnim = await rmPage.locator(".aurora-flow").first().evaluate((el) => get
 if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze .aurora-flow (animationName=${rmAnim})`); process.exit(1); }
 console.log("PASS: reduced motion freezes the gradient animation");
 
-// admin: AdminGuard admits an admin; the shell renders tabs + KPIs; the students
-// tab lists rows; the supervisor dashboard renders KPIs + the at-risk table.
+// admin: AdminGuard admits an admin; the dark ConsoleRail nav + KPIs render; the
+// Students route lists rows. (The old in-page pill tabs were replaced by the
+// ConsoleRail's .aurora-navitem links across /admin, /admin/students, …)
 const adminUser = { full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001", role: "admin", student_role: "", must_change: false };
 const adminCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
 await adminCtx.addInitScript((u) => {
@@ -226,13 +248,13 @@ await adminCtx.route("**/api/admin/approved", (r) => r.fulfill(JSON_OK({ student
 await adminCtx.route("**/api/admin/activity", (r) => r.fulfill(JSON_OK({ feed: [{ type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 }] })));
 const ap = await adminCtx.newPage();
 await ap.goto(base + "/admin", { waitUntil: "domcontentloaded" });
-await ap.waitForSelector('.aurora-tab:has-text("Overview")', { timeout: 15000 });
+await ap.waitForSelector('.aurora-navitem:has-text("Overview")', { timeout: 15000 });
 await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 8000 });
 const adminH1 = await ap.locator("main h1").count();
 if (adminH1 !== 1) { console.error(`FAIL: admin main h1 count = ${adminH1}`); process.exit(1); }
-await ap.locator('.aurora-tab:has-text("Students")').click();
+await ap.locator('.aurora-navitem:has-text("Students")').click();
 await ap.waitForSelector('[data-testid="admin-student-table"] .aurora-trow.is-clickable', { timeout: 8000 });
-console.log("PASS: Admin — guard admits admin, tabs + KPIs render, students table lists rows");
+console.log("PASS: Admin — guard admits admin, ConsoleRail nav + KPIs render, students table lists rows");
 
 // supervisor: a supervisor-role user is admitted on /supervisor (CheckInGuard sends
 // admins to /admin, supervisors to /supervisor); KPIs + the at-risk table render.
