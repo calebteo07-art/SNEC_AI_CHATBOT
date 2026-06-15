@@ -213,7 +213,9 @@ export function AtlasMap({
       <div className="aurora-atlas-readout" data-focus={!!activeDef}>
         <span className="aurora-atlas-readout-scope" aria-hidden><FundusSvg /></span>
         <div className="aurora-atlas-readout-body">
-          <span className="aurora-atlas-readout-k">{activeDef ? activeDef.label : "Through the ophthalmoscope"}</span>
+          <span className="aurora-atlas-readout-k">
+            {activeDef ? activeDef.label : <>Start here <span className="aurora-readout-arrow" aria-hidden>→</span></>}
+          </span>
           <p className="aurora-atlas-readout-text">
             {activeDef ? READOUT[activeDef.id] : "Pick a part of the eye to focus the view and meet its patients."}
           </p>
