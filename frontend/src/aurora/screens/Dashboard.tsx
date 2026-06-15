@@ -1,15 +1,15 @@
 "use client";
 /* AURORA Dashboard — the command centre. Gradient hero greeting + readouts, a
-   bold Next-Best-Action band, three saturated colour stat cards (recall /
-   mastery / due) with big numbers, and a clean recent-activity list. Real data
-   from useProgress + curriculum. */
+   bold Next-Best-Action band, and three big distinct-colour stat cards (recall /
+   mastery / due) that grow to fill the viewport. Real data from useProgress +
+   curriculum. */
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
 import { useDueCount } from "@/hooks/useFlashcards";
-import { CURRICULUM, OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
+import { OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { GoalRing } from "@/aurora/components/GoalRing";
 import { rankForLevel } from "@/lib/rank";
@@ -28,13 +28,6 @@ function greeting(): string {
   if (h < 12) return "Good morning";
   if (h < 18) return "Good afternoon";
   return "Good evening";
-}
-
-function relativeDate(ts: string): string {
-  const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 86_400_000);
-  if (diff <= 0) return "Today";
-  if (diff === 1) return "Yesterday";
-  return `${diff}d ago`;
 }
 
 export function Dashboard() {
@@ -59,7 +52,6 @@ export function Dashboard() {
 
   const weakTopics = progress?.weak_topics ?? [];
   const recall = weakTopics.length;
-  const recentSessions = (progress?.sessions ?? []).slice(0, 6);
 
   /* Animated count-ups for the headline stat values. */
   const recallCU = useCountUp<HTMLSpanElement>(recall);
@@ -113,21 +105,21 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Three saturated colour stat cards with big numbers */}
+      {/* Three big distinct-colour stat cards — grow to fill the page */}
       <div className="aurora-bigstats aurora-stagger">
-        <div className="aurora-bigstat" data-tone="blue" data-testid="stat-card">
+        <div className="aurora-bigstat" data-tone="cyan" data-testid="stat-card">
           <p className="aurora-bigstat-label">Recall queue</p>
           <p className="aurora-bigstat-value"><span ref={recallCU.ref}>{recallCU.display}</span></p>
           <p className="aurora-bigstat-foot">{recall > 0 ? "weak topics to revisit" : "nothing flagged — nice work"}</p>
         </div>
 
-        <div className="aurora-bigstat" data-tone="purple" data-testid="stat-card">
+        <div className="aurora-bigstat" data-tone="green" data-testid="stat-card">
           <p className="aurora-bigstat-label">{activeTrack} mastery</p>
           <p className="aurora-bigstat-value"><span ref={masteryCU.ref}>{masteryCU.display}</span></p>
           <p className="aurora-bigstat-foot">{completedIds.length} of {topics.length} topics cleared</p>
         </div>
 
-        <div className="aurora-bigstat" data-tone="rose" data-testid="stat-card">
+        <div className="aurora-bigstat" data-tone="amber" data-testid="stat-card">
           <p className="aurora-bigstat-label">Due today</p>
           <p className="aurora-bigstat-value"><span ref={dueCU.ref}>{dueCU.display}</span></p>
           {dueCount > 0 ? (
@@ -137,27 +129,6 @@ export function Dashboard() {
           )}
         </div>
       </div>
-
-      {/* Recent activity — clean list, larger text */}
-      <section className="aurora-card">
-        <p className="aurora-activity-head">Recent activity</p>
-        {recentSessions.length > 0 ? (
-          <div className="aurora-activity">
-            {recentSessions.map((s, i) => {
-              const label = CURRICULUM.find((t) => t.id === s.topic)?.label ?? s.topic;
-              return (
-                <div key={s.session_id ?? i} className="aurora-activity-row">
-                  <span className="aurora-activity-date">{relativeDate(s.timestamp)}</span>
-                  <span className="aurora-activity-topic">{label}</span>
-                  <span className="aurora-activity-mode">{s.mode}</span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="aurora-muted">No sessions yet — pick a topic above to begin.</p>
-        )}
-      </section>
     </div>
   );
 }
