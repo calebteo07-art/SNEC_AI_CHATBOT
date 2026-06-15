@@ -1,4 +1,5 @@
 """Supervisor endpoints."""
+import asyncio
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -204,7 +205,8 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
         "Be specific and direct. No preamble."
     )
     try:
-        narrative = ask(
+        narrative = await asyncio.to_thread(
+            ask,
             system_prompt=system,
             messages=[{"role": "user", "content": context}],
             max_tokens=256,

@@ -58,7 +58,12 @@ def _ensure_sdk_clients() -> list:
     global _SDK_CLIENTS
     if not _SDK_CLIENTS and _API_KEYS:
         from google import genai
-        _SDK_CLIENTS = [genai.Client(api_key=k) for k in _API_KEYS]
+        from google.genai import types
+        # Hard request timeout so a hung upstream call can't pin a worker thread
+        # forever (which would slowly exhaust the bounded threadpool under load).
+        _timeout_ms = int(os.getenv("GEMINI_TIMEOUT_MS", "60000"))
+        _http = types.HttpOptions(timeout=_timeout_ms)
+        _SDK_CLIENTS = [genai.Client(api_key=k, http_options=_http) for k in _API_KEYS]
     return _SDK_CLIENTS
 
 

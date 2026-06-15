@@ -1,4 +1,5 @@
 """Student profile and learning endpoints."""
+import asyncio
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -146,7 +147,8 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
         '{"score": <0-100>, "feedback": "<1-2 short, warm, natural sentences>"}'
     )
     try:
-        raw = ask(
+        raw = await asyncio.to_thread(
+            ask,
             system_prompt=system,
             messages=[{
                 "role": "user",
@@ -433,7 +435,8 @@ async def study_suggestion(request: Request, current_user: CurrentUser = Depends
         "Under 30 words. No preamble."
     )
     try:
-        suggestion = ask(
+        suggestion = await asyncio.to_thread(
+            ask,
             system_prompt=system,
             messages=[{"role": "user", "content": context}],
             max_tokens=256,

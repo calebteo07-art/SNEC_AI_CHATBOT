@@ -57,7 +57,7 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
         added_at=datetime.now(timezone.utc).isoformat(),
     )
     plain_pw = generate_password()
-    pw_hash = hash_password(plain_pw)
+    pw_hash = await asyncio.to_thread(hash_password, plain_pw)
     try:
         await db.upsert_auth(email, pw_hash, must_change=True)
     except Exception as _auth_exc:
@@ -292,7 +292,7 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
             continue
 
         plain_pw = generate_password()
-        pw_hash = hash_password(plain_pw)
+        pw_hash = await asyncio.to_thread(hash_password, plain_pw)
 
         await db.upsert_approved(
             email,

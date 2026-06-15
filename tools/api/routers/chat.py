@@ -156,7 +156,10 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     search_query = await _condense_query(body.messages)
     if search_query != last_user_msg:
         print(f"[rag-condense] {last_user_msg[:60]!r} → {search_query[:60]!r}", flush=True)
-    system_prompt = tutor_system(role) + "\n\n---\n\n" + _get_context(search_query)
+    # _get_context does a blocking embed + vector search — run it off the event
+    # loop so concurrent chats don't serialise/freeze the single worker.
+    rag_context = await asyncio.to_thread(_get_context, search_query)
+    system_prompt = tutor_system(role) + "\n\n---\n\n" + rag_context
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt
 
