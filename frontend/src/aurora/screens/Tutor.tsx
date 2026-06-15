@@ -166,7 +166,7 @@ export function Tutor() {
 
       <footer className="aurora-chat-foot">
         <div className="aurora-chat-foot-inner">
-          <div className="aurora-chat-followups">
+          <div className="aurora-chat-followups aurora-stagger">
             {SUGGESTIONS.map((s) => (
               <FollowupChip key={s} label={s} active={input === s} onClick={() => setInput(s)} />
             ))}

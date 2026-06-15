@@ -13,6 +13,9 @@
 @keyframes aurora-bloom { 0% { opacity: .85; transform: scale(.95); } 100% { opacity: 0; transform: scale(1.2); } }
 @keyframes aurora-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(2px); } }
 @keyframes aurora-shimmer-x { from { background-position: 180% 0; } to { background-position: -60% 0; } }
+@keyframes aurora-flip-in { from { opacity: 0; transform: perspective(1000px) rotateY(-16deg) translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes aurora-bubble-pop { from { opacity: 0; transform: translateY(9px) scale(.975); } to { opacity: 1; transform: none; } }
+@keyframes aurora-typing-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
 
 /* Page-enter — RouteReveal wraps each route, keyed by pathname. */
 .aurora-page-enter { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; }
@@ -21,8 +24,32 @@
 .aurora-reveal { opacity: 0; transform: translateY(22px); transition: opacity .62s var(--mo-ease), transform .62s var(--mo-over); transition-delay: var(--reveal-delay, 0ms); }
 .aurora-reveal[data-revealed="true"] { opacity: 1; transform: none; }
 
-/* Stagger container — each direct child delayed by its --i index. */
+/* Stagger container — each direct child delayed by its --i index. Children are
+   auto-indexed by position (1..12) so any container cascades just by adding the
+   class; an inline `--i` still overrides for bespoke sequencing. */
 .aurora-stagger > * { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; animation-delay: calc(var(--i, 0) * 78ms); }
+.aurora-stagger > *:nth-child(1) { --i: 0; }
+.aurora-stagger > *:nth-child(2) { --i: 1; }
+.aurora-stagger > *:nth-child(3) { --i: 2; }
+.aurora-stagger > *:nth-child(4) { --i: 3; }
+.aurora-stagger > *:nth-child(5) { --i: 4; }
+.aurora-stagger > *:nth-child(6) { --i: 5; }
+.aurora-stagger > *:nth-child(7) { --i: 6; }
+.aurora-stagger > *:nth-child(8) { --i: 7; }
+.aurora-stagger > *:nth-child(9) { --i: 8; }
+.aurora-stagger > *:nth-child(10) { --i: 9; }
+.aurora-stagger > *:nth-child(11) { --i: 10; }
+.aurora-stagger > *:nth-child(12) { --i: 11; }
+
+/* Pointer-tilt depth for cards (CSS-var driven; JS sets --rx/--ry). */
+.aurora-tilt { transform: perspective(820px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .2s var(--mo-ease); transform-style: preserve-3d; }
+
+/* One-shot entrance utilities — apply to any element, sequence with inline
+   animationDelay. */
+.aurora-rise-in { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; }
+.aurora-pop-in { animation: aurora-pop .5s var(--mo-over) both; }
+.aurora-shake-in { animation: aurora-shake .42s ease-in-out both; }
+.aurora-flip-in { animation: aurora-flip-in .56s var(--mo-over) both; }
 
 /* Micro-interactions. */
 .aurora-press { transition: transform .12s var(--mo-ease); }
@@ -31,16 +58,23 @@
 .aurora-lift:hover { transform: translateY(-3px); }
 
 /* Bloom ring (check-in correct answer + milestone pops). */
-.aurora-bloom-ring { position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--g-green, #16a34a); opacity: 0; pointer-events: none; }
+.aurora-bloom-ring { position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--g-green, #34A853); opacity: 0; pointer-events: none; }
 .aurora-bloom-ring[data-on="true"] { animation: aurora-bloom .62s cubic-bezier(.2, .7, .3, 1) both; }
 
 /* Shimmer sweep for streaming/loading surfaces. */
 .aurora-shimmer { background-image: linear-gradient(100deg, transparent 20%, rgba(60, 144, 255, 0.12) 50%, transparent 80%); background-size: 220% 100%; animation: aurora-shimmer-x 1.5s linear infinite; }
 
+/* Chat — bubbles spring in, the typing indicator breathes, the composer glows on focus. */
+.aurora-msg { animation: aurora-bubble-pop .42s var(--mo-over) both; }
+.aurora-typing { animation: aurora-typing-pulse 1.2s ease-in-out infinite; }
+.aurora-composer { transition: box-shadow .2s var(--mo-ease), border-color .2s var(--mo-ease); }
+.aurora-composer:focus-within { box-shadow: 0 0 0 3px rgba(120, 110, 200, .16); }
+
 /* Reduced motion — kill every student animation, render the final state. */
 @media (prefers-reduced-motion: reduce) {
   .aurora-page-enter, .aurora-stagger > *, .aurora-reveal, .aurora-bloom-ring,
-  .aurora-press, .aurora-lift, .aurora-shimmer { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+  .aurora-press, .aurora-lift, .aurora-shimmer, .aurora-tilt, .aurora-msg, .aurora-typing,
+  .aurora-rise-in, .aurora-pop-in, .aurora-shake-in, .aurora-flip-in { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
 }
 html[data-motion="reduce"] .aurora-page-enter,
 html[data-motion="reduce"] .aurora-stagger > *,
@@ -48,4 +82,11 @@ html[data-motion="reduce"] .aurora-reveal,
 html[data-motion="reduce"] .aurora-bloom-ring,
 html[data-motion="reduce"] .aurora-press,
 html[data-motion="reduce"] .aurora-lift,
-html[data-motion="reduce"] .aurora-shimmer { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+html[data-motion="reduce"] .aurora-shimmer,
+html[data-motion="reduce"] .aurora-tilt,
+html[data-motion="reduce"] .aurora-msg,
+html[data-motion="reduce"] .aurora-typing,
+html[data-motion="reduce"] .aurora-rise-in,
+html[data-motion="reduce"] .aurora-pop-in,
+html[data-motion="reduce"] .aurora-shake-in,
+html[data-motion="reduce"] .aurora-flip-in { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }

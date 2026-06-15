@@ -10,6 +10,8 @@ import { StatCard } from "@/aurora/components/StatCard";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { Sparkline } from "@/aurora/components/Sparkline";
 import { Heatmap } from "@/aurora/components/Heatmap";
+import { useCountUp } from "@/hooks/useCountUp";
+import { Reveal } from "@/fx/Reveal";
 
 function topicLabel(raw: string): string {
   return raw.replace(/_/g, " ").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -71,6 +73,12 @@ export function Progress() {
     .toLocaleDateString("en-SG", { day: "2-digit", month: "short", year: "numeric" })
     .toUpperCase();
 
+  /* Animated count-ups for the vitals. */
+  const streakCU = useCountUp<HTMLSpanElement>(streak);
+  const sessionsCU = useCountUp<HTMLSpanElement>(sessionCount);
+  const accuracyCU = useCountUp<HTMLSpanElement>(avgScore, { format: (n) => `${Math.round(n)}%` });
+  const topicsCU = useCountUp<HTMLSpanElement>(topicPerf.length);
+
   return (
     <div className="aurora-prog">
       <header className="aurora-prog-head">
@@ -89,13 +97,13 @@ export function Progress() {
 
       {data && (
         <>
-          <div className="aurora-prog-stats">
-            <StatCard tone="blue" label="Day streak" value={streak} />
-            <StatCard tone="purple" label="Sessions" value={sessionCount} />
-            <StatCard tone="rose" label="Avg accuracy" value={`${avgScore}%`}>
+          <div className="aurora-prog-stats aurora-stagger">
+            <StatCard tone="blue" label="Day streak" value={<span ref={streakCU.ref}>{streakCU.display}</span>} />
+            <StatCard tone="purple" label="Sessions" value={<span ref={sessionsCU.ref}>{sessionsCU.display}</span>} />
+            <StatCard tone="rose" label="Avg accuracy" value={<span ref={accuracyCU.ref}>{accuracyCU.display}</span>}>
               {trend.length >= 2 && <Sparkline data={trend} />}
             </StatCard>
-            <StatCard tone="blue" label="Topics" value={topicPerf.length} />
+            <StatCard tone="blue" label="Topics" value={<span ref={topicsCU.ref}>{topicsCU.display}</span>} />
           </div>
 
           <section className="aurora-card" aria-label="This week">
@@ -125,7 +133,7 @@ export function Progress() {
             )}
           </section>
 
-          <div className="aurora-prog-grid">
+          <Reveal><div className="aurora-prog-grid">
             <section className="aurora-card" aria-label="Recent activity">
               <div className="aurora-prog-card-head">
                 <p className="aurora-activity-head">Activity · last 5 weeks</p>
@@ -144,7 +152,7 @@ export function Progress() {
                 <p className="aurora-muted">No weak areas flagged — nicely done.</p>
               )}
             </section>
-          </div>
+          </div></Reveal>
 
           <section className="aurora-card" aria-label="Badge case">
             <div className="aurora-prog-card-head">
@@ -183,7 +191,7 @@ export function Progress() {
                   <p className="aurora-muted" style={{ marginBottom: 12, lineHeight: 1.6 }}>
                     There&apos;s an optional cohort leaderboard. Join to see how your XP compares with classmates — you&apos;ll appear as your first name + last initial, and you can leave any time. It&apos;s just for a bit of friendly motivation.
                   </p>
-                  <button type="button" className="aurora-cta aurora-flow" style={{ maxWidth: 280 }} onClick={() => optIn.mutate(true)} disabled={optIn.isPending}>
+                  <button type="button" className="aurora-cta aurora-flow aurora-press" style={{ maxWidth: 280 }} onClick={() => optIn.mutate(true)} disabled={optIn.isPending}>
                     <span>Join the leaderboard →</span>
                   </button>
                 </>

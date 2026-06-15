@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
+import { confetti } from "@/fx/confetti";
 
 type Phase = "loading" | "question" | "result";
 interface QuestionData { question: string; topic: string; options: string[]; question_id: string; }
@@ -57,6 +58,15 @@ export function CheckIn() {
     return () => { cancelled = true; };
   }, [loadAttempt]);
 
+  /* Celebrate a correct answer with a gem-spectrum burst. The wrapper disables
+     itself under reduced motion, so no guard is needed here. */
+  useEffect(() => {
+    if (phase === "result" && correct) {
+      confetti({ particleCount: 110, spread: 78, startVelocity: 42, origin: { y: 0.42 },
+        colors: ["#3C90FF", "#34A853", "#AD72FF", "#FFCF03", "#F96BD6", "#00BDD2"] });
+    }
+  }, [phase, correct]);
+
   const handleSelect = async (option: string) => {
     if (submitting || !question || phase === "result") return;
     setSelected(option);
@@ -85,7 +95,7 @@ export function CheckIn() {
   return (
     <div className="aurora-checkin">
       <div className="aurora-checkin-mesh" aria-hidden><span /><span /></div>
-      <main className="aurora-checkin-wrap">
+      <main className="aurora-checkin-wrap aurora-rise-in">
         <header className="aurora-checkin-head">
           <p className="aurora-eyebrow">Daily check-in</p>
           <h1 className="aurora-checkin-h1">Today&apos;s question</h1>
@@ -114,14 +124,15 @@ export function CheckIn() {
 
           {phase === "question" && !loadError && question && (
             <>
-              <span className="aurora-checkin-q-topic">{question.topic}</span>
-              <p className="aurora-checkin-q">{question.question}</p>
-              <div className="aurora-checkin-options">
-                {question.options.map((opt) => (
+              <span className="aurora-checkin-q-topic aurora-rise-in" style={{ display: "inline-block", animationDelay: "40ms" }}>{question.topic}</span>
+              <p className="aurora-checkin-q aurora-rise-in" style={{ animationDelay: "120ms" }}>{question.question}</p>
+              <div className="aurora-checkin-options aurora-stagger">
+                {question.options.map((opt, idx) => (
                   <button
                     key={opt}
                     type="button"
-                    className="aurora-checkin-option"
+                    className="aurora-checkin-option aurora-press"
+                    style={{ ["--i" as string]: idx + 2 }}
                     disabled={submitting}
                     onClick={() => handleSelect(opt)}
                   >
@@ -129,7 +140,7 @@ export function CheckIn() {
                   </button>
                 ))}
               </div>
-              <button type="button" className="aurora-checkin-skip" onClick={goDashboard}>Skip for today</button>
+              <button type="button" className="aurora-checkin-skip aurora-rise-in" style={{ animationDelay: `${(question.options.length + 2) * 78}ms` }} onClick={goDashboard}>Skip for today</button>
             </>
           )}
 
@@ -142,20 +153,22 @@ export function CheckIn() {
                   const isCorrect = opt === correctAnswer;
                   const isChosen = opt === selected;
                   const cls = isCorrect ? "is-correct" : isChosen ? "is-wrong" : "";
+                  const shake = isChosen && !isCorrect ? " aurora-shake-in" : "";
                   return (
-                    <div key={opt} className={`aurora-checkin-option is-static ${cls}`}>
+                    <div key={opt} className={`aurora-checkin-option is-static ${cls}${shake}`} style={{ position: "relative" }}>
                       <span>{opt}</span>
                       {isCorrect && <span className="aurora-checkin-mark">✓</span>}
                       {isChosen && !isCorrect && <span className="aurora-checkin-mark">✕</span>}
+                      {isCorrect && <span className="aurora-bloom-ring" data-on="true" aria-hidden />}
                     </div>
                   );
                 })}
               </div>
-              <div className={`aurora-checkin-verdict ${correct ? "is-correct" : "is-wrong"}`}>
+              <div className={`aurora-checkin-verdict ${correct ? "is-correct" : "is-wrong"} aurora-rise-in`} style={{ animationDelay: "150ms" }}>
                 <span className="aurora-checkin-verdict-head">{correct ? "Correct" : "Not quite"}</span>
                 <p>{feedback}</p>
               </div>
-              <button type="button" className="aurora-checkin-submit aurora-flow" onClick={goDashboard}><span>Start learning →</span></button>
+              <button type="button" className="aurora-checkin-submit aurora-flow aurora-press aurora-rise-in" style={{ animationDelay: "260ms" }} onClick={goDashboard}><span>Start learning →</span></button>
             </>
           )}
         </section>

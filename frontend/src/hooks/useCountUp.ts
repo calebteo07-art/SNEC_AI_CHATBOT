@@ -5,11 +5,14 @@
    `display` for the formatted value. */
 import { useEffect, useRef, useState } from "react";
 
-export function useCountUp(target: number, opts?: { duration?: number; format?: (n: number) => string }) {
+export function useCountUp<T extends HTMLElement = HTMLDivElement>(
+  target: number,
+  opts?: { duration?: number; format?: (n: number) => string },
+) {
   const duration = opts?.duration ?? 1100;
   const format = opts?.format ?? ((n) => Math.round(n).toLocaleString());
   const [display, setDisplay] = useState(() => format(0));
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<T | null>(null);
   const started = useRef(false);
   useEffect(() => {
     started.current = false;

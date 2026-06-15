@@ -16,6 +16,21 @@ export interface CaseInfo {
 export function CaseCard({ data, onOpen }: { data: CaseInfo; onOpen: (c: CaseInfo) => void }) {
   const locked = data.locked ?? false;
 
+  /* Pointer-tilt depth — feeds --rx/--ry to the .aurora-tilt transform. Disabled
+     automatically under reduced motion (the class is reset in motion.css). */
+  const onMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
+    el.style.setProperty("--rx", `${(-py * 6).toFixed(2)}deg`);
+  };
+  const onLeave = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.setProperty("--rx", "0deg");
+    e.currentTarget.style.setProperty("--ry", "0deg");
+  };
+
   if (locked) {
     return (
       <div className="aurora-case aurora-case--locked" aria-disabled>
@@ -29,7 +44,7 @@ export function CaseCard({ data, onOpen }: { data: CaseInfo; onOpen: (c: CaseInf
   }
 
   return (
-    <button type="button" className="aurora-case" onClick={() => onOpen(data)}>
+    <button type="button" className="aurora-case aurora-tilt" onClick={() => onOpen(data)} onPointerMove={onMove} onPointerLeave={onLeave}>
       <div className="aurora-case-top">
         <span className="aurora-case-topic">{data.topic}</span>
         <span className="aurora-case-tier">{data.difficulty}</span>
