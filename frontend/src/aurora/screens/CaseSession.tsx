@@ -68,7 +68,7 @@ export function CaseSession() {
     fetch(`/api/cases/${caseId}`, { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then(setCaseInfo)
-      .catch(() => setLoadError(`Case "${caseId}" not found.`));
+      .catch(() => setLoadError(`Patient "${caseId}" not found.`));
   }, [caseId, caseInfo]);
 
   useEffect(() => {
@@ -179,7 +179,7 @@ export function CaseSession() {
     return (
       <div className="aurora-session-error">
         <p>{loadError}</p>
-        <button type="button" onClick={() => router.push("/cases")}>← Back to cases</button>
+        <button type="button" onClick={() => router.push("/cases")}>← Back to patients</button>
       </div>
     );
   }
@@ -187,7 +187,7 @@ export function CaseSession() {
   return (
     <div className="aurora-session">
       <header className="aurora-session-head">
-        <button type="button" className="aurora-session-back" onClick={() => router.push("/cases")}>← Cases</button>
+        <button type="button" className="aurora-session-back" onClick={() => router.push("/cases")}>← Patients</button>
         {caseInfo && (
           <div className="aurora-session-hud">
             <span><b>{caseInfo.patient.name}</b> · {caseInfo.patient.age} yr</span>
@@ -275,7 +275,7 @@ export function CaseSession() {
             {result && (
               <div className="aurora-session-result">
                 <div className="aurora-session-result-head">
-                  <h2 className="aurora-h1" style={{ fontSize: "1.4rem" }}>Case complete</h2>
+                  <h2 className="aurora-h1" style={{ fontSize: "1.4rem" }}>Consultation complete</h2>
                   <span className="aurora-session-total aurora-clip">{result.total_score}<small>/10</small></span>
                 </div>
                 {DOMAINS.map((d) => (
@@ -304,7 +304,7 @@ export function CaseSession() {
                   </div>
                 )}
                 <div className="aurora-session-result-actions">
-                  <button type="button" className="aurora-toggle" onClick={() => router.push("/cases")}>More cases</button>
+                  <button type="button" className="aurora-toggle" onClick={() => router.push("/cases")}>More patients</button>
                   <button type="button" className="aurora-cta aurora-flow" onClick={() => router.push("/dashboard")}><span>Back to dashboard</span></button>
                 </div>
               </div>

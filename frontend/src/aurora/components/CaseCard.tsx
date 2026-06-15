@@ -38,7 +38,7 @@ export function CaseCard({ data, onOpen }: { data: CaseInfo; onOpen: (c: CaseInf
           <span className="aurora-case-tier">{data.difficulty} · locked</span>
         </div>
         <p className="aurora-case-title">{data.title}</p>
-        <p className="aurora-case-note">Complete a prerequisite case to unlock.</p>
+        <p className="aurora-case-note">Complete an earlier patient to unlock.</p>
       </div>
     );
   }

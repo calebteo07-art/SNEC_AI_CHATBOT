@@ -323,7 +323,7 @@ export function OnboardingScreen() {
             <motion.div key="role" {...slide}>
               <p className="login-step-label">Your training track</p>
               <p style={{ fontSize: 13.5, color: "rgba(31,31,31,0.58)", marginBottom: 18, lineHeight: 1.5 }}>
-                Select your role — this scopes your cases, flashcards, and daily check-ins.
+                Select your role — this scopes your virtual patients, flashcards, and daily check-ins.
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {ROLES.map(r => (

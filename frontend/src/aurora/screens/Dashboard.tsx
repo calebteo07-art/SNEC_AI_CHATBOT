@@ -66,12 +66,12 @@ export function Dashboard() {
       value: `Lv ${progress?.level ?? 1}`,
       hint: rank.nextTitle ? `${rank.levelsToNext} level${rank.levelsToNext === 1 ? "" : "s"} to ${rank.nextTitle}` : "Top rank reached — nice work!",
     },
-    { label: "XP", value: `${progress?.xp ?? 0}`, hint: "Experience points — earn them from flashcards, cases and the tutor. 500 XP per level." },
+    { label: "XP", value: `${progress?.xp ?? 0}`, hint: "Experience points — earn them from flashcards, virtual patients and the tutor. 500 XP per level." },
   ];
 
   const nba = nextTopic
     ? { title: nextTopic.label, sub: `Continue your ${trackLabel} pathway`, cta: "Continue", href: `/flashcards?topic=${nextTopic.id}` }
-    : { title: "All topics cleared", sub: "Sharpen weak areas or explore live cases", cta: "Open Cases", href: "/cases" };
+    : { title: "All topics cleared", sub: "Sharpen weak areas or talk to a virtual patient", cta: "Open Virtual Patients", href: "/cases" };
 
   return (
     <div className="aurora-dash">

@@ -51,11 +51,11 @@ await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
 if ((await np.locator('[data-testid="aurora-logo"]').count()) < 1) { console.error("FAIL: Spark Eye logo not rendered in the rail"); process.exit(1); }
 console.log("PASS: Spark Eye logo renders in the Atlas Rail");
-for (const label of ["Dashboard", "Tutor", "Cases", "Flashcards", "Progress"]) {
+for (const label of ["Dashboard", "Tutor", "Virtual Patients", "Flashcards", "Progress"]) {
   const count = await np.locator(`.aurora-navitem:has-text("${label}")`).count();
   if (count < 1) { console.error(`FAIL: Atlas Rail missing "${label}"`); process.exit(1); }
 }
-await np.locator('.aurora-navitem:has-text("Cases")').first().click();
+await np.locator('.aurora-navitem:has-text("Virtual Patients")').first().click();
 await np.waitForURL("**/cases", { timeout: 6000 });
 console.log("PASS: Atlas Rail renders nav and routes to /cases");
 

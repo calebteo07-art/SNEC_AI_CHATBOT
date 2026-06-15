@@ -17,7 +17,7 @@ import { RouteReveal } from "@/fx/Reveal";
 const STUDY: Destination[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/chat", label: "Tutor" },
-  { href: "/cases", label: "Cases" },
+  { href: "/cases", label: "Virtual Patients" },
   { href: "/flashcards", label: "Flashcards" },
 ];
 const INSIGHT: Destination[] = [
