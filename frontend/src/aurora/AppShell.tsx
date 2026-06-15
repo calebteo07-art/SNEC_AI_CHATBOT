@@ -4,6 +4,7 @@
    topbar/pill-nav AppShell. No Lenis, no fluid canvas — motion is CSS-only and
    freezes under reduced motion. */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
 import { useReducedMotion } from "@/aurora/motion";
@@ -41,6 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   useReducedMotion(); // AURORA owns html[data-motion] now that the legacy MotionProvider is gone
   const { user } = useAuth();
   const { data: progress } = useProgress();
+  const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
   /* Mirror the backend streak into the local cache, as the legacy shell did. */
@@ -78,6 +80,20 @@ export function AppShell({ children }: { children: ReactNode }) {
         <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} />
         <main id="main" className="aurora-main">
           <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
+          <div className="aurora-main-scroll">{children}</div>
+        </main>
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
+      </div>
+    );
+  }
+
+  /* Immersive Tutor — on /chat the rail + mesh fall away and the chat fills the
+     whole viewport (IG-DM full screen). ⌘K still works; the in-chat back chevron
+     returns to /dashboard. Reached only for non-staff (staff returned above). */
+  if (pathname === "/chat") {
+    return (
+      <div className="aurora-shell aurora-shell-immersive">
+        <main id="main" className="aurora-main">
           <div className="aurora-main-scroll">{children}</div>
         </main>
         <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
