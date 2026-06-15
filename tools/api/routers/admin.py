@@ -1,4 +1,5 @@
 """Admin endpoints."""
+import asyncio
 import csv
 import io
 import re
@@ -66,7 +67,11 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
     email_error = ""
     try:
         from tools.shared.gmail_sender import send_email as _send_email
-        _send_email(
+        # Run off the event loop: send_email is blocking SMTP I/O, and a stall
+        # would otherwise freeze this single-worker async server and fail health
+        # checks (taking the whole service down).
+        await asyncio.to_thread(
+            _send_email,
             to=email,
             subject="Your EyeBot account is ready",
             html=f"""<p>Hi {body.full_name},</p>
@@ -307,7 +312,9 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
         email_sent = False
         email_error = ""
         try:
-            _send_email(
+            # Off the event loop (blocking SMTP) — see admin_approve_student.
+            await asyncio.to_thread(
+                _send_email,
                 to=email,
                 subject="Your EyeBot account is ready",
                 html=f"""<p>Hi {full_name},</p>
