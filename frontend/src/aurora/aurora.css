@@ -63,6 +63,26 @@
 html[data-motion="reduce"] .aurora-mesh span { animation: none; }
 @media (prefers-reduced-motion: reduce) { .aurora-mesh span { animation: none; } }
 
+/* Dashboard-only dark canvas. Scoped with :has(.aurora-dash) so it never touches
+   the other (light) student screens or the rail. Rather than a flat fill, the deep
+   indigo base keeps the existing drifting mesh alive — its three blobs are recoloured
+   to vivid cyan / violet / amber glows that echo the stat cards, so the backdrop is a
+   slow living aurora instead of a boring solid. Content cards are left untouched. */
+.aurora-main:has(.aurora-dash) {
+  /* Corner glows sit in the visible margin frame around the card-dense layout
+     (where the drifting mesh is mostly occluded), so the backdrop reads as a rich
+     coloured dark rather than flat navy. */
+  background:
+    radial-gradient(62% 52% at 100% 0%, rgba(124, 92, 246, 0.20), transparent 72%),
+    radial-gradient(58% 48% at 0% 100%, rgba(34, 184, 212, 0.18), transparent 72%),
+    radial-gradient(52% 42% at 100% 100%, rgba(251, 168, 56, 0.13), transparent 72%),
+    linear-gradient(165deg, #11142E 0%, #0C0F22 52%, #080B16 100%);
+}
+.aurora-main:has(.aurora-dash) .aurora-mesh span { opacity: 0.6; filter: blur(78px); }
+.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(1) { background: radial-gradient(circle, rgba(34, 184, 212, 0.34), transparent 70%); }
+.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(2) { background: radial-gradient(circle, rgba(124, 92, 246, 0.30), transparent 70%); }
+.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(3) { background: radial-gradient(circle, rgba(251, 168, 56, 0.20), transparent 70%); }
+
 /* ──────────────────────── Atlas Rail ──────────────────────── */
 .aurora-rail {
   position: relative;
