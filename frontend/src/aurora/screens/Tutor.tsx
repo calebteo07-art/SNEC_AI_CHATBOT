@@ -7,7 +7,9 @@ import { ChatThread } from "@/aurora/components/ChatThread";
 import { MessageBubble } from "@/aurora/components/MessageBubble";
 import { Composer } from "@/aurora/components/Composer";
 import { FollowupChip } from "@/aurora/components/FollowupChip";
+import Link from "next/link";
 import { Logo } from "@/aurora/Logo";
+import { Icon } from "@/aurora/icons";
 import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
 import { addChatXp, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
@@ -140,11 +142,17 @@ export function Tutor() {
       />
 
       <header className="aurora-chat-head">
-        <span className="aurora-chat-mark"><Logo size={26} /></span>
-        <div className="aurora-chat-head-meta">
-          <h1 className="aurora-chat-h1">EyeBot Tutor</h1>
-          <span className="aurora-chat-status">AI ophthalmology educator</span>
-        </div>
+        <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
+          <Icon.back size={24} />
+        </Link>
+        <span className="aurora-chat-avatar">
+          <span className="aurora-chat-ring"><Logo size={22} /></span>
+        </span>
+        <h1 className="aurora-chat-name">eyebot</h1>
+        <span className="aurora-chat-actions" aria-hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 4h3l2 5-2 1.5a11 11 0 0 0 5 5L16 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" /></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="6" width="13" height="12" rx="2" /><path d="M16 10l5-3v10l-5-3z" /></svg>
+        </span>
       </header>
 
       <ChatThread ref={threadRef}>
@@ -159,7 +167,7 @@ export function Tutor() {
         ))}
         {isTyping && (
           <MessageBubble role="eyebot">
-            <span className="aurora-typing">• • •</span>
+            <span className="aurora-typing" aria-label="EyeBot is typing"><i /><i /><i /></span>
           </MessageBubble>
         )}
       </ChatThread>
