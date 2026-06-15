@@ -24,6 +24,9 @@ rigor, RAG grounding, and guardrails intact. Concretely, fix the six complaints:
   output contract). Optional conditional first-name line in `_student_context_block`.
 - Frontend: immersive `/chat` shell branch; IG-style chat header; two-part
   (`💭` think + answer) bubble rendering; IG-style composer; IG-DM CSS skin.
+- Frontend: a **tutor motion layer** (CSS-only, in `motion.css`) — chat enter
+  choreography, living think-bubble gradient sheen, IG-style bouncing typing dots,
+  send-button micro-interactions — all reduced-motion-safe.
 
 **Out of scope (do NOT touch)**
 - The `/api/chat` SSE streaming contract (the `data: {"text": …}` / `[DONE]` protocol,
@@ -184,6 +187,31 @@ are centralised:
 - Keep using the existing `.aurora-msg` / `.aurora-typing` class names so `motion.css`
   bubble-pop / typing-pulse / composer-focus motion keeps applying.
 
+### 6.6 Tutor motion layer (`motion.css`, CSS-only)
+
+The student app already has a CSS-only motion engine (`motion.css`); the MotionProvider
+is NOT mounted, so GSAP fx wrappers crash — **all motion here is CSS keyframes only**.
+Add a focused, tasteful tutor layer (GPU-only transform/opacity + one gradient sheen):
+
+- **Chat enter choreography** — on mount the header drops in (`translateY(-10px)`→0 +
+  fade) and the composer/footer rises in (`translateY(10px)`→0 + fade), via new
+  `.aurora-chat-head` / `.aurora-chat-foot` animations. The first greeting bubble pops
+  via the existing `.aurora-msg` bubble-pop. Follow-up chips keep their `.aurora-stagger`.
+- **Living think bubble** — the blue-green gradient gently drifts (a slow
+  `background-position` sheen, ~7s linear infinite, `background-size: 200%`) so the
+  "thinking" bubble feels alive. Static fill under reduced motion.
+- **Bouncing typing dots** — replace the single pulsing `• • •` with three dot spans
+  that bounce in an IG-style staggered cadence (`translateY` + opacity, per-dot delay).
+- **Send micro-interactions** — the Send button pops in (`aurora-pop`) when text is
+  entered and scales on press (`.aurora-press`); the camera circle lifts subtly on hover.
+- **Streaming sequence is organic** — think→answer ordering comes from SSE streaming
+  (think text arrives, then the answer after the blank line), not a CSS delay, so no
+  double-animation jank with the row-level bubble-pop.
+
+All new animations are added to **both** reduced-motion reset blocks at the bottom of
+`motion.css` (the `@media (prefers-reduced-motion: reduce)` block and the
+`html[data-motion="reduce"]` block).
+
 ## 7. Accessibility & reduced motion
 
 - Header back button: real `<button>`/`<Link>` with `aria-label="Back to dashboard"`.
@@ -193,9 +221,11 @@ are centralised:
   the IG name or `sr-only`); do not ship a route with zero h1.
 - White text on the gradient bubbles must stay legible (it is bold white on
   saturated mid-tones — passes). Grey bubble text stays ink on `#EFEFEF`.
-- Reduced motion (`html[data-motion="reduce"]` / OS query): no new always-on
-  animation; the gradient is a static fill; existing `motion.css` reduced-motion reset
-  already neutralises `.aurora-msg`/typing. Verify nothing new pulses under reduce.
+- Reduced motion (`html[data-motion="reduce"]` / OS query): the tutor motion layer
+  (§6.6) adds always-on motion (think-bubble sheen, bouncing dots, chat-enter), so each
+  new animated selector MUST be added to both reduced-motion reset blocks in `motion.css`.
+  Under reduce: think gradient is a static fill, dots are static, header/composer/bubbles
+  render in their final state. Verify nothing pulses or drifts under reduce.
 
 ## 8. Constraints & gotchas
 
