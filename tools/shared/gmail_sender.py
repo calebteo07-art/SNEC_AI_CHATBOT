@@ -44,7 +44,10 @@ def send_email(to: str | list[str], subject: str, html: str, text: str = "") -> 
     msg.attach(MIMEText(plain, "plain"))
     msg.attach(MIMEText(html, "html"))
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+    # timeout is essential: without it a slow/blocked SMTP connection hangs the
+    # caller indefinitely. Callers must also run this off the event loop
+    # (asyncio.to_thread) so a stall can never freeze the async server.
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
         server.ehlo()
         server.starttls()
         server.login(sender, password)
