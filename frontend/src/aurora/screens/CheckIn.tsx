@@ -48,7 +48,10 @@ export function CheckIn() {
         if (cancelled) return;
         setQuestion(q);
         setPhase("question");
-        setCheckInDone(true);
+        /* Do NOT mark the check-in done just for loading the question — it counts as
+           done only once the student skips or answers (see handleSelect / goDashboard).
+           That date-keyed flag (AuthContext) is what keeps it from reappearing in a
+           later session on the same day. */
       } catch {
         if (cancelled) return;
         setLoadError(true);
