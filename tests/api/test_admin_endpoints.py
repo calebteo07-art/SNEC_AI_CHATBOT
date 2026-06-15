@@ -109,6 +109,7 @@ def test_admin_approve_student_success():
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
          patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
          patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.gmail_sender.send_email", return_value=None), \
          patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
         r = client.post(
             "/api/admin/approved",
@@ -117,7 +118,11 @@ def test_admin_approve_student_success():
         )
     assert r.status_code == 200
     assert r.json()["ok"] is True
-    assert "password" not in r.json()
+    # The temp password is returned to the authenticated admin as an email-delivery
+    # fallback (mirrors the CSV import). Admin-role auth is enforced by the
+    # rejects_unauthenticated/student/supervisor tests above.
+    assert r.json()["password"] == "TmpPass1!"
+    assert r.json()["email_sent"] is True
 
 
 def test_admin_approve_student_409_duplicate():
@@ -141,20 +146,26 @@ def test_admin_approve_student_400_empty_email():
     assert r.status_code == 400
 
 
-def test_admin_approve_student_does_not_return_password():
-    """Plaintext password must never appear in the API response."""
+def test_admin_approve_student_returns_temp_password_when_email_fails():
+    """When email delivery fails, the account is still created and the temp
+    password is returned so an authenticated admin can share it manually —
+    otherwise a broken SMTP setup would block all onboarding. Admin-role auth is
+    enforced by the rejects_unauthenticated/student/supervisor tests above."""
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
          patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
          patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.gmail_sender.send_email", side_effect=Exception("smtp down")), \
          patch("tools.api.routers.admin.generate_password", return_value="SuperSecret1!"):
         r = client.post(
             "/api/admin/approved",
             json={"email": "safe@test.com", "full_name": "Safe User", "role": "OT"},
             cookies=_admin_headers(),
         )
-    assert "SuperSecret1!" not in r.text
-    assert "password" not in r.json()
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+    assert r.json()["email_sent"] is False
+    assert r.json()["password"] == "SuperSecret1!"
 
 
 # ---------------------------------------------------------------------------
