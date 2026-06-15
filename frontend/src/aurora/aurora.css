@@ -83,6 +83,21 @@ html[data-motion="reduce"] .aurora-mesh span { animation: none; }
 .aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(2) { background: radial-gradient(circle, rgba(124, 92, 246, 0.30), transparent 70%); }
 .aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(3) { background: radial-gradient(circle, rgba(251, 168, 56, 0.20), transparent 70%); }
 
+/* Virtual Patients — a soft, LIGHT "aurora on paper" wash instead of flat white,
+   so the page feels calm and premium. White patient cards lift off a gentle
+   Gemini-tinted pearl gradient and the dark eye plate pops; the drifting mesh
+   keeps the backdrop quietly alive. Scoped with :has(.aurora-cases) so it never
+   touches the other screens or the rail. */
+.aurora-main:has(.aurora-cases) {
+  background:
+    radial-gradient(56% 48% at 0% 0%, rgba(66, 133, 244, 0.14), transparent 68%),
+    radial-gradient(52% 46% at 100% 3%, rgba(155, 114, 203, 0.14), transparent 70%),
+    radial-gradient(60% 52% at 96% 100%, rgba(217, 101, 112, 0.12), transparent 72%),
+    radial-gradient(46% 44% at 16% 98%, rgba(99, 160, 220, 0.10), transparent 72%),
+    linear-gradient(158deg, #EFF3FE 0%, #ECEEFB 46%, #F6EFF6 78%, #F7F1F3 100%);
+}
+.aurora-main:has(.aurora-cases) .aurora-mesh span { opacity: 0.6; filter: blur(74px); }
+
 /* ──────────────────────── Atlas Rail ──────────────────────── */
 .aurora-rail {
   position: relative;
