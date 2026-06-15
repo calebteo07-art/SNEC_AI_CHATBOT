@@ -584,7 +584,6 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 
 /* ─────────────────── Tutor chat — Instagram DM skin ─────────────────── */
 .aurora-chat {
-  --ig-grey: #efefef;
   --ig-sent: linear-gradient(135deg, #5B51D8, #833AB4, #C13584);
   --ig-think: linear-gradient(135deg, #3C90FF, #00BDD2, #88DE42);
   --ig-cam: linear-gradient(135deg, #4F5BD5, #C13584);
@@ -607,47 +606,50 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 
 /* Thread */
 .aurora-chat-thread { flex: 1; min-height: 0; overflow-y: auto; background: #fff; }
-.aurora-chat-inner { max-width: 680px; margin: 0 auto; padding: 18px clamp(12px, 3vw, 20px) 12px; display: flex; flex-direction: column; gap: 8px; }
+.aurora-chat-inner { max-width: none; min-height: 100%; box-sizing: border-box; margin: 0 auto; padding: 22px clamp(14px, 2.5vw, 32px) 14px; display: flex; flex-direction: column; gap: 14px; }
+/* Bottom-anchor a sparse thread (IG/iMessage style) so there's no empty white
+   space below the composer; collapses cleanly once the thread overflows. */
+.aurora-chat-inner > :first-child { margin-top: auto; }
 
 /* Message rows */
-.aurora-msg { display: flex; gap: 8px; align-items: flex-end; max-width: 82%; }
+.aurora-msg { display: flex; gap: 10px; align-items: flex-end; max-width: 90%; }
 .aurora-msg.is-eyebot { align-self: flex-start; }
 .aurora-msg.is-user { align-self: flex-end; }
 .aurora-msg-avatar { flex-shrink: 0; }
-.aurora-msg-ring { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; padding: 1.5px; background: var(--ig-ring); }
-.aurora-msg-ring > svg { background: #fff; border-radius: 50%; padding: 1.5px; box-sizing: content-box; width: 18px; height: 18px; }
-.aurora-msg-stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.aurora-msg-ring { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; padding: 1.5px; background: var(--ig-ring); }
+.aurora-msg-ring > svg { background: #fff; border-radius: 50%; padding: 1.5px; box-sizing: content-box; width: 22px; height: 22px; }
+.aurora-msg-stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
-/* Bubbles */
-.aurora-msg-bubble { padding: 9px 13px; border-radius: 18px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-.is-eyebot .aurora-msg-bubble { background: var(--ig-grey); color: #1f1f1f; border-radius: 4px 18px 18px 18px; white-space: pre-wrap; }
-.is-user .aurora-msg-bubble { background: var(--ig-sent); color: #fff; border-radius: 18px 18px 4px 18px; white-space: pre-wrap; }
+/* Bubbles — every EyeBot output is the static blue-green gradient with white text */
+.aurora-msg-bubble { padding: 16px 22px; border-radius: 22px; font-size: 21px; line-height: 1.55; overflow-wrap: anywhere; }
+.is-eyebot .aurora-msg-bubble { background: var(--ig-think); color: #fff; border-radius: 6px 22px 22px 22px; white-space: pre-wrap; }
+.is-user .aurora-msg-bubble { background: var(--ig-sent); color: #fff; border-radius: 22px 22px 6px 22px; white-space: pre-wrap; }
 
 /* Blue-green "think" bubble (the 💭 reflective lead) */
-.aurora-msg-think { background: var(--ig-think); border-radius: 18px 18px 18px 4px; padding: 9px 13px; display: flex; flex-direction: column; gap: 3px; max-width: 100%; }
-.aurora-msg-think-label { font-size: 11px; font-weight: 600; color: #fff; opacity: 0.95; }
-.aurora-msg-think-text { font-size: 14px; line-height: 1.5; color: #fff; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
+.aurora-msg-think { background: var(--ig-think); border-radius: 22px 22px 22px 6px; padding: 16px 22px; display: flex; flex-direction: column; gap: 5px; max-width: 100%; }
+.aurora-msg-think-label { font-size: 14px; font-weight: 600; color: #fff; opacity: 0.95; }
+.aurora-msg-think-text { font-size: 21px; line-height: 1.55; color: #fff; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-/* Typing dots (three <i> spans; bounce defined in motion.css) */
-.aurora-typing { display: inline-flex; align-items: center; gap: 4px; padding: 2px 0; }
-.aurora-typing i { width: 7px; height: 7px; border-radius: 50%; background: #8e8e8e; display: inline-block; }
+/* Typing dots (three <i> spans; bounce defined in motion.css) — white on gradient */
+.aurora-typing { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; }
+.aurora-typing i { width: 9px; height: 9px; border-radius: 50%; background: #fff; display: inline-block; }
 
 /* Footer + composer */
-.aurora-chat-foot { padding: 8px clamp(12px, 3vw, 20px) 12px; border-top: 1px solid rgba(31, 31, 31, 0.08); background: #fff; }
-.aurora-chat-foot-inner { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 9px; }
+.aurora-chat-foot { padding: 8px clamp(14px, 2.5vw, 32px) 12px; border-top: 1px solid rgba(31, 31, 31, 0.08); background: #fff; }
+.aurora-chat-foot-inner { max-width: none; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 .aurora-chat-followups { display: flex; gap: 8px; flex-wrap: wrap; }
-.aurora-followup { position: relative; border: 1px solid rgba(31, 31, 31, 0.16); background: var(--surface); border-radius: 999px; padding: 6px 13px; font-size: 12px; font-weight: 500; color: var(--ink-2); cursor: pointer; overflow: hidden; }
+.aurora-followup { position: relative; border: 1px solid rgba(31, 31, 31, 0.16); background: var(--surface); border-radius: 999px; padding: 8px 16px; font-size: 15px; font-weight: 500; color: var(--ink-2); cursor: pointer; overflow: hidden; }
 .aurora-followup span { position: relative; z-index: 1; }
 .aurora-followup:hover { color: var(--ink); border-color: rgba(31, 31, 31, 0.3); }
 .aurora-followup[data-active="true"] { color: #fff; border-color: transparent; }
 
-.aurora-composer { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid rgba(31, 31, 31, 0.15); border-radius: 22px; padding: 5px 8px 5px 6px; }
+.aurora-composer { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid rgba(31, 31, 31, 0.15); border-radius: 28px; padding: 7px 10px 7px 8px; }
 .aurora-composer:focus-within { border-color: rgba(60, 144, 255, 0.4); }
-.aurora-composer-cam { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--ig-cam); flex-shrink: 0; transition: transform .2s var(--mo-ease); }
+.aurora-composer-cam { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--ig-cam); flex-shrink: 0; transition: transform .2s var(--mo-ease); }
 .aurora-composer-cam:hover { transform: scale(1.08); }
-.aurora-composer-field { flex: 1; min-width: 0; border: none; background: none; outline: none; resize: none; font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--ink); padding: 6px 2px; max-height: 140px; }
+.aurora-composer-field { flex: 1; min-width: 0; border: none; background: none; outline: none; resize: none; font-family: var(--font-sans); font-size: 20px; line-height: 1.5; color: var(--ink); padding: 11px 4px; max-height: 176px; }
 .aurora-composer-field::placeholder { color: var(--ink-3); }
-.aurora-composer-send { flex-shrink: 0; border: none; background: none; color: #3C90FF; font-weight: 600; font-size: 14px; font-family: var(--font-sans); cursor: pointer; padding: 4px 6px; }
+.aurora-composer-send { flex-shrink: 0; border: none; background: none; color: #3C90FF; font-weight: 600; font-size: 18px; font-family: var(--font-sans); cursor: pointer; padding: 6px 8px; }
 .aurora-composer-send:disabled { opacity: 0.5; cursor: not-allowed; }
 .aurora-composer-glyphs { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); flex-shrink: 0; padding-right: 4px; }
 
