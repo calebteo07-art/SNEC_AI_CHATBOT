@@ -1,8 +1,11 @@
 "use client";
-/* MessageBubble — calm reading surface. EyeBot gets a mono Spark Eye avatar + a
-   white bubble; the user gets a right-aligned soft blue/purple gradient tint. */
+/* MessageBubble — Instagram-DM bubbles. The student's sent bubble is the IG
+   blue→purple→pink gradient; EyeBot's reply is parsed into an optional blue-green
+   "think" bubble (the 💭 reflective lead) stacked above a grey answer bubble.
+   Greeting / fallback text (no 💭) renders as a single grey bubble. */
 import type { ReactNode } from "react";
 import { Logo } from "@/aurora/Logo";
+import { parseReply } from "@/aurora/lib/parseReply";
 
 export function MessageBubble({
   role,
@@ -20,12 +23,49 @@ export function MessageBubble({
       </div>
     );
   }
+
+  const avatar = (
+    <span className="aurora-msg-avatar">
+      <span className="aurora-msg-ring"><Logo size={18} /></span>
+    </span>
+  );
+
+  // Non-string children (e.g. the typing indicator) render as one plain bubble.
+  if (typeof children !== "string") {
+    return (
+      <div className="aurora-msg is-eyebot">
+        {avatar}
+        <div className="aurora-msg-stack">
+          <div className="aurora-msg-bubble">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
+  const { think, answer } = parseReply(children);
+  const showThink = think !== null;
+  const showAnswer = answer !== "" || !showThink;
+  const caretOnAnswer = showAnswer;
+
   return (
     <div className="aurora-msg is-eyebot">
-      <span className="aurora-msg-avatar"><Logo size={20} /></span>
-      <div className="aurora-msg-bubble">
-        {children}
-        {streaming && <span className="aurora-caret" />}
+      {avatar}
+      <div className="aurora-msg-stack">
+        {showThink && (
+          <div className="aurora-msg-think">
+            <span className="aurora-msg-think-label">let&apos;s think it through 💭</span>
+            <span className="aurora-msg-think-text">
+              {think}
+              {streaming && !caretOnAnswer && <span className="aurora-caret" />}
+            </span>
+          </div>
+        )}
+        {showAnswer && (
+          <div className="aurora-msg-bubble">
+            {answer}
+            {streaming && caretOnAnswer && <span className="aurora-caret" />}
+          </div>
+        )}
       </div>
     </div>
   );
