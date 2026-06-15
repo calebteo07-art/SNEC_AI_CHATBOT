@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Outfit } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Dancing_Script } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -25,6 +25,13 @@ const display = Outfit({
   weight: ["300", "400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-outfit",
+  display: "swap",
+});
+/* Flamboyant flowing script — used only for the dashboard greeting flourish. */
+const flourish = Dancing_Script({
+  weight: ["600", "700"],
+  subsets: ["latin"],
+  variable: "--font-flourish",
   display: "swap",
 });
 
@@ -57,7 +64,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${display.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable}`}
       data-motion=""
     >
       <body>
