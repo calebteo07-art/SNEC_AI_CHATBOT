@@ -49,7 +49,7 @@ export function Cases() {
     fetch(url, { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Server error"); return r.json(); })
       .then((data) => setCases(data.cases ?? []))
-      .catch(() => setError("Could not load cases. Please try again."))
+      .catch(() => setError("Could not load patients. Please try again."))
       .finally(() => setLoading(false));
   }, [selectedTopic]);
 
@@ -72,8 +72,8 @@ export function Cases() {
     <div className="aurora-cases">
       <header className="aurora-cases-head">
         <div>
-          <p className="aurora-eyebrow">Clinical cases</p>
-          <h1 className="aurora-h1">Atlas of cases</h1>
+          <p className="aurora-eyebrow">Virtual patients</p>
+          <h1 className="aurora-h1">Talk to a virtual patient</h1>
           <p className="aurora-sub">Choose a topic or a region of the eye, then interview a virtual patient and reach your diagnosis.</p>
         </div>
         <div className="aurora-cases-tools">
@@ -91,7 +91,7 @@ export function Cases() {
       </header>
 
       {topics.length > 0 && (
-        <div className="aurora-topic-picker" role="tablist" aria-label="Case topics">
+        <div className="aurora-topic-picker" role="tablist" aria-label="Patient topics">
           <button
             type="button"
             role="tab"
@@ -137,7 +137,7 @@ export function Cases() {
           <div className="aurora-cases-list" data-testid="case-list">
             {filtered.length === 0 ? (
               <p className="aurora-muted aurora-cases-empty">
-                {selectedTopic ? "No cases in this topic yet — more are on the way." : "No cases here yet — try another region or track."}
+                {selectedTopic ? "No patients in this topic yet — more are on the way." : "No patients here yet — try another region or track."}
               </p>
             ) : (
               <div className={`${showMap ? "aurora-cases-col" : "aurora-cases-grid"} aurora-stagger`}>

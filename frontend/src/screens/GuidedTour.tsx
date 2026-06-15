@@ -25,8 +25,8 @@ const TOUR_STEPS = [
   {
     id: "cases",
     target: '[data-tour="cases"]',
-    title: "Clinical Cases",
-    body: "Practice with real clinical scenarios to build your diagnostic reasoning.",
+    title: "Virtual Patients",
+    body: "Chat with a virtual patient — take a history, examine, and reach your diagnosis.",
   },
   {
     id: "chat",
