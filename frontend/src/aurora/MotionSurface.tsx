@@ -5,7 +5,7 @@ import type { ReactNode, CSSProperties } from "react";
  *  `variant` lets it render a hero panel (solid gradient) or a tint (low-alpha). */
 export function MotionSurface(
   { children, variant = "panel", style, className = "", "data-testid": dataTestId }:
-  { children?: ReactNode; variant?: "panel" | "tint-blue" | "tint-purple" | "tint-rose";
+  { children?: ReactNode; variant?: "panel" | "tint-blue" | "tint-purple" | "tint-rose" | "tint-green";
     style?: CSSProperties; className?: string; "data-testid"?: string },
 ) {
   return (

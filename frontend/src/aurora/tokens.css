@@ -51,3 +51,4 @@ body { font-family: var(--font-sans); color: var(--ink); background: var(--canva
 .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(66,133,244,.14), rgba(155,114,203,.10), rgba(66,133,244,.14)); border: 1px solid rgba(66,133,244,.22); }
 .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(155,114,203,.16), rgba(217,101,112,.10), rgba(155,114,203,.16)); border: 1px solid rgba(155,114,203,.22); }
 .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(217,101,112,.15), rgba(155,114,203,.10), rgba(217,101,112,.15)); border: 1px solid rgba(217,101,112,.22); }
+.aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(52,168,83,.14), rgba(66,133,244,.08), rgba(52,168,83,.14)); border: 1px solid rgba(52,168,83,.22); }
