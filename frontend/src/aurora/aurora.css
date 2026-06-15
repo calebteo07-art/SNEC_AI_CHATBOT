@@ -1046,3 +1046,21 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 /* "Needs attention" focal panel (Overview at-risk). */
 .console-focus { border: 1px solid rgba(240, 122, 134, 0.30); background: linear-gradient(180deg, rgba(240,122,134,0.06), transparent 60%); border-radius: var(--radius-lg); padding: 16px; }
 .console-attn-count { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .04em; color: var(--on-rose); background: rgba(240,122,134,0.12); border: 1px solid rgba(240,122,134,0.28); border-radius: 999px; padding: 2px 9px; }
+
+/* Status + role badges read in colour on the slate (override the flat dark bg so
+   each domain keeps its hue: OA/students blue, OT purple, PSA rose, Active green,
+   Pending amber). Specificity beats the generic .console-dark .aurora-badge. */
+.console-dark .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
+.console-dark .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
+.console-dark .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
+.console-dark .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
+.console-dark .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
+.console-dark .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
+
+/* Asymmetric split — Overview's at-risk focus (primary) beside weak-topics
+   (secondary); collapses to one column on narrow viewports. */
+.console-split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 760px) { .console-split { grid-template-columns: 1fr; } }
+
+/* Small rose marker for at-risk rows in the Students table. */
+.console-risk-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--g-rose); flex-shrink: 0; box-shadow: 0 0 6px rgba(240,122,134,.6); }

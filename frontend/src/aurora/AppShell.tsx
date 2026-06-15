@@ -9,6 +9,7 @@ import { useProgress } from "@/hooks/useProgress";
 import { useReducedMotion } from "@/aurora/motion";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { AtlasRail } from "./components/AtlasRail";
+import { ConsoleRail } from "./components/ConsoleRail";
 import { CommandPalette, type Destination } from "./components/CommandPalette";
 
 const STUDY: Destination[] = [
@@ -21,9 +22,18 @@ const INSIGHT: Destination[] = [
   { href: "/progress", label: "Progress" },
   { href: "/summary", label: "Summary" },
 ];
-const OVERSIGHT: Destination[] = [
+/* Staff palettes mirror the ConsoleRail nav — no student surfaces. */
+const ADMIN_DEST: Destination[] = [
+  { href: "/admin", label: "Overview" },
+  { href: "/admin/students", label: "Students" },
+  { href: "/admin/accounts", label: "Accounts" },
+  { href: "/admin/activity", label: "Activity" },
+  { href: "/profile", label: "Profile" },
+];
+const SUPERVISOR_DEST: Destination[] = [
   { href: "/supervisor", label: "Supervisor" },
   { href: "/admin", label: "Admin" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -51,10 +61,28 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const role = user?.role ?? "student";
-  const destinations = useMemo<Destination[]>(
-    () => [...STUDY, ...INSIGHT, ...(role === "admin" || role === "supervisor" ? OVERSIGHT : [])],
-    [role],
-  );
+  const isStaff = role === "admin" || role === "supervisor";
+  const destinations = useMemo<Destination[]>(() => {
+    if (role === "admin") return ADMIN_DEST;
+    if (role === "supervisor") return SUPERVISOR_DEST;
+    return [...STUDY, ...INSIGHT];
+  }, [role]);
+
+  /* Staff get the dark "control console": a dedicated oversight-only rail on the
+     same mesh/scroll markup, re-themed by the .console-dark scope. Students keep
+     the light AURORA shell untouched. */
+  if (isStaff) {
+    return (
+      <div className="aurora-shell console-dark">
+        <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} />
+        <main id="main" className="aurora-main">
+          <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
+          <div className="aurora-main-scroll">{children}</div>
+        </main>
+        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
+      </div>
+    );
+  }
 
   return (
     <div className="aurora-shell">

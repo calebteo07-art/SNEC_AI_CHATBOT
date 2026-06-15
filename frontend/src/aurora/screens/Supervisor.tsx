@@ -2,7 +2,7 @@
 /* AURORA supervisor — cohort analytics: KPIs, AI narrative, weak-topic chips,
    cohort benchmarks, an at-risk table, and a weekly-digest send. Student rows
    open the drill-down modal. Same endpoints as the legacy dashboard. */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { StatCard } from "@/aurora/components/StatCard";
 import { SupervisorDrillDown, type BenchmarkTopic } from "./SupervisorDrillDown";
@@ -67,14 +67,12 @@ export function Supervisor() {
 
   return (
     <div className="aurora-admin">
-      <header className="aurora-admin-head">
-        <div>
-          <p className="aurora-eyebrow">SNEC clinical education · cohort analytics</p>
+      <header>
+        <p className="aurora-eyebrow">SNEC control console · cohort analytics</p>
+        <div className="console-section-head">
+          <span className="console-tick" data-hue="blue" aria-hidden />
           <h1 className="aurora-h1">Supervisor</h1>
         </div>
-        <button type="button" className="aurora-btn-ghost" onClick={sendDigest} disabled={digestSending}>
-          {digestSending ? "Sending…" : digestStatus === "sent" ? "Digest sent ✓" : digestStatus === "error" ? "Failed — retry" : "✉ Send weekly digest"}
-        </button>
       </header>
 
       {loading && <p className="aurora-muted">Loading cohort…</p>}
@@ -91,7 +89,7 @@ export function Supervisor() {
 
           <div className="aurora-kpis">
             <StatCard tone="blue" label="Students" value={totalStudents} />
-            <StatCard tone="purple" label="Active this week" value={cohort.active_this_week} />
+            <StatCard tone="green" label="Active this week" value={cohort.active_this_week} />
             <StatCard tone="rose" label="At risk" value={cohort.at_risk_count} />
           </div>
 
@@ -132,9 +130,39 @@ export function Supervisor() {
             </section>
           )}
 
-          <section className="aurora-card" aria-label="Cohort leaderboard">
+          {/* Cohort controls — digest + leaderboard grouped so the actions
+              live in one place instead of scattered across the screen. */}
+          <section className="aurora-card console-card-accent" aria-label="Cohort controls" style={{ "--accent": "var(--g-purple)" } as CSSProperties}>
+            <p className="aurora-activity-head">Cohort controls</p>
+
+            <div className="aurora-prog-card-head" style={{ marginTop: 6 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ fontWeight: 600, fontSize: 13.5 }}>Weekly digest</p>
+                <p className="aurora-muted" style={{ marginTop: 2, lineHeight: 1.55 }}>
+                  Email yourself a snapshot of cohort progress and the students who need attention.
+                </p>
+              </div>
+              <button type="button" className="aurora-btn-ghost" onClick={sendDigest} disabled={digestSending}>
+                {digestSending ? "Sending…" : digestStatus === "sent" ? "Digest sent ✓" : digestStatus === "error" ? "Failed — retry" : "✉ Send now"}
+              </button>
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--hairline)", margin: "14px 0" }} />
+
             <div className="aurora-prog-card-head">
-              <p className="aurora-activity-head">Cohort leaderboard</p>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ fontWeight: 600, fontSize: 13.5 }}>Cohort leaderboard</p>
+                <p className="aurora-muted" style={{ marginTop: 2, lineHeight: 1.55 }}>
+                  {lbEnabled
+                    ? "On — students can optionally join. Only those who opt in appear, shown as first name + last initial, so no one is listed without consent."
+                    : "Off and hidden from all students. Turn it on to let them optionally join a friendly cohort XP leaderboard."}
+                </p>
+                {lbError && (
+                  <p className="aurora-muted" style={{ marginTop: 6, color: "var(--on-rose)" }}>
+                    Couldn&apos;t update — the leaderboard tables may need database migration 004.
+                  </p>
+                )}
+              </div>
               <button
                 type="button"
                 className={`aurora-topic-chip${lbEnabled ? " is-active" : ""}`}
@@ -145,16 +173,6 @@ export function Supervisor() {
                 {lbEnabled === null ? "…" : lbEnabled ? "On" : "Off"}
               </button>
             </div>
-            <p className="aurora-muted" style={{ marginTop: 6, lineHeight: 1.6 }}>
-              {lbEnabled
-                ? "On — students can optionally join. Only students who choose to join appear, shown as first name + last initial, so no one is listed without consent."
-                : "You've turned the leaderboard off, so it's hidden from all students. Turn it back on to let them optionally join a friendly cohort XP leaderboard."}
-            </p>
-            {lbError && (
-              <p className="aurora-muted" style={{ marginTop: 6, color: "var(--on-rose)" }}>
-                Couldn&apos;t update — the leaderboard tables may need database migration 004.
-              </p>
-            )}
           </section>
 
           <section className="aurora-card" aria-label="Students needing attention" style={{ padding: 0 }}>

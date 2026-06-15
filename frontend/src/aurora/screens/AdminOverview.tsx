@@ -59,13 +59,11 @@ export function AdminOverview() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <button type="button" className="aurora-btn-ghost" onClick={refreshMedia}>↻ Refresh media library</button>
-      </div>
-
+      {/* Per-domain KPI colour coding: students=blue, engagement=green,
+          at-risk=rose, AI cost=purple. */}
       <div className="aurora-kpis">
         <StatCard tone="blue" label="Total students" value={totalStudents} />
-        <StatCard tone="blue" label="Active this week" value={cohort?.active_this_week ?? 0} />
+        <StatCard tone="green" label="Active this week" value={cohort?.active_this_week ?? 0} />
         <StatCard tone="rose" label="At risk" value={cohort?.at_risk_count ?? 0} />
         <StatCard tone="purple" label="AI tokens" value={fmtTokens(totalTokens)} />
       </div>
@@ -76,11 +74,15 @@ export function AdminOverview() {
         </div>
       )}
 
-      <div className="aurora-panels">
-        <section className="aurora-card" aria-label="At-risk students">
-          <p className="aurora-activity-head">At-risk students</p>
+      <div className="console-split">
+        {/* PRIMARY — the action item: who needs attention. */}
+        <section className="console-focus" aria-label="At-risk students">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+            <p className="aurora-activity-head" style={{ margin: 0 }}>Needs attention</p>
+            <span className="console-attn-count">{atRisk.length} at risk</span>
+          </div>
           {atRisk.length === 0 ? (
-            <p className="aurora-muted">No at-risk students.</p>
+            <p className="aurora-muted">No at-risk students — the cohort is on track.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {atRisk.map((s) => {
@@ -98,6 +100,7 @@ export function AdminOverview() {
           )}
         </section>
 
+        {/* SECONDARY — supporting context. */}
         <section className="aurora-card" aria-label="Weak topics">
           <p className="aurora-activity-head">Weak topics</p>
           {weak.length === 0 ? (
@@ -114,6 +117,21 @@ export function AdminOverview() {
           )}
         </section>
       </div>
+
+      {/* Quiet maintenance utility — pulled out of the header so it doesn't
+          compete with the cohort signal. */}
+      <details className="console-disclosure">
+        <summary>
+          <span>Media library<span className="console-disc-sub" style={{ marginLeft: 8 }}>maintenance</span></span>
+          <svg className="console-disc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+        </summary>
+        <div className="console-disclosure-body">
+          <p className="aurora-muted" style={{ margin: "8px 0 12px", lineHeight: 1.6 }}>
+            Regenerate the illustrative accent artwork shown across the student app. Runs in the background — students are never blocked.
+          </p>
+          <button type="button" className="aurora-btn-ghost" onClick={refreshMedia}>↻ Refresh media library</button>
+        </div>
+      </details>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 /* AURORA admin accounts — add a student, bulk CSV import, the approved list
    (with removal), and staff promotion. All endpoints/handlers preserved. */
-import { useState, useRef, useEffect, type FormEvent } from "react";
+import { useState, useRef, useEffect, type FormEvent, type CSSProperties } from "react";
 import { useAuth } from "@/screens/AuthContext";
 import { type ApprovedStudent, type Credential, getInitials } from "@/screens/adminShared";
 import { Icon } from "@/aurora/icons";
@@ -39,6 +39,7 @@ export function AdminAccounts() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [accountSearch, setAccountSearch] = useState("");
+  const [provMode, setProvMode] = useState<"one" | "csv">("one");
 
   useEffect(() => {
     fetch("/api/admin/approved", { credentials: "include" })
@@ -134,88 +135,95 @@ export function AdminAccounts() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div className="aurora-panels">
-        {/* Add one student */}
-        <section className="aurora-card">
-          <p className="aurora-activity-head">Add one student</p>
-          <form onSubmit={handleAdd} className="aurora-form-row">
-            <div>
-              <label className="aurora-form-label">Full name</label>
-              <input className="aurora-field" style={{ width: "100%" }} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Jane Doe" />
-            </div>
-            <div>
-              <label className="aurora-form-label">Email</label>
-              <input className="aurora-field" style={{ width: "100%" }} type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="jane@snec.com.sg" />
-            </div>
-            <div>
-              <label className="aurora-form-label">Role</label>
-              <select className="aurora-select" style={{ width: "100%" }} value={newRole} onChange={(e) => setNewRole(e.target.value)}>
-                <option value="">Select role…</option>
-                <option value="OA">Ophthalmic Assistant (OA)</option>
-                <option value="OT">Ophthalmic Technician (OT)</option>
-                <option value="PSA">Patient Service Associate (PSA)</option>
-              </select>
-            </div>
-            {addError && <p className="aurora-note is-err">{addError}</p>}
-            <button type="submit" className="aurora-btn" disabled={adding}>{adding ? "Adding…" : "Add student"}</button>
-          </form>
-          {addedCredential && (
-            <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-              {addedCredential.emailSent ? (
-                <p className="aurora-note is-ok">Student added. Login details emailed to {addedCredential.email}.</p>
-              ) : (
-                <p className="aurora-note is-err">
-                  Student added, but the email didn’t send{addedCredential.emailError ? ` — ${addedCredential.emailError}` : ""}. Give them the temporary password below so they can sign in (they’ll be asked to change it).
-                </p>
-              )}
-              {addedCredential.password && (
-                <p className="aurora-note">
-                  Temporary password (shown once):{" "}
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{addedCredential.password}</span>
-                </p>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* CSV import */}
-        <section className="aurora-card">
-          <p className="aurora-activity-head">Bulk import via CSV</p>
-          <div
-            className="aurora-dropzone"
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
-          >
-            <div style={{ fontSize: "1.6rem" }}>⬚</div>
-            <p className="aurora-dropzone-title">Drop CSV here or click to browse</p>
-            <p className="aurora-dropzone-sub">Columns: full_name · email · role</p>
-            <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
+      {/* Provisioning — one card, segmented so only one form shows at a time. */}
+      <section className="aurora-card console-card-accent" style={{ "--accent": "var(--g-green)" } as CSSProperties}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+          <p className="aurora-activity-head" style={{ margin: 0 }}>Provision accounts</p>
+          <div className="console-segment" role="tablist" aria-label="Provisioning mode">
+            <button type="button" role="tab" aria-selected={provMode === "one"} data-active={provMode === "one"} onClick={() => setProvMode("one")}>One student</button>
+            <button type="button" role="tab" aria-selected={provMode === "csv"} data-active={provMode === "csv"} onClick={() => setProvMode("csv")}>Import CSV</button>
           </div>
-          {csvPreview && <p className="aurora-note is-ok" style={{ marginTop: 8 }}>{csvPreview.count} students ready to import</p>}
-          {csvFile && <button type="button" className="aurora-btn" style={{ width: "100%", marginTop: 10 }} onClick={handleCsvImport} disabled={csvUploading}>{csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} students`}</button>}
-          {csvImportSummary && (
-            <div style={{ marginTop: 10 }}>
-              <p className="aurora-note is-ok">Imported: {csvImportSummary.imported}</p>
-              {csvImportSummary.skipped > 0 && <p className="aurora-note">Skipped: {csvImportSummary.skipped}</p>}
-              {csvErrors.map((e, i) => <p key={i} className="aurora-note is-err">Row {e.row}: {e.reason}</p>)}
-            </div>
-          )}
-          {csvCredentials.length > 0 && (
-            <div className="aurora-table-wrap" style={{ marginTop: 12 }}>
-              <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "1fr 1fr" }}><span>Email</span><span>Password (shown once)</span></div>
-              {csvCredentials.map((c) => (
-                <div key={c.email} className="aurora-trow" style={{ gridTemplateColumns: "1fr 1fr" }}>
-                  <span className="aurora-tcell is-muted">{c.email}</span>
-                  <span className="aurora-tcell is-mono">{c.password}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
+        </div>
 
-      {/* Approved list */}
+        {provMode === "one" ? (
+          <>
+            <form onSubmit={handleAdd} className="aurora-form-row">
+              <div>
+                <label className="aurora-form-label">Full name</label>
+                <input className="aurora-field" style={{ width: "100%" }} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Jane Doe" />
+              </div>
+              <div>
+                <label className="aurora-form-label">Email</label>
+                <input className="aurora-field" style={{ width: "100%" }} type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="jane@snec.com.sg" />
+              </div>
+              <div>
+                <label className="aurora-form-label">Role</label>
+                <select className="aurora-select" style={{ width: "100%" }} value={newRole} onChange={(e) => setNewRole(e.target.value)}>
+                  <option value="">Select role…</option>
+                  <option value="OA">Ophthalmic Assistant (OA)</option>
+                  <option value="OT">Ophthalmic Technician (OT)</option>
+                  <option value="PSA">Patient Service Associate (PSA)</option>
+                </select>
+              </div>
+              {addError && <p className="aurora-note is-err">{addError}</p>}
+              <button type="submit" className="aurora-btn" disabled={adding}>{adding ? "Adding…" : "Add student"}</button>
+            </form>
+            {addedCredential && (
+              <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+                {addedCredential.emailSent ? (
+                  <p className="aurora-note is-ok">Student added. Login details emailed to {addedCredential.email}.</p>
+                ) : (
+                  <p className="aurora-note is-err">
+                    Student added, but the email didn’t send{addedCredential.emailError ? ` — ${addedCredential.emailError}` : ""}. Give them the temporary password below so they can sign in (they’ll be asked to change it).
+                  </p>
+                )}
+                {addedCredential.password && (
+                  <p className="aurora-note">
+                    Temporary password (shown once):{" "}
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{addedCredential.password}</span>
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div
+              className="aurora-dropzone"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleCsvFile(f); }}
+            >
+              <div style={{ fontSize: "1.6rem" }}>⬚</div>
+              <p className="aurora-dropzone-title">Drop CSV here or click to browse</p>
+              <p className="aurora-dropzone-sub">Columns: full_name · email · role</p>
+              <input ref={fileInputRef} type="file" accept=".csv" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCsvFile(f); }} />
+            </div>
+            {csvPreview && <p className="aurora-note is-ok" style={{ marginTop: 8 }}>{csvPreview.count} students ready to import</p>}
+            {csvFile && <button type="button" className="aurora-btn" style={{ width: "100%", marginTop: 10 }} onClick={handleCsvImport} disabled={csvUploading}>{csvUploading ? "Importing…" : `Import ${csvPreview?.count ?? ""} students`}</button>}
+            {csvImportSummary && (
+              <div style={{ marginTop: 10 }}>
+                <p className="aurora-note is-ok">Imported: {csvImportSummary.imported}</p>
+                {csvImportSummary.skipped > 0 && <p className="aurora-note">Skipped: {csvImportSummary.skipped}</p>}
+                {csvErrors.map((e, i) => <p key={i} className="aurora-note is-err">Row {e.row}: {e.reason}</p>)}
+              </div>
+            )}
+            {csvCredentials.length > 0 && (
+              <div className="aurora-table-wrap" style={{ marginTop: 12 }}>
+                <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "1fr 1fr" }}><span>Email</span><span>Password (shown once)</span></div>
+                {csvCredentials.map((c) => (
+                  <div key={c.email} className="aurora-trow" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                    <span className="aurora-tcell is-muted">{c.email}</span>
+                    <span className="aurora-tcell is-mono">{c.password}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* Approved list — the primary content of this screen. */}
       <section className="aurora-card" style={{ padding: 0 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderBottom: "1px solid var(--hairline)" }}>
           <p className="aurora-activity-head" style={{ margin: 0 }}>Approved students ({approved.length})</p>
@@ -237,7 +245,7 @@ export function AdminAccounts() {
                 <div className="aurora-acct-email">{s.email}</div>
               </div>
               <span className="aurora-badge" data-tone={roleTone(s.role)}>{s.role}</span>
-              <span className="aurora-badge" data-tone={s.student_id ? "ok" : undefined}>{s.student_id ? "Active" : "Pending"}</span>
+              <span className="aurora-badge" data-tone={s.student_id ? "green" : "amber"}>{s.student_id ? "Active" : "Pending"}</span>
               <button type="button" className="aurora-acct-remove" onClick={() => handleRemove(s.email)} disabled={removing === s.email} aria-label={`Remove ${s.full_name}`}>
                 <Icon.close size={14} />
               </button>
@@ -246,25 +254,33 @@ export function AdminAccounts() {
         )}
       </section>
 
-      {/* Promote */}
-      <section className="aurora-card">
-        <p className="aurora-activity-head">Promote to staff</p>
-        <form onSubmit={handlePromote} style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <label className="aurora-form-label">Staff email</label>
-            <input className="aurora-field" style={{ width: "100%" }} type="email" value={promoteEmail} onChange={(e) => setPromoteEmail(e.target.value)} placeholder="staff@snec.com.sg" />
-          </div>
-          <div>
-            <label className="aurora-form-label">Role</label>
-            <select className="aurora-select" value={promoteRole} onChange={(e) => setPromoteRole(e.target.value)}>
-              <option value="supervisor">Supervisor</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <button type="submit" className="aurora-btn" disabled={promoting}>{promoting ? "…" : "Promote"}</button>
-        </form>
-        {promoteMsg && <p className="aurora-note is-ok" style={{ marginTop: 10 }}>{promoteMsg}</p>}
-      </section>
+      {/* Promote — secondary, tucked away so it doesn't compete with the roster. */}
+      <details className="console-disclosure">
+        <summary>
+          <span>Promote to staff<span className="console-disc-sub" style={{ marginLeft: 8 }}>permissions</span></span>
+          <svg className="console-disc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+        </summary>
+        <div className="console-disclosure-body">
+          <p className="aurora-muted" style={{ margin: "8px 0 12px", lineHeight: 1.6 }}>
+            Grant an existing account supervisor or admin access to this control console.
+          </p>
+          <form onSubmit={handlePromote} style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <label className="aurora-form-label">Staff email</label>
+              <input className="aurora-field" style={{ width: "100%" }} type="email" value={promoteEmail} onChange={(e) => setPromoteEmail(e.target.value)} placeholder="staff@snec.com.sg" />
+            </div>
+            <div>
+              <label className="aurora-form-label">Role</label>
+              <select className="aurora-select" value={promoteRole} onChange={(e) => setPromoteRole(e.target.value)}>
+                <option value="supervisor">Supervisor</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button type="submit" className="aurora-btn" disabled={promoting}>{promoting ? "…" : "Promote"}</button>
+          </form>
+          {promoteMsg && <p className="aurora-note is-ok" style={{ marginTop: 10 }}>{promoteMsg}</p>}
+        </div>
+      </details>
     </div>
   );
 }

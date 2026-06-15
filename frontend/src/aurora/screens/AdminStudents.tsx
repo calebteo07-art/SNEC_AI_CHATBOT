@@ -74,7 +74,10 @@ export function AdminStudents() {
           </div>
           {paged.map((s) => (
             <div key={s.student_id} className="aurora-trow is-clickable" style={{ gridTemplateColumns: COLS }} onClick={() => openDetail(s.student_id)}>
-              <span className="aurora-tcell" style={{ fontWeight: 500 }}>{s.full_name}</span>
+              <span className="aurora-tcell" style={{ fontWeight: 500, display: "flex", alignItems: "center", gap: 7 }}>
+                {atRisk.includes(s.student_id) && <span className="console-risk-dot" title="At risk" aria-label="At risk" />}
+                {s.full_name}
+              </span>
               <span className="aurora-tcell is-muted">{s.email}</span>
               <span><span className="aurora-badge" data-tone={roleTone(s.role)}>{s.role}</span></span>
               <span className="aurora-tcell is-mono">{s.session_count}</span>
