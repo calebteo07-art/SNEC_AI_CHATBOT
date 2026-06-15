@@ -48,8 +48,8 @@ export function Profile() {
 
         <div className="aurora-profile-divider" />
 
-        <div className="aurora-profile-actions">
-          <button type="button" className="aurora-profile-action" onClick={toggleMotion} aria-pressed={reduce}>
+        <div className="aurora-profile-actions aurora-stagger">
+          <button type="button" className="aurora-profile-action aurora-press" onClick={toggleMotion} aria-pressed={reduce}>
             <span className="aurora-profile-action-text">
               <span>Reduced motion</span>
               <span className="aurora-profile-action-sub">{reduce ? "On — animations frozen" : "Off — gradients animate"}</span>

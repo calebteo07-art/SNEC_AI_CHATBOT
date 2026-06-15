@@ -140,7 +140,7 @@ export function Cases() {
                 {selectedTopic ? "No cases in this topic yet — more are on the way." : "No cases here yet — try another region or track."}
               </p>
             ) : (
-              <div className={showMap ? "aurora-cases-col" : "aurora-cases-grid"}>
+              <div className={`${showMap ? "aurora-cases-col" : "aurora-cases-grid"} aurora-stagger`}>
                 {filtered.map((c) => <CaseCard key={c.case_id} data={c} onOpen={openCase} />)}
               </div>
             )}

@@ -380,7 +380,7 @@ export function Flashcards() {
       <div className="aurora-deck-body">
         <section className="aurora-card aurora-deck-card">
           <div className="aurora-deck-plate"><PlateWell src={PLATE.flashcards} alt={`${card.tag} reference eye`} ratio={1} /></div>
-          <div className="aurora-deck-content">
+          <div key={`${idx}-${isRetry ? "r" : "n"}`} className="aurora-deck-content aurora-flip-in">
             <span className="aurora-deck-topic">{card.tag} · {deckTitle}{isRetry ? " · 🔁 revisit" : ""}</span>
             <p className="aurora-deck-q">{card.question}</p>
 
@@ -410,7 +410,7 @@ export function Flashcards() {
                 </div>
                 <button
                   type="button"
-                  className="aurora-cta aurora-flow aurora-reveal-btn"
+                  className="aurora-cta aurora-flow aurora-reveal-btn aurora-press"
                   onClick={submitAnswer}
                   disabled={!userAttempt.trim()}
                 >
@@ -450,15 +450,15 @@ export function Flashcards() {
                       )}
                     </div>
 
-                    <div className="aurora-answer">
+                    <div className="aurora-answer aurora-rise-in">
                       <span className="aurora-answer-label">Model answer</span>
                       <p>{card.answer}</p>
                     </div>
 
-                    <button type="button" className="aurora-toggle" style={{ width: "100%", marginBottom: 8 }} onClick={explainThis}>
+                    <button type="button" className="aurora-toggle aurora-press" style={{ width: "100%", marginBottom: 8 }} onClick={explainThis}>
                       🎓 Explain this in the Tutor
                     </button>
-                    <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn" onClick={advance}>
+                    <button type="button" className="aurora-cta aurora-flow aurora-reveal-btn aurora-press" onClick={advance}>
                       <span>{idx < total - 1 ? "Next card →" : (weakRef.current.length > 0 ? "Revisit weak cards →" : "Finish session →")}</span>
                     </button>
                     <p className="aurora-recall-hint" style={{ textAlign: "center", marginTop: 6 }}>Press Enter or → for the next card</p>

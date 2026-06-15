@@ -18,6 +18,7 @@ import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { Sparkline } from "@/aurora/components/Sparkline";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = { OA: OA_TOPICS, OT: OT_TOPICS, PSA: PSA_TOPICS };
 const TRACK_LABELS: Record<Track, string> = {
@@ -65,6 +66,11 @@ export function Dashboard() {
   const recall = weakTopics.length;
   const recentSessions = (progress?.sessions ?? []).slice(0, 6);
 
+  /* Animated count-ups for the headline stat values. */
+  const recallCU = useCountUp<HTMLSpanElement>(recall);
+  const masteryCU = useCountUp<HTMLSpanElement>(masteryPct, { format: (n) => `${Math.round(n)}%` });
+  const dueCU = useCountUp<HTMLSpanElement>(dueCount);
+
   const rank = rankForLevel(progress?.level ?? 1);
   const readouts: Readout[] = [
     { label: "Streak", value: `${progress?.streak ?? 0}d`, hint: "Your daily streak — complete the daily check-in each day to keep it alive." },
@@ -100,7 +106,7 @@ export function Dashboard() {
         }
       />
 
-      <div className="aurora-dash-grid">
+      <div className="aurora-dash-grid aurora-stagger">
         {/* Next-Best-Action */}
         <div className="aurora-card aurora-nba" data-testid="nba-card">
           <div className="aurora-nba-inner">
@@ -108,22 +114,22 @@ export function Dashboard() {
             <PlateWell src={PLATE.dashboard} alt={`${nba.title} reference eye`} ratio={2.4} />
             <p className="aurora-nba-title">{nba.title}</p>
             <p className="aurora-nba-sub">{nba.sub}</p>
-            <Link href={nba.href} className="aurora-cta aurora-flow"><span>{nba.cta} →</span></Link>
+            <Link href={nba.href} className="aurora-cta aurora-flow aurora-press"><span>{nba.cta} →</span></Link>
           </div>
         </div>
 
         {/* Recall queue (blue) + sparkline */}
-        <StatCard tone="blue" label="Recall queue" value={recall}>
+        <StatCard tone="blue" label="Recall queue" value={<span ref={recallCU.ref}>{recallCU.display}</span>}>
           {trendSeries.length >= 2 ? <Sparkline data={trendSeries} /> : <p className="aurora-muted">No trend yet</p>}
         </StatCard>
 
         {/* Track mastery (purple) + progress */}
-        <StatCard tone="purple" label={`${activeTrack} mastery`} value={`${masteryPct}%`}>
+        <StatCard tone="purple" label={`${activeTrack} mastery`} value={<span ref={masteryCU.ref}>{masteryCU.display}</span>}>
           <ProgressBar percent={masteryPct} label={`${activeTrack} mastery`} />
         </StatCard>
 
         {/* Due today (rose) — SM-2 cards scheduled for review, with a review CTA */}
-        <StatCard tone="rose" label="Due today" value={dueCount}>
+        <StatCard tone="rose" label="Due today" value={<span ref={dueCU.ref}>{dueCU.display}</span>}>
           {dueCount > 0 ? (
             <>
               <p className="aurora-muted" style={{ marginBottom: 8 }}>

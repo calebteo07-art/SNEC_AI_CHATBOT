@@ -42,7 +42,7 @@ export function Composer({
         rows={1}
         aria-label="Message input"
       />
-      <button type="button" className="aurora-send aurora-flow" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Send message">
+      <button type="button" className="aurora-send aurora-flow aurora-press" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Send message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
       </button>
     </div>

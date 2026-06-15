@@ -10,6 +10,7 @@ import { useReducedMotion } from "@/aurora/motion";
 import { useProgress } from "@/hooks/useProgress";
 import { checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { rankForLevel } from "@/lib/rank";
+import { confetti } from "@/fx/confetti";
 
 function loadSession() {
   try {
@@ -39,6 +40,16 @@ export function Summary() {
 
   useEffect(() => { checkAndUnlockAchievements(); }, []);
 
+  /* Celebrate the finished session with a gem-spectrum burst (the wrapper is a
+     no-op under reduced motion). */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      confetti({ particleCount: 130, spread: 90, startVelocity: 45, origin: { y: 0.32 },
+        colors: ["#3C90FF", "#34A853", "#AD72FF", "#FFCF03", "#F96BD6", "#00BDD2"] });
+    }, 280);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     if (reduce) { setShown(earned); return; }
     let raf = 0;
@@ -57,7 +68,7 @@ export function Summary() {
     <div className="aurora-summary">
       <section className="aurora-summary-card">
         <p className="aurora-eyebrow">Session complete</p>
-        <h1 className="aurora-summary-xp"><span className="aurora-clip">+{shown}</span></h1>
+        <h1 className="aurora-summary-xp aurora-pop-in"><span className="aurora-clip">+{shown}</span></h1>
         <p className="aurora-summary-xp-label">XP earned this session</p>
         <p className="aurora-summary-xp-note">
           {session.cardXp > 0
@@ -65,7 +76,7 @@ export function Summary() {
             : `Includes a +${session.bonusXp} bonus for finishing. Added to your running total below.`}
         </p>
 
-        <div className="aurora-summary-stats">
+        <div className="aurora-summary-stats aurora-stagger">
           <StatCard tone="blue" label="Cards reviewed" value={session.cardsReviewed} />
           <StatCard tone="purple" label="Avg score" value={session.avgScore ? `${session.avgScore}/100` : "—"} />
           <StatCard tone="rose" label="Total XP" value={totalXp} />
@@ -75,10 +86,10 @@ export function Summary() {
         <span className="aurora-summary-topic">{session.topic}</span>
 
         <div className="aurora-summary-actions">
-          <button type="button" className="aurora-toggle" onClick={() => router.push("/flashcards")}>Study more</button>
-          <button type="button" className="aurora-cta aurora-flow" onClick={() => router.push("/dashboard")}><span>Continue learning →</span></button>
+          <button type="button" className="aurora-toggle aurora-press" onClick={() => router.push("/flashcards")}>Study more</button>
+          <button type="button" className="aurora-cta aurora-flow aurora-press" onClick={() => router.push("/dashboard")}><span>Continue learning →</span></button>
         </div>
-        <button type="button" className="aurora-summary-link" onClick={() => router.push("/progress")}>View full progress →</button>
+        <button type="button" className="aurora-summary-link aurora-press" onClick={() => router.push("/progress")}>View full progress →</button>
       </section>
     </div>
   );
