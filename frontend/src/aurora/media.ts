@@ -7,4 +7,7 @@ export const PLATE = {
   cases: "/media/accents/cases-photo-00.png",
   caseSession: "/media/accents/case-session-photo-00.png",
   flashcards: "/media/accents/flashcards-photo-00.png",
+  /* Ophthalmoscopic fundus — fills the Eye Atlas porthole (back of the eye).
+     Falls back to a hand-built SVG fundus in EyeAtlas if the file is absent. */
+  fundus: "/media/accents/cases-fundus-00.png",
 } as const;

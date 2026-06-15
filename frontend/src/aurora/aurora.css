@@ -669,82 +669,119 @@ html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::afte
 .aurora-sub { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; max-width: 50ch; line-height: 1.5; }
 
 /* ─────────────────── Cases + Atlas Map ─────────────────── */
-.aurora-cases { max-width: 1180px; margin: 0 auto; padding: clamp(20px, 3vw, 34px); display: flex; flex-direction: column; gap: 18px; }
-.aurora-cases-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; }
-.aurora-cases-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.aurora-topic-picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 4px; }
-.aurora-topic-chip { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s; }
+.aurora-cases { max-width: 1180px; margin: 0 auto; padding: clamp(20px, 3vw, 34px); display: flex; flex-direction: column; gap: 20px; }
+.aurora-cases-head { display: flex; flex-direction: column; gap: 6px; }
+.aurora-cases-head .aurora-h1 { margin: 2px 0 0; }
+.aurora-cases-head .aurora-h1 em { font-family: var(--font-serif, "Playfair Display", Georgia, serif); font-style: italic; font-weight: 400; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.aurora-cases-head .aurora-sub { max-width: 54ch; }
+
+/* Topics — demoted to a single quiet, scrollable rail */
+.aurora-topic-rail { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.aurora-topic-rail-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); flex-shrink: 0; }
+.aurora-topic-picker { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0; scrollbar-width: thin; }
+.aurora-topic-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--ink-2); cursor: pointer; white-space: nowrap; transition: border-color 0.15s, color 0.15s; }
 .aurora-topic-chip:hover:not(:disabled) { border-color: var(--g-blue); color: var(--ink); }
 .aurora-topic-chip.is-active { border-color: transparent; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); color: #fff; }
 .aurora-topic-chip:disabled { opacity: 0.4; cursor: not-allowed; }
 .aurora-topic-count { font-family: var(--font-mono); font-size: 10px; font-weight: 600; opacity: 0.7; }
 
-.aurora-chips { display: inline-flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 999px; }
-.aurora-chip { position: relative; border: none; background: none; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; overflow: hidden; }
-.aurora-chip span { position: relative; z-index: 1; }
-.aurora-chip:hover { color: var(--ink); }
-.aurora-chip[data-active="true"] { color: #fff; }
-.aurora-toggle { padding: 7px 14px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
-.aurora-toggle:hover { color: var(--ink); border-color: rgba(31, 31, 31, 0.22); }
+/* Layout: eye atlas (left) + patient journey (right) */
+.aurora-cases-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.aurora-cases-map { position: sticky; top: 8px; display: flex; flex-direction: column; gap: 14px; }
 
-.aurora-cases-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
-.aurora-cases-body.is-list { grid-template-columns: 1fr; }
-.aurora-cases-map { position: sticky; top: 8px; }
-
-.aurora-atlas { display: flex; flex-direction: column; gap: 10px; }
-.aurora-atlas-plate { position: relative; width: 100%; aspect-ratio: 1.15; background: #0c0a12; border-radius: var(--radius-xl); overflow: hidden; box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6); }
-.aurora-atlas-img { width: 100%; height: 100%; object-fit: cover; }
-.aurora-atlas-iris {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 48%; aspect-ratio: 1; border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #07080c 17%, transparent 18%),
-    radial-gradient(circle at 50% 50%, rgba(66, 133, 244, 0.6), rgba(155, 114, 203, 0.52) 46%, rgba(217, 101, 112, 0.44) 72%, transparent 84%);
-  box-shadow: 0 0 70px rgba(120, 110, 200, 0.4) inset, 0 0 50px rgba(120, 110, 200, 0.25);
+/* The Eye Atlas — sagittal cross-section on a lit-specimen plate */
+.aurora-atlas { display: flex; flex-direction: column; gap: 14px; }
+.aurora-atlas-plate {
+  position: relative; width: 100%; aspect-ratio: 600 / 470; border-radius: var(--radius-xl); overflow: hidden;
+  background: radial-gradient(120% 100% at 30% 20%, #161B3C 0%, #0C1024 52%, #05060F 100%);
+  box-shadow: 0 30px 70px -34px rgba(20, 18, 60, 0.6), inset 0 0 90px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.aurora-atlas-tag { position: absolute; bottom: 10px; left: 12px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.4); }
+.aurora-atlas-svg { display: block; width: 100%; height: 100%; }
+.aurora-atlas-tag { position: absolute; top: 14px; left: 16px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.42); }
+.aurora-atlas-tag b { color: rgba(255, 255, 255, 0.7); font-weight: 600; }
+.aurora-atlas-axis { position: absolute; bottom: 14px; right: 16px; font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.34); }
 
-.aurora-pin { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; padding: 0; }
-.aurora-pin-dot { width: 13px; height: 13px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); border: 2px solid rgba(255, 255, 255, 0.85); transition: transform 0.2s, box-shadow 0.3s; flex-shrink: 0; }
-.aurora-pin-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.72); white-space: nowrap; background: rgba(12, 10, 18, 0.6); padding: 2px 6px; border-radius: 5px; opacity: 0; transition: opacity 0.2s; }
-.aurora-pin:hover .aurora-pin-label { opacity: 1; }
-.aurora-pin:hover .aurora-pin-dot { transform: scale(1.15); }
-.aurora-pin[data-active="true"] .aurora-pin-dot { background: transparent; box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.35), 0 0 18px 4px rgba(120, 110, 220, 0.6); animation: aurora-pin-pulse 2.4s ease-in-out infinite; }
-.aurora-pin[data-active="true"] .aurora-pin-label { opacity: 1; color: #fff; }
+/* Soft focus glow behind the active region */
+.aurora-atlas-focus { position: absolute; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(155, 114, 220, 0.5), rgba(120, 110, 220, 0) 70%); animation: aurora-focus-pulse 2.6s ease-in-out infinite; }
+@keyframes aurora-focus-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.9; } }
+html[data-motion="reduce"] .aurora-atlas-focus { animation: none; }
+
+/* Region pins, positioned on the real structures */
+.aurora-pin { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; }
+.aurora-pin-dot { width: 13px; height: 13px; border-radius: 50%; background: rgba(255, 255, 255, 0.5); border: 2px solid rgba(255, 255, 255, 0.88); transition: transform 0.2s, box-shadow 0.3s; flex-shrink: 0; }
+.aurora-pin-label { position: absolute; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.66); white-space: nowrap; background: rgba(8, 7, 18, 0.62); padding: 2px 7px; border-radius: 6px; transition: color 0.2s, background 0.2s; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.aurora-pin[data-side="up"] .aurora-pin-label { bottom: 18px; }
+.aurora-pin[data-side="down"] .aurora-pin-label { top: 18px; }
+.aurora-pin[data-side="right"] .aurora-pin-label { left: 18px; }
+.aurora-pin[data-side="left"] .aurora-pin-label { right: 18px; }
+.aurora-pin:hover .aurora-pin-dot { transform: scale(1.18); }
+.aurora-pin:hover .aurora-pin-label { color: #fff; background: rgba(8, 7, 18, 0.85); }
+.aurora-pin[data-active="true"] .aurora-pin-dot { background: transparent; border-color: #fff; box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.35), 0 0 18px 4px rgba(120, 110, 220, 0.6); animation: aurora-pin-pulse 2.4s ease-in-out infinite; }
+.aurora-pin[data-active="true"] .aurora-pin-label { color: #fff; background: linear-gradient(100deg, rgba(66, 133, 244, 0.92), rgba(155, 114, 203, 0.92)); }
 @keyframes aurora-pin-pulse { 0%, 100% { box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.3), 0 0 16px 3px rgba(120, 110, 220, 0.5); } 50% { box-shadow: 0 0 0 6px rgba(155, 114, 200, 0.16), 0 0 24px 6px rgba(120, 110, 220, 0.72); } }
 html[data-motion="reduce"] .aurora-pin[data-active="true"] .aurora-pin-dot { animation: none; }
 
-.aurora-atlas-foot { display: flex; align-items: center; gap: 12px; }
-.aurora-region-reset { padding: 6px 12px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface); font-size: 12px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
-.aurora-region-reset[data-active="true"] { color: var(--ink); border-color: rgba(31, 31, 31, 0.24); }
-.aurora-atlas-active { font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; }
+/* Ophthalmoscope porthole — the back of the eye */
+.aurora-scope-row { display: flex; align-items: center; gap: 16px; padding: 0 2px; }
+.aurora-scope { position: relative; width: 92px; height: 92px; border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 0 5px rgba(13, 12, 26, 0.9), 0 0 0 6px rgba(155, 114, 203, 0.4), 0 14px 30px -12px rgba(155, 114, 203, 0.45); transition: box-shadow 0.3s, transform 0.3s; }
+.aurora-scope[data-focus="true"] { transform: scale(1.04); box-shadow: 0 0 0 5px rgba(13, 12, 26, 0.9), 0 0 0 7px rgba(155, 114, 203, 0.9), 0 0 26px 4px rgba(155, 114, 203, 0.55); }
+.aurora-scope-img, .aurora-scope-svg { display: block; width: 100%; height: 100%; object-fit: cover; }
+.aurora-scope-glint { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; background: radial-gradient(60% 50% at 32% 26%, rgba(255, 255, 255, 0.32), transparent 60%); }
+.aurora-scope-meta { min-width: 0; }
+.aurora-scope-k { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-purple-2); }
+.aurora-scope-t { font-size: 13px; font-weight: 600; color: var(--ink); margin: 3px 0 2px; }
+.aurora-scope-d { font-size: 12px; color: var(--ink-3); line-height: 1.45; margin: 0; }
 
+/* Patient journey */
 .aurora-cases-list { min-width: 0; }
-.aurora-cases-col { display: flex; flex-direction: column; gap: 12px; }
-.aurora-cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 14px; }
-.aurora-cases-empty { padding: 30px 0; text-align: center; }
+.aurora-journey-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.aurora-journey-title { font-size: 15px; font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
+.aurora-journey-sub { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.aurora-region-reset { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); font-size: 12px; font-weight: 600; cursor: pointer; }
+.aurora-region-reset span { opacity: 0.7; }
+.aurora-region-reset:hover { background: linear-gradient(100deg, rgba(66, 133, 244, 0.22), rgba(155, 114, 203, 0.22)); }
 
-.aurora-case { display: flex; flex-direction: column; gap: 5px; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s; }
-.aurora-case:hover { border-color: rgba(120, 110, 200, 0.4); transform: translateY(-2px); box-shadow: 0 10px 30px -14px rgba(31, 31, 31, 0.25); }
-.aurora-case-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.aurora-case-topic { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); }
-.aurora-case-tier { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); }
-.aurora-case-title { font-size: 15px; font-weight: 600; color: var(--ink); margin: 2px 0 0; line-height: 1.25; }
-.aurora-case-patient { font-size: 12px; color: var(--ink-2); margin: 0; }
-.aurora-case-cc { font-size: 12px; color: var(--ink-3); font-style: italic; margin: 2px 0 0; line-height: 1.4; }
-.aurora-case-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
-.aurora-case-time { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
-.aurora-case-start { position: relative; display: inline-flex; align-items: center; padding: 6px 13px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 600; overflow: hidden; }
-.aurora-case-start span { position: relative; z-index: 1; }
-.aurora-case--locked { cursor: default; border-style: dashed; opacity: 0.6; background: rgba(31, 31, 31, 0.02); }
-.aurora-case--locked:hover { transform: none; box-shadow: none; border-color: var(--hairline); }
-.aurora-case-note { font-size: 11px; color: var(--ink-3); margin: 2px 0 0; }
-.aurora-case--skeleton { height: 150px; background: linear-gradient(100deg, rgba(31, 31, 31, 0.04), rgba(31, 31, 31, 0.07), rgba(31, 31, 31, 0.04)); border: none; pointer-events: none; }
+.aurora-journey { position: relative; padding-left: 30px; }
+.aurora-spine { position: absolute; left: 10px; top: 6px; bottom: 12px; width: 2px; border-radius: 2px; background: linear-gradient(180deg, rgba(66, 133, 244, 0.5), rgba(155, 114, 203, 0.5), rgba(217, 101, 112, 0.32)); }
+
+.aurora-tier-group { position: relative; margin-bottom: 8px; }
+.aurora-tier { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px -30px; }
+.aurora-tier-node { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--canvas); border: 1.5px solid var(--hairline); position: relative; z-index: 1; }
+.aurora-tier-group:first-of-type .aurora-tier-node { border: none; background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); box-shadow: 0 0 0 4px rgba(155, 114, 203, 0.16); }
+.aurora-tier-label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
+.aurora-tier-hint { font-size: 11.5px; color: var(--ink-3); }
+
+/* Patient node — keeps the .aurora-case hook the case-list test relies on */
+.aurora-case { position: relative; display: flex; gap: 14px; align-items: flex-start; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s; }
+.aurora-case::before { content: ""; position: absolute; left: -25px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid rgba(31, 31, 31, 0.18); }
+.aurora-case:not(.aurora-case--locked):hover { border-color: rgba(155, 114, 200, 0.42); transform: translateY(-2px); box-shadow: 0 16px 38px -20px rgba(31, 31, 31, 0.3); }
+.aurora-case:not(.aurora-case--locked):hover::before { border-color: transparent; background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); box-shadow: 0 0 0 3px rgba(155, 114, 203, 0.2); }
+.aurora-case-avatar { width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; font-weight: 700; font-size: 15px; letter-spacing: -0.02em; color: #fff; }
+.aurora-case-avatar--live { background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); }
+.aurora-case--locked .aurora-case-avatar { background: rgba(31, 31, 31, 0.14); color: var(--ink-3); }
+.aurora-case-body { min-width: 0; flex: 1; }
+.aurora-case-name { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
+.aurora-case-name span { color: var(--ink-3); font-weight: 500; }
+.aurora-case-title { font-size: 14.5px; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.3; }
+.aurora-case-cc { font-size: 12.5px; color: var(--ink-2); font-style: italic; margin: 3px 0 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.aurora-case-note { font-size: 12px; color: var(--ink-3); margin: 3px 0 0; }
+.aurora-case-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.aurora-case-chip { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); background: rgba(155, 114, 203, 0.1); padding: 3px 8px; border-radius: 999px; }
+.aurora-case-time { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-3); }
+.aurora-case-start { margin-left: auto; font-size: 12.5px; font-weight: 600; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.aurora-case-lock { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-case--locked { cursor: default; border-style: dashed; opacity: 0.6; }
+.aurora-case--locked::before { border-style: dashed; }
+.aurora-case--skeleton { display: block; height: 76px; background: linear-gradient(100deg, rgba(31, 31, 31, 0.04), rgba(31, 31, 31, 0.07), rgba(31, 31, 31, 0.04)); border: none; margin-bottom: 12px; pointer-events: none; }
+.aurora-case--skeleton::before { display: none; }
+
+.aurora-cases-empty { padding: 30px 0; text-align: center; }
 .aurora-cases-error { padding: 14px 16px; background: rgba(217, 101, 112, 0.08); border: 1px solid rgba(217, 101, 112, 0.3); border-radius: var(--radius); color: var(--on-rose); font-size: 13px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .aurora-cases-error button { color: var(--on-rose-2); font-weight: 700; background: none; border: none; cursor: pointer; }
 
-@media (max-width: 820px) {
-  .aurora-cases-body, .aurora-cases-body.is-list { grid-template-columns: 1fr; }
+@media (max-width: 920px) {
+  .aurora-cases-body { grid-template-columns: 1fr; }
   .aurora-cases-map { position: static; }
 }
 
