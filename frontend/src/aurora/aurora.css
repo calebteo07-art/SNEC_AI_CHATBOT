@@ -250,7 +250,7 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
   .aurora-shell[data-rail] .aurora-rail > * { width: 220px; box-sizing: border-box; flex-shrink: 0; }
   .aurora-shell[data-rail] .aurora-main { margin-left: var(--rail-w); transition: margin-left 0.24s cubic-bezier(0.4, 0, 0.2, 1); }
 
-  .aurora-shell[data-rail="collapsed"] { --rail-w: 72px; }
+  .aurora-shell[data-rail="collapsed"] { --rail-w: 60px; }
   .aurora-shell[data-rail="pinned"]    { --rail-w: 248px; }
 
   .aurora-shell[data-rail="collapsed"] .aurora-rail:hover,
@@ -258,12 +258,14 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
     width: 248px; box-shadow: 22px 0 60px -38px rgba(20, 18, 60, 0.55);
   }
 
-  /* Collapsed + idle: fade non-icon chrome so the strip reads cleanly. */
+  /* Collapsed + idle: hide ALL non-icon chrome (text, wordmark, ⌘K, search,
+     streak, identity, pin) with visibility:hidden so nothing leaks past the
+     narrow strip — only the glyphs remain. */
   .aurora-shell[data-rail="collapsed"] .aurora-rail:not(:hover):not(:focus-within) :is(
-    .aurora-rail-label, .aurora-navitem span, .aurora-cmdk span, .aurora-cmdk kbd,
+    .aurora-rail-label, .aurora-navitem span, .aurora-cmdk,
     .aurora-streak, .aurora-profile-meta, .aurora-signout, .aurora-admin-link,
-    .aurora-snec-wrap, .aurora-rail-pin
-  ) { opacity: 0; transition: opacity 0.12s; }
+    .aurora-snec-wrap, .aurora-rail-pin, .aurora-wordmark-text
+  ) { opacity: 0; visibility: hidden; transition: opacity 0.1s; }
 }
 
 /* ─────────────────────── Mobile bottom bar ─────────────────────── */
