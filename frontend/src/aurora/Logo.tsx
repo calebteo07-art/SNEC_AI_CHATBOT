@@ -20,9 +20,9 @@ export function Logo({ size = 28, tone = "ink", title = "EyeBot" }: Props) {
 
 export function Wordmark({ size = 22, tone = "ink" }: { size?: number; tone?: "ink" | "white" }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
+    <span className="aurora-wordmark" style={{ display: "inline-flex", alignItems: "center", gap: 9 }}>
       <Logo size={size + 6} tone={tone} />
-      <span style={{ fontWeight: 500, letterSpacing: "-0.01em", fontSize: size,
+      <span className="aurora-wordmark-text" style={{ fontWeight: 500, letterSpacing: "-0.01em", fontSize: size,
                      color: tone === "white" ? "#fff" : "var(--ink)" }}>EyeBot</span>
     </span>
   );
