@@ -74,10 +74,10 @@ export function ApertureSelect({
 
         {step === 2 && (
           <div key="lens" className="aperture-choices aperture-step-slide" role="group" aria-label="Topics">
-            <button type="button" data-testid="aperture-open" className="aperture-choice aperture-press aperture-topic-card"
+            <button type="button" data-testid="aperture-open" className="aperture-choice aperture-press"
               onClick={() => commit(null)}>
-              <span><span className="aperture-choice-k">Mixed</span>
-                <span className="aperture-choice-v">All topics, no repeats</span></span>
+              <span className="aperture-choice-k">Mixed</span>
+              <span className="aperture-choice-v">All topics, no repeats</span>
             </button>
             {sets.map((s) => (
               <button key={s.set_key} type="button" disabled={s.total === 0}
