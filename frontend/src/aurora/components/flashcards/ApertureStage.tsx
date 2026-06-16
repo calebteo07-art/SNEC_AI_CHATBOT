@@ -11,14 +11,15 @@ export interface ApertureStageHandle {
   expandPupil(): Promise<void>;
 }
 
-export const ApertureStage = forwardRef<ApertureStageHandle, { size?: number }>(
-  function ApertureStage({ size = 240 }, ref) {
+export const ApertureStage = forwardRef<ApertureStageHandle>(
+  function ApertureStage(_props, ref) {
     const eye = useRef<GazeHandle>(null);
     useImperativeHandle(ref, () => ({
       expandPupil: () => eye.current?.expandPupil() ?? Promise.resolve(),
     }), []);
+    // Size + placement are owned by the .aperture-stage CSS (login-scale backdrop).
     return (
-      <div className="aperture-stage" style={{ ["--iris-size" as string]: `${size}px` }}>
+      <div className="aperture-stage">
         <EyeHero ref={eye} />
       </div>
     );
