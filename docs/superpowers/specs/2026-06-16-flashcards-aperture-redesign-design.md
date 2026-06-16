@@ -23,11 +23,22 @@ Redesign the **entire** flashcard feature — selection and activity — so it i
 
 ## 3. The concept — "The Aperture"
 
-The eye is an optical instrument; studying is *bringing knowledge into focus*. Every screen is the student looking *through* the eye — first setting the aperture, then pulling answers sharp. This eye/optics motif is the "difference and character" layered on top of the app's existing Gemini-gradient language (blue `#4285F4` → purple `#9B72CB` → rose `#D96570`, Google Sans + mono, light surfaces, soft cards). It also ties directly to SNEC's identity.
+The eye is an optical instrument; studying is *bringing knowledge into focus*. Every screen is the student looking *through* the eye — first setting the aperture, then pulling answers sharp. This eye/optics motif is the "difference and character" layered on top of the app's Gemini palette (blue `#4285F4` → purple `#9B72CB` → rose `#D96570`, Google Sans + mono). It also ties directly to SNEC's identity.
+
+### Visual system — hybrid "Twilight Aurora glass" (scoped to flashcards only)
+
+The flashcard feature does **not** use the app's flat light theme, nor a flat dark one. It is a **hybrid, mid-luminance world** that makes entering flashcards feel like *dimming the room to study*. The rest of AURORA stays light and untouched.
+
+- **Scoping:** the theme lives behind a wrapper on the flashcard root only — `data-theme="aperture"` setting **local CSS variables** that override the light tokens *within the feature*. Nothing leaks to the shell, rail, or other routes. `data-motion="reduce"` and `prefers-reduced-motion` are still honoured.
+- **The field (the "deep" half):** a slowly drifting gradient ground — deep indigo `~#1b1840` → aubergine/plum → teal — built as layered, blurred radial blobs (the existing `aurora-mesh` concept, deepened and richer). Mid-luminance, **never pure black**; it breathes slowly.
+- **The surfaces (the "light" half):** **frosted-glass panels** — semi-translucent light-tinted (`~rgba(255,255,255,0.72)` + `backdrop-filter: blur`) with soft inner light and a hairline. Text sits on these readable light panels *floating over* the deep colour field — that contrast **is** the hybrid.
+- **Two ink sets (AA enforced):** dark ink (`--ink`) on the frosted panels; a defined light ink (`~rgba(255,255,255,0.92)` / `0.66` for secondary) for labels/eyebrows/readouts that sit directly on the deep field. Every text/background pair holds WCAG AA.
+- **Accents & glow:** the Gemini gradient becomes **luminous** here — glowing ring borders, the aperture limbus, the score-reactive ring, and soft outer glows on the glass. Tasteful, not neon-loud.
+- **Enter/exit transition:** entering the feature "dims the room" — the light app cross-dissolves into the deep field as the aperture dilation plays; leaving restores light. The iris asset's dark pupil reads naturally against the deep ground.
 
 ## 4. Selection — "Set the Aperture" (3-step stepper)
 
-A full-bleed stepper. **One criterion per step**, with a generated photoreal **iris** as a living centerpiece that reacts to each choice. Criteria are unchanged in data, reframed in language:
+A full-bleed stepper set in the deep Twilight Aurora field, with frosted-glass controls. **One criterion per step**, with a generated photoreal **iris** as a living centerpiece that reacts to each choice. Criteria are unchanged in data, reframed in language:
 
 | Step | Criterion (existing) | Reframe | Iris reaction |
 |------|----------------------|---------|---------------|
@@ -45,7 +56,7 @@ A full-bleed stepper. **One criterion per step**, with a generated photoreal **i
 Keeps the typed active-recall + AI grading flow exactly; redesigns presentation and adds a real 3D flip.
 
 - **No image on the question.** The deck card carries **no raster/eye plate** — the `PlateWell` / `PLATE.flashcards` image used today is removed from the activity. The iris imagery lives only in the selection stepper and the launch dilation, never on the study card. The question is the focal point.
-- **Centered focus stage.** The card is **centered in the middle of the screen** — a single, calm, text-first column (no two-column plate+content split, no side panel competing for attention). Generous whitespace; the question dominates. Any aperture motif on the card is pure-CSS and kept to a thin, subtle, score-reactive ring at most — it must never pull focus from the text.
+- **Centered focus stage.** The card is a **frosted-glass panel centered in the middle of the screen**, floating over the deep Twilight Aurora field — a single, calm, text-first column (no two-column plate+content split, no side panel competing for attention). Generous space; the question dominates. Any aperture motif on the card is pure-CSS and kept to a thin, subtle, score-reactive **glow ring** at most — it must never pull focus from the text.
 - **Front:** small topic label + the **question, large and centered** + the recall textarea below it (existing logic, restyled field; `MAX_ANSWER_CHARS = 300`, ⌘/Ctrl+Enter to submit). Answering stays **compulsory** (always typed) — matches the "keep mechanics" decision.
 - **Submit for grading** → AI grades `/100` against the model answer (`useFlashcardCheck`), XP awarded on the same `xpForScore` 5–35 scale, exactly as now.
 - **Reveal:** the card performs a **true 3D Y-flip** (`rotateY`, `transform-style: preserve-3d`) to its back = model answer + AI feedback + score, landing with a **focus-pull** (starts blurred, snaps sharp). The **score counts up** to its value (reuse `useCountUp`); the XP chip pops; the optional thin ring reacts to the score band (tight green for high, soft neutral for low).
@@ -63,6 +74,7 @@ All motion is CSS keyframes/transitions on `transform`/`opacity`/`filter` only (
 - 3D card flip with blur→sharp focus-pull
 - Score count-up; XP chip pop; gradient sheen
 - Iris-ring "breathing" idle pulse
+- Slow drift of the deep Twilight Aurora field + frosted-glass glow shifts
 - Staggered topic cards on the Lens step
 
 **Reduced motion:** every animation gated under both `@media (prefers-reduced-motion: reduce)` and `html[data-motion="reduce"]`, rendering the final state instantly (the dilation becomes an immediate cut; the flip becomes an instant swap). Mirrors the existing reset scope in `motion.css`.
@@ -90,13 +102,14 @@ Split the single 510-line `Flashcards.tsx` into focused units. The thin orchestr
 
 **Unchanged:** all hooks in `useFlashcards.ts` (`useFlashcards`, `useFlashcardCheck`, `useFlashcardTopics`, `useDueCount`), `lib/legacy/gamification`, `useGamificationSync`, SM-2 fields passed through to `/check`, `loadSessionCards`, `xpForScore`, `RETRY_THRESHOLD`, `LENGTHS`, review-mode + tutor-seed detection.
 
-**Styles:** new `flashcards` section appended to `aurora.css` (centered focus stage, stepper, topic-progress ring, score readout, slim progress ring) and new keyframes in `motion.css` (dilation, flip, focus-pull, refocus). Remove reliance on the undefined `.aurora-topic-chip` chips by replacing them with the new stepper components; retire those dead class usages and the deck's `PlateWell`/queue markup.
+**Styles:** new `flashcards` section appended to `aurora.css` — the `data-theme="aperture"` token overrides (deep field, frosted glass, two ink sets, glow accents), the centered focus stage, stepper, topic-progress ring, score readout, and slim progress ring — plus new keyframes in `motion.css` (dilation, flip, focus-pull, refocus, field drift). The theme variables are confined to the `[data-theme="aperture"]` scope so the light shell is unaffected. Remove reliance on the undefined `.aurora-topic-chip` chips by replacing them with the new stepper components; retire those dead class usages and the deck's `PlateWell`/queue markup.
 
 ## 9. Edge cases
 
 - **No cards / empty set / nothing due in review:** keep the existing empty states (graceful copy + Back to Dashboard), restyled into the aperture frame.
 - **Grading failure (`onError`):** unchanged — still reward the attempt (`xpForScore(60)`), show the "graded offline" panel; the flip still reveals the model answer.
-- **Reduced motion:** dilation and flip degrade to instant state changes; no functionality depends on animation.
+- **Reduced motion:** dilation, flip, and field drift degrade to instant/static states; no functionality depends on animation.
+- **Theme isolation:** the `data-theme="aperture"` tokens must stay scoped to the feature; verify the shell, rail, and other routes remain the light theme. Both ink sets (on-glass dark, on-field light) must pass WCAG AA against their backgrounds.
 - **Asset missing / slow:** CSS-iris fallback renders; no layout shift, no broken image.
 - **Keyboard-only users:** stepper and deck both fully operable; focus moves to the recall field on each new card (existing behaviour preserved).
 - **Single-worker prod:** no new blocking work on the event loop; grading remains the only network call per card, as today.
