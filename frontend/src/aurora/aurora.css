@@ -1662,44 +1662,65 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .console-dark .console-disclosure > summary .console-disc-sub { font-size: 12.9px; }
 
 /* ───────────────────────── Flashcards — "The Aperture" ─────────────────────────
-   An "Emerald Aurora" world, scoped to the flashcards feature only via
-   [data-theme="aperture"]. OPAQUE porcelain panels rest on a deep, living green
-   gradient field. Two ink sets keep WCAG AA on both the panels and the field. */
+   An "Ember Aurora" world, scoped to the flashcards feature only via
+   [data-theme="aperture"]. OPAQUE warm-cream panels rest on a painterly ember
+   field built from layered gradients + grain + a faint woven pattern. Palette:
+   vermilion e43d12, raspberry d6536d, salmon ffa2b6, amber efb11d, cream ebe9e1.
+   Two ink sets keep WCAG AA on both the panels and the field. */
 [data-theme="aperture"] {
-  /* Deep emerald → viridian → jade gradient field — mid-luminance, never pure black. */
-  --field-0: #07221a;          /* deep pine base */
-  --field-1: #0d3b2b;          /* emerald */
-  --field-2: #11564a;          /* viridian / jade */
-  --field-3: #1c7a54;          /* luminous jade highlight */
-  /* OPAQUE porcelain panels — the elegant "light half" (faintest cool-green tint). */
-  --glass: #f7faf8;
-  --glass-2: #eef4f0;
-  --glass-line: rgba(14, 56, 42, 0.14);
-  --glass-shadow: 0 26px 70px -30px rgba(2, 22, 15, 0.82);
-  --field-ink: rgba(255, 255, 255, 0.95);   /* text directly on the deep field */
-  --field-ink-2: rgba(223, 242, 232, 0.72);
-  /* Accent glows — emerald / jade with a warm-gold limbus pop. */
-  --glow-blue: rgba(40, 190, 130, 0.55);    /* emerald */
-  --glow-purple: rgba(24, 168, 154, 0.5);   /* jade-teal */
-  --glow-rose: rgba(214, 184, 96, 0.48);    /* soft gold */
-  /* Scoped overrides so CTAs, rings and blades harmonize with the emerald world. */
-  --g-purple: #1f9d6a;
-  --gemini: linear-gradient(100deg, #1f9d6a, #2bbd8a, #18a89a);
-  --gemini-loop: linear-gradient(100deg, #1f9d6a, #2bbd8a, #18a89a, #2bbd8a, #1f9d6a);
-  --on-purple-2: #0e6b46;                    /* deep emerald for card accents/text */
+  /* Deep ember base — vivid warm blooms layer on top (mid-luminance, never black). */
+  --field-0: #2a0c0a;          /* deep ember / oxblood base */
+  --field-1: #e43d12;          /* vermilion bloom */
+  --field-2: #d6536d;          /* raspberry bloom */
+  --field-3: #efb11d;          /* amber bloom */
+  --field-4: #ffa2b6;          /* salmon highlight */
+  /* OPAQUE warm-cream panels — the elegant "light half". */
+  --glass: #f5f1e8;            /* main panel (lifted cream) */
+  --glass-2: #ebe9e1;          /* chips (the given cream) */
+  --glass-line: rgba(120, 48, 28, 0.16);
+  --glass-shadow: 0 26px 70px -30px rgba(40, 10, 6, 0.85);
+  --field-ink: rgba(255, 248, 242, 0.96);   /* warm white on the ember field */
+  --field-ink-2: rgba(255, 226, 210, 0.74);
+  /* Accent glows — vermilion / raspberry / amber (token names kept for reuse). */
+  --glow-blue: rgba(228, 61, 18, 0.52);     /* vermilion */
+  --glow-purple: rgba(214, 83, 109, 0.5);   /* raspberry */
+  --glow-rose: rgba(239, 177, 29, 0.52);    /* amber */
+  /* Scoped overrides so CTAs, rings and blades harmonize with the ember world. */
+  --g-purple: #d6536d;
+  --gemini: linear-gradient(100deg, #e43d12, #d6536d, #efb11d);
+  --gemini-loop: linear-gradient(100deg, #e43d12, #d6536d, #efb11d, #ffa2b6, #e43d12);
+  --on-purple-2: #b23a1e;                    /* deep rust for card accents/text */
+  --paper: #f4eee3;                          /* warm model-answer panel on cream */
+  --hairline: rgba(120, 48, 28, 0.13);       /* warm hairlines on the cream cards */
 }
 
-/* The immersive stage fills the viewport; the field sits behind frosted content. */
+/* The immersive stage fills the viewport; a painterly ember field sits behind content.
+   Base = layered warm gradients over a deep solid; the centre stays dark for legible
+   field-ink, blooms glow at the edges. */
 .aperture-root { position: relative; min-height: 100dvh; width: 100%; overflow: hidden;
-  color: var(--field-ink); background: var(--field-0); }
+  color: var(--field-ink);
+  background:
+    radial-gradient(120% 95% at 16% -5%, rgba(228, 61, 18, 0.34), transparent 56%),
+    radial-gradient(120% 100% at 96% 14%, rgba(214, 83, 109, 0.30), transparent 56%),
+    linear-gradient(165deg, #3a1410 0%, var(--field-0) 52%, #1c0706 100%); }
 .aperture-field { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.aperture-field span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.7; will-change: transform; }
-.aperture-field span:nth-child(1) { width: 60vmax; height: 60vmax; left: -16vmax; top: -20vmax;
+.aperture-field span { position: absolute; border-radius: 50%; filter: blur(74px); opacity: 0.72; will-change: transform; mix-blend-mode: screen; }
+.aperture-field span:nth-child(1) { width: 62vmax; height: 62vmax; left: -16vmax; top: -22vmax;
   background: radial-gradient(circle, var(--field-1), transparent 66%); animation: aperture-drift-a 34s ease-in-out infinite; }
-.aperture-field span:nth-child(2) { width: 52vmax; height: 52vmax; right: -18vmax; top: 8vmax;
+.aperture-field span:nth-child(2) { width: 54vmax; height: 54vmax; right: -18vmax; top: 6vmax;
   background: radial-gradient(circle, var(--field-2), transparent 66%); animation: aperture-drift-b 40s ease-in-out infinite; }
-.aperture-field span:nth-child(3) { width: 50vmax; height: 50vmax; left: 18vmax; bottom: -22vmax;
+.aperture-field span:nth-child(3) { width: 52vmax; height: 52vmax; left: 16vmax; bottom: -24vmax;
   background: radial-gradient(circle, var(--field-3), transparent 66%); animation: aperture-drift-c 37s ease-in-out infinite; }
+/* Salmon highlight bloom + a faint woven diagonal pattern (gradient + pattern). */
+.aperture-field::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(42vmax 42vmax at 72% 82%, rgba(255, 162, 182, 0.30), transparent 60%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 8px);
+  mix-blend-mode: screen; }
+/* Fine film grain (texture). */
+.aperture-field::after { content: ""; position: absolute; inset: -40%; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05; mix-blend-mode: overlay; }
 .aperture-content { position: relative; z-index: 1; min-height: 100dvh; display: flex; flex-direction: column; }
 
 /* Exit affordance (top-left) — returns to /dashboard. */
@@ -1713,27 +1734,17 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .aperture-glass { background: var(--glass); border: 1px solid var(--glass-line); border-radius: var(--radius-xl);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--glass-shadow); color: var(--ink); }
 
-/* ── CSS iris (always present; raster layered on top when available) ── */
-.aperture-stage { position: relative; display: grid; place-items: center; }
-.aperture-iris { position: relative; width: var(--iris-size, 240px); height: var(--iris-size, 240px);
-  border-radius: 50%; overflow: hidden; isolation: isolate;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 30px 80px -30px rgba(0,0,0,0.7); }
-.aperture-iris-css { position: absolute; inset: 0; border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #05060a 0 var(--pupil, 22%), transparent calc(var(--pupil, 22%) + 1%)),
-    repeating-conic-gradient(from 0deg, rgba(255,255,255,0.10) 0 2deg, rgba(0,0,0,0.16) 2deg 4deg),
-    radial-gradient(circle at 50% 50%, #1c7a54 0%, #11564a 36%, #1f9d6a 64%, #2bbd8a 100%);
-  animation: aperture-iris-breathe 6s ease-in-out infinite; }
-.aperture-iris-css::after { content: ""; position: absolute; inset: 0; border-radius: 50%;
-  box-shadow: inset 0 0 26px 8px rgba(5,6,12,0.6), inset 0 0 0 6px rgba(255,255,255,0.05); }
-.aperture-iris-raster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.aperture-limbus { position: absolute; inset: -6px; border-radius: 50%; pointer-events: none;
-  background: conic-gradient(from 0deg, var(--glow-blue), var(--glow-purple), var(--glow-rose), var(--glow-blue));
-  filter: blur(10px); opacity: 0.6; z-index: -1; animation: aperture-limbus-spin 18s linear infinite; }
-
-/* Dilation launch — pupil expands to fill the screen, iris fades, content follows. */
-.aperture-launching .aperture-iris { animation: aperture-dilate 900ms cubic-bezier(.7,0,.3,1) forwards; }
-.aperture-launching .aperture-iris-css { animation: aperture-iris-spin 900ms cubic-bezier(.7,0,.3,1) forwards; }
+/* ── Centerpiece: the LOGIN screen's living eye (EyeHero), reused verbatim and
+   constrained to the stepper. A warm-gold glow ring sits behind it. The eye's own
+   gaze/breathing motion runs inside EyeHero; the "Open" launch uses its engulf. ── */
+.aperture-stage { position: relative; display: grid; place-items: center;
+  width: var(--iris-size, 240px); height: var(--iris-size, 240px); }
+.aperture-stage::before { content: ""; position: absolute; inset: -10%; border-radius: 50%; z-index: 0;
+  background: radial-gradient(circle, rgba(239,177,29,0.34), rgba(214,83,109,0.18) 55%, transparent 72%);
+  filter: blur(14px); }
+/* Override the login hero's absolute, full-bleed placement so it centres in the box. */
+.aperture-stage .login-eye { position: relative; inset: auto; top: auto; right: auto;
+  transform: none; width: 100%; height: 100%; opacity: 1; z-index: 1; }
 
 /* ── Stepper ── */
 .aperture-step { position: relative; z-index: 1; flex: 1; display: grid; grid-template-rows: auto 1fr auto;
@@ -1752,9 +1763,9 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   cursor: pointer; text-align: left; transition: transform .18s var(--mo-over), box-shadow .24s, background .2s, border-color .2s; }
 .aperture-choice:hover:not(:disabled) { transform: translateY(-3px); background: var(--glass); }
 .aperture-choice[aria-checked="true"], .aperture-choice[aria-selected="true"], .aperture-choice.is-active { border-color: transparent;
-  box-shadow: inset 0 0 0 1.5px rgba(31,157,106,0.9), 0 16px 40px -18px rgba(16,110,72,0.7);
-  /* stays OPAQUE — emerald wash over a solid porcelain base */
-  background: linear-gradient(120deg, rgba(31,157,106,0.14), rgba(43,189,138,0.12)), #f1f8f4; }
+  box-shadow: inset 0 0 0 1.5px rgba(214,83,109,0.9), 0 16px 40px -18px rgba(180,58,30,0.7);
+  /* stays OPAQUE — vermilion→amber wash over a solid cream base */
+  background: linear-gradient(120deg, rgba(228,61,18,0.14), rgba(239,177,29,0.14)), #f6efe2; }
 .aperture-choice:disabled { opacity: 0.4; cursor: not-allowed; }
 .aperture-choice:disabled:hover { transform: none; background: var(--glass-2); }
 .aperture-choice-k { display: block; font-size: 18px; font-weight: 600; color: var(--ink); }
@@ -1775,7 +1786,7 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   font-weight: 600; cursor: pointer; transition: transform .14s var(--mo-ease), box-shadow .24s, opacity .2s; }
 .aperture-back { padding: 11px 18px; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--ink); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .aperture-next, .aperture-open { padding: 12px 24px; border: none; color: #fff; background: var(--gemini-loop); background-size: 200% 100%;
-  box-shadow: 0 12px 34px -14px rgba(16,120,80,0.9); animation: aperture-cta-flow 4.5s linear infinite; }
+  box-shadow: 0 12px 34px -14px rgba(190,55,28,0.9); animation: aperture-cta-flow 4.5s linear infinite; }
 .aperture-next:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .aperture-press:active { transform: scale(.97); }
 
@@ -1793,10 +1804,10 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .focus-card.is-flipped { transform: rotateY(180deg); }
 .focus-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column; padding: clamp(22px, 3vw, 36px); border-radius: var(--radius-xl); }
-.focus-face.is-front { background: var(--glass); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-  box-shadow: var(--glass-shadow); color: var(--ink); }
-.focus-face.is-back { background: var(--glass); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
-  box-shadow: var(--glass-shadow); color: var(--ink); transform: rotateY(180deg); overflow-y: auto; }
+.focus-face.is-front { background: linear-gradient(180deg, #fdfaf3, var(--glass) 60%); border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.65); color: var(--ink); }
+.focus-face.is-back { background: linear-gradient(180deg, #fdfaf3, var(--glass) 60%); border: 1px solid var(--glass-line);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.65); color: var(--ink); transform: rotateY(180deg); overflow-y: auto; }
 .focus-ring { position: absolute; inset: -2px; border-radius: inherit; padding: 2px; pointer-events: none;
   background: conic-gradient(from 0deg, var(--glow-blue), var(--glow-purple), var(--glow-rose), var(--glow-blue));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
@@ -1812,9 +1823,28 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .focus-hint { font-size: 13.4px; color: var(--ink-3); margin: 0; }
 .focus-count { font-family: var(--font-mono); font-size: 13.4px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .focus-count.is-warn { color: var(--on-rose); }
+/* "Focusing" loader — shown after Submit (which it replaces) until the reveal. Two
+   counter-rotating gradient rings around a breathing ember core: an aperture pulling
+   the answer into focus. */
+.focus-loading { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+.focus-aperture-loader { position: relative; width: 78px; height: 78px; display: grid; place-items: center; }
+.focus-aperture-loader i { position: absolute; border-radius: 50%; }
+.focus-aperture-loader i:nth-child(1) { inset: 0;
+  background: conic-gradient(from 0deg, transparent 8%, #e43d12, #d6536d 38%, transparent 62%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  animation: aperture-loader-spin 1.15s linear infinite; }
+.focus-aperture-loader i:nth-child(2) { inset: 13px;
+  background: conic-gradient(from 200deg, transparent 10%, #efb11d, #ffa2b6 40%, transparent 64%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: aperture-loader-spin 1.7s linear infinite reverse; }
+.focus-aperture-loader i:nth-child(3) { inset: 29px; background: radial-gradient(circle at 40% 35%, #efb11d, #e43d12 60%, #b2331a);
+  box-shadow: 0 0 18px 3px rgba(228, 61, 18, 0.5); animation: aperture-iris-breathe 1.3s ease-in-out infinite; }
+.focus-loading-label { font-family: var(--font-mono); font-size: 12.6px; letter-spacing: 0.04em; color: var(--ink-2); }
 .focus-submit, .focus-advance { width: 100%; margin-top: 14px; padding: 13px; border: none; border-radius: 999px; color: #fff;
   font-weight: 600; cursor: pointer; background: var(--gemini-loop); background-size: 200% 100%; animation: aperture-cta-flow 4.5s linear infinite;
-  box-shadow: 0 12px 34px -14px rgba(16,120,80,0.9); transition: transform .14s, opacity .2s; }
+  box-shadow: 0 12px 34px -14px rgba(190,55,28,0.9); transition: transform .14s, opacity .2s; }
 .focus-submit:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .focus-toggle { width: 100%; margin-bottom: 8px; padding: 11px; border-radius: 999px; border: 1px solid var(--hairline);
   background: var(--surface); color: var(--ink); font-weight: 600; cursor: pointer; }
