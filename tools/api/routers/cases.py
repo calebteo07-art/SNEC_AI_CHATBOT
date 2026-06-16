@@ -674,12 +674,12 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     # Build checklist step comparison
     checklist_comparison: list[ChecklistStepResult] = []
     try:
-        from tools.kb.search import get_checklist_by_name as _get_cl_for_compare
-        procedure_name = case.get("checklist_procedure") or case.get("topic", "")
-        cl_data = _get_cl_for_compare(procedure_name)
-        if cl_data:
-            raw_steps = cl_data.get("steps") or {}
-            steps_list = raw_steps.get("steps", []) if isinstance(raw_steps, dict) else []
+        # Resolve via the same path as /station so keyword-resolved and
+        # rubric-fallback cases also get a checklist comparison (not just cases
+        # with an explicit checklist_procedure).
+        _cl_compare = _station_checklist(case)
+        steps_list = _cl_compare["steps"]
+        if steps_list:
             performed_set = set(body.performed_steps)
             missed_critical_actions: list[str] = []
 

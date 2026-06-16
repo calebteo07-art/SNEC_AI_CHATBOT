@@ -15,6 +15,8 @@ PHASE_NAMES = {
     3: "Documentation & Follow-up",
 }
 
+# "clinical_" covers a known truncated-category typo in the ingested DB data
+# (one real step is categorised "clinical_" rather than "clinical_assessment").
 _PROC_CATS = {"clinical_assessment", "medication", "clinical_"}
 _PREP_CATS = {"patient_identification", "consent", "patient_education",
               "documentation", "infection_control", "equipment", "safety_check"}
