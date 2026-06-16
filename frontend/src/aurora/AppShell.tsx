@@ -98,10 +98,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  /* Immersive Tutor — on /chat the rail + mesh fall away and the chat fills the
-     whole viewport (IG-DM full screen). ⌘K still works; the in-chat back chevron
-     returns to /dashboard. Reached only for non-staff (staff returned above). */
-  if (pathname === "/chat") {
+  /* Immersive routes — on /chat and /flashcards the rail + mesh fall away and the
+     screen fills the whole viewport. The Tutor is IG-DM full screen; Flashcards is
+     "The Aperture", a self-themed Twilight world. ⌘K still works; each screen owns
+     its own labelled back/exit affordance. Reached only for non-staff (staff above). */
+  if (pathname === "/chat" || pathname === "/flashcards") {
     return (
       <div className="aurora-shell aurora-shell-immersive">
         <main id="main" className="aurora-main">

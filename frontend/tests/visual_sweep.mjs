@@ -82,6 +82,10 @@ async function mockApis(ctx, user) {
     { card_id: "f1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "glaucoma", repetitions: 0, easiness: 2.5, interval_days: 1 },
     { card_id: "f2", front: "Most common cause of gradual painless vision loss in the elderly?", back: "Cataract", topic_tag: "cataract", repetitions: 1, easiness: 2.6, interval_days: 3 },
   ])));
+  await ctx.route("**/api/flashcards/topics", (r) => r.fulfill(J({ sets: [
+    { set_key: "glaucoma__easy", topic_key: "glaucoma", label: "Glaucoma", difficulty: "easy", total: 5, completed: 2 },
+    { set_key: "cataract__easy", topic_key: "cataract", label: "Cataract", difficulty: "easy", total: 5, completed: 0 },
+  ] })));
   await ctx.route("**/api/study-suggestion", (r) => r.fulfill(J({ suggestion: "Review glaucoma staging before your next case.", topic: "Glaucoma" })));
   await ctx.route("**/api/chat", (r) => r.fulfill({
     status: 200, contentType: "text/event-stream",
