@@ -1,28 +1,37 @@
 "use client";
-/* AURORA Case Session — the virtual-patient simulation. Two-pane: a dark imagery
-   column (plate + patient + procedure checklist) and an interaction column (the
-   patient interview thread + diagnosis/management submit + scored debrief). The
-   SSE streaming, submit and scoring logic are preserved from the legacy screen;
-   only the presentation is AURORA. */
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+/* AURORA Guided OSCE Station — the virtual-patient simulation rebuilt as a
+   colourful, animated, light-mode OSCE station. A living gradient-mesh canvas
+   frames two gradient-ring glass cards: (left) the patient + the auto-tracked,
+   phase-grouped OSCE checklist; (right) the patient consult thread, examination
+   tray, and scored debrief. SSE streaming chat + submit/scoring are preserved
+   from the legacy screen. The checklist now comes from /station, ticks live via
+   /observe + deterministic exam-action ticks (manual toggle retained), and
+   grading shows a per-phase summary + encouraging debrief. Motion is CSS-only. */
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
+import { useCountUp } from "@/hooks/useCountUp";
+import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
+import { ExamTray, type ExamAction } from "@/aurora/components/ExamTray";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
   patient: { name: string; age: number; presenting_complaint: string };
 }
-interface ChecklistStep { step_number: number; action: string; critical: boolean; category: string; notes: string | null; }
-interface Checklist { procedure_name: string; steps: ChecklistStep[]; total_steps: number; critical_count: number; }
-interface ChatMessage { role: "user" | "assistant"; content: string; }
+interface StationData {
+  case: CaseInfo;
+  checklist: { procedure_name: string; phases: StationPhase[]; total_steps: number; critical_count: number; source: string };
+  examination_actions: ExamAction[];
+}
+interface ChatMessage { role: "user" | "assistant"; content: string }
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
   total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
 }
-interface ChecklistStepResult { step_number: number; action: string; critical: boolean; performed: boolean; clinical_note: string | null; }
+interface ChecklistStepResult { step_number: number; action: string; critical: boolean; performed: boolean; clinical_note: string | null }
+interface PhaseSummary { phase: number; name: string; done: number; total: number }
 
 const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
   { label: "History", scoreKey: "history_score", feedbackKey: "history_feedback" },
@@ -31,10 +40,14 @@ const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof
   { label: "Management", scoreKey: "management_score", feedbackKey: "management_feedback" },
 ];
 
+const EXAM_PREFIX = "[Examination performed: ";
+const PHASE_CLASS: Record<number, string> = { 1: "p1", 2: "p2", 3: "p3" };
+
 export function CaseSession() {
   const caseId = useParams().caseId as string;
   const router = useRouter();
 
+  // Instant paint from the patient-selection handoff, confirmed by /station.
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(() => {
     try {
       const handoff = sessionStorage.getItem("eyebot_case_handoff");
@@ -44,8 +57,11 @@ export function CaseSession() {
     } catch { return null; }
   });
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [checklist, setChecklist] = useState<Checklist | null>(null);
-  const [tickedSteps, setTickedSteps] = useState<Set<number>>(new Set());
+  const [station, setStation] = useState<StationData | null>(null);
+
+  const [ticked, setTicked] = useState<Set<number>>(new Set());
+  const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
+  const [performedActions, setPerformedActions] = useState<Set<string>>(new Set());
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -59,37 +75,78 @@ export function CaseSession() {
   const [result, setResult] = useState<DomainResult | null>(null);
   const [debrief, setDebrief] = useState<string | null>(null);
   const [checklistComparison, setChecklistComparison] = useState<ChecklistStepResult[]>([]);
+  const [perPhase, setPerPhase] = useState<PhaseSummary[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const endRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<ChatMessage[]>([]);
+  const tickedRef = useRef<Set<number>>(new Set());
+  const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const observeAbort = useRef<AbortController | null>(null);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { tickedRef.current = ticked; }, [ticked]);
 
-  useEffect(() => {
-    if (caseInfo || !caseId) return;
-    fetch(`/api/cases/${caseId}`, { credentials: "include" })
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(setCaseInfo)
-      .catch(() => setLoadError(`Patient "${caseId}" not found.`));
-  }, [caseId, caseInfo]);
-
+  // Fetch the full station payload (case + phased checklist + exam actions).
   useEffect(() => {
     if (!caseId) return;
-    fetch(`/api/cases/${caseId}/checklist`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        // tolerate both the flat shape and a { checklist: {...} } envelope
-        const c = d?.checklist ?? d;
-        if (c && Array.isArray(c.steps)) setChecklist(c);
-      })
-      .catch(() => {});
+    fetch(`/api/cases/${caseId}/station`, { credentials: "include" })
+      .then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<StationData>; })
+      .then((d) => { setStation(d); setCaseInfo(d.case); })
+      .catch(() => setLoadError(`Patient "${caseId}" not found.`));
   }, [caseId]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, sending]);
 
-  const toggleStep = (n: number) => setTickedSteps((prev) => {
+  // Cleanup pending observe work on unmount.
+  useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); }, []);
+
+  const addAuto = useCallback((stepNumbers: number[]) => {
+    if (!stepNumbers.length) return;
+    setTicked((prev) => { const n = new Set(prev); stepNumbers.forEach((s) => n.add(s)); return n; });
+    setAutoSteps((prev) => { const n = new Set(prev); stepNumbers.forEach((s) => n.add(s)); return n; });
+  }, []);
+
+  // Debounced live examiner. Resilient: any failure silently keeps manual ticking.
+  const scheduleObserve = useCallback(() => {
+    if (!caseId) return;
+    if (observeTimer.current) clearTimeout(observeTimer.current);
+    observeTimer.current = setTimeout(async () => {
+      observeAbort.current?.abort();
+      const ctrl = new AbortController();
+      observeAbort.current = ctrl;
+      try {
+        const res = await fetch(`/api/cases/${caseId}/observe`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          signal: ctrl.signal,
+          body: JSON.stringify({ messages: messagesRef.current, already_ticked: Array.from(tickedRef.current) }),
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { newly_satisfied?: number[] };
+        addAuto(data.newly_satisfied ?? []);
+      } catch { /* resilient: ignore quota / abort / network */ }
+    }, 650);
+  }, [caseId, addAuto]);
+
+  const toggleStep = (n: number) => setTicked((prev) => {
     const next = new Set(prev);
-    if (next.has(n)) next.delete(n); else next.add(n);
+    if (next.has(n)) {
+      next.delete(n);
+      setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; }); // manual untick clears the auto marker too
+    } else {
+      next.add(n);
+    }
     return next;
   });
+
+  const performAction = useCallback((a: ExamAction) => {
+    if (performedActions.has(a.key)) return;
+    setPerformedActions((prev) => new Set(prev).add(a.key));
+    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${a.reveal_text}]` }]);
+    addAuto(a.satisfies_steps);
+    scheduleObserve();
+  }, [performedActions, addAuto, scheduleObserve]);
 
   const sendMessage = async () => {
     if (!input.trim() || sending || isStreaming || !caseId) return;
@@ -143,7 +200,11 @@ export function CaseSession() {
         if (last && last.role === "assistant") return [...prev.slice(0, -1), { role: "assistant", content: fb }];
         return [...prev, { role: "assistant", content: fb }];
       });
-    } finally { setSending(false); setIsStreaming(false); }
+    } finally {
+      setSending(false);
+      setIsStreaming(false);
+      scheduleObserve(); // run the examiner after the patient reply completes
+    }
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -159,25 +220,27 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages, diagnosis: diagnosis.trim(), management_plan: managementPlan.trim(), performed_steps: Array.from(tickedSteps) }),
+        body: JSON.stringify({ messages, diagnosis: diagnosis.trim(), management_plan: managementPlan.trim(), performed_steps: Array.from(ticked) }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setResult(data.result);
       setDebrief(data.debrief ?? null);
       setChecklistComparison(data.checklist_comparison ?? []);
+      setPerPhase(data.per_phase ?? []);
       setShowSubmit(false);
     } catch { setSubmitError("Could not evaluate. Please try again."); }
     finally { setSubmitting(false); }
   };
 
-  const criticalTicked = checklist ? checklist.steps.filter((s) => s.critical && tickedSteps.has(s.step_number)).length : 0;
-  const criticalCount = checklist ? (checklist.critical_count ?? checklist.steps.filter((s) => s.critical).length) : 0;
-  const unticked = checklist ? checklist.steps.filter((s) => s.critical && !tickedSteps.has(s.step_number)) : [];
+  const phases = station?.checklist.phases ?? [];
+  const allSteps: StationStep[] = phases.flatMap((p) => p.steps);
+  const criticalSteps = allSteps.filter((s) => s.critical);
+  const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
 
   if (loadError) {
     return (
-      <div className="aurora-session-error">
+      <div className="aurora-station-error">
         <p>{loadError}</p>
         <button type="button" onClick={() => router.push("/cases")}>← Back to patients</button>
       </div>
@@ -185,142 +248,187 @@ export function CaseSession() {
   }
 
   return (
-    <div className="aurora-session">
-      <header className="aurora-session-head">
-        <button type="button" className="aurora-session-back" onClick={() => router.push("/cases")}>← Patients</button>
-        {caseInfo && (
-          <div className="aurora-session-hud">
-            <span><b>{caseInfo.patient.name}</b> · {caseInfo.patient.age} yr</span>
-            <span className="aurora-session-hud-sep">·</span>
-            <span>{caseInfo.topic}</span>
-            <span className="aurora-session-hud-sep">·</span>
-            <span className="aurora-session-tier">{caseInfo.difficulty}</span>
-            <span className="aurora-session-hud-sep">·</span>
-            <span className="aurora-session-cc">“{caseInfo.patient.presenting_complaint}”</span>
-          </div>
-        )}
+    <div className="aurora-station" data-testid="station">
+      <div className="aurora-station-mesh" aria-hidden />
+
+      <header className="aurora-station-head">
+        <button type="button" className="aurora-station-back" onClick={() => router.push("/cases")}>← Patients</button>
+        <div>
+          <p className="aurora-eyebrow">Virtual patient · OSCE station</p>
+          <h1 className="aurora-station-title">
+            {caseInfo?.title ?? "Guided OSCE Station"}
+            {caseInfo && <> — <em>{caseInfo.patient.name}</em></>}
+          </h1>
+          {caseInfo && (
+            <div className="aurora-station-hud">
+              <span>{caseInfo.patient.age} yr</span>
+              <span className="aurora-station-hud-sep">·</span>
+              <span>{caseInfo.topic}</span>
+              <span className="aurora-station-hud-sep">·</span>
+              <span className="aurora-station-tier">{caseInfo.difficulty}</span>
+            </div>
+          )}
+        </div>
       </header>
 
-      <div className="aurora-session-body">
-        {/* Imagery + patient + checklist */}
-        <aside className="aurora-session-aside">
-          <PlateWell src={PLATE.caseSession} alt={`${caseInfo?.topic ?? "Eye"} reference plate`} ratio={1.5} />
+      <div className="aurora-station-grid">
+        {/* Left — patient + auto-tracked checklist */}
+        <aside className="aurora-station-card aurora-station-aside">
           {caseInfo && (
-            <div className="aurora-session-patient">
-              <h1 className="aurora-session-patient-name">{caseInfo.patient.name}</h1>
-              <p className="aurora-session-patient-meta">{caseInfo.patient.age} years · {caseInfo.topic}</p>
-              <div className="aurora-session-cc-box">
-                <p className="aurora-eyebrow">Presenting complaint</p>
-                <p>“{caseInfo.patient.presenting_complaint}”</p>
+            <>
+              <div className="aurora-station-pt">
+                <div className="aurora-station-ring"><img className="aurora-station-av" src={PLATE.caseSession} alt="" aria-hidden onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }} /></div>
+                <div>
+                  <div className="aurora-station-nm">{caseInfo.patient.name}</div>
+                  <div className="aurora-station-mt">{caseInfo.patient.age} years · {caseInfo.topic}</div>
+                </div>
               </div>
-            </div>
+              <div className="aurora-station-cc">“{caseInfo.patient.presenting_complaint}”</div>
+            </>
           )}
-          {checklist && (
-            <div className="aurora-session-checklist">
-              <div className="aurora-session-checklist-head">
-                <span className="aurora-eyebrow">Procedure checklist</span>
-                <span className="aurora-session-crit">{criticalTicked}/{criticalCount} critical</span>
-              </div>
-              <div className="aurora-session-steps">
-                {checklist.steps.map((step, idx) => {
-                  const ticked = tickedSteps.has(step.step_number);
-                  return (
-                    <button key={step.step_number ?? idx} type="button" className="aurora-session-step" data-ticked={ticked} onClick={() => toggleStep(step.step_number)}>
-                      <span className="aurora-session-step-mark">{ticked ? "✓" : step.critical ? "●" : "○"}</span>
-                      <span>{step.action}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+          {station && (
+            <StationChecklist
+              procedureName={station.checklist.procedure_name}
+              phases={phases}
+              totalSteps={station.checklist.total_steps}
+              ticked={ticked}
+              autoSteps={autoSteps}
+              onToggle={toggleStep}
+            />
           )}
-          {!result && (
-            <button type="button" className="aurora-session-submit-toggle" onClick={() => setShowSubmit((v) => !v)}>
-              {showSubmit ? "Cancel" : "Submit answer"}
+          {station && !result && (
+            <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit((v) => !v)}>
+              {showSubmit ? "Cancel" : "Submit answer →"}
             </button>
           )}
         </aside>
 
-        {/* Interaction column */}
-        <div className="aurora-session-main">
-          <div className="aurora-session-thread">
+        {/* Right — consult thread + exam tray + composer / result */}
+        <div className="aurora-station-main aurora-station-card">
+          <p className="aurora-station-tray-label">Patient consult</p>
+          <div className="aurora-station-thread">
             {messages.length === 0 && !result && (
-              <p className="aurora-muted aurora-session-hint">Greet your patient and begin taking a history.</p>
+              <p className="aurora-station-hint">Greet your patient and begin taking a history. Use the examination tray below to perform clinical tests.</p>
             )}
-            {messages.map((m, i) => (
-              <div key={i} className={`aurora-bubble ${m.role === "user" ? "is-user" : "is-patient"}`}>
-                <span className="aurora-bubble-who">{m.role === "user" ? "You" : caseInfo?.patient.name ?? "Patient"}</span>
-                <div className="aurora-bubble-body">
-                  {m.content}
-                  {isStreaming && i === messages.length - 1 && m.role === "assistant" && <span className="aurora-caret" />}
+            {messages.map((m, i) => {
+              if (m.role === "user" && m.content.startsWith(EXAM_PREFIX)) {
+                const inner = m.content.slice(EXAM_PREFIX.length, -1); // strip prefix + trailing "]"
+                const [label, ...rest] = inner.split(" → ");
+                return (
+                  <div key={i} className="aurora-station-reveal">
+                    <span className="rl2">Examination performed · {label}</span>
+                    <div className="v">{rest.join(" → ") || label}</div>
+                  </div>
+                );
+              }
+              return (
+                <div key={i} className={`aurora-station-bubble ${m.role === "user" ? "me" : "pt"}`}>
+                  <span className="who">{m.role === "user" ? "You" : caseInfo?.patient.name ?? "Patient"}</span>
+                  <div>
+                    {m.content}
+                    {isStreaming && i === messages.length - 1 && m.role === "assistant" && <span className="aurora-caret" />}
+                  </div>
                 </div>
-              </div>
-            ))}
-            {sending && <div className="aurora-bubble is-patient"><div className="aurora-bubble-body aurora-typing">•••</div></div>}
+              );
+            })}
+            {sending && <div className="aurora-station-bubble pt"><div className="aurora-typing">•••</div></div>}
 
             {showSubmit && !result && (
-              <div className="aurora-session-form">
-                {unticked.length > 0 && <p className="aurora-session-warn">⚠ {unticked.length} critical step{unticked.length !== 1 ? "s" : ""} not ticked</p>}
+              <div className="aurora-station-form">
+                {uncheckedCritical.length > 0 && (
+                  <p className="aurora-station-warn">⚠ {uncheckedCritical.length} critical step{uncheckedCritical.length !== 1 ? "s" : ""} not yet done</p>
+                )}
                 <label className="aurora-eyebrow">Diagnosis</label>
-                <textarea className="aurora-input" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Your primary diagnosis…" rows={2} />
+                <textarea className="aurora-input" data-field="diagnosis" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Your primary diagnosis…" rows={2} />
                 <label className="aurora-eyebrow">Management plan</label>
-                <textarea className="aurora-input" value={managementPlan} onChange={(e) => setManagementPlan(e.target.value)} placeholder="Proposed management and follow-up…" rows={2} />
-                {submitError && <p className="aurora-session-warn">{submitError}</p>}
-                <button type="button" className="aurora-cta aurora-flow" disabled={submitting || !diagnosis.trim() || !managementPlan.trim()} onClick={handleSubmit}>
-                  <span>{submitting ? "Evaluating…" : "Submit for evaluation →"}</span>
+                <textarea className="aurora-input" data-field="management" value={managementPlan} onChange={(e) => setManagementPlan(e.target.value)} placeholder="Proposed management and follow-up…" rows={2} />
+                {submitError && <p className="aurora-station-warn">{submitError}</p>}
+                <button type="button" className="aurora-station-submit-go" disabled={submitting || !diagnosis.trim() || !managementPlan.trim()} onClick={handleSubmit}>
+                  {submitting ? "Evaluating…" : "Submit for evaluation →"}
                 </button>
               </div>
             )}
 
-            {result && (
-              <div className="aurora-session-result">
-                <div className="aurora-session-result-head">
-                  <h2 className="aurora-h1" style={{ fontSize: "1.4rem" }}>Consultation complete</h2>
-                  <span className="aurora-session-total aurora-clip">{result.total_score}<small>/10</small></span>
-                </div>
-                {DOMAINS.map((d) => (
-                  <div key={d.label} className="aurora-session-domain">
-                    <div className="aurora-session-domain-top">
-                      <span>{d.label}</span><span className="aurora-session-domain-val">{result[d.scoreKey] as number}/10</span>
-                    </div>
-                    <ProgressBar percent={(result[d.scoreKey] as number) * 10} label={d.label} />
-                    <p className="aurora-session-domain-fb">{result[d.feedbackKey] as string}</p>
-                  </div>
-                ))}
-                {debrief && (
-                  <div className="aurora-session-debrief">
-                    <p className="aurora-eyebrow">Overall feedback</p>
-                    <p>{debrief}</p>
-                  </div>
-                )}
-                {checklistComparison.length > 0 && (
-                  <div className="aurora-session-review">
-                    <p className="aurora-eyebrow">Checklist review</p>
-                    {checklistComparison.map((s) => (
-                      <div key={s.step_number} className="aurora-session-review-row" data-done={s.performed}>
-                        <span>{s.performed ? "✓" : "✗"}</span><span>{s.action}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="aurora-session-result-actions">
-                  <button type="button" className="aurora-toggle" onClick={() => router.push("/cases")}>More patients</button>
-                  <button type="button" className="aurora-cta aurora-flow" onClick={() => router.push("/dashboard")}><span>Back to dashboard</span></button>
-                </div>
-              </div>
-            )}
+            {result && <StationResult result={result} debrief={debrief} perPhase={perPhase} comparison={checklistComparison} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />}
             <div ref={endRef} />
           </div>
 
-          {!result && (
-            <div className="aurora-session-composer">
-              <textarea className="aurora-input aurora-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
-              <button type="button" className="aurora-send aurora-flow" onClick={sendMessage} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-              </button>
-            </div>
+          {station && !result && (
+            <>
+              <ExamTray actions={station.examination_actions} performed={performedActions} onPerform={performAction} />
+              <div className="aurora-station-composer">
+                <textarea className="aurora-station-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
+                <button type="button" className="aurora-station-composer-send" onClick={sendMessage} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                </button>
+              </div>
+            </>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* Scored debrief — count-up score out of 40, per-phase summary, domain bars,
+   encouraging two-part debrief, and the OSCE checklist review with clinical notes. */
+function StationResult({ result, debrief, perPhase, comparison, onMore, onDash }: {
+  result: DomainResult; debrief: string | null; perPhase: PhaseSummary[];
+  comparison: ChecklistStepResult[]; onMore: () => void; onDash: () => void;
+}) {
+  const { ref, display } = useCountUp<HTMLSpanElement>(result.total_score, { format: (n) => String(Math.round(n)) });
+  return (
+    <div className="aurora-station-result">
+      <div className="aurora-station-result-head">
+        <h2>Consultation complete</h2>
+        <span className="aurora-station-total"><span ref={ref}>{display}</span><small>/40</small></span>
+      </div>
+
+      {perPhase.length > 0 && (
+        <div className="aurora-station-phasechips">
+          {perPhase.map((p) => (
+            <div key={p.phase} className={`aurora-station-phasechip ${PHASE_CLASS[p.phase] ?? "p2"}`}>
+              <b>{p.done}/{p.total}</b>{p.name}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {DOMAINS.map((d) => (
+        <div key={d.label} className="aurora-station-domain">
+          <div className="aurora-station-domain-top">
+            <span>{d.label}</span><span className="aurora-station-domain-val">{result[d.scoreKey] as number}/10</span>
+          </div>
+          <ProgressBar percent={(result[d.scoreKey] as number) * 10} label={d.label} />
+          <p className="aurora-station-domain-fb">{result[d.feedbackKey] as string}</p>
+        </div>
+      ))}
+
+      {debrief && (
+        <div className="aurora-station-debrief">
+          <p className="aurora-eyebrow">Your debrief</p>
+          <p>{debrief}</p>
+        </div>
+      )}
+
+      {comparison.length > 0 && (
+        <div className="aurora-station-review">
+          <p className="aurora-eyebrow">OSCE checklist review</p>
+          {comparison.map((s) => (
+            <div key={s.step_number} className="aurora-station-review-row" data-done={s.performed}>
+              <span className="mk" aria-hidden>{s.performed ? "✓" : "✗"}</span>
+              <span>
+                {s.action}
+                {!s.performed && s.clinical_note && <span className="aurora-station-review-note">{s.clinical_note}</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="aurora-station-result-actions">
+        <button type="button" className="aurora-toggle" onClick={onMore}>More patients</button>
+        <button type="button" className="aurora-station-submit-go" onClick={onDash}>Back to dashboard</button>
       </div>
     </div>
   );
