@@ -34,7 +34,6 @@ function ApertureShell({
   return (
     <div className="aperture-root" data-theme="aperture">
       <h1 className="sr-only">Flashcards</h1>
-      <div className="aperture-field" aria-hidden><span /><span /><span /></div>
       <button type="button" className="aperture-exit aperture-press" data-testid="aperture-exit" onClick={onExit}>
         <Icon.back size={16} /> Exit
       </button>
