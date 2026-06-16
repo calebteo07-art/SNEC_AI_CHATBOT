@@ -46,7 +46,7 @@ export function ApertureSelect({
       </div>
 
       <div className="aperture-step-body">
-        <ApertureStage ref={stageRef} size={200} />
+        <ApertureStage ref={stageRef} size={400} />
 
         {step === 0 && (
           <div key="clarity" className="aperture-choices aperture-step-slide" role="radiogroup" aria-label="Difficulty">
@@ -79,19 +79,13 @@ export function ApertureSelect({
               <span><span className="aperture-choice-k">Mixed</span>
                 <span className="aperture-choice-v">All topics, no repeats</span></span>
             </button>
-            {sets.map((s) => {
-              const pct = s.total ? Math.round((s.completed / s.total) * 100) : 0;
-              return (
-                <button key={s.set_key} type="button" disabled={s.total === 0}
-                  className="aperture-choice aperture-press aperture-topic-card" onClick={() => commit(s.set_key)}>
-                  <span><span className="aperture-choice-k">{s.label}</span>
-                    <span className="aperture-choice-v">{s.completed}/{s.total} seen</span></span>
-                  <span className="aperture-choice-ring" style={{ ["--p" as string]: pct }} aria-hidden>
-                    <span>{pct}%</span>
-                  </span>
-                </button>
-              );
-            })}
+            {sets.map((s) => (
+              <button key={s.set_key} type="button" disabled={s.total === 0}
+                className="aperture-choice aperture-press" onClick={() => commit(s.set_key)}>
+                <span className="aperture-choice-k">{s.label}</span>
+                <span className="aperture-choice-v">{s.completed}/{s.total} seen</span>
+              </button>
+            ))}
           </div>
         )}
       </div>
