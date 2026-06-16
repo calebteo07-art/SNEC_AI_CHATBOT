@@ -11,18 +11,30 @@
     "age": 78,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for PAM before cataract surgery — cataract with known macular degeneration"
+    "presenting_complaint": "Referred for PAM before cataract surgery — cataract with known macular degeneration",
+    "nric": "S8801465J",
+    "date_of_birth": "1948-01-24",
+    "address": "Blk 152 Clementi Ave 2, #15-138, Singapore 116476",
+    "contact_number": "99214871"
   },
   "history": {
     "hpc": "Mr Raj says 'My eye blur and the centre also got a dark patch, doctor say my macula not so good.' He has a cataract but also known age-related macular degeneration. The doctor ordered a PAM to estimate how much the cataract surgery alone could improve his vision.",
     "pmhx": "Cataract with co-existing dry age-related macular degeneration (AMD).",
     "family_hx": "Mother had AMD",
-    "medications": ["Eye vitamin supplements"],
+    "medications": [
+      "Eye vitamin supplements"
+    ],
     "social_hx": "Retired. Uses a magnifier to read."
   },
   "examination_findings": {
-    "va": {"right": "6/36 (cataract + macular changes)", "left": "6/24"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/36 (cataract + macular changes)",
+      "left": "6/24"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Moderate cataract; partial fundus view",
     "fundus": "Macular drusen and pigmentary changes noted by the doctor"
   },

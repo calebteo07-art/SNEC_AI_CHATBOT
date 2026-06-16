@@ -10,18 +10,30 @@
     "age": 52,
     "gender": "female",
     "occupation": "office administrator",
-    "presenting_complaint": "Referred for Humphrey Visual Field test — elevated IOP, glaucoma suspect"
+    "presenting_complaint": "Referred for Humphrey Visual Field test — elevated IOP, glaucoma suspect",
+    "nric": "S6027225E",
+    "date_of_birth": "1974-03-20",
+    "address": "Blk 243 Woodlands Ave 6, #15-533, Singapore 478730",
+    "contact_number": "96240605"
   },
   "history": {
     "hpc": "Mdm Hamidah was seen in OPD and found to have elevated IOP (right eye 26 mmHg, left eye 24 mmHg) on two separate occasions. She has no visual symptoms — no tunnel vision, no peripheral vision loss that she is aware of. She has been referred for a Humphrey Visual Field (HVF) test to assess whether any functional loss is present. She has never had an HVF done before and is unsure what it involves.",
     "pmhx": "No ocular history. Hypertension.",
     "family_hx": "Father diagnosed with glaucoma in his 60s",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Office worker. Right-handed. Wears reading glasses."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "26 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "26 mmHg (NCT)",
+      "left": "24 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. No disc pallor on fundus exam documented by doctor.",
     "fundus": "C:D ratio 0.6 bilaterally (noted by doctor) — borderline suspicious"
   },

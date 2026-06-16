@@ -10,7 +10,11 @@
     "age": 58,
     "gender": "male",
     "occupation": "logistics manager",
-    "presenting_complaint": "Sudden increase in floaters and new flashes of light in the left eye since this morning"
+    "presenting_complaint": "Sudden increase in floaters and new flashes of light in the left eye since this morning",
+    "nric": "S5388150E",
+    "date_of_birth": "1968-05-18",
+    "address": "Blk 749 Tampines St 21, #09-875, Singapore 314629",
+    "contact_number": "94348774"
   },
   "history": {
     "hpc": "Mr D'Cruz calls the clinic this morning reporting a sudden increase in floaters in his left eye, describing them as 'like a swarm of small flies' that appeared over the last few hours, along with new flashes of light at the edge of his vision, especially when he moves his eyes. He had a retinal detachment in the same left eye 4 years ago, treated with surgery. He has had occasional mild floaters since then but says today's symptoms are 'much worse and different — like something changed suddenly'. He denies any curtain or shadow over his vision so far and his central vision feels unchanged.",
@@ -20,8 +24,14 @@
     "social_hx": "Logistics manager, works at a computer most of the day. No smoking. Drives regularly."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0) — by patient report, not yet formally tested", "left": "6/9 (LogMAR 0.18) — by patient report, no acute change noted by patient, not yet formally tested"},
-    "iop": {"right": "Not tested at triage", "left": "Not tested at triage"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0) — by patient report, not yet formally tested",
+      "left": "6/9 (LogMAR 0.18) — by patient report, no acute change noted by patient, not yet formally tested"
+    },
+    "iop": {
+      "right": "Not tested at triage",
+      "left": "Not tested at triage"
+    },
     "anterior_segment": "Not assessed — phone triage, patient not yet physically at clinic",
     "fundus": "Not assessed — phone triage; urgent same-day fundus examination to be arranged"
   },

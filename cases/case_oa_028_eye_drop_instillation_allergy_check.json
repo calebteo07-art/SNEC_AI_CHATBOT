@@ -12,18 +12,30 @@
     "age": 62,
     "gender": "male",
     "occupation": "taxi driver",
-    "presenting_complaint": "Charted for an eye drop, but mentions he reacted badly to an eye drop before"
+    "presenting_complaint": "Charted for an eye drop, but mentions he reacted badly to an eye drop before",
+    "nric": "S5423292F",
+    "date_of_birth": "1964-01-04",
+    "address": "Blk 524 Tampines St 21, #17-264, Singapore 821913",
+    "contact_number": "95297348"
   },
   "history": {
     "hpc": "Mr Lim says 'Last time one eye drop make my eye very red and swollen, I think I allergic.' He is charted for a drop today but cannot remember the exact name of the one he reacted to.",
     "pmhx": "Previous adverse reaction to an unspecified eye drop. Otherwise well.",
     "family_hx": "Not relevant to this station",
-    "medications": ["Charted eye drop for today"],
+    "medications": [
+      "Charted eye drop for today"
+    ],
     "social_hx": "Taxi driver; needs clear vision for work."
   },
   "examination_findings": {
-    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
-    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "va": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
+    "iop": {
+      "right": "Not measured at this station",
+      "left": "Not measured at this station"
+    },
     "anterior_segment": "No active infection that would change technique",
     "fundus": "Not examined at this station"
   },

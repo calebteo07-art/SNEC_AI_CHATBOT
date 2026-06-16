@@ -10,7 +10,11 @@
     "age": 26,
     "gender": "female",
     "occupation": "retail assistant",
-    "presenting_complaint": "Red, sticky right eye for 2 days, walked in without an appointment"
+    "presenting_complaint": "Red, sticky right eye for 2 days, walked in without an appointment",
+    "nric": "T7613571H",
+    "date_of_birth": "2000-03-04",
+    "address": "Blk 88 Pasir Ris Dr 1, #11-637, Singapore 242779",
+    "contact_number": "97339909"
   },
   "history": {
     "hpc": "Ms Tan walks into the clinic without an appointment, asking to be seen because her right eye has been red and producing yellowish discharge for the past 2 days, with her eyelashes crusted together when she wakes up. She reports mild irritation but denies pain, photophobia, or any change in vision. She mentions her young niece, whom she babysat over the weekend, had 'pink eye' from school. The PSA must triage her appropriately, distinguishing this presentation from more urgent red eye causes.",
@@ -20,8 +24,14 @@
     "social_hx": "Works in retail, in close contact with customers and colleagues. Lives with parents and young niece visits regularly."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0) — patient reports no change in vision", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Not tested at triage", "left": "Not tested at triage"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0) — patient reports no change in vision",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not tested at triage",
+      "left": "Not tested at triage"
+    },
     "anterior_segment": "Not assessed by PSA — triage observation only: right eye appears red with mucopurulent discharge and crusted lashes; no visible foreign body, no corneal opacity noted on gross observation",
     "fundus": "Not assessed — not indicated at triage"
   },

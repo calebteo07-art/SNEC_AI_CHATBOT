@@ -12,18 +12,30 @@
     "age": 67,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Known glaucoma on eye drops — here for routine IOP monitoring"
+    "presenting_complaint": "Known glaucoma on eye drops — here for routine IOP monitoring",
+    "nric": "S5715728C",
+    "date_of_birth": "1959-01-18",
+    "address": "Blk 154 Yishun Ring Rd, #13-742, Singapore 746951",
+    "contact_number": "95145843"
   },
   "history": {
     "hpc": "Mr Chong says 'I using the glaucoma drop, but sometimes I forget at night.' He is a known glaucoma patient on treatment, attending for routine IOP monitoring. He admits occasionally missing his evening drop.",
     "pmhx": "Primary open-angle glaucoma on a topical glaucoma drop. No drug allergies.",
     "family_hx": "Glaucoma in the family",
-    "medications": ["Glaucoma eye drop (sometimes missed)"],
+    "medications": [
+      "Glaucoma eye drop (sometimes missed)"
+    ],
     "social_hx": "Retired; manages his own medications."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/12"},
-    "iop": {"right": "22 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "22 mmHg (NCT)",
+      "left": "24 mmHg (NCT)"
+    },
     "anterior_segment": "Normal by observation",
     "fundus": "For doctor — known glaucomatous discs"
   },

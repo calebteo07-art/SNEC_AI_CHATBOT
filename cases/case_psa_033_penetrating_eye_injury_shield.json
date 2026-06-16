@@ -11,18 +11,30 @@
     "age": 45,
     "gender": "male",
     "occupation": "metal workshop worker",
-    "presenting_complaint": "Felt something sharp hit the left eye while grinding metal; now has pain, tearing and reduced vision"
+    "presenting_complaint": "Felt something sharp hit the left eye while grinding metal; now has pain, tearing and reduced vision",
+    "nric": "S5814781H",
+    "date_of_birth": "1981-01-08",
+    "address": "Blk 341 Bukit Batok St 25, #02-225, Singapore 553821",
+    "contact_number": "90124714"
   },
   "history": {
     "hpc": "Mr Lim was grinding metal without goggles when he felt a sharp pain in the left eye. He says: 'Something fly into my eye when I grinding just now, very pain and my vision blur, got something inside maybe.' He is anxious. A high-velocity metal fragment raises strong suspicion of a penetrating eye injury — a Category 1 emergency. He must not press on or rub the eye.",
     "pmhx": "Nil significant",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Metal workshop worker; not wearing safety goggles at the time."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "reduced, painful, watering"},
-    "iop": {"right": "not a priority now", "left": "do NOT measure (no pressure on a possibly ruptured globe)"},
+    "va": {
+      "right": "6/9",
+      "left": "reduced, painful, watering"
+    },
+    "iop": {
+      "right": "not a priority now",
+      "left": "do NOT measure (no pressure on a possibly ruptured globe)"
+    },
     "anterior_segment": "Left eye: possible entry wound; do not manipulate. Do not attempt to remove any embedded object.",
     "fundus": "Not assessed — emergency escalation first"
   },

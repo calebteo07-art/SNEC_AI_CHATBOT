@@ -11,18 +11,31 @@
     "age": 70,
     "gender": "male",
     "occupation": "retired clerk",
-    "presenting_complaint": "Admitted to the day ward for left eye cataract surgery; here for the pre-operative assessment"
+    "presenting_complaint": "Admitted to the day ward for left eye cataract surgery; here for the pre-operative assessment",
+    "nric": "S1762354J",
+    "date_of_birth": "1956-06-04",
+    "address": "Blk 456 Jurong West St 42, #02-075, Singapore 326193",
+    "contact_number": "98320530"
   },
   "history": {
     "hpc": "Mr Lee is in the day ward for left eye cataract surgery under local anaesthesia. He says: 'Today my turn to do the cataract operation, nurse say need to check me first before go in.' The OT must complete the dayward pre-operative assessment, confirming the key details and recording vital signs.",
     "pmhx": "Left cataract (for surgery). Type 2 diabetes, hypertension — both controlled.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 500mg BD (withheld per fasting instruction)", "Amlodipine 5mg OD (taken with a sip of water as advised)"],
+    "medications": [
+      "Metformin 500mg BD (withheld per fasting instruction)",
+      "Amlodipine 5mg OD (taken with a sip of water as advised)"
+    ],
     "social_hx": "Lives with wife who is waiting outside. Fasted as instructed."
   },
   "examination_findings": {
-    "va": {"right": "6/12", "left": "6/36 (cataract, for surgery)"},
-    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "va": {
+      "right": "6/12",
+      "left": "6/36 (cataract, for surgery)"
+    },
+    "iop": {
+      "right": "15 mmHg",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Left cataract; eye marked for surgery per protocol",
     "fundus": "Documented pre-op as available"
   },

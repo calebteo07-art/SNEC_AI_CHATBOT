@@ -10,18 +10,30 @@
     "age": 70,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for A-scan biometry before right eye cataract surgery"
+    "presenting_complaint": "Referred for A-scan biometry before right eye cataract surgery",
+    "nric": "S4480090Z",
+    "date_of_birth": "1956-05-03",
+    "address": "Blk 141 Bukit Batok St 25, #08-862, Singapore 407042",
+    "contact_number": "97316070"
   },
   "history": {
     "hpc": "Mr Tan has been diagnosed with dense right eye cataract affecting his daily activities. He has been listed for right eye phacoemulsification. He is referred for A-scan biometry so that the correct IOL power can be calculated before surgery. He has never had eye surgery before. He currently wears reading glasses.",
     "pmhx": "Cataract right eye. Mild cataract left eye. Mild myopia. No previous eye surgery.",
     "family_hx": "Nil significant",
-    "medications": ["Paracetamol PRN for occasional joint pain"],
+    "medications": [
+      "Paracetamol PRN for occasional joint pain"
+    ],
     "social_hx": "Retired. Lives with family."
   },
   "examination_findings": {
-    "va": {"right": "6/60 (LogMAR 1.0)", "left": "6/12 (LogMAR 0.3)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/60 (LogMAR 1.0)",
+      "left": "6/12 (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Dense nuclear cataract right eye. Mild cortical cataract left eye.",
     "fundus": "Unable to visualise right fundus due to dense cataract"
   },

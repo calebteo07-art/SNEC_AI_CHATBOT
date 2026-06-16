@@ -12,18 +12,30 @@
     "age": 69,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Listed for cataract surgery with significant astigmatism — topography requested for planning"
+    "presenting_complaint": "Listed for cataract surgery with significant astigmatism — topography requested for planning",
+    "nric": "S8284959I",
+    "date_of_birth": "1957-06-14",
+    "address": "Blk 368 Tampines St 21, #12-390, Singapore 715922",
+    "contact_number": "88369194"
   },
   "history": {
     "hpc": "Mr Krishnan says 'Doctor say my eye got a lot of astigmatism, need special lens for the operation.' He has a cataract with significant corneal astigmatism, and topography/keratometry is requested to plan a toric intraocular lens.",
     "pmhx": "Cataract with significant corneal astigmatism. No previous eye surgery. Dry eye.",
     "family_hx": "Nil significant",
-    "medications": ["Lubricant drops"],
+    "medications": [
+      "Lubricant drops"
+    ],
     "social_hx": "Retired."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (cataract)", "left": "6/9"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 (cataract)",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Cataract; regular corneal astigmatism; reduced tear film",
     "fundus": "Partial view through the cataract"
   },

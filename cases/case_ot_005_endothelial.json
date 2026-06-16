@@ -10,18 +10,30 @@
     "age": 74,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for endothelial cell count — known Fuchs corneal dystrophy, scheduled for cataract surgery"
+    "presenting_complaint": "Referred for endothelial cell count — known Fuchs corneal dystrophy, scheduled for cataract surgery",
+    "nric": "S1948589G",
+    "date_of_birth": "1952-04-13",
+    "address": "Blk 393 Bedok North Rd, #06-752, Singapore 799701",
+    "contact_number": "87709232"
   },
   "history": {
     "hpc": "Mdm Tan has Fuchs endothelial corneal dystrophy (known for 5 years) and has now developed a visually significant cataract in the right eye. Before proceeding with cataract surgery, the doctor wants to know whether her corneal endothelial cell count is adequate to withstand the surgical trauma. She is referred for specular microscopy (endothelial cell count, ECC) of both eyes. She does not wear contact lenses. No previous eye surgery.",
     "pmhx": "Fuchs corneal dystrophy. Right eye cataract. Hypertension. No previous eye surgery.",
     "family_hx": "Mother had 'cornea problems'",
-    "medications": ["Perindopril 4mg OD"],
+    "medications": [
+      "Perindopril 4mg OD"
+    ],
     "social_hx": "Retired. Lives with daughter. Does not drive."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (LogMAR 0.6) — reduced by cataract and corneal oedema", "left": "6/12 (LogMAR 0.3)"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 (LogMAR 0.6) — reduced by cataract and corneal oedema",
+      "left": "6/12 (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "13 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: corneal guttata (gold beaten appearance on retroillumination), early morning blurring reported by patient, nuclear cataract. Left eye: corneal guttata less dense, clear lens.",
     "fundus": "Not assessed — not the focus today"
   },

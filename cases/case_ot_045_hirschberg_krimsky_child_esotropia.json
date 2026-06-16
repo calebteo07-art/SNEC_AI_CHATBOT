@@ -11,18 +11,30 @@
     "age": 5,
     "gender": "male",
     "occupation": "kindergarten student",
-    "presenting_complaint": "Parents notice the right eye turns inwards, especially when he is tired"
+    "presenting_complaint": "Parents notice the right eye turns inwards, especially when he is tired",
+    "nric": "T1977892J",
+    "date_of_birth": "2021-06-05",
+    "address": "Blk 675 Bedok North Rd, #06-715, Singapore 530084",
+    "contact_number": "91019188"
   },
   "history": {
     "hpc": "Ethan is brought by his mother who noticed his right eye turning inwards. She says: 'My boy one eye look like turning in, especially when he tired or not feeling well.' It has been noticed over a few months. He is otherwise well and active. The OT must assess the eye alignment using the corneal light reflex (Hirschberg) and estimate the angle with the Krimsky prism test.",
     "pmhx": "Born full term, normal development. No previous eye treatment.",
     "family_hx": "Father wore glasses as a child for 'lazy eye'",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Lives with parents. Attends kindergarten."
   },
   "examination_findings": {
-    "va": {"right": "tested with age-appropriate method", "left": "tested with age-appropriate method"},
-    "iop": {"right": "not routinely measured in a young child unless indicated", "left": "not routinely measured"},
+    "va": {
+      "right": "tested with age-appropriate method",
+      "left": "tested with age-appropriate method"
+    },
+    "iop": {
+      "right": "not routinely measured in a young child unless indicated",
+      "left": "not routinely measured"
+    },
     "anterior_segment": "Normal; corneal light reflex decentred (displaced temporally) in the right eye suggesting esotropia",
     "fundus": "For doctor as part of squint assessment"
   },

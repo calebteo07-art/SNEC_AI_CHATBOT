@@ -11,18 +11,30 @@
     "age": 70,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for a Potential Acuity Meter test before cataract surgery"
+    "presenting_complaint": "Referred for a Potential Acuity Meter test before cataract surgery",
+    "nric": "S8638517A",
+    "date_of_birth": "1956-05-03",
+    "address": "Blk 623 Jurong West St 42, #12-319, Singapore 227636",
+    "contact_number": "80303244"
   },
   "history": {
     "hpc": "Mr Goh says 'Doctor want to check what is my vision can become after operation.' He has a cataract and the doctor has ordered a PAM. This station focuses on performing the test with correct preparation and technique.",
     "pmhx": "Cataract. No diabetes. No known macular disease.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Retired."
   },
   "examination_findings": {
-    "va": {"right": "6/36 (cataract)", "left": "6/12"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/36 (cataract)",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Cataract present; the OT must ensure adequate dilation before testing",
     "fundus": "Partial view through the cataract"
   },

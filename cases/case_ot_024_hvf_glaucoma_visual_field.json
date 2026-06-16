@@ -11,23 +11,38 @@
     "age": 27,
     "gender": "male",
     "occupation": "logistics assistant",
-    "presenting_complaint": "Referred for Humphrey visual field test — gradual reduced vision in the left eye and a suspicious optic disc"
+    "presenting_complaint": "Referred for Humphrey visual field test — gradual reduced vision in the left eye and a suspicious optic disc",
+    "nric": "S9940020Z",
+    "date_of_birth": "1999-04-28",
+    "address": "Blk 376 Bukit Batok St 25, #12-641, Singapore 648085",
+    "contact_number": "90142307"
   },
   "history": {
     "hpc": "Mr Pillai says 'My left eye slowly become more blur over the past one year, doctor.' He has worn glasses since young. No eye pain or redness. The doctor found raised eye pressure and an enlarged optic cup, and has ordered a Humphrey visual field (24-2) test to check for any loss in his side vision.",
     "pmhx": "High myopia, glasses since childhood. No diabetes or hypertension. No previous eye surgery.",
     "family_hx": "No known family history of glaucoma",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Works in a warehouse. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (with glasses)", "left": "6/12 (with glasses)"},
-    "iop": {"right": "21 mmHg (GAT)", "left": "22 mmHg (GAT)"},
+    "va": {
+      "right": "6/6 (with glasses)",
+      "left": "6/12 (with glasses)"
+    },
+    "iop": {
+      "right": "21 mmHg (GAT)",
+      "left": "22 mmHg (GAT)"
+    },
     "anterior_segment": "Right eye within normal limits. Left eye: nuclear sclerosis 2+ and posterior subcapsular cataract 3+",
     "fundus": "No retinal detachment. Cup-to-disc ratio 0.6 in both eyes"
   },
   "investigations": {
-    "nct_iop": {"right": "18 mmHg", "left": "21 mmHg"},
+    "nct_iop": {
+      "right": "18 mmHg",
+      "left": "21 mmHg"
+    },
     "humphrey_visual_field": {
       "test_pattern": "24-2 SITA Standard, both eyes, near add in place",
       "reliability_right": "Fixation losses 1/15, false positives 2%, false negatives 0% — reliable",

@@ -11,18 +11,30 @@
     "age": 73,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Colour vision check requested; she cannot read numbers, so the usual number plates cannot be used"
+    "presenting_complaint": "Colour vision check requested; she cannot read numbers, so the usual number plates cannot be used",
+    "nric": "S8954550A",
+    "date_of_birth": "1953-01-10",
+    "address": "Blk 622 Yishun Ring Rd, #04-198, Singapore 423886",
+    "contact_number": "90581160"
   },
   "history": {
     "hpc": "Mdm Saraswathy is sent for a colour vision check. She did not have formal schooling and cannot read numbers. Her daughter says: 'My mother cannot read the number, but she can follow the line with her finger.' The PSA must adapt by using the winding-line (tracing) Ishihara plates instead of the number plates and document the result.",
     "pmhx": "Hypertension. No known eye disease.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with daughter; speaks Tamil. Did not attend formal schooling."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "Not required for this screening"
   },

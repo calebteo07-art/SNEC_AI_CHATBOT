@@ -11,18 +11,30 @@
     "age": 60,
     "gender": "female",
     "occupation": "hawker assistant",
-    "presenting_complaint": "At a screening station; very anxious about the air-puff tonometer and keeps flinching, giving inconsistent readings"
+    "presenting_complaint": "At a screening station; very anxious about the air-puff tonometer and keeps flinching, giving inconsistent readings",
+    "nric": "S0282873A",
+    "date_of_birth": "1966-01-02",
+    "address": "Blk 25 Pasir Ris Dr 1, #18-636, Singapore 110791",
+    "contact_number": "90010816"
   },
   "history": {
     "hpc": "Mdm Chong is at the NCT screening station but is very nervous. She says: 'The air puff make me scared, I keep blinking and pull back.' The first few NCT attempts give widely inconsistent readings. The OT must settle the patient, improve technique, obtain reliable readings, and decide when to escalate to Goldmann tonometry.",
     "pmhx": "Hypertension. No known eye disease.",
     "family_hx": "Nil significant",
-    "medications": ["Hydrochlorothiazide 25mg OD"],
+    "medications": [
+      "Hydrochlorothiazide 25mg OD"
+    ],
     "social_hx": "Works at a hawker stall. Non-smoker. Generally anxious in clinical settings."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "inconsistent initially (e.g. 14, 22, 17); 16 mmHg after settling", "left": "15 mmHg after settling"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "inconsistent initially (e.g. 14, 22, 17); 16 mmHg after settling",
+      "left": "15 mmHg after settling"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "Not assessed at screening"
   },

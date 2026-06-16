@@ -11,18 +11,30 @@
     "age": 58,
     "gender": "female",
     "occupation": "accountant",
-    "presenting_complaint": "Both eyes red and gritty, worse with screen use, no pain"
+    "presenting_complaint": "Both eyes red and gritty, worse with screen use, no pain",
+    "nric": "S2651469Z",
+    "date_of_birth": "1968-02-12",
+    "address": "Blk 370 Yishun Ring Rd, #09-078, Singapore 637267",
+    "contact_number": "95629993"
   },
   "history": {
     "hpc": "Mdm Koh says 'My eyes feel gritty and red, like got sand inside, worse when I look at computer whole day. No pain, just tired and dry.' Both eyes, mild redness, burning/gritty feeling, no discharge, vision normal but fluctuates a bit.",
     "pmhx": "No serious eye problems. Long screen hours at work. Uses the air-con office all day.",
     "family_hx": "Nil specific",
-    "medications": ["Occasional lubricant drops"],
+    "medications": [
+      "Occasional lubricant drops"
+    ],
     "social_hx": "Office worker, long screen time, dry air-conditioned environment."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/6 (fluctuates slightly)"},
-    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "va": {
+      "right": "6/6",
+      "left": "6/6 (fluctuates slightly)"
+    },
+    "iop": {
+      "right": "Not required for this triage",
+      "left": "Not required for this triage"
+    },
     "anterior_segment": "Mild bilateral redness, no discharge; surface dryness suspected (for doctor to confirm)",
     "fundus": "Not assessed by the PSA"
   },

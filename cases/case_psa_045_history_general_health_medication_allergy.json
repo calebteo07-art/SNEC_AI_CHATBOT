@@ -11,18 +11,33 @@
     "age": 64,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "New patient registering for an eye clinic visit; needs a general health, medication and allergy history"
+    "presenting_complaint": "New patient registering for an eye clinic visit; needs a general health, medication and allergy history",
+    "nric": "S2672671I",
+    "date_of_birth": "1962-02-02",
+    "address": "Blk 213 Jurong West St 42, #14-145, Singapore 588480",
+    "contact_number": "99181114"
   },
   "history": {
     "hpc": "Mdm Halimah is a new patient. The PSA must take a general health history. She initially mentions only diabetes, then on prompting adds: 'Oh, I also take the blood-thinner one, and sometimes herbal jamu from my neighbour. And one time the nurse gave me an eye drop, my eye became very itchy and swollen.' Capturing systemic conditions, all medications, and allergies is essential for safe care.",
     "pmhx": "Type 2 diabetes, hypertension, atrial fibrillation (on anticoagulant).",
     "family_hx": "Glaucoma in a sibling",
-    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Anticoagulant (for AF)", "Herbal supplement (jamu)"],
+    "medications": [
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD",
+      "Anticoagulant (for AF)",
+      "Herbal supplement (jamu)"
+    ],
     "social_hx": "Lives with family. Takes traditional supplements occasionally."
   },
   "examination_findings": {
-    "va": {"right": "6/12", "left": "6/12"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "va": {
+      "right": "6/12",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "17 mmHg (NCT)"
+    },
     "anterior_segment": "To be assessed by doctor",
     "fundus": "For doctor (diabetic)"
   },

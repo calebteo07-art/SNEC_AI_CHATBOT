@@ -11,18 +11,30 @@
     "age": 52,
     "gender": "male",
     "occupation": "delivery driver",
-    "presenting_complaint": "Just had both eyes dilated; vision is now blurry and he is worried because he drove to the clinic"
+    "presenting_complaint": "Just had both eyes dilated; vision is now blurry and he is worried because he drove to the clinic",
+    "nric": "S7233003Z",
+    "date_of_birth": "1974-04-25",
+    "address": "Blk 148 Bukit Batok St 25, #13-235, Singapore 213306",
+    "contact_number": "90641692"
   },
   "history": {
     "hpc": "Mr Foo has just been dilated for a fundus examination. His near vision is now blurry and he is light-sensitive. He says: 'Now everything blur and the light very glaring, but I drive here leh, how ah?' He is a delivery driver and drove himself. The PSA must give clear post-dilation safety advice and help him plan safe transport.",
     "pmhx": "Myopia. Otherwise well. No narrow-angle history.",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Delivery driver; drove his own van to the clinic today."
   },
   "examination_findings": {
-    "va": {"right": "distance 6/9 but near now blurred post-dilation", "left": "distance 6/9 but near now blurred post-dilation"},
-    "iop": {"right": "15 mmHg (pre-dilation)", "left": "15 mmHg (pre-dilation)"},
+    "va": {
+      "right": "distance 6/9 but near now blurred post-dilation",
+      "left": "distance 6/9 but near now blurred post-dilation"
+    },
+    "iop": {
+      "right": "15 mmHg (pre-dilation)",
+      "left": "15 mmHg (pre-dilation)"
+    },
     "anterior_segment": "Pupils dilated bilaterally; otherwise normal",
     "fundus": "Examined/being examined by the doctor"
   },

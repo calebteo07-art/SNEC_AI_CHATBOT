@@ -11,18 +11,30 @@
     "age": 45,
     "gender": "female",
     "occupation": "office administrator",
-    "presenting_complaint": "Both eyes red with sticky discharge for 3 days, no pain"
+    "presenting_complaint": "Both eyes red with sticky discharge for 3 days, no pain",
+    "nric": "S6615419Z",
+    "date_of_birth": "1981-05-20",
+    "address": "Blk 92 Jurong West St 42, #14-949, Singapore 364939",
+    "contact_number": "83758118"
   },
   "history": {
     "hpc": "Mdm Tan says 'My two eyes red already, got a lot of 'gum' when I wake up, but never pain one.' Both eyes are affected, with watery-sticky discharge. No pain, no light sensitivity, and her vision is normal. A colleague had the same thing last week.",
     "pmhx": "No eye problems before. No contact lens use.",
     "family_hx": "Nil",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Office worker. Shares a desk with a colleague who had red eyes recently."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/6"},
-    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "va": {
+      "right": "6/6",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "Not required for this triage",
+      "left": "Not required for this triage"
+    },
     "anterior_segment": "Bilateral conjunctival redness with discharge; cornea clear by observation (for doctor to confirm)",
     "fundus": "Not assessed by the PSA"
   },

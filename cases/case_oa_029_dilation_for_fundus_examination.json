@@ -12,18 +12,30 @@
     "age": 55,
     "gender": "male",
     "occupation": "engineer",
-    "presenting_complaint": "Doctor has ordered pupil dilation so the back of both eyes can be examined"
+    "presenting_complaint": "Doctor has ordered pupil dilation so the back of both eyes can be examined",
+    "nric": "S0580123J",
+    "date_of_birth": "1971-04-28",
+    "address": "Blk 638 Toa Payoh Lor 4, #13-317, Singapore 193513",
+    "contact_number": "87597178"
   },
   "history": {
     "hpc": "Mr Goh says 'Doctor want to dilate my eyes to check the back, then I will be blur for a while is it?' Both eyes are to be dilated for a fundus examination. He drove himself to clinic today.",
     "pmhx": "No narrow-angle history. No drug allergies (confirm). Wears glasses for distance.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Drove himself to the clinic — relevant to post-dilation advice."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "Measured before dilation if ordered", "left": "Measured before dilation if ordered"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "Measured before dilation if ordered",
+      "left": "Measured before dilation if ordered"
+    },
     "anterior_segment": "Deep anterior chambers, no contraindication to dilation noted by the doctor",
     "fundus": "To be examined by the doctor after dilation"
   },

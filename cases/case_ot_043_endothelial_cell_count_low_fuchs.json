@@ -11,18 +11,30 @@
     "age": 70,
     "gender": "female",
     "occupation": "retired teacher",
-    "presenting_complaint": "Pre-cataract surgery work-up; reports vision is blurrier in the mornings"
+    "presenting_complaint": "Pre-cataract surgery work-up; reports vision is blurrier in the mornings",
+    "nric": "S8667535H",
+    "date_of_birth": "1956-02-22",
+    "address": "Blk 25 Ang Mo Kio Ave 3, #18-586, Singapore 115238",
+    "contact_number": "93509581"
   },
   "history": {
     "hpc": "Mdm Lee is being assessed before cataract surgery and is referred for an endothelial cell count. She says: 'Morning time my vision more blur, afternoon a bit better, why ah?' Vision that is worse in the morning and improves later can suggest corneal endothelial dysfunction (e.g., Fuchs dystrophy). The OT must perform specular microscopy and document the endothelial cell density.",
     "pmhx": "Bilateral cataracts (for surgery). Possible Fuchs endothelial dystrophy noted by doctor.",
     "family_hx": "Mother had 'cornea problem' and cataract surgery",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Lives with husband. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/24", "left": "6/18"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/24",
+      "left": "6/18"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Cornea shows subtle changes (possible guttata); cataract both eyes",
     "fundus": "For doctor as part of pre-op assessment"
   },

@@ -10,18 +10,31 @@
     "age": 69,
     "gender": "female",
     "occupation": "retired seamstress",
-    "presenting_complaint": "Attending pre-operative counselling clinic ahead of left eye cataract surgery scheduled in 2 weeks"
+    "presenting_complaint": "Attending pre-operative counselling clinic ahead of left eye cataract surgery scheduled in 2 weeks",
+    "nric": "S0346879H",
+    "date_of_birth": "1957-03-01",
+    "address": "Blk 795 Hougang Ave 8, #13-046, Singapore 656278",
+    "contact_number": "85926071"
   },
   "history": {
     "hpc": "Mdm Fatimah has been listed for left eye phacoemulsification with IOL implantation under local anaesthesia, scheduled in 2 weeks' time. She is attending today's pre-operative counselling visit to go through the details of the surgery, fasting instructions, and medication management. She is anxious as this will be her first-ever surgery. She has many questions about what to expect, how long it will take, and whether it will be painful.",
     "pmhx": "Type 2 diabetes mellitus, diet-controlled. Hypertension. Left eye dense cataract (VA 6/36), right eye mild cataract (VA 6/9). No previous surgery of any kind.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Warfarin 3mg OD (for atrial fibrillation, diagnosed 2 years ago)"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Warfarin 3mg OD (for atrial fibrillation, diagnosed 2 years ago)"
+    ],
     "social_hx": "Lives with daughter, who will accompany her on the day of surgery. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/36 (LogMAR 0.8)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/36 (LogMAR 0.8)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: mild cataract. Left eye: dense nuclear cataract confirmed, suitable for surgery.",
     "fundus": "Left fundus not fully visualised due to dense cataract; right fundus normal"
   },

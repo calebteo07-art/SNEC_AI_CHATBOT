@@ -10,18 +10,30 @@
     "age": 16,
     "gender": "male",
     "occupation": "secondary school student",
-    "presenting_complaint": "Needs a colour vision test as part of his application to a polytechnic course that requires normal colour vision (electrical engineering)"
+    "presenting_complaint": "Needs a colour vision test as part of his application to a polytechnic course that requires normal colour vision (electrical engineering)",
+    "nric": "T9549470B",
+    "date_of_birth": "2010-04-18",
+    "address": "Blk 580 Hougang Ave 8, #13-199, Singapore 804023",
+    "contact_number": "91083233"
   },
   "history": {
     "hpc": "Nigel has been referred for a colour vision assessment as part of a medical check-up required for his polytechnic course application. He reports no known issues with colour vision himself, but his mother mentions that his maternal uncle is 'colour blind' and has difficulty distinguishing red and green. Nigel has never been tested before. He has no other visual symptoms — no blurred vision, no eye pain, no headaches.",
     "pmhx": "Nil significant ocular history. Wears spectacles for mild myopia, both eyes.",
     "family_hx": "Maternal uncle has red-green colour vision deficiency (congenital, X-linked pattern suspected)",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Secondary 4 student. Came with his mother."
   },
   "examination_findings": {
-    "va": {"right": "6/6 with glasses (LogMAR 0.0)", "left": "6/6 with glasses (LogMAR 0.0)"},
-    "iop": {"right": "Not indicated for this visit", "left": "Not indicated for this visit"},
+    "va": {
+      "right": "6/6 with glasses (LogMAR 0.0)",
+      "left": "6/6 with glasses (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not indicated for this visit",
+      "left": "Not indicated for this visit"
+    },
     "anterior_segment": "Normal bilaterally. Wears glasses for mild myopia.",
     "fundus": "Not assessed — not indicated for this visit"
   },

@@ -11,18 +11,32 @@
     "age": 78,
     "gender": "male",
     "occupation": "retired bus driver",
-    "presenting_complaint": "Attending the injection clinic for his regular eye injection; uses a wheelchair after a stroke and needs help to move to the examination chair"
+    "presenting_complaint": "Attending the injection clinic for his regular eye injection; uses a wheelchair after a stroke and needs help to move to the examination chair",
+    "nric": "S8351577E",
+    "date_of_birth": "1948-03-06",
+    "address": "Blk 497 Ang Mo Kio Ave 3, #14-636, Singapore 550223",
+    "contact_number": "94500076"
   },
   "history": {
     "hpc": "Mr Rajoo comes for his scheduled intravitreal injection review. He had a stroke two years ago with left-sided weakness and uses a wheelchair, but can stand briefly with support. He says: 'My leg not so strong after the stroke, cannot stand long, must hold something.' He is alert and cooperative. He needs to transfer from his wheelchair to the examination chair for assessment.",
     "pmhx": "Previous stroke with left hemiparesis. Diabetes, hypertension. Wet AMD (right eye) on anti-VEGF injections.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Aspirin 100mg OD"],
+    "medications": [
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD",
+      "Aspirin 100mg OD"
+    ],
     "social_hx": "Lives with wife and son. Wheelchair user, son pushes him to appointments. Son is parking the car."
   },
   "examination_findings": {
-    "va": {"right": "6/60 (wet AMD)", "left": "6/12"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/60 (wet AMD)",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal anterior segments both eyes",
     "fundus": "Right eye: known wet AMD changes (for doctor review). Left eye: to be assessed."
   },

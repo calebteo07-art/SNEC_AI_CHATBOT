@@ -11,18 +11,31 @@
     "age": 84,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Came alone by taxi for her glaucoma review; has severe tunnel vision and is unsure of the clinic layout"
+    "presenting_complaint": "Came alone by taxi for her glaucoma review; has severe tunnel vision and is unsure of the clinic layout",
+    "nric": "S9590205G",
+    "date_of_birth": "1942-03-22",
+    "address": "Blk 153 Jurong West St 42, #18-956, Singapore 393622",
+    "contact_number": "95813793"
   },
   "history": {
     "hpc": "Mdm Goh has advanced glaucoma with severe constriction of her side vision. She came alone today. She says: 'I can only see a bit in the middle, the side all dark, so I walk slowly slowly, scared knock into things.' She finds the busy clinic with chairs and other patients hard to navigate. No new symptoms, here for routine review.",
     "pmhx": "Advanced primary open-angle glaucoma, both eyes. Osteoarthritis of the knees.",
     "family_hx": "Sister also has glaucoma",
-    "medications": ["Latanoprost eye drops ON both eyes", "Timolol eye drops BD both eyes"],
+    "medications": [
+      "Latanoprost eye drops ON both eyes",
+      "Timolol eye drops BD both eyes"
+    ],
     "social_hx": "Lives alone, manages with help from a neighbour. Came alone by taxi today."
   },
   "examination_findings": {
-    "va": {"right": "6/12 (central vision preserved)", "left": "6/18"},
-    "iop": {"right": "19 mmHg (NCT)", "left": "20 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 (central vision preserved)",
+      "left": "6/18"
+    },
+    "iop": {
+      "right": "19 mmHg (NCT)",
+      "left": "20 mmHg (NCT)"
+    },
     "anterior_segment": "Normal anterior segments; optic discs show advanced glaucomatous cupping (known)",
     "fundus": "Known advanced glaucomatous optic neuropathy, for doctor review"
   },

@@ -10,18 +10,30 @@
     "age": 48,
     "gender": "male",
     "occupation": "IT systems analyst",
-    "presenting_complaint": "Sudden increase in floaters and flashing lights in his left eye over the past day, and now describes a 'grey curtain' creeping in from the side of his vision"
+    "presenting_complaint": "Sudden increase in floaters and flashing lights in his left eye over the past day, and now describes a 'grey curtain' creeping in from the side of his vision",
+    "nric": "S6662040I",
+    "date_of_birth": "1978-06-02",
+    "address": "Blk 565 Toa Payoh Lor 4, #09-176, Singapore 555372",
+    "contact_number": "91493203"
   },
   "history": {
     "hpc": "Mr Ng has been highly myopic since childhood (-9.00D both eyes, wears glasses since age 8). Yesterday evening he noticed a sudden shower of new floaters — he describes 'like a swarm of black dots or cobwebs' — and flashes of light in his left eye, especially noticeable when he moves his eyes in the dark. This morning he noticed a grey shadow or 'curtain' creeping in from the upper outer (temporal) part of his vision in the left eye, which has been slowly progressing over the past few hours. He has no eye pain. His right eye feels normal.",
     "pmhx": "High myopia (-9.00D both eyes) since childhood. No previous eye surgery. No previous retinal detachment. No diabetes.",
     "family_hx": "Father had a retinal detachment in his 50s",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Works long hours at a computer. Came in directly after noticing the curtain this morning, very worried."
   },
   "examination_findings": {
-    "va": {"right": "6/9 with glasses (LogMAR 0.2)", "left": "6/24 with glasses (LogMAR 0.6) — reduced from his usual 6/9"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 with glasses (LogMAR 0.2)",
+      "left": "6/24 with glasses (LogMAR 0.6) — reduced from his usual 6/9"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "13 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. Clear lens and cornea both eyes.",
     "fundus": "Not yet assessed by doctor — patient describes a superior-temporal field defect ('curtain from above and to the side'), correlating with an inferior-nasal retinal detachment if confirmed; urgent dilated fundus examination required"
   },

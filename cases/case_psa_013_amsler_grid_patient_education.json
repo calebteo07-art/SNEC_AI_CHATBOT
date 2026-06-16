@@ -10,18 +10,31 @@
     "age": 68,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Follow-up visit for early dry age-related macular degeneration in the right eye"
+    "presenting_complaint": "Follow-up visit for early dry age-related macular degeneration in the right eye",
+    "nric": "S5836463J",
+    "date_of_birth": "1958-05-04",
+    "address": "Blk 55 Ang Mo Kio Ave 3, #05-894, Singapore 674978",
+    "contact_number": "81556678"
   },
   "history": {
     "hpc": "Mdm Lee was diagnosed with early dry AMD in her right eye at her last visit 3 months ago. The doctor has reviewed her today and findings remain stable. The doctor has asked the PSA to teach Mdm Lee how to use an Amsler grid at home to monitor for any changes between visits, particularly any new distortion or wavy lines that could indicate progression to wet AMD.",
     "pmhx": "Early dry AMD, right eye (diagnosed 3 months ago, stable on review today). Left eye unaffected. Hypertension, controlled. No diabetes.",
     "family_hx": "Sister has AMD in both eyes, diagnosed in her 70s.",
-    "medications": ["Amlodipine 5mg OD", "AREDS2-type vitamin supplement OD (started 3 months ago)"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "AREDS2-type vitamin supplement OD (started 3 months ago)"
+    ],
     "social_hx": "Lives with daughter's family. Enjoys reading the newspaper and doing crossword puzzles daily."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "va": {
+      "right": "6/9 (LogMAR 0.18)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "15 mmHg",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Reviewed by doctor today — early dry AMD right eye, stable; left eye normal"
   },

@@ -11,18 +11,30 @@
     "age": 49,
     "gender": "male",
     "occupation": "bank officer",
-    "presenting_complaint": "Difficulty reading small print up close for the past few months, especially the phone and restaurant menus"
+    "presenting_complaint": "Difficulty reading small print up close for the past few months, especially the phone and restaurant menus",
+    "nric": "S7331519J",
+    "date_of_birth": "1977-03-05",
+    "address": "Blk 572 Bukit Batok St 25, #06-743, Singapore 125204",
+    "contact_number": "94367605"
   },
   "history": {
     "hpc": "Mr Lim has noticed that small print is getting harder to read over the past few months. He says: 'Far away I can see clearly, but small letters on my handphone, I must stretch my arm until very far also still a bit blur.' It is worse in dim restaurant lighting and at the end of the day. Distance vision is fine. No pain, no double vision, no headaches.",
     "pmhx": "Nil significant. No previous eye conditions.",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Office worker, long hours on computer and phone. Reads physical documents daily. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/6 unaided (distance)", "left": "6/6 unaided (distance)"},
-    "iop": {"right": "13 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/6 unaided (distance)",
+      "left": "6/6 unaided (distance)"
+    },
+    "iop": {
+      "right": "13 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally, clear lens both eyes",
     "fundus": "To be assessed by doctor as needed"
   },

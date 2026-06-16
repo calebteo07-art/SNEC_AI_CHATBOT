@@ -11,18 +11,31 @@
     "age": 68,
     "gender": "male",
     "occupation": "retired draughtsman",
-    "presenting_complaint": "Bumps into objects and people on his left side since a recent stroke"
+    "presenting_complaint": "Bumps into objects and people on his left side since a recent stroke",
+    "nric": "S8824625Z",
+    "date_of_birth": "1958-05-24",
+    "address": "Blk 645 Pasir Ris Dr 1, #10-203, Singapore 483064",
+    "contact_number": "82333673"
   },
   "history": {
     "hpc": "Mr Ng had a stroke two months ago and since then keeps bumping into things on his left. He says: 'After my stroke, I keep knocking into things on my left side, the wife say I don't see that side.' He cannot sit still long enough for a full automated field test today. The OT must perform a confrontation visual field test as a gross assessment of his field.",
     "pmhx": "Recent ischaemic stroke. Hypertension, atrial fibrillation.",
     "family_hx": "Nil significant",
-    "medications": ["Apixaban (anticoagulant)", "Amlodipine 5mg OD"],
+    "medications": [
+      "Apixaban (anticoagulant)",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with wife who accompanies him. Uses a walking stick."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "For doctor; field loss here is likely neurological (post-stroke) rather than ocular"
   },

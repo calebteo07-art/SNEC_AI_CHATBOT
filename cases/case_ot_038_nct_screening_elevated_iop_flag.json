@@ -11,18 +11,30 @@
     "age": 55,
     "gender": "male",
     "occupation": "logistics manager",
-    "presenting_complaint": "Attending a community eye screening; NCT reading comes back high"
+    "presenting_complaint": "Attending a community eye screening; NCT reading comes back high",
+    "nric": "S9445245G",
+    "date_of_birth": "1971-02-08",
+    "address": "Blk 455 Hougang Ave 8, #12-923, Singapore 334803",
+    "contact_number": "98988758"
   },
   "history": {
     "hpc": "Mr Goh attends a community eye screening. He says: 'I come for the free eye screening, they say must check eye pressure.' He has no eye symptoms. On NCT his readings are elevated in both eyes. The OT must perform reliable NCT, repeat to confirm, and flag the high readings appropriately.",
     "pmhx": "Hypertension. No known eye disease.",
     "family_hx": "Father had glaucoma",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Office-based manager. Non-smoker. Asymptomatic, here for screening."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "27 mmHg (NCT, confirmed on repeat)", "left": "25 mmHg (NCT, confirmed on repeat)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "27 mmHg (NCT, confirmed on repeat)",
+      "left": "25 mmHg (NCT, confirmed on repeat)"
+    },
     "anterior_segment": "Normal anterior segments both eyes",
     "fundus": "Not assessed at screening; optic discs to be assessed by doctor"
   },

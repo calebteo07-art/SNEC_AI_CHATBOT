@@ -11,18 +11,32 @@
     "age": 72,
     "gender": "male",
     "occupation": "retired technician",
-    "presenting_complaint": "Feeling giddy when standing up; has just been dilated for a fundus examination"
+    "presenting_complaint": "Feeling giddy when standing up; has just been dilated for a fundus examination",
+    "nric": "S7666712H",
+    "date_of_birth": "1954-01-08",
+    "address": "Blk 397 Pasir Ris Dr 1, #15-938, Singapore 263396",
+    "contact_number": "98475977"
   },
   "history": {
     "hpc": "Mr Abdullah was dilated about 25 minutes ago for a fundus check. While waiting, he tells you he feels giddy whenever he stands up quickly. He says: 'When I stand up fast, my head spin spin, like want to fall, must hold the chair first.' His near vision is now blurry and he is light-sensitive from the dilation. He has not eaten much today.",
     "pmhx": "Hypertension on multiple medications. Type 2 diabetes. Background diabetic retinopathy under monitoring.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 10mg OD", "Hydrochlorothiazide 25mg OD", "Metformin 500mg BD"],
+    "medications": [
+      "Amlodipine 10mg OD",
+      "Hydrochlorothiazide 25mg OD",
+      "Metformin 500mg BD"
+    ],
     "social_hx": "Lives with wife. Came by himself today on the bus. Skipped breakfast before coming."
   },
   "examination_findings": {
-    "va": {"right": "6/12 pre-dilation, blurred post-dilation", "left": "6/12 pre-dilation, blurred post-dilation"},
-    "iop": {"right": "15 mmHg (NCT, pre-dilation)", "left": "16 mmHg (NCT, pre-dilation)"},
+    "va": {
+      "right": "6/12 pre-dilation, blurred post-dilation",
+      "left": "6/12 pre-dilation, blurred post-dilation"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT, pre-dilation)",
+      "left": "16 mmHg (NCT, pre-dilation)"
+    },
     "anterior_segment": "Pupils well dilated bilaterally; otherwise normal",
     "fundus": "Background diabetic retinopathy, for doctor review now that pupils are dilated"
   },

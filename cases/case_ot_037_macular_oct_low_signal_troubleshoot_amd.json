@@ -11,18 +11,31 @@
     "age": 76,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Comes monthly for wet AMD injections; needs a macular OCT before review, but the first scan looks poor quality"
+    "presenting_complaint": "Comes monthly for wet AMD injections; needs a macular OCT before review, but the first scan looks poor quality",
+    "nric": "S9046813H",
+    "date_of_birth": "1950-05-25",
+    "address": "Blk 598 Serangoon Central, #07-150, Singapore 193994",
+    "contact_number": "81243041"
   },
   "history": {
     "hpc": "Mr Lim attends for his regular wet AMD follow-up and macular OCT. He says: 'I come every month for the injection, today need do the scan first right?' On the first attempt the scan shows low signal strength and a dark, grainy image. He has a cataract and dry eyes. The OT must troubleshoot to obtain a usable scan.",
     "pmhx": "Wet AMD (right eye) on anti-VEGF injections. Cataract both eyes. Dry eye disease.",
     "family_hx": "Nil significant",
-    "medications": ["Anti-VEGF injections (right eye, ongoing)", "Lubricant eye drops PRN"],
+    "medications": [
+      "Anti-VEGF injections (right eye, ongoing)",
+      "Lubricant eye drops PRN"
+    ],
     "social_hx": "Lives with daughter. Attends regularly for injections. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (wet AMD)", "left": "6/12"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 (wet AMD)",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Cataract both eyes and dry ocular surface — both can reduce OCT signal",
     "fundus": "Wet AMD changes right eye; OCT needed to assess fluid for treatment decision"
   },

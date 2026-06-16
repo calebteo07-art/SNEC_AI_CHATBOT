@@ -11,18 +11,31 @@
     "age": 65,
     "gender": "female",
     "occupation": "retired cook",
-    "presenting_complaint": "Back in the day ward after right eye cataract surgery; asking when she can go home"
+    "presenting_complaint": "Back in the day ward after right eye cataract surgery; asking when she can go home",
+    "nric": "S9874442H",
+    "date_of_birth": "1961-05-10",
+    "address": "Blk 734 Toa Payoh Lor 4, #13-228, Singapore 393922",
+    "contact_number": "82344360"
   },
   "history": {
     "hpc": "Mdm Rahimah has returned to the day ward after uneventful right eye cataract surgery under local anaesthesia. She says: 'Operation finish already, can go home now or not?' She feels well, mild scratchy sensation in the eye, no severe pain or nausea. The OT must monitor her recovery, record vital signs, and confirm she is stable before discharge.",
     "pmhx": "Right cataract (operated today). Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Post-op antibiotic and steroid eye drops (right eye, to start as directed)"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Post-op antibiotic and steroid eye drops (right eye, to start as directed)"
+    ],
     "social_hx": "Lives with son who will take her home. Fasted pre-op, now able to take light refreshment."
   },
   "examination_findings": {
-    "va": {"right": "shielded post-op", "left": "6/9"},
-    "iop": {"right": "not routinely measured immediately post-op", "left": "15 mmHg"},
+    "va": {
+      "right": "shielded post-op",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "not routinely measured immediately post-op",
+      "left": "15 mmHg"
+    },
     "anterior_segment": "Right eye shield in place; no excessive pain or discharge reported",
     "fundus": "Not assessed post-op"
   },

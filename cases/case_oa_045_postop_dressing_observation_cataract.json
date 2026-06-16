@@ -11,18 +11,31 @@
     "age": 67,
     "gender": "male",
     "occupation": "retired contractor",
-    "presenting_complaint": "Came for day-1 post-operative review after left eye cataract surgery; here for dressing removal and check"
+    "presenting_complaint": "Came for day-1 post-operative review after left eye cataract surgery; here for dressing removal and check",
+    "nric": "S6728613H",
+    "date_of_birth": "1959-01-24",
+    "address": "Blk 517 Woodlands Ave 6, #11-521, Singapore 502018",
+    "contact_number": "81764063"
   },
   "history": {
     "hpc": "Mr Koh had uncomplicated left eye cataract surgery yesterday. He returns for the day-1 dressing removal and post-operative check. He says: 'After operation my eye got a bit watery and gritty, normal or not ah?' He denies severe pain, sudden vision loss, or large amounts of discharge. He has been using the shield over the eye at night as advised.",
     "pmhx": "Bilateral cataracts (left operated). Hypertension. No diabetes.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Post-op antibiotic and steroid eye drops (started today)"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Post-op antibiotic and steroid eye drops (started today)"
+    ],
     "social_hx": "Lives with wife. Came with wife today. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (unoperated)", "left": "6/12 on day 1 post-op (improving), pre-surgery was 6/60"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "to be checked gently / per protocol post-op"},
+    "va": {
+      "right": "6/9 (unoperated)",
+      "left": "6/12 on day 1 post-op (improving), pre-surgery was 6/60"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "to be checked gently / per protocol post-op"
+    },
     "anterior_segment": "Left eye on dressing removal: lids mild oedema, no significant redness or discharge; conjunctiva mild redness; surgical wound clean, no haematoma, no loose sutures, no signs of infection.",
     "fundus": "Not the focus today; for doctor as needed"
   },

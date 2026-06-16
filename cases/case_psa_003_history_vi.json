@@ -11,13 +11,21 @@
     "age": 72,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Worsening vision — referred from polyclinic for specialist review"
+    "presenting_complaint": "Worsening vision — referred from polyclinic for specialist review",
+    "nric": "S9994626A",
+    "date_of_birth": "1954-06-06",
+    "address": "Blk 337 Clementi Ave 2, #12-522, Singapore 384233",
+    "contact_number": "86557075"
   },
   "history": {
     "hpc": "Mr Azri is a 72-year-old with advanced age-related macular degeneration in both eyes, referred for assessment of worsening central vision. He cannot read the SNEC patient registration form — he cannot see even the large print fields clearly. He is accompanied by his grandson, Haziq (aged 19), who offers to fill in the forms for him. Mr Azri is cognitively intact and can answer questions verbally. He does not have hearing difficulties.",
     "pmhx": "Age-related macular degeneration (AMD) — bilateral, advanced. Hypertension. Type 2 diabetes mellitus (well-controlled). Prostate enlargement on tamsulosin.",
     "family_hx": "Not known — patient says 'I cannot remember'",
-    "medications": ["Amlodipine 5mg OD", "Metformin 500mg BD", "Tamsulosin 0.4mg ON"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Metformin 500mg BD",
+      "Tamsulosin 0.4mg ON"
+    ],
     "social_hx": "Widower. Lives with grandson Haziq. Grandson is the main caregiver. Mr Azri can still walk independently but uses a white cane outdoors."
   },
   "examination_findings": {
@@ -25,7 +33,10 @@
       "right": "HM (Hand Motion) at 50 cm",
       "left": "CF (Count Fingers) at 1 metre"
     },
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — doctor to review"
   },

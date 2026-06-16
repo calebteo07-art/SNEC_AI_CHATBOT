@@ -11,7 +11,11 @@
     "age": 51,
     "gender": "male",
     "occupation": "accountant",
-    "presenting_complaint": "Difficulty reading small print on documents and his phone over the past year"
+    "presenting_complaint": "Difficulty reading small print on documents and his phone over the past year",
+    "nric": "S0869018I",
+    "date_of_birth": "1975-01-04",
+    "address": "Blk 445 Bedok North Rd, #02-360, Singapore 679002",
+    "contact_number": "82079241"
   },
   "history": {
     "hpc": "Mr Chua reports increasing difficulty reading fine print on financial statements and his mobile phone over the past 12 months. He finds himself holding documents further away to read them clearly. He has not previously worn glasses for reading. His distance vision is unaffected — he drives without glasses with no issues. He is here for a routine check after his optician suggested he see an eye doctor before getting reading glasses.",
@@ -25,7 +29,10 @@
       "right": "6/6 (LogMAR 0.0) unaided distance",
       "left": "6/6 (LogMAR 0.0) unaided distance"
     },
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage — PSA role is vision testing only",
     "fundus": "Not assessed — doctor to review"
   },

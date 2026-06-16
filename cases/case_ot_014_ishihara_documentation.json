@@ -10,18 +10,30 @@
     "age": 12,
     "gender": "male",
     "occupation": "primary school student",
-    "presenting_complaint": "New patient — referred for colour vision assessment after school screening flagged possible colour vision deficiency"
+    "presenting_complaint": "New patient — referred for colour vision assessment after school screening flagged possible colour vision deficiency",
+    "nric": "T3441616D",
+    "date_of_birth": "2014-04-02",
+    "address": "Blk 339 Bukit Batok St 25, #03-330, Singapore 687902",
+    "contact_number": "91168809"
   },
   "history": {
     "hpc": "Daniel's school conducted a routine vision and colour screening as part of the annual health check. He was flagged as having difficulty identifying certain colours during the school screening, particularly distinguishing red and green objects. His mother reports he sometimes confuses the colours of his crayons but otherwise has no visual complaints. He has been referred to SNEC for formal colour vision testing using the Ishihara chart.",
     "pmhx": "No previous eye surgery. No known ocular disease. Has never worn glasses.",
     "family_hx": "Maternal uncle is 'colour blind' (red-green colour vision deficiency)",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Primary 6 student. Lives with parents."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not tested — not indicated for this visit",
+      "left": "Not tested — not indicated for this visit"
+    },
     "anterior_segment": "Normal bilaterally",
     "fundus": "Normal bilaterally on doctor's examination"
   },

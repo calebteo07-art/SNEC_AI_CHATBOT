@@ -10,18 +10,30 @@
     "age": 29,
     "gender": "male",
     "occupation": "construction site worker",
-    "presenting_complaint": "A metal wire snapped and flew into his right eye while cutting cable ties on site about 30 minutes ago"
+    "presenting_complaint": "A metal wire snapped and flew into his right eye while cutting cable ties on site about 30 minutes ago",
+    "nric": "S3742183I",
+    "date_of_birth": "1997-03-13",
+    "address": "Blk 128 Ang Mo Kio Ave 3, #11-547, Singapore 554133",
+    "contact_number": "81821496"
   },
   "history": {
     "hpc": "Mr Hafiz was using wire cutters when a piece of taut metal wire snapped back and struck his right eye. He felt immediate sharp pain and noticed his vision in that eye became blurry straight away. His supervisor brought him to SNEC directly. He has not touched or rubbed the eye. He reports the eye is watering and feels like 'something is stuck inside'. He did not vomit and has no headache.",
     "pmhx": "Nil significant. No previous eye conditions. Last tetanus vaccination unknown — needs to be checked.",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Construction worker. Was not wearing protective eyewear. Came in with supervisor."
   },
   "examination_findings": {
-    "va": {"right": "CF (Count Fingers) at 1 metre", "left": "6/6"},
-    "iop": {"right": "Not measured — IOP and any contact procedures are CONTRAINDICATED if penetrating injury suspected", "left": "Not yet measured"},
+    "va": {
+      "right": "CF (Count Fingers) at 1 metre",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "Not measured — IOP and any contact procedures are CONTRAINDICATED if penetrating injury suspected",
+      "left": "Not yet measured"
+    },
     "anterior_segment": "Right eye: irregular, peaked pupil, visible small dark area at the limbus suggestive of a full-thickness wound with possible uveal prolapse, mild hyphaema. A small metallic fragment appears to be protruding from the globe. Left eye: normal.",
     "fundus": "Not assessed — any pressure on the globe is contraindicated"
   },

@@ -11,18 +11,30 @@
     "age": 8,
     "gender": "female",
     "occupation": "primary school student",
-    "presenting_complaint": "New patient — referred by school nurse for double vision when looking to the side"
+    "presenting_complaint": "New patient — referred by school nurse for double vision when looking to the side",
+    "nric": "T9006041J",
+    "date_of_birth": "2018-03-23",
+    "address": "Blk 335 Clementi Ave 2, #06-498, Singapore 202161",
+    "contact_number": "80258437"
   },
   "history": {
     "hpc": "Priya's mother reports that Priya occasionally complains of 'seeing two of everything' when looking towards her left side, especially when tired in the evenings. This has been happening for about 2 months. There is no double vision when looking straight ahead or to the right. She has no headaches. She has been referred to the orthoptic clinic for an eye movement assessment (versions and ductions) before further work-up.",
     "pmhx": "Born full term, normal delivery. No previous eye surgery. No known ocular disease. Has never worn glasses.",
     "family_hx": "Nil significant — no known squint or eye movement problems in family",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Primary 2 student. Lives with parents and one younger sibling."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not tested — not indicated for this visit",
+      "left": "Not tested — not indicated for this visit"
+    },
     "anterior_segment": "Normal bilaterally",
     "fundus": "Normal bilaterally on doctor's examination"
   },

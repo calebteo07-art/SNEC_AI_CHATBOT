@@ -11,18 +11,31 @@
     "age": 62,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Gritty, burning sensation in both eyes, worse by the end of the day"
+    "presenting_complaint": "Gritty, burning sensation in both eyes, worse by the end of the day",
+    "nric": "S4324787E",
+    "date_of_birth": "1964-06-13",
+    "address": "Blk 44 Bukit Batok St 25, #07-572, Singapore 710580",
+    "contact_number": "81099083"
   },
   "history": {
     "hpc": "Mdm Wong has been diagnosed with bilateral dry eye disease today after assessment by the doctor, who has prescribed preservative-free artificial tears to be used four times a day in both eyes. She has used eye drops before for conjunctivitis many years ago but never on a regular daily basis. She mentions she finds it awkward to instil drops without help and often ends up with the drop running down her cheek.",
     "pmhx": "Bilateral dry eye disease (newly characterised today). Hypertension, well-controlled. No diabetes. No previous eye surgery.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Preservative-free artificial tears, both eyes, 4 times a day — newly prescribed today"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Preservative-free artificial tears, both eyes, 4 times a day — newly prescribed today"
+    ],
     "social_hx": "Lives with husband. Spends a lot of time reading and watching TV. Uses an electric fan at home which she says may dry her eyes further."
   },
   "examination_findings": {
-    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/7.5 (LogMAR 0.1)"},
-    "iop": {"right": "16 mmHg", "left": "17 mmHg"},
+    "va": {
+      "right": "6/7.5 (LogMAR 0.1)",
+      "left": "6/7.5 (LogMAR 0.1)"
+    },
+    "iop": {
+      "right": "16 mmHg",
+      "left": "17 mmHg"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — reviewed by doctor"
   },

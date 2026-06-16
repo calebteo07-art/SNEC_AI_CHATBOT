@@ -11,18 +11,30 @@
     "age": 55,
     "gender": "male",
     "occupation": "lorry driver",
-    "presenting_complaint": "Sudden new floaters and flashes of light in the right eye for the past two days"
+    "presenting_complaint": "Sudden new floaters and flashes of light in the right eye for the past two days",
+    "nric": "S9081344G",
+    "date_of_birth": "1971-06-03",
+    "address": "Blk 784 Ang Mo Kio Ave 3, #06-058, Singapore 140861",
+    "contact_number": "95087668"
   },
   "history": {
     "hpc": "Mr Tan reports new symptoms in the right eye for two days. He says: 'Suddenly I see like got black flies floating, and sometimes flash flash like lightning at the corner.' He is highly myopic and wears thick glasses. He denies a curtain or shadow over his vision so far, no pain, no redness. He is worried because it came on suddenly.",
     "pmhx": "High myopia (about -8.00 both eyes). No previous eye surgery or trauma.",
     "family_hx": "Brother had retinal detachment",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Lorry driver — vision important for work. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 with glasses", "left": "6/9 with glasses"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 with glasses",
+      "left": "6/9 with glasses"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal anterior segments both eyes",
     "fundus": "Requires dilated examination by doctor (high-risk symptoms in a myope) — to be arranged"
   },

@@ -11,18 +11,33 @@
     "age": 60,
     "gender": "male",
     "occupation": "taxi driver",
-    "presenting_complaint": "Routine follow-up for diabetic eye screening, referred from polyclinic"
+    "presenting_complaint": "Routine follow-up for diabetic eye screening, referred from polyclinic",
+    "nric": "S4484177J",
+    "date_of_birth": "1966-02-02",
+    "address": "Blk 775 Tampines St 21, #17-398, Singapore 500957",
+    "contact_number": "95469130"
   },
   "history": {
     "hpc": "Mr Rajendran is attending for a routine diabetic eye screening follow-up, referred from his polyclinic. He has no new visual complaints. The PSA is taking his general health history as part of the standard pre-consultation work-up. He mentions he recently started a new blood pressure medication and isn't sure of its name, only that it is 'a small white tablet'.",
     "pmhx": "Type 2 diabetes mellitus for 12 years. Hypertension for 8 years, medication recently changed by polyclinic doctor 2 weeks ago. High cholesterol on medication. No previous eye surgery. No known drug allergies.",
     "family_hx": "Father had diabetes and passed away from a stroke. Mother had hypertension.",
-    "medications": ["Metformin 1g BD", "A new blood pressure tablet — name unknown, started 2 weeks ago, taken once daily", "Atorvastatin 20mg ON", "Aspirin 100mg OD"],
+    "medications": [
+      "Metformin 1g BD",
+      "A new blood pressure tablet — name unknown, started 2 weeks ago, taken once daily",
+      "Atorvastatin 20mg ON",
+      "Aspirin 100mg OD"
+    ],
     "social_hx": "Taxi driver, drives long hours daily. Smokes about 5 cigarettes a day for over 20 years. Drinks alcohol occasionally on weekends."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/12 (LogMAR 0.3)"},
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "va": {
+      "right": "6/9 (LogMAR 0.18)",
+      "left": "6/12 (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — doctor to review for diabetic retinopathy screening"
   },

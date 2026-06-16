@@ -11,18 +11,30 @@
     "age": 57,
     "gender": "male",
     "occupation": "bus captain",
-    "presenting_complaint": "Here for diabetic retinal photography; needs dilating drops before the photos"
+    "presenting_complaint": "Here for diabetic retinal photography; needs dilating drops before the photos",
+    "nric": "S4669331J",
+    "date_of_birth": "1969-01-25",
+    "address": "Blk 361 Ang Mo Kio Ave 3, #08-178, Singapore 610027",
+    "contact_number": "89632974"
   },
   "history": {
     "hpc": "Mr Ramli attends for diabetic eye screening with retinal photography, which needs his pupils dilated. He says: 'Nurse say must put drops to make my eye big big before take photo, then cannot drive after right?' He has no history of narrow angles or acute glaucoma. The PSA must prepare and instil dilating drops correctly and document the procedure.",
     "pmhx": "Type 2 diabetes. No previous acute glaucoma or narrow-angle problems.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 1g BD"],
+    "medications": [
+      "Metformin 1g BD"
+    ],
     "social_hx": "Bus captain; drove himself today (relevant to post-dilation advice)."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "15 mmHg (NCT, before dilation)", "left": "16 mmHg (NCT, before dilation)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT, before dilation)",
+      "left": "16 mmHg (NCT, before dilation)"
+    },
     "anterior_segment": "Normal; no shallow anterior chamber concerns reported",
     "fundus": "To be photographed after dilation"
   },

@@ -10,18 +10,30 @@
     "age": 52,
     "gender": "female",
     "occupation": "hawker stall assistant",
-    "presenting_complaint": "Right eye has been red, watery, and sticky with discharge for the past 3 days, started after her grandson had 'pink eye'"
+    "presenting_complaint": "Right eye has been red, watery, and sticky with discharge for the past 3 days, started after her grandson had 'pink eye'",
+    "nric": "S8229277B",
+    "date_of_birth": "1974-04-25",
+    "address": "Blk 1 Pasir Ris Dr 1, #18-916, Singapore 610515",
+    "contact_number": "93067336"
   },
   "history": {
     "hpc": "Mdm Chua noticed her right eye became red and watery 3 days ago, with yellowish discharge that crusts her eyelashes together especially in the morning. She does not have significant pain — just mild irritation and a gritty feeling. She has no photophobia. Her vision feels normal. Her grandson, whom she babysits, had a similar red eye with discharge last week which has since resolved. She has not had fever or pain.",
     "pmhx": "Nil significant ocular history. Hypertension on medication.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with daughter's family including a young grandson. Works at a hawker stall."
   },
   "examination_findings": {
-    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/7.5 (LogMAR 0.1)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: diffuse conjunctival hyperaemia, mucopurulent discharge with crusted lashes, normal-sized round reactive pupil, clear cornea. Left eye: mild conjunctival injection, no discharge.",
     "fundus": "Not assessed — not indicated for this presentation"
   },

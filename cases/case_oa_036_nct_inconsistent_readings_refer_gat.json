@@ -12,18 +12,30 @@
     "age": 61,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Non-contact tonometry giving inconsistent readings across attempts"
+    "presenting_complaint": "Non-contact tonometry giving inconsistent readings across attempts",
+    "nric": "S3655259Z",
+    "date_of_birth": "1965-05-03",
+    "address": "Blk 26 Pasir Ris Dr 1, #07-546, Singapore 383433",
+    "contact_number": "84892745"
   },
   "history": {
     "hpc": "Mdm Nur says 'Every time the air blow I blink, cannot help it.' The NCT readings vary widely between attempts, partly because she blinks and tears up with each puff.",
     "pmhx": "No known glaucoma. Watery eyes. No drug allergies.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Retired."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "NCT readings inconsistent (e.g. 16, 24, 19 mmHg)", "left": "NCT readings inconsistent"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "NCT readings inconsistent (e.g. 16, 24, 19 mmHg)",
+      "left": "NCT readings inconsistent"
+    },
     "anterior_segment": "Watery eyes; otherwise normal by observation",
     "fundus": "Not the focus of this station"
   },

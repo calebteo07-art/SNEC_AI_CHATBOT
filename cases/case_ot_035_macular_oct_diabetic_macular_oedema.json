@@ -11,18 +11,31 @@
     "age": 58,
     "gender": "male",
     "occupation": "taxi driver",
-    "presenting_complaint": "Referred for a macular OCT scan because of blurred central vision; has diabetes"
+    "presenting_complaint": "Referred for a macular OCT scan because of blurred central vision; has diabetes",
+    "nric": "S9799958I",
+    "date_of_birth": "1968-03-14",
+    "address": "Blk 236 Toa Payoh Lor 4, #09-849, Singapore 604063",
+    "contact_number": "98776519"
   },
   "history": {
     "hpc": "Mr Hassan is referred for a macular OCT to assess blurred central vision in both eyes, worse on the right. He says: 'Doctor say my sugar high, my middle vision blur, ask me come do this scan.' He has diabetes with sub-optimal control. No pain or redness. The OT's task is to acquire a good-quality macular OCT and document the findings for the doctor.",
     "pmhx": "Type 2 diabetes (HbA1c high), hypertension. Known diabetic retinopathy under monitoring.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 1g BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Metformin 1g BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Taxi driver; long driving hours. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/24", "left": "6/12"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/24",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Clear media adequate for imaging; mild lens changes",
     "fundus": "Diabetic retinopathy with suspected macular oedema, right worse than left — for OCT and doctor review"
   },

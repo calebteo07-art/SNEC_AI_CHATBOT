@@ -11,18 +11,30 @@
     "age": 19,
     "gender": "female",
     "occupation": "university student",
-    "presenting_complaint": "New patient — eye strain, headaches, and intermittent double vision while reading and studying"
+    "presenting_complaint": "New patient — eye strain, headaches, and intermittent double vision while reading and studying",
+    "nric": "T3931112C",
+    "date_of_birth": "2007-04-26",
+    "address": "Blk 262 Serangoon Central, #05-066, Singapore 229488",
+    "contact_number": "97706388"
   },
   "history": {
     "hpc": "Rachel reports that over the past semester, she has experienced increasing eye strain, frontal headaches, and occasional double vision when reading or using her laptop for prolonged periods (more than 30 minutes). The double vision resolves when she looks up and rests her eyes. She finds herself losing her place while reading and sometimes closing one eye to relieve the discomfort. Her distance vision is unaffected. She has been referred for a Near Point of Convergence (NPC) assessment as part of her orthoptic work-up.",
     "pmhx": "No previous eye surgery. No known ocular disease. Last eye check 2 years ago was normal. Wears glasses for mild myopia, mainly for distance.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "University student, studies 6-8 hours daily including screen time. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/6 with glasses (LogMAR 0.0)", "left": "6/6 with glasses (LogMAR 0.0)"},
-    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested — not indicated for this visit"},
+    "va": {
+      "right": "6/6 with glasses (LogMAR 0.0)",
+      "left": "6/6 with glasses (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not tested — not indicated for this visit",
+      "left": "Not tested — not indicated for this visit"
+    },
     "anterior_segment": "Normal bilaterally",
     "fundus": "Normal bilaterally on doctor's examination"
   },

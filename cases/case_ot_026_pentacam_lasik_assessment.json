@@ -11,18 +11,30 @@
     "age": 28,
     "gender": "male",
     "occupation": "software engineer",
-    "presenting_complaint": "Self-referred enquiry for LASIK suitability — Pentacam corneal tomography requested"
+    "presenting_complaint": "Self-referred enquiry for LASIK suitability — Pentacam corneal tomography requested",
+    "nric": "S0384127H",
+    "date_of_birth": "1998-01-23",
+    "address": "Blk 285 Toa Payoh Lor 4, #02-326, Singapore 211198",
+    "contact_number": "92300443"
   },
   "history": {
     "hpc": "Mr Lim says 'I very sian of wearing glasses already, want to check whether I can do LASIK.' He is highly short-sighted and wants to explore refractive surgery. No eye pain, no eye rubbing habit reported, no previous eye surgery. The doctor ordered a Pentacam corneal tomography scan to assess the cornea before deciding on refractive surgery suitability.",
     "pmhx": "Myopia with astigmatism. No medical history. No history of keratoconus or eye rubbing.",
     "family_hx": "No known family history of keratoconus",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Office worker, long screen hours. Non-smoker. Has not worn contact lenses recently."
   },
   "examination_findings": {
-    "va": {"right": "6/7.5-1 (with glasses)", "left": "6/9-1 (with glasses)"},
-    "iop": {"right": "20 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "va": {
+      "right": "6/7.5-1 (with glasses)",
+      "left": "6/9-1 (with glasses)"
+    },
+    "iop": {
+      "right": "20 mmHg (NCT)",
+      "left": "18 mmHg (NCT)"
+    },
     "anterior_segment": "Clear corneas, no scarring or signs of corneal ectasia on slit lamp",
     "fundus": "Myopic fundus, no retinal tears or detachment noted on the report provided"
   },
@@ -31,7 +43,10 @@
       "right": "-5.00 DS / -2.12 DC x 12",
       "left": "-4.50 DS / -1.60 DC x 153"
     },
-    "near_vision": {"right": "N5 (with glasses), N10 (without)", "left": "N5 (with glasses), N5 (without)"},
+    "near_vision": {
+      "right": "N5 (with glasses), N10 (without)",
+      "left": "N5 (with glasses), N5 (without)"
+    },
     "pentacam": {
       "device": "Pentacam Scheimpflug tomography",
       "central_corneal_thickness_right": "532 microns",

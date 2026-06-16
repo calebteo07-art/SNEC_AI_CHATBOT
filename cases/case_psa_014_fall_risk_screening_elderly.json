@@ -10,18 +10,32 @@
     "age": 79,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Routine annual eye check, no new visual complaints"
+    "presenting_complaint": "Routine annual eye check, no new visual complaints",
+    "nric": "S9308407A",
+    "date_of_birth": "1947-03-12",
+    "address": "Blk 705 Pasir Ris Dr 1, #18-939, Singapore 663152",
+    "contact_number": "94144004"
   },
   "history": {
     "hpc": "Mdm Aw is a 79-year-old attending for her routine annual eye check. She walks into the clinic unassisted, without any mobility aid, and reports no new visual symptoms. As part of standard registration, the PSA performs a fall risk screen for every patient regardless of presenting complaint, as required at every visit.",
     "pmhx": "Mild cataract both eyes (stable, monitored). Hypertension on medication. Osteoporosis diagnosed 5 years ago, on calcium and vitamin D supplements.",
     "family_hx": "Not relevant to this visit",
-    "medications": ["Amlodipine 5mg OD", "Calcium carbonate + Vitamin D3 OD", "Alendronate 70mg once weekly"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Calcium carbonate + Vitamin D3 OD",
+      "Alendronate 70mg once weekly"
+    ],
     "social_hx": "Lives alone in a one-room flat. Independent with all activities of daily living. No history of falls in the past year. Walks to the nearby market daily."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.18)", "left": "6/9 (LogMAR 0.18)"},
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "va": {
+      "right": "6/9 (LogMAR 0.18)",
+      "left": "6/9 (LogMAR 0.18)"
+    },
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — doctor to review"
   },

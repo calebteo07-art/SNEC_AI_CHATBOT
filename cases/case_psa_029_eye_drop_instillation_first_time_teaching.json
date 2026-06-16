@@ -12,18 +12,30 @@
     "age": 54,
     "gender": "male",
     "occupation": "lorry driver",
-    "presenting_complaint": "Newly prescribed eye drops, has never used eye drops before"
+    "presenting_complaint": "Newly prescribed eye drops, has never used eye drops before",
+    "nric": "S4687355F",
+    "date_of_birth": "1972-05-21",
+    "address": "Blk 105 Serangoon Central, #09-196, Singapore 451498",
+    "contact_number": "85304274"
   },
   "history": {
     "hpc": "Mr Yeo says 'Doctor give me eye drop, but I never use before, dunno how.' He needs his charted drop instilled and to be taught the technique so he can do it himself at home.",
     "pmhx": "No previous eye drop use. No drug allergies (confirm).",
     "family_hx": "Not relevant to this station",
-    "medications": ["Newly charted eye drop"],
+    "medications": [
+      "Newly charted eye drop"
+    ],
     "social_hx": "Lorry driver; lives alone."
   },
   "examination_findings": {
-    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
-    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "va": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
+    "iop": {
+      "right": "Not measured at this station",
+      "left": "Not measured at this station"
+    },
     "anterior_segment": "No active infection that would change technique",
     "fundus": "Not examined at this station"
   },

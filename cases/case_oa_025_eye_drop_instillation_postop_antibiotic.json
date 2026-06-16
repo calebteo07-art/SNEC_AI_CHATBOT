@@ -12,18 +12,31 @@
     "age": 66,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Post cataract surgery — needs her antibiotic and steroid eye drops instilled and technique taught"
+    "presenting_complaint": "Post cataract surgery — needs her antibiotic and steroid eye drops instilled and technique taught",
+    "nric": "S2584833J",
+    "date_of_birth": "1960-06-12",
+    "address": "Blk 354 Clementi Ave 2, #07-675, Singapore 176767",
+    "contact_number": "80077441"
   },
   "history": {
     "hpc": "Mdm Chua says 'I just did my cataract operation, doctor give me eye drops but I don't know how to put properly.' She needs her post-op drops instilled into the operated right eye and to be taught the technique for home.",
     "pmhx": "Recent right cataract surgery. No drug allergies on file (confirm).",
     "family_hx": "Not relevant to this station",
-    "medications": ["Post-op antibiotic drops", "Post-op steroid drops"],
+    "medications": [
+      "Post-op antibiotic drops",
+      "Post-op steroid drops"
+    ],
     "social_hx": "Lives with her daughter who can help with drops at home."
   },
   "examination_findings": {
-    "va": {"right": "Post-op, improving", "left": "6/9"},
-    "iop": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
+    "va": {
+      "right": "Post-op, improving",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
     "anterior_segment": "Recent surgical eye — handle gently, no pressure on the globe",
     "fundus": "Not examined at this station"
   },

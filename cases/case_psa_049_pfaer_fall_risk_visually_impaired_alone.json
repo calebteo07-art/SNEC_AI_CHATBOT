@@ -11,18 +11,31 @@
     "age": 76,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Severely reduced vision in both eyes; came alone by public transport and is having trouble finding his way around the clinic"
+    "presenting_complaint": "Severely reduced vision in both eyes; came alone by public transport and is having trouble finding his way around the clinic",
+    "nric": "S9134177H",
+    "date_of_birth": "1950-03-22",
+    "address": "Blk 97 Tampines St 21, #15-462, Singapore 348975",
+    "contact_number": "82744332"
   },
   "history": {
     "hpc": "Mr Krishnan has advanced eye disease with severely reduced vision in both eyes. He came alone by bus and train. He says: 'I cannot see well already, I come by myself, just now I nearly trip at the door.' He is at clear risk of falling while navigating the clinic. The PSA must complete a fall-risk (PFAER) assessment and take active measures.",
     "pmhx": "Advanced glaucoma and diabetic eye disease, both eyes. Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Glaucoma eye drops both eyes", "Metformin 500mg BD"],
+    "medications": [
+      "Glaucoma eye drops both eyes",
+      "Metformin 500mg BD"
+    ],
     "social_hx": "Lives alone; limited family support. Travelled alone today."
   },
   "examination_findings": {
-    "va": {"right": "6/60", "left": "3/60 (severely reduced)"},
-    "iop": {"right": "18 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "va": {
+      "right": "6/60",
+      "left": "3/60 (severely reduced)"
+    },
+    "iop": {
+      "right": "18 mmHg (NCT)",
+      "left": "19 mmHg (NCT)"
+    },
     "anterior_segment": "Advanced disease; severely reduced vision both eyes",
     "fundus": "Known advanced pathology, for doctor review"
   },

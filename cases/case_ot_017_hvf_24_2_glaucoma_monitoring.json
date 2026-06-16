@@ -11,18 +11,32 @@
     "age": 61,
     "gender": "male",
     "occupation": "retired civil servant",
-    "presenting_complaint": "Follow-up visit — known primary open-angle glaucoma, due for repeat Humphrey Visual Field"
+    "presenting_complaint": "Follow-up visit — known primary open-angle glaucoma, due for repeat Humphrey Visual Field",
+    "nric": "S0869916Z",
+    "date_of_birth": "1965-04-07",
+    "address": "Blk 54 Hougang Ave 8, #12-629, Singapore 199832",
+    "contact_number": "96153066"
   },
   "history": {
     "hpc": "Mr Ng has been diagnosed with primary open-angle glaucoma (POAG) in both eyes for the past 5 years and is on topical IOP-lowering therapy. His IOP has been reasonably controlled (16-18 mmHg) on current medications. He is due for his routine 6-monthly HVF 24-2 SITA Standard to monitor for progression of his visual field defects. He reports no new symptoms but mentions he sometimes bumps into the door frame on his left side.",
     "pmhx": "POAG both eyes, diagnosed 5 years ago. Hypertension. No previous eye surgery.",
     "family_hx": "Father had glaucoma and was registered blind in one eye",
-    "medications": ["Latanoprost 0.005% eye drops both eyes nocte", "Brinzolamide 1% eye drops both eyes BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Latanoprost 0.005% eye drops both eyes nocte",
+      "Brinzolamide 1% eye drops both eyes BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired. Lives with wife. Compliant with eye drops, uses a phone reminder."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/12 (LogMAR 0.3)"},
-    "iop": {"right": "17 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/12 (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "17 mmHg (NCT)",
+      "left": "18 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally, on topical therapy",
     "fundus": "C:D ratio 0.7 right, 0.75 left (per prior doctor's notes) — increased from 0.65/0.7 a year ago"
   },

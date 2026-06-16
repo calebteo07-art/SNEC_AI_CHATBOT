@@ -11,18 +11,30 @@
     "age": 64,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Attending for eye drop instillation as part of her clinic visit"
+    "presenting_complaint": "Attending for eye drop instillation as part of her clinic visit",
+    "nric": "S6224970F",
+    "date_of_birth": "1962-05-17",
+    "address": "Blk 200 Bukit Batok St 25, #11-532, Singapore 197270",
+    "contact_number": "89490225"
   },
   "history": {
     "hpc": "Mdm Goh is here for her eye drops to be instilled before her review. She is a little unsure of the process — when asked to look up she just looks up with her chin down and says 'Like that can or not?', and needs to be guided to tilt her head back. She is cooperative once instructed clearly. When you verify her identity she says 'Aiyoh, my IC number I cannot remember leh.'",
     "pmhx": "Attends the eye clinic regularly. No known drug allergies on file, but this must be confirmed before instillation.",
     "family_hx": "Not relevant to this station",
-    "medications": ["Eye drops as charted for today's visit"],
+    "medications": [
+      "Eye drops as charted for today's visit"
+    ],
     "social_hx": "Retired. Comes to clinic with her daughter."
   },
   "examination_findings": {
-    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
-    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "va": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
+    "iop": {
+      "right": "Not measured at this station",
+      "left": "Not measured at this station"
+    },
     "anterior_segment": "No active infection or discharge noted that would change instillation technique",
     "fundus": "Not examined at this station"
   },

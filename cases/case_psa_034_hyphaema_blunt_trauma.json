@@ -11,18 +11,30 @@
     "age": 27,
     "gender": "male",
     "occupation": "sales executive",
-    "presenting_complaint": "Hit in the right eye by a squash ball an hour ago; now sees blurred and there is blood visible in the front of the eye"
+    "presenting_complaint": "Hit in the right eye by a squash ball an hour ago; now sees blurred and there is blood visible in the front of the eye",
+    "nric": "S1318213B",
+    "date_of_birth": "1999-02-16",
+    "address": "Blk 335 Jurong West St 42, #04-732, Singapore 613971",
+    "contact_number": "90046590"
   },
   "history": {
     "hpc": "Mr Daniel was hit in the right eye by a squash ball. He says: 'The ball hit my eye, now my vision blur and I see like got blood inside the front part.' There is a visible layer of blood in the anterior chamber (hyphaema). He has eye ache and light sensitivity. Blunt trauma with hyphaema is a serious injury that needs prompt assessment and rest.",
     "pmhx": "Nil significant",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Plays squash; was not wearing protective eyewear."
   },
   "examination_findings": {
-    "va": {"right": "reduced (e.g. 6/24) with the hyphaema", "left": "6/6"},
-    "iop": {"right": "may be raised; measure gently/per protocol once it is safe", "left": "15 mmHg"},
+    "va": {
+      "right": "reduced (e.g. 6/24) with the hyphaema",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "may be raised; measure gently/per protocol once it is safe",
+      "left": "15 mmHg"
+    },
     "anterior_segment": "Right eye: visible blood layer in the anterior chamber (hyphaema); conjunctival redness",
     "fundus": "View may be limited by the hyphaema; for doctor"
   },

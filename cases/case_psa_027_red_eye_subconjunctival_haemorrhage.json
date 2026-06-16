@@ -11,18 +11,31 @@
     "age": 68,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Bright red patch on the white of one eye, no pain, vision normal"
+    "presenting_complaint": "Bright red patch on the white of one eye, no pain, vision normal",
+    "nric": "S8104568B",
+    "date_of_birth": "1958-04-08",
+    "address": "Blk 788 Clementi Ave 2, #02-816, Singapore 376934",
+    "contact_number": "92776978"
   },
   "history": {
     "hpc": "Mr Wong says 'This morning I see one big red patch on my eye, look very scary, but no pain and I can see okay.' One eye, a flat bright-red patch on the sclera, no pain, no discharge, no change in vision. No injury he can recall.",
     "pmhx": "High blood pressure. Takes aspirin daily.",
     "family_hx": "Nil specific",
-    "medications": ["Aspirin 100mg daily", "Amlodipine for blood pressure"],
+    "medications": [
+      "Aspirin 100mg daily",
+      "Amlodipine for blood pressure"
+    ],
     "social_hx": "Retired. Was straining/coughing recently."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
-    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "va": {
+      "right": "6/9 (with glasses)",
+      "left": "6/9 (with glasses)"
+    },
+    "iop": {
+      "right": "Not required for this triage",
+      "left": "Not required for this triage"
+    },
     "anterior_segment": "Flat bright-red area over the sclera, cornea clear by observation, no discharge",
     "fundus": "Not assessed by the PSA"
   },

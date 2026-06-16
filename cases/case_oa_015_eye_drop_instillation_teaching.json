@@ -11,18 +11,31 @@
     "age": 70,
     "gender": "male",
     "occupation": "retired clerk",
-    "presenting_complaint": "Newly diagnosed with glaucoma in the right eye and prescribed eye drops for the first time — needs to learn how to use them correctly"
+    "presenting_complaint": "Newly diagnosed with glaucoma in the right eye and prescribed eye drops for the first time — needs to learn how to use them correctly",
+    "nric": "S9027386H",
+    "date_of_birth": "1956-02-16",
+    "address": "Blk 12 Woodlands Ave 6, #05-398, Singapore 820255",
+    "contact_number": "92802868"
   },
   "history": {
     "hpc": "Mr Lim was seen by the doctor today and diagnosed with primary open-angle glaucoma in the right eye. He has been prescribed latanoprost 0.005% eye drops, one drop to the right eye every night. He has never used eye drops before and is nervous about putting anything in his eye. He mentions he sometimes has trouble with his hands shaking slightly. He asks the OA to show him how to do it before he goes home.",
     "pmhx": "Newly diagnosed primary open-angle glaucoma, right eye. Hypertension. Mild essential tremor in both hands (longstanding, not on treatment).",
     "family_hx": "Father had glaucoma and used eye drops for many years",
-    "medications": ["Amlodipine 5mg OD", "New: Latanoprost 0.005% eye drops, one drop right eye at night"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "New: Latanoprost 0.005% eye drops, one drop right eye at night"
+    ],
     "social_hx": "Lives alone. Independent with daily activities but has mild hand tremor."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/7.5 (LogMAR 0.1)"},
-    "iop": {"right": "26 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/7.5 (LogMAR 0.1)"
+    },
+    "iop": {
+      "right": "26 mmHg (NCT)",
+      "left": "19 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. No allergic conjunctivitis or signs of drop intolerance (first dose not yet given).",
     "fundus": "Glaucomatous optic disc changes noted in right eye by doctor — cup-to-disc ratio increased compared to left"
   },

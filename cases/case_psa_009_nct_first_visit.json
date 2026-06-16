@@ -11,7 +11,11 @@
     "age": 29,
     "gender": "female",
     "occupation": "preschool teacher",
-    "presenting_complaint": "First visit to SNEC for a comprehensive eye check after a colleague was diagnosed with glaucoma"
+    "presenting_complaint": "First visit to SNEC for a comprehensive eye check after a colleague was diagnosed with glaucoma",
+    "nric": "S9362078Z",
+    "date_of_birth": "1997-04-12",
+    "address": "Blk 38 Bedok North Rd, #18-549, Singapore 408728",
+    "contact_number": "85821499"
   },
   "history": {
     "hpc": "Ms Hidayah is attending SNEC for the first time for a general eye check. She has no visual symptoms but became concerned after a colleague at work was recently diagnosed with glaucoma and was advised to get her own eyes checked, especially since eye pressure tests are part of standard screening. She has never had an eye pressure test before and asks the PSA, 'Will the air puff hurt? My friend said it's quite scary.'",
@@ -21,7 +25,10 @@
     "social_hx": "Preschool teacher. Wears contact lenses 1-2 times a week for sports activities; wearing spectacles today."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
     "iop": {
       "right": "16 mmHg — average of three NCT readings (15, 16, 17)",
       "left": "15 mmHg — average of three NCT readings (14, 15, 16)"

@@ -11,18 +11,31 @@
     "age": 62,
     "gender": "male",
     "occupation": "retired engineer",
-    "presenting_complaint": "Here for a Humphrey visual field test for glaucoma monitoring; first attempt looks unreliable"
+    "presenting_complaint": "Here for a Humphrey visual field test for glaucoma monitoring; first attempt looks unreliable",
+    "nric": "S2127809B",
+    "date_of_birth": "1964-06-03",
+    "address": "Blk 334 Toa Payoh Lor 4, #11-465, Singapore 120722",
+    "contact_number": "80392487"
   },
   "history": {
     "hpc": "Mr Tan attends for an HVF (24-2) for glaucoma monitoring. During the first test he was anxious and kept pressing the button. He says: 'I think I press the button too much, scared I miss the light.' The printout shows high false positives and fixation losses. The OT must recognise the unreliable indices, re-instruct the patient, and repeat the test.",
     "pmhx": "Primary open-angle glaucoma, both eyes. Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Latanoprost ON both eyes", "Amlodipine 5mg OD"],
+    "medications": [
+      "Latanoprost ON both eyes",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with wife. Compliant with drops. Non-smoker; first HVF was some time ago."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "18 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "18 mmHg (NCT)",
+      "left": "18 mmHg (NCT)"
+    },
     "anterior_segment": "Normal media; glaucomatous discs (known)",
     "fundus": "Glaucomatous optic discs, for doctor review with reliable fields"
   },

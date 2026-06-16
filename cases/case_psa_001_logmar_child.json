@@ -11,7 +11,11 @@
     "age": 7,
     "gender": "male",
     "occupation": "primary school student",
-    "presenting_complaint": "Referred by school health service — possible myopia, difficulty seeing the board in class"
+    "presenting_complaint": "Referred by school health service — possible myopia, difficulty seeing the board in class",
+    "nric": "T0923319E",
+    "date_of_birth": "2019-05-19",
+    "address": "Blk 372 Tampines St 21, #10-646, Singapore 607487",
+    "contact_number": "83384147"
   },
   "history": {
     "hpc": "Ethan is a 7-year-old brought by his mother after his school vision screening flagged reduced distance vision. His mother says he has been squinting at the TV and moving closer to see better. This is his first visit to an eye clinic. Ethan is shy and initially refuses to cooperate — he turns his head away and says 'I don't want to do the eye test.' His mother is present and supportive.",
@@ -25,7 +29,10 @@
       "right": "6/18 (LogMAR 0.5) — achieved after gentle encouragement, with occluder",
       "left": "6/12 (LogMAR 0.3) — achieved similarly"
     },
-    "iop": {"right": "Not tested — not indicated at this visit", "left": "Not tested"},
+    "iop": {
+      "right": "Not tested — not indicated at this visit",
+      "left": "Not tested"
+    },
     "anterior_segment": "Not assessed at this stage — PSA role is VA measurement only",
     "fundus": "Not assessed — doctor to review after VA obtained"
   },
