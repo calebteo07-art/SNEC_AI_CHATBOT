@@ -11,15 +11,25 @@ Designed to be called before any LLM invocation.
 import asyncio
 import re
 
-_BLOCK_PATTERNS = [
-    r"\b(NRIC|IC\s*number|passport\s*number|birth\s*cert)\b",  # PII extraction
+# Prompt injection, impersonation, and clearly off-topic generation. Always blocked,
+# in every context — tutor and virtual-patient case chat alike.
+_ABUSE_PATTERNS = [
     r"ignore\s+(previous|above|all|prior)\s+instructions",      # prompt injection
     r"(you are now|pretend to be|act as)\s+(a\s+)?(different|another|evil)",
     r"(write|generate|create|compose)\s+a\s+(poem|story|song|rap|code|script|email\s+to)",
     r"\b(weather|sports|recipe|stock\s*price|cryptocurrency|betting|gambling|lottery)\b",
     r"\b(hack|jailbreak|bypass|exploit|vulnerabilit(y|ies))\b",
 ]
-_BLOCK_RE = re.compile("|".join(_BLOCK_PATTERNS), re.IGNORECASE)
+_ABUSE_RE = re.compile("|".join(_ABUSE_PATTERNS), re.IGNORECASE)
+
+# Identity / PII extraction. Blocked for the general tutor (no reason to ask the tutor
+# to extract someone's NRIC), but ALLOWED inside a virtual-patient case chat: confirming
+# patient particulars (name, NRIC, DOB, address) is a required, graded part of the OSCE
+# encounter, and the patient prompt is built to answer it from the case record.
+_PII_PATTERNS = [
+    r"\b(NRIC|IC\s*number|passport\s*number|birth\s*cert)\b",
+]
+_PII_RE = re.compile("|".join(_PII_PATTERNS), re.IGNORECASE)
 
 _OPHTHO_KEYWORDS = {
     "eye", "vision", "visual", "retina", "retinal", "glaucoma", "cataract", "cornea",
@@ -42,13 +52,28 @@ _OPHTHO_KEYWORDS = {
 }
 
 
-async def filter_input(query: str, student_role: str = "") -> dict:
+async def filter_input(query: str, student_role: str = "", patient_context: bool = False) -> dict:
     """Return {"safe": bool, "reason": str}.
 
     Fast path for the common case — only invokes Gemini for long ambiguous queries.
+
+    patient_context=True relaxes the filter for virtual-patient case chat: identity
+    questions (name, NRIC, DOB, address) reach the patient model, and the
+    ophthalmology-relevance gate is skipped — talking to a patient about their
+    particulars, symptoms, and history is inherently on-topic, and the patient prompt
+    governs what gets revealed. Prompt injection and off-topic abuse are still blocked.
     """
-    # Stage 1: regex hard-block (PII, injection, off-topic generation)
-    if _BLOCK_RE.search(query):
+    # Stage 1: regex hard-block — prompt injection / impersonation / off-topic generation
+    if _ABUSE_RE.search(query):
+        return {"safe": False, "reason": "blocked_pattern"}
+
+    # Virtual-patient case chat: identity questions are part of the encounter — allow
+    # everything that cleared the abuse check above.
+    if patient_context:
+        return {"safe": True, "reason": "patient_context"}
+
+    # General tutor: also hard-block PII extraction.
+    if _PII_RE.search(query):
         return {"safe": False, "reason": "blocked_pattern"}
 
     lower = query.lower()
