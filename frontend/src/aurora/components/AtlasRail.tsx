@@ -17,16 +17,12 @@ const STUDY: NavItem[] = [
   { href: "/cases", label: "Virtual Patients", icon: "cases" },
   { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
 ];
-const INSIGHT: NavItem[] = [
-  { href: "/progress", label: "Progress", icon: "progress" },
-  { href: "/summary", label: "Summary", icon: "summary" },
-];
 const OVERSIGHT: NavItem[] = [
   { href: "/supervisor", label: "Supervisor", icon: "supervisor" },
   { href: "/admin", label: "Admin", icon: "admin" },
 ];
 
-export function AtlasRail({ onOpenPalette }: { onOpenPalette: () => void }) {
+export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalette: () => void; pinned?: boolean; onTogglePin?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -54,6 +50,20 @@ export function AtlasRail({ onOpenPalette }: { onOpenPalette: () => void }) {
     <nav className="aurora-rail aurora-rail-night" aria-label="Primary">
       <div className="aurora-rail-top">
         <Wordmark size={18} tone="white" />
+        {onTogglePin && (
+          <button
+            type="button"
+            className="aurora-rail-pin"
+            data-pinned={pinned}
+            onClick={onTogglePin}
+            aria-label={pinned ? "Unpin sidebar (auto-collapse)" : "Pin sidebar open"}
+            title={pinned ? "Unpin sidebar" : "Pin sidebar open"}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <rect x="3" y="4" width="18" height="16" rx="2" /><line x1="9" y1="4" x2="9" y2="20" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="aurora-rail-top" style={{ paddingTop: 0 }}>
         <span className="aurora-streak" title="Day streak">
@@ -68,10 +78,6 @@ export function AtlasRail({ onOpenPalette }: { onOpenPalette: () => void }) {
         <section className="aurora-rail-section">
           <p className="aurora-rail-label">Study</p>
           {STUDY.map((i) => <Item key={i.href} {...i} />)}
-        </section>
-        <section className="aurora-rail-section">
-          <p className="aurora-rail-label">Insight</p>
-          {INSIGHT.map((i) => <Item key={i.href} {...i} />)}
         </section>
         {showOversight && (
           <section className="aurora-rail-section">
@@ -112,8 +118,6 @@ const NAV_ICONS = {
   tutor: (<svg {...ico}><path d="M5 5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3V6a1 1 0 0 1 1-1Z" /><circle cx="9" cy="10" r="0.6" fill="currentColor" /><circle cx="12.5" cy="10" r="0.6" fill="currentColor" /><circle cx="16" cy="10" r="0.6" fill="currentColor" /></svg>),
   cases: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
   flashcards: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14a0 0 0 0 1 0 0v12" /></svg>),
-  progress: (<svg {...ico}><path d="M4 19h16" /><rect x="5" y="12" width="3" height="5" rx="0.6" fill="currentColor" stroke="none" /><rect x="10.5" y="8" width="3" height="9" rx="0.6" fill="currentColor" stroke="none" /><rect x="16" y="5" width="3" height="12" rx="0.6" fill="currentColor" stroke="none" /></svg>),
-  summary: (<svg {...ico}><path d="M6 3h8l4 4v14H6Z" /><path d="M14 3v4h4" /><path d="M9 12h6M9 16h6" /></svg>),
   supervisor: (<svg {...ico}><circle cx="9" cy="8" r="3" /><path d="M4 19a5 5 0 0 1 10 0" /><path d="M16 6.5a3 3 0 0 1 0 5.5" /><path d="M16.5 19a5 5 0 0 0-2-4" /></svg>),
   admin: (<svg {...ico}><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2 4-4" /></svg>),
 } as const;

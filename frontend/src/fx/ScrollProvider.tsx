@@ -25,8 +25,6 @@ import { pushSplat } from "./canvas/fluidBus";
 const LENIS_ROUTES = new Set([
   "/dashboard",
   "/cases",
-  "/progress",
-  "/summary",
   "/profile",
   "/supervisor",
 ]);

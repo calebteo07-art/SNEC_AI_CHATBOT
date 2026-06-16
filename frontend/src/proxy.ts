@@ -17,8 +17,6 @@ export const config = {
     "/chat",
     "/cases/:path*",
     "/flashcards",
-    "/summary",
-    "/progress",
     "/supervisor",
     "/admin/:path*",
     "/profile",

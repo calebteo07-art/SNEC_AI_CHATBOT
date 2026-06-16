@@ -41,6 +41,7 @@ class StudentProfileResponse(BaseModel):
     learning_velocity: str
     checkin_done_today: bool
     supervisor_note: str = ""
+    sessions: list[dict] = []  # [{timestamp}] — powers the drill-down engagement heatmap
 
 class SaveNoteRequest(BaseModel):
     note: str
@@ -88,6 +89,14 @@ async def supervisor_student(student_id: str, current_user: CurrentUser = Depend
     except Exception:
         raise HTTPException(status_code=404, detail="Student not found")
 
+    # Recent session timestamps (last 5 weeks) for the engagement heatmap. Best
+    # effort — the profile still renders if the session history can't be read.
+    try:
+        recent = await db.get_sessions(student_id, limit=35)
+        sessions = [{"timestamp": str(s.get("created_at", ""))} for s in recent]
+    except Exception:
+        sessions = []
+
     try:
         return StudentProfileResponse(
             student_id=str(profile["student_id"]),
@@ -100,6 +109,7 @@ async def supervisor_student(student_id: str, current_user: CurrentUser = Depend
             learning_velocity=profile.get("learning_velocity", "stable"),
             checkin_done_today=bool(profile.get("checkin_done_today", False)),
             supervisor_note=profile.get("supervisor_note", "") or "",
+            sessions=sessions,
         )
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")

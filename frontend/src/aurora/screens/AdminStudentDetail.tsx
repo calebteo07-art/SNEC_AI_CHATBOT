@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { Icon } from "@/aurora/icons";
+import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 
 interface Session { session_id: string; timestamp: string; topic: string; token_count: number; model: string; }
 interface CaseRow { case_id: string; total_score: number; passed: boolean; completed_at: string; }
@@ -91,6 +92,8 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                   {data.learning_velocity}
                 </span>
               </div>
+
+              <EngagementBlock sessions={data.sessions} />
 
               <div className="aurora-tabs" style={{ alignSelf: "flex-start" }}>
                 {(["sessions", "cases", "topics"] as SubTab[]).map((t) => (

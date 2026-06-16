@@ -14,6 +14,7 @@ await navCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
   localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
   localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, studentUser);
 await navCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 const JSON_OK = (body) => ({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
@@ -51,9 +52,15 @@ await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
 if ((await np.locator('[data-testid="aurora-logo"]').count()) < 1) { console.error("FAIL: Spark Eye logo not rendered in the rail"); process.exit(1); }
 console.log("PASS: Spark Eye logo renders in the Atlas Rail");
-for (const label of ["Dashboard", "Tutor", "Virtual Patients", "Flashcards", "Progress"]) {
+for (const label of ["Dashboard", "Tutor", "Virtual Patients", "Flashcards"]) {
   const count = await np.locator(`.aurora-navitem:has-text("${label}")`).count();
   if (count < 1) { console.error(`FAIL: Atlas Rail missing "${label}"`); process.exit(1); }
+}
+// Progress + Summary were retired — assert they are gone from the rail.
+for (const gone of ["Progress", "Summary"]) {
+  if ((await np.locator(`.aurora-navitem:has-text("${gone}")`).count()) > 0) {
+    console.error(`FAIL: Atlas Rail still shows retired "${gone}"`); process.exit(1);
+  }
 }
 await np.locator('.aurora-navitem:has-text("Virtual Patients")').first().click();
 await np.waitForURL("**/cases", { timeout: 6000 });
@@ -117,19 +124,15 @@ await np.locator(".aurora-composer-send").click();
 await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
 console.log("PASS: Tutor SSE stream appends the assistant reply");
 
-// progress: one h1, mastery bars, an activity heatmap, no 390 overflow.
+// progress + summary were retired: /progress and /summary must 404 (no route).
 await np.setViewportSize({ width: 1440, height: 900 });
-await np.goto(base + "/progress", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-prog .aurora-progress", { timeout: 15000 });
-const progH1 = await np.locator("main h1").count();
-if (progH1 !== 1) { console.error(`FAIL: progress main h1 count = ${progH1}`); process.exit(1); }
-if ((await np.locator(".aurora-prog .aurora-progress").count()) < 1) { console.error("FAIL: mastery bars missing"); process.exit(1); }
-if ((await np.locator(".aurora-heatmap").count()) < 1) { console.error("FAIL: activity heatmap missing"); process.exit(1); }
-await np.setViewportSize({ width: 390, height: 844 });
-await np.waitForTimeout(350);
-const progOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-if (progOverflow > 2) { console.error(`FAIL: progress horizontal overflow at 390px = ${progOverflow}px`); process.exit(1); }
-console.log("PASS: Progress — one h1, mastery bars, heatmap, no 390 overflow");
+for (const gone of ["/progress", "/summary"]) {
+  const resp = await np.goto(base + gone, { waitUntil: "domcontentloaded" });
+  const status = resp ? resp.status() : 0;
+  const notFound = status === 404 || (await np.locator("text=/404|not found|page could/i").count()) > 0;
+  if (!notFound) { console.error(`FAIL: retired route ${gone} still resolves (status ${status})`); process.exit(1); }
+}
+console.log("PASS: retired /progress and /summary no longer resolve");
 
 // flashcards: the screen is active-recall now — a set-picker gates the deck, then a
 // typed answer is graded by the AI (no self-rating chips). Choose "Mixed", type a
@@ -184,7 +187,7 @@ console.log("PASS: Daily check-in renders the MCQ question with one h1");
 
 // a11y sweep: every shell route has one <main>, one <h1> in main, a <nav>, and
 // no horizontal overflow at 390px.
-const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/progress", "/summary", "/profile"];
+const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/profile"];
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
@@ -234,6 +237,7 @@ await adminCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
   localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
   localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, adminUser);
 await adminCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 await adminCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
@@ -252,6 +256,11 @@ await ap.waitForSelector('.aurora-navitem:has-text("Overview")', { timeout: 1500
 await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 8000 });
 const adminH1 = await ap.locator("main h1").count();
 if (adminH1 !== 1) { console.error(`FAIL: admin main h1 count = ${adminH1}`); process.exit(1); }
+// The cohort engagement card (relocated from the retired student Progress page) renders.
+if ((await ap.locator('[aria-label="Cohort engagement"]').count()) < 1) {
+  console.error("FAIL: admin overview missing the Cohort engagement card"); process.exit(1);
+}
+console.log("PASS: Admin overview shows the relocated Cohort engagement card");
 await ap.locator('.aurora-navitem:has-text("Students")').click();
 await ap.waitForSelector('[data-testid="admin-student-table"] .aurora-trow.is-clickable', { timeout: 8000 });
 console.log("PASS: Admin — guard admits admin, ConsoleRail nav + KPIs render, students table lists rows");
@@ -266,6 +275,7 @@ await supCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
   localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
   localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, supUser);
 await supCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 await supCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));

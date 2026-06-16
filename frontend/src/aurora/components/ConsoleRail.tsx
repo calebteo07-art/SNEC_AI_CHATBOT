@@ -28,7 +28,7 @@ const SUPERVISOR_NAV: NavItem[] = [
   { href: "/admin", label: "Admin", icon: "admin", exact: true },
 ];
 
-export function ConsoleRail({ onOpenPalette }: { onOpenPalette: () => void }) {
+export function ConsoleRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalette: () => void; pinned?: boolean; onTogglePin?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -56,7 +56,23 @@ export function ConsoleRail({ onOpenPalette }: { onOpenPalette: () => void }) {
     <>
       <nav className="aurora-rail" aria-label="Staff console">
         <div className="aurora-rail-top" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
-          <Wordmark size={20} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 8 }}>
+            <Wordmark size={20} />
+            {onTogglePin && (
+              <button
+                type="button"
+                className="aurora-rail-pin"
+                data-pinned={pinned}
+                onClick={onTogglePin}
+                aria-label={pinned ? "Unpin sidebar (auto-collapse)" : "Pin sidebar open"}
+                title={pinned ? "Unpin sidebar" : "Pin sidebar open"}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="3" y="4" width="18" height="16" rx="2" /><line x1="9" y1="4" x2="9" y2="20" />
+                </svg>
+              </button>
+            )}
+          </div>
           <p className="aurora-rail-label" style={{ margin: 0 }}>Control console</p>
         </div>
         <div className="aurora-rail-top" style={{ paddingTop: 0 }}>

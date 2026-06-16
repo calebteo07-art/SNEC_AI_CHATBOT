@@ -4,12 +4,14 @@
    preserved (/api/supervisor/student/:id, /note PATCH, /report blob). */
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/aurora/icons";
+import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 
 export interface BenchmarkTopic { topic: string; avg_score: number; student_count: number; }
 interface StudentProfile {
   student_id: string; weak_topics: string[]; missed_findings: string[];
   retention_scores: Record<string, number>; session_count: number; streak: number;
   last_active: string; learning_velocity: string; checkin_done_today: boolean; supervisor_note?: string;
+  sessions?: { timestamp: string }[];
 }
 
 export function SupervisorDrillDown({ studentId, onClose, benchmarks }: { studentId: string; onClose: () => void; benchmarks: BenchmarkTopic[] }) {
@@ -95,6 +97,8 @@ export function SupervisorDrillDown({ studentId, onClose, benchmarks }: { studen
                   {profile.learning_velocity}
                 </span>
               </div>
+
+              <EngagementBlock sessions={profile.sessions ?? []} />
 
               <div>
                 <p className="aurora-activity-head">Weak topics</p>

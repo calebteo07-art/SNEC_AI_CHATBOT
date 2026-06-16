@@ -3,7 +3,7 @@
    native-scrolling content, plus the ⌘K command palette. Replaces the legacy
    topbar/pill-nav AppShell. No Lenis, no fluid canvas — motion is CSS-only and
    freezes under reduced motion. */
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
@@ -19,10 +19,6 @@ const STUDY: Destination[] = [
   { href: "/chat", label: "Tutor" },
   { href: "/cases", label: "Virtual Patients" },
   { href: "/flashcards", label: "Flashcards" },
-];
-const INSIGHT: Destination[] = [
-  { href: "/progress", label: "Progress" },
-  { href: "/summary", label: "Summary" },
 ];
 /* Staff palettes mirror the ConsoleRail nav — no student surfaces. */
 const ADMIN_DEST: Destination[] = [
@@ -44,6 +40,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: progress } = useProgress();
   const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
+
+  /* The rail auto-collapses to an icon strip on every page (reclaiming width for
+     content) and peeks open on hover. A pin locks it open; the choice persists. */
+  const [pinned, setPinned] = useState(false);
+  useEffect(() => {
+    try { setPinned(localStorage.getItem("eyebot_rail_pinned") === "1"); } catch { /* no storage */ }
+  }, []);
+  const togglePin = useCallback(() => {
+    setPinned((p) => {
+      const next = !p;
+      try { localStorage.setItem("eyebot_rail_pinned", next ? "1" : "0"); } catch { /* no storage */ }
+      return next;
+    });
+  }, []);
+  const railState = pinned ? "pinned" : "collapsed";
 
   /* Mirror the backend streak into the local cache, as the legacy shell did. */
   useEffect(() => {
@@ -68,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const destinations = useMemo<Destination[]>(() => {
     if (role === "admin") return ADMIN_DEST;
     if (role === "supervisor") return SUPERVISOR_DEST;
-    return [...STUDY, ...INSIGHT];
+    return STUDY;
   }, [role]);
 
   /* Staff get the dark "control console": a dedicated oversight-only rail on the
@@ -76,8 +87,8 @@ export function AppShell({ children }: { children: ReactNode }) {
      the light AURORA shell untouched. */
   if (isStaff) {
     return (
-      <div className="aurora-shell console-dark">
-        <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} />
+      <div className="aurora-shell console-dark" data-rail={railState}>
+        <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
         <main id="main" className="aurora-main">
           <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
           <div className="aurora-main-scroll">{children}</div>
@@ -102,8 +113,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="aurora-shell">
-      <AtlasRail onOpenPalette={() => setPaletteOpen(true)} />
+    <div className="aurora-shell" data-rail={railState}>
+      <AtlasRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
       <main id="main" className="aurora-main">
         <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
         <div className="aurora-main-scroll"><RouteReveal>{children}</RouteReveal></div>

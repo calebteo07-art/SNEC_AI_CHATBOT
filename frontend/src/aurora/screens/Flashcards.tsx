@@ -178,7 +178,8 @@ export function Flashcards() {
   };
 
   const finishSession = () => {
-    // Hand the real session result to the Summary screen, then sync to the backend.
+    // Stash the result + a one-shot flag, then sync to the backend and return to
+    // the Dashboard, which reads the flag and fires the "session complete" toast.
     const earnedXp = sessionXp + XP_REWARDS.sessionComplete;
     const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : 0;
     try {
@@ -186,8 +187,9 @@ export function Flashcards() {
         topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
         cardXp: sessionXp, bonusXp: XP_REWARDS.sessionComplete,   // G7 — XP breakdown
       }));
-    } catch { /* sessionStorage unavailable — Summary falls back to defaults */ }
-    syncGamification({ xp_delta: earnedXp, hearts_used: 0 }).finally(() => router.push("/summary"));
+      sessionStorage.setItem("eyebot_session_complete", "1");
+    } catch { /* sessionStorage unavailable — Dashboard simply shows no toast */ }
+    syncGamification({ xp_delta: earnedXp, hearts_used: 0 }).finally(() => router.push("/dashboard"));
   };
 
   // Advancing moves to the next card; at the end of the deck it re-queues any
