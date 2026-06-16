@@ -426,7 +426,7 @@ def _station_checklist(case: dict) -> dict:
 
 
 @router.get("/api/cases/{case_id}/station", response_model=StationResponse)
-def get_case_station(case_id: str):
+def get_case_station(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Everything the OSCE station UI needs: case, phased checklist, exam actions."""
     case = _load_case_or_404(case_id)
     cl = _station_checklist(case)
