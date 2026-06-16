@@ -44,12 +44,13 @@ A full-bleed stepper. **One criterion per step**, with a generated photoreal **i
 
 Keeps the typed active-recall + AI grading flow exactly; redesigns presentation and adds a real 3D flip.
 
-- The card sits in a **lens / porthole** frame: circular vignette, thin Gemini-gradient iris ring.
-- **Front:** topic label + question + the recall textarea (existing logic, restyled field; `MAX_ANSWER_CHARS = 300`, ⌘/Ctrl+Enter to submit). Answering stays **compulsory** (always typed) — matches the "keep mechanics" decision.
+- **No image on the question.** The deck card carries **no raster/eye plate** — the `PlateWell` / `PLATE.flashcards` image used today is removed from the activity. The iris imagery lives only in the selection stepper and the launch dilation, never on the study card. The question is the focal point.
+- **Centered focus stage.** The card is **centered in the middle of the screen** — a single, calm, text-first column (no two-column plate+content split, no side panel competing for attention). Generous whitespace; the question dominates. Any aperture motif on the card is pure-CSS and kept to a thin, subtle, score-reactive ring at most — it must never pull focus from the text.
+- **Front:** small topic label + the **question, large and centered** + the recall textarea below it (existing logic, restyled field; `MAX_ANSWER_CHARS = 300`, ⌘/Ctrl+Enter to submit). Answering stays **compulsory** (always typed) — matches the "keep mechanics" decision.
 - **Submit for grading** → AI grades `/100` against the model answer (`useFlashcardCheck`), XP awarded on the same `xpForScore` 5–35 scale, exactly as now.
-- **Reveal:** the card performs a **true 3D Y-flip** (`rotateY`, `transform-style: preserve-3d`) to its back = model answer + AI feedback + score, landing with a **focus-pull** (starts blurred, snaps sharp). The **score counts up** to its value (reuse `useCountUp`); the XP chip pops; the iris ring reacts to the score band (tight green constriction for high, soft neutral for low).
+- **Reveal:** the card performs a **true 3D Y-flip** (`rotateY`, `transform-style: preserve-3d`) to its back = model answer + AI feedback + score, landing with a **focus-pull** (starts blurred, snaps sharp). The **score counts up** to its value (reuse `useCountUp`); the XP chip pops; the optional thin ring reacts to the score band (tight green for high, soft neutral for low).
 - Existing back-of-card actions preserved: "Explain this in the Tutor" (seeds `eyebot_tutor_seed` → `/chat`), and Next / Revisit weak / Finish.
-- **Sidebar** refreshed: coach → calm "focus assistant" bubble; queue list and session stats restyled; progress shown as a filling **focus ring** rather than plain dots (keep an accessible `progressbar`).
+- **Chrome is minimal.** **No queue/up-next list** — it is removed entirely. The only ambient UI is a slim progress indicator (a filling **focus ring** / aperture-blade progress, with an accessible `progressbar`) and a compact session readout (cards graded, avg score, session XP). The coach becomes a calm, unobtrusive "focus assistant" bubble that does not crowd the centered question.
 - **Card-to-card:** quick "refocus" (blur out → next card sharpens in). Weak-card retry (`< RETRY_THRESHOLD = 40`, re-queued once) reframed "out of focus — let's refocus," logic unchanged.
 - **Finish:** aperture closes; existing `finishSession` flow (stash result + one-shot flag, `syncGamification`, route to `/dashboard` which fires the completion toast) is untouched.
 
@@ -70,7 +71,7 @@ All motion is CSS keyframes/transitions on `transform`/`opacity`/`filter` only (
 
 **Standing constraint (user rule): generated assets must be medically correct AND beautiful.** This is an ophthalmology education tool — anatomical accuracy is non-negotiable, beauty is required on top.
 
-- **Asset:** one photoreal iris/aperture plate — centered, clean dark circular pupil, accurate **limbus**, **iris stroma** striations, **collarette**, natural radial fibre pattern; square; dark or transparent background; Gemini-gradient tint permitted only at the limbus glow (decorative ring), never distorting anatomy. Optionally a second "fully-dilated pupil" state to cross-blend during the launch; **default to one plate + CSS mask** for the opening.
+- **Asset:** one photoreal iris/aperture plate — centered, clean dark circular pupil, accurate **limbus**, **iris stroma** striations, **collarette**, natural radial fibre pattern; square; dark or transparent background; Gemini-gradient tint permitted only at the limbus glow (decorative ring), never distorting anatomy. Optionally a second "fully-dilated pupil" state to cross-blend during the launch; **default to one plate + CSS mask** for the opening. **Used only in the selection stepper and the launch dilation — never on the study/question card.**
 - **Prompting rule:** every prompt explicitly requires clinically accurate iris anatomy and forbids fantastical/incorrect structures, extra pupils, sci-fi irises, or text. Reject any candidate that is not both anatomically correct and beautiful; regenerate.
 - **Pipeline:** new/extended generator under `tools/media/` following the existing `tools/media/generate_eye_atlas.py` pattern — `.env` `GEMINI_API_KEY` + `google.genai`, model `gemini-3-pro-image`. Output raster(s) to `frontend/public/media/` and register in `frontend/public/media/manifest.json`; expose via `frontend/src/aurora/media.ts` (e.g. a `PLATE.aperture` entry).
 - **Paid-call rule:** image generation is a paid call — **confirm with the user before running the generator** (per CLAUDE.md). Until the asset exists, the UI falls back gracefully to a pure-CSS iris (radial gradients + conic striations) so the feature is never blocked on the asset.
@@ -82,14 +83,14 @@ Split the single 510-line `Flashcards.tsx` into focused units. The thin orchestr
 - `Flashcards.tsx` (screens/) — thin orchestrator: decides picker vs deck (review/tutor skip), owns session config, renders the pieces below. Keeps the public export `Flashcards` so `app/(shell)/flashcards/page.tsx` is unchanged.
 - `components/flashcards/ApertureSelect.tsx` — the 3-step selection stepper.
 - `components/flashcards/StudyDeck.tsx` — the activity (typed recall → grade → flip → advance/finish).
-- `components/flashcards/ApertureStage.tsx` — the iris hero + dilation launch (shared by select and deck mount).
-- `components/flashcards/FocusCard.tsx` — the 3D flip card (front/back faces).
-- `components/flashcards/FocusCoach.tsx` — the focus-assistant bubble.
-- `components/flashcards/SessionRail.tsx` — queue + session stats sidebar.
+- `components/flashcards/ApertureStage.tsx` — the iris hero + dilation launch (used by the stepper and the deck-mount transition; **not** on the study card).
+- `components/flashcards/FocusCard.tsx` — the centered, image-free 3D flip card (front/back faces).
+- `components/flashcards/FocusCoach.tsx` — the unobtrusive focus-assistant bubble.
+- `components/flashcards/SessionReadout.tsx` — slim progress ring + compact session stats. **No queue/up-next list.**
 
 **Unchanged:** all hooks in `useFlashcards.ts` (`useFlashcards`, `useFlashcardCheck`, `useFlashcardTopics`, `useDueCount`), `lib/legacy/gamification`, `useGamificationSync`, SM-2 fields passed through to `/check`, `loadSessionCards`, `xpForScore`, `RETRY_THRESHOLD`, `LENGTHS`, review-mode + tutor-seed detection.
 
-**Styles:** new `flashcards` section appended to `aurora.css` (porthole, iris ring, stepper, topic-progress ring, score readout) and new keyframes in `motion.css` (dilation, flip, focus-pull, refocus). Remove reliance on the undefined `.aurora-topic-chip` chips by replacing them with the new stepper components; retire those dead class usages.
+**Styles:** new `flashcards` section appended to `aurora.css` (centered focus stage, stepper, topic-progress ring, score readout, slim progress ring) and new keyframes in `motion.css` (dilation, flip, focus-pull, refocus). Remove reliance on the undefined `.aurora-topic-chip` chips by replacing them with the new stepper components; retire those dead class usages and the deck's `PlateWell`/queue markup.
 
 ## 9. Edge cases
 
