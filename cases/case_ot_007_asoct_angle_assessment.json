@@ -11,18 +11,30 @@
     "age": 58,
     "gender": "male",
     "occupation": "taxi driver",
-    "presenting_complaint": "Referred for Anterior Segment OCT (ASOCT) — narrow angles noted on slit lamp, glaucoma suspect"
+    "presenting_complaint": "Referred for Anterior Segment OCT (ASOCT) — narrow angles noted on slit lamp, glaucoma suspect",
+    "nric": "S5030515E",
+    "date_of_birth": "1968-05-20",
+    "address": "Blk 793 Woodlands Ave 6, #15-815, Singapore 225751",
+    "contact_number": "80548484"
   },
   "history": {
     "hpc": "Mr Faris attended the eye clinic for a routine check-up arranged by his company. The doctor noted shallow anterior chambers and narrow angles on slit lamp examination in both eyes, more pronounced on the right. He has no symptoms of eye pain, haloes, or headaches. He has been referred for ASOCT to image the anterior chamber angle before deciding if laser peripheral iridotomy is needed.",
     "pmhx": "No known eye disease previously. Hyperopia (long-sighted), wears reading glasses. No previous eye surgery.",
     "family_hx": "Mother had 'angle closure glaucoma' and required laser treatment",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Taxi driver, drives long hours including at night. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "19 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "19 mmHg (NCT)",
+      "left": "18 mmHg (NCT)"
+    },
     "anterior_segment": "Shallow anterior chamber bilaterally, right more than left, on slit lamp van Herick assessment. No corneal oedema. Pupils normal and reactive.",
     "fundus": "C:D ratio 0.4 bilaterally, healthy-appearing discs"
   },

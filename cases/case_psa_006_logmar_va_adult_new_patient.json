@@ -11,7 +11,11 @@
     "age": 34,
     "gender": "male",
     "occupation": "software engineer",
-    "presenting_complaint": "New patient referral from polyclinic for blurred vision when driving at night"
+    "presenting_complaint": "New patient referral from polyclinic for blurred vision when driving at night",
+    "nric": "S8037739H",
+    "date_of_birth": "1992-04-08",
+    "address": "Blk 212 Hougang Ave 8, #06-786, Singapore 595089",
+    "contact_number": "86625207"
   },
   "history": {
     "hpc": "Mr Lim is a 34-year-old new patient referred from a polyclinic for assessment of blurred distance vision, particularly when driving at night. He reports the blur has been gradual over the past 1-2 years. He wears glasses for distance but says his current pair 'feels weaker than before'. He has brought his current spectacles with him and is wearing them today.",
@@ -25,7 +29,10 @@
       "right": "6/9 (LogMAR 0.18) with current glasses, improves to 6/6 with pinhole",
       "left": "6/12 (LogMAR 0.3) with current glasses, improves to 6/6 with pinhole"
     },
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage — PSA role is VA measurement only",
     "fundus": "Not assessed — doctor to review after VA and refraction"
   },

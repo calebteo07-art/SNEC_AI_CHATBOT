@@ -11,18 +11,30 @@
     "age": 29,
     "gender": "female",
     "occupation": "retail assistant",
-    "presenting_complaint": "Blurred distance vision; here for a visual acuity check"
+    "presenting_complaint": "Blurred distance vision; here for a visual acuity check",
+    "nric": "S3853899C",
+    "date_of_birth": "1997-03-15",
+    "address": "Blk 677 Jurong West St 42, #16-065, Singapore 787048",
+    "contact_number": "89548708"
   },
   "history": {
     "hpc": "Ms Wong reports her distance vision has become blurry over the past year, especially for signboards. She says: 'Far things blur, but when I squeeze my eyes a bit, can see clearer.' Squinting that improves vision hints at a refractive cause. She wears no correction. The PSA must measure distance VA on the Modified LogMAR chart and apply the pinhole.",
     "pmhx": "Nil significant",
     "family_hx": "Both parents short-sighted",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Retail assistant. Long screen time. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/18 unaided, improves to ~6/7.5 with pinhole", "left": "6/24 unaided, improves to ~6/9 with pinhole"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/18 unaided, improves to ~6/7.5 with pinhole",
+      "left": "6/24 unaided, improves to ~6/9 with pinhole"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "For doctor as needed"
   },

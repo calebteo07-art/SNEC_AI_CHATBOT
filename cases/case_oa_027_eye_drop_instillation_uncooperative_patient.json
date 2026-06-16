@@ -12,18 +12,30 @@
     "age": 58,
     "gender": "female",
     "occupation": "homemaker",
-    "presenting_complaint": "Needs eye drops but squeezes her eyes shut and is anxious about the procedure"
+    "presenting_complaint": "Needs eye drops but squeezes her eyes shut and is anxious about the procedure",
+    "nric": "S9337779F",
+    "date_of_birth": "1968-03-22",
+    "address": "Blk 451 Yishun Ring Rd, #13-447, Singapore 289796",
+    "contact_number": "81202440"
   },
   "history": {
     "hpc": "Mdm Rosnah says 'I scared, every time you want to put I close my eyes tight.' She is cooperative in conversation but reflexively shuts her eyes when a drop approaches, making instillation difficult.",
     "pmhx": "Attends the clinic regularly. No drug allergies (confirm).",
     "family_hx": "Not relevant to this station",
-    "medications": ["Charted eye drop for today"],
+    "medications": [
+      "Charted eye drop for today"
+    ],
     "social_hx": "Anxious about eye procedures."
   },
   "examination_findings": {
-    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
-    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "va": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
+    "iop": {
+      "right": "Not measured at this station",
+      "left": "Not measured at this station"
+    },
     "anterior_segment": "No active infection that would change technique",
     "fundus": "Not examined at this station"
   },

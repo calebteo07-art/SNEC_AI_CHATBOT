@@ -11,18 +11,31 @@
     "age": 69,
     "gender": "male",
     "occupation": "retired taxi driver",
-    "presenting_complaint": "Sudden, painless loss of vision in the right eye about 40 minutes ago"
+    "presenting_complaint": "Sudden, painless loss of vision in the right eye about 40 minutes ago",
+    "nric": "S7321125E",
+    "date_of_birth": "1957-05-06",
+    "address": "Blk 434 Jurong West St 42, #05-317, Singapore 617181",
+    "contact_number": "87790478"
   },
   "history": {
     "hpc": "Mr Yeo walks up to the counter looking worried. He says: 'Suddenly my right eye cannot see, like curtain come down, but no pain at all.' It happened about 40 minutes ago and has not improved. Sudden painless loss of vision is a red flag — central retinal artery occlusion (CRAO) with VA <6/60 is a Category 1 emergency where time is critical.",
     "pmhx": "Hypertension, high cholesterol, atrial fibrillation.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Atorvastatin 20mg ON"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Atorvastatin 20mg ON"
+    ],
     "social_hx": "Retired. Smoker. Came in by himself."
   },
   "examination_findings": {
-    "va": {"right": "counting fingers / worse (markedly reduced)", "left": "6/9"},
-    "iop": {"right": "to be checked but must not delay escalation", "left": "15 mmHg"},
+    "va": {
+      "right": "counting fingers / worse (markedly reduced)",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "to be checked but must not delay escalation",
+      "left": "15 mmHg"
+    },
     "anterior_segment": "Quiet, white eye (no redness) — typical of painless vision loss",
     "fundus": "For urgent doctor assessment"
   },

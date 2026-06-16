@@ -11,18 +11,34 @@
     "age": 59,
     "gender": "male",
     "occupation": "lorry driver",
-    "presenting_complaint": "Referred from polyclinic for annual diabetic retinopathy screening — has not had an eye check in 3 years"
+    "presenting_complaint": "Referred from polyclinic for annual diabetic retinopathy screening — has not had an eye check in 3 years",
+    "nric": "S9374010F",
+    "date_of_birth": "1967-05-21",
+    "address": "Blk 55 Yishun Ring Rd, #17-783, Singapore 341840",
+    "contact_number": "83651047"
   },
   "history": {
     "hpc": "Mr Krishnan has Type 2 diabetes mellitus diagnosed 20 years ago. He was referred by his polyclinic for diabetic eye screening, as his last eye check was 3 years ago and was reportedly 'normal'. He has no specific eye complaints today — no pain, no redness, no sudden vision changes. However, he mentions his distance vision has been 'a bit blur' for driving over the past year, and he has occasional tingling in his feet. He has missed several diabetes follow-up appointments due to work commitments as a long-haul lorry driver.",
     "pmhx": "Type 2 diabetes mellitus for 20 years (last HbA1c 9.1%, done 8 months ago — poorly controlled). Hypertension for 10 years. Hyperlipidaemia. No previous eye surgery or laser treatment. No known kidney disease, but has not had recent renal function tests.",
     "family_hx": "Both parents had diabetes. One brother had diabetic retinopathy requiring laser treatment.",
-    "medications": ["Metformin 1g BD", "Gliclazide 80mg OD", "Amlodipine 10mg OD", "Atorvastatin 20mg ON", "Aspirin 100mg OD"],
+    "medications": [
+      "Metformin 1g BD",
+      "Gliclazide 80mg OD",
+      "Amlodipine 10mg OD",
+      "Atorvastatin 20mg ON",
+      "Aspirin 100mg OD"
+    ],
     "social_hx": "Long-haul lorry driver — relies on his vocational driving licence for his livelihood. Smokes about 10 cigarettes a day for 30 years. Drinks alcohol socially. Often skips meals due to irregular driving schedule, which affects blood sugar control."
   },
   "examination_findings": {
-    "va": {"right": "6/12 (LogMAR 0.3)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 (LogMAR 0.3)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "17 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. Mild early cataract changes noted in both lenses.",
     "fundus": "To be assessed via dilated examination/retinal photography — not yet performed; patient's last screening was 3 years ago and showed no retinopathy at that time"
   },

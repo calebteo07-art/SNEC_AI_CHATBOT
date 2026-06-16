@@ -11,13 +11,22 @@
     "age": 83,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Routine cataract follow-up — 2 weeks post-op right eye"
+    "presenting_complaint": "Routine cataract follow-up — 2 weeks post-op right eye",
+    "nric": "S4486561J",
+    "date_of_birth": "1943-06-09",
+    "address": "Blk 669 Clementi Ave 2, #07-408, Singapore 262479",
+    "contact_number": "82435283"
   },
   "history": {
     "hpc": "Mr Tan is an 83-year-old attending for his post-operative review after right eye cataract surgery 2 weeks ago. He walks in slowly using a quad cane, accompanied by his domestic helper. While waiting, the PSA notices he is sitting at the edge of the chair rather than back in the seat, appears slightly unsteady when he stood up from the wheelchair in the car porch, and has difficulty with spatial orientation when walking. His helper mentions he had a fall at home 3 weeks ago (before surgery) — he tripped over a threshold and bruised his right knee. He is on multiple medications. His vision in the left eye remains poor (the non-operated eye has advanced AMD).",
     "pmhx": "Cataract (operated right eye 2 weeks ago). AMD left eye (advanced — near-blind). Hypertension. Type 2 diabetes. Osteoarthritis knees. Fall 3 weeks ago.",
     "family_hx": "Not relevant",
-    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD", "Simvastatin 20mg ON", "Tramadol 50mg PRN for knee pain (uses 1-2x weekly)"],
+    "medications": [
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD",
+      "Simvastatin 20mg ON",
+      "Tramadol 50mg PRN for knee pain (uses 1-2x weekly)"
+    ],
     "social_hx": "Widower. Lives with domestic helper. Daughter visits on weekends. Uses quad cane for all ambulation. Has not been assessed for falls risk previously."
   },
   "examination_findings": {
@@ -25,7 +34,10 @@
       "right": "6/18 (LogMAR 0.5) — post-op, still recovering",
       "left": "CF (Count Fingers) at 1 metre — AMD"
     },
-    "iop": {"right": "Not yet tested", "left": "Not yet tested"},
+    "iop": {
+      "right": "Not yet tested",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — doctor to review"
   },

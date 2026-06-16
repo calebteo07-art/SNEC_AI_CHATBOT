@@ -11,18 +11,31 @@
     "age": 72,
     "gender": "male",
     "occupation": "retired security officer",
-    "presenting_complaint": "Here for biometry before cataract surgery; the optical (light) biometer could not get a reading because the cataract is very dense"
+    "presenting_complaint": "Here for biometry before cataract surgery; the optical (light) biometer could not get a reading because the cataract is very dense",
+    "nric": "S5092803I",
+    "date_of_birth": "1954-04-10",
+    "address": "Blk 233 Bedok North Rd, #14-352, Singapore 321464",
+    "contact_number": "83852978"
   },
   "history": {
     "hpc": "Mr Rajendran is booked for left eye cataract surgery. Optical biometry failed to capture the axial length because the cataract is very dense and blocks the light. He asks: 'My cataract very thick already, the machine just now cannot read is it?' The OT must switch to A-scan ultrasound biometry to obtain the axial length.",
     "pmhx": "Dense mature cataract left eye. Type 2 diabetes, hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with wife. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/12", "left": "Hand movements (dense cataract)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/12",
+      "left": "Hand movements (dense cataract)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye: dense (mature) cataract blocking optical biometry; right eye moderate lens changes",
     "fundus": "Left fundus not visible due to dense cataract"
   },

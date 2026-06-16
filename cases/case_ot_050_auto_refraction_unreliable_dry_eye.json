@@ -11,18 +11,30 @@
     "age": 59,
     "gender": "female",
     "occupation": "administrative assistant",
-    "presenting_complaint": "Here for auto-refraction and keratometry; the readings keep coming out inconsistent"
+    "presenting_complaint": "Here for auto-refraction and keratometry; the readings keep coming out inconsistent",
+    "nric": "S5476950D",
+    "date_of_birth": "1967-05-13",
+    "address": "Blk 10 Woodlands Ave 6, #10-733, Singapore 730034",
+    "contact_number": "96490318"
   },
   "history": {
     "hpc": "Mdm Phua attends for auto-refraction and keratometry as a new patient work-up. The machine keeps producing scattered, inconsistent values. She says: 'My eyes very dry, the machine ask me to look but I keep wanting to blink.' She has dry eye symptoms, worse with air-conditioning and screen work. The OT must recognise the unreliable readings and improve the tear film and technique.",
     "pmhx": "Dry eye disease. Otherwise well.",
     "family_hx": "Nil significant",
-    "medications": ["Lubricant eye drops PRN"],
+    "medications": [
+      "Lubricant eye drops PRN"
+    ],
     "social_hx": "Office worker, long screen hours in an air-conditioned office. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Dry ocular surface; otherwise normal. An unstable tear film degrades auto-refraction/keratometry readings.",
     "fundus": "Not the focus today"
   },

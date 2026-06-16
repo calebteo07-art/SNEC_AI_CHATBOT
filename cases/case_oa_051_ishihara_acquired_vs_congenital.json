@@ -11,18 +11,30 @@
     "age": 45,
     "gender": "male",
     "occupation": "warehouse supervisor",
-    "presenting_complaint": "Recently finds it harder to tell some colours apart, mainly in the left eye"
+    "presenting_complaint": "Recently finds it harder to tell some colours apart, mainly in the left eye",
+    "nric": "S8752808A",
+    "date_of_birth": "1981-02-07",
+    "address": "Blk 122 Jurong West St 42, #06-071, Singapore 384913",
+    "contact_number": "84273839"
   },
   "history": {
     "hpc": "Mr Chua reports a recent change: 'Last time I never have problem with colour, why now cannot see some number?' He notices it more with the left eye and says colours look 'washed out' on that side. He is diabetic. No eye pain, but he has had some blurring of the left eye. The recent onset and the difference between the two eyes are notable.",
     "pmhx": "Type 2 diabetes (sub-optimal control). No previous eye surgery.",
     "family_hx": "No known colour blindness in the family",
-    "medications": ["Metformin 1g BD"],
+    "medications": [
+      "Metformin 1g BD"
+    ],
     "social_hx": "Warehouse supervisor. Non-smoker. Reports irregular diabetic follow-up."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/18"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/18"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Normal anterior segments both eyes",
     "fundus": "Diabetic retinopathy changes possible; left eye reduced VA and colour change — for dilated doctor review"
   },

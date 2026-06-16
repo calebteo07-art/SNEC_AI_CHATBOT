@@ -10,18 +10,30 @@
     "age": 60,
     "gender": "female",
     "occupation": "hawker stall assistant",
-    "presenting_complaint": "New patient — referred for general eye check-up, occasional blurred distance vision"
+    "presenting_complaint": "New patient — referred for general eye check-up, occasional blurred distance vision",
+    "nric": "S0551787G",
+    "date_of_birth": "1966-05-22",
+    "address": "Blk 219 Bukit Batok St 25, #12-092, Singapore 700796",
+    "contact_number": "81016010"
   },
   "history": {
     "hpc": "Mdm Chua has noticed that road signs and bus numbers appear blurry from a distance over the past year. She does not own a pair of glasses. She has come to SNEC for the first time, referred by her GP after a community vision screening flagged reduced vision. She is to undergo Modified LogMAR distance visual acuity testing as part of her initial work-up before seeing the doctor.",
     "pmhx": "No previous eye surgery. No known ocular disease. Type 2 diabetes diagnosed 3 years ago, on medication.",
     "family_hx": "Father had cataract surgery in his 70s",
-    "medications": ["Metformin 500mg BD"],
+    "medications": [
+      "Metformin 500mg BD"
+    ],
     "social_hx": "Works at a hawker stall. Does not currently wear any glasses."
   },
   "examination_findings": {
-    "va": {"right": "6/12 (LogMAR 0.3, +1)", "left": "6/18 (LogMAR 0.48)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 (LogMAR 0.3, +1)",
+      "left": "6/18 (LogMAR 0.48)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Early nuclear sclerosis bilaterally, otherwise unremarkable",
     "fundus": "To be assessed by doctor — query diabetic retinopathy screening required"
   },

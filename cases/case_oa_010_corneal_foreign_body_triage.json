@@ -10,18 +10,30 @@
     "age": 41,
     "gender": "male",
     "occupation": "carpenter",
-    "presenting_complaint": "Felt something fly into his right eye while sanding wood about an hour ago — eye is red, watery, and feels like there's grit in it"
+    "presenting_complaint": "Felt something fly into his right eye while sanding wood about an hour ago — eye is red, watery, and feels like there's grit in it",
+    "nric": "S0739560D",
+    "date_of_birth": "1985-04-03",
+    "address": "Blk 177 Serangoon Central, #04-120, Singapore 726929",
+    "contact_number": "81405418"
   },
   "history": {
     "hpc": "Mr Koh was sanding a piece of wood without goggles when he felt a small particle hit his right eye about an hour ago. Since then, the eye has been watering, red, and feels like there is sand or grit under the upper lid. He describes the discomfort as moderate (5/10), worse on blinking. He has not noticed any drop in vision. No history of a high-velocity metal-on-metal mechanism (he was using a manual sanding block, not a power grinder), so a penetrating injury is less likely.",
     "pmhx": "Nil significant. No previous eye conditions. Tetanus vaccination up to date (had a booster 3 years ago after a workplace cut).",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Carpenter by trade. Came in alone on his motorbike."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Deferred until foreign body assessed", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Deferred until foreign body assessed",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: conjunctival hyperaemia, mild watering, a small particle of wood dust visible on the superior bulbar conjunctiva/under the upper lid on eversion. Cornea appears intact, no visible full-thickness defect or irregular pupil. Left eye: normal.",
     "fundus": "Not assessed — not indicated"
   },

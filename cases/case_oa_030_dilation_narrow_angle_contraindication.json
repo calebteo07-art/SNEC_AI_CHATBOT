@@ -12,18 +12,30 @@
     "age": 64,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Charted for dilation, but has a history of narrow drainage angles"
+    "presenting_complaint": "Charted for dilation, but has a history of narrow drainage angles",
+    "nric": "S5746149G",
+    "date_of_birth": "1962-03-23",
+    "address": "Blk 730 Hougang Ave 8, #04-713, Singapore 343618",
+    "contact_number": "84406733"
   },
   "history": {
     "hpc": "Mdm Yeo says 'Last time the doctor say my eye angle very narrow, must be careful.' She is charted for dilation today but mentions this narrow-angle history, which must be acted on before instilling any dilating drop.",
     "pmhx": "Known narrow anterior chamber angles. No drug allergies (confirm).",
     "family_hx": "Glaucoma in the family",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Retired."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "Measured before any dilation", "left": "Measured before any dilation"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "Measured before any dilation",
+      "left": "Measured before any dilation"
+    },
     "anterior_segment": "Shallow anterior chambers / narrow angles by history — dilation could precipitate acute angle-closure",
     "fundus": "Not yet examined"
   },

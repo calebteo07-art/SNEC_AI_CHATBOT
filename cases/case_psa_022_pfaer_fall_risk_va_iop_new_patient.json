@@ -11,18 +11,30 @@
     "age": 62,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "First visit, referred from polyclinic for sudden blurring of vision for the past 2 days"
+    "presenting_complaint": "First visit, referred from polyclinic for sudden blurring of vision for the past 2 days",
+    "nric": "S4851858C",
+    "date_of_birth": "1964-01-11",
+    "address": "Blk 584 Tampines St 21, #11-392, Singapore 598954",
+    "contact_number": "96990187"
   },
   "history": {
     "hpc": "Mdm Halimah says 'My vision suddenly become blur two days ago, I never see like that before.' This is her first visit to SNEC, referred from the polyclinic. She is anxious. She refuses to do the near vision test, saying 'Cannot lah, I cannot see properly, no point.' You are required to perform the Patient & Family Assessment and Education and Fall Risk assessment, distance visual acuity and IOP measurement, and to recognise that sudden visual loss needs to be flagged.",
     "pmhx": "First visit — history to be taken. Walks in slowly and is a little unsteady.",
     "family_hx": "To be elicited as part of the assessment",
-    "medications": ["To be confirmed during assessment"],
+    "medications": [
+      "To be confirmed during assessment"
+    ],
     "social_hx": "Lives with her husband. Came to clinic by herself."
   },
   "examination_findings": {
-    "va": {"right": "6/60 (LogMAR, distance, with usual correction)", "left": "6/9 (LogMAR, distance, with usual correction)"},
-    "iop": {"right": "18 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/60 (LogMAR, distance, with usual correction)",
+      "left": "6/9 (LogMAR, distance, with usual correction)"
+    },
+    "iop": {
+      "right": "18 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Not assessed by the PSA — for doctor review",
     "fundus": "Not assessed by the PSA — for doctor review"
   },

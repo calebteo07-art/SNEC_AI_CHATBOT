@@ -11,18 +11,30 @@
     "age": 38,
     "gender": "male",
     "occupation": "warehouse supervisor",
-    "presenting_complaint": "Red, painful eyes for 2 days with blurred vision, starting after shampooing his hair"
+    "presenting_complaint": "Red, painful eyes for 2 days with blurred vision, starting after shampooing his hair",
+    "nric": "S3179960J",
+    "date_of_birth": "1988-06-11",
+    "address": "Blk 364 Woodlands Ave 6, #07-425, Singapore 656156",
+    "contact_number": "94537418"
   },
   "history": {
     "hpc": "Mr Rajan presents to the Acute Care clinic with red eyes for 2 days. He says 'Suddenly very pain after I shampoo my hair, the pain like 8 out of 10.' His vision became blurred after shampooing of the eyes; he tries to blink but the vision stays blur. He does not remember anything hitting his eye. He has not seen any doctor and has not taken any medicine. Today he also has watery eyes, a headache, nausea and vomiting, and says he is unable to see the light.",
     "pmhx": "Seen an eye doctor only once, in 2023, for dry eyes. Does not wear contact lenses.",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Works in a warehouse. No contact lens use."
   },
   "examination_findings": {
-    "va": {"right": "Markedly blurred by patient report — to be formally measured", "left": "Markedly blurred by patient report — to be formally measured"},
-    "iop": {"right": "Not yet measured — flagged for urgent assessment", "left": "Not yet measured — flagged for urgent assessment"},
+    "va": {
+      "right": "Markedly blurred by patient report — to be formally measured",
+      "left": "Markedly blurred by patient report — to be formally measured"
+    },
+    "iop": {
+      "right": "Not yet measured — flagged for urgent assessment",
+      "left": "Not yet measured — flagged for urgent assessment"
+    },
     "anterior_segment": "Red eyes with watering; full examination by the doctor required urgently",
     "fundus": "Not assessed at this history-taking station"
   },

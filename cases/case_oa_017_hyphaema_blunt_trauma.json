@@ -10,18 +10,30 @@
     "age": 19,
     "gender": "male",
     "occupation": "polytechnic student",
-    "presenting_complaint": "Was struck directly in the right eye by a squash ball during a game about 1 hour ago — eye is painful, red, and vision is blurry"
+    "presenting_complaint": "Was struck directly in the right eye by a squash ball during a game about 1 hour ago — eye is painful, red, and vision is blurry",
+    "nric": "T7448796Z",
+    "date_of_birth": "2007-04-21",
+    "address": "Blk 486 Yishun Ring Rd, #05-048, Singapore 564418",
+    "contact_number": "93242297"
   },
   "history": {
     "hpc": "Aaron was playing squash without protective eyewear when his opponent's shot struck him directly in the right eye at close range about an hour ago. He felt immediate sharp pain and his vision in that eye became blurry almost straight away, like 'looking through reddish fog'. He has mild ongoing pain (4/10), some sensitivity to light, and says he can see a 'line of blood' in the lower part of his right eye when he looks in the mirror. He did not lose consciousness and has no other injuries. He has not vomited.",
     "pmhx": "Nil significant. No previous eye conditions. No known bleeding disorders. Not on any blood-thinning medication.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular medications"],
+    "medications": [
+      "Nil regular medications"
+    ],
     "social_hx": "Polytechnic student, plays squash recreationally. Came in with a teammate."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (LogMAR 0.6)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "24 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 (LogMAR 0.6)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "24 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: conjunctival hyperaemia, a layer of blood (hyphaema) occupying approximately 20% of the anterior chamber inferiorly, pupil round but sluggish. No visible corneal laceration or irregular pupil to suggest globe rupture. Left eye: normal.",
     "fundus": "Not assessed — view obscured by hyphaema; fundus assessment deferred"
   },

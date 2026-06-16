@@ -10,18 +10,30 @@
     "age": 61,
     "gender": "female",
     "occupation": "tailor",
-    "presenting_complaint": "Sudden severe left-sided headache with eye pain, blurred vision, nausea and vomiting that started about 3 hours ago while watching a movie in a dark cinema"
+    "presenting_complaint": "Sudden severe left-sided headache with eye pain, blurred vision, nausea and vomiting that started about 3 hours ago while watching a movie in a dark cinema",
+    "nric": "S2774615B",
+    "date_of_birth": "1965-04-22",
+    "address": "Blk 412 Clementi Ave 2, #07-696, Singapore 574097",
+    "contact_number": "81841379"
   },
   "history": {
     "hpc": "Mdm Tan was watching a movie in a dark cinema about 3 hours ago when she developed a sudden severe headache on the left side, centred around and behind her left eye. The pain is severe (8/10) and she describes seeing 'rainbow halos' around the cinema lights before the pain started. She has vomited twice since. Her left eye vision is now very blurry — she describes it as 'looking through a steamed-up mirror'. She has never experienced this before. She is hyperopic (long-sighted) and has never had an eye examination for glaucoma.",
     "pmhx": "Hyperopia (long-sightedness), uncorrected. No known glaucoma history. Hypertension, well-controlled. No previous eye surgery.",
     "family_hx": "Mother had 'eye pressure problems' in old age, details unclear",
-    "medications": ["Losartan 50mg OD"],
+    "medications": [
+      "Losartan 50mg OD"
+    ],
     "social_hx": "Works as a tailor — fine near work. Came in with her husband, who is very worried."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "CF (Count Fingers) at 0.5 metre"},
-    "iop": {"right": "19 mmHg (NCT)", "left": "56 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "CF (Count Fingers) at 0.5 metre"
+    },
+    "iop": {
+      "right": "19 mmHg (NCT)",
+      "left": "56 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye: conjunctival hyperaemia (red eye), hazy/oedematous cornea, mid-dilated and fixed oval pupil unresponsive to light, anterior chamber appears shallow. Right eye: also appears to have a shallow anterior chamber on gross inspection, but quiet and comfortable.",
     "fundus": "Unable to assess left fundus due to corneal oedema. Right fundus not yet assessed."
   },

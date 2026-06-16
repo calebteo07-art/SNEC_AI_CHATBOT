@@ -11,18 +11,30 @@
     "age": 68,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for optical coherence biometry before left eye cataract surgery"
+    "presenting_complaint": "Referred for optical coherence biometry before left eye cataract surgery",
+    "nric": "S7455701E",
+    "date_of_birth": "1958-05-04",
+    "address": "Blk 717 Bukit Batok St 25, #08-704, Singapore 113412",
+    "contact_number": "95671424"
   },
   "history": {
     "hpc": "Mdm Lee has a visually significant cortical cataract in her left eye that has been gradually worsening over the past year, causing glare while driving at night. She has been listed for left eye phacoemulsification with IOL implantation. The doctor has ordered optical coherence biometry (IOLMaster or equivalent) to calculate the IOL power, as her cornea is clear enough for the non-contact method. She has never had this test before and is slightly anxious about a 'machine touching her eye'.",
     "pmhx": "Cataract left eye (cortical). Mild cataract right eye, not yet visually significant. No previous eye surgery. Mild hyperopia.",
     "family_hx": "Sister had cataract surgery in her 60s",
-    "medications": ["Atorvastatin 20mg ON"],
+    "medications": [
+      "Atorvastatin 20mg ON"
+    ],
     "social_hx": "Retired teacher. Lives alone. Still drives during the day."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/24 (LogMAR 0.6)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/24 (LogMAR 0.6)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: early cortical lens changes. Left eye: moderate cortical cataract, clear cornea.",
     "fundus": "Right eye: normal. Left eye: hazy view due to cataract but no obvious posterior pathology"
   },

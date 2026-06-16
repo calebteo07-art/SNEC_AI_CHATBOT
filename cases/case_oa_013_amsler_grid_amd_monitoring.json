@@ -10,18 +10,32 @@
     "age": 74,
     "gender": "male",
     "occupation": "retired taxi driver",
-    "presenting_complaint": "Routine follow-up for known dry age-related macular degeneration in both eyes — also mentions the lines on his kitchen tiles 'look a bit wavy' in his left eye over the past week"
+    "presenting_complaint": "Routine follow-up for known dry age-related macular degeneration in both eyes — also mentions the lines on his kitchen tiles 'look a bit wavy' in his left eye over the past week",
+    "nric": "S4428687D",
+    "date_of_birth": "1952-05-04",
+    "address": "Blk 783 Jurong West St 42, #15-975, Singapore 434827",
+    "contact_number": "97617743"
   },
   "history": {
     "hpc": "Mr Eusoff has known dry AMD in both eyes, diagnosed 3 years ago, and attends regular follow-ups. Today he mentions that over the past week, when he covers his right eye, the grout lines on his kitchen floor tiles appear 'wavy' or 'bent' when viewed with his left eye only. He has not noticed this with his right eye. He has no eye pain. He has been taking his AREDS2 vitamin supplements as advised.",
     "pmhx": "Dry age-related macular degeneration, both eyes, diagnosed 3 years ago. Hypertension. Type 2 diabetes mellitus, diet-controlled.",
     "family_hx": "Mother had 'eye problems in old age' — possibly AMD, not formally diagnosed",
-    "medications": ["AREDS2 vitamin supplement OD", "Amlodipine 5mg OD", "Metformin 500mg BD"],
+    "medications": [
+      "AREDS2 vitamin supplement OD",
+      "Amlodipine 5mg OD",
+      "Metformin 500mg BD"
+    ],
     "social_hx": "Retired. Lives with wife. Non-smoker (quit 20 years ago)."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2) — unchanged from last visit", "left": "6/12 (LogMAR 0.3) — slightly reduced from 6/9 at last visit"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2) — unchanged from last visit",
+      "left": "6/12 (LogMAR 0.3) — slightly reduced from 6/9 at last visit"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. Early cataract changes noted previously, unchanged.",
     "fundus": "To be assessed by doctor — patient reports new distortion in left eye, raising concern for possible conversion to wet AMD"
   },

@@ -12,18 +12,31 @@
     "age": 70,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "On several eye drops for glaucoma and dry eye — confused about how to use them together"
+    "presenting_complaint": "On several eye drops for glaucoma and dry eye — confused about how to use them together",
+    "nric": "S3664762J",
+    "date_of_birth": "1956-04-06",
+    "address": "Blk 323 Bedok North Rd, #06-079, Singapore 489745",
+    "contact_number": "94561616"
   },
   "history": {
     "hpc": "Mr Tan says 'I got so many bottles, I just put one after another, correct or not?' He is on a glaucoma drop and a lubricant and is unsure about timing and order.",
     "pmhx": "Glaucoma on topical treatment; dry eye. No drug allergies (confirm).",
     "family_hx": "Glaucoma in the family",
-    "medications": ["Glaucoma eye drop", "Lubricant eye drop"],
+    "medications": [
+      "Glaucoma eye drop",
+      "Lubricant eye drop"
+    ],
     "social_hx": "Retired, manages his own medications."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "Monitored for glaucoma", "left": "Monitored for glaucoma"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "Monitored for glaucoma",
+      "left": "Monitored for glaucoma"
+    },
     "anterior_segment": "No active infection that would change technique",
     "fundus": "Not the focus of this station"
   },

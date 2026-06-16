@@ -11,18 +11,30 @@
     "age": 68,
     "gender": "female",
     "occupation": "retired teacher",
-    "presenting_complaint": "Blurred vision in the left eye that new spectacles did not improve"
+    "presenting_complaint": "Blurred vision in the left eye that new spectacles did not improve",
+    "nric": "S0502464A",
+    "date_of_birth": "1958-06-09",
+    "address": "Blk 204 Bukit Batok St 25, #09-948, Singapore 582594",
+    "contact_number": "81050502"
   },
   "history": {
     "hpc": "Mdm Fatimah changed her glasses two months ago hoping to see better, but the left eye is still blurred. She says: 'I thought maybe need change glasses only, but new glasses also cannot help leh.' The blur is gradual and painless, with some glare in bright sunlight. No flashes, no floaters, no eye pain. She wants to know why new glasses did not work.",
     "pmhx": "Hypertension. No previous eye surgery.",
     "family_hx": "Mother had cataract surgery",
-    "medications": ["Losartan 50mg OD"],
+    "medications": [
+      "Losartan 50mg OD"
+    ],
     "social_hx": "Lives with her son's family. Enjoys reading and sewing. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 with current glasses", "left": "6/36 with current glasses, no improvement with pinhole"},
-    "iop": {"right": "17 mmHg (NCT)", "left": "18 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 with current glasses",
+      "left": "6/36 with current glasses, no improvement with pinhole"
+    },
+    "iop": {
+      "right": "17 mmHg (NCT)",
+      "left": "18 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye: central lens opacity (cataract). Right eye: early lens changes. Cornea clear, no redness both eyes.",
     "fundus": "Left fundus hazy view due to lens opacity; right fundus to be assessed by doctor"
   },

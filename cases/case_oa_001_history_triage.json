@@ -10,18 +10,30 @@
     "age": 68,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Sudden severe pain in the right eye with blurred vision and vomiting, started 2 hours ago"
+    "presenting_complaint": "Sudden severe pain in the right eye with blurred vision and vomiting, started 2 hours ago",
+    "nric": "S5788791E",
+    "date_of_birth": "1958-05-01",
+    "address": "Blk 259 Yishun Ring Rd, #02-101, Singapore 299842",
+    "contact_number": "83121713"
   },
   "history": {
     "hpc": "Mdm Lee presents to SNEC OPD with sudden onset severe right eye pain. She says it came on about 2 hours ago while she was watching TV. The pain is very bad — she rates it 9/10. She also has nausea and has vomited once. She notices the vision in her right eye is very blurry, like looking through fog. She has never had this before.",
     "pmhx": "Hypertension on medication. No previous eye surgery or eye conditions.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives alone. Daughter brought her in today."
   },
   "examination_findings": {
-    "va": {"right": "CF (Count Fingers) at 1 metre", "left": "6/9"},
-    "iop": {"right": "58 mmHg (NCT)", "left": "16 mmHg"},
+    "va": {
+      "right": "CF (Count Fingers) at 1 metre",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "58 mmHg (NCT)",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Right eye: mid-dilated fixed pupil, corneal haze/oedema, conjunctival redness. Left eye: normal.",
     "fundus": "Unable to assess right fundus due to corneal oedema"
   },

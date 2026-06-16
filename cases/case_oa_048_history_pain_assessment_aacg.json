@@ -11,18 +11,30 @@
     "age": 62,
     "gender": "female",
     "occupation": "homemaker",
-    "presenting_complaint": "Severe right eye pain with headache and nausea that started this evening"
+    "presenting_complaint": "Severe right eye pain with headache and nausea that started this evening",
+    "nric": "S3050604I",
+    "date_of_birth": "1964-01-24",
+    "address": "Blk 644 Toa Payoh Lor 4, #18-703, Singapore 213308",
+    "contact_number": "96748545"
   },
   "history": {
     "hpc": "Mdm Devi presents with severe right eye pain that began a few hours ago. She says: 'My eye very pain, like someone press very hard, until I want to vomit, and my head also pain.' She rates the pain 9/10. She reports seeing haloes around lights and her vision is blurred. She feels nauseated and has vomited once. Bright light worsens the discomfort.",
     "pmhx": "Hyperopia (long-sighted). Otherwise well. No previous eye conditions.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Lives with family. Brought in by her daughter this evening."
   },
   "examination_findings": {
-    "va": {"right": "markedly blurred (e.g. 6/60 or worse)", "left": "6/9"},
-    "iop": {"right": "high on NCT (e.g. ~50 mmHg)", "left": "16 mmHg"},
+    "va": {
+      "right": "markedly blurred (e.g. 6/60 or worse)",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "high on NCT (e.g. ~50 mmHg)",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Right eye: red, hazy/cloudy cornea, mid-dilated poorly reactive pupil. Left eye: normal.",
     "fundus": "Right fundus view poor due to corneal haze"
   },

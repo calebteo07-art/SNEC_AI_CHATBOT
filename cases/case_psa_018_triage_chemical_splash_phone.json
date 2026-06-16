@@ -10,7 +10,11 @@
     "age": 35,
     "gender": "male",
     "occupation": "construction site worker",
-    "presenting_complaint": "Phone call — splashed with an unknown cleaning chemical in both eyes at his worksite a few minutes ago"
+    "presenting_complaint": "Phone call — splashed with an unknown cleaning chemical in both eyes at his worksite a few minutes ago",
+    "nric": "S5516773G",
+    "date_of_birth": "1991-06-12",
+    "address": "Blk 757 Tampines St 21, #06-163, Singapore 741084",
+    "contact_number": "93591570"
   },
   "history": {
     "hpc": "Mr Iskandar calls the clinic in distress, saying he was mixing cleaning chemicals at his worksite when a splash went into both his eyes about 5 minutes ago. He reports stinging pain, watering, and blurred vision. He says a colleague rinsed his eyes briefly with a water bottle but he is not sure how long or how thoroughly. He does not know the exact name of the chemical but describes it as 'a strong-smelling cleaning liquid, maybe bleach-based'. He is asking whether he should come to the clinic now.",
@@ -20,8 +24,14 @@
     "social_hx": "Construction site worker. Calling from his mobile phone at the worksite, which has access to a tap/water source nearby."
   },
   "examination_findings": {
-    "va": {"right": "Not assessed — phone triage, patient not yet at clinic", "left": "Not assessed"},
-    "iop": {"right": "Not assessed — phone triage", "left": "Not assessed"},
+    "va": {
+      "right": "Not assessed — phone triage, patient not yet at clinic",
+      "left": "Not assessed"
+    },
+    "iop": {
+      "right": "Not assessed — phone triage",
+      "left": "Not assessed"
+    },
     "anterior_segment": "Not assessed — phone triage; patient reports stinging, watering, and blurred vision in both eyes",
     "fundus": "Not assessed — phone triage"
   },

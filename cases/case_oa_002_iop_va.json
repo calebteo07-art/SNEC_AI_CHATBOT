@@ -10,19 +10,34 @@
     "age": 55,
     "gender": "male",
     "occupation": "bus driver",
-    "presenting_complaint": "Routine glaucoma follow-up — on latanoprost eye drops for 6 months"
+    "presenting_complaint": "Routine glaucoma follow-up — on latanoprost eye drops for 6 months",
+    "nric": "S9748475I",
+    "date_of_birth": "1971-01-20",
+    "address": "Blk 10 Tampines St 21, #05-931, Singapore 477003",
+    "contact_number": "92232253"
   },
   "history": {
     "hpc": "Mr Raja is here for his 6-month glaucoma review. He says he has been using his eye drops every night but sometimes forgets. He has no eye pain. He says his vision 'seems okay' but he has not done a formal check recently. He has not had any new symptoms. He still drives for work.",
     "pmhx": "Primary open-angle glaucoma, both eyes, diagnosed 6 months ago. No other eye conditions.",
     "family_hx": "Brother also has glaucoma",
-    "medications": ["Latanoprost 0.005% eye drops — one drop each eye at night"],
+    "medications": [
+      "Latanoprost 0.005% eye drops — one drop each eye at night"
+    ],
     "social_hx": "Non-smoker. Does not drink alcohol. Lives with family."
   },
   "examination_findings": {
-    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "18 mmHg (NCT)", "left": "20 mmHg (NCT)"},
-    "near_va": {"right": "N8", "left": "N8"},
+    "va": {
+      "right": "6/7.5 (LogMAR 0.1)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "18 mmHg (NCT)",
+      "left": "20 mmHg (NCT)"
+    },
+    "near_va": {
+      "right": "N8",
+      "left": "N8"
+    },
     "anterior_segment": "Normal bilaterally. No corneal changes."
   },
   "investigations": {

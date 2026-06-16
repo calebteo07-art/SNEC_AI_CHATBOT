@@ -11,18 +11,31 @@
     "age": 55,
     "gender": "female",
     "occupation": "hawker stall assistant",
-    "presenting_complaint": "Newly diagnosed glaucoma — here for education on how to use eye drops"
+    "presenting_complaint": "Newly diagnosed glaucoma — here for education on how to use eye drops",
+    "nric": "S0301532G",
+    "date_of_birth": "1971-06-14",
+    "address": "Blk 475 Yishun Ring Rd, #15-318, Singapore 751739",
+    "contact_number": "90858337"
   },
   "history": {
     "hpc": "Mdm Ho was diagnosed with early primary open-angle glaucoma today during a routine check. The doctor has prescribed latanoprost 0.005% one drop right eye every night. This is the first time she has ever needed to put drops in her own eye. She tells the PSA: 'I tried before when I had pink eye, but I always miss — the drop goes on my cheek, not my eye. My hand shakes a little.' She is anxious about doing it wrong and worried the drop will sting.",
     "pmhx": "Newly diagnosed POAG right eye. Hypertension on medication. No diabetes. No previous eye surgery.",
     "family_hx": "No known glaucoma in family",
-    "medications": ["Amlodipine 5mg OD", "Latanoprost 0.005% eye drops RE ON — newly prescribed today"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Latanoprost 0.005% eye drops RE ON — newly prescribed today"
+    ],
     "social_hx": "Works long hours at a hawker stall. Lives alone. No family member at home to assist with drops."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "24 mmHg (post-dilation)", "left": "15 mmHg"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "24 mmHg (post-dilation)",
+      "left": "15 mmHg"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Not assessed at this stage — reviewed by doctor"
   },

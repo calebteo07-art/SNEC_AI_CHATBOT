@@ -10,18 +10,30 @@
     "age": 34,
     "gender": "male",
     "occupation": "automotive workshop technician",
-    "presenting_complaint": "Splashed battery acid into his left eye about 10 minutes ago, walked into SNEC clinic himself with his eye streaming and very painful"
+    "presenting_complaint": "Splashed battery acid into his left eye about 10 minutes ago, walked into SNEC clinic himself with his eye streaming and very painful",
+    "nric": "S9666610A",
+    "date_of_birth": "1992-02-05",
+    "address": "Blk 646 Tampines St 21, #17-725, Singapore 199510",
+    "contact_number": "80410277"
   },
   "history": {
     "hpc": "Mr Tan was topping up a car battery when it sprayed acidic fluid into his left eye. He immediately rinsed briefly with tap water at the workshop sink for about 30 seconds before his colleague drove him to SNEC, which took about 10 minutes. He is in severe pain, his left eye is watering profusely, and he says everything looks blurry and white/foggy through that eye. He is holding his eye closed and is very distressed.",
     "pmhx": "Nil significant. No previous eye conditions. No known drug allergies.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular medications"],
+    "medications": [
+      "Nil regular medications"
+    ],
     "social_hx": "Works at a car workshop. Was not wearing safety goggles at the time. Came in with a colleague."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "Unable to test formally — patient unable to keep eye open, blurred"},
-    "iop": {"right": "Not yet measured", "left": "Not yet measured — irrigation takes priority"},
+    "va": {
+      "right": "6/6",
+      "left": "Unable to test formally — patient unable to keep eye open, blurred"
+    },
+    "iop": {
+      "right": "Not yet measured",
+      "left": "Not yet measured — irrigation takes priority"
+    },
     "anterior_segment": "Left eye: marked conjunctival hyperaemia, diffuse corneal haze/opacity visible, eyelids in spasm (blepharospasm). Right eye: normal.",
     "fundus": "Not assessed — irrigation is the immediate priority"
   },

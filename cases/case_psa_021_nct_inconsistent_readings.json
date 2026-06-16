@@ -11,17 +11,26 @@
     "age": 67,
     "gender": "male",
     "occupation": "retired security officer",
-    "presenting_complaint": "Routine glaucoma suspect follow-up — IOP monitoring"
+    "presenting_complaint": "Routine glaucoma suspect follow-up — IOP monitoring",
+    "nric": "S9034745D",
+    "date_of_birth": "1959-03-09",
+    "address": "Blk 498 Yishun Ring Rd, #09-256, Singapore 617430",
+    "contact_number": "94963482"
   },
   "history": {
     "hpc": "Mr Yusof attends for routine IOP monitoring as a glaucoma suspect (raised IOP noted at a previous visit, currently under observation, not yet on treatment). During NCT, the PSA notices the readings for the right eye are unusually scattered: 14, 28, 17 mmHg across three attempts — a wider spread than typically expected. Mr Yusof appears anxious during the test, gripping the chair tightly, and the PSA notices he tends to blink hard or squeeze his eyes shut just as the air puff is released.",
     "pmhx": "Glaucoma suspect (raised IOP on one previous occasion, optic discs and visual fields under monitoring, not yet diagnosed with glaucoma). Hypertension on medication. No diabetes.",
     "family_hx": "No known family history of glaucoma.",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired security officer. Lives with wife. No known anxiety disorder, but reports disliking 'anything near my eyes' and finds the air-puff test uncomfortable."
   },
   "examination_findings": {
-    "va": {"right": "6/7.5 (LogMAR 0.1)", "left": "6/9 (LogMAR 0.18)"},
+    "va": {
+      "right": "6/7.5 (LogMAR 0.1)",
+      "left": "6/9 (LogMAR 0.18)"
+    },
     "iop": {
       "right": "Initial three readings scattered (14, 28, 17 mmHg) — repeat set after troubleshooting: 16, 17, 16 mmHg — average of repeat set used (16 mmHg)",
       "left": "17 mmHg — average of three readings (16, 17, 18), consistent on first attempt"

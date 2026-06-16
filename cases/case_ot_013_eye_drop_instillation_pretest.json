@@ -11,18 +11,32 @@
     "age": 55,
     "gender": "female",
     "occupation": "tailor",
-    "presenting_complaint": "Follow-up visit — referred for dilated fundus photography, requires pupil dilation before imaging"
+    "presenting_complaint": "Follow-up visit — referred for dilated fundus photography, requires pupil dilation before imaging",
+    "nric": "S0950860J",
+    "date_of_birth": "1971-02-21",
+    "address": "Blk 222 Pasir Ris Dr 1, #07-597, Singapore 422432",
+    "contact_number": "82946301"
   },
   "history": {
     "hpc": "Mdm Fatimah is a known diabetic attending her annual diabetic eye screening. The doctor has ordered dilated fundus photography to assess for diabetic retinopathy, which requires instillation of mydriatic drops to dilate both pupils before the images can be taken. She has had this drop before without problems. She drove herself to the appointment today.",
     "pmhx": "Type 2 diabetes for 12 years, on insulin. Hypertension. No previous eye surgery. No known drug allergies.",
     "family_hx": "Sister has diabetic retinopathy",
-    "medications": ["Insulin glargine OD", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Insulin glargine OD",
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Tailor, works from home. Drove herself to the clinic today."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally, anterior chambers deep, angles open on prior assessment",
     "fundus": "To be assessed via dilated fundus photography today"
   },

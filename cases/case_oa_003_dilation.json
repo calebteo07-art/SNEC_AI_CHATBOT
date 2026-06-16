@@ -11,18 +11,32 @@
     "age": 64,
     "gender": "female",
     "occupation": "retired school teacher",
-    "presenting_complaint": "Annual diabetic eye review — scheduled for dilated fundus examination"
+    "presenting_complaint": "Annual diabetic eye review — scheduled for dilated fundus examination",
+    "nric": "S9190798D",
+    "date_of_birth": "1962-03-14",
+    "address": "Blk 211 Bedok North Rd, #09-698, Singapore 351779",
+    "contact_number": "80346663"
   },
   "history": {
     "hpc": "Mdm Lim is a 64-year-old with Type 2 diabetes for 12 years, attending for her annual dilated fundus exam. When the OA explains that eye drops are needed to dilate her pupils, Mdm Lim becomes visibly anxious and says: 'No, I don't want those drops. My neighbour went blind after getting eye drops at another clinic. I'm not doing it.' She is cooperative otherwise but firm in her refusal. She has had dilation before at her previous clinic 2 years ago with no problems, though she does not seem to recall this clearly.",
     "pmhx": "Type 2 diabetes mellitus for 12 years (HbA1c 8.2% last check). Hypertension. No known drug allergies. Previous uneventful dilated fundus exam 2 years ago.",
     "family_hx": "Sister has diabetic retinopathy",
-    "medications": ["Metformin 1g BD", "Sitagliptin 100mg OD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Metformin 1g BD",
+      "Sitagliptin 100mg OD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired. Came alone today. Does not drive. Plans to take MRT home."
   },
   "examination_findings": {
-    "va": {"right": "6/9 with glasses (LogMAR 0.2)", "left": "6/12 with glasses (LogMAR 0.3)"},
-    "iop": {"right": "17 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 with glasses (LogMAR 0.2)",
+      "left": "6/12 with glasses (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "17 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Clear cornea. Pupils normally reactive. No contraindications to dilation identified on external assessment.",
     "fundus": "Cannot be assessed without dilation — this is why dilation is clinically indicated"
   },

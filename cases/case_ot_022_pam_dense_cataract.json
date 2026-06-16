@@ -11,18 +11,32 @@
     "age": 76,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for Potential Acuity Meter (PAM) testing — dense cataract right eye, query retinal function before surgery"
+    "presenting_complaint": "Referred for Potential Acuity Meter (PAM) testing — dense cataract right eye, query retinal function before surgery",
+    "nric": "S9577365F",
+    "date_of_birth": "1950-03-06",
+    "address": "Blk 457 Toa Payoh Lor 4, #02-589, Singapore 441869",
+    "contact_number": "95323953"
   },
   "history": {
     "hpc": "Mr Abdul Rahman has a dense brunescent cataract in his right eye that has reduced his vision to counting fingers over the past 2 years. He is keen for cataract surgery to improve his vision but the doctor is concerned about his visual potential, as he also has a history of poorly controlled diabetes with possible diabetic retinopathy in the past, though the fundus cannot currently be visualised due to the cataract. He has been referred for PAM testing after pupil dilation to estimate his potential vision after cataract surgery.",
     "pmhx": "Dense cataract right eye. Type 2 diabetes for 20 years, history of diabetic retinopathy treated with laser in both eyes 8 years ago. Hypertension. No previous eye surgery.",
     "family_hx": "Brother lost vision in one eye due to 'diabetes complications'",
-    "medications": ["Insulin glargine OD", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Insulin glargine OD",
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired. Lives with son. Does not drive."
   },
   "examination_findings": {
-    "va": {"right": "CF at 1m (counting fingers at 1 metre)", "left": "6/12 (LogMAR 0.3)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "CF at 1m (counting fingers at 1 metre)",
+      "left": "6/12 (LogMAR 0.3)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: dense brunescent (brown) nuclear cataract, red reflex barely visible. Left eye: moderate cataract, clear enough for fundus view.",
     "fundus": "Right eye: not visualised due to dense cataract. Left eye: scattered laser photocoagulation scars in periphery, macula appears dry, no active diabetic macular oedema seen."
   },

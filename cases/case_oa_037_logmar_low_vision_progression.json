@@ -11,18 +11,30 @@
     "age": 74,
     "gender": "male",
     "occupation": "retired hawker",
-    "presenting_complaint": "Gradual painless blurring of vision in both eyes over the past year, much worse in the right eye"
+    "presenting_complaint": "Gradual painless blurring of vision in both eyes over the past year, much worse in the right eye",
+    "nric": "S0230810Z",
+    "date_of_birth": "1952-04-14",
+    "address": "Blk 667 Bukit Batok St 25, #02-841, Singapore 348446",
+    "contact_number": "86856287"
   },
   "history": {
     "hpc": "Mr Tan says his vision has slowly become more blurred over the past year, like looking through fog, and the right eye is now much worse than the left. There is no pain, no redness, and no sudden change. He says: 'Doctor ah, my right eye getting more and more blur lah, like got fog inside, cannot see the TV already, must use left eye to see.' He has difficulty recognising faces across the room. He wears an old pair of glasses but says they no longer help.",
     "pmhx": "Type 2 diabetes (diet-controlled), hypertension. Cataract mentioned at a previous polyclinic visit but never followed up.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with wife. Used to run a hawker stall. Non-smoker, occasional beer."
   },
   "examination_findings": {
-    "va": {"right": "Cannot read 6/60 line; CF (Count Fingers) at 1 metre", "left": "6/36 unaided, improves to 6/24 with pinhole"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "Cannot read 6/60 line; CF (Count Fingers) at 1 metre",
+      "left": "6/36 unaided, improves to 6/24 with pinhole"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: dense lens opacity (cataract) visible. Left eye: moderate lens opacity. No redness, cornea clear both eyes.",
     "fundus": "Right fundus poor view due to dense cataract; left fundus hazy view, to be assessed by doctor"
   },

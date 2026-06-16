@@ -10,7 +10,11 @@
     "age": 23,
     "gender": "male",
     "occupation": "trainee pilot",
-    "presenting_complaint": "Colour vision screening required as part of flight school medical examination"
+    "presenting_complaint": "Colour vision screening required as part of flight school medical examination",
+    "nric": "T1059641B",
+    "date_of_birth": "2003-01-16",
+    "address": "Blk 205 Jurong West St 42, #16-179, Singapore 139890",
+    "contact_number": "88992649"
   },
   "history": {
     "hpc": "Mr Faiz has been referred by his flight school's medical examiner for formal colour vision screening using the Ishihara test, as part of his pilot medical certification. He has no visual symptoms and reports never having had a formal colour vision test before, though he recalls occasionally being teased as a child for mixing up the colours of certain markers.",
@@ -20,8 +24,14 @@
     "social_hx": "Trainee pilot undergoing flight school medical clearance. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Not tested — not indicated for this visit", "left": "Not tested"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Not tested — not indicated for this visit",
+      "left": "Not tested"
+    },
     "anterior_segment": "Not assessed — PSA role is colour vision screening for this visit",
     "fundus": "Not assessed — not indicated for this visit"
   },

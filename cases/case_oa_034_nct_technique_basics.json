@@ -12,18 +12,30 @@
     "age": 50,
     "gender": "female",
     "occupation": "shop assistant",
-    "presenting_complaint": "Routine non-contact tonometry — focus on correct technique"
+    "presenting_complaint": "Routine non-contact tonometry — focus on correct technique",
+    "nric": "S3700055H",
+    "date_of_birth": "1976-04-22",
+    "address": "Blk 284 Yishun Ring Rd, #10-328, Singapore 688597",
+    "contact_number": "94711410"
   },
   "history": {
     "hpc": "Mdm Ong says 'I scared of the air puff, will it pain?' She wears glasses and is a little nervous about the test. This station focuses on performing NCT correctly and putting her at ease.",
     "pmhx": "No eye problems. Wears glasses. No drug allergies.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Shop assistant."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (with glasses)",
+      "left": "6/9 (with glasses)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Normal by observation",
     "fundus": "Not the focus of this station"
   },

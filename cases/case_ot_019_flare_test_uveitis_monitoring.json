@@ -11,18 +11,31 @@
     "age": 35,
     "gender": "male",
     "occupation": "software engineer",
-    "presenting_complaint": "Follow-up visit — known anterior uveitis right eye, on treatment, for flare measurement to monitor inflammation"
+    "presenting_complaint": "Follow-up visit — known anterior uveitis right eye, on treatment, for flare measurement to monitor inflammation",
+    "nric": "S0805713C",
+    "date_of_birth": "1991-01-16",
+    "address": "Blk 439 Pasir Ris Dr 1, #17-062, Singapore 422788",
+    "contact_number": "98101206"
   },
   "history": {
     "hpc": "Mr Oh was diagnosed with acute anterior uveitis in his right eye 3 weeks ago, presenting with redness, pain, and photophobia. He was started on intensive topical steroid drops with a tapering schedule. He reports his symptoms have improved significantly — pain and photophobia have largely resolved, though he notices mild residual blurring. He has been referred for a flare eye test to objectively measure the level of inflammation remaining in the anterior chamber before the doctor decides on tapering the steroid further.",
     "pmhx": "Anterior uveitis right eye, first episode, diagnosed 3 weeks ago. No known systemic autoimmune disease (currently being investigated). No previous eye surgery.",
     "family_hx": "Father has ankylosing spondylitis",
-    "medications": ["Prednisolone acetate 1% eye drops right eye, currently 4 times daily on taper", "Cyclopentolate 1% eye drops right eye OD"],
+    "medications": [
+      "Prednisolone acetate 1% eye drops right eye, currently 4 times daily on taper",
+      "Cyclopentolate 1% eye drops right eye OD"
+    ],
     "social_hx": "Software engineer. Non-smoker. No known drug allergies."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2) — improved from 6/18 at diagnosis", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "17 mmHg (NCT) — slightly raised, possibly steroid-related", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2) — improved from 6/18 at diagnosis",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "17 mmHg (NCT) — slightly raised, possibly steroid-related",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: mild residual conjunctival injection, few fine keratic precipitates on corneal endothelium, pupil sluggish from cycloplegic. Left eye: normal.",
     "fundus": "Not assessed today — anterior segment focus"
   },

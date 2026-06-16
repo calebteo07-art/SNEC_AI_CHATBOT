@@ -11,18 +11,30 @@
     "age": 68,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for optical biometry — listed for right cataract surgery (phaco + IOL)"
+    "presenting_complaint": "Referred for optical biometry — listed for right cataract surgery (phaco + IOL)",
+    "nric": "S1552442A",
+    "date_of_birth": "1958-04-07",
+    "address": "Blk 122 Bedok North Rd, #13-012, Singapore 371563",
+    "contact_number": "91470888"
   },
   "history": {
     "hpc": "Mdm Fatimah says 'My right eye blur already, more than six months, slowly slowly, no pain one.' She was referred from a polyclinic and seen at another hospital before. The doctor has confirmed cataracts in both eyes, listed her for right eye phacoemulsification with intraocular lens, and ordered optical biometry to calculate the lens power.",
     "pmhx": "Bilateral cataracts. Dry eyes in both eyes. No diabetes. No previous eye surgery.",
     "family_hx": "Nil significant",
-    "medications": ["Lubricating eye drops PRN"],
+    "medications": [
+      "Lubricating eye drops PRN"
+    ],
     "social_hx": "Retired homemaker. Lives with family. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/45, pinhole 6/12; near (aided) N12", "left": "6/12, pinhole 6/12; near (aided) N10"},
-    "iop": {"right": "13 mmHg (NCT)", "left": "12 mmHg (NCT)"},
+    "va": {
+      "right": "6/45, pinhole 6/12; near (aided) N12",
+      "left": "6/12, pinhole 6/12; near (aided) N10"
+    },
+    "iop": {
+      "right": "13 mmHg (NCT)",
+      "left": "12 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: nuclear sclerosis 2+ with posterior subcapsular cataract. Left eye: nuclear sclerosis 1+. Reduced tear film in both eyes",
     "fundus": "No retinal detachment. Cup-to-disc ratio 0.4 in both eyes"
   },

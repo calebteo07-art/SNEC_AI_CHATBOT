@@ -12,18 +12,31 @@
     "age": 74,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "On daily eye drops but struggles to instil them due to arthritic, shaky hands"
+    "presenting_complaint": "On daily eye drops but struggles to instil them due to arthritic, shaky hands",
+    "nric": "S8325161A",
+    "date_of_birth": "1952-06-10",
+    "address": "Blk 255 Tampines St 21, #03-938, Singapore 243878",
+    "contact_number": "90167804"
   },
   "history": {
     "hpc": "Mdm Lim says 'My hand got arthritis, cannot squeeze the bottle and aim, always miss my eye.' She needs her drops instilled and practical advice as her hand dexterity makes self-instillation difficult.",
     "pmhx": "Arthritis affecting the hands. On daily eye drops. No drug allergies (confirm).",
     "family_hx": "Not relevant to this station",
-    "medications": ["Daily eye drop", "Arthritis medication"],
+    "medications": [
+      "Daily eye drop",
+      "Arthritis medication"
+    ],
     "social_hx": "Lives with her son who could help with drops."
   },
   "examination_findings": {
-    "va": {"right": "Not the focus of this station", "left": "Not the focus of this station"},
-    "iop": {"right": "Not measured at this station", "left": "Not measured at this station"},
+    "va": {
+      "right": "Not the focus of this station",
+      "left": "Not the focus of this station"
+    },
+    "iop": {
+      "right": "Not measured at this station",
+      "left": "Not measured at this station"
+    },
     "anterior_segment": "No active infection that would change technique",
     "fundus": "Not examined at this station"
   },

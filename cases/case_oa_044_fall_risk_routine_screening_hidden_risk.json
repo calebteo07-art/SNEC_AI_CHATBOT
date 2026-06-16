@@ -11,18 +11,31 @@
     "age": 63,
     "gender": "female",
     "occupation": "part-time cleaner",
-    "presenting_complaint": "Here for a routine diabetic eye screening; appears well and walks in independently"
+    "presenting_complaint": "Here for a routine diabetic eye screening; appears well and walks in independently",
+    "nric": "S6282169H",
+    "date_of_birth": "1963-02-06",
+    "address": "Blk 143 Ang Mo Kio Ave 3, #04-963, Singapore 342758",
+    "contact_number": "81313194"
   },
   "history": {
     "hpc": "Mdm Chia attends for routine diabetic eye screening. She looks well and walks in without aids. On routine fall-risk screening she initially brushes it off: 'Aiya I'm okay one lah.' On gentle questioning she admits: 'But last week I almost fall in the toilet, luckily I grab the rail. And I just started new sleeping pill, sometimes morning still groggy.' No injury occurred. She will be dilated today for the screening.",
     "pmhx": "Type 2 diabetes. Insomnia, recently started a sleeping tablet.",
     "family_hx": "Nil significant",
-    "medications": ["Metformin 850mg BD", "Zolpidem 5mg ON (recently started)"],
+    "medications": [
+      "Metformin 850mg BD",
+      "Zolpidem 5mg ON (recently started)"
+    ],
     "social_hx": "Lives with husband. Works as a part-time cleaner. Came alone today."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "For dilated diabetic screening by doctor/photography"
   },

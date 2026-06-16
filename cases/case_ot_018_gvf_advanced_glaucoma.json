@@ -10,18 +10,32 @@
     "age": 79,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Follow-up visit — advanced bilateral glaucoma, referred for Goldmann Visual Field as automated perimetry has been unsuccessful"
+    "presenting_complaint": "Follow-up visit — advanced bilateral glaucoma, referred for Goldmann Visual Field as automated perimetry has been unsuccessful",
+    "nric": "S3123275I",
+    "date_of_birth": "1947-04-15",
+    "address": "Blk 160 Jurong West St 42, #06-218, Singapore 647987",
+    "contact_number": "83520178"
   },
   "history": {
     "hpc": "Mdm Zainab has advanced primary open-angle glaucoma in both eyes, with very constricted visual fields on previous testing. At her last two visits, she was unable to complete the Humphrey Visual Field test — she found the automated machine confusing, became fatigued quickly, and the results were unreliable with very high false negative rates. The doctor has now ordered a Goldmann Visual Field (GVF), which is a manual, examiner-led test, to better characterise her remaining field of vision.",
     "pmhx": "Advanced POAG both eyes, diagnosed 15 years ago. Mild cognitive slowing noted by family. Hypertension. Cataract surgery both eyes 5 years ago.",
     "family_hx": "Two siblings with glaucoma",
-    "medications": ["Latanoprost 0.005% eye drops both eyes nocte", "Timolol 0.5% eye drops both eyes BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Latanoprost 0.005% eye drops both eyes nocte",
+      "Timolol 0.5% eye drops both eyes BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired. Lives with daughter who accompanies her to all appointments. Uses a walking stick due to poor vision."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (LogMAR 0.6)", "left": "6/36 (LogMAR 0.78)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 (LogMAR 0.6)",
+      "left": "6/36 (LogMAR 0.78)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "17 mmHg (NCT)"
+    },
     "anterior_segment": "Pseudophakic both eyes (previous cataract surgery), otherwise unremarkable",
     "fundus": "C:D ratio 0.9 right, 0.95 left (per prior doctor's notes) — advanced glaucomatous cupping"
   },

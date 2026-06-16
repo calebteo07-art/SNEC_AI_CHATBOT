@@ -11,25 +11,41 @@
     "age": 45,
     "gender": "male",
     "occupation": "warehouse supervisor",
-    "presenting_complaint": "Diabetic eye screening — referred by polyclinic for annual diabetic retinopathy check"
+    "presenting_complaint": "Diabetic eye screening — referred by polyclinic for annual diabetic retinopathy check",
+    "nric": "S2157776F",
+    "date_of_birth": "1981-02-15",
+    "address": "Blk 223 Bedok North Rd, #08-841, Singapore 120547",
+    "contact_number": "81041785"
   },
   "history": {
     "hpc": "Mr Goh is attending for his annual diabetic eye screening as referred by his polyclinic. The doctor has reviewed his VA and IOP and ordered pupil dilation in both eyes so the fundus can be examined for signs of diabetic retinopathy. Mr Goh drove himself to the clinic and mentions he needs to drive back to work after this appointment.",
     "pmhx": "Type 2 diabetes mellitus for 8 years, HbA1c last checked at 7.8%. No previous eye surgery. No known glaucoma.",
     "family_hx": "Father has type 2 diabetes and diabetic retinopathy.",
-    "medications": ["Metformin 1g BD", "Gliclazide 80mg OD"],
+    "medications": [
+      "Metformin 1g BD",
+      "Gliclazide 80mg OD"
+    ],
     "social_hx": "Drove himself to the appointment. Works as a warehouse supervisor — job involves operating a forklift."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "15 mmHg", "left": "16 mmHg"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "15 mmHg",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Not assessed at this stage",
     "fundus": "Pending — to be examined by doctor after dilation"
   },
   "investigations": {
     "pupil_dilation": {
       "eye_to_dilate": "Both eyes (DBE)",
-      "pre_dilation_pupil_size": {"right": "3mm", "left": "3mm"},
+      "pre_dilation_pupil_size": {
+        "right": "3mm",
+        "left": "3mm"
+      },
       "dilating_drops_used": "Tropicamide 1% and phenylephrine 2.5%, one drop each, both eyes",
       "number_of_instillations": "1 instillation of each drop per eye, repeated once after 10 minutes as pupils were not yet adequately dilated",
       "time_taken": "Drops instilled at time of documentation; pupils re-checked after 20-25 minutes before sending for fundus exam"

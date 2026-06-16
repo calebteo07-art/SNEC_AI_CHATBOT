@@ -11,18 +11,30 @@
     "age": 16,
     "gender": "male",
     "occupation": "secondary school student",
-    "presenting_complaint": "New patient referral — increasing difficulty seeing the whiteboard, query increase in spectacle power"
+    "presenting_complaint": "New patient referral — increasing difficulty seeing the whiteboard, query increase in spectacle power",
+    "nric": "T2422115B",
+    "date_of_birth": "2010-01-13",
+    "address": "Blk 675 Bukit Batok St 25, #13-807, Singapore 309629",
+    "contact_number": "82526806"
   },
   "history": {
     "hpc": "Nicholas has worn glasses for myopia since age 9. Over the past 6 months, his teachers have moved him to the front of the class, but he still finds it hard to read the whiteboard clearly. His mother feels his current glasses, prescribed about 18 months ago, may no longer be strong enough. He is a new patient at this clinic today and has been sent for auto-refraction and auto-keratometry before seeing the doctor.",
     "pmhx": "Myopia since age 9, progressive. No previous eye surgery. No known ocular disease.",
     "family_hx": "Both parents wear glasses for myopia",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Secondary school student. Spends 2-3 hours daily on near work (homework, phone, tablet)."
   },
   "examination_findings": {
-    "va": {"right": "6/24 with current glasses (LogMAR 0.6)", "left": "6/18 with current glasses (LogMAR 0.48)"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 with current glasses (LogMAR 0.6)",
+      "left": "6/18 with current glasses (LogMAR 0.48)"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally",
     "fundus": "Not assessed today — new patient, to be reviewed by doctor"
   },

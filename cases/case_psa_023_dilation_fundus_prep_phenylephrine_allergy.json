@@ -11,18 +11,30 @@
     "age": 62,
     "gender": "male",
     "occupation": "retired bus driver",
-    "presenting_complaint": "First visit, referred for blurring of vision for 2 days; doctor has ordered dilation for fundus examination"
+    "presenting_complaint": "First visit, referred for blurring of vision for 2 days; doctor has ordered dilation for fundus examination",
+    "nric": "S2025250B",
+    "date_of_birth": "1964-04-15",
+    "address": "Blk 172 Jurong West St 42, #09-474, Singapore 292519",
+    "contact_number": "91323529"
   },
   "history": {
     "hpc": "Mr Subramaniam says 'Doctor want to open up my eye to check the back, is it? Two days my eye blur already.' This is his first visit. He declined the near vision test earlier. Importantly, he tells you 'I allergic to one of the eye drop — the one that make eye big, Phenylephrine.' Following the first eye examination, the doctor has ordered the patient's eyes to be dilated for a fundus examination, and Goldmann applanation tonometry has been done.",
     "pmhx": "First visit. Known allergy to Phenylephrine eye drops. No other allergies stated.",
     "family_hx": "To be elicited as part of the assessment",
-    "medications": ["To be confirmed; note the Phenylephrine allergy"],
+    "medications": [
+      "To be confirmed; note the Phenylephrine allergy"
+    ],
     "social_hx": "Retired. Came with his son."
   },
   "examination_findings": {
-    "va": {"right": "Reduced — for doctor review", "left": "Reduced — for doctor review"},
-    "iop": {"right": "18 mmHg (GAT)", "left": "20 mmHg (GAT)"},
+    "va": {
+      "right": "Reduced — for doctor review",
+      "left": "Reduced — for doctor review"
+    },
+    "iop": {
+      "right": "18 mmHg (GAT)",
+      "left": "20 mmHg (GAT)"
+    },
     "anterior_segment": "For doctor review; no contraindication to dilation noted by the doctor who ordered it",
     "fundus": "To be examined by the doctor after dilation"
   },

@@ -11,18 +11,31 @@
     "age": 66,
     "gender": "male",
     "occupation": "retired civil servant",
-    "presenting_complaint": "Recent cataract surgery; doctor wants an aqueous flare measurement to check post-operative inflammation"
+    "presenting_complaint": "Recent cataract surgery; doctor wants an aqueous flare measurement to check post-operative inflammation",
+    "nric": "S5812877E",
+    "date_of_birth": "1960-04-01",
+    "address": "Blk 186 Bedok North Rd, #17-183, Singapore 690215",
+    "contact_number": "82996704"
   },
   "history": {
     "hpc": "Mr Chia had left eye cataract surgery about a week ago. The eye is still slightly red and the doctor has ordered a flare test to objectively assess inflammation. He says: 'After my operation the eye still a bit red, doctor want check the inflammation inside.' No severe pain or sudden vision drop. The OT must perform the laser flare test and document the flare value.",
     "pmhx": "Left cataract surgery 1 week ago. Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Post-op steroid and antibiotic eye drops (left eye)", "Amlodipine 5mg OD"],
+    "medications": [
+      "Post-op steroid and antibiotic eye drops (left eye)",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with wife. Compliant with post-op drops. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/12 (improving post-op)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/12 (improving post-op)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye mild residual conjunctival redness; anterior chamber to be quantified by flare test",
     "fundus": "Not the focus today"
   },

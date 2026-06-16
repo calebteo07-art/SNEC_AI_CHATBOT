@@ -10,18 +10,30 @@
     "age": 47,
     "gender": "male",
     "occupation": "restaurant manager",
-    "presenting_complaint": "New patient — difficulty reading menus and small print up close over the past year"
+    "presenting_complaint": "New patient — difficulty reading menus and small print up close over the past year",
+    "nric": "S6014353F",
+    "date_of_birth": "1979-03-25",
+    "address": "Blk 360 Bukit Batok St 25, #09-300, Singapore 813816",
+    "contact_number": "88875734"
   },
   "history": {
     "hpc": "Mr Yusof has noticed over the past year that he needs to hold menus, phone screens, and price lists further away from his face to read them clearly. His distance vision feels unaffected — he has no trouble seeing across the restaurant. He has come to SNEC for a check-up for the first time and has been sent for near vision testing as part of his initial assessment.",
     "pmhx": "No previous eye surgery. No known ocular disease. Has never worn glasses.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Restaurant manager. Spends much of his day reading orders, menus, and using a tablet. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally",
     "fundus": "Normal bilaterally on doctor's examination"
   },

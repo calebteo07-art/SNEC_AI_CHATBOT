@@ -11,18 +11,30 @@
     "age": 71,
     "gender": "female",
     "occupation": "retired",
-    "presenting_complaint": "Here for a routine eye check; speaks only Hokkien and cannot read English letters"
+    "presenting_complaint": "Here for a routine eye check; speaks only Hokkien and cannot read English letters",
+    "nric": "S0705233B",
+    "date_of_birth": "1955-02-17",
+    "address": "Blk 280 Jurong West St 42, #10-404, Singapore 600423",
+    "contact_number": "82038779"
   },
   "history": {
     "hpc": "Mdm Ong is brought in by her daughter for a routine eye check. She has mild blurring of vision but no pain, redness, or sudden change. Her daughter explains: 'My mother only speak Hokkien, she don't know how to read the English letters one.' Mdm Ong is cooperative but cannot use a standard letter chart. A suitable testing method is needed to obtain an accurate VA.",
     "pmhx": "Hypertension, well controlled. No previous eye surgery.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with her daughter. Dialect-speaking, did not attend formal schooling. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/12 using E chart (tumbling E)", "left": "6/9 using E chart (tumbling E)"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 using E chart (tumbling E)",
+      "left": "6/9 using E chart (tumbling E)"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Early lens changes both eyes; cornea clear, no redness",
     "fundus": "To be assessed by doctor"
   },

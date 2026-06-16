@@ -11,18 +11,30 @@
     "age": 23,
     "gender": "male",
     "occupation": "university student",
-    "presenting_complaint": "Referred for Cirrus OCT optic disc / RNFL scan — raised eye pressure with a family history of glaucoma"
+    "presenting_complaint": "Referred for Cirrus OCT optic disc / RNFL scan — raised eye pressure with a family history of glaucoma",
+    "nric": "T6952605A",
+    "date_of_birth": "2003-03-20",
+    "address": "Blk 136 Woodlands Ave 6, #18-441, Singapore 613769",
+    "contact_number": "88025440"
   },
   "history": {
     "hpc": "Mr Tan tells you 'My vision a bit blur for the past few months lah, especially the left side.' He came in worried after a screening found his eye pressure was high. He has no eye pain, no redness, and no headache. The doctor reviewed him, noted the raised pressures, and ordered a Cirrus OCT scan of the optic nerve and retinal nerve fibre layer in both eyes before the next clinic review.",
     "pmhx": "No medical history. Short-sighted, wears glasses. No previous eye surgery or eye injury.",
     "family_hx": "Grandmother had glaucoma and went blind in one eye in old age",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Full-time student. Non-smoker. Long hours on the computer."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/24, improving to 6/9 with pinhole"},
-    "iop": {"right": "24 mmHg (NCT)", "left": "27 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/24, improving to 6/9 with pinhole"
+    },
+    "iop": {
+      "right": "24 mmHg (NCT)",
+      "left": "27 mmHg (NCT)"
+    },
     "anterior_segment": "Clear cornea, deep anterior chambers, no anterior segment abnormality (NAD)",
     "fundus": "Doctor notes mildly enlarged cup-to-disc ratio bilaterally, suspicious for early glaucomatous change"
   },

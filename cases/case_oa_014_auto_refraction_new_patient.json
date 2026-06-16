@@ -10,18 +10,30 @@
     "age": 23,
     "gender": "female",
     "occupation": "graphic design intern",
-    "presenting_complaint": "New patient referred by polyclinic for blurred distance vision, especially when driving at night — has never had a proper eye test before"
+    "presenting_complaint": "New patient referred by polyclinic for blurred distance vision, especially when driving at night — has never had a proper eye test before",
+    "nric": "T2830897Z",
+    "date_of_birth": "2003-01-20",
+    "address": "Blk 283 Ang Mo Kio Ave 3, #16-279, Singapore 511603",
+    "contact_number": "82844512"
   },
   "history": {
     "hpc": "Ms Priya reports that her distance vision has been gradually getting blurrier over the past 1-2 years, especially noticeable at night when driving — oncoming headlights appear to have 'starbursts' and road signs are hard to read until she is close. She has never worn glasses or contact lenses. She does not have eye pain, redness, or double vision. She was referred by her polyclinic doctor for a comprehensive eye assessment as a new patient at SNEC.",
     "pmhx": "Nil significant medical or ocular history. No previous eye examinations.",
     "family_hx": "Both parents wear glasses for myopia",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Works as a graphic design intern — spends long hours on a computer. Drives occasionally at night. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/18 unaided (LogMAR 0.5)", "left": "6/24 unaided (LogMAR 0.6)"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/18 unaided (LogMAR 0.5)",
+      "left": "6/24 unaided (LogMAR 0.6)"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally. Clear cornea and lens both eyes.",
     "fundus": "Not yet assessed — to be done by doctor as part of new patient comprehensive examination"
   },

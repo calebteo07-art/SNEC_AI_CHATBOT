@@ -11,18 +11,31 @@
     "age": 69,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Routine visit where NCT is part of the workup, but she had eye surgery on the right eye only one week ago"
+    "presenting_complaint": "Routine visit where NCT is part of the workup, but she had eye surgery on the right eye only one week ago",
+    "nric": "S3155131E",
+    "date_of_birth": "1957-05-05",
+    "address": "Blk 476 Pasir Ris Dr 1, #03-650, Singapore 155080",
+    "contact_number": "91423968"
   },
   "history": {
     "hpc": "Mdm Low arrives and the routine workup includes NCT. While preparing her she mentions: 'My right eye just operated last week, the doctor say must be careful.' Performing an air-puff NCT on a recently operated eye can be inappropriate; the PSA should not routinely puff the freshly operated eye and must check with the nurse/doctor about how to assess that eye's pressure.",
     "pmhx": "Right eye surgery 1 week ago (e.g., cataract/other intraocular surgery). Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Post-op eye drops (right eye)", "Amlodipine 5mg OD"],
+    "medications": [
+      "Post-op eye drops (right eye)",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with daughter who accompanies her."
   },
   "examination_findings": {
-    "va": {"right": "post-op, improving", "left": "6/9"},
-    "iop": {"right": "do NOT routinely air-puff the recently operated eye — check with nurse/doctor", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "post-op, improving",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "do NOT routinely air-puff the recently operated eye — check with nurse/doctor",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye recent surgery; left eye normal",
     "fundus": "Not the focus today"
   },

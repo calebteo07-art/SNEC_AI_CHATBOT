@@ -11,18 +11,31 @@
     "age": 83,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Elderly patient just dilated for a fundus check; unsteady on her feet and using a walking frame"
+    "presenting_complaint": "Elderly patient just dilated for a fundus check; unsteady on her feet and using a walking frame",
+    "nric": "S6039140H",
+    "date_of_birth": "1943-05-02",
+    "address": "Blk 517 Toa Payoh Lor 4, #14-722, Singapore 440559",
+    "contact_number": "86253702"
   },
   "history": {
     "hpc": "Mdm Quek, aged 83, has just been dilated. Her vision is now blurry and she is light-sensitive. She uses a walking frame and says: 'My legs not so steady, now the eye also blur, scared I fall.' She is waiting to be seen. The PSA must complete a fall-risk (PFAER) assessment and put active fall-prevention measures in place.",
     "pmhx": "Osteoarthritis, hypertension. Previous fall at home last year.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Paracetamol PRN"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Paracetamol PRN"
+    ],
     "social_hx": "Lives with a domestic helper who is with her today. Uses a walking frame."
   },
   "examination_findings": {
-    "va": {"right": "6/18 pre-dilation, now blurred", "left": "6/18 pre-dilation, now blurred"},
-    "iop": {"right": "17 mmHg (pre-dilation)", "left": "18 mmHg (pre-dilation)"},
+    "va": {
+      "right": "6/18 pre-dilation, now blurred",
+      "left": "6/18 pre-dilation, now blurred"
+    },
+    "iop": {
+      "right": "17 mmHg (pre-dilation)",
+      "left": "18 mmHg (pre-dilation)"
+    },
     "anterior_segment": "Pupils dilated; otherwise age-appropriate",
     "fundus": "To be examined by doctor now that pupils are dilated"
   },

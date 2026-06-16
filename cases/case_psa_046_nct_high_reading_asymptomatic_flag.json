@@ -11,18 +11,30 @@
     "age": 58,
     "gender": "male",
     "occupation": "bank manager",
-    "presenting_complaint": "Routine review; NCT readings are higher than normal but he has no symptoms"
+    "presenting_complaint": "Routine review; NCT readings are higher than normal but he has no symptoms",
+    "nric": "S4050345E",
+    "date_of_birth": "1968-02-26",
+    "address": "Blk 571 Bukit Batok St 25, #12-629, Singapore 758321",
+    "contact_number": "98061057"
   },
   "history": {
     "hpc": "Mr Cheong attends a routine review and has NCT done. He has no eye pain, redness, or visual symptoms. He says: 'I feel completely fine, my eyes no problem one.' His NCT readings come back above the normal range in both eyes. The PSA must obtain reliable readings, repeat to confirm, and flag the elevated IOP even though he is asymptomatic.",
     "pmhx": "Hypertension. No known eye disease.",
     "family_hx": "Father had glaucoma",
-    "medications": ["Losartan 50mg OD"],
+    "medications": [
+      "Losartan 50mg OD"
+    ],
     "social_hx": "Office-based. Non-smoker. Asymptomatic."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "26 mmHg (NCT, confirmed on repeat)", "left": "24 mmHg (NCT, confirmed on repeat)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "26 mmHg (NCT, confirmed on repeat)",
+      "left": "24 mmHg (NCT, confirmed on repeat)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "Optic discs to be assessed by doctor"
   },

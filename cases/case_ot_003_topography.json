@@ -10,18 +10,30 @@
     "age": 24,
     "gender": "male",
     "occupation": "university student",
-    "presenting_complaint": "Referred for corneal topography — irregular astigmatism, query keratoconus"
+    "presenting_complaint": "Referred for corneal topography — irregular astigmatism, query keratoconus",
+    "nric": "T5552090E",
+    "date_of_birth": "2002-01-12",
+    "address": "Blk 275 Clementi Ave 2, #11-761, Singapore 756414",
+    "contact_number": "90569265"
   },
   "history": {
     "hpc": "Mr Arjun has had progressive spectacle prescription changes over the last 2 years. His optometrist noticed irregular astigmatism that did not correct fully to 6/6 with glasses and has referred him to SNEC. He was seen by the doctor and has been sent for corneal topography to assess for keratoconus. He wears soft contact lenses daily and has been wearing them today.",
     "pmhx": "Myopia since age 10. No eye surgery. No known ocular conditions previously.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Non-smoker. Student. Wears contact lenses."
   },
   "examination_findings": {
-    "va": {"right": "6/12 unaided, 6/9 best-corrected (irregular astigmatism)", "left": "6/6 unaided, 6/6 best-corrected"},
-    "iop": {"right": "13 mmHg (NCT)", "left": "12 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 unaided, 6/9 best-corrected (irregular astigmatism)",
+      "left": "6/6 unaided, 6/6 best-corrected"
+    },
+    "iop": {
+      "right": "13 mmHg (NCT)",
+      "left": "12 mmHg (NCT)"
+    },
     "anterior_segment": "Right cornea: slight inferior corneal thinning noted on slit lamp. No Fleischer ring seen. Left cornea: normal appearance.",
     "fundus": "Normal bilaterally"
   },

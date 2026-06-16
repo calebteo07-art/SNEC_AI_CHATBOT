@@ -12,18 +12,30 @@
     "age": 58,
     "gender": "male",
     "occupation": "manager",
-    "presenting_complaint": "Routine visit — non-contact tonometry shows raised eye pressure, no symptoms"
+    "presenting_complaint": "Routine visit — non-contact tonometry shows raised eye pressure, no symptoms",
+    "nric": "S4220677F",
+    "date_of_birth": "1968-04-19",
+    "address": "Blk 230 Yishun Ring Rd, #11-202, Singapore 572706",
+    "contact_number": "92798782"
   },
   "history": {
     "hpc": "Mr Sim says 'I feel okay, no pain, just come for routine check.' He has no eye symptoms, but his non-contact tonometry readings are high in both eyes.",
     "pmhx": "No known glaucoma. Family history of glaucoma. No drug allergies.",
     "family_hx": "Father had glaucoma",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Office manager."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "28 mmHg (NCT)", "left": "30 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "28 mmHg (NCT)",
+      "left": "30 mmHg (NCT)"
+    },
     "anterior_segment": "Clear, deep chambers by observation",
     "fundus": "For doctor to assess optic discs"
   },

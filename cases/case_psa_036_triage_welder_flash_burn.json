@@ -11,18 +11,30 @@
     "age": 34,
     "gender": "male",
     "occupation": "welder",
-    "presenting_complaint": "Both eyes very painful, gritty and watering since the middle of the night, after welding earlier in the day without a proper visor"
+    "presenting_complaint": "Both eyes very painful, gritty and watering since the middle of the night, after welding earlier in the day without a proper visor",
+    "nric": "S4962272D",
+    "date_of_birth": "1992-06-07",
+    "address": "Blk 467 Hougang Ave 8, #15-012, Singapore 353932",
+    "contact_number": "88033503"
   },
   "history": {
     "hpc": "Mr Muthu was welding in the afternoon without a proper visor. He says: 'In the afternoon I do welding, then midnight my eyes super pain, like sand inside, cannot open, keep tearing.' Both eyes are red and very light-sensitive. The pain after welding is typically delayed by several hours — this fits a flash burn (welder's flash / photokeratitis).",
     "pmhx": "Nil significant",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Welder; not using adequate eye protection at the time."
   },
   "examination_findings": {
-    "va": {"right": "mildly reduced by tearing/photophobia", "left": "mildly reduced by tearing/photophobia"},
-    "iop": {"right": "not a priority at triage", "left": "not a priority at triage"},
+    "va": {
+      "right": "mildly reduced by tearing/photophobia",
+      "left": "mildly reduced by tearing/photophobia"
+    },
+    "iop": {
+      "right": "not a priority at triage",
+      "left": "not a priority at triage"
+    },
     "anterior_segment": "Both eyes: conjunctival redness, tearing, marked photophobia; corneal surface irritation consistent with flash burn",
     "fundus": "Not assessed at triage"
   },

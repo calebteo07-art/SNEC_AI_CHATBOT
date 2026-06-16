@@ -11,18 +11,30 @@
     "age": 24,
     "gender": "male",
     "occupation": "university student",
-    "presenting_complaint": "One painful red eye with blurred vision and light sensitivity, wears contact lenses"
+    "presenting_complaint": "One painful red eye with blurred vision and light sensitivity, wears contact lenses",
+    "nric": "T4669441J",
+    "date_of_birth": "2002-02-25",
+    "address": "Blk 339 Yishun Ring Rd, #18-546, Singapore 398815",
+    "contact_number": "91042889"
   },
   "history": {
     "hpc": "Mr Lim says 'My right eye very pain and blur, cannot see the light also. I wear contact lens, sometimes I sleep with it never take out.' One eye, painful, watery, photophobic, getting worse since yesterday.",
     "pmhx": "Wears monthly soft contact lenses; admits overnight wear and topping up old solution.",
     "family_hx": "Nil",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Student, long hours, frequent contact lens overwear."
   },
   "examination_findings": {
-    "va": {"right": "6/24 (reduced)", "left": "6/6"},
-    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "va": {
+      "right": "6/24 (reduced)",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "Not required for this triage",
+      "left": "Not required for this triage"
+    },
     "anterior_segment": "Right eye markedly red with watering; cornea to be examined urgently by the doctor",
     "fundus": "Not assessed by the PSA"
   },

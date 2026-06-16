@@ -12,18 +12,30 @@
     "age": 30,
     "gender": "female",
     "occupation": "graphic designer",
-    "presenting_complaint": "Referred for corneal topography to help fit specialised contact lenses"
+    "presenting_complaint": "Referred for corneal topography to help fit specialised contact lenses",
+    "nric": "S9292027E",
+    "date_of_birth": "1996-02-20",
+    "address": "Blk 782 Ang Mo Kio Ave 3, #13-493, Singapore 101196",
+    "contact_number": "85016160"
   },
   "history": {
     "hpc": "Ms Tan says 'My normal contact lens never fit well, the doctor want to map my cornea first.' She has high astigmatism and is being assessed for specialised contact lenses, for which topography of the corneal surface is needed.",
     "pmhx": "High astigmatism. Previous soft contact lens use. No previous eye surgery.",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Designer; wants contact lenses for work."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (with glasses)", "left": "6/9 (with glasses)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (with glasses)",
+      "left": "6/9 (with glasses)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Clear corneas; high astigmatism",
     "fundus": "Not the focus of this station"
   },

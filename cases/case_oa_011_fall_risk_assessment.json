@@ -10,18 +10,31 @@
     "age": 81,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Came in for routine cataract review and has just had both eyes dilated — now waiting to be seen, vision very blurry"
+    "presenting_complaint": "Came in for routine cataract review and has just had both eyes dilated — now waiting to be seen, vision very blurry",
+    "nric": "S5041429I",
+    "date_of_birth": "1945-04-27",
+    "address": "Blk 215 Tampines St 21, #13-139, Singapore 536586",
+    "contact_number": "93042551"
   },
   "history": {
     "hpc": "Mdm Wong is an 81-year-old attending for cataract assessment. Both eyes were dilated with tropicamide 1% about 20 minutes ago and her vision is now very blurry, especially for near objects, and she is sensitive to the bright clinic lights. She mentions she had a small fall at home about 2 months ago when she tripped over a rug, but did not injure herself badly. She uses a walking stick occasionally but did not bring it today. She came with her domestic helper but the helper has gone to the toilet.",
     "pmhx": "Bilateral cataracts (moderate). Osteoporosis. Hypertension. History of one fall at home 2 months ago (no fracture).",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD", "Calcium and Vitamin D supplement OD"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Calcium and Vitamin D supplement OD"
+    ],
     "social_hx": "Lives with domestic helper and son's family. Uses a walking stick occasionally. Today the helper has briefly stepped away."
   },
   "examination_findings": {
-    "va": {"right": "6/18 (LogMAR 0.5) pre-dilation, now further blurred post-dilation", "left": "6/24 (LogMAR 0.6) pre-dilation, now further blurred post-dilation"},
-    "iop": {"right": "17 mmHg (NCT, pre-dilation)", "left": "18 mmHg (NCT, pre-dilation)"},
+    "va": {
+      "right": "6/18 (LogMAR 0.5) pre-dilation, now further blurred post-dilation",
+      "left": "6/24 (LogMAR 0.6) pre-dilation, now further blurred post-dilation"
+    },
+    "iop": {
+      "right": "17 mmHg (NCT, pre-dilation)",
+      "left": "18 mmHg (NCT, pre-dilation)"
+    },
     "anterior_segment": "Bilateral moderate nuclear cataracts. Pupils now well-dilated bilaterally following tropicamide instillation.",
     "fundus": "To be assessed by doctor now that pupils are dilated"
   },

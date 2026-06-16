@@ -10,18 +10,30 @@
     "age": 33,
     "gender": "male",
     "occupation": "software engineer",
-    "presenting_complaint": "Left eye has been aching dully and sensitive to light for the past 4 days, with mild blurring of vision — second episode in the past year"
+    "presenting_complaint": "Left eye has been aching dully and sensitive to light for the past 4 days, with mild blurring of vision — second episode in the past year",
+    "nric": "S9115121I",
+    "date_of_birth": "1993-02-15",
+    "address": "Blk 389 Ang Mo Kio Ave 3, #12-243, Singapore 761715",
+    "contact_number": "85089693"
   },
   "history": {
     "hpc": "Mr Pereira reports a dull aching pain in his left eye for the past 4 days, rated 4/10, accompanied by marked sensitivity to bright light and mild blurring of vision. He had a very similar episode in his right eye about 8 months ago, which was treated with steroid eye drops by a doctor and resolved after a few weeks. He has noticed his left eye looks 'a bit red' especially around the iris. He denies any discharge. He also mentions that for the past 6 months he has had intermittent lower back pain and stiffness, especially in the mornings, which improves with movement during the day — he has not seen a doctor for this as he attributed it to his desk job.",
     "pmhx": "Previous episode of uveitis, right eye, 8 months ago, treated with topical steroids. No known systemic diagnosis currently, but has not been formally worked up for the back pain. No known drug allergies.",
     "family_hx": "Father has ankylosing spondylitis (diagnosed in his 50s). No family history of glaucoma or cataracts noted.",
-    "medications": ["Nil regular medications. Occasional ibuprofen for back pain."],
+    "medications": [
+      "Nil regular medications. Occasional ibuprofen for back pain."
+    ],
     "social_hx": "Works long hours at a desk. Non-smoker. Came in alone after work."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "13 mmHg (NCT)"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "13 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye: circumlimbal (ciliary) injection — redness concentrated around the cornea/iris border rather than diffusely, pupil appears slightly smaller than the right and slightly irregular. No discharge. Right eye: quiet, no active inflammation currently, but patient reports this eye was affected previously.",
     "fundus": "Not yet assessed — to be examined by doctor for posterior involvement"
   },

@@ -11,17 +11,27 @@
     "age": 58,
     "gender": "male",
     "occupation": "bus driver",
-    "presenting_complaint": "Routine glaucoma follow-up — IOP check"
+    "presenting_complaint": "Routine glaucoma follow-up — IOP check",
+    "nric": "S2052796Z",
+    "date_of_birth": "1968-06-16",
+    "address": "Blk 469 Jurong West St 42, #18-328, Singapore 754154",
+    "contact_number": "86534522"
   },
   "history": {
     "hpc": "Mr Krishnamurthy is attending for a routine IOP check as part of his glaucoma monitoring. He is on latanoprost eye drops once a night for both eyes. He says he has been using them every night as instructed. When the PSA informs him that the reading today is 26 mmHg in his right eye, Mr Krishnamurthy becomes alarmed: 'That is very high! Am I going blind? What does this number mean? Should I put more drops?' The PSA must complete the test correctly and manage the patient's concern appropriately.",
     "pmhx": "Primary open-angle glaucoma (POAG) diagnosed 3 years ago. Controlled hypertension. No diabetes.",
     "family_hx": "Father had glaucoma",
-    "medications": ["Latanoprost 0.005% eye drops OD nocte (both eyes)", "Atenolol 50mg OD for hypertension"],
+    "medications": [
+      "Latanoprost 0.005% eye drops OD nocte (both eyes)",
+      "Atenolol 50mg OD for hypertension"
+    ],
     "social_hx": "Bus driver. Worried about his driving license if his vision is affected."
   },
   "examination_findings": {
-    "va": {"right": "6/6 (LogMAR 0.0)", "left": "6/6 (LogMAR 0.0)"},
+    "va": {
+      "right": "6/6 (LogMAR 0.0)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
     "iop": {
       "right": "26 mmHg — average of three NCT readings (25, 26, 27)",
       "left": "18 mmHg — average of three NCT readings (17, 18, 19)"

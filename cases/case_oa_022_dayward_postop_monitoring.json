@@ -11,18 +11,30 @@
     "age": 73,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Just returned to the dayward recovery bay after right eye phacoemulsification with IOL implantation under local anaesthesia, performed about 20 minutes ago"
+    "presenting_complaint": "Just returned to the dayward recovery bay after right eye phacoemulsification with IOL implantation under local anaesthesia, performed about 20 minutes ago",
+    "nric": "S0502367Z",
+    "date_of_birth": "1953-05-18",
+    "address": "Blk 436 Hougang Ave 8, #17-404, Singapore 770201",
+    "contact_number": "85196462"
   },
   "history": {
     "hpc": "Mr Heng underwent uncomplicated right eye phacoemulsification with IOL implantation under local anaesthesia this morning. The procedure went smoothly with no intra-operative complications noted by the surgical team. He has just been transferred back to the dayward recovery bay (Bed 4) and needs post-operative monitoring before he can be assessed for discharge. He reports feeling 'a bit woozy' but no significant pain, rating any discomfort as 1/10. He has not yet had anything to eat or drink since before surgery.",
     "pmhx": "Hypertension, well-controlled. Right eye dense cataract (operated today). Left eye mild cataract. No known drug allergies.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD (last taken this morning before fasting cut-off, as instructed)"],
+    "medications": [
+      "Amlodipine 5mg OD (last taken this morning before fasting cut-off, as instructed)"
+    ],
     "social_hx": "Lives with wife, who is waiting in the dayward waiting area to take him home."
   },
   "examination_findings": {
-    "va": {"right": "Not tested immediately post-op — eye pad/shield in place", "left": "6/9 (LogMAR 0.2), unchanged"},
-    "iop": {"right": "Not tested immediately post-op", "left": "15 mmHg (NCT), unchanged"},
+    "va": {
+      "right": "Not tested immediately post-op — eye pad/shield in place",
+      "left": "6/9 (LogMAR 0.2), unchanged"
+    },
+    "iop": {
+      "right": "Not tested immediately post-op",
+      "left": "15 mmHg (NCT), unchanged"
+    },
     "anterior_segment": "Right eye: covered with protective eye shield/pad as per standard post-op protocol — not yet removed for inspection. Left eye: normal, mild cataract unchanged.",
     "fundus": "Not assessed — routine post-op recovery monitoring"
   },

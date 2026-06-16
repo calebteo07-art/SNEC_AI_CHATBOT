@@ -12,18 +12,30 @@
     "age": 22,
     "gender": "male",
     "occupation": "polytechnic student",
-    "presenting_complaint": "Referred for corneal topography — worsening, hard-to-correct astigmatism and frequent eye rubbing"
+    "presenting_complaint": "Referred for corneal topography — worsening, hard-to-correct astigmatism and frequent eye rubbing",
+    "nric": "T7128050G",
+    "date_of_birth": "2004-01-19",
+    "address": "Blk 786 Hougang Ave 8, #16-837, Singapore 597575",
+    "contact_number": "92482428"
   },
   "history": {
     "hpc": "Mr Hafiz says 'My glasses keep changing, and the optical shop say my astigmatism very high. I always rub my eyes also.' His refraction is unstable with high irregular astigmatism, and the doctor ordered topography to screen for keratoconus.",
     "pmhx": "Allergic eyes with frequent rubbing. No previous eye surgery.",
     "family_hx": "Nil known keratoconus",
-    "medications": ["Antihistamine eye drops occasionally"],
+    "medications": [
+      "Antihistamine eye drops occasionally"
+    ],
     "social_hx": "Student; rubs his eyes frequently."
   },
   "examination_findings": {
-    "va": {"right": "6/12 (with glasses)", "left": "6/18 (with glasses)"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/12 (with glasses)",
+      "left": "6/18 (with glasses)"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Clear corneas on slit lamp; high astigmatism",
     "fundus": "Not the focus of this station"
   },

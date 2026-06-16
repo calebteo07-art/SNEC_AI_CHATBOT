@@ -11,18 +11,30 @@
     "age": 24,
     "gender": "male",
     "occupation": "trainee pilot applicant",
-    "presenting_complaint": "Needs a colour vision test as part of his job application; has never had his colour vision checked before"
+    "presenting_complaint": "Needs a colour vision test as part of his job application; has never had his colour vision checked before",
+    "nric": "T1873985I",
+    "date_of_birth": "2002-03-04",
+    "address": "Blk 415 Hougang Ave 8, #15-892, Singapore 655342",
+    "contact_number": "96992250"
   },
   "history": {
     "hpc": "Mr Sng is applying for a job that requires good colour vision. He says: 'They say I must pass the colour test for my job, I never check before.' He has no visual complaints and good vision. He is unsure if anyone in his family is colour blind. He is anxious about the result because it affects his application.",
     "pmhx": "Nil significant. No eye conditions.",
     "family_hx": "Uncertain — possibly a maternal uncle who 'cannot see some colours'",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Recent graduate. Non-smoker. Otherwise well."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/6"},
-    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/6",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "14 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "Not required for this screening"
   },

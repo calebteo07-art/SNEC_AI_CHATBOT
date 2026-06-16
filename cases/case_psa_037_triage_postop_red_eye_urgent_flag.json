@@ -11,18 +11,32 @@
     "age": 71,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Walk-in with an increasingly painful, red right eye and worsening vision four days after cataract surgery"
+    "presenting_complaint": "Walk-in with an increasingly painful, red right eye and worsening vision four days after cataract surgery",
+    "nric": "S2996158A",
+    "date_of_birth": "1955-06-12",
+    "address": "Blk 383 Toa Payoh Lor 4, #07-507, Singapore 725237",
+    "contact_number": "87003754"
   },
   "history": {
     "hpc": "Mdm Ang had right cataract surgery four days ago and comes in without an appointment. She says: 'After my operation a few days okay, but now my eye more red, more pain and the vision getting worse.' Increasing pain, redness, and falling vision after recent intraocular surgery is a red flag (possible endophthalmitis) and the recent-surgery status is a SNEC triage Section A urgent factor.",
     "pmhx": "Right cataract surgery 4 days ago. Diabetes, hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Post-op antibiotic and steroid drops (right eye)", "Metformin 500mg BD", "Amlodipine 5mg OD"],
+    "medications": [
+      "Post-op antibiotic and steroid drops (right eye)",
+      "Metformin 500mg BD",
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with daughter who brought her in."
   },
   "examination_findings": {
-    "va": {"right": "worse than at the post-op review (e.g. 6/60)", "left": "6/9"},
-    "iop": {"right": "to be assessed by the doctor", "left": "16 mmHg"},
+    "va": {
+      "right": "worse than at the post-op review (e.g. 6/60)",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "to be assessed by the doctor",
+      "left": "16 mmHg"
+    },
     "anterior_segment": "Right eye: increased redness and discomfort post-op; possible anterior chamber inflammation — for urgent doctor review",
     "fundus": "For doctor"
   },

@@ -11,18 +11,30 @@
     "age": 33,
     "gender": "female",
     "occupation": "nurse",
-    "presenting_complaint": "One red eye with deep ache and light sensitivity, no discharge"
+    "presenting_complaint": "One red eye with deep ache and light sensitivity, no discharge",
+    "nric": "S1644428F",
+    "date_of_birth": "1993-04-20",
+    "address": "Blk 157 Clementi Ave 2, #06-544, Singapore 649822",
+    "contact_number": "88859393"
   },
   "history": {
     "hpc": "Ms Devi says 'My left eye got a deep ache and very sensitive to light, but no discharge one. The light really bother me.' One eye, aching pain, marked photophobia, slightly blurred, no sticky discharge.",
     "pmhx": "History of joint pains being investigated by a rheumatologist. Has had a similar red, light-sensitive eye once before.",
     "family_hx": "Nil specific",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Healthcare worker."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/9 (slightly reduced)"},
-    "iop": {"right": "Not required for this triage", "left": "Not required for this triage"},
+    "va": {
+      "right": "6/6",
+      "left": "6/9 (slightly reduced)"
+    },
+    "iop": {
+      "right": "Not required for this triage",
+      "left": "Not required for this triage"
+    },
     "anterior_segment": "Left eye red, no discharge; cornea/anterior chamber to be examined by the doctor",
     "fundus": "Not assessed by the PSA"
   },

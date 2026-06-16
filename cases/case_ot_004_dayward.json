@@ -10,7 +10,11 @@
     "age": 66,
     "gender": "male",
     "occupation": "retiree",
-    "presenting_complaint": "Day admission to SNEC Day Ward for left eye trabeculectomy (glaucoma surgery) today"
+    "presenting_complaint": "Day admission to SNEC Day Ward for left eye trabeculectomy (glaucoma surgery) today",
+    "nric": "S5632638C",
+    "date_of_birth": "1960-02-14",
+    "address": "Blk 599 Serangoon Central, #02-102, Singapore 280446",
+    "contact_number": "96889242"
   },
   "history": {
     "hpc": "Mr Lim has advanced left eye glaucoma not controlled on maximum medical therapy. He has been listed for left eye trabeculectomy. He arrives at the Day Ward at 7:30am. He reports he has not eaten or drunk anything since midnight as instructed. He took his blood pressure tablet this morning with a small sip of water. His wife is with him. He is anxious about the surgery.",
@@ -26,8 +30,14 @@
     "social_hx": "Retired. Lives with wife who will accompany him home."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/60 (LogMAR 1.0)"},
-    "iop": {"right": "18 mmHg", "left": "32 mmHg (on maximum drops)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/60 (LogMAR 1.0)"
+    },
+    "iop": {
+      "right": "18 mmHg",
+      "left": "32 mmHg (on maximum drops)"
+    },
     "vital_signs": {
       "blood_pressure": "142/86 mmHg",
       "heart_rate": "76 bpm, regular",

@@ -11,18 +11,30 @@
     "age": 21,
     "gender": "female",
     "occupation": "polytechnic student",
-    "presenting_complaint": "Colour vision screening required before a clinical placement; has never been tested"
+    "presenting_complaint": "Colour vision screening required before a clinical placement; has never been tested",
+    "nric": "T0230666I",
+    "date_of_birth": "2005-03-21",
+    "address": "Blk 75 Toa Payoh Lor 4, #11-438, Singapore 431908",
+    "contact_number": "97986224"
   },
   "history": {
     "hpc": "Ms Nurul attends for colour vision screening before a healthcare placement. She says: 'Never do colour test before, I think I'm okay one.' She has no visual complaints. The OT must administer the Ishihara test correctly for each eye and document the number of plates read correctly.",
     "pmhx": "Nil significant",
     "family_hx": "No known colour blindness",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Student. Non-smoker. Otherwise well."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/6"},
-    "iop": {"right": "13 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/6",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "13 mmHg (NCT)",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Normal both eyes",
     "fundus": "Not required for this screening"
   },

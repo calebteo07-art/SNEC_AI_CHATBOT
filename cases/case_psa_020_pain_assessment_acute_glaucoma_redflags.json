@@ -10,18 +10,30 @@
     "age": 64,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Severe right eye pain with headache, nausea, and blurred vision since this afternoon"
+    "presenting_complaint": "Severe right eye pain with headache, nausea, and blurred vision since this afternoon",
+    "nric": "S0297436C",
+    "date_of_birth": "1962-01-03",
+    "address": "Blk 28 Hougang Ave 8, #12-605, Singapore 525913",
+    "contact_number": "80874834"
   },
   "history": {
     "hpc": "Mdm Chong presents to the clinic accompanied by her son, reporting severe pain in her right eye that started suddenly about 3 hours ago while she was watching a movie in a dark cinema. The pain has progressively worsened and is now associated with a severe headache on the right side, and she has vomited once on the way to the clinic. She describes the right eye pain as 'deep, like pressure pushing from inside', rated 9 out of 10. She also reports the right eye looks 'red' and her vision in that eye is blurry, and she sees 'rainbow-coloured rings' around lights. She denies any injury or foreign body sensation.",
     "pmhx": "Long-standing hyperopia (farsightedness), wears reading glasses only. No diabetes. Hypertension on medication. No previous eye surgery or laser.",
     "family_hx": "Sister has glaucoma (type unknown to patient).",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with son's family. Was at the cinema (dark environment) when symptoms began."
   },
   "examination_findings": {
-    "va": {"right": "6/60 (LogMAR 1.0) — markedly reduced, by patient report/quick check", "left": "6/9 (LogMAR 0.18)"},
-    "iop": {"right": "Not yet tested — to be prioritised", "left": "Not yet tested"},
+    "va": {
+      "right": "6/60 (LogMAR 1.0) — markedly reduced, by patient report/quick check",
+      "left": "6/9 (LogMAR 0.18)"
+    },
+    "iop": {
+      "right": "Not yet tested — to be prioritised",
+      "left": "Not yet tested"
+    },
     "anterior_segment": "Not assessed by PSA in detail — gross observation: right eye visibly red/injected, patient reports the right pupil 'looks bigger' than the left to her son; doctor to assess urgently",
     "fundus": "Not assessed — not indicated at this stage, urgent doctor review required first"
   },

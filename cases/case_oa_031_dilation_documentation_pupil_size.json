@@ -12,18 +12,30 @@
     "age": 60,
     "gender": "male",
     "occupation": "school teacher",
-    "presenting_complaint": "Charted for dilation of the right eye before review — focus on correct documentation"
+    "presenting_complaint": "Charted for dilation of the right eye before review — focus on correct documentation",
+    "nric": "S0596412A",
+    "date_of_birth": "1966-03-18",
+    "address": "Blk 556 Yishun Ring Rd, #05-423, Singapore 496105",
+    "contact_number": "99625132"
   },
   "history": {
     "hpc": "Mr Ramesh says 'Doctor only want to dilate my right eye today.' Only the right eye is to be dilated. This station focuses on correct technique and documentation of the dilation.",
     "pmhx": "No narrow-angle history. No drug allergies (confirm).",
     "family_hx": "Nil significant",
-    "medications": ["Nil regular"],
+    "medications": [
+      "Nil regular"
+    ],
     "social_hx": "Teacher; came with a family member."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/6"},
-    "iop": {"right": "Measured if ordered before dilation", "left": "Not being dilated"},
+    "va": {
+      "right": "6/9",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "Measured if ordered before dilation",
+      "left": "Not being dilated"
+    },
     "anterior_segment": "Right eye deep chamber, safe to dilate; left eye not to be dilated",
     "fundus": "Right fundus to be examined after dilation"
   },

@@ -11,18 +11,31 @@
     "age": 64,
     "gender": "female",
     "occupation": "retired accountant",
-    "presenting_complaint": "Referred for an RNFL OCT scan to monitor her glaucoma"
+    "presenting_complaint": "Referred for an RNFL OCT scan to monitor her glaucoma",
+    "nric": "S2004679A",
+    "date_of_birth": "1962-02-06",
+    "address": "Blk 307 Pasir Ris Dr 1, #02-934, Singapore 678311",
+    "contact_number": "80237230"
   },
   "history": {
     "hpc": "Mdm Tan is a glaucoma patient referred for a peripapillary RNFL OCT for monitoring. She says: 'My doctor want to check my nerve, see got thinning or not.' She is on glaucoma drops and attends regularly. No new symptoms. The OT must acquire a well-centred RNFL scan and document for comparison with previous scans.",
     "pmhx": "Primary open-angle glaucoma, both eyes. Hypertension.",
     "family_hx": "Father had glaucoma",
-    "medications": ["Latanoprost ON both eyes", "Losartan 50mg OD"],
+    "medications": [
+      "Latanoprost ON both eyes",
+      "Losartan 50mg OD"
+    ],
     "social_hx": "Lives with husband. Compliant with drops and follow-up. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9", "left": "6/9"},
-    "iop": {"right": "18 mmHg (NCT)", "left": "19 mmHg (NCT)"},
+    "va": {
+      "right": "6/9",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "18 mmHg (NCT)",
+      "left": "19 mmHg (NCT)"
+    },
     "anterior_segment": "Clear media; optic discs show glaucomatous cupping (known)",
     "fundus": "Glaucomatous optic discs; RNFL OCT to quantify and monitor — for doctor review"
   },

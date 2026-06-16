@@ -10,18 +10,30 @@
     "age": 64,
     "gender": "male",
     "occupation": "retired bus driver",
-    "presenting_complaint": "Follow-up visit — gradual painless reduction of vision in the right eye over several months"
+    "presenting_complaint": "Follow-up visit — gradual painless reduction of vision in the right eye over several months",
+    "nric": "S5668311I",
+    "date_of_birth": "1962-05-20",
+    "address": "Blk 349 Hougang Ave 8, #18-104, Singapore 163990",
+    "contact_number": "96126365"
   },
   "history": {
     "hpc": "Mr Koh has noticed his right eye vision has become progressively dimmer and hazier over the past 6 months, like looking through a 'foggy window'. His left eye vision feels unchanged. He has no pain, redness, or flashes/floaters. He last changed his glasses about 3 years ago. He has come in for a follow-up visit and visual acuity testing with pinhole has been ordered to help differentiate the cause of his reduced vision.",
     "pmhx": "Hypertension. No previous eye surgery. Known early cataract right eye noted at last visit 8 months ago.",
     "family_hx": "Mother had cataract surgery in both eyes in her 70s",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Retired bus driver. Wears distance glasses, prescription last updated 3 years ago."
   },
   "examination_findings": {
-    "va": {"right": "6/24 with current glasses (LogMAR 0.6)", "left": "6/9 with current glasses (LogMAR 0.2)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/24 with current glasses (LogMAR 0.6)",
+      "left": "6/9 with current glasses (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: moderate nuclear sclerotic cataract, increased compared to 8 months ago. Left eye: mild nuclear sclerosis, stable.",
     "fundus": "Right eye: hazy view due to cataract, no obvious posterior pathology seen. Left eye: normal."
   },

@@ -10,18 +10,30 @@
     "age": 49,
     "gender": "male",
     "occupation": "warehouse supervisor",
-    "presenting_complaint": "Follow-up visit — monitoring of intraocular pressure, glaucoma suspect"
+    "presenting_complaint": "Follow-up visit — monitoring of intraocular pressure, glaucoma suspect",
+    "nric": "S6967963C",
+    "date_of_birth": "1977-03-06",
+    "address": "Blk 223 Tampines St 21, #06-371, Singapore 318519",
+    "contact_number": "82271539"
   },
   "history": {
     "hpc": "Mr Rajendran was flagged as a glaucoma suspect 6 months ago after a routine optometrist visit found IOP of 24 mmHg in both eyes and a slightly enlarged optic disc cupping. He was referred to SNEC for further assessment and is currently not on any eye drops, pending the results of monitoring visits including today's IOP check. He has no visual symptoms. He reports he had a strong cup of coffee about 30 minutes before arriving today.",
     "pmhx": "Glaucoma suspect, under monitoring. No previous eye surgery. Mild myopia, wears glasses for distance.",
     "family_hx": "Elder brother on glaucoma eye drops",
-    "medications": ["Nil regular eye medications"],
+    "medications": [
+      "Nil regular eye medications"
+    ],
     "social_hx": "Warehouse supervisor. Non-smoker. Drinks coffee daily."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/9 (LogMAR 0.2)"},
-    "iop": {"right": "23 mmHg (NCT)", "left": "24 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/9 (LogMAR 0.2)"
+    },
+    "iop": {
+      "right": "23 mmHg (NCT)",
+      "left": "24 mmHg (NCT)"
+    },
     "anterior_segment": "Normal bilaterally, anterior chambers deep",
     "fundus": "C:D ratio 0.6 right, 0.65 left (per prior doctor's notes) — under monitoring"
   },

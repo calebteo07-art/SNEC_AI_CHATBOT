@@ -11,18 +11,32 @@
     "age": 70,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "New patient referred for cataract assessment; here for history taking and baseline tests"
+    "presenting_complaint": "New patient referred for cataract assessment; here for history taking and baseline tests",
+    "nric": "S5897515Z",
+    "date_of_birth": "1956-04-09",
+    "address": "Blk 176 Hougang Ave 8, #03-883, Singapore 710863",
+    "contact_number": "91432952"
   },
   "history": {
     "hpc": "Mdm Lim is a new patient referred for cataract assessment. During the medication history she initially lists only her blood pressure pill. On gentle prompting she adds: 'I take some Chinese herbs from my friend, that one also need to tell you meh? And the doctor gave me a blood-thinning tablet for my heart.' She also recalls feeling itchy and swollen once after an antibiotic eye drop years ago. No current eye pain or red eye.",
     "pmhx": "Hypertension, atrial fibrillation (on anticoagulant). Cataracts (for assessment).",
     "family_hx": "Mother had glaucoma",
-    "medications": ["Amlodipine 5mg OD", "Warfarin (anticoagulant) as prescribed", "Unspecified Chinese herbal supplement"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Warfarin (anticoagulant) as prescribed",
+      "Unspecified Chinese herbal supplement"
+    ],
     "social_hx": "Lives with husband. Takes traditional supplements from friends. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/18", "left": "6/24"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "17 mmHg (NCT)"},
+    "va": {
+      "right": "6/18",
+      "left": "6/24"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "17 mmHg (NCT)"
+    },
     "anterior_segment": "Bilateral lens opacities (cataract). No redness.",
     "fundus": "For doctor as part of assessment"
   },

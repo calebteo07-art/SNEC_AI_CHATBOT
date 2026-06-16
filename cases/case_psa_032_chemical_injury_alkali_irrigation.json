@@ -11,18 +11,30 @@
     "age": 38,
     "gender": "male",
     "occupation": "construction worker",
-    "presenting_complaint": "Wet cement splashed into the right eye 15 minutes ago; eye is painful, red and watering"
+    "presenting_complaint": "Wet cement splashed into the right eye 15 minutes ago; eye is painful, red and watering",
+    "nric": "S9306024E",
+    "date_of_birth": "1988-02-18",
+    "address": "Blk 376 Serangoon Central, #04-172, Singapore 111914",
+    "contact_number": "91976434"
   },
   "history": {
     "hpc": "Mr Saravanan rushes to the counter holding his right eye. He says: 'Cement splash into my eye just now at the worksite, very pain and cannot open!' The eye is red, tearing, and he is in distress. Wet cement is alkaline. This is a chemical eye injury — a Category 1 emergency where immediate irrigation must start without delay.",
     "pmhx": "Nil significant",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Construction worker; was not wearing eye protection. Came straight from the worksite."
   },
   "examination_findings": {
-    "va": {"right": "reduced and difficult to assess due to pain/blepharospasm", "left": "6/9"},
-    "iop": {"right": "not measured at this stage — irrigation takes priority", "left": "not measured"},
+    "va": {
+      "right": "reduced and difficult to assess due to pain/blepharospasm",
+      "left": "6/9"
+    },
+    "iop": {
+      "right": "not measured at this stage — irrigation takes priority",
+      "left": "not measured"
+    },
     "anterior_segment": "Right eye: conjunctival hyperaemia, possible corneal haze/oedema; chemical (alkali) exposure",
     "fundus": "Not assessed — emergency irrigation first"
   },

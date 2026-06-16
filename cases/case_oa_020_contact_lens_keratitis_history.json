@@ -10,18 +10,30 @@
     "age": 24,
     "gender": "female",
     "occupation": "flight stewardess",
-    "presenting_complaint": "Right eye has been painful, red, and watering since yesterday, with blurred vision and sensitivity to light — she wears monthly contact lenses"
+    "presenting_complaint": "Right eye has been painful, red, and watering since yesterday, with blurred vision and sensitivity to light — she wears monthly contact lenses",
+    "nric": "T5516261H",
+    "date_of_birth": "2002-05-25",
+    "address": "Blk 504 Pasir Ris Dr 1, #11-700, Singapore 338606",
+    "contact_number": "94407894"
   },
   "history": {
     "hpc": "Vanessa wears monthly disposable soft contact lenses, but admits she often wears the same pair of lenses for 2-3 days continuously without removing them, including sleeping in them, especially during long-haul flights. She last changed her lenses 3 weeks ago. Yesterday she developed right eye pain (6/10), redness, watering, and noticed her vision was blurry. This morning the pain has worsened and she is now very sensitive to bright light. She topped up her contact lens solution in the case rather than replacing it fully, and sometimes uses tap water to rinse her lens case when travelling.",
     "pmhx": "Myopia, both eyes, wears monthly soft contact lenses for about 5 years. No previous eye infections. No known drug allergies.",
     "family_hx": "Nil significant",
-    "medications": ["Nil"],
+    "medications": [
+      "Nil"
+    ],
     "social_hx": "Flight stewardess — frequent long-haul flights, often sleeps in contact lenses during flights. Single. Came in alone, removed her contact lenses just before arriving as they felt 'too uncomfortable'."
   },
   "examination_findings": {
-    "va": {"right": "6/18 (LogMAR 0.5)", "left": "6/6 (LogMAR 0.0)"},
-    "iop": {"right": "Deferred — examination findings take priority", "left": "14 mmHg (NCT)"},
+    "va": {
+      "right": "6/18 (LogMAR 0.5)",
+      "left": "6/6 (LogMAR 0.0)"
+    },
+    "iop": {
+      "right": "Deferred — examination findings take priority",
+      "left": "14 mmHg (NCT)"
+    },
     "anterior_segment": "Right eye: marked conjunctival hyperaemia, a visible greyish-white corneal infiltrate/opacity centrally with overlying epithelial defect, significant photophobia and watering. Left eye: normal, no lens-related changes noted.",
     "fundus": "Not assessed — anterior segment finding takes priority for urgent referral"
   },

@@ -10,18 +10,31 @@
     "age": 27,
     "gender": "female",
     "occupation": "primary school teacher",
-    "presenting_complaint": "Woke up this morning and saw in the mirror that the white of her left eye is completely bright red — she is very alarmed and walked in without an appointment"
+    "presenting_complaint": "Woke up this morning and saw in the mirror that the white of her left eye is completely bright red — she is very alarmed and walked in without an appointment",
+    "nric": "S3948534F",
+    "date_of_birth": "1999-06-03",
+    "address": "Blk 349 Clementi Ave 2, #02-515, Singapore 616160",
+    "contact_number": "81978092"
   },
   "history": {
     "hpc": "Ms Farah noticed on waking up this morning that the white part of her left eye looks completely bright red, like 'blood has filled the whole eye'. She has no pain, no change in vision, and no discharge. She did have a bad coughing fit yesterday evening due to a cold. She is very anxious, thinking something is seriously wrong with her eye, and came to SNEC directly without an appointment.",
     "pmhx": "Nil significant. Mild upper respiratory tract infection (common cold) for the past 3 days, on over-the-counter cold medicine. No history of bleeding disorders. Not on blood thinners.",
     "family_hx": "Nil significant",
-    "medications": ["Paracetamol 500mg PRN", "Over-the-counter cold/flu tablets"],
+    "medications": [
+      "Paracetamol 500mg PRN",
+      "Over-the-counter cold/flu tablets"
+    ],
     "social_hx": "Non-smoker. Came alone, quite anxious."
   },
   "examination_findings": {
-    "va": {"right": "6/6", "left": "6/6"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "va": {
+      "right": "6/6",
+      "left": "6/6"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "15 mmHg (NCT)"
+    },
     "anterior_segment": "Left eye: well-demarcated bright red patch of blood under the conjunctiva over the temporal sclera, sparing the cornea. Conjunctiva otherwise white and quiet. Pupil normal, round, and reactive. Cornea clear. Right eye: normal.",
     "fundus": "Not assessed — not indicated for this presentation"
   },

@@ -11,18 +11,31 @@
     "age": 71,
     "gender": "female",
     "occupation": "retiree",
-    "presenting_complaint": "Referred for Cirrus OCT macular scan — distortion of vision in left eye"
+    "presenting_complaint": "Referred for Cirrus OCT macular scan — distortion of vision in left eye",
+    "nric": "S9955515G",
+    "date_of_birth": "1955-05-28",
+    "address": "Blk 163 Bedok North Rd, #05-581, Singapore 300687",
+    "contact_number": "86743937"
   },
   "history": {
     "hpc": "Mdm Wong noticed that straight lines, such as door frames and tiles, appear wavy when she looks at them with her left eye over the past 2 weeks. She has no pain. Her right eye vision feels normal to her. The doctor examined her fundus and noted some changes at the macula in the left eye, and has ordered a Cirrus OCT macular scan to evaluate the retinal layers in detail.",
     "pmhx": "Hypertension. No previous eye surgery. Wears reading glasses for near work.",
     "family_hx": "Mother had 'macular degeneration' and lost central vision in old age",
-    "medications": ["Amlodipine 5mg OD", "Aspirin 100mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD",
+      "Aspirin 100mg OD"
+    ],
     "social_hx": "Retired. Lives with daughter. Non-smoker."
   },
   "examination_findings": {
-    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/18 (LogMAR 0.5)"},
-    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/9 (LogMAR 0.2)",
+      "left": "6/18 (LogMAR 0.5)"
+    },
+    "iop": {
+      "right": "15 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Mild nuclear sclerosis bilaterally, otherwise unremarkable",
     "fundus": "Right eye: normal macula. Left eye: drusen and pigmentary changes at macula, doctor notes possible subretinal fluid"
   },

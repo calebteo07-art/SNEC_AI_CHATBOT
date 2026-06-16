@@ -11,18 +11,30 @@
     "age": 68,
     "gender": "female",
     "occupation": "retired seamstress",
-    "presenting_complaint": "Booked for cataract surgery; here for biometry to calculate the lens implant power"
+    "presenting_complaint": "Booked for cataract surgery; here for biometry to calculate the lens implant power",
+    "nric": "S2963026G",
+    "date_of_birth": "1958-04-19",
+    "address": "Blk 544 Ang Mo Kio Ave 3, #09-813, Singapore 166557",
+    "contact_number": "80927977"
   },
   "history": {
     "hpc": "Mdm Koh is listed for right eye cataract surgery and attends for biometry. She says: 'Doctor say want to operate my cataract, must measure my eye for the lens.' Her cataract is moderate and she can still fixate. The OT must perform non-contact optical biometry, obtain reliable measurements, and document them for IOL power calculation.",
     "pmhx": "Bilateral cataracts (right for surgery). Hypertension.",
     "family_hx": "Nil significant",
-    "medications": ["Amlodipine 5mg OD"],
+    "medications": [
+      "Amlodipine 5mg OD"
+    ],
     "social_hx": "Lives with daughter. Non-smoker. Keen to proceed with surgery."
   },
   "examination_findings": {
-    "va": {"right": "6/36 (cataract)", "left": "6/12"},
-    "iop": {"right": "16 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "va": {
+      "right": "6/36 (cataract)",
+      "left": "6/12"
+    },
+    "iop": {
+      "right": "16 mmHg (NCT)",
+      "left": "16 mmHg (NCT)"
+    },
     "anterior_segment": "Moderate nuclear cataract right eye; media still permits optical biometry",
     "fundus": "For doctor as part of pre-op assessment"
   },
