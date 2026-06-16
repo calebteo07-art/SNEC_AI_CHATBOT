@@ -5,6 +5,7 @@
    curriculum. */
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
@@ -15,6 +16,7 @@ import { GoalRing } from "@/aurora/components/GoalRing";
 import { rankForLevel } from "@/lib/rank";
 import { getDailyXp, DAILY_XP_GOAL } from "@/lib/legacy/gamification";
 import { useCountUp } from "@/hooks/useCountUp";
+import { confetti } from "@/fx/confetti";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = { OA: OA_TOPICS, OT: OT_TOPICS, PSA: PSA_TOPICS };
 const TRACK_LABELS: Record<Track, string> = {
@@ -38,6 +40,29 @@ export function Dashboard() {
   // Today's XP toward the daily goal — read after mount to avoid an SSR/localStorage mismatch.
   const [dailyXp, setDailyXp] = useState(0);
   useEffect(() => { setDailyXp(getDailyXp()); }, []);
+
+  /* Post-session debrief, inlined here now that the Summary page is gone: when a
+     flashcard run finishes it lands on the Dashboard with a one-shot flag, which
+     we turn into a celebratory toast + confetti, then clear so it fires once. */
+  useEffect(() => {
+    if (sessionStorage.getItem("eyebot_session_complete") !== "1") return;
+    sessionStorage.removeItem("eyebot_session_complete");
+    let earnedXp = 0, cardsReviewed = 0;
+    try {
+      const s = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
+      earnedXp = Number(s.earnedXp) || 0;
+      cardsReviewed = Number(s.cardsReviewed) || 0;
+    } catch { /* no session detail — show a generic toast */ }
+    toast.success(
+      earnedXp > 0 ? `Session complete · +${earnedXp} XP` : "Session complete",
+      { description: cardsReviewed > 0 ? `${cardsReviewed} card${cardsReviewed === 1 ? "" : "s"} reviewed. Added to your running total.` : undefined },
+    );
+    const t = setTimeout(() => {
+      confetti({ particleCount: 130, spread: 90, startVelocity: 45, origin: { y: 0.32 },
+        colors: ["#3C90FF", "#34A853", "#AD72FF", "#FFCF03", "#F96BD6", "#00BDD2"] });
+    }, 220);
+    return () => clearTimeout(t);
+  }, []);
 
   const activeTrack = ((user?.studentRole as Track) || "OA");
   const trackLabel = TRACK_LABELS[activeTrack] ?? "Trainee";
