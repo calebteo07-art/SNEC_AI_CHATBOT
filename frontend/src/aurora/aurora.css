@@ -1662,23 +1662,31 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .console-dark .console-disclosure > summary .console-disc-sub { font-size: 12.9px; }
 
 /* ───────────────────────── Flashcards — "The Aperture" ─────────────────────────
-   A hybrid "Twilight Aurora glass" world, scoped to the flashcards feature only via
-   [data-theme="aperture"]. Frosted light panels float over a deep drifting field.
-   Two ink sets keep WCAG AA on both glass and the deep field. */
+   An "Emerald Aurora" world, scoped to the flashcards feature only via
+   [data-theme="aperture"]. OPAQUE porcelain panels rest on a deep, living green
+   gradient field. Two ink sets keep WCAG AA on both the panels and the field. */
 [data-theme="aperture"] {
-  --field-0: #15132e;          /* deep indigo base — never pure black */
-  --field-1: #1d1840;          /* indigo */
-  --field-2: #3a1f55;          /* aubergine */
-  --field-3: #123a44;          /* teal */
-  --glass: rgba(255, 255, 255, 0.74);
-  --glass-2: rgba(255, 255, 255, 0.60);
-  --glass-line: rgba(255, 255, 255, 0.55);
-  --glass-shadow: 0 24px 70px -28px rgba(8, 6, 30, 0.75);
-  --field-ink: rgba(255, 255, 255, 0.93);   /* text directly on the deep field */
-  --field-ink-2: rgba(255, 255, 255, 0.66);
-  --glow-blue: rgba(66, 133, 244, 0.55);
-  --glow-purple: rgba(155, 114, 203, 0.55);
-  --glow-rose: rgba(217, 101, 112, 0.5);
+  /* Deep emerald → viridian → jade gradient field — mid-luminance, never pure black. */
+  --field-0: #07221a;          /* deep pine base */
+  --field-1: #0d3b2b;          /* emerald */
+  --field-2: #11564a;          /* viridian / jade */
+  --field-3: #1c7a54;          /* luminous jade highlight */
+  /* OPAQUE porcelain panels — the elegant "light half" (faintest cool-green tint). */
+  --glass: #f7faf8;
+  --glass-2: #eef4f0;
+  --glass-line: rgba(14, 56, 42, 0.14);
+  --glass-shadow: 0 26px 70px -30px rgba(2, 22, 15, 0.82);
+  --field-ink: rgba(255, 255, 255, 0.95);   /* text directly on the deep field */
+  --field-ink-2: rgba(223, 242, 232, 0.72);
+  /* Accent glows — emerald / jade with a warm-gold limbus pop. */
+  --glow-blue: rgba(40, 190, 130, 0.55);    /* emerald */
+  --glow-purple: rgba(24, 168, 154, 0.5);   /* jade-teal */
+  --glow-rose: rgba(214, 184, 96, 0.48);    /* soft gold */
+  /* Scoped overrides so CTAs, rings and blades harmonize with the emerald world. */
+  --g-purple: #1f9d6a;
+  --gemini: linear-gradient(100deg, #1f9d6a, #2bbd8a, #18a89a);
+  --gemini-loop: linear-gradient(100deg, #1f9d6a, #2bbd8a, #18a89a, #2bbd8a, #1f9d6a);
+  --on-purple-2: #0e6b46;                    /* deep emerald for card accents/text */
 }
 
 /* The immersive stage fills the viewport; the field sits behind frosted content. */
@@ -1714,7 +1722,7 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   background:
     radial-gradient(circle at 50% 50%, #05060a 0 var(--pupil, 22%), transparent calc(var(--pupil, 22%) + 1%)),
     repeating-conic-gradient(from 0deg, rgba(255,255,255,0.10) 0 2deg, rgba(0,0,0,0.16) 2deg 4deg),
-    radial-gradient(circle at 50% 50%, #6a4a9a 0%, #4285F4 38%, #9B72CB 62%, #D96570 100%);
+    radial-gradient(circle at 50% 50%, #1c7a54 0%, #11564a 36%, #1f9d6a 64%, #2bbd8a 100%);
   animation: aperture-iris-breathe 6s ease-in-out infinite; }
 .aperture-iris-css::after { content: ""; position: absolute; inset: 0; border-radius: 50%;
   box-shadow: inset 0 0 26px 8px rgba(5,6,12,0.6), inset 0 0 0 6px rgba(255,255,255,0.05); }
@@ -1744,8 +1752,9 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   cursor: pointer; text-align: left; transition: transform .18s var(--mo-over), box-shadow .24s, background .2s, border-color .2s; }
 .aperture-choice:hover:not(:disabled) { transform: translateY(-3px); background: var(--glass); }
 .aperture-choice[aria-checked="true"], .aperture-choice[aria-selected="true"], .aperture-choice.is-active { border-color: transparent;
-  box-shadow: inset 0 0 0 1.5px rgba(155,114,203,0.7), 0 14px 40px -18px rgba(155,114,203,0.8);
-  background: linear-gradient(120deg, rgba(66,133,244,0.16), rgba(155,114,203,0.16)); }
+  box-shadow: inset 0 0 0 1.5px rgba(31,157,106,0.9), 0 16px 40px -18px rgba(16,110,72,0.7);
+  /* stays OPAQUE — emerald wash over a solid porcelain base */
+  background: linear-gradient(120deg, rgba(31,157,106,0.14), rgba(43,189,138,0.12)), #f1f8f4; }
 .aperture-choice:disabled { opacity: 0.4; cursor: not-allowed; }
 .aperture-choice:disabled:hover { transform: none; background: var(--glass-2); }
 .aperture-choice-k { display: block; font-size: 18px; font-weight: 600; color: var(--ink); }
@@ -1766,7 +1775,7 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
   font-weight: 600; cursor: pointer; transition: transform .14s var(--mo-ease), box-shadow .24s, opacity .2s; }
 .aperture-back { padding: 11px 18px; border: 1px solid var(--glass-line); background: var(--glass-2); color: var(--ink); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .aperture-next, .aperture-open { padding: 12px 24px; border: none; color: #fff; background: var(--gemini-loop); background-size: 200% 100%;
-  box-shadow: 0 12px 34px -14px rgba(120,110,200,0.9); animation: aperture-cta-flow 4.5s linear infinite; }
+  box-shadow: 0 12px 34px -14px rgba(16,120,80,0.9); animation: aperture-cta-flow 4.5s linear infinite; }
 .aperture-next:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .aperture-press:active { transform: scale(.97); }
 
@@ -1805,7 +1814,7 @@ html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
 .focus-count.is-warn { color: var(--on-rose); }
 .focus-submit, .focus-advance { width: 100%; margin-top: 14px; padding: 13px; border: none; border-radius: 999px; color: #fff;
   font-weight: 600; cursor: pointer; background: var(--gemini-loop); background-size: 200% 100%; animation: aperture-cta-flow 4.5s linear infinite;
-  box-shadow: 0 12px 34px -14px rgba(120,110,200,0.9); transition: transform .14s, opacity .2s; }
+  box-shadow: 0 12px 34px -14px rgba(16,120,80,0.9); transition: transform .14s, opacity .2s; }
 .focus-submit:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .focus-toggle { width: 100%; margin-bottom: 8px; padding: 11px; border-radius: 999px; border: 1px solid var(--hairline);
   background: var(--surface); color: var(--ink); font-weight: 600; cursor: pointer; }
