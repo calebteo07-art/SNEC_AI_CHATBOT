@@ -530,10 +530,12 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
     patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
-    # Input filter — prevents prompt injection via the case chat interface
+    # Input filter — blocks prompt injection via the case chat interface, but allows
+    # patient-identity questions (name, NRIC, DOB, address): confirming particulars is
+    # part of the OSCE encounter and the patient prompt answers it from the case record.
     last_msg = next((m.content for m in reversed(body.messages) if m.role == "user"), "")
     try:
-        guard = await filter_input(last_msg)
+        guard = await filter_input(last_msg, patient_context=True)
         if not guard["safe"]:
             audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_case",
                       detail=f"reason={guard['reason']}")

@@ -1,7 +1,5 @@
 """Chat and session endpoints."""
-import asyncio
 import json
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -13,80 +11,31 @@ from tools.ai.guardrails.input_filter import filter_input
 from tools.ai.guardrails.output_validator import validate_output
 from tools.api.shared import limiter, tutor_system
 from tools.chatbot.log_session import log_session
-from tools.kb.search import search as _rag_search, format_context as _rag_format
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL, MODEL_SMALL
+from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
 
-# ── Knowledge base: RAG (Supabase) with markdown fallback ─────────────────
+# ── Knowledge base: static markdown, loaded once and cached ───────────────
+# RAG (Supabase pgvector retrieval + an LLM query-condense step) was removed for
+# speed: it added an extra Gemini round-trip plus an embedding call and a vector
+# query before the tutor could start answering. The tutor now grounds on the full
+# curated KB, read once and injected into every prompt — no per-message round-trips.
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-
-_RAG_ENABLED = bool(os.getenv("SUPABASE_URL", "").strip())
 _KB_PATH = _PROJECT_ROOT / "workflows" / "ophthalmology_kb.md"
 _KB_CACHE: Optional[str] = None
 
 
-def _kb_fallback() -> str:
+def _knowledge_base() -> str:
+    """Return the full ophthalmology KB, read once from disk and cached in memory."""
     global _KB_CACHE
     if _KB_CACHE is None and _KB_PATH.exists():
         _KB_CACHE = _KB_PATH.read_text(encoding="utf-8")
     return _KB_CACHE or ""
-
-
-async def _condense_query(messages: list) -> str:
-    """Rewrite the last user message as a standalone semantic search query.
-
-    No-op when there is only one user turn — the first message is already
-    standalone. On follow-ups, takes the last 3 conversation turns as context
-    and produces a keyword-rich, pronoun-free query for pgvector retrieval.
-    """
-    user_turns = [m for m in messages if m.role == "user"]
-    if len(user_turns) <= 1:
-        return messages[-1].content if messages else ""
-
-    recent = messages[-6:]  # last 3 turns (user+assistant pairs)
-    convo = "\n".join(f"{m.role}: {m.content}" for m in recent)
-
-    prompt = (
-        "You are a search query optimizer for a medical ophthalmology knowledge base. "
-        "Given the conversation excerpt below, rewrite ONLY the last user message as a "
-        "standalone, keyword-rich semantic search query. Remove all pronouns and "
-        "conversational references. Output ONLY the query — no explanation, no punctuation "
-        "beyond what is needed.\n\n"
-        f"Conversation:\n{convo}"
-    )
-    try:
-        result = await asyncio.to_thread(
-            ask,
-            system_prompt=prompt,
-            messages=[{"role": "user", "content": "Output the standalone search query only."}],
-            max_tokens=128,
-            feature="default",
-            model=MODEL_SMALL,
-            thinking_level="MINIMAL",
-        )
-        condensed = (result or "").strip()
-        return condensed if condensed else (messages[-1].content if messages else "")
-    except Exception:
-        return messages[-1].content if messages else ""
-
-
-def _get_context(query: str) -> str:
-    """Return RAG context if Supabase is ready, else fall back to full markdown KB."""
-    if _RAG_ENABLED:
-        try:
-            chunks = _rag_search(query, top_k=6)
-            if chunks:
-                print(f"[rag] retrieved {len(chunks)} chunks for query: {query[:60]!r}", flush=True)
-                return _rag_format(chunks)
-        except Exception as exc:
-            print(f"[rag-error] {exc}", flush=True)
-    return _kb_fallback()
 
 
 # ── Request / Response models ──────────────────────────────────────────────
@@ -153,13 +102,8 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
         pass  # Guardrail errors must never block legitimate queries
 
     ctx_block = await _student_context_block(student_id)
-    search_query = await _condense_query(body.messages)
-    if search_query != last_user_msg:
-        print(f"[rag-condense] {last_user_msg[:60]!r} → {search_query[:60]!r}", flush=True)
-    # _get_context does a blocking embed + vector search — run it off the event
-    # loop so concurrent chats don't serialise/freeze the single worker.
-    rag_context = await asyncio.to_thread(_get_context, search_query)
-    system_prompt = tutor_system(role) + "\n\n---\n\n" + rag_context
+    # No RAG: ground the tutor on the full curated KB (cached in memory, no round-trip).
+    system_prompt = tutor_system(role) + "\n\n---\n\n" + _knowledge_base()
     if ctx_block:
         system_prompt = ctx_block + "\n\n" + system_prompt
 
