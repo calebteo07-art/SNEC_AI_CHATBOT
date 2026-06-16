@@ -99,6 +99,12 @@ class ChecklistStepResult(BaseModel):
     performed: bool
     clinical_note: str | None = None
 
+class PhaseSummary(BaseModel):
+    phase: int
+    name: str
+    done: int
+    total: int
+
 class Flashcard(BaseModel):
     card_id: str
     front: str
@@ -111,6 +117,7 @@ class CaseSubmitResponse(BaseModel):
     mock_mode: bool
     debrief: str | None = None
     checklist_comparison: list[ChecklistStepResult] = []
+    per_phase: list[PhaseSummary] = []
 
 class ChecklistStepModel(BaseModel):
     step_number: int
@@ -409,6 +416,21 @@ def _load_case_or_404(case_id: str) -> dict:
     return case
 
 
+def _per_phase_summary(steps: list[dict], performed: list[int]) -> list[dict]:
+    """Return [{phase,name,done,total}] using the same phase grouping as the station."""
+    done = set(performed or [])
+    out = []
+    for g in group_by_phase(steps):
+        nums = [int(s.get("step_number", 0)) for s in g["steps"]]
+        out.append({
+            "phase": g["phase"],
+            "name": g["name"],
+            "done": sum(1 for n in nums if n in done),
+            "total": len(nums),
+        })
+    return out
+
+
 def _station_checklist(case: dict) -> dict:
     """Resolve the case's checklist (real or rubric fallback) as a flat dict with steps."""
     name, _how = resolve_procedure_name(case)
@@ -615,12 +637,14 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
             (_debrief_ctx + "\n\n" if _debrief_ctx else "")
             + "You are an ophthalmology clinical educator reviewing a student's case performance. "
             "Tailor your debrief to the student's role and known weak areas listed above. "
-            "Write a structured debrief in exactly this format:\n\n"
-            "**What you got right:** ...\n\n"
-            "**What you missed:** ...\n\n"
+            "Write a warm, encouraging, specific debrief in exactly this format:\n\n"
+            "**What you did really well:** ...\n\n"
+            "**Where to grow next time:** ...\n\n"
             "**Why it matters clinically:** ...\n\n"
             "**Focus for next time:** ...\n\n"
-            "Be specific and clinical. Reference the student's role-specific procedures where relevant. "
+            "Be specific and kind. Name concrete strengths first. When pointing out gaps, "
+            "tie them to the checklist step and the phase it belongs to, and end on an "
+            "encouraging note. Reference the student's role-specific procedures where relevant. "
             "Do not repeat the scores — focus on insight."
         )
         debrief_messages = [
@@ -711,6 +735,9 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     except Exception:
         pass
 
+    _cl_for_phase = _station_checklist(case)
+    per_phase = _per_phase_summary(_cl_for_phase["steps"], body.performed_steps)
+
     domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields}
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),
@@ -718,4 +745,5 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         mock_mode=MOCK_MODE,
         debrief=debrief_text,
         checklist_comparison=checklist_comparison,
+        per_phase=[PhaseSummary(**p) for p in per_phase],
     )
