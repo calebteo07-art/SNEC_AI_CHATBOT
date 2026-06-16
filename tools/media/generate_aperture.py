@@ -1,8 +1,10 @@
 """Generate the Flashcards "Aperture" iris plate (Nano Banana Pro).
 
 ONE medically-correct, beautiful photoreal close-up of a human iris and pupil,
-on a deep near-black field lit by the Gemini gradient at the limbus. Used as the
-stepper centerpiece and the "Open" dilation launch -- NEVER on the study card.
+emerald-green pigmentation on a deep near-black emerald field, lit by an
+emerald-to-jade-to-gold rim at the limbus (matches the flashcards "Emerald
+Aurora" theme). Used as the stepper centerpiece and the "Open" dilation launch
+-- NEVER on the study card.
 
 The image carries NO text/labels. STANDING RULE: anatomically correct AND
 beautiful -- reject any candidate that is not both.
@@ -37,17 +39,17 @@ ACCENTS_DIR = PROJECT_ROOT / "frontend" / "public" / "media" / "accents"
 IRIS_PROMPT = (
     "An extreme close-up macro photograph of a single anatomically accurate human "
     "IRIS and PUPIL, perfectly centered and circular, filling the frame on a deep "
-    "near-black background (hex 0c0a1e). The round black PUPIL sits dead center. "
-    "Around it the IRIS shows clinically correct anatomy: fine radial STROMA fibres "
-    "running from the pupil to the edge, a slightly raised COLLARETTE ring about a "
-    "third of the way out, subtle crypts and contraction furrows, and a clean LIMBUS "
-    "rim at the outer edge. Realistic blue-to-violet iris pigmentation. A soft "
-    "volumetric RIM LIGHT in the Google Gemini gradient (blue 4285F4 to purple "
-    "9B72CB to rose D96570) grazes the limbus like a glowing ring. Ultra-clean, "
-    "medical-grade, photorealistic ophthalmic macro, calm and premium, sharp focus, "
-    "shallow depth glow. Absolutely NO text, NO letters, NO numbers, NO labels, NO "
-    "arrows, NO reticle, no eyelashes, no eyelid, no skin, no UI, no watermark. "
-    "Just the iris and pupil as a clean circular specimen."
+    "near-black emerald background (hex 07221a). The round black PUPIL sits dead "
+    "center. Around it the IRIS shows clinically correct anatomy: fine radial STROMA "
+    "fibres running from the pupil to the edge, a slightly raised COLLARETTE ring "
+    "about a third of the way out, subtle crypts and contraction furrows, and a clean "
+    "LIMBUS rim at the outer edge. Realistic emerald-green to teal iris pigmentation. "
+    "A soft volumetric RIM LIGHT in an emerald-to-jade-to-soft-gold gradient (emerald "
+    "1f9d6a to jade 2bbd8a to warm gold d6b860) grazes the limbus like a glowing "
+    "ring. Ultra-clean, medical-grade, photorealistic ophthalmic macro, calm and "
+    "premium, sharp focus, shallow depth glow. Absolutely NO text, NO letters, NO "
+    "numbers, NO labels, NO arrows, NO reticle, no eyelashes, no eyelid, no skin, no "
+    "UI, no watermark. Just the iris and pupil as a clean circular specimen."
 )
 
 
