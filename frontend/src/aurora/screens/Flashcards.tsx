@@ -4,7 +4,7 @@
    SM-2 fields passed through, weak-card retry, review + tutor-seed entry), and
    renders the 3-step ApertureSelect then the StudyDeck inside the immersive,
    Twilight-themed root. All presentation lives in components/flashcards/*. */
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { rankForLevel } from "@/lib/rank";
@@ -101,17 +101,32 @@ export function Flashcards() {
 
   const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); setCardXp(0); };
 
+  // Hold the focusing loader on screen for a satisfying minimum before the reveal,
+  // even when grading returns fast. Reduced motion reveals immediately.
+  const MIN_FOCUS_MS = 850;
+  const gradeStartRef = useRef(0);
+  const gradeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (gradeTimerRef.current) clearTimeout(gradeTimerRef.current); }, []);
+  const revealAfterFocus = (fn: () => void) => {
+    const reduce = document.documentElement.dataset.motion === "reduce" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const wait = reduce ? 0 : Math.max(0, MIN_FOCUS_MS - (Date.now() - gradeStartRef.current));
+    if (wait === 0) { fn(); return; }
+    gradeTimerRef.current = setTimeout(fn, wait);
+  };
+
   const submitAnswer = () => {
     if (!userAttempt.trim() || submitted || !card) return;
     setSubmitted(true);
     setAiChecking(true);
+    gradeStartRef.current = Date.now();
     checkCard.mutate(
       {
         question: card.question, student_answer: userAttempt, correct_answer: card.answer,
         card_id: card.card_id, repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
       },
       {
-        onSuccess: (d) => {
+        onSuccess: (d) => revealAfterFocus(() => {
           setAiFeedback(d);
           setAiChecking(false);
           const score = Math.max(0, Math.min(100, d.score));
@@ -129,8 +144,8 @@ export function Flashcards() {
           incrementTotalCards();
           const unlocked = checkAndUnlockAchievements();
           if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
-        },
-        onError: () => {
+        }),
+        onError: () => revealAfterFocus(() => {
           setAiChecking(false);
           const xp = xpForScore(60);
           setCardXp(xp);
@@ -139,7 +154,7 @@ export function Flashcards() {
           incrementTotalCards();
           const unlocked = checkAndUnlockAchievements();
           if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
-        },
+        }),
       },
     );
   };

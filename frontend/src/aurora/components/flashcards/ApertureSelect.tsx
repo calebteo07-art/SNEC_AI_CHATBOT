@@ -2,10 +2,10 @@
 /* "Set the Aperture" — one criterion per step (Clarity -> Depth -> Lens) over the
    deep Twilight field, frosted controls, the iris reacting in the centre. The final
    topic choice fires the dilation launch, then hands control to the deck. */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { type Difficulty, LENGTHS } from "./types";
-import { ApertureStage } from "./ApertureStage";
+import { ApertureStage, type ApertureStageHandle } from "./ApertureStage";
 
 interface Props {
   topicSets: FlashcardSetInfo[] | undefined;
@@ -20,21 +20,15 @@ export function ApertureSelect({
   topicSets, difficulty, setDifficulty, sessionLength, setSessionLength, onChoose,
 }: Props) {
   const [step, setStep] = useState(0);          // 0 Clarity · 1 Depth · 2 Lens
-  const [launching, setLaunching] = useState(false);
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
+  const stageRef = useRef<ApertureStageHandle>(null);
 
-  // The dilation timer is held so it can be cleared if we unmount mid-launch.
-  const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (launchTimer.current) clearTimeout(launchTimer.current); }, []);
-
-  // Commit a topic: play the dilation, then notify the orchestrator.
+  // Commit a topic: play the login eye's pupil engulf, then notify the orchestrator.
+  // expandPupil() resolves immediately under reduced motion, so this is safe there too.
   const commit = (setKey: string | null) => {
-    const reduce = typeof document !== "undefined" &&
-      (document.documentElement.dataset.motion === "reduce" ||
-       window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    if (reduce) { onChoose(setKey); return; }
-    setLaunching(true);
-    launchTimer.current = setTimeout(() => onChoose(setKey), 820);
+    const stage = stageRef.current;
+    if (stage) stage.expandPupil().then(() => onChoose(setKey));
+    else onChoose(setKey);
   };
 
   return (
@@ -52,7 +46,7 @@ export function ApertureSelect({
       </div>
 
       <div className="aperture-step-body">
-        <ApertureStage size={200} launching={launching} />
+        <ApertureStage ref={stageRef} size={200} />
 
         {step === 0 && (
           <div key="clarity" className="aperture-choices aperture-step-slide" role="radiogroup" aria-label="Difficulty">

@@ -1,29 +1,26 @@
 "use client";
-/* The Aperture iris centerpiece. Always renders a pure-CSS iris; layers the
-   medically-correct Nano Banana raster on top when present (onError hides it).
-   `launching` plays the dilation that fills the screen on "Open". */
-import { useState } from "react";
-import { PLATE } from "@/aurora/media";
+/* The Aperture centerpiece reuses the LOGIN screen's living eye (EyeHero) verbatim
+   — the same macro-eye photograph and the same motion: cursor-gaze parallax, idle
+   wander, and a breathing zoom. On "Open" the pupil engulf (light flood) plays,
+   exactly like the login's success transition. */
+import { forwardRef, useImperativeHandle, useRef } from "react";
+import { EyeHero, type GazeHandle } from "@/screens/EyeHero";
 
-export function ApertureStage({
-  size = 240, launching = false,
-}: { size?: number; launching?: boolean }) {
-  const [hasRaster, setHasRaster] = useState(true);
-  return (
-    <div className={`aperture-stage${launching ? " aperture-launching" : ""}`}>
-      <div className="aperture-iris" style={{ ["--iris-size" as string]: `${size}px` }}>
-        <div className="aperture-limbus" aria-hidden />
-        <div className="aperture-iris-css" aria-hidden />
-        {hasRaster && (
-          <img
-            className="aperture-iris-raster"
-            src={PLATE.aperture}
-            alt=""
-            aria-hidden
-            onError={() => setHasRaster(false)}
-          />
-        )}
-      </div>
-    </div>
-  );
+export interface ApertureStageHandle {
+  /** Floods the viewport from the pupil (login's engulf) — used as the launch. */
+  expandPupil(): Promise<void>;
 }
+
+export const ApertureStage = forwardRef<ApertureStageHandle, { size?: number }>(
+  function ApertureStage({ size = 240 }, ref) {
+    const eye = useRef<GazeHandle>(null);
+    useImperativeHandle(ref, () => ({
+      expandPupil: () => eye.current?.expandPupil() ?? Promise.resolve(),
+    }), []);
+    return (
+      <div className="aperture-stage" style={{ ["--iris-size" as string]: `${size}px` }}>
+        <EyeHero ref={eye} />
+      </div>
+    );
+  },
+);

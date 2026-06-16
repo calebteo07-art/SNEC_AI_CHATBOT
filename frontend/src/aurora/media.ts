@@ -13,8 +13,4 @@ export const PLATE = {
   eyeAtlas: "/media/accents/eye-atlas-plate-00.png",
   /* Standalone ophthalmoscopic fundus — legacy/SVG-fallback porthole imagery. */
   fundus: "/media/accents/cases-fundus-00.png",
-  /* The Aperture iris — a medically-correct photoreal iris/pupil plate
-     (Nano Banana, tools/media/generate_aperture.py). Optional: ApertureStage
-     renders a pure-CSS iris when this file is absent, so generation never blocks. */
-  aperture: "/media/accents/aperture-iris-00.png",
 } as const;

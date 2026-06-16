@@ -40,27 +40,38 @@ export function FocusCard(p: Props) {
           <span className="focus-ring" aria-hidden />
           <span className="focus-topic">{p.card.tag} · {p.deckTitle}{p.isRetry ? " · ↻ refocus" : ""}</span>
           <p className="focus-q">{p.card.question}</p>
-          <textarea
-            ref={textareaRef}
-            className="focus-recall"
-            value={p.userAttempt}
-            onChange={(e) => p.setUserAttempt(e.target.value.slice(0, MAX_ANSWER_CHARS))}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && p.userAttempt.trim()) { e.preventDefault(); p.onSubmit(); } }}
-            placeholder="Type your answer — you must answer before it's graded"
-            rows={3}
-            maxLength={MAX_ANSWER_CHARS}
-            aria-label="Your answer"
-          />
-          <div className="focus-meta">
-            {!p.userAttempt.trim()
-              ? <span className="focus-hint">Active recall — answer first. ⌘/Ctrl+Enter to submit.</span>
-              : <span aria-hidden />}
-            <span className={`focus-count${p.userAttempt.length >= MAX_ANSWER_CHARS - 20 ? " is-warn" : ""}`} aria-live="polite">
-              {p.userAttempt.length} / {MAX_ANSWER_CHARS}
-            </span>
-          </div>
-          <button type="button" className="focus-submit aperture-press" data-testid="focus-submit"
-            onClick={p.onSubmit} disabled={!p.userAttempt.trim()}>Submit for grading</button>
+          {p.submitted ? (
+            /* Pressing Submit flips `submitted` on immediately, so the input + button
+               are replaced by the focusing loader — it can't be pressed twice. */
+            <div className="focus-loading" role="status" aria-live="polite">
+              <span className="focus-aperture-loader" aria-hidden><i /><i /><i /></span>
+              <span className="focus-loading-label">Bringing your answer into focus…</span>
+            </div>
+          ) : (
+            <>
+              <textarea
+                ref={textareaRef}
+                className="focus-recall"
+                value={p.userAttempt}
+                onChange={(e) => p.setUserAttempt(e.target.value.slice(0, MAX_ANSWER_CHARS))}
+                onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && p.userAttempt.trim()) { e.preventDefault(); p.onSubmit(); } }}
+                placeholder="Type your answer — you must answer before it's graded"
+                rows={3}
+                maxLength={MAX_ANSWER_CHARS}
+                aria-label="Your answer"
+              />
+              <div className="focus-meta">
+                {!p.userAttempt.trim()
+                  ? <span className="focus-hint">Active recall — answer first. ⌘/Ctrl+Enter to submit.</span>
+                  : <span aria-hidden />}
+                <span className={`focus-count${p.userAttempt.length >= MAX_ANSWER_CHARS - 20 ? " is-warn" : ""}`} aria-live="polite">
+                  {p.userAttempt.length} / {MAX_ANSWER_CHARS}
+                </span>
+              </div>
+              <button type="button" className="focus-submit aperture-press" data-testid="focus-submit"
+                onClick={p.onSubmit} disabled={!p.userAttempt.trim()}>Submit for grading</button>
+            </>
+          )}
         </section>
 
         {/* BACK */}
