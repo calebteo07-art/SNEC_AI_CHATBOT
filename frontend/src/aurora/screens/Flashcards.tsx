@@ -19,6 +19,31 @@ import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpFo
 import { ApertureSelect } from "@/aurora/components/flashcards/ApertureSelect";
 import { StudyDeck } from "@/aurora/components/flashcards/StudyDeck";
 
+/* The immersive Twilight root, shared by the picker / loading / deck states.
+   Defined at module scope (NOT inside Flashcards) so it keeps a stable identity
+   across renders — otherwise its subtree, including the recall textarea, would
+   remount on every keystroke. */
+function ApertureShell({
+  newAchievements, onDismissAchievement, onExit, children,
+}: {
+  newAchievements: string[];
+  onDismissAchievement: (id: string) => void;
+  onExit: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="aperture-root" data-theme="aperture">
+      <h1 className="sr-only">Flashcards</h1>
+      <div className="aperture-field" aria-hidden><span /><span /><span /></div>
+      <button type="button" className="aperture-exit aperture-press" data-testid="aperture-exit" onClick={onExit}>
+        <Icon.back size={16} /> Exit
+      </button>
+      <AchievementManager achievements={newAchievements} onDismiss={onDismissAchievement} />
+      <div className="aperture-content">{children}</div>
+    </div>
+  );
+}
+
 export function Flashcards() {
   const router = useRouter();
   const sessionCards = useMemo(() => loadSessionCards(), []);
@@ -153,23 +178,12 @@ export function Flashcards() {
   };
 
   const exit = () => router.push("/dashboard");
-
-  const Shell = ({ children }: { children: ReactNode }) => (
-    <div className="aperture-root" data-theme="aperture">
-      <h1 className="sr-only">Flashcards</h1>
-      <div className="aperture-field" aria-hidden><span /><span /><span /></div>
-      <button type="button" className="aperture-exit aperture-press" data-testid="aperture-exit" onClick={exit}>
-        <Icon.back size={16} /> Exit
-      </button>
-      <AchievementManager achievements={newAchievements} onDismiss={(id) => setNewAchievements((p) => p.filter((a) => a !== id))} />
-      <div className="aperture-content">{children}</div>
-    </div>
-  );
+  const dismissAchievement = (id: string) => setNewAchievements((p) => p.filter((a) => a !== id));
 
   // Selection (skipped from a tutor session or review).
   if (!fromSession && !pickerDone) {
     return (
-      <Shell>
+      <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
         <ApertureSelect
           topicSets={topicSets}
           difficulty={difficulty}
@@ -178,19 +192,19 @@ export function Flashcards() {
           setSessionLength={setSessionLength}
           onChoose={(key) => { setSetKey(key); setPickerDone(true); }}
         />
-      </Shell>
+      </ApertureShell>
     );
   }
 
   if (generating || cards.length === 0 || !card) {
     return (
-      <Shell>
+      <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
         <div className="aperture-deck" style={{ placeItems: "center" }}>
           {generating
             ? <p style={{ color: "var(--field-ink-2)" }}>Bringing your cards into focus…</p>
             : <p style={{ color: "var(--field-ink-2)" }}>{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
         </div>
-      </Shell>
+      </ApertureShell>
     );
   }
 
@@ -198,7 +212,7 @@ export function Flashcards() {
   const weakPending = weakRef.current.length > 0;
 
   return (
-    <Shell>
+    <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
       <StudyDeck
         card={card}
         idx={idx}
@@ -219,6 +233,6 @@ export function Flashcards() {
         onExplain={explainThis}
         weakPending={weakPending}
       />
-    </Shell>
+    </ApertureShell>
   );
 }
