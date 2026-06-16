@@ -64,6 +64,20 @@ async function mockApis(ctx, user) {
   await ctx.route("**/api/cases", (r) => r.fulfill(J(cases)));
   await ctx.route("**/api/cases/C001", (r) => r.fulfill(J(cases.cases[0])));
   await ctx.route("**/api/cases/C001/checklist", (r) => r.fulfill(J({ checklist: { steps: ["History of presenting complaint", "Visual acuity", "IOP measurement"] } })));
+  await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
+    case: { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12,
+            patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
+    checklist: { procedure_name: "Non-Contact Tonometry", source: "checklist", total_steps: 4, critical_count: 1,
+      phases: [
+        { phase: 1, name: "Preparation & Identification", steps: [ { step_number: 1, action: "Identify patient — name + NRIC", critical: true, category: "patient_identification", notes: null } ] },
+        { phase: 2, name: "Clinical Assessment", steps: [ { step_number: 2, action: "Measure IOP — average of 3", critical: false, category: "clinical_assessment", notes: null }, { step_number: 3, action: "Measure distance visual acuity", critical: false, category: "clinical_assessment", notes: null } ] },
+        { phase: 3, name: "Documentation & Follow-up", steps: [ { step_number: 4, action: "Record readings in EMR", critical: false, category: "documentation", notes: null } ] },
+      ] },
+    examination_actions: [ { key: "iop", label: "Measure IOP · NCT", reveal_text: "IOP (NCT) → R 18 mmHg · L 20 mmHg", satisfies_steps: [2] } ],
+  })));
+  await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [] })));
+  await ctx.route("**/api/cases/C001/chat", (r) => r.fulfill({ status: 200, contentType: "text/event-stream", body: 'data: {"text":"Good morning, doctor."}\n\ndata: [DONE]\n\n' }));
+  await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({ result: { history_score: 7, investigations_score: 7, diagnosis_score: 8, management_score: 6, history_feedback: "Good.", investigations_feedback: "Good.", diagnosis_feedback: "Good.", management_feedback: "Good.", total_score: 28, overall_feedback: "Solid.", critical_hit: 1, critical_total: 1 }, cards: [], mock_mode: false, debrief: "What you did really well: clear identification. Where to grow next time: document the follow-up plan.", checklist_comparison: [], per_phase: [ { phase: 1, name: "Preparation & Identification", done: 1, total: 1 }, { phase: 2, name: "Clinical Assessment", done: 1, total: 2 }, { phase: 3, name: "Documentation & Follow-up", done: 0, total: 1 } ] })));
   await ctx.route("**/api/flashcards/generate", (r) => r.fulfill(J([
     { card_id: "f1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "glaucoma", repetitions: 0, easiness: 2.5, interval_days: 1 },
     { card_id: "f2", front: "Most common cause of gradual painless vision loss in the elderly?", back: "Cataract", topic_tag: "cataract", repetitions: 1, easiness: 2.6, interval_days: 3 },
@@ -122,7 +136,7 @@ async function sweep(ctx, routes, label) {
   await page.close();
 }
 
-const STUDENT_ROUTES = ["/", "/checkin", "/dashboard", "/cases", "/flashcards", "/summary", "/progress", "/profile", "/chat"];
+const STUDENT_ROUTES = ["/", "/checkin", "/dashboard", "/cases", "/cases/C001", "/flashcards", "/summary", "/progress", "/profile", "/chat"];
 const ADMIN_ROUTES = ["/admin", "/admin/students", "/admin/accounts", "/admin/activity"];
 const SUPERVISOR_ROUTES = ["/supervisor"];
 
