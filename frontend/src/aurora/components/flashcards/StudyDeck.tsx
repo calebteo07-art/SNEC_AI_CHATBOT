@@ -56,7 +56,7 @@ export function StudyDeck(p: Props) {
 
   return (
     <div className="aperture-deck" data-testid="study-deck">
-      <div className="aperture-deck-top"><FocusCoach message={coach} /></div>
+      <div className="aperture-deck-top"><FocusCoach key={coach} message={coach} /></div>
       <FocusCard
         card={p.card}
         flipKey={`${p.idx}-${p.isRetry ? "r" : "n"}`}

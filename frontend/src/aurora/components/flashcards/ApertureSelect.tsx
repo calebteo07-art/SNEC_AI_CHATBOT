@@ -2,7 +2,7 @@
 /* "Set the Aperture" — one criterion per step (Clarity -> Depth -> Lens) over the
    deep Twilight field, frosted controls, the iris reacting in the centre. The final
    topic choice fires the dilation launch, then hands control to the deck. */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { type Difficulty, LENGTHS } from "./types";
 import { ApertureStage } from "./ApertureStage";
@@ -23,6 +23,10 @@ export function ApertureSelect({
   const [launching, setLaunching] = useState(false);
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
 
+  // The dilation timer is held so it can be cleared if we unmount mid-launch.
+  const launchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (launchTimer.current) clearTimeout(launchTimer.current); }, []);
+
   // Commit a topic: play the dilation, then notify the orchestrator.
   const commit = (setKey: string | null) => {
     const reduce = typeof document !== "undefined" &&
@@ -30,7 +34,7 @@ export function ApertureSelect({
        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     if (reduce) { onChoose(setKey); return; }
     setLaunching(true);
-    window.setTimeout(() => onChoose(setKey), 820);
+    launchTimer.current = setTimeout(() => onChoose(setKey), 820);
   };
 
   return (
@@ -51,9 +55,9 @@ export function ApertureSelect({
         <ApertureStage size={200} launching={launching} />
 
         {step === 0 && (
-          <div key="clarity" className="aperture-choices aperture-step-slide" role="tablist" aria-label="Difficulty">
+          <div key="clarity" className="aperture-choices aperture-step-slide" role="radiogroup" aria-label="Difficulty">
             {(["easy", "medium"] as Difficulty[]).map((d) => (
-              <button key={d} type="button" role="tab" aria-selected={difficulty === d}
+              <button key={d} type="button" role="radio" aria-checked={difficulty === d}
                 className="aperture-choice aperture-press" onClick={() => setDifficulty(d)}>
                 <span className="aperture-choice-k">{d === "easy" ? "Easy" : "Medium"}</span>
                 <span className="aperture-choice-v">{d === "easy" ? "Warm up the basics" : "Push a little harder"}</span>
@@ -63,9 +67,9 @@ export function ApertureSelect({
         )}
 
         {step === 1 && (
-          <div key="depth" className="aperture-choices aperture-step-slide" role="tablist" aria-label="Session length">
+          <div key="depth" className="aperture-choices aperture-step-slide" role="radiogroup" aria-label="Session length">
             {LENGTHS.map((l) => (
-              <button key={l.n} type="button" role="tab" aria-selected={sessionLength === l.n}
+              <button key={l.n} type="button" role="radio" aria-checked={sessionLength === l.n}
                 className="aperture-choice aperture-press" onClick={() => setSessionLength(l.n)}>
                 <span className="aperture-choice-k">{l.label}</span>
                 <span className="aperture-choice-v">{l.n} cards</span>
@@ -75,7 +79,7 @@ export function ApertureSelect({
         )}
 
         {step === 2 && (
-          <div key="lens" className="aperture-choices aperture-step-slide" role="tablist" aria-label="Topics">
+          <div key="lens" className="aperture-choices aperture-step-slide" role="group" aria-label="Topics">
             <button type="button" data-testid="aperture-open" className="aperture-choice aperture-press aperture-topic-card"
               onClick={() => commit(null)}>
               <span><span className="aperture-choice-k">Mixed</span>
