@@ -1,0 +1,69 @@
+# tests/cases/test_station_endpoints.py
+from unittest.mock import patch, AsyncMock
+from fastapi.testclient import TestClient
+
+from tools.api.server import app
+from tools.shared.jwt_utils import create_access_token
+
+client = TestClient(app)
+
+CASE = {
+    "case_id": "case_test_station",
+    "title": "Test NCT",
+    "difficulty": "beginner",
+    "topic": "nct_glaucoma_suspect",
+    "estimated_minutes": 15,
+    "patient": {"name": "Mr Tan", "age": 60, "presenting_complaint": "review"},
+    "examination_findings": {"iop": {"right": "18 mmHg", "left": "20 mmHg"}},
+    "rubric": {"history": {"key_points": ["Ask compliance"]}},
+}
+
+CHECKLIST = {
+    "procedure_name": "Non-Contact Tonometry",
+    "steps": {"steps": [
+        {"step_number": 1, "category": "patient_identification", "action": "Identify patient name NRIC", "critical": True, "notes": None},
+        {"step_number": 2, "category": "clinical_assessment", "action": "Measure IOP with tonometer", "critical": True, "notes": None},
+        {"step_number": 3, "category": "post_procedure", "action": "Record readings in EMR", "critical": False, "notes": None},
+    ]},
+}
+
+
+def _cookie():
+    return {"eyebot_token": create_access_token("stu_test", "student", "OA")}
+
+
+def test_station_returns_phases_and_actions():
+    with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False), \
+         patch("tools.api.routers.cases.get_checklist_by_name", return_value=CHECKLIST):
+        r = client.get("/api/cases/case_test_station/station", cookies=_cookie())
+    assert r.status_code == 200
+    data = r.json()
+    phase_names = [p["name"] for p in data["checklist"]["phases"]]
+    assert "Preparation & Identification" in phase_names
+    assert "Clinical Assessment" in phase_names
+    # examination action for IOP maps to step 2
+    iop = next(a for a in data["examination_actions"] if a["key"] == "iop")
+    assert 2 in iop["satisfies_steps"]
+    assert "18 mmHg" in iop["reveal_text"]
+
+
+def test_station_rubric_fallback_when_no_checklist():
+    case = {**CASE, "topic": "ishihara_colour_vision", "checklist_procedure": ""}
+    with patch.dict("tools.api.shared._case_cache", {"case_ishi": case}, clear=False), \
+         patch("tools.api.routers.cases.get_checklist_by_name", return_value=None):
+        r = client.get("/api/cases/case_ishi/station", cookies=_cookie())
+    assert r.status_code == 200
+    assert r.json()["checklist"]["source"] == "rubric"
+
+
+def test_observe_returns_newly_satisfied():
+    with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False), \
+         patch("tools.api.routers.cases.get_checklist_by_name", return_value=CHECKLIST), \
+         patch("tools.api.routers.cases.observe", return_value=[1]):
+        r = client.post(
+            "/api/cases/case_test_station/observe",
+            json={"messages": [{"role": "user", "content": "name and NRIC please"}], "already_ticked": []},
+            cookies=_cookie(),
+        )
+    assert r.status_code == 200
+    assert r.json()["newly_satisfied"] == [1]
