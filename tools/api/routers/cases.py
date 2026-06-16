@@ -19,6 +19,11 @@ from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
 from tools.cases.topic_sets import resolve_set, sets_for, label_for
+from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
+from tools.cases.phase_split import group_by_phase
+from tools.cases.examination_actions import build_actions
+from tools.cases.observe_steps import observe
+from tools.kb.search import get_checklist_by_name
 
 # How many cases to surface per student per visit (a small rotating set, not the
 # whole library). The student cycles through every unlocked case before repeats.
@@ -119,6 +124,37 @@ class ChecklistResponse(BaseModel):
     steps: list[ChecklistStepModel]
     total_steps: int
     critical_count: int
+
+
+class PhaseGroup(BaseModel):
+    phase: int
+    name: str
+    steps: list[ChecklistStepModel]
+
+class ExaminationAction(BaseModel):
+    key: str
+    label: str
+    reveal_text: str
+    satisfies_steps: list[int]
+
+class StationChecklist(BaseModel):
+    procedure_name: str
+    phases: list[PhaseGroup]
+    total_steps: int
+    critical_count: int
+    source: str
+
+class StationResponse(BaseModel):
+    case: CaseInfo
+    checklist: StationChecklist
+    examination_actions: list[ExaminationAction]
+
+class ObserveRequest(BaseModel):
+    messages: list[ChatMessage] = Field(max_length=100)
+    already_ticked: list[int] = []
+
+class ObserveResponse(BaseModel):
+    newly_satisfied: list[int]
 
 
 # ── Case endpoints ─────────────────────────────────────────────────────────
@@ -360,6 +396,99 @@ def get_case_checklist(case_id: str):
         total_steps=len(parsed),
         critical_count=critical_count,
     )
+
+
+def _load_case_or_404(case_id: str) -> dict:
+    case = _case_cache.get(case_id)
+    if case is None:
+        try:
+            case = load_case(case_id)
+            _case_cache[case["case_id"]] = case
+        except (ValueError, FileNotFoundError):
+            raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
+    return case
+
+
+def _station_checklist(case: dict) -> dict:
+    """Resolve the case's checklist (real or rubric fallback) as a flat dict with steps."""
+    name, _how = resolve_procedure_name(case)
+    if name:
+        cl = get_checklist_by_name(name)
+        if cl:
+            raw = cl.get("steps") or {}
+            steps = raw.get("steps", []) if isinstance(raw, dict) else []
+            return {
+                "procedure_name": cl.get("procedure_name", name),
+                "steps": steps,
+                "source": "checklist",
+            }
+    return build_rubric_checklist(case)
+
+
+@router.get("/api/cases/{case_id}/station", response_model=StationResponse)
+def get_case_station(case_id: str):
+    """Everything the OSCE station UI needs: case, phased checklist, exam actions."""
+    case = _load_case_or_404(case_id)
+    cl = _station_checklist(case)
+    steps = cl["steps"]
+
+    parsed_steps = [
+        ChecklistStepModel(
+            step_number=int(s.get("step_number", 0)),
+            action=str(s.get("action", "")),
+            critical=bool(s.get("critical", False)),
+            category=str(s.get("category", "")),
+            notes=s.get("notes"),
+        )
+        for s in steps
+    ]
+    by_step = {p.step_number: p for p in parsed_steps}
+    groups = [
+        PhaseGroup(
+            phase=g["phase"],
+            name=g["name"],
+            steps=[by_step[int(s.get("step_number", 0))] for s in g["steps"]
+                   if int(s.get("step_number", 0)) in by_step],
+        )
+        for g in group_by_phase(steps)
+    ]
+    critical_count = sum(1 for p in parsed_steps if p.critical)
+    actions = [ExaminationAction(**a) for a in build_actions(case.get("examination_findings", {}), steps)]
+
+    return StationResponse(
+        case=CaseInfo(
+            case_id=case["case_id"],
+            title=case["title"],
+            difficulty=case.get("difficulty", "beginner"),
+            topic=case.get("topic", ""),
+            estimated_minutes=case.get("estimated_minutes", 15),
+            patient=CasePatientInfo(
+                name=case["patient"]["name"],
+                age=int(case["patient"].get("age", 30)),
+                presenting_complaint=case["patient"].get("presenting_complaint", ""),
+            ),
+        ),
+        checklist=StationChecklist(
+            procedure_name=cl["procedure_name"],
+            phases=groups,
+            total_steps=len(parsed_steps),
+            critical_count=critical_count,
+            source=cl["source"],
+        ),
+        examination_actions=actions,
+    )
+
+
+@router.post("/api/cases/{case_id}/observe", response_model=ObserveResponse)
+@limiter.limit("40/minute")
+async def observe_case(case_id: str, request: Request, body: ObserveRequest,
+                       current_user: CurrentUser = Depends(get_current_user)):
+    """Live examiner: return checklist steps the transcript now satisfies."""
+    case = _load_case_or_404(case_id)
+    cl = _station_checklist(case)
+    messages = [{"role": m.role, "content": m.content} for m in body.messages]
+    newly = await asyncio.to_thread(observe, cl["steps"], messages, body.already_ticked)
+    return ObserveResponse(newly_satisfied=newly)
 
 
 @router.post("/api/cases/{case_id}/chat")
