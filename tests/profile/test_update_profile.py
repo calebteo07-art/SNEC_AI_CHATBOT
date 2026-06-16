@@ -51,7 +51,11 @@ async def test_update_profile_increments_session_count():
 
 @pytest.mark.asyncio
 async def test_update_profile_increments_streak_from_yesterday():
-    profile = _profile(last_active="2026-05-09", streak=4)
+    # Checked in yesterday, checking in today -> consecutive day, streak +1.
+    # last_active is older here to prove the streak keys off last_checkin_date
+    # (the date of the last *completed* check-in), not general activity which
+    # rewrites last_active to today on every update_profile call.
+    profile = _profile(last_checkin_date="2026-05-09", last_active="2026-05-05", streak=4)
     with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
          patch("tools.profile.update_profile.date") as mock_date:
@@ -67,7 +71,11 @@ async def test_update_profile_increments_streak_from_yesterday():
 
 @pytest.mark.asyncio
 async def test_update_profile_resets_streak_after_gap():
-    profile = _profile(last_active="2026-05-07", streak=10)
+    # Last *completed check-in* was 3 days ago (a gap), even though the student
+    # was active yesterday (e.g. chat) which set last_active to yesterday. The
+    # streak must reset to 0 off last_checkin_date, not be inflated off
+    # last_active. Matches the read-time reset in checkin.py.
+    profile = _profile(last_checkin_date="2026-05-07", last_active="2026-05-09", streak=10)
     with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
          patch("tools.profile.update_profile.date") as mock_date:
@@ -79,6 +87,39 @@ async def test_update_profile_resets_streak_after_gap():
         await update_profile("stu-001", checkin_done=True)
     call_kwargs = _main_update_kwargs(mock_update)
     assert call_kwargs["streak"] == 0
+
+
+@pytest.mark.asyncio
+async def test_update_profile_starts_streak_on_first_checkin():
+    # No prior completed check-in (last_checkin_date is None) -> the first
+    # check-in starts the streak at 1, regardless of earlier general activity
+    # that may have set last_active to a recent date.
+    profile = _profile(last_checkin_date=None, last_active="2026-05-05", streak=0)
+    with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
+         patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
+         patch("tools.profile.update_profile.date") as mock_date:
+        mock_date.today.return_value = date(2026, 5, 10)
+        mock_date.fromisoformat = date.fromisoformat
+        from tools.profile.update_profile import update_profile
+        await update_profile("stu-001", checkin_done=True)
+    call_kwargs = _main_update_kwargs(mock_update)
+    assert call_kwargs["streak"] == 1
+
+
+@pytest.mark.asyncio
+async def test_update_profile_does_not_double_increment_same_day():
+    # Already checked in today (last_checkin_date == today). A second check-in
+    # update the same day keeps the streak where it is — no double-count.
+    profile = _profile(last_checkin_date="2026-05-10", last_active="2026-05-10", streak=4)
+    with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
+         patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
+         patch("tools.profile.update_profile.date") as mock_date:
+        mock_date.today.return_value = date(2026, 5, 10)
+        mock_date.fromisoformat = date.fromisoformat
+        from tools.profile.update_profile import update_profile
+        await update_profile("stu-001", checkin_done=True)
+    call_kwargs = _main_update_kwargs(mock_update)
+    assert call_kwargs["streak"] == 4
 
 
 @pytest.mark.asyncio

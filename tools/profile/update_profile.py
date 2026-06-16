@@ -56,9 +56,14 @@ async def update_profile(
     new_streak = current_streak
 
     if checkin_done:
-        last_active = profile.get("last_active")
+        # Key off last_checkin_date (the date of the last *completed* check-in),
+        # NOT last_active — last_active is rewritten to today on every
+        # update_profile call (chat, case completion, etc.), so using it would
+        # inflate the streak for students who are active daily but check in only
+        # sporadically. This matches the read-time reset in checkin.py.
+        last_checkin = profile.get("last_checkin_date")
         try:
-            last = date.fromisoformat(str(last_active)) if last_active else None
+            last = date.fromisoformat(str(last_checkin)) if last_checkin else None
         except (ValueError, TypeError):
             last = None
 
