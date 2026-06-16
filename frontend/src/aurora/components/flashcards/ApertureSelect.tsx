@@ -41,9 +41,9 @@ export function ApertureSelect({
     <div className="aperture-step">
       <div className="aperture-step-head">
         <p className="aperture-eyebrow">Set the aperture · {step + 1} of 3</p>
-        <h1 className="aperture-title">
+        <h2 className="aperture-title">
           {step === 0 ? "Clarity" : step === 1 ? "Depth" : "Lens"}
-        </h1>
+        </h2>
         <p className="aperture-help">
           {step === 0 ? "How sharp do you want it? Pick a difficulty."
             : step === 1 ? "How deep should we go? Choose a session length."

@@ -90,7 +90,6 @@
 @keyframes aperture-step-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
 @keyframes aperture-coach-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes aperture-focuspull { 0% { filter: blur(10px); opacity: .4; } 100% { filter: blur(0); opacity: 1; } }
-@keyframes aperture-refocus-out { from { filter: blur(0); opacity: 1; } to { filter: blur(8px); opacity: 0; } }
 .aperture-focuspull { animation: aperture-focuspull .5s var(--mo-ease) both; }
 .aperture-step-slide { will-change: transform, opacity; }
 
@@ -108,11 +107,13 @@
   [data-theme="aperture"] .aperture-coach,
   [data-theme="aperture"] .aperture-coach-dot,
   [data-theme="aperture"] .aperture-focuspull,
-  [data-theme="aperture"] .focus-card,
   [data-theme="aperture"] .focus-submit,
   [data-theme="aperture"] .focus-advance,
   [data-theme="aperture"] .aperture-next,
   [data-theme="aperture"] .aperture-open { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+  /* The flip card keeps its transform (the reveal relies on rotateY) — only the
+     animation/transition are killed so the back face shows instantly, not blanked. */
+  [data-theme="aperture"] .focus-card { animation: none !important; transition: none !important; }
 }
 html[data-motion="reduce"] .aurora-page-enter,
 html[data-motion="reduce"] .aurora-stagger > *,
@@ -140,8 +141,9 @@ html[data-motion="reduce"] [data-theme="aperture"] .aperture-step-slide,
 html[data-motion="reduce"] [data-theme="aperture"] .aperture-coach,
 html[data-motion="reduce"] [data-theme="aperture"] .aperture-coach-dot,
 html[data-motion="reduce"] [data-theme="aperture"] .aperture-focuspull,
-html[data-motion="reduce"] [data-theme="aperture"] .focus-card,
 html[data-motion="reduce"] [data-theme="aperture"] .focus-submit,
 html[data-motion="reduce"] [data-theme="aperture"] .focus-advance,
 html[data-motion="reduce"] [data-theme="aperture"] .aperture-next,
 html[data-motion="reduce"] [data-theme="aperture"] .aperture-open { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+/* Flip card keeps transform (reveal needs rotateY); kill only animation/transition. */
+html[data-motion="reduce"] [data-theme="aperture"] .focus-card { animation: none !important; transition: none !important; }
