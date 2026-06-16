@@ -33,6 +33,8 @@ export function ApertureSelect({
 
   return (
     <div className="aperture-step">
+      {/* The login eye, full-scale and unmasked, as a centered backdrop. */}
+      <ApertureStage ref={stageRef} />
       <div className="aperture-step-head">
         <p className="aperture-eyebrow">Set the aperture · {step + 1} of 3</p>
         <h2 className="aperture-title">
@@ -46,8 +48,6 @@ export function ApertureSelect({
       </div>
 
       <div className="aperture-step-body">
-        <ApertureStage ref={stageRef} size={400} />
-
         {step === 0 && (
           <div key="clarity" className="aperture-choices aperture-step-slide" role="radiogroup" aria-label="Difficulty">
             {(["easy", "medium"] as Difficulty[]).map((d) => (
