@@ -19,6 +19,22 @@ def _profile(**kwargs):
     return defaults
 
 
+def _main_update_kwargs(mock_update):
+    """Return the kwargs of the main profile-update db call.
+
+    update_profile() persists the session fields in one db.update_profile call
+    (session_count, retention_scores, weak_topics, missed_findings, and — on a
+    check-in — streak), then makes a separate trailing db.update_profile call to
+    reset the daily hearts. So mock.call_args (the *last* call) is the hearts
+    reset and no longer carries the session fields. Locate the call that actually
+    persists them; requiring it to exist also proves the fields were written.
+    """
+    for call in mock_update.call_args_list:
+        if "session_count" in call.kwargs:
+            return call.kwargs
+    raise AssertionError("db.update_profile was never called with the session fields")
+
+
 @pytest.mark.asyncio
 async def test_update_profile_increments_session_count():
     profile = _profile()
@@ -29,7 +45,7 @@ async def test_update_profile_increments_session_count():
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001")
-    call_kwargs = mock_update.call_args[1]
+    call_kwargs = _main_update_kwargs(mock_update)
     assert call_kwargs["session_count"] == 3
 
 
@@ -42,8 +58,10 @@ async def test_update_profile_increments_streak_from_yesterday():
         mock_date.today.return_value = date(2026, 5, 10)
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
-        await update_profile("stu-001")
-    call_kwargs = mock_update.call_args[1]
+        # Streak only recalculates on the daily check-in (checkin_done=True);
+        # general activity no longer touches it.
+        await update_profile("stu-001", checkin_done=True)
+    call_kwargs = _main_update_kwargs(mock_update)
     assert call_kwargs["streak"] == 5
 
 
@@ -56,9 +74,11 @@ async def test_update_profile_resets_streak_after_gap():
         mock_date.today.return_value = date(2026, 5, 10)
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
-        await update_profile("stu-001")
-    call_kwargs = mock_update.call_args[1]
-    assert call_kwargs["streak"] == 1
+        # A missed day resets the streak to 0 (matches the read-time reset in
+        # checkin.py), not 1.
+        await update_profile("stu-001", checkin_done=True)
+    call_kwargs = _main_update_kwargs(mock_update)
+    assert call_kwargs["streak"] == 0
 
 
 @pytest.mark.asyncio
@@ -71,7 +91,7 @@ async def test_update_profile_updates_retention_scores():
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001", topic="retina", score=0.5)
-    call_kwargs = mock_update.call_args[1]
+    call_kwargs = _main_update_kwargs(mock_update)
     scores = call_kwargs["retention_scores"]
     assert scores["retina"] == 0.5
     assert scores["glaucoma"] == 0.8
@@ -87,7 +107,7 @@ async def test_update_profile_marks_weak_topics():
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001")
-    call_kwargs = mock_update.call_args[1]
+    call_kwargs = _main_update_kwargs(mock_update)
     weak = call_kwargs["weak_topics"]
     assert "retina" in weak
     assert "glaucoma" not in weak
@@ -103,7 +123,7 @@ async def test_update_profile_appends_missed_findings():
         mock_date.fromisoformat = date.fromisoformat
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001", new_missed_findings=["RNFL thinning"])
-    call_kwargs = mock_update.call_args[1]
+    call_kwargs = _main_update_kwargs(mock_update)
     findings = call_kwargs["missed_findings"]
     assert "disc haemorrhage" in findings
     assert "RNFL thinning" in findings
