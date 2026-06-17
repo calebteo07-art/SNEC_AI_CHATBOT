@@ -32,9 +32,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return c ? JSON.parse(c) : null;
     } catch { return null; }
   });
+  /* Check-in is gated per *session*, not per day: students complete it every time
+     they start a new session. The flag lives in sessionStorage so it survives page
+     reloads within the same session but is cleared when the tab/window closes. */
   const [isCheckInDone, setIsCheckInDone] = useState(
     () => typeof window !== "undefined" &&
-      localStorage.getItem("eyebot_checkin_date") === new Date().toDateString()
+      sessionStorage.getItem("eyebot_checkin_session") === "1"
   );
   const [loading, setLoading] = useState(
     () => typeof window === "undefined" || !localStorage.getItem("eyebot_user_v1")
@@ -71,7 +74,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(restoredUser);
         localStorage.setItem("eyebot_user_v1", JSON.stringify(restoredUser));
-        setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
+        // Restoring an existing session (e.g. a page reload) keeps the check-in status
+        // for that session; a brand-new browser session has no flag and is sent to check-in.
+        setIsCheckInDone(sessionStorage.getItem("eyebot_checkin_session") === "1");
         setLoading(false);
       } catch {
         if (cancelled) return;
@@ -92,7 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
-    setIsCheckInDone(localStorage.getItem("eyebot_checkin_date") === new Date().toDateString());
+    // A fresh login starts a new session — always require the check-in again.
+    sessionStorage.removeItem("eyebot_checkin_session");
+    setIsCheckInDone(false);
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
       email: userData.email,
@@ -130,9 +137,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
     if (done) {
-      localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+      sessionStorage.setItem("eyebot_checkin_session", "1");
     } else {
-      localStorage.removeItem("eyebot_checkin_date");
+      sessionStorage.removeItem("eyebot_checkin_session");
     }
   };
 

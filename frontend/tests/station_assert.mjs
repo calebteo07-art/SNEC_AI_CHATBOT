@@ -10,7 +10,7 @@ await ctx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  sessionStorage.setItem("eyebot_checkin_session", "1");
   localStorage.setItem("eyebot_tour_seen", "true");
 }, user);
 await ctx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);

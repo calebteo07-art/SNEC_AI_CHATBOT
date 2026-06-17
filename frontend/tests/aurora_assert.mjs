@@ -12,7 +12,7 @@ await navCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  sessionStorage.setItem("eyebot_checkin_session", "1");
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, studentUser);
@@ -246,7 +246,7 @@ await adminCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  sessionStorage.setItem("eyebot_checkin_session", "1");
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, adminUser);
@@ -284,7 +284,7 @@ await supCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+  sessionStorage.setItem("eyebot_checkin_session", "1");
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, supUser);
