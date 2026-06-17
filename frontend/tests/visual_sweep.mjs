@@ -109,7 +109,7 @@ async function seededContext(browser, user, viewport) {
     try { indexedDB.deleteDatabase("eyebot"); } catch {}
     if (u) {
       localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-      localStorage.setItem("eyebot_checkin_date", new Date().toDateString());
+      sessionStorage.setItem("eyebot_checkin_session", "1");
       localStorage.setItem("eyebot_tour_seen", "true");
     }
   }, [user]);
