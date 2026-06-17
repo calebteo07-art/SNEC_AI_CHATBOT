@@ -102,6 +102,28 @@ def test_change_password_success():
     mock_upsert.assert_called_once()
 
 
+def test_change_password_forced_first_time_no_student_id():
+    """The forced first-time flow (new account) sends ONLY current_password +
+    new_password — no student_id, current is empty. It must succeed, not 422.
+
+    Regression: ChangePasswordRequest required a student_id the frontend never
+    sends, so FastAPI returned a 422 whose detail array the UI tried to render
+    as a React child (React error #31)."""
+    consent_row = {"email": "newbie@test.com", "student_id": "stu_new", "full_name": "Newbie"}
+
+    with patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_upsert:
+        r = client.post(
+            "/api/auth/change-password",
+            json={"current_password": "", "new_password": "newpass123"},
+            cookies=_auth_cookie("stu_new"),
+        )
+    assert r.status_code == 200, r.text
+    assert r.json()["ok"] is True
+    mock_upsert.assert_called_once()
+
+
 def test_change_password_wrong_current():
     from tools.shared.auth import hash_password
     old_hash = hash_password("correctpass")

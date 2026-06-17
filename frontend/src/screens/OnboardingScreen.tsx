@@ -5,6 +5,7 @@ import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { useWipeNavigate } from "@/fx";
 import { EyeHero, type GazeHandle } from "./EyeHero";
+import { errorDetail } from "@/lib/errorDetail";
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -425,7 +426,7 @@ export function OnboardingScreen() {
                       try {
                         const res = await fetch("/api/auth/reset-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: resetEmail.trim().toLowerCase(), otp: resetOtp, new_password: resetPassword }) });
                         const d = await res.json().catch(() => ({}));
-                        if (!res.ok) { setResetError((d as { detail?: string }).detail ?? "Something went wrong."); return; }
+                        if (!res.ok) { setResetError(errorDetail(d)); return; }
                         setResetSuccess(true);
                         setResetOtp(""); setResetPassword(""); setResetConfirm("");
                       } catch { setResetError("Could not reach the server."); }
