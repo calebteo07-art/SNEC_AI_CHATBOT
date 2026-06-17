@@ -80,7 +80,14 @@ export function Tutor() {
       m.type === "user" ? { role: "user", content: m.text } : { role: "assistant", content: m.content },
     );
 
-    const aiMsgId = `ai-${Date.now() + 1}`;
+    const nudgeId = `ai-${Date.now() + 1}`;
+    const answerId = `ai-${Date.now() + 2}`;
+    // EyeBot replies in two parts: a "💭" reflective nudge, then (after a blank
+    // line) the answer. We surface them as two separate bubbles — the nudge first,
+    // then a short typing beat, then the answer — never both at once.
+    const setBubble = (id: string, content: string) =>
+      setMessages((prev) => prev.map((m) => (m.type === "ai" && m.id === id ? { ...m, content } : m)));
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -90,13 +97,15 @@ export function Tutor() {
       });
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
 
-      setMessages((prev) => [...prev, { type: "ai", id: aiMsgId, content: "" }]);
+      setMessages((prev) => [...prev, { type: "ai", id: nudgeId, content: "" }]);
       setIsTyping(false);
-      setStreamingId(aiMsgId);
+      setStreamingId(nudgeId);
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let accum = "";
+      let phase: "nudge" | "answer" = "nudge";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -110,23 +119,37 @@ export function Tutor() {
           if (data === "[DONE]") break;
           try {
             const parsed = JSON.parse(data) as { text: string };
-            if (parsed.text) {
-              setMessages((prev) => {
-                const last = prev[prev.length - 1];
-                if (last.type === "ai" && last.id === aiMsgId)
-                  return [...prev.slice(0, -1), { ...last, content: last.content + parsed.text }];
-                return prev;
-              });
+            if (!parsed.text) continue;
+            accum += parsed.text;
+            const idx = accum.indexOf("\n\n");
+
+            if (phase === "nudge") {
+              if (idx === -1) {
+                // Still inside the nudge — stream it into the first bubble.
+                setBubble(nudgeId, accum);
+              } else {
+                // Blank line reached: finalise the nudge, pause, then open the answer.
+                setBubble(nudgeId, accum.slice(0, idx).trimEnd());
+                phase = "answer";
+                setStreamingId(null);
+                setIsTyping(true);
+                await new Promise((r) => setTimeout(r, 650));
+                setIsTyping(false);
+                setMessages((prev) => [...prev, { type: "ai", id: answerId, content: "" }]);
+                setStreamingId(answerId);
+                setBubble(answerId, accum.slice(idx + 2).trimStart());
+              }
+            } else {
+              setBubble(answerId, accum.slice(idx + 2).trimStart());
             }
           } catch { /* skip malformed SSE */ }
         }
       }
     } catch {
       setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last.type === "ai" && last.id === aiMsgId)
-          return [...prev.slice(0, -1), { ...last, content: FALLBACK_CONTENT }];
-        return [...prev, { type: "ai", id: aiMsgId, content: FALLBACK_CONTENT }];
+        const exists = prev.some((m) => m.type === "ai" && m.id === nudgeId);
+        if (exists) return prev.map((m) => (m.type === "ai" && m.id === nudgeId ? { ...m, content: FALLBACK_CONTENT } : m));
+        return [...prev, { type: "ai", id: nudgeId, content: FALLBACK_CONTENT }];
       });
     } finally {
       setIsTyping(false);
