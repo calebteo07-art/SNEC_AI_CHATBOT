@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "./AuthContext";
+import { errorDetail } from "@/lib/errorDetail";
 
 interface Props {
   forced?: boolean;
@@ -36,7 +37,7 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
       if (res.status === 401) { setError("Current password is incorrect."); return; }
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        setError((d as { detail?: string }).detail ?? "Something went wrong.");
+        setError(errorDetail(d));
         return;
       }
       setMustChangePassword(false);

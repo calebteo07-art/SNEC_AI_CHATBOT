@@ -42,8 +42,9 @@ class LoginResponse(BaseModel):
     mock_mode: bool
 
 class ChangePasswordRequest(BaseModel):
-    student_id: str
-    current_password: str
+    # NB: the identity comes from the JWT (current_user["sub"]), never the body —
+    # so no student_id field here. The forced first-time flow sends only these two.
+    current_password: str = ""
     new_password: str
 
 class RequestResetRequest(BaseModel):
