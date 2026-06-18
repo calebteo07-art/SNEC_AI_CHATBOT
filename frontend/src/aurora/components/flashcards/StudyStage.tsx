@@ -2,7 +2,7 @@
 /* StudyStage — the active-study layout: a slim top bar (deck title, progress dots,
    live XP), an adaptive coach line, the centered RecallCard, and a slim readout.
    Owns the keyboard-advance (Enter / → once graded). */
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type Flashcard, type AiFeedback, scoreTier } from "./types";
 import { RecallCard } from "./RecallCard";
 
@@ -37,6 +37,26 @@ export function StudyStage(p: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [p.submitted, p.aiChecking, p.onAdvance]);
 
+  const [xpShown, setXpShown] = useState(p.sessionXp);
+  const xpFromRef = useRef(p.sessionXp);
+  useEffect(() => {
+    const reduce = document.documentElement.dataset.motion === "reduce" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const from = xpFromRef.current;
+    const to = p.sessionXp;
+    xpFromRef.current = to;
+    if (reduce || from === to) { setXpShown(to); return; }
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / 600);
+      setXpShown(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [p.sessionXp]);
+
   const remaining = Math.max(0, p.total - p.idx - 1);
   const coach = (() => {
     if (!p.submitted) return p.isRetry
@@ -63,7 +83,7 @@ export function StudyStage(p: Props) {
             <i key={i} className={i < p.gradedCount ? "is-done" : i === p.idx ? "is-active" : ""} />
           ))}
         </span>
-        <span className="flash-xp-live">{p.sessionXp} XP</span>
+        <span className="flash-xp-live">{xpShown} XP</span>
       </div>
 
       <p className="flash-coach" key={coach}>{coach}</p>

@@ -13,7 +13,7 @@ import {
 } from "@/lib/legacy/gamification";
 import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
-import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpForScore, loadSessionCards } from "@/aurora/components/flashcards/types";
+import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpForScore, loadSessionCards, topicHue } from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
@@ -73,6 +73,7 @@ export function Flashcards() {
   const total = deck.length;
   const card = deck[idx];
   const isRetry = idx >= cards.length;
+  const stageHue = topicHue(card?.tag ?? "__mixed");
 
   const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); setCardXp(0); };
 
@@ -173,7 +174,7 @@ export function Flashcards() {
   // Selection (skipped from a tutor session or review).
   if (!fromSession && !pickerDone) {
     return (
-      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
         <SessionSetup
           topicSets={topicSets}
           difficulty={difficulty}
@@ -188,7 +189,7 @@ export function Flashcards() {
 
   if (generating || cards.length === 0 || !card) {
     return (
-      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
         <div className="flash-stage flash-stage-msg">
           {generating
             ? <p className="flash-msg">Bringing your cards into focus…</p>
