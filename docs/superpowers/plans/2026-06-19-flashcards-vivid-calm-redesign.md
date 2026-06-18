@@ -392,6 +392,13 @@ Replace the body of `SessionSetup` (the returned JSX, lines ~27–83) with:
   return (
     <div className="flash-setup" data-testid="flash-setup">
       <header className="flash-setup-head">
+        <PlateWell
+          src={PLATE.flashcards}
+          alt="Slit-lamp optical section through the cornea, anterior chamber and crystalline lens"
+          ratio={16 / 9}
+          caption="Slit-Lamp Optical Section"
+          className="flash-hero"
+        />
         <h2 className="flash-setup-title">Flashcards</h2>
       </header>
 
@@ -452,10 +459,14 @@ Replace the body of `SessionSetup` (the returned JSX, lines ~27–83) with:
   );
 ```
 
-Update the imports at the top of the file to include `topicHue`:
+Update the imports at the top of the file to include `topicHue` (the `PlateWell`/`PLATE` imports were already added when the slit-lamp hero was wired in — see note below):
 ```tsx
+import { PlateWell } from "@/aurora/components/PlateWell";
+import { PLATE } from "@/aurora/media";
 import { type Difficulty, LENGTHS, topicHue } from "./types";
 ```
+
+> **Already done (2026-06-19 image-addition sub-task):** the slit-lamp "laser slice" hero is wired into this header via `PlateWell`/`PLATE.flashcards`, the `.flash-hero` CSS rule exists, `RASTER_PROMPTS["flashcards"]` in `tools/media/prompts.py` was rewritten to the optical-section brief, and `flashcards-photo-00.png` was regenerated (manifest v12). This Task-4 rewrite must **keep** the `<PlateWell .../>` block in the header — do not regress to a title-only header.
 
 (Note: the `s.completed`/`s.total` sub-line is removed from real topic tiles; `s.total === 0` still disables empty sets. The `flash-setup`, `flash-start` hooks and the Mixed default are preserved, so the harness still passes.)
 

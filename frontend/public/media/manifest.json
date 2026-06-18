@@ -1,6 +1,6 @@
 {
-  "version": 11,
-  "generatedAt": "2026-06-13T10:22:52.143654+00:00",
+  "version": 13,
+  "generatedAt": "2026-06-18T19:30:13.851309+00:00",
   "palette": "photopic-v2",
   "accents": [
     {
@@ -35,6 +35,17 @@
       "width": null,
       "height": null,
       "hash": "sha256-fea5bf7bf524f0115d3da10d"
+    },
+    {
+      "id": "cases-fundus-00",
+      "kind": "raster",
+      "context": [
+        "cases"
+      ],
+      "path": "/media/accents/cases-fundus-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-c7355adfc1d02b50e0b75544"
     },
     {
       "id": "cases-gen-00",
@@ -125,6 +136,15 @@
       "hash": "sha256-c499313c4a7bf52864fe7da9"
     },
     {
+      "id": "eye-atlas-plate-00",
+      "kind": "raster",
+      "context": [],
+      "path": "/media/accents/eye-atlas-plate-00.png",
+      "width": null,
+      "height": null,
+      "hash": "sha256-790b44579764a053be9d8c0d"
+    },
+    {
       "id": "flashcards-gen-00",
       "kind": "svg",
       "context": [
@@ -144,7 +164,7 @@
       "path": "/media/accents/flashcards-photo-00.png",
       "width": null,
       "height": null,
-      "hash": "sha256-7a70175b6db12ac71913967c"
+      "hash": "sha256-86515eeef1d9d66e7ae484cb"
     },
     {
       "id": "login-gen-00",

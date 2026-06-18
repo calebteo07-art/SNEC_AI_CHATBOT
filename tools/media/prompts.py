@@ -61,7 +61,8 @@ RASTER_PROMPTS: dict[str, str] = {
     "dashboard":    f"Extreme macro of a single calm human iris with intricate fibre detail and a deep black pupil, floating on a deep near-black clinical field; a soft Gemini-gradient rim light grazes the limbus. {_RASTER_BASE}",
     "cases":        f"A photorealistic human anterior segment - cornea, a detailed iris and a sliver of sclera - centred on a near-black field with even soft illumination so overlaid markers stay legible; a faint Gemini-gradient glow at the edges. {_RASTER_BASE}",
     "case-session": f"A photorealistic retinal fundus photograph: the optic disc, branching retinal vessels and the macula, clinically plausible, on a dark vignette with a subtle Gemini-gradient sheen. {_RASTER_BASE}",
-    "flashcards":   f"A different human iris in extreme macro with crisp crypts and collarette detail and a deep black pupil, on a near-black field with a thin Gemini-gradient rim. {_RASTER_BASE}",
+    # Pure clinical slit-lamp photo (no _RASTER_BASE: no Gemini rim, authentic look).
+    "flashcards":   "A realistic clinical slit-lamp biomicroscopy photograph of a human eye, frontal view as seen through the slit lamp during an ophthalmic examination. A bright, crisp, well-defined vertical white slit beam forms a luminous optical section across the clear cornea - the brightest element - revealing faint fine vertical stromal striae deep within the beam (Vogt's striae). The iris shows natural fibre texture and colour with a deep black round pupil at the centre; at the periphery the limbus and a sliver of conjunctiva carry fine red blood vessels. The unlit surroundings fall into natural near-black darkness. Ultra-sharp, medical-grade, photorealistic, like a real ophthalmology teaching-atlas slit-lamp photo. No text, labels, arrows, measurement overlays, or UI; no people or faces beyond the eye; no fluorescein stain, no cobalt-blue light.",
 }
 
 LOOP_PROMPTS: dict[str, str] = {
