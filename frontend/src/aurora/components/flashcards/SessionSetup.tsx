@@ -1,13 +1,14 @@
 "use client";
-/* SessionSetup — one calm light screen: difficulty + length pills and a topic
-   gallery. Mixed is selected by default (so Start always works, even when topics
-   are empty); clicking a topic only selects it. Start commits the set_key (or null
-   for Mixed) to the orchestrator. Changing difficulty resets the selection to Mixed. */
+/* SessionSetup — one calm light screen: a slit-lamp hero, difficulty + length
+   pills, and a color-led topic gallery. Mixed is selected by default (so Start
+   always works, even when topics are empty); each real topic tile carries its own
+   topicHue. Only a handful of topics show until "Show all topics" is opened. Start
+   commits the set_key (or null for Mixed) to the orchestrator. */
 import { useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
-import { type Difficulty, LENGTHS } from "./types";
+import { type Difficulty, LENGTHS, topicHue } from "./types";
 import { TopicGlyph } from "./TopicGlyph";
 
 interface Props {
@@ -19,12 +20,18 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
+const PREVIEW = 5;
+
 export function SessionSetup({
   topicSets, difficulty, setDifficulty, sessionLength, setSessionLength, onStart,
 }: Props) {
   const [selected, setSelected] = useState<string | null>(null); // null = Mixed
+  const [showAll, setShowAll] = useState(false);
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
   const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); };
+
+  const visible = showAll ? sets : sets.slice(0, PREVIEW);
+  const hiddenCount = sets.length - visible.length;
 
   return (
     <div className="flash-setup" data-testid="flash-setup">
@@ -57,7 +64,7 @@ export function SessionSetup({
             {LENGTHS.map((l) => (
               <button key={l.n} type="button" role="radio" aria-checked={sessionLength === l.n}
                 className="flash-pill flash-press" onClick={() => setSessionLength(l.n)}>
-                {l.label} · {l.n}
+                {l.label}
               </button>
             ))}
           </div>
@@ -65,21 +72,27 @@ export function SessionSetup({
       </section>
 
       <section className="flash-topics" aria-label="Topics">
-        <button type="button" className={`flash-topic flash-press${selected === null ? " is-selected" : ""}`}
+        <button type="button"
+          className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
           aria-pressed={selected === null} onClick={() => setSelected(null)}>
           <span className="flash-topic-glyph"><TopicGlyph topicKey="__mixed" /></span>
           <span className="flash-topic-label">Mixed</span>
-          <span className="flash-topic-sub">All topics · no repeats</span>
         </button>
-        {sets.map((s) => (
+        {visible.map((s) => (
           <button key={s.set_key} type="button" disabled={s.total === 0}
             className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
+            style={{ "--flash-topic-hue": topicHue(s.topic_key) } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
             <span className="flash-topic-glyph"><TopicGlyph topicKey={s.topic_key} /></span>
             <span className="flash-topic-label">{s.label}</span>
-            <span className="flash-topic-sub">{s.completed}/{s.total} seen</span>
           </button>
         ))}
+        {hiddenCount > 0 && (
+          <button type="button" className="flash-topic is-more flash-press" onClick={() => setShowAll(true)}>
+            <span className="flash-topic-label">Show all topics</span>
+            <span className="flash-topic-sub">+{hiddenCount} more</span>
+          </button>
+        )}
       </section>
 
       <div className="flash-setup-foot">
