@@ -126,7 +126,7 @@ export function CaseSession() {
         const data = (await res.json()) as { newly_satisfied?: number[] };
         addAuto(data.newly_satisfied ?? []);
       } catch { /* resilient: ignore quota / abort / network */ }
-    }, 650);
+    }, 450);
   }, [caseId, addAuto]);
 
   const toggleStep = (n: number) => setTicked((prev) => {
@@ -287,14 +287,16 @@ export function CaseSession() {
             </>
           )}
           {station && (
-            <StationChecklist
-              procedureName={station.checklist.procedure_name}
-              phases={phases}
-              totalSteps={station.checklist.total_steps}
-              ticked={ticked}
-              autoSteps={autoSteps}
-              onToggle={toggleStep}
-            />
+            <div className="aurora-station-clscroll">
+              <StationChecklist
+                procedureName={station.checklist.procedure_name}
+                phases={phases}
+                totalSteps={station.checklist.total_steps}
+                ticked={ticked}
+                autoSteps={autoSteps}
+                onToggle={toggleStep}
+              />
+            </div>
           )}
           {station && !result && (
             <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit((v) => !v)}>
@@ -377,6 +379,8 @@ function StationResult({ result, debrief, perPhase, comparison, onMore, onDash }
   comparison: ChecklistStepResult[]; onMore: () => void; onDash: () => void;
 }) {
   const { ref, display } = useCountUp<HTMLSpanElement>(result.total_score, { format: (n) => String(Math.round(n)) });
+  const missed = comparison.filter((s) => !s.performed);
+  const doneCount = comparison.length - missed.length;
   return (
     <div className="aurora-station-result">
       <div className="aurora-station-result-head">
@@ -394,36 +398,43 @@ function StationResult({ result, debrief, perPhase, comparison, onMore, onDash }
         </div>
       )}
 
-      {DOMAINS.map((d) => (
-        <div key={d.label} className="aurora-station-domain">
-          <div className="aurora-station-domain-top">
-            <span>{d.label}</span><span className="aurora-station-domain-val">{result[d.scoreKey] as number}/10</span>
+      {/* Compact domain breakdown — scored bars only; the narrative lives in the debrief. */}
+      <div className="aurora-station-domains">
+        {DOMAINS.map((d) => (
+          <div key={d.label} className="aurora-station-domain">
+            <div className="aurora-station-domain-top">
+              <span>{d.label}</span><span className="aurora-station-domain-val">{result[d.scoreKey] as number}/10</span>
+            </div>
+            <ProgressBar percent={(result[d.scoreKey] as number) * 10} label={d.label} />
           </div>
-          <ProgressBar percent={(result[d.scoreKey] as number) * 10} label={d.label} />
-          <p className="aurora-station-domain-fb">{result[d.feedbackKey] as string}</p>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {debrief && (
         <div className="aurora-station-debrief">
-          <p className="aurora-eyebrow">Your debrief</p>
+          <p className="aurora-eyebrow">Debrief</p>
           <p>{debrief}</p>
         </div>
       )}
 
+      {/* Review: only what was missed — the actionable takeaways. */}
       {comparison.length > 0 && (
-        <div className="aurora-station-review">
-          <p className="aurora-eyebrow">OSCE checklist review</p>
-          {comparison.map((s) => (
-            <div key={s.step_number} className="aurora-station-review-row" data-done={s.performed}>
-              <span className="mk" aria-hidden>{s.performed ? "✓" : "✗"}</span>
-              <span>
-                {s.action}
-                {!s.performed && s.clinical_note && <span className="aurora-station-review-note">{s.clinical_note}</span>}
-              </span>
-            </div>
-          ))}
-        </div>
+        missed.length > 0 ? (
+          <div className="aurora-station-review">
+            <p className="aurora-eyebrow">To remember next time · {doneCount}/{comparison.length} done</p>
+            {missed.map((s) => (
+              <div key={s.step_number} className="aurora-station-review-row" data-done="false">
+                <span className="mk" aria-hidden>✗</span>
+                <span>
+                  {s.action}
+                  {s.clinical_note && <span className="aurora-station-review-note">{s.clinical_note}</span>}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="aurora-station-review-clear">✓ Every checklist step covered — excellent work.</p>
+        )
       )}
 
       <div className="aurora-station-result-actions">
