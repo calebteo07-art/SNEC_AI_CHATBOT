@@ -203,7 +203,7 @@ export function Flashcards() {
   const weakPending = weakRef.current.length > 0;
 
   return (
-    <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+    <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
       <StudyStage
         card={card}
         idx={idx}
