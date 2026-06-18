@@ -1832,12 +1832,32 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    (.aurora-main-scroll is height:100dvh), so .flash-root fills it. Score-driven
    color flows through --flash-score-hue, set per-reveal on .flash-reveal.
    ───────────────────────────────────────────────────────────────────────── */
+/* Per-topic color: hue is animatable so Mixed sessions cross-fade between topics. */
+@property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
+
 .flash-root { position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
+  --flash-topic-hue: 212;
+  /* contrast-safe solid (white text sits on this) + soft tint for fills/accents */
+  --flash-topic-c: hsl(var(--flash-topic-hue) 68% 46%);
+  --flash-topic-soft: color-mix(in srgb, hsl(var(--flash-topic-hue) 80% 55%) 14%, var(--surface));
+  background: var(--canvas);
+  color: var(--ink);
+  transition: --flash-topic-hue .6s ease; }
+
+/* Living backdrop: two slow topic-tinted washes + a fixed brand wash. */
+.flash-root::before, .flash-root::after { content: ""; position: absolute; inset: -20%; z-index: 0;
+  pointer-events: none; }
+.flash-root::before {
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(66,133,244,.06), transparent 60%),
-    radial-gradient(90% 70% at 100% 110%, rgba(217,101,112,.05), transparent 55%),
-    var(--canvas);
-  color: var(--ink); }
+    radial-gradient(46% 40% at 22% 18%, hsl(var(--flash-topic-hue) 80% 60% / .16), transparent 60%),
+    radial-gradient(50% 44% at 82% 88%, hsl(var(--flash-topic-hue) 70% 55% / .12), transparent 60%);
+  animation: flash-drift 26s ease-in-out infinite alternate; }
+.flash-root::after {
+  background: radial-gradient(40% 34% at 88% 12%, rgba(155,114,203,.10), transparent 60%);
+  animation: flash-drift 34s ease-in-out infinite alternate-reverse; }
+@keyframes flash-drift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to   { transform: translate3d(3%, 2%, 0) scale(1.08); } }
 .flash-content { position: relative; z-index: 1; height: 100%; min-height: 100dvh; display: flex; flex-direction: column; }
 .flash-press { transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease; }
 .flash-press:active { transform: scale(.97); }
@@ -1979,14 +1999,18 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 }
 
 /* ── Reduced motion ── */
-html[data-motion="reduce"] .flash-card { transition: none; }
+html[data-motion="reduce"] .flash-card,
+html[data-motion="reduce"] .flash-root { transition: none; }
+html[data-motion="reduce"] .flash-root::before,
+html[data-motion="reduce"] .flash-root::after,
 html[data-motion="reduce"] .flash-start,
 html[data-motion="reduce"] .flash-confetti i,
 html[data-motion="reduce"] .flash-loader i,
 html[data-motion="reduce"] .flash-coach { animation: none; }
 html[data-motion="reduce"] .flash-confetti { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  .flash-card { transition: none; }
+  .flash-card, .flash-root { transition: none; }
+  .flash-root::before, .flash-root::after,
   .flash-start, .flash-confetti i, .flash-loader i, .flash-coach { animation: none; }
   .flash-confetti { display: none; }
 }
