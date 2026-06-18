@@ -134,35 +134,33 @@ for (const gone of ["/progress", "/summary"]) {
 }
 console.log("PASS: retired /progress and /summary no longer resolve");
 
-// flashcards: "The Aperture" — a 3-step stepper (Clarity -> Depth -> Lens) then a
-// centered, image-free flip deck. Walk the stepper, open Mixed, type a recall
-// answer, submit, and confirm the card flips to the AI grade + model answer.
+// flashcards: light, no-metaphor "Flashcards" — a single setup screen (difficulty +
+// length pills, topic gallery with Mixed selected by default) then a centered focus
+// card: typed recall is AI-graded, the card flips to reveal score + model answer.
 await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 82, feedback: "Close — IOP runs about 10–21 mmHg.", mock_mode: true })));
-await np.setViewportSize({ width: 1440, height: 900 });
+
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aperture-step", { timeout: 15000 });
-const deckH1 = await np.locator("main h1").count();
-if (deckH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${deckH1}`); process.exit(1); }
-// immersive: the rail falls away on /flashcards (like the Tutor), exit link present.
-if ((await np.locator('[data-testid="aperture-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
-await np.locator(".aperture-next").click();           // Clarity -> Depth
-await np.locator(".aperture-next").click();           // Depth -> Lens
-await np.locator('[data-testid="aperture-open"]').click();  // Mixed -> launch -> deck
-await np.waitForSelector('[data-testid="study-deck"]', { timeout: 15000 });
-await np.locator(".focus-recall").fill("About 10 to 21 mmHg");
-await np.locator('[data-testid="focus-submit"]').click();
-await np.waitForSelector('[data-testid="focus-feedback-head"]', { timeout: 8000 });
-// the score counts up to its value — wait for the readout to land on 82.
+await np.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
+const fcH1 = await np.locator("main h1").count();
+if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); process.exit(1); }
+// immersive: the rail falls away on /flashcards (like the Tutor); exit affordance present.
+if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
+// Mixed is selected by default — Start commits straight away (topics are unmocked here).
+await np.locator('[data-testid="flash-start"]').click();
+await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
+await np.locator(".flash-recall").fill("About 10 to 21 mmHg");
+await np.locator('[data-testid="flash-submit"]').click();
+await np.waitForSelector('[data-testid="flash-score"]', { timeout: 8000 });
 await np.waitForFunction(() => {
-  const el = document.querySelector('[data-testid="focus-feedback-head"]');
+  const el = document.querySelector('[data-testid="flash-score"]');
   return !!el && el.textContent.includes("82");
-}, { timeout: 8000 }).catch(() => {});
-const graded = await np.locator('[data-testid="focus-feedback-head"]').first().innerText();
-if (!graded.includes("82")) { console.error(`FAIL: flashcards AI grade not shown (head='${graded}')`); process.exit(1); }
-if ((await np.locator('.focus-model-label:has-text("Model answer")').count()) < 1) {
+}, { timeout: 8000 });
+const graded = await np.locator('[data-testid="flash-score"]').first().innerText();
+if (!graded.includes("82")) { console.error(`FAIL: flashcards AI grade not shown (score='${graded}')`); process.exit(1); }
+if ((await np.locator('.flash-compare-label:has-text("Model answer")').count()) < 1) {
   console.error("FAIL: flashcards model answer not revealed after grading"); process.exit(1);
 }
-console.log("PASS: Flashcards — Aperture stepper, typed recall is AI-graded, flip reveals the model answer");
+console.log("PASS: Flashcards — single setup, typed recall is AI-graded, flip reveals the model answer");
 
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
 // is immersive (no rail), so return to a rail route before asserting the logo.
@@ -209,7 +207,7 @@ for (const r of A11Y_ROUTES) {
   if (r === "/chat" || r === "/flashcards") {
     // Immersive routes: the Atlas Rail falls away (no <nav>); navigation is a
     // labelled back/exit affordance. Demand exactly one main + one h1 + that exit.
-    const back = await np.locator(".aurora-chat-back, [data-testid='aperture-exit']").count();
+    const back = await np.locator(".aurora-chat-back, [data-testid='flash-exit']").count();
     if (mains !== 1 || h1s !== 1 || back < 1) { console.error(`FAIL: a11y landmarks on ${r} (main=${mains}, h1=${h1s}, back=${back})`); process.exit(1); }
   } else {
     const navs = await np.locator("nav").count();
