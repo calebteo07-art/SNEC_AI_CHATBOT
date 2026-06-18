@@ -1,47 +1,23 @@
 "use client";
-/* AURORA Flashcards — "The Aperture". A thin orchestrator: owns session state and
-   the grading flow (unchanged mechanics — AI grade /100, XP on the 5-35 scale,
-   SM-2 fields passed through, weak-card retry, review + tutor-seed entry), and
-   renders the 3-step ApertureSelect then the StudyDeck inside the immersive,
-   Twilight-themed root. All presentation lives in components/flashcards/*. */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+/* AURORA Flashcards — a thin orchestrator. Owns session state and the grading flow
+   (unchanged mechanics — AI grade /100, XP on the 5-35 scale, SM-2 fields passed
+   through, weak-card retry, review + tutor-seed entry), and renders SessionSetup
+   then StudyStage inside the immersive light FlashShell. All presentation lives in
+   components/flashcards/*. */
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { rankForLevel } from "@/lib/rank";
-import { Icon } from "@/aurora/icons";
-import { AchievementManager } from "@/screens/AchievementToast";
 import {
   addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS,
 } from "@/lib/legacy/gamification";
 import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
 import { useGamificationSync } from "@/hooks/useGamification";
 import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpForScore, loadSessionCards } from "@/aurora/components/flashcards/types";
-import { ApertureSelect } from "@/aurora/components/flashcards/ApertureSelect";
-import { StudyDeck } from "@/aurora/components/flashcards/StudyDeck";
+import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
+import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
+import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 
-/* The immersive Twilight root, shared by the picker / loading / deck states.
-   Defined at module scope (NOT inside Flashcards) so it keeps a stable identity
-   across renders — otherwise its subtree, including the recall textarea, would
-   remount on every keystroke. */
-function ApertureShell({
-  newAchievements, onDismissAchievement, onExit, children,
-}: {
-  newAchievements: string[];
-  onDismissAchievement: (id: string) => void;
-  onExit: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div className="aperture-root" data-theme="aperture">
-      <h1 className="sr-only">Flashcards</h1>
-      <button type="button" className="aperture-exit aperture-press" data-testid="aperture-exit" onClick={onExit}>
-        <Icon.back size={16} /> Exit
-      </button>
-      <AchievementManager achievements={newAchievements} onDismiss={onDismissAchievement} />
-      <div className="aperture-content">{children}</div>
-    </div>
-  );
-}
 
 export function Flashcards() {
   const router = useRouter();
@@ -197,28 +173,28 @@ export function Flashcards() {
   // Selection (skipped from a tutor session or review).
   if (!fromSession && !pickerDone) {
     return (
-      <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
-        <ApertureSelect
+      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+        <SessionSetup
           topicSets={topicSets}
           difficulty={difficulty}
           setDifficulty={setDifficulty}
           sessionLength={sessionLength}
           setSessionLength={setSessionLength}
-          onChoose={(key) => { setSetKey(key); setPickerDone(true); }}
+          onStart={(key) => { setSetKey(key); setPickerDone(true); }}
         />
-      </ApertureShell>
+      </FlashShell>
     );
   }
 
   if (generating || cards.length === 0 || !card) {
     return (
-      <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
-        <div className="aperture-deck" style={{ placeItems: "center" }}>
+      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+        <div className="flash-stage flash-stage-msg">
           {generating
-            ? <p style={{ color: "var(--field-ink-2)" }}>Bringing your cards into focus…</p>
-            : <p style={{ color: "var(--field-ink-2)" }}>{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
+            ? <p className="flash-msg">Bringing your cards into focus…</p>
+            : <p className="flash-msg">{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
         </div>
-      </ApertureShell>
+      </FlashShell>
     );
   }
 
@@ -226,8 +202,8 @@ export function Flashcards() {
   const weakPending = weakRef.current.length > 0;
 
   return (
-    <ApertureShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
-      <StudyDeck
+    <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+      <StudyStage
         card={card}
         idx={idx}
         total={total}
@@ -247,6 +223,6 @@ export function Flashcards() {
         onExplain={explainThis}
         weakPending={weakPending}
       />
-    </ApertureShell>
+    </FlashShell>
   );
 }
