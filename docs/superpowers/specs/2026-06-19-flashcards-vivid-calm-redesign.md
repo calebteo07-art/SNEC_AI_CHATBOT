@@ -105,8 +105,18 @@ All changes are CSS + light JSX wiring. **No mechanics change.** Every existing
   sensible default `--flash-topic-hue` so setup/loading states are tinted.
 
 ### `SessionSetup.tsx`
-- **Header:** remove the eyebrow (`Active recall`) and the help sentence; keep a
-  single clean `Flashcards` title.
+- **Header:** remove the eyebrow (`Active recall`) and the help sentence. The
+  header carries a **slit-lamp optical-section hero** — a contained dark `PlateWell`
+  "instrument viewport" (`PLATE.flashcards`, `ratio 16/9`, caption "Slit-Lamp
+  Optical Section", width-capped via `.flash-hero`) above a single clean
+  `Flashcards` title. The dark well is an intentional, contained accent on the
+  light surface; the colorful topic grid below stays the focal point. `PlateWell`'s
+  built-in `<img>` `onError` fallback means a missing asset never breaks the screen.
+  Source art is a Nano Banana Pro raster from `RASTER_PROMPTS["flashcards"]` — a
+  realistic clinical slit-lamp exam photo (frontal eye, bright vertical white slit
+  beam across the cornea/pupil with faint Vogt's striae in the beam, natural amber
+  iris, dark pupil, fine red limbal/conjunctival vessels, near-black field; pure
+  clinical, no brand tint, no text/overlays/fluorescein).
 - **Topic grid:** show **Mixed + a small handful** of topics, then a quiet
   **"Show all topics"** expander revealing the rest. First view is calm, not a
   16-tile wall.

@@ -5,6 +5,8 @@
    for Mixed) to the orchestrator. Changing difficulty resets the selection to Mixed. */
 import { useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
+import { PlateWell } from "@/aurora/components/PlateWell";
+import { PLATE } from "@/aurora/media";
 import { type Difficulty, LENGTHS } from "./types";
 import { TopicGlyph } from "./TopicGlyph";
 
@@ -27,9 +29,14 @@ export function SessionSetup({
   return (
     <div className="flash-setup" data-testid="flash-setup">
       <header className="flash-setup-head">
-        <p className="flash-eyebrow">Active recall</p>
+        <PlateWell
+          src={PLATE.flashcards}
+          alt="Slit-lamp optical section through the cornea, anterior chamber and crystalline lens"
+          ratio={16 / 9}
+          caption="Slit-Lamp Optical Section"
+          className="flash-hero"
+        />
         <h2 className="flash-setup-title">Flashcards</h2>
-        <p className="flash-setup-help">Answer from memory, graded by AI. Pick a focus and start.</p>
       </header>
 
       <section className="flash-setup-controls">
