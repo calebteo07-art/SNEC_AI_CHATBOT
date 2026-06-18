@@ -160,6 +160,18 @@ if (!graded.includes("82")) { console.error(`FAIL: flashcards AI grade not shown
 if ((await np.locator('.flash-compare-label:has-text("Model answer")').count()) < 1) {
   console.error("FAIL: flashcards model answer not revealed after grading"); process.exit(1);
 }
+// per-topic color: the study stage carries a topic-derived --flash-topic-hue
+// (set on .flash-root by FlashShell). It should be present and a real number.
+const topicHueVal = await np.evaluate(() => {
+  const root = document.querySelector(".flash-root");
+  if (!root) return null;
+  const v = getComputedStyle(root).getPropertyValue("--flash-topic-hue").trim();
+  return v === "" ? null : Number(v);
+});
+if (topicHueVal == null || Number.isNaN(topicHueVal)) {
+  console.error(`FAIL: flashcards --flash-topic-hue missing/NaN (got '${topicHueVal}')`); process.exit(1);
+}
+console.log("PASS: flashcards exposes per-topic --flash-topic-hue =", topicHueVal);
 console.log("PASS: Flashcards — single setup, typed recall is AI-graded, flip reveals the model answer");
 
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
