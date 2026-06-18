@@ -970,6 +970,11 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 @keyframes station-bargrow { from { width: 0; } }
 
 .aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(14px, 2.2vw, 32px); display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; overflow: hidden; }
+/* RouteReveal wraps every page in .aurora-page-enter, which is height:auto by
+   default and severs the station's height:100% chain — collapsing it to content
+   height so the checklist + consult thread scroll as one. Give the wrapper a
+   definite height for the station route only, restoring independent pane scroll. */
+.aurora-page-enter:has(.aurora-station) { height: 100%; }
 .aurora-station-mesh { position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
     radial-gradient(40% 50% at 12% 18%, rgba(66,133,244,.34), transparent 60%),
@@ -1108,6 +1113,7 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 
 @media (max-width: 880px) {
   /* Single column → revert to natural page scroll (no nested scroll panes). */
+  .aurora-page-enter:has(.aurora-station) { height: auto; }
   .aurora-station { height: auto; min-height: 100%; overflow: visible; }
   .aurora-station-grid { grid-template-columns: 1fr; align-items: start; flex: none; min-height: 0; overflow: visible; }
   .aurora-station-aside { height: auto; overflow: visible; }
