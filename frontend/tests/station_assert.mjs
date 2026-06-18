@@ -88,6 +88,27 @@ const steps = await p.locator(".aurora-station-step").count();
 if (steps !== 6) die(`expected 6 checklist steps, got ${steps}`);
 ok("six checklist steps render");
 
+// 4b. independent scroll: the station root must fill the scroll viewport so the
+//     checklist + consult panes scroll inside their own bounds — not the whole
+//     page scrolling as one. This holds only when the height:100% chain from
+//     .aurora-main-scroll down to .aurora-station is unbroken.
+const pane = await p.evaluate(() => {
+  const station = document.querySelector(".aurora-station");
+  const scroll = document.querySelector(".aurora-main-scroll");
+  const cl = document.querySelector(".aurora-station-clscroll");
+  const thread = document.querySelector(".aurora-station-thread");
+  const oy = (el) => (el ? getComputedStyle(el).overflowY : "");
+  return {
+    stationH: station?.clientHeight ?? 0,
+    scrollH: scroll?.clientHeight ?? 0,
+    clOverflow: oy(cl),
+    threadOverflow: oy(thread),
+  };
+});
+if (Math.abs(pane.stationH - pane.scrollH) > 2) die(`station not bounded to viewport (height:100% chain broken): station=${pane.stationH}px scroll=${pane.scrollH}px`);
+if (pane.clOverflow !== "auto" || pane.threadOverflow !== "auto") die(`scroll panes must be overflow-y:auto, got checklist=${pane.clOverflow} thread=${pane.threadOverflow}`);
+ok("checklist + consult scroll independently (station bounded to viewport)");
+
 // 5. clicking an exam chip reveals the finding, marks its step, marks chip used
 await p.locator('.aurora-station-act:has-text("Measure IOP")').click();
 await p.waitForSelector(".aurora-station-reveal", { timeout: 5000 });
