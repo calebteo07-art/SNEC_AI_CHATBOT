@@ -39,3 +39,25 @@ export function loadSessionCards(): Flashcard[] {
   } catch { /* fall through */ }
   return [];
 }
+
+/** Score tiers drive both the reveal color and the coach copy. */
+export type ScoreTier = "high" | "good" | "fair" | "low";
+
+export function scoreTier(score: number): ScoreTier {
+  const s = Math.max(0, Math.min(100, score));
+  if (s >= 85) return "high";
+  if (s >= 60) return "good";
+  if (s >= 40) return "fair";
+  return "low";
+}
+
+/** Score → HSL hue (unitless degrees) for the reveal's --flash-score-hue:
+ *  high = green, good = blue, fair = amber, low = cool indigo. */
+export function scoreHue(score: number): number {
+  switch (scoreTier(score)) {
+    case "high": return 145;
+    case "good": return 212;
+    case "fair": return 38;
+    default: return 255;
+  }
+}
