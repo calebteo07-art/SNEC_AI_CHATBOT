@@ -1993,12 +1993,15 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 
 /* ── Confetti (CSS-only, high score) ── */
 .flash-confetti { position: absolute; inset: 0; pointer-events: none; overflow: visible; z-index: 3; }
-.flash-confetti i { position: absolute; top: 30%; left: 50%; width: 8px; height: 8px; border-radius: 2px;
-  background: hsl(calc(var(--i) * 47) 80% 60%);
-  animation: flash-confetti-fly .9s ease-out forwards; animation-delay: calc(var(--i) * 18ms); opacity: 0; }
+.flash-confetti i { position: absolute; top: 30%; left: 50%; width: 9px; height: 9px;
+  border-radius: 2px;
+  background: hsl(calc(var(--flash-topic-hue) + var(--i) * 28) 80% 60%);
+  animation: flash-confetti-fly 1s ease-out forwards; animation-delay: calc(var(--i) * 16ms); opacity: 0; }
+.flash-confetti i:nth-child(3n) { border-radius: 50%; }
+.flash-confetti i:nth-child(4n) { width: 6px; height: 12px; }
 @keyframes flash-confetti-fly {
   0% { opacity: 1; transform: translate(0, 0) rotate(0); }
-  100% { opacity: 0; transform: translate(calc((var(--i) - 8) * 26px), calc(60px + var(--i) * 6px)) rotate(320deg); }
+  100% { opacity: 0; transform: translate(calc((var(--i) - 11) * 24px), calc(70px + var(--i) * 5px)) rotate(340deg); }
 }
 
 /* ── Responsive ── */

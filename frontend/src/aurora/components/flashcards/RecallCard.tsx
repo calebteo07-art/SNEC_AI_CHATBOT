@@ -92,7 +92,7 @@ export function RecallCard(p: Props) {
 
       {flipped && isHigh && (
         <span className="flash-confetti" aria-hidden>
-          {Array.from({ length: 16 }).map((_, i) => (
+          {Array.from({ length: 22 }).map((_, i) => (
             <i key={i} style={{ ["--i" as string]: i } as React.CSSProperties} />
           ))}
         </span>
