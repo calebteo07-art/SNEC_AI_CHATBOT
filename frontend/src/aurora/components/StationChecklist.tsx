@@ -55,23 +55,19 @@ export function StationChecklist({
         })}
       </div>
 
-      <p className="aurora-station-cl-label">
-        OSCE checklist · auto-tracked · {totalSteps} steps
-        <span style={{ display: "block", fontWeight: 400, marginTop: 2, textTransform: "none", letterSpacing: 0, color: "var(--ink-3)" }}>
-          {procedureName}
-        </span>
+      <p className="aurora-station-cl-label" title={procedureName}>
+        Auto-tracked checklist · {totalSteps} steps
       </p>
 
       {phases.map((p, i) => {
         const done = doneCounts[i] === p.steps.length;
         const now = i === currentIdx;
-        const pct = p.steps.length ? Math.round((doneCounts[i] / p.steps.length) * 100) : 0;
         return (
           <div key={p.phase} className={`aurora-station-phase ${PHASE_CLASS[p.phase] ?? "p2"}${done ? " is-done" : ""}${now ? " is-now" : ""}`}>
             <div className="aurora-station-phase-h">
               <span className="aurora-station-node" aria-hidden />
               <span className="aurora-station-phase-t">{p.name}</span>
-              <span className="aurora-station-pbar" aria-hidden><i style={{ width: `${pct}%` }} /></span>
+              <span className="aurora-station-phase-n" aria-hidden>{doneCounts[i]}/{p.steps.length}</span>
             </div>
             {p.steps.map((s) => {
               const isTicked = ticked.has(s.step_number);
@@ -88,7 +84,7 @@ export function StationChecklist({
                   <span className="bx" aria-hidden>{isTicked ? "✓" : ""}</span>
                   <span>{s.action}</span>
                   {s.critical && <span className="crit">CRIT</span>}
-                  {isAuto && <span className="au" title="Detected automatically from your consult">✦ auto</span>}
+                  {isAuto && <span className="au" title="Auto-detected from your consult" aria-label="auto-detected">✦</span>}
                 </button>
               );
             })}

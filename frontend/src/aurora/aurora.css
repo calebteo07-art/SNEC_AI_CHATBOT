@@ -969,7 +969,7 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 @keyframes station-shimmer { 0% { transform: translateX(-120%); } 100% { transform: translateX(240%); } }
 @keyframes station-bargrow { from { width: 0; } }
 
-.aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(14px, 2.2vw, 32px); display: flex; flex-direction: column; gap: 16px; min-height: 100%; }
+.aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(14px, 2.2vw, 32px); display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; overflow: hidden; }
 .aurora-station-mesh { position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
     radial-gradient(40% 50% at 12% 18%, rgba(66,133,244,.34), transparent 60%),
@@ -989,13 +989,15 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-hud-sep { color: var(--ink-3); }
 .aurora-station-tier { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 
-.aurora-station-grid { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
+.aurora-station-grid { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
 
 .aurora-station-card { position: relative; border-radius: 16px; padding: 16px; background: rgba(255,255,255,.62); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 18px 50px -28px rgba(40,30,80,.45); }
 .aurora-station-card::before { content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1.4px;
   background: linear-gradient(135deg, rgba(66,133,244,.7), rgba(155,114,203,.6), rgba(217,101,112,.7));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
-.aurora-station-aside { position: sticky; top: 8px; }
+.aurora-station-aside { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
+/* Only the checklist scrolls; patient header + submit button stay pinned. */
+.aurora-station-clscroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px; }
 
 .aurora-station-pt { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
 .aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
@@ -1013,7 +1015,7 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-rl.is-todo { background: rgba(255,255,255,.55); color: #6E6385; border: 1px solid rgba(120,90,170,.25); }
 .aurora-station-rl.is-todo b { color: var(--on-purple); }
 
-.aurora-station-phase { border-radius: 13px; padding: 10px 12px; margin-bottom: 11px; }
+.aurora-station-phase { border-radius: 13px; padding: 9px 11px; margin-bottom: 8px; }
 .aurora-station-phase.p1 { background: linear-gradient(135deg, rgba(66,133,244,.16), rgba(66,133,244,.05)); border: 1px solid rgba(66,133,244,.28); }
 .aurora-station-phase.p2 { background: linear-gradient(135deg, rgba(155,114,203,.18), rgba(155,114,203,.05)); border: 1px solid rgba(155,114,203,.3); }
 .aurora-station-phase.p3 { background: linear-gradient(135deg, rgba(217,101,112,.15), rgba(217,101,112,.05)); border: 1px solid rgba(217,101,112,.28); }
@@ -1028,11 +1030,10 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-phase.p1 .aurora-station-phase-t { color: var(--on-blue-2); }
 .aurora-station-phase.p2 .aurora-station-phase-t { color: var(--on-purple-2); }
 .aurora-station-phase.p3 .aurora-station-phase-t { color: var(--on-rose); }
-.aurora-station-pbar { flex: 1; height: 5px; border-radius: 5px; background: rgba(255,255,255,.6); overflow: hidden; margin-left: auto; max-width: 70px; }
-.aurora-station-pbar i { display: block; height: 100%; border-radius: 5px; animation: station-bargrow 1s ease both; }
-.aurora-station-phase.p1 .aurora-station-pbar i { background: #4285F4; }
-.aurora-station-phase.p2 .aurora-station-pbar i { background: #9B72CB; }
-.aurora-station-phase.p3 .aurora-station-pbar i { background: #D96570; }
+.aurora-station-phase-n { margin-left: auto; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.aurora-station-phase.p1 .aurora-station-phase-n { color: var(--on-blue-2); }
+.aurora-station-phase.p2 .aurora-station-phase-n { color: var(--on-purple-2); }
+.aurora-station-phase.p3 .aurora-station-phase-n { color: var(--on-rose); }
 
 .aurora-station-step { display: flex; gap: 7px; align-items: flex-start; text-align: left; width: 100%; background: none; border: none; cursor: pointer; font-size: 13.4px; padding: 3px 0; color: #3a3450; line-height: 1.4; }
 .aurora-station-step .bx { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid rgba(90,75,122,.4); flex: none; margin-top: 1px; font-size: 12.3px; text-align: center; line-height: 14px; color: transparent; background: rgba(255,255,255,.55); }
@@ -1041,8 +1042,10 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-step .crit { font-size: 9px; color: #fff; background: var(--on-rose-2); border-radius: 4px; padding: 1px 5px; margin-left: auto; flex: none; align-self: center; }
 .aurora-station-step .au { font-size: 9px; color: var(--on-green-2); margin-left: 6px; flex: none; align-self: center; white-space: nowrap; }
 
-.aurora-station-main { display: flex; flex-direction: column; min-width: 0; }
-.aurora-station-thread { display: flex; flex-direction: column; gap: 8px; min-height: 300px; }
+.aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
+/* The consult thread is the only scrolling region on the right — the exam tray and
+   composer stay pinned at the bottom so the chat box never drifts out of view. */
+.aurora-station-thread { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
 .aurora-station-hint { text-align: center; padding: 36px 0; color: var(--ink-2); font-size: 14.6px; }
 .aurora-station-bubble { border-radius: 13px; padding: 9px 13px; font-size: 14.6px; max-width: 86%; line-height: 1.5; animation: station-revealin .4s ease both; }
 .aurora-station-bubble .who { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 2px; }
@@ -1084,10 +1087,10 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-phasechip.p2 { background: linear-gradient(135deg, #9B72CB, #B98AE0); }
 .aurora-station-phasechip.p3 { background: linear-gradient(135deg, #D96570, #E78A92); }
 .aurora-station-phasechip b { display: block; font-size: 16.8px; font-weight: 700; }
-.aurora-station-domain { margin-bottom: 12px; }
+.aurora-station-domains { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin-bottom: 4px; }
+.aurora-station-domain { margin-bottom: 4px; }
 .aurora-station-domain-top { display: flex; justify-content: space-between; font-size: 13.4px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
 .aurora-station-domain-val { font-family: var(--font-mono); color: var(--ink-2); }
-.aurora-station-domain-fb { font-size: 13.4px; color: var(--ink-2); line-height: 1.55; margin: 6px 0 0; }
 .aurora-station-debrief { margin-top: 14px; padding: 13px 15px; border-radius: var(--radius); background: linear-gradient(135deg, rgba(52,168,83,.12), rgba(66,133,244,.08)); border-left: 3px solid var(--g-green); }
 .aurora-station-debrief p { font-size: 14.6px; color: var(--ink); line-height: 1.6; margin: 5px 0 0; white-space: pre-wrap; }
 .aurora-station-review { margin-top: 14px; }
@@ -1097,14 +1100,20 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-review-row[data-done="true"] .mk { color: var(--on-green-2); }
 .aurora-station-review-row[data-done="false"] .mk { color: var(--on-rose); }
 .aurora-station-review-note { display: block; font-size: 12.3px; color: var(--ink-3); margin-top: 2px; }
+.aurora-station-review-clear { margin-top: 14px; font-size: 13.8px; font-weight: 600; color: var(--on-green-2); }
 .aurora-station-result-actions { display: flex; gap: 10px; margin-top: 18px; }
 
 .aurora-station-error { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 50vh; color: var(--ink-2); }
 .aurora-station-error button { color: var(--on-blue-2); font-weight: 600; background: none; border: none; cursor: pointer; }
 
 @media (max-width: 880px) {
-  .aurora-station-grid { grid-template-columns: 1fr; }
-  .aurora-station-aside { position: static; }
+  /* Single column → revert to natural page scroll (no nested scroll panes). */
+  .aurora-station { height: auto; min-height: 100%; overflow: visible; }
+  .aurora-station-grid { grid-template-columns: 1fr; align-items: start; flex: none; min-height: 0; overflow: visible; }
+  .aurora-station-aside { height: auto; overflow: visible; }
+  .aurora-station-clscroll { overflow: visible; min-height: 0; flex: none; }
+  .aurora-station-main { height: auto; overflow: visible; }
+  .aurora-station-thread { overflow: visible; flex: none; min-height: 300px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-mesh, .aurora-station-ring, .aurora-station-title em, .aurora-station-rl.is-now,
