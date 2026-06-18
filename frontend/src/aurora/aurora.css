@@ -234,39 +234,84 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
 .aurora-rail-pin[data-pinned="true"] { color: var(--on-blue-2); border-color: rgba(66, 133, 244, 0.4); background: rgba(66, 133, 244, 0.08); }
 .console-dark .aurora-rail-pin:hover { background: rgba(255, 255, 255, 0.07); }
 
-/* ───────────── Auto-collapsing rail (desktop) ─────────────
-   The rail floats over content as an icon strip and peeks open on hover or
-   keyboard focus; a pin locks it open. Content reserves only the collapsed
-   width, so peeking never reflows the page. Mobile keeps the bottom bar below. */
+/* ───────────── Hidden rail + edge handle (desktop) ─────────────
+   The navigation spine is fully tucked off the left edge on every page, so the
+   content runs edge-to-edge. A slim gradient handle (.aurora-rail-handle) floats
+   at the left margin; hovering it — or the rail, or tabbing into the nav — glides
+   the rail back as a floating overlay that never reflows the page. A pin (the
+   handle click, or the in-rail pin) locks it open, and content then reserves its
+   width. Mobile keeps the bottom bar below. */
 @media (min-width: 861px) {
   .aurora-shell[data-rail] { position: relative; }
   .aurora-shell[data-rail] .aurora-rail {
-    position: absolute; top: 0; left: 0; bottom: 0; height: 100vh;
-    z-index: 40; overflow: hidden; width: var(--rail-w);
-    transition: width 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed; top: 0; left: 0; bottom: 0; height: 100vh;
+    z-index: 60; overflow: hidden; width: 248px;
+    border-radius: 0 22px 22px 0;
+    transform: translateX(calc(-100% - 28px));
+    transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.46s ease;
   }
-  /* Inner content holds the full expanded width and is clipped by the rail, so
-     collapsing/peeking never rewraps the labels — it just reveals/hides them. */
+  /* Inner content holds the full expanded width so nothing rewraps as it glides. */
   .aurora-shell[data-rail] .aurora-rail > * { width: 220px; box-sizing: border-box; flex-shrink: 0; }
-  .aurora-shell[data-rail] .aurora-main { margin-left: var(--rail-w); transition: margin-left 0.24s cubic-bezier(0.4, 0, 0.2, 1); }
+  /* Content reserves rail width only when pinned; hidden → full-bleed. */
+  .aurora-shell[data-rail] .aurora-main { margin-left: var(--rail-w); transition: margin-left 0.46s cubic-bezier(0.16, 1, 0.3, 1); }
 
-  .aurora-shell[data-rail="collapsed"] { --rail-w: 60px; }
-  .aurora-shell[data-rail="pinned"]    { --rail-w: 248px; }
+  .aurora-shell[data-rail="hidden"] { --rail-w: 0px; }
+  .aurora-shell[data-rail="pinned"] { --rail-w: 248px; }
 
-  .aurora-shell[data-rail="collapsed"] .aurora-rail:hover,
-  .aurora-shell[data-rail="collapsed"] .aurora-rail:focus-within {
-    width: 248px; box-shadow: 22px 0 60px -38px rgba(20, 18, 60, 0.55);
+  /* Pinned → the rail lives in place permanently with a square inner edge. */
+  .aurora-shell[data-rail="pinned"] .aurora-rail { transform: none; border-radius: 0; }
+
+  /* Reveal → hover the handle or the rail, or tab into the nav. */
+  .aurora-shell[data-rail="hidden"]:has(.aurora-rail-handle:hover) .aurora-rail,
+  .aurora-shell[data-rail="hidden"] .aurora-rail:hover,
+  .aurora-shell[data-rail="hidden"] .aurora-rail:focus-within {
+    transform: none;
+    box-shadow: 36px 0 90px -42px rgba(20, 18, 60, 0.62);
   }
-
-  /* Collapsed + idle: hide ALL non-icon chrome (text, wordmark, ⌘K, search,
-     streak, identity, pin) with visibility:hidden so nothing leaks past the
-     narrow strip — only the glyphs remain. */
-  .aurora-shell[data-rail="collapsed"] .aurora-rail:not(:hover):not(:focus-within) :is(
-    .aurora-rail-label, .aurora-navitem span, .aurora-cmdk,
-    .aurora-streak, .aurora-profile-meta, .aurora-signout, .aurora-admin-link,
-    .aurora-snec-wrap, .aurora-rail-pin, .aurora-wordmark-text
-  ) { opacity: 0; visibility: hidden; transition: opacity 0.1s; }
 }
+
+/* The edge handle — frosted chip, a breathing Gemini-gradient spine, a chevron.
+   Fixed at the left margin, vertically centred; the rail glides over it (higher
+   z) when revealed. Hidden on mobile, where the bottom bar owns navigation. */
+.aurora-rail-handle {
+  position: fixed; left: 0; top: 50%; transform: translateY(-50%);
+  z-index: 55; width: 26px; height: 78px;
+  display: grid; place-items: center;
+  border: none; background: none; padding: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.aurora-rail-handle::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: 0 15px 15px 0;
+  background: linear-gradient(155deg, rgba(22, 25, 50, 0.86), rgba(12, 14, 30, 0.9));
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1); border-left: none;
+  box-shadow: 7px 0 30px -14px rgba(20, 18, 60, 0.55);
+  transition: width 0.3s ease, box-shadow 0.3s ease;
+}
+.aurora-rail-handle::after { /* gradient spine */
+  content: ""; position: absolute; left: 0; top: 15%; bottom: 15%; width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #4285F4, #9B72CB, #D96570);
+  box-shadow: 0 0 16px rgba(120, 110, 200, 0.75);
+  transform-origin: center;
+  animation: aurora-handle-breathe 4.8s ease-in-out infinite;
+}
+.aurora-handle-chevron {
+  position: relative; display: grid; place-items: center;
+  color: rgba(233, 236, 250, 0.92);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.aurora-rail-handle:hover::before { width: 31px; box-shadow: 12px 0 46px -12px rgba(120, 110, 200, 0.62); }
+.aurora-rail-handle:hover .aurora-handle-chevron { transform: translateX(3px); }
+.aurora-rail-handle:focus-visible::before { outline: 2px solid var(--on-blue-2); outline-offset: 2px; }
+@keyframes aurora-handle-breathe {
+  0%, 100% { opacity: 0.78; transform: scaleY(0.92); }
+  50% { opacity: 1; transform: scaleY(1.05); }
+}
+html[data-motion="reduce"] .aurora-rail-handle::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-rail-handle::after { animation: none; } }
+@media (max-width: 860px) { .aurora-rail-handle { display: none; } }
 
 /* ─────────────────────── Mobile bottom bar ─────────────────────── */
 @media (max-width: 860px) {
