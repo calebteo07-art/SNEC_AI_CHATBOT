@@ -41,8 +41,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [paletteOpen, setPaletteOpen] = useState(false);
 
-  /* The rail auto-collapses to an icon strip on every page (reclaiming width for
-     content) and peeks open on hover. A pin locks it open; the choice persists. */
+  /* The rail is fully hidden on every page — content runs edge-to-edge and a slim
+     gradient handle floats at the left margin. Hovering the handle (or the rail,
+     or tabbing in) glides the rail back as an overlay; clicking the handle, or
+     the in-rail pin, locks it open. The choice persists. */
   const [pinned, setPinned] = useState(false);
   useEffect(() => {
     try { setPinned(localStorage.getItem("eyebot_rail_pinned") === "1"); } catch { /* no storage */ }
@@ -54,7 +56,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
-  const railState = pinned ? "pinned" : "collapsed";
+  const railState = pinned ? "pinned" : "hidden";
 
   /* Mirror the backend streak into the local cache, as the legacy shell did. */
   useEffect(() => {
@@ -88,6 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (isStaff) {
     return (
       <div className="aurora-shell console-dark" data-rail={railState}>
+        {!pinned && <RailHandle onReveal={togglePin} />}
         <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
         <main id="main" className="aurora-main">
           <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
@@ -115,6 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="aurora-shell" data-rail={railState}>
+      {!pinned && <RailHandle onReveal={togglePin} />}
       <AtlasRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
       <main id="main" className="aurora-main">
         <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
@@ -122,5 +126,28 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
     </div>
+  );
+}
+
+/* Edge handle — the only always-visible nav affordance when the rail is hidden.
+   A frosted chip with a breathing Gemini-gradient spine + chevron. Hovering it
+   reveals the rail (pure CSS via :has); clicking it pins the rail open. It rides
+   outside the rail so it stays put while the rail glides over it, and is hidden
+   on mobile (the bottom bar owns navigation there). */
+function RailHandle({ onReveal }: { onReveal: () => void }) {
+  return (
+    <button
+      type="button"
+      className="aurora-rail-handle"
+      onClick={onReveal}
+      aria-label="Show navigation sidebar"
+      title="Show navigation"
+    >
+      <span className="aurora-handle-chevron" aria-hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 6l6 6-6 6" />
+        </svg>
+      </span>
+    </button>
   );
 }
