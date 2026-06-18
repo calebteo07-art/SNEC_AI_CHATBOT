@@ -61,3 +61,27 @@ export function scoreHue(score: number): number {
     default: return 255;
   }
 }
+
+/** Curated, on-brand hue arc for per-topic color. Brand blues → violet → magenta →
+ *  coral → amber → teal → green, deliberately skipping the muddy yellow-green band
+ *  (~50–110°). Each reads well at the fixed lightness used for --flash-topic-c. */
+const TOPIC_HUES = [212, 232, 258, 286, 322, 350, 14, 32, 174, 190, 152, 128];
+
+/** Stable, non-negative string hash (djb2). */
+function hashKey(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/** topic_key → HSL hue (unitless degrees) for --flash-topic-hue. Deterministic
+ *  (a topic is always the same color) and visually distinct: the hash selects a
+ *  base hue from the curated arc, and a small deterministic jitter separates keys
+ *  that land on the same base. `__mixed`/empty → brand blue (used pre-card only). */
+export function topicHue(topicKey: string): number {
+  if (!topicKey || topicKey === "__mixed") return 212;
+  const h = hashKey(topicKey);
+  const base = TOPIC_HUES[h % TOPIC_HUES.length];
+  const jitter = ((h >> 4) % 9) - 4; // -4..+4°, stays clear of the muddy band
+  return base + jitter;
+}
