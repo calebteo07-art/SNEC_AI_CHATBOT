@@ -18,6 +18,7 @@ import { useGamificationSync } from "@/hooks/useGamification";
 import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpForScore, loadSessionCards } from "@/aurora/components/flashcards/types";
 import { ApertureSelect } from "@/aurora/components/flashcards/ApertureSelect";
 import { StudyDeck } from "@/aurora/components/flashcards/StudyDeck";
+import { FundusAtmos } from "@/aurora/components/flashcards/FundusAtmos";
 
 /* The immersive Twilight root, shared by the picker / loading / deck states.
    Defined at module scope (NOT inside Flashcards) so it keeps a stable identity
@@ -34,6 +35,7 @@ function ApertureShell({
   return (
     <div className="aperture-root" data-theme="aperture">
       <h1 className="sr-only">Flashcards</h1>
+      <FundusAtmos />
       <button type="button" className="aperture-exit aperture-press" data-testid="aperture-exit" onClick={onExit}>
         <Icon.back size={16} /> Exit
       </button>

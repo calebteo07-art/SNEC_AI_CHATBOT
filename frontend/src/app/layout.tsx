@@ -27,11 +27,12 @@ const display = Outfit({
   variable: "--font-outfit",
   display: "swap",
 });
-/* Flamboyant high-contrast editorial serif — used only for the dashboard greeting
-   flourish (italic for extra flair). */
+/* Flamboyant high-contrast editorial serif — the dashboard greeting flourish
+   (italic) and the Flashcards "Living Retina" plates (upright display + italic
+   accents), so both styles are loaded. */
 const flourish = Playfair_Display({
   weight: ["600", "700", "800"],
-  style: ["italic"],
+  style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-flourish",
   display: "swap",
