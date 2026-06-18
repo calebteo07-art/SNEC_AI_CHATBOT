@@ -102,16 +102,29 @@ export function CheckIn() {
         <header className="aurora-checkin-head">
           <p className="aurora-eyebrow">Daily check-in</p>
           <h1 className="aurora-checkin-h1">Today&apos;s question</h1>
-          {streak > 0 && phase === "question" && !loadError && (
-            <p className="aurora-checkin-streak">🔥 {streak}-day streak — answer today to keep it alive.</p>
-          )}
         </header>
 
         <section className="aurora-card aurora-checkin-card">
-          {weakTopic && phase !== "loading" && !loadError && (
-            <div className="aurora-checkin-focus">
-              <span className="aurora-side-label">Today&apos;s focus</span>
-              <span className="aurora-checkin-focus-topic">{weakTopic}</span>
+          <span className="aurora-checkin-sheen" aria-hidden />
+
+          {phase !== "loading" && !loadError && (weakTopic || streak > 0) && (
+            <div className="aurora-checkin-meta">
+              {weakTopic && (
+                <span className="aurora-checkin-focus">
+                  <span className="aurora-checkin-focus-dot" aria-hidden />
+                  <span className="aurora-checkin-focus-text">
+                    <span className="aurora-side-label">Today&apos;s focus</span>
+                    <span className="aurora-checkin-focus-topic">{weakTopic}</span>
+                  </span>
+                </span>
+              )}
+              {streak > 0 && (
+                <span className="aurora-checkin-flame" title={`${streak}-day streak — answer today to keep it alive`}>
+                  <span className="aurora-checkin-flame-ico" aria-hidden>🔥</span>
+                  <span className="aurora-checkin-flame-n">{streak}</span>
+                  <span className="aurora-checkin-flame-u">day{streak === 1 ? "" : "s"}</span>
+                </span>
+              )}
             </div>
           )}
 
@@ -139,7 +152,9 @@ export function CheckIn() {
                     disabled={submitting}
                     onClick={() => handleSelect(opt)}
                   >
-                    {opt}
+                    <span className="aurora-checkin-key" aria-hidden>{String.fromCharCode(65 + idx)}</span>
+                    <span className="aurora-checkin-opt-text">{opt}</span>
+                    <span className="aurora-checkin-opt-go" aria-hidden>→</span>
                   </button>
                 ))}
               </div>
@@ -152,16 +167,17 @@ export function CheckIn() {
               <span className="aurora-checkin-q-topic">{question.topic}</span>
               <p className="aurora-checkin-q">{question.question}</p>
               <div className="aurora-checkin-options is-revealed">
-                {question.options.map((opt) => {
+                {question.options.map((opt, idx) => {
                   const isCorrect = opt === correctAnswer;
                   const isChosen = opt === selected;
                   const cls = isCorrect ? "is-correct" : isChosen ? "is-wrong" : "";
                   const shake = isChosen && !isCorrect ? " aurora-shake-in" : "";
                   return (
-                    <div key={opt} className={`aurora-checkin-option is-static ${cls}${shake}`} style={{ position: "relative" }}>
-                      <span>{opt}</span>
-                      {isCorrect && <span className="aurora-checkin-mark">✓</span>}
-                      {isChosen && !isCorrect && <span className="aurora-checkin-mark">✕</span>}
+                    <div key={opt} className={`aurora-checkin-option is-static ${cls}${shake}`}>
+                      <span className="aurora-checkin-key" aria-hidden>
+                        {isCorrect ? "✓" : isChosen ? "✕" : String.fromCharCode(65 + idx)}
+                      </span>
+                      <span className="aurora-checkin-opt-text">{opt}</span>
                       {isCorrect && <span className="aurora-bloom-ring" data-on="true" aria-hidden />}
                     </div>
                   );
