@@ -14,7 +14,7 @@ SEG = ".tmp/video/segments"
 CAP = ".tmp/video/captions"
 STILL = ".tmp/video/stills"
 MUSIC = ".tmp/video/music/bed.mp3"
-XFADE = 0.6
+XFADE = 0.35
 
 
 def _run(cmd):

@@ -1,16 +1,20 @@
-"""Render an on-screen caption (+ optional feature label) to a 1920x1080 RGBA PNG."""
+"""Render an on-screen caption (+ optional feature label) to a 1920x1080 RGBA PNG.
+
+No background box: text is drawn with a dark stroke + soft shadow so it stays legible
+over both dark and light footage while keeping the screen clear.
+"""
 from PIL import Image, ImageDraw, ImageFont
 
 W, H = 1920, 1080
-INK = (12, 18, 28, 255)
-SCRIM = (255, 255, 255, 210)
-ACCENT = (37, 99, 235, 255)
+WHITE = (255, 255, 255, 255)
+STROKE = (8, 12, 20, 235)
+SHADOW = (0, 0, 0, 150)
+
 
 def _font(size, bold=False):
     for name in (
-        ("arialbd.ttf" if bold else "arial.ttf"),
         "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
-        "C:/Windows/Fonts/segoeui.ttf",
+        ("arialbd.ttf" if bold else "arial.ttf"),
         "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf",
     ):
         try:
@@ -19,26 +23,31 @@ def _font(size, bold=False):
             continue
     return ImageFont.load_default()
 
+
+def _line(d, cx, y, s, font):
+    """Centered text with soft shadow + stroke for legibility, no box."""
+    d.text((cx + 3, y + 3), s, font=font, fill=SHADOW, anchor="ma")
+    d.text((cx, y), s, font=font, fill=WHITE, anchor="ma",
+           stroke_width=4, stroke_fill=STROKE)
+
+
 def render_caption(text, out, label="", font_path=None):
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    big = ImageFont.truetype(font_path, 58) if font_path else _font(58, bold=True)
-    small = _font(30, bold=True)
+    big = ImageFont.truetype(font_path, 56) if font_path else _font(56, bold=True)
+    small = _font(28, bold=True)
     lines = text.split("\n")
 
-    pad, lh = 64, 74
-    block_h = lh * len(lines) + pad
-    y0 = H - block_h - 96
-    d.rounded_rectangle([96, y0, W - 96, y0 + block_h], radius=24, fill=SCRIM)
-    ty = y0 + pad // 2
+    lh = 70
+    y = H - 96 - lh * len(lines)
     for ln in lines:
-        d.text((140, ty), ln, font=big, fill=INK)
-        ty += lh
+        _line(d, W // 2, y, ln, big)
+        y += lh
 
     if label:
-        tw = d.textlength(label, font=small)
-        d.rounded_rectangle([96, 84, 96 + tw + 56, 84 + 56], radius=28, fill=ACCENT)
-        d.text((124, 98), label, font=small, fill=(255, 255, 255, 255))
+        d.text((102, 94), label.upper(), font=small, fill=SHADOW)
+        d.text((100, 92), label.upper(), font=small, fill=WHITE,
+               stroke_width=3, stroke_fill=STROKE)
 
     im.save(out)
     return out
