@@ -1,4 +1,9 @@
-"""Single source of truth for the EyeBot marketing video scenes."""
+"""Single source of truth for the EyeBot marketing video scenes.
+
+Fast-paced cut: hook -> title -> three feature beats (Virtual Patients, AI Tutor,
+Flashcards) -> oversight -> close. Scene ids stay tied to their content (02 = title
+lockup, 08 = end card) so the assembler's overlay mapping and caption files line up.
+"""
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
@@ -11,14 +16,13 @@ class Scene:
     asset: str               # primary source file (relative to repo root)
 
 SCENES = [
-    Scene("01", 8,  "broll", "",            "In ophthalmology, every detail matters.",        ".tmp/video/broll/01_hook.mp4"),
-    Scene("02", 4,  "brand", "",            "Meet EyeBot.",                                    ".tmp/video/stills/02_title.png"),
-    Scene("03", 14, "live",  "AI Tutor",    "Ask anything — grounded, cited answers.",         ".tmp/video/live/03_chat.webm"),
-    Scene("04", 14, "live",  "Living Eye",  "Explore real anatomy — click any structure.",     ".tmp/video/live/04_livingeye.webm"),
-    Scene("05", 15, "live",  "OSCE Station","Run a full OSCE — examine, decide, get marked.",   ".tmp/video/live/05_osce.webm"),
-    Scene("06", 13, "stills","Flashcards",  "Lock it in with active recall.",                  "frontend/final-flashcards.png"),
-    Scene("07", 6,  "broll", "Oversight",   "Safe by design — faculty stay in the loop.",      ".tmp/video/broll/07_oversight.mp4"),
-    Scene("08", 11, "broll", "",            "EyeBot — your AI partner in ophthalmology training.\nA Singapore National Eye Centre initiative.", ".tmp/video/broll/08_close.mp4"),
+    Scene("01", 4.5, "broll", "",                "In ophthalmology, every detail matters.",         ".tmp/video/broll/01_hook.mp4"),
+    Scene("02", 3.0, "broll", "",                "Meet EyeBot.",                                    ".tmp/video/broll/02_accent.mp4"),
+    Scene("04", 9.0, "live",  "Virtual Patients", "Virtual patients — explore the living eye.",      ".tmp/video/live/04_livingeye.webm"),
+    Scene("03", 9.0, "live",  "AI Tutor",         "An AI tutor with grounded, cited answers.",       ".tmp/video/live/03_chat.webm"),
+    Scene("06", 8.5, "stills","Flashcards",       "Active-recall flashcards that make it stick.",    "frontend/final-flashcards.png"),
+    Scene("07", 4.5, "broll", "Oversight",        "Safe by design — with faculty oversight.",        ".tmp/video/broll/07_oversight.mp4"),
+    Scene("08", 7.0, "broll", "",                "EyeBot — your AI partner in ophthalmology training.\nA Singapore National Eye Centre initiative.", ".tmp/video/broll/08_close.mp4"),
 ]
 
 def total_duration() -> float:
