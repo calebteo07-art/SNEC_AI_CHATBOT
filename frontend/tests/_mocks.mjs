@@ -76,7 +76,7 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/study-suggestion", (r) => r.fulfill(J({ suggestion: "Review glaucoma staging before your next case.", topic: "Glaucoma" })));
   await ctx.route("**/api/chat", (r) => r.fulfill({
     status: 200, contentType: "text/event-stream",
-    body: 'data: {"text":"Mock stream: the "}\n\ndata: {"text":"anterior chamber angle is assessed with gonioscopy."}\n\ndata: [DONE]\n\n',
+    body: 'data: {"text":"A cataract is a clouding of the lens inside the eye, "}\n\ndata: {"text":"usually age-related. It causes gradual, painless blurring of vision "}\n\ndata: {"text":"and is treated with day surgery to replace the cloudy lens with a clear implant."}\n\ndata: [DONE]\n\n',
   }));
   await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
   await ctx.route("**/api/supervisor/insights", (r) => r.fulfill(J({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area this week." })));
