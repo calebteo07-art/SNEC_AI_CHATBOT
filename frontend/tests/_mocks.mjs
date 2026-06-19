@@ -65,10 +65,11 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [] })));
   await ctx.route("**/api/cases/C001/chat", (r) => r.fulfill({ status: 200, contentType: "text/event-stream", body: 'data: {"text":"Good morning, doctor."}\n\ndata: [DONE]\n\n' }));
   await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({ result: { history_score: 7, investigations_score: 7, diagnosis_score: 8, management_score: 6, history_feedback: "Good.", investigations_feedback: "Good.", diagnosis_feedback: "Good.", management_feedback: "Good.", total_score: 28, overall_feedback: "Solid.", critical_hit: 1, critical_total: 1 }, cards: [], mock_mode: false, debrief: "What you did really well: clear identification. Where to grow next time: document the follow-up plan.", checklist_comparison: [], per_phase: [ { phase: 1, name: "Preparation & Identification", done: 1, total: 1 }, { phase: 2, name: "Clinical Assessment", done: 1, total: 2 }, { phase: 3, name: "Documentation & Follow-up", done: 0, total: 1 } ] })));
-  await ctx.route("**/api/flashcards/generate", (r) => r.fulfill(J([
+  await ctx.route("**/api/flashcards/generate*", (r) => r.fulfill(J([
     { card_id: "f1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "glaucoma", repetitions: 0, easiness: 2.5, interval_days: 1 },
     { card_id: "f2", front: "Most common cause of gradual painless vision loss in the elderly?", back: "Cataract", topic_tag: "cataract", repetitions: 1, easiness: 2.6, interval_days: 3 },
   ])));
+  await ctx.route("**/api/flashcards/check", (r) => r.fulfill(J({ score: 88, feedback: "Spot on — normal IOP is 10–21 mmHg. Crisp, confident recall.", mock_mode: false })));
   await ctx.route("**/api/flashcards/topics", (r) => r.fulfill(J({ sets: [
     { set_key: "glaucoma__easy", topic_key: "glaucoma", label: "Glaucoma", difficulty: "easy", total: 5, completed: 2 },
     { set_key: "cataract__easy", topic_key: "cataract", label: "Cataract", difficulty: "easy", total: 5, completed: 0 },

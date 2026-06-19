@@ -39,15 +39,12 @@ def render_caption(text, out, label="", font_path=None):
     lines = text.split("\n")
 
     lh = 70
-    y = H - 96 - lh * len(lines)
+    y = H - 88 - lh * len(lines)
+    if label:
+        _line(d, W // 2, y - 52, label.upper(), small)   # kicker sits just above the caption
     for ln in lines:
         _line(d, W // 2, y, ln, big)
         y += lh
-
-    if label:
-        d.text((102, 94), label.upper(), font=small, fill=SHADOW)
-        d.text((100, 92), label.upper(), font=small, fill=WHITE,
-               stroke_width=3, stroke_fill=STROKE)
 
     im.save(out)
     return out
