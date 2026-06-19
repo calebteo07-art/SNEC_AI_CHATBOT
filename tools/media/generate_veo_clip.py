@@ -41,7 +41,16 @@ def generate(prompt, out, image=None, seconds="8", resolution="1080p",
         time.sleep(poll_s); waited += poll_s
         op = client.operations.get(op)
         print(f"  ...{waited}s", file=sys.stderr)
-    vid = op.response.generated_videos[0]
+    if op.error:
+        raise RuntimeError(f"Veo job failed: {op.error}")
+    resp = op.response
+    vids = getattr(resp, "generated_videos", None) if resp else None
+    if not vids:
+        reasons = getattr(resp, "rai_media_filtered_reasons", None) if resp else None
+        raise RuntimeError(
+            "Veo returned no video (likely content-filtered). "
+            f"reasons={reasons}. Rework the prompt (e.g. avoid generating people).")
+    vid = vids[0]
     client.files.download(file=vid.video)
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     vid.video.save(out)
