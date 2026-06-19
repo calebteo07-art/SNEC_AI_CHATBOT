@@ -152,7 +152,8 @@ if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.erro
 // across the step change.
 if ((await np.locator('[data-testid="flash-rail"]').count()) < 1) { console.error("FAIL: flashcards progress rail missing on step 1"); process.exit(1); }
 if ((await np.locator('[data-testid="flash-setup"][data-step="1"]').count()) < 1) { console.error("FAIL: flashcards did not start on step 1"); process.exit(1); }
-await np.evaluate(() => { const h = document.querySelector('[data-testid="flash-hero"]'); if (h) h.dataset.persistMark = "1"; });
+if ((await np.locator('[data-testid="flash-hero"]').count()) < 1) { console.error("FAIL: flashcards hero not present on step 1"); process.exit(1); }
+await np.evaluate(() => { document.querySelector('[data-testid="flash-hero"]').dataset.persistMark = "1"; });
 await np.locator('[data-testid="flash-continue"]').click();
 await np.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
 const heroPersisted = await np.evaluate(() => {
