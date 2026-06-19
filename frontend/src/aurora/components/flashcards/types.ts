@@ -62,10 +62,14 @@ export function scoreHue(score: number): number {
   }
 }
 
-/** Curated, on-brand hue arc for per-topic color. Brand blues → violet → magenta →
- *  coral → amber → teal → green, deliberately skipping the muddy yellow-green band
- *  (~50–110°). Each reads well at the fixed lightness used for --flash-topic-c. */
-const TOPIC_HUES = [212, 232, 258, 286, 322, 350, 14, 32, 174, 190, 152, 128];
+/** Curated, on-brand hue arc for per-topic color: 12 evenly-spaced hues spanning
+ *  blue → indigo → violet → purple → magenta → pink → rose → red → coral. Confined
+ *  to the contrast-safe span so the solid --flash-topic-c (a deep hsl(H 64% 40%))
+ *  keeps white button text and the chip label legible (WCAG AA, verified). Greens,
+ *  teals and yellows are intentionally omitted — at any lightness vivid enough for
+ *  a light UI they fail white-text/chip contrast. Decorative tints/glows/confetti
+ *  stay vivid (they use the raw hue at 55–80% lightness, never --flash-topic-c). */
+const TOPIC_HUES = [210, 222, 236, 252, 268, 286, 304, 322, 338, 352, 8, 26];
 
 /** Stable, non-negative string hash (djb2). */
 function hashKey(s: string): number {

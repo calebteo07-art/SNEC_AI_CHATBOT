@@ -1838,7 +1838,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root { position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
   /* contrast-safe solid (white text sits on this) + soft tint for fills/accents */
-  --flash-topic-c: hsl(var(--flash-topic-hue) 68% 46%);
+  --flash-topic-c: hsl(var(--flash-topic-hue) 64% 40%);
   --flash-topic-soft: color-mix(in srgb, hsl(var(--flash-topic-hue) 80% 55%) 14%, var(--surface));
   background: var(--canvas);
   color: var(--ink);
@@ -1892,7 +1892,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   padding: 16px; border-radius: var(--radius-lg); border: 1px solid var(--hairline); background: var(--surface);
   color: var(--ink); cursor: pointer;
   --flash-topic-hue: 212;
-  --flash-topic-c: hsl(var(--flash-topic-hue) 68% 46%);
+  --flash-topic-c: hsl(var(--flash-topic-hue) 64% 40%);
   --flash-topic-soft: color-mix(in srgb, hsl(var(--flash-topic-hue) 80% 55%) 14%, var(--surface)); }
 .flash-topic:hover:not(:disabled) { transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--flash-topic-c) 45%, transparent);
