@@ -145,7 +145,23 @@ const fcH1 = await np.locator("main h1").count();
 if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); process.exit(1); }
 // immersive: the rail falls away on /flashcards (like the Tutor); exit affordance present.
 if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
-// Mixed is selected by default — Start commits straight away (topics are unmocked here).
+
+// stepped selection: step 1 (Session) shows the 2-segment progress rail and the hero,
+// then Continue advances to step 2 (Topic) where Mixed is selected by default and Start
+// commits. Tag the hero node on step 1 so we can prove it PERSISTS (morphs, not remounts)
+// across the step change.
+if ((await np.locator('[data-testid="flash-rail"]').count()) < 1) { console.error("FAIL: flashcards progress rail missing on step 1"); process.exit(1); }
+if ((await np.locator('[data-testid="flash-setup"][data-step="1"]').count()) < 1) { console.error("FAIL: flashcards did not start on step 1"); process.exit(1); }
+await np.evaluate(() => { const h = document.querySelector('[data-testid="flash-hero"]'); if (h) h.dataset.persistMark = "1"; });
+await np.locator('[data-testid="flash-continue"]').click();
+await np.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
+const heroPersisted = await np.evaluate(() => {
+  const h = document.querySelector('[data-testid="flash-hero"]');
+  return !!(h && h.dataset.persistMark === "1");
+});
+if (!heroPersisted) { console.error("FAIL: flashcards hero did not persist across the step change (it remounted)"); process.exit(1); }
+console.log("PASS: Flashcards — stepped Session→Topic flow, hero persists across the morph");
+// Mixed is selected by default on step 2 — Start commits straight away (topics are unmocked here).
 await np.locator('[data-testid="flash-start"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 await np.locator(".flash-recall").fill("About 10 to 21 mmHg");
