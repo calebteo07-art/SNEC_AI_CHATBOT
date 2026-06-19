@@ -1837,6 +1837,12 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* Animatable angle for the moving gradient outline on each topic tile. */
 @property --flash-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 @keyframes flash-spin-border { to { --flash-angle: 360deg; } }
+/* Slit-lamp hero auto-drift: --hx/--hy sway on two out-of-phase loops (coprime-ish
+   periods → long compound cycle, so it never reads as a mechanical loop). */
+@property --hx { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --hy { syntax: "<number>"; inherits: true; initial-value: 0; }
+@keyframes flash-hero-drift-x { 0%, 100% { --hx: -0.34; } 50% { --hx: 0.34; } }
+@keyframes flash-hero-drift-y { 0%, 100% { --hy: 0.28; } 50% { --hy: -0.26; } }
 
 .flash-root { position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
@@ -1883,13 +1889,14 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--g-blue); margin: 0; }
 .flash-setup-title { font-size: clamp(34px, 5vw, 52px); font-weight: 700; letter-spacing: -.02em; margin: 6px 0 8px; color: var(--ink); }
 .flash-setup-help { font-size: 16px; color: var(--ink-2); max-width: 48ch; margin: 0 auto; }
-/* Slit-lamp optical section hero — a round instrument porthole that tilts toward
-   the cursor. Pointer sets --hx/--hy (-0.5..0.5) on .flash-hero-wrap; the frame
-   rotates, the image parallax-shifts the opposite way, and the glow ring reads the
-   setup's current topic hue. */
+/* Slit-lamp optical section hero — a round instrument porthole that slowly auto-drifts.
+   Keyframes sway --hx/--hy (~-0.34..0.34) on .flash-hero-wrap; the frame rotates, the
+   image parallax-shifts the opposite way, and the glow ring reads the setup's current
+   topic hue. */
 .flash-hero-stage { text-align: center; }
 .flash-hero-wrap { position: relative; width: min(300px, 66vw); margin: 2px auto 0;
-  perspective: 900px; }
+  perspective: 900px;
+  animation: flash-hero-drift-x 14s ease-in-out infinite, flash-hero-drift-y 19s ease-in-out infinite; }
 .flash-hero-wrap::before { content: ""; position: absolute; inset: -12%; z-index: 0; border-radius: 50%;
   background: radial-gradient(circle at 50% 42%, hsl(var(--flash-topic-hue) 85% 62% / .40), transparent 64%);
   filter: blur(16px); transition: background .5s ease;
@@ -2076,10 +2083,12 @@ html[data-motion="reduce"] .flash-confetti { display: none; }
 html[data-motion="reduce"] .flash-hero,
 html[data-motion="reduce"] .flash-hero .aurora-plate-img,
 html[data-motion="reduce"] .flash-hero-wrap::before { transform: none; transition: none; }
+html[data-motion="reduce"] .flash-hero-wrap { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .flash-card, .flash-root { transition: none; }
   .flash-root::before, .flash-root::after,
   .flash-start, .flash-topic::before, .flash-confetti i, .flash-loader i, .flash-coach { animation: none; }
   .flash-confetti { display: none; }
   .flash-hero, .flash-hero .aurora-plate-img, .flash-hero-wrap::before { transform: none; transition: none; }
+  .flash-hero-wrap { animation: none; }
 }
