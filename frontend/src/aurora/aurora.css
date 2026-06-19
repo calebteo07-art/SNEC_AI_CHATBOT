@@ -1917,8 +1917,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   gap: clamp(16px, 2.6vh, 30px); }
 .flash-step-session { justify-content: center; align-items: center; }
 .flash-step-topic { justify-content: flex-start; }
-.flash-step-lede { text-align: center; }
-.flash-step-foot { display: flex; justify-content: center; gap: 14px; padding-top: clamp(6px, 1.2vh, 14px); }
+.flash-step-lede { text-align: center; flex-shrink: 0; }
+.flash-step-foot { display: flex; justify-content: center; gap: 14px; padding-top: clamp(6px, 1.2vh, 14px); flex-shrink: 0; }
 .flash-step-foot-split { justify-content: space-between; align-items: center; }
 .flash-back { padding: 14px 24px; border: 1px solid var(--hairline); border-radius: 999px; background: var(--surface);
   color: var(--ink-2); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
@@ -1955,7 +1955,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
 .flash-hero .aurora-plate-caption { display: none; }
 .flash-hero-cap { margin: 12px 0 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--ink-3); transition: opacity .3s ease, max-height .4s ease, margin .4s ease;
+  text-transform: uppercase; color: var(--ink-3); transition: opacity .3s ease, max-height .4s ease, margin .3s ease;
   max-height: 2em; overflow: hidden; }
 .flash-setup[data-step="2"] .flash-hero-cap { opacity: 0; max-height: 0; margin: 0; }
 .flash-setup-controls { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vh, 26px) 40px; justify-content: center; }
