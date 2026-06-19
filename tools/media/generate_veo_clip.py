@@ -17,7 +17,7 @@ MODEL = "veo-3.1-generate-preview"   # full premium tier
 
 def build_config(seconds="8", resolution="1080p", aspect="16:9"):
     return types.GenerateVideosConfig(
-        aspectRatio=aspect, resolution=resolution, durationSeconds=str(seconds),
+        aspect_ratio=aspect, resolution=resolution, duration_seconds=str(seconds),
     )
 
 def build_kwargs(prompt, image_path=None, seconds="8", resolution="1080p"):
@@ -26,7 +26,7 @@ def build_kwargs(prompt, image_path=None, seconds="8", resolution="1080p"):
     if image_path:
         data = Path(image_path).read_bytes()
         mime = mimetypes.guess_type(image_path)[0] or "image/png"
-        kwargs["image"] = types.Image(imageBytes=data, mimeType=mime)
+        kwargs["image"] = types.Image(image_bytes=data, mime_type=mime)
     return kwargs
 
 def generate(prompt, out, image=None, seconds="8", resolution="1080p",
