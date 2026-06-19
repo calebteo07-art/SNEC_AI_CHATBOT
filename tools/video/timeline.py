@@ -18,9 +18,9 @@ class Scene:
 SCENES = [
     Scene("01", 4.5, "broll", "",                "In ophthalmology, every detail matters.",         ".tmp/video/broll/01_hook.mp4"),
     Scene("02", 3.0, "broll", "",                "Meet EyeBot.",                                    ".tmp/video/broll/02_accent.mp4"),
-    Scene("04", 9.0, "live",  "Virtual Patients", "Virtual patients — explore the living eye.",      ".tmp/video/live/04_livingeye.webm"),
+    Scene("04", 11.0, "live", "Virtual Patients", "Virtual patients — examine and take a history.",  ".tmp/video/live/04_livingeye.webm"),
     Scene("03", 9.0, "live",  "AI Tutor",         "An AI tutor with grounded, cited answers.",       ".tmp/video/live/03_chat.webm"),
-    Scene("06", 8.5, "stills","Flashcards",       "Active-recall flashcards that make it stick.",    "frontend/final-flashcards.png"),
+    Scene("06", 9.5, "live",  "Flashcards",        "Answer from recall — AI grades you instantly.",   ".tmp/video/live/06_flashcards.webm"),
     Scene("07", 4.5, "broll", "Oversight",        "Safe by design — with faculty oversight.",        ".tmp/video/broll/07_oversight.mp4"),
     Scene("08", 7.0, "broll", "",                "EyeBot — your AI partner in ophthalmology training.\nA Singapore National Eye Centre initiative.", ".tmp/video/broll/08_close.mp4"),
 ]

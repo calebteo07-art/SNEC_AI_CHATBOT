@@ -15,6 +15,7 @@ CAP = ".tmp/video/captions"
 STILL = ".tmp/video/stills"
 MUSIC = ".tmp/video/music/bed.mp3"
 XFADE = 0.35
+OFFSETS = {"06": 5.0}   # per-scene start trim (skip the flashcards setup menu)
 
 
 def _run(cmd):
@@ -38,7 +39,9 @@ def _source_clip(s):
     if s.source in ("broll", "live"):
         vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
               f"fps={FPS},tpad=stop_mode=clone:stop_duration=30,format=yuv420p")
-        _run(["ffmpeg", "-y", "-i", s.asset, "-vf", vf, "-t", str(s.duration),
+        ss = OFFSETS.get(s.id, 0)
+        pre = ["-ss", str(ss)] if ss else []
+        _run(["ffmpeg", "-y", *pre, "-i", s.asset, "-vf", vf, "-t", str(s.duration),
               "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", raw])
     else:  # stills / brand
         _run(kenburns_cmd(s.asset, raw, seconds=s.duration, fps=FPS))
