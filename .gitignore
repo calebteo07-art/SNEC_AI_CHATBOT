@@ -68,3 +68,4 @@ portfolio/
 
 # AURORA visual-sweep screenshots (regenerated, never committed)
 frontend/*.png
+.tmp/
