@@ -1,15 +1,15 @@
 "use client";
-/* SessionSetup — one calm light screen: a slit-lamp hero, difficulty + length
-   pills, and a color-led topic gallery. Mixed is selected by default (so Start
-   always works, even when topics are empty); each real topic tile carries its own
-   topicHue. Only a handful of topics show until "Show all topics" is opened. Start
-   commits the set_key (or null for Mixed) to the orchestrator. */
-import { useState } from "react";
+/* SessionSetup — one calm light screen: a round slit-lamp hero that tilts toward the
+   cursor, difficulty + length pills, and a colour-led topic gallery (each tile a white
+   card carrying its own topic tint — no icons). Mixed is selected by default (so Start
+   always works, even when topics are empty); picking a topic cross-fades the whole
+   setup to that topic's hue. Only a handful of topics show until "Show all topics" is
+   opened. Start commits the set_key (or null for Mixed) to the orchestrator. */
+import { useEffect, useRef, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
 import { type Difficulty, LENGTHS, topicHue } from "./types";
-import { TopicGlyph } from "./TopicGlyph";
 
 interface Props {
   topicSets: FlashcardSetInfo[] | undefined;
@@ -22,6 +22,49 @@ interface Props {
 
 const PREVIEW = 5;
 
+/** Round slit-lamp porthole that tilts toward the cursor. Pointer position is written
+ *  to --hx/--hy on the wrapper (rAF-batched); the frame rotates and the image
+ *  parallax-shifts via CSS. Reduced motion neutralises the transforms (see aurora.css). */
+function HeroPlate() {
+  const ref = useRef<HTMLDivElement>(null);
+  const raf = useRef(0);
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => {
+      el.style.setProperty("--hx", x.toFixed(3));
+      el.style.setProperty("--hy", y.toFixed(3));
+    });
+  };
+  const reset = () => {
+    const el = ref.current;
+    if (!el) return;
+    cancelAnimationFrame(raf.current);
+    el.style.setProperty("--hx", "0");
+    el.style.setProperty("--hy", "0");
+  };
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+  return (
+    <div className="flash-hero-stage">
+      <div ref={ref} className="flash-hero-wrap" onPointerMove={onMove} onPointerLeave={reset}>
+        <PlateWell
+          src={PLATE.flashcards}
+          alt="Slit-lamp optical section through the cornea, anterior chamber and crystalline lens"
+          ratio={1}
+          className="flash-hero"
+        />
+      </div>
+      <p className="flash-hero-cap">Slit-lamp optical section</p>
+    </div>
+  );
+}
+
 export function SessionSetup({
   topicSets, difficulty, setDifficulty, sessionLength, setSessionLength, onStart,
 }: Props) {
@@ -33,17 +76,17 @@ export function SessionSetup({
   const visible = showAll ? sets : sets.slice(0, PREVIEW);
   const hiddenCount = sets.length - visible.length;
 
+  // The whole setup adopts the selected topic's hue (Mixed → brand blue default 212).
+  const selectedSet = sets.find((s) => s.set_key === selected);
+  const setupHue = selectedSet ? topicHue(selectedSet.topic_key) : 212;
+
   return (
-    <div className="flash-setup" data-testid="flash-setup">
+    <div className="flash-setup" data-testid="flash-setup"
+      style={{ "--flash-topic-hue": setupHue } as React.CSSProperties}>
       <header className="flash-setup-head">
-        <PlateWell
-          src={PLATE.flashcards}
-          alt="Slit-lamp optical section through the cornea, anterior chamber and crystalline lens"
-          ratio={16 / 9}
-          caption="Slit-Lamp Optical Section"
-          className="flash-hero"
-        />
+        <HeroPlate />
         <h2 className="flash-setup-title">Flashcards</h2>
+        <p className="flash-setup-help">Active recall, one card at a time — pick a topic colour or go Mixed.</p>
       </header>
 
       <section className="flash-setup-controls">
@@ -75,7 +118,6 @@ export function SessionSetup({
         <button type="button"
           className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
           aria-pressed={selected === null} onClick={() => setSelected(null)}>
-          <span className="flash-topic-glyph"><TopicGlyph topicKey="__mixed" /></span>
           <span className="flash-topic-label">Mixed</span>
         </button>
         {visible.map((s) => (
@@ -83,7 +125,6 @@ export function SessionSetup({
             className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
             style={{ "--flash-topic-hue": topicHue(s.topic_key) } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
-            <span className="flash-topic-glyph"><TopicGlyph topicKey={s.topic_key} /></span>
             <span className="flash-topic-label">{s.label}</span>
           </button>
         ))}

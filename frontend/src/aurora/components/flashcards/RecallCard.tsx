@@ -5,7 +5,6 @@
    Confetti fires (CSS-only) only on a high score. */
 import { useEffect, useRef } from "react";
 import { type Flashcard, type AiFeedback, MAX_ANSWER_CHARS } from "./types";
-import { TopicGlyph } from "./TopicGlyph";
 import { RevealBack } from "./RevealBack";
 
 interface Props {
@@ -38,7 +37,6 @@ export function RecallCard(p: Props) {
         {/* FRONT */}
         <section className="flash-face is-front">
           <span className="flash-topictag">
-            <TopicGlyph topicKey={p.card.tag} />
             <span>{p.card.tag} · {p.deckTitle}{p.isRetry ? " · ↻ refocus" : ""}</span>
           </span>
           <p className="flash-q">{p.card.question}</p>
