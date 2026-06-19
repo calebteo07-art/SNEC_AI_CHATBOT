@@ -30,6 +30,9 @@ study stage are **out of scope and unchanged**.
 - **Hero:** large/central on step 1, **recedes to a small badge** on step 2 so the
   topic gallery owns the spotlight. The shrink is a **shared-element morph** — the
   same eye node smoothly scales and travels between the two states, not a swap.
+- **Density:** each step **fills the immersive viewport** with enlarged elements and
+  minimal dead white space, but must **not overflow** in its default state (see
+  Layout & density).
 
 ## Design
 
@@ -61,18 +64,48 @@ study stage are **out of scope and unchanged**.
   the left. Direction tracked in shell state; the active content block is `key`ed
   so React remounts and replays the enter keyframe.
 - **The hero does NOT slide or remount.** It is a single persistent node in the
-  shell that *morphs* between its two states — scaling down and travelling from
-  centered-large to the corner badge — driven by a `data-step` attribute on the
-  root. The morph runs on a springy ease (e.g. `cubic-bezier(.22,1,.36,1)`,
-  ~520ms) over `transform` (scale + translate) so it reads as one continuous,
-  beautiful shrink rather than a resize. The auto-drift `--hx/--hy` animation
-  keeps running underneath the morph. `prefers-reduced-motion` collapses the
-  morph to an instant state change and neutralises the drift (existing rule).
+  shell that *morphs* between its two states — a large vertically-centered eye on
+  step 1 shrinking to a compact badge at the **top-center** of step 2 (horizontally
+  centered throughout; the vertical travel up happens naturally as it shrinks and
+  the content fills the space below). The morph is driven by a `data-step` attribute
+  on the root and animates the hero wrapper's **size** (width/height, ratio-locked
+  square) plus a transform polish, on a springy ease (e.g.
+  `cubic-bezier(.22,1,.36,1)`, ~520ms), so it reads as one continuous, beautiful
+  shrink. The auto-drift `--hx/--hy` animation keeps running underneath the morph.
+  `prefers-reduced-motion` collapses the morph to an instant state change and
+  neutralises the drift (existing rule).
 
 ### Color
 - `--flash-topic-hue` brand-blue (212) through step 1; cross-fades to the picked
   topic hue on step 2. Mixed → 212. Existing tile outlines/glows/`is-selected`
   halo reused verbatim.
+
+### Layout & density (fill the page, no overflow)
+The setup lives in the immersive `.flash-root` (`height: 100dvh`). Each step should
+**fill that viewport and feel generous** — large hero, large type, comfortable
+tiles — with minimal dead white space, while **never overflowing** the viewport in
+its default state.
+
+- **Container:** drop the fixed top padding + page scroll on `.flash-setup`. Make it
+  a full-height flex column (`height: 100%`) with three rows: progress rail (top,
+  fixed), the step content (middle, `flex: 1`, vertically centered), and the footer
+  (bottom). Widen the working column (≈ `min(1040px, 94vw)`) so content uses the
+  page rather than hugging a narrow center.
+- **Step 1 (sparse → balanced):** the middle row centers the enlarged hero + the two
+  pill groups as one airy stack; spacing scales with viewport (`clamp`/`vh`) so the
+  cluster occupies the height instead of sitting in a small band up top. Enlarge the
+  pills (bigger hit targets, larger label) so they read as primary choices.
+- **Step 2 (dense → contained):** header row (hero badge + title) is compact; the
+  topic gallery fills the remaining height and width. Tiles enlarge (taller
+  `min-height`, larger label) and the grid uses the full column width. The **default
+  (preview) tile count is tuned so the grid fits the viewport without scrolling** at
+  common sizes; only the **"Show all"** expanded state may scroll, and that scroll is
+  confined to the gallery region (footer + rail stay put). `PREVIEW` may be bumped
+  from 5 if the enlarged tiles still fit one screen.
+- **Guardrails:** content must not clip the footer or push it off-screen. If a step's
+  content would exceed the viewport (e.g. very small heights, or expanded topics),
+  that single region scrolls internally (`min-height: 0` + `overflow: auto` on the
+  content row) — the rail and footer never move. Verify at 1440×900 and 390px-wide.
 
 ## Architecture
 
