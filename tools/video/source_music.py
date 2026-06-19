@@ -7,8 +7,8 @@ Fallback: synthesize an original ambient pad with ffmpeg (no licensing required)
 import subprocess, sys, urllib.request
 from pathlib import Path
 
-TRACK_URL = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Inspired.mp3"
-ATTRIBUTION = ('"Inspired" by Kevin MacLeod (incompetech.com) — '
+TRACK_URL = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hyperfun.mp3"
+ATTRIBUTION = ('"Hyperfun" by Kevin MacLeod (incompetech.com) — '
                "Licensed under Creative Commons: By Attribution 4.0 — "
                "https://creativecommons.org/licenses/by/4.0/")
 OUT = ".tmp/video/music/bed.mp3"
