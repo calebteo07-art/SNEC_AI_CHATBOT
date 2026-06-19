@@ -51,7 +51,7 @@ export function SessionSetup({
   const [showAll, setShowAll] = useState(false);
 
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
-  const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); };
+  const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); setShowAll(false); };
   const goTopic = () => { setDirection("fwd"); setStep(2); };
   const goBack = () => { setDirection("back"); setStep(1); };
 
@@ -68,7 +68,7 @@ export function SessionSetup({
         <span className={`flash-rail-seg${step === 2 ? " is-active" : ""}`} />
       </div>
 
-      <div className="flash-stage">
+      <div className="flash-setup-stage">
         <HeroPlate />
         <div className={`flash-step flash-step-${direction}`} key={step}>
           {step === 1 ? (
