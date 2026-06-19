@@ -1,15 +1,18 @@
 "use client";
-/* SessionSetup — one calm light screen: a round slit-lamp hero that slowly auto-drifts,
-   difficulty + length pills, and a colour-led topic gallery (each tile a white
-   card carrying its own topic tint — no icons). Mixed is selected by default (so Start
-   always works, even when topics are empty); picking a topic cross-fades the whole
-   setup to that topic's hue. Only a handful of topics show until "Show all topics" is
-   opened. Start commits the set_key (or null for Mixed) to the orchestrator. */
+/* SessionSetup — the two-step flashcards selection shell. Owns the step (1|2),
+   slide direction, topic pick, and "show all" state; renders a 2-segment progress
+   rail, the PERSISTENT slit-lamp hero (one node that morphs from centerpiece to
+   badge across steps — it lives here so it never unmounts), and the keyed step
+   content (StepSession → StepTopic) that slides/cross-fades. Mixed is selected by
+   default so Start always works. Picking a topic cross-fades the whole setup to that
+   topic's hue. */
 import { useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
-import { type Difficulty, LENGTHS, topicHue } from "./types";
+import { type Difficulty, topicHue } from "./types";
+import { StepSession } from "./StepSession";
+import { StepTopic } from "./StepTopic";
 
 interface Props {
   topicSets: FlashcardSetInfo[] | undefined;
@@ -20,15 +23,12 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
-const PREVIEW = 5;
-
-/** Round slit-lamp porthole that slowly auto-drifts. The sway is driven entirely in CSS —
- *  keyframes animate --hx/--hy on .flash-hero-wrap (two out-of-phase loops for an organic
- *  feel); the frame rotates and the image parallax-shifts via those vars. Reduced motion
- *  neutralises the transforms and halts the drift (see aurora.css). */
+/** Persistent slit-lamp porthole. Rendered once by the shell; its size morphs across
+ *  steps via [data-step] on the setup root (see aurora.css), the auto-drift running
+ *  underneath. data-testid lets the harness prove it persists across the step change. */
 function HeroPlate() {
   return (
-    <div className="flash-hero-stage">
+    <div className="flash-hero-stage" data-testid="flash-hero">
       <div className="flash-hero-wrap">
         <PlateWell
           src={PLATE.flashcards}
@@ -45,77 +45,52 @@ function HeroPlate() {
 export function SessionSetup({
   topicSets, difficulty, setDifficulty, sessionLength, setSessionLength, onStart,
 }: Props) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [direction, setDirection] = useState<"fwd" | "back">("fwd");
   const [selected, setSelected] = useState<string | null>(null); // null = Mixed
   const [showAll, setShowAll] = useState(false);
+
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
   const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); };
+  const goTopic = () => { setDirection("fwd"); setStep(2); };
+  const goBack = () => { setDirection("back"); setStep(1); };
 
-  const visible = showAll ? sets : sets.slice(0, PREVIEW);
-  const hiddenCount = sets.length - visible.length;
-
-  // The whole setup adopts the selected topic's hue (Mixed → brand blue default 212).
+  // The whole setup adopts the selected topic's hue (Mixed → brand blue 212).
   const selectedSet = sets.find((s) => s.set_key === selected);
   const setupHue = selectedSet ? topicHue(selectedSet.topic_key) : 212;
 
   return (
-    <div className="flash-setup" data-testid="flash-setup"
+    <div className="flash-setup" data-testid="flash-setup" data-step={step}
       style={{ "--flash-topic-hue": setupHue } as React.CSSProperties}>
-      <header className="flash-setup-head">
+      <div className="flash-rail" data-testid="flash-rail" role="progressbar"
+        aria-valuemin={1} aria-valuemax={2} aria-valuenow={step} aria-label="Setup progress">
+        <span className={`flash-rail-seg${step === 1 ? " is-active" : ""}${step > 1 ? " is-done" : ""}`} />
+        <span className={`flash-rail-seg${step === 2 ? " is-active" : ""}`} />
+      </div>
+
+      <div className="flash-stage">
         <HeroPlate />
-        <h2 className="flash-setup-title">Flashcards</h2>
-        <p className="flash-setup-help">Active recall, one card at a time — pick a topic colour or go Mixed.</p>
-      </header>
-
-      <section className="flash-setup-controls">
-        <div className="flash-control">
-          <span className="flash-control-label">Difficulty</span>
-          <div className="flash-pills" role="radiogroup" aria-label="Difficulty">
-            {(["easy", "medium"] as Difficulty[]).map((d) => (
-              <button key={d} type="button" role="radio" aria-checked={difficulty === d}
-                className="flash-pill flash-press" onClick={() => pickDifficulty(d)}>
-                {d === "easy" ? "Easy" : "Medium"}
-              </button>
-            ))}
-          </div>
+        <div className={`flash-step flash-step-${direction}`} key={step}>
+          {step === 1 ? (
+            <StepSession
+              difficulty={difficulty}
+              pickDifficulty={pickDifficulty}
+              sessionLength={sessionLength}
+              setSessionLength={setSessionLength}
+              onContinue={goTopic}
+            />
+          ) : (
+            <StepTopic
+              sets={sets}
+              selected={selected}
+              setSelected={setSelected}
+              showAll={showAll}
+              setShowAll={setShowAll}
+              onBack={goBack}
+              onStart={() => onStart(selected)}
+            />
+          )}
         </div>
-        <div className="flash-control">
-          <span className="flash-control-label">Length</span>
-          <div className="flash-pills" role="radiogroup" aria-label="Session length">
-            {LENGTHS.map((l) => (
-              <button key={l.n} type="button" role="radio" aria-checked={sessionLength === l.n}
-                className="flash-pill flash-press" onClick={() => setSessionLength(l.n)}>
-                {l.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="flash-topics" aria-label="Topics">
-        <button type="button"
-          className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
-          aria-pressed={selected === null} onClick={() => setSelected(null)}>
-          <span className="flash-topic-label">Mixed</span>
-        </button>
-        {visible.map((s) => (
-          <button key={s.set_key} type="button" disabled={s.total === 0}
-            className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
-            style={{ "--flash-topic-hue": topicHue(s.topic_key) } as React.CSSProperties}
-            aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
-            <span className="flash-topic-label">{s.label}</span>
-          </button>
-        ))}
-        {hiddenCount > 0 && (
-          <button type="button" className="flash-topic is-more flash-press" onClick={() => setShowAll(true)}>
-            <span className="flash-topic-label">Show all topics</span>
-            <span className="flash-topic-sub">+{hiddenCount} more</span>
-          </button>
-        )}
-      </section>
-
-      <div className="flash-setup-foot">
-        <button type="button" className="flash-start flash-press" data-testid="flash-start"
-          onClick={() => onStart(selected)}>Start session →</button>
       </div>
     </div>
   );
