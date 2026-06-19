@@ -1967,7 +1967,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-pill[aria-checked="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 2px 10px rgba(31,31,31,.08); }
 
 .flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;
-  flex: 1; min-height: 0; overflow-y: auto; align-content: start; padding: 2px; }
+  grid-auto-rows: minmax(clamp(96px, 15vh, 132px), 1fr);
+  flex: 1; min-height: 0; overflow-y: auto; align-content: stretch; padding: 2px; }
 /* Each tile is a near-white card wrapped in a SOLID single-hue outline (masked ring,
    animating --flash-angle) carrying one broad, soft highlight that drifts gently around
    it. Solid colour keeps every topic distinct and the ring an even thickness all the way
