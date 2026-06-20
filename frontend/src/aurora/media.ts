@@ -7,16 +7,11 @@ export const PLATE = {
   cases: "/media/accents/cases-photo-00.png",
   caseSession: "/media/accents/case-session-photo-00.png",
   flashcards: "/media/accents/flashcards-photo-00.png",
-  /* The flashcards hero CAST — four soft-anime SNEC eye-care staff in SingHealth blue
-     scrubs with orange trim, each a transparent sprite that drops straight onto the cream
-     surface. Generated as one row then sliced (tools/media/generate_flashcards_cast.py).
-     Order L->R: Chinese man, Malay woman (tudung), Indian woman, White man. */
-  cast: [
-    "/media/accents/flashcards-cast-0.png",
-    "/media/accents/flashcards-cast-1.png",
-    "/media/accents/flashcards-cast-2.png",
-    "/media/accents/flashcards-cast-3.png",
-  ],
+  /* The flashcards hero SCENE — a single premium Studio-Ghibli illustration of four SNEC
+     eye-care staff (close friends) relaxing in a warm staff lounge, in SingHealth blue scrubs
+     with a solid-orange V-neck collar. One finished landscape image rendered directly as the
+     hero (tools/media/generate_flashcards_cast.py). */
+  flashScene: "/media/accents/flashcards-scene.png",
   /* The Eye Atlas hero — a Nano Banana plate fusing the sagittal cross-section
      with an ophthalmoscopic fundus inset (anterior pole left, posterior right).
      Falls back to the hand-built SVG cross-section in AtlasMap if absent. */

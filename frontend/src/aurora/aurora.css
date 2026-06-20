@@ -1940,28 +1940,23 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   filter: drop-shadow(0 2px 10px hsl(var(--flash-topic-hue) 70% 50% / .14)); }
 .flash-setup-help { font-size: clamp(15px, 1.5vw, 17px); color: var(--flash-ink-2); max-width: 52ch; margin: 0 auto; }
 .flash-hero-stage { text-align: center; }
-/* One PERSISTENT node that MORPHS between steps. Step 1: the four staff at full size, a
-   centred centerpiece. Step 2: the whole band scales down to a slim strip so the topic
-   gallery fills the page. --cast-h (the shared sprite height) is the single value that
-   animates the morph; sprites are transparent PNGs that blend straight onto the cream. */
-.flash-cast { display: flex; align-items: flex-end; justify-content: center;
-  gap: clamp(8px, 3vw, 40px); margin: 0 auto; --cast-h: clamp(150px, 30vh, 288px);
-  transition: gap .52s cubic-bezier(.22, 1, .36, 1); }
-.flash-setup[data-step="2"] .flash-cast { --cast-h: clamp(52px, 9vh, 84px); gap: clamp(4px, 1.4vw, 16px); }
-/* Each figure: the sprite bobs above a soft static ground shadow, so it reads as alive
-   and grounded at once. The shadow stays put while the sprite floats over it. */
-.flash-cast-figure { position: relative; display: flex; align-items: flex-end; justify-content: center; }
-.flash-cast-figure::after { content: ""; position: absolute; left: 50%; bottom: -4px; z-index: 0;
-  transform: translateX(-50%); width: 60%; height: calc(var(--cast-h) * .07 + 5px); border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(74, 58, 30, .26), transparent 70%); filter: blur(2px);
-  transition: height .52s cubic-bezier(.22, 1, .36, 1); }
-.flash-cast-sprite { position: relative; z-index: 1; display: block; width: auto; height: var(--cast-h);
-  object-fit: contain; user-select: none;
-  transition: height .52s cubic-bezier(.22, 1, .36, 1);
-  animation: flash-cast-bob var(--cast-dur, 4s) ease-in-out var(--cast-delay, 0s) infinite; }
-@keyframes flash-cast-bob {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-7px) rotate(var(--cast-lean, .6deg)); }
+/* One PERSISTENT node that MORPHS between steps. Step 1: the Studio-Ghibli group scene
+   large and centred. Step 2: the framed illustration scales down to a slim strip so the
+   topic gallery fills the page. --scene-w (the card width) is the single value that animates
+   the morph; the 16:9 illustration sits in a soft rounded card on the cream. */
+.flash-scene { display: block; margin: 0 auto; width: var(--scene-w, clamp(320px, 56vh, 720px));
+  max-width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden;
+  box-shadow: 0 26px 60px -30px rgba(74, 58, 30, .5), 0 4px 12px -7px rgba(74, 58, 30, .32),
+    inset 0 0 0 1px rgba(255, 255, 255, .5);
+  transition: width .52s cubic-bezier(.22, 1, .36, 1), border-radius .52s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .52s ease;
+  animation: flash-scene-float 7s ease-in-out infinite; }
+.flash-setup[data-step="2"] .flash-scene { --scene-w: clamp(180px, 28vh, 320px); border-radius: 14px;
+  box-shadow: 0 14px 32px -20px rgba(74, 58, 30, .45), inset 0 0 0 1px rgba(255, 255, 255, .5); }
+.flash-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; }
+@keyframes flash-scene-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 .flash-hero-cap { margin: 14px 0 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
   text-transform: uppercase; color: var(--flash-ink-3); transition: opacity .3s ease, max-height .4s ease, margin .3s ease;
@@ -2183,17 +2178,15 @@ html[data-motion="reduce"] .flash-topic::before,
 html[data-motion="reduce"] .flash-confetti i,
 html[data-motion="reduce"] .flash-loader i,
 html[data-motion="reduce"] .flash-step,
-html[data-motion="reduce"] .flash-cast-sprite,
+html[data-motion="reduce"] .flash-scene,
 html[data-motion="reduce"] .flash-coach { animation: none; }
 html[data-motion="reduce"] .flash-confetti { display: none; }
-html[data-motion="reduce"] .flash-cast,
-html[data-motion="reduce"] .flash-cast-sprite,
-html[data-motion="reduce"] .flash-cast-figure::after { transition: none; }
+html[data-motion="reduce"] .flash-scene { transition: none; }
 @media (prefers-reduced-motion: reduce) {
   .flash-card, .flash-root { transition: none; }
   .flash-root::before, .flash-root::after,
   .flash-start, .flash-start::after, .flash-submit::after, .flash-advance::after,
-  .flash-topic::before, .flash-confetti i, .flash-loader i, .flash-step, .flash-cast-sprite, .flash-coach { animation: none; }
+  .flash-topic::before, .flash-confetti i, .flash-loader i, .flash-step, .flash-scene, .flash-coach { animation: none; }
   .flash-confetti { display: none; }
-  .flash-cast, .flash-cast-sprite, .flash-cast-figure::after { transition: none; }
+  .flash-scene { transition: none; }
 }
