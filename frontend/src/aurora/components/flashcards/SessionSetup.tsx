@@ -8,7 +8,6 @@
    topic's hue. */
 import { useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
-import { PlateWell } from "@/aurora/components/PlateWell";
 import { PLATE } from "@/aurora/media";
 import { type Difficulty, topicHue } from "./types";
 import { StepSession } from "./StepSession";
@@ -23,21 +22,35 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
-/** Persistent slit-lamp porthole. Rendered once by the shell; its size morphs across
- *  steps via [data-step] on the setup root (see aurora.css). The eye image is shown
- *  RAW (no edit, no motion). data-testid lets the harness prove it persists. */
+/** The four staff sprites, each with its own out-of-phase idle motion (duration / delay /
+ *  lean) so the group feels alive without any two bobbing in sync. Order matches media.ts:
+ *  Chinese man, Malay woman (tudung), Indian woman, White man. */
+const CAST = [
+  { src: PLATE.cast[0], dur: "3.8s", delay: "0s", lean: ".8deg" },
+  { src: PLATE.cast[1], dur: "4.6s", delay: ".6s", lean: "-.7deg" },
+  { src: PLATE.cast[2], dur: "4.1s", delay: "1.1s", lean: ".9deg" },
+  { src: PLATE.cast[3], dur: "4.9s", delay: ".3s", lean: "-1deg" },
+] as const;
+
+/** Persistent hero CAST. Rendered once by the shell so it never unmounts; the band scales
+ *  from a centred centerpiece (step 1) to a slim strip (step 2) via [data-step] on the
+ *  setup root (see aurora.css). Sprites are transparent PNGs on the cream — they blend by
+ *  construction; CSS adds the soft contact shadow and the idle motion. The group carries
+ *  one aria-label; individual sprites are decorative. data-testid proves it persists. */
 function HeroPlate() {
   return (
     <div className="flash-hero-stage" data-testid="flash-hero">
-      <div className="flash-hero-wrap">
-        <PlateWell
-          src={PLATE.flashcards}
-          alt="Slit-lamp optical section through the cornea, anterior chamber and crystalline lens"
-          ratio={1}
-          className="flash-hero"
-        />
+      <div className="flash-cast" role="img"
+        aria-label="Four SNEC eye-care staff in SingHealth blue scrubs with orange trim">
+        {CAST.map((c) => (
+          <span key={c.src} className="flash-cast-figure"
+            style={{ "--cast-dur": c.dur, "--cast-delay": c.delay, "--cast-lean": c.lean } as React.CSSProperties}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="flash-cast-sprite" src={c.src} alt="" draggable={false} />
+          </span>
+        ))}
       </div>
-      <p className="flash-hero-cap">Slit-lamp optical section</p>
+      <p className="flash-hero-cap">Your SNEC eye-care team</p>
     </div>
   );
 }
