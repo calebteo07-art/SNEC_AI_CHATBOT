@@ -1940,28 +1940,22 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   filter: drop-shadow(0 2px 10px hsl(var(--flash-topic-hue) 70% 50% / .14)); }
 .flash-setup-help { font-size: clamp(15px, 1.5vw, 17px); color: var(--flash-ink-2); max-width: 52ch; margin: 0 auto; }
 .flash-hero-stage { text-align: center; }
-/* One PERSISTENT node that MORPHS between steps. Step 1: the Studio-Ghibli group scene
-   large and centred. Step 2: the framed illustration scales down to a slim strip so the
-   topic gallery fills the page. --scene-w (the card width) is the single value that animates
-   the morph; the 16:9 illustration sits in a soft rounded card on the cream. */
-.flash-scene { display: block; margin: 0 auto; width: var(--scene-w, clamp(320px, 56vh, 720px));
-  max-width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden;
-  box-shadow: 0 26px 60px -30px rgba(74, 58, 30, .5), 0 4px 12px -7px rgba(74, 58, 30, .32),
-    inset 0 0 0 1px rgba(255, 255, 255, .5);
-  transition: width .52s cubic-bezier(.22, 1, .36, 1), border-radius .52s cubic-bezier(.22, 1, .36, 1),
-    box-shadow .52s ease;
-  animation: flash-scene-float 7s ease-in-out infinite; }
-.flash-setup[data-step="2"] .flash-scene { --scene-w: clamp(180px, 28vh, 320px); border-radius: 14px;
-  box-shadow: 0 14px 32px -20px rgba(74, 58, 30, .45), inset 0 0 0 1px rgba(255, 255, 255, .5); }
-.flash-scene-img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; }
-@keyframes flash-scene-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+/* One PERSISTENT node that MORPHS between steps. Step 1: the login macro-eye, large and
+   centred. Step 2: it shrinks to a small badge so the topic gallery fills the page.
+   --scene-w is the single value that animates the morph. The eye renders EXACTLY as the
+   login screen does — full round disc, object-fit:contain, no card frame — just centred on
+   the cream and dropped a little lower than dead-centre. */
+.flash-scene { display: block; margin: clamp(12px, 5vh, 56px) auto 0;
+  width: var(--scene-w, clamp(260px, 44vh, 520px)); max-width: 100%;
+  aspect-ratio: 1 / 1; overflow: visible;
+  transition: width .52s cubic-bezier(.22, 1, .36, 1), margin .52s cubic-bezier(.22, 1, .36, 1);
+  animation: flash-scene-breathe 7s ease-in-out infinite; }
+.flash-setup[data-step="2"] .flash-scene { --scene-w: clamp(140px, 22vh, 240px); margin-top: clamp(8px, 2vh, 20px); }
+.flash-scene-img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; will-change: transform; }
+@keyframes flash-scene-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 }
-.flash-hero-cap { margin: 14px 0 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--flash-ink-3); transition: opacity .3s ease, max-height .4s ease, margin .3s ease;
-  max-height: 2em; overflow: hidden; }
-.flash-setup[data-step="2"] .flash-hero-cap { opacity: 0; max-height: 0; margin: 0; }
 .flash-setup-controls { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vh, 26px) 40px; justify-content: center; }
 .flash-control { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 .flash-control-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--flash-ink-3); }

@@ -8,7 +8,6 @@
    topic's hue. */
 import { useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
-import { PLATE } from "@/aurora/media";
 import { type Difficulty, topicHue } from "./types";
 import { StepSession } from "./StepSession";
 import { StepTopic } from "./StepTopic";
@@ -22,20 +21,19 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
-/** Persistent hero SCENE. Rendered once by the shell so it never unmounts; the framed
- *  illustration scales from a large centred centerpiece (step 1) to a slim strip (step 2)
- *  via [data-step] on the setup root (see aurora.css). One premium Studio-Ghibli image of
- *  the four SNEC staff (friends) relaxing in a warm staff lounge — it blends onto the cream
- *  in a soft rounded card. data-testid proves it persists across the morph. */
+/** Persistent hero. Rendered once by the shell so it never unmounts; it scales from a
+ *  large centred disc (step 1) to a small badge (step 2) via [data-step] on the setup root
+ *  (see aurora.css). Renders the login macro-eye (/brand/login-eye.png) EXACTLY as the login
+ *  screen does — full round disc, object-fit:contain, no frame — just centred on the cream
+ *  and dropped a little lower than dead-centre. Decorative (aria-hidden), like the login eye.
+ *  data-testid proves it persists across the morph. */
 function HeroPlate() {
   return (
     <div className="flash-hero-stage" data-testid="flash-hero">
-      <div className="flash-scene" role="img"
-        aria-label="Four SNEC eye-care staff, close friends, relaxing together in SingHealth blue scrubs">
+      <div className="flash-scene" aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="flash-scene-img" src={PLATE.flashScene} alt="" draggable={false} />
+        <img className="flash-scene-img" src="/brand/login-eye.png" alt="" draggable={false} />
       </div>
-      <p className="flash-hero-cap">Your SNEC eye-care team</p>
     </div>
   );
 }
