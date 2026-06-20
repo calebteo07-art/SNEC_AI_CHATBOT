@@ -22,33 +22,18 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
-/** The four staff sprites, each with its own out-of-phase idle motion (duration / delay /
- *  lean) so the group feels alive without any two bobbing in sync. Order matches media.ts:
- *  Chinese man, Malay woman (tudung), Indian woman, White man. */
-const CAST = [
-  { src: PLATE.cast[0], dur: "3.8s", delay: "0s", lean: ".8deg" },
-  { src: PLATE.cast[1], dur: "4.6s", delay: ".6s", lean: "-.7deg" },
-  { src: PLATE.cast[2], dur: "4.1s", delay: "1.1s", lean: ".9deg" },
-  { src: PLATE.cast[3], dur: "4.9s", delay: ".3s", lean: "-1deg" },
-] as const;
-
-/** Persistent hero CAST. Rendered once by the shell so it never unmounts; the band scales
- *  from a centred centerpiece (step 1) to a slim strip (step 2) via [data-step] on the
- *  setup root (see aurora.css). Sprites are transparent PNGs on the cream — they blend by
- *  construction; CSS adds the soft contact shadow and the idle motion. The group carries
- *  one aria-label; individual sprites are decorative. data-testid proves it persists. */
+/** Persistent hero SCENE. Rendered once by the shell so it never unmounts; the framed
+ *  illustration scales from a large centred centerpiece (step 1) to a slim strip (step 2)
+ *  via [data-step] on the setup root (see aurora.css). One premium Studio-Ghibli image of
+ *  the four SNEC staff (friends) relaxing in a warm staff lounge — it blends onto the cream
+ *  in a soft rounded card. data-testid proves it persists across the morph. */
 function HeroPlate() {
   return (
     <div className="flash-hero-stage" data-testid="flash-hero">
-      <div className="flash-cast" role="img"
-        aria-label="Four SNEC eye-care staff in SingHealth blue scrubs with orange trim">
-        {CAST.map((c) => (
-          <span key={c.src} className="flash-cast-figure"
-            style={{ "--cast-dur": c.dur, "--cast-delay": c.delay, "--cast-lean": c.lean } as React.CSSProperties}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="flash-cast-sprite" src={c.src} alt="" draggable={false} />
-          </span>
-        ))}
+      <div className="flash-scene" role="img"
+        aria-label="Four SNEC eye-care staff, close friends, relaxing together in SingHealth blue scrubs">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="flash-scene-img" src={PLATE.flashScene} alt="" draggable={false} />
       </div>
       <p className="flash-hero-cap">Your SNEC eye-care team</p>
     </div>
