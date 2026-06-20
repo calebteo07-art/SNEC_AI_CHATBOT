@@ -1841,8 +1841,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root { position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
   /* Warm-cream surface tokens — light but not white, scoped to flashcards only. */
-  --flash-cream-1: #faf6ee;   /* centre, lightest */
-  --flash-cream-2: #efe5d3;   /* edge, warmer */
+  --flash-cream-1: #f3ede0;   /* centre — matched to the hero image's own cream (#f3ede0) so the raw square dissolves seamlessly into the page */
+  --flash-cream-2: #ece3d2;   /* edge, a touch deeper for gentle dimension */
   --flash-paper: #fffdf8;     /* cards / inputs — clean warm white */
   --flash-line: rgba(74,58,30,.14);
   --flash-ink: #2c2618;       /* warm near-black */
