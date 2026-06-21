@@ -27,8 +27,9 @@ export function StepTopic({
   return (
     <div className="flash-step-body flash-step-topic">
       <div className="flash-step-lede">
-        <h2 className="flash-setup-title">Choose a topic</h2>
-        <p className="flash-setup-help">Pick a colour to focus a topic, or go Mixed for a spread.</p>
+        <p className="flash-eyebrow">Step 2 of 2 · choose a channel</p>
+        <h2 className="flash-setup-title">Topics</h2>
+        <p className="flash-setup-help">Tune to one topic, or go Mixed for the full spread.</p>
       </div>
 
       <section className="flash-topics" aria-label="Topics">
@@ -37,6 +38,7 @@ export function StepTopic({
           style={{ "--i": 0 } as React.CSSProperties}
           aria-pressed={selected === null} onClick={() => setSelected(null)}>
           <span className="flash-topic-label">Mixed</span>
+          <span className="flash-topic-sub">full spectrum</span>
         </button>
         {visible.map((s, i) => (
           <button key={s.set_key} type="button" disabled={s.total === 0}
@@ -44,6 +46,7 @@ export function StepTopic({
             style={{ "--flash-topic-hue": galleryHue(i), "--i": i + 1 } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
             <span className="flash-topic-label">{s.label}</span>
+            <span className="flash-topic-sub">{s.total} cards</span>
           </button>
         ))}
         {hiddenCount > 0 && (
