@@ -84,6 +84,8 @@ function HeroPlate() {
       <div className="flash-scene" ref={sceneRef} aria-hidden="true">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="flash-scene-img" src="/brand/login-eye.png" alt="" draggable={false} />
+        {/* Aperture dial — a rotating instrument ring (hue arc + ticks) framing the eye. */}
+        <span className="flash-dial-ring" />
       </div>
     </div>
   );
@@ -96,6 +98,7 @@ export function SessionSetup({
   const [direction, setDirection] = useState<"fwd" | "back">("fwd");
   const [selected, setSelected] = useState<string | null>(null); // null = Mixed
   const [showAll, setShowAll] = useState(false);
+  const setupRef = useRef<HTMLDivElement>(null);
 
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
   const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); setShowAll(false); };
@@ -107,8 +110,14 @@ export function SessionSetup({
   const selectedIndex = sets.findIndex((s) => s.set_key === selected);
   const setupHue = selectedIndex >= 0 ? galleryHue(selectedIndex) : 212;
 
+  // Publish the live hue up to .flash-root so the dusk aurora + warm pool flood the whole
+  // field on every pick (the "living instrument" resonance) — not just the inner accents.
+  useEffect(() => {
+    setupRef.current?.closest<HTMLElement>(".flash-root")?.style.setProperty("--flash-topic-hue", String(setupHue));
+  }, [setupHue]);
+
   return (
-    <div className="flash-setup" data-testid="flash-setup" data-step={step}
+    <div className="flash-setup" data-testid="flash-setup" data-step={step} ref={setupRef}
       style={{ "--flash-topic-hue": setupHue } as React.CSSProperties}>
       <div className="flash-rail" data-testid="flash-rail" role="progressbar"
         aria-valuemin={1} aria-valuemax={2} aria-valuenow={step} aria-label="Setup progress">

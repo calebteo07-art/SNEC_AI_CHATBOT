@@ -174,7 +174,9 @@ export function Flashcards() {
   // Selection (skipped from a tutor session or review).
   if (!fromSession && !pickerDone) {
     return (
-      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
+      // No topicHue here — SessionSetup publishes the live (previewed) hue to .flash-root
+      // itself so the dusk aurora floods on each pick.
+      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
         <SessionSetup
           topicSets={topicSets}
           difficulty={difficulty}
