@@ -1942,6 +1942,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-step-lede { text-align: center; flex-shrink: 0; }
 .flash-step-foot { display: flex; justify-content: center; gap: 14px; padding-top: clamp(6px, 1.2vh, 14px); flex-shrink: 0; }
 .flash-step-foot-split { justify-content: space-between; align-items: center; }
+/* Step 1: pull Continue a little closer to the controls (sits lower than ideal otherwise). */
+.flash-step-session .flash-step-foot { padding-top: 0; margin-top: clamp(-18px, -1.8vh, -8px); }
 .flash-back { padding: 14px 26px; border: 1px solid var(--flash-line); border-radius: 999px;
   background: linear-gradient(180deg, var(--flash-paper), color-mix(in srgb, var(--flash-cream-2) 55%, var(--flash-paper)));
   color: var(--flash-ink-2); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
