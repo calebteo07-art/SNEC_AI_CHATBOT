@@ -2003,8 +2003,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    --scene-w is the single value that animates the morph. The eye renders EXACTLY as the
    login screen does — full round disc, object-fit:contain, no card frame — just centred on
    the cream and dropped a little lower than dead-centre. */
-.flash-scene { position: relative; display: block; margin: clamp(10px, 4vh, 44px) auto 0;
-  width: var(--scene-w, clamp(248px, 42vh, 480px)); max-width: 100%;
+.flash-scene { position: relative; display: block; margin: clamp(10px, 3vh, 30px) auto clamp(8px, 1.6vh, 18px);
+  width: var(--scene-w, clamp(264px, 44vh, 500px)); max-width: 100%;
   aspect-ratio: 1 / 1; overflow: visible;
   /* high-sensitivity gaze: how far the iris travels + leans toward the cursor.
      Eased down once the eye shrinks to a badge on step 2 so it stays composed. */

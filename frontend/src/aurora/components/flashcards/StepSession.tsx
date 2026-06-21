@@ -41,9 +41,7 @@ export function StepSession({
   return (
     <div className="flash-step-body flash-step-session">
       <div className="flash-step-lede">
-        <p className="flash-eyebrow">Step 1 of 2 · set the pace</p>
         <h2 className="flash-setup-title">Flashcards</h2>
-        <p className="flash-setup-help">Active recall, one card at a time. Tune the instrument, then choose a channel.</p>
       </div>
 
       <div className="flash-choices">
