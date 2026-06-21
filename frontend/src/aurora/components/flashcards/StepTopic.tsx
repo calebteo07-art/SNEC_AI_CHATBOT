@@ -34,13 +34,14 @@ export function StepTopic({
       <section className="flash-topics" aria-label="Topics">
         <button type="button"
           className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
+          style={{ "--i": 0 } as React.CSSProperties}
           aria-pressed={selected === null} onClick={() => setSelected(null)}>
           <span className="flash-topic-label">Mixed</span>
         </button>
-        {visible.map((s) => (
+        {visible.map((s, i) => (
           <button key={s.set_key} type="button" disabled={s.total === 0}
             className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
-            style={{ "--flash-topic-hue": topicHue(s.topic_key) } as React.CSSProperties}
+            style={{ "--flash-topic-hue": topicHue(s.topic_key), "--i": i + 1 } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
             <span className="flash-topic-label">{s.label}</span>
           </button>
