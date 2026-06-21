@@ -27,9 +27,7 @@ export function StepTopic({
   return (
     <div className="flash-step-body flash-step-topic">
       <div className="flash-step-lede">
-        <p className="flash-eyebrow">Step 2 of 2 · choose a channel</p>
         <h2 className="flash-setup-title">Topics</h2>
-        <p className="flash-setup-help">Tune to one topic, or go Mixed for the full spread.</p>
       </div>
 
       <section className="flash-topics" aria-label="Topics">
