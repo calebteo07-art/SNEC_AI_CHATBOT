@@ -1837,6 +1837,11 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* Animatable angle for the moving gradient outline on each topic tile. */
 @property --flash-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 @keyframes flash-spin-border { to { --flash-angle: 360deg; } }
+/* Pointer-driven gaze for the hero eye — high-sensitivity parallax. JS smooths the raw
+   cursor into these [-1,1] values; CSS turns them into translate + 3D tilt on the iris. */
+@property --hx   { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --hy   { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --hact { syntax: "<number>"; inherits: true; initial-value: 0; }
 
 .flash-root { position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
@@ -1852,24 +1857,33 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   --flash-topic-c: hsl(var(--flash-topic-hue) 64% 40%);
   --flash-topic-soft: color-mix(in srgb, hsl(var(--flash-topic-hue) 78% 56%) 16%, var(--flash-paper));
   background:
-    radial-gradient(135% 105% at 50% -8%, var(--flash-cream-1), var(--flash-cream-2) 72%);
+    radial-gradient(150% 130% at 50% 50%, var(--flash-cream-1), var(--flash-cream-2) 80%);
   color: var(--flash-ink);
   transition: --flash-topic-hue .6s ease; }
 
-/* Living backdrop: two slow, soft topic-tinted warm blooms over the cream. */
-.flash-root::before, .flash-root::after { content: ""; position: absolute; inset: -20%; z-index: 0;
-  pointer-events: none; }
-.flash-root::before {
+/* Living, colourful backdrop. ::before carries the colour + movement — four vivid hue
+   blooms parked toward the corners (topic hue + two harmonics + a warm amber), each
+   drifting + rotating so the field never sits still. ::after lays a clean near-white core
+   over the centre, so however bright the rim gets the hero eye always sits on calm light
+   and dissolves into the page seamlessly. */
+.flash-root::before { content: ""; position: absolute; inset: -30%; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(44% 38% at 20% 16%, hsl(var(--flash-topic-hue) 72% 58% / .12), transparent 62%),
-    radial-gradient(48% 42% at 84% 90%, hsl(var(--flash-topic-hue) 64% 52% / .10), transparent 62%);
-  animation: flash-drift 26s ease-in-out infinite alternate; }
-.flash-root::after {
-  background: radial-gradient(40% 34% at 86% 10%, hsl(38 70% 60% / .12), transparent 60%);
-  animation: flash-drift 34s ease-in-out infinite alternate-reverse; }
-@keyframes flash-drift {
-  from { transform: translate3d(-2%, -1%, 0) scale(1); }
-  to   { transform: translate3d(3%, 2%, 0) scale(1.08); } }
+    radial-gradient(40% 38% at 14% 12%, hsl(var(--flash-topic-hue) 88% 62% / .32), transparent 60%),
+    radial-gradient(44% 40% at 88% 14%, hsl(calc(var(--flash-topic-hue) + 54) 84% 62% / .28), transparent 62%),
+    radial-gradient(48% 44% at 86% 90%, hsl(calc(var(--flash-topic-hue) - 66) 86% 60% / .28), transparent 62%),
+    radial-gradient(42% 40% at 12% 90%, hsl(36 92% 64% / .30), transparent 60%);
+  animation: flash-bloom 22s ease-in-out infinite alternate; }
+.flash-root::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(56% 54% at 50% 42%, #fffefb 0%,
+    color-mix(in srgb, var(--flash-paper) 72%, transparent) 36%, transparent 70%);
+  animation: flash-core 13s ease-in-out infinite; }
+@keyframes flash-bloom {
+  0%   { transform: translate3d(-3%, -2%, 0) scale(1)    rotate(0deg); }
+  50%  { transform: translate3d(2%, 1%, 0)   scale(1.07) rotate(1.4deg); }
+  100% { transform: translate3d(3%, 3%, 0)   scale(1.1)  rotate(-1.2deg); } }
+@keyframes flash-core {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.05); opacity: .9; } }
 .flash-content { position: relative; z-index: 1; height: 100%; min-height: 100dvh; display: flex; flex-direction: column; }
 .flash-press { transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease; }
 .flash-press:active { transform: scale(.97); }
@@ -1948,10 +1962,20 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-scene { display: block; margin: clamp(12px, 5vh, 56px) auto 0;
   width: var(--scene-w, clamp(260px, 44vh, 520px)); max-width: 100%;
   aspect-ratio: 1 / 1; overflow: visible;
+  /* high-sensitivity gaze: how far the iris travels + leans toward the cursor.
+     Eased down once the eye shrinks to a badge on step 2 so it stays composed. */
+  --hero-travel: clamp(22px, 3.6vw, 48px); --hero-tilt: 11deg;
   transition: width .52s cubic-bezier(.22, 1, .36, 1), margin .52s cubic-bezier(.22, 1, .36, 1);
   animation: flash-scene-breathe 7s ease-in-out infinite; }
-.flash-setup[data-step="2"] .flash-scene { --scene-w: clamp(140px, 22vh, 240px); margin-top: clamp(8px, 2vh, 20px); }
-.flash-scene-img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; will-change: transform; }
+.flash-setup[data-step="2"] .flash-scene { --scene-w: clamp(140px, 22vh, 240px); margin-top: clamp(8px, 2vh, 20px);
+  --hero-travel: clamp(10px, 1.6vw, 18px); --hero-tilt: 6deg; }
+/* The iris itself carries the cursor parallax + 3D tilt, composed live from the smoothed
+   --hx/--hy (gaze) and --hact (lean-in on movement). Identity at rest (all 0). */
+.flash-scene-img { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; will-change: transform;
+  transform: perspective(1100px)
+    translate3d(calc(var(--hx) * var(--hero-travel)), calc(var(--hy) * var(--hero-travel)), 0)
+    rotateY(calc(var(--hx) * var(--hero-tilt))) rotateX(calc(-1 * var(--hy) * var(--hero-tilt)))
+    scale(calc(1 + var(--hact) * .04)); }
 @keyframes flash-scene-breathe {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
