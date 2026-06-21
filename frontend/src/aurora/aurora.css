@@ -1834,9 +1834,6 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    ───────────────────────────────────────────────────────────────────────── */
 /* Per-topic color: hue is animatable so Mixed sessions cross-fade between topics. */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
-/* Animatable angle for the moving gradient outline on each topic tile. */
-@property --flash-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-@keyframes flash-spin-border { to { --flash-angle: 360deg; } }
 /* Pointer-driven gaze for the hero eye — high-sensitivity parallax. JS smooths the raw
    cursor into these [-1,1] values; CSS turns them into translate + 3D tilt on the iris. */
 @property --hx   { syntax: "<number>"; inherits: true; initial-value: 0; }
@@ -1987,67 +1984,144 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
 }
-.flash-setup-controls { display: flex; flex-wrap: wrap; gap: clamp(16px, 3vh, 26px) 40px; justify-content: center; }
-.flash-control { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.flash-control-label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--flash-ink-3); }
-.flash-pills { display: inline-flex; gap: 8px; padding: 5px; border-radius: 999px;
-  background: color-mix(in srgb, var(--flash-cream-2) 64%, var(--flash-paper)); border: 1px solid var(--flash-line); }
-.flash-pill { padding: 12px 26px; border: none; border-radius: 999px; background: transparent; color: var(--flash-ink-2);
-  font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
-.flash-pill[aria-checked="true"] { background: var(--flash-paper); color: var(--flash-ink);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--flash-topic-c) 36%, transparent),
-    0 6px 16px -9px hsl(var(--flash-topic-hue) 70% 50% / .45); }
+/* Step 1 — pace selector. Two labelled axes (difficulty · length) of tactile choice
+   cards, each with a glyph, a name + descriptor, and a living accent on the active card.
+   A pill-shaped summary readout below restates the chosen pace. */
+.flash-choices { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start;
+  gap: clamp(18px, 2.6vw, 36px); width: 100%; }
+.flash-axis { display: flex; flex-direction: column; gap: 11px; align-items: stretch; }
+.flash-axis-label { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--flash-ink-3); }
+.flash-opts { display: grid; gap: 12px; }
+.flash-opts-2 { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+.flash-opts-3 { grid-template-columns: repeat(3, minmax(126px, 1fr)); }
 
-.flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;
-  grid-auto-rows: minmax(clamp(96px, 15vh, 132px), 1fr);
-  flex: 1; min-height: 0; overflow-y: auto; align-content: stretch; padding: 2px; }
-/* Each tile is a near-white card wrapped in a SOLID single-hue outline (masked ring,
-   animating --flash-angle) carrying one broad, soft highlight that drifts gently around
-   it. Solid colour keeps every topic distinct and the ring an even thickness all the way
-   round; the slow-travelling crest supplies the calm motion. Big topic name fills the tile. */
-.flash-topic { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center;
-  min-height: clamp(96px, 15vh, 132px); padding: 20px 22px; text-align: center; cursor: pointer; color: var(--flash-ink);
+.flash-opt { position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left;
+  padding: 15px 17px; min-height: clamp(98px, 13vh, 122px); cursor: pointer; color: var(--flash-ink);
+  border: 1px solid var(--flash-line); border-radius: var(--radius-lg); font: inherit;
+  background: linear-gradient(168deg, var(--flash-paper), color-mix(in srgb, var(--flash-cream-2) 52%, var(--flash-paper)));
+  box-shadow: 0 8px 22px -16px rgba(74,58,30,.4), inset 0 1px 0 rgba(255,255,255,.7);
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, border-color .25s ease, background .3s ease; }
+.flash-opt:hover { transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--flash-topic-c) 40%, var(--flash-line));
+  box-shadow: 0 16px 34px -18px hsl(var(--flash-topic-hue) 70% 44% / .6), inset 0 1px 0 rgba(255,255,255,.7); }
+.flash-opt[aria-checked="true"] { transform: translateY(-2px); border-color: transparent;
+  background: linear-gradient(168deg, var(--flash-paper), var(--flash-topic-soft));
+  box-shadow: 0 0 0 2px var(--flash-topic-c), 0 18px 40px -18px hsl(var(--flash-topic-hue) 78% 46% / .7),
+    inset 0 1px 0 rgba(255,255,255,.75); }
+/* a soft accent crest drifts across the active card so it never sits flat */
+.flash-opt[aria-checked="true"]::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+  background: radial-gradient(130% 90% at 0% 0%, hsl(var(--flash-topic-hue) 92% 60% / .2), transparent 56%);
+  animation: flash-opt-glow 5s ease-in-out infinite alternate; }
+@keyframes flash-opt-glow { from { opacity: .5; transform: translate3d(0,0,0); } to { opacity: 1; transform: translate3d(7%,5%,0); } }
+.flash-opt-glyph { display: flex; align-items: flex-end; height: 26px; margin-bottom: 3px; color: var(--flash-topic-c); }
+.flash-opt-name { font-size: 18px; font-weight: 700; letter-spacing: -.01em; color: var(--flash-ink); }
+.flash-opt-sub { font-size: 12.5px; line-height: 1.3; color: var(--flash-ink-2); }
+
+/* difficulty = a small equalizer; lit bars = level, the active card animates them */
+.flash-meter { display: inline-flex; align-items: flex-end; gap: 4px; height: 24px; }
+.flash-meter i { width: 6px; border-radius: 3px; background: var(--flash-line); transform-origin: bottom;
+  transition: background .25s ease; }
+.flash-meter i:nth-child(1) { height: 40%; } .flash-meter i:nth-child(2) { height: 68%; } .flash-meter i:nth-child(3) { height: 100%; }
+.flash-meter[data-level="1"] i:nth-child(-n+1),
+.flash-meter[data-level="2"] i:nth-child(-n+2) { background: var(--flash-topic-c); }
+.flash-opt[aria-checked="true"] .flash-meter i:nth-child(1) { animation: flash-eq 1s ease-in-out infinite alternate; }
+.flash-opt[aria-checked="true"] .flash-meter i:nth-child(2) { animation: flash-eq 1s .14s ease-in-out infinite alternate; }
+.flash-opt[aria-checked="true"] .flash-meter i:nth-child(3) { animation: flash-eq 1s .28s ease-in-out infinite alternate; }
+@keyframes flash-eq { from { transform: scaleY(.68); } to { transform: scaleY(1); } }
+
+/* length = a dot count; filled dots = relative size */
+.flash-stack { display: inline-flex; align-items: center; gap: 6px; height: 24px; }
+.flash-stack i { width: 9px; height: 9px; border-radius: 50%; background: var(--flash-topic-c); transition: opacity .25s ease; }
+.flash-stack[data-fill="1"] i:nth-child(n+2) { opacity: .24; }
+.flash-stack[data-fill="2"] i:nth-child(n+3) { opacity: .24; }
+
+.flash-summary { display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 9px;
+  margin: 0 auto; padding: 9px 18px; border-radius: 999px; color: var(--flash-ink-2); font-size: 14px;
+  background: color-mix(in srgb, var(--flash-topic-soft) 82%, var(--flash-paper));
+  border: 1px solid color-mix(in srgb, var(--flash-topic-c) 22%, var(--flash-line));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.flash-summary-strong { color: var(--flash-topic-c); font-weight: 700; }
+.flash-summary-dot { width: 4px; height: 4px; border-radius: 50%; background: color-mix(in srgb, var(--flash-topic-c) 60%, transparent); }
+
+.flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 16px;
+  grid-auto-rows: minmax(clamp(104px, 15vh, 140px), 1fr);
+  flex: 1; min-height: 0; overflow-y: auto; align-content: stretch; padding: 4px; }
+/* Each tile is a DEEP, saturated colour panel with white type — no white card, no outline.
+   Two screen-blended layers make the colour move over the dark base: a slow rotating conic
+   swirl (::before) and a drifting highlight bloom (::after). Per-card --i offsets both so no
+   two tiles pulse in sync, and the hue (--flash-topic-hue, set inline per topic) keeps each
+   distinct. White text reads cleanly on the dark fill at every hue in the arc. */
+.flash-topic { position: relative; isolation: isolate; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  min-height: clamp(104px, 15vh, 140px); padding: 18px 20px; cursor: pointer; color: #fff;
   border: none; border-radius: var(--radius-lg);
   --flash-topic-hue: 212;
   --flash-topic-c: hsl(var(--flash-topic-hue) 64% 40%);
-  background: linear-gradient(150deg, color-mix(in srgb, hsl(var(--flash-topic-hue) 90% 60%) 12%, var(--flash-paper)), var(--flash-paper) 82%);
-  box-shadow: 0 12px 30px -18px hsl(var(--flash-topic-hue) 80% 48% / .5); }
-.flash-topic::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2.5px;
-  pointer-events: none;
-  background: conic-gradient(from var(--flash-angle),
-    hsl(var(--flash-topic-hue) 82% 52%) 0deg,
-    hsl(var(--flash-topic-hue) 82% 52%) 40deg,
-    hsl(var(--flash-topic-hue) 100% 84%) 135deg,
-    hsl(var(--flash-topic-hue) 82% 52%) 230deg,
-    hsl(var(--flash-topic-hue) 82% 52%) 360deg);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  animation: flash-spin-border 6s linear infinite; }
-.flash-topic:hover:not(:disabled) { transform: translateY(-3px);
-  box-shadow: 0 18px 42px -14px hsl(var(--flash-topic-hue) 95% 55% / .85); }
-.flash-topic.is-selected { transform: translateY(-1px);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--flash-topic-c) 60%, transparent), 0 18px 46px -14px hsl(var(--flash-topic-hue) 95% 55% / .9); }
-/* Selection is signalled by the outer halo above — the ring keeps its uniform
-   thickness and calm sweep, only its base deepens a touch for presence. */
-.flash-topic.is-selected::before { background: conic-gradient(from var(--flash-angle),
-    hsl(var(--flash-topic-hue) 88% 47%) 0deg,
-    hsl(var(--flash-topic-hue) 88% 47%) 40deg,
-    hsl(var(--flash-topic-hue) 100% 85%) 135deg,
-    hsl(var(--flash-topic-hue) 88% 47%) 230deg,
-    hsl(var(--flash-topic-hue) 88% 47%) 360deg); }
-.flash-topic:disabled { opacity: .42; cursor: not-allowed; }
-.flash-topic-label { font-size: clamp(17px, 2vw, 21px); font-weight: 700; letter-spacing: -.015em; line-height: 1.2; }
-.flash-topic-sub { font-size: 12.5px; color: var(--flash-ink-3); }
-/* Mixed = full-spectrum brand outline. */
-.flash-topic.is-mixed::before { background: conic-gradient(from var(--flash-angle),
-    #4285f4, #9b72cb, #d96570, #f0b400, #34a853, #4285f4); }
-/* "Show all" stays a calm dashed utility tile — no moving outline. */
-.flash-topic.is-more { flex-direction: column; gap: 4px; min-height: 86px;
-  background: var(--flash-paper); border: 1.5px dashed var(--flash-line); color: var(--flash-ink-2); box-shadow: none; }
-.flash-topic.is-more::before { display: none; }
-.flash-topic.is-more:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -16px rgba(74, 58, 30, .28); }
-.flash-topic.is-more .flash-topic-label { font-size: 15px; font-weight: 600; }
+  background:
+    radial-gradient(125% 135% at 16% 10%, hsl(var(--flash-topic-hue) 72% 31%), transparent 60%),
+    linear-gradient(150deg, hsl(var(--flash-topic-hue) 76% 23%) 0%, hsl(var(--flash-topic-hue) 90% 13%) 100%);
+  box-shadow: 0 16px 34px -16px hsl(var(--flash-topic-hue) 82% 26% / .9),
+    inset 0 1px 0 hsl(var(--flash-topic-hue) 92% 74% / .24), inset 0 -22px 36px -26px #000;
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease; }
+/* rotating colour swirl — screen-blend brightens the hue where the bright arc sweeps */
+.flash-topic::before { content: ""; position: absolute; inset: -45%; z-index: 0; pointer-events: none;
+  background: conic-gradient(from 0deg,
+    hsl(var(--flash-topic-hue) 95% 56% / 0) 0deg,
+    hsl(var(--flash-topic-hue) 98% 60% / .6) 90deg,
+    hsl(calc(var(--flash-topic-hue) + 28) 96% 56% / .16) 200deg,
+    hsl(var(--flash-topic-hue) 98% 62% / .52) 300deg,
+    hsl(var(--flash-topic-hue) 95% 56% / 0) 360deg);
+  mix-blend-mode: screen; will-change: transform;
+  animation: flash-swirl 18s linear infinite; animation-delay: calc(var(--i, 0) * -2.3s); }
+/* drifting highlight bloom — a soft light that wanders across the panel */
+.flash-topic::after { content: ""; position: absolute; z-index: 0; width: 72%; aspect-ratio: 1; border-radius: 50%;
+  top: -16%; left: -16%; pointer-events: none; mix-blend-mode: screen; will-change: transform;
+  background: radial-gradient(circle, hsl(var(--flash-topic-hue) 100% 76% / .44), transparent 66%);
+  animation: flash-drift 13s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -1.7s); }
+@keyframes flash-swirl { to { transform: rotate(360deg); } }
+@keyframes flash-drift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(62%, 16%); }
+  50%  { transform: translate(74%, 120%); }
+  75%  { transform: translate(6%, 96%); }
+  100% { transform: translate(0, 0); } }
+.flash-topic-label { position: relative; z-index: 1; font-size: clamp(17px, 2vw, 21px); font-weight: 800;
+  letter-spacing: -.012em; line-height: 1.18; color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.32), 0 2px 18px hsl(var(--flash-topic-hue) 90% 22% / .85); }
+.flash-topic-sub { position: relative; z-index: 1; font-size: 12.5px; color: rgba(255,255,255,.7); }
+.flash-topic:hover:not(:disabled) { transform: translateY(-4px) scale(1.012);
+  box-shadow: 0 26px 48px -16px hsl(var(--flash-topic-hue) 86% 30% / 1),
+    inset 0 1px 0 hsl(var(--flash-topic-hue) 92% 76% / .3), inset 0 -22px 36px -26px #000; }
+.flash-topic.is-selected { transform: translateY(-2px);
+  box-shadow: 0 0 0 2px hsl(var(--flash-topic-hue) 96% 82% / .95), 0 0 0 5px hsl(var(--flash-topic-hue) 92% 52% / .35),
+    0 26px 52px -16px hsl(var(--flash-topic-hue) 86% 32% / 1), inset 0 1px 0 hsl(var(--flash-topic-hue) 92% 80% / .35); }
+.flash-topic.is-selected::before { animation-duration: 11s; }
+.flash-topic:disabled { opacity: .4; cursor: not-allowed; filter: saturate(.4); }
+/* Mixed = a dark multi-hue aurora — the full-spectrum "spread". */
+.flash-topic.is-mixed {
+  background:
+    radial-gradient(125% 135% at 14% 8%, rgba(255,255,255,.12), transparent 58%),
+    linear-gradient(135deg, #29204e 0%, #3a1842 38%, #4b1530 66%, #3a2410 100%);
+  box-shadow: 0 16px 36px -16px rgba(36,18,52,.95), inset 0 1px 0 rgba(255,255,255,.18), inset 0 -22px 36px -26px #000; }
+.flash-topic.is-mixed::before { background: conic-gradient(from 0deg,
+    rgba(66,133,244,.55), rgba(155,114,203,.55), rgba(217,101,112,.5), rgba(240,180,0,.42),
+    rgba(52,168,83,.42), rgba(66,133,244,.55)); }
+.flash-topic.is-mixed::after { background: radial-gradient(circle, rgba(255,255,255,.4), transparent 66%); }
+/* "Show all" = a quiet deep-umber utility tile — no moving colour. */
+.flash-topic.is-more { flex-direction: column; gap: 4px; min-height: 92px;
+  background: linear-gradient(150deg, #3b3220, #241d12); color: rgba(255,255,255,.84);
+  box-shadow: 0 12px 26px -18px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08); }
+.flash-topic.is-more::before, .flash-topic.is-more::after { display: none; }
+.flash-topic.is-more:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -18px rgba(0,0,0,.7); }
+.flash-topic.is-more .flash-topic-label { font-size: 15px; font-weight: 700; text-shadow: none; }
+.flash-topic.is-more .flash-topic-sub { color: rgba(255,255,255,.6); }
+/* Honour reduced-motion: hold the colour still, drop the looping accents. */
+@media (prefers-reduced-motion: reduce) {
+  .flash-topic::before, .flash-topic::after,
+  .flash-opt[aria-checked="true"]::before, .flash-opt[aria-checked="true"] .flash-meter i { animation: none; }
+}
 
 .flash-start { position: relative; overflow: hidden; isolation: isolate;
   padding: 16px 46px; border: none; border-radius: 999px; background: var(--gemini); background-size: 200% 100%;
