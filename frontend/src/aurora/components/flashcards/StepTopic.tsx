@@ -4,7 +4,7 @@
    setup's --flash-topic-hue. Back returns to step 1; Start commits the set. No hero
    (the shared hero lives in the shell, shrunk to a badge above this content). */
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
-import { topicHue } from "./types";
+import { galleryHue } from "./types";
 
 const PREVIEW = 6;
 
@@ -41,7 +41,7 @@ export function StepTopic({
         {visible.map((s, i) => (
           <button key={s.set_key} type="button" disabled={s.total === 0}
             className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
-            style={{ "--flash-topic-hue": topicHue(s.topic_key), "--i": i + 1 } as React.CSSProperties}
+            style={{ "--flash-topic-hue": galleryHue(i), "--i": i + 1 } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
             <span className="flash-topic-label">{s.label}</span>
           </button>

@@ -8,7 +8,7 @@
    topic's hue. */
 import { useEffect, useRef, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
-import { type Difficulty, topicHue } from "./types";
+import { type Difficulty, galleryHue } from "./types";
 import { StepSession } from "./StepSession";
 import { StepTopic } from "./StepTopic";
 
@@ -102,9 +102,10 @@ export function SessionSetup({
   const goTopic = () => { setDirection("fwd"); setStep(2); };
   const goBack = () => { setDirection("back"); setStep(1); };
 
-  // The whole setup adopts the selected topic's hue (Mixed → brand blue 212).
-  const selectedSet = sets.find((s) => s.set_key === selected);
-  const setupHue = selectedSet ? topicHue(selectedSet.topic_key) : 212;
+  // The whole setup adopts the selected tile's vivid hue (Mixed → brand blue 212). Index
+  // matches the tile's position in the gallery so the accent equals the picked card.
+  const selectedIndex = sets.findIndex((s) => s.set_key === selected);
+  const setupHue = selectedIndex >= 0 ? galleryHue(selectedIndex) : 212;
 
   return (
     <div className="flash-setup" data-testid="flash-setup" data-step={step}
