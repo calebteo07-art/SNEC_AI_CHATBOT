@@ -89,3 +89,15 @@ export function topicHue(topicKey: string): number {
   const jitter = ((h >> 4) % 9) - 4; // -4..+4°, stays clear of the muddy band
   return base + jitter;
 }
+
+/** Full-wheel palette for the DARK topic tiles in the step-2 gallery, ordered so any two
+ *  consecutive tiles differ by ≥120° — maximally distinct, not harmonious (the tiles are
+ *  dark enough for white text at every hue, so the contrast-safe arc above doesn't apply).
+ *  Assigned by tile index so a set's colours are always spread, never clustered. */
+const GALLERY_HUES = [210, 30, 270, 90, 330, 150, 0, 240, 120, 300, 60, 180];
+
+/** Tile index → a vivid, maximally-distinct hue for the gallery (and the setup accent it
+ *  adopts on selection). Starts on brand blue; cycles past 12 topics (rare). */
+export function galleryHue(index: number): number {
+  return GALLERY_HUES[((index % GALLERY_HUES.length) + GALLERY_HUES.length) % GALLERY_HUES.length];
+}
