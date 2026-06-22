@@ -78,15 +78,28 @@ const railCount = await p.locator(".aurora-station-rl").count();
 if (railCount !== 3) die(`phase rail should show 3 phases, got ${railCount}`);
 ok("phase rail renders three phases");
 
-// 3. auto-tracked checklist label + step count
+// 3. auto-tracked checklist label + merged-row ("point") count.
+//    The 6 steps collapse into 4 rows: phase 1's two prep steps and phase 2's
+//    two assessment steps each merge; phase 3's two (documentation + education)
+//    stay split.
 const label = (await p.locator(".aurora-station-cl-label").first().innerText()).toLowerCase();
-if (!label.includes("auto-tracked") || !label.includes("6")) die(`checklist label wrong: "${label}"`);
-ok("checklist shows auto-tracked label with step count");
+if (!label.includes("auto-tracked") || !label.includes("4 point")) die(`checklist label wrong: "${label}"`);
+ok("checklist shows auto-tracked label with merged-row count");
 
-// 4. all 6 steps render
+// 4. the 6 steps render as 4 merged rows...
 const steps = await p.locator(".aurora-station-step").count();
-if (steps !== 6) die(`expected 6 checklist steps, got ${steps}`);
-ok("six checklist steps render");
+if (steps !== 4) die(`expected 4 merged checklist rows, got ${steps}`);
+ok("six steps merge into four rows");
+
+// 4a. ...but every original action is preserved in the rows — nothing dropped.
+const checklistText = (await p.locator(".aurora-station-clscroll").innerText());
+for (const action of [
+  "Identify patient", "Explain purpose & procedure", "Measure IOP",
+  "Measure distance visual acuity", "Record readings in EMR", "Advise on follow-up",
+]) {
+  if (!checklistText.includes(action)) die(`merge dropped a step action: "${action}"`);
+}
+ok("merged rows preserve every original step action");
 
 // 4b. independent scroll: the station root must fill the scroll viewport so the
 //     checklist + consult panes scroll inside their own bounds — not the whole
@@ -114,9 +127,11 @@ await p.locator('.aurora-station-act:has-text("Measure IOP")').click();
 await p.waitForSelector(".aurora-station-reveal", { timeout: 5000 });
 if (!(await p.locator('.aurora-station-reveal:has-text("18 mmHg")').count())) die("reveal card missing IOP value");
 if (!(await p.locator('.aurora-station-act.is-used:has-text("Measure IOP")').count())) die("exam chip did not become used");
-const tickedAfter = await p.locator('.aurora-station-step[data-ticked="true"]').count();
-if (tickedAfter < 1) die("performing IOP did not tick its step");
-ok("exam action reveals finding + ticks step + marks chip used");
+// IOP (step 3) sits in a merged row with distance VA (step 4), so performing it
+// alone leaves that row partially ticked.
+const markedAfter = await p.locator('.aurora-station-step[data-ticked="true"], .aurora-station-step[data-ticked="partial"]').count();
+if (markedAfter < 1) die("performing IOP did not tick/partial-tick its merged row");
+ok("exam action reveals finding + ticks its merged row + marks chip used");
 
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");

@@ -10,13 +10,17 @@ from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
 
 _EXAMINER_SYSTEM = (
     "You are an OSCE examiner observing an ophthalmic student's consultation. "
-    "Given the remaining checklist steps and the recent transcript, decide which "
-    "steps the student has clearly performed or covered. Be strict — only count a "
-    "step if the transcript shows it was actually done or asked. "
+    "Given the remaining checklist steps and the transcript, decide which steps the "
+    "student has addressed — performed, asked about, explained, confirmed, or clearly "
+    "covered, even briefly or in passing. Be generous: if the transcript gives any "
+    "reasonable evidence the step was attempted or covered, count it as done. Only "
+    "leave a step out when there is no sign of it at all. "
     "Return ONLY a JSON array of the satisfied step numbers, e.g. [2,5]."
 )
 
-_RECENT_TURNS = 10  # cap transcript window to keep the call cheap
+# Window the examiner over the whole consult (not just the last few turns) so a step
+# the student covered early still gets ticked once enough context accrues.
+_RECENT_TURNS = 40
 
 
 def _schema() -> dict:

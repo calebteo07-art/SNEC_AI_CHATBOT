@@ -1044,6 +1044,9 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-step .bx { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid rgba(90,75,122,.4); flex: none; margin-top: 1px; font-size: 12.3px; text-align: center; line-height: 14px; color: transparent; background: rgba(255,255,255,.55); }
 .aurora-station-step[data-ticked="true"] { color: var(--on-green-2); font-weight: 500; }
 .aurora-station-step[data-ticked="true"] .bx { background: linear-gradient(135deg, #34A853, #2A8C43); border-color: #2A8C43; color: #fff; animation: station-tickpop .45s ease both; }
+/* partial — a merged row where some (not all) of its actions are done */
+.aurora-station-step[data-ticked="partial"] { color: var(--on-purple-2); font-weight: 500; }
+.aurora-station-step[data-ticked="partial"] .bx { background: linear-gradient(135deg, rgba(155,114,203,.6), rgba(155,114,203,.32)); border-color: rgba(155,114,203,.65); color: #fff; }
 .aurora-station-step .crit { font-size: 9px; color: #fff; background: var(--on-rose-2); border-radius: 4px; padding: 1px 5px; margin-left: auto; flex: none; align-self: center; }
 .aurora-station-step .au { font-size: 9px; color: var(--on-green-2); margin-left: 6px; flex: none; align-self: center; white-space: nowrap; }
 
