@@ -103,6 +103,18 @@ def ingest(
 
     # Step 2 — extract, chunk, embed, insert text chunks
     full_text = extract_full_text(pdf_path)
+
+    # OCR fallback: scanned/image-only PDFs yield almost no embedded text, which
+    # leaves them effectively absent from RAG. If the text is too sparse for the
+    # page count, transcribe the pages with Gemini vision instead.
+    from tools.kb.ocr import needs_ocr, ocr_pdf
+    if needs_ocr(full_text, _page_count(pdf_path)):
+        print("    [ocr] sparse text — running Gemini vision OCR fallback…")
+        ocr_text = ocr_pdf(pdf_path)
+        if len(ocr_text) > len(full_text):
+            full_text = ocr_text
+            print(f"    [ocr] recovered {len(ocr_text):,} chars")
+
     if full_text.strip():
         chunks = chunk_text(full_text)
 
