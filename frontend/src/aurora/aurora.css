@@ -1137,46 +1137,80 @@ html[data-motion="reduce"] .aurora-station-reveal::after,
 html[data-motion="reduce"] .aurora-station-step[data-ticked="true"] .bx,
 html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; }
 
-/* ─────────────────── Tutor chat — "Retinal Aurora" dark cosmos ─────────────────── */
+/* ─────────────────── Tutor chat — "Mono + Electric / Live Wire" ─────────────────── */
+/* A warm-monochrome reading surface (ivory + charcoal) lit by a single electric-indigo
+   accent and a layer of live motion graphics: a drifting constellation canvas, a
+   blinking realistic eye, an OCT header trace, charging bubble borders and a glowing
+   caret. Layout, sizing, radii and bubble shapes are unchanged from the cosmos build. */
+@property --chat-ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
 .aurora-chat {
-  /* Student (sent) — warm violet → fuchsia → rose. EyeBot (think) — cool teal →
-     cyan → blue. The two complementary gradient families read as one system on the
-     deep indigo-black canvas whose corner auroras bridge their hues. */
-  --ig-sent: linear-gradient(135deg, #8B5CF6 0%, #C026D3 52%, #F43F8E 100%);
-  --ig-think: linear-gradient(135deg, #2DD4BF 0%, #22A7E0 50%, #4F7BF6 100%);
-  --ig-ring: linear-gradient(135deg, #2DD4BF, #4F7BF6, #A855F7, #F43F8E);
-  --chat-ink: #ECECF7;
-  --chat-ink-dim: rgba(236, 236, 247, 0.60);
-  --chat-line: rgba(255, 255, 255, 0.09);
+  --mono-canvas: #F4F3EF;
+  --mono-card: #FBFBF9;
+  --mono-ink: #15161B;
+  --mono-ink-2: #5C5C56;
+  --mono-ink-3: #8A8A83;
+  --mono-line: rgba(20, 20, 25, 0.12);
+  --elec: #5B5BFF;
+  --elec-deep: #2A2BE0;
+  --elec-soft: rgba(91, 91, 255, 0.13);
+  /* legacy aliases so any shared rule still resolves */
+  --chat-ink: var(--mono-ink);
+  --chat-ink-dim: var(--mono-ink-2);
+  --chat-line: var(--mono-line);
+  position: relative;
   display: flex; flex-direction: column; height: 100%; min-height: 0;
-  color: var(--chat-ink);
+  color: var(--mono-ink);
   background:
-    radial-gradient(1100px 720px at 82% -10%, rgba(79, 123, 246, 0.22), transparent 58%),
-    radial-gradient(880px 620px at 6% 2%, rgba(168, 85, 247, 0.18), transparent 56%),
-    radial-gradient(1000px 760px at 50% 118%, rgba(45, 212, 191, 0.13), transparent 60%),
-    linear-gradient(180deg, #100C28 0%, #0B0A1C 55%, #070610 100%);
+    radial-gradient(900px 600px at 86% -12%, var(--elec-soft), transparent 60%),
+    linear-gradient(180deg, #F5F4F0 0%, #F1F0EC 100%);
 }
 
-/* Header — dark frosted glass */
+/* Live constellation canvas + a soft electric scan-sweep, behind every panel */
+.aurora-chat-field { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.aurora-chat-sweep { position: absolute; top: 0; bottom: 0; left: -180px; width: 160px; z-index: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(91, 123, 255, 0.10), transparent); filter: blur(8px);
+  animation: chat-sweep 7s ease-in-out infinite; }
+@keyframes chat-sweep { 0% { left: -180px; } 100% { left: 100%; } }
+
+/* Header — ivory frosted glass, the living realistic eye + an OCT scan trace */
 .aurora-chat-head {
+  position: relative; z-index: 2;
   display: flex; align-items: center; gap: 10px;
   padding: 10px clamp(12px, 3vw, 20px);
-  border-bottom: 1px solid var(--chat-line);
-  background: rgba(12, 10, 30, 0.55);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-  backdrop-filter: blur(18px) saturate(150%);
+  border-bottom: 1px solid var(--mono-line);
+  background: rgba(251, 251, 249, 0.66);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
 }
-.aurora-chat-back { display: grid; place-items: center; width: 32px; height: 32px; margin-left: -6px; color: var(--chat-ink); flex-shrink: 0; }
+.aurora-chat-back { display: grid; place-items: center; width: 32px; height: 32px; margin-left: -6px; color: var(--mono-ink); flex-shrink: 0; }
 .aurora-chat-avatar { flex-shrink: 0; }
-.aurora-chat-ring { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; padding: 2px; background: var(--ig-ring); box-shadow: 0 0 18px -3px rgba(79, 123, 246, 0.55); }
-.aurora-chat-ring > svg { background: #fff; border-radius: 50%; padding: 2px; box-sizing: content-box; width: 22px; height: 22px; }
-.aurora-chat-name { font-size: 17.9px; font-weight: 600; letter-spacing: -0.01em; color: var(--chat-ink); margin: 0; flex: 1; min-width: 0; line-height: 1.1; }
+.aurora-chat-name { font-size: 17.9px; font-weight: 600; letter-spacing: -0.01em; color: var(--mono-ink); margin: 0; flex: 1; min-width: 0; line-height: 1.1; }
 
-/* Thread — transparent over the cosmic canvas (header + composer stay frosted) */
-.aurora-chat-thread { flex: 1; min-height: 0; overflow-y: auto; background: transparent; }
+/* Living eye — a photoreal iris under an electric ring, a slow breathing zoom and a
+   periodic blink lid. Keeps the 36px footprint of the old gradient ring. */
+.aurora-chat-eye { display: block; position: relative; width: 36px; height: 36px; flex-shrink: 0; }
+.aurora-chat-eye-orb { position: absolute; inset: 2px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 16px -3px rgba(91, 91, 255, 0.6); }
+.aurora-chat-eye-orb img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: 50% 50%; animation: chat-eye-breathe 6.5s ease-in-out infinite; }
+.aurora-chat-eye-lid { position: absolute; inset: 0; background: var(--mono-ink); transform: translateY(-101%); animation: chat-blink 6.5s ease-in-out infinite; }
+.aurora-chat-eye-ring { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from var(--chat-ang), transparent 0 58%, var(--elec) 80%, #CBCBFF 90%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+  animation: chat-charge 3.4s linear infinite; }
+@keyframes chat-eye-breathe { 0%, 100% { transform: scale(1.02); } 50% { transform: scale(1.12); } }
+@keyframes chat-blink { 0%, 91%, 100% { transform: translateY(-101%); } 95% { transform: translateY(0); } 98% { transform: translateY(-101%); } }
+@keyframes chat-charge { to { --chat-ang: 360deg; } }
+
+.aurora-chat-oct { flex-shrink: 0; width: 96px; height: 16px; opacity: 0.85; }
+.aurora-chat-oct polyline { fill: none; stroke: var(--elec); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 56 220; animation: chat-oct 2.8s linear infinite; }
+@keyframes chat-oct { to { stroke-dashoffset: -276; } }
+
+/* Thread — transparent over the canvas (header + composer stay frosted) */
+.aurora-chat-thread { position: relative; z-index: 1; flex: 1; min-height: 0; overflow-y: auto; background: transparent; }
 .aurora-chat-inner { max-width: none; min-height: 100%; box-sizing: border-box; margin: 0 auto; padding: 22px clamp(14px, 2.5vw, 32px) 14px; display: flex; flex-direction: column; gap: 14px; }
-/* Bottom-anchor a sparse thread (IG/iMessage style) so there's no empty white
-   space below the composer; collapses cleanly once the thread overflows. */
+/* Bottom-anchor a sparse thread (IG/iMessage style) so there's no empty space
+   below the composer; collapses cleanly once the thread overflows. */
 .aurora-chat-inner > :first-child { margin-top: auto; }
 
 /* Message rows */
@@ -1184,56 +1218,92 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-msg.is-eyebot { align-self: flex-start; }
 .aurora-msg.is-user { align-self: flex-end; }
 .aurora-msg-avatar { flex-shrink: 0; }
-.aurora-msg-ring { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; padding: 1.5px; background: var(--ig-ring); box-shadow: 0 0 14px -4px rgba(79, 123, 246, 0.5); }
-.aurora-msg-ring > svg { background: #fff; border-radius: 50%; padding: 1.5px; box-sizing: content-box; width: 22px; height: 22px; }
+.aurora-msg-ring { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--mono-ink); box-shadow: 0 0 0 1px rgba(91, 91, 255, 0.4), 0 4px 12px -6px rgba(91, 91, 255, 0.5); }
+.aurora-msg-ring > svg { width: 18px; height: 18px; }
 .aurora-msg-stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
-/* Bubbles — luminous gradient glass, each with a soft coloured glow + glassy top edge */
-.aurora-msg-bubble { padding: 16px 22px; border-radius: 22px; font-size: 23.5px; line-height: 1.55; overflow-wrap: anywhere; }
+/* Bubbles — ivory paper for EyeBot, confident charcoal for the student */
+.aurora-msg-bubble { position: relative; padding: 16px 22px; border-radius: 22px; font-size: 23.5px; line-height: 1.55; overflow-wrap: anywhere; }
 .is-eyebot .aurora-msg-bubble {
-  background: var(--ig-think); color: #fff; border-radius: 6px 22px 22px 22px; white-space: pre-wrap;
-  box-shadow: 0 16px 42px -16px rgba(34, 167, 224, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: var(--mono-card); color: var(--mono-ink); border: 1px solid var(--mono-line);
+  border-radius: 6px 22px 22px 22px; white-space: pre-wrap;
+  box-shadow: 0 14px 34px -22px rgba(20, 20, 25, 0.5);
 }
 .is-user .aurora-msg-bubble {
-  background: var(--ig-sent); color: #fff; border-radius: 22px 22px 6px 22px; white-space: pre-wrap;
-  box-shadow: 0 16px 42px -16px rgba(192, 38, 211, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: var(--mono-ink); color: #F4F3EF; border-radius: 22px 22px 6px 22px; white-space: pre-wrap;
+  box-shadow: 0 16px 38px -18px rgba(20, 20, 25, 0.55);
 }
 
-/* "Think" lead (the 💭 reflective opener) — frosted cyan glass, deliberately
-   distinct from the full-gradient answer so the reasoning reads as a soft aside. */
+/* Streaming EyeBot bubble — a bead of electric light charges around the border */
+.is-eyebot .aurora-msg-bubble.is-streaming::before, .aurora-msg-think.is-streaming::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+  background: conic-gradient(from var(--chat-ang), transparent 0 62%, var(--elec) 80%, #C9C9FF 90%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  animation: chat-charge 1.4s linear infinite; pointer-events: none;
+}
+
+/* "Think" lead (the 💭 reflective opener) — the same ivory paper with an electric
+   inset rule, deliberately quieter than the answer bubble. */
 .aurora-msg-think {
-  background: linear-gradient(135deg, rgba(45, 212, 191, 0.16), rgba(79, 123, 246, 0.10));
-  border: 1px solid rgba(94, 234, 212, 0.30);
+  position: relative;
+  background: var(--mono-card);
+  border: 1px solid var(--mono-line);
   border-radius: 22px 22px 22px 6px; padding: 16px 22px;
   display: flex; flex-direction: column; gap: 5px; max-width: 100%;
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  box-shadow: 0 14px 34px -18px rgba(45, 212, 191, 0.45);
+  box-shadow: inset 2.5px 0 0 var(--elec), 0 12px 30px -22px rgba(20, 20, 25, 0.5);
 }
-.aurora-msg-think-label { font-size: 15.7px; font-weight: 600; letter-spacing: 0.01em; color: #6FE9D6; }
-.aurora-msg-think-text { font-size: 23.5px; line-height: 1.55; color: #EAF7F4; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
+.aurora-msg-think-label { font-size: 15.7px; font-weight: 600; letter-spacing: 0.01em; color: var(--elec-deep); }
+.aurora-msg-think-text { font-size: 23.5px; line-height: 1.55; color: var(--mono-ink); font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-/* Streaming caret stays visible on the gradient / glass surfaces */
-.aurora-msg-bubble .aurora-caret, .aurora-msg-think .aurora-caret { background: rgba(255, 255, 255, 0.92); }
+/* Streaming caret — a glowing electric bar */
+.aurora-msg-bubble .aurora-caret, .aurora-msg-think .aurora-caret { background: var(--elec); box-shadow: 0 0 8px var(--elec), 0 0 2px var(--elec); }
 
-/* Typing dots (three <i> spans; bounce defined in motion.css) — white on gradient */
+/* Typing dots (three <i> spans; bounce defined in motion.css) — electric on ivory */
 .aurora-typing { display: inline-flex; align-items: center; gap: 5px; padding: 2px 0; }
-.aurora-typing i { width: 9px; height: 9px; border-radius: 50%; background: #fff; display: inline-block; }
+.aurora-typing i { width: 9px; height: 9px; border-radius: 50%; background: var(--elec); display: inline-block; box-shadow: 0 0 8px -1px rgba(91, 91, 255, 0.7); }
 
-/* Footer + composer — dark frosted glass */
-.aurora-chat-foot { padding: 8px clamp(14px, 2.5vw, 32px) 12px; border-top: 1px solid var(--chat-line); background: rgba(10, 9, 24, 0.55); -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%); }
+/* Footer + composer — ivory frosted glass */
+.aurora-chat-foot { position: relative; z-index: 2; padding: 8px clamp(14px, 2.5vw, 32px) 12px; border-top: 1px solid var(--mono-line); background: rgba(251, 251, 249, 0.66); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
 .aurora-chat-foot-inner { max-width: none; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 .aurora-chat-followups { display: flex; gap: 8px; flex-wrap: wrap; }
-.aurora-followup { position: relative; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.05); border-radius: 999px; padding: 8px 16px; font-size: 16.8px; font-weight: 500; color: var(--chat-ink-dim); cursor: pointer; overflow: hidden; transition: color .2s var(--mo-ease), background .2s var(--mo-ease), border-color .2s var(--mo-ease); }
+.aurora-followup { position: relative; border: 1px solid var(--mono-line); background: var(--mono-card); border-radius: 999px; padding: 8px 16px; font-size: 16.8px; font-weight: 500; color: var(--mono-ink-2); cursor: pointer; overflow: visible; transition: color .2s var(--mo-ease), border-color .2s var(--mo-ease), transform .2s var(--mo-ease), box-shadow .2s var(--mo-ease); }
 .aurora-followup span { position: relative; z-index: 1; }
-.aurora-followup:hover { color: #fff; border-color: rgba(255, 255, 255, 0.30); background: rgba(255, 255, 255, 0.10); }
-.aurora-followup[data-active="true"] { color: #fff; border-color: transparent; box-shadow: 0 8px 22px -10px rgba(79, 123, 246, 0.6); }
+.aurora-followup:hover { color: var(--mono-ink); border-color: rgba(91, 91, 255, 0.4); transform: translateY(-2px); box-shadow: 0 8px 18px -10px rgba(91, 91, 255, 0.5); }
+.aurora-followup[data-active="true"] { color: var(--elec-deep); border-color: transparent; }
+.aurora-followup[data-active="true"]::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+  background: conic-gradient(from var(--chat-ang), transparent 0 55%, var(--elec) 78%, #C9C9FF 88%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  animation: chat-charge 2.6s linear infinite; pointer-events: none;
+}
 
-.aurora-composer { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 28px; padding: 7px 8px 7px 18px; transition: border-color .2s var(--mo-ease), box-shadow .2s var(--mo-ease); }
-.aurora-composer:focus-within { border-color: rgba(94, 234, 212, 0.55); box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.14); }
-.aurora-composer-field { flex: 1; min-width: 0; border: none; background: none; outline: none; resize: none; font-family: var(--font-sans); font-size: 22.4px; line-height: 1.5; color: var(--chat-ink); padding: 11px 4px; max-height: 176px; }
-.aurora-composer-field::placeholder { color: rgba(236, 236, 247, 0.42); }
-.aurora-composer-send { flex-shrink: 0; border: none; background: var(--ig-think); color: #fff; font-weight: 600; font-size: 17.9px; font-family: var(--font-sans); cursor: pointer; padding: 10px 20px; border-radius: 999px; box-shadow: 0 8px 22px -8px rgba(34, 167, 224, 0.7); }
+.aurora-composer { position: relative; z-index: 2; display: flex; align-items: center; gap: 10px; background: var(--mono-card); border: 1px solid var(--mono-line); border-radius: 28px; padding: 7px 8px 7px 18px; transition: border-color .2s var(--mo-ease), box-shadow .2s var(--mo-ease); }
+.aurora-chat .aurora-composer:focus-within { border-color: rgba(91, 91, 255, 0.6); box-shadow: 0 0 0 3px rgba(91, 91, 255, 0.14); }
+.aurora-composer-field { flex: 1; min-width: 0; border: none; background: none; outline: none; resize: none; font-family: var(--font-sans); font-size: 22.4px; line-height: 1.5; color: var(--mono-ink); padding: 11px 4px; max-height: 176px; }
+.aurora-composer-field::placeholder { color: var(--mono-ink-3); }
+.aurora-composer-send { position: relative; flex-shrink: 0; border: none; background: var(--elec); color: #fff; font-weight: 600; font-size: 17.9px; font-family: var(--font-sans); cursor: pointer; padding: 10px 20px; border-radius: 999px; box-shadow: 0 8px 22px -8px rgba(91, 91, 255, 0.7); }
+.aurora-composer-send::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; animation: chat-send-pulse 2.4s ease-out infinite; }
 .aurora-composer-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.aurora-composer-send:disabled::after { animation: none; }
+@keyframes chat-send-pulse { 0% { box-shadow: 0 0 0 0 rgba(91, 91, 255, 0.5); } 70% { box-shadow: 0 0 0 12px rgba(91, 91, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 91, 255, 0); } }
+
+/* Reduced motion — freeze every chat motion graphic, keep the final state */
+html[data-motion="reduce"] .aurora-chat-sweep,
+html[data-motion="reduce"] .aurora-chat-eye-orb img,
+html[data-motion="reduce"] .aurora-chat-eye-lid,
+html[data-motion="reduce"] .aurora-chat-eye-ring,
+html[data-motion="reduce"] .aurora-chat-oct polyline,
+html[data-motion="reduce"] .aurora-msg-bubble.is-streaming::before,
+html[data-motion="reduce"] .aurora-msg-think.is-streaming::before,
+html[data-motion="reduce"] .aurora-followup[data-active="true"]::before,
+html[data-motion="reduce"] .aurora-composer-send::after { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-chat-sweep, .aurora-chat-eye-orb img, .aurora-chat-eye-lid, .aurora-chat-eye-ring,
+  .aurora-chat-oct polyline, .aurora-msg-bubble.is-streaming::before, .aurora-msg-think.is-streaming::before,
+  .aurora-followup[data-active="true"]::before, .aurora-composer-send::after { animation: none !important; }
+}
 
 /* Immersive /chat — full-bleed; rail + mesh are not rendered (AppShell) */
 .aurora-shell-immersive .aurora-main { width: 100%; }

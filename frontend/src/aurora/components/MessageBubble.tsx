@@ -26,7 +26,7 @@ export function MessageBubble({
 
   const avatar = (
     <span className="aurora-msg-avatar">
-      <span className="aurora-msg-ring"><Logo size={18} /></span>
+      <span className="aurora-msg-ring"><Logo size={18} tone="white" /></span>
     </span>
   );
 
@@ -52,7 +52,7 @@ export function MessageBubble({
       {avatar}
       <div className="aurora-msg-stack">
         {showThink && (
-          <div className="aurora-msg-think">
+          <div className={`aurora-msg-think${streaming && !caretOnAnswer ? " is-streaming" : ""}`}>
             <span className="aurora-msg-think-label">let&apos;s think it through 💭</span>
             <span className="aurora-msg-think-text">
               {think}
@@ -61,7 +61,7 @@ export function MessageBubble({
           </div>
         )}
         {showAnswer && (
-          <div className="aurora-msg-bubble">
+          <div className={`aurora-msg-bubble${streaming && caretOnAnswer ? " is-streaming" : ""}`}>
             {answer}
             {streaming && caretOnAnswer && <span className="aurora-caret" />}
           </div>
