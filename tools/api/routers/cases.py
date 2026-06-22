@@ -74,8 +74,10 @@ class CaseChatResponse(BaseModel):
 
 class CaseSubmitRequest(BaseModel):
     messages: list[ChatMessage] = Field(max_length=100)
-    diagnosis: str
-    management_plan: str
+    # Allied-health (OA/OT/PSA) handover, not a doctor's diagnosis/treatment:
+    # what the student found + what they recommend (triage/escalate/advise).
+    findings: str
+    recommendation: str
     performed_steps: list[int] = []
 
 class DomainScore(BaseModel):
@@ -587,7 +589,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     messages.append({
         "role": "user",
-        "content": f"Diagnosis: {body.diagnosis}\nManagement Plan: {body.management_plan}",
+        "content": f"Findings & impression: {body.findings}\nRecommendation & escalation: {body.recommendation}",
     })
 
     # evaluate_case makes a blocking Gemini grading call — off the event loop.
@@ -654,8 +656,8 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
                 "role": "user",
                 "content": (
                     f"Case: {case['title']}\n"
-                    f"Diagnosis submitted: {body.diagnosis}\n"
-                    f"Management submitted: {body.management_plan}\n"
+                    f"Findings submitted: {body.findings}\n"
+                    f"Recommendation submitted: {body.recommendation}\n"
                     f"Score: {raw_result.get('total_score', 0)}/40\n"
                     f"Overall feedback: {raw_result.get('overall_feedback', '')}"
                 ),
