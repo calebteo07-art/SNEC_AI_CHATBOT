@@ -34,11 +34,14 @@ def test_explicit_name_wins():
     assert how == "explicit"
 
 
-def test_ishihara_has_no_checklist():
+def test_ishihara_resolves_to_authored_checklist():
+    # Ishihara/Amsler now have authored DB checklists + keyword rules.
+    assert match_procedure("ishihara_colour_vision") == "Ishihara Colour Vision Testing"
+    assert match_procedure("amsler_grid_metamorphopsia") == "Amsler Grid Testing"
     case = {"topic": "ishihara_colour_vision", "title": "Colour vision", "rubric": {}}
     name, how = resolve_procedure_name(case)
-    assert name is None
-    assert how == "rubric_fallback"
+    assert name == "Ishihara Colour Vision Testing"
+    assert how == "keyword"
 
 
 def test_build_rubric_checklist_shape():

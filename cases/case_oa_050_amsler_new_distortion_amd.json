@@ -6,6 +6,7 @@
   "topic_set": "colour_macular",
   "role": "OA",
   "estimated_minutes": 11,
+  "checklist_procedure": "Amsler Grid Testing",
   "patient": {
     "name": "Mdm Yeo Poh Choo",
     "age": 73,

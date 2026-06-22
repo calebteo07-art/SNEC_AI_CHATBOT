@@ -6,6 +6,7 @@
   "topic_set": "colour_macular",
   "role": "PSA",
   "estimated_minutes": 11,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Mdm Saraswathy d/o Pillai",
     "age": 73,

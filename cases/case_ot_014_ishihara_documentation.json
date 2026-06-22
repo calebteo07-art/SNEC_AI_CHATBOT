@@ -5,6 +5,7 @@
   "topic": "ishihara_documentation",
   "role": "OT",
   "estimated_minutes": 10,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Master Daniel Goh Jun Wei",
     "age": 12,
