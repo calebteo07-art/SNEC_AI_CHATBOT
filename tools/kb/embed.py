@@ -43,7 +43,7 @@ def _get_client():
 
 
 def embed_text(text: str) -> list[float]:
-    """Return a 3072-dim embedding for a single text string."""
+    """Return a 1536-dim embedding for a single text string."""
     if MOCK_MODE:
         return [0.0] * EMBED_DIM
 
@@ -62,10 +62,18 @@ def embed_batch(
     batch_size: int = 50,
     sleep_between_batches: float = 1.0,
 ) -> list[list[float]]:
-    """Return embeddings for a list of texts.
+    """Return one 1536-dim embedding per input text, in the same order.
 
-    Processes in batches to respect API rate limits. Returns a list of
-    3072-dim vectors in the same order as `texts`.
+    IMPORTANT: gemini-embedding-2 (via the current google-genai SDK) returns a
+    SINGLE embedding per request even when `contents` is a list — so we must
+    embed one text per request to get a 1:1 mapping. Embedding multiple texts in
+    one request silently collapses them to one vector, which previously caused
+    ingestion to store far fewer (mismatched) chunks than the document had.
+
+    `batch_size` now only controls rate-limit pacing (a short sleep is inserted
+    after every `batch_size` requests), not how many texts share a request.
+
+    Guarantees: len(return value) == len(texts).
     """
     if not texts:
         return []
@@ -74,21 +82,24 @@ def embed_batch(
         return [[0.0] * EMBED_DIM for _ in texts]
 
     client = _get_client()
+    from google.genai import types as _types
     results: list[list[float]] = []
 
-    for start in range(0, len(texts), batch_size):
-        batch = texts[start : start + batch_size]
-        from google.genai import types as _types
+    for i, text in enumerate(texts):
         response = client.models.embed_content(
             model=EMBED_MODEL,
-            contents=batch,
+            contents=text,
             config=_types.EmbedContentConfig(output_dimensionality=EMBED_DIM),
         )
-        results.extend(list(emb.values) for emb in response.embeddings)
+        results.append(list(response.embeddings[0].values))
 
-        if start + batch_size < len(texts):
+        if (i + 1) % batch_size == 0 and (i + 1) < len(texts):
             time.sleep(sleep_between_batches)
 
+    if len(results) != len(texts):  # defensive — must never happen
+        raise RuntimeError(
+            f"embed_batch produced {len(results)} vectors for {len(texts)} texts"
+        )
     return results
 
 
