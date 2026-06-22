@@ -5,6 +5,7 @@
   "topic": "ishihara_colour_vision",
   "role": "OA",
   "estimated_minutes": 10,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Master Nigel Lim Jun Wei",
     "age": 16,

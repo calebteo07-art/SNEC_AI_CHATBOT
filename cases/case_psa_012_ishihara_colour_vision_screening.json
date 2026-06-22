@@ -5,6 +5,7 @@
   "topic": "ishihara_colour_vision_screening",
   "role": "PSA",
   "estimated_minutes": 10,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Mr Muhammad Faiz bin Salim",
     "age": 23,

@@ -5,6 +5,7 @@
   "topic": "amsler_grid_patient_education",
   "role": "PSA",
   "estimated_minutes": 15,
+  "checklist_procedure": "Amsler Grid Testing",
   "patient": {
     "name": "Mdm Lee Geok Eng",
     "age": 68,

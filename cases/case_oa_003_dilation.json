@@ -5,7 +5,7 @@
   "topic": "patient_refusal_dilation",
   "role": "OA",
   "estimated_minutes": 20,
-  "checklist_procedure": "Pupil Dilation",
+  "checklist_procedure": "Eye Drop Instillation and Dilation",
   "patient": {
     "name": "Mdm Lim Bee Geok",
     "age": 64,

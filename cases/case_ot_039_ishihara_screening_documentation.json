@@ -6,6 +6,7 @@
   "topic_set": "screening",
   "role": "OT",
   "estimated_minutes": 10,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Ms Nurul Aini binte Rahman",
     "age": 21,

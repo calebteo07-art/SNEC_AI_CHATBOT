@@ -6,6 +6,7 @@
   "topic_set": "colour_macular",
   "role": "PSA",
   "estimated_minutes": 11,
+  "checklist_procedure": "Amsler Grid Testing",
   "patient": {
     "name": "Mr Heng Chee Meng",
     "age": 68,
