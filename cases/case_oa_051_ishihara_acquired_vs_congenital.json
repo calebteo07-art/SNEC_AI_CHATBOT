@@ -6,6 +6,7 @@
   "topic_set": "colour_macular",
   "role": "OA",
   "estimated_minutes": 12,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Mr Chua Kok Wai",
     "age": 45,
