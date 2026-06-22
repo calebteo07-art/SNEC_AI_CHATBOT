@@ -122,6 +122,14 @@ def ingest(
 
         texts = [c["text"] for c in chunks]
         embeddings = embed_batch(texts)
+        # Guard: a 1:1 text->embedding mapping is required. zip() below would
+        # silently drop chunks if these lengths ever diverge (this exact bug
+        # truncated a 75-chunk textbook to 2 chunks once).
+        if len(embeddings) != len(chunks):
+            raise RuntimeError(
+                f"Embedding/chunk count mismatch for {pdf_path.name}: "
+                f"{len(embeddings)} embeddings vs {len(chunks)} chunks"
+            )
 
         chunk_rows = []
         for i, (chunk, emb) in enumerate(zip(chunks, embeddings)):
