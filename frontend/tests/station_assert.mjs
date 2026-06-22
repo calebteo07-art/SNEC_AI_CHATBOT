@@ -141,8 +141,8 @@ ok("patient consult streams a reply");
 
 // 7. submit → scored debrief with /40 + per-phase summary
 await p.locator('.aurora-station-submit-toggle').click();
-await p.locator('textarea[data-field="diagnosis"]').fill("Stable primary open-angle glaucoma.");
-await p.locator('textarea[data-field="management"]').fill("Continue drops; review in 6 months.");
+await p.locator('textarea[data-field="findings"]').fill("Stable IOP on repeat readings; no red flags. Pattern fits routine glaucoma review.");
+await p.locator('textarea[data-field="recommendation"]').fill("Route as routine; document readings for the doctor; advise to keep using drops and return if vision changes.");
 await p.locator('.aurora-station-submit-go').click();
 await p.waitForSelector(".aurora-station-result", { timeout: 10000 });
 if (!(await p.locator('.aurora-station-result:has-text("/40")').count())) die("result must show score out of 40");

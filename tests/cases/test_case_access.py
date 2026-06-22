@@ -169,8 +169,8 @@ def test_submit_locked_case_returns_403():
             json={
                 "student_id": "stu_test",
                 "messages": [],
-                "diagnosis": "Glaucoma",
-                "management_plan": "Timolol drops",
+                "findings": "Raised IOP on repeat readings; no red flags noted.",
+                "recommendation": "Document and escalate to the doctor for review.",
                 "performed_steps": [],
             },
             cookies=_auth_cookie("stu_test"),

@@ -33,11 +33,14 @@ interface DomainResult {
 interface ChecklistStepResult { step_number: number; action: string; critical: boolean; performed: boolean; clinical_note: string | null }
 interface PhaseSummary { phase: number; name: string; done: number; total: number }
 
+// Labels are framed for allied-health roles (OA/OT/PSA): "Diagnosis" → clinical
+// recognition/triage, "Management" → escalation & within-scope care. The score
+// keys stay the same — only what the student sees changes.
 const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
   { label: "History", scoreKey: "history_score", feedbackKey: "history_feedback" },
   { label: "Investigations", scoreKey: "investigations_score", feedbackKey: "investigations_feedback" },
-  { label: "Diagnosis", scoreKey: "diagnosis_score", feedbackKey: "diagnosis_feedback" },
-  { label: "Management", scoreKey: "management_score", feedbackKey: "management_feedback" },
+  { label: "Clinical recognition", scoreKey: "diagnosis_score", feedbackKey: "diagnosis_feedback" },
+  { label: "Escalation & care", scoreKey: "management_score", feedbackKey: "management_feedback" },
 ];
 
 const EXAM_PREFIX = "[Examination performed: ";
@@ -69,8 +72,8 @@ export function CaseSession() {
   const [isStreaming, setIsStreaming] = useState(false);
 
   const [showSubmit, setShowSubmit] = useState(false);
-  const [diagnosis, setDiagnosis] = useState("");
-  const [managementPlan, setManagementPlan] = useState("");
+  const [findings, setFindings] = useState("");
+  const [recommendation, setRecommendation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<DomainResult | null>(null);
   const [debrief, setDebrief] = useState<string | null>(null);
@@ -212,7 +215,7 @@ export function CaseSession() {
   };
 
   const handleSubmit = async () => {
-    if (!diagnosis.trim() || !managementPlan.trim() || !caseId) return;
+    if (!findings.trim() || !recommendation.trim() || !caseId) return;
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -220,7 +223,7 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages, diagnosis: diagnosis.trim(), management_plan: managementPlan.trim(), performed_steps: Array.from(ticked) }),
+        body: JSON.stringify({ messages, findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked) }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
@@ -300,7 +303,7 @@ export function CaseSession() {
           )}
           {station && !result && (
             <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit((v) => !v)}>
-              {showSubmit ? "Cancel" : "Submit answer →"}
+              {showSubmit ? "Cancel" : "Submit handover →"}
             </button>
           )}
         </aside>
@@ -337,16 +340,17 @@ export function CaseSession() {
 
             {showSubmit && !result && (
               <div className="aurora-station-form">
+                <p className="aurora-station-form-hint">You're documenting a handover — what you found and what you recommend, within your role. You don't make a medical diagnosis or prescribe treatment; that's for the doctor.</p>
                 {uncheckedCritical.length > 0 && (
                   <p className="aurora-station-warn">⚠ {uncheckedCritical.length} critical step{uncheckedCritical.length !== 1 ? "s" : ""} not yet done</p>
                 )}
-                <label className="aurora-eyebrow">Diagnosis</label>
-                <textarea className="aurora-input" data-field="diagnosis" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Your primary diagnosis…" rows={2} />
-                <label className="aurora-eyebrow">Management plan</label>
-                <textarea className="aurora-input" data-field="management" value={managementPlan} onChange={(e) => setManagementPlan(e.target.value)} placeholder="Proposed management and follow-up…" rows={2} />
+                <label className="aurora-eyebrow">Findings &amp; clinical impression</label>
+                <textarea className="aurora-input" data-field="findings" value={findings} onChange={(e) => setFindings(e.target.value)} placeholder="What you found and recognised — key history, test results, red-flag check…" rows={2} />
+                <label className="aurora-eyebrow">Recommendation &amp; escalation</label>
+                <textarea className="aurora-input" data-field="recommendation" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} placeholder="Triage/urgency, who you'd escalate or refer to, and what you'd advise the patient…" rows={2} />
                 {submitError && <p className="aurora-station-warn">{submitError}</p>}
-                <button type="button" className="aurora-station-submit-go" disabled={submitting || !diagnosis.trim() || !managementPlan.trim()} onClick={handleSubmit}>
-                  {submitting ? "Evaluating…" : "Submit for evaluation →"}
+                <button type="button" className="aurora-station-submit-go" disabled={submitting || !findings.trim() || !recommendation.trim()} onClick={handleSubmit}>
+                  {submitting ? "Evaluating…" : "Submit handover →"}
                 </button>
               </div>
             )}
