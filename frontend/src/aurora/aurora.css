@@ -1653,6 +1653,48 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .aurora-pager button:disabled { opacity: 0.4; cursor: not-allowed; }
 .aurora-pager button:not(:disabled):hover { color: var(--ink); }
 
+/* Filter chips (admin roster toolbar). Base styles were never defined, so the
+   buttons collapsed to bare text crushed together with no gap. Tokens adapt to
+   the dark console (.console-dark redefines --surface/--ink-2/--hairline). The
+   active chip also carries .aurora-flow for the gemini-gradient fill, so set
+   background-color (not the background shorthand, which would wipe its image). */
+.aurora-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.aurora-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 38px; padding: 8px 15px;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background-color: var(--surface); color: var(--ink-2);
+  font-family: var(--font-sans); font-size: 13.4px; font-weight: 600;
+  white-space: nowrap; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+}
+.aurora-chip:hover { color: var(--ink); border-color: var(--ink-3); }
+.aurora-chip[data-active="true"] { color: #fff; border-color: transparent; }
+
+/* Phone: let the roster table scroll horizontally instead of clipping columns.
+   The wrap clips by default (overflow:hidden); give rows a min-width so every
+   column stays readable and the wrap scrolls on the x-axis. */
+@media (max-width: 700px) {
+  .aurora-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .aurora-table-wrap .aurora-trow { min-width: 720px; }
+}
+
+/* Phone: enlarge small touch targets to a comfortable hit area. Desktop is left
+   alone (mouse is precise); touch needs ~44px. Visuals are unchanged — only the
+   clickable box grows. */
+@media (max-width: 700px) {
+  /* Eye Atlas pins — pad the button so the tappable area grows while the
+     calibrated dot stays centred (the dot is centred on its point via
+     translate, so symmetric padding keeps it on-point). */
+  .aurora-pin { padding: 11px; }
+  /* Chat back arrow → full touch square. */
+  .aurora-chat-back { width: 44px; height: 44px; }
+  /* Account remove (×) → larger hit area. */
+  .aurora-acct-remove { width: 40px; height: 40px; }
+  /* Clickable feed name → comfortable tap height. */
+  .aurora-feed-name { display: inline-flex; align-items: center; min-height: 44px; }
+}
+
 /* buttons */
 .aurora-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 18px; border: none; border-radius: 999px; background: var(--ink); color: #fff; font-size: 14.6px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
 .aurora-btn:hover { opacity: 0.88; }

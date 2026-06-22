@@ -552,6 +552,11 @@ a { color: inherit; text-decoration: none; }
   transition: color .12s;
 }
 .login-input-action:hover { color: rgba(31,31,31,.65); }
+/* Phone: grow login touch targets to ~44px (desktop mouse is precise, untouched).
+   right:0 + padding keeps the eye icon at roughly its original inset. */
+@media (max-width: 700px) {
+  .login-input-action { right: 0; padding: 13px; display: flex; }
+}
 
 .login-error {
   padding: 10px 14px;
@@ -582,6 +587,9 @@ a { color: inherit; text-decoration: none; }
 
 .login-link { background: none; border: none; color: rgba(31,31,31,.55); font-size: 13.5px; cursor: pointer; transition: color .12s; font-family: var(--font-body); }
 .login-link:hover { color: rgba(31,31,31,.65); }
+@media (max-width: 700px) {
+  .login-link { display: inline-flex; align-items: center; min-height: 44px; }
+}
 
 .login-role-btn {
   width: 100%;
