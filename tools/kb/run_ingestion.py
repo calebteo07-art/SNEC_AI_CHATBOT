@@ -247,6 +247,11 @@ MODULE_2_CATALOG = [
     {"filename": "Opthalmic Pharmacology for Duke NUS OT OA Course 2026.pdf", "category": "pharmacology"},
     # Clinical procedures
     {"filename": "oittalk.pdf", "category": "clinical_procedure"},
+    # SNEC procedure reference textbook (Ophthalmic Investigation Service)
+    {
+        "filename": "Procedure Manual of Ophthalmic Investigations (SNEC 2017).pdf",
+        "category": "clinical_procedure",
+    },
 ]
 
 
