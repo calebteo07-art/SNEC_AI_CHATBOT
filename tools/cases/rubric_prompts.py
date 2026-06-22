@@ -29,53 +29,64 @@ LOW SCORE (1-4) — Superficial or skipped:
     "investigations": """
 ## Investigations Calibration Examples
 
-HIGH SCORE (8-10) — Complete, logical panel:
-  Student requested: visual acuity (LogMAR/Snellen), IOP measurement,
-  dilated fundus examination, cup-disc ratio, Humphrey Visual Field (24-2),
-  and OCT RNFL — all appropriate and necessary for a glaucoma workup.
-  → Score 10. Comprehensive and correctly prioritised.
+HIGH SCORE (8-10) — Complete, correctly performed and recorded:
+  Student performed and recorded the appropriate tests for the encounter —
+  e.g. visual acuity (LogMAR/Snellen), IOP, anterior-segment observation,
+  and any role-specific imaging (fundus photos, OCT, visual fields, biometry)
+  — with correct technique and clear documentation.
+  → Score 10. Comprehensive, accurate, well-documented.
 
-LOW SCORE (1-4) — Missing critical tests:
-  Student requested only IOP measurement and fundus photo. Did not order
-  visual field testing or OCT, which are mandatory for glaucoma staging.
-  → Score 4. Structurally incomplete — cannot stage disease without VF.
+LOW SCORE (1-4) — Missing or poorly performed tests:
+  Student measured only IOP and skipped visual acuity, or recorded readings
+  without checking quality/repeatability, leaving the record incomplete for
+  the doctor to act on.
+  → Score 4. Structurally incomplete — key measurements missing.
 """,
 
     "diagnosis": """
-## Diagnosis Calibration Examples
+## Clinical Recognition Calibration Examples
+(Allied health DO NOT make a medical diagnosis — score pattern recognition,
+red-flag detection and triage/urgency judgement.)
 
-HIGH SCORE (8-10) — Specific, differential included:
-  Student correctly identified Primary Open-Angle Glaucoma (POAG) and
-  provided differential diagnoses of Normal-Tension Glaucoma and Ocular
-  Hypertension. Referenced ICD-10-level specificity (H40.1).
-  → Score 10. Specific, evidence-based, differential appropriate.
+HIGH SCORE (8-10) — Recognised the pattern and triaged correctly:
+  Student recognised the clinical picture (e.g. discharge + no pain + normal
+  vision → likely conjunctivitis pattern; or pain + haloes + reduced vision →
+  possible acute angle closure), correctly identified whether red flags were
+  present, judged the urgency/triage category appropriately, and understood
+  this needs the doctor to confirm — without stating a definitive medical
+  diagnosis.
+  → Score 10. Accurate recognition and triage, stayed within role.
 
-LOW SCORE (1-4) — Incorrect or vague:
-  Student stated "the patient has some eye disease causing vision loss"
-  without naming a specific condition, or incorrectly diagnosed cataract
-  in the face of unambiguous POAG findings.
-  → Score 2. Unacceptable — no specific diagnosis reached.
+LOW SCORE (1-4) — Missed red flags, mis-triaged, or over-reached:
+  Student failed to spot red flags (treated a painful red eye with vision loss
+  as routine), badly mis-judged urgency, OR over-stepped their role by
+  asserting a definitive medical diagnosis instead of recognising and routing.
+  → Score 2. Unsafe recognition/triage or outside scope of practice.
 """,
 
     "management": """
-## Management Calibration Examples
+## Escalation & Care Calibration Examples
+(Allied health DO NOT prescribe or decide treatment — score escalation,
+documentation/handover and within-scope patient advice.)
 
-HIGH SCORE (8-10) — Pharmacological + follow-up + patient education:
-  Student initiated first-line prostaglandin analogue (latanoprost 0.005%
-  once nightly), arranged 4-week IOP recheck, ordered baseline HVF and
-  OCT, counselled on drop technique/compliance, and discussed the
-  importance of lifelong monitoring.
-  → Score 10. Complete: pharmacological, monitoring, and counselling.
+HIGH SCORE (8-10) — Escalated, documented, and advised correctly:
+  Student escalated/referred to the right person with the right urgency
+  (e.g. flag to the doctor today for a suspected sight-threatening cause, or
+  route as routine for a minor one), documented the findings clearly for
+  handover, and gave correct within-scope advice and safety-netting (hygiene
+  measures, what to do, and to return promptly if pain/vision change).
+  → Score 10. Complete: escalation, documentation, and patient education.
 
-LOW SCORE (1-4) — Initiated treatment but no follow-up or counselling:
-  Student prescribed eye drops but did not specify follow-up interval,
-  did not counsel on technique, and made no plan for visual field
-  monitoring.
-  → Score 5. Partial — treatment started but management plan incomplete.
+LOW SCORE (1-4) — Failed to escalate or document, or stepped out of role:
+  Student did not escalate/refer or gave no clear handover/documentation, OR
+  over-stepped by prescribing medication or starting treatment that is the
+  doctor's decision.
+  → Score 4. Incomplete escalation, or outside scope of practice.
 
-VERY LOW SCORE (0-2) — No management plan:
-  Student did not offer any treatment or follow-up after reaching a diagnosis.
-  → Score 0. No management attempted.
+VERY LOW SCORE (0-2) — No recommendation at all:
+  Student gave no escalation, documentation, or patient advice after the
+  encounter.
+  → Score 0. No handover or recommendation attempted.
 """,
 }
 

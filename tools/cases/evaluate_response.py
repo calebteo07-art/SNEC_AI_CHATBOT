@@ -47,6 +47,11 @@ def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
         f"## Student Conversation\n{conv_text}\n\n"
         f"## Task\n"
         f"Score the student's performance in ALL FOUR domains (history, investigations, diagnosis, management) from 0-10.\n"
+        f"This is an allied-health (OA/OT/PSA) OSCE station — the student is NOT a doctor. Score 'diagnosis' as "
+        f"clinical RECOGNITION (spotting the pattern, red flags and urgency, and triaging correctly — without making a "
+        f"medical diagnosis) and 'management' as ESCALATION & CARE (escalating/referring to the right person, clear "
+        f"documentation/handover, and correct within-scope patient advice and safety-netting). Do NOT reward — and "
+        f"lightly penalise — medical diagnosis or prescribing, which are outside their role.\n"
         f"Base scores ONLY on what appears in the student conversation above — do not infer actions not mentioned.\n"
         f"Return ONLY valid JSON:\n"
         f'{{"history": {{"score": <int 0-10>, "feedback": "<2-3 sentences>"}}, '
