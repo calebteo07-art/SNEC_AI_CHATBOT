@@ -10,6 +10,8 @@ when name is None or the lookup misses.
 
 # Ordered keyword rules — FIRST match wins, so list the more specific rules first.
 KEYWORD_RULES: list[tuple[tuple[str, ...], str]] = [
+    (("ishihara", "colour_vision", "color_vision"), "Ishihara Colour Vision Testing"),
+    (("amsler", "metamorphopsia"), "Amsler Grid Testing"),
     (("dilation", "mydriasis"), "Eye Drop Instillation and Dilation"),
     (("eye_drop", "eyedrop", "instillation", "drop_instillation"), "Instillation of Eye Drops"),
     (("nct", "tonometry", "non-contact", "non_contact", "iop"), "Non-Contact Tonometry"),

@@ -6,6 +6,7 @@
   "topic_set": "colour_macular",
   "role": "OA",
   "estimated_minutes": 11,
+  "checklist_procedure": "Ishihara Colour Vision Testing",
   "patient": {
     "name": "Mr Sng Jun Kai",
     "age": 24,

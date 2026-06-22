@@ -5,6 +5,7 @@
   "topic": "amsler_grid_amd_monitoring",
   "role": "OA",
   "estimated_minutes": 12,
+  "checklist_procedure": "Amsler Grid Testing",
   "patient": {
     "name": "Mr Eusoff bin Karim",
     "age": 74,
