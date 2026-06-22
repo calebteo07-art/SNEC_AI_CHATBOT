@@ -1961,7 +1961,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* Setup stage: centers the hero + step content as one group and fills the height.
    (Distinct from the study-stage .flash-stage — do not conflate.) */
 .flash-setup-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: clamp(12px, 2.2vh, 26px); width: 100%; }
+  justify-content: center; gap: clamp(6px, 1.2vh, 16px); width: 100%; }
 .flash-setup[data-step="2"] .flash-setup-stage { justify-content: flex-start; }
 
 /* Keyed step content — remounts per step to replay the slide. Forward slides in from
@@ -1979,8 +1979,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-step-lede { text-align: center; flex-shrink: 0; }
 .flash-step-foot { display: flex; justify-content: center; gap: 14px; padding-top: clamp(6px, 1.2vh, 14px); flex-shrink: 0; }
 .flash-step-foot-split { justify-content: space-between; align-items: center; }
-/* Step 1: pull Continue a little closer to the controls (sits lower than ideal otherwise). */
-.flash-step-session .flash-step-foot { padding-top: 0; margin-top: clamp(-18px, -1.8vh, -8px); }
+/* Step 1: Continue keeps the same even gap as the controls above it — no cramping. */
+.flash-step-session .flash-step-foot { padding-top: 0; margin-top: 0; }
 .flash-back { padding: 13px 24px; border: 0.5px solid var(--flash-line); border-radius: 999px;
   background: rgba(255,255,255,.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   color: var(--flash-ink-2); font: inherit; font-size: 14.5px; font-weight: 500; cursor: pointer;
@@ -2010,7 +2010,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    --scene-w is the single value that animates the morph. The eye renders EXACTLY as the
    login screen does — full round disc, object-fit:contain, no card frame — just centred on
    the cream and dropped a little lower than dead-centre. */
-.flash-scene { position: relative; display: block; margin: clamp(10px, 3vh, 30px) auto clamp(8px, 1.6vh, 18px);
+.flash-scene { position: relative; display: block; margin: clamp(2px, 1vh, 14px) auto clamp(2px, 0.8vh, 10px);
   width: var(--scene-w, clamp(264px, 44vh, 500px)); max-width: 100%;
   aspect-ratio: 1 / 1; overflow: visible;
   /* high-sensitivity gaze: how far the iris travels + leans toward the cursor.
