@@ -1,14 +1,16 @@
 "use client";
-/* AURORA Tutor — the EyeBot chat. Calm lavender reading surface, a mono Spark Eye
-   avatar, gradient send + active follow-up. The SSE /api/chat streaming and the
-   gamification hooks are ported verbatim from the legacy ChatScreen. */
+/* AURORA Tutor — the EyeBot chat. "Mono + Electric / Live Wire": a warm ivory + charcoal
+   reading surface lit by one electric-indigo accent over a live constellation canvas
+   (ChatField), with a blinking realistic-eye avatar, an OCT header trace, charging bubble
+   borders and a glowing caret. The SSE /api/chat streaming and the gamification hooks are
+   ported verbatim from the legacy ChatScreen. */
 import { useEffect, useRef, useState } from "react";
 import { ChatThread } from "@/aurora/components/ChatThread";
 import { MessageBubble } from "@/aurora/components/MessageBubble";
 import { Composer } from "@/aurora/components/Composer";
 import { FollowupChip } from "@/aurora/components/FollowupChip";
+import { ChatField } from "@/aurora/components/ChatField";
 import Link from "next/link";
-import { Logo } from "@/aurora/Logo";
 import { Icon } from "@/aurora/icons";
 import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
@@ -136,6 +138,9 @@ export function Tutor() {
 
   return (
     <section className="aurora-chat">
+      <ChatField />
+      <span className="aurora-chat-sweep" aria-hidden="true" />
+
       <AchievementManager
         achievements={newAchievements}
         onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
@@ -146,9 +151,20 @@ export function Tutor() {
           <Icon.back size={24} />
         </Link>
         <span className="aurora-chat-avatar">
-          <span className="aurora-chat-ring"><Logo size={22} /></span>
+          <span className="aurora-chat-eye">
+            <span className="aurora-chat-eye-orb">
+              {/* Reuse the Nano-Banana login eye — a photoreal round iris on near-white. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/login-eye.png" alt="" />
+              <span className="aurora-chat-eye-lid" aria-hidden="true" />
+            </span>
+            <span className="aurora-chat-eye-ring" aria-hidden="true" />
+          </span>
         </span>
         <h1 className="aurora-chat-name">eyebot</h1>
+        <svg className="aurora-chat-oct" viewBox="0 0 120 16" aria-hidden="true">
+          <polyline points="0,8 16,8 22,3 28,13 34,8 56,8 62,2 68,14 74,8 120,8" />
+        </svg>
       </header>
 
       <ChatThread ref={threadRef}>
