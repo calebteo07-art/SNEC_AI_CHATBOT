@@ -22,11 +22,13 @@ export function ChatField() {
       document.documentElement.getAttribute("data-motion") === "reduce";
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const LINK = 96;
+    const LINK = 122;
+    const PR = 168; // pointer-influence radius
     let W = 0;
     let H = 0;
     let raf = 0;
     let pts: Pt[] = [];
+    const ptr = { x: -9999, y: -9999, on: false };
 
     const size = () => {
       const r = canvas.getBoundingClientRect();
@@ -38,25 +40,41 @@ export function ChatField() {
     };
 
     const init = () => {
-      const n = Math.min(72, Math.max(18, Math.round((W * H) / 14000)));
+      const n = Math.min(132, Math.max(28, Math.round((W * H) / 8600)));
       pts = Array.from({ length: n }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.22,
-        vy: (Math.random() - 0.5) * 0.22,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
       }));
     };
 
     const render = () => {
       ctx.clearRect(0, 0, W, H);
+
+      // Soft electric bloom that follows the pointer.
+      if (ptr.on) {
+        const g = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, PR);
+        g.addColorStop(0, "rgba(91, 91, 255, 0.13)");
+        g.addColorStop(1, "rgba(91, 91, 255, 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(ptr.x - PR, ptr.y - PR, PR * 2, PR * 2);
+      }
+
+      // Links — denser web, brightened near the pointer.
       for (let a = 0; a < pts.length; a++) {
         for (let b = a + 1; b < pts.length; b++) {
           const dx = pts[a].x - pts[b].x;
           const dy = pts[a].y - pts[b].y;
           const d = Math.hypot(dx, dy);
           if (d < LINK) {
-            ctx.strokeStyle = `rgba(91, 91, 255, ${0.15 * (1 - d / LINK)})`;
-            ctx.lineWidth = 1;
+            let alpha = 0.3 * (1 - d / LINK);
+            if (ptr.on) {
+              const near = Math.min(Math.hypot(pts[a].x - ptr.x, pts[a].y - ptr.y), Math.hypot(pts[b].x - ptr.x, pts[b].y - ptr.y));
+              if (near < PR) alpha += 0.4 * (1 - near / PR) * (1 - d / LINK);
+            }
+            ctx.strokeStyle = `rgba(99, 99, 255, ${alpha})`;
+            ctx.lineWidth = 1.1;
             ctx.beginPath();
             ctx.moveTo(pts[a].x, pts[a].y);
             ctx.lineTo(pts[b].x, pts[b].y);
@@ -64,12 +82,18 @@ export function ChatField() {
           }
         }
       }
-      ctx.fillStyle = "rgba(91, 91, 255, 0.5)";
+
+      // Nodes — glowing electric dots, brighter + larger near the pointer.
+      ctx.shadowColor = "rgba(91, 91, 255, 0.9)";
+      ctx.shadowBlur = 6;
       for (const p of pts) {
+        const near = ptr.on && Math.hypot(p.x - ptr.x, p.y - ptr.y) < PR;
+        ctx.fillStyle = near ? "rgba(150, 150, 255, 0.95)" : "rgba(99, 99, 255, 0.72)";
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, near ? 2.4 : 1.8, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.shadowBlur = 0;
     };
 
     const loop = () => {
@@ -93,11 +117,19 @@ export function ChatField() {
       init();
       if (reduce) render();
     };
+    const onPointer = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      ptr.x = e.clientX - r.left;
+      ptr.y = e.clientY - r.top;
+      ptr.on = ptr.x >= 0 && ptr.x <= W && ptr.y >= 0 && ptr.y <= H;
+    };
     window.addEventListener("resize", onResize);
+    if (!reduce) window.addEventListener("pointermove", onPointer);
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("pointermove", onPointer);
     };
   }, []);
 
