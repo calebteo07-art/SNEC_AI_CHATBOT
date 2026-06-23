@@ -22,12 +22,23 @@ from tools.cases.topic_sets import resolve_set, sets_for, label_for
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions
+from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
 from tools.kb.search import get_checklist_by_name
 
 # How many cases to surface per student per visit (a small rotating set, not the
 # whole library). The student cycles through every unlocked case before repeats.
 CASE_WINDOW = 6
+
+_COACHING_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "highlights": {"type": "array", "items": {"type": "string"}},
+        "watch_outs": {"type": "array", "items": {"type": "string"}},
+        "focus": {"type": "string"},
+    },
+    "required": ["highlights", "watch_outs", "focus"],
+}
 
 router = APIRouter()
 
@@ -93,6 +104,20 @@ class DomainScore(BaseModel):
     overall_feedback: str
     critical_hit: int = 0
     critical_total: int = 0
+    # Station-100 (the student-facing model)
+    score_100: int = 0
+    verdict: str = ""
+    thoroughness: int = 0
+    technique: int = 0
+    judgment: int = 0
+    safe: bool = True
+    missed_critical: list[str] = []
+    thoroughness_detail: str = ""
+
+class CoachingBlock(BaseModel):
+    highlights: list[str] = []
+    watch_outs: list[str] = []
+    focus: str = ""
 
 class ChecklistStepResult(BaseModel):
     step_number: int
@@ -118,6 +143,7 @@ class CaseSubmitResponse(BaseModel):
     cards: list[Flashcard]
     mock_mode: bool
     debrief: str | None = None
+    coaching: CoachingBlock = CoachingBlock()
     checklist_comparison: list[ChecklistStepResult] = []
     per_phase: list[PhaseSummary] = []
 
@@ -145,6 +171,11 @@ class ExaminationAction(BaseModel):
     label: str
     reveal_text: str
     satisfies_steps: list[int]
+    mode: str = "do"
+    prompt_text: str = ""
+    phase: int = 2
+    critical: bool = False
+    step_number: int = 0
 
 class StationChecklist(BaseModel):
     procedure_name: str
@@ -606,11 +637,11 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         "content": f"Findings & impression: {body.findings}\nRecommendation & escalation: {body.recommendation}",
     })
 
-    # ── Resolve the checklist up front (pure CPU). The missed-step "why it matters"
-    #    notes depend only on the checklist + performed steps — NOT on the grade — so we
-    #    build the comparison now and let that call run CONCURRENTLY with grading (§6).
+    # ── Resolve the checklist up front (pure CPU). The comparison + missed steps depend
+    #    only on the checklist + performed steps — NOT on the grade — so build them now
+    #    and let the coaching call run CONCURRENTLY with grading.
     checklist_comparison: list[ChecklistStepResult] = []
-    missed_critical_actions: list[str] = []
+    _cl_compare: dict = {}
     try:
         _cl_compare = _station_checklist(case)
         performed_set = set(body.performed_steps)
@@ -618,8 +649,6 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
             step_num = int(s.get("step_number", 0))
             performed = step_num in performed_set
             critical = bool(s.get("critical", False))
-            if not performed and critical:
-                missed_critical_actions.append(str(s.get("action", "")))
             checklist_comparison.append(ChecklistStepResult(
                 step_number=step_num,
                 action=str(s.get("action", "")),
@@ -629,39 +658,70 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     except Exception:
         pass
 
-    # ── Launch the two independent Gemini calls concurrently: grade + missed-step notes.
-    #    Both are blocking SDK calls → to_thread keeps the single-worker event loop free.
+    # ── Build the coaching prompt up front: it needs only the transcript + the
+    #    missed steps (NOT the numeric score), so grading and coaching run in
+    #    parallel. The old separate "missed-step notes" call is folded in here.
+    from tools.api.shared import _student_context_block
+    try:
+        _coach_ctx = await _student_context_block(student_id)
+    except Exception:
+        _coach_ctx = ""
+    missed_actions = [c.action for c in checklist_comparison if not c.performed]
+    coaching_system = (
+        (_coach_ctx + "\n\n" if _coach_ctx else "")
+        + "You are an ophthalmology clinical educator coaching an allied-health (OA/OT/PSA) "
+        "student after an OSCE station. Return ONLY JSON: {\"highlights\":[..],\"watch_outs\":[..],"
+        "\"focus\":\"..\"}. 2-3 highlights = concrete things they genuinely did well, drawn from the "
+        "conversation. 2-3 watch_outs = the most important things to sharpen, each tied to a specific "
+        "missed step and naming the clinical consequence in the same short phrase. focus = ONE sentence: "
+        "the single most important thing for next time. Every item is a short phrase (~6-12 words), warm "
+        "and specific. Reward triage/escalation within role; do not reward making a medical diagnosis."
+    )
+    coaching_messages = [{
+        "role": "user",
+        "content": (
+            f"Case: {case['title']}\n"
+            f"Findings submitted: {body.findings}\n"
+            f"Recommendation submitted: {body.recommendation}\n"
+            f"Steps the student missed: {', '.join(missed_actions) or 'none'}\n\n"
+            "Conversation:\n" + "\n".join(
+                f"{'Student' if m['role'] == 'user' else 'Patient'}: {m['content']}" for m in messages
+            )
+        ),
+    }]
+
     grade_task = asyncio.create_task(
         asyncio.to_thread(evaluate_case, case, messages, student_id, body.performed_steps)
     )
-    notes_task: asyncio.Task | None = None
-    if missed_critical_actions:
-        note_prompt = (
-            "You are a clinical educator for ophthalmology allied health students. "
-            "For each procedure step listed below, write exactly one sentence explaining "
-            "WHY that step matters clinically — the consequence of skipping it. "
-            "Return a JSON array of strings, one string per step, in the same order."
-        )
-        note_messages = [{
-            "role": "user",
-            "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
-        }]
-        notes_task = asyncio.create_task(asyncio.to_thread(
-            ask,
-            system_prompt=note_prompt,
-            messages=note_messages,
-            max_tokens=512,
-            feature="checklist_notes",
-            response_json_schema={"type": "array", "items": {"type": "string"}},
-        ))
+    coaching_task = asyncio.create_task(asyncio.to_thread(
+        ask,
+        system_prompt=coaching_system,
+        messages=coaching_messages,
+        max_tokens=512,
+        feature="debrief",
+        model=MODEL,
+        thinking_level="MEDIUM",
+        response_json_schema=_COACHING_SCHEMA,
+    ))
 
-    # Debrief needs the score, so the grade must land first.
     try:
         raw_result = await grade_task
     except Exception:
-        if notes_task is not None:
-            notes_task.cancel()
+        coaching_task.cancel()
         raise
+
+    # ── Station-100: the legible score, computed from the SAME steps the student
+    #    saw tick (the station-resolved checklist) so Thoroughness reconciles.
+    score = compute_station_score(
+        {
+            "history": raw_result.get("history_score", 0),
+            "investigations": raw_result.get("investigations_score", 0),
+            "diagnosis": raw_result.get("diagnosis_score", 0),
+            "management": raw_result.get("management_score", 0),
+        },
+        _cl_compare.get("steps", []),
+        body.performed_steps,
+    )
 
     await log_session(
         student_id=student_id,
@@ -671,121 +731,72 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         model="mock" if MOCK_MODE else MODEL,
     )
 
-    # No card generation — flashcards are served from the pre-authored static pool.
     cards: list = []
 
-    # Update profile: retention score = total_score / 40
+    # Profile update: retention = score_100/100; missed-gap heuristic unchanged.
     try:
         from tools.profile.update_profile import update_profile
-        retention_score = raw_result.get("total_score", 0) / 40
         missed = []
         for domain in ("history_feedback", "investigations_feedback", "diagnosis_feedback", "management_feedback"):
             feedback = raw_result.get(domain, "")
-            if feedback and any(word in feedback.lower() for word in ("miss", "forgot", "lack", "no mention")):
+            if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
                 missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
         await update_profile(
-            student_id,
-            topic=case["topic"],
-            score=retention_score,
-            new_missed_findings=missed,
+            student_id, topic=case["topic"], score=score["score_100"] / 100, new_missed_findings=missed,
         )
     except Exception:
         pass
 
-    # Log case completion for difficulty progression tracking
-    total = raw_result.get("total_score", 0)
-    passed = total >= 24
+    # Difficulty progression: pass at 60/100 (== 24/40).
+    passed = score["score_100"] >= 60
     try:
-        await log_case_completion(student_id, case_id, total, passed)
+        await log_case_completion(student_id, case_id, score["total_score"], passed)
     except Exception:
         pass
 
-    # ── Build the debrief prompt (needs the grade), then run debrief + notes TOGETHER.
-    debrief_text: str | None = None
-    notes_response: str | None = None
+    audit_log("case_evaluated", student_id=student_id, feature="cases",
+              detail=f"case_id={case['case_id']} score={score['score_100']}/100 "
+                     f"checklist={score['critical_hit']}/{score['critical_total']}")
+
+    # ── Coaching (best-effort): parse the structured JSON; never 500 the request.
+    coaching = CoachingBlock()
     try:
-        from tools.api.shared import _student_context_block
-        _debrief_ctx = await _student_context_block(student_id)
-        debrief_prompt = (
-            (_debrief_ctx + "\n\n" if _debrief_ctx else "")
-            + "You are an ophthalmology clinical educator reviewing a student's case performance. "
-            "Tailor your debrief to the student's role and known weak areas listed above. "
-            "Write a warm, encouraging, specific debrief in exactly this format:\n\n"
-            "**What you did really well:** ...\n\n"
-            "**Where to grow next time:** ...\n\n"
-            "**Why it matters clinically:** ...\n\n"
-            "**Focus for next time:** ...\n\n"
-            "Be specific and kind. Name concrete strengths first. When pointing out gaps, "
-            "tie them to the checklist step and the phase it belongs to, and end on an "
-            "encouraging note. Reference the student's role-specific procedures where relevant. "
-            "Do not repeat the scores — focus on insight."
+        raw_coach = (await coaching_task or "").strip()
+        if raw_coach.startswith("```"):
+            raw_coach = raw_coach.split("```")[1]
+            if raw_coach.startswith("json"):
+                raw_coach = raw_coach[4:]
+        data = json.loads(raw_coach)
+        coaching = CoachingBlock(
+            highlights=[str(x) for x in (data.get("highlights") or [])][:3],
+            watch_outs=[str(x) for x in (data.get("watch_outs") or [])][:3],
+            focus=str(data.get("focus") or ""),
         )
-        debrief_messages = [
-            {
-                "role": "user",
-                "content": (
-                    f"Case: {case['title']}\n"
-                    f"Findings submitted: {body.findings}\n"
-                    f"Recommendation submitted: {body.recommendation}\n"
-                    f"Score: {raw_result.get('total_score', 0)}/40\n"
-                    f"Overall feedback: {raw_result.get('overall_feedback', '')}"
-                ),
-            }
-        ]
-        debrief_coro = asyncio.to_thread(
-            ask,
-            system_prompt=debrief_prompt,
-            messages=debrief_messages,
-            max_tokens=1536,
-            feature="debrief",
-            model=MODEL,
-            thinking_level="MEDIUM",
-        )
-        if notes_task is not None:
-            # return_exceptions: one call failing must not cancel the other or 500 the
-            # request — debrief and notes are both best-effort enrichments.
-            _debrief, _notes = await asyncio.gather(debrief_coro, notes_task, return_exceptions=True)
-            debrief_text = _debrief if not isinstance(_debrief, Exception) else None
-            notes_response = _notes if not isinstance(_notes, Exception) else None
-        else:
-            debrief_text = await debrief_coro
     except Exception:
-        debrief_text = None
-        # Debrief setup failed, but the notes call may still be in flight — drain it.
-        if notes_task is not None:
-            try:
-                notes_response = await notes_task
-            except Exception:
-                notes_response = None
+        coaching = CoachingBlock()
 
-    # ── Apply the missed-step notes to the (already-built) checklist comparison.
-    if notes_response:
-        try:
-            raw_notes = notes_response.strip()
-            if raw_notes.startswith("```"):
-                raw_notes = raw_notes.split("```")[1]
-                if raw_notes.startswith("json"):
-                    raw_notes = raw_notes[4:]
-            notes = json.loads(raw_notes)
-            if isinstance(notes, list):
-                note_idx = 0
-                for step_result in checklist_comparison:
-                    if not step_result.performed and step_result.critical:
-                        if note_idx < len(notes):
-                            step_result.clinical_note = str(notes[note_idx])
-                            note_idx += 1
-        except Exception:
-            pass
+    per_phase = _per_phase_summary(_cl_compare.get("steps", []), body.performed_steps)
 
-    _cl_for_phase = _station_checklist(case)
-    per_phase = _per_phase_summary(_cl_for_phase["steps"], body.performed_steps)
-
-    domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields}
+    domain_fields = {k: raw_result.get(k, 0) for k in DomainScore.model_fields if k in raw_result}
+    domain_fields.update({
+        "total_score": score["total_score"],
+        "score_100": score["score_100"],
+        "verdict": score["verdict"],
+        "thoroughness": score["thoroughness"],
+        "technique": score["technique"],
+        "judgment": score["judgment"],
+        "safe": score["safe"],
+        "missed_critical": score["missed_critical"],
+        "thoroughness_detail": score["thoroughness_detail"],
+        "critical_hit": score["critical_hit"],
+        "critical_total": score["critical_total"],
+    })
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),
         cards=[Flashcard(**c) for c in cards],
         mock_mode=MOCK_MODE,
-        debrief=debrief_text,
+        debrief=None,
+        coaching=coaching,
         checklist_comparison=checklist_comparison,
         per_phase=[PhaseSummary(**p) for p in per_phase],
     )
