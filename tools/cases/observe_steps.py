@@ -9,18 +9,25 @@ import json
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
 
 _EXAMINER_SYSTEM = (
-    "You are an OSCE examiner observing an ophthalmic student's consultation. "
-    "Given the remaining checklist steps and the transcript, decide which steps the "
-    "student has addressed — performed, asked about, explained, confirmed, or clearly "
-    "covered, even briefly or in passing. Be generous: if the transcript gives any "
-    "reasonable evidence the step was attempted or covered, count it as done. Only "
-    "leave a step out when there is no sign of it at all. "
-    "Return ONLY a JSON array of the satisfied step numbers, e.g. [2,5]."
+    "You are an OSCE examiner observing an ophthalmic student's consultation with a "
+    "patient. Given the remaining checklist steps and the consultation transcript, decide "
+    "which steps the student has now satisfied — performed, asked about, explained, "
+    "confirmed, mentioned, or covered in any way, even briefly, indirectly, or in passing.\n"
+    "IMPORTANT: the student usually covers a single step across SEVERAL separate messages, "
+    "not all at once. Read ALL of the student's turns together and combine them — a step "
+    "counts as satisfied if the student covered it at ANY point in the conversation, even "
+    "when it was split across multiple messages or asked a little at a time.\n"
+    "Be generous: if there is any reasonable evidence a step was attempted or touched on, "
+    "count it as done. Only leave a step out when there is genuinely no sign of it anywhere "
+    "in the transcript.\n"
+    "Return ONLY a JSON array of the satisfied step numbers, e.g. [2,5]. Return [] if none."
 )
 
 # Window the examiner over the whole consult (not just the last few turns) so a step
-# the student covered early still gets ticked once enough context accrues.
-_RECENT_TURNS = 40
+# the student covered early still gets ticked once enough context accrues. Kept wide so a
+# step touched on early — but missed by an earlier (e.g. transient-fail) examiner pass —
+# is still in view to be picked up on a later turn.
+_RECENT_TURNS = 80
 
 
 def _schema() -> dict:
@@ -55,7 +62,12 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
         raw = ask(
             system_prompt=_EXAMINER_SYSTEM,
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=256,
+            # Headroom so the JSON array is NEVER silently truncated: ask() only treats a
+            # MAX_TOKENS finish as an error above 512, so a tight 256 cap could return a
+            # half-written array that fails to parse → step never ticked. The output here is
+            # tiny (a list of ints) and you only pay for tokens actually generated, so a
+            # generous cap is free insurance against truncation. (becky reliability rule.)
+            max_tokens=1024,
             feature="case_observe",
             model=MODEL,
             # becky §9: per-turn auto-tick is a constrained classification — MINIMAL
