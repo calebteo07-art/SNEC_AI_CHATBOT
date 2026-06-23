@@ -109,28 +109,41 @@ export function CaseSession() {
     setAutoSteps((prev) => { const n = new Set(prev); stepNumbers.forEach((s) => n.add(s)); return n; });
   }, []);
 
-  // Debounced live examiner. Resilient: any failure silently keeps manual ticking.
+  // Live examiner call. Resilient by design: a single transient failure (network blip,
+  // brief quota, a slow single-worker thread) must never permanently drop a tick, so we
+  // retry once. Aborts are ignored — a newer observe has already superseded this one. The
+  // whole transcript (capped to the request limit) is sent every turn so a step the student
+  // built up across SEVERAL messages keeps accruing evidence and ticks once recognised.
+  const runObserve = useCallback(async (attempt = 0) => {
+    if (!caseId) return;
+    observeAbort.current?.abort();
+    const ctrl = new AbortController();
+    observeAbort.current = ctrl;
+    try {
+      const res = await fetch(`/api/cases/${caseId}/observe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        signal: ctrl.signal,
+        body: JSON.stringify({ messages: messagesRef.current.slice(-100), already_ticked: Array.from(tickedRef.current) }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as { newly_satisfied?: number[] };
+      addAuto(data.newly_satisfied ?? []);
+    } catch {
+      // A newer observe took over (abort) → let it handle the latest transcript. Otherwise
+      // it was a real blip: retry once after a short backoff so the tick still lands.
+      if (ctrl.signal.aborted) return;
+      if (attempt < 1) observeTimer.current = setTimeout(() => void runObserve(attempt + 1), 1200);
+    }
+  }, [caseId, addAuto]);
+
+  // Debounced trigger — coalesces rapid activity into one trailing examiner pass.
   const scheduleObserve = useCallback(() => {
     if (!caseId) return;
     if (observeTimer.current) clearTimeout(observeTimer.current);
-    observeTimer.current = setTimeout(async () => {
-      observeAbort.current?.abort();
-      const ctrl = new AbortController();
-      observeAbort.current = ctrl;
-      try {
-        const res = await fetch(`/api/cases/${caseId}/observe`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          signal: ctrl.signal,
-          body: JSON.stringify({ messages: messagesRef.current, already_ticked: Array.from(tickedRef.current) }),
-        });
-        if (!res.ok) return;
-        const data = (await res.json()) as { newly_satisfied?: number[] };
-        addAuto(data.newly_satisfied ?? []);
-      } catch { /* resilient: ignore quota / abort / network */ }
-    }, 450);
-  }, [caseId, addAuto]);
+    observeTimer.current = setTimeout(() => void runObserve(0), 450);
+  }, [caseId, runObserve]);
 
   const toggleStep = (n: number) => setTicked((prev) => {
     const next = new Set(prev);
