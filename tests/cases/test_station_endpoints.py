@@ -41,10 +41,12 @@ def test_station_returns_phases_and_actions():
     phase_names = [p["name"] for p in data["checklist"]["phases"]]
     assert "Preparation & Identification" in phase_names
     assert "Clinical Assessment" in phase_names
-    # examination action for IOP maps to step 2
-    iop = next(a for a in data["examination_actions"] if a["key"] == "iop")
-    assert 2 in iop["satisfies_steps"]
+    # every step is now a clickable chip; the IOP step (2) reveals its finding.
+    iop = next(a for a in data["examination_actions"] if 2 in a["satisfies_steps"])
     assert "18 mmHg" in iop["reveal_text"]
+    assert iop["mode"] == "do"
+    covered = {n for a in data["examination_actions"] for n in a["satisfies_steps"]}
+    assert covered == {1, 2, 3}  # nothing missing
 
 
 def test_station_rubric_fallback_when_no_checklist():
