@@ -120,7 +120,9 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
                 max_tokens=1024,
                 feature="chatbot",
                 model=MODEL,
-                thinking_level="LOW",
+                # becky §2: conversational tutoring doesn't need a thinking budget —
+                # MINIMAL cuts time-to-first-token. Reserve thinking for grading.
+                thinking_level="MINIMAL",
             ):
                 full_response.append(chunk)
                 yield f"data: {json.dumps({'text': chunk})}\n\n"

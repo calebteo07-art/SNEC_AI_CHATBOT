@@ -222,7 +222,9 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
             max_tokens=256,
             feature="supervisor",
             model=MODEL,
-            thinking_level="MEDIUM",
+            # becky §9: a 2-3 sentence cohort narrative on a non-blocking staff screen —
+            # the lowest-stakes thinking budget in the app. MEDIUM→LOW.
+            thinking_level="LOW",
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
