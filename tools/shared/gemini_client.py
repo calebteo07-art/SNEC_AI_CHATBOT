@@ -174,9 +174,13 @@ def stream_ask(
     model: str | None = None,
     thinking_level: str = "MINIMAL",
 ):
-    """Stream a conversation to Gemini via the google-genai SDK, yielding text chunks.
-    Buffers all chunks before yielding to preserve multi-key fallback error recovery.
-    Tries each available SDK client in order; retries up to 3 attempts per client on transient errors.
+    """Stream a conversation to Gemini via the google-genai SDK, yielding text chunks LIVE.
+
+    becky §1: tokens are yielded as they arrive — no full-response buffering. Multi-key
+    fallback + transient-error retry still apply to failures BEFORE the first token (where
+    quota / availability errors almost always surface). Once the first token has been sent,
+    a mid-stream error simply ends the stream with the partial answer already delivered —
+    the SSE wrappers in chat.py / cases.py close that cleanly.
     """
     if MOCK_MODE:
         for word in _mock_response(feature).split(" "):
@@ -199,12 +203,11 @@ def stream_ask(
     config = types.GenerateContentConfig(**config_kwargs_stream)
 
     last_exc: Exception = RuntimeError("no_api_keys")
-    chunks_to_yield: list[str] | None = None
 
     for sdk_client in _ensure_sdk_clients():
         for attempt in range(3):
+            started = False
             try:
-                parsed: list[str] = []
                 for chunk in sdk_client.models.generate_content_stream(
                     model=_model,
                     contents=contents,
@@ -212,12 +215,18 @@ def stream_ask(
                 ):
                     text = chunk.text
                     if text:
-                        parsed.append(text)
-                chunks_to_yield = parsed
-                break
+                        started = True
+                        yield text                # live, token-by-token
+                return                            # stream finished cleanly
             except RuntimeError:
                 raise
             except Exception as exc:
+                if started:
+                    # Partial answer already delivered — do NOT retry or fall back
+                    # (that would replay duplicate tokens). End the stream; the SSE
+                    # layer closes gracefully. This is the one reliability tradeoff
+                    # becky §1 accepts: failures cluster before the first token.
+                    return
                 msg = str(exc)
                 if "429" in msg or "RESOURCE_EXHAUSTED" in msg or "quota" in msg.lower():
                     last_exc = RuntimeError("quota_exceeded")
@@ -230,15 +239,9 @@ def stream_ask(
                     break
                 last_exc = exc
                 break  # unknown error — try next key
-        if chunks_to_yield is not None:
-            break
 
-    if chunks_to_yield is None:
-        _quota_or_raise(last_exc)
-        return
-
-    for text in chunks_to_yield:
-        yield text
+    _quota_or_raise(last_exc)
+    return
 
 
 def ask(
