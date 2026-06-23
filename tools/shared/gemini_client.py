@@ -12,8 +12,10 @@ Self-test:
     python tools/shared/gemini_client.py
 """
 
+import hashlib
 import os
 import sys
+import threading
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -165,6 +167,56 @@ _THINKING_BUDGETS: dict[str, int] = {
     "HIGH":   16000,
 }
 
+# ── Context caching (becky §3) ──────────────────────────────────────────────
+# Cache a large STATIC system prefix (e.g. the tutor persona + KB) once and reuse it
+# across requests so it isn't re-prefilled every message. Verified live 2026-06-23:
+# flash-lite supports explicit caching with a hard MIN of 1024 tokens (smaller content
+# is rejected), and a cached request may NOT also set system_instruction — so any
+# per-user/dynamic content must travel in `contents`, never in the cache (security).
+_CONTEXT_CACHE_ENABLED = os.getenv("GEMINI_CONTEXT_CACHE", "1").strip().lower() not in ("0", "false", "no", "off", "")
+_CONTEXT_CACHE_TTL_S = int(os.getenv("GEMINI_CONTEXT_CACHE_TTL_S", "3600"))
+_CONTEXT_CACHE_MIN_TOKENS = 1024  # flash-lite hard floor (live-verified)
+_context_cache_registry: dict[str, tuple[str, float]] = {}
+_context_cache_lock = threading.Lock()
+
+
+def get_or_create_context_cache(static_system: str, key: str) -> str | None:
+    """Return a `cached_content` name holding `static_system`, or None.
+
+    Creates the cache on first use and reuses it within its TTL. Returns None when
+    caching is disabled, in MOCK_MODE, when the content is below the 1024-token floor,
+    or on ANY error — callers MUST fall back to sending the prompt inline (a cache miss
+    must never fail the request, becky reliability rule).
+
+    SECURITY: only ever pass STATIC, non-per-user content here. The cache is shared
+    across users, so per-user data (student profile, session) must stay out of it.
+    """
+    if not _CONTEXT_CACHE_ENABLED or MOCK_MODE or not static_system.strip():
+        return None
+    import time as _time
+    now = _time.time()
+    full_key = key + ":" + hashlib.sha256(static_system.encode("utf-8")).hexdigest()[:12]
+    with _context_cache_lock:
+        entry = _context_cache_registry.get(full_key)
+        if entry and entry[1] > now + 60:  # still comfortably valid
+            return entry[0]
+    try:
+        from google.genai import types
+        client = _ensure_sdk_clients()[0]  # caches are bound to the key that created them
+        cache = client.caches.create(
+            model=MODEL,
+            config=types.CreateCachedContentConfig(
+                system_instruction=static_system,
+                ttl=f"{_CONTEXT_CACHE_TTL_S}s",
+            ),
+        )
+        with _context_cache_lock:
+            _context_cache_registry[full_key] = (cache.name, now + _CONTEXT_CACHE_TTL_S)
+        return cache.name
+    except Exception:
+        # Below threshold, unsupported, quota, transient — degrade to inline, never break.
+        return None
+
 
 def stream_ask(
     system_prompt: str,
@@ -173,6 +225,7 @@ def stream_ask(
     feature: str = "default",
     model: str | None = None,
     thinking_level: str = "MINIMAL",
+    cached_content: str | None = None,
 ):
     """Stream a conversation to Gemini via the google-genai SDK, yielding text chunks LIVE.
 
@@ -192,10 +245,12 @@ def stream_ask(
 
     _model = model or MODEL
     contents, _ = _build_contents(messages)
-    config_kwargs_stream: dict = {
-        "system_instruction": system_prompt,
-        "max_output_tokens": max_tokens,
-    }
+    config_kwargs_stream: dict = {"max_output_tokens": max_tokens}
+    if cached_content:
+        # The cache already holds the system_instruction; setting one here is a 400.
+        config_kwargs_stream["cached_content"] = cached_content
+    else:
+        config_kwargs_stream["system_instruction"] = system_prompt
     if thinking_level != "MINIMAL":
         config_kwargs_stream["thinking_config"] = types.ThinkingConfig(
             thinking_budget=_THINKING_BUDGETS.get(thinking_level, 1024)
@@ -204,7 +259,10 @@ def stream_ask(
 
     last_exc: Exception = RuntimeError("no_api_keys")
 
-    for sdk_client in _ensure_sdk_clients():
+    # A cache is bound to the key that created it (client[0]); don't rotate keys for a
+    # cached call — another key wouldn't have it. On failure the caller falls back inline.
+    _clients = _ensure_sdk_clients()[:1] if cached_content else _ensure_sdk_clients()
+    for sdk_client in _clients:
         for attempt in range(3):
             started = False
             try:
