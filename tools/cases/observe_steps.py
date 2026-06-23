@@ -58,7 +58,9 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
             max_tokens=256,
             feature="case_observe",
             model=MODEL,
-            thinking_level="LOW",
+            # becky §9: per-turn auto-tick is a constrained classification — MINIMAL
+            # thinking. Fires once per student turn, so its latency rides every message.
+            thinking_level="MINIMAL",
             response_json_schema=_schema(),
         )
     except Exception:

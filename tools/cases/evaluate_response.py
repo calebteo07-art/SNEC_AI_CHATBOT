@@ -66,7 +66,9 @@ def _evaluate_all_domains(conv_text: str, case_context: str) -> dict[str, dict]:
         max_tokens=2048,
         feature="case_eval",
         model=MODEL,
-        thinking_level="HIGH",
+        # becky §6: HIGH(16k)→MEDIUM(8k) thinking. The per-domain few-shot anchors
+        # carry the calibration; MEDIUM holds the score with far less reasoning latency.
+        thinking_level="MEDIUM",
         response_json_schema=_ALL_DOMAINS_SCHEMA,
     )
 
