@@ -529,7 +529,8 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     await _check_case_access(current_user["sub"], case)
-    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, indent=2))
+    # Compact serialization (no indent) — byte-fewer prefill tokens, identical info.
+    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, separators=(",", ":")))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     # Input filter — blocks prompt injection via the case chat interface, but allows
@@ -555,7 +556,8 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             for chunk in stream_ask(
                 system_prompt=patient_prompt,
                 messages=messages,
-                max_tokens=3072,
+                # A patient turn is a few lay-language sentences — 1536 is a safe ceiling.
+                max_tokens=1536,
                 feature="case",
                 model=MODEL,
                 thinking_level="LOW",
@@ -570,7 +572,12 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             yield f"data: {json.dumps({'text': '(I\'m having trouble reaching the service right now.)'})}\n\n"
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(sse_stream(), media_type="text/event-stream")
+    # SSE flush headers — keep Render's proxy from buffering the live patient stream.
+    return StreamingResponse(sse_stream(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
+    })
 
 
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
@@ -592,8 +599,62 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         "content": f"Findings & impression: {body.findings}\nRecommendation & escalation: {body.recommendation}",
     })
 
-    # evaluate_case makes a blocking Gemini grading call — off the event loop.
-    raw_result = await asyncio.to_thread(evaluate_case, case, messages, student_id, body.performed_steps)
+    # ── Resolve the checklist up front (pure CPU). The missed-step "why it matters"
+    #    notes depend only on the checklist + performed steps — NOT on the grade — so we
+    #    build the comparison now and let that call run CONCURRENTLY with grading (§6).
+    checklist_comparison: list[ChecklistStepResult] = []
+    missed_critical_actions: list[str] = []
+    try:
+        _cl_compare = _station_checklist(case)
+        performed_set = set(body.performed_steps)
+        for s in (_cl_compare.get("steps") or []):
+            step_num = int(s.get("step_number", 0))
+            performed = step_num in performed_set
+            critical = bool(s.get("critical", False))
+            if not performed and critical:
+                missed_critical_actions.append(str(s.get("action", "")))
+            checklist_comparison.append(ChecklistStepResult(
+                step_number=step_num,
+                action=str(s.get("action", "")),
+                critical=critical,
+                performed=performed,
+            ))
+    except Exception:
+        pass
+
+    # ── Launch the two independent Gemini calls concurrently: grade + missed-step notes.
+    #    Both are blocking SDK calls → to_thread keeps the single-worker event loop free.
+    grade_task = asyncio.create_task(
+        asyncio.to_thread(evaluate_case, case, messages, student_id, body.performed_steps)
+    )
+    notes_task: asyncio.Task | None = None
+    if missed_critical_actions:
+        note_prompt = (
+            "You are a clinical educator for ophthalmology allied health students. "
+            "For each procedure step listed below, write exactly one sentence explaining "
+            "WHY that step matters clinically — the consequence of skipping it. "
+            "Return a JSON array of strings, one string per step, in the same order."
+        )
+        note_messages = [{
+            "role": "user",
+            "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
+        }]
+        notes_task = asyncio.create_task(asyncio.to_thread(
+            ask,
+            system_prompt=note_prompt,
+            messages=note_messages,
+            max_tokens=512,
+            feature="checklist_notes",
+            response_json_schema={"type": "array", "items": {"type": "string"}},
+        ))
+
+    # Debrief needs the score, so the grade must land first.
+    try:
+        raw_result = await grade_task
+    except Exception:
+        if notes_task is not None:
+            notes_task.cancel()
+        raise
 
     await log_session(
         student_id=student_id,
@@ -632,8 +693,9 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     except Exception:
         pass
 
-    # Generate structured debrief
+    # ── Build the debrief prompt (needs the grade), then run debrief + notes TOGETHER.
     debrief_text: str | None = None
+    notes_response: str | None = None
     try:
         from tools.api.shared import _student_context_block
         _debrief_ctx = await _student_context_block(student_id)
@@ -663,81 +725,50 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
                 ),
             }
         ]
-        debrief_text = await asyncio.to_thread(
+        debrief_coro = asyncio.to_thread(
             ask,
             system_prompt=debrief_prompt,
             messages=debrief_messages,
-            max_tokens=4096,
+            max_tokens=1536,
             feature="debrief",
             model=MODEL,
             thinking_level="MEDIUM",
         )
+        if notes_task is not None:
+            # return_exceptions: one call failing must not cancel the other or 500 the
+            # request — debrief and notes are both best-effort enrichments.
+            _debrief, _notes = await asyncio.gather(debrief_coro, notes_task, return_exceptions=True)
+            debrief_text = _debrief if not isinstance(_debrief, Exception) else None
+            notes_response = _notes if not isinstance(_notes, Exception) else None
+        else:
+            debrief_text = await debrief_coro
     except Exception:
         debrief_text = None
+        # Debrief setup failed, but the notes call may still be in flight — drain it.
+        if notes_task is not None:
+            try:
+                notes_response = await notes_task
+            except Exception:
+                notes_response = None
 
-    # Build checklist step comparison
-    checklist_comparison: list[ChecklistStepResult] = []
-    try:
-        # Resolve via the same path as /station so keyword-resolved and
-        # rubric-fallback cases also get a checklist comparison (not just cases
-        # with an explicit checklist_procedure).
-        _cl_compare = _station_checklist(case)
-        steps_list = _cl_compare["steps"]
-        if steps_list:
-            performed_set = set(body.performed_steps)
-            missed_critical_actions: list[str] = []
-
-            for s in steps_list:
-                step_num = int(s.get("step_number", 0))
-                performed = step_num in performed_set
-                critical = bool(s.get("critical", False))
-                if not performed and critical:
-                    missed_critical_actions.append(str(s.get("action", "")))
-                checklist_comparison.append(ChecklistStepResult(
-                    step_number=step_num,
-                    action=str(s.get("action", "")),
-                    critical=critical,
-                    performed=performed,
-                ))
-
-            # Generate one-sentence clinical notes for missed critical steps
-            if missed_critical_actions:
-                note_prompt = (
-                    "You are a clinical educator for ophthalmology allied health students. "
-                    "For each procedure step listed below, write exactly one sentence explaining "
-                    "WHY that step matters clinically — the consequence of skipping it. "
-                    "Return a JSON array of strings, one string per step, in the same order."
-                )
-                note_messages = [{
-                    "role": "user",
-                    "content": "Steps:\n" + "\n".join(f"- {a}" for a in missed_critical_actions),
-                }]
-                try:
-                    note_response = await asyncio.to_thread(
-                        ask,
-                        system_prompt=note_prompt,
-                        messages=note_messages,
-                        max_tokens=512,
-                        feature="checklist_notes",
-                    )
-                    import json as _cj
-                    raw_notes = note_response.strip()
-                    if raw_notes.startswith("```"):
-                        raw_notes = raw_notes.split("```")[1]
-                        if raw_notes.startswith("json"):
-                            raw_notes = raw_notes[4:]
-                    notes = _cj.loads(raw_notes)
-                    if isinstance(notes, list):
-                        note_idx = 0
-                        for step_result in checklist_comparison:
-                            if not step_result.performed and step_result.critical:
-                                if note_idx < len(notes):
-                                    step_result.clinical_note = str(notes[note_idx])
-                                    note_idx += 1
-                except Exception:
-                    pass
-    except Exception:
-        pass
+    # ── Apply the missed-step notes to the (already-built) checklist comparison.
+    if notes_response:
+        try:
+            raw_notes = notes_response.strip()
+            if raw_notes.startswith("```"):
+                raw_notes = raw_notes.split("```")[1]
+                if raw_notes.startswith("json"):
+                    raw_notes = raw_notes[4:]
+            notes = json.loads(raw_notes)
+            if isinstance(notes, list):
+                note_idx = 0
+                for step_result in checklist_comparison:
+                    if not step_result.performed and step_result.critical:
+                        if note_idx < len(notes):
+                            step_result.clinical_note = str(notes[note_idx])
+                            note_idx += 1
+        except Exception:
+            pass
 
     _cl_for_phase = _station_checklist(case)
     per_phase = _per_phase_summary(_cl_for_phase["steps"], body.performed_steps)

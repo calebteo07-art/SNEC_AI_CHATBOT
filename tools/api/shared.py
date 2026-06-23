@@ -79,8 +79,12 @@ def tutor_system(role: str) -> str:
     return _TUTOR_BASE
 
 
-async def _student_context_block(student_id: str) -> str:
-    """Build a rich student profile block for injection into AI system prompts."""
+async def _student_context_block(student_id: str, profile: dict | None = None) -> str:
+    """Build a rich student profile block for injection into AI system prompts.
+
+    If the caller already fetched the profile, pass it in to avoid a duplicate
+    Supabase round-trip (a real sequential cost before the first token).
+    """
     from tools.profile.get_profile import get_profile
 
     _ROLE_NAMES = {
@@ -88,10 +92,11 @@ async def _student_context_block(student_id: str) -> str:
         "OT": "Ophthalmic Technician",
         "PSA": "Patient Service Associate",
     }
-    try:
-        profile = await get_profile(student_id)
-    except Exception:
-        return ""
+    if profile is None:
+        try:
+            profile = await get_profile(student_id)
+        except Exception:
+            return ""
 
     role = profile.get("role", "").upper()
     role_desc = _ROLE_NAMES.get(role, role)
