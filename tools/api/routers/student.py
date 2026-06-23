@@ -162,17 +162,19 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
             feature="flashcard",
             model=MODEL_SMALL,
             thinking_level="LOW",
+            response_json_schema={
+                "type": "object",
+                "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}},
+                "required": ["score", "feedback"],
+            },
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
             raise HTTPException(status_code=503, detail="quota_exceeded")
         raise
-    text = raw.strip()
-    if text.startswith("```"):
-        lines = text.splitlines()
-        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+    # response_json_schema makes the model stop on clean JSON — no fence-stripping needed.
     try:
-        parsed = json.loads(text)
+        parsed = json.loads(raw.strip())
         score = int(parsed.get("score", 70))
         feedback = parsed.get("feedback", raw[:300])
     except Exception:
