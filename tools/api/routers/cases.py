@@ -529,8 +529,14 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
     await _check_case_access(current_user["sub"], case)
-    # Compact serialization (no indent) — byte-fewer prefill tokens, identical info.
-    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(case, separators=(",", ":")))
+    # becky §4: the patient only needs what it must answer from. Drop `rubric` (~40% of
+    # the file, pure grading meta) and `management` (answer-key) — the grader still sees
+    # the full case on submit. `diagnosis` is KEPT so the model knows what NOT to reveal
+    # (PATIENT_SYSTEM forbids revealing it). Compact-serialized (no indent).
+    patient_view = {k: case[k] for k in
+        ("patient", "history", "examination_findings", "investigations", "diagnosis")
+        if k in case}
+    patient_prompt = PATIENT_SYSTEM.format(case_json=json.dumps(patient_view, separators=(",", ":")))
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
 
     # Input filter — blocks prompt injection via the case chat interface, but allows
@@ -560,7 +566,8 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
                 max_tokens=1536,
                 feature="case",
                 model=MODEL,
-                thinking_level="LOW",
+                # becky §2: patient roleplay is conversational — MINIMAL thinking.
+                thinking_level="MINIMAL",
             ):
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
         except RuntimeError as exc:

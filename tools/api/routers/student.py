@@ -125,15 +125,14 @@ async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depen
 @router.post("/api/flashcards/check", response_model=FlashcardCheckResponse)
 @limiter.limit("10/minute")
 async def flashcard_check(request: Request, body: FlashcardCheckRequest, current_user: CurrentUser = Depends(get_current_user)):
-    from tools.api.shared import _student_context_block
     student_id = current_user["sub"]
-    ctx_block = await _student_context_block(student_id)
     # Defensive cap — the UI limits answers to 300 chars; truncate generously here
     # so an oversized payload can never bloat the grader prompt.
     student_answer = (body.student_answer or "")[:600]
+    # becky §5: grade OBJECTIVELY against the model answer. No student-profile block —
+    # personalization belongs in teaching, not scoring — which also drops a Supabase fetch.
     system = (
-        (ctx_block + "\n\n" if ctx_block else "")
-        + "You are a warm, encouraging ophthalmology tutor grading a student's active-recall attempt. "
+        "You are a warm, encouraging ophthalmology tutor grading a student's active-recall attempt. "
         "Grade the attempt ONLY against the model answer provided — that model answer is the "
         "authoritative reference drawn from the training material, so treat it as the source of truth. "
         "Give a score from 0 to 100 for how well the student's answer captures the key ideas in the model answer. "
@@ -158,10 +157,11 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
                     f"Student answer: {student_answer}"
                 ),
             }],
-            max_tokens=1024,
+            # becky §5: a 0-100 int + 1-2 sentences; MINIMAL thinking, tight token cap.
+            max_tokens=256,
             feature="flashcard",
             model=MODEL_SMALL,
-            thinking_level="LOW",
+            thinking_level="MINIMAL",
             response_json_schema={
                 "type": "object",
                 "properties": {"score": {"type": "integer"}, "feedback": {"type": "string"}},
