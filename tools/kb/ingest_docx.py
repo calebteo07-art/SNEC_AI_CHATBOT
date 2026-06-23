@@ -92,6 +92,14 @@ def ingest_docx(path: Path, module: int, category: str, force: bool = False) -> 
     chunks = chunk_text(text)
     texts = [c["text"] for c in chunks]
     embeddings = embed_batch(texts)
+    # becky §10 invariant: chunk-count must equal vector-count before the DB write.
+    # zip() below would SILENTLY truncate to the shorter list — the exact failure mode
+    # of the old embed_batch bug (gemini-embedding-2 returns 1 vec/request). Fail loud.
+    if len(embeddings) != len(chunks):
+        raise RuntimeError(
+            f"{path.name}: embedding/chunk mismatch — "
+            f"{len(embeddings)} embeddings vs {len(chunks)} chunks"
+        )
     rows = [{
         "document_id": document_id,
         "chunk_index": i,
