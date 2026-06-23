@@ -55,9 +55,14 @@ needs **live calls**, run 2026-06-23 (user-authorized) via a disposable harness.
 output, truncated); `MEDIUM@256`→same; `MINIMAL@256`→clean full output; `LOW@1024` /
 `MEDIUM@1536`→fine. **Rule: never pair a thinking budget with a tight (≤256) output cap.**
 Audited all runtime calls against this — only supervisor was mis-set (now MINIMAL). Grading
-(MEDIUM@2048) and debrief (MEDIUM@1536) have ample headroom and parse cleanly. ⚠️ Offline
-follow-up: `ingest_checklists.py` runs `HIGH@8192` with `thinking_budget=16000 > 8192` — the
-thinking budget exceeds the output cap, a latent truncation risk in KB checklist extraction.
+(MEDIUM@2048) and debrief (MEDIUM@1536) have ample headroom and parse cleanly. **Offline fix:**
+`ingest_checklists.py` ran `HIGH@8192` with `thinking_budget=16000 > 8192` (latent truncation
+risk in KB checklist extraction) → raised the cap to `HIGH@24000` so the full 16000 thinking
+budget + the step JSON always fit. Verified live: `HIGH@24000` → `STOP`, 22/22 steps extracted
+(the `thinking_budget` is a ceiling — a 22-step checklist only used ~1.6-1.9k thoughts, so the
+old 8192 hadn't bitten yet, but a long/complex checklist could have). A higher *ceiling* is free
+(billed on actual tokens). This is the §10 accuracy-first stance: never let a one-time
+correctness-critical write silently truncate.
 
 **Why §3/§6 caching is deferred (not skipped):** context caching is **live-only** — in
 MOCK_MODE the SDK is never called, so the path can't be exercised here at all. Doing it
