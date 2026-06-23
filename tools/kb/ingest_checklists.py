@@ -108,9 +108,16 @@ def parse_checklist(
         system_prompt=system,
         messages=[{"role": "user", "content": text_excerpt}],
         model=MODEL_PRO,
+        # Offline, accuracy-first extraction (becky §10): keep HIGH for max reasoning
+        # headroom on ambiguous checklists. BUT on flash-lite the thinking budget is drawn
+        # from max_output_tokens, and HIGH = 16000 > the old 8192 cap — so a long/complex
+        # checklist could let thinking starve the JSON output (silent truncation → a
+        # corrupted KB checklist). Raise the cap so HIGH's full 16000 budget + the step
+        # JSON always fit. A higher ceiling is free (billed on actual tokens; verified the
+        # model accepts 24000 and stops cleanly). See gemini_client thinking-vs-output rule.
         thinking_level="HIGH",
         json_mode=True,
-        max_tokens=8192,
+        max_tokens=24000,
         feature="default",
     )
     try:
