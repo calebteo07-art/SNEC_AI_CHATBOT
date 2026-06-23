@@ -15,7 +15,7 @@ from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
 from tools.shared.audit_log import log as audit_log
-from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL
+from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL, get_or_create_context_cache
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -105,25 +105,56 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     # otherwise re-fetch it (a second sequential Supabase round-trip before any token).
     ctx_block = await _student_context_block(student_id, profile=profile)
     # No RAG: ground the tutor on the full curated KB (cached in memory, no round-trip).
-    system_prompt = tutor_system(role) + "\n\n---\n\n" + _knowledge_base()
-    if ctx_block:
-        system_prompt = ctx_block + "\n\n" + system_prompt
+    static_system = tutor_system(role) + "\n\n---\n\n" + _knowledge_base()
+    inline_system = (ctx_block + "\n\n" + static_system) if ctx_block else static_system
+
+    # becky §3: cache the large STATIC prefix (persona + KB, ~6.1k tokens) once and reuse it
+    # so it isn't re-prefilled on every message. SECURITY: the per-user student block is NOT
+    # cached (the cache is shared across users) — on the cached path it rides in the user turn.
+    cache_name = get_or_create_context_cache(static_system, key=f"tutor:{role or 'default'}")
+    cached_messages = messages
+    if cache_name and ctx_block:
+        cached_messages = [dict(m) for m in messages]
+        for _m in cached_messages:
+            if _m.get("role") == "user":
+                _m["content"] = (
+                    "(Student context — personalise naturally, do not quote verbatim)\n"
+                    + ctx_block + "\n\n" + _m["content"]
+                )
+                break
+
+    def _tutor_stream():
+        """Tutor tokens: try the cached path, fall back to the inline prompt on a
+        pre-first-token failure (cache expired/evicted/quota). Never breaks the reply."""
+        if cache_name:
+            started = False
+            try:
+                for chunk in stream_ask(
+                    system_prompt="", messages=cached_messages, max_tokens=1024,
+                    feature="chatbot", model=MODEL, thinking_level="MINIMAL",
+                    cached_content=cache_name,
+                ):
+                    started = True
+                    yield chunk
+                return
+            except Exception:
+                if started:
+                    return  # partial already sent — stop (don't replay duplicate tokens)
+                # pre-token cache failure → fall through to the inline path below
+
+        for chunk in stream_ask(
+            system_prompt=inline_system, messages=messages,
+            # Tutor replies are short by design — 1024 is a generous ceiling.
+            max_tokens=1024, feature="chatbot", model=MODEL,
+            # becky §2: conversational tutoring doesn't need a thinking budget — MINIMAL.
+            thinking_level="MINIMAL",
+        ):
+            yield chunk
 
     def sse_stream():
         full_response: list[str] = []
         try:
-            for chunk in stream_ask(
-                system_prompt=system_prompt,
-                messages=messages,
-                # Tutor replies are short by design (a nudge OR a couple-sentence
-                # answer) — 1024 is a generous ceiling; generation time ∝ output tokens.
-                max_tokens=1024,
-                feature="chatbot",
-                model=MODEL,
-                # becky §2: conversational tutoring doesn't need a thinking budget —
-                # MINIMAL cuts time-to-first-token. Reserve thinking for grading.
-                thinking_level="MINIMAL",
-            ):
+            for chunk in _tutor_stream():
                 full_response.append(chunk)
                 yield f"data: {json.dumps({'text': chunk})}\n\n"
         except RuntimeError as exc:
