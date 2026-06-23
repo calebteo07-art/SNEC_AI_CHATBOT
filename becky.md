@@ -32,7 +32,8 @@ only items still open are the ones that *cannot* be verified without live paid c
 | **§1 real streaming** | ✅ shipped — verified live (a real key in `.env` streamed tokens correctly) |
 | **§10 offline 1:1 invariant** | ✅ already in `embed.py` + `ingest_document.py`; added the missing guard to `ingest_docx.py` (`zip` was unguarded) |
 | **§7 keep-warm** | ✅ endpoint already exists (`/api/status`, unauth, side-effect-free) + pinger added (`tools/ops/keep_warm.py`); ⚠️ *external scheduler is an infra step* (UptimeRobot/cron → `/api/status`) — can't be wired from the repo |
-| **§3/§6 context caching** | ⏸️ **deferred to a live-validation spike** (see below) |
+| **§3 tutor KB caching** | ✅ **shipped + live-validated** (persona+KB = 6103 tok cached; per-user block kept out; fallback-safe) |
+| **§6 grader few-shot caching** | ❌ **ruled out** — few-shots are 856 tok, below the live-measured 1024 cache floor |
 
 **Why the named gates don't cover Tier-2:** `aurora_assert` / `station_assert` are
 **frontend-only** — they `route("**/api/**")` and mock the entire backend, so they prove the
@@ -64,19 +65,25 @@ old 8192 hadn't bitten yet, but a long/complex checklist could have). A higher *
 (billed on actual tokens). This is the §10 accuracy-first stance: never let a one-time
 correctness-critical write silently truncate.
 
-**Why §3/§6 caching is deferred (not skipped):** context caching is **live-only** — in
-MOCK_MODE the SDK is never called, so the path can't be exercised here at all. Doing it
-*safely* also requires splitting the static prefix (persona + KB / few-shots) from per-user
-content — a **security boundary** (a shared cache must never capture a student profile) — which
-is prompt restructuring that can't be validated blind. The SDK *does* expose the cache API
-(`google-genai 2.0.0`, `Client.caches`); the open unknowns are the per-model **min-token
-threshold** for `gemini-3.1-flash-lite` and whether `cached_content` + dynamic content compose
-as expected. Shipping it untested would violate the reliability/security wall this plan is
-built on. **Spike to green-light it:** (1) measure the tutor static prefix tokens (persona+KB)
-and the grader few-shot tokens; (2) `client.caches.create(...)` the static prefix and confirm
-create succeeds above the threshold; (3) wire `cached_content` with graceful fallback to inline
-on any cache miss/expiry; (4) confirm the static/dynamic split keeps all per-user data out of the
-cache. Modest payoff (~6k-token prefill on an already-fast tier), so it's correctly last.
+**§3/§6 caching — spike done, tutor shipped (2026-06-23).** The live spike answered every open
+question and the viable half is implemented:
+- **Threshold = 1024 tokens** (live-measured: a 856-token cache create returned
+  `400 "Cached content is too small, min_total_token_count=1024"`).
+- **Tutor persona+KB = 6103 tokens → cacheable.** Shipped: `get_or_create_context_cache()` in
+  `gemini_client.py` (env `GEMINI_CONTEXT_CACHE`, default on; TTL 1h; thread-safe registry keyed
+  by role + content hash) + `stream_ask(cached_content=...)`. `chat.py` tries the cached path and
+  **falls back to the inline prompt on any pre-first-token failure** (expiry/eviction/quota) — a
+  cache miss never breaks the reply. Live-validated: cached + fallback paths both return coherent,
+  on-persona, personalised tutor replies.
+- **SECURITY (enforced):** `cached_content` cannot be combined with a request `system_instruction`
+  (live-verified 400), so the per-user student block can't even accidentally sit in the cache — it
+  rides inside the user turn instead. The cache holds **only** the static persona+KB.
+- **Grader few-shots = 856 tokens → below the 1024 floor → caching impossible.** §6 grader caching
+  is correctly dropped (the case answer-key can't be cached anyway — it's per-case and the thing
+  being graded against).
+
+Payoff is mostly input-token **cost** (cached tokens are cheaper) plus a modest prefill-latency
+win on an already-fast tier — which is why becky ranked it last.
 
 ---
 
@@ -213,7 +220,7 @@ mid-stream stop is handled.
 
 ---
 
-## 3. Tutor KB — cache it, don't re-RAG  *(Lever A + B)*
+## 3. Tutor KB — cache it, don't re-RAG  *(Lever A + B)*  — ✅ IMPLEMENTED (see Implementation status)
 
 The tutor injects the **entire** KB file into every system prompt (`chat.py:106`).
 KB = `workflows/ophthalmology_kb.md` ≈ **3,289 words ≈ 5-6k tokens**.
