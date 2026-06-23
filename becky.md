@@ -28,18 +28,36 @@ only items still open are the ones that *cannot* be verified without live paid c
 | Item | Status |
 |------|--------|
 | **Tier 1** (§2 dedupe, §6 parallelize submit, §5 json_schema, §8 token caps + SSE flush) | ✅ shipped — 347 pytest green |
-| **Tier 2** (§6 HIGH→MEDIUM, §2 chat/patient MINIMAL, §5 flashcard MINIMAL+256, §4 patient-view trim, §9 observe MINIMAL, §9 supervisor LOW) | ✅ code shipped — ⚠️ *live drift-check pending* (see below) |
+| **Tier 2** (§6 HIGH→MEDIUM, §2 chat/patient MINIMAL, §5 flashcard MINIMAL+256, §4 patient-view trim, §9 observe MINIMAL, §9 supervisor **MINIMAL**) | ✅ shipped + **live drift-check PASSED** (see below) |
 | **§1 real streaming** | ✅ shipped — verified live (a real key in `.env` streamed tokens correctly) |
 | **§10 offline 1:1 invariant** | ✅ already in `embed.py` + `ingest_document.py`; added the missing guard to `ingest_docx.py` (`zip` was unguarded) |
 | **§7 keep-warm** | ✅ endpoint already exists (`/api/status`, unauth, side-effect-free) + pinger added (`tools/ops/keep_warm.py`); ⚠️ *external scheduler is an infra step* (UptimeRobot/cron → `/api/status`) — can't be wired from the repo |
 | **§3/§6 context caching** | ⏸️ **deferred to a live-validation spike** (see below) |
 
-**Why Tier-2 isn't fully verified:** the named gates (`aurora_assert`, `station_assert`)
-are **frontend-only** harnesses that `route("**/api/**")` and mock the entire backend — they
-prove the UI renders, but never call Gemini, so they **cannot** measure grading score drift.
-Real "no drift" verification needs a handful of **live paid calls** (grade a known case at the
-old vs new thinking budget and diff the scores). Per CLAUDE.md that's the user's spend to
-authorize. Until then each flip is a one-line, independently revertable commit.
+**Why the named gates don't cover Tier-2:** `aurora_assert` / `station_assert` are
+**frontend-only** — they `route("**/api/**")` and mock the entire backend, so they prove the
+UI renders but never call Gemini and **cannot** measure grading score drift. Real verification
+needs **live calls**, run 2026-06-23 (user-authorized) via a disposable harness.
+
+**Live drift-check results (2026-06-23):**
+- **§6 grading HIGH→MEDIUM — NO DRIFT.** Same case + transcript, ×3 each: total `40/39/40`
+  (HIGH) vs `40/39/39` (MEDIUM), Δmean **−0.33** on a ~1-pt within-budget noise floor.
+  Per-domain identical except history (9.67→9.33, inside noise). MEDIUM grades like HIGH.
+- **§9 observe LOW→MINIMAL — FIXED A LATENT BUG.** Old `LOW@256` returned **empty** (ticked
+  nothing); new `MINIMAL@256` correctly ticked the covered steps. Root cause below.
+- **§5 flashcard MINIMAL+256 — clean, sane scores** (strong/partial/weak → 100/100/75) and
+  more parse-reliable at the tight cap than thinking-on.
+- **§9 supervisor — corrected LOW→MINIMAL.** Probe proved thinking truncated the narrative
+  at the 256 cap (see below); the *prior* `MEDIUM@256` was silently truncating too.
+
+**Key discovery — on `gemini-3.1-flash-lite`, thinking tokens are drawn from
+`max_output_tokens`.** Verified live: `LOW@256`→`MAX_TOKENS` (thinking ate 244, 8 left for
+output, truncated); `MEDIUM@256`→same; `MINIMAL@256`→clean full output; `LOW@1024` /
+`MEDIUM@1536`→fine. **Rule: never pair a thinking budget with a tight (≤256) output cap.**
+Audited all runtime calls against this — only supervisor was mis-set (now MINIMAL). Grading
+(MEDIUM@2048) and debrief (MEDIUM@1536) have ample headroom and parse cleanly. ⚠️ Offline
+follow-up: `ingest_checklists.py` runs `HIGH@8192` with `thinking_budget=16000 > 8192` — the
+thinking budget exceeds the output cap, a latent truncation risk in KB checklist extraction.
 
 **Why §3/§6 caching is deferred (not skipped):** context caching is **live-only** — in
 MOCK_MODE the SDK is never called, so the path can't be exercised here at all. Doing it
@@ -117,8 +135,8 @@ Land one at a time; run the named harness; revert that one change if it drifts.
 | 2 | `MINIMAL` thinking on chat / patient | §2 | `aurora_assert` — reads still correct |
 | 3 | `MINIMAL` thinking + `max_tokens=256` on flashcard grading | §5 | `aurora_assert` — grading scores stable |
 | 4 | Drop `rubric`/`management` from patient view | §4 | `station_assert` — patient still answers findings |
-| 5 | `LOW→MINIMAL` thinking on live examiner / observe | §9 | `station_assert` — auto-tick precision/recall holds |
-| 6 | `MEDIUM→LOW` thinking on supervisor insights | §9 | manual sanity read — narrative still coherent (non-blocking staff call, lowest stakes) |
+| 5 | `LOW→MINIMAL` thinking on live examiner / observe | §9 | ✅ live — fixed empty-result truncation (LOW@256 truncated) |
+| 6 | `MEDIUM→MINIMAL` thinking on supervisor insights | §9 | ✅ live — MINIMAL@256 untruncated (thinking-on@256 truncates) |
 
 ### Perception only — NOT "actually fast" (do last)
 - **§1 real streaming** — total time unchanged; it only shows tokens sooner. It is also the
@@ -331,12 +349,14 @@ last runtime calls not yet held to priority #1.
   turns cover" classification — exactly the shape that usually survives `MINIMAL`. Try
   `LOW→MINIMAL`; gate on `station_assert` (the auto-tick precision/recall must hold — a missed or
   phantom tick is an accuracy regression, so revert if it drifts).
-- **Supervisor insights** (`supervisor.py:225`, `thinking_level="MEDIUM"`). A 2-3 sentence cohort
-  narrative on a **staff, non-blocking** screen — no student waits on it, so it's the
-  lowest-stakes thinking budget in the app and the safest to cut. Try `MEDIUM→LOW`; a manual
-  sanity read is enough (no harness covers it). If a future staff harness exists, gate on it.
+- **Supervisor insights** (`supervisor.py:225`, was `thinking_level="MEDIUM"`). A 2-3 sentence
+  cohort narrative on a **staff, non-blocking** screen — no thinking needed. Set **`MINIMAL`**
+  (not LOW): the live probe showed any thinking budget under this 256-token output cap truncates
+  the narrative (thinking is drawn from `max_output_tokens` on flash-lite). The prior `MEDIUM@256`
+  was silently truncating; `MINIMAL@256` returns the full narrative and is fastest.
 
-Neither touches a student-facing answer, so both are pure speed with a cheap revert.
+Both observe and supervisor were verified live 2026-06-23: observe's flip fixed an empty-result
+truncation, and supervisor moved to MINIMAL. Neither touches a student-facing answer.
 
 ## 10. Offline AI pipeline — same order, but the gate outranks raw speed here  *(KB ingest / embed / OCR)*
 
