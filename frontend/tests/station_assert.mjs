@@ -36,8 +36,12 @@ await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
     ],
   },
   examination_actions: [
-    { key: "iop", label: "Measure IOP · NCT", reveal_text: "IOP (NCT) · avg of 3 → R 18 mmHg · L 20 mmHg", satisfies_steps: [3] },
-    { key: "va", label: "Measure distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [4] },
+    { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1 },
+    { key: "s2", label: "Explain procedure", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 2 },
+    { key: "s3", label: "Measure IOP", reveal_text: "IOP (NCT) · avg of 3 → R 18 mmHg · L 20 mmHg", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 3 },
+    { key: "s4", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 4 },
+    { key: "s5", label: "Document results", reveal_text: "", satisfies_steps: [5], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 5 },
+    { key: "s6", label: "Advise on follow-up", reveal_text: "", satisfies_steps: [6], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 6 },
   ],
 })));
 await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [1] })));
@@ -46,19 +50,20 @@ await ctx.route("**/api/cases/C001/chat", (r) => r.fulfill({
   body: 'data: {"text":"Good morning, "}\n\ndata: {"text":"doctor."}\n\ndata: [DONE]\n\n',
 }));
 await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
-  result: { history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
-            history_feedback: "Thorough history.", investigations_feedback: "Good IOP technique.",
-            diagnosis_feedback: "Correct.", management_feedback: "Reasonable plan.",
-            total_score: 30, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2 },
+  result: {
+    history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
+    history_feedback: "Thorough.", investigations_feedback: "Good.", diagnosis_feedback: "Correct.", management_feedback: "Reasonable.",
+    total_score: 31, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2,
+    score_100: 78, verdict: "Solid", thoroughness: 31, technique: 24, judgment: 23,
+    safe: true, missed_critical: [], thoroughness_detail: "5 of 6 steps · all 2 critical done",
+  },
   cards: [], mock_mode: false,
-  debrief: "What you did really well: clear identification and clean NCT technique. Where to grow next time: document the follow-up interval in Phase 3.",
-  checklist_comparison: [
-    { step_number: 1, action: "Identify patient — name + NRIC", critical: true, performed: true, clinical_note: "Confirms right patient, right eye." },
-    { step_number: 6, action: "Advise on follow-up", critical: false, performed: false, clinical_note: "Patients lapse without a clear return date." },
-  ],
-  per_phase: [ { phase: 1, name: "Preparation & Identification", done: 2, total: 2 },
-               { phase: 2, name: "Clinical Assessment", done: 1, total: 2 },
-               { phase: 3, name: "Documentation & Follow-up", done: 0, total: 2 } ],
+  coaching: {
+    highlights: ["Confirmed identity & consent early", "Clean NCT technique"],
+    watch_outs: ["Document the follow-up interval", "Check VA before drops"],
+    focus: "Always record a baseline acuity first.",
+  },
+  checklist_comparison: [], per_phase: [],
 })));
 
 const errs = [];
@@ -119,15 +124,18 @@ if (Math.abs(pane.stationH - pane.scrollH) > 2) die(`station not bounded to view
 if (pane.clOverflow !== "auto" || pane.threadOverflow !== "auto") die(`scroll panes must be overflow-y:auto, got checklist=${pane.clOverflow} thread=${pane.threadOverflow}`);
 ok("checklist + consult scroll independently (station bounded to viewport)");
 
-// 5. clicking an exam chip reveals the finding, marks its step, marks chip used
-await p.locator('.aurora-station-act:has-text("Measure IOP")').click();
+// 5. the palette renders a clickable chip for a process step (not just exam findings)
+if (!(await p.locator('.aurora-pchip:has-text("Identify patient")').count())) die("palette missing the 'Identify patient' process chip");
+if ((await p.locator('.aurora-pchip').count()) < 6) die("palette must expose a chip for every step");
+ok("action palette exposes a chip for every step (process + exam)");
+
+// 5a. clicking a "do" exam chip reveals the finding, ticks its step, marks chip done
+await p.locator('.aurora-pchip:has-text("Measure IOP")').click();
 await p.waitForSelector(".aurora-station-reveal", { timeout: 5000 });
 if (!(await p.locator('.aurora-station-reveal:has-text("18 mmHg")').count())) die("reveal card missing IOP value");
-if (!(await p.locator('.aurora-station-act.is-used:has-text("Measure IOP")').count())) die("exam chip did not become used");
-// Performing IOP (step 3) ticks exactly that step's own row.
-const markedAfter = await p.locator('.aurora-station-step[data-ticked="true"]').count();
-if (markedAfter < 1) die("performing IOP did not tick its step row");
-ok("exam action reveals finding + ticks its step row + marks chip used");
+if (!(await p.locator('.aurora-pchip[data-done="true"]:has-text("Measure IOP")').count())) die("exam chip did not become done");
+if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) < 1) die("performing IOP did not tick its step row");
+ok("do-chip reveals finding + ticks step + marks chip done");
 
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
@@ -135,15 +143,19 @@ await p.locator(".aurora-station-composer-send").click();
 await p.waitForFunction(() => document.querySelector(".aurora-station-thread")?.textContent?.includes("Good morning, doctor."), null, { timeout: 8000 });
 ok("patient consult streams a reply");
 
-// 7. submit → scored debrief with /40 + per-phase summary
+// 7. submit → Station-100 debrief: /100 score, 3 component cards, Highlights/Watch-outs
 await p.locator('.aurora-station-submit-toggle').click();
-await p.locator('textarea[data-field="findings"]').fill("Stable IOP on repeat readings; no red flags. Pattern fits routine glaucoma review.");
-await p.locator('textarea[data-field="recommendation"]').fill("Route as routine; document readings for the doctor; advise to keep using drops and return if vision changes.");
+await p.locator('textarea[data-field="findings"]').fill("Stable IOP on repeat readings; no red flags. Routine review.");
+await p.locator('textarea[data-field="recommendation"]').fill("Route as routine; document readings; advise to return if vision changes.");
 await p.locator('.aurora-station-submit-go').click();
 await p.waitForSelector(".aurora-station-result", { timeout: 10000 });
-if (!(await p.locator('.aurora-station-result:has-text("/40")').count())) die("result must show score out of 40");
-if ((await p.locator(".aurora-station-phasechip").count()) !== 3) die("result must show a per-phase summary (3 chips)");
-ok("submit shows scored debrief out of 40 with per-phase summary");
+if (!(await p.locator('.aurora-s100-score:has-text("/100")').count())) die("result must show score out of 100");
+if (!(await p.locator('.aurora-s100-verdict:has-text("Solid")').count())) die("result must show the verdict");
+if ((await p.locator(".aurora-s100-comp").count()) !== 3) die("result must show 3 component cards");
+if (!(await p.locator('.aurora-s100-safety.is-safe').count())) die("result must show the safety badge");
+if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list highlights");
+if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list watch-outs");
+ok("submit shows the Station-100 debrief (/100 + components + highlights/watch-outs)");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });
