@@ -20,6 +20,43 @@
 
 ---
 
+## Implementation status — 2026-06-23 (branch `becky-speed`)
+
+Everything implementable + verifiable without spending API credits is **shipped**. The
+only items still open are the ones that *cannot* be verified without live paid calls.
+
+| Item | Status |
+|------|--------|
+| **Tier 1** (§2 dedupe, §6 parallelize submit, §5 json_schema, §8 token caps + SSE flush) | ✅ shipped — 347 pytest green |
+| **Tier 2** (§6 HIGH→MEDIUM, §2 chat/patient MINIMAL, §5 flashcard MINIMAL+256, §4 patient-view trim, §9 observe MINIMAL, §9 supervisor LOW) | ✅ code shipped — ⚠️ *live drift-check pending* (see below) |
+| **§1 real streaming** | ✅ shipped — verified live (a real key in `.env` streamed tokens correctly) |
+| **§10 offline 1:1 invariant** | ✅ already in `embed.py` + `ingest_document.py`; added the missing guard to `ingest_docx.py` (`zip` was unguarded) |
+| **§7 keep-warm** | ✅ endpoint already exists (`/api/status`, unauth, side-effect-free) + pinger added (`tools/ops/keep_warm.py`); ⚠️ *external scheduler is an infra step* (UptimeRobot/cron → `/api/status`) — can't be wired from the repo |
+| **§3/§6 context caching** | ⏸️ **deferred to a live-validation spike** (see below) |
+
+**Why Tier-2 isn't fully verified:** the named gates (`aurora_assert`, `station_assert`)
+are **frontend-only** harnesses that `route("**/api/**")` and mock the entire backend — they
+prove the UI renders, but never call Gemini, so they **cannot** measure grading score drift.
+Real "no drift" verification needs a handful of **live paid calls** (grade a known case at the
+old vs new thinking budget and diff the scores). Per CLAUDE.md that's the user's spend to
+authorize. Until then each flip is a one-line, independently revertable commit.
+
+**Why §3/§6 caching is deferred (not skipped):** context caching is **live-only** — in
+MOCK_MODE the SDK is never called, so the path can't be exercised here at all. Doing it
+*safely* also requires splitting the static prefix (persona + KB / few-shots) from per-user
+content — a **security boundary** (a shared cache must never capture a student profile) — which
+is prompt restructuring that can't be validated blind. The SDK *does* expose the cache API
+(`google-genai 2.0.0`, `Client.caches`); the open unknowns are the per-model **min-token
+threshold** for `gemini-3.1-flash-lite` and whether `cached_content` + dynamic content compose
+as expected. Shipping it untested would violate the reliability/security wall this plan is
+built on. **Spike to green-light it:** (1) measure the tutor static prefix tokens (persona+KB)
+and the grader few-shot tokens; (2) `client.caches.create(...)` the static prefix and confirm
+create succeeds above the threshold; (3) wire `cached_content` with graceful fallback to inline
+on any cache miss/expiry; (4) confirm the static/dynamic split keeps all per-user data out of the
+cache. Modest payoff (~6k-token prefill on an already-fast tier), so it's correctly last.
+
+---
+
 ## Priority — actually fast (real wall-clock), gated on accuracy = reliability = security
 
 **Objective:** lowest *real* latency, not perceived. Streaming is demoted — it only hides
