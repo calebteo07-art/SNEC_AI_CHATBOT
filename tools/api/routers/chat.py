@@ -101,7 +101,9 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     except Exception:
         pass  # Guardrail errors must never block legitimate queries
 
-    ctx_block = await _student_context_block(student_id)
+    # Reuse the profile already fetched above — _student_context_block would
+    # otherwise re-fetch it (a second sequential Supabase round-trip before any token).
+    ctx_block = await _student_context_block(student_id, profile=profile)
     # No RAG: ground the tutor on the full curated KB (cached in memory, no round-trip).
     system_prompt = tutor_system(role) + "\n\n---\n\n" + _knowledge_base()
     if ctx_block:
@@ -113,7 +115,9 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
             for chunk in stream_ask(
                 system_prompt=system_prompt,
                 messages=messages,
-                max_tokens=4096,
+                # Tutor replies are short by design (a nudge OR a couple-sentence
+                # answer) — 1024 is a generous ceiling; generation time ∝ output tokens.
+                max_tokens=1024,
                 feature="chatbot",
                 model=MODEL,
                 thinking_level="LOW",
@@ -150,7 +154,13 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
 
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(sse_stream(), media_type="text/event-stream")
+    # SSE flush headers: stop Render's proxy (and any gzip layer) from coalescing the
+    # stream so live tokens actually reach the client chunk-by-chunk (see becky §8).
+    return StreamingResponse(sse_stream(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
+    })
 
 
 @router.post("/api/end-session", response_model=EndSessionResponse)
