@@ -39,3 +39,33 @@ def test_quota_error_returns_empty(monkeypatch):
     with patch.object(observe_steps, "ask", side_effect=RuntimeError("quota_exceeded")):
         out = observe_steps.observe(_steps(), [{"role": "user", "content": "hello"}], already_ticked=[])
     assert out == []
+
+
+def test_aggregates_evidence_across_multiple_student_messages(monkeypatch):
+    """A step the student builds up over several turns must reach the examiner whole,
+    and the examiner must be told to combine evidence spread across messages."""
+    monkeypatch.setattr(observe_steps, "MOCK_MODE", False)
+    captured: dict = {}
+
+    def fake_ask(**kwargs):
+        captured.update(kwargs)
+        return "[1, 2]"
+
+    msgs = [
+        {"role": "user", "content": "Hi, can I confirm your name?"},
+        {"role": "assistant", "content": "I'm John Tan."},
+        {"role": "user", "content": "And your NRIC, please?"},
+        {"role": "assistant", "content": "S1234567A."},
+        {"role": "user", "content": "Are you using your eye drops daily?"},
+    ]
+    with patch.object(observe_steps, "ask", fake_ask):
+        out = observe_steps.observe(_steps(), msgs, already_ticked=[])
+
+    assert out == [1, 2]
+    # the whole student-side conversation reaches the examiner — not just the last turn
+    convo = captured["messages"][0]["content"]
+    assert "confirm your name" in convo and "NRIC" in convo and "eye drops" in convo
+    # the examiner is explicitly told to combine evidence split across messages
+    assert "multiple messages" in captured["system_prompt"].lower()
+    # generous token headroom so the JSON array is never silently truncated
+    assert captured["max_tokens"] >= 512
