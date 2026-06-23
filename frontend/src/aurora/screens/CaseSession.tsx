@@ -10,10 +10,9 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PLATE } from "@/aurora/media";
-import { ProgressBar } from "@/aurora/components/ProgressBar";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
-import { ExamTray, type ExamAction } from "@/aurora/components/ExamTray";
+import { ActionPalette, type ExamAction } from "@/aurora/components/ActionPalette";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -29,22 +28,12 @@ interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
   total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
+  score_100: number; verdict: string; thoroughness: number; technique: number; judgment: number;
+  safe: boolean; missed_critical: string[]; thoroughness_detail: string;
 }
-interface ChecklistStepResult { step_number: number; action: string; critical: boolean; performed: boolean; clinical_note: string | null }
-interface PhaseSummary { phase: number; name: string; done: number; total: number }
-
-// Labels are framed for allied-health roles (OA/OT/PSA): "Diagnosis" → clinical
-// recognition/triage, "Management" → escalation & within-scope care. The score
-// keys stay the same — only what the student sees changes.
-const DOMAINS: { label: string; scoreKey: keyof DomainResult; feedbackKey: keyof DomainResult }[] = [
-  { label: "History", scoreKey: "history_score", feedbackKey: "history_feedback" },
-  { label: "Investigations", scoreKey: "investigations_score", feedbackKey: "investigations_feedback" },
-  { label: "Clinical recognition", scoreKey: "diagnosis_score", feedbackKey: "diagnosis_feedback" },
-  { label: "Escalation & care", scoreKey: "management_score", feedbackKey: "management_feedback" },
-];
+interface Coaching { highlights: string[]; watch_outs: string[]; focus: string }
 
 const EXAM_PREFIX = "[Examination performed: ";
-const PHASE_CLASS: Record<number, string> = { 1: "p1", 2: "p2", 3: "p3" };
 
 export function CaseSession() {
   const caseId = useParams().caseId as string;
@@ -64,7 +53,6 @@ export function CaseSession() {
 
   const [ticked, setTicked] = useState<Set<number>>(new Set());
   const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
-  const [performedActions, setPerformedActions] = useState<Set<string>>(new Set());
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -76,9 +64,7 @@ export function CaseSession() {
   const [recommendation, setRecommendation] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<DomainResult | null>(null);
-  const [debrief, setDebrief] = useState<string | null>(null);
-  const [checklistComparison, setChecklistComparison] = useState<ChecklistStepResult[]>([]);
-  const [perPhase, setPerPhase] = useState<PhaseSummary[]>([]);
+  const [coaching, setCoaching] = useState<Coaching | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const endRef = useRef<HTMLDivElement>(null);
@@ -156,20 +142,12 @@ export function CaseSession() {
     return next;
   });
 
-  const performAction = useCallback((a: ExamAction) => {
-    if (performedActions.has(a.key)) return;
-    setPerformedActions((prev) => new Set(prev).add(a.key));
-    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${a.reveal_text}]` }]);
-    addAuto(a.satisfies_steps);
-    scheduleObserve();
-  }, [performedActions, addAuto, scheduleObserve]);
-
-  const sendMessage = async () => {
-    if (!input.trim() || sending || isStreaming || !caseId) return;
-    const content = input.trim();
+  const sendMessage = async (textArg?: string) => {
+    const content = (textArg ?? input).trim();
+    if (!content || sending || isStreaming || !caseId) return;
     const updated = [...messages, { role: "user", content } as ChatMessage];
     setMessages(updated);
-    setInput("");
+    if (textArg === undefined) setInput("");
     setSending(true);
     try {
       const res = await fetch(`/api/cases/${caseId}/chat`, {
@@ -223,6 +201,21 @@ export function CaseSession() {
     }
   };
 
+  // A palette chip: "say" asks the patient (real reply → observe ticks); "do" performs
+  // the action (reveal + tick). Plain function so it always closes over the latest
+  // sendMessage/state. Already-ticked steps are no-ops.
+  const performAction = (a: ExamAction) => {
+    if (a.satisfies_steps.some((n) => tickedRef.current.has(n))) return;
+    if (a.mode === "say" && a.prompt_text) {
+      void sendMessage(a.prompt_text);
+      addAuto(a.satisfies_steps);
+      return;
+    }
+    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${a.reveal_text || "done"}]` }]);
+    addAuto(a.satisfies_steps);
+    scheduleObserve();
+  };
+
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); }
   };
@@ -241,9 +234,7 @@ export function CaseSession() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setResult(data.result);
-      setDebrief(data.debrief ?? null);
-      setChecklistComparison(data.checklist_comparison ?? []);
-      setPerPhase(data.per_phase ?? []);
+      setCoaching(data.coaching ?? null);
       setShowSubmit(false);
     } catch { setSubmitError("Could not evaluate. Please try again."); }
     finally { setSubmitting(false); }
@@ -368,16 +359,16 @@ export function CaseSession() {
               </div>
             )}
 
-            {result && <StationResult result={result} debrief={debrief} perPhase={perPhase} comparison={checklistComparison} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />}
+            {result && <StationResult result={result} coaching={coaching} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />}
             <div ref={endRef} />
           </div>
 
           {station && !result && (
             <>
-              <ExamTray actions={station.examination_actions} performed={performedActions} onPerform={performAction} />
+              <ActionPalette actions={station.examination_actions} ticked={ticked} busy={sending || isStreaming} onPerform={performAction} />
               <div className="aurora-station-composer">
                 <textarea className="aurora-station-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
-                <button type="button" className="aurora-station-composer-send" onClick={sendMessage} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
+                <button type="button" className="aurora-station-composer-send" onClick={() => sendMessage()} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </button>
               </div>
@@ -389,69 +380,75 @@ export function CaseSession() {
   );
 }
 
-/* Scored debrief — count-up score out of 40, per-phase summary, domain bars,
-   encouraging two-part debrief, and the OSCE checklist review with clinical notes. */
-function StationResult({ result, debrief, perPhase, comparison, onMore, onDash }: {
-  result: DomainResult; debrief: string | null; perPhase: PhaseSummary[];
-  comparison: ChecklistStepResult[]; onMore: () => void; onDash: () => void;
+/* Station-100 debrief — count-up score /100 + verdict, pass-line meter, safety
+   badge, three traceable component cards, and the short Highlights / Watch-outs
+   lists with one focus line. Neat, scannable, CSS-only motion. */
+const VERDICT_TONE: Record<string, string> = {
+  "Exam-ready": "great", "Solid": "good", "Developing": "ok", "Keep practising": "low",
+};
+const COMPONENTS: { key: "thoroughness" | "technique" | "judgment"; label: string; max: number; sub: string }[] = [
+  { key: "thoroughness", label: "Thoroughness", max: 40, sub: "Steps completed" },
+  { key: "technique", label: "Technique", max: 30, sub: "History & examination" },
+  { key: "judgment", label: "Judgment & safety", max: 30, sub: "Recognition & escalation" },
+];
+
+function StationResult({ result, coaching, onMore, onDash }: {
+  result: DomainResult; coaching: Coaching | null; onMore: () => void; onDash: () => void;
 }) {
-  const { ref, display } = useCountUp<HTMLSpanElement>(result.total_score, { format: (n) => String(Math.round(n)) });
-  const missed = comparison.filter((s) => !s.performed);
-  const doneCount = comparison.length - missed.length;
+  const { ref, display } = useCountUp<HTMLSpanElement>(result.score_100, { format: (n) => String(Math.round(n)) });
+  const tone = VERDICT_TONE[result.verdict] ?? "ok";
+  const missedOne = result.missed_critical[0];
   return (
-    <div className="aurora-station-result">
-      <div className="aurora-station-result-head">
-        <h2>Consultation complete</h2>
-        <span className="aurora-station-total"><span ref={ref}>{display}</span><small>/40</small></span>
+    <div className="aurora-station-result" data-tone={tone}>
+      <div className="aurora-s100-head">
+        <div>
+          <p className="aurora-eyebrow">Station complete</p>
+          <span className="aurora-s100-verdict">{result.verdict}</span>
+        </div>
+        <span className="aurora-s100-score"><span ref={ref}>{display}</span><small>/100</small></span>
       </div>
 
-      {perPhase.length > 0 && (
-        <div className="aurora-station-phasechips">
-          {perPhase.map((p) => (
-            <div key={p.phase} className={`aurora-station-phasechip ${PHASE_CLASS[p.phase] ?? "p2"}`}>
-              <b>{p.done}/{p.total}</b>{p.name}
+      <div className="aurora-s100-meter" aria-hidden>
+        <div className="aurora-s100-fill" style={{ width: `${result.score_100}%` }} />
+        <div className="aurora-s100-passline" />
+      </div>
+      <p className="aurora-s100-meter-cap">Pass line 60 · {result.score_100 >= 60 ? "you passed this station" : `${60 - result.score_100} to pass`}</p>
+
+      <div className={`aurora-s100-safety ${result.safe ? "is-safe" : "is-flag"}`}>
+        <span aria-hidden>{result.safe ? "🛡" : "⚠"}</span>
+        {result.safe
+          ? "Safety check passed — no critical steps missed."
+          : `Critical step missed: ${missedOne ?? "a must-do safety step"}.`}
+      </div>
+
+      <div className="aurora-s100-comps">
+        {COMPONENTS.map((c) => {
+          const pts = result[c.key];
+          return (
+            <div key={c.key} className="aurora-s100-comp">
+              <div className="aurora-s100-comp-top"><span>{c.label}</span><b>{pts}<small>/{c.max}</small></b></div>
+              <div className="aurora-s100-bar"><div style={{ width: `${(pts / c.max) * 100}%` }} /></div>
+              <span className="aurora-s100-comp-sub">{c.key === "thoroughness" ? result.thoroughness_detail : c.sub}</span>
             </div>
-          ))}
+          );
+        })}
+      </div>
+
+      {coaching && (coaching.highlights.length > 0 || coaching.watch_outs.length > 0) && (
+        <div className="aurora-s100-coach">
+          <div className="aurora-s100-col is-good">
+            <p className="aurora-s100-col-h">✓ What you did well</p>
+            <ul>{coaching.highlights.map((h, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{h}</li>)}</ul>
+          </div>
+          <div className="aurora-s100-col is-watch">
+            <p className="aurora-s100-col-h">⚠ To sharpen next time</p>
+            <ul>{coaching.watch_outs.map((w, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{w}</li>)}</ul>
+          </div>
         </div>
       )}
 
-      {/* Compact domain breakdown — scored bars only; the narrative lives in the debrief. */}
-      <div className="aurora-station-domains">
-        {DOMAINS.map((d) => (
-          <div key={d.label} className="aurora-station-domain">
-            <div className="aurora-station-domain-top">
-              <span>{d.label}</span><span className="aurora-station-domain-val">{result[d.scoreKey] as number}/10</span>
-            </div>
-            <ProgressBar percent={(result[d.scoreKey] as number) * 10} label={d.label} />
-          </div>
-        ))}
-      </div>
-
-      {debrief && (
-        <div className="aurora-station-debrief">
-          <p className="aurora-eyebrow">Debrief</p>
-          <p>{debrief}</p>
-        </div>
-      )}
-
-      {/* Review: only what was missed — the actionable takeaways. */}
-      {comparison.length > 0 && (
-        missed.length > 0 ? (
-          <div className="aurora-station-review">
-            <p className="aurora-eyebrow">To remember next time · {doneCount}/{comparison.length} done</p>
-            {missed.map((s) => (
-              <div key={s.step_number} className="aurora-station-review-row" data-done="false">
-                <span className="mk" aria-hidden>✗</span>
-                <span>
-                  {s.action}
-                  {s.clinical_note && <span className="aurora-station-review-note">{s.clinical_note}</span>}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="aurora-station-review-clear">✓ Every checklist step covered — excellent work.</p>
-        )
+      {coaching?.focus && (
+        <div className="aurora-s100-focus"><b>One thing for next time:</b> {coaching.focus}</div>
       )}
 
       <div className="aurora-station-result-actions">
