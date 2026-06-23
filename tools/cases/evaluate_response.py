@@ -146,15 +146,9 @@ def evaluate_case(
     except Exception:
         pass
 
-    # Boost management score for checklist compliance
+    # Checklist compliance now drives Station-100 (Thoroughness + safety gate) in
+    # tools/cases/station_score.py — no hidden per-domain nudge here.
     mgmt_score = int(domain_results["management"].get("score", 0))
-    if critical_total > 0:
-        compliance_ratio = critical_hit / critical_total
-        if compliance_ratio >= 0.8 and mgmt_score < 10:
-            mgmt_score = min(10, mgmt_score + 1)
-        elif compliance_ratio < 0.5 and mgmt_score > 2:
-            mgmt_score = max(0, mgmt_score - 1)
-    domain_results["management"]["score"] = mgmt_score
 
     total = sum(int(domain_results[d].get("score", 0)) for d in _DOMAINS)
 
