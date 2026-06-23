@@ -222,9 +222,12 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
             max_tokens=256,
             feature="supervisor",
             model=MODEL,
-            # becky §9: a 2-3 sentence cohort narrative on a non-blocking staff screen —
-            # the lowest-stakes thinking budget in the app. MEDIUM→LOW.
-            thinking_level="LOW",
+            # becky §9: a 2-3 sentence cohort narrative — no thinking needed. MINIMAL, not
+            # LOW: on flash-lite the thinking budget is drawn from max_output_tokens, so
+            # LOW/MEDIUM thinking under this 256 cap TRUNCATES the narrative to ~8 tokens
+            # (verified live 2026-06-23). The prior MEDIUM@256 was silently truncating;
+            # MINIMAL@256 returns the full narrative AND is the fastest.
+            thinking_level="MINIMAL",
         )
     except RuntimeError as exc:
         if "quota_exceeded" in str(exc):
