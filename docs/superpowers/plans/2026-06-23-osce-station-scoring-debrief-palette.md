@@ -325,7 +325,9 @@ _ALIASES = {"va_distance": "va", "iop_nct": "iop", "va_near": "near_va"}
 
 # Canonical short chip labels for "do" steps (first keyword match wins).
 _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
-    (("hand hygiene", "hand wash", "5 moments", "five moments"), "Hand hygiene"),
+    (("hand hygiene", "hand wash", "5 moments", "five moments", "moments of hand",
+      "before touching", "after touching", "before clean procedure", "after body fluid",
+      "patient surroundings"), "Hand hygiene"),
     (("wipe occluder", "occluder with alcohol"), "Wipe occluder"),
     (("disinfect", "wipe the essential parts", "disinfection of equipment"), "Disinfect equipment"),
     (("discard", "waste bag"), "Discard waste"),
