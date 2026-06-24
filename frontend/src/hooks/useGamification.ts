@@ -10,6 +10,7 @@ interface SyncPayload {
 
 interface SyncResponse {
   xp: number;
+  xp_today?: number;
   hearts: number;
   level: number;
   streak: number;
@@ -42,6 +43,9 @@ export function useGamificationSync() {
         return {
           ...old,
           xp: newXp,
+          // Keep the daily-goal ring in lock-step with the hero XP — both now read
+          // from this same cache, so they move together instantly.
+          xp_today: Math.max(0, (old.xp_today ?? 0) + payload.xp_delta),
           level: newLevel,
           hearts: Math.max(0, old.hearts - payload.hearts_used),
         };
@@ -68,8 +72,14 @@ export function useGamificationSync() {
     onSuccess: (data) => {
       qc.setQueryData<ProgressData>(["progress"], (old) => {
         if (!old) return old;
-        return { ...old, ...data };
+        // Reconcile with the server, but keep the optimistic xp_today if the
+        // server didn't send one back (older endpoint shape).
+        const { xp_today, ...rest } = data;
+        return { ...old, ...rest, xp_today: xp_today ?? old.xp_today };
       });
+      // The streak detail (week dots, freezes) may have advanced server-side —
+      // refetch so the band reflects truth without a full reload.
+      qc.invalidateQueries({ queryKey: ["progress"] });
     },
   });
 }
