@@ -2670,3 +2670,46 @@ html[data-motion="reduce"] .flash-scene { transition: none; }
 .aurora-station-proc-x:hover { color:var(--ink); background:rgba(120,90,170,.1); }
 .aurora-station-proc-go { background:linear-gradient(135deg, #34A853, #4285F4) !important; }
 .aurora-station-proc-input { border-color:rgba(66,133,244,.4) !important; }
+
+/* Station wrap-up overlay — the handover + debrief lift out of the chat thread and
+   spring in over the station. The card is a NIGHT surface: it carries the exact same
+   token remap + indigo-plum gradient as the consult pane, so the handover form and the
+   scored debrief render with their tuned night palette (they used to live inside that
+   pane). A dark card springing over the light station is the surprise reveal. CSS-only. */
+.aurora-station-overlay { position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:24px; }
+.aurora-station-overlay-scrim { position:absolute; inset:0; background:rgba(20,16,40,.46); backdrop-filter:blur(3px); animation:aurora-scrim-in .26s ease both; }
+.aurora-station-overlay-card {
+  position:relative; z-index:1;
+  /* token remap — same night palette as .aurora-station-main */
+  --ink: #ECEAF8; --ink-2: #BEB7DA; --ink-3: #948DB6;
+  --paper: rgba(255, 255, 255, 0.055); --hairline: rgba(188, 168, 236, 0.18);
+  --on-purple: #CBB1EE; --on-purple-2: #C8ADEC;
+  --on-rose: #F2A2AF; --on-rose-2: #ED8496;
+  --on-green: #80E4A5; --on-green-2: #77DF9A;
+  width:min(560px, calc(100vw - 36px)); max-height:88vh; overflow-y:auto;
+  color:var(--ink);
+  border:1px solid rgba(188,168,236,.2); border-radius:var(--radius-xl);
+  padding:24px;
+  background:
+    radial-gradient(74% 58% at 90% 3%, rgba(155, 114, 203, 0.32), transparent 60%),
+    radial-gradient(64% 52% at 3% 99%, rgba(66, 133, 244, 0.26), transparent 62%),
+    radial-gradient(58% 46% at 103% 103%, rgba(217, 101, 112, 0.18), transparent 60%),
+    radial-gradient(50% 40% at 12% 4%, rgba(52, 168, 83, 0.12), transparent 62%),
+    linear-gradient(165deg, rgba(26, 22, 50, 0.97), rgba(33, 26, 60, 0.96) 52%, rgba(24, 20, 46, 0.98));
+  box-shadow:0 40px 90px -28px rgba(10,6,30,.7), 0 0 50px -22px rgba(155,114,203,.5);
+  animation:aurora-pop-in .42s cubic-bezier(.16,1,.3,1) both;
+}
+.aurora-station-overlay-x { position:absolute; top:12px; right:12px; border:none; background:none; color:var(--ink-3); font-size:1rem; cursor:pointer; line-height:1; padding:6px; border-radius:8px; z-index:2; }
+.aurora-station-overlay-x:hover { color:var(--ink); background:rgba(188,168,236,.14); }
+/* handover form + inputs on the night card (mirrors the consult-pane overrides) */
+.aurora-station-overlay-card .aurora-station-form { margin-top:0; background:rgba(255,255,255,.04); border-color:rgba(188,168,236,.16); }
+.aurora-station-overlay-card .aurora-station-form-hint { background:rgba(155,114,203,.2); color:var(--on-purple-2); }
+.aurora-station-overlay-card .aurora-input { background:rgba(255,255,255,.05); border-color:rgba(188,168,236,.2); }
+.aurora-station-overlay-card .aurora-input::placeholder { color:var(--ink-3); }
+.aurora-station-overlay-card .aurora-input:focus-visible { border-color:var(--g-purple); box-shadow:0 0 0 3px rgba(155,114,203,.22); }
+.aurora-station-overlay-card .aurora-station-result { margin-top:0; }
+@keyframes aurora-scrim-in { from { opacity:0; } to { opacity:1; } }
+@keyframes aurora-pop-in { from { opacity:0; transform:scale(.9) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-station-overlay-scrim, .aurora-station-overlay-card { animation:none; }
+}
