@@ -11,14 +11,13 @@ import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
-import { useDueCount } from "@/hooks/useFlashcards";
 import { OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { GoalRing } from "@/aurora/components/GoalRing";
 import { StreakBand } from "@/aurora/components/StreakBand";
+import { StreakBoard } from "@/aurora/components/StreakBoard";
 import { rankForLevel } from "@/lib/rank";
 import { DAILY_XP_GOAL } from "@/lib/legacy/gamification";
-import { useCountUp } from "@/hooks/useCountUp";
 import { confetti } from "@/fx/confetti";
 
 const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = { OA: OA_TOPICS, OT: OT_TOPICS, PSA: PSA_TOPICS };
@@ -55,7 +54,6 @@ function greeting(): string {
 export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
-  const { data: dueCount = 0 } = useDueCount();   // SM-2 cards due for review today (F1)
 
   /* Post-session debrief, inlined here now that the Summary page is gone: when a
      flashcard run finishes it lands on the Dashboard with a one-shot flag, which
@@ -88,16 +86,6 @@ export function Dashboard() {
   const perfFor = (id: string) => progress?.topic_performance?.find((p) => p.topic === id)?.score ?? 0;
   const completedIds = topics.filter((t) => perfFor(t.id) >= 0.65).map((t) => t.id);
   const nextTopic = topics.find((t) => !completedIds.includes(t.id)) ?? null;
-
-  const masteryPct = Math.round((topics.reduce((s, t) => s + perfFor(t.id), 0) / Math.max(topics.length, 1)) * 100);
-
-  const weakTopics = progress?.weak_topics ?? [];
-  const recall = weakTopics.length;
-
-  /* Animated count-ups for the headline stat values. */
-  const recallCU = useCountUp<HTMLSpanElement>(recall);
-  const masteryCU = useCountUp<HTMLSpanElement>(masteryPct, { format: (n) => `${Math.round(n)}%` });
-  const dueCU = useCountUp<HTMLSpanElement>(dueCount);
 
   const level = progress?.level ?? 1;
   const rank = rankForLevel(level);
@@ -165,30 +153,8 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Three big distinct-colour stat cards — grow to fill the page */}
-      <div className="aurora-bigstats aurora-stagger">
-        <div className="aurora-bigstat" data-tone="cyan" data-testid="stat-card">
-          <p className="aurora-bigstat-label">Recall queue</p>
-          <p className="aurora-bigstat-value"><span ref={recallCU.ref}>{recallCU.display}</span></p>
-          <p className="aurora-bigstat-foot">{recall > 0 ? "weak topics to revisit" : "nothing flagged — nice work"}</p>
-        </div>
-
-        <div className="aurora-bigstat" data-tone="green" data-testid="stat-card">
-          <p className="aurora-bigstat-label">{activeTrack} mastery</p>
-          <p className="aurora-bigstat-value"><span ref={masteryCU.ref}>{masteryCU.display}</span></p>
-          <p className="aurora-bigstat-foot">{completedIds.length} of {topics.length} topics cleared</p>
-        </div>
-
-        <div className="aurora-bigstat" data-tone="amber" data-testid="stat-card">
-          <p className="aurora-bigstat-label">Due today</p>
-          <p className="aurora-bigstat-value"><span ref={dueCU.ref}>{dueCU.display}</span></p>
-          {dueCount > 0 ? (
-            <Link href="/flashcards?mode=review" className="aurora-bigstat-cta">Review now →</Link>
-          ) : (
-            <p className="aurora-bigstat-foot">{weakTopics.length > 0 ? `brush up: ${weakTopics[0]}` : "all caught up"}</p>
-          )}
-        </div>
-      </div>
+      {/* Milestone streak board — LinkedIn-inspired panel (replaces the stat cards) */}
+      <StreakBoard detail={progress?.streak_detail} />
     </div>
   );
 }
