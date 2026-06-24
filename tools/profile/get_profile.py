@@ -9,14 +9,16 @@ Usage:
     profile = await get_profile(student_id)
 """
 import sys
-from datetime import date
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from datetime import date
+
 from tools.shared import db
 from tools.shared.audit_log import log
+from tools.shared.clock import app_today
 
 _DEFAULTS = {
     "role": "",
@@ -32,6 +34,13 @@ _DEFAULTS = {
     "xp": 0,
     "hearts": 5,
     "hearts_reset_date": None,
+    # Streak rest-days + freeze (migration 005)
+    "streak_freezes": 0,
+    "best_streak": 0,
+    "checkin_history": [],
+    # Daily-goal XP ring source (migration 005)
+    "xp_today": 0,
+    "xp_today_date": None,
 }
 
 
@@ -58,12 +67,12 @@ async def get_profile(student_id: str) -> dict:
             log("profile_create_error", student_id=student_id, feature="profile", detail=str(exc))
         return profile
 
-    # Reset checkin flag if this is a new day
+    # Reset checkin flag if this is a new day (SGT boundary)
     last_active = profile.get("last_active")
     if last_active:
         try:
             last_date = date.fromisoformat(str(last_active)) if isinstance(last_active, str) else last_active
-            if last_date != date.today():
+            if last_date != app_today():
                 profile["checkin_done_today"] = False
                 try:
                     await db.update_profile(student_id, checkin_done_today=False)

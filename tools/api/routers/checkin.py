@@ -7,16 +7,18 @@ position. Grading is fully deterministic (selected option text == correct option
 text) — no AI marks the check-in.
 """
 import random as _random
-from datetime import date as _date, timedelta
+from datetime import date as _date
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter
 from tools.checkin.static_questions import CHECKIN_QUESTION_POOL
+from tools.gamification import streak as streak_engine
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared import db
+from tools.shared.clock import app_today
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_by_day_count
 
@@ -82,16 +84,18 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
 
     done = bool(profile.get("checkin_done_today", False))
     streak = int(profile.get("streak") or 0)
-    today = _date.today()
+    freezes = int(profile.get("streak_freezes") or 0)
+    today = app_today()
 
-    # Reset streak if the student missed >=1 day since their last completed check-in
     last_checkin_raw = profile.get("last_checkin_date")
     try:
         last_checkin = _date.fromisoformat(str(last_checkin_raw)) if last_checkin_raw else None
     except (ValueError, TypeError):
         last_checkin = None
 
-    if last_checkin is not None and last_checkin < today - timedelta(days=1):
+    # The streak survives weekend rest days and one missed weekday (when a freeze
+    # is banked). If it's no longer continuable, zero it for display and persist.
+    if streak > 0 and not streak_engine.streak_alive(last_checkin, today, freezes):
         streak = 0
         done = False
         try:
