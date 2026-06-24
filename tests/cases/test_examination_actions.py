@@ -11,7 +11,9 @@ STEPS = [
 ]
 
 
-def test_every_step_becomes_a_chip_nothing_missing():
+def test_all_steps_still_covered_nothing_dropped():
+    # build_actions still emits one (merged) action per step — the FRONTEND filters
+    # to manual; the backend keeps the full set so the data model loses nothing.
     actions = build_actions({}, STEPS)
     covered = set()
     for a in actions:
@@ -19,32 +21,43 @@ def test_every_step_becomes_a_chip_nothing_missing():
     assert covered == {1, 2, 3, 4, 5, 6, 7}
 
 
-def test_consecutive_same_label_steps_merge():
-    actions = build_actions({}, STEPS)
-    hh = next(a for a in actions if a["label"] == "Hand hygiene")
-    # The "5 moments" parent + its two sub-rows collapse into one chip.
-    assert set(hh["satisfies_steps"]) == {3, 4, 5}
-    assert hh["mode"] == "do"
-
-
-def test_process_steps_are_clickable_do_chips():
-    actions = build_actions({}, STEPS)
-    labels = {a["label"] for a in actions}
-    assert "Introduce self" in labels
-    assert "Identify patient" in labels
-
-
-def test_history_question_is_a_say_chip_with_prompt():
+def test_history_question_is_verbal_with_prompt():
     actions = build_actions({}, STEPS)
     ask = next(a for a in actions if a["mode"] == "say")
+    assert ask["kind"] == "verbal"
     assert ask["prompt_text"] == "Any trauma to the eye?"
     assert 7 in ask["satisfies_steps"]
 
 
-def test_exam_step_reveals_its_finding():
+def test_conversational_do_steps_are_verbal():
+    by_label = {a["label"]: a for a in build_actions({}, STEPS)}
+    assert by_label["Introduce self"]["kind"] == "verbal"
+    assert by_label["Identify patient"]["kind"] == "verbal"
+
+
+def test_manual_procedures_are_manual():
+    by_label = {a["label"]: a for a in build_actions({}, STEPS)}
+    assert by_label["Hand hygiene"]["kind"] == "manual"
+    assert by_label["Test distance VA"]["kind"] == "manual"
+
+
+def test_hand_hygiene_steps_merge_into_one_manual_chip():
+    actions = build_actions({}, STEPS)
+    hh = next(a for a in actions if a["label"] == "Hand hygiene")
+    assert set(hh["satisfies_steps"]) == {3, 4, 5}
+    assert hh["kind"] == "manual"
+
+
+def test_exam_step_reveals_finding_and_is_manual():
     actions = build_actions({"va": {"right": "6/9", "left": "6/12"}}, STEPS)
     va = next(a for a in actions if 6 in a["satisfies_steps"])
     assert "6/9" in va["reveal_text"] and "6/12" in va["reveal_text"]
+    assert va["kind"] == "manual"
+
+
+def test_unknown_do_step_defaults_to_manual():
+    actions = build_actions({}, [{"step_number": 9, "action": "Calibrate the widget array", "category": "equipment", "critical": False}])
+    assert actions[0]["kind"] == "manual"
 
 
 def test_blank_action_is_skipped():

@@ -45,6 +45,9 @@ def test_station_returns_phases_and_actions():
     iop = next(a for a in data["examination_actions"] if 2 in a["satisfies_steps"])
     assert "18 mmHg" in iop["reveal_text"]
     assert iop["mode"] == "do"
+    assert iop["kind"] == "manual"
+    ident = next(a for a in data["examination_actions"] if 1 in a["satisfies_steps"])
+    assert ident["kind"] == "verbal"  # "Identify patient name NRIC" → verbal, stays in chat
     covered = {n for a in data["examination_actions"] for n in a["satisfies_steps"]}
     assert covered == {1, 2, 3}  # nothing missing
 

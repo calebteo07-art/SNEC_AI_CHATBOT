@@ -73,6 +73,15 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
 
 _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
 
+# Patient-directed / verbal labels stay in the live chat (no shortcut chip). Any
+# non-"say" step whose label is NOT in this set is a hands-on manual procedure and
+# becomes a shortcut; unknown "do" steps therefore default to manual (still completable).
+_VERBAL_LABELS = {
+    "Introduce self", "Identify patient", "Confirm name", "Confirm NRIC / DOB",
+    "Check allergy", "Check doctor's order", "Explain procedure", "Take consent",
+    "Patient comfortable", "Listen actively", "Instruct patient", "Doctor to examine",
+}
+
 
 def _reveal_text(value) -> str:
     if isinstance(value, dict):
@@ -135,13 +144,15 @@ def build_actions(examination_findings: dict, steps: list[dict]) -> list[dict]:
         n = int(s.get("step_number", 0))
         if _is_say(action):
             prompt = _say_prompt(action)
-            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt}
+            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal"}
         else:
+            label = _do_label(action, str(s.get("category", "")))
             chip = {
-                "label": _do_label(action, str(s.get("category", ""))),
+                "label": label,
                 "mode": "do",
                 "reveal_text": _finding_for_step(action, examination_findings),
                 "prompt_text": "",
+                "kind": "verbal" if label in _VERBAL_LABELS else "manual",
             }
         chip.update({
             "step_number": n,
