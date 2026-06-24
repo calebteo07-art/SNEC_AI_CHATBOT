@@ -14,7 +14,8 @@ import Link from "next/link";
 import { Icon } from "@/aurora/icons";
 import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
-import { addChatXp, updateStreak, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
+import { addChatXp, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
+import { useGamificationSync } from "@/hooks/useGamification";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -40,8 +41,7 @@ export function Tutor() {
   const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const threadRef = useRef<HTMLDivElement>(null);
   const chatCapNotified = useRef(false);
-
-  useEffect(() => { updateStreak(); }, []);
+  const { mutate: syncGamification } = useGamificationSync();
 
   // F3 — "Explain this" from a flashcard pre-seeds the composer with the question.
   useEffect(() => {
@@ -70,8 +70,12 @@ export function Tutor() {
     setIsTyping(true);
 
     // Chat XP is capped per day so it can't be farmed by spamming messages.
+    // Sync the grant to the backend (single source of truth) so it shows up in
+    // the dashboard XP + daily-goal ring — both read from the synced total.
     const granted = addChatXp(XP_REWARDS.chatMessage);
-    if (granted === 0 && !chatCapNotified.current) {
+    if (granted > 0) {
+      syncGamification({ xp_delta: granted, hearts_used: 0 });
+    } else if (!chatCapNotified.current) {
       chatCapNotified.current = true;
       toast("You've reached today's chat XP — keep asking questions to learn; chat XP resumes tomorrow 🙂");
     }

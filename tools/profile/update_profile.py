@@ -6,15 +6,17 @@ Usage:
     await update_profile(student_id, topic="glaucoma", score=0.75)
 """
 import sys
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from tools.gamification import streak as streak_engine
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.audit_log import log
+from tools.shared.clock import app_today
 
 WEAK_THRESHOLD = 0.65
 
@@ -30,6 +32,13 @@ def _calc_velocity(old_scores: dict, new_scores: dict) -> str:
     if diff < -0.05:
         return "declining"
     return "stable"
+
+
+def _parse_date(value):
+    try:
+        return date.fromisoformat(str(value)) if value else None
+    except (ValueError, TypeError):
+        return None
 
 
 async def update_profile(
@@ -49,30 +58,32 @@ async def update_profile(
         log("profile_update_error", student_id=student_id, feature="profile", detail=str(exc))
         return
 
-    today = date.today()
+    today = app_today()
+    today_iso = today.isoformat()
 
-    # Streak — only recalculate when the student completes the daily check-in
+    # Streak — only recalculated when the student completes the daily check-in.
+    # The engine treats weekends as rest days and bridges a single missed weekday
+    # with a banked freeze (see tools/gamification/streak.py). Keys off
+    # last_checkin_date (the last *completed* check-in), NOT last_active, which is
+    # rewritten on every activity and would inflate the streak.
     current_streak = int(profile.get("streak") or 0)
     new_streak = current_streak
+    new_freezes = int(profile.get("streak_freezes") or 0)
+    best_streak = int(profile.get("best_streak") or 0)
+    history = list(profile.get("checkin_history") or [])
+    streak_advanced = False
 
     if checkin_done:
-        # Key off last_checkin_date (the date of the last *completed* check-in),
-        # NOT last_active — last_active is rewritten to today on every
-        # update_profile call (chat, case completion, etc.), so using it would
-        # inflate the streak for students who are active daily but check in only
-        # sporadically. This matches the read-time reset in checkin.py.
-        last_checkin = profile.get("last_checkin_date")
-        try:
-            last = date.fromisoformat(str(last_checkin)) if last_checkin else None
-        except (ValueError, TypeError):
-            last = None
-
-        if last is None or last == today:
-            new_streak = max(current_streak, 1)
-        elif last == today - timedelta(days=1):
-            new_streak = current_streak + 1
-        else:
-            new_streak = 0
+        result = streak_engine.advance_streak(
+            _parse_date(profile.get("last_checkin_date")), today, current_streak, new_freezes
+        )
+        new_streak = result["streak"]
+        new_freezes = result["freezes"]
+        streak_advanced = result["streak"] > current_streak
+        if today_iso not in history:
+            history.append(today_iso)
+            history = history[-21:]
+        best_streak = max(best_streak, new_streak)
 
     # Retention scores — already a dict from Supabase JSONB
     retention = dict(profile.get("retention_scores") or {})
@@ -104,7 +115,7 @@ async def update_profile(
 
     updates: dict = {
         "session_count": session_count,
-        "last_active": today.isoformat(),
+        "last_active": today_iso,
         "retention_scores": retention,
         "weak_topics": weak_topics,
         "missed_findings": findings,
@@ -113,7 +124,7 @@ async def update_profile(
     if checkin_done:
         updates["streak"] = new_streak
         updates["checkin_done_today"] = True
-        updates["last_checkin_date"] = today.isoformat()
+        updates["last_checkin_date"] = today_iso
     if role:
         updates["role"] = role
 
@@ -122,37 +133,51 @@ async def update_profile(
     except Exception as exc:
         log("profile_write_error", student_id=student_id, feature="profile", detail=str(exc))
 
+    # New gamification columns (streak_freezes / best_streak / checkin_history) —
+    # written in a separate call so a missing column (pre-migration) never breaks
+    # the main update above.
+    if checkin_done:
+        try:
+            await db.update_profile(
+                student_id,
+                streak_freezes=new_freezes,
+                best_streak=best_streak,
+                checkin_history=history,
+            )
+        except Exception as exc:
+            log("streak_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+
     # XP and hearts — separate call so a missing column (pre-migration) never
     # breaks the main profile update above.
     if xp_delta != 0 or hearts_used != 0:
         try:
             current_xp = int(profile.get("xp") or 0)
-            streak_bonus = 50 if (checkin_done and new_streak > current_streak) else 0
+            streak_bonus = 50 if (checkin_done and streak_advanced) else 0
             new_xp = max(0, current_xp + xp_delta + streak_bonus)
 
-            last_reset_raw = profile.get("hearts_reset_date")
-            try:
-                last_reset = date.fromisoformat(str(last_reset_raw)) if last_reset_raw else None
-            except (ValueError, TypeError):
-                last_reset = None
-
-            if last_reset != today:
-                current_hearts = 5
-            else:
-                current_hearts = int(profile.get("hearts") or 5)
-
+            last_reset = _parse_date(profile.get("hearts_reset_date"))
+            current_hearts = 5 if last_reset != today else int(profile.get("hearts") or 5)
             new_hearts = max(0, current_hearts - hearts_used)
 
             await db.update_profile(student_id, xp=new_xp, hearts=new_hearts,
-                                    hearts_reset_date=today.isoformat())
+                                    hearts_reset_date=today_iso)
+
+            # xp_today (the daily-goal ring source) — resets each SGT day. Separate
+            # guarded call so the xp/hearts write above survives a missing column.
+            try:
+                xtd = _parse_date(profile.get("xp_today_date"))
+                base_today = int(profile.get("xp_today") or 0) if xtd == today else 0
+                new_xp_today = max(0, base_today + xp_delta + streak_bonus)
+                await db.update_profile(student_id, xp_today=new_xp_today, xp_today_date=today_iso)
+            except Exception as exc:
+                log("xp_today_write_error", student_id=student_id, feature="gamification", detail=str(exc))
         except Exception as exc:
             log("gamification_write_error", student_id=student_id, feature="gamification", detail=str(exc))
     else:
         # Still reset hearts daily even when xp_delta/hearts_used are both 0
         try:
-            last_reset_raw = profile.get("hearts_reset_date")
-            last_reset = date.fromisoformat(str(last_reset_raw)) if last_reset_raw else None
+            last_reset = _parse_date(profile.get("hearts_reset_date"))
             if last_reset != today:
-                await db.update_profile(student_id, hearts=5, hearts_reset_date=today.isoformat())
+                await db.update_profile(student_id, hearts=5, hearts_reset_date=today_iso)
         except Exception:
             pass

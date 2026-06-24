@@ -1,10 +1,12 @@
 "use client";
-/* AURORA Dashboard — the command centre. Gradient hero greeting + readouts, a
-   bold Next-Best-Action band, and three big distinct-colour stat cards (recall /
-   mastery / due) that grow to fill the viewport. Real data from useProgress +
-   curriculum. */
+/* AURORA Dashboard — the command centre. Editorial gradient hero greeting + a
+   bold "Week Lens" streak band (the daily ritual, front and centre), a clear
+   launchpad linking every feature (Tutor / Virtual Patients / Flashcards), a
+   Next-Best-Action band, and three big distinct-colour stat cards. XP + streak
+   read from one synced source (useProgress), so the ring and the readouts never
+   drift. */
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
@@ -13,8 +15,9 @@ import { useDueCount } from "@/hooks/useFlashcards";
 import { OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
 import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
 import { GoalRing } from "@/aurora/components/GoalRing";
+import { StreakBand } from "@/aurora/components/StreakBand";
 import { rankForLevel } from "@/lib/rank";
-import { getDailyXp, DAILY_XP_GOAL } from "@/lib/legacy/gamification";
+import { DAILY_XP_GOAL } from "@/lib/legacy/gamification";
 import { useCountUp } from "@/hooks/useCountUp";
 import { confetti } from "@/fx/confetti";
 
@@ -24,6 +27,23 @@ const TRACK_LABELS: Record<Track, string> = {
   OT: "Ophthalmic Technician",
   PSA: "Patient Service Associate",
 };
+
+/* Compact line glyphs for the feature launchpad — same family as the Atlas Rail. */
+const ico = { width: 36, height: 36, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+const FEATURES = [
+  {
+    tone: "tutor", href: "/chat", title: "Tutor", sub: "Ask anything — your AI ophthalmology coach", go: "Open tutor →",
+    icon: (<svg {...ico}><path d="M5 5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3V6a1 1 0 0 1 1-1Z" /><circle cx="9" cy="10" r="0.7" fill="currentColor" /><circle cx="12.5" cy="10" r="0.7" fill="currentColor" /><circle cx="16" cy="10" r="0.7" fill="currentColor" /></svg>),
+  },
+  {
+    tone: "cases", href: "/cases", title: "Virtual Patients", sub: "Run a guided OSCE station with a real case", go: "Start a case →",
+    icon: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
+  },
+  {
+    tone: "flash", href: "/flashcards", title: "Flashcards", sub: "Active-recall drills that adapt to you", go: "Study now →",
+    icon: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14v12" /></svg>),
+  },
+] as const;
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -36,10 +56,6 @@ export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
   const { data: dueCount = 0 } = useDueCount();   // SM-2 cards due for review today (F1)
-
-  // Today's XP toward the daily goal — read after mount to avoid an SSR/localStorage mismatch.
-  const [dailyXp, setDailyXp] = useState(0);
-  useEffect(() => { setDailyXp(getDailyXp()); }, []);
 
   /* Post-session debrief, inlined here now that the Summary page is gone: when a
      flashcard run finishes it lands on the Dashboard with a one-shot flag, which
@@ -83,16 +99,20 @@ export function Dashboard() {
   const masteryCU = useCountUp<HTMLSpanElement>(masteryPct, { format: (n) => `${Math.round(n)}%` });
   const dueCU = useCountUp<HTMLSpanElement>(dueCount);
 
-  const rank = rankForLevel(progress?.level ?? 1);
+  const level = progress?.level ?? 1;
+  const rank = rankForLevel(level);
   const readouts: Readout[] = [
-    { label: "Streak", value: `${progress?.streak ?? 0}d`, hint: "Your daily streak — complete the daily check-in each day to keep it alive." },
     {
       label: rank.title,
-      value: `Lv ${progress?.level ?? 1}`,
+      value: `Lv ${level}`,
       hint: rank.nextTitle ? `${rank.levelsToNext} level${rank.levelsToNext === 1 ? "" : "s"} to ${rank.nextTitle}` : "Top rank reached — nice work!",
     },
     { label: "XP", value: `${progress?.xp ?? 0}`, hint: "Experience points — earn them from flashcards, virtual patients and the tutor. 500 XP per level." },
+    { label: "Sessions", value: `${progress?.session_count ?? 0}`, hint: "Total study sessions you've completed." },
   ];
+
+  const dailyGoal = progress?.daily_goal ?? DAILY_XP_GOAL;
+  const xpToday = progress?.xp_today ?? 0;
 
   const nba = nextTopic
     ? { title: nextTopic.label, sub: `Continue your ${trackLabel} pathway`, cta: "Continue", href: `/flashcards?topic=${nextTopic.id}` }
@@ -111,12 +131,15 @@ export function Dashboard() {
         action={
           <GoalRing
             onDark
-            value={dailyXp}
-            goal={DAILY_XP_GOAL}
-            caption={dailyXp >= DAILY_XP_GOAL ? "Daily goal done! 🎉" : `${dailyXp} / ${DAILY_XP_GOAL} XP today`}
+            value={xpToday}
+            goal={dailyGoal}
+            caption={xpToday >= dailyGoal ? "Daily goal done! 🎉" : `${xpToday} / ${dailyGoal} XP today`}
           />
         }
       />
+
+      {/* Daily streak — the Week Lens. Front and centre under the hero. */}
+      <StreakBand detail={progress?.streak_detail} />
 
       {/* Primary action — bold, clean band with a big title + gradient CTA */}
       <div className="aurora-card aurora-nba" data-testid="nba-card">
@@ -128,6 +151,18 @@ export function Dashboard() {
           </div>
           <Link href={nba.href} className="aurora-cta aurora-flow aurora-press"><span>{nba.cta} →</span></Link>
         </div>
+      </div>
+
+      {/* Feature launchpad — the dashboard now links to every feature */}
+      <div className="aurora-launch aurora-stagger">
+        {FEATURES.map((f) => (
+          <Link key={f.href} href={f.href} className="aurora-launchcard" data-tone={f.tone}>
+            <span className="aurora-launch-ico" aria-hidden>{f.icon}</span>
+            <p className="aurora-launch-title">{f.title}</p>
+            <p className="aurora-launch-sub">{f.sub}</p>
+            <span className="aurora-launch-go">{f.go}</span>
+          </Link>
+        ))}
       </div>
 
       {/* Three big distinct-colour stat cards — grow to fill the page */}

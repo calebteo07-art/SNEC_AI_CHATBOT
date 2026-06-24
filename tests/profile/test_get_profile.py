@@ -50,9 +50,7 @@ async def test_get_profile_resets_checkin_on_new_day():
     )
     with patch("tools.shared.db.get_profile", new=AsyncMock(return_value=profile_row)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
-         patch("tools.profile.get_profile.date") as mock_date:
-        mock_date.today.return_value = date(2026, 5, 10)
-        mock_date.fromisoformat = date.fromisoformat
+         patch("tools.profile.get_profile.app_today", return_value=date(2026, 5, 10)):
         from tools.profile.get_profile import get_profile
         result = await get_profile("stu-001")
     mock_update.assert_called_once()
@@ -69,9 +67,7 @@ async def test_get_profile_does_not_reset_checkin_same_day():
     )
     with patch("tools.shared.db.get_profile", new=AsyncMock(return_value=profile_row)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
-         patch("tools.profile.get_profile.date") as mock_date:
-        mock_date.today.return_value = date(2026, 5, 10)
-        mock_date.fromisoformat = date.fromisoformat
+         patch("tools.profile.get_profile.app_today", return_value=date(2026, 5, 10)):
         from tools.profile.get_profile import get_profile
         result = await get_profile("stu-001")
     mock_update.assert_not_called()

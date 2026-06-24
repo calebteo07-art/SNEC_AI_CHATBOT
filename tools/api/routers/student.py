@@ -94,8 +94,17 @@ async def sync_gamification(
     profile = await get_profile(student_id)
     xp = int(profile.get("xp") or 0)
     hearts = int(profile.get("hearts") or 5)
+    # xp_today resets each SGT day; a stale date reads as zero.
+    from datetime import date as _date
+    from tools.shared.clock import app_today
+    try:
+        xtd = _date.fromisoformat(str(profile.get("xp_today_date"))) if profile.get("xp_today_date") else None
+    except (ValueError, TypeError):
+        xtd = None
+    xp_today = int(profile.get("xp_today") or 0) if xtd == app_today() else 0
     return {
         "xp": xp,
+        "xp_today": xp_today,
         "hearts": hearts,
         "level": (xp // 500) + 1,
         "streak": int(profile.get("streak") or 0),
