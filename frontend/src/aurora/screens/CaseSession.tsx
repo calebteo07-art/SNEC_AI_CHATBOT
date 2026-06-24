@@ -317,8 +317,8 @@ export function CaseSession() {
             </div>
           )}
           {station && !result && (
-            <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit((v) => !v)}>
-              {showSubmit ? "Cancel" : "Submit handover →"}
+            <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit(true)}>
+              Submit handover →
             </button>
           )}
         </aside>
@@ -359,25 +359,6 @@ export function CaseSession() {
               );
             })}
             {sending && <div className="aurora-station-bubble pt"><div className="aurora-typing">•••</div></div>}
-
-            {showSubmit && !result && (
-              <div className="aurora-station-form">
-                <p className="aurora-station-form-hint">You're documenting a handover — what you found and what you recommend, within your role. You don't make a medical diagnosis or prescribe treatment; that's for the doctor.</p>
-                {uncheckedCritical.length > 0 && (
-                  <p className="aurora-station-warn">⚠ {uncheckedCritical.length} critical step{uncheckedCritical.length !== 1 ? "s" : ""} not yet done</p>
-                )}
-                <label className="aurora-eyebrow">Findings &amp; clinical impression</label>
-                <textarea className="aurora-input" data-field="findings" value={findings} onChange={(e) => setFindings(e.target.value)} placeholder="What you found and recognised — key history, test results, red-flag check…" rows={2} />
-                <label className="aurora-eyebrow">Recommendation &amp; escalation</label>
-                <textarea className="aurora-input" data-field="recommendation" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} placeholder="Triage/urgency, who you'd escalate or refer to, and what you'd advise the patient…" rows={2} />
-                {submitError && <p className="aurora-station-warn">{submitError}</p>}
-                <button type="button" className="aurora-station-submit-go" disabled={submitting || !findings.trim() || !recommendation.trim()} onClick={handleSubmit}>
-                  {submitting ? "Evaluating…" : "Submit handover →"}
-                </button>
-              </div>
-            )}
-
-            {result && <StationResult result={result} coaching={coaching} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />}
             <div ref={endRef} />
           </div>
 
@@ -417,6 +398,34 @@ export function CaseSession() {
           )}
         </div>
       </div>
+
+      {(showSubmit || result) && (
+        <div className="aurora-station-overlay" role="dialog" aria-modal="true">
+          <div className="aurora-station-overlay-scrim" onClick={() => { if (!result) setShowSubmit(false); }} aria-hidden />
+          <div className="aurora-station-overlay-card">
+            {!result ? (
+              <div className="aurora-station-form">
+                <button type="button" className="aurora-station-overlay-x" onClick={() => setShowSubmit(false)} aria-label="Close">✕</button>
+                <p className="aurora-eyebrow">Handover</p>
+                <p className="aurora-station-form-hint">You're documenting a handover — what you found and what you recommend, within your role. You don't make a medical diagnosis or prescribe treatment; that's for the doctor.</p>
+                {uncheckedCritical.length > 0 && (
+                  <p className="aurora-station-warn">⚠ {uncheckedCritical.length} critical step{uncheckedCritical.length !== 1 ? "s" : ""} not yet done</p>
+                )}
+                <label className="aurora-eyebrow">Findings</label>
+                <textarea className="aurora-input" data-field="findings" value={findings} onChange={(e) => setFindings(e.target.value)} placeholder="What you found and recognised — key history, test results, red-flag check…" rows={3} />
+                <label className="aurora-eyebrow">Next steps</label>
+                <textarea className="aurora-input" data-field="recommendation" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} placeholder="Triage/urgency, who you'd escalate or refer to, and what you'd advise the patient…" rows={3} />
+                {submitError && <p className="aurora-station-warn">{submitError}</p>}
+                <button type="button" className="aurora-station-submit-go" disabled={submitting || !findings.trim() || !recommendation.trim()} onClick={handleSubmit}>
+                  {submitting ? "Evaluating…" : "Submit handover →"}
+                </button>
+              </div>
+            ) : (
+              <StationResult result={result} coaching={coaching} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
