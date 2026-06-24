@@ -16,9 +16,23 @@ export const admin = {
   full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001",
   role: "admin", student_role: "", must_change: false,
 };
+export const streakDetail = {
+  current: 6, best: 9, freezes: 1, done_today: false,
+  tier: "Clear View", next_tier: "20/20 Vision", to_next: 4,
+  week: [
+    { day: "Mon", date: "2026-06-22", state: "done" },
+    { day: "Tue", date: "2026-06-23", state: "done" },
+    { day: "Wed", date: "2026-06-24", state: "today" },
+    { day: "Thu", date: "2026-06-25", state: "upcoming" },
+    { day: "Fri", date: "2026-06-26", state: "upcoming" },
+    { day: "Sat", date: "2026-06-27", state: "rest" },
+    { day: "Sun", date: "2026-06-28", state: "rest" },
+  ],
+};
 export const progress = {
-  xp: 1240, hearts: 4, level: 7, streak: 6, session_count: 18,
+  xp: 1240, xp_today: 60, daily_goal: 100, hearts: 4, level: 7, streak: 6, session_count: 18,
   learning_velocity: "improving",
+  streak_detail: streakDetail,
   weak_topics: ["Glaucoma staging", "Cataract grading"],
   topic_performance: [
     { topic: "Anterior segment", score: 0.82 },

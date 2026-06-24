@@ -1,7 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 
+export type StreakDayState = "done" | "today" | "missed" | "upcoming" | "rest" | "rest-done";
+
+export interface StreakDay {
+  day: string;        // Mon..Sun
+  date: string;       // ISO
+  state: StreakDayState;
+}
+
+export interface StreakDetail {
+  current: number;
+  best: number;
+  freezes: number;
+  done_today: boolean;
+  week: StreakDay[];
+  tier: string;
+  next_tier: string | null;
+  to_next: number;
+}
+
 export interface ProgressData {
   xp: number;
+  xp_today: number;
+  daily_goal: number;
   hearts: number;
   level: number;
   streak: number;
@@ -10,6 +31,7 @@ export interface ProgressData {
   weak_topics: string[];
   topic_performance: { topic: string; score: number }[];
   sessions: { session_id: string; timestamp: string; topic: string; summary: string; mode: string }[];
+  streak_detail?: StreakDetail;
 }
 
 async function fetchProgress(): Promise<ProgressData> {
