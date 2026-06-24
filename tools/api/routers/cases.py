@@ -176,6 +176,7 @@ class ExaminationAction(BaseModel):
     phase: int = 2
     critical: bool = False
     step_number: int = 0
+    kind: str = "manual"  # "manual" → shortcut chip; "verbal" → stays in the live chat
 
 class StationChecklist(BaseModel):
     procedure_name: str
