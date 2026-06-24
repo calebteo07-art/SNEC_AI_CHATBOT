@@ -79,14 +79,14 @@ await np.locator('.aurora-navitem:has-text("Virtual Patients")').first().click()
 await np.waitForURL("**/cases", { timeout: 6000 });
 console.log("PASS: Atlas Rail renders nav and routes to /cases");
 
-// dashboard structure: one h1, an NBA card, exactly three stat cards.
+// dashboard structure: one h1, an NBA card, the streak band + milestone board.
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="nba-card"]', { timeout: 15000 });
 const h1count = await np.locator("main h1").count();
 if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
-const statCards = await np.locator('[data-testid="stat-card"]').count();
-if (statCards !== 3) { console.error(`FAIL: stat-card count = ${statCards}`); process.exit(1); }
-console.log("PASS: dashboard has one h1, an NBA card, three stat cards");
+if ((await np.locator('[data-testid="streak-band"]').count()) !== 1) { console.error("FAIL: streak band missing"); process.exit(1); }
+if ((await np.locator('[data-testid="streak-board"]').count()) !== 1) { console.error("FAIL: milestone streak board missing"); process.exit(1); }
+console.log("PASS: dashboard has one h1, an NBA card, streak band + milestone board");
 
 // mobile: no horizontal overflow at 390x844.
 await np.setViewportSize({ width: 390, height: 844 });
@@ -272,7 +272,7 @@ await np.setViewportSize({ width: 1440, height: 900 });
 const rmPage = await navCtx.newPage();
 await rmPage.emulateMedia({ reducedMotion: "reduce" });
 await rmPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await rmPage.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
+await rmPage.waitForSelector('[data-testid="streak-board"]', { timeout: 15000 });
 const rmAnim = await rmPage.locator(".aurora-flow").first().evaluate((el) => getComputedStyle(el).animationName);
 if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze .aurora-flow (animationName=${rmAnim})`); process.exit(1); }
 console.log("PASS: reduced motion freezes the gradient animation");
