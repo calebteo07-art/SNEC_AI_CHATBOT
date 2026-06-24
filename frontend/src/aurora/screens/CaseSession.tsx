@@ -56,6 +56,8 @@ export function CaseSession() {
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [activeProcedure, setActiveProcedure] = useState<ExamAction | null>(null);
+  const [procText, setProcText] = useState("");
   const [sending, setSending] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
 
@@ -201,20 +203,29 @@ export function CaseSession() {
     }
   };
 
-  // A palette chip: "say" asks the patient (real reply → observe ticks); "do" performs
-  // the action (reveal + tick). Plain function so it always closes over the latest
-  // sendMessage/state. Already-ticked steps are no-ops.
+  // Clicking a manual chip switches the bottom composer into "procedure mode": the
+  // student must type the steps/rules before the step ticks. Already-ticked → no-op.
   const performAction = (a: ExamAction) => {
     if (a.satisfies_steps.some((n) => tickedRef.current.has(n))) return;
-    if (a.mode === "say" && a.prompt_text) {
-      void sendMessage(a.prompt_text);
-      addAuto(a.satisfies_steps);
-      return;
-    }
-    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${a.reveal_text || "done"}]` }]);
+    setActiveProcedure(a);
+    setProcText("");
+  };
+
+  // Confirm the typed technique: post one reveal note (technique + finding) so the
+  // step ticks, the finding shows, and the grader sees the technique in the transcript.
+  const confirmProcedure = () => {
+    const a = activeProcedure;
+    const steps = procText.trim();
+    if (!a || steps.length < 12) return;
+    const result = a.reveal_text ? ` · Result: ${a.reveal_text}` : "";
+    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${steps}${result}]` }]);
     addAuto(a.satisfies_steps);
+    setActiveProcedure(null);
+    setProcText("");
     scheduleObserve();
   };
+
+  const cancelProcedure = () => { setActiveProcedure(null); setProcText(""); };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); }
@@ -322,11 +333,18 @@ export function CaseSession() {
             {messages.map((m, i) => {
               if (m.role === "user" && m.content.startsWith(EXAM_PREFIX)) {
                 const inner = m.content.slice(EXAM_PREFIX.length, -1); // strip prefix + trailing "]"
-                const [label, ...rest] = inner.split(" → ");
+                const arrow = inner.indexOf(" → ");
+                const label = arrow >= 0 ? inner.slice(0, arrow) : inner;
+                const body = arrow >= 0 ? inner.slice(arrow + 3) : "";
+                const sep = " · Result: ";
+                const cut = body.indexOf(sep);
+                const technique = cut >= 0 ? body.slice(0, cut) : body;
+                const resultText = cut >= 0 ? body.slice(cut + sep.length) : "";
                 return (
                   <div key={i} className="aurora-station-reveal">
                     <span className="rl2">Examination performed · {label}</span>
-                    <div className="v">{rest.join(" → ") || label}</div>
+                    {technique && <div className="v">{technique}</div>}
+                    {resultText && <div className="rs">Result · {resultText}</div>}
                   </div>
                 );
               }
@@ -365,13 +383,36 @@ export function CaseSession() {
 
           {station && !result && (
             <>
-              <ActionPalette actions={station.examination_actions} ticked={ticked} busy={sending || isStreaming} onPerform={performAction} />
-              <div className="aurora-station-composer">
-                <textarea className="aurora-station-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
-                <button type="button" className="aurora-station-composer-send" onClick={() => sendMessage()} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                </button>
-              </div>
+              <ActionPalette actions={station.examination_actions} ticked={ticked} activeKey={activeProcedure?.key ?? null} onPerform={performAction} />
+              {activeProcedure ? (
+                <div className="aurora-station-proc">
+                  <div className="aurora-station-proc-cap">
+                    <span><b>{activeProcedure.label}</b> — type the steps &amp; safety rules you'd follow</span>
+                    <button type="button" className="aurora-station-proc-x" onClick={cancelProcedure}>Cancel</button>
+                  </div>
+                  <div className="aurora-station-composer">
+                    <textarea
+                      className="aurora-station-composer-input aurora-station-proc-input"
+                      value={procText}
+                      onChange={(e) => setProcText(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); confirmProcedure(); } }}
+                      placeholder={`How you perform ${activeProcedure.label.toLowerCase()} — key steps, what you tell the patient, safety checks…`}
+                      rows={2}
+                      autoFocus
+                    />
+                    <button type="button" className="aurora-station-composer-send aurora-station-proc-go" onClick={confirmProcedure} disabled={procText.trim().length < 12} aria-label="Log procedure">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 6" /></svg>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="aurora-station-composer">
+                  <textarea className="aurora-station-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
+                  <button type="button" className="aurora-station-composer-send" onClick={() => sendMessage()} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
