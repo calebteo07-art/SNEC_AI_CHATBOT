@@ -36,12 +36,12 @@ await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
     ],
   },
   examination_actions: [
-    { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1 },
-    { key: "s2", label: "Explain procedure", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 2 },
-    { key: "s3", label: "Measure IOP", reveal_text: "IOP (NCT) · avg of 3 → R 18 mmHg · L 20 mmHg", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 3 },
-    { key: "s4", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 4 },
-    { key: "s5", label: "Document results", reveal_text: "", satisfies_steps: [5], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 5 },
-    { key: "s6", label: "Advise on follow-up", reveal_text: "", satisfies_steps: [6], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 6 },
+    { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1, kind: "verbal" },
+    { key: "s2", label: "Explain procedure", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 2, kind: "verbal" },
+    { key: "s3", label: "Measure IOP", reveal_text: "IOP (NCT) · avg of 3 → R 18 mmHg · L 20 mmHg", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 3, kind: "manual" },
+    { key: "s4", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 4, kind: "manual" },
+    { key: "s5", label: "Document results", reveal_text: "", satisfies_steps: [5], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 5, kind: "manual" },
+    { key: "s6", label: "Advise on follow-up", reveal_text: "", satisfies_steps: [6], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 6, kind: "verbal" },
   ],
 })));
 await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [1] })));
@@ -124,18 +124,24 @@ if (Math.abs(pane.stationH - pane.scrollH) > 2) die(`station not bounded to view
 if (pane.clOverflow !== "auto" || pane.threadOverflow !== "auto") die(`scroll panes must be overflow-y:auto, got checklist=${pane.clOverflow} thread=${pane.threadOverflow}`);
 ok("checklist + consult scroll independently (station bounded to viewport)");
 
-// 5. the palette renders a clickable chip for a process step (not just exam findings)
-if (!(await p.locator('.aurora-pchip:has-text("Identify patient")').count())) die("palette missing the 'Identify patient' process chip");
-if ((await p.locator('.aurora-pchip').count()) < 6) die("palette must expose a chip for every step");
-ok("action palette exposes a chip for every step (process + exam)");
+// 5. the palette renders ONLY manual-procedure chips; verbal steps stay in the chat
+if (await p.locator('.aurora-pchip:has-text("Identify patient")').count()) die("verbal step must NOT be a palette chip");
+if (await p.locator('.aurora-pchip:has-text("Explain procedure")').count()) die("verbal 'Explain procedure' must NOT be a palette chip");
+if (!(await p.locator('.aurora-pchip:has-text("Measure IOP")').count())) die("palette missing the Measure IOP manual chip");
+ok("palette shows manual procedures only (verbal steps stay in chat)");
 
-// 5a. clicking a "do" exam chip reveals the finding, ticks its step, marks chip done
+// 5a. clicking a manual chip opens procedure mode → typing technique + confirm logs
+//     the technique, reveals the finding, ticks the step, and marks the chip done.
 await p.locator('.aurora-pchip:has-text("Measure IOP")').click();
+await p.waitForSelector(".aurora-station-proc", { timeout: 5000 });
+await p.locator(".aurora-station-proc-input").fill("Seat patient at the tonometer, ask them to look straight ahead and not blink, take three readings and average.");
+await p.locator(".aurora-station-proc-go").click();
 await p.waitForSelector(".aurora-station-reveal", { timeout: 5000 });
-if (!(await p.locator('.aurora-station-reveal:has-text("18 mmHg")').count())) die("reveal card missing IOP value");
-if (!(await p.locator('.aurora-pchip[data-done="true"]:has-text("Measure IOP")').count())) die("exam chip did not become done");
-if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) < 1) die("performing IOP did not tick its step row");
-ok("do-chip reveals finding + ticks step + marks chip done");
+if (!(await p.locator('.aurora-station-reveal:has-text("18 mmHg")').count())) die("reveal missing IOP result");
+if (!(await p.locator('.aurora-station-reveal:has-text("Seat patient")').count())) die("reveal missing the typed technique");
+if (!(await p.locator('.aurora-pchip[data-done="true"]:has-text("Measure IOP")').count())) die("chip did not become done after confirm");
+if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) < 1) die("confirm did not tick the step row");
+ok("manual chip → procedure mode → confirm logs technique + result + ticks step");
 
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
@@ -143,19 +149,23 @@ await p.locator(".aurora-station-composer-send").click();
 await p.waitForFunction(() => document.querySelector(".aurora-station-thread")?.textContent?.includes("Good morning, doctor."), null, { timeout: 8000 });
 ok("patient consult streams a reply");
 
-// 7. submit → Station-100 debrief: /100 score, 3 component cards, Highlights/Watch-outs
+// 7. submit → the handover + debrief pop up in an OVERLAY (out of the chat thread).
 await p.locator('.aurora-station-submit-toggle').click();
-await p.locator('textarea[data-field="findings"]').fill("Stable IOP on repeat readings; no red flags. Routine review.");
-await p.locator('textarea[data-field="recommendation"]').fill("Route as routine; document readings; advise to return if vision changes.");
-await p.locator('.aurora-station-submit-go').click();
-await p.waitForSelector(".aurora-station-result", { timeout: 10000 });
+await p.waitForSelector(".aurora-station-overlay-card", { timeout: 5000 });
+if (await p.locator('.aurora-station-thread .aurora-station-form').count()) die("handover form must be in the overlay, not the chat thread");
+if (!(await p.locator('.aurora-station-overlay-card label:has-text("Findings")').count())) die("handover must show the relabelled 'Findings' field");
+if (!(await p.locator('.aurora-station-overlay-card label:has-text("Next steps")').count())) die("handover must show the relabelled 'Next steps' field");
+await p.locator('.aurora-station-overlay-card textarea[data-field="findings"]').fill("Stable IOP on repeat readings; no red flags. Routine review.");
+await p.locator('.aurora-station-overlay-card textarea[data-field="recommendation"]').fill("Route as routine; document readings; advise to return if vision changes.");
+await p.locator('.aurora-station-overlay-card .aurora-station-submit-go').click();
+await p.waitForSelector(".aurora-station-overlay-card .aurora-station-result", { timeout: 10000 });
 if (!(await p.locator('.aurora-s100-score:has-text("/100")').count())) die("result must show score out of 100");
 if (!(await p.locator('.aurora-s100-verdict:has-text("Solid")').count())) die("result must show the verdict");
 if ((await p.locator(".aurora-s100-comp").count()) !== 3) die("result must show 3 component cards");
 if (!(await p.locator('.aurora-s100-safety.is-safe').count())) die("result must show the safety badge");
 if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list highlights");
 if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list watch-outs");
-ok("submit shows the Station-100 debrief (/100 + components + highlights/watch-outs)");
+ok("handover + Station-100 debrief pop up in the overlay (Findings / Next steps)");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });
