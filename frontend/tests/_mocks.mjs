@@ -61,10 +61,10 @@ export async function mockApis(ctx, user) {
         { phase: 3, name: "Documentation & Follow-up", steps: [ { step_number: 4, action: "Record readings in EMR", critical: false, category: "documentation", notes: null } ] },
       ] },
     examination_actions: [
-      { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1 },
-      { key: "s2", label: "Measure IOP", reveal_text: "IOP (NCT) → R 18 mmHg · L 20 mmHg", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 2 },
-      { key: "s3", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 3 },
-      { key: "s4", label: "Document results", reveal_text: "", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 4 },
+      { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: true, step_number: 1, kind: "verbal" },
+      { key: "s2", label: "Measure IOP", reveal_text: "IOP (NCT) → R 18 mmHg · L 20 mmHg", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 2, kind: "manual" },
+      { key: "s3", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 3, kind: "manual" },
+      { key: "s4", label: "Document results", reveal_text: "", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 4, kind: "manual" },
     ],
   })));
   await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [] })));
