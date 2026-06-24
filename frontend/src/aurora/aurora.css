@@ -2645,17 +2645,28 @@ html[data-motion="reduce"] .flash-scene { transition: none; }
 .aurora-s100-focus { background:rgba(155,114,203,.18); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:.84rem; margin-bottom:18px; }
 .aurora-s100-focus b { font-weight:650; color:#c8bcff; }
 
-/* ── Action palette ──────────────────────────────────────────────── */
-.aurora-palette { margin-top:6px; }
-.aurora-palette-scroll { display:flex; flex-direction:column; gap:8px; max-height:168px; overflow-y:auto; padding-right:2px; }
-.aurora-palette-group { display:flex; align-items:flex-start; gap:8px; }
-.aurora-palette-gl { flex:0 0 auto; font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); padding-top:6px; width:50px; }
-.aurora-palette-chips { display:flex; flex-wrap:wrap; gap:6px; }
-.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; padding:5px 10px; border-radius:999px; border:1px solid var(--hairline); background:rgba(255,255,255,.06); color:var(--ink-2); cursor:pointer; transition:transform .12s, background .2s, border-color .2s; }
-.aurora-pchip:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(155,114,203,.6); color:var(--ink); }
-.aurora-pchip .ic { font-weight:700; opacity:.6; }
-.aurora-pchip[data-mode="say"] { background:rgba(155,114,203,.16); }
+/* ── Manual-procedures tray ──────────────────────────────────────────
+   A quiet strip that blends into the composer cluster. (Renamed off
+   `.aurora-palette` so it no longer inherits the command-palette modal box.) */
+.aurora-protray { margin-top:10px; }
+.aurora-protray-cap { display:block; font-size:.72rem; color:var(--ink-3); margin:0 0 6px 2px; }
+.aurora-protray-chips { display:flex; flex-wrap:wrap; gap:6px; max-height:120px; overflow-y:auto; }
+.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; padding:5px 11px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; transition:transform .12s, background .2s, border-color .2s; }
+.aurora-pchip:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(155,114,203,.55); color:var(--ink); }
+.aurora-pchip .ic { font-weight:700; opacity:.55; }
+.aurora-pchip[data-active="true"] { border-color:var(--g-blue); background:rgba(66,133,244,.1); color:var(--ink); }
+.aurora-pchip[data-active="true"] .ic { opacity:1; color:var(--g-blue); }
 .aurora-pchip[data-crit="true"]:not([data-done="true"]) { border-color:rgba(242,162,175,.5); }
-.aurora-pchip[data-done="true"] { background:rgba(52,168,83,.2); border-color:transparent; color:var(--on-green); cursor:default; }
+.aurora-pchip[data-done="true"] { background:rgba(52,168,83,.18); border-color:transparent; color:var(--on-green); cursor:default; }
 .aurora-pchip[data-done="true"] .ic { opacity:1; color:var(--on-green); }
 .aurora-pchip:disabled { cursor:default; }
+
+/* Procedure mode — the composer's "type your technique" state. Shares the composer
+   row so nothing new "appears"; a soft caption sits above it. */
+.aurora-station-proc { margin-top:10px; }
+.aurora-station-proc-cap { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:.8rem; color:var(--ink-2); margin:0 0 6px 2px; }
+.aurora-station-proc-cap b { color:var(--ink); }
+.aurora-station-proc-x { border:none; background:none; color:var(--ink-3); font-size:.78rem; cursor:pointer; padding:2px 6px; border-radius:8px; }
+.aurora-station-proc-x:hover { color:var(--ink); background:rgba(120,90,170,.1); }
+.aurora-station-proc-go { background:linear-gradient(135deg, #34A853, #4285F4) !important; }
+.aurora-station-proc-input { border-color:rgba(66,133,244,.4) !important; }
