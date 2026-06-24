@@ -764,10 +764,137 @@ html[data-motion="reduce"] .aurora-dash .aurora-bigstat[data-tone="amber"]::afte
 .aurora-activity-topic { font-size: 17.9px; color: var(--ink); font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .aurora-activity-mode { font-family: var(--font-mono); font-size: 13.4px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); flex-shrink: 0; padding: 3px 10px; border: 1px solid var(--hairline); border-radius: 999px; }
 
+/* ─────────────── Streak band — the "Week Lens" (dashboard only) ───────────── */
+.aurora-streakband {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: clamp(16px, 2.4vw, 28px); flex-wrap: wrap;
+  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.4vw, 26px);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+.aurora-streakband::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(220px 130px at 70px 50%, rgba(251, 140, 40, 0.16), transparent 72%);
+}
+.aurora-streakband > * { position: relative; }
+
+.aurora-streakband-lead { display: flex; align-items: center; gap: 15px; min-width: 184px; }
+.aurora-flame { flex-shrink: 0; transform-origin: 50% 92%; filter: drop-shadow(0 0 12px rgba(251, 140, 40, 0.55)); }
+.aurora-flame-outer { transform-origin: 50% 92%; animation: aurora-flame-sway 2.8s ease-in-out infinite; }
+.aurora-flame-core { transform-origin: 50% 92%; animation: aurora-flame-flicker 1.4s ease-in-out infinite; }
+@keyframes aurora-flame-sway { 0%, 100% { transform: scaleY(1) skewX(0); } 30% { transform: scaleY(1.05) skewX(-3deg); } 65% { transform: scaleY(0.97) skewX(2deg); } }
+@keyframes aurora-flame-flicker { 0%, 100% { transform: scaleY(1); opacity: 0.92; } 45% { transform: scaleY(1.13); opacity: 1; } 75% { transform: scaleY(0.9); opacity: 0.82; } }
+
+.aurora-streakband-count { display: flex; flex-direction: column; }
+.aurora-streakband-numrow { display: flex; align-items: baseline; gap: 9px; margin: 0; }
+.aurora-streakband-num {
+  font-family: var(--font-flourish), Georgia, serif; font-weight: 700; line-height: 0.9;
+  font-size: clamp(44px, 5.6vw, 58px); letter-spacing: -0.01em;
+  background: linear-gradient(118deg, #5BE0E6, #9B8BF2 48%, #F77A86);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.aurora-streakband-unit { font-family: var(--font-flourish), Georgia, serif; font-style: italic; font-size: 16px; color: var(--ink-2); }
+.aurora-streakband-tier {
+  font-family: var(--font-flourish), Georgia, serif; font-style: italic; font-weight: 600; font-size: 18.5px; margin-top: 3px;
+  background: linear-gradient(100deg, #5BE0E6, #E26FD0);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.aurora-streakband-week { display: flex; gap: 9px; margin: 0 0 0 auto; padding: 0; list-style: none; flex-wrap: wrap; }
+.aurora-week-day { display: flex; flex-direction: column; align-items: center; gap: 7px; --dot: #5B9DFF; --dot-lt: #9CC2FF; }
+.aurora-streakband-week .aurora-week-day:nth-child(1) { --dot: #11C2D2; --dot-lt: #7BEAF0; }
+.aurora-streakband-week .aurora-week-day:nth-child(2) { --dot: #3C7DF0; --dot-lt: #8FB8FF; }
+.aurora-streakband-week .aurora-week-day:nth-child(3) { --dot: #7C5CF0; --dot-lt: #B9A7F7; }
+.aurora-streakband-week .aurora-week-day:nth-child(4) { --dot: #E26FD0; --dot-lt: #F0A6E4; }
+.aurora-streakband-week .aurora-week-day:nth-child(5) { --dot: #F2698A; --dot-lt: #FBA6BC; }
+
+.aurora-week-dot {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.04);
+  transition: transform 0.3s var(--mo-over, ease);
+}
+.aurora-week-day[data-state="done"] .aurora-week-dot {
+  border: 0; background: radial-gradient(circle at 34% 28%, var(--dot-lt), var(--dot));
+  box-shadow: 0 7px 20px -6px color-mix(in srgb, var(--dot) 75%, transparent);
+}
+.aurora-week-day[data-state="today"] .aurora-week-dot {
+  border: 2px solid var(--dot); color: var(--dot-lt);
+  background: color-mix(in srgb, var(--dot) 12%, transparent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--dot) 13%, transparent);
+  animation: aurora-week-pulse 2.2s ease-in-out infinite;
+}
+.aurora-week-day[data-state="missed"] .aurora-week-dot { border: 1.5px dashed rgba(240, 135, 108, 0.4); background: rgba(240, 135, 108, 0.05); }
+.aurora-week-day[data-state="rest"] .aurora-week-dot,
+.aurora-week-day[data-state="rest-done"] .aurora-week-dot {
+  width: 36px; height: 36px; border: 1.5px dashed rgba(255, 190, 130, 0.32);
+  background: rgba(251, 168, 56, 0.05); color: #C9A98A;
+}
+@keyframes aurora-week-pulse { 0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--dot) 13%, transparent); } 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--dot) 4%, transparent); } }
+.aurora-week-dl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-week-day[data-state="today"] .aurora-week-dl { color: var(--dot-lt); }
+
+.aurora-streakband-chips { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.aurora-streakband-chip {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05); color: var(--ink-2);
+}
+.aurora-streakband-chip.is-done { color: #8FE6C0; border-color: rgba(67, 199, 107, 0.32); background: rgba(67, 199, 107, 0.10); }
+.aurora-streakband-chip.is-freeze { color: #9FE1FF; border-color: rgba(34, 184, 212, 0.35); background: rgba(34, 184, 212, 0.10); }
+.aurora-streakband-chip.is-best { color: #FBD08A; border-color: rgba(251, 168, 56, 0.3); background: rgba(251, 168, 56, 0.08); }
+.aurora-streakband-chip.is-next { color: #C9CED9; }
+.aurora-streakband-cta {
+  display: inline-flex; align-items: center; gap: 9px; text-decoration: none;
+  font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 999px; color: #fff;
+  background: linear-gradient(100deg, #5B5BFF, #9B72CB 52%, #F07A86);
+  box-shadow: 0 8px 22px -8px rgba(91, 91, 255, 0.7);
+  animation: aurora-cta-glow 2.6s ease-in-out infinite;
+}
+.aurora-streakband-cta:hover { filter: brightness(1.06); }
+@keyframes aurora-cta-glow { 0%, 100% { box-shadow: 0 8px 22px -8px rgba(91, 91, 255, 0.7); } 50% { box-shadow: 0 8px 30px -6px rgba(155, 114, 203, 0.85); } }
+
+html[data-motion="reduce"] .aurora-flame-outer,
+html[data-motion="reduce"] .aurora-flame-core,
+html[data-motion="reduce"] .aurora-week-day[data-state="today"] .aurora-week-dot,
+html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-flame-outer, .aurora-flame-core,
+  .aurora-week-day[data-state="today"] .aurora-week-dot, .aurora-streakband-cta { animation: none !important; }
+}
+
+/* ─────────────── Dashboard feature launchpad (link to every feature) ──────── */
+.aurora-launch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.aurora-launchcard {
+  position: relative; overflow: hidden; text-decoration: none;
+  display: flex; flex-direction: column; gap: 8px; min-height: 132px;
+  padding: 18px 20px; border-radius: var(--radius-xl);
+  transition: transform 0.32s var(--mo-over, ease), box-shadow 0.32s ease;
+}
+/* Bold, distinct, vibrant — each feature owns a saturated gradient (violet /
+   azure / rose), set apart from the cyan/green/amber stat cards below. */
+.aurora-launchcard[data-tone="tutor"] { background: linear-gradient(150deg, #9B5CF6, #5B16C9); }
+.aurora-launchcard[data-tone="cases"] { background: linear-gradient(150deg, #18CBB0, #0A7E66); }
+.aurora-launchcard[data-tone="flash"] { background: linear-gradient(150deg, #FF7A3C, #D5380F); }
+.aurora-launchcard:hover { transform: translateY(-5px); box-shadow: 0 26px 60px -24px rgba(0, 0, 0, 0.6); }
+.aurora-launchcard::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(210px 140px at 86% 0%, rgba(255, 255, 255, 0.22), transparent 70%);
+}
+.aurora-launch-ico { position: relative; width: 36px; height: 36px; color: #fff; }
+.aurora-launch-title { position: relative; font-size: 20px; font-weight: 700; color: #fff; margin: 0; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.22); }
+.aurora-launch-sub { position: relative; font-size: 14px; color: rgba(255, 255, 255, 0.92); margin: 0; line-height: 1.4; }
+.aurora-launch-go { position: relative; margin-top: auto; font-family: var(--font-mono); font-size: 13px; color: #fff; letter-spacing: 0.04em; font-weight: 600; }
+
 @media (max-width: 820px) {
   .aurora-dash { min-height: 0; }
   .aurora-bigstats { grid-template-columns: 1fr; flex: 0 0 auto; min-height: 0; }
   .aurora-dash .aurora-hero-readouts { gap: 18px; }
+  .aurora-launch { grid-template-columns: 1fr; }
+  .aurora-streakband { gap: 16px; }
+  .aurora-streakband-week { margin-left: 0; }
+  .aurora-streakband-chips { width: 100%; }
 }
 
 /* ─────────────────── Shared headings ─────────────────── */
