@@ -111,6 +111,10 @@ _MOCK_RESPONSES: dict[str, str] = {
     "checkin": (
         "What is the most common cause of painless, gradual visual field loss in a 65-year-old?"
     ),
+    "case_action": (
+        "Nicely done — you steadied the lid without pressing on the globe. "
+        "Next time, take three readings and average them for reliability."
+    ),
     "debrief": (
         "**What you got right:** Correctly identified the presenting symptom as insidious peripheral vision loss. "
         "Good history of family risk factors.\n\n"
