@@ -1,12 +1,13 @@
 "use client";
-/* AURORA Guided OSCE Station — the virtual-patient simulation rebuilt as a
-   colourful, animated, light-mode OSCE station. A living gradient-mesh canvas
-   frames two gradient-ring glass cards: (left) the patient + the auto-tracked,
-   phase-grouped OSCE checklist; (right) the patient consult thread, examination
-   tray, and scored debrief. SSE streaming chat + submit/scoring are preserved
-   from the legacy screen. The checklist now comes from /station, ticks live via
-   /observe + deterministic exam-action ticks (manual toggle retained), and
-   grading shows a per-phase summary + encouraging debrief. Motion is CSS-only. */
+/* AURORA Guided OSCE Station — the virtual-patient simulation as a colourful,
+   animated, light-mode Triptych: (left) the patient + auto-tracked, phase-grouped
+   OSCE checklist; (middle) the warm Patient chat (talk to the patient, SSE stream);
+   (right) the cool EyeBot action panel (manual procedures → result + a short AI
+   coaching note), shown only when the case has manual actions. One `messages` array
+   tags each entry with `channel` so the two panes are filtered views that stay in
+   sync — /observe and /submit see the full transcript, /chat sees patient-only.
+   The checklist ticks live via /observe + deterministic exam-action ticks (manual
+   toggle retained); the scored debrief opens in an overlay. Motion is CSS-only. */
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PLATE } from "@/aurora/media";
