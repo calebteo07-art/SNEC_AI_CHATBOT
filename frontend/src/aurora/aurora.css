@@ -1215,6 +1215,14 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-step[data-ticked="partial"] .bx { background: linear-gradient(135deg, rgba(155,114,203,.6), rgba(155,114,203,.32)); border-color: rgba(155,114,203,.65); color: #fff; }
 .aurora-station-step .crit { font-size: 9px; color: #fff; background: var(--on-rose-2); border-radius: 4px; padding: 1px 5px; margin-left: auto; flex: none; align-self: center; }
 .aurora-station-step .au { font-size: 9px; color: var(--on-green-2); margin-left: 6px; flex: none; align-self: center; white-space: nowrap; }
+.aurora-station-step[data-current="true"] { background: rgba(91,91,255,.07); box-shadow: inset 0 0 0 1.5px rgba(91,91,255,.32); }
+.aurora-station-step[data-current="true"] .bx { border-color: var(--g-blue); animation: station-currentpulse 1.9s ease-in-out infinite; }
+.aurora-station-step[data-locked="true"] { color: var(--ink-3); opacity: .55; cursor: not-allowed; }
+.aurora-station-step[data-locked="true"]:hover { background: none; }
+.aurora-station-step[data-locked="true"] .bx { border-style: dashed; background: rgba(255,255,255,.32); color: var(--ink-3); font-size: 10px; line-height: 15px; }
+.aurora-station-step[data-locked="true"] .crit { opacity: .5; }
+@keyframes station-currentpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(91,91,255,.30); } 50% { box-shadow: 0 0 0 4px rgba(91,91,255,0); } }
+.aurora-station-cl-help { margin: 1px 2px 9px; font-size: 11px; line-height: 1.5; color: var(--ink-3); }
 /* Quiet helper line under the checklist — explains the auto-tick + manual tap. */
 .aurora-station-cl-legend { margin: 10px 2px 2px; font-size: 11px; line-height: 1.5; color: var(--ink-3); }
 .aurora-station-cl-legend .au { font-size: 10px; color: var(--on-green-2); font-weight: 700; }
@@ -1297,7 +1305,7 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-mesh, .aurora-station-ring, .aurora-station-title em, .aurora-station-rl.is-now,
   .aurora-station-phase .aurora-station-node, .aurora-station-bubble, .aurora-station-reveal,
-  .aurora-station-reveal::after, .aurora-station-step[data-ticked="true"] .bx, .aurora-station-pbar i { animation: none !important; }
+  .aurora-station-reveal::after, .aurora-station-step[data-ticked="true"] .bx, .aurora-station-step[data-current="true"] .bx, .aurora-station-pbar i { animation: none !important; }
 }
 html[data-motion="reduce"] .aurora-station-mesh,
 html[data-motion="reduce"] .aurora-station-ring,
@@ -1308,6 +1316,7 @@ html[data-motion="reduce"] .aurora-station-bubble,
 html[data-motion="reduce"] .aurora-station-reveal,
 html[data-motion="reduce"] .aurora-station-reveal::after,
 html[data-motion="reduce"] .aurora-station-step[data-ticked="true"] .bx,
+html[data-motion="reduce"] .aurora-station-step[data-current="true"] .bx,
 html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; }
 
 /* ── Consult after dark — the patient-consult (right) pane ────────────────────
@@ -2825,6 +2834,8 @@ html[data-motion="reduce"] .flash-scene { transition: none; }
 .aurora-pchip[data-done="true"] { background:rgba(52,168,83,.18); border-color:transparent; color:var(--on-green); cursor:default; }
 .aurora-pchip[data-done="true"] .ic { opacity:1; color:var(--on-green); }
 .aurora-pchip:disabled { cursor:default; }
+.aurora-pchip[data-locked="true"] { opacity: .5; border-style: dashed; cursor: not-allowed; }
+.aurora-pchip[data-locked="true"] .ic { opacity: .8; }
 
 /* Procedure mode — the composer's "type your technique" state. Shares the composer
    row so nothing new "appears"; a soft caption sits above it. */
