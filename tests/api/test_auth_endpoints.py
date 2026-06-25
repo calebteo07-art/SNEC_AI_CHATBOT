@@ -61,6 +61,36 @@ def test_login_not_approved():
     assert r.status_code == 403
 
 
+def test_login_no_password_hash_rejected():
+    """An approved account that has never had a password set must NOT be logged in
+    on an arbitrary string (the old 'legacy account' hole). It is directed to the
+    reset flow instead. This also closes super-admin first-login privilege escalation."""
+    approved_row = _make_approved_row("nopass@test.com")
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=None)):
+        r = client.post("/api/auth/login", json={"email": "nopass@test.com", "password": "anything-at-all"})
+    assert r.status_code == 403
+    assert "password" in r.json()["detail"].lower()
+    # No session cookie may be issued on a rejected login.
+    assert "eyebot_token" not in r.cookies
+
+
+def test_login_empty_password_hash_rejected():
+    """An auth row present but with a blank hash must also be rejected, not
+    silently accepted (the second branch of the same bug)."""
+    approved_row = _make_approved_row("blank@test.com")
+    auth_row = {"email": "blank@test.com", "password_hash": "", "must_change": True}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)):
+        r = client.post("/api/auth/login", json={"email": "blank@test.com", "password": "anything"})
+    assert r.status_code == 403
+    assert "eyebot_token" not in r.cookies
+
+
 def test_login_student_promoted_to_supervisor():
     """Student in both approved_students and supervisors gets supervisor role."""
     auth_row = _make_auth_row("promo@test.com", "pass123")
