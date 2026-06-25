@@ -19,11 +19,12 @@ import asyncio
 import os
 import sys
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
@@ -31,6 +32,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.shared.gemini_client import MOCK_MODE
+from tools.shared.config import assert_production_ready
 from tools.api.shared import limiter
 from tools.api.routers.auth import router as auth_router
 from tools.api.routers.cases import router as cases_router
@@ -41,7 +43,32 @@ from tools.api.routers.checkin import router as checkin_router
 from tools.api.routers.student import router as student_router
 from tools.api.routers.media import router as media_router
 
-app = FastAPI(title="EyeBot API")
+# Largest request body we accept (bytes). One oversized request must not be able
+# to exhaust the instance. Tune via env; uploads are well under this.
+MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "2000000"))
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Fail closed: refuse to start in production on an insecure/incomplete env
+    # (forgeable JWT, missing DB, wildcard CORS) instead of running silently.
+    assert_production_ready()
+
+    # Bound the worker threadpool that runs blocking calls (Gemini, bcrypt, SMTP)
+    # off the event loop, so a load spike queues instead of exhausting the
+    # instance while the event loop stays free to serve /health and stream.
+    try:
+        import anyio
+        tokens = int(os.getenv("THREAD_POOL_TOKENS", "64"))
+        anyio.to_thread.current_default_thread_limiter().total_tokens = tokens
+        print(f"[startup] thread-pool tokens = {tokens}", flush=True)
+    except Exception as exc:  # never block startup on this
+        print(f"[startup] could not set thread-pool tokens: {exc}", flush=True)
+
+    yield
+
+
+app = FastAPI(title="EyeBot API", lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -59,6 +86,22 @@ app.add_middleware(
 
 
 @app.middleware("http")
+async def limit_request_size(request, call_next):
+    """Reject oversized bodies up front (before routing/rate limiting) so a
+    single large request can't blow the instance's memory budget."""
+    content_length = request.headers.get("content-length")
+    if content_length is not None:
+        try:
+            if int(content_length) > MAX_REQUEST_BYTES:
+                return JSONResponse(
+                    {"detail": "Request body too large"}, status_code=413
+                )
+        except ValueError:
+            pass
+    return await call_next(request)
+
+
+@app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -67,22 +110,6 @@ async def add_security_headers(request, call_next):
     response.headers["X-XSS-Protection"] = "0"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     return response
-
-
-@app.on_event("startup")
-async def _configure_concurrency() -> None:
-    """Bound the worker threadpool that runs blocking calls (Gemini, bcrypt, SMTP)
-    off the event loop. This caps how many blocking ops run at once so a load
-    spike queues instead of exhausting the 512MB instance, while the event loop
-    itself stays free to serve /health and stream responses. Tune via env on a
-    larger plan."""
-    import anyio
-    tokens = int(os.getenv("THREAD_POOL_TOKENS", "64"))
-    try:
-        anyio.to_thread.current_default_thread_limiter().total_tokens = tokens
-        print(f"[startup] thread-pool tokens = {tokens}", flush=True)
-    except Exception as exc:  # never block startup on this
-        print(f"[startup] could not set thread-pool tokens: {exc}", flush=True)
 
 
 app.include_router(auth_router)

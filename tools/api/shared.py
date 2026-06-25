@@ -2,9 +2,62 @@
 import os
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 
-limiter = Limiter(key_func=get_remote_address)
+from tools.shared.config import is_production
+
+
+def _client_ip(request) -> str:
+    """The real client IP, not the Next reverse-proxy's localhost peer.
+
+    In production the chain is browser -> Render edge -> Next rewrite -> FastAPI,
+    so the socket peer is always 127.0.0.1. The original client is the leftmost
+    entry of X-Forwarded-For; fall back to the socket host only when no proxy
+    header is present (pure local dev)."""
+    xff = request.headers.get("x-forwarded-for") if request.headers else None
+    if xff:
+        return xff.split(",")[0].strip()
+    client = getattr(request, "client", None)
+    return getattr(client, "host", None) or "anonymous"
+
+
+def rate_limit_key(request) -> str:
+    """Identify the caller for rate limiting: authenticated user first, else IP.
+
+    Keying on the JWT subject means a logged-in user's budget follows them across
+    devices/IPs and can't be shared or evaded; pre-auth routes (login/reset) key
+    on the real client IP so one abuser can't lock out the cohort."""
+    token = None
+    try:
+        token = request.cookies.get("eyebot_token")
+    except Exception:
+        token = None
+    if token:
+        try:
+            from tools.shared.jwt_utils import decode_token
+            return f"user:{decode_token(token)['sub']}"
+        except Exception:
+            pass  # invalid/expired token -> fall through to IP keying
+    return f"ip:{_client_ip(request)}"
+
+
+def _ratelimit_storage_uri() -> str | None:
+    """Where slowapi keeps its counters. Redis in production (shared across
+    workers/instances); in-memory in dev/test (no Redis dependency to run tests).
+    ``RATELIMIT_STORAGE_URI`` overrides for explicit control."""
+    explicit = os.getenv("RATELIMIT_STORAGE_URI", "").strip()
+    if explicit:
+        return explicit
+    if is_production() and os.getenv("REDIS_URL", "").strip():
+        return os.getenv("REDIS_URL").strip()
+    return None
+
+
+_storage = _ratelimit_storage_uri()
+limiter = (
+    Limiter(key_func=rate_limit_key, storage_uri=_storage)
+    if _storage
+    else Limiter(key_func=rate_limit_key)
+)
 
 SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
 

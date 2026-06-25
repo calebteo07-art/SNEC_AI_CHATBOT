@@ -13,12 +13,20 @@ services:
         value: "24.13.0"
       - key: ENVIRONMENT
         value: production
-      # After first deploy, set ALLOWED_ORIGINS to your Render URL, e.g.:
-      # https://eyebot.onrender.com
-      # Leave blank or set to * for initial deployment
+      # Explicit public origin REQUIRED in production — the boot guard
+      # (tools/shared/config.py) refuses to start on "*" or empty. Update if the
+      # service URL changes.
       - key: ALLOWED_ORIGINS
-        value: "*"
+        value: "https://snec-ai-chatbot.onrender.com"
+      # Stateless uvicorn workers. 2 needs ~1GB RAM — pair with the `standard`
+      # plan (see note above) for real cohorts; the `free`/`starter` 512MB tier
+      # should stay at 1.
+      - key: WEB_CONCURRENCY
+        value: "1"
       # --- Secrets: add these in the Render dashboard, NOT here ---
+      # REDIS_URL              # rate-limit + cross-worker state; provision a
+      #                          Render Key Value store. Falls back to in-memory
+      #                          (per-worker) if unset — fine at WEB_CONCURRENCY=1.
       # GEMINI_API_KEY
       # GEMINI_MODEL
       # SUPABASE_URL
