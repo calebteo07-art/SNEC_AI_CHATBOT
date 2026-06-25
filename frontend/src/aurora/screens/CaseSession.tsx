@@ -12,7 +12,9 @@ import { useParams, useRouter } from "next/navigation";
 import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
-import { ActionPalette, type ExamAction } from "@/aurora/components/ActionPalette";
+import { type ExamAction } from "@/aurora/components/ActionPalette";
+import { PatientChat } from "@/aurora/components/PatientChat";
+import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
 
 interface CaseInfo {
@@ -24,7 +26,8 @@ interface StationData {
   checklist: { procedure_name: string; phases: StationPhase[]; total_steps: number; critical_count: number; source: string };
   examination_actions: ExamAction[];
 }
-interface ChatMessage { role: "user" | "assistant"; content: string }
+type Channel = "patient" | "eyebot";
+interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel }
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
@@ -61,6 +64,11 @@ export function CaseSession() {
   const [procText, setProcText] = useState("");
   const [sending, setSending] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [coachingPending, setCoachingPending] = useState(false);
+
+  // Backend reads only {role, content}; `channel` is a frontend view key. Strip it so
+  // request bodies are byte-identical to today (no Pydantic extra-field breakage).
+  const toApi = (msgs: ChatMessage[]) => msgs.map(({ role, content }) => ({ role, content }));
 
   const [showSubmit, setShowSubmit] = useState(false);
   const [findings, setFindings] = useState("");
@@ -130,7 +138,7 @@ export function CaseSession() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         signal: ctrl.signal,
-        body: JSON.stringify({ messages: messagesRef.current.slice(-100), already_ticked: Array.from(tickedRef.current) }),
+        body: JSON.stringify({ messages: toApi(messagesRef.current.slice(-100)), already_ticked: Array.from(tickedRef.current) }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = (await res.json()) as { newly_satisfied?: number[] };
@@ -175,19 +183,21 @@ export function CaseSession() {
   const sendMessage = async (textArg?: string) => {
     const content = (textArg ?? input).trim();
     if (!content || sending || isStreaming || !caseId) return;
-    const updated = [...messages, { role: "user", content } as ChatMessage];
+    const updated: ChatMessage[] = [...messages, { role: "user", content, channel: "patient" }];
     setMessages(updated);
     if (textArg === undefined) setInput("");
     setSending(true);
     try {
+      // Only the patient conversation is sent as context — EyeBot exam chatter is excluded.
+      const patientHistory = toApi(updated.filter((m) => m.channel === "patient"));
       const res = await fetch(`/api/cases/${caseId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: updated }),
+        body: JSON.stringify({ messages: patientHistory }),
       });
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "", channel: "patient" }]);
       setSending(false);
       setIsStreaming(true);
       const reader = res.body.getReader();
@@ -208,8 +218,8 @@ export function CaseSession() {
             if (parsed.text) {
               setMessages((prev) => {
                 const last = prev[prev.length - 1];
-                if (last.role === "assistant")
-                  return [...prev.slice(0, -1), { role: "assistant", content: last.content + parsed.text }];
+                if (last && last.role === "assistant" && last.channel === "patient")
+                  return [...prev.slice(0, -1), { ...last, content: last.content + parsed.text }];
                 return prev;
               });
               endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -221,8 +231,9 @@ export function CaseSession() {
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         const fb = "(I'm having trouble reaching the service right now.)";
-        if (last && last.role === "assistant") return [...prev.slice(0, -1), { role: "assistant", content: fb }];
-        return [...prev, { role: "assistant", content: fb }];
+        if (last && last.role === "assistant" && last.channel === "patient")
+          return [...prev.slice(0, -1), { ...last, content: fb }];
+        return [...prev, { role: "assistant", content: fb, channel: "patient" }];
       });
     } finally {
       setSending(false);
@@ -236,23 +247,47 @@ export function CaseSession() {
   // is a no-op (.every, matching the palette's done state) — a merged chip whose run
   // is only partly ticked must still open so its remaining steps can be completed.
   const performAction = (a: ExamAction) => {
+    if (sending || isStreaming) return; // don't interleave with a live patient stream
     if (a.satisfies_steps.every((n) => tickedRef.current.has(n))) return;
     setActiveProcedure(a);
     setProcText("");
   };
 
-  // Confirm the typed technique: post one reveal note (technique + finding) so the
-  // step ticks, the finding shows, and the grader sees the technique in the transcript.
+  // Confirm the typed technique: post one eyebot-channel reveal (technique + finding) so the
+  // step ticks and the grader sees the technique, then ask EyeBot for a short coaching note.
   const confirmProcedure = () => {
     const a = activeProcedure;
     const steps = procText.trim();
     if (!a || steps.length < 12) return;
-    const result = a.reveal_text ? ` · Result: ${a.reveal_text}` : "";
-    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${steps}${result}]` }]);
+    const resultText = a.reveal_text ? ` · Result: ${a.reveal_text}` : "";
+    setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label} → ${steps}${resultText}]`, channel: "eyebot" }]);
     addAuto(a.satisfies_steps);
     setActiveProcedure(null);
     setProcText("");
     scheduleObserve();
+    void runAction(a, steps);
+  };
+
+  // EyeBot micro-coaching. Non-blocking + graceful: the result is already shown and the step
+  // already ticked, so a failure just means no coaching bubble.
+  const runAction = async (a: ExamAction, technique: string) => {
+    if (!caseId) return;
+    setCoachingPending(true);
+    try {
+      const res = await fetch(`/api/cases/${caseId}/action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ action_label: a.label, technique, finding: a.reveal_text }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const data = (await res.json()) as { coaching?: string };
+      if (data.coaching) setMessages((prev) => [...prev, { role: "assistant", content: data.coaching!, channel: "eyebot" }]);
+    } catch {
+      /* graceful: result already shown, no coaching */
+    } finally {
+      setCoachingPending(false);
+    }
   };
 
   const cancelProcedure = () => { setActiveProcedure(null); setProcText(""); };
@@ -270,7 +305,7 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages, findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked) }),
+        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked) }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
@@ -286,6 +321,11 @@ export function CaseSession() {
   const criticalSteps = allSteps.filter((s) => s.critical);
   const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
   const gateStep = currentStep(allSteps.map((s) => s.step_number), ticked); // current unlockable step, or null
+
+  const patientMessages = messages.filter((m) => m.channel === "patient").map(({ role, content }) => ({ role, content }));
+  const eyebotMessages = messages.filter((m) => m.channel === "eyebot").map(({ role, content }) => ({ role, content }));
+  const manualActions = (station?.examination_actions ?? []).filter((a) => a.kind === "manual");
+  const hasEyebot = manualActions.length > 0;
 
   if (loadError) {
     return (
@@ -320,8 +360,8 @@ export function CaseSession() {
         </div>
       </header>
 
-      <div className="aurora-station-grid">
-        {/* Left — patient + auto-tracked checklist */}
+      <div className="aurora-station-grid" data-eyebot={hasEyebot ? "true" : "false"}>
+        {/* Left — patient + auto-tracked checklist (unchanged) */}
         <aside className="aurora-station-card aurora-station-aside">
           {caseInfo && (
             <>
@@ -332,7 +372,7 @@ export function CaseSession() {
                   <div className="aurora-station-mt">{caseInfo.patient.age} years · {caseInfo.topic}</div>
                 </div>
               </div>
-              <div className="aurora-station-cc">“{caseInfo.patient.presenting_complaint}”</div>
+              <div className="aurora-station-cc">"{caseInfo.patient.presenting_complaint}"</div>
             </>
           )}
           {station && (
@@ -355,80 +395,38 @@ export function CaseSession() {
           )}
         </aside>
 
-        {/* Right — consult thread + exam tray + composer / result */}
-        <div className="aurora-station-main aurora-station-card">
-          <p className="aurora-station-tray-label">Patient consult</p>
-          <div className="aurora-station-thread">
-            {messages.length === 0 && !result && (
-              <p className="aurora-station-hint">Greet your patient and begin taking a history. Use the examination tray below to perform clinical tests.</p>
-            )}
-            {messages.map((m, i) => {
-              if (m.role === "user" && m.content.startsWith(EXAM_PREFIX)) {
-                const inner = m.content.slice(EXAM_PREFIX.length, -1); // strip prefix + trailing "]"
-                const arrow = inner.indexOf(" → ");
-                const label = arrow >= 0 ? inner.slice(0, arrow) : inner;
-                const body = arrow >= 0 ? inner.slice(arrow + 3) : "";
-                const sep = " · Result: ";
-                const cut = body.indexOf(sep);
-                const technique = cut >= 0 ? body.slice(0, cut) : body;
-                const resultText = cut >= 0 ? body.slice(cut + sep.length) : "";
-                return (
-                  <div key={i} className="aurora-station-reveal">
-                    <span className="rl2">Examination performed · {label}</span>
-                    {technique && <div className="v">{technique}</div>}
-                    {resultText && <div className="rs">Result · {resultText}</div>}
-                  </div>
-                );
-              }
-              return (
-                <div key={i} className={`aurora-station-bubble ${m.role === "user" ? "me" : "pt"}`}>
-                  <span className="who">{m.role === "user" ? "You" : caseInfo?.patient.name ?? "Patient"}</span>
-                  <div>
-                    {m.content}
-                    {isStreaming && i === messages.length - 1 && m.role === "assistant" && <span className="aurora-caret" />}
-                  </div>
-                </div>
-              );
-            })}
-            {sending && <div className="aurora-station-bubble pt"><div className="aurora-typing">•••</div></div>}
-            <div ref={endRef} />
-          </div>
+        {/* Middle — patient consult (warm) */}
+        <PatientChat
+          patientName={caseInfo?.patient.name ?? "Patient"}
+          messages={patientMessages}
+          input={input}
+          sending={sending}
+          isStreaming={isStreaming}
+          hasResult={!!result}
+          endRef={endRef}
+          onInputChange={setInput}
+          onSend={() => sendMessage()}
+          onKeyDown={onKeyDown}
+        />
 
-          {station && !result && (
-            <>
-              <ActionPalette actions={station.examination_actions} ticked={ticked} current={gateStep} activeKey={activeProcedure?.key ?? null} onPerform={performAction} />
-              {activeProcedure ? (
-                <div className="aurora-station-proc">
-                  <div className="aurora-station-proc-cap">
-                    <span><b>{activeProcedure.label}</b> — type the steps &amp; safety rules you'd follow</span>
-                    <button type="button" className="aurora-station-proc-x" onClick={cancelProcedure}>Cancel</button>
-                  </div>
-                  <div className="aurora-station-composer">
-                    <textarea
-                      className="aurora-station-composer-input aurora-station-proc-input"
-                      value={procText}
-                      onChange={(e) => setProcText(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); confirmProcedure(); } }}
-                      placeholder={`How you perform ${activeProcedure.label.toLowerCase()} — key steps, what you tell the patient, safety checks…`}
-                      rows={2}
-                      autoFocus
-                    />
-                    <button type="button" className="aurora-station-composer-send aurora-station-proc-go" onClick={confirmProcedure} disabled={procText.trim().length < 12} aria-label="Log procedure">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 6" /></svg>
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="aurora-station-composer">
-                  <textarea className="aurora-station-composer-input" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} placeholder="Talk to your patient…" rows={1} />
-                  <button type="button" className="aurora-station-composer-send" onClick={() => sendMessage()} disabled={!input.trim() || sending || isStreaming} aria-label="Send">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+        {/* Right — EyeBot manual procedures (cool); hidden when the case has none */}
+        {hasEyebot && station && (
+          <EyeBotPanel
+            messages={eyebotMessages}
+            actions={manualActions}
+            ticked={ticked}
+            current={gateStep}
+            activeProcedure={activeProcedure}
+            procText={procText}
+            coaching={coachingPending}
+            showActions={!result}
+            busy={sending || isStreaming}
+            onPerform={performAction}
+            onProcText={setProcText}
+            onConfirm={confirmProcedure}
+            onCancel={cancelProcedure}
+          />
+        )}
       </div>
 
       {(showSubmit || result) && (
