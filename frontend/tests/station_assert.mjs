@@ -130,6 +130,25 @@ if (await p.locator('.aurora-pchip:has-text("Explain procedure")').count()) die(
 if (!(await p.locator('.aurora-pchip:has-text("Measure IOP")').count())) die("palette missing the Measure IOP manual chip");
 ok("palette shows manual procedures only (verbal steps stay in chat)");
 
+// 5g. Gating: at load nothing is ticked → gate is step 1. Later steps + their chips
+//     must be locked, and the in-order help caption present.
+if (!(await p.locator('.aurora-station-cl-help:has-text("unlock in order")').count())) die("missing the in-order help caption");
+if (!(await p.locator('.aurora-pchip[data-locked="true"]:has-text("Measure IOP")').count())) die("Measure IOP chip must be locked before its turn");
+if (await p.locator('.aurora-pchip:has-text("Measure IOP")').first().isEnabled()) die("locked Measure IOP chip must be disabled");
+const lockedRows = await p.locator('.aurora-station-step[data-locked="true"]').count();
+if (lockedRows < 4) die(`expected later rows locked at load, got ${lockedRows}`);
+if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Identify patient")').count())) die("step 1 must be the current step at load");
+ok("gating: later steps + chips locked, step 1 current, help caption present");
+
+// 5h. Manual fallback advances the gate one step at a time, in order, and unlocks
+//     the next chip once its predecessors are done.
+await p.locator('.aurora-station-step[data-current="true"]').click(); // tick step 1
+if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Explain purpose")').count())) die("gate did not advance to step 2 after current-row tap");
+await p.locator('.aurora-station-step[data-current="true"]').click(); // tick step 2
+if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Measure IOP")').count())) die("gate did not advance to step 3");
+if (await p.locator('.aurora-pchip[data-locked="true"]:has-text("Measure IOP")').count()) die("Measure IOP must unlock once steps 1-2 are done");
+ok("gating: current-row tap advances the gate in order and unlocks the next chip");
+
 // 5a. clicking a manual chip opens procedure mode → typing technique + confirm logs
 //     the technique, reveals the finding, ticks the step, and marks the chip done.
 await p.locator('.aurora-pchip:has-text("Measure IOP")').click();
