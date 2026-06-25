@@ -2820,6 +2820,16 @@ html[data-motion="reduce"] .flash-scene { transition: none; }
 }
 .aurora-station-overlay-x { position:absolute; top:12px; right:12px; border:none; background:none; color:var(--ink-3); font-size:1rem; cursor:pointer; line-height:1; padding:6px; border-radius:8px; z-index:2; }
 .aurora-station-overlay-x:hover { color:var(--ink); background:rgba(188,168,236,.14); }
+/* "More patients" — a quiet ghost button on the night debrief card (the result/handover
+   live in this overlay, NOT in .aurora-station-main, so it must be styled here). */
+.aurora-station-overlay-card .aurora-toggle {
+  padding:11px 16px; border-radius:var(--radius);
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(188,168,236,.24);
+  color:var(--ink-2); font-size:14.6px; font-weight:600; cursor:pointer;
+  transition:background .15s ease, color .15s ease;
+}
+.aurora-station-overlay-card .aurora-toggle:hover { background:rgba(255,255,255,.09); color:var(--ink); }
 /* handover form + inputs on the night card (mirrors the consult-pane overrides) */
 .aurora-station-overlay-card .aurora-station-form { margin-top:0; background:rgba(255,255,255,.04); border-color:rgba(188,168,236,.16); }
 .aurora-station-overlay-card .aurora-station-form-hint { background:rgba(155,114,203,.2); color:var(--on-purple-2); }
