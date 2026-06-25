@@ -65,6 +65,27 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
   },
   checklist_comparison: [], per_phase: [],
 })));
+await ctx.route("**/api/cases/C001/action", (r) => r.fulfill(J({
+  coaching: "Good — steady hand, you kept clear of the globe. Average three readings next time.",
+})));
+// C002 — a case with NO manual actions (all verbal) → EyeBot pane must collapse away.
+await ctx.route("**/api/cases/C002/station", (r) => r.fulfill(J({
+  case: { case_id: "C002", title: "Diet screening", difficulty: "beginner", topic: "Counselling", estimated_minutes: 8,
+          patient: { name: "Mdm Lim", age: 68, presenting_complaint: "Here for a pre-clinic diet screen." } },
+  checklist: {
+    procedure_name: "Pre-clinic screening", source: "checklist", total_steps: 2, critical_count: 0,
+    phases: [
+      { phase: 1, name: "Preparation & Identification", steps: [
+        { step_number: 1, action: "Identify patient — name + NRIC", critical: false, category: "patient_identification", notes: null } ] },
+      { phase: 2, name: "Clinical Assessment", steps: [
+        { step_number: 2, action: "Screen for special diet", critical: false, category: "history", notes: null } ] },
+    ],
+  },
+  examination_actions: [
+    { key: "s1", label: "Identify patient", reveal_text: "", satisfies_steps: [1], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 1, kind: "verbal" },
+    { key: "s2", label: "Screen for special diet", reveal_text: "", satisfies_steps: [2], mode: "say", prompt_text: "Do you follow any special diet?", phase: 2, critical: false, step_number: 2, kind: "verbal" },
+  ],
+})));
 
 const errs = [];
 const p = await ctx.newPage();
@@ -130,6 +151,13 @@ if (await p.locator('.aurora-pchip:has-text("Explain procedure")').count()) die(
 if (!(await p.locator('.aurora-pchip:has-text("Measure IOP")').count())) die("palette missing the Measure IOP manual chip");
 ok("palette shows manual procedures only (verbal steps stay in chat)");
 
+// 5p. the split: a warm patient pane + a cool EyeBot pane; manual chips live in EyeBot only.
+if (!(await p.locator('[data-testid="patient-pane"]').count())) die("missing the patient chat pane");
+if (!(await p.locator('[data-testid="eyebot-pane"]').count())) die("missing the EyeBot action pane");
+if (await p.locator('[data-testid="patient-pane"] .aurora-pchip').count()) die("manual chips must NOT be in the patient pane");
+if (!(await p.locator('[data-testid="eyebot-pane"] .aurora-pchip:has-text("Measure IOP")').count())) die("Measure IOP chip must live in the EyeBot pane");
+ok("two distinct panes; manual chips live in the EyeBot pane only");
+
 // 5g. Gating: at load nothing is ticked → gate is step 1. Later steps + their chips
 //     must be locked, and the in-order help caption present.
 if (!(await p.locator('.aurora-station-cl-help:has-text("unlock in order")').count())) die("missing the in-order help caption");
@@ -162,6 +190,12 @@ if (!(await p.locator('.aurora-pchip[data-done="true"]:has-text("Measure IOP")')
 if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) < 1) die("confirm did not tick the step row");
 ok("manual chip → procedure mode → confirm logs technique + result + ticks step");
 
+// 5c. EyeBot replies with a coaching note (result + tip) after the procedure confirms.
+//     Wait for the coaching TEXT specifically — a `.bot` typing-dots bubble appears the
+//     instant the call starts, so a bare `.bot` wait would race ahead of the reply.
+await p.waitForSelector('.aurora-station-bubble.bot:has-text("steady hand")', { timeout: 8000 });
+ok("EyeBot replies with coaching after a manual procedure");
+
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
 await p.locator(".aurora-station-composer-send").click();
@@ -185,6 +219,13 @@ if (!(await p.locator('.aurora-s100-safety.is-safe').count())) die("result must 
 if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list highlights");
 if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list watch-outs");
 ok("handover + Station-100 debrief pop up in the overlay (Findings / Next steps)");
+
+// 7b. a case with NO manual actions renders the patient chat only — no EyeBot pane.
+await p.goto(base + "/cases/C002", { waitUntil: "domcontentloaded" });
+await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
+if (await p.locator('[data-testid="eyebot-pane"]').count()) die("no-manual case must NOT render the EyeBot pane");
+if (!(await p.locator('[data-testid="patient-pane"]').count())) die("patient pane must still render in the no-manual case");
+ok("no manual actions → EyeBot pane collapses (patient chat only)");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });
