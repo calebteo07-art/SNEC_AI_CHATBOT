@@ -26,6 +26,7 @@ export function StationChecklist({
   phases,
   ticked,
   autoSteps,
+  current,
   onToggle,
 }: {
   procedureName: string;
@@ -33,6 +34,7 @@ export function StationChecklist({
   totalSteps: number; // kept for call-site compatibility
   ticked: Set<number>;
   autoSteps: Set<number>;
+  current: number | null;
   onToggle: (stepNumber: number) => void;
 }) {
   const doneCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number)).length);
@@ -61,6 +63,7 @@ export function StationChecklist({
       <p className="aurora-station-cl-label" title={procedureName}>
         Checklist · {doneTotal} of {totalSteps} done
       </p>
+      <p className="aurora-station-cl-help">Steps unlock in order — complete the current step to continue.</p>
 
       {phases.map((p, i) => {
         const done = doneCounts[i] === p.steps.length;
@@ -75,16 +78,23 @@ export function StationChecklist({
             {p.steps.map((s) => {
               const isDone = ticked.has(s.step_number);
               const isAuto = isDone && autoSteps.has(s.step_number);
+              const isCurrent = !isDone && s.step_number === current;
+              const isLocked = !isDone && !isCurrent;
               return (
                 <button
                   key={s.step_number}
                   type="button"
                   className="aurora-station-step"
                   data-ticked={isDone ? "true" : "false"}
+                  data-current={isCurrent ? "true" : "false"}
+                  data-locked={isLocked ? "true" : "false"}
+                  disabled={isLocked}
                   onClick={() => onToggle(s.step_number)}
                   aria-pressed={isDone}
+                  aria-current={isCurrent ? "step" : undefined}
+                  title={isLocked ? "Unlocks after the step above" : undefined}
                 >
-                  <span className="bx" aria-hidden>{isDone ? "✓" : ""}</span>
+                  <span className="bx" aria-hidden>{isDone ? "✓" : isLocked ? "🔒" : ""}</span>
                   <span>{s.action}</span>
                   {s.critical && <span className="crit">CRIT</span>}
                   {isAuto && <span className="au" title="Auto-detected from your consult" aria-label="auto-detected">✦</span>}
