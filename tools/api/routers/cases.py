@@ -205,6 +205,7 @@ class ObserveRequest(BaseModel):
 class ObserveResponse(BaseModel):
     newly_satisfied: list[int]
 
+
 class ActionRequest(BaseModel):
     action_label: str = Field(max_length=120)
     technique: str = Field(max_length=2000)
@@ -570,19 +571,23 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
     """EyeBot micro-coaching for one manual procedure: a 1-2 sentence technique note.
     The deterministic result is shown client-side regardless; this only adds the note and
     NEVER blocks the tick — any failure returns empty coaching (graceful degradation)."""
-    # Student free-text → filter like /chat before the model sees it.
-    try:
-        guard = await filter_input(body.technique, patient_context=True)
-        if not guard["safe"]:
-            return ActionResponse(coaching="")
-    except Exception:
-        pass
+    _load_case_or_404(case_id)  # validate the case exists (parity with observe_case)
 
     user_msg = (
         f"Procedure: {body.action_label}\n"
         f"Student technique: {body.technique}\n"
         f"Measured finding: {body.finding or '(none)'}"
     )
+    # All fields are student-supplied free text → filter the whole prompt like /chat
+    # before the model sees it (not just `technique`).
+    try:
+        guard = await filter_input(user_msg, patient_context=True)
+        if not guard["safe"]:
+            audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_action",
+                      detail=f"reason={guard['reason']}")
+            return ActionResponse(coaching="")
+    except Exception:
+        pass
     try:
         coaching = await asyncio.wait_for(
             asyncio.to_thread(
