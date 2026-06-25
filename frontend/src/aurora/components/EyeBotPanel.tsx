@@ -3,9 +3,7 @@
    The student picks a procedure chip (ActionPalette), types their technique, and
    EyeBot replies with the deterministic reading + a short coaching note. Renders
    only eyebot-channel messages. Presentational — state lives in CaseSession. */
-import { ActionPalette, type ExamAction } from "@/aurora/components/ActionPalette";
-
-const EXAM_PREFIX = "[Examination performed: ";
+import { ActionPalette, EXAM_PREFIX, type ExamAction } from "@/aurora/components/ActionPalette";
 
 interface EyeBotMessage { role: "user" | "assistant"; content: string }
 
