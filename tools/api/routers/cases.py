@@ -30,6 +30,14 @@ from tools.kb.search import get_checklist_by_name
 # whole library). The student cycles through every unlocked case before repeats.
 CASE_WINDOW = 6
 
+ACTION_COACH = (
+    "You are EyeBot, a friendly OSCE examiner for allied-health ophthalmic students. "
+    "Given a manual procedure, the student's described technique, and the measured finding, "
+    "reply in 1-2 short sentences: acknowledge one thing done well and give at most one "
+    "concrete technique tip. Be encouraging and specific. Never invent a different result "
+    "or add a medical diagnosis."
+)
+
 _COACHING_SCHEMA = {
     "type": "object",
     "properties": {
@@ -196,6 +204,14 @@ class ObserveRequest(BaseModel):
 
 class ObserveResponse(BaseModel):
     newly_satisfied: list[int]
+
+class ActionRequest(BaseModel):
+    action_label: str = Field(max_length=120)
+    technique: str = Field(max_length=2000)
+    finding: str = Field(default="", max_length=2000)
+
+class ActionResponse(BaseModel):
+    coaching: str = ""
 
 
 # ── Case endpoints ─────────────────────────────────────────────────────────
@@ -545,6 +561,44 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     newly = await asyncio.to_thread(observe, cl["steps"], messages, body.already_ticked)
     return ObserveResponse(newly_satisfied=newly)
+
+
+@router.post("/api/cases/{case_id}/action", response_model=ActionResponse)
+@limiter.limit("40/minute")
+async def case_action(case_id: str, request: Request, body: ActionRequest,
+                      current_user: CurrentUser = Depends(get_current_user)):
+    """EyeBot micro-coaching for one manual procedure: a 1-2 sentence technique note.
+    The deterministic result is shown client-side regardless; this only adds the note and
+    NEVER blocks the tick — any failure returns empty coaching (graceful degradation)."""
+    # Student free-text → filter like /chat before the model sees it.
+    try:
+        guard = await filter_input(body.technique, patient_context=True)
+        if not guard["safe"]:
+            return ActionResponse(coaching="")
+    except Exception:
+        pass
+
+    user_msg = (
+        f"Procedure: {body.action_label}\n"
+        f"Student technique: {body.technique}\n"
+        f"Measured finding: {body.finding or '(none)'}"
+    )
+    try:
+        coaching = await asyncio.wait_for(
+            asyncio.to_thread(
+                ask,
+                system_prompt=ACTION_COACH,
+                messages=[{"role": "user", "content": user_msg}],
+                max_tokens=220,            # 1-2 sentences; MINIMAL = no thinking, so no starve
+                feature="case_action",
+                model=MODEL,
+                thinking_level="MINIMAL",
+            ),
+            timeout=12.0,                  # single-worker safety: never hang the event loop
+        )
+    except Exception:
+        coaching = ""
+    return ActionResponse(coaching=(coaching or "").strip())
 
 
 @router.post("/api/cases/{case_id}/chat")
