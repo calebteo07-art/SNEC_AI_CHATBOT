@@ -22,11 +22,13 @@ export interface ExamAction {
 export function ActionPalette({
   actions,
   ticked,
+  current,
   activeKey,
   onPerform,
 }: {
   actions: ExamAction[];
   ticked: Set<number>;
+  current: number | null;
   activeKey: string | null;
   onPerform: (action: ExamAction) => void;
 }) {
@@ -37,7 +39,9 @@ export function ActionPalette({
       <span className="aurora-protray-cap">Manual procedures · click one, then type your technique</span>
       <div className="aurora-protray-chips">
         {manual.map((a) => {
-          const done = a.satisfies_steps.some((n) => ticked.has(n));
+          const done = a.satisfies_steps.every((n) => ticked.has(n));
+          const earliest = a.satisfies_steps.find((n) => !ticked.has(n));
+          const locked = !done && earliest !== undefined && earliest !== current;
           const active = a.key === activeKey;
           return (
             <button
@@ -46,13 +50,14 @@ export function ActionPalette({
               className="aurora-pchip"
               data-done={done ? "true" : "false"}
               data-active={active ? "true" : "false"}
+              data-locked={locked ? "true" : "false"}
               data-crit={a.critical ? "true" : "false"}
-              disabled={done}
+              disabled={done || locked}
               onClick={() => onPerform(a)}
-              aria-label={done ? `${a.label} — done` : `Perform ${a.label}`}
-              title={a.reveal_text || a.label}
+              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : `Perform ${a.label}`}
+              title={locked ? "Finish the steps above first" : a.reveal_text || a.label}
             >
-              <span className="ic" aria-hidden>{done ? "✓" : active ? "✎" : "+"}</span>
+              <span className="ic" aria-hidden>{done ? "✓" : active ? "✎" : locked ? "🔒" : "+"}</span>
               {a.label}
             </button>
           );
