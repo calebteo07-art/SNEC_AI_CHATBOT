@@ -13,6 +13,7 @@ import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
 import { ActionPalette, type ExamAction } from "@/aurora/components/ActionPalette";
+import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -72,10 +73,14 @@ export function CaseSession() {
   const endRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
   const tickedRef = useRef<Set<number>>(new Set());
+  const orderRef = useRef<number[]>([]);
   const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observeAbort = useRef<AbortController | null>(null);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { tickedRef.current = ticked; }, [ticked]);
+  useEffect(() => {
+    orderRef.current = (station?.checklist.phases ?? []).flatMap((p) => p.steps).map((s) => s.step_number);
+  }, [station]);
 
   // Fetch the full station payload (case + phased checklist + exam actions).
   useEffect(() => {
@@ -91,10 +96,22 @@ export function CaseSession() {
   // Cleanup pending observe work on unmount.
   useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); }, []);
 
+  // Apply any examiner / exam-tray completions through the gate: only the longest
+  // in-order run starting at the current step is ticked. Newly-ticked steps are
+  // marked auto (for the ✦ badge). Out-of-order detections are ignored until their
+  // predecessors are done — the examiner re-sends the whole transcript, so they tick
+  // once the gate reaches them.
   const addAuto = useCallback((stepNumbers: number[]) => {
     if (!stepNumbers.length) return;
-    setTicked((prev) => { const n = new Set(prev); stepNumbers.forEach((s) => n.add(s)); return n; });
-    setAutoSteps((prev) => { const n = new Set(prev); stepNumbers.forEach((s) => n.add(s)); return n; });
+    const prev = tickedRef.current;
+    const next = advance(orderRef.current, prev, stepNumbers);
+    if (next.size === prev.size) return; // nothing unlocked
+    setTicked(next);
+    setAutoSteps((a) => {
+      const b = new Set(a);
+      for (const s of next) if (!prev.has(s)) b.add(s);
+      return b;
+    });
   }, []);
 
   // Live examiner call. Resilient by design: a single transient failure (network blip,
@@ -133,16 +150,22 @@ export function CaseSession() {
     observeTimer.current = setTimeout(() => void runObserve(0), 450);
   }, [caseId, runObserve]);
 
-  const toggleStep = (n: number) => setTicked((prev) => {
-    const next = new Set(prev);
-    if (next.has(n)) {
-      next.delete(n);
-      setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; }); // manual untick clears the auto marker too
-    } else {
-      next.add(n);
+  // Manual control under strict gating: tapping the CURRENT row completes it (the
+  // escape hatch when the examiner misses a step); tapping the most-recent done row
+  // steps back one (recover a mis-tap). Locked / earlier-done rows are no-ops.
+  const toggleStep = (n: number) => {
+    const order = orderRef.current;
+    const prev = tickedRef.current;
+    const gi = gateIndex(order, prev);
+    const cur = gi < order.length ? order[gi] : null;
+    const lastDone = gi > 0 ? order[gi - 1] : null;
+    if (n === cur) {
+      setTicked((p) => { const x = new Set(p); x.add(n); return x; });
+    } else if (n === lastDone && prev.has(n)) {
+      setTicked((p) => { const x = new Set(p); x.delete(n); return x; });
+      setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; });
     }
-    return next;
-  });
+  };
 
   const sendMessage = async (textArg?: string) => {
     const content = (textArg ?? input).trim();
@@ -255,6 +278,7 @@ export function CaseSession() {
   const allSteps: StationStep[] = phases.flatMap((p) => p.steps);
   const criticalSteps = allSteps.filter((s) => s.critical);
   const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
+  const gateStep = currentStep(allSteps.map((s) => s.step_number), ticked); // current unlockable step, or null
 
   if (loadError) {
     return (
@@ -312,6 +336,7 @@ export function CaseSession() {
                 totalSteps={station.checklist.total_steps}
                 ticked={ticked}
                 autoSteps={autoSteps}
+                current={gateStep}
                 onToggle={toggleStep}
               />
             </div>
@@ -364,7 +389,7 @@ export function CaseSession() {
 
           {station && !result && (
             <>
-              <ActionPalette actions={station.examination_actions} ticked={ticked} activeKey={activeProcedure?.key ?? null} onPerform={performAction} />
+              <ActionPalette actions={station.examination_actions} ticked={ticked} current={gateStep} activeKey={activeProcedure?.key ?? null} onPerform={performAction} />
               {activeProcedure ? (
                 <div className="aurora-station-proc">
                   <div className="aurora-station-proc-cap">
