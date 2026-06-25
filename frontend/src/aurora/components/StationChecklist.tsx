@@ -107,7 +107,7 @@ export function StationChecklist({
 
       <p className="aurora-station-cl-legend">
         {anyAuto ? <><span className="au">✦</span> ticked automatically from your conversation · </> : null}
-        tap any step to tick it yourself
+        tap the highlighted step to tick it yourself
       </p>
     </div>
   );
