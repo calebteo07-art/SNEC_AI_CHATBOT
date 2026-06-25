@@ -12,7 +12,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
-import { type ExamAction } from "@/aurora/components/ActionPalette";
+import { type ExamAction, EXAM_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
@@ -36,8 +36,6 @@ interface DomainResult {
   safe: boolean; missed_critical: string[]; thoroughness_detail: string;
 }
 interface Coaching { highlights: string[]; watch_outs: string[]; focus: string }
-
-const EXAM_PREFIX = "[Examination performed: ";
 
 export function CaseSession() {
   const caseId = useParams().caseId as string;
@@ -64,7 +62,9 @@ export function CaseSession() {
   const [procText, setProcText] = useState("");
   const [sending, setSending] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [coachingPending, setCoachingPending] = useState(false);
+  // Count of in-flight EyeBot coaching calls (a counter, not a flag, so overlapping
+  // procedures don't make the typing indicator vanish while one is still pending).
+  const [coachingCount, setCoachingCount] = useState(0);
 
   // Backend reads only {role, content}; `channel` is a frontend view key. Strip it so
   // request bodies are byte-identical to today (no Pydantic extra-field breakage).
@@ -99,7 +99,9 @@ export function CaseSession() {
       .catch(() => setLoadError(`Patient "${caseId}" not found.`));
   }, [caseId]);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, sending]);
+  // Auto-scroll the patient thread only when the patient conversation changes — EyeBot
+  // appends must not yank the patient pane to the bottom.
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.filter((m) => m.channel === "patient").length, sending]);
 
   // Cleanup pending observe work on unmount.
   useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); }, []);
@@ -272,7 +274,7 @@ export function CaseSession() {
   // already ticked, so a failure just means no coaching bubble.
   const runAction = async (a: ExamAction, technique: string) => {
     if (!caseId) return;
-    setCoachingPending(true);
+    setCoachingCount((c) => c + 1);
     try {
       const res = await fetch(`/api/cases/${caseId}/action`, {
         method: "POST",
@@ -282,11 +284,12 @@ export function CaseSession() {
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = (await res.json()) as { coaching?: string };
-      if (data.coaching) setMessages((prev) => [...prev, { role: "assistant", content: data.coaching!, channel: "eyebot" }]);
+      const note = data.coaching;
+      if (note) setMessages((prev) => [...prev, { role: "assistant", content: note, channel: "eyebot" }]);
     } catch {
       /* graceful: result already shown, no coaching */
     } finally {
-      setCoachingPending(false);
+      setCoachingCount((c) => c - 1);
     }
   };
 
@@ -418,7 +421,7 @@ export function CaseSession() {
             current={gateStep}
             activeProcedure={activeProcedure}
             procText={procText}
-            coaching={coachingPending}
+            coaching={coachingCount > 0}
             showActions={!result}
             busy={sending || isStreaming}
             onPerform={performAction}

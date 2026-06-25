@@ -6,6 +6,11 @@
    switches the composer into "procedure mode" where the student types the technique
    before it ticks. Presentational — all state is owned by the parent. */
 
+// The transcript marker for a logged manual procedure. Shared so the writer
+// (CaseSession.confirmProcedure) and the reader (EyeBotPanel reveal parser) can
+// never drift out of sync.
+export const EXAM_PREFIX = "[Examination performed: ";
+
 export interface ExamAction {
   key: string;
   label: string;
