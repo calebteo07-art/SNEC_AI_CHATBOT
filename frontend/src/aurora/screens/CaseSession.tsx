@@ -154,17 +154,22 @@ export function CaseSession() {
   // escape hatch when the examiner misses a step); tapping the most-recent done row
   // steps back one (recover a mis-tap). Locked / earlier-done rows are no-ops.
   const toggleStep = (n: number) => {
-    const order = orderRef.current;
-    const prev = tickedRef.current;
-    const gi = gateIndex(order, prev);
-    const cur = gi < order.length ? order[gi] : null;
-    const lastDone = gi > 0 ? order[gi - 1] : null;
-    if (n === cur) {
-      setTicked((p) => { const x = new Set(p); x.add(n); return x; });
-    } else if (n === lastDone && prev.has(n)) {
-      setTicked((p) => { const x = new Set(p); x.delete(n); return x; });
-      setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; });
-    }
+    // Decide against the latest QUEUED ticked set (the updater's `prev`), not the
+    // render-lagged tickedRef, so a manual tap can't race an in-flight auto-tick.
+    setTicked((prev) => {
+      const order = orderRef.current;
+      const gi = gateIndex(order, prev);
+      const cur = gi < order.length ? order[gi] : null;
+      const lastDone = gi > 0 ? order[gi - 1] : null;
+      if (n === cur) {
+        const x = new Set(prev); x.add(n); return x;
+      }
+      if (n === lastDone && prev.has(n)) {
+        setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; });
+        const x = new Set(prev); x.delete(n); return x;
+      }
+      return prev; // locked / earlier-done → no-op (same ref, no re-render)
+    });
   };
 
   const sendMessage = async (textArg?: string) => {
@@ -227,9 +232,11 @@ export function CaseSession() {
   };
 
   // Clicking a manual chip switches the bottom composer into "procedure mode": the
-  // student must type the steps/rules before the step ticks. Already-ticked → no-op.
+  // student must type the steps/rules before the step ticks. Only a FULLY-done chip
+  // is a no-op (.every, matching the palette's done state) — a merged chip whose run
+  // is only partly ticked must still open so its remaining steps can be completed.
   const performAction = (a: ExamAction) => {
-    if (a.satisfies_steps.some((n) => tickedRef.current.has(n))) return;
+    if (a.satisfies_steps.every((n) => tickedRef.current.has(n))) return;
     setActiveProcedure(a);
     setProcText("");
   };
