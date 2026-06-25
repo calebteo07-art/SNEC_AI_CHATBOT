@@ -1159,7 +1159,8 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-hud-sep { color: var(--ink-3); }
 .aurora-station-tier { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 
-.aurora-station-grid { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
+.aurora-station-grid { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 16px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
+.aurora-station-grid[data-eyebot="true"] { grid-template-columns: 320px minmax(0,1fr) minmax(0,1fr); }
 
 .aurora-station-card { position: relative; border-radius: 16px; padding: 16px; background: rgba(255,255,255,.62); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 18px 50px -28px rgba(40,30,80,.45); }
 .aurora-station-card::before { content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1.4px;
@@ -1301,6 +1302,9 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
   .aurora-station-clscroll { overflow: visible; min-height: 0; flex: none; }
   .aurora-station-main { height: auto; overflow: visible; }
   .aurora-station-thread { overflow: visible; flex: none; min-height: 300px; }
+  .aurora-station-grid[data-eyebot="true"] { grid-template-columns: 1fr; }
+  .aurora-eyebot { height: auto; overflow: visible; }
+  .aurora-eyebot-thread { overflow: visible; flex: none; min-height: 220px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-mesh, .aurora-station-ring, .aurora-station-title em, .aurora-station-rl.is-now,
@@ -1319,99 +1323,38 @@ html[data-motion="reduce"] .aurora-station-step[data-ticked="true"] .bx,
 html[data-motion="reduce"] .aurora-station-step[data-current="true"] .bx,
 html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; }
 
-/* ── Consult after dark — the patient-consult (right) pane ────────────────────
-   While the checklist pane stays light, the consult pane flips to a deep
-   indigo-plum NIGHT — not black, but the SAME aurora as the bright mesh behind
-   it, inverted: four drifting hue-glows (blue / violet / rose / green) over a
-   translucent dark base, so the colourful backdrop bleeds faintly through the
-   card's blur and the shared gradient ring now reads as a glowing rim of light.
-   The text + tonal tokens are remapped ONCE here, so every descendant — patient
-   speech, the composer, exam tray, handover form and the scored debrief — turns
-   to night in step, without touching any of the light panes elsewhere. */
-.aurora-station-main {
-  /* token remap: descendants that read these invert to the night palette */
-  --ink: #ECEAF8;
-  --ink-2: #BEB7DA;
-  --ink-3: #948DB6;
-  --paper: rgba(255, 255, 255, 0.055);
-  --hairline: rgba(188, 168, 236, 0.18);
-  --on-purple: #CBB1EE; --on-purple-2: #C8ADEC;
-  --on-rose: #F2A2AF;   --on-rose-2: #ED8496;
-  --on-green: #80E4A5;  --on-green-2: #77DF9A;
+/* ── Two-pane consult: warm Patient chat + cool EyeBot panel ─────────────────
+   Both panes share the .aurora-station-main structure and the light mesh shell, so
+   they read as one station; only their accent tokens differ (coral vs blue). The
+   handover form + debrief live in the overlay, not here. */
+.aurora-station-main { min-width: 0; }
 
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 22%),
-    radial-gradient(74% 58% at 90% 3%, rgba(155, 114, 203, 0.32), transparent 60%),
-    radial-gradient(64% 52% at 3% 99%, rgba(66, 133, 244, 0.26), transparent 62%),
-    radial-gradient(58% 46% at 103% 103%, rgba(217, 101, 112, 0.18), transparent 60%),
-    radial-gradient(50% 40% at 12% 4%, rgba(52, 168, 83, 0.12), transparent 62%),
-    linear-gradient(165deg, rgba(26, 22, 50, 0.93), rgba(33, 26, 60, 0.91) 52%, rgba(24, 20, 46, 0.94));
-  box-shadow: 0 24px 60px -30px rgba(10, 6, 30, 0.82), 0 0 42px -22px rgba(155, 114, 203, 0.5);
-}
+/* shared slim pane header */
+.aurora-pane-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; padding-bottom: 9px; border-bottom: 1px solid rgba(120,90,170,.16); }
+.aurora-pane-dot { width: 30px; height: 30px; flex: none; border-radius: 50%; }
+.aurora-pane-nm { font-size: 14.6px; font-weight: 700; color: var(--ink); }
+.aurora-pane-mt { font-size: 11px; color: var(--ink-2); margin-top: 1px; }
+.aurora-station-bubble.bot { background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.22); color: var(--ink); align-self: flex-start; }
+.aurora-station-bubble.bot .who { color: #185FA5; }
 
-/* divider above the exam tray */
-.aurora-station-main .aurora-station-tray { border-top-color: rgba(188, 168, 236, 0.22); }
+/* Patient pane — warm coral */
+.aurora-patient .aurora-pane-dot { background: linear-gradient(135deg, #D85A30, #F0997B); }
+.aurora-patient .aurora-pane-head { border-bottom-color: rgba(216,90,48,.22); }
+.aurora-patient .aurora-station-bubble.me { background: linear-gradient(135deg, #D85A30, #E07A4F); box-shadow: 0 8px 22px -10px rgba(216,90,48,.5); }
+.aurora-patient .aurora-station-bubble.pt { background: rgba(250,236,231,.85); border-color: rgba(240,153,123,.4); color: var(--ink); }
+.aurora-patient .aurora-station-composer-send { background: linear-gradient(135deg, #D85A30, #E07A4F); }
+.aurora-patient .aurora-station-composer-input:focus-visible { border-color: #D85A30; box-shadow: 0 0 0 3px rgba(216,90,48,.16); }
 
-/* patient speech — faint glass that lifts off the night */
-.aurora-station-main .aurora-station-bubble.pt {
-  background: rgba(255, 255, 255, 0.055);
-  border-color: rgba(188, 168, 236, 0.16);
-  color: var(--ink);
-  backdrop-filter: blur(3px);
-}
-/* your voice — the Gemini-blue now glows against the dark */
-.aurora-station-main .aurora-station-bubble.me { box-shadow: 0 8px 22px -8px rgba(66, 133, 244, 0.55); }
-/* the streaming caret reads as a soft electric pulse on night */
-.aurora-station-main .aurora-caret { box-shadow: 0 0 8px rgba(155, 114, 203, 0.85); }
-
-/* composer — dark glass field with a violet focus halo */
-.aurora-station-main .aurora-station-composer-input {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(188, 168, 236, 0.22);
-  color: var(--ink);
-}
-.aurora-station-main .aurora-station-composer-input::placeholder { color: var(--ink-3); }
-.aurora-station-main .aurora-station-composer-input:focus-visible {
-  border-color: var(--g-purple);
-  box-shadow: 0 0 0 3px rgba(155, 114, 203, 0.28);
-}
-
-/* exam-tray "used" chip — emerald tint legible on night */
-.aurora-station-main .aurora-station-act.is-used {
-  background: rgba(52, 168, 83, 0.2);
-  border-color: rgba(119, 223, 154, 0.5);
-}
-
-/* handover form + its hint + textareas */
-.aurora-station-main .aurora-station-form {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(188, 168, 236, 0.16);
-}
-.aurora-station-main .aurora-station-form-hint {
-  background: rgba(155, 114, 203, 0.2);
-  color: var(--on-purple-2);
-}
-.aurora-station-main .aurora-input { background: rgba(255, 255, 255, 0.05); border-color: rgba(188, 168, 236, 0.2); }
-.aurora-station-main .aurora-input::placeholder { color: var(--ink-3); }
-.aurora-station-main .aurora-input:focus-visible { border-color: var(--g-purple); box-shadow: 0 0 0 3px rgba(155, 114, 203, 0.22); }
-
-/* scored debrief — keep the emerald accent, deepen the bed for night */
-.aurora-station-main .aurora-station-debrief {
-  background: linear-gradient(135deg, rgba(52, 168, 83, 0.18), rgba(66, 133, 244, 0.12));
-  border-left-color: var(--g-green);
-}
-/* domain progress tracks visible on dark */
-.aurora-station-main .aurora-progress { background: rgba(255, 255, 255, 0.12); }
-
-/* "More patients" — a quiet ghost button on night (otherwise an unstyled, jarring native button) */
-.aurora-station-main .aurora-toggle {
-  padding: 11px 16px; border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(188, 168, 236, 0.24);
-  color: var(--ink-2); font-size: 14.6px; font-weight: 600; cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-.aurora-station-main .aurora-toggle:hover { background: rgba(255, 255, 255, 0.09); color: var(--ink); }
+/* EyeBot pane — cool blue */
+.aurora-eyebot .aurora-pane-dot { background: linear-gradient(135deg, #185FA5, #378ADD); }
+.aurora-eyebot .aurora-pane-head { border-bottom-color: rgba(24,95,165,.22); }
+.aurora-eyebot .aurora-station-composer-send { background: linear-gradient(135deg, #185FA5, #378ADD); }
+.aurora-eyebot .aurora-station-composer-input:focus-visible { border-color: #378ADD; box-shadow: 0 0 0 3px rgba(55,138,221,.16); }
+/* cool chips */
+.aurora-eyebot .aurora-pchip { border-color: rgba(55,138,221,.3); background: rgba(230,241,251,.6); color: #185FA5; }
+.aurora-eyebot .aurora-pchip:hover:not(:disabled) { border-color: #378ADD; color: #0C447C; }
+.aurora-eyebot .aurora-pchip[data-active="true"] { border-color: #185FA5; background: rgba(55,138,221,.16); color: #0C447C; }
+.aurora-eyebot .aurora-pchip[data-active="true"] .ic { color: #185FA5; }
 
 /* ─────────────────── Tutor chat — "Mono + Electric / Live Wire" ─────────────────── */
 /* A warm-monochrome reading surface (ivory + charcoal) lit by a single electric-indigo
