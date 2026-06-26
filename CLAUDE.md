@@ -48,7 +48,7 @@ Same-origin proxy keeps cookies + SSE intact. **Next owns page security headers
 | Data       | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
 | Auth       | Custom JWT in an **HttpOnly** cookie (`eyebot_token`); bcrypt(cost 12); OTP reset. |
 | Async      | Celery + Redis workers (`tools/workers/`). |
-| Deploy     | Render (single container) + keep-alive cron. Auto-deploys `main`. |
+| Deploy     | Render **native Python runtime** (`render-build.sh` → `scripts/start-prod.sh`; no Dockerfile) + keep-alive cron. Auto-deploys `main`. |
 
 Backend entrypoint: `tools/api/server.py`. Routers: `tools/api/routers/`
 (auth, cases, admin, supervisor, chat, checkin, student, media). Shared singletons
@@ -87,6 +87,11 @@ endpoint map and `docs/SECURITY.md` for the security model.
   `frontend/tests/` (Node harnesses).
 - **Match the surrounding code.** Comment density, naming, async idioms. Keep
   files focused; a growing file usually signals too many responsibilities.
+- **Verify before asserting.** Confirm against the code, DB, or `docs/` before
+  claiming how the system behaves — the stack drifts and memory goes stale.
+- **Live AI calls cost real money and burn prod quota.** Tests and the visual
+  harnesses run keyless in `MOCK_MODE`; never fire a live Gemini text/image
+  generation without explicit user go-ahead.
 - **Self-improvement loop:** identify what broke → fix the tool → verify → update
   the workflow → move on more robust.
 
@@ -102,6 +107,10 @@ node frontend/tests/station_assert.mjs
 # Local dev API
 uvicorn tools.api.server:app --reload --port 8000
 ```
+
+`pytest` auto-enables `MOCK_MODE` when `GEMINI_API_KEY` is unset — no key or
+network needed. The dev box is **Windows / PowerShell**; the POSIX snippets above
+also run via the Bash tool.
 
 CI (`.github/workflows/ci.yml`) gates pytest + typecheck + build + supply-chain
 audit on every push. Dependabot manages dependency bumps.
