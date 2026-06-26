@@ -69,3 +69,16 @@ portfolio/
 # AURORA visual-sweep screenshots (regenerated, never committed)
 frontend/*.png
 .tmp/
+
+# ── Spring-clean (2026-06-26): untracked, kept on disk ──────────────────
+# Separate "clone-website" project — not part of EyeBot.
+/chinita/
+# Loose scratch/screenshot images at repo root (real assets live in
+# frontend/public/). Keeps the repo lean for fast clones.
+/*.jpeg
+/*.jpg
+/iris-check.png
+# Session / scratch artifacts.
+/.session-handoff.md
+/.awwwards_state.md
+/.tmpuvicorn.log
