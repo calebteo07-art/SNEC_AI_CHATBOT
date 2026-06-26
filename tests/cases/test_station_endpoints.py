@@ -75,7 +75,12 @@ def test_observe_returns_newly_satisfied():
 
 
 def test_action_returns_coaching():
-    with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False):
+    # Mock the AI boundary (`ask`) so the test asserts the coaching-response shape
+    # deterministically — never a live Gemini call, which flakes on latency/throttling
+    # when a real GEMINI_API_KEY is present locally (MOCK_MODE=False).
+    coach = "Steady the lid without pressing the globe; take three readings and average them."
+    with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False), \
+         patch("tools.api.routers.cases.ask", return_value=coach):
         r = client.post(
             "/api/cases/case_test_station/action",
             json={
@@ -88,7 +93,7 @@ def test_action_returns_coaching():
     assert r.status_code == 200
     body = r.json()
     assert isinstance(body["coaching"], str)
-    assert body["coaching"]  # non-empty in MOCK_MODE
+    assert body["coaching"] == coach  # the endpoint returns the model's coaching, stripped
 
 
 def test_action_degrades_gracefully_on_model_error():
