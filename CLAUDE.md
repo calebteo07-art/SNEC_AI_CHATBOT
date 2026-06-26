@@ -48,7 +48,7 @@ Same-origin proxy keeps cookies + SSE intact. **Next owns page security headers
 | Data       | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
 | Auth       | Custom JWT in an **HttpOnly** cookie (`eyebot_token`); bcrypt(cost 12); OTP reset. |
 | Async      | Celery + Redis workers (`tools/workers/`). |
-| Deploy     | Render **native Python runtime** (`render-build.sh` → `scripts/start-prod.sh`; no Dockerfile) + keep-alive cron. Auto-deploys `main`. |
+| Deploy     | Render, auto-deploys `main` + keep-alive cron. **The live service builds the `Dockerfile`** (multi-stage → Next standalone + Python 3.12, runs `scripts/start-prod.sh`). `render.yaml` *also* declares an equivalent native-Python build (`render-build.sh`) — they've drifted, so **do not delete the `Dockerfile`**: removing it broke prod (2026-06-26). Keep both paths working. |
 
 Backend entrypoint: `tools/api/server.py`. Routers: `tools/api/routers/`
 (auth, cases, admin, supervisor, chat, checkin, student, media). Shared singletons
