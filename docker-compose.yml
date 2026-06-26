@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  # Next.js (public, :3000) + FastAPI (internal, 127.0.0.1:8000) in one container
+  api:
+    build: .
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "3000:3000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Celery worker: handles async card generation and SM-2 persistence
+  worker:
+    build: .
+    command: >
+      celery -A tools.workers.celery_app worker
+      --loglevel=info
+      --queues=cards,sm2,media
+      --concurrency=2
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Redis: Celery broker and result backend
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  redis_data:
