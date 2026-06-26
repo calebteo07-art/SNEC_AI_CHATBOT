@@ -1,16 +1,18 @@
 services:
   - type: web
     name: eyebot
-    runtime: python
+    # Built from the multi-stage Dockerfile (Next standalone + Python 3.12) to
+    # MATCH the live service. A prior `runtime: python` here had drifted from
+    # reality — the service builds the Dockerfile — and deleting the Dockerfile
+    # took prod down (2026-06-26). The start command is the Dockerfile CMD
+    # (`bash scripts/start-prod.sh`); the base images pin Python 3.12 + Node 24,
+    # so no buildCommand/startCommand or PYTHON_VERSION/NODE_VERSION are needed.
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     region: singapore
     plan: free
-    buildCommand: bash render-build.sh
-    startCommand: bash scripts/start-prod.sh
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.0"
-      - key: NODE_VERSION
-        value: "24.13.0"
       - key: ENVIRONMENT
         value: production
       # Explicit public origin REQUIRED in production — the boot guard
