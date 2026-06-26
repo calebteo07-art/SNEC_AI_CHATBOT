@@ -10,15 +10,24 @@ Before outputting code, you must perform a Silent Internal Trace (SIT):
 - **UI Check:** Does this match the accessibility (A11Y) standards of Nano Banana Pro mockups?
 - **Dry Run:** Mentally execute the logic. Are there race conditions?
 
-## 03. TECHNICAL SPECIFICATION (The "Stack")
-| Layer | Preference | Standard |
+## 03. TECHNICAL SPECIFICATION (The actual stack — verify in-repo before asserting)
+> Canonical references: [`CLAUDE.md`](CLAUDE.md), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md),
+> [`docs/SECURITY.md`](docs/SECURITY.md). The table below is ground truth; do not
+> assume a different stack.
+
+| Layer | Reality | Notes |
 | :--- | :--- | :--- |
-| Runtime | Bun / Node 22+ | ESM, strict type-checking |
-| Framework | Next.js 15 (App Router) | Server-First components |
-| Styling | Tailwind + Framer Motion | Design tokens for consistency |
-| Database | PostgreSQL + Prisma | Atomic transactions, zero-null policy |
-| Auth | NextAuth / Clerk | JWT-less, session-based |
-| Assets | Nano Banana Pro | High-res UI/UX generation |
+| Runtime | Node 24 (frontend) · Python 3.12 (backend) | not Bun |
+| Framework | Next.js 16 App Router (`output: standalone`), React 19 | same-origin proxy to FastAPI |
+| Backend | FastAPI + uvicorn, async-first | tools/api/ |
+| Styling | Tailwind 4 + Motion/GSAP, R3F | custom design system, no generic AI aesthetic |
+| Database | **Supabase** (Postgres + pgvector) | no Prisma; RAG knowledge base |
+| Auth | **Custom JWT in an HttpOnly cookie**, bcrypt, OTP reset | NOT NextAuth/Clerk; identity from JWT `sub` |
+| AI | Google Gemini (`google-genai`) | `MOCK_MODE` without a key |
+
+**Hard rules:** never block the async event loop (use `asyncio.to_thread` +
+timeouts); no shared in-memory state across workers (use Redis); never weaken the
+fail-closed boot guard. See the Production Invariants in `CLAUDE.md`.
 
 ## 04. EXECUTION DIRECTIVES
 ### A. The "Visual First" Workflow

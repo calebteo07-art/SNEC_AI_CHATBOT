@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Python runtime dependencies
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for patch/minor bumps keeps the noise down; majors come solo.
+      python-minor-patch:
+        update-types: [minor, patch]
+
+  # Frontend dependencies
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+
+  # GitHub Actions themselves
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
