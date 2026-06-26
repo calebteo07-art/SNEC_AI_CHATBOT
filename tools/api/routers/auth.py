@@ -82,17 +82,21 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         approved_role = "student"
         approved_student_role = approved_row.get("role", "")
 
-    # Check password hash
+    # A usable password hash is REQUIRED to authenticate. An account with no hash
+    # — never provisioned, or a legacy row with a blank hash — must NOT be logged
+    # in on an arbitrary string; it sets a first password through the reset flow.
+    # This closes the old "accept any password" hole, including super-admin and
+    # supervisor first-login privilege escalation.
     auth_row = await db.get_auth(email)
-    must_change = True
-    if auth_row:
-        stored_hash = auth_row.get("password_hash", "")
-        if stored_hash and not await asyncio.to_thread(verify_password, body.password, stored_hash):
-            raise HTTPException(status_code=401, detail="Incorrect password.")
-        must_change = bool(auth_row.get("must_change", True))
-    else:
-        # Legacy account — no hash stored; accept any password, force change
-        must_change = True
+    stored_hash = auth_row.get("password_hash", "") if auth_row else ""
+    if not stored_hash:
+        raise HTTPException(
+            status_code=403,
+            detail="No password is set for this account. Use 'Forgot password' to create one.",
+        )
+    if not await asyncio.to_thread(verify_password, body.password, stored_hash):
+        raise HTTPException(status_code=401, detail="Incorrect password.")
+    must_change = bool(auth_row.get("must_change", True))
 
     # Create/fetch student identity
     full_name = approved_row.get("full_name", email) if approved_row else email

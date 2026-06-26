@@ -5,8 +5,12 @@
 #               via next.config.ts rewrites (same-origin: cookies + SSE intact)
 set -e
 
+# Workers default to 1 (safe on a 512MB instance); raise WEB_CONCURRENCY on a
+# larger plan. State that must be shared across workers (rate-limit counters)
+# lives in Redis when REDIS_URL is set — see tools/api/shared.py.
 uvicorn tools.api.server:app \
   --host 127.0.0.1 --port 8000 \
+  --workers "${WEB_CONCURRENCY:-1}" \
   --timeout-graceful-shutdown 10 &
 API_PID=$!
 
