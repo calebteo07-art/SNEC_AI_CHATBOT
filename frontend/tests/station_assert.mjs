@@ -56,6 +56,7 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
     total_score: 31, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2,
     score_100: 78, verdict: "Solid", thoroughness: 31, technique: 24, judgment: 23,
     safe: true, missed_critical: [], thoroughness_detail: "5 of 6 steps · all 2 critical done",
+    technique_applies: true, thoroughness_max: 40, technique_max: 30, judgment_max: 30,
   },
   cards: [], mock_mode: false,
   coaching: {
