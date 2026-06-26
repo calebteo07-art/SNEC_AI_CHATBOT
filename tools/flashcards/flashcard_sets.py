@@ -1,7 +1,7 @@
-"""Topic + difficulty taxonomy for flashcards — 30 sets per role.
+"""Topic + difficulty taxonomy for flashcards — 45 sets per role.
 
-Each role's deck is organised as 15 topics x 2 difficulty tiers (easy, medium)
-= 30 selectable sets, 5 cards per set (target 150 cards/role). Mirrors the
+Each role's deck is organised as 15 topics x 3 difficulty tiers (easy, medium,
+hard) = 45 selectable sets. Mirrors the
 check-in pooling so OA and PSA share one clinical pool and OT is separate:
 - OT  -> ophthalmic investigations / imaging pool ("OT").
 - OA and PSA study almost the same course, so they SHARE the clinical pool
@@ -13,7 +13,7 @@ set's cards with per-user no-repeat rotation. Cards live in static_cards.py.
 """
 from __future__ import annotations
 
-DIFFICULTIES: list[str] = ["easy", "medium"]
+DIFFICULTIES: list[str] = ["easy", "medium", "hard"]
 
 # Ordered (topic_key, label) per pool — defines the 15 topics, in display order.
 FLASHCARD_TOPICS: dict[str, list[tuple[str, str]]] = {
@@ -81,7 +81,7 @@ def label_for(role: str, topic_key: str) -> str:
 
 
 def sets_for(role: str) -> list[dict]:
-    """All 30 sets for a role, in (topic, difficulty) order."""
+    """All sets for a role, in (topic, difficulty) order."""
     out: list[dict] = []
     for topic_key, label in topics_for(role):
         for difficulty in DIFFICULTIES:
