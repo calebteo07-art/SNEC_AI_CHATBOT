@@ -21,7 +21,7 @@ from tools.shared.static_pools import pick_next_unseen
 from tools.cases.topic_sets import resolve_set, sets_for, label_for
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
-from tools.cases.examination_actions import build_actions
+from tools.cases.examination_actions import build_actions, has_manual_actions
 from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
 from tools.kb.search import get_checklist_by_name
@@ -121,6 +121,10 @@ class DomainScore(BaseModel):
     safe: bool = True
     missed_critical: list[str] = []
     thoroughness_detail: str = ""
+    technique_applies: bool = True
+    thoroughness_max: int = 40
+    technique_max: int = 30
+    judgment_max: int = 30
 
 class CoachingBlock(BaseModel):
     highlights: list[str] = []
@@ -772,6 +776,11 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
 
     # ── Station-100: the legible score, computed from the SAME steps the student
     #    saw tick (the station-resolved checklist) so Thoroughness reconciles.
+    # The Technique bucket only applies when the case has manual procedures — use
+    # the same classification that decides whether the action panel renders.
+    has_manual = has_manual_actions(
+        case.get("examination_findings", {}), _cl_compare.get("steps", [])
+    )
     score = compute_station_score(
         {
             "history": raw_result.get("history_score", 0),
@@ -781,6 +790,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         },
         _cl_compare.get("steps", []),
         body.performed_steps,
+        has_manual,
     )
 
     await log_session(
@@ -850,6 +860,10 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         "thoroughness_detail": score["thoroughness_detail"],
         "critical_hit": score["critical_hit"],
         "critical_total": score["critical_total"],
+        "technique_applies": score["technique_applies"],
+        "thoroughness_max": score["thoroughness_max"],
+        "technique_max": score["technique_max"],
+        "judgment_max": score["judgment_max"],
     })
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),
