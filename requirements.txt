@@ -41,8 +41,13 @@ python-jose[cryptography]>=3.3.0
 celery[redis]>=5.3.0
 redis>=5.0.0
 
-# Testing
-pytest-asyncio>=0.23.0
+# Observability — error tracking stays DORMANT unless SENTRY_DSN is set
+sentry-sdk>=2.0.0
 
 # Environment
 python-dotenv>=1.0.0
+
+# NOTE: test/CI tooling (pytest, pip-audit, pip-tools) lives in
+# requirements-dev.txt so production installs stay lean. For fully reproducible,
+# hash-pinned builds, generate requirements.lock on Python 3.12 via
+# scripts/lock-deps.sh and point render-build.sh at it.
