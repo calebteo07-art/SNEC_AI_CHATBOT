@@ -3,6 +3,8 @@
 The size guard runs as middleware, before routing and rate limiting, so it
 rejects with 413 regardless of the target path.
 """
+from unittest.mock import AsyncMock, patch
+
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
@@ -22,9 +24,14 @@ def test_oversized_request_body_rejected(monkeypatch):
 
 def test_normal_request_body_not_size_rejected(monkeypatch):
     monkeypatch.setattr("tools.api.server.MAX_REQUEST_BYTES", 2_000_000)
-    r = client.post(
-        "/api/auth/login",
-        json={"email": "x@y.com", "password": "whatever"},
-    )
+    # The DB lookups are mocked so the request reaches and exits the handler
+    # (here as a clean 403) without needing Supabase — CI has no .env, so an
+    # unmocked login would raise and never let us assert on the size guard.
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)):
+        r = client.post(
+            "/api/auth/login",
+            json={"email": "x@y.com", "password": "whatever"},
+        )
     # May fail later for auth reasons, but must not be rejected for size.
     assert r.status_code != 413
