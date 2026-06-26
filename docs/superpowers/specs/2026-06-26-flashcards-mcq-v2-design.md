@@ -24,12 +24,14 @@ The user also wants: both **practical and theory** questions, **3 difficulty tie
 ## Goals
 
 - Every card is **MCQ (single-answer) or multi-select**. Harder cards may add an
-  optional typed-explanation prompt (self-check, not graded).
+  optional typed-explanation prompt that **is graded** — by a fast AI call kept off
+  the blocking path (see §3).
 - **3 difficulty tiers**: easy, medium, hard.
 - **Deeper bank**: target ~12 questions per topic per tier (≈1,080 total across
   15 topics × 3 tiers × 2 role pools) to make repeats rare.
-- **Instant, deterministic grading** — no AI call in the study loop. Speed is the
-  #1 priority.
+- **Speed is the #1 priority.** MCQ grading is instant and deterministic
+  (client-side, no AI). Typed-reasoning grades run **in the background**, never
+  blocking the reveal or the headline score.
 - **Per-question reveal** shows the model answer (correct options + explanation),
   not a score.
 - **Deck-level results screen**: "X / N correct", weakest topics to drill,
@@ -56,7 +58,7 @@ The user also wants: both **practical and theory** questions, **3 difficulty tie
 | Bank depth | ~12 questions per topic per tier (≈1,080 total) |
 | End-of-deck scoring | Instant deterministic (no AI) |
 | Rollout | Build full engine now + 2-3 fully-authored template topics, then expand |
-| Typed explanation (hard cards) | Self-check vs model explanation; **not** graded, does not affect score |
+| Typed explanation (hard cards) | **Graded** by a fast AI call fired in the background (off the blocking path). Headline deck score stays MCQ-only and instant; the reasoning grade is shown as its own dimension |
 | Multi-select grading | **All-or-nothing** (exact correct set; no partial credit) |
 | DB | **No migration**; static pool is source of truth, progress keyed on stem |
 | Client grading | Client receives `correct`; grades locally for instant reveal |
@@ -111,21 +113,53 @@ On submit, the card **immediately reveals the model answer**: correct option(s)
 highlighted, any wrong pick marked, plus the `explanation` text. A ✓/✗ shows for
 that card. **No running score is displayed** — the aggregate tally is end-only.
 
-### 3. Typed explanation on hard cards (`requires_explanation: True`)
+### 3. Typed explanation on hard cards (`requires_explanation: True`) — graded, but never blocking
 
-After selecting options, the student may type their reasoning. On reveal they see
-the model `explanation` to **self-compare**. This is a reflection aid:
-- It is **not AI-graded** (keeps the loop instant).
-- It does **not** affect the deck score (which is pure MCQ correctness).
+A subset of hard cards add a typed-reasoning box. The student picks the option(s)
+and may also type a short explanation. The typed answer **is graded** — but the AI
+call is kept entirely off the blocking path so it never re-introduces the current
+"wait on every card" latency:
+
+- **The reveal is instant.** As soon as the student submits, the MCQ correctness is
+  graded client-side and the model answer + `explanation` are shown immediately.
+  Nothing waits on the AI.
+- **The typed grade runs in the background.** On submit/advance, a single fast call
+  to `POST /api/flashcards/check` (one short typed answer; `MODEL_SMALL`, MINIMAL
+  thinking, ~256-token cap, `asyncio.to_thread` — the becky-optimized grader path)
+  is fired without blocking the reveal. The student can read the model answer and
+  move on while it resolves.
+- **It overlaps with continued studying.** Because grading starts on advance and the
+  student keeps working through the deck, the grades have almost always returned by
+  the time they reach the results screen. The card reveal shows a small,
+  non-blocking "Reviewing your written answer…" note that updates to the grade +
+  one-line tip when it lands.
+- **It does not gate the headline score.** The deck's "X / N correct" is pure MCQ
+  correctness and appears instantly. The reasoning grades are summarized as their
+  own dimension on the results screen (e.g. "Written reasoning: 2 strong, 1 to
+  review"), filling in if any are still in flight — never blocking the headline.
+
+Because typed cards are only a fraction of hard cards (and easy/medium have none),
+the total number of AI calls per deck is small, each is the cheap minimal-config
+grader, and none sit on the critical path — so the loop is far faster than today's
+"AI call + 850 ms delay on every card".
+
+The exact grade→XP / grade→display mapping for reasoning answers is pinned in the
+implementation plan; a sensible default is a 0–100 score bucketed to a short
+qualitative label (strong / okay / review) plus a one-sentence tip.
 
 ### 4. End-of-deck results screen (new, client-computed)
 
-Replaces today's bounce-to-dashboard toast. Sub-second, fully deterministic:
-- Big **"X / N correct"** numeral.
+Replaces today's bounce-to-dashboard toast. The headline appears instantly (MCQ
+correctness is computed client-side):
+- Big **"X / N correct"** numeral — instant, never gated on AI.
 - **Per-topic breakdown** and the **1-2 weakest topics** (most misses) named:
   e.g. "Focus your next drill on Triage and Red Eye."
 - **Encouraging, plain-language coaching** from score-tiered templates. Jargon only
   when it is the clearest word.
+- **Written reasoning summary** (only if the deck had typed cards): a small line
+  such as "Written reasoning: 2 strong, 1 to review", drawn from the background
+  typed-answer grades. Fills in if a grade is still in flight — never blocks the
+  headline.
 - Actions: **"Drill the N you missed"** (mini-deck of just the missed cards),
   **"New deck"**, **"Done"** (→ dashboard, still fires the existing completion
   toast/XP path).
@@ -145,8 +179,12 @@ Replaces today's bounce-to-dashboard toast. Sub-second, fully deterministic:
     Celery `process_review` path;
   - syncs XP via the existing profile path.
   Returns the persisted XP/level for the results screen if needed.
-- `POST /api/flashcards/check` — **removed.** The per-card AI grader is gone. Only
-  the flashcards hook calls it today, so removal is contained.
+- `POST /api/flashcards/check` — **kept, but repurposed.** It no longer grades every
+  card. It is called **only for typed-explanation answers**, fired in the background
+  off the blocking path (§3). It already uses the fast minimal-config grader
+  (`MODEL_SMALL`, MINIMAL thinking, ~256-token cap, `asyncio.to_thread`, quota
+  handling), so no change to its internals is required — only its call site and
+  cadence change (background, typed-only, no longer per-card).
 
 XP model (encouraging, never punishing): **+10 per correct, +3 for an honest
 attempt on a missed card, + session-complete bonus.** Replaces the AI-score→XP map.
@@ -180,8 +218,10 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
 - **`Flashcards.tsx` orchestrator**: swap the AI-grade flow for
   select → reveal → accumulate results → ResultsScreen → batched `complete` sync.
   Missed-card "drill" replaces the old `<40` weak-card mid-deck retry.
-- **Hooks (`useFlashcards.ts`)**: drop `useFlashcardCheck`; add `useFlashcardComplete`
-  (batched). `useFlashcards`/`useFlashcardTopics` adapt to the new shape.
+- **Hooks (`useFlashcards.ts`)**: keep `useFlashcardCheck` but call it only for
+  typed-explanation answers, fired in the background (not awaited on the reveal);
+  add `useFlashcardComplete` (batched end-of-deck SM-2 + XP). `useFlashcards` /
+  `useFlashcardTopics` adapt to the new shape.
 
 ### 8. Rollout (engine + template topics first)
 
@@ -203,14 +243,18 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
   `kind ∈ {"theory", "practical"}`; no duplicate stems within a set; role→pool
   gating holds (OT pool disjoint from CLINICAL).
 - **Endpoint tests**: `generate` returns the MCQ shape and respects no-repeat;
-  `complete` updates SM-2 deterministically and syncs XP; `topics` lists 3 tiers.
-- **Frontend harness**: walk select → reveal → results; update the aurora_assert
-  flashcard hooks/selectors. Run keyless in `MOCK_MODE` — no live AI.
+  `complete` updates SM-2 deterministically and syncs XP; `topics` lists 3 tiers;
+  `check` still grades a single typed answer in `MOCK_MODE` (typed-only path).
+- **Frontend harness**: walk select → reveal → results; assert the reveal is **not**
+  gated on the typed grade (MCQ reveal happens before/independently of the
+  background `check`). Update the aurora_assert flashcard hooks/selectors. Run
+  keyless in `MOCK_MODE` — no live AI.
 
 ## Risks & Mitigations
 
 | Risk | Mitigation |
 |------|------------|
+| Typed-answer grade latency at deck end | Grade fires in the background on advance, overlapping continued study; headline score is MCQ-only and never waits; results screen fills the reasoning summary in if a grade is still in flight |
 | Authoring volume (≈1,080 accurate MCQs) | Phased rollout; per-set counts gate the picker; KB-grounded hand-authoring |
 | Client sees `correct` (peeking) | Accepted — low-stakes self-study; answer is revealed each card anyway |
 | Review-mode stem mismatch after edits | Graceful fallback to fresh pool cards; stems are stable static text |
@@ -218,8 +262,10 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
 
 ## Success Criteria
 
-- Study loop has **zero AI calls**; reveal is instant (no 850 ms artificial delay,
-  no grader round-trip).
+- The reveal is **instant** on every card — no 850 ms artificial delay and no
+  blocking grader round-trip. MCQ correctness is graded client-side; the only AI
+  calls are background typed-reasoning grades on the subset of hard cards, off the
+  critical path.
 - Every served card is MCQ/multi-select with a revealed model answer.
 - 3 selectable tiers; OT vs OA/PSA pools stay separate.
 - Deck ends with an "X / N correct" results screen naming weak topics, in simple
