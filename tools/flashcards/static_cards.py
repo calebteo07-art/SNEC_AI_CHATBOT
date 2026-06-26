@@ -39,12 +39,1187 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                                    "within 10 minutes (e.g. chemical burn, CRAO).",
                     "reasoning_eligible": False,
                 },
+                {
+                    "stem": "Within how long must a Triage Category 2 case be seen?",
+                    "options": ["Within 10 minutes", "Within 30 minutes",
+                                "Within 60 minutes", "Within 2 hours"],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 2 cases must be seen within 30 minutes.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Within how long must a Triage Category 3 case be seen?",
+                    "options": ["Within 10 minutes", "Within 30 minutes",
+                                "Within 60 minutes", "Within 2 hours"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 3 cases must be seen within 60 minutes.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Within how long must a Triage Category 4 case be seen?",
+                    "options": ["Within 10 minutes", "Within 30 minutes",
+                                "Within 60 minutes", "Within 2 hours"],
+                    "correct": [3],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 4 covers minor or chronic conditions and "
+                                   "must be seen within 2 hours.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which triage category does conjunctivitis fall under?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [3],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Conjunctivitis is a minor/chronic condition — "
+                                   "Category 4 (within 2 hours).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the first action for a chemical eye burn?",
+                    "options": ["Check visual acuity", "Start irrigation immediately",
+                                "Instil anaesthetic drops", "Measure IOP"],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Chemical burns are Category 1 — start irrigation "
+                                   "immediately to wash out the chemical and limit "
+                                   "ongoing damage.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How many triage categories are there in the SNEC system?",
+                    "options": ["2", "3", "4", "5"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "There are 4 triage categories: Category 1 (within "
+                                   "10 min), Category 2 (within 30 min), Category 3 "
+                                   "(within 60 min), and Category 4 (within 2 hours).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A stable chronic glaucoma review is which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [3],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A stable chronic glaucoma review is routine — "
+                                   "Category 4 (within 2 hours).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which triage category requires the patient to be seen most urgently?",
+                    "options": ["Category 4", "Category 3",
+                                "Category 2", "Category 1"],
+                    "correct": [3],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 1 is the most urgent — the patient must "
+                                   "be seen within 10 minutes.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A welder's flash burn is which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A welder's flash burn (painful red eye / "
+                                   "photokeratitis) is Category 3 (within 60 minutes).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A total hyphaema is which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A total hyphaema (blood filling the anterior "
+                                   "chamber) is Category 2 (within 30 minutes).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Central retinal artery occlusion (CRAO) with VA <6/60 "
+                            "is which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "CRAO with VA <6/60 is a sight-threatening "
+                                   "emergency — Category 1 (within 10 minutes).",
+                    "reasoning_eligible": True,
+                },
             ],
-            "medium": [],
-            "hard": [],
+            "medium": [
+                {
+                    "stem": "Which triage category is a chemical burn, and what is "
+                            "the first action?",
+                    "options": [
+                        "Category 1 — start irrigation immediately",
+                        "Category 2 — check visual acuity first",
+                        "Category 3 — instil anaesthetic then irrigate",
+                        "Category 1 — measure IOP first",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Chemical burns are Category 1 (within 10 minutes). "
+                                   "The first action is immediate irrigation to wash "
+                                   "out the chemical and limit damage.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient with previous retinal history reports a sudden "
+                            "increase in floaters. Which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Suspect retinal detachment — Category 3 (within "
+                                   "60 minutes).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which of the following conditions is Triage Category 1?",
+                    "options": ["Conjunctivitis", "Stable glaucoma review",
+                                "Chemical eye burn", "Welder's flash burn"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Chemical eye burn is Category 1 (within 10 "
+                                   "minutes). Conjunctivitis and stable glaucoma are "
+                                   "Category 4; a welder's flash burn is Category 3.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient presents with sudden painless loss of vision "
+                            "in one eye. What is the appropriate triage action?",
+                    "options": [
+                        "Category 4 — schedule routine review",
+                        "Category 1 — escalate immediately",
+                        "Category 3 — see within 60 minutes",
+                        "Category 2 — see within 30 minutes",
+                    ],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Sudden painless loss of vision (e.g. CRAO, "
+                                   "vitreous haemorrhage) is a sight-threatening "
+                                   "emergency — Category 1, escalate immediately.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must a chemical eye injury be irrigated before "
+                            "checking visual acuity?",
+                    "options": [
+                        "Because irrigation improves visual acuity",
+                        "To wash out the chemical and limit ongoing damage",
+                        "Because VA cannot be measured with an injured eye",
+                        "To reduce intraocular pressure first",
+                    ],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Chemical burns cause ongoing tissue damage every "
+                                   "second — irrigation must begin immediately to "
+                                   "wash out the chemical. VA can wait.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which of the following are Triage Category 2 conditions?",
+                    "options": [
+                        "Total hyphaema",
+                        "Chemical burn",
+                        "Conjunctivitis",
+                        "Stable chronic glaucoma review",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Total hyphaema is Category 2 (within 30 minutes). "
+                                   "Chemical burn is Category 1; conjunctivitis and "
+                                   "stable glaucoma are Category 4.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient with acute angle-closure glaucoma presents "
+                            "with severe eye pain, nausea, and a hazy cornea. "
+                            "Which triage category?",
+                    "options": ["Category 4", "Category 3",
+                                "Category 2", "Category 1"],
+                    "correct": [3],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Acute angle-closure glaucoma is a sight-threatening "
+                                   "emergency — Category 1 (within 10 minutes).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A painful red eye with no discharge or visual loss "
+                            "is likely which triage category?",
+                    "options": ["Category 1", "Category 2",
+                                "Category 3", "Category 4"],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A painful red eye without vision-threatening "
+                                   "features (e.g. flash burn, mild keratitis) is "
+                                   "typically Category 3 (within 60 minutes).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What distinguishes Category 1 from Category 2 in "
+                            "terms of clinical urgency?",
+                    "options": [
+                        "Category 1 is seen within 10 minutes; Category 2 "
+                        "within 30 minutes",
+                        "Category 1 needs a doctor; Category 2 does not",
+                        "Category 1 requires surgery; Category 2 does not",
+                        "There is no difference",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 1 must be seen within 10 minutes "
+                                   "(sight/life-threatening); Category 2 within "
+                                   "30 minutes (urgent but not immediately "
+                                   "sight-threatening).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL conditions that are Triage Category 3 "
+                            "(seen within 60 minutes).",
+                    "options": [
+                        "Sudden increase in floaters with retinal history",
+                        "Welder's flash burn",
+                        "Chemical eye burn",
+                        "Total hyphaema",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Sudden floaters (suspect retinal detachment) and "
+                                   "welder's flash burn are both Category 3 (within "
+                                   "60 minutes). Chemical burn is Category 1; total "
+                                   "hyphaema is Category 2.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient on anticoagulants has a partial hyphaema "
+                            "after blunt trauma. What is the primary triage concern?",
+                    "options": [
+                        "The hyphaema may worsen due to bleeding risk",
+                        "Anticoagulants prevent healing",
+                        "The patient should stop the anticoagulant immediately",
+                        "No special concern — treat as Category 4",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Anticoagulants increase bleeding risk, so the "
+                                   "hyphaema may enlarge. Escalate urgently (do NOT "
+                                   "stop anticoagulants without medical instruction).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "In triage, what is the purpose of assigning a category?",
+                    "options": [
+                        "To prioritise patients by clinical urgency",
+                        "To decide which doctor sees the patient",
+                        "To determine the treatment plan",
+                        "To calculate the consultation fee",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Triage categories prioritise patients so the "
+                                   "most urgent cases are seen first.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "Select ALL conditions that are Triage Category 1 "
+                            "(seen within 10 minutes).",
+                    "options": [
+                        "Chemical eye burn",
+                        "Central retinal artery occlusion (CRAO)",
+                        "Conjunctivitis",
+                        "Stable chronic glaucoma review",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Chemical burns and CRAO are sight-threatening "
+                                   "emergencies needing treatment within minutes. "
+                                   "Conjunctivitis and a stable glaucoma review "
+                                   "are routine (Category 4).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient presents with sudden painless vision loss, "
+                            "VA <6/60, and a cherry-red spot on fundoscopy. "
+                            "What is the most likely diagnosis and triage category?",
+                    "options": [
+                        "CRAO — Category 1",
+                        "Retinal detachment — Category 3",
+                        "Vitreous haemorrhage — Category 2",
+                        "Optic neuritis — Category 3",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A cherry-red spot with sudden painless vision "
+                                   "loss and VA <6/60 is classic for CRAO — "
+                                   "Category 1 (within 10 minutes).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient splashed an unknown chemical in both eyes "
+                            "5 minutes ago. As the first responder, what do you do?",
+                    "options": [
+                        "Start bilateral irrigation immediately",
+                        "Identify the chemical before irrigating",
+                        "Check visual acuity to assess severity",
+                        "Instil anaesthetic drops and wait for the doctor",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Chemical burns are Category 1. Irrigate "
+                                   "immediately — do not delay to identify the "
+                                   "chemical or check VA. Every second counts.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is acute angle-closure glaucoma classified as "
+                            "Category 1 rather than Category 2?",
+                    "options": [
+                        "It can cause irreversible vision loss within minutes "
+                        "if untreated",
+                        "It is always bilateral",
+                        "It only occurs in elderly patients",
+                        "It requires surgery within 30 minutes",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Acute angle-closure glaucoma causes rapid, "
+                                   "irreversible optic nerve damage from high IOP. "
+                                   "It must be seen within 10 minutes (Category 1).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Rank the following from most urgent to least urgent "
+                            "triage category.",
+                    "options": [
+                        "Chemical burn > Total hyphaema > Flash burn > "
+                        "Conjunctivitis",
+                        "Total hyphaema > Chemical burn > Flash burn > "
+                        "Conjunctivitis",
+                        "Flash burn > Chemical burn > Conjunctivitis > "
+                        "Total hyphaema",
+                        "Conjunctivitis > Flash burn > Total hyphaema > "
+                        "Chemical burn",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Chemical burn = Cat 1 (10 min) > Total hyphaema "
+                                   "= Cat 2 (30 min) > Flash burn = Cat 3 (60 min) "
+                                   "> Conjunctivitis = Cat 4 (2 hr).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A myopic patient with a history of retinal tears "
+                            "reports a sudden shower of floaters and a curtain "
+                            "across their vision. What triage category and why?",
+                    "options": [
+                        "Category 3 — suspect retinal detachment",
+                        "Category 4 — floaters are benign",
+                        "Category 1 — immediate surgery needed",
+                        "Category 2 — moderate urgency",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A curtain plus shower of floaters in a myope with "
+                                   "retinal history strongly suggests retinal "
+                                   "detachment — Category 3 (within 60 minutes).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Two patients arrive simultaneously: one with "
+                            "conjunctivitis and one with a chemical burn. "
+                            "Who is seen first and why?",
+                    "options": [
+                        "Chemical burn — Category 1 is more urgent than "
+                        "Category 4",
+                        "Conjunctivitis — it arrived first",
+                        "Both at the same time",
+                        "Chemical burn — but only after checking VA on both",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Chemical burn is Category 1 (within 10 minutes); "
+                                   "conjunctivitis is Category 4 (within 2 hours). "
+                                   "The chemical burn patient is seen first.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL features that would make you assign "
+                            "Category 1 to a red eye.",
+                    "options": [
+                        "Severe pain with nausea, vomiting, and a fixed "
+                        "mid-dilated pupil",
+                        "Chemical exposure requiring irrigation",
+                        "Mild itchiness with watery discharge",
+                        "Marked discharge with no pain",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Acute angle-closure glaucoma (severe pain, "
+                                   "nausea, fixed dilated pupil) and chemical "
+                                   "exposure are both Category 1. Mild itchiness "
+                                   "and painless discharge are lower categories.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient presents after blunt trauma with blood "
+                            "filling the entire anterior chamber. What is the "
+                            "condition and its triage category?",
+                    "options": [
+                        "Total hyphaema — Category 2",
+                        "Hypopyon — Category 1",
+                        "Subconjunctival haemorrhage — Category 4",
+                        "Vitreous haemorrhage — Category 3",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Blood in the anterior chamber = hyphaema. A total "
+                                   "hyphaema is Category 2 (within 30 minutes).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which statement about triage categories is correct?",
+                    "options": [
+                        "Category 1 and 2 both require the patient to be seen "
+                        "within 30 minutes",
+                        "Category 3 is for minor or chronic conditions",
+                        "Category 4 patients must be seen within 2 hours",
+                        "Categories are assigned based on the patient's age",
+                    ],
+                    "correct": [2],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Category 4 = within 2 hours (minor/chronic). "
+                                   "Category 1 = within 10 min (not 30). "
+                                   "Category 3 = within 60 min (not minor). "
+                                   "Categories are based on clinical urgency, not age.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is it important not to delay irrigation for a "
+                            "chemical burn even if the patient is in severe pain?",
+                    "options": [
+                        "The chemical causes ongoing tissue damage every second — "
+                        "irrigation must not be delayed",
+                        "Pain will resolve once irrigation starts",
+                        "The chemical neutralises itself after 10 minutes",
+                        "Irrigation is only effective within the first minute",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Chemical burns cause progressive tissue "
+                                   "destruction. Immediate irrigation limits "
+                                   "damage regardless of pain level.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient with uveitis (iritis) presents with "
+                            "photophobia, a small pupil, and moderate pain. "
+                            "What triage category?",
+                    "options": [
+                        "Category 1", "Category 2",
+                        "Category 3", "Category 4",
+                    ],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Uveitis is an ocular emergency. With moderate "
+                                   "pain and photophobia, it is Category 2 (within "
+                                   "30 minutes) unless vision is severely threatened, "
+                                   "which would escalate to Category 1.",
+                    "reasoning_eligible": False,
+                },
+            ],
         },
     },
-    "OT": {},
+    "OT": {
+        "oct_macula": {
+            "easy": [
+                {
+                    "stem": "What does a macular OCT image?",
+                    "options": [
+                        "A cross-sectional scan of the macula (central retina)",
+                        "The optic disc and RNFL",
+                        "The anterior chamber angle",
+                        "The corneal endothelium",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Macular OCT produces a cross-sectional scan of "
+                                   "the macula (the central retina).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is OCT a contact or non-contact test?",
+                    "options": [
+                        "Contact — requires corneal applanation",
+                        "Non-contact — it is a light-based scan",
+                        "Contact — uses an ultrasound probe",
+                        "Semi-contact — uses a coupling gel",
+                    ],
+                    "correct": [1],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "OCT is non-contact — it uses light (optical "
+                                   "coherence) to image the retina.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which condition is commonly monitored with "
+                            "macular OCT?",
+                    "options": [
+                        "Diabetic macular oedema",
+                        "Keratoconus",
+                        "Strabismus",
+                        "Blepharitis",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Macular OCT is used to monitor diabetic macular "
+                                   "oedema (also age-related macular degeneration).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What indicates a good-quality macular OCT scan?",
+                    "options": [
+                        "Adequate signal strength and correct centration on the "
+                        "fovea",
+                        "Dilation is not required",
+                        "The scan takes less than 1 second",
+                        "The patient keeps both eyes open",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A good-quality macular OCT requires adequate "
+                                   "signal strength and correct centration on the "
+                                   "fovea.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What OCT finding suggests macular oedema?",
+                    "options": [
+                        "Increased macular thickness with intraretinal fluid",
+                        "Decreased RNFL thickness",
+                        "Normal foveal contour",
+                        "Thin choroid",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Increased macular thickness with intraretinal "
+                                   "fluid on OCT is the hallmark of macular oedema.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is macular OCT important in AMD management?",
+                    "options": [
+                        "It detects and monitors subretinal or intraretinal "
+                        "fluid indicating disease activity",
+                        "It measures intraocular pressure",
+                        "It replaces the need for fundus examination",
+                        "It determines the patient's visual acuity",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "In AMD, macular OCT detects fluid (subretinal or "
+                                   "intraretinal) that indicates active disease "
+                                   "requiring treatment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "OCT uses which type of energy to create images?",
+                    "options": [
+                        "Light (near-infrared)",
+                        "Ultrasound",
+                        "X-rays",
+                        "Radio waves (MRI)",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "OCT uses near-infrared light to create "
+                                   "cross-sectional images of the retina.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What must the scan be centred on for a macular OCT?",
+                    "options": [
+                        "The fovea",
+                        "The optic disc",
+                        "The limbus",
+                        "The pupil",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A macular OCT must be centred on the fovea to "
+                                   "accurately measure central retinal thickness.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is a baseline macular OCT saved?",
+                    "options": [
+                        "For serial comparison to monitor disease and treatment "
+                        "response",
+                        "To calculate IOL power",
+                        "To replace the visual field test",
+                        "It is only needed once and never repeated",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A baseline scan is saved for serial comparison "
+                                   "to monitor disease progression and response "
+                                   "to treatment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which of the following are monitored with macular OCT?",
+                    "options": [
+                        "Diabetic macular oedema",
+                        "Age-related macular degeneration",
+                        "Keratoconus",
+                        "Strabismus",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Both diabetic macular oedema and AMD are "
+                                   "monitored with macular OCT. Keratoconus is a "
+                                   "corneal condition (topography); strabismus is "
+                                   "an alignment issue (orthoptics).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Does macular OCT require pupil dilation?",
+                    "options": [
+                        "Often yes — dilation improves signal quality",
+                        "Never — it always works through an undilated pupil",
+                        "Only for patients under 40",
+                        "Only if the patient has glaucoma",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Dilation is often performed before macular OCT "
+                                   "to improve signal quality, especially with "
+                                   "small pupils or media opacity.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'OCT' stand for?",
+                    "options": [
+                        "Optical Coherence Tomography",
+                        "Optic Canal Test",
+                        "Ocular Corneal Topography",
+                        "Ophthalmic Computed Tomography",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "OCT stands for Optical Coherence Tomography.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A diabetic has blurred central vision. What macular "
+                            "OCT finding fits macular oedema?",
+                    "options": [
+                        "Increased central retinal thickness with intraretinal "
+                        "(cystoid) fluid",
+                        "Normal retinal thickness with no fluid",
+                        "Thinning of the RNFL",
+                        "Corneal oedema on ASOCT",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Diabetic macular oedema shows increased central "
+                                   "retinal thickness with intraretinal (cystoid) "
+                                   "fluid on macular OCT.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why might OCT signal strength be low in a cataract "
+                            "patient?",
+                    "options": [
+                        "The cloudy lens (media opacity) reduces the light signal "
+                        "reaching the retina",
+                        "The pupil is too large",
+                        "The patient is too young",
+                        "OCT does not work through any lens",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A cataract is a media opacity that blocks some "
+                                   "of the OCT light signal, reducing signal "
+                                   "strength and image quality.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How can you improve a poor macular OCT caused by "
+                            "dry eye?",
+                    "options": [
+                        "Ask the patient to blink or instil a lubricant, "
+                        "then re-acquire",
+                        "Increase the scan speed",
+                        "Switch to ultrasound biometry",
+                        "Dilate the pupil further",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Dry eye disrupts the tear film, scattering the "
+                                   "OCT light. A blink or lubricant drop refreshes "
+                                   "the tear film and improves signal quality.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "In wet AMD follow-up, what does persistent fluid on "
+                            "OCT suggest?",
+                    "options": [
+                        "Ongoing disease activity that may need continued "
+                        "treatment",
+                        "The disease is cured",
+                        "The OCT machine is miscalibrated",
+                        "The patient needs cataract surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Persistent subretinal or intraretinal fluid on "
+                                   "OCT in wet AMD indicates ongoing disease "
+                                   "activity that may need continued anti-VEGF "
+                                   "treatment (the doctor decides).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What is the main difference between macular OCT and "
+                            "RNFL OCT?",
+                    "options": [
+                        "Macular OCT images the central retina (macula); RNFL "
+                        "OCT measures nerve fibre thickness around the optic "
+                        "disc",
+                        "There is no difference",
+                        "RNFL OCT uses ultrasound; macular OCT uses light",
+                        "Macular OCT measures IOP; RNFL OCT does not",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Macular OCT images the macula (central retina) "
+                                   "for conditions like DME and AMD. RNFL OCT "
+                                   "measures nerve fibre layer thickness around "
+                                   "the optic disc for glaucoma monitoring.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient's macular OCT shows new subretinal fluid "
+                            "compared to the baseline. What should the OT do?",
+                    "options": [
+                        "Flag the change and ensure the doctor reviews the "
+                        "comparison",
+                        "Repeat the scan next month",
+                        "Ignore it — small changes are normal",
+                        "Start anti-VEGF treatment",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "New subretinal fluid is a significant finding "
+                                   "(possible disease progression). The OT should "
+                                   "flag it for doctor review — treatment decisions "
+                                   "are the doctor's responsibility.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL factors that can reduce OCT signal quality.",
+                    "options": [
+                        "Cataract (media opacity)",
+                        "Dry eye (disrupted tear film)",
+                        "Patient's age over 40",
+                        "Using the wrong scan protocol",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Cataract blocks light and dry eye scatters it — "
+                                   "both reduce OCT signal quality. Age alone does "
+                                   "not reduce signal; using the wrong protocol is a "
+                                   "procedural error, not a signal quality issue.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is serial comparison of macular OCT scans "
+                            "important?",
+                    "options": [
+                        "To detect changes in retinal thickness or fluid that "
+                        "indicate disease progression or treatment response",
+                        "To confirm the patient's identity",
+                        "To determine the patient's refractive error",
+                        "To replace the need for visual acuity testing",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Serial comparison tracks changes in retinal "
+                                   "thickness and fluid over time, helping the "
+                                   "doctor assess disease activity and treatment "
+                                   "response.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What artifact can result from poor fixation during "
+                            "a macular OCT scan?",
+                    "options": [
+                        "Motion artifact causing misalignment of retinal layers",
+                        "A false increase in IOP reading",
+                        "Corneal oedema artifact",
+                        "Pupil dilation artifact",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Poor fixation causes motion artifact, which "
+                                   "misaligns retinal layers and can make the "
+                                   "scan unreliable.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What should you do if the OCT signal strength is "
+                            "unacceptably low?",
+                    "options": [
+                        "Try to improve conditions (blink, lubricant, reposition) "
+                        "and re-acquire; if still poor, document and flag",
+                        "Accept the scan as-is",
+                        "Switch to a visual field test instead",
+                        "Cancel the test and reschedule",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "First try to improve the scan (blink, lubricant, "
+                                   "reposition). If still unacceptable, document the "
+                                   "low quality and flag it for the doctor.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which retinal layer is most relevant to assess in "
+                            "diabetic macular oedema on OCT?",
+                    "options": [
+                        "The central macular region (foveal thickness)",
+                        "The retinal nerve fibre layer (peripapillary)",
+                        "The corneal epithelium",
+                        "The choroidal vasculature only",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "In diabetic macular oedema, central macular "
+                                   "(foveal) thickness and intraretinal cystoid "
+                                   "spaces are the key findings on OCT.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient with wet AMD has been receiving anti-VEGF "
+                            "injections. Their latest OCT shows resolution of "
+                            "subretinal fluid. What does this suggest?",
+                    "options": [
+                        "The treatment is working — the disease is responding",
+                        "The patient no longer has AMD",
+                        "The OCT machine is malfunctioning",
+                        "The patient should stop all treatment",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Resolution of subretinal fluid on OCT indicates "
+                                   "a positive treatment response. However, the "
+                                   "doctor decides whether to continue, extend, "
+                                   "or stop treatment.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A diabetic patient's macular OCT shows cystoid spaces "
+                            "and increased central thickness compared to the "
+                            "previous scan. What does this indicate and what "
+                            "should the OT do?",
+                    "options": [
+                        "Worsening macular oedema — flag for urgent doctor "
+                        "review",
+                        "Normal diabetic changes — no action needed",
+                        "The scan is unreliable — repeat next visit",
+                        "Improvement — the treatment is working",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Increased cystoid spaces and central thickness "
+                                   "compared to baseline indicate worsening diabetic "
+                                   "macular oedema. The OT should flag for urgent "
+                                   "doctor review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL steps the OT should take when acquiring a "
+                            "macular OCT on a patient with a dense cataract.",
+                    "options": [
+                        "Ensure the pupil is adequately dilated",
+                        "Optimise alignment and re-acquire if signal is low",
+                        "Refuse to scan — OCT never works through a cataract",
+                        "Document the low signal quality if it persists",
+                    ],
+                    "correct": [0, 1, 3],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "With a dense cataract, the OT should dilate, "
+                                   "optimise alignment, and re-acquire. If signal "
+                                   "remains low, document it. OCT can still provide "
+                                   "useful information even with reduced signal.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does a disrupted tear film degrade OCT image "
+                            "quality?",
+                    "options": [
+                        "An irregular tear film scatters the OCT light beam, "
+                        "reducing the signal reaching the retina",
+                        "Tears absorb all infrared light",
+                        "The tear film blocks pupil dilation",
+                        "Dry eye causes the retina to thin artificially",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The OCT beam passes through the tear film. An "
+                                   "irregular or dry tear film scatters the light, "
+                                   "reducing signal strength and image quality. "
+                                   "A blink or lubricant can restore it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "In a patient with wet AMD, the OCT shows new "
+                            "subretinal fluid after a period of stability. "
+                            "What is the clinical significance?",
+                    "options": [
+                        "Disease reactivation — the doctor may resume or "
+                        "intensify anti-VEGF treatment",
+                        "The fluid is normal and expected",
+                        "The patient should switch to glaucoma treatment",
+                        "The scan was taken at the wrong angle",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "New subretinal fluid after a stable period "
+                                   "indicates disease reactivation in wet AMD. "
+                                   "The doctor may resume or intensify anti-VEGF "
+                                   "treatment. The OT flags the change.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What is the difference between intraretinal and "
+                            "subretinal fluid on OCT?",
+                    "options": [
+                        "Intraretinal fluid is within the retinal layers "
+                        "(cystoid spaces); subretinal fluid is between the "
+                        "retina and RPE",
+                        "They are the same thing",
+                        "Intraretinal fluid is in the vitreous; subretinal "
+                        "fluid is in the cornea",
+                        "Subretinal fluid is always an artifact",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Intraretinal fluid appears as cystoid spaces "
+                                   "within the retinal layers. Subretinal fluid "
+                                   "collects between the neurosensory retina and "
+                                   "the retinal pigment epithelium (RPE). Both "
+                                   "indicate disease activity.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A macular OCT scan appears decentred — the foveal "
+                            "dip is not in the centre of the scan. What should "
+                            "the OT do?",
+                    "options": [
+                        "Re-acquire with correct centration on the fovea",
+                        "Accept it — decentration does not affect results",
+                        "Switch to RNFL OCT instead",
+                        "Report the machine as broken",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A decentred macular OCT gives inaccurate "
+                                   "thickness measurements. The OT should "
+                                   "re-acquire with the fovea properly centred.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL quality checks the OT should perform "
+                            "before saving a macular OCT scan.",
+                    "options": [
+                        "Adequate signal strength",
+                        "Correct centration on the fovea",
+                        "Absence of motion artifact",
+                        "Patient's blood pressure is normal",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Before saving, the OT checks signal strength, "
+                                   "foveal centration, and absence of motion "
+                                   "artifact. Blood pressure is a systemic measure, "
+                                   "not an OCT quality check.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How does macular OCT complement fundus photography "
+                            "in AMD monitoring?",
+                    "options": [
+                        "OCT shows cross-sectional retinal structure and fluid; "
+                        "fundus photography shows the surface appearance",
+                        "They measure the same thing",
+                        "Fundus photography replaces OCT entirely",
+                        "OCT measures IOP while photography does not",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "OCT provides cross-sectional detail (fluid, "
+                                   "thickness, layer disruption) while fundus "
+                                   "photography shows the surface appearance "
+                                   "(drusen, haemorrhage). Together they give a "
+                                   "more complete picture.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient's OCT signal is low due to a small, "
+                            "undilated pupil. What is the best corrective action?",
+                    "options": [
+                        "Dilate the pupil to improve signal quality",
+                        "Increase the room lighting",
+                        "Ask the patient to remove their glasses",
+                        "Use A-scan ultrasound instead",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A small undilated pupil limits the light entering "
+                                   "the eye. Dilation widens the pupil and improves "
+                                   "OCT signal quality.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is it critical to compare the current macular OCT "
+                            "to the baseline scan rather than just reading it in "
+                            "isolation?",
+                    "options": [
+                        "A single scan cannot distinguish stable disease from "
+                        "progression — comparison reveals change over time",
+                        "The baseline scan calibrates the machine",
+                        "Single scans are always unreliable",
+                        "Comparison is only needed for glaucoma, not AMD or DME",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A single scan shows the current state but cannot "
+                                   "determine whether the disease is stable, "
+                                   "improving, or worsening. Serial comparison "
+                                   "reveals change and guides treatment decisions.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What does the term 'cystoid macular oedema' describe "
+                            "on OCT?",
+                    "options": [
+                        "Fluid-filled cyst-like spaces within the retinal layers "
+                        "at the macula",
+                        "A cyst on the corneal surface",
+                        "A tumour in the vitreous cavity",
+                        "Fluid in the anterior chamber",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Cystoid macular oedema appears as fluid-filled "
+                                   "cyst-like (cystoid) spaces within the retinal "
+                                   "layers at the macula on OCT.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient with treated diabetic macular oedema shows "
+                            "stable central thickness and no new fluid on the "
+                            "latest OCT. What does this indicate?",
+                    "options": [
+                        "Stable disease — the current treatment plan is effective",
+                        "The patient is cured and needs no further monitoring",
+                        "The OCT is unreliable",
+                        "The disease has definitely progressed",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Stable central thickness and no new fluid "
+                                   "suggest the current treatment is controlling "
+                                   "the disease. The doctor decides whether to "
+                                   "continue or modify the plan; ongoing monitoring "
+                                   "is still needed.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+    },
 }
 
 
