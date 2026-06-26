@@ -3,7 +3,7 @@
 -r requirements.txt
 
 pytest>=8.0.0
-pytest-asyncio>=0.23.0
+pytest-asyncio>=1.4.0
 
 # Supply-chain auditing (run in CI; see .github/workflows/ci.yml)
 pip-audit>=2.7.0
