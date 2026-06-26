@@ -92,3 +92,8 @@ def sets_for(role: str) -> list[dict]:
                 "difficulty": difficulty,
             })
     return out
+
+
+def typed_count(n: int) -> int:
+    """How many typed-reasoning cards a deck of `n` should have (~1 per 5)."""
+    return round(n / 5)

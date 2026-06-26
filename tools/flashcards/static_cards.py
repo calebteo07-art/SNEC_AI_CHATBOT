@@ -1271,3 +1271,22 @@ def card_by_stem(role: str) -> dict[str, dict]:
     """{stem: tagged card} index for the role pool — used to rehydrate MCQ fields
     onto SM-2 due cards (which the DB stores only as front/back)."""
     return {c["stem"]: c for c in get_all_cards(role)}
+
+
+def mark_typed_cards(deck: list[dict], n: int) -> list[dict]:
+    """Set requires_explanation=True on ~round(n/5) of the eligible cards in `deck`,
+    spread across the deck. Mutates in place and returns the deck."""
+    from tools.flashcards.flashcard_sets import typed_count
+    want = typed_count(n)
+    for c in deck:
+        c["requires_explanation"] = False
+    eligible = [i for i, c in enumerate(deck) if c.get("reasoning_eligible")]
+    if not eligible or want <= 0:
+        return deck
+    take = min(want, len(eligible))
+    # spread the picks evenly across the eligible indices
+    step = len(eligible) / take
+    chosen = {eligible[int(k * step)] for k in range(take)}
+    for i in chosen:
+        deck[i]["requires_explanation"] = True
+    return deck
