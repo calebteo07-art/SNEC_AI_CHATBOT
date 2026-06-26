@@ -1,0 +1,21 @@
+# Normalise line endings so a CRLF never reaches a Linux runtime. A '\r' in a
+# shell script breaks `bash` on Render with cryptic "command not found" errors.
+* text=auto eol=lf
+
+# Scripts and configs that MUST be LF regardless of platform.
+*.sh    text eol=lf
+*.bash  text eol=lf
+Dockerfile text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+
+# Binary assets — never normalise.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
