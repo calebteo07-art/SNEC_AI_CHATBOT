@@ -1,4 +1,4 @@
-from tools.cases.examination_actions import build_actions
+from tools.cases.examination_actions import build_actions, has_manual_actions
 
 STEPS = [
     {"step_number": 1, "action": "Introduce self to patient", "category": "patient_education", "critical": False},
@@ -63,3 +63,20 @@ def test_unknown_do_step_defaults_to_manual():
 def test_blank_action_is_skipped():
     actions = build_actions({}, [{"step_number": 9, "action": "  ", "category": "clinical_", "critical": False}])
     assert actions == []
+
+
+def test_has_manual_actions_true_for_procedure_steps():
+    steps = [
+        {"step_number": 1, "action": "Introduce yourself to the patient", "critical": False},
+        {"step_number": 2, "action": "Measure IOP with the non-contact tonometer", "critical": True},
+    ]
+    assert has_manual_actions({}, steps) is True
+
+
+def test_has_manual_actions_false_for_all_verbal_steps():
+    steps = [
+        {"step_number": 1, "action": "Introduce yourself to the patient", "critical": True},
+        {"step_number": 2, "action": "Ask the patient about onset and duration", "critical": False},
+        {"step_number": 3, "action": "Take consent before proceeding", "critical": False},
+    ]
+    assert has_manual_actions({}, steps) is False

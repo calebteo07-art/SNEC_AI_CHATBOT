@@ -176,3 +176,12 @@ def build_actions(examination_findings: dict, steps: list[dict]) -> list[dict]:
     for a in merged:
         a["key"] = f"s{a['satisfies_steps'][0]}"
     return merged
+
+
+def has_manual_actions(examination_findings: dict, steps: list[dict]) -> bool:
+    """True if any resolved checklist step is a hands-on (manual) procedure.
+
+    Reuses build_actions' manual/verbal classification, so "no action panel" and
+    "no Technique bucket" stay perfectly in sync.
+    """
+    return any(a["kind"] == "manual" for a in build_actions(examination_findings, steps))
