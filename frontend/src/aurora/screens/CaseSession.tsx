@@ -35,6 +35,7 @@ interface DomainResult {
   total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
   score_100: number; verdict: string; thoroughness: number; technique: number; judgment: number;
   safe: boolean; missed_critical: string[]; thoroughness_detail: string;
+  technique_applies: boolean; thoroughness_max: number; technique_max: number; judgment_max: number;
 }
 interface Coaching { highlights: string[]; watch_outs: string[]; focus: string }
 
@@ -470,18 +471,23 @@ export function CaseSession() {
 const VERDICT_TONE: Record<string, string> = {
   "Exam-ready": "great", "Solid": "good", "Developing": "ok", "Keep practising": "low",
 };
-const COMPONENTS: { key: "thoroughness" | "technique" | "judgment"; label: string; max: number; sub: string }[] = [
-  { key: "thoroughness", label: "Thoroughness", max: 40, sub: "Steps completed" },
-  { key: "technique", label: "Technique", max: 30, sub: "History & examination" },
-  { key: "judgment", label: "Judgment & safety", max: 30, sub: "Recognition & escalation" },
-];
-
 function StationResult({ result, coaching, onMore, onDash }: {
   result: DomainResult; coaching: Coaching | null; onMore: () => void; onDash: () => void;
 }) {
   const { ref, display } = useCountUp<HTMLSpanElement>(result.score_100, { format: (n) => String(Math.round(n)) });
   const tone = VERDICT_TONE[result.verdict] ?? "ok";
   const missedOne = result.missed_critical[0];
+
+  // Data-driven cards: Technique appears only when the case has manual procedures,
+  // and each denominator comes from the score so the 40/30/30 (manual) vs
+  // 50/–/50 (conversation-only) split renders correctly.
+  const comps: { label: string; pts: number; max: number; sub: string }[] = [
+    { label: "Steps completed", pts: result.thoroughness, max: result.thoroughness_max, sub: result.thoroughness_detail },
+    ...(result.technique_applies
+      ? [{ label: "Technique", pts: result.technique, max: result.technique_max, sub: "How well you performed the procedure(s)" }]
+      : []),
+    { label: "Clinical judgement & safety", pts: result.judgment, max: result.judgment_max, sub: "Spotting the problem, triage, escalation & handover" },
+  ];
   return (
     <div className="aurora-station-result" data-tone={tone}>
       <div className="aurora-s100-head">
@@ -506,16 +512,13 @@ function StationResult({ result, coaching, onMore, onDash }: {
       </div>
 
       <div className="aurora-s100-comps">
-        {COMPONENTS.map((c) => {
-          const pts = result[c.key];
-          return (
-            <div key={c.key} className="aurora-s100-comp">
-              <div className="aurora-s100-comp-top"><span>{c.label}</span><b>{pts}<small>/{c.max}</small></b></div>
-              <div className="aurora-s100-bar"><div style={{ width: `${(pts / c.max) * 100}%` }} /></div>
-              <span className="aurora-s100-comp-sub">{c.key === "thoroughness" ? result.thoroughness_detail : c.sub}</span>
-            </div>
-          );
-        })}
+        {comps.map((c) => (
+          <div key={c.label} className="aurora-s100-comp">
+            <div className="aurora-s100-comp-top"><span>{c.label}</span><b>{c.pts}<small>/{c.max}</small></b></div>
+            <div className="aurora-s100-bar"><div style={{ width: `${c.max ? (c.pts / c.max) * 100 : 0}%` }} /></div>
+            <span className="aurora-s100-comp-sub">{c.sub}</span>
+          </div>
+        ))}
       </div>
 
       {coaching && (coaching.highlights.length > 0 || coaching.watch_outs.length > 0) && (
