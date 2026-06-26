@@ -54,3 +54,36 @@ def test_empty_checklist_does_not_divide_by_zero():
     s = compute_station_score(FULL, [], performed=[])
     assert s["thoroughness"] == 0
     assert s["safe"] is True
+
+
+def test_conversation_only_drops_technique_and_reweights_50_50():
+    s = compute_station_score(FULL, STEPS, performed=[1, 2, 3, 4], has_manual=False)
+    assert s["technique_applies"] is False
+    assert s["technique"] == 0
+    assert s["technique_max"] == 0
+    assert s["thoroughness_max"] == 50
+    assert s["judgment_max"] == 50
+    assert s["thoroughness"] == 50
+    assert s["judgment"] == 50
+    assert s["score_100"] == 100
+
+
+def test_conversation_only_coverage_alone_caps_at_50():
+    zero = {"history": 0, "investigations": 0, "diagnosis": 0, "management": 0}
+    s = compute_station_score(zero, STEPS, performed=[1, 2, 3, 4], has_manual=False)
+    assert s["score_100"] == 50  # thoroughness reweighted to /50, no technique/judgment
+
+
+def test_technique_tracks_investigations_not_history():
+    domains = {"history": 0, "investigations": 10, "diagnosis": 0, "management": 0}
+    s = compute_station_score(domains, STEPS, performed=[1, 2, 3, 4], has_manual=True)
+    assert s["thoroughness"] == 40
+    assert s["technique"] == 30
+    assert s["judgment"] == 0
+    assert s["score_100"] == 70
+
+
+def test_manual_case_exposes_default_maxes():
+    s = compute_station_score(FULL, STEPS, performed=[1, 2, 3, 4])  # has_manual defaults True
+    assert s["technique_applies"] is True
+    assert (s["thoroughness_max"], s["technique_max"], s["judgment_max"]) == (40, 30, 30)

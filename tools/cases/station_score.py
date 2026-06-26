@@ -28,13 +28,17 @@ def _verdict(score_100: int) -> str:
     return "Keep practising"
 
 
-def compute_station_score(domain_scores: dict, steps: list[dict], performed) -> dict:
+def compute_station_score(domain_scores: dict, steps: list[dict], performed,
+                          has_manual: bool = True) -> dict:
     """Return the Station-100 score dict from LLM domain scores + checklist coverage.
 
     Args:
         domain_scores: {"history","investigations","diagnosis","management"} each 0-10.
         steps:         resolved checklist steps ({step_number, action, critical}).
         performed:     step numbers the student ticked.
+        has_manual:    True if the case has hands-on procedures. When False the
+                       Technique bucket is removed and its 30 points split 50/50
+                       across Steps-completed and Judgement & safety.
     """
     performed_set = {int(n) for n in (performed or [])}
 
@@ -56,17 +60,27 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed) -> 
         elif crit:
             missed_critical.append(str(s.get("action", "")))
 
-    thoroughness = round(40 * earned / possible) if possible else 0
+    # Adaptive caps: Technique (procedure execution) only applies when the case
+    # has manual procedures; otherwise its 30 points split 50/50 across the other
+    # two buckets (Steps completed -> 50, Judgement & safety -> 50).
+    if has_manual:
+        thoroughness_max, technique_max, judgment_max = 40, 30, 30
+    else:
+        thoroughness_max, technique_max, judgment_max = 50, 0, 50
 
-    h = int(domain_scores.get("history", 0))
+    thoroughness = round(thoroughness_max * earned / possible) if possible else 0
+
+    # Technique = procedure-execution quality only (the investigations domain).
+    # History-taking quality lives in Steps-completed (the questions are ticked
+    # steps) + Judgement, so it is no longer blended into Technique here.
     inv = int(domain_scores.get("investigations", 0))
-    technique = round(30 * (h + inv) / 20)
+    technique = round(technique_max * inv / 10) if technique_max else 0
 
     dia = int(domain_scores.get("diagnosis", 0))
     mng = int(domain_scores.get("management", 0))
     safe = not missed_critical
     gate = 1.0 if safe else SAFETY_CAP
-    judgment = round(30 * (dia + mng) / 20 * gate)
+    judgment = round(judgment_max * (dia + mng) / 20 * gate)
 
     score_100 = max(0, min(100, thoroughness + technique + judgment))
 
@@ -91,4 +105,8 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed) -> 
         "total_score": round(score_100 * 0.4),
         "critical_hit": crit_done,
         "critical_total": crit_total,
+        "technique_applies": has_manual,
+        "thoroughness_max": thoroughness_max,
+        "technique_max": technique_max,
+        "judgment_max": judgment_max,
     }
