@@ -6,7 +6,7 @@
 # have no wheel for 3.12 and break the deploy.
 #
 # Usage:  python3.12 -m pip install pip-tools && scripts/lock-deps.sh
-# Then point render-build.sh / Dockerfile at requirements.lock to install pinned.
+# Then point render-build.sh at requirements.lock to install pinned.
 set -euo pipefail
 
 PYVER="$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
