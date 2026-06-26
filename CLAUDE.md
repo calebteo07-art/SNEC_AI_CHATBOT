@@ -1,73 +1,126 @@
-# Agent Instructions
+# EyeBot — Agent Operating Guide
 
-You're working inside the **WAT framework** (Workflows, Agents, Tools). This architecture separates concerns so that probabilistic AI handles reasoning while deterministic code handles execution. That separation is what makes this system reliable.
+EyeBot is a production AI training platform for **SNEC** (Singapore National Eye
+Centre) allied-health students — Ophthalmic Assistants (OA), Technicians (OT),
+and Patient Service Associates (PSA). It runs a Socratic tutor, virtual-patient
+OSCE stations, spaced-repetition flashcards, daily check-ins, gamification, and
+staff dashboards, grounded in a Supabase RAG knowledge base.
 
-## The WAT Architecture
+This is a **real system deployed to higher-education institutions**. Treat every
+change as production-bound: secure, reproducible, observable, and scale-safe.
 
-**Layer 1: Workflows (The Instructions)**
-- Markdown SOPs stored in `workflows/`
-- Each workflow defines the objective, required inputs, which tools to use, expected outputs, and how to handle edge cases
-- Written in plain language, the same way you'd brief someone on your team
+---
 
-**Layer 2: Agents (The Decision-Maker)**
-- This is your role. You're responsible for intelligent coordination.
-- Read the relevant workflow, run tools in the correct sequence, handle failures gracefully, and ask clarifying questions when needed
-- You connect intent to execution without trying to do everything yourself
-- Example: If you need to pull data from a website, don't attempt it directly. Read `workflows/scrape_website.md`, figure out the required inputs, then execute `tools/scrape_single_site.py`
+## The WAT Architecture (Workflows · Agents · Tools)
 
-**Layer 3: Tools (The Execution)**
-- Python scripts in `tools/` that do the actual work
-- API calls, data transformations, file operations, database queries
-- Credentials and API keys are stored in `.env`
-- These scripts are consistent, testable, and fast
+Probabilistic AI handles reasoning; deterministic code handles execution. That
+separation is what makes the system reliable — five chained 90%-accurate AI steps
+compound to ~59% success, so we offload execution to tested scripts.
 
-**Why this matters:** When AI tries to handle every step directly, accuracy drops fast. If each step is 90% accurate, you're down to 59% success after just five steps. By offloading execution to deterministic scripts, you stay focused on orchestration and decision-making where you excel.
+- **Workflows** (`workflows/`) — Markdown SOPs: objective, inputs, which tools,
+  expected outputs, edge cases.
+- **Agents** (you) — read the workflow, run tools in order, recover from errors,
+  ask when genuinely blocked. Connect intent to execution; don't do everything
+  inline.
+- **Tools** (`tools/`) — Python scripts doing the actual work (AI calls, DB,
+  transforms). Consistent, testable, fast. **Look for an existing tool before
+  building one.** Don't create/overwrite workflows without explicit permission.
 
-## How to Operate
+---
 
-**1. Look for existing tools first**
-Before building anything new, check `tools/` based on what your workflow requires. Only create new scripts when nothing exists for that task.
+## System architecture (the real stack)
 
-**2. Learn and adapt when things fail**
-When you hit an error:
-- Read the full error message and trace
-- Fix the script and retest (if it uses paid API calls or credits, check with me before running again)
-- Document what you learned in the workflow (rate limits, timing quirks, unexpected behavior)
-- Example: You get rate-limited on an API, so you dig into the docs, discover a batch endpoint, refactor the tool to use it, verify it works, then update the workflow so this never happens again
-
-**3. Keep workflows current**
-Workflows should evolve as you learn. When you find better methods, discover constraints, or encounter recurring issues, update the workflow. That said, don't create or overwrite workflows without asking unless I explicitly tell you to. These are your instructions and need to be preserved and refined, not tossed after one use.
-
-## The Self-Improvement Loop
-
-Every failure is a chance to make the system stronger:
-1. Identify what broke
-2. Fix the tool
-3. Verify the fix works
-4. Update the workflow with the new approach
-5. Move on with a more robust system
-
-This loop is how the framework improves over time.
-
-## File Structure
-
-**What goes where:**
-- **Deliverables**: Final outputs go to cloud services (Google Sheets, Slides, etc.) where I can access them directly
-- **Intermediates**: Temporary processing files that can be regenerated
-
-**Directory layout:**
+**Single-container topology** (`scripts/start-prod.sh`):
 ```
-.tmp/           # Temporary files (scraped data, intermediate exports). Regenerated as needed.
-tools/          # Python scripts for deterministic execution
-workflows/      # Markdown SOPs defining what to do and how
-.env            # API keys and environment variables (NEVER store secrets anywhere else)
-credentials.json, token.json  # Google OAuth (gitignored)
+browser ──HTTPS──▶ Next.js standalone (public, $PORT)
+                      │  next.config.ts rewrites /api/* and /health
+                      ▼
+                   FastAPI (internal, 127.0.0.1:8000)  ──▶ Supabase · Gemini · Redis
+```
+Same-origin proxy keeps cookies + SSE intact. **Next owns page security headers
+(CSP); FastAPI returns only JSON/SSE.**
+
+| Layer      | Reality (verify before asserting) |
+|------------|-----------------------------------|
+| Frontend   | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion/GSAP, R3F. Node 24. |
+| Backend    | FastAPI + uvicorn (Python **3.12** in prod), async-first. |
+| AI         | Google Gemini via `google-genai` (`tools/shared/gemini_client.py`). `MOCK_MODE` when no key. |
+| Data       | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
+| Auth       | Custom JWT in an **HttpOnly** cookie (`eyebot_token`); bcrypt(cost 12); OTP reset. |
+| Async      | Celery + Redis workers (`tools/workers/`). |
+| Deploy     | Render (single container) + keep-alive cron. Auto-deploys `main`. |
+
+Backend entrypoint: `tools/api/server.py`. Routers: `tools/api/routers/`
+(auth, cases, admin, supervisor, chat, checkin, student, media). Shared singletons
++ rate-limit keying: `tools/api/shared.py`. See `docs/ARCHITECTURE.md` for the
+endpoint map and `docs/SECURITY.md` for the security model.
+
+---
+
+## Production invariants (do not violate)
+
+1. **Never block the event loop.** Prod is a few uvicorn workers on a small Render
+   instance. Wrap every blocking call (Gemini, bcrypt, SMTP, Supabase sync
+   client) in `asyncio.to_thread` with a timeout. One blocking call stalls the
+   whole worker.
+2. **No per-process in-memory state that must be shared.** Workers scale
+   horizontally (`WEB_CONCURRENCY`). Shared state (rate-limit counters) lives in
+   Redis when `REDIS_URL` is set; OTPs live in Supabase. The case cache is an
+   idempotent per-worker read cache only.
+3. **Fail closed.** `tools/shared/config.py::assert_production_ready()` runs in the
+   app lifespan and refuses to boot in production on an insecure `JWT_SECRET`,
+   missing Supabase keys, or wildcard/empty `ALLOWED_ORIGINS`. Don't weaken it.
+4. **Identity comes from the JWT, never the request body.** `current_user["sub"]`
+   is the source of truth (`tools/shared/jwt_utils.py`).
+5. **Secrets only in env / Render dashboard.** Never commit `.env`,
+   `credentials.json`, or `token.json` (all gitignored).
+6. **Rate-limit keys identify the real caller** (JWT sub, else `X-Forwarded-For`),
+   not the Next proxy peer. Keep new endpoints on the shared `limiter`.
+
+---
+
+## Working in this codebase
+
+- **Process skills first.** Brainstorm before building; TDD for any feature or
+  bugfix (write the failing test, watch it fail, minimal pass); systematic
+  debugging before proposing fixes. Tests live in `tests/` (pytest) and
+  `frontend/tests/` (Node harnesses).
+- **Match the surrounding code.** Comment density, naming, async idioms. Keep
+  files focused; a growing file usually signals too many responsibilities.
+- **Self-improvement loop:** identify what broke → fix the tool → verify → update
+  the workflow → move on more robust.
+
+### Commands
+```bash
+# Backend tests (mirror CI — Python 3.12)
+python -m pytest -q
+# Frontend
+cd frontend && npm run typecheck && npm run build
+# Visual harnesses (need the standalone server running)
+node frontend/tests/aurora_assert.mjs
+node frontend/tests/station_assert.mjs
+# Local dev API
+uvicorn tools.api.server:app --reload --port 8000
 ```
 
-**Core principle:** Local files are just for processing. Anything I need to see or use lives in cloud services. Everything in `.tmp/` is disposable.
+CI (`.github/workflows/ci.yml`) gates pytest + typecheck + build + supply-chain
+audit on every push. Dependabot manages dependency bumps.
 
-## Bottom Line
+### Git
+After a completed task, stage + commit + push. **Never push straight to `main`
+for risky changes** — `main` auto-deploys to Render production. Branch, verify,
+then merge.
 
-You sit between what I want (workflows) and what actually gets done (tools). Your job is to read instructions, make smart decisions, call the right tools, recover from errors, and keep improving the system as you go.
+## File structure
+```
+tools/          Python tools (WAT execution layer) + the FastAPI app under tools/api/
+workflows/      Markdown SOPs
+frontend/       Next.js app (src/, public/, tests/)
+cases/          Virtual-patient case JSON
+tests/          pytest suite
+docs/           specs, plans, ARCHITECTURE.md, SECURITY.md, notes/
+.tmp/           Disposable scratch (regenerated; gitignored)
+.env            Secrets (gitignored) — see .env.template
+```
 
-Stay pragmatic. Stay reliable. Keep learning.
+Stay pragmatic. Stay reliable. Keep improving the system.
