@@ -37,8 +37,11 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` },
-      /* Render's keep-alive cron pings /health on the public origin. */
+      /* Render's keep-alive cron pings /health; load balancers probe
+       * /health/ready. Both must reach FastAPI — the :path* form also covers
+       * the exact /health match. */
       { source: "/health", destination: `${API_ORIGIN}/health` },
+      { source: "/health/:path*", destination: `${API_ORIGIN}/health/:path*` },
     ];
   },
 
