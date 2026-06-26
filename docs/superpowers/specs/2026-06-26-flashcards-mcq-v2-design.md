@@ -23,9 +23,9 @@ The user also wants: both **practical and theory** questions, **3 difficulty tie
 
 ## Goals
 
-- Every card is **MCQ (single-answer) or multi-select**. Harder cards may add an
-  optional typed-explanation prompt that **is graded** — by a fast AI call kept off
-  the blocking path (see §3).
+- Every card is **MCQ (single-answer) or multi-select**. A **few cards per deck**
+  (any difficulty — easy/medium/hard) carry a **compulsory** typed-explanation
+  prompt that **is graded** by a fast AI call kept off the blocking path (see §3).
 - **3 difficulty tiers**: easy, medium, hard.
 - **Deeper bank**: target ~12 questions per topic per tier (≈1,080 total across
   15 topics × 3 tiers × 2 role pools) to make repeats rare.
@@ -58,7 +58,7 @@ The user also wants: both **practical and theory** questions, **3 difficulty tie
 | Bank depth | ~12 questions per topic per tier (≈1,080 total) |
 | End-of-deck scoring | Instant deterministic (no AI) |
 | Rollout | Build full engine now + 2-3 fully-authored template topics, then expand |
-| Typed explanation (hard cards) | **Graded** by a fast AI call fired in the background (off the blocking path). Headline deck score stays MCQ-only and instant; the reasoning grade is shown as its own dimension |
+| Typed explanation | **Compulsory** when a card has it — the student can't submit without typing. **Not tied to difficulty**; easy/medium/hard questions are all eligible (authored `reasoning_eligible`). Only a **few per deck** — ~1 per 5 cards, chosen at deck assembly (5→1, 10→2, 20→~4). **Graded** by a fast background AI call (off the blocking path); headline deck score stays MCQ-only and instant; the reasoning grade is its own dimension |
 | Multi-select grading | **All-or-nothing** (exact correct set; no partial credit) |
 | DB | **No migration**; static pool is source of truth, progress keyed on stem |
 | Client grading | Client receives `correct`; grades locally for instant reveal |
@@ -81,9 +81,17 @@ Card shape changes from `{front, back}` to a self-contained MCQ:
   "qtype": "single",              # "single" | "multi"
   "kind": "practical",            # "theory" | "practical"
   "explanation": "UV exposure causes a delayed-onset corneal epithelial burn ...",
-  "requires_explanation": False,  # hard cards may set True (typed self-check reflection)
+  "reasoning_eligible": False,    # authored: is this a good "explain your reasoning" question?
 }
 ```
+
+`reasoning_eligible` marks questions that make a good "explain why" prompt — it is
+**authored per question and independent of difficulty** (easy, medium and hard
+questions can all be eligible). It does **not** mean the student is always asked to
+type: the *served* card carries a separate `requires_explanation` flag that the
+`generate` endpoint sets on only ~1-per-5 of the eligible cards drawn into a deck
+(see §3 and §5). Pure-recall questions (e.g. "What does VA stand for?") are left
+`reasoning_eligible: False`.
 
 Taxonomy changes in `flashcard_sets.py`:
 - `DIFFICULTIES = ["easy", "medium", "hard"]` (was `["easy", "medium"]`).
@@ -91,9 +99,11 @@ Taxonomy changes in `flashcard_sets.py`:
   they just now produce 3 tiers per topic (45 sets per pool, 90 total).
 
 Authoring guidance (loose, not rigid quotas):
-- **easy** leans theory/recall; **hard** leans practical clinical-reasoning and is
-  where most `requires_explanation: True` cards live.
+- **easy** leans theory/recall; **hard** leans practical clinical-reasoning.
 - Each tier mixes `kind: "theory"` and `kind: "practical"`.
+- Across each tier, tag a healthy share of the "explain why" questions
+  `reasoning_eligible: True` so the deck-assembly picker always has eligible cards
+  to draw the few typed prompts from.
 - Distractors must be plausible and KB-grounded — no throwaway wrong options.
 
 Serving helpers (`get_set_cards`, `get_all_cards`, `set_card_counts`) adapt to the
@@ -113,12 +123,21 @@ On submit, the card **immediately reveals the model answer**: correct option(s)
 highlighted, any wrong pick marked, plus the `explanation` text. A ✓/✗ shows for
 that card. **No running score is displayed** — the aggregate tally is end-only.
 
-### 3. Typed explanation on hard cards (`requires_explanation: True`) — graded, but never blocking
+### 3. Typed explanation — compulsory on a few cards per deck (any difficulty), graded but never blocking
 
-A subset of hard cards add a typed-reasoning box. The student picks the option(s)
-and may also type a short explanation. The typed answer **is graded** — but the AI
-call is kept entirely off the blocking path so it never re-introduces the current
-"wait on every card" latency:
+A small number of cards in each deck carry a typed-reasoning box. These can be
+**any difficulty** (easy, medium or hard) — eligibility is authored per question
+(`reasoning_eligible`), not tied to the tier — and there are only a **few per deck**:
+the `generate` endpoint marks ~1 per 5 of the drawn eligible cards
+`requires_explanation: True` (e.g. **2 in a deck of 10**; 1 for Quick-5, ~4 for
+Deep-20). See §5 for the exact count.
+
+On those cards typing is **compulsory**: the student must select their option(s)
+*and* type a short explanation before the **Check** button enables. They cannot
+skip the typed box.
+
+The typed answer **is graded**, but the AI call is kept entirely off the blocking
+path so it never re-introduces the current "wait on every card" latency:
 
 - **The reveal is instant.** As soon as the student submits, the MCQ correctness is
   graded client-side and the model answer + `explanation` are shown immediately.
@@ -126,22 +145,21 @@ call is kept entirely off the blocking path so it never re-introduces the curren
 - **The typed grade runs in the background.** On submit/advance, a single fast call
   to `POST /api/flashcards/check` (one short typed answer; `MODEL_SMALL`, MINIMAL
   thinking, ~256-token cap, `asyncio.to_thread` — the becky-optimized grader path)
-  is fired without blocking the reveal. The student can read the model answer and
-  move on while it resolves.
-- **It overlaps with continued studying.** Because grading starts on advance and the
-  student keeps working through the deck, the grades have almost always returned by
-  the time they reach the results screen. The card reveal shows a small,
-  non-blocking "Reviewing your written answer…" note that updates to the grade +
-  one-line tip when it lands.
+  is fired without blocking the reveal. The student reads the model answer and moves
+  on while it resolves.
+- **It overlaps with continued studying.** Grading starts on advance while the
+  student keeps working, so the grades have almost always returned by the results
+  screen. The card reveal shows a small, non-blocking "Reviewing your written
+  answer…" note that updates to the grade + one-line tip when it lands.
 - **It does not gate the headline score.** The deck's "X / N correct" is pure MCQ
   correctness and appears instantly. The reasoning grades are summarized as their
   own dimension on the results screen (e.g. "Written reasoning: 2 strong, 1 to
   review"), filling in if any are still in flight — never blocking the headline.
 
-Because typed cards are only a fraction of hard cards (and easy/medium have none),
-the total number of AI calls per deck is small, each is the cheap minimal-config
-grader, and none sit on the critical path — so the loop is far faster than today's
-"AI call + 850 ms delay on every card".
+Because only a few cards per deck are typed (≈1 per 5), the total number of AI calls
+per deck is small, each is the cheap minimal-config grader, and none sit on the
+critical path — so the loop is far faster than today's "AI call + 850 ms delay on
+every card".
 
 The exact grade→XP / grade→display mapping for reasoning answers is pinned in the
 implementation plan; a sensible default is a 0–100 score bucketed to a short
@@ -172,6 +190,10 @@ correctness is computed client-side):
   `correct`, `qtype`, `kind`, `explanation`, `requires_explanation`, `topic_tag`,
   `difficulty`, `card_id`, SM-2 fields). Per-user no-repeat rotation unchanged
   (keyed on stem via the existing `pick_next_unseen` + served-stems mechanism).
+  After drawing the deck it sets **`requires_explanation: True` on ~`round(n / 5)`
+  of the drawn cards** (the "few typed prompts per deck": 5→1, 10→2, 20→4), chosen
+  only from cards authored `reasoning_eligible: True`. If fewer eligible cards were
+  drawn than the target, it simply marks fewer — graceful, never blocks.
 - `POST /api/flashcards/complete` — **new, single batched call at deck end.** Body
   is the per-card results `[{card_id, correct: bool, ...}]`. It:
   - updates SM-2 schedule per card (deterministic quality: correct → good grade,
@@ -209,8 +231,10 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
   results screen reuses `scoreTier` for color + copy).
 - **New `McqCard`** replaces typed `RecallCard`: option chips (single = radio
   behavior, multi = checkboxes), a **Check** button, then the reveal
-  (correct/incorrect highlight + explanation, optional typed-reasoning box for
-  `requires_explanation`).
+  (correct/incorrect highlight + explanation). On `requires_explanation` cards a
+  **mandatory** typed-reasoning box appears alongside the options, and **Check stays
+  disabled until both an option is selected and the box has text** — the student
+  cannot skip it.
 - **`SessionSetup` / `StepSession`**: difficulty pills gain **Hard**.
 - **`StudyStage`**: removes AI-checking spinner + avg-score readout; shows progress
   + per-card ✓/✗ on reveal, no running score.
@@ -243,12 +267,16 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
   `kind ∈ {"theory", "practical"}`; no duplicate stems within a set; role→pool
   gating holds (OT pool disjoint from CLINICAL).
 - **Endpoint tests**: `generate` returns the MCQ shape and respects no-repeat;
-  `complete` updates SM-2 deterministically and syncs XP; `topics` lists 3 tiers;
-  `check` still grades a single typed answer in `MOCK_MODE` (typed-only path).
-- **Frontend harness**: walk select → reveal → results; assert the reveal is **not**
-  gated on the typed grade (MCQ reveal happens before/independently of the
-  background `check`). Update the aurora_assert flashcard hooks/selectors. Run
-  keyless in `MOCK_MODE` — no live AI.
+  `generate` marks **~`round(n/5)`** cards `requires_explanation: True` (e.g. 2 for
+  `n=10`), and only ever marks `reasoning_eligible` cards; `complete` updates SM-2
+  deterministically and syncs XP; `topics` lists 3 tiers; `check` still grades a
+  single typed answer in `MOCK_MODE` (typed-only path).
+- **Frontend harness**: walk select → reveal → results; assert (a) **Check is
+  disabled on a `requires_explanation` card until both an option is selected and the
+  typed box has text** (compulsory typing), and (b) the reveal is **not** gated on
+  the typed grade (MCQ reveal happens before/independently of the background
+  `check`). Update the aurora_assert flashcard hooks/selectors. Run keyless in
+  `MOCK_MODE` — no live AI.
 
 ## Risks & Mitigations
 
@@ -264,9 +292,11 @@ Preserves the warm-cream "living eye" look; mechanics-only change.
 
 - The reveal is **instant** on every card — no 850 ms artificial delay and no
   blocking grader round-trip. MCQ correctness is graded client-side; the only AI
-  calls are background typed-reasoning grades on the subset of hard cards, off the
-  critical path.
+  calls are background typed-reasoning grades on the few typed cards per deck, off
+  the critical path.
 - Every served card is MCQ/multi-select with a revealed model answer.
+- ~1 card per 5 (any difficulty) carries a **compulsory** typed-reasoning box that
+  blocks Check until filled, and is graded in the background.
 - 3 selectable tiers; OT vs OA/PSA pools stay separate.
 - Deck ends with an "X / N correct" results screen naming weak topics, in simple
   encouraging language.
