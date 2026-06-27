@@ -4137,6 +4137,853 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "pupil_dilation": {
+            "easy": [
+                {
+                    "stem": "Name a common dilating (mydriatic) drop.",
+                    "options": ["Tropicamide 1%", "Chloramphenicol",
+                                "Artificial tears", "Fluorescein"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Tropicamide 1% (or phenylephrine 2.5%) is a common "
+                                   "dilating drop.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How long do the effects of dilation usually last?",
+                    "options": ["About 4-6 hours", "About 10 minutes",
+                                "About 24 hours", "About a week"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Dilation effects typically last about 4-6 hours.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL effects you should warn the patient about after "
+                            "dilation.",
+                    "options": ["Blurred near vision", "Light sensitivity "
+                                "(photophobia)", "Glare", "Permanent vision loss"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Warn about blurred near vision, light sensitivity "
+                                   "and glare for a few hours. Dilation does not cause "
+                                   "permanent vision loss.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is a contraindication to routine pupil dilation?",
+                    "options": ["Narrow (drainage) angles",
+                                "Short-sightedness",
+                                "Wearing glasses",
+                                "A history of dry eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Narrow drainage angles are a caution against "
+                                   "routine dilation, which could trigger angle-closure.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL details you should document for a dilation.",
+                    "options": ["The eye(s) dilated", "The pre-dilation pupil size",
+                                "The drug, dose and time", "The patient's blood group"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Document the eye(s), the pre-dilation pupil size, "
+                                   "and the drug/dose/time. Blood group is irrelevant.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why warn a patient who drove to the clinic about dilation?",
+                    "options": ["Blurred vision and glare make driving unsafe for "
+                                "several hours",
+                                "Dilation improves their driving",
+                                "It changes their eye colour",
+                                "It has no effect on driving"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Dilation blurs near vision and causes glare, making "
+                                   "driving unsafe for several hours — warn the patient.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What comfort measure can you offer after dilation?",
+                    "options": ["Sunglasses / UV protectors for light sensitivity",
+                                "An eye patch for a week",
+                                "Reading without glasses",
+                                "Bright lighting to help focus"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Offer sunglasses or UV protectors to ease the "
+                                   "photosensitivity after dilation.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A patient mentions a previous acute angle-closure attack. "
+                            "What should you do before dilating?",
+                    "options": [
+                        "Do not dilate routinely — check with the nurse/doctor first",
+                        "Dilate as normal",
+                        "Use a double dose to be sure",
+                        "Dilate only the other eye",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A history of angle-closure is a contraindication to "
+                                   "routine dilation — check with the nurse/doctor "
+                                   "before proceeding.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the pre-dilation pupil size recorded?",
+                    "options": [
+                        "To document the baseline and monitor the dilation response",
+                        "To calculate the IOL power",
+                        "To set the air-puff strength",
+                        "It is not actually needed",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Recording the starting pupil size gives a baseline "
+                                   "and lets you judge how well the eye dilates.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why does dilation raise the fall risk in an elderly "
+                            "patient?",
+                    "options": [
+                        "It blurs vision and adds light sensitivity on top of existing "
+                        "risks",
+                        "It makes the legs weak",
+                        "It causes dizziness directly",
+                        "It does not affect fall risk",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Blurred vision and photosensitivity from dilation "
+                                   "add to an elderly patient's existing fall risk.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must the correct eye(s) and drug be confirmed before "
+                            "instilling a dilating drop?",
+                    "options": [
+                        "To avoid wrong-eye/wrong-drug errors and respect any "
+                        "contraindication",
+                        "Because dilating drops are harmless either way",
+                        "Only to complete the paperwork",
+                        "It is not necessary for dilating drops",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "As with any drop, confirm eye and drug — and check "
+                                   "there is no contraindication such as narrow angles "
+                                   "— before dilating.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient asks why everything looks blurry up close after "
+                            "their dilation. What is the best explanation?",
+                    "options": [
+                        "The dilating drop temporarily relaxes near focusing, so near "
+                        "vision blurs for a few hours",
+                        "The drop has damaged their reading vision",
+                        "They need new reading glasses now",
+                        "It means the dilation failed",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Dilating drops temporarily relax the eye's near "
+                                   "focusing, blurring near vision for a few hours — it "
+                                   "wears off.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "An unaccompanied elderly patient is about to be dilated for "
+                            "a fundus check. What is a sensible safety step?",
+                    "options": [
+                        "Plan for safe escort/seating and warn about glare before they "
+                        "leave",
+                        "Tell them to drive home immediately",
+                        "Dilate both eyes and discharge at once",
+                        "Skip the safety advice to save time",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Because dilation increases fall and glare risk, "
+                                   "plan safe seating/escort and give clear advice "
+                                   "before the patient leaves.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A glaucoma-suspect patient with very shallow anterior "
+                            "chambers is sent for dilation. Why should you pause and "
+                            "check first?",
+                    "options": [
+                        "Dilating a narrow-angle eye risks triggering an "
+                        "angle-closure attack",
+                        "Dilation is always completely safe",
+                        "Shallow chambers make dilation more effective",
+                        "Narrow angles only matter for cataract surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "In a narrow-angle eye, dilation can precipitate "
+                                   "acute angle-closure glaucoma — verify with the "
+                                   "nurse/doctor before instilling.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL appropriate actions when dilating an elderly "
+                            "patient who came alone.",
+                    "options": [
+                        "Record pre-dilation pupil size and the drug/time",
+                        "Warn about blurred near vision and glare",
+                        "Offer sunglasses and ensure safe seating",
+                        "Reassure them it is safe to drive straight after",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Document, warn about blur/glare, and ensure safety "
+                                   "(sunglasses, seating). Do NOT reassure them to drive "
+                                   "immediately — dilation makes driving unsafe.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is a careful history essential before routine "
+                            "dilation, even in a busy clinic?",
+                    "options": [
+                        "It uncovers contraindications (narrow angles, prior "
+                        "angle-closure) that change whether to dilate",
+                        "It is only for billing",
+                        "Dilation never has contraindications",
+                        "History has no bearing on dilation",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A quick history can reveal narrow angles or a prior "
+                                   "attack — contraindications that must be checked "
+                                   "before dilating.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "After dilation a patient develops a painful red eye with "
+                            "haloes and a hazy cornea. What has likely happened and "
+                            "what do you do?",
+                    "options": [
+                        "Possible acute angle-closure triggered by dilation — escalate "
+                        "urgently",
+                        "Normal dilation effect — reassure and discharge",
+                        "A drug allergy — give antihistamine and wait",
+                        "Simple dry eye — give lubricants",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Pain, haloes and a hazy cornea after dilation "
+                                   "suggest an acute angle-closure attack — a "
+                                   "sight-threatening emergency to escalate at once.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about pupil dilation is correct?",
+                    "options": [
+                        "It aids fundus/retinal examination but needs a check for "
+                        "narrow angles and clear after-care advice",
+                        "It permanently enlarges the pupil",
+                        "It is safe in every patient without checking",
+                        "It improves the patient's reading vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Dilation helps examine the retina but requires "
+                                   "screening for narrow angles and after-care advice "
+                                   "about blur, glare and safety.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "colour_vision": {
+            "easy": [
+                {
+                    "stem": "What does the Ishihara chart test for?",
+                    "options": ["Colour vision deficiency (commonly red-green)",
+                                "Visual field loss",
+                                "Eye pressure",
+                                "Near vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Ishihara chart tests for colour vision "
+                                   "deficiency, most often red-green.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How does the patient respond to an Ishihara plate?",
+                    "options": ["By identifying the number formed within the coloured "
+                                "dots",
+                                "By pressing a buzzer when they see light",
+                                "By reading letters on a chart",
+                                "By following a moving target"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The patient names the number hidden within the "
+                                   "coloured dots of each plate.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How is an Ishihara result documented?",
+                    "options": ["As the number of plates read correctly",
+                                "As a Snellen fraction",
+                                "As mmHg",
+                                "As N5"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The result is recorded as the number of plates read "
+                                   "correctly (e.g. 13/17).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How is each eye tested with the Ishihara chart?",
+                    "options": ["Separately (one eye at a time)",
+                                "Both eyes together only",
+                                "With both eyes closed",
+                                "Only the better eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Each eye is tested separately so a one-sided defect "
+                                   "is not missed.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which plate version helps a patient who cannot read "
+                            "numbers?",
+                    "options": ["The winding-line (tracing) plates",
+                                "The tumbling E chart",
+                                "The Amsler grid",
+                                "The Goldmann chart"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Winding-line (tracing) plates let the patient trace "
+                                   "a path instead of reading a number.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why ensure good lighting and no tinted lenses during the "
+                            "Ishihara test?",
+                    "options": ["To keep the test valid and avoid false results",
+                                "To make the colours brighter than real life",
+                                "To speed up the test",
+                                "It does not matter"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Tinted lenses or poor lighting can change how "
+                                   "colours appear, giving false results — so they are "
+                                   "avoided.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A reduced number of plates read correctly suggests what?",
+                    "options": ["A colour vision deficiency",
+                                "Perfect colour vision",
+                                "A cataract",
+                                "Raised eye pressure"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Reading fewer plates correctly than expected "
+                                   "suggests a colour vision deficiency.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Is congenital colour deficiency usually symmetrical or "
+                            "asymmetrical?",
+                    "options": ["Symmetrical (both eyes) and lifelong",
+                                "Asymmetrical and recent",
+                                "Present in one eye only",
+                                "It comes and goes"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Congenital colour deficiency is usually symmetrical "
+                                   "(both eyes equally) and lifelong.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A recent colour change that is worse in one eye suggests "
+                            "congenital or acquired deficiency?",
+                    "options": ["Acquired — it needs doctor review",
+                                "Congenital — no action needed",
+                                "Normal ageing — reassure",
+                                "A testing error only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A recent, one-eye-worse change points to an "
+                                   "acquired cause (e.g. optic nerve disease) and needs "
+                                   "doctor review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How do you adapt the Ishihara test for a patient who "
+                            "cannot read numbers (e.g. a young child or non-reader)?",
+                    "options": ["Use the winding-line (tracing) plates",
+                                "Skip the test entirely",
+                                "Read the numbers out for them",
+                                "Use the Snellen chart instead"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Winding-line plates let non-readers trace the path, "
+                                   "so the test still works.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is each eye tested separately for colour vision?",
+                    "options": [
+                        "A one-sided (acquired) defect would be missed if both eyes "
+                        "were tested together",
+                        "It is faster than testing together",
+                        "The plates only work for one eye",
+                        "It has no real reason",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Testing eyes separately catches a one-sided "
+                                   "(acquired) defect that binocular testing could "
+                                   "mask.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why might colour vision testing be required for certain "
+                            "occupations?",
+                    "options": [
+                        "Some jobs (e.g. pilots, electricians) depend on accurate "
+                        "colour discrimination for safety",
+                        "It predicts the patient's eye pressure",
+                        "It replaces a vision test",
+                        "It is only for cosmetic interest",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Colour discrimination matters for safety-critical "
+                                   "jobs, so colour vision is screened for some "
+                                   "occupations.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL conditions for a valid Ishihara test.",
+                    "options": ["Good, natural-style lighting",
+                                "No tinted lenses worn",
+                                "Each eye tested separately",
+                                "The patient guessing quickly under time pressure"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Good lighting, no tinted lenses and separate eye "
+                                   "testing keep the test valid. Rushing/guessing does "
+                                   "not.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A 30-year-old reports their colour vision suddenly seems "
+                            "'washed out' in the LEFT eye over two weeks, with some eye "
+                            "ache on movement. Why is this concerning?",
+                    "options": [
+                        "A recent, one-sided acquired colour defect can signal optic "
+                        "nerve disease (e.g. optic neuritis) — refer",
+                        "It is simple congenital colour blindness",
+                        "Colour vision cannot change in adults",
+                        "It is a normal finding, reassure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A recent unilateral acquired colour defect, "
+                                   "especially with pain on eye movement, suggests "
+                                   "optic nerve disease such as optic neuritis and "
+                                   "needs prompt review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How does the pattern of a defect help distinguish "
+                            "congenital from acquired colour deficiency?",
+                    "options": [
+                        "Congenital is symmetrical, stable and lifelong; acquired is "
+                        "often one-sided, recent or changing",
+                        "They are impossible to tell apart",
+                        "Congenital is always one-sided",
+                        "Acquired is always symmetrical and lifelong",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Congenital deficiency is symmetrical and stable; "
+                                   "acquired deficiency tends to be asymmetrical, recent "
+                                   "or progressive — a key clue to refer.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL findings that should prompt referral after a "
+                            "colour vision test.",
+                    "options": [
+                        "A new, one-eye-worse colour defect",
+                        "A colour change that is getting worse over weeks",
+                        "Associated reduced vision or eye-movement pain",
+                        "A lifelong, symmetrical red-green deficiency with no change",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "New, asymmetrical, progressive defects or those "
+                                   "with other symptoms warrant referral. A stable "
+                                   "lifelong symmetrical deficiency usually does not.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why should a tinted contact lens or coloured glasses be "
+                            "removed before Ishihara testing?",
+                    "options": [
+                        "They alter the colours the patient perceives and invalidate "
+                        "the result",
+                        "They make the test faster",
+                        "They improve the patient's true colour vision",
+                        "They have no effect on the plates",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Tinted lenses change the perceived colours, so they "
+                                   "must be removed for a valid Ishihara result.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient reads most plates but misses several specific "
+                            "red-green plates equally in both eyes, and says it has "
+                            "always been so. What is the most likely interpretation?",
+                    "options": [
+                        "A congenital red-green deficiency (symmetrical, lifelong)",
+                        "An acquired optic nerve problem",
+                        "A cataract in one eye",
+                        "A testing artefact only",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Symmetrical, lifelong red-green errors are typical "
+                                   "of a congenital deficiency rather than an acquired "
+                                   "disease.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "amsler_macula": {
+            "easy": [
+                {
+                    "stem": "What does the Amsler grid detect?",
+                    "options": ["Central field defects and distortion "
+                                "(metamorphopsia)",
+                                "Eye pressure",
+                                "Colour vision",
+                                "Peripheral field loss only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Amsler grid detects central field defects and "
+                                   "metamorphopsia (distortion of straight lines).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the patient fixate on during the Amsler test?",
+                    "options": ["The central dot",
+                                "The top-left corner",
+                                "A moving target",
+                                "The examiner's finger"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The patient stares at the central dot and reports "
+                                   "any distortion or missing areas around it.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How is each eye tested with the Amsler grid?",
+                    "options": ["One eye at a time (cover the other)",
+                                "Both eyes together",
+                                "With both eyes shut",
+                                "Only the worse eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Each eye is tested separately, covering the other, "
+                                   "so a one-sided change is not missed.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which condition is commonly monitored with the Amsler "
+                            "grid?",
+                    "options": ["Macular disease such as age-related macular "
+                                "degeneration (AMD)",
+                                "Glaucoma",
+                                "Cataract",
+                                "Conjunctivitis"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Amsler grid is used to monitor macular disease, "
+                                   "especially AMD.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'metamorphopsia' mean?",
+                    "options": ["Straight lines appear wavy or distorted",
+                                "Loss of all vision",
+                                "Seeing double",
+                                "Sensitivity to light"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Metamorphopsia means distortion — straight lines "
+                                   "look wavy or bent.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Should reading correction be worn for the Amsler test?",
+                    "options": ["Yes, at the usual near distance",
+                                "No, always test unaided",
+                                "Only distance glasses",
+                                "Only sunglasses"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The grid is viewed at the usual near distance with "
+                                   "reading correction, since it tests central near "
+                                   "vision.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A patient reports wavy lines on the Amsler grid. What does "
+                            "this suggest?",
+                    "options": ["Metamorphopsia — possible macular disease; flag for "
+                                "review",
+                                "Normal vision",
+                                "Glaucoma",
+                                "A refractive error only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Wavy lines (metamorphopsia) suggest a macular "
+                                   "problem and should be flagged for review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A new missing patch (scotoma) appears on the grid. What do "
+                            "you do?",
+                    "options": ["Treat it as abnormal and escalate to the doctor "
+                                "promptly",
+                                "Ignore it as normal",
+                                "Repeat in a year",
+                                "Reassure and discharge"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A new scotoma is abnormal and should be escalated "
+                                   "promptly — it may signal active macular disease.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why should AMD patients monitor with an Amsler grid at "
+                            "home?",
+                    "options": [
+                        "To detect new distortion early, which can signal treatable "
+                        "progression",
+                        "To measure their own eye pressure",
+                        "To replace clinic visits entirely",
+                        "It has no real benefit",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Home Amsler monitoring helps AMD patients catch new "
+                                   "distortion early, when treatment may still help.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "New distortion plus reduced vision in a known AMD patient — "
+                            "how urgent is this?",
+                    "options": ["Prompt doctor review (possible wet AMD)",
+                                "Routine review within a year",
+                                "No review needed",
+                                "Only if both eyes are affected"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "New distortion with reduced vision in AMD may mean "
+                                   "conversion to wet AMD — it needs prompt doctor "
+                                   "review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must the patient keep fixating on the central dot "
+                            "throughout the Amsler test?",
+                    "options": [
+                        "So defects are mapped relative to the centre of vision (the "
+                        "macula)",
+                        "To keep the eye from drying out",
+                        "To dilate the pupil",
+                        "It is not actually necessary",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Steady central fixation lets distortions or "
+                                   "scotomas be located relative to the centre of "
+                                   "vision, where the macula projects.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL findings on the Amsler grid that should be "
+                            "flagged.",
+                    "options": ["Wavy or bent lines",
+                                "A new blurred or missing patch",
+                                "Lines that look faded or distorted",
+                                "A perfectly square, even grid"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Wavy lines, missing patches and distortion are all "
+                                   "abnormal and should be flagged. A perfectly even "
+                                   "grid is normal.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "An AMD patient on treatment notices, on home Amsler "
+                            "testing, that a previously straight line is now wavy and "
+                            "there is a new grey patch. What should they be advised?",
+                    "options": [
+                        "Contact the clinic promptly — it may indicate disease "
+                        "activity needing review",
+                        "Wait for the next routine yearly appointment",
+                        "Stop all treatment immediately",
+                        "Ignore it — distortion is expected",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "New distortion and a fresh scotoma can signal "
+                                   "active (wet) AMD; the patient should contact the "
+                                   "clinic promptly rather than wait.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the Amsler grid a useful complement to a macular "
+                            "OCT rather than a replacement?",
+                    "options": [
+                        "Amsler is a quick subjective check of central distortion; OCT "
+                        "objectively images the retinal structure",
+                        "Amsler measures retinal thickness precisely",
+                        "OCT cannot detect macular disease",
+                        "They test completely unrelated things",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Amsler grid is a fast subjective screen for "
+                                   "distortion that the patient can do at home; OCT "
+                                   "gives the objective structural detail in clinic. "
+                                   "They complement each other.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL points of good Amsler technique.",
+                    "options": [
+                        "Wear reading correction at the usual near distance",
+                        "Test one eye at a time, covering the other",
+                        "Keep fixation on the central dot",
+                        "Scan the eyes around the grid looking for defects",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Use reading correction, test each eye separately, "
+                                   "and hold central fixation. Letting the eye wander "
+                                   "around the grid defeats the test.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why does the Amsler grid mainly reveal CENTRAL problems "
+                            "rather than peripheral ones?",
+                    "options": [
+                        "It maps the small central area of vision served by the "
+                        "macula",
+                        "It is too large to test the centre",
+                        "It only tests the peripheral retina",
+                        "It measures the optic nerve, not the retina",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Held at near with central fixation, the grid maps "
+                                   "the central visual field served by the macula, so "
+                                   "it picks up central distortion and scotomas.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient's Amsler shows distortion only when you remind "
+                            "them to keep their reading glasses on. What does this "
+                            "highlight about technique?",
+                    "options": [
+                        "Using the correct near correction is essential or the result "
+                        "can be misleading",
+                        "Reading glasses cause false distortion",
+                        "The grid should be done without any correction",
+                        "Technique does not affect the result",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The grid must be viewed clearly at the proper near "
+                                   "distance with correction; otherwise blur can mimic "
+                                   "or hide true macular distortion.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
