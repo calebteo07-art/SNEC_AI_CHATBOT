@@ -9111,6 +9111,731 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "orthoptics": {
+            "easy": [
+                {
+                    "stem": "What do cover/uncover tests detect?",
+                    "options": [
+                        "Manifest (tropia) or latent (phoria) strabismus",
+                        "The eye pressure",
+                        "The corneal curvature",
+                        "Colour vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Cover/uncover tests detect eye misalignment — "
+                                   "manifest (tropia) or latent (phoria).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the Hirschberg test use to estimate eye "
+                            "alignment?",
+                    "options": ["The corneal light reflex",
+                                "An air puff",
+                                "A moving target",
+                                "Ultrasound"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Hirschberg test uses the position of the "
+                                   "corneal light reflex to estimate alignment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the normal near point of convergence (NPC)?",
+                    "options": ["Less than 10 cm", "About 35 cm",
+                                "About 1 metre", "6 metres"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A normal near point of convergence is less than "
+                                   "about 10 cm.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What do versions and ductions assess?",
+                    "options": ["Eye movements in the directions of gaze",
+                                "The eye pressure",
+                                "The visual field",
+                                "Colour vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Versions (both eyes) and ductions (one eye) assess "
+                                   "eye movements in the different directions of gaze.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the Krimsky test estimate?",
+                    "options": [
+                        "The angle of deviation, using prisms over the light reflex",
+                        "The corneal thickness",
+                        "The retinal sensitivity",
+                        "The axial length",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The Krimsky test uses prisms over the corneal light "
+                                   "reflex to estimate the angle of deviation.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a 'tropia' mean?",
+                    "options": ["A manifest (constant) eye deviation",
+                                "A latent deviation seen only on cover testing",
+                                "Normal alignment",
+                                "A type of cataract"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A tropia is a manifest deviation — present with "
+                                   "both eyes open — unlike a latent phoria.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A child's corneal light reflex is displaced temporally in "
+                            "one eye. What does this suggest?",
+                    "options": ["Esotropia (an inward turn)",
+                                "Exotropia (an outward turn)",
+                                "Normal alignment",
+                                "A cataract"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A temporally displaced light reflex indicates the "
+                                   "eye is turned inward — esotropia.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why assess a child's squint early?",
+                    "options": ["Childhood squint can cause amblyopia (lazy eye)",
+                                "Squints always resolve by adulthood",
+                                "It is only a cosmetic concern",
+                                "Early squint cannot be treated"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "An untreated childhood squint can lead to amblyopia "
+                                   "(lazy eye), so early assessment matters.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient cannot do automated fields. Which gross field "
+                            "test can you perform?",
+                    "options": ["The confrontation visual field test",
+                                "Another automated HVF",
+                                "An OCT",
+                                "No field test is possible"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Confrontation field testing is a simple, "
+                                   "equipment-free way to grossly check the visual "
+                                   "field.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a remote (reduced) near point of convergence "
+                            "indicate?",
+                    "options": ["Convergence insufficiency",
+                                "Normal convergence",
+                                "Esotropia",
+                                "A cataract"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A near point of convergence further than normal "
+                                   "(receded) indicates convergence insufficiency.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Cover/uncover reveals a deviation only when an eye is "
+                            "uncovered. Which type is this?",
+                    "options": [
+                        "A latent deviation (phoria)",
+                        "A manifest deviation (tropia)",
+                        "Normal alignment",
+                        "Convergence excess",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A deviation that appears only when the eye is "
+                                   "uncovered (and is otherwise controlled) is a latent "
+                                   "phoria; a tropia is present with both eyes open.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A 3-year-old has a constant inward turn of one eye and a "
+                            "temporally displaced light reflex. Why is prompt referral "
+                            "important?",
+                    "options": [
+                        "A constant childhood esotropia risks amblyopia; early "
+                        "treatment protects vision",
+                        "Squints in children never need treatment",
+                        "It is purely cosmetic",
+                        "It will worsen if treated",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A constant esotropia in a young child risks "
+                                   "amblyopia; prompt referral allows treatment during "
+                                   "the period vision is still developing.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How do you distinguish a phoria from a tropia on cover "
+                            "testing?",
+                    "options": [
+                        "A tropia is present with both eyes open; a phoria appears "
+                        "only when binocular fusion is broken by covering an eye",
+                        "A phoria is always present; a tropia only when covered",
+                        "They cannot be distinguished",
+                        "Both are only seen with both eyes open",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A tropia (manifest) shows with both eyes open; a "
+                                   "phoria (latent) only appears when covering an eye "
+                                   "breaks fusion.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL orthoptic tools that assess eye alignment or "
+                            "movement.",
+                    "options": [
+                        "Cover/uncover test",
+                        "Hirschberg (corneal light reflex)",
+                        "Versions and ductions",
+                        "Ishihara plates",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Cover/uncover, Hirschberg and versions/ductions all "
+                                   "assess alignment or movement. Ishihara plates test "
+                                   "colour vision, not alignment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A young adult reports eye strain and double vision when "
+                            "reading, with a receded near point of convergence. What "
+                            "does this picture suggest?",
+                    "options": [
+                        "Convergence insufficiency — the eyes struggle to converge for "
+                        "near work",
+                        "A constant esotropia",
+                        "A dense cataract",
+                        "Normal near vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Near eye strain and diplopia with a receded NPC "
+                                   "are typical of convergence insufficiency.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about basic orthoptic assessment is "
+                            "correct?",
+                    "options": [
+                        "Cover tests reveal tropia/phoria, Hirschberg/Krimsky estimate "
+                        "the angle, and the NPC checks convergence",
+                        "All orthoptic tests measure the eye pressure",
+                        "The Krimsky test maps the visual field",
+                        "Convergence is assessed by the air-puff tonometer",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Cover tests classify deviations, Hirschberg/Krimsky "
+                                   "estimate the angle, and the near point of "
+                                   "convergence checks convergence — the core orthoptic "
+                                   "tools.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "dayward_theatre": {
+            "easy": [
+                {
+                    "stem": "What does the DISM mnemonic stand for?",
+                    "options": [
+                        "Diagnosis, Indication, Surgery planned, Medical conditions",
+                        "Dose, Injection, Suture, Medication",
+                        "Distance, IOP, Sugar, Medication",
+                        "Diagnosis, IOL, Sutures, Monitoring",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "DISM = Diagnosis, Indication, Surgery planned, "
+                                   "Medical conditions — a pre-op framework.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL anaesthesia types recorded pre-operatively.",
+                    "options": ["GA (general)", "LA (local)",
+                                "Topical", "Spinal block of the eye"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Eye surgery anaesthesia is recorded as GA "
+                                   "(general), LA (local) or topical.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL vital signs monitored in post-op care.",
+                    "options": ["Blood pressure (BP)", "Respiratory rate (RR)",
+                                "Pulse rate (PR)", "Colour vision"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Post-op monitoring includes BP, RR and PR. Colour "
+                                   "vision is not a vital sign.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'TCU' document post-op?",
+                    "options": ["The time and date of the next follow-up appointment",
+                                "The total corneal ulcer size",
+                                "The surgical fee",
+                                "The IOL power"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "TCU ('to come back') records the next follow-up "
+                                   "appointment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What must be confirmed about the eye before theatre?",
+                    "options": [
+                        "The correct eye to be operated (and that it is marked)",
+                        "The colour of the iris",
+                        "The patient's near vision",
+                        "The room temperature",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Confirm (and mark) the correct eye before theatre "
+                                   "to prevent wrong-eye surgery.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why use the DISM framework pre-operatively?",
+                    "options": [
+                        "To capture key surgical details (diagnosis, indication, "
+                        "surgery, medical conditions) for safety",
+                        "To decide the theatre lighting",
+                        "To calculate the IOL power",
+                        "It is only for billing",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "DISM ensures the key surgical details are captured "
+                                   "consistently, supporting safe surgery.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "When is a patient ready for discharge after day surgery?",
+                    "options": ["When vital signs are stable and the patient is "
+                                "comfortable",
+                                "Immediately after the operation regardless",
+                                "Only after an overnight stay",
+                                "When the next patient arrives"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Discharge follows stable vital signs and patient "
+                                   "comfort after day surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why confirm and mark the correct eye?",
+                    "options": ["To prevent wrong-eye surgery — a critical safety step",
+                                "To decide which eye is dilated",
+                                "For billing only",
+                                "It is optional"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Marking the correct eye is a critical safety step "
+                                   "that prevents wrong-eye surgery.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Abnormal pre-op vital signs are found. What do you do?",
+                    "options": [
+                        "Escalate to the nurse/doctor before the patient proceeds",
+                        "Proceed to theatre regardless",
+                        "Send the patient home without telling anyone",
+                        "Re-check only after surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Abnormal pre-op vitals must be escalated to the "
+                                   "nurse/doctor before surgery proceeds.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL items recorded for post-op discharge.",
+                    "options": ["The TCU (next follow-up)",
+                                "The post-op medications prescribed",
+                                "Discharge advice/observations",
+                                "The patient's favourite meal"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Record the TCU, the post-op medications and "
+                                   "discharge advice/observations. The favourite meal "
+                                   "is irrelevant.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "On the WHO-style pre-theatre check, the consent says left "
+                            "eye but the mark is on the right. What must happen?",
+                    "options": [
+                        "Stop and resolve the discrepancy before any surgery proceeds",
+                        "Proceed with the marked eye",
+                        "Proceed with the consented eye",
+                        "Let the surgeon decide in theatre without checking",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Any mismatch between consent and the site mark must "
+                                   "be stopped and resolved before surgery — this "
+                                   "prevents a wrong-eye never-event.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why are pre-op checks (DISM, correct-eye marking, vitals) "
+                            "treated as non-negotiable safety steps?",
+                    "options": [
+                        "They prevent serious, avoidable errors such as wrong-eye "
+                        "surgery or operating on an unfit patient",
+                        "They are only paperwork formalities",
+                        "They slow the list down for no benefit",
+                        "They replace the surgeon's judgement",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "These checks catch avoidable, high-harm errors "
+                                   "(wrong eye, unfit patient), which is why they are "
+                                   "mandatory regardless of time pressure.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL findings that should delay a patient proceeding "
+                            "to theatre until reviewed.",
+                    "options": [
+                        "Markedly abnormal pre-op vital signs",
+                        "A mismatch between consent and the marked eye",
+                        "Uncertainty about fasting or key medications",
+                        "A calm patient with stable, normal vitals",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Abnormal vitals, a consent/mark mismatch and "
+                                   "fasting/medication uncertainty all warrant review "
+                                   "first. Stable normal vitals do not.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "After day surgery a patient is drowsy with a falling blood "
+                            "pressure. What is the appropriate response?",
+                    "options": [
+                        "Escalate to the nurse/doctor promptly — do not discharge "
+                        "until stable",
+                        "Discharge them quickly to free the bed",
+                        "Record it and ignore it",
+                        "Give them the next patient's slot",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Drowsiness with a falling BP is not a safe "
+                                   "discharge state — escalate and keep the patient "
+                                   "until stable.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about day-ward and theatre care is "
+                            "correct?",
+                    "options": [
+                        "DISM captures surgical details, the correct eye is confirmed "
+                        "and marked, and discharge follows stable vitals and comfort",
+                        "The correct eye is confirmed only after surgery",
+                        "Vitals are not monitored post-op",
+                        "TCU records the IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Safe day-surgery care uses DISM, confirms/marks the "
+                                   "correct eye beforehand, monitors vitals, and "
+                                   "discharges only when the patient is stable and "
+                                   "comfortable.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "auto_refraction": {
+            "easy": [
+                {
+                    "stem": "What does auto-refraction (AR) measure?",
+                    "options": [
+                        "Refractive error objectively (myopia, hyperopia, astigmatism)",
+                        "The eye pressure",
+                        "The visual field",
+                        "The endothelial cell count",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Auto-refraction objectively estimates the "
+                                   "refractive error (myopia, hyperopia, astigmatism).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does auto-keratometry (AK) measure?",
+                    "options": ["Corneal curvature and corneal astigmatism",
+                                "The retinal thickness",
+                                "The axial length",
+                                "The eye pressure"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Auto-keratometry measures the corneal curvature and "
+                                   "corneal astigmatism.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "When is AR/AK typically done?",
+                    "options": ["For new patients and pre-operative assessment",
+                                "Only in an emergency",
+                                "Only after surgery",
+                                "Never for adults"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AR/AK is typically performed for new patients and "
+                                   "as part of pre-operative assessment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Should glasses/contact lenses be removed for AR/AK?",
+                    "options": ["Yes", "No", "Only glasses", "Only contact lenses"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Glasses and contact lenses are removed so they do "
+                                   "not affect the AR/AK measurement.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "AK is especially important for which calculation?",
+                    "options": ["IOL power calculation in cataract surgery",
+                                "The visual field index",
+                                "The endothelial count",
+                                "The triage category"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Corneal curvature (keratometry) is needed for the "
+                                   "IOL power calculation in cataract surgery.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why might AR/AK readings be inconsistent?",
+                    "options": ["An unstable tear film (dry eye) or poor fixation",
+                                "The patient is too tall",
+                                "The room is too warm",
+                                "AR/AK is never inconsistent"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "An unstable tear film (dry eye) or poor fixation "
+                                   "commonly cause inconsistent AR/AK readings.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How do you improve unreliable AR/AK caused by dry eye?",
+                    "options": [
+                        "Ask the patient to blink or instil a lubricant, then "
+                        "re-acquire",
+                        "Increase the scan speed",
+                        "Dilate the pupil",
+                        "Switch to ultrasound",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A blink or a lubricant drop refreshes the tear "
+                                   "film, improving the reading — then re-acquire.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Is the AR result a final spectacle prescription?",
+                    "options": [
+                        "No — it is an objective starting point; subjective refraction "
+                        "confirms it",
+                        "Yes — it is the final prescription",
+                        "Only for children",
+                        "Only for cataract patients",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AR gives an objective starting point; the final "
+                                   "prescription is set by subjective refraction.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is AK used before cataract surgery?",
+                    "options": [
+                        "Corneal curvature is needed for the IOL power calculation",
+                        "It measures the cataract density",
+                        "It checks the visual field",
+                        "It lowers the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The corneal curvature from AK feeds into the IOL "
+                                   "power calculation for cataract surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Who sets the final spectacle prescription?",
+                    "options": [
+                        "The doctor/optometrist via subjective refraction",
+                        "The auto-refractor decides it",
+                        "The patient chooses it",
+                        "The OT prescribes it",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The final prescription is determined by the "
+                                   "doctor/optometrist through subjective refraction, "
+                                   "starting from the AR.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient with dry eye has scattered, inconsistent AR/AK "
+                            "values. Why must this be corrected before the data is "
+                            "used for IOL calculation?",
+                    "options": [
+                        "Unstable keratometry feeds a wrong IOL power, risking a poor "
+                        "refractive outcome",
+                        "Inconsistent AR/AK improves the IOL result",
+                        "AR/AK is irrelevant to IOL power",
+                        "Dry eye cannot affect the cornea",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Tear-film instability scatters the keratometry; "
+                                   "using it would give a wrong IOL power and a poor "
+                                   "outcome — refresh the tear film and re-measure "
+                                   "first.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the auto-refraction treated as a starting point "
+                            "rather than the final prescription?",
+                    "options": [
+                        "It is an objective estimate; subjective refraction refines it "
+                        "to what the patient actually sees best with",
+                        "It is always exactly right",
+                        "It measures the retina, not refraction",
+                        "Subjective refraction is less accurate",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AR objectively estimates the error, but the patient "
+                                   "must confirm the best subjective result — so it is "
+                                   "a starting point, then refined.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL steps that improve AR/AK reliability.",
+                    "options": [
+                        "Remove glasses and contact lenses first",
+                        "Refresh the tear film (blink/lubricant) if it is unstable",
+                        "Ensure good, steady fixation",
+                        "Leave a contact lens in to keep the eye moist",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Remove lenses, refresh a poor tear film, and ensure "
+                                   "steady fixation. Leaving a contact lens in would "
+                                   "corrupt the measurement.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How do AR and AK each contribute differently to "
+                            "pre-cataract assessment?",
+                    "options": [
+                        "AR estimates the patient's refractive error; AK provides "
+                        "corneal curvature for the IOL calculation",
+                        "Both measure only the refractive error",
+                        "AK measures refraction; AR measures the cornea",
+                        "Neither is used before cataract surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AR gives the refractive starting point; AK gives "
+                                   "corneal curvature for the IOL power calculation — "
+                                   "complementary pre-cataract data.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which statement about AR/AK is correct?",
+                    "options": [
+                        "Remove lenses, ensure a stable tear film and fixation; AR is "
+                        "an objective starting point and AK feeds the IOL calculation",
+                        "AR is the final prescription and needs no confirmation",
+                        "Glasses should be left on during AR/AK",
+                        "AK measures the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Good AR/AK practice removes lenses, ensures a stable "
+                                   "tear film and fixation; AR is an objective starting "
+                                   "point and AK supplies corneal curvature for the IOL "
+                                   "calculation.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
     },
 }
 
