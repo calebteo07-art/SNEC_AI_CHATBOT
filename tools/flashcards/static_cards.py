@@ -7473,6 +7473,953 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "optical_biometry": {
+            "easy": [
+                {
+                    "stem": "Is optical biometry a contact or non-contact test?",
+                    "options": ["Non-contact", "Contact (applanation)",
+                                "Contact with gel", "It uses an ultrasound probe"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Optical biometry is non-contact — it uses light, "
+                                   "nothing touches the eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL measurements optical biometry can provide.",
+                    "options": ["Axial length",
+                                "Corneal curvature (keratometry)",
+                                "Anterior chamber depth",
+                                "Intraocular pressure"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Optical biometry provides axial length, keratometry "
+                                   "and anterior chamber depth. It does not measure "
+                                   "eye pressure.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the main indication for optical biometry?",
+                    "options": ["Pre-cataract surgery IOL power calculation",
+                                "Glaucoma field testing",
+                                "Colour vision screening",
+                                "Dry eye assessment"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Optical biometry is mainly used to calculate the "
+                                   "IOL power before cataract surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Optical biometry versus A-scan — which is more accurate in "
+                            "most eyes?",
+                    "options": ["Optical biometry", "A-scan ultrasound",
+                                "They are identical", "Neither is accurate"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Optical biometry is more accurate than ultrasound "
+                                   "A-scan for IOL calculation in most eyes.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the optical biometry measurement feed into?",
+                    "options": ["The IOL power calculation",
+                                "The visual field analysis",
+                                "The colour vision score",
+                                "The eye pressure record"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The measurements feed the IOL power calculation for "
+                                   "cataract surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Who selects the final IOL power from the biometry?",
+                    "options": ["The doctor — the OT measures and documents",
+                                "The OT decides the IOL power",
+                                "The patient chooses",
+                                "The machine implants it automatically"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The OT measures and documents; the doctor selects "
+                                   "the IOL power.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why is optical biometry preferred over A-scan when "
+                            "possible?",
+                    "options": [
+                        "It is non-contact and more accurate for IOL calculation in "
+                        "most eyes",
+                        "It is the only test that works through a dense cataract",
+                        "It measures the eye pressure too",
+                        "It is cheaper to run",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Being non-contact (more comfortable, no indentation "
+                                   "error) and more accurate makes optical biometry the "
+                                   "first choice when the media are clear enough.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "When does optical biometry fail, needing A-scan instead?",
+                    "options": ["With a dense cataract that blocks the light signal",
+                                "When the patient is elderly",
+                                "When the cornea is clear",
+                                "It never fails"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A dense cataract can block the optical light "
+                                   "signal, so ultrasound A-scan is used instead.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why take multiple optical biometry readings?",
+                    "options": ["To confirm consistency before the values are used",
+                                "To dilate the pupil",
+                                "To tire the patient",
+                                "Single readings are always perfect"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Repeated readings are checked for consistency "
+                                   "before being accepted for the IOL calculation.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Besides cataract surgery, name one other use of optical "
+                            "biometry data.",
+                    "options": ["Contact lens fitting",
+                                "Measuring eye pressure",
+                                "Colour vision testing",
+                                "Visual field mapping"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Corneal curvature data can also help with contact "
+                                   "lens fitting.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why does being non-contact make optical biometry more "
+                            "comfortable AND potentially more accurate than contact "
+                            "A-scan?",
+                    "options": [
+                        "Nothing touches or indents the cornea, avoiding both "
+                        "discomfort and the false-shortening error",
+                        "It uses a stronger anaesthetic",
+                        "It presses more firmly for a better reading",
+                        "It has no effect on accuracy",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Without touching the cornea there is no discomfort "
+                                   "and no indentation error, which both improves "
+                                   "comfort and avoids falsely shortening the axial "
+                                   "length.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient's optical biometry cannot get a reliable axial "
+                            "length because of a very dense cataract. What is the "
+                            "correct next step?",
+                    "options": [
+                        "Use ultrasound A-scan (e.g. immersion) to obtain the axial "
+                        "length",
+                        "Guess the axial length from the other eye",
+                        "Proceed with no axial length",
+                        "Cancel the cataract surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "When optical biometry fails on a dense cataract, "
+                                   "ultrasound A-scan (which penetrates the opacity) is "
+                                   "used to get the axial length.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL reasons optical biometry is usually the "
+                            "first-choice method for IOL calculation.",
+                    "options": [
+                        "It is non-contact and comfortable",
+                        "It avoids the corneal-indentation error of contact A-scan",
+                        "It is more accurate in most clear-media eyes",
+                        "It works even through a dense cataract",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Optical biometry is non-contact, avoids indentation "
+                                   "error and is more accurate in clear-media eyes. It "
+                                   "does NOT work well through a dense cataract — that "
+                                   "is when A-scan is needed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is consistency between biometry readings and between "
+                            "the two eyes checked before accepting the values?",
+                    "options": [
+                        "Unexpected differences may indicate a measurement error that "
+                        "would give the wrong IOL power",
+                        "Eyes must always be identical",
+                        "It is only a formality",
+                        "Differences never matter",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inconsistent or markedly asymmetric values flag a "
+                                   "possible error; catching it avoids a wrong IOL "
+                                   "power and a poor refractive result.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about optical versus ultrasound biometry "
+                            "is correct?",
+                    "options": [
+                        "Optical is non-contact and more accurate in clear media; "
+                        "A-scan is the fallback when a dense cataract blocks light",
+                        "A-scan is non-contact and always more accurate",
+                        "Optical biometry uses ultrasound",
+                        "They cannot measure axial length",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Optical biometry (light, non-contact) is preferred "
+                                   "in clear media; ultrasound A-scan is the fallback "
+                                   "when dense opacity blocks the optical signal.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "endothelial": {
+            "easy": [
+                {
+                    "stem": "What does an endothelial cell count measure?",
+                    "options": ["Corneal endothelial cell density (cells/mm2)",
+                                "The axial length",
+                                "The visual field",
+                                "The eye pressure"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "It measures the density of cells in the corneal "
+                                   "endothelium (cells per mm2).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is a normal corneal endothelial cell density?",
+                    "options": ["Above 2000 cells/mm2", "Below 500 cells/mm2",
+                                "About 100 cells/mm2", "Exactly 1000 cells/mm2"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A normal endothelial cell density is above 2000 "
+                                   "cells/mm2.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Below roughly what count is concern raised?",
+                    "options": ["Below 1500 cells/mm2", "Below 2500 cells/mm2",
+                                "Below 3000 cells/mm2", "There is no threshold"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A count below about 1500 cells/mm2 is a concern, "
+                                   "especially before surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is the endothelial cell count a contact or non-contact "
+                            "test?",
+                    "options": ["Non-contact (specular microscopy)",
+                                "Contact with anaesthetic",
+                                "Contact with a probe",
+                                "It uses ultrasound"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "It is usually a non-contact test using specular "
+                                   "microscopy.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL recognised indications for an endothelial cell "
+                            "count.",
+                    "options": ["Pre-cataract surgery",
+                                "Fuchs dystrophy",
+                                "Long-term contact lens wear / post-corneal transplant",
+                                "Routine colour vision screening"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Indications include pre-cataract surgery, Fuchs "
+                                   "dystrophy, contact lens wearers and post-transplant "
+                                   "eyes. Colour vision screening is unrelated.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A count of 1300 cells/mm2 is normal or concerning?",
+                    "options": ["Concerning — below the ~1500 threshold",
+                                "Normal — well above threshold",
+                                "Normal — exactly average",
+                                "Impossible to interpret"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "1300 cells/mm2 is below the ~1500 threshold, so it "
+                                   "is a concern.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why does a low endothelial count matter before cataract "
+                            "surgery?",
+                    "options": [
+                        "It raises the risk of corneal decompensation (oedema) after "
+                        "surgery",
+                        "It changes the IOL power",
+                        "It improves healing",
+                        "It has no surgical relevance",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Endothelial cells keep the cornea clear by pumping "
+                                   "out fluid. A low count risks corneal swelling "
+                                   "(decompensation) after surgical stress.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Vision is worse in the morning and improves later in the "
+                            "day. Which corneal condition does this suggest?",
+                    "options": ["Endothelial dysfunction such as Fuchs dystrophy",
+                                "Simple presbyopia",
+                                "Glaucoma",
+                                "Allergic conjunctivitis"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Morning blur that clears later is typical of "
+                                   "endothelial dysfunction (e.g. Fuchs) — fluid builds "
+                                   "up overnight and evaporates when the eyes open.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Besides cell density, what else is recorded in an "
+                            "endothelial assessment?",
+                    "options": ["Cell morphology (e.g. irregular cell shapes)",
+                                "The visual field",
+                                "The axial length",
+                                "The colour vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Cell morphology — size and shape variation — is "
+                                   "recorded alongside the density.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why might a long-term contact lens wearer need this test?",
+                    "options": ["Long-term lens wear can reduce endothelial cell "
+                                "density",
+                                "Lenses increase the cell count",
+                                "It measures the lens fit",
+                                "Lens wearers never need it"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Years of contact lens wear can lower endothelial "
+                                   "cell density, so it may be checked.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why are endothelial cells especially important given they "
+                            "do not regenerate well?",
+                    "options": [
+                        "Lost cells are not replaced, so a falling count is "
+                        "cumulative and matters long-term",
+                        "They regrow quickly, so the count is irrelevant",
+                        "They only matter in children",
+                        "They have no role in corneal clarity",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Corneal endothelial cells have very limited "
+                                   "regeneration, so losses accumulate over a lifetime "
+                                   "— making the count clinically important.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A cataract patient has an endothelial count of 900 "
+                            "cells/mm2 with irregular cell shapes. Why is this "
+                            "flagged before surgery?",
+                    "options": [
+                        "A very low, abnormal count raises the risk of corneal "
+                        "decompensation after surgery — the surgeon must know",
+                        "It is a normal count, no action needed",
+                        "It changes the colour vision result",
+                        "It means surgery is impossible",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A count of 900 with abnormal morphology is well "
+                                   "below safe levels; it raises the risk of "
+                                   "post-operative corneal swelling, so the surgeon is "
+                                   "informed for planning.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL findings that would concern you on an "
+                            "endothelial assessment.",
+                    "options": [
+                        "A density below ~1500 cells/mm2",
+                        "Marked variation in cell size/shape (poor morphology)",
+                        "A history of Fuchs dystrophy or prior transplant",
+                        "A density above 2500 with uniform cells",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Low density, poor morphology and relevant history "
+                                   "all raise concern. A high density with uniform "
+                                   "cells is reassuring.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does the cornea swell (decompensate) when endothelial "
+                            "function is poor?",
+                    "options": [
+                        "The endothelium pumps fluid out of the cornea; if it fails, "
+                        "fluid accumulates and the cornea clouds",
+                        "The endothelium adds fluid to keep the cornea clear",
+                        "Swelling is unrelated to the endothelium",
+                        "The cornea thins rather than swells",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Endothelial cells actively pump fluid out to keep "
+                                   "the cornea clear; when too few function, fluid "
+                                   "builds up and the cornea becomes oedematous and "
+                                   "hazy.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient with Fuchs dystrophy reports gradually worsening "
+                            "morning blur over months. How does the endothelial count "
+                            "help the clinical picture?",
+                    "options": [
+                        "A declining count supports progressive endothelial failure, "
+                        "guiding monitoring and surgical planning",
+                        "It proves the patient needs glasses",
+                        "It measures the cataract directly",
+                        "It is irrelevant to Fuchs dystrophy",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A falling endothelial count in Fuchs correlates "
+                                   "with worsening function and symptoms, helping the "
+                                   "team monitor and plan any surgery.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about the endothelial cell count is "
+                            "correct?",
+                    "options": [
+                        "Normal is >2000/mm2, concern <1500/mm2; it predicts corneal "
+                        "decompensation risk, especially before surgery",
+                        "Normal is <500/mm2",
+                        "It measures the eye pressure",
+                        "Endothelial cells regenerate fully, so the count is "
+                        "irrelevant",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Normal endothelial density is >2000/mm2 and "
+                                   "concern arises below ~1500/mm2; a low count flags "
+                                   "the risk of corneal decompensation, important "
+                                   "before surgery.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "asoct": {
+            "easy": [
+                {
+                    "stem": "What does ASOCT (anterior segment OCT) image?",
+                    "options": [
+                        "The anterior segment — cornea, anterior chamber, angle, iris "
+                        "and lens",
+                        "The macula and retina",
+                        "The optic nerve head",
+                        "The visual field",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT images the front of the eye — cornea, "
+                                   "anterior chamber, angle, iris and lens.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is ASOCT a contact or non-contact test?",
+                    "options": ["Non-contact", "Contact with a lens on the eye",
+                                "Contact with gel", "It uses ultrasound"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT is a non-contact, light-based imaging test.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which angle does ASOCT help assess?",
+                    "options": ["The anterior chamber (drainage) angle",
+                                "The angle of squint",
+                                "The optic disc angle",
+                                "The angle kappa only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT images the anterior chamber drainage angle, "
+                                   "useful in glaucoma assessment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What kind of image does ASOCT produce?",
+                    "options": ["A high-resolution cross-sectional image",
+                                "A colour photograph only",
+                                "A pressure reading",
+                                "A field map"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT produces a high-resolution cross-sectional "
+                                   "image of the anterior segment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL recognised uses of ASOCT.",
+                    "options": ["Anterior chamber angle assessment in glaucoma",
+                                "Corneal disease/thickness assessment",
+                                "Post-surgery / refractive planning",
+                                "Measuring the eye pressure"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "ASOCT is used for the angle, corneal assessment and "
+                                   "surgical/refractive planning. It does not measure "
+                                   "eye pressure.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why is ASOCT useful in a narrow-angle glaucoma suspect?",
+                    "options": [
+                        "It images the anterior chamber angle to assess how narrow or "
+                        "open it is",
+                        "It measures the retinal thickness",
+                        "It lowers the eye pressure",
+                        "It tests the visual field",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "ASOCT shows the angle's configuration, helping "
+                                   "judge whether it is narrow or open in a "
+                                   "glaucoma suspect.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "ASOCT versus macular OCT — what is the difference in "
+                            "target?",
+                    "options": [
+                        "ASOCT images the anterior segment; macular OCT images the "
+                        "retina/macula",
+                        "They image the same structures",
+                        "ASOCT images the retina; macular OCT the cornea",
+                        "Both image the optic nerve",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT targets the front of the eye; macular OCT "
+                                   "targets the central retina.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is ASOCT preferred over a contact method for assessing "
+                            "the angle?",
+                    "options": [
+                        "It is non-contact, comfortable and high-resolution",
+                        "It is the only test that touches the eye",
+                        "It measures the cornea's colour",
+                        "It is always cheaper",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Being non-contact and high-resolution makes ASOCT a "
+                                   "comfortable way to image the angle without touching "
+                                   "the eye.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Name a corneal use of ASOCT.",
+                    "options": [
+                        "Assessing corneal thickness, disease, or "
+                        "post-surgical/refractive planning",
+                        "Measuring the visual field",
+                        "Counting endothelial cells",
+                        "Testing colour vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT can assess corneal thickness and disease and "
+                                   "support refractive/surgical planning.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the OT document for an ASOCT?",
+                    "options": ["Diagnosis, indication, eye(s) and findings",
+                                "Only the patient's name",
+                                "The IOL power",
+                                "Nothing is documented"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Document the diagnosis, indication, eye(s) tested "
+                                   "and the findings.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A glaucoma suspect has very shallow chambers. How does "
+                            "ASOCT support safe management compared with relying on "
+                            "examination alone?",
+                    "options": [
+                        "It objectively images and documents the angle, helping decide "
+                        "whether dilation/treatment is safe",
+                        "It treats the narrow angle directly",
+                        "It replaces the doctor's decision",
+                        "It measures the eye pressure instead",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "ASOCT gives an objective, documented image of the "
+                                   "angle configuration, informing decisions about "
+                                   "dilation risk and management.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL clinical questions ASOCT can help answer.",
+                    "options": [
+                        "Is the anterior chamber angle narrow or open?",
+                        "How thick is the cornea in cross-section?",
+                        "What is the anterior segment anatomy after surgery?",
+                        "What is the retinal nerve fibre layer thickness?",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "ASOCT addresses angle width, corneal thickness and "
+                                   "post-surgical anterior anatomy. The RNFL is a "
+                                   "posterior structure assessed by RNFL OCT, not "
+                                   "ASOCT.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why might ASOCT and gonioscopy be considered complementary "
+                            "for angle assessment?",
+                    "options": [
+                        "ASOCT gives an objective non-contact cross-section; "
+                        "gonioscopy gives a direct dynamic view — together they "
+                        "characterise the angle",
+                        "They measure entirely unrelated things",
+                        "ASOCT replaces all other angle assessment",
+                        "Gonioscopy images the retina",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT provides an objective cross-sectional image "
+                                   "while gonioscopy gives a direct dynamic view; "
+                                   "together they build a fuller picture of the angle.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about ASOCT is correct?",
+                    "options": [
+                        "It is a non-contact, high-resolution cross-section of the "
+                        "anterior segment, useful for the angle and cornea",
+                        "It is a contact test that images the retina",
+                        "It measures intraocular pressure",
+                        "It is only used for colour vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "ASOCT is a non-contact, high-resolution "
+                                   "cross-sectional scan of the anterior segment, used "
+                                   "for angle and corneal assessment.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "flare": {
+            "easy": [
+                {
+                    "stem": "What does the flare test measure?",
+                    "options": [
+                        "Aqueous flare — protein concentration in the anterior chamber",
+                        "The axial length",
+                        "The visual field",
+                        "The corneal curvature",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The flare test measures aqueous flare — the protein "
+                                   "concentration in the anterior chamber.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Aqueous flare is an indicator of what?",
+                    "options": ["Intraocular inflammation",
+                                "High eye pressure",
+                                "A refractive error",
+                                "Corneal thickness"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Flare reflects protein leakage from inflamed "
+                                   "vessels — an indicator of intraocular inflammation.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is the flare test contact or non-contact?",
+                    "options": ["Non-contact (laser flare photometry)",
+                                "Contact with anaesthetic",
+                                "Contact with a probe",
+                                "It uses ultrasound"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "It is a non-contact test using laser flare "
+                                   "photometry.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a higher flare value mean?",
+                    "options": ["More intraocular inflammation",
+                                "Less inflammation",
+                                "Lower eye pressure",
+                                "Better vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A higher flare value indicates more intraocular "
+                                   "inflammation.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL recognised indications for the flare test.",
+                    "options": ["Uveitis monitoring",
+                                "Post-surgical inflammation assessment",
+                                "Tracking inflammation over time",
+                                "IOL power calculation"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Flare is used to monitor uveitis, assess "
+                                   "post-surgical inflammation and track it over time. "
+                                   "It is not used for IOL calculation.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why use the flare test in uveitis?",
+                    "options": [
+                        "To objectively measure and monitor anterior chamber "
+                        "inflammation over time",
+                        "To measure the eye pressure",
+                        "To calculate the IOL power",
+                        "To test colour vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Flare photometry gives an objective number for "
+                                   "anterior chamber inflammation, useful for "
+                                   "monitoring uveitis and its response to treatment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How does the flare test help after surgery?",
+                    "options": [
+                        "It quantifies post-operative inflammation to guide treatment "
+                        "such as steroid tapering",
+                        "It measures the wound strength",
+                        "It checks the IOL position",
+                        "It has no post-op use",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Measuring post-op flare quantifies inflammation, "
+                                   "helping the doctor guide steroid treatment and "
+                                   "tapering.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A mildly raised flare a week after cataract surgery — how "
+                            "is this interpreted?",
+                    "options": [
+                        "Expected early post-operative inflammation (lower than acute "
+                        "uveitis)",
+                        "A definite serious infection",
+                        "A machine error",
+                        "Completely normal — flare is never raised post-op",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Some flare is expected early after surgery; mildly "
+                                   "raised values a week post-op usually reflect normal "
+                                   "healing rather than acute uveitis.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why also measure the fellow (other) eye in a flare "
+                            "assessment?",
+                    "options": ["As a baseline for comparison",
+                                "To dilate it",
+                                "To measure its pressure",
+                                "There is no reason to"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The fellow eye provides a baseline flare value to "
+                                   "compare against the affected eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Who decides on treatment based on the flare value?",
+                    "options": ["The doctor — the OT measures and documents",
+                                "The OT prescribes the steroids",
+                                "The patient decides",
+                                "The machine decides automatically"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The OT measures and documents the flare; the doctor "
+                                   "decides on treatment.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A uveitis patient's flare value has risen markedly since "
+                            "the last visit despite treatment. What does this suggest "
+                            "and what is the OT's role?",
+                    "options": [
+                        "Worsening inflammation — document and flag the trend for the "
+                        "doctor to review treatment",
+                        "The uveitis is cured — stop monitoring",
+                        "A machine fault — ignore it",
+                        "The OT should increase the steroid dose",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A rising flare suggests worsening inflammation. The "
+                                   "OT documents and flags the trend; the doctor adjusts "
+                                   "treatment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is an objective flare value more useful than a "
+                            "subjective impression of inflammation for monitoring?",
+                    "options": [
+                        "A number can be compared reliably over visits, reducing "
+                        "observer variability",
+                        "Subjective impressions are always more accurate",
+                        "Flare numbers cannot be compared",
+                        "Objective values change randomly",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "An objective, repeatable number lets the team track "
+                                   "inflammation across visits without the variability "
+                                   "of subjective grading.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL situations where serial flare measurement is "
+                            "valuable.",
+                    "options": [
+                        "Monitoring response of uveitis to treatment",
+                        "Tracking post-operative inflammation as it settles",
+                        "Comparing the affected eye with a fellow-eye baseline",
+                        "Calculating the IOL power for cataract surgery",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Serial flare is valuable for uveitis monitoring, "
+                                   "post-op inflammation and fellow-eye comparison. It "
+                                   "has nothing to do with IOL calculation.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about the flare test is correct?",
+                    "options": [
+                        "It non-invasively measures anterior chamber protein "
+                        "(inflammation); higher = more inflammation; the doctor acts on "
+                        "it",
+                        "It measures eye pressure by air puff",
+                        "A higher value means less inflammation",
+                        "It requires touching the eye with a probe",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Laser flare photometry non-invasively measures "
+                                   "anterior chamber protein; a higher value means more "
+                                   "inflammation, and the doctor decides on treatment.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
     },
 }
 
