@@ -2435,10 +2435,12 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   transition: background .25s ease; }
 .flash-meter i:nth-child(1) { height: 40%; } .flash-meter i:nth-child(2) { height: 68%; } .flash-meter i:nth-child(3) { height: 100%; }
 .flash-meter[data-level="1"] i:nth-child(-n+1),
-.flash-meter[data-level="2"] i:nth-child(-n+2) { background: var(--flash-topic-c); }
+.flash-meter[data-level="2"] i:nth-child(-n+2),
+.flash-meter[data-level="3"] i { background: var(--flash-topic-c); }
 .flash-opt[aria-checked="true"] .flash-meter i { background: rgba(255,255,255,.45); }
 .flash-opt[aria-checked="true"] .flash-meter[data-level="1"] i:nth-child(-n+1),
-.flash-opt[aria-checked="true"] .flash-meter[data-level="2"] i:nth-child(-n+2) { background: #fff; }
+.flash-opt[aria-checked="true"] .flash-meter[data-level="2"] i:nth-child(-n+2),
+.flash-opt[aria-checked="true"] .flash-meter[data-level="3"] i { background: #fff; }
 .flash-opt[aria-checked="true"] .flash-meter i:nth-child(1) { animation: flash-eq 1s ease-in-out infinite alternate; }
 .flash-opt[aria-checked="true"] .flash-meter i:nth-child(2) { animation: flash-eq 1s .14s ease-in-out infinite alternate; }
 .flash-opt[aria-checked="true"] .flash-meter i:nth-child(3) { animation: flash-eq 1s .28s ease-in-out infinite alternate; }
@@ -2677,6 +2679,49 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   0% { opacity: 1; transform: translate(0, 0) rotate(0); }
   100% { opacity: 0; transform: translate(calc((var(--i) - 11) * 24px), calc(70px + var(--i) * 5px)) rotate(340deg); }
 }
+
+/* ── MCQ options ── */
+.flash-options { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; width: 100%; }
+.flash-option { display: flex; gap: .6rem; align-items: center; width: 100%; text-align: left;
+  padding: .8rem 1rem; border: 1px solid var(--flash-line); border-radius: 14px;
+  background: var(--flash-paper, #fff); color: var(--flash-ink); cursor: pointer; }
+.flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 64% 45%);
+  box-shadow: inset 0 0 0 1px hsl(var(--flash-topic-hue) 64% 45%); }
+.flash-option-mark { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--flash-line); flex: 0 0 auto; }
+.flash-option.is-picked .flash-option-mark { background: hsl(var(--flash-topic-hue) 64% 45%); border-color: transparent; }
+.flash-option:disabled { cursor: default; opacity: .9; }
+
+/* ── MCQ reveal ── */
+.flash-options.is-revealed .flash-option-result { display: flex; justify-content: space-between;
+  padding: .7rem 1rem; border-radius: 12px; border: 1px solid var(--flash-line); margin-bottom: .4rem; }
+.flash-option-result.is-correct { background: hsl(145 60% 95%); border-color: hsl(145 50% 60%); }
+.flash-option-result.is-wrongpick { background: hsl(2 70% 96%); border-color: hsl(2 70% 70%); }
+.flash-verdict { font-weight: 700; margin: 0 0 .4rem; }
+.flash-verdict.is-right { color: hsl(145 55% 32%); }
+.flash-verdict.is-wrong { color: hsl(2 65% 45%); }
+.flash-model { color: var(--flash-ink); opacity: .9; }
+.flash-tick { color: hsl(145 55% 32%); } .flash-cross { color: hsl(2 65% 45%); }
+
+/* ── Compulsory typed box ── */
+.flash-reason { width: 100%; margin: .6rem 0; }
+.flash-reason-label { font-size: .85rem; font-weight: 600; }
+.flash-reason-req { color: hsl(2 65% 45%); font-weight: 700; }
+.flash-reason-box { width: 100%; margin-top: .3rem; padding: .6rem .8rem;
+  border: 1px solid var(--flash-line); border-radius: 12px; resize: vertical; font: inherit; }
+.flash-reason-note { font-size: .85rem; opacity: .8; font-style: italic; }
+
+/* ── Self-mark (tutor free-text) ── */
+.flash-selfmark { display: flex; gap: .6rem; margin-top: .8rem; }
+.flash-mark-got { color: hsl(145 55% 30%); } .flash-mark-miss { opacity: .8; }
+
+/* ── Results ── */
+.flash-results { display: grid; gap: .8rem; place-items: center; text-align: center; padding: 2rem 1rem; }
+.flash-results-score { font-size: clamp(2.2rem, 7vw, 3.4rem); }
+.flash-results-score strong { color: hsl(var(--flash-score-hue, 212) 60% 42%); }
+.flash-results-coach { max-width: 40ch; }
+.flash-results-weak strong { color: hsl(38 70% 40%); }
+.flash-results-actions { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-top: .6rem; }
+.flash-results-secondary { background: transparent; border: 1px solid var(--flash-line); padding: .6rem 1rem; border-radius: 12px; }
 
 /* ── Responsive ── */
 @media (max-width: 560px) {
