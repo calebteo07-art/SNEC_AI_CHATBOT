@@ -8420,6 +8420,697 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "corneal_topography": {
+            "easy": [
+                {
+                    "stem": "What does corneal topography map?",
+                    "options": [
+                        "Corneal curvature and elevation across the whole corneal "
+                        "surface",
+                        "The retinal thickness",
+                        "The axial length",
+                        "The eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Corneal topography maps the curvature and elevation "
+                                   "of the entire corneal surface.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Name one indication for corneal topography.",
+                    "options": ["Keratoconus screening",
+                                "Glaucoma field testing",
+                                "Cataract density grading",
+                                "Colour vision testing"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Topography is used for keratoconus screening (also "
+                                   "pre-LASIK and contact lens fitting).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What corneal pattern suggests keratoconus?",
+                    "options": [
+                        "Inferior steepening / asymmetric bow-tie / irregular "
+                        "astigmatism",
+                        "A perfectly symmetrical, smooth surface",
+                        "Uniform central flattening",
+                        "No measurable pattern",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Inferior steepening, an asymmetric bow-tie and "
+                                   "irregular astigmatism are classic topographic signs "
+                                   "of keratoconus.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL details corneal topography documents.",
+                    "options": ["K readings", "The pattern of curvature",
+                                "Any irregularity", "The visual field indices"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Topography documents the K readings, the curvature "
+                                   "pattern and any irregularity. Visual field indices "
+                                   "come from perimetry, not topography.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is corneal topography used before refractive surgery?",
+                    "options": ["Yes — for pre-LASIK assessment",
+                                "No — it is never used for surgery",
+                                "Only after surgery",
+                                "Only for glaucoma"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Topography is part of pre-LASIK assessment to "
+                                   "screen for unsuitable corneas.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How does topography help contact lens fitting?",
+                    "options": ["It maps the corneal shape to select a well-fitting "
+                                "lens",
+                                "It measures the eye pressure",
+                                "It counts endothelial cells",
+                                "It tests the visual field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "By mapping the corneal shape, topography guides "
+                                   "selection of a lens that fits well.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A young patient has inferior steepening and irregular "
+                            "astigmatism on topography. What do you suspect?",
+                    "options": ["Keratoconus", "Cataract",
+                                "Glaucoma", "Macular degeneration"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inferior steepening with irregular astigmatism in a "
+                                   "young patient suggests keratoconus.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is topography done before LASIK?",
+                    "options": [
+                        "To screen for keratoconus and irregular corneas that "
+                        "contraindicate surgery",
+                        "To measure the IOL power",
+                        "To test colour vision",
+                        "To check the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Topography screens for keratoconus/irregular "
+                                   "corneas, which are contraindications to LASIK.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Topography versus keratometry — what is topography's "
+                            "advantage?",
+                    "options": [
+                        "It maps the entire corneal surface, not just the central "
+                        "curvature",
+                        "It is faster but less detailed",
+                        "It measures the retina too",
+                        "There is no advantage",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Keratometry samples only the central curvature; "
+                                   "topography maps the whole surface, revealing "
+                                   "irregularity a few central points would miss.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What does an asymmetric bow-tie pattern suggest?",
+                    "options": ["Irregular astigmatism, possibly early keratoconus",
+                                "A perfectly normal cornea",
+                                "Glaucoma",
+                                "A cataract"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "An asymmetric bow-tie indicates irregular "
+                                   "astigmatism, which can be an early sign of "
+                                   "keratoconus.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is detecting keratoconus before LASIK so important?",
+                    "options": [
+                        "Operating on a keratoconic cornea can worsen it and harm "
+                        "vision (ectasia)",
+                        "Keratoconus makes LASIK more effective",
+                        "It only affects the cosmetic result",
+                        "It has no impact on surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "LASIK on a weak/keratoconic cornea risks "
+                                   "progressive ectasia and vision loss, so screening "
+                                   "it out is critical.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A 22-year-old wants LASIK. Topography shows inferior "
+                            "steepening and an asymmetric bow-tie; vision fluctuates and "
+                            "they rub their eyes often. Why is this concerning?",
+                    "options": [
+                        "The pattern and history suggest keratoconus — LASIK would be "
+                        "contraindicated; flag for the doctor",
+                        "It is a normal young cornea — proceed with LASIK",
+                        "Eye rubbing protects the cornea",
+                        "Topography is irrelevant to LASIK planning",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inferior steepening, asymmetric bow-tie, "
+                                   "fluctuating vision and eye-rubbing point to "
+                                   "keratoconus — a contraindication to LASIK that must "
+                                   "be flagged.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL situations where corneal topography is "
+                            "clinically valuable.",
+                    "options": [
+                        "Screening for keratoconus",
+                        "Pre-LASIK suitability assessment",
+                        "Fitting a contact lens to an irregular cornea",
+                        "Calculating the visual field indices",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Topography helps keratoconus screening, LASIK "
+                                   "assessment and irregular-cornea lens fitting. It "
+                                   "does not produce visual field indices.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why can topography detect early keratoconus that simple "
+                            "keratometry might miss?",
+                    "options": [
+                        "It maps the whole surface, revealing localised inferior "
+                        "steepening outside the central zone",
+                        "It measures the retina as well",
+                        "Keratometry maps more of the cornea than topography",
+                        "Early keratoconus only affects the centre",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Early keratoconus often steepens inferiorly, "
+                                   "outside the few central points keratometry samples; "
+                                   "whole-surface topography catches it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about corneal topography is correct?",
+                    "options": [
+                        "It maps whole-surface curvature/elevation, screens "
+                        "keratoconus, and supports LASIK and lens-fitting decisions",
+                        "It measures the eye pressure",
+                        "It only samples the central cornea",
+                        "It images the retina",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Topography maps the full corneal surface, screens "
+                                   "for keratoconus, and informs LASIK suitability and "
+                                   "contact lens fitting.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "pam": {
+            "easy": [
+                {
+                    "stem": "What does the PAM (Potential Acuity Meter) predict?",
+                    "options": ["The potential visual acuity after cataract surgery",
+                                "The eye pressure",
+                                "The corneal curvature",
+                                "The visual field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "PAM predicts the potential visual acuity once a "
+                                   "cataract is removed.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How does PAM work?",
+                    "options": [
+                        "It projects a Snellen chart onto the retina, bypassing the "
+                        "cataract",
+                        "It measures the lens thickness",
+                        "It uses ultrasound on the eye",
+                        "It counts endothelial cells",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "PAM projects a Snellen chart through a clear part "
+                                   "of the lens onto the retina, bypassing the "
+                                   "cataract.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What preparation does PAM need?",
+                    "options": ["Pupil dilation", "Topical anaesthetic",
+                                "A fasting patient", "Ultrasound gel"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "PAM requires pupil dilation to project the chart "
+                                   "through the clearest part of the lens.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the main indication for PAM?",
+                    "options": [
+                        "A dense cataract — to assess retinal function before surgery",
+                        "Glaucoma field monitoring",
+                        "Dry eye assessment",
+                        "Colour vision screening",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "PAM is used with a dense cataract to estimate how "
+                                   "well the retina is likely to see after surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a good PAM result suggest?",
+                    "options": ["Good potential vision after the cataract is removed",
+                                "The cataract is mild",
+                                "The eye pressure is normal",
+                                "Surgery is unnecessary"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A good PAM result suggests the retina can see well, "
+                                   "so vision is likely to improve after cataract "
+                                   "removal.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why use PAM in a dense cataract?",
+                    "options": [
+                        "To estimate how much vision is limited by the lens versus the "
+                        "retina",
+                        "To measure the cataract's hardness",
+                        "To calculate the IOL power",
+                        "To check the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "PAM helps separate vision loss due to the cataract "
+                                   "(removable) from loss due to the retina "
+                                   "(not removable by cataract surgery).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A dense cataract with a good PAM result — how is this "
+                            "interpreted?",
+                    "options": [
+                        "The retina likely functions well; surgery may improve vision",
+                        "The retina is damaged; surgery is pointless",
+                        "The cataract is not actually dense",
+                        "The patient has glaucoma",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A good PAM despite a dense cataract suggests the "
+                                   "retina works well, so removing the cataract is "
+                                   "likely to improve vision.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is dilation needed for PAM?",
+                    "options": [
+                        "To project the chart through the clearest part of the lens "
+                        "onto the retina",
+                        "To relax the patient",
+                        "To lower the eye pressure",
+                        "To numb the cornea",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A dilated pupil lets the chart be projected through "
+                                   "a clearer area of the lens, around the densest "
+                                   "cataract, onto the retina.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Does PAM measure lens or retinal function?",
+                    "options": [
+                        "Retinal (and visual pathway) function, bypassing the lens",
+                        "Only the lens density",
+                        "The corneal curvature",
+                        "The eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "By bypassing the cataract, PAM tests the retina and "
+                                   "visual pathway rather than the lens itself.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does the OT document for a PAM?",
+                    "options": [
+                        "Diagnosis, indication, preparation and the predicted post-op "
+                        "VA",
+                        "Only the patient's name",
+                        "The IOL power",
+                        "Nothing is recorded",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Document the diagnosis, indication, preparation "
+                                   "(dilation) and the predicted post-operative visual "
+                                   "acuity.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient with a dense cataract AND suspected macular "
+                            "disease has a poor PAM result. How might this influence "
+                            "expectations?",
+                    "options": [
+                        "It tempers expectations — poor retinal potential means "
+                        "cataract surgery alone may not restore good vision",
+                        "It guarantees perfect vision after surgery",
+                        "It means the cataract is mild",
+                        "PAM results are irrelevant to outcomes",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A poor PAM suggests limited retinal potential; "
+                                   "surgery may remove the cataract but vision could "
+                                   "stay limited by the macular disease — useful for "
+                                   "counselling expectations.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why can PAM be more informative than visual acuity alone "
+                            "in a dense-cataract patient?",
+                    "options": [
+                        "Standard VA is dragged down by the cataract; PAM peeks past "
+                        "it to gauge the retina's potential",
+                        "PAM measures the cataract density precisely",
+                        "VA already shows the post-op result",
+                        "PAM measures the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Ordinary VA reflects the cataract's blur; PAM "
+                                   "projects past the opacity to estimate what the "
+                                   "retina could achieve once it is removed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL true statements about PAM.",
+                    "options": [
+                        "It needs dilation",
+                        "It estimates potential post-cataract vision",
+                        "It assesses retinal/visual-pathway function past the lens",
+                        "It determines the IOL power",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "PAM needs dilation, estimates potential post-op "
+                                   "vision and tests function past the lens. It does "
+                                   "not calculate IOL power (that is biometry).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement best captures the role of PAM before "
+                            "cataract surgery?",
+                    "options": [
+                        "It helps predict whether removing the cataract will improve "
+                        "vision, informing surgical decisions and counselling",
+                        "It replaces biometry for IOL selection",
+                        "It treats the cataract",
+                        "It measures the visual field",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "PAM predicts the likely visual benefit of cataract "
+                                   "removal, supporting the decision to operate and "
+                                   "patient counselling.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "hrt": {
+            "easy": [
+                {
+                    "stem": "What does HRT (Heidelberg Retinal Tomography) scan?",
+                    "options": ["The optic nerve head (a 3D laser scan)",
+                                "The cornea",
+                                "The anterior chamber angle",
+                                "The lens"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT is a 3D laser scan of the optic nerve head.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does HRT measure?",
+                    "options": [
+                        "The retinal nerve fibre layer (RNFL) and optic disc "
+                        "parameters",
+                        "The axial length",
+                        "The corneal curvature",
+                        "The eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT measures RNFL and optic disc parameters.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the main indication for HRT?",
+                    "options": ["Glaucoma diagnosis and monitoring",
+                                "Cataract grading",
+                                "Dry eye assessment",
+                                "Colour vision testing"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT is used for glaucoma diagnosis and monitoring.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What technology does HRT use?",
+                    "options": ["3D laser scanning", "Ultrasound",
+                                "An air puff", "X-rays"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT uses 3D laser scanning of the optic nerve head.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is HRT structural or functional testing?",
+                    "options": ["Structural (the visual field is the functional test)",
+                                "Functional",
+                                "Both equally",
+                                "Neither"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT is a structural test of the optic nerve head; "
+                                   "the visual field is the matching functional test.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "How does HRT help in glaucoma?",
+                    "options": [
+                        "It quantifies the optic disc and RNFL to detect and monitor "
+                        "glaucomatous change",
+                        "It lowers the eye pressure",
+                        "It measures the visual field",
+                        "It calculates the IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT gives objective optic disc/RNFL measurements to "
+                                   "detect and track glaucomatous structural change.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "HRT and RNFL OCT both assess which structure?",
+                    "options": ["The optic nerve head / RNFL (structural glaucoma "
+                                "assessment)",
+                                "The macula",
+                                "The cornea",
+                                "The anterior chamber"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Both HRT and RNFL OCT assess the optic nerve "
+                                   "head/RNFL structurally for glaucoma.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why repeat HRT over time?",
+                    "options": ["To monitor progression of optic disc/RNFL change",
+                                "To recalibrate the laser",
+                                "To measure the cataract",
+                                "There is no reason to repeat it"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Serial HRT scans track progressive optic disc/RNFL "
+                                   "change, which is central to glaucoma monitoring.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What does the OT document for an HRT?",
+                    "options": [
+                        "Diagnosis, indication, eye(s), and the disc/RNFL findings",
+                        "Only the patient's name",
+                        "The IOL power",
+                        "Nothing is documented",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Record the diagnosis, indication, eye(s) and the "
+                                   "optic disc/RNFL findings.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why are structural tests like HRT used alongside the "
+                            "visual field in glaucoma?",
+                    "options": [
+                        "Structure (HRT) and function (field) together give a fuller, "
+                        "more reliable picture",
+                        "The field test is unnecessary if HRT is done",
+                        "They measure unrelated diseases",
+                        "HRT replaces the need for any other test",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Combining structural HRT data with the functional "
+                                   "visual field gives a more complete and reliable "
+                                   "assessment of glaucoma.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A glaucoma patient's serial HRT shows progressive optic "
+                            "disc cupping that matches worsening visual fields. What "
+                            "does this combination indicate?",
+                    "options": [
+                        "Structure-function agreement supporting glaucoma progression "
+                        "— flag for review",
+                        "A machine artefact to ignore",
+                        "Improvement in the glaucoma",
+                        "A purely refractive change",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Progressive cupping on HRT matching field "
+                                   "worsening is concordant structure-function "
+                                   "evidence of glaucoma progression — flag it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is HRT described as complementary to, not a "
+                            "replacement for, the visual field?",
+                    "options": [
+                        "HRT measures structure objectively; the field measures the "
+                        "patient's actual vision — both are needed",
+                        "HRT already measures vision directly",
+                        "The field test measures structure",
+                        "They test completely different diseases",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT objectively images the optic nerve structure, "
+                                   "but only the visual field shows how the patient "
+                                   "actually sees — the two complement each other.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL true statements about HRT.",
+                    "options": [
+                        "It is a 3D laser scan of the optic nerve head",
+                        "It is a structural test for glaucoma",
+                        "Serial scans track disc/RNFL progression",
+                        "It measures the patient's visual field directly",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "HRT is a 3D laser structural scan of the optic "
+                                   "nerve head, tracked over time for glaucoma. It does "
+                                   "NOT measure the visual field (that is perimetry).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement best summarises HRT's role?",
+                    "options": [
+                        "An objective, repeatable structural assessment of the optic "
+                        "nerve head/RNFL for glaucoma, used with the visual field",
+                        "A functional test that replaces perimetry",
+                        "A contact ultrasound of the retina",
+                        "A test of corneal curvature",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HRT provides objective, repeatable structural data "
+                                   "on the optic nerve head/RNFL for glaucoma, used "
+                                   "alongside the functional visual field.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
     },
 }
 
