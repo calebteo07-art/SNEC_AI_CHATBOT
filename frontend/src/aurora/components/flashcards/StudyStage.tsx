@@ -31,7 +31,9 @@ export function StudyStage(p: Props) {
   const remaining = Math.max(0, p.total - p.idx - 1);
   const coach = p.checked
     ? (remaining > 0 ? `${remaining} to go.` : "Last one — nice work.")
-    : (p.card.qtype === "multi" ? "Select every option that applies." : "Pick the best answer.");
+    : (p.card.freeText
+        ? "Recall it, then reveal the answer."
+        : p.card.qtype === "multi" ? "Select every option that applies." : "Pick the best answer.");
 
   return (
     <div className="flash-stage" data-testid="study-stage">
