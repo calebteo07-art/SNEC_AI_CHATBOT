@@ -14,6 +14,7 @@ import {
 } from "@/hooks/useFlashcards";
 import {
   type Flashcard, type Difficulty, XP_CORRECT, XP_ATTEMPT, loadSessionCards, topicHue,
+  isRenderableCard,
 } from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
@@ -49,7 +50,9 @@ export function Flashcards() {
   const baseCards: Flashcard[] = useMemo(() => {
     if (sessionCards.length > 0) return sessionCards;
     if (!Array.isArray(apiCardsRaw)) return [];
-    return apiCardsRaw.map(toCard);
+    // Drop any malformed/stale-shaped card so it can't reach McqCard and crash the
+    // page; if that empties the deck we fall through to the graceful empty state.
+    return apiCardsRaw.map(toCard).filter(isRenderableCard);
   }, [sessionCards, apiCardsRaw]);
 
   const [drill, setDrill] = useState<Flashcard[]>([]);

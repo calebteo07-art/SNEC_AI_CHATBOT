@@ -20,6 +20,14 @@ export const queryClient = new QueryClient({
 
 /* Persistence is browser-only — this module is also evaluated during server
  * prerendering of the client provider tree. */
+/* Bump whenever a PERSISTED query's response shape changes. The persister discards
+ * the entire stored cache when this differs from what's on disk, so data written by
+ * an older app version can never be rehydrated into — and crash — newer UI. Without
+ * it, a pre-MCQ flashcards deck ({front,back}, no `options`) cached under the same
+ * ["flashcards", …] key was rehydrated and painted by the new MCQ card, whose
+ * options.map() white-screened the page (prod incident 2026-06-27). */
+const PERSIST_SCHEMA_VERSION = "2";
+
 if (typeof window !== "undefined") {
   const persister = createAsyncStoragePersister({
     storage: idbStorage,
@@ -30,6 +38,7 @@ if (typeof window !== "undefined") {
     queryClient,
     persister,
     maxAge: 24 * 60 * 60_000,
+    buster: PERSIST_SCHEMA_VERSION,
   });
   // Suppress unhandled rejection — IDB unavailable (private browsing, quota exceeded) is non-fatal
   persistPromise.catch(() => {});

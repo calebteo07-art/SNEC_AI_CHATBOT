@@ -368,4 +368,46 @@ if (supH1 !== 1) { console.error(`FAIL: supervisor main h1 count = ${supH1}`); p
 await sp.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
 console.log("PASS: Supervisor — KPIs + at-risk table render");
 
+// regression (prod incident 2026-06-27): a pre-MCQ deck ({front,back}, NO `options`)
+// rehydrated from the offline cache must NOT reach McqCard — its options.map() would
+// white-screen the page. The orchestrator filters malformed cards, degrading to the
+// graceful empty state instead of the error boundary.
+const staleCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await staleCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1");
+}, studentUser);
+await staleCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+await staleCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await staleCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
+// old-shaped cards: front/back, no options/stem (what a pre-MCQ deploy returned).
+await staleCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
+  { card_id: "stale1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "iop_nct" },
+])));
+const stp = await staleCtx.newPage();
+const staleErrors = [];
+stp.on("pageerror", (e) => staleErrors.push(String(e)));
+await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
+await stp.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
+await stp.locator('[data-testid="flash-continue"]').click();
+await stp.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
+await stp.locator('[data-testid="flash-start"]').click();
+// graceful empty state appears; the study stage and the error boundary never do.
+await stp.waitForSelector(".flash-msg", { timeout: 15000 });
+await stp.waitForTimeout(600); // let any (mis)render settle
+if ((await stp.locator('h2:has-text("Something went wrong")').count()) > 0) {
+  console.error("FAIL: stale-shaped flashcard crashed the page (error boundary shown)"); process.exit(1);
+}
+if ((await stp.locator('[data-testid="study-stage"]').count()) > 0) {
+  console.error("FAIL: malformed card reached the study stage instead of being filtered"); process.exit(1);
+}
+if (staleErrors.some((e) => /reading 'map'|reading "map"|\.map/.test(e))) {
+  console.error("FAIL: stale-shaped flashcard threw a .map() error:", staleErrors.join(" | ")); process.exit(1);
+}
+console.log("PASS: flashcards — stale/old-shaped cards degrade gracefully (no white-screen)");
+
 await b.close();

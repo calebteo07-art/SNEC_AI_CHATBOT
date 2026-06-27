@@ -33,6 +33,15 @@ export interface Flashcard {
   card_id?: string; repetitions?: number; easiness?: number; interval_days?: number;
 }
 
+/** A card is only renderable if the study UI can present it without crashing:
+ *  free-text cards flip to a reveal (no options needed); every MCQ card MUST carry
+ *  an `options` array (McqCard does `options.map(...)`). Guards malformed or
+ *  stale-shaped data — e.g. a pre-MCQ {front,back} card rehydrated from the offline
+ *  cache — from reaching McqCard and white-screening the page. */
+export function isRenderableCard(c: Flashcard): boolean {
+  return c.freeText === true || Array.isArray(c.options);
+}
+
 /** Deterministic, instant MCQ grading. All-or-nothing for multi-select. */
 export function gradeSelection(card: Flashcard, selected: number[]): boolean {
   const a = [...selected].sort((x, y) => x - y);
