@@ -2,7 +2,7 @@
 /* ResultsScreen — the end-of-deck summary. Headline "X / N correct" (instant, MCQ-only),
    the 1-2 weakest topics from the misses, encouraging plain-language coaching, an optional
    written-reasoning line, and actions (drill missed / new deck / done). */
-import { scoreTier, type ScoreTier } from "./types";
+import { scoreTier, scoreHue, type ScoreTier } from "./types";
 
 export interface DeckResult {
   total: number;
@@ -50,7 +50,7 @@ export function ResultsScreen({ result, onDrillMissed, onNewDeck, onDone }: Prop
 
   return (
     <div className="flash-results" data-testid="flash-results" data-tier={tier}
-      style={{ ["--flash-score-hue" as string]: String(scoreHueFor(tier)) }}>
+      style={{ ["--flash-score-hue" as string]: String(scoreHue(pct)) }}>
       <p className="flash-results-kicker">Deck complete</p>
       <p className="flash-results-score" data-testid="flash-results-score">
         <strong>{result.correct}</strong> / {result.total} correct
@@ -86,9 +86,4 @@ function reasonLabel(avg: number): string {
   if (avg >= 80) return "strong";
   if (avg >= 55) return "on the right track";
   return "worth another look";
-}
-
-/** Mirror of types.scoreHue but keyed by tier (avoids re-deriving). */
-function scoreHueFor(tier: ScoreTier): number {
-  return { high: 145, good: 212, fair: 38, low: 255 }[tier];
 }

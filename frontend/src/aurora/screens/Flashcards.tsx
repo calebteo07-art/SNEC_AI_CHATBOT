@@ -58,6 +58,9 @@ export function Flashcards() {
   const [idx, setIdx] = useState(0);
   const [checked, setChecked] = useState(false);
   const [done, setDone] = useState(false);
+  // Bumped on each drill round so StudyStage/McqCard remount — drill decks reuse card
+  // ids (1..n), so without a fresh mount the child's per-card reset wouldn't fire.
+  const [deckEpoch, setDeckEpoch] = useState(0);
   const reasonNotesRef = useRef<Record<number, string>>({});
   const [, force] = useState(0);
 
@@ -138,9 +141,11 @@ export function Flashcards() {
     if (missed.length === 0) return;
     // reset accumulators for the drill round
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
+    reasonNotesRef.current = {};
     const next = missed.slice(); missedRef.current = [];
     setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
     setIdx(0); setChecked(false); setDone(false);
+    setDeckEpoch((e) => e + 1);
   };
 
   const newDeck = () => router.push("/dashboard");  // re-enter setup from dashboard launchpad
@@ -191,6 +196,7 @@ export function Flashcards() {
   return (
     <FlashShell onExit={exit} topicHue={stageHue}>
       <StudyStage
+        key={deckEpoch}
         card={card} idx={idx} total={total} deckTitle={deckTitle}
         checked={checked} reasonNote={reasonNotesRef.current[card.id] ?? null}
         onCheck={onCheck} onAdvance={advance} advanceLabel={advanceLabel}
