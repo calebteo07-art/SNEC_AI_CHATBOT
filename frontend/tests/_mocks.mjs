@@ -85,13 +85,23 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/cases/C001/chat", (r) => r.fulfill({ status: 200, contentType: "text/event-stream", body: 'data: {"text":"Good morning, doctor."}\n\ndata: [DONE]\n\n' }));
   await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({ result: { history_score: 7, investigations_score: 7, diagnosis_score: 8, management_score: 6, history_feedback: "Good.", investigations_feedback: "Good.", diagnosis_feedback: "Good.", management_feedback: "Good.", total_score: 30, overall_feedback: "Solid.", critical_hit: 1, critical_total: 1, score_100: 74, verdict: "Solid", thoroughness: 30, technique: 21, judgment: 23, safe: true, missed_critical: [], thoroughness_detail: "3 of 4 steps · all 1 critical done" }, cards: [], mock_mode: false, coaching: { highlights: ["Clear patient identification", "Calm, structured consult"], watch_outs: ["Document the follow-up plan"], focus: "Always close with a clear return date." }, checklist_comparison: [], per_phase: [] })));
   await ctx.route("**/api/flashcards/generate*", (r) => r.fulfill(J([
-    { card_id: "f1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "glaucoma", repetitions: 0, easiness: 2.5, interval_days: 1 },
-    { card_id: "f2", front: "Most common cause of gradual painless vision loss in the elderly?", back: "Cataract", topic_tag: "cataract", repetitions: 1, easiness: 2.6, interval_days: 3 },
+    { card_id: "f1", stem: "Normal IOP range?",
+      options: ["10-21 mmHg", "0-9 mmHg", "22-30 mmHg", "31-40 mmHg"], correct: [0],
+      qtype: "single", kind: "theory", explanation: "Normal IOP is 10-21 mmHg.",
+      requires_explanation: false, topic_tag: "iop_nct", difficulty: "easy",
+      repetitions: 0, easiness: 2.5, interval_days: 1 },
+    { card_id: "f2", stem: "Why irrigate a chemical burn immediately?",
+      options: ["To wash out the chemical", "To dilate the pupil", "To measure IOP", "To numb the eye"],
+      correct: [0], qtype: "single", kind: "practical",
+      explanation: "Immediate irrigation limits ongoing tissue damage (Category 1).",
+      requires_explanation: true, topic_tag: "triage", difficulty: "medium",
+      repetitions: 0, easiness: 2.5, interval_days: 1 },
   ])));
-  await ctx.route("**/api/flashcards/check", (r) => r.fulfill(J({ score: 88, feedback: "Spot on — normal IOP is 10–21 mmHg. Crisp, confident recall.", mock_mode: false })));
+  await ctx.route("**/api/flashcards/check", (r) => r.fulfill(J({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
+  await ctx.route("**/api/flashcards/complete", (r) => r.fulfill(J({ xp: 140, level: 1 })));
   await ctx.route("**/api/flashcards/topics", (r) => r.fulfill(J({ sets: [
-    { set_key: "glaucoma__easy", topic_key: "glaucoma", label: "Glaucoma", difficulty: "easy", total: 5, completed: 2 },
-    { set_key: "cataract__easy", topic_key: "cataract", label: "Cataract", difficulty: "easy", total: 5, completed: 0 },
+    { set_key: "triage__easy", topic_key: "triage", label: "Triage", difficulty: "easy", total: 12, completed: 2 },
+    { set_key: "triage__hard", topic_key: "triage", label: "Triage", difficulty: "hard", total: 12, completed: 0 },
   ] })));
   await ctx.route("**/api/study-suggestion", (r) => r.fulfill(J({ suggestion: "Review glaucoma staging before your next case.", topic: "Glaucoma" })));
   await ctx.route("**/api/chat", (r) => r.fulfill({
