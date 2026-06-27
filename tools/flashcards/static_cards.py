@@ -3109,6 +3109,1034 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "pinhole": {
+            "easy": [
+                {
+                    "stem": "What does a pinhole occluder physically do to the light "
+                            "entering the eye?",
+                    "options": [
+                        "It blocks peripheral rays so only central rays enter",
+                        "It magnifies the chart letters",
+                        "It increases the brightness of the chart",
+                        "It changes the colour of the image",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole blocks blurred peripheral light rays so "
+                                   "that only central, well-focused rays reach the "
+                                   "retina.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "When, during a vision check, is the pinhole occluder used?",
+                    "options": ["When the visual acuity is reduced (6/12 or worse)",
+                                "Only when vision is a perfect 6/6",
+                                "Before measuring any vision at all",
+                                "Only for colour vision testing"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The pinhole is applied once VA is found to be "
+                                   "reduced (6/12 or worse) to screen for a refractive "
+                                   "cause.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Through the pinhole a patient sees noticeably better. Is "
+                            "the cause more likely refractive or non-refractive?",
+                    "options": ["Refractive (likely helped by glasses)",
+                                "Non-refractive (retinal disease)",
+                                "Non-refractive (optic nerve disease)",
+                                "It cannot be interpreted"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Improvement through the pinhole points to a "
+                                   "refractive cause that glasses are likely to correct.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Can the pinhole replace a full (formal) refraction?",
+                    "options": ["No — it only screens for a refractive cause",
+                                "Yes — it gives the exact prescription",
+                                "Yes — it replaces the eye examination",
+                                "Only in children"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole only indicates whether a refractive "
+                                   "cause is present; the precise lens powers still need "
+                                   "a formal refraction.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Does the pinhole magnify what the patient is looking at?",
+                    "options": ["No — it sharpens by limiting the light rays, it does "
+                                "not magnify",
+                                "Yes — it works like a magnifier",
+                                "Yes — it doubles the letter size",
+                                "Only at near"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole sharpens the image by admitting only "
+                                   "central rays; it does not magnify.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL causes of reduced vision that will NOT improve "
+                            "with a pinhole.",
+                    "options": ["A dense cataract (media opacity)",
+                                "Retinal disease",
+                                "Optic nerve disease",
+                                "Uncorrected short-sightedness"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Media opacity, retinal disease and optic nerve "
+                                   "disease are non-refractive, so the pinhole doesn't "
+                                   "help. Uncorrected short-sightedness IS refractive "
+                                   "and does improve.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the pinhole mainly used to screen for?",
+                    "options": ["Whether reduced vision has a refractive cause",
+                                "The eye pressure",
+                                "Colour vision",
+                                "The visual field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole is a quick screen for whether reduced "
+                                   "vision is refractive (correctable) or not.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient with uncorrected astigmatism looks through the "
+                            "pinhole. What is the expected result?",
+                    "options": ["Vision improves (it is a refractive error)",
+                                "Vision stays exactly the same",
+                                "Vision gets worse",
+                                "The pupil dilates"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Astigmatism is a refractive error, so vision "
+                                   "typically improves through the pinhole.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A patient with a cloudy lens sees no better through the "
+                            "pinhole. What does this indicate?",
+                    "options": [
+                        "The reduced vision is from media opacity, not refractive "
+                        "error",
+                        "The patient simply needs glasses",
+                        "The pinhole was used incorrectly",
+                        "The vision is actually normal",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A cloudy lens (cataract) is a media opacity; the "
+                                   "pinhole can't overcome it, so vision doesn't "
+                                   "improve.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does the pinhole sharpen vision when refractive error "
+                            "is uncorrected?",
+                    "options": [
+                        "It removes the blur from out-of-focus peripheral rays",
+                        "It brightens the retina",
+                        "It relaxes the focusing muscle",
+                        "It enlarges the retinal image",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "By blocking peripheral rays, the pinhole removes "
+                                   "their blur and leaves a sharper central image — "
+                                   "improving vision in refractive error.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A dense cataract gives only slight improvement with the "
+                            "pinhole. How do you interpret this?",
+                    "options": [
+                        "Mainly a non-refractive (media) cause, perhaps with a small "
+                        "refractive component",
+                        "Purely refractive error",
+                        "The retina is definitely diseased",
+                        "Normal vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Slight improvement suggests the reduced vision is "
+                                   "mostly from media opacity, with maybe a small "
+                                   "refractive part.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What is the correct sequence when distance VA comes back "
+                            "reduced?",
+                    "options": [
+                        "Record the unaided VA, then re-test through the pinhole",
+                        "Apply the pinhole before measuring any VA",
+                        "Skip the pinhole and refer everyone",
+                        "Only use the pinhole if the patient asks",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "First record the (unaided or corrected) VA, then "
+                                   "re-test with the pinhole to screen for a refractive "
+                                   "cause.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why might the pinhole give limited improvement in a "
+                            "patient with a very small pupil already?",
+                    "options": [
+                        "A small pupil already limits peripheral rays, so the pinhole "
+                        "adds less benefit",
+                        "Small pupils make the pinhole magnify",
+                        "The pinhole only works in the dark",
+                        "Pupil size has no effect on the pinhole",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A naturally small pupil already restricts "
+                                   "peripheral rays, so the extra effect of a pinhole "
+                                   "may be smaller.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient improves from 6/24 to 6/6 with the pinhole. What "
+                            "is the practical conclusion?",
+                    "options": [
+                        "Their reduced vision is refractive — refraction/glasses "
+                        "should help",
+                        "They have a retinal detachment",
+                        "They have optic nerve disease",
+                        "The result is invalid",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Full improvement to 6/6 with the pinhole strongly "
+                                   "indicates a correctable refractive error.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL true statements about pinhole testing.",
+                    "options": [
+                        "It screens for a refractive cause of reduced vision",
+                        "Improvement suggests glasses may help",
+                        "No improvement suggests a media, retinal or nerve cause",
+                        "It provides the final spectacle prescription",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "The pinhole screens for refractive causes; "
+                                   "improvement implies glasses may help and no "
+                                   "improvement implies a non-refractive cause. It does "
+                                   "NOT give the final prescription.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "Two patients read 6/36. One improves to 6/6 with the "
+                            "pinhole; the other does not change at all. What does each "
+                            "result imply for next steps?",
+                    "options": [
+                        "First: likely refractive — arrange refraction; second: likely "
+                        "media/retina/nerve — needs further assessment",
+                        "Both simply need glasses",
+                        "Both need urgent surgery",
+                        "Neither result means anything",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Pinhole improvement points toward refraction; no "
+                                   "change points toward a non-refractive cause needing "
+                                   "further work-up.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why can the pinhole give a falsely poor result if the "
+                            "patient struggles to line it up with their visual axis?",
+                    "options": [
+                        "If they don't look through the hole, peripheral blur (or no "
+                        "image) is seen, underestimating the true potential",
+                        "The pinhole always overestimates vision",
+                        "Misalignment magnifies the letters",
+                        "Alignment makes no difference",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If the patient doesn't look straight through the "
+                                   "aperture, they see edge blur or nothing, so the "
+                                   "pinhole VA can read worse than the eye's true "
+                                   "potential — coach them to align it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A cataract patient improves only from 6/60 to 6/36 with "
+                            "the pinhole. The doctor still expects good vision after "
+                            "surgery. Why is that not a contradiction?",
+                    "options": [
+                        "The pinhole reflects current media opacity, not the retina's "
+                        "potential once the lens is removed",
+                        "The pinhole already measured the post-surgery vision",
+                        "Cataracts never affect the pinhole",
+                        "The doctor must be mistaken",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A limited pinhole result is dominated by the "
+                                   "cataract; it doesn't reveal the retina's potential "
+                                   "once the cloudy lens is removed (that is what a PAM "
+                                   "estimates).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which combination would you expect in PURE uncorrected "
+                            "myopia with healthy eyes otherwise?",
+                    "options": [
+                        "Reduced unaided distance VA that improves markedly with the "
+                        "pinhole",
+                        "Reduced VA that does not change with the pinhole",
+                        "Normal unaided VA that worsens with the pinhole",
+                        "No measurable vision at all",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Uncorrected myopia blurs distance vision but the "
+                                   "eye is otherwise healthy, so the pinhole produces a "
+                                   "marked improvement.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL situations where a pinhole result must be "
+                            "interpreted with caution.",
+                    "options": [
+                        "Dense media opacity limiting the image",
+                        "A patient who cannot align the aperture",
+                        "Mixed refractive plus media causes",
+                        "A cooperative patient with simple myopia",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Dense opacity, poor alignment, and mixed causes all "
+                                   "make pinhole interpretation tricky. A cooperative "
+                                   "myope is the straightforward case.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the pinhole especially useful in a busy clinic "
+                            "before deciding who needs a full refraction?",
+                    "options": [
+                        "It quickly flags whether glasses are likely to restore "
+                        "vision, prioritising further tests",
+                        "It replaces the doctor's assessment entirely",
+                        "It measures eye pressure at the same time",
+                        "It cures the refractive error",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "As a fast screen, the pinhole helps sort patients "
+                                   "whose vision is simply uncorrected from those "
+                                   "needing deeper assessment.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "iop_nct": {
+            "easy": [
+                {
+                    "stem": "What is the normal range for intraocular pressure (IOP)?",
+                    "options": ["10-21 mmHg", "0-5 mmHg",
+                                "30-40 mmHg", "50-60 mmHg"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Normal IOP is 10-21 mmHg.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a non-contact tonometer use to measure the eye "
+                            "pressure?",
+                    "options": ["A puff of air", "A probe touching the cornea",
+                                "An ultrasound gel", "A bright light"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The non-contact tonometer (NCT) uses a puff of air "
+                                   "to measure IOP without touching the eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "For which patients and visits is IOP measured?",
+                    "options": ["All patients, all visits",
+                                "Only glaucoma patients",
+                                "Only on the first visit",
+                                "Only patients over 60"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "IOP is measured for all patients at all visits, as "
+                                   "raised pressure is often symptomless.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "When measuring IOP, which eye is done first by convention?",
+                    "options": ["The right eye", "The left eye",
+                                "Whichever has higher pressure", "Both together"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "By convention the right eye is measured first.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What must you do to the machine parts that come near the "
+                            "patient before and after NCT?",
+                    "options": ["Wipe them with alcohol wipes and perform hand hygiene",
+                                "Leave them as they are",
+                                "Rinse them with tap water only",
+                                "Replace them after every patient"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Wipe the contact parts with alcohol wipes and do "
+                                   "hand hygiene before and after, for infection "
+                                   "control.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why are glasses or contact lenses removed before NCT?",
+                    "options": ["They interfere with the air-puff measurement",
+                                "They improve the reading",
+                                "They protect the cornea",
+                                "It is only for comfort"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Glasses and contact lenses interfere with the "
+                                   "air-puff measurement, so they are removed first.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is the air-puff tonometer a contact or non-contact device?",
+                    "options": ["Non-contact", "Contact",
+                                "Semi-contact with gel", "It uses a probe"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The air-puff tonometer is non-contact — nothing "
+                                   "touches the eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL factors that can make an NCT reading unreliable.",
+                    "options": ["Blinking or poor cooperation",
+                                "Poor positioning or alignment",
+                                "Wearing glasses during the test",
+                                "Sitting still and looking straight ahead"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Blinking/poor cooperation, poor positioning, and "
+                                   "leaving glasses on all reduce reliability. Sitting "
+                                   "still and fixating is correct technique.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "NCT readings remain unreliable despite re-testing. What is "
+                            "the appropriate next step?",
+                    "options": ["Refer for Goldmann applanation tonometry",
+                                "Record the unreliable value and move on",
+                                "Double the reading",
+                                "Skip IOP for this visit"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If NCT stays unreliable, refer for Goldmann "
+                                   "applanation tonometry, the more accurate contact "
+                                   "method.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "An asymptomatic patient has IOP 26/24 mmHg. What should "
+                            "you do?",
+                    "options": [
+                        "Confirm on repeat and flag for assessment — it is above "
+                        "normal",
+                        "Ignore it because the patient feels fine",
+                        "Tell the patient they have glaucoma",
+                        "Re-test only if symptoms appear",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "26/24 mmHg is above the normal 10-21 range. "
+                                   "Glaucoma is often symptomless, so confirm on repeat "
+                                   "and flag for assessment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why might the air-puff tonometer overestimate at higher "
+                            "pressures?",
+                    "options": [
+                        "NCT tends to read higher than true IOP at high pressures",
+                        "It always reads lower than true IOP",
+                        "It cannot measure above 21 mmHg",
+                        "Air puffs lower the pressure as they measure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The air-puff method tends to overestimate at higher "
+                                   "IOP values, so high NCT readings are often "
+                                   "confirmed by applanation.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Name two common causes of an unreliable NCT reading.",
+                    "options": [
+                        "Blinking/poor cooperation and poor positioning/alignment",
+                        "Good fixation and correct alignment",
+                        "Removing glasses and sitting still",
+                        "A calm patient and a clean machine",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Blinking or poor cooperation and poor "
+                                   "positioning/alignment are the common causes of "
+                                   "unreliable NCT readings.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is raised IOP important to detect even when the "
+                            "patient has no symptoms?",
+                    "options": [
+                        "Glaucoma can silently damage the optic nerve before symptoms "
+                        "appear",
+                        "Raised IOP always causes obvious pain",
+                        "It has no effect unless symptomatic",
+                        "Symptomless pressure is never harmful",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Chronic glaucoma is usually painless and can damage "
+                                   "vision before the patient notices — which is why "
+                                   "IOP is checked routinely.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is alcohol-wiping the contact parts before AND after "
+                            "each patient important?",
+                    "options": [
+                        "To prevent cross-infection between patients",
+                        "To improve the air-puff strength",
+                        "To calibrate the machine",
+                        "It is optional and only cosmetic",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Cleaning the parts that approach the eye prevents "
+                                   "cross-infection between patients — basic infection "
+                                   "control.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A single NCT reading is borderline high. What is good "
+                            "practice before flagging it?",
+                    "options": [
+                        "Repeat to confirm, ensuring good cooperation and alignment",
+                        "Report it as definite glaucoma",
+                        "Discard it without repeating",
+                        "Average it with the other eye",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Confirm a borderline reading by repeating it with "
+                                   "good technique before flagging — single readings "
+                                   "can be falsely high.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient's NCT reads 32 mmHg but they blink hard on every "
+                            "puff and won't hold still. How do you proceed?",
+                    "options": [
+                        "Re-attempt with coaching/alignment; if still unreliable, "
+                        "refer for Goldmann applanation",
+                        "Record 32 mmHg as the definitive pressure",
+                        "Assume the eye is normal and move on",
+                        "Tell the patient they need surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Blinking and poor fixation make the reading "
+                                   "unreliable. Re-attempt with coaching; if it stays "
+                                   "unreliable, refer for Goldmann applanation rather "
+                                   "than trusting the figure.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is a high NCT reading usually confirmed by Goldmann "
+                            "applanation before acting on it?",
+                    "options": [
+                        "Air-puff tends to overestimate at high IOP, so applanation "
+                        "gives a more accurate value",
+                        "Goldmann always reads higher than NCT",
+                        "NCT cannot detect high pressure at all",
+                        "Applanation is faster than NCT",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Because the air-puff can overestimate at high "
+                                   "pressures, a high NCT is confirmed with the more "
+                                   "accurate Goldmann applanation before decisions are "
+                                   "made.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL steps that improve the reliability of an NCT "
+                            "measurement.",
+                    "options": [
+                        "Remove glasses/contact lenses first",
+                        "Align and position the patient correctly",
+                        "Encourage the patient to keep the eye open and fixate",
+                        "Take the reading while the patient is mid-blink",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Removing lenses, correct alignment, and steady "
+                                   "fixation all improve reliability. Measuring "
+                                   "mid-blink does the opposite.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "An asymptomatic 55-year-old has IOP 27 mmHg confirmed on "
+                            "repeat, with a family history of glaucoma. Why is this "
+                            "important?",
+                    "options": [
+                        "Raised IOP plus family history raises glaucoma risk — flag "
+                        "for assessment though the patient feels well",
+                        "It is harmless because there are no symptoms",
+                        "Family history is irrelevant to IOP",
+                        "27 mmHg is within the normal range",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Confirmed raised IOP with a family history "
+                                   "increases glaucoma risk. Because early glaucoma is "
+                                   "symptomless, it must be flagged for assessment.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does measuring IOP at every visit matter for a patient "
+                            "already on glaucoma drops?",
+                    "options": [
+                        "It checks that treatment is keeping the pressure controlled "
+                        "over time",
+                        "It is only needed once at diagnosis",
+                        "Drops make IOP irrelevant",
+                        "It is done purely for records",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Serial IOP measurements show whether the treatment "
+                                   "is controlling the pressure and guide any "
+                                   "adjustments.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about NCT versus Goldmann applanation is "
+                            "correct?",
+                    "options": [
+                        "NCT is a quick non-contact screen; Goldmann applanation is "
+                        "the more accurate contact reference",
+                        "Goldmann is non-contact and less accurate",
+                        "They are identical methods",
+                        "NCT requires anaesthetic drops; Goldmann does not",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "NCT is a fast, non-contact screen; Goldmann "
+                                   "applanation (a contact method) is the more accurate "
+                                   "reference used to confirm.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "eye_drops": {
+            "easy": [
+                {
+                    "stem": "Before instilling an eye drop, what must you confirm about "
+                            "the eye?",
+                    "options": ["The correct eye (right, left, or both)",
+                                "The colour of the iris",
+                                "The patient's distance vision",
+                                "Whether the patient wears glasses"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Always confirm the correct eye (right, left or "
+                                   "both) before instilling a drop.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What must you check about the patient before instilling a "
+                            "drop?",
+                    "options": ["That they are not allergic to it",
+                                "Their favourite colour",
+                                "Their height",
+                                "Whether they had breakfast"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Check the patient is not allergic to the drug "
+                                   "before instilling it.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Where is an eye drop instilled?",
+                    "options": ["Into the lower fornix (pull the lower lid down)",
+                                "Directly onto the cornea (the clear centre)",
+                                "Onto the upper lid",
+                                "Into the corner near the nose only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Gently pull the lower lid down and instil the drop "
+                                   "into the lower fornix.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "After instilling a drop, what should the patient do?",
+                    "options": [
+                        "Close the eye gently and apply light pressure over the "
+                        "nasolacrimal area",
+                        "Blink rapidly for a minute",
+                        "Rub the eye firmly",
+                        "Tilt the head forward and open the eye wide",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Ask the patient to close the eye gently and press "
+                                   "lightly over the nasolacrimal area (inner corner).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL details you should document for eye drop "
+                            "instillation.",
+                    "options": ["The diagnosis or purpose",
+                                "The drop name and strength",
+                                "The eye(s) treated",
+                                "The patient's shoe size"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Document the purpose, the drug name and strength, "
+                                   "and the eye(s) treated. Shoe size is irrelevant.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why pull the lower lid down and tilt the head back when "
+                            "instilling a drop?",
+                    "options": ["To expose the lower fornix so the drop lands correctly",
+                                "To dilate the pupil",
+                                "To reduce the eye pressure",
+                                "To test the visual field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Tilting back and pulling the lower lid down exposes "
+                                   "the lower fornix so the drop lands where it should.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient says a previous drop made the eye itchy and "
+                            "swollen. What should you do?",
+                    "options": [
+                        "Treat it as a drug allergy — do not use that drop and flag it "
+                        "clearly",
+                        "Use it anyway in a smaller dose",
+                        "Use it in the other eye instead",
+                        "Ignore it as a coincidence",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Itching and swelling after a drop suggests an "
+                                   "allergy — avoid that drop and flag it clearly in "
+                                   "the record.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why apply light pressure over the nasolacrimal area after "
+                            "instillation?",
+                    "options": [
+                        "To reduce systemic absorption and keep the drop in the eye",
+                        "To raise the eye pressure",
+                        "To speed up tear production",
+                        "To dilate the pupil",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Pressing over the inner corner (punctal occlusion) "
+                                   "slows drainage into the nose, reducing systemic "
+                                   "absorption and keeping the drug on the eye.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why confirm the correct eye AND the correct drug before "
+                            "instilling?",
+                    "options": [
+                        "To avoid wrong-eye or wrong-drug errors — a patient-safety "
+                        "step",
+                        "Because it speeds up the clinic",
+                        "It is only needed for new patients",
+                        "To decide the triage category",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Confirming the right eye and right drug prevents "
+                                   "wrong-eye/wrong-drug errors — a core patient-safety "
+                                   "check.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Two different drops are ordered for the same eye. What is "
+                            "good practice?",
+                    "options": [
+                        "Wait a short interval between them so the first is not washed "
+                        "out",
+                        "Instil both at exactly the same moment",
+                        "Mix them together first",
+                        "Give only one and skip the other",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Leave a short gap between drops so the second does "
+                                   "not wash out the first before it is absorbed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why should the dropper tip not touch the eye or lashes?",
+                    "options": [
+                        "To keep the bottle sterile and avoid contaminating it",
+                        "To make the drop bigger",
+                        "To avoid magnifying the drug",
+                        "It does not matter if it touches",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Touching the eye or lashes can contaminate the "
+                                   "bottle, so the tip is kept clear of them.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient on multiple eye drops asks why the order and "
+                            "timing matter. What is the best explanation?",
+                    "options": [
+                        "Spacing prevents one drop washing out another, so each works "
+                        "properly",
+                        "The order changes the colour of the drops",
+                        "Timing only matters for tablets",
+                        "It makes no real difference",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Spacing drops a few minutes apart stops the second "
+                                   "from flushing out the first, so each is properly "
+                                   "absorbed.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A frail patient cannot instil their own drops at home. "
+                            "What is a helpful action?",
+                    "options": [
+                        "Teach a caregiver the technique and document the plan",
+                        "Tell them to manage somehow",
+                        "Double the dose to compensate",
+                        "Stop the drops to avoid the problem",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Teaching a caregiver the correct technique (and "
+                                   "documenting it) helps ensure the drops are actually "
+                                   "given safely.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL correct steps in safe eye-drop instillation.",
+                    "options": [
+                        "Confirm the correct eye and drug",
+                        "Check for allergy to the drug",
+                        "Instil into the lower fornix without touching the eye",
+                        "Have the patient rub the eye hard afterwards",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Confirm eye/drug, check allergy, and instil into "
+                                   "the lower fornix without touching the eye. Rubbing "
+                                   "hard afterwards is wrong — close gently instead.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient is prescribed a glaucoma drop with known "
+                            "systemic side effects (e.g. a beta-blocker). Why does "
+                            "punctal occlusion especially matter here?",
+                    "options": [
+                        "It reduces drainage into the bloodstream, lowering systemic "
+                        "side effects",
+                        "It makes the drop work only on the lashes",
+                        "It increases the systemic dose deliberately",
+                        "It has no effect on absorption",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Pressing the inner corner limits the drug draining "
+                                   "into the nose and bloodstream, reducing systemic "
+                                   "effects of drugs like beta-blocker drops.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient reports their previous clinic gave a drop that "
+                            "caused lip swelling and breathing difficulty. What is the "
+                            "priority before any drop today?",
+                    "options": [
+                        "Verify and clearly flag the allergy; never use that agent and "
+                        "alert the team",
+                        "Give a small test amount of the same drop",
+                        "Use it in the unaffected eye only",
+                        "Proceed — it was probably unrelated",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Lip swelling and breathing difficulty suggest a "
+                                   "serious allergic reaction. Verify, flag prominently, "
+                                   "avoid the agent entirely and alert the team.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL measures that improve how much of an eye drop "
+                            "actually reaches and stays on the eye.",
+                    "options": [
+                        "Instilling into the lower fornix, not onto the cornea",
+                        "Closing the eye gently afterwards",
+                        "Applying light pressure over the inner corner",
+                        "Blinking hard and rubbing the eye",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Using the lower fornix, gentle closure and punctal "
+                                   "occlusion all keep more drug on the eye. Blinking "
+                                   "hard and rubbing wash it away.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is instilling onto the lower fornix preferred over "
+                            "dropping directly onto the cornea?",
+                    "options": [
+                        "It is more comfortable, less likely to make the patient "
+                        "blink the drop out, and reaches the eye well",
+                        "The cornea cannot absorb any drug",
+                        "It magnifies the drug effect",
+                        "It is required only for children",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The cornea is very sensitive; a drop onto the lower "
+                                   "fornix is more comfortable and less likely to be "
+                                   "blinked straight out, while still reaching the eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient needs both a drop and an ointment in the same "
+                            "eye. What is the correct order and why?",
+                    "options": [
+                        "Drop first, then ointment — the ointment would otherwise "
+                        "block the drop from being absorbed",
+                        "Ointment first, then drop, to seal it in",
+                        "Either order, it makes no difference",
+                        "Mix them on the lid first",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Give the drop first and the ointment last; "
+                                   "ointment forms a barrier that would stop a "
+                                   "subsequent drop being absorbed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about safe eye-drop practice is correct?",
+                    "options": [
+                        "Confirm eye and drug, check allergies, avoid touching the "
+                        "eye, and document what was given",
+                        "Any drop can go in any eye if the patient agrees",
+                        "Allergy checks are unnecessary for eye drops",
+                        "Documentation is optional for routine drops",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Safe practice means confirming eye and drug, "
+                                   "checking allergies, keeping the tip clean, and "
+                                   "documenting the drug, strength and eye treated.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
