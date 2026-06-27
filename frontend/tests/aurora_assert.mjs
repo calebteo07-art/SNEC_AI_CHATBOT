@@ -229,6 +229,35 @@ if (!topicHueVal || Number.isNaN(Number(topicHueVal))) {
 }
 console.log("PASS: flashcards exposes per-topic --flash-topic-hue =", topicHueVal);
 
+// persistence hygiene: the ephemeral flashcards DECK (["flashcards", …]) must NOT be
+// written to the offline cache — it stales SM-2/no-repeat and is the shape-drift that
+// white-screened the page. Other queries (topics, progress, …) still persist, proving
+// the read is non-vacuous. (The deck query resolved during the flow above.)
+const persistedKeys = await np.evaluate(async () => {
+  const read = () => new Promise((resolve) => {
+    let req; try { req = indexedDB.open("eyebot", 1); } catch { return resolve(null); }
+    req.onerror = () => resolve(null);
+    req.onsuccess = () => {
+      const db = req.result;
+      let tx; try { tx = db.transaction("qcache", "readonly"); } catch { return resolve(null); }
+      const g = tx.objectStore("qcache").get("EYEBOT_QUERY_CACHE");
+      g.onsuccess = () => resolve(g.result ?? null);
+      g.onerror = () => resolve(null);
+    };
+  });
+  for (let i = 0; i < 80; i++) { // wait out the persister's throttled write
+    const raw = await read();
+    if (raw) { try { const qs = JSON.parse(raw)?.clientState?.queries ?? []; if (qs.length) return qs.map((q) => q.queryKey); } catch {} }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return null;
+});
+if (!persistedKeys) { console.error("FAIL: query cache never persisted to IndexedDB (cannot verify deck exclusion)"); process.exit(1); }
+if (persistedKeys.some((k) => Array.isArray(k) && k[0] === "flashcards")) {
+  console.error("FAIL: the ephemeral flashcards deck was written to the offline cache:", JSON.stringify(persistedKeys)); process.exit(1);
+}
+console.log("PASS: flashcards — deck NOT persisted; offline cache holds", JSON.stringify(persistedKeys));
+
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
 // is immersive (no rail), so return to a rail route before asserting the logo.
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
