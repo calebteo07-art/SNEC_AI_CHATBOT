@@ -2,29 +2,33 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface FlashcardItem {
   card_id: string;
-  front: string;
-  back: string;
+  stem: string;
+  options: string[];
+  correct: number[];
+  qtype: "single" | "multi";
+  kind: "theory" | "practical";
+  explanation: string;
+  requires_explanation: boolean;
   topic_tag: string;
+  difficulty: string;
   repetitions: number;
   easiness: number;
   interval_days: number;
 }
 
-export interface CheckPayload {
-  question: string;
-  student_answer: string;
-  correct_answer: string;
-  card_id?: string;
-  repetitions?: number;
-  easiness?: number;
-  interval_days?: number;
+export interface ReasonCheckPayload {
+  question: string;        // the stem
+  student_answer: string;  // typed reasoning
+  correct_answer: string;  // the explanation (model answer)
 }
+export interface ReasonCheckResponse { score: number; feedback: string; mock_mode: boolean; }
 
-export interface CheckResponse {
-  score: number;
-  feedback: string;
-  mock_mode: boolean;
+export interface CompleteCardResult {
+  card_id?: string; correct: boolean;
+  repetitions?: number; easiness?: number; interval_days?: number;
 }
+export interface CompletePayload { results: CompleteCardResult[]; xp_delta: number; }
+export interface CompleteResponse { xp: number; level: number; }
 
 export interface FlashcardSetInfo {
   set_key: string;
@@ -35,7 +39,7 @@ export interface FlashcardSetInfo {
   completed: number;
 }
 
-/** The 30 selectable sets (15 topics x easy/medium) for the student's role. */
+/** The selectable sets (topics x difficulties) for the student's role. */
 export function useFlashcardTopics() {
   return useQuery<FlashcardSetInfo[]>({
     queryKey: ["flashcard-topics"],
@@ -83,21 +87,37 @@ export function useDueCount() {
   });
 }
 
-export function useFlashcardCheck() {
-  const qc = useQueryClient();
-  return useMutation<CheckResponse, Error, CheckPayload>({
+/** Grade ONE typed reasoning answer. Called in the background (not awaited on reveal). */
+export function useReasonCheck() {
+  return useMutation<ReasonCheckResponse, Error, ReasonCheckPayload>({
     mutationFn: async (payload) => {
       const res = await fetch("/api/flashcards/check", {
-        method: "POST",
-        credentials: "include",
+        method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Check failed");
       return res.json();
     },
+  });
+}
+
+/** Batched end-of-deck persistence: SM-2 schedule + XP, one call. */
+export function useFlashcardComplete() {
+  const qc = useQueryClient();
+  return useMutation<CompleteResponse, Error, CompletePayload>({
+    mutationFn: async (payload) => {
+      const res = await fetch("/api/flashcards/complete", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error("Complete failed");
+      return res.json();
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["flashcards"] });
+      qc.invalidateQueries({ queryKey: ["flashcard-due-count"] });
     },
   });
 }
