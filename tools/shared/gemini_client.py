@@ -50,7 +50,22 @@ _API_KEYS: list[str] = [
     if k.strip()
 ]
 API_KEY   = _API_KEYS[0] if _API_KEYS else ""
-MOCK_MODE = not _API_KEYS
+
+
+def _mock_mode_from_env(api_keys: list[str], mock_env: str | None) -> bool:
+    """Decide whether the client runs in MOCK_MODE (no live Gemini calls).
+
+    Mock is on when no API key is configured, OR when explicitly forced via the
+    ``MOCK_MODE`` env var (CI sets ``MOCK_MODE=true`` so the suite stays deterministic
+    and free even if a key happens to be present in the environment). The override can
+    only force mock ON — a falsey/absent value never enables live mode.
+    """
+    if str(mock_env or "").strip().lower() in ("1", "true", "yes", "on"):
+        return True
+    return not api_keys
+
+
+MOCK_MODE = _mock_mode_from_env(_API_KEYS, os.getenv("MOCK_MODE"))
 
 _SDK_CLIENTS: list = []  # populated lazily on first real API call
 
