@@ -368,6 +368,57 @@ async def flashcards_due_count(current_user: CurrentUser = Depends(get_current_u
     return DueCountResponse(count=count)
 
 
+# ── Batched deck completion (SM-2 + XP) ──────────────────────────────────────
+
+class CompleteCardResult(BaseModel):
+    card_id: str | None = None
+    correct: bool
+    repetitions: int = 0
+    easiness: float = 2.5
+    interval_days: int = 0
+
+class FlashcardCompleteRequest(BaseModel):
+    results: list[CompleteCardResult] = []
+    xp_delta: int = 0
+
+class FlashcardCompleteResponse(BaseModel):
+    xp: int
+    level: int
+
+
+@router.post("/api/flashcards/complete", response_model=FlashcardCompleteResponse)
+@limiter.limit("30/minute")
+async def flashcards_complete(
+    request: Request,
+    body: FlashcardCompleteRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    student_id = current_user["sub"]
+    # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
+    for res in body.results:
+        if not res.card_id:
+            continue
+        quality = 5 if res.correct else 2
+        try:
+            new_interval, new_ease, new_reps = next_review(
+                quality, res.repetitions, res.easiness, res.interval_days)
+            await update_card_sm2(res.card_id, new_interval, new_ease,
+                                  new_reps, due_date(new_interval))
+        except Exception:
+            pass  # scheduling is non-critical; never fail the response
+    if body.xp_delta:
+        try:
+            await update_profile(student_id, xp_delta=body.xp_delta)
+        except Exception:
+            pass
+    try:
+        profile = await get_profile(student_id)
+        xp = int(profile.get("xp") or 0)
+    except Exception:
+        xp = 0
+    return FlashcardCompleteResponse(xp=xp, level=(xp // 500) + 1)
+
+
 # ── Cohort leaderboard (opt-in, supervisor-gated) ───────────────────────────
 
 def _short_name(full: str) -> str:
