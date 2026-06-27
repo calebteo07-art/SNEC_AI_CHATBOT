@@ -1226,7 +1226,7 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
 # ── Serving helpers ──────────────────────────────────────────────────────────
 
 _PASSTHROUGH = ("stem", "options", "correct", "qtype", "kind",
-                "explanation", "reasoning_eligible")
+                "explanation")
 
 
 def _tag(topic_key: str, difficulty: str, card: dict) -> dict:

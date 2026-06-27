@@ -1,5 +1,3 @@
-import pytest
-from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS, DIFFICULTIES
 from tools.flashcards.static_cards import FLASHCARDS, get_set_cards, get_all_cards
 
 
@@ -37,9 +35,17 @@ def test_no_duplicate_stems_within_a_set():
                 assert len(stems) == len(set(stems)), (topic_key, difficulty)
 
 
-def test_get_set_cards_tags_topic_and_difficulty():
+def test_no_duplicate_stems_across_pool():
+    for pool, topics in FLASHCARDS.items():
+        all_stems = []
+        for topic_key, by_diff in topics.items():
+            for cards in by_diff.values():
+                all_stems.extend(c["stem"] for c in cards)
+        assert len(all_stems) == len(set(all_stems)), f"duplicate stems in pool {pool}"
+
+
+def test_get_all_cards_tags_topic_and_difficulty():
     cards = get_all_cards("OA")
-    if cards:
-        c = cards[0]
-        assert "topic_tag" in c and "difficulty" in c
-        assert "options" in c and "correct" in c
+    c = cards[0]
+    assert "topic_tag" in c and "difficulty" in c
+    assert "options" in c and "correct" in c
