@@ -8,7 +8,9 @@ from pydantic import BaseModel
 from tools.api.shared import limiter, _case_cache
 from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
 from tools.flashcards.sm2 import next_review, due_date
-from tools.flashcards.static_cards import get_set_cards, get_all_cards, set_card_counts
+from tools.flashcards.static_cards import (
+    get_set_cards, get_all_cards, set_card_counts, mark_typed_cards, card_by_stem,
+)
 from tools.flashcards.flashcard_sets import sets_for, split_set_key
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -57,11 +59,20 @@ class FlashcardCheckResponse(BaseModel):
     score: int
     mock_mode: bool
 
-class Flashcard(BaseModel):
+class FlashcardOut(BaseModel):
     card_id: str
-    front: str
-    back: str
+    stem: str
+    options: list[str]
+    correct: list[int]
+    qtype: str
+    kind: str
+    explanation: str
+    requires_explanation: bool = False
     topic_tag: str
+    difficulty: str = ""
+    repetitions: int = 0
+    easiness: float = 2.5
+    interval_days: int = 0
 
 class StudySuggestionResponse(BaseModel):
     suggestion: str
@@ -248,7 +259,7 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
     sets: list[FlashcardSetInfo] = []
     for s in sets_for(role):
         set_cards = get_set_cards(role, s["topic_key"], s["difficulty"])
-        completed = sum(1 for c in set_cards if c["front"] in served_fronts)
+        completed = sum(1 for c in set_cards if c["stem"] in served_fronts)
         sets.append(FlashcardSetInfo(
             set_key=s["set_key"], topic_key=s["topic_key"], label=s["label"],
             difficulty=s["difficulty"], total=counts.get(s["set_key"], 0),
@@ -259,7 +270,7 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
 
 # ── On-demand flashcard serving (static pool, per-user no-repeat) ───────────
 
-@router.get("/api/flashcards/generate", response_model=list[Flashcard])
+@router.get("/api/flashcards/generate", response_model=list[FlashcardOut])
 @limiter.limit("10/minute")
 async def flashcards_generate(
     request: Request,
@@ -270,7 +281,6 @@ async def flashcards_generate(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
-    # Session length (F4): Quick 5 / Standard 10 / Deep 20. Clamp defensively.
     n = max(1, min(20, n))
     role = ""
     try:
@@ -278,40 +288,69 @@ async def flashcards_generate(
     except Exception:
         pass
 
-    # Accept either set_key="topic__difficulty" or explicit topic+difficulty.
     if set_key and not (topic and difficulty):
         topic, difficulty = split_set_key(set_key)
 
-    # A specific set was chosen → serve that set with per-user no-repeat rotation.
-    # A set is a fixed 5-card unit, so the session length only caps it (never extends).
+    def _to_out(pool_card: dict, card_id: str) -> dict:
+        return {
+            "card_id": card_id,
+            "stem": pool_card["stem"],
+            "options": pool_card["options"],
+            "correct": pool_card["correct"],
+            "qtype": pool_card["qtype"],
+            "kind": pool_card["kind"],
+            "explanation": pool_card["explanation"],
+            "requires_explanation": pool_card.get("requires_explanation", False),
+            "topic_tag": pool_card.get("topic_tag", topic or "general"),
+            "difficulty": pool_card.get("difficulty", difficulty or ""),
+            "repetitions": pool_card.get("repetitions", 0),
+            "easiness": pool_card.get("easiness", 2.5),
+            "interval_days": pool_card.get("interval_days", 0),
+        }
+
+    async def _persist(pool_cards: list[dict]) -> list[dict]:
+        # DB stores stem->front, explanation->back for no-repeat + SM-2 only.
+        rows = [{"front": c["stem"], "back": c["explanation"],
+                 "topic_tag": c.get("topic_tag", "general"), "source": "static"}
+                for c in pool_cards]
+        saved = await insert_cards(student_id, rows)
+        return [_to_out(pc, sv["card_id"]) for pc, sv in zip(pool_cards, saved)]
+
+    # A specific set → serve that set with no-repeat rotation.
     if topic and difficulty:
         pool = get_set_cards(role, topic, difficulty)
-        if pool:
-            served_fronts = await get_served_static_fronts(student_id)
-            served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
-            picks = pick_next_unseen(student_id, len(pool), f"flash_{topic}_{difficulty}", served_indices, n=min(n, len(pool)))
-            new_cards = [{**pool[i], "source": "static"} for i in picks]
-            return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c})
-                    for c in await insert_cards(student_id, new_cards)]
-        return []
+        if not pool:
+            return []
+        served = await get_served_static_fronts(student_id)
+        served_idx = {i for i, c in enumerate(pool) if c["stem"] in served}
+        picks = pick_next_unseen(student_id, len(pool), f"flash_{topic}_{difficulty}",
+                                 served_idx, n=min(n, len(pool)))
+        out = await _persist([pool[i] for i in picks])
+        return mark_typed_cards(out, n)
 
-    # Mixed / Review (no set) → blend SM-2 due cards first, then top up with new
-    # cards from the role pool until the chosen session length is reached.
+    # Mixed / review → SM-2 due first (rehydrated from pool by stem), then top up.
+    out: list[dict] = []
     try:
-        cards = await get_due_cards(student_id, limit=n)
+        due = await get_due_cards(student_id, limit=n)
     except Exception:
-        cards = []
-
-    if len(cards) < n:
+        due = []
+    index = card_by_stem(role)
+    for d in due:
+        pc = index.get(d.get("front", ""))
+        if pc:
+            merged = {**pc, "repetitions": d.get("repetitions", 0),
+                      "easiness": d.get("easiness", 2.5),
+                      "interval_days": d.get("interval_days", 0)}
+            out.append(_to_out(merged, d["card_id"]))
+    if len(out) < n:
         pool = get_all_cards(role)
         if pool:
-            served_fronts = await get_served_static_fronts(student_id)
-            served_indices = {i for i, c in enumerate(pool) if c["front"] in served_fronts}
-            picks = pick_next_unseen(student_id, len(pool), "flashcards", served_indices, n=(n - len(cards)))
-            new_cards = [{**pool[i], "source": "static"} for i in picks]
-            cards = cards + await insert_cards(student_id, new_cards)
-
-    return [Flashcard(**{k: c[k] for k in ("card_id", "front", "back", "topic_tag") if k in c}) for c in cards]
+            served = await get_served_static_fronts(student_id)
+            served_idx = {i for i, c in enumerate(pool) if c["stem"] in served}
+            picks = pick_next_unseen(student_id, len(pool), "flashcards",
+                                     served_idx, n=(n - len(out)))
+            out += await _persist([pool[i] for i in picks])
+    return mark_typed_cards(out, n)
 
 
 class DueCountResponse(BaseModel):
