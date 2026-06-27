@@ -6,9 +6,10 @@
 import { type Difficulty, LENGTHS } from "./types";
 
 /** Difficulty options + the descriptor and equalizer level shown on each card. */
-const DIFFS: { key: Difficulty; name: string; sub: string; level: 1 | 2 }[] = [
+const DIFFS: { key: Difficulty; name: string; sub: string; level: 1 | 2 | 3 }[] = [
   { key: "easy", name: "Easy", sub: "Recall the essentials", level: 1 },
   { key: "medium", name: "Medium", sub: "Apply & reason", level: 2 },
+  { key: "hard", name: "Hard", sub: "Clinical judgement", level: 3 },
 ];
 
 /** Per-length flavour copy keyed by card count. */
@@ -20,7 +21,7 @@ const LENGTH_SUB: Record<number, string> = {
 
 /** Rough minutes for the live summary — pace stretches the per-card time a little. */
 function estMinutes(cards: number, difficulty: Difficulty): number {
-  const perCard = difficulty === "medium" ? 0.8 : 0.55;
+  const perCard = difficulty === "hard" ? 0.9 : difficulty === "medium" ? 0.8 : 0.55;
   return Math.max(2, Math.round(cards * perCard));
 }
 
@@ -47,7 +48,7 @@ export function StepSession({
       <div className="flash-choices">
         <div className="flash-axis">
           <span className="flash-axis-label">Difficulty</span>
-          <div className="flash-opts flash-opts-2" role="radiogroup" aria-label="Difficulty">
+          <div className="flash-opts flash-opts-3" role="radiogroup" aria-label="Difficulty">
             {DIFFS.map((d) => (
               <button key={d.key} type="button" role="radio" aria-checked={difficulty === d.key}
                 className="flash-opt flash-press" onClick={() => pickDifficulty(d.key)}>
