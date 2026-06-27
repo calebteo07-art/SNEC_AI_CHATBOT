@@ -6422,6 +6422,1057 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "oct_rnfl": {
+            "easy": [
+                {
+                    "stem": "What does an RNFL OCT measure?",
+                    "options": [
+                        "The retinal nerve fibre layer thickness around the optic disc",
+                        "The thickness of the cornea",
+                        "The axial length of the eye",
+                        "The anterior chamber angle",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RNFL OCT measures the retinal nerve fibre layer "
+                                   "thickness around the optic disc.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "RNFL OCT is mainly used to monitor which disease?",
+                    "options": ["Glaucoma", "Cataract",
+                                "Conjunctivitis", "Keratoconus"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RNFL OCT is used mainly to detect and monitor "
+                                   "glaucoma.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Where must an RNFL scan be centred?",
+                    "options": ["On the optic disc (peripapillary)",
+                                "On the fovea",
+                                "On the cornea",
+                                "On the pupil margin"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The RNFL scan is centred on the optic disc "
+                                   "(peripapillary region) to measure the nerve fibre "
+                                   "layer correctly.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is RNFL OCT a contact or non-contact test?",
+                    "options": ["Non-contact", "Contact",
+                                "Semi-contact with gel", "It uses an ultrasound probe"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RNFL OCT is a non-contact, light-based scan.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is an RNFL scan saved?",
+                    "options": ["For serial comparison to track glaucoma progression",
+                                "To calculate the IOL power",
+                                "To measure the eye pressure",
+                                "To replace the visual field test"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "RNFL scans are saved so they can be compared over "
+                                   "time to track glaucoma progression.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What RNFL finding is typical of glaucoma?",
+                    "options": ["RNFL thinning (often inferior or superior)",
+                                "RNFL thickening",
+                                "A normal, even RNFL",
+                                "Corneal thinning"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Glaucoma typically causes RNFL thinning, often in "
+                                   "the inferior or superior sectors.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL quality checks before saving an RNFL scan.",
+                    "options": ["Adequate signal strength",
+                                "Correct centration on the optic disc",
+                                "Stable fixation (minimal motion artefact)",
+                                "Normal blood pressure"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Check signal strength, disc centration and stable "
+                                   "fixation. Blood pressure is a systemic measure, not "
+                                   "an OCT quality check.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why is correct disc centration important for RNFL OCT?",
+                    "options": [
+                        "An off-centre measurement ring gives inaccurate, "
+                        "non-comparable thickness values",
+                        "It changes the patient's eye pressure",
+                        "It only affects the image colour",
+                        "Centration does not matter",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If the measurement ring is off-centre, the RNFL "
+                                   "thickness values are inaccurate and can't be "
+                                   "reliably compared over time.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How is RNFL OCT used alongside the visual field?",
+                    "options": [
+                        "Structural RNFL change is correlated with functional field "
+                        "loss to monitor glaucoma",
+                        "It replaces the visual field entirely",
+                        "They measure unrelated things",
+                        "The field test calibrates the OCT",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RNFL OCT (structure) and the visual field "
+                                   "(function) are compared together — structural "
+                                   "thinning often precedes or matches field loss in "
+                                   "glaucoma.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A decentred RNFL scan shows asymmetric thinning. What "
+                            "should the OT do?",
+                    "options": ["Re-acquire a properly centred scan before it is used",
+                                "Report the thinning as glaucoma",
+                                "Save it anyway",
+                                "Switch to A-scan biometry"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Decentration can create false asymmetry — "
+                                   "re-acquire a properly centred scan before the "
+                                   "result is interpreted.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What is the key difference between RNFL OCT and macular "
+                            "OCT?",
+                    "options": [
+                        "RNFL OCT scans the optic disc for glaucoma; macular OCT scans "
+                        "the central retina for conditions like DME and AMD",
+                        "There is no difference",
+                        "RNFL OCT uses ultrasound",
+                        "Macular OCT measures the cornea",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RNFL OCT images around the optic disc for glaucoma; "
+                                   "macular OCT images the central retina for diabetic "
+                                   "macular oedema and AMD.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why might motion artefact during an RNFL scan be a "
+                            "problem?",
+                    "options": [
+                        "It can distort the thickness measurement and reduce "
+                        "reliability",
+                        "It improves the image detail",
+                        "It only changes the colour scale",
+                        "It has no effect on the result",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Movement during the scan distorts the measurement, "
+                                   "so stable fixation is needed for a reliable RNFL "
+                                   "value.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is serial RNFL comparison more useful than a single "
+                            "scan in glaucoma?",
+                    "options": [
+                        "It reveals whether the nerve fibre layer is thinning over "
+                        "time (progression)",
+                        "A single scan already shows the future",
+                        "Comparison calibrates the machine",
+                        "Single scans are always unreliable",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Comparing RNFL scans over time shows progressive "
+                                   "thinning, which a single scan cannot — key to "
+                                   "monitoring glaucoma.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A glaucoma patient's RNFL shows new inferior thinning "
+                            "compared with last year, matching a new superior field "
+                            "defect. What does this combination indicate?",
+                    "options": [
+                        "Structure-function agreement suggesting glaucoma progression "
+                        "— flag for review",
+                        "A machine error, ignore it",
+                        "Improvement in the glaucoma",
+                        "A purely refractive change",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inferior RNFL thinning corresponds to a superior "
+                                   "field defect; structure and function agreeing "
+                                   "strongly suggests true progression — flag it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must scan quality (signal, centration, fixation) be "
+                            "confirmed before attributing RNFL thinning to glaucoma?",
+                    "options": [
+                        "Poor-quality scans can mimic thinning, leading to a false "
+                        "impression of progression",
+                        "Quality never affects the numbers",
+                        "Glaucoma is diagnosed on a single scan regardless",
+                        "Quality only matters for macular OCT",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Artefacts and poor centration can falsely lower "
+                                   "RNFL values, so quality must be verified before "
+                                   "concluding there is real thinning.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL reasons RNFL OCT and the visual field are used "
+                            "TOGETHER in glaucoma.",
+                    "options": [
+                        "OCT gives objective structural data",
+                        "The field gives functional (vision) data",
+                        "Agreement between them increases confidence in progression",
+                        "Either one alone is always sufficient",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "OCT (structure) and the field (function) complement "
+                                   "each other; agreement strengthens confidence. "
+                                   "Relying on just one is weaker.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A high myope has a thin RNFL but no field loss and stable "
+                            "scans over years. Why is caution needed before calling "
+                            "this glaucoma?",
+                    "options": [
+                        "High myopia can give a thin RNFL baseline without "
+                        "progression — stability matters more than one low value",
+                        "Myopes cannot have a thin RNFL",
+                        "A single low value always means glaucoma",
+                        "Field tests are unnecessary in myopes",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Myopic eyes can have a thinner baseline RNFL; "
+                                   "without progression or field loss, a single low "
+                                   "value doesn't confirm glaucoma — the doctor "
+                                   "interprets the trend.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about RNFL OCT technique is correct?",
+                    "options": [
+                        "Centre on the disc, ensure good signal and fixation, and "
+                        "compare to prior scans",
+                        "Centre on the fovea and read it in isolation",
+                        "Any centration is fine if the signal is strong",
+                        "It measures eye pressure as well",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Good RNFL practice: disc-centred, strong signal and "
+                                   "fixation, and serial comparison — not foveal "
+                                   "centration or single-scan reading.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "hvf": {
+            "easy": [
+                {
+                    "stem": "What does the Humphrey Visual Field (HVF) test measure?",
+                    "options": [
+                        "Central and peripheral visual field sensitivity (automated "
+                        "static perimetry)",
+                        "The eye pressure",
+                        "The corneal curvature",
+                        "The axial length",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HVF measures visual field sensitivity using "
+                                   "automated static perimetry.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which HVF programme is most common for glaucoma?",
+                    "options": ["The 24-2 programme", "The 10-1 programme",
+                                "The 60-4 programme", "The colour programme"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The 24-2 programme is the most common for glaucoma "
+                                   "(30-2 is also used).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL HVF reliability indices.",
+                    "options": ["Fixation losses", "False positives",
+                                "False negatives", "Axial length"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Fixation losses, false positives and false "
+                                   "negatives are the reliability indices. Axial length "
+                                   "is unrelated to the field test.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does a high number of false positives mean?",
+                    "options": ["The test is unreliable",
+                                "The patient has perfect vision",
+                                "The glaucoma is cured",
+                                "The machine needs no attention"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A high false-positive rate (the patient responds "
+                                   "when there is no stimulus) makes the field result "
+                                   "unreliable.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Name one condition monitored with HVF.",
+                    "options": ["Glaucoma", "Cataract",
+                                "Dry eye", "Subconjunctival haemorrhage"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Glaucoma is the main condition monitored with HVF "
+                                   "(neurological and retinal disease too).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why must the correct near trial lens be used during HVF?",
+                    "options": [
+                        "To correct near focus so the central field points are tested "
+                        "accurately",
+                        "To dilate the pupil",
+                        "To measure the eye pressure",
+                        "It is optional",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The near trial lens keeps the test target in focus "
+                                   "so central points are measured accurately.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "An HVF shows high fixation losses and false positives. What "
+                            "should you do?",
+                    "options": [
+                        "Re-instruct the patient and repeat — the result is unreliable",
+                        "Report it as severe glaucoma",
+                        "Accept it as final",
+                        "Switch to measuring IOP instead",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Poor reliability indices mean the field is "
+                                   "unreliable — re-instruct and repeat rather than "
+                                   "interpreting it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What visual field pattern suggests glaucoma?",
+                    "options": ["An arcuate (Bjerrum) scotoma",
+                                "A central island only",
+                                "A bitemporal hemianopia",
+                                "A full, normal field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "An arcuate (Bjerrum) scotoma is a classic "
+                                   "glaucomatous field defect.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What field pattern suggests a lesion at the optic chiasm "
+                            "or tract?",
+                    "options": ["A hemianopia (a neurological pattern)",
+                                "An arcuate scotoma",
+                                "A central scotoma only",
+                                "A normal field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A hemianopia (loss of half the field in both eyes) "
+                                   "points to a neurological lesion at the chiasm or "
+                                   "tract.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What must be acceptable before an HVF is interpreted?",
+                    "options": [
+                        "The reliability indices (fixation losses, false positives and "
+                        "negatives)",
+                        "The patient's blood pressure",
+                        "The room temperature",
+                        "The IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Reliability indices must be acceptable first — an "
+                                   "unreliable field can't be meaningfully interpreted.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why can a first-ever HVF show a 'learning effect' that "
+                            "improves on repeat?",
+                    "options": [
+                        "Patients unfamiliar with the test often perform better once "
+                        "they understand it",
+                        "The disease improves between tests",
+                        "The machine recalibrates itself",
+                        "Repeat tests are always worse",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A first field can underperform due to "
+                                   "unfamiliarity; results often improve once the "
+                                   "patient learns the task (the learning effect).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is patient instruction and comfort so important for a "
+                            "reliable HVF?",
+                    "options": [
+                        "A tired or confused patient produces unreliable indices and "
+                        "false defects",
+                        "It only affects how long the test takes",
+                        "Instruction changes the eye pressure",
+                        "Comfort has no effect on the result",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Good instruction and comfort keep the patient "
+                                   "engaged and fixating, which is essential for "
+                                   "reliable field results.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A glaucoma patient's HVF shows a new arcuate scotoma but "
+                            "also 35% fixation losses and many false positives. How "
+                            "should this be handled?",
+                    "options": [
+                        "Treat the result as unreliable; re-instruct and repeat before "
+                        "concluding there is progression",
+                        "Report definite progression immediately",
+                        "Ignore the reliability indices",
+                        "Switch the patient to a different disease pathway",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Poor reliability indices undermine the apparent new "
+                                   "defect; repeat with better instruction before "
+                                   "concluding the glaucoma has progressed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does a bitemporal hemianopia point AWAY from glaucoma "
+                            "and toward a neurological cause?",
+                    "options": [
+                        "It reflects damage at the optic chiasm, not the "
+                        "glaucoma-typical nerve fibre pattern",
+                        "Glaucoma always causes hemianopia",
+                        "Hemianopia is a normal variant",
+                        "It indicates a refractive error",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A bitemporal hemianopia localises to the optic "
+                                   "chiasm (e.g. a pituitary lesion), which is a "
+                                   "neurological pattern, not the arcuate pattern of "
+                                   "glaucoma.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL steps that improve HVF reliability.",
+                    "options": [
+                        "Clear instruction and a comfortable, well-positioned patient",
+                        "The correct near trial lens in place",
+                        "Encouraging steady central fixation",
+                        "Rushing the patient to finish quickly",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Instruction, the right trial lens and steady "
+                                   "fixation all improve reliability. Rushing harms it.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is a single abnormal HVF usually confirmed with a "
+                            "repeat before changing glaucoma management?",
+                    "options": [
+                        "Field results vary, and a learning effect or poor reliability "
+                        "can mimic a defect — confirmation avoids over-reaction",
+                        "One field always proves progression",
+                        "Repeats are only for research",
+                        "The first field is always wrong",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Because fields fluctuate and can be affected by "
+                                   "learning or reliability, an apparent change is "
+                                   "usually confirmed on repeat before management is "
+                                   "altered.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement best contrasts HVF defect patterns?",
+                    "options": [
+                        "Glaucoma → arcuate/nasal step; chiasmal lesion → bitemporal "
+                        "hemianopia",
+                        "Glaucoma → hemianopia; chiasmal lesion → arcuate scotoma",
+                        "Both always give a central scotoma",
+                        "Neither produces any recognisable pattern",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Glaucoma classically gives arcuate defects/nasal "
+                                   "steps; a chiasmal lesion gives a bitemporal "
+                                   "hemianopia — different patterns point to different "
+                                   "causes.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "gvf": {
+            "easy": [
+                {
+                    "stem": "What does the Goldmann visual field (GVF) use?",
+                    "options": ["Manual kinetic perimetry that maps isopters",
+                                "Automated static perimetry",
+                                "An air puff",
+                                "Ultrasound"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "GVF uses manual kinetic perimetry, mapping isopters "
+                                   "with a moving target.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is GVF static or kinetic perimetry?",
+                    "options": ["Kinetic (a moving target)",
+                                "Static (a stationary target)",
+                                "Neither — it measures pressure",
+                                "Both at once"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "GVF is kinetic perimetry — a target is moved until "
+                                   "the patient sees it.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does an isopter represent?",
+                    "options": ["A line joining points of equal retinal sensitivity",
+                                "The optic disc outline",
+                                "The corneal curvature",
+                                "The pupil margin"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "An isopter is a contour line joining points of "
+                                   "equal retinal sensitivity on the field map.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Name one advantage of GVF over automated fields.",
+                    "options": [
+                        "It can test very large fields and suits patients who cannot "
+                        "do automated testing",
+                        "It is fully automatic and needs no operator",
+                        "It measures eye pressure too",
+                        "It is faster for every patient",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "GVF can map large/peripheral fields and is suitable "
+                                   "for patients who can't manage automated testing.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL recognised indications for GVF.",
+                    "options": ["Advanced glaucoma",
+                                "Neurological conditions",
+                                "Low vision or disability certification",
+                                "Routine cataract follow-up"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "GVF is used in advanced glaucoma, neurological "
+                                   "conditions, and low-vision/disability "
+                                   "certification. Routine cataract follow-up is not a "
+                                   "typical indication.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A patient cannot cooperate with the automated HVF. What "
+                            "alternative field test can be offered?",
+                    "options": ["Goldmann visual field (GVF)",
+                                "Another HVF immediately",
+                                "An OCT instead",
+                                "No field test is possible"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "GVF (manual kinetic) can be performed by an "
+                                   "operator and suits patients who cannot do the "
+                                   "automated HVF.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is GVF useful in advanced glaucoma?",
+                    "options": [
+                        "It maps the remaining field, including large/peripheral areas "
+                        "automated tests handle poorly",
+                        "It cures the glaucoma",
+                        "It measures the optic nerve directly",
+                        "It is the only test that shows IOP",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "In advanced glaucoma, GVF maps the remaining "
+                                   "(often peripheral) field that automated static "
+                                   "tests struggle with.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "GVF versus HVF — which is automated static perimetry?",
+                    "options": ["HVF is automated static; GVF is manual kinetic",
+                                "GVF is automated static; HVF is manual kinetic",
+                                "Both are automated static",
+                                "Both are manual kinetic"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HVF is automated static perimetry; GVF is manual "
+                                   "kinetic perimetry.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is documented for a GVF?",
+                    "options": [
+                        "Diagnosis, indication, and interpretation of the isopter "
+                        "results",
+                        "Only the patient's name",
+                        "The eye pressure",
+                        "The IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Record the diagnosis, indication and an "
+                                   "interpretation of the isopter map for a GVF.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why does GVF rely heavily on operator skill compared with "
+                            "automated fields?",
+                    "options": [
+                        "The operator manually moves the target and plots responses, "
+                        "so technique affects the result",
+                        "The machine does everything automatically",
+                        "Operator skill is irrelevant to GVF",
+                        "It only needs the patient, no operator",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Because the operator moves the stimulus and plots "
+                                   "the isopters by hand, GVF results depend on a "
+                                   "skilled, consistent technique.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "An elderly patient with very advanced glaucoma and poor "
+                            "concentration needs field testing. Why might GVF be "
+                            "preferred over repeating the HVF?",
+                    "options": [
+                        "An operator can guide GVF and map the small remaining field, "
+                        "which the automated HVF handles poorly",
+                        "GVF is fully automated and needs no cooperation",
+                        "HVF cannot test glaucoma at all",
+                        "GVF measures the eye pressure as well",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "GVF lets a skilled operator guide a "
+                                   "poorly-concentrating patient and map the small "
+                                   "remaining field of advanced glaucoma better than "
+                                   "the automated HVF.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL situations where GVF is a sensible choice over "
+                            "automated static perimetry.",
+                    "options": [
+                        "A patient who cannot cooperate with automated testing",
+                        "Mapping a large/peripheral field in advanced disease",
+                        "Disability or low-vision certification",
+                        "A young, reliable patient with early glaucoma",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "GVF suits poor cooperators, large-field mapping and "
+                                   "certification. A young reliable patient with early "
+                                   "disease is well served by automated HVF.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is consistent operator technique essential when "
+                            "comparing a patient's GVF over several visits?",
+                    "options": [
+                        "Variation in how the target is moved/plotted can mimic real "
+                        "change, confounding progression assessment",
+                        "Technique never affects kinetic perimetry",
+                        "Only the machine settings matter",
+                        "GVF results cannot be compared at all",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Because GVF is operator-dependent, inconsistent "
+                                   "technique can create apparent changes — consistency "
+                                   "is needed to judge true progression.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement best distinguishes GVF from HVF in "
+                            "practice?",
+                    "options": [
+                        "GVF = manual, kinetic, operator-driven, large fields; HVF = "
+                        "automated, static, standardised, central fields",
+                        "They are identical methods with different names",
+                        "GVF is automated and HVF is manual",
+                        "Both only test the central 10 degrees",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "GVF is manual kinetic perimetry (operator-driven, "
+                                   "good for large fields); HVF is automated static "
+                                   "perimetry (standardised, central field). They suit "
+                                   "different patients.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "ascan_biometry": {
+            "easy": [
+                {
+                    "stem": "What does A-scan biometry measure?",
+                    "options": ["The axial length of the eye",
+                                "The corneal endothelial count",
+                                "The visual field",
+                                "The eye pressure"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A-scan biometry measures the axial length of the "
+                                   "eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is the main indication for A-scan biometry?",
+                    "options": ["Pre-cataract surgery IOL power calculation",
+                                "Glaucoma field monitoring",
+                                "Colour vision testing",
+                                "Dry eye assessment"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A-scan biometry is mainly done before cataract "
+                                   "surgery to help calculate the IOL power.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What kind of energy does A-scan biometry use?",
+                    "options": ["Ultrasound", "Near-infrared light",
+                                "X-rays", "An air puff"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A-scan biometry uses ultrasound to measure the "
+                                   "axial length.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "For the contact A-scan method, what is instilled first?",
+                    "options": ["A topical anaesthetic",
+                                "A dilating drop",
+                                "A lubricant only",
+                                "Nothing is needed"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The contact (applanation) method touches the "
+                                   "cornea, so a topical anaesthetic is instilled "
+                                   "first.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL recognised A-scan techniques.",
+                    "options": ["Contact (applanation)", "Immersion",
+                                "Air-puff", "Kinetic"],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "The two A-scan techniques are contact (applanation) "
+                                   "and immersion. Air-puff and kinetic refer to other "
+                                   "tests.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A-scan gives axial length — what else is needed to "
+                            "calculate IOL power?",
+                    "options": ["Keratometry (corneal curvature)",
+                                "The visual field",
+                                "The colour vision result",
+                                "The eye pressure"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "IOL power needs both the axial length and the "
+                                   "keratometry (corneal curvature).",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "When is A-scan preferred over optical biometry?",
+                    "options": [
+                        "When a dense cataract blocks the optical (light) signal",
+                        "When the patient is young",
+                        "When the cornea is perfectly clear",
+                        "Optical biometry is never preferred",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A dense cataract can block the light used by "
+                                   "optical biometry, so ultrasound A-scan is used "
+                                   "instead.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "What error does corneal indentation cause in contact "
+                            "A-scan?",
+                    "options": ["It falsely shortens the axial length",
+                                "It falsely lengthens the axial length",
+                                "It changes the corneal curvature reading",
+                                "It has no effect"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Pressing on (indenting) the cornea compresses the "
+                                   "eye slightly, falsely shortening the measured axial "
+                                   "length.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How does the immersion technique avoid the corneal "
+                            "indentation error?",
+                    "options": ["It avoids pressing on (indenting) the cornea",
+                                "It uses light instead of ultrasound",
+                                "It measures the cornea instead",
+                                "It does not avoid the error"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Immersion couples the probe through fluid without "
+                                   "pressing on the cornea, avoiding the false "
+                                   "shortening.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why take multiple A-scan readings?",
+                    "options": ["To confirm consistency before accepting the axial "
+                                "length",
+                                "To use up the gel",
+                                "To tire the patient",
+                                "Single readings are always perfect"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Several readings are taken and checked for "
+                                   "consistency before the axial length is accepted.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is an accurate axial length so important before "
+                            "cataract surgery?",
+                    "options": [
+                        "A small axial-length error leads to a wrong IOL power and a "
+                        "poor refractive result",
+                        "It determines the eye pressure",
+                        "It only matters for glaucoma",
+                        "Axial length is not used in surgery",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "IOL power is very sensitive to axial length; a "
+                                   "small error can leave the patient significantly "
+                                   "under- or over-corrected after surgery.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A contact A-scan gives an axial length 0.3 mm shorter than "
+                            "a prior immersion reading on the same eye. What is the "
+                            "most likely explanation?",
+                    "options": [
+                        "Corneal indentation during the contact scan falsely shortened "
+                        "it",
+                        "The eye genuinely shrank",
+                        "The immersion scan must be wrong",
+                        "Axial length naturally varies that much",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Contact applanation can indent the cornea and "
+                                   "falsely shorten the axial length — a known reason "
+                                   "immersion or optical methods are often preferred.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL good-practice steps for reliable A-scan "
+                            "biometry.",
+                    "options": [
+                        "Instil anaesthetic before the contact method",
+                        "Avoid pressing on the cornea (or use immersion)",
+                        "Take and compare multiple readings",
+                        "Accept the first reading without checking",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Anaesthetise for contact, avoid corneal "
+                                   "indentation, and confirm with multiple readings. "
+                                   "Accepting one unchecked reading is poor practice.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why might a patient with a very dense cataract be measured "
+                            "with A-scan ultrasound rather than optical biometry?",
+                    "options": [
+                        "Ultrasound penetrates the opacity that blocks the optical "
+                        "light signal",
+                        "Ultrasound is always more accurate",
+                        "Optical biometry damages cataracts",
+                        "A-scan measures the cataract density",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "When a dense cataract blocks the optical signal, "
+                                   "ultrasound A-scan can still measure the axial "
+                                   "length through the opacity.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is consistency between several biometry readings (and "
+                            "between eyes) checked before surgery?",
+                    "options": [
+                        "Inconsistent or asymmetric values may signal a measurement "
+                        "error that would give the wrong IOL power",
+                        "It is only a formality",
+                        "Eyes are always identical, so any difference is fine",
+                        "Consistency has no clinical value",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Large inconsistencies or unexpected asymmetry "
+                                   "suggest a measurement error; catching it prevents a "
+                                   "wrong IOL power and a poor outcome.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement about A-scan biometry is correct?",
+                    "options": [
+                        "It measures axial length by ultrasound; immersion avoids "
+                        "corneal indentation; keratometry is also needed for IOL power",
+                        "It measures corneal curvature by light",
+                        "Contact and immersion give identical results in every case",
+                        "Axial length alone fully determines IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A-scan uses ultrasound for axial length; immersion "
+                                   "avoids indentation error; and keratometry is also "
+                                   "required for the IOL calculation.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
     },
 }
 
