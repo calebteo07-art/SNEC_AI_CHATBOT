@@ -1,9 +1,10 @@
 /* Shared flashcard primitives — one source for the orchestrator and the
-   presentational pieces. Logic is unchanged from the original screen. */
-export type Difficulty = "easy" | "medium";
+   presentational pieces. MCQ model with instant deterministic grading. */
+export type Difficulty = "easy" | "medium" | "hard";
+export type QType = "single" | "multi";
 
-/** Hard cap on a typed recall answer — keeps answers concise and bounds grader tokens. */
-export const MAX_ANSWER_CHARS = 300;
+/** Hard cap on a typed reasoning answer — keeps it concise and bounds grader tokens. */
+export const MAX_REASON_CHARS = 300;
 
 /** Session-length presets (Quick / Standard / Deep). */
 export const LENGTHS: { n: number; label: string }[] = [
@@ -12,28 +13,42 @@ export const LENGTHS: { n: number; label: string }[] = [
   { n: 20, label: "Deep" },
 ];
 
-/** A weak answer (graded below this) is re-queued once for a second attempt. */
-export const RETRY_THRESHOLD = 40;
+/** Fixed, encouraging XP: full marks for a correct card, a consolation for an honest miss. */
+export const XP_CORRECT = 10;
+export const XP_ATTEMPT = 3;
 
 export interface Flashcard {
-  id: number; question: string; answer: string; tag: string;
+  id: number;
+  stem: string;
+  options: string[];
+  correct: number[];
+  qtype: QType;
+  kind: "theory" | "practical";
+  explanation: string;
+  requiresExplanation: boolean;
+  tag: string;
+  difficulty: Difficulty | "";
+  /** Present only for free-text tutor-seeded cards (no options) → flip-to-reveal path. */
+  freeText?: boolean;
   card_id?: string; repetitions?: number; easiness?: number; interval_days?: number;
 }
-export interface AiFeedback { feedback: string; score: number; }
 
-/** AI's 0-100 grade → XP on the original 5-35 per-card scale (floor of 5). */
-export function xpForScore(score: number): number {
-  const s = Math.max(0, Math.min(100, score));
-  return Math.max(5, Math.round((s / 100) * 35));
+/** Deterministic, instant MCQ grading. All-or-nothing for multi-select. */
+export function gradeSelection(card: Flashcard, selected: number[]): boolean {
+  const a = [...selected].sort((x, y) => x - y);
+  const b = [...card.correct].sort((x, y) => x - y);
+  return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
-/** Cards handed in from a Tutor session via sessionStorage. */
+/** Cards handed in from a Tutor session via sessionStorage → free-text reveal cards. */
 export function loadSessionCards(): Flashcard[] {
   try {
     const s = JSON.parse(sessionStorage.getItem("eyebot_session") || "{}");
     if (Array.isArray(s.cards) && s.cards.length > 0) {
       return s.cards.map((c: { front: string; back: string; topic_tag: string }, i: number) => ({
-        id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag,
+        id: i + 1, stem: c.front, options: [], correct: [], qtype: "single" as QType,
+        kind: "theory" as const, explanation: c.back, requiresExplanation: false,
+        tag: c.topic_tag, difficulty: "" as const, freeText: true,
       }));
     }
   } catch { /* fall through */ }
