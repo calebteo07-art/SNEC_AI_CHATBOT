@@ -1,5 +1,3 @@
-import os
-os.environ.setdefault("MOCK_MODE", "1")
 import pytest
 from httpx import AsyncClient, ASGITransport
 from tools.api.server import app

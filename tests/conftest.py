@@ -37,6 +37,15 @@ def _reset_shared_api_state() -> None:
     # one a later test expects (or linger as a 404/200 surprise).
     _case_cache.clear()
 
+    # Same class of per-process cache: the daily check-in question is memoised per
+    # student_id. No test exercises /api/checkin/question yet, but reset it too so a
+    # future test can't inherit a stale question from an earlier one.
+    try:
+        from tools.api.routers.checkin import _question_cache
+        _question_cache.clear()
+    except Exception:
+        pass
+
 
 @pytest.fixture(autouse=True)
 def isolate_shared_api_state():
