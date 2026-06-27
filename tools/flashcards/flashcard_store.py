@@ -16,7 +16,7 @@ async def insert_cards(student_id: str, cards: list[dict]) -> list[dict]:
     """Insert flash cards into Supabase. Returns list of saved cards with card_id.
 
     Each card dict must have: front, back, topic_tag.
-    An existing card_id is reused if present (idempotent upsert path).
+    A new UUID is minted per row unless the card already carries a card_id.
     """
     if not cards:
         return []

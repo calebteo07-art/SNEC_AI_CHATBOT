@@ -240,7 +240,7 @@ class FlashcardTopicsResponse(BaseModel):
 
 @router.get("/api/flashcards/topics", response_model=FlashcardTopicsResponse)
 async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user)):
-    """The 30 selectable sets (15 topics x easy/medium) for the caller's role,
+    """The 45 selectable sets (15 topics x easy/medium/hard) for the caller's role,
     with how many cards each set has and how many the student has already seen."""
     student_id = current_user["sub"]
     role = ""
@@ -401,17 +401,19 @@ async def flashcards_complete(
     # bound keeps a tampered payload from inflating the profile (identity is the JWT).
     xp_delta = max(0, min(body.xp_delta, 500))
     # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
-    for res in body.results:
-        if not res.card_id:
-            continue
+    # Schedule all cards concurrently — a deck can be 20 cards, and sequential awaits
+    # would hold the (single) worker for 20 Supabase round-trips at deck end.
+    async def _schedule(res: CompleteCardResult) -> None:
         quality = 5 if res.correct else 2
-        try:
-            new_interval, new_ease, new_reps = next_review(
-                quality, res.repetitions, res.easiness, res.interval_days)
-            await update_card_sm2(res.card_id, new_interval, new_ease,
-                                  new_reps, due_date(new_interval))
-        except Exception:
-            pass  # scheduling is non-critical; never fail the response
+        new_interval, new_ease, new_reps = next_review(
+            quality, res.repetitions, res.easiness, res.interval_days)
+        await update_card_sm2(res.card_id, new_interval, new_ease,
+                              new_reps, due_date(new_interval))
+
+    sm2_tasks = [_schedule(r) for r in body.results if r.card_id]
+    if sm2_tasks:
+        # return_exceptions: scheduling is non-critical; one failure never fails the response.
+        await asyncio.gather(*sm2_tasks, return_exceptions=True)
     if xp_delta:
         try:
             await update_profile(student_id, xp_delta=xp_delta)

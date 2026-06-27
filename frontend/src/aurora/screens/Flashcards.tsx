@@ -139,9 +139,10 @@ export function Flashcards() {
   const startDrill = () => {
     const missed = missedRef.current;
     if (missed.length === 0) return;
-    // reset accumulators for the drill round
+    // reset accumulators for the drill round (xpRef included — otherwise the drill's
+    // /complete would re-send the original deck's XP on top of its own).
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
-    reasonNotesRef.current = {};
+    reasonNotesRef.current = {}; xpRef.current = 0;
     const next = missed.slice(); missedRef.current = [];
     setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
     setIdx(0); setChecked(false); setDone(false);
