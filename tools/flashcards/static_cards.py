@@ -4984,6 +4984,795 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "fall_risk": {
+            "easy": [
+                {
+                    "stem": "How often are patients assessed for fall risk?",
+                    "options": ["Every visit (all patients)",
+                                "Only after a fall",
+                                "Only on the first visit",
+                                "Only patients over 80"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Fall risk is assessed at every visit for all "
+                                   "patients.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL groups that are at high risk of falls.",
+                    "options": ["The elderly", "The visually impaired",
+                                "Post-dilation patients", "Healthy young patients"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "The elderly, the visually impaired and "
+                                   "post-dilation patients are high-risk for falls.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "If a patient is high fall risk, what must you document?",
+                    "options": ["The action taken (e.g. accompany, wheelchair)",
+                                "Only the risk score",
+                                "Nothing — documentation is optional",
+                                "Their distance vision only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Document the action taken (e.g. accompany the "
+                                   "patient, provide a wheelchair), not just the risk.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why does dilation increase fall risk?",
+                    "options": ["It blurs vision and causes light sensitivity",
+                                "It weakens the legs",
+                                "It lowers blood pressure",
+                                "It does not affect falls"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Dilation blurs vision and causes light sensitivity, "
+                                   "making the patient less steady.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Is documenting the fall risk enough on its own?",
+                    "options": ["No — you must also take active measures",
+                                "Yes — documenting is sufficient",
+                                "Only if the patient is elderly",
+                                "Only if a fall has already happened"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Documenting is not enough — you must take active "
+                                   "measures to keep the patient safe.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Who should you inform about a high-fall-risk patient?",
+                    "options": ["The nurse-in-charge / relevant staff",
+                                "No one",
+                                "Only the patient",
+                                "The receptionist only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inform the nurse-in-charge or relevant staff so the "
+                                   "team can keep the patient safe.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "An elderly, post-dilation patient is unaccompanied with no "
+                            "walking aid. What is the risk level and response?",
+                    "options": ["High fall risk — take active measures",
+                                "Low risk — no action needed",
+                                "Risk only if they complain",
+                                "Routine — just document"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Elderly + post-dilation + unaccompanied + no aid = "
+                                   "high fall risk; take active measures, don't just "
+                                   "note it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL appropriate active measures for a high-fall-risk "
+                            "patient.",
+                    "options": ["Accompany and seat them safely",
+                                "Alert the nurse-in-charge",
+                                "Offer a wheelchair",
+                                "Leave them to walk out alone quickly"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Accompany/seat safely, alert the nurse, and offer a "
+                                   "wheelchair. Leaving them to walk out alone is the "
+                                   "opposite of safe.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient looks well but admits a recent near-fall and a "
+                            "new sedative. How do you classify them?",
+                    "options": [
+                        "At risk — screening uncovers hidden risk, so act on it",
+                        "Low risk — they look fine",
+                        "No risk — sedatives don't matter",
+                        "Risk only if they fall in clinic",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A near-fall and a new sedative are hidden risks "
+                                   "that screening reveals — treat the patient as at "
+                                   "risk despite looking well.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does severe visual field loss raise fall risk even "
+                            "with good central vision?",
+                    "options": [
+                        "Loss of side vision makes navigating obstacles hazardous",
+                        "Central vision is all that matters for walking",
+                        "Field loss improves balance",
+                        "It has no effect on falls",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Side (peripheral) vision warns of obstacles; losing "
+                                   "it makes moving around hazardous even when central "
+                                   "vision is sharp.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is fall risk screened for EVERY patient rather than "
+                            "only obvious cases?",
+                    "options": [
+                        "Some at-risk patients look well, so routine screening catches "
+                        "hidden risk",
+                        "It is a billing requirement only",
+                        "Only elderly patients ever fall",
+                        "It replaces the eye examination",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Routine screening catches at-risk patients who look "
+                                   "well (e.g. on new sedatives, recent near-fall) and "
+                                   "would otherwise be missed.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient becomes unsteady after dilation in a brightly "
+                            "lit waiting area. What is the best immediate action?",
+                    "options": [
+                        "Seat them safely, offer shade/sunglasses, and alert staff",
+                        "Tell them to hurry to the exit",
+                        "Turn up the lights further",
+                        "Ignore it — dilation always feels like that",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Seat them safely, reduce glare (shade/sunglasses), "
+                                   "and alert staff — practical measures to prevent a "
+                                   "fall.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "An 82-year-old with glaucoma field loss, on a new sleeping "
+                            "tablet, attends alone and will be dilated. Why is this a "
+                            "high-risk combination, and what do you do?",
+                    "options": [
+                        "Multiple risks stack (age, field loss, sedative, dilation, "
+                        "alone) — arrange escort/wheelchair and alert the nurse",
+                        "Each factor is minor, so no action is needed",
+                        "Only the dilation matters; ignore the rest",
+                        "Tell them to drive home carefully",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Age, field loss, a sedative, dilation and being "
+                                   "alone all add up to high risk. Arrange an "
+                                   "escort/wheelchair and alert the nurse-in-charge.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL factors that should raise your fall-risk "
+                            "concern, even individually.",
+                    "options": [
+                        "Recent dilation",
+                        "Severe visual field loss",
+                        "A new sedative medication",
+                        "Arriving with a steady, accompanying relative",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Dilation, field loss and new sedatives each raise "
+                                   "fall risk. Arriving with a steady companion lowers "
+                                   "it.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is 'the patient looked fine so I just noted low risk' "
+                            "an unsafe approach?",
+                    "options": [
+                        "Appearance can hide real risk (sedatives, field loss, "
+                        "near-falls); screening and action are needed",
+                        "Looking fine always proves low risk",
+                        "Documentation alone keeps patients safe",
+                        "Fall risk is not the clinic's concern",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A well-looking patient can still be high-risk; you "
+                                   "must screen properly and take action, not judge by "
+                                   "appearance alone.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "After a high-risk patient is identified, what completes "
+                            "the safe response?",
+                    "options": [
+                        "Take an active measure AND document it AND inform the "
+                        "relevant staff",
+                        "Document the score and nothing more",
+                        "Tell the patient to be careful",
+                        "Wait to see if they fall",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Safe practice combines an active measure "
+                                   "(escort/wheelchair/seating), documentation, and "
+                                   "informing staff — all three.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which statement about fall-risk management is correct?",
+                    "options": [
+                        "Screen everyone, act on risk, and communicate it — not just "
+                        "record a number",
+                        "Only assess patients who have already fallen",
+                        "Documentation by itself prevents falls",
+                        "Dilation and field loss are unrelated to falls",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Good fall-risk management means universal "
+                                   "screening, active measures, and communication — "
+                                   "documentation alone is not enough.",
+                    "reasoning_eligible": False,
+                },
+            ],
+        },
+        "perioperative": {
+            "easy": [
+                {
+                    "stem": "Select ALL results typically recorded in a pre-operative "
+                            "assessment.",
+                    "options": ["ECG", "Blood pressure",
+                                "Blood sugar", "Favourite food"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "A pre-op assessment records results such as ECG, "
+                                   "blood pressure and blood/urine sugar.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is covered in pre-operative counselling?",
+                    "options": [
+                        "Date of surgery, current medications and fasting requirement",
+                        "The patient's hobbies",
+                        "Only the surgery fee",
+                        "The colour of the theatre gown",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Pre-op counselling covers the surgery date, current "
+                                   "medications and the fasting requirement.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "For cataract surgery, what vision is recorded at the "
+                            "post-op dressing?",
+                    "options": ["Vision pre-surgery and post-surgery",
+                                "Only the pre-surgery vision",
+                                "Only colour vision",
+                                "No vision is recorded"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "At the post-op dressing, both the pre-surgery and "
+                                   "post-surgery vision are recorded.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL structures observed during a post-op dressing.",
+                    "options": ["The lids", "The conjunctiva",
+                                "The wound section", "The patient's ears"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "The lids, conjunctiva and wound section are "
+                                   "inspected at the post-op dressing.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Abnormal post-op findings should be reported to whom?",
+                    "options": ["The nurse-in-charge", "No one",
+                                "The receptionist", "Another patient"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Report any abnormal post-op finding to the "
+                                   "nurse-in-charge.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is fasting status documented before surgery?",
+                    "options": [
+                        "To ensure the patient is safely prepared for "
+                        "anaesthesia/surgery",
+                        "To decide the lunch order",
+                        "It is not actually needed",
+                        "To calculate the IOL power",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Fasting status is documented to ensure the patient "
+                                   "is safe for anaesthesia and surgery.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Select ALL abnormal lid/conjunctiva findings to watch for "
+                            "after surgery.",
+                    "options": ["Lid oedema or redness", "Discharge",
+                                "Conjunctival redness or chemosis",
+                                "A calm, white, comfortable eye"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Lid oedema/redness, discharge and conjunctival "
+                                   "redness/chemosis are abnormal. A calm white eye is "
+                                   "the normal, reassuring finding.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL wound-section problems to look for after "
+                            "surgery.",
+                    "options": ["Haematoma", "Loose sutures",
+                                "Signs of infection", "A clean, intact wound"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Watch for haematoma, loose sutures and signs of "
+                                   "infection at the wound. A clean intact wound is "
+                                   "normal.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is an anticoagulant important in pre-op planning?",
+                    "options": [
+                        "It increases bleeding risk and may affect the surgical plan",
+                        "It improves wound healing",
+                        "It changes the IOL power",
+                        "It has no surgical relevance",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Anticoagulants raise bleeding risk and may change "
+                                   "how or when surgery is done, so they must be known "
+                                   "beforehand.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient has increasing pain, redness and worsening "
+                            "vision a few days after surgery. What is the concern?",
+                    "options": [
+                        "A serious complication such as endophthalmitis — escalate "
+                        "urgently",
+                        "Normal healing — reassure and discharge",
+                        "A refractive change — order glasses",
+                        "Dry eye — give lubricants",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Increasing pain, redness and falling vision after "
+                                   "surgery suggest endophthalmitis (infection inside "
+                                   "the eye) — a sight-threatening emergency to "
+                                   "escalate urgently.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why confirm current medications during pre-op counselling?",
+                    "options": [
+                        "Some drugs (e.g. anticoagulants) affect surgical safety and "
+                        "planning",
+                        "Only to fill the form",
+                        "Medications never matter for eye surgery",
+                        "To decide the appointment time",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Knowing current medications (especially blood "
+                                   "thinners) is essential for surgical safety and "
+                                   "planning.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A diabetic patient's blood sugar is very high on the "
+                            "morning of surgery. What is the appropriate step?",
+                    "options": ["Flag it to the nurse/doctor before the patient "
+                                "proceeds",
+                                "Proceed regardless",
+                                "Send the patient home without telling anyone",
+                                "Give them sugar to balance it"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Abnormal pre-op results (like very high blood "
+                                   "sugar) should be flagged to the nurse/doctor before "
+                                   "surgery proceeds.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient returns 3 days after cataract surgery with "
+                            "increasing pain, a red eye, a hypopyon and dropping "
+                            "vision. What is the likely diagnosis and action?",
+                    "options": [
+                        "Endophthalmitis — escalate as a sight-threatening emergency",
+                        "Normal post-op inflammation — reassure",
+                        "A stye — warm compresses",
+                        "Allergic reaction — antihistamine",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Worsening pain, redness, a hypopyon and falling "
+                                   "vision after surgery are classic for "
+                                   "endophthalmitis — escalate immediately.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL post-op findings that warrant urgent "
+                            "escalation rather than routine reassurance.",
+                    "options": [
+                        "Increasing pain with worsening vision",
+                        "A hypopyon (pus in the anterior chamber)",
+                        "Marked, increasing redness and discharge",
+                        "A comfortable white eye with stable vision",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Worsening pain/vision, a hypopyon, and "
+                                   "increasing redness/discharge are red flags. A "
+                                   "comfortable white eye with stable vision is "
+                                   "reassuring.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does a thorough pre-op assessment (vitals, sugars, "
+                            "medications, fasting) matter beyond the eye itself?",
+                    "options": [
+                        "Systemic factors affect anaesthetic and surgical safety, not "
+                        "just the eye",
+                        "Only the eye matters in eye surgery",
+                        "It is purely administrative",
+                        "It replaces the surgeon's assessment",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Blood pressure, sugars, medications and fasting all "
+                                   "affect how safely the patient tolerates anaesthesia "
+                                   "and surgery — the whole patient matters.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must the correct eye be confirmed (and marked) before "
+                            "eye surgery?",
+                    "options": [
+                        "To prevent wrong-eye surgery — a critical safety step",
+                        "To decide which eye is dilated",
+                        "For billing purposes only",
+                        "It is not really necessary",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Confirming and marking the correct eye prevents "
+                                   "wrong-eye surgery, a never-event the whole team "
+                                   "guards against.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A post-op patient is comfortable with a white eye but "
+                            "their vision is the same as before surgery. What is the "
+                            "appropriate interpretation?",
+                    "options": [
+                        "Recovery can take time; record findings and follow the normal "
+                        "review plan, escalating only if red flags appear",
+                        "This always means the surgery failed",
+                        "Escalate as an emergency immediately",
+                        "Tell the patient nothing will improve",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A quiet, comfortable eye without red flags is "
+                                   "reassuring; vision often improves over the early "
+                                   "recovery period. Record and follow the review plan, "
+                                   "escalating only if warning signs appear.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
+        "abbreviations": {
+            "easy": [
+                {
+                    "stem": "What does 'VA' stand for?",
+                    "options": ["Visual acuity", "Vascular access",
+                                "Visual angle", "Vitreous attachment"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "VA stands for visual acuity.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'IOP' stand for?",
+                    "options": ["Intraocular pressure", "Inner orbital plate",
+                                "Inferior oblique palsy", "Intermittent optic pain"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "IOP stands for intraocular pressure.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What do 'RE' and 'LE' mean?",
+                    "options": ["Right eye and left eye",
+                                "Retinal exam and lens exam",
+                                "Refractive error and lens error",
+                                "Red eye and lazy eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "RE = right eye, LE = left eye.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'NCT' stand for?",
+                    "options": ["Non-contact tonometry", "Near corrected test",
+                                "New colour test", "Nasal canal tube"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "NCT stands for non-contact tonometry (the air-puff "
+                                   "pressure test).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'TCU' mean in clinic notes?",
+                    "options": ["To come (back) — the next follow-up appointment",
+                                "Total corneal ulcer",
+                                "Tonometry clinic unit",
+                                "Treatment ceased urgently"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "TCU means 'to come (back)' — i.e. the next "
+                                   "follow-up appointment.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'IOL' stand for?",
+                    "options": ["Intraocular lens", "Inferior orbital line",
+                                "Internal ocular lesion", "Iris occlusion level"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "IOL stands for intraocular lens — the implant used "
+                                   "in cataract surgery.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'AMD' stand for?",
+                    "options": ["Age-related macular degeneration",
+                                "Acute macular detachment",
+                                "Anterior media disease",
+                                "Astigmatic media defect"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AMD stands for age-related macular degeneration.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'AACG' stand for?",
+                    "options": ["Acute angle-closure glaucoma",
+                                "Anterior angle chamber gap",
+                                "Average annual cataract grade",
+                                "Acute aqueous canal growth"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "AACG stands for acute angle-closure glaucoma.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "In a VA record, what do 'HM', 'PL' and 'NPL' stand for?",
+                    "options": [
+                        "Hand Movement, Perception of Light, No Perception of Light",
+                        "High Myopia, Partial Loss, Near Plano Lens",
+                        "Hyperopia Mild, Pressure Low, Normal Pupil Light",
+                        "Hand Magnifier, Pinhole Lens, Near Print Level",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "HM = Hand Movement, PL = Perception of Light, "
+                                   "NPL = No Perception of Light — low-vision levels "
+                                   "below chart letters.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A note reads 'RE VA 6/9, LE VA 6/12'. What does this mean?",
+                    "options": [
+                        "Right eye sees 6/9, left eye sees 6/12",
+                        "Both eyes see 6/9 and 6/12 together",
+                        "The patient has refractive errors of 9 and 12",
+                        "Right and left eye pressures are 9 and 12",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "RE VA 6/9 = right eye acuity 6/9; LE VA 6/12 = left "
+                                   "eye acuity 6/12.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A note says 'IOP 18/19, TCU 4/12'. What is being recorded?",
+                    "options": [
+                        "Eye pressures of 18 and 19 mmHg, with follow-up in 4 months",
+                        "Vision of 18/19 with a 4/12 prescription",
+                        "18 drops a day for 12 weeks",
+                        "An IOL of 18 and a 12 mm wound",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "IOP 18/19 = right/left eye pressures; TCU 4/12 = to "
+                                   "come back in 4 months (4/12 = 4 of 12 months).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why are standard abbreviations used in clinic notes?",
+                    "options": [
+                        "They record information quickly and are understood across the "
+                        "team",
+                        "They hide information from other staff",
+                        "They are required for billing only",
+                        "They make notes longer",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Standard abbreviations let staff record and read "
+                                   "clinical information quickly and consistently.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which expansion is correct?",
+                    "options": [
+                        "CF = Count Fingers; NPL = No Perception of Light",
+                        "CF = Clear Focus; NPL = Near Plano Lens",
+                        "CF = Central Field; NPL = Normal Pupil Light",
+                        "CF = Corneal Flap; NPL = New Patient List",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "CF = Count Fingers and NPL = No Perception of Light "
+                                   "— both are low-vision acuity descriptions.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A note reads: 'RE VA CF, LE VA 6/9, IOP 30/18, hx AACG'. "
+                            "What is the most clinically important message?",
+                    "options": [
+                        "The right eye sees only Count Fingers with a high pressure "
+                        "(30) and a history of acute angle-closure — needs attention",
+                        "Both eyes are completely normal",
+                        "The patient needs only new reading glasses",
+                        "Nothing in the note is significant",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "RE VA CF (very poor right vision), IOP 30 in that "
+                                   "eye (well above normal) and a history of AACG "
+                                   "together flag a serious right-eye problem to "
+                                   "highlight.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A handover says the patient is 'for IOL, hx on "
+                            "anticoagulant, TCU 1/52 post-op'. Decode this.",
+                    "options": [
+                        "For an intraocular lens (cataract) op; on a blood thinner; "
+                        "follow-up 1 week after surgery",
+                        "For an inferior orbital line; high cholesterol; review in 52 "
+                        "weeks",
+                        "Intraocular lesion; no medications; seen 1 of 52 patients",
+                        "Iris occlusion; on antibiotics; total cure in 1 week",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "IOL = intraocular lens surgery; hx on anticoagulant "
+                                   "= history of being on a blood thinner (bleeding "
+                                   "risk); TCU 1/52 = to come back in 1 week (1 of 52 "
+                                   "weeks).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL abbreviations that describe a LEVEL of vision.",
+                    "options": ["CF (Count Fingers)", "HM (Hand Movement)",
+                                "PL (Perception of Light)", "IOP (Intraocular "
+                                "Pressure)"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "CF, HM and PL are low-vision acuity levels. IOP is "
+                                   "an eye-pressure measure, not a vision level.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is it risky to invent or use non-standard "
+                            "abbreviations in a patient's notes?",
+                    "options": [
+                        "Other staff may misread them, causing errors in care",
+                        "It makes the notes look more professional",
+                        "Standard abbreviations are optional anyway",
+                        "It speeds up care safely",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Non-standard abbreviations can be misread by "
+                                   "colleagues, leading to mistakes — stick to agreed, "
+                                   "standard ones.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
