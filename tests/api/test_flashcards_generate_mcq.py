@@ -13,8 +13,10 @@ async def test_generate_returns_mcq_shape(monkeypatch):
 
     async def _served(_sid): return set()
     async def _insert(_sid, cards): return [{**c, "card_id": f"id{i}"} for i, c in enumerate(cards)]
+    async def _profile(_sid): return {"role": "OA"}
     monkeypatch.setattr(mod, "get_served_static_fronts", _served)
     monkeypatch.setattr(mod, "insert_cards", _insert)
+    monkeypatch.setattr(mod, "get_profile", _profile)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
         r = await ac.get("/api/flashcards/generate",

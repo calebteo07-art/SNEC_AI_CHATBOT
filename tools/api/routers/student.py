@@ -300,7 +300,8 @@ async def flashcards_generate(
             "qtype": pool_card["qtype"],
             "kind": pool_card["kind"],
             "explanation": pool_card["explanation"],
-            "requires_explanation": pool_card.get("requires_explanation", False),
+            # mark_typed_cards sets this on the final deck; pool cards never carry it.
+            "requires_explanation": False,
             "topic_tag": pool_card.get("topic_tag", topic or "general"),
             "difficulty": pool_card.get("difficulty", difficulty or ""),
             "repetitions": pool_card.get("repetitions", 0),
@@ -336,6 +337,8 @@ async def flashcards_generate(
         due = []
     index = card_by_stem(role)
     for d in due:
+        # Only static-pool cards can be rehydrated to MCQ; orphaned due rows
+        # (edited/legacy stems) are intentionally skipped and topped up below.
         pc = index.get(d.get("front", ""))
         if pc:
             merged = {**pc, "repetitions": d.get("repetitions", 0),
@@ -394,6 +397,9 @@ async def flashcards_complete(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
+    # Clamp client-supplied XP — a deck can never legitimately earn this much, so a
+    # bound keeps a tampered payload from inflating the profile (identity is the JWT).
+    xp_delta = max(0, min(body.xp_delta, 500))
     # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
     for res in body.results:
         if not res.card_id:
@@ -406,9 +412,9 @@ async def flashcards_complete(
                                   new_reps, due_date(new_interval))
         except Exception:
             pass  # scheduling is non-critical; never fail the response
-    if body.xp_delta:
+    if xp_delta:
         try:
-            await update_profile(student_id, xp_delta=body.xp_delta)
+            await update_profile(student_id, xp_delta=xp_delta)
         except Exception:
             pass
     try:
