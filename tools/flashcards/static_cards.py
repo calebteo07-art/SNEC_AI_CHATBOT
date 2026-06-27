@@ -1648,6 +1648,1467 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
                 },
             ],
         },
+        "history_taking": {
+            "easy": [
+                {
+                    "stem": "Which systemic condition is especially important to ask "
+                            "about in an eye history?",
+                    "options": ["Diabetes", "Presbyopia",
+                                "Colour blindness", "A common cold"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Diabetes (like hypertension) is a vascular disease "
+                                   "that affects the eyes, so it is a key part of the "
+                                   "history.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which medication group must you specifically ask about "
+                            "because it raises bleeding risk?",
+                    "options": ["Anticoagulants", "Lubricant eye drops",
+                                "Vitamin C", "Paracetamol"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Anticoagulants (blood thinners) increase bleeding "
+                                   "risk during procedures or after trauma, so they "
+                                   "must be asked about.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "For a visual complaint, which question is most important "
+                            "to ask?",
+                    "options": ["Was the change sudden or gradual?",
+                                "What colour are your eyes?",
+                                "Do you wear sunglasses?",
+                                "How tall are you?"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Whether vision changed suddenly or gradually is a "
+                                   "key question — sudden change is more likely to be "
+                                   "urgent.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What scale is used to assess a patient's pain?",
+                    "options": ["A 0-10 pain scale", "The Snellen chart",
+                                "The Ishihara chart", "The 6/6 scale"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Pain is assessed on a 0-10 scale, where 0 is no "
+                                   "pain and 10 is the worst imaginable.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which condition is worth asking about in the FAMILY "
+                            "ocular history?",
+                    "options": ["Glaucoma", "Conjunctivitis",
+                                "A stye", "A black eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Glaucoma (and cataract, retinal detachment, squint) "
+                                   "can run in families, so family history matters.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why ask whether a visual change is in one eye or both?",
+                    "options": [
+                        "It helps localise the cause and judge urgency",
+                        "It decides which eye is tested first",
+                        "It changes the consultation fee",
+                        "It is not actually important",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Whether one or both eyes are affected (and whether "
+                                   "the loss is partial or total) helps localise the "
+                                   "problem and judge how urgent it is.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL medication groups you should specifically ask "
+                            "about in an eye history.",
+                    "options": ["Anticoagulants", "Steroids",
+                                "Herbal supplements and vitamins", "Toothpaste"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Anticoagulants, steroids, and herbal "
+                                   "supplements/vitamins (and anti-malarials) all "
+                                   "matter in an eye history. Toothpaste does not.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which TWO vascular systemic diseases most commonly affect "
+                            "the eyes?",
+                    "options": ["Diabetes and hypertension",
+                                "Asthma and eczema",
+                                "Gout and reflux",
+                                "Migraine and sinusitis"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Diabetes and hypertension are the key vascular "
+                                   "diseases that damage the eye's blood vessels.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why ask about recent overseas travel when a patient has "
+                            "purulent (pus-like) discharge?",
+                    "options": [
+                        "It may point to an acquired infection or poor hygiene",
+                        "Travel improves eye health",
+                        "It decides the triage category automatically",
+                        "It is asked only for billing",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Recent travel with purulent discharge may indicate "
+                                   "an acquired infection or exposure to poor hygiene "
+                                   "conditions.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A myopic patient reports new flashes and floaters. Why does "
+                            "this matter?",
+                    "options": [
+                        "Myopia raises retinal detachment risk, so new flashes and "
+                        "floaters need prompt review",
+                        "Flashes and floaters are always harmless",
+                        "Myopes never get retinal problems",
+                        "It only matters if both eyes are affected",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Short-sighted (myopic) eyes have a higher risk of "
+                                   "retinal detachment, so new flashes and floaters "
+                                   "should be reviewed promptly.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "Why is it important to ask about anticoagulants before a "
+                            "procedure?",
+                    "options": [
+                        "They increase bleeding risk during the procedure or after "
+                        "trauma",
+                        "They make the pupil dilate",
+                        "They improve healing",
+                        "They change the refractive error",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Anticoagulants raise the risk of bleeding during "
+                                   "procedures and after injury, so they must be known "
+                                   "in advance.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Severe eye pain with nausea and vomiting noted in the "
+                            "history should make you suspect what?",
+                    "options": ["Acute angle-closure glaucoma",
+                                "Simple conjunctivitis",
+                                "Presbyopia",
+                                "Dry eye"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Severe pain with nausea and vomiting is a classic "
+                                   "history for acute angle-closure glaucoma.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A contact-lens wearer has a red eye. Select ALL history "
+                            "points that raise infection risk.",
+                    "options": [
+                        "Wearing daily lenses for 2-3 days without removal (overwear)",
+                        "Using an incorrect lens-care solution",
+                        "Wearing prescription sunglasses",
+                        "Reading in good light",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Lens overwear and incorrect lens-care solution both "
+                                   "raise the risk of infection. Sunglasses and good "
+                                   "reading light do not.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why ask about steroid use in an eye history?",
+                    "options": [
+                        "Long-term steroids can raise eye pressure and cause cataract",
+                        "Steroids improve night vision",
+                        "Steroids change eye colour",
+                        "Steroids are irrelevant to the eye",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Steroids (drops, tablets or inhalers) can raise "
+                                   "intraocular pressure and contribute to cataract, so "
+                                   "their use is important to record.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does asking 'sudden or gradual?' help in a vision "
+                            "complaint?",
+                    "options": [
+                        "Sudden loss is more likely to be an emergency than gradual "
+                        "loss",
+                        "Gradual loss is always an emergency",
+                        "The timing has no clinical meaning",
+                        "It decides the eye drop dose",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Sudden vision loss (e.g. vascular occlusion, "
+                                   "detachment) is more likely to be urgent; gradual "
+                                   "loss (e.g. cataract) is usually less acute.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient mentions a previous acute angle-closure attack. "
+                            "Why is this history important before dilation?",
+                    "options": [
+                        "Dilating drops could trigger another angle-closure attack",
+                        "It means the patient must always be dilated",
+                        "It only matters for colour vision testing",
+                        "It has no bearing on dilation",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A history of angle-closure is a caution against "
+                                   "routine dilation, which could precipitate another "
+                                   "attack — check with the nurse/doctor first.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why ask about anti-malarial medication in an eye history?",
+                    "options": [
+                        "Long-term use can affect the retina and needs monitoring",
+                        "It changes the patient's refraction",
+                        "It is asked only for travel records",
+                        "It has no effect on the eye",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Some anti-malarials (e.g. hydroxychloroquine) can "
+                                   "affect the retina with long-term use, so patients "
+                                   "on them are monitored.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which family-history conditions are most worth recording?",
+                    "options": [
+                        "Glaucoma, cataract and retinal detachment",
+                        "Conjunctivitis and styes",
+                        "Short-sightedness alone",
+                        "Eye colour and lash length",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Glaucoma, cataract, retinal detachment (and "
+                                   "dystrophies/squint) can be inherited, so they are "
+                                   "the key family-history items.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why record current systemic medications even if the "
+                            "patient came only for a routine eye check?",
+                    "options": [
+                        "Some drugs affect the eyes or interact with eye treatment",
+                        "It is required for insurance only",
+                        "Medications never affect the eyes",
+                        "Only eye drops are relevant",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Systemic drugs can affect the eyes (e.g. steroids, "
+                                   "anti-malarials) or interact with planned eye "
+                                   "treatment, so a full medication list is recorded.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient reports vision 'like a curtain coming down' in "
+                            "one eye. What history detail is most relevant?",
+                    "options": [
+                        "Whether they are short-sighted or have had retinal problems",
+                        "Their favourite colour",
+                        "Whether they prefer reading or TV",
+                        "How many pillows they use",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A 'curtain' over the vision suggests retinal "
+                                   "detachment; myopia and previous retinal problems "
+                                   "raise that risk, so they are the key history "
+                                   "points.",
+                    "reasoning_eligible": True,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A 60-year-old diabetic on warfarin reports gradual vision "
+                            "blurring. Which TWO history facts most change your level "
+                            "of concern, and why?",
+                    "options": [
+                        "Diabetes (retinopathy risk) and warfarin (bleeding risk)",
+                        "Their height and weight",
+                        "Their favourite hobby",
+                        "The colour of their glasses frames",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Diabetes raises the risk of retinopathy/macular "
+                                   "oedema, and warfarin raises bleeding risk — both "
+                                   "shape how the case is assessed and escalated.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL history features that should raise your "
+                            "suspicion of a sight-threatening problem.",
+                    "options": [
+                        "Sudden loss of vision",
+                        "New flashes and floaters in a myope",
+                        "Severe pain with nausea",
+                        "Mild eye strain after long reading",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Sudden vision loss, new flashes/floaters in a "
+                                   "myope, and severe pain with nausea are red flags. "
+                                   "Mild eye strain after reading is usually benign.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is a thorough drug history (including herbal "
+                            "supplements) sometimes more revealing than the patient's "
+                            "stated complaint?",
+                    "options": [
+                        "Drugs and supplements can cause or worsen eye problems the "
+                        "patient hasn't linked to them",
+                        "Patients always know exactly what is wrong",
+                        "Supplements are never relevant",
+                        "It saves time to skip the complaint",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Medications and supplements can cause ocular "
+                                   "effects the patient hasn't connected to their "
+                                   "symptoms, so a careful drug history can uncover the "
+                                   "real cause.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A contact-lens wearer with a painful red eye admits to "
+                            "swimming in lenses and topping up old solution. Why is "
+                            "this history alarming?",
+                    "options": [
+                        "These habits strongly raise the risk of microbial keratitis",
+                        "Swimming improves lens hygiene",
+                        "Topping up solution sterilises the lens",
+                        "These habits are completely safe",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Swimming in lenses and reusing/topping up solution "
+                                   "are classic risk factors for serious microbial "
+                                   "keratitis — this history demands prompt escalation.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why should you ask BOTH 'one eye or both?' AND 'partial "
+                            "or total?' for a vision complaint?",
+                    "options": [
+                        "Together they help localise the problem and gauge severity",
+                        "They are the same question asked twice",
+                        "Only one of them ever matters",
+                        "They are asked only for the record, not for clinical use",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Laterality (one vs both eyes) and extent (partial "
+                                   "vs total) together narrow down where the problem is "
+                                   "and how serious it is.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "An elderly patient is vague about their medications. What "
+                            "is the safest practical approach?",
+                    "options": [
+                        "Ask them to bring their medication list/packets and confirm "
+                        "with records",
+                        "Guess based on their age",
+                        "Skip the drug history to save time",
+                        "Record 'nil medications' by default",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "When a patient is unsure, the safest approach is to "
+                                   "verify — ask for their medication list or packets "
+                                   "and check the records rather than guessing.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which statement about taking an eye history is correct?",
+                    "options": [
+                        "Systemic disease, medications, family history and the "
+                        "symptom timeline all matter",
+                        "Only the presenting eye symptom matters",
+                        "Family history is never relevant",
+                        "Medications are irrelevant unless they are eye drops",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A good eye history covers systemic disease, all "
+                                   "medications, family history and the timeline of "
+                                   "symptoms — not just the eye complaint.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient reports painless, sudden, total loss of vision "
+                            "in one eye an hour ago. Why does the history alone justify "
+                            "urgent escalation?",
+                    "options": [
+                        "Sudden painless monocular loss can be a vascular emergency "
+                        "(e.g. CRAO) where time is critical",
+                        "Painless problems are never urgent",
+                        "One-hour-old symptoms are too late to matter",
+                        "It is only urgent if the patient has pain",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Sudden, painless, total loss of vision in one eye "
+                                   "suggests a vascular emergency such as CRAO — the "
+                                   "history alone warrants urgent escalation.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL reasons to specifically ask a woman of "
+                            "child-bearing age about pregnancy before eye treatment.",
+                    "options": [
+                        "Some eye drops and medications are unsafe in pregnancy",
+                        "Dilating/other drugs may need to be avoided or changed",
+                        "It changes her eye colour",
+                        "It determines which eye is tested first",
+                    ],
+                    "correct": [0, 1],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Pregnancy can affect which drops and medications "
+                                   "are safe to use, so it is asked before treatment. "
+                                   "It has nothing to do with eye colour or test order.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is the symptom TIMELINE (onset, duration, progression) "
+                            "central to an eye history?",
+                    "options": [
+                        "It distinguishes acute emergencies from chronic, stable "
+                        "problems",
+                        "It is only used for appointment scheduling",
+                        "It replaces the need for examination",
+                        "It has no diagnostic value",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "How and when symptoms started and changed helps "
+                                   "separate urgent acute problems from slow chronic "
+                                   "ones, guiding the level of response.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
+        "distance_va": {
+            "easy": [
+                {
+                    "stem": "What is normal distance visual acuity on the Snellen scale?",
+                    "options": ["6/6", "6/60", "6/12", "3/6"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "6/6 is normal distance vision on the Snellen scale.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "By convention, which eye is tested first?",
+                    "options": ["The right eye", "The left eye",
+                                "Whichever is worse", "Both together"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "By convention the right eye is tested first, then "
+                                   "the left.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "At what visual acuity should you apply the pinhole?",
+                    "options": ["When VA is 6/12 or worse",
+                                "Only when VA is 6/6",
+                                "Never during a VA test",
+                                "Only for near vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The pinhole is used when distance VA is reduced "
+                                   "(6/12 or worse) to check for a refractive cause.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "In the fraction 6/18, what does the top number (6) mean?",
+                    "options": ["The testing distance in metres",
+                                "The number of letters read",
+                                "The patient's age",
+                                "The line number on the chart"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The top number is the testing distance (6 metres); "
+                                   "the bottom number is the distance at which a normal "
+                                   "eye reads that line.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which chart is used for patients who cannot read letters?",
+                    "options": ["The tumbling E chart",
+                                "The Ishihara chart",
+                                "The Amsler grid",
+                                "The Goldmann chart"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "The tumbling E chart lets patients who cannot read "
+                                   "letters indicate the direction the E points.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'CF' mean in a visual acuity record?",
+                    "options": ["Count Fingers", "Clear Focus",
+                                "Central Field", "Colour Found"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "CF means Count Fingers — used when the patient "
+                                   "cannot read the lowest chart line.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL of these that are low-vision acuity levels "
+                            "below chart letters.",
+                    "options": ["Count Fingers (CF)", "Hand Movement (HM)",
+                                "Perception of Light (PL)", "6/6"],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "CF, HM and PL are the low-vision levels used when "
+                                   "the patient cannot read chart letters. 6/6 is "
+                                   "normal vision.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does 'NPL' stand for in a VA record?",
+                    "options": ["No Perception of Light",
+                                "Near Print Level",
+                                "Normal Pupil Light",
+                                "New Patient Letter"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "NPL means No Perception of Light — the lowest "
+                                   "possible acuity, indicating the eye cannot detect "
+                                   "any light.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Vision improves with the pinhole. What does this suggest?",
+                    "options": ["A refractive cause (likely correctable with glasses)",
+                                "A retinal detachment",
+                                "Optic nerve disease",
+                                "A dense cataract"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If the pinhole improves vision, the cause is likely "
+                                   "refractive — correctable with glasses.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Vision does NOT improve with the pinhole. What does this "
+                            "suggest?",
+                    "options": [
+                        "A non-refractive cause such as media opacity or "
+                        "retinal/optic nerve disease",
+                        "Simple uncorrected long-sightedness",
+                        "The patient needs reading glasses",
+                        "Nothing — the test failed",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "No improvement with the pinhole points to a "
+                                   "non-refractive cause — media opacity (e.g. "
+                                   "cataract), retinal or optic nerve disease.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A patient cannot read any of the 6/60 line. What is the "
+                            "next step?",
+                    "options": [
+                        "Move to 6/120; if still unable, test CF, then HM, PL, NPL",
+                        "Record the vision as 6/6",
+                        "Stop the test and reschedule",
+                        "Switch straight to the near chart",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If 6/60 cannot be read, try 6/120, then step down "
+                                   "the low-vision scale: Count Fingers → Hand Movement "
+                                   "→ Perception of Light → No Perception of Light.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Put the low-vision steps in the correct order (most to "
+                            "least vision) after 6/120 cannot be read.",
+                    "options": [
+                        "Count Fingers → Hand Movement → Perception of Light → No "
+                        "Perception of Light",
+                        "No Perception of Light → Perception of Light → Hand Movement "
+                        "→ Count Fingers",
+                        "Hand Movement → Count Fingers → No Perception of Light → "
+                        "Perception of Light",
+                        "Perception of Light → Count Fingers → Hand Movement → No "
+                        "Perception of Light",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The descending order is CF → HM → PL → NPL, from "
+                                   "most to least remaining vision.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A cataract patient's VA does not improve with the pinhole. "
+                            "Why?",
+                    "options": [
+                        "The reduced vision is from media opacity (cloudy lens), not "
+                        "refractive error",
+                        "The pinhole was the wrong size",
+                        "The patient simply needs stronger glasses",
+                        "Cataracts always improve with a pinhole",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A cataract is a media opacity — the pinhole cannot "
+                                   "overcome it, so vision does not improve.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient's VA has dropped from 6/12 to 6/120 since the "
+                            "last visit. What should you do?",
+                    "options": [
+                        "Highlight the significant drop to the doctor",
+                        "Record it and book a routine review in a year",
+                        "Repeat only if the patient complains",
+                        "Ignore it — VA always fluctuates",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A large drop in VA between visits is significant "
+                                   "and should be highlighted to the doctor.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the pinhole test useful when VA is reduced?",
+                    "options": [
+                        "It screens whether the cause is refractive or not",
+                        "It gives the exact spectacle prescription",
+                        "It measures the eye pressure",
+                        "It replaces a full eye examination",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole quickly screens whether reduced vision "
+                                   "is from refractive error (improves) or another "
+                                   "cause (no improvement). It is not a prescription.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient reads down to 6/9 but no further. How is this "
+                            "recorded?",
+                    "options": ["As 6/9 (the smallest line read)",
+                                "As 6/6",
+                                "As 6/60",
+                                "As CF"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "VA is recorded as the smallest line the patient can "
+                                   "read — here 6/9.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which sequence correctly orders these from BEST to WORST "
+                            "vision?",
+                    "options": [
+                        "6/6 → 6/12 → 6/60 → Count Fingers",
+                        "Count Fingers → 6/60 → 6/12 → 6/6",
+                        "6/60 → 6/6 → 6/12 → Count Fingers",
+                        "6/12 → 6/6 → Count Fingers → 6/60",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "From best to worst: 6/6 (normal) → 6/12 → 6/60 → "
+                                   "Count Fingers.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A myope forgot their glasses and reads 6/36, improving to "
+                            "6/9 with the pinhole. What does this indicate?",
+                    "options": [
+                        "Uncorrected refractive error — glasses are likely to help",
+                        "A cataract",
+                        "Optic nerve disease",
+                        "A retinal detachment",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Marked improvement with the pinhole indicates "
+                                   "uncorrected refractive error; the patient's own "
+                                   "glasses should restore the vision.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why should the room and chart lighting be standardised for "
+                            "a VA test?",
+                    "options": [
+                        "Poor or uneven lighting can falsely change the recorded "
+                        "acuity",
+                        "Lighting has no effect on VA",
+                        "Bright light always improves VA",
+                        "It only matters for colour vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Inconsistent lighting can make the recorded VA "
+                                   "unreliable, so chart illumination is standardised.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL correct statements about the Snellen fraction "
+                            "6/18.",
+                    "options": [
+                        "The 6 is the testing distance in metres",
+                        "It represents reduced vision (worse than 6/6)",
+                        "A normal eye reads this line at 18 metres",
+                        "It means the patient read 18 letters",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "In 6/18, 6 m is the testing distance, a normal eye "
+                                   "reads that line at 18 m, and it is worse than 6/6. "
+                                   "The numbers are not a letter count.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A patient reads 6/36, improving only to 6/24 with the "
+                            "pinhole, and has a dense cataract. How do you interpret "
+                            "this?",
+                    "options": [
+                        "Mainly a non-refractive (media) cause, perhaps with a small "
+                        "refractive component",
+                        "Purely refractive error",
+                        "Normal vision",
+                        "A failed test that must be repeated",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Only slight pinhole improvement with a dense "
+                                   "cataract suggests the reduced vision is mainly from "
+                                   "media opacity, with maybe a small refractive part.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does the pinhole sharpen vision in uncorrected "
+                            "refractive error?",
+                    "options": [
+                        "It blocks blurred peripheral rays so only central, focused "
+                        "rays reach the retina",
+                        "It magnifies the chart letters",
+                        "It increases the light entering the eye",
+                        "It corrects the retina directly",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole admits only central light rays, "
+                                   "removing the blur from out-of-focus peripheral "
+                                   "rays — this sharpens the retinal image in "
+                                   "refractive error.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Two patients both read 6/60. One improves to 6/9 with the "
+                            "pinhole; the other shows no change. What does this tell "
+                            "you?",
+                    "options": [
+                        "The first likely has a refractive cause; the second likely "
+                        "has a media/retinal/nerve cause",
+                        "Both have the same cause",
+                        "Both need urgent surgery",
+                        "Neither result is meaningful",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Pinhole improvement points to refractive error; no "
+                                   "improvement points to a non-refractive cause "
+                                   "(media opacity, retina or optic nerve).",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient cannot see the chart at all. How do you test and "
+                            "record their vision correctly?",
+                    "options": [
+                        "Test Count Fingers, then Hand Movement, then Perception of "
+                        "Light, and record the best level achieved",
+                        "Record NPL immediately without further testing",
+                        "Record 6/60 as a default",
+                        "Skip the eye and test the other one only",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Step through CF → HM → PL → NPL and record the best "
+                                   "level the patient can manage — don't jump straight "
+                                   "to NPL.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must a significant unexplained VA drop be flagged even "
+                            "if the pinhole improves it somewhat?",
+                    "options": [
+                        "Partial improvement doesn't exclude serious disease behind a "
+                        "new refractive change",
+                        "Any pinhole improvement always means it is harmless",
+                        "VA drops never need flagging",
+                        "Only total loss of vision matters",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "A new, large VA drop can still hide serious disease "
+                                   "even if a pinhole helps a little, so it is flagged "
+                                   "for the doctor rather than assumed to be glasses.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL situations where you would apply the pinhole.",
+                    "options": [
+                        "VA of 6/12",
+                        "VA of 6/60",
+                        "VA of Count Fingers due to suspected refractive error",
+                        "VA of 6/6",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Apply the pinhole when VA is reduced (6/12 or "
+                                   "worse), including very low vision if a refractive "
+                                   "cause is suspected. A normal 6/6 needs no pinhole.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient's VA is 6/6 in each eye separately but they "
+                            "complain of poor vision. What is a sensible next "
+                            "consideration?",
+                    "options": [
+                        "Check near vision and ask about symptoms not captured by "
+                        "distance VA",
+                        "Record the complaint as invalid",
+                        "Repeat distance VA ten times",
+                        "Tell them their eyes are perfect and discharge",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Normal distance VA doesn't capture everything — "
+                                   "near vision, field, or intermittent symptoms may "
+                                   "explain the complaint and deserve attention.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why is the pinhole NOT a substitute for a formal "
+                            "refraction?",
+                    "options": [
+                        "It only screens for a refractive cause; it does not give the "
+                        "actual prescription",
+                        "It gives a more accurate prescription than refraction",
+                        "It measures eye pressure instead",
+                        "It is only for children",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The pinhole only indicates whether a refractive "
+                                   "cause is present; the exact lens powers still need "
+                                   "a formal refraction.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Which statement about recording VA is correct?",
+                    "options": [
+                        "Record the smallest line read, the eye, and whether "
+                        "correction/pinhole was used",
+                        "Record only the largest line the patient can see",
+                        "Record vision for both eyes together only",
+                        "Recording the eye tested is unnecessary",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Good documentation notes the smallest line read, "
+                                   "which eye, and whether glasses or a pinhole were "
+                                   "used — so results are comparable over time.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A diabetic reads 6/9 today but read 6/6 three months ago, "
+                            "with no pinhole improvement. Why does this combination "
+                            "concern you?",
+                    "options": [
+                        "A drop that the pinhole can't fix may reflect retinal change "
+                        "(e.g. macular oedema) — flag it",
+                        "It is a normal day-to-day variation, ignore it",
+                        "It means the patient needs new glasses only",
+                        "Diabetics never have VA changes",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A new VA drop not corrected by the pinhole in a "
+                                   "diabetic raises concern for retinal involvement "
+                                   "(e.g. macular oedema) and should be flagged.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
+        "near_vision": {
+            "easy": [
+                {
+                    "stem": "At what distance is the near vision (N) chart usually held?",
+                    "options": ["35 cm", "6 metres", "1 metre", "10 cm"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "The near vision chart is held at about 35 cm — a "
+                                   "normal reading distance.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What is normal near vision?",
+                    "options": ["N5 (the finest print)", "N48", "6/6", "N18"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "N5 is the finest near print and represents normal "
+                                   "near vision.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How is each eye tested for near vision?",
+                    "options": ["Separately, with the other eye occluded",
+                                "Both eyes together only",
+                                "With both eyes closed",
+                                "Only the dominant eye is tested"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Near vision is tested one eye at a time, with the "
+                                   "other eye occluded.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Should reading correction be worn for the near VA test?",
+                    "options": ["Yes — record near VA with correction in place",
+                                "No — always test unaided",
+                                "Only for children",
+                                "Only if the patient asks"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Near VA is recorded with the patient's reading "
+                                   "correction in place (and noted as such).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How is a near vision result documented?",
+                    "options": ["As the smallest line read, e.g. N5, N6, N8, N10",
+                                "As a Snellen fraction like 6/6",
+                                "As a percentage",
+                                "As pass or fail only"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Near vision is recorded as the smallest print read "
+                                   "comfortably (N5, N6, N8, N10, etc.).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "When is near vision typically tested?",
+                    "options": ["On the first visit and when ordered",
+                                "Only in an emergency",
+                                "Never for adults",
+                                "Only after surgery"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Near vision is checked on the first visit and "
+                                   "whenever specifically ordered.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient holds reading material further away to focus. "
+                            "What does this suggest?",
+                    "options": ["Presbyopia", "Myopia",
+                                "Glaucoma", "Colour blindness"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Holding text further away to focus is a classic "
+                                   "sign of presbyopia (age-related loss of near "
+                                   "focus).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is adequate lighting important for the near vision "
+                            "test?",
+                    "options": ["Poor lighting falsely reduces the recorded near "
+                                "acuity",
+                                "Lighting has no effect on near vision",
+                                "Bright light blurs near print",
+                                "It only matters for distance vision"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Inadequate lighting can make near acuity look worse "
+                                   "than it is, so good lighting is needed for a valid "
+                                   "result.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "What does presbyopia affect?",
+                    "options": ["The ability to focus on near objects",
+                                "Distance vision only",
+                                "Colour perception",
+                                "The visual field"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Presbyopia is the age-related loss of the eye's "
+                                   "ability to focus up close.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Select ALL correct statements about testing near vision.",
+                    "options": [
+                        "It is held at about 35 cm",
+                        "Each eye is tested separately",
+                        "Reading correction is worn and noted",
+                        "It is recorded as a Snellen 6/x fraction",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "theory",
+                    "explanation": "Near vision is held at ~35 cm, tested one eye at a "
+                                   "time, with correction worn and noted. It is "
+                                   "recorded as N-notation (N5, N6…), not a 6/x "
+                                   "fraction.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "medium": [
+                {
+                    "stem": "A 50-year-old reads N10 unaided but N5 with a reading add. "
+                            "What is the diagnosis?",
+                    "options": ["Presbyopia", "Myopia",
+                                "Cataract", "Macular degeneration"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Improving from N10 to N5 with a reading add at age "
+                                   "50 is classic presbyopia.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Distance VA is 6/6 but near VA is reduced. What pattern "
+                            "does this suggest?",
+                    "options": ["Presbyopia (age-related loss of near focus)",
+                                "Cataract",
+                                "Glaucoma",
+                                "Retinal detachment"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Good distance vision with poor near vision is the "
+                                   "typical pattern of presbyopia.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why must reading correction be worn (and noted) for the "
+                            "near test?",
+                    "options": [
+                        "Near vision is meaningful at the patient's working "
+                        "correction, and it must be comparable later",
+                        "Glasses always make near vision worse",
+                        "It is only for cosmetic reasons",
+                        "Correction is irrelevant to near vision",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Recording near VA with the usual reading correction "
+                                   "(and noting it) makes the result clinically "
+                                   "meaningful and comparable at later visits.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A young patient with good distance vision struggles to "
+                            "read N5 and gets headaches when reading. What might this "
+                            "suggest?",
+                    "options": [
+                        "Uncorrected hyperopia or a near/focusing problem worth "
+                        "review",
+                        "Definite presbyopia (they are too young)",
+                        "A retinal detachment",
+                        "Normal vision — no action needed",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "A young person is too young for presbyopia; near "
+                                   "difficulty with headaches may reflect uncorrected "
+                                   "long-sightedness or a focusing problem worth "
+                                   "review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "How is a near vision result of 'smallest comfortable line "
+                            "N8' recorded?",
+                    "options": ["As N8", "As 6/8", "As 80%", "As N5"],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Near vision is recorded in N-notation as the "
+                                   "smallest line read comfortably — here N8.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why test near vision separately from distance vision?",
+                    "options": [
+                        "Near and distance focus can be affected independently",
+                        "They always give the same result",
+                        "Near vision replaces the distance test",
+                        "It is only done to fill in the form",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Distance and near focusing can be affected "
+                                   "independently (e.g. presbyopia spares distance), so "
+                                   "both are tested.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "A patient's near vision is worse in dim restaurant "
+                            "lighting than in clinic. What is the likely explanation?",
+                    "options": [
+                        "Reduced lighting lowers near acuity, especially with early "
+                        "lens changes",
+                        "Their eyes are healthier in dim light",
+                        "Near vision is unaffected by light",
+                        "They are imagining the difference",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Near acuity falls in poor light, and early lens "
+                                   "changes make this worse — a common real-world "
+                                   "complaint.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL findings consistent with simple presbyopia.",
+                    "options": [
+                        "Reduced near vision that improves with a reading add",
+                        "Normal distance vision",
+                        "Onset around the 40s-50s",
+                        "Sudden painful loss of vision",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Presbyopia gives reduced near vision corrected by a "
+                                   "reading add, normal distance vision, and onset in "
+                                   "the 40s-50s. Sudden painful vision loss is NOT "
+                                   "presbyopia.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Near vision is reduced AND does not improve with a reading "
+                            "add in an older patient. What does this suggest?",
+                    "options": [
+                        "Something beyond presbyopia (e.g. macular problem) — worth "
+                        "review",
+                        "Definitely just presbyopia",
+                        "A refractive error in the distance only",
+                        "Normal ageing, no action",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "If a reading add doesn't help, the cause may be "
+                                   "beyond presbyopia (e.g. a macular problem) and "
+                                   "should be reviewed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why record the near working distance if it differs from "
+                            "35 cm?",
+                    "options": [
+                        "Some patients (e.g. musicians) need vision at a specific "
+                        "distance, which affects the add",
+                        "The distance never matters",
+                        "It changes the eye being tested",
+                        "Only 35 cm is ever acceptable",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Some patients need clear vision at a particular "
+                                   "working distance, so noting it helps the doctor "
+                                   "choose the right reading add.",
+                    "reasoning_eligible": False,
+                },
+            ],
+            "hard": [
+                {
+                    "stem": "A 48-year-old reports recent reading difficulty. Distance "
+                            "VA is 6/6, near improves from N10 to N5 with a +1.50 add. "
+                            "What is the diagnosis and the reasoning?",
+                    "options": [
+                        "Presbyopia — age-appropriate loss of near focus corrected by "
+                        "a reading add",
+                        "Cataract — the lens is opaque",
+                        "Macular degeneration — central vision is destroyed",
+                        "Glaucoma — peripheral field is lost",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Age 48, normal distance vision, and near vision "
+                                   "corrected by a plus add is textbook presbyopia.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Why does presbyopia spare distance vision while reducing "
+                            "near vision?",
+                    "options": [
+                        "The ageing lens loses flexibility needed to focus up close, "
+                        "but distance focus is unaffected",
+                        "It damages the retina centrally",
+                        "It clouds the lens like a cataract",
+                        "It raises the eye pressure",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "With age the lens stiffens and can no longer change "
+                                   "shape to focus near objects; distance focus needs "
+                                   "no such change, so it is preserved.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "An elderly patient has reduced near vision that a reading "
+                            "add does NOT improve, plus distortion of straight lines. "
+                            "What should you do?",
+                    "options": [
+                        "Suspect a macular problem and flag for review (it's not "
+                        "simple presbyopia)",
+                        "Prescribe a stronger reading add and discharge",
+                        "Reassure that it is normal ageing",
+                        "Repeat only the distance VA",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Near vision unhelped by an add, with distortion, "
+                                   "suggests a macular problem (e.g. AMD) rather than "
+                                   "presbyopia — flag for review.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Select ALL factors that could make a near vision result "
+                            "unreliable.",
+                    "options": [
+                        "Poor lighting",
+                        "Holding the chart at the wrong distance",
+                        "Not wearing the usual reading correction",
+                        "Testing each eye separately",
+                    ],
+                    "correct": [0, 1, 2],
+                    "qtype": "multi",
+                    "kind": "practical",
+                    "explanation": "Poor light, wrong test distance, and missing "
+                                   "reading correction all make near VA unreliable. "
+                                   "Testing each eye separately is correct technique, "
+                                   "not a source of error.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why can a patient have 6/6 distance vision yet be unable to "
+                            "read a menu comfortably?",
+                    "options": [
+                        "Distance and near focus are separate; near focus can fail "
+                        "(presbyopia) while distance is normal",
+                        "6/6 vision is impossible with reading trouble",
+                        "The menu print is always too small to read",
+                        "They must be exaggerating",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Distance acuity (6/6) says nothing about near "
+                                   "focusing; presbyopia commonly leaves distance "
+                                   "perfect while near reading suffers.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A patient claims their 'old glasses stopped working' for "
+                            "reading after a few years. What is the most likely "
+                            "explanation?",
+                    "options": [
+                        "Presbyopia has progressed, so a stronger reading add is "
+                        "needed",
+                        "The glasses physically wore out",
+                        "Their distance vision has failed",
+                        "They have developed colour blindness",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Presbyopia increases with age, so an add that "
+                                   "worked a few years ago may now be too weak — a "
+                                   "stronger reading add is usually needed.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "Which statement best contrasts presbyopia with myopia?",
+                    "options": [
+                        "Presbyopia reduces NEAR vision with age; myopia blurs "
+                        "DISTANCE vision",
+                        "Both blur only near vision",
+                        "Presbyopia blurs distance; myopia blurs near",
+                        "They are the same condition",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Presbyopia is an age-related NEAR problem; myopia "
+                                   "(short sight) blurs DISTANCE vision. They are "
+                                   "different.",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "How would you document a near test where the patient reads "
+                            "N6 right eye and N8 left eye, both with reading glasses?",
+                    "options": [
+                        "RE N6, LE N8, with reading correction",
+                        "Near vision 6/6 both eyes",
+                        "N6 both eyes together",
+                        "Pass, with no detail",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Record each eye's smallest line and that reading "
+                                   "correction was worn: RE N6, LE N8 (with correction).",
+                    "reasoning_eligible": False,
+                },
+                {
+                    "stem": "Why is it useful to compare near vision between visits, "
+                            "not just within one visit?",
+                    "options": [
+                        "A genuine decline over time can signal disease, separate "
+                        "from a fixed presbyopic level",
+                        "Near vision never changes once measured",
+                        "Comparison is only needed for distance vision",
+                        "It is done only for paperwork",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "theory",
+                    "explanation": "Tracking near vision over visits can reveal a real "
+                                   "decline (e.g. macular change) as opposed to a "
+                                   "stable presbyopic baseline.",
+                    "reasoning_eligible": True,
+                },
+                {
+                    "stem": "A diabetic's near vision fluctuates day to day. What is a "
+                            "plausible explanation worth noting?",
+                    "options": [
+                        "Blood sugar swings can temporarily shift the eye's focus",
+                        "Diabetes never affects vision",
+                        "Near charts are simply unreliable",
+                        "The patient needs new frames",
+                    ],
+                    "correct": [0],
+                    "qtype": "single",
+                    "kind": "practical",
+                    "explanation": "Fluctuating blood glucose can cause temporary "
+                                   "refractive shifts and variable vision — worth "
+                                   "noting in a diabetic before changing glasses.",
+                    "reasoning_eligible": True,
+                },
+            ],
+        },
     },
     "OT": {
         "oct_macula": {
