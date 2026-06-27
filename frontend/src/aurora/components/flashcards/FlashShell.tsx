@@ -7,10 +7,10 @@ import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
 
 export function FlashShell({
-  newAchievements, onDismissAchievement, onExit, topicHue, children,
+  newAchievements = [], onDismissAchievement = () => {}, onExit, topicHue, children,
 }: {
-  newAchievements: string[];
-  onDismissAchievement: (id: string) => void;
+  newAchievements?: string[];
+  onDismissAchievement?: (id: string) => void;
   onExit: () => void;
   topicHue?: number;
   children: ReactNode;

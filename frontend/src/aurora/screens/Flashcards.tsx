@@ -1,33 +1,41 @@
 "use client";
-/* AURORA Flashcards — a thin orchestrator. Owns session state and the grading flow
-   (unchanged mechanics — AI grade /100, XP on the 5-35 scale, SM-2 fields passed
-   through, weak-card retry, review + tutor-seed entry), and renders SessionSetup
-   then StudyStage inside the immersive light FlashShell. All presentation lives in
-   components/flashcards/*. */
-import { useEffect, useMemo, useRef, useState } from "react";
+/* AURORA Flashcards — orchestrator. Deck state + instant MCQ grading (deterministic,
+   client-side), background typed-reasoning grades (off the blocking path), result
+   accumulation, the ResultsScreen, batched complete sync, and a missed-card drill.
+   Presentation lives in components/flashcards/*. */
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { rankForLevel } from "@/lib/rank";
+import { addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
 import {
-  addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS,
-} from "@/lib/legacy/gamification";
-import { useFlashcards, useFlashcardCheck, useFlashcardTopics } from "@/hooks/useFlashcards";
-import { useGamificationSync } from "@/hooks/useGamification";
-import { type Flashcard, type AiFeedback, type Difficulty, RETRY_THRESHOLD, xpForScore, loadSessionCards, topicHue } from "@/aurora/components/flashcards/types";
+  useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete,
+  type FlashcardItem, type CompleteCardResult,
+} from "@/hooks/useFlashcards";
+import {
+  type Flashcard, type Difficulty, XP_CORRECT, XP_ATTEMPT, loadSessionCards, topicHue,
+} from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
+import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 
+function toCard(c: FlashcardItem, i: number): Flashcard {
+  return {
+    id: i + 1, stem: c.stem, options: c.options, correct: c.correct, qtype: c.qtype,
+    kind: c.kind, explanation: c.explanation, requiresExplanation: c.requires_explanation,
+    tag: c.topic_tag, difficulty: (c.difficulty || "") as Difficulty | "",
+    card_id: c.card_id, repetitions: c.repetitions, easiness: c.easiness, interval_days: c.interval_days,
+  };
+}
 
 export function Flashcards() {
   const router = useRouter();
   const sessionCards = useMemo(() => loadSessionCards(), []);
   const reviewMode = useMemo(
-    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("mode") === "review",
-    [],
-  );
-
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("mode") === "review", []);
   const fromSession = sessionCards.length > 0;
+
   const { data: topicSets } = useFlashcardTopics();
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [setKey, setSetKey] = useState<string | null>(null);
@@ -35,163 +43,125 @@ export function Flashcards() {
   const [pickerDone, setPickerDone] = useState(reviewMode);
 
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
-  const checkCard = useFlashcardCheck();
-  const { mutateAsync: syncGamification } = useGamificationSync();
+  const reasonCheck = useReasonCheck();
+  const { mutate: complete } = useFlashcardComplete();
 
-  const cards: Flashcard[] = useMemo(() => {
+  const baseCards: Flashcard[] = useMemo(() => {
     if (sessionCards.length > 0) return sessionCards;
     if (!Array.isArray(apiCardsRaw)) return [];
-    return apiCardsRaw.map((c, i) => ({
-      id: i + 1, question: c.front, answer: c.back, tag: c.topic_tag,
-      card_id: c.card_id, repetitions: c.repetitions, easiness: c.easiness, interval_days: c.interval_days,
-    }));
+    return apiCardsRaw.map(toCard);
   }, [sessionCards, apiCardsRaw]);
 
-  const generating = sessionCards.length === 0 && apiLoading;
+  const [drill, setDrill] = useState<Flashcard[]>([]);
+  const deck = drill.length > 0 ? drill : baseCards;
+
   const [idx, setIdx] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
-  const [userAttempt, setUserAttempt] = useState("");
-  const [aiFeedback, setAiFeedback] = useState<AiFeedback | null>(null);
-  const [aiChecking, setAiChecking] = useState(false);
-  const [newAchievements, setNewAchievements] = useState<string[]>([]);
-  const [sessionXp, setSessionXp] = useState(0);
-  const [cardXp, setCardXp] = useState(0);
-  const [gradedCount, setGradedCount] = useState(0);
-  const [scoreSum, setScoreSum] = useState(0);
-  const [retries, setRetries] = useState<Flashcard[]>([]);
-  const weakRef = useRef<Flashcard[]>([]);
-  const retriedRef = useRef<Set<number>>(new Set());
+  const [checked, setChecked] = useState(false);
+  const [done, setDone] = useState(false);
+  const reasonNotesRef = useRef<Record<number, string>>({});
+  const [, force] = useState(0);
+
+  // Accumulators
+  const resultsRef = useRef<CompleteCardResult[]>([]);
+  const byTopicRef = useRef<Record<string, { seen: number; missed: number }>>({});
+  const reasonScoresRef = useRef<number[]>([]);
+  const missedRef = useRef<Flashcard[]>([]);
+  const xpRef = useRef(0);
 
   const deckTitle = useMemo(() => {
-    if (cards.length === 0) return "Flashcards";
+    if (deck.length === 0) return "Flashcards";
     const freq: Record<string, number> = {};
-    for (const c of cards) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
+    for (const c of deck) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-  }, [cards]);
+  }, [deck]);
 
-  const deck = useMemo(() => [...cards, ...retries], [cards, retries]);
-  const total = deck.length;
   const card = deck[idx];
-  const isRetry = idx >= cards.length;
+  const total = deck.length;
   const stageHue = topicHue(card?.tag ?? "__mixed");
+  const generating = sessionCards.length === 0 && apiLoading;
 
-  const resetCardState = () => { setUserAttempt(""); setAiFeedback(null); setAiChecking(false); setSubmitted(false); setCardXp(0); };
+  const onCheck = (correct: boolean, _selected: number[], reasoning: string) => {
+    if (checked || !card) return;
+    setChecked(true);
 
-  // Hold the focusing loader on screen for a satisfying minimum before the reveal,
-  // even when grading returns fast. Reduced motion reveals immediately.
-  const MIN_FOCUS_MS = 850;
-  const gradeStartRef = useRef(0);
-  const gradeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (gradeTimerRef.current) clearTimeout(gradeTimerRef.current); }, []);
-  const revealAfterFocus = (fn: () => void) => {
-    const reduce = document.documentElement.dataset.motion === "reduce" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const wait = reduce ? 0 : Math.max(0, MIN_FOCUS_MS - (Date.now() - gradeStartRef.current));
-    if (wait === 0) { fn(); return; }
-    gradeTimerRef.current = setTimeout(fn, wait);
-  };
+    // Tally (skip double-counting on the free-text self-mark which calls onCheck once).
+    resultsRef.current.push({
+      card_id: card.card_id, correct,
+      repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
+    });
+    const t = byTopicRef.current[card.tag] ?? { seen: 0, missed: 0 };
+    t.seen += 1; if (!correct) t.missed += 1;
+    byTopicRef.current[card.tag] = t;
+    if (!correct) missedRef.current.push(card);
 
-  const submitAnswer = () => {
-    if (!userAttempt.trim() || submitted || !card) return;
-    setSubmitted(true);
-    setAiChecking(true);
-    gradeStartRef.current = Date.now();
-    checkCard.mutate(
-      {
-        question: card.question, student_answer: userAttempt, correct_answer: card.answer,
-        card_id: card.card_id, repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
-      },
-      {
-        onSuccess: (d) => revealAfterFocus(() => {
-          setAiFeedback(d);
-          setAiChecking(false);
-          const score = Math.max(0, Math.min(100, d.score));
-          const xp = xpForScore(score);
-          setCardXp(xp);
-          const res = addXP(xp);
-          setSessionXp((p) => p + xp);
-          setGradedCount((n) => n + 1);
-          setScoreSum((s) => s + score);
-          if (score < RETRY_THRESHOLD && !retriedRef.current.has(card.id)) weakRef.current.push(card);
-          if (res.leveledUp) {
-            const rank = rankForLevel(res.newLevel);
-            toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
-          }
-          incrementTotalCards();
-          const unlocked = checkAndUnlockAchievements();
-          if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
-        }),
-        onError: () => revealAfterFocus(() => {
-          setAiChecking(false);
-          const xp = xpForScore(60);
-          setCardXp(xp);
-          addXP(xp);
-          setSessionXp((p) => p + xp);
-          incrementTotalCards();
-          const unlocked = checkAndUnlockAchievements();
-          if (unlocked.length > 0) setNewAchievements((p) => [...p, ...unlocked]);
-        }),
-      },
-    );
-  };
+    const xp = correct ? XP_CORRECT : XP_ATTEMPT;
+    xpRef.current += xp; addXP(xp); incrementTotalCards();
+    const unlocked = checkAndUnlockAchievements();
+    if (unlocked.length) toast.success("Achievement unlocked! 🏅");
 
-  const finishSession = () => {
-    const earnedXp = sessionXp + XP_REWARDS.sessionComplete;
-    const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : 0;
-    try {
-      sessionStorage.setItem("eyebot_session", JSON.stringify({
-        topic: deckTitle, cardsReviewed: gradedCount, avgScore, earnedXp,
-        cardXp: sessionXp, bonusXp: XP_REWARDS.sessionComplete,
-      }));
-      sessionStorage.setItem("eyebot_session_complete", "1");
-    } catch { /* no storage — Dashboard simply shows no toast */ }
-    syncGamification({ xp_delta: earnedXp, hearts_used: 0 }).finally(() => router.push("/dashboard"));
+    // Background typed-reasoning grade — never awaited, never blocks the reveal.
+    if (card.requiresExplanation && reasoning) {
+      const cardId = card.id;
+      reasonCheck.mutate(
+        { question: card.stem, student_answer: reasoning, correct_answer: card.explanation },
+        {
+          onSuccess: (d) => {
+            reasonScoresRef.current.push(Math.max(0, Math.min(100, d.score)));
+            reasonNotesRef.current[cardId] = d.feedback;
+            force((x) => x + 1);
+          },
+          onError: () => { reasonNotesRef.current[cardId] = "Couldn't grade that one — keep going."; force((x) => x + 1); },
+        },
+      );
+    }
   };
 
   const advance = () => {
-    resetCardState();
-    if (idx < cards.length + retries.length - 1) { setIdx((i) => i + 1); return; }
-    const pending = weakRef.current.filter((c) => !retriedRef.current.has(c.id));
-    if (pending.length > 0) {
-      pending.forEach((c) => retriedRef.current.add(c.id));
-      weakRef.current = [];
-      setRetries((prev) => [...prev, ...pending]);
-      setIdx((i) => i + 1);
-      return;
+    setChecked(false);
+    if (idx < total - 1) { setIdx((i) => i + 1); return; }
+    finish();
+  };
+
+  const finish = () => {
+    setDone(true);
+    const earned = xpRef.current + XP_REWARDS.sessionComplete;
+    const res = addXP(XP_REWARDS.sessionComplete);
+    if (res.leveledUp) {
+      const rank = rankForLevel(res.newLevel);
+      toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
     }
-    finishSession();
+    complete({ results: resultsRef.current, xp_delta: earned });
   };
 
-  const explainThis = () => {
-    if (!card) return;
-    try { sessionStorage.setItem("eyebot_tutor_seed", card.question); } catch { /* ignore */ }
-    router.push("/chat");
+  const startDrill = () => {
+    const missed = missedRef.current;
+    if (missed.length === 0) return;
+    // reset accumulators for the drill round
+    resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
+    const next = missed.slice(); missedRef.current = [];
+    setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
+    setIdx(0); setChecked(false); setDone(false);
   };
 
+  const newDeck = () => router.push("/dashboard");  // re-enter setup from dashboard launchpad
   const exit = () => router.push("/dashboard");
-  const dismissAchievement = (id: string) => setNewAchievements((p) => p.filter((a) => a !== id));
 
-  // Selection (skipped from a tutor session or review).
+  // ── Selection ──
   if (!fromSession && !pickerDone) {
     return (
-      // No topicHue here — SessionSetup publishes the live (previewed) hue to .flash-root
-      // itself so the dusk aurora floods on each pick.
-      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit}>
+      <FlashShell onExit={exit}>
         <SessionSetup
-          topicSets={topicSets}
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          sessionLength={sessionLength}
-          setSessionLength={setSessionLength}
+          topicSets={topicSets} difficulty={difficulty} setDifficulty={setDifficulty}
+          sessionLength={sessionLength} setSessionLength={setSessionLength}
           onStart={(key) => { setSetKey(key); setPickerDone(true); }}
         />
       </FlashShell>
     );
   }
 
-  if (generating || cards.length === 0 || !card) {
+  if (generating || deck.length === 0 || !card) {
     return (
-      <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
+      <FlashShell onExit={exit} topicHue={stageHue}>
         <div className="flash-stage flash-stage-msg">
           {generating
             ? <p className="flash-msg">Bringing your cards into focus…</p>
@@ -201,30 +171,29 @@ export function Flashcards() {
     );
   }
 
-  const avgScore = gradedCount ? Math.round(scoreSum / gradedCount) : null;
-  const weakPending = weakRef.current.length > 0;
+  if (done) {
+    const result: DeckResult = {
+      total: resultsRef.current.length,
+      correct: resultsRef.current.filter((r) => r.correct).length,
+      byTopic: byTopicRef.current,
+      reasonScores: reasonScoresRef.current,
+      missedCount: missedRef.current.length,
+    };
+    return (
+      <FlashShell onExit={exit} topicHue={stageHue}>
+        <ResultsScreen result={result} onDrillMissed={startDrill} onNewDeck={newDeck} onDone={exit} />
+      </FlashShell>
+    );
+  }
+
+  const advanceLabel = idx < total - 1 ? "Next card →" : "See results →";
 
   return (
-    <FlashShell newAchievements={newAchievements} onDismissAchievement={dismissAchievement} onExit={exit} topicHue={stageHue}>
+    <FlashShell onExit={exit} topicHue={stageHue}>
       <StudyStage
-        card={card}
-        idx={idx}
-        total={total}
-        isRetry={isRetry}
-        deckTitle={deckTitle}
-        submitted={submitted}
-        aiChecking={aiChecking}
-        aiFeedback={aiFeedback}
-        cardXp={cardXp}
-        sessionXp={sessionXp}
-        gradedCount={gradedCount}
-        avgScore={avgScore}
-        userAttempt={userAttempt}
-        setUserAttempt={setUserAttempt}
-        onSubmit={submitAnswer}
-        onAdvance={advance}
-        onExplain={explainThis}
-        weakPending={weakPending}
+        card={card} idx={idx} total={total} deckTitle={deckTitle}
+        checked={checked} reasonNote={reasonNotesRef.current[card.id] ?? null}
+        onCheck={onCheck} onAdvance={advance} advanceLabel={advanceLabel}
       />
     </FlashShell>
   );
