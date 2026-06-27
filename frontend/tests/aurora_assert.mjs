@@ -56,9 +56,19 @@ await navCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 4
 await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question_id: "OA-0", question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma", options: ["About 0.3", "About 0.7", "Exactly 1.0", "About 0.9"] })));
 await navCtx.route("**/api/checkin/answer", (r) => r.fulfill(JSON_OK({ correct: true, feedback: "Yes — about 0.3 in most eyes." })));
 await navCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
-  { card_id: "f1", front: "What is the normal IOP range?", back: "Roughly 10–21 mmHg.", topic_tag: "IOP", repetitions: 0, easiness: 2.5, interval_days: 0 },
-  { card_id: "f2", front: "Name the layers of the cornea.", back: "Epithelium, Bowman, stroma, Descemet, endothelium.", topic_tag: "Anterior", repetitions: 0, easiness: 2.5, interval_days: 0 },
+  { card_id: "f1", stem: "Normal IOP range?",
+    options: ["10-21 mmHg", "0-9 mmHg", "22-30 mmHg", "31-40 mmHg"], correct: [0],
+    qtype: "single", kind: "theory", explanation: "Normal IOP is 10-21 mmHg.",
+    requires_explanation: false, topic_tag: "iop_nct", difficulty: "easy",
+    repetitions: 0, easiness: 2.5, interval_days: 1 },
+  { card_id: "f2", stem: "Why irrigate a chemical burn immediately?",
+    options: ["To wash out the chemical", "To dilate the pupil", "To measure IOP", "To numb the eye"],
+    correct: [0], qtype: "single", kind: "practical",
+    explanation: "Immediate irrigation limits ongoing tissue damage (Category 1).",
+    requires_explanation: true, topic_tag: "triage", difficulty: "medium",
+    repetitions: 0, easiness: 2.5, interval_days: 1 },
 ])));
+await navCtx.route("**/api/flashcards/complete", (r) => r.fulfill(JSON_OK({ xp: 140, level: 1 })));
 const np = await navCtx.newPage();
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
@@ -147,10 +157,9 @@ for (const gone of ["/progress", "/summary"]) {
 }
 console.log("PASS: retired /progress and /summary no longer resolve");
 
-// flashcards: light, no-metaphor "Flashcards" — a single setup screen (difficulty +
-// length pills, topic gallery with Mixed selected by default) then a centered focus
-// card: typed recall is AI-graded, the card flips to reveal score + model answer.
-await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 82, feedback: "Close — IOP runs about 10–21 mmHg.", mock_mode: true })));
+// flashcards: MCQ / multi-select with instant client-side grading, compulsory
+// typed reasoning on selected cards, and an end-of-deck results screen.
+await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
@@ -178,31 +187,47 @@ console.log("PASS: Flashcards — stepped Session→Topic flow, hero persists ac
 // Mixed is selected by default on step 2 — Start commits straight away (topics are unmocked here).
 await np.locator('[data-testid="flash-start"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
-await np.locator(".flash-recall").fill("About 10 to 21 mmHg");
-await np.locator('[data-testid="flash-submit"]').click();
-await np.waitForSelector('[data-testid="flash-score"]', { timeout: 8000 });
-await np.waitForFunction(() => {
-  const el = document.querySelector('[data-testid="flash-score"]');
-  return !!el && el.textContent.includes("82");
-}, { timeout: 8000 });
-const graded = await np.locator('[data-testid="flash-score"]').first().innerText();
-if (!graded.includes("82")) { console.error(`FAIL: flashcards AI grade not shown (score='${graded}')`); process.exit(1); }
-if ((await np.locator('.flash-compare-label:has-text("Model answer")').count()) < 1) {
-  console.error("FAIL: flashcards model answer not revealed after grading"); process.exit(1);
+
+// Card 1: single-answer MCQ → pick correct option, Check, reveal shows model answer (no score).
+await np.locator('[data-testid="flash-option"]').first().click();
+await np.locator('[data-testid="flash-check"]').click();
+await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
+if ((await np.locator('.flash-compare-label:has-text("Why")').count()) < 1) {
+  console.error("FAIL: flashcards model answer not revealed"); process.exit(1);
 }
-// per-topic color: the study stage carries a topic-derived --flash-topic-hue
-// (set on .flash-root by FlashShell). It should be present and a real number.
+console.log("PASS: flashcards — MCQ select → instant reveal of the model answer");
+await np.locator('[data-testid="flash-advance"]').click();
+
+// Card 2: requires_explanation → Check is DISABLED until BOTH an option and the typed box are filled.
+await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
+await np.locator('[data-testid="flash-option"]').first().click();
+if (await np.locator('[data-testid="flash-check"]').isEnabled()) {
+  console.error("FAIL: Check enabled before typed reasoning filled"); process.exit(1);
+}
+await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
+if (!(await np.locator('[data-testid="flash-check"]').isEnabled())) {
+  console.error("FAIL: Check still disabled after option + reasoning"); process.exit(1);
+}
+await np.locator('[data-testid="flash-check"]').click();
+await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
+console.log("PASS: flashcards — typed reasoning is compulsory (Check gated until filled)");
+await np.locator('[data-testid="flash-advance"]').click();
+
+// Results: instant "X / N correct".
+await np.waitForSelector('[data-testid="flash-results-score"]', { timeout: 8000 });
+const score = await np.locator('[data-testid="flash-results-score"]').innerText();
+if (!/\d+\s*\/\s*\d+/.test(score)) { console.error(`FAIL: results score missing (got '${score}')`); process.exit(1); }
+console.log("PASS: flashcards — deck ends on an X/N results screen");
+
+// per-topic hue still exposed on .flash-root (unchanged assertion)
 const topicHueVal = await np.evaluate(() => {
   const root = document.querySelector(".flash-root");
-  if (!root) return null;
-  const v = getComputedStyle(root).getPropertyValue("--flash-topic-hue").trim();
-  return v === "" ? null : Number(v);
+  return root ? getComputedStyle(root).getPropertyValue("--flash-topic-hue").trim() : "";
 });
-if (topicHueVal == null || Number.isNaN(topicHueVal)) {
+if (!topicHueVal || Number.isNaN(Number(topicHueVal))) {
   console.error(`FAIL: flashcards --flash-topic-hue missing/NaN (got '${topicHueVal}')`); process.exit(1);
 }
 console.log("PASS: flashcards exposes per-topic --flash-topic-hue =", topicHueVal);
-console.log("PASS: Flashcards — single setup, typed recall is AI-graded, flip reveals the model answer");
 
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
 // is immersive (no rail), so return to a rail route before asserting the logo.
