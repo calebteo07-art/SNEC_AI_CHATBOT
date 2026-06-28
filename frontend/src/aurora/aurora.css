@@ -2445,6 +2445,62 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   border: 1px solid rgba(31,95,166,.18); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
 .flash-back:hover { background: rgba(255,255,255,.95); color: var(--f-ink); }
 
+/* ── Topic fan carousel (step 2) ───────────────────────────────────────────
+   An auto-rotating fan of portrait topic cards on the light azure room. Cards
+   are dark photo tiles with a legible gradient caption; controls are medical
+   blue. The section breaks out past the 760px setup column so the fan can
+   spread. .fan-card transforms are driven by GSAP (CardFanCarousel). */
+.flash-step-sub { text-align: center; margin: 6px 0 0;
+  font: 400 13.5px var(--font-sans); color: var(--f-mono); }
+
+.fan-section { position: relative; width: 96vw; max-width: 80rem;
+  margin-left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.fan-layout { position: relative; width: 100%; height: 34rem; }
+@media (min-width: 1280px) { .fan-layout { height: 38rem; } }
+@media (max-width: 1023px) { .fan-layout { height: 30rem; } }
+@media (max-width: 767px)  { .fan-layout { height: 26rem; } }
+@media (max-width: 639px)  { .fan-layout { height: 24rem; } }
+@media (max-width: 479px)  { .fan-layout { height: 22rem; } }
+
+.fan-card { position: absolute; left: 50%; top: 50%;
+  width: 13rem; height: 19rem; margin-left: -6.5rem; margin-top: -9.5rem;
+  border: none; padding: 0; cursor: pointer; overflow: hidden;
+  border-radius: 18px; background: #0b1f38;
+  box-shadow: 0 18px 40px -18px rgba(8,29,56,.55), 0 2px 8px rgba(8,29,56,.18);
+  outline: 2px solid transparent; outline-offset: 2px; will-change: transform; }
+.fan-card:focus-visible { outline-color: var(--f-azure); }
+.fan-card.is-locked { cursor: not-allowed; }
+.fan-card-media { position: absolute; inset: 0; display: block; }
+.fan-card-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fan-card.is-placeholder .fan-card-media img { display: none; }
+.fan-card.is-placeholder .fan-card-media {
+  background: radial-gradient(120% 92% at 50% 0%,
+    hsl(var(--fan-hue) 70% 62% / .95), hsl(var(--fan-hue) 64% 34%) 68%,
+    hsl(var(--fan-hue) 60% 22%)); }
+.fan-card-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; flex-direction: column; gap: 2px; padding: 32px 14px 14px;
+  text-align: left;
+  background: linear-gradient(180deg, transparent, rgba(6,17,32,.5) 38%, rgba(6,17,32,.92)); }
+.fan-card-label { font: 600 15px var(--font-sans); color: #fff; line-height: 1.15; }
+.fan-card-sub { font: 500 12px var(--font-sans); color: rgba(231,241,255,.82); }
+.fan-card.is-locked .fan-card-cap::after { content: "coming soon";
+  margin-top: 4px; font: 600 10px var(--font-mono); letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(231,241,255,.7); }
+
+.fan-controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.fan-arrow { width: 42px; height: 42px; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--f-blue); background: rgba(255,255,255,.82);
+  border: 1.5px solid rgba(31,95,166,.18);
+  box-shadow: 0 6px 18px -8px rgba(31,95,166,.5); }
+.fan-arrow:hover { color: #fff; background: var(--f-azure); border-color: var(--f-azure); }
+.fan-dots { display: flex; align-items: center; gap: 7px; }
+.fan-dot { width: 7px; height: 7px; border-radius: 999px;
+  background: rgba(31,95,166,.22); transition: transform .3s ease, background .3s ease; }
+.fan-dot.is-on { background: var(--f-blue); transform: scale(1.4); }
+html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { transition: none; }
+
 /* Results — a floating light diagnostic-summary card on the deep cobalt field. */
 .flash-results { width: 100%; max-width: 560px; text-align: center;
   background: linear-gradient(180deg,#ffffff,#eef5fd); border: 1px solid rgba(120,160,210,.3);
