@@ -86,7 +86,7 @@ export function Flashcards() {
   const stageHue = topicHue(card?.tag ?? "__mixed");
   const generating = sessionCards.length === 0 && apiLoading;
 
-  const onCheck = (correct: boolean, _selected: number[], reasoning: string) => {
+  const onCheck = (correct: boolean, _selected: number[], _reasoning: string) => {
     if (checked || !card) return;
     setChecked(true);
 
@@ -104,22 +104,21 @@ export function Flashcards() {
     xpRef.current += xp; addXP(xp); incrementTotalCards();
     const unlocked = checkAndUnlockAchievements();
     if (unlocked.length) toast.success("Achievement unlocked! 🏅");
+  };
 
-    // Background typed-reasoning grade — never awaited, never blocks the reveal.
-    if (card.requiresExplanation && reasoning) {
-      const cardId = card.id;
-      reasonCheck.mutate(
-        { question: card.stem, student_answer: reasoning, correct_answer: card.explanation },
-        {
-          onSuccess: (d) => {
-            reasonScoresRef.current.push(Math.max(0, Math.min(100, d.score)));
-            reasonNotesRef.current[cardId] = d.feedback;
-            force((x) => x + 1);
-          },
-          onError: () => { reasonNotesRef.current[cardId] = "Couldn't grade that one — keep going."; force((x) => x + 1); },
+  // Optional post-reveal reflection → background typed-reasoning grade. Fired from the
+  // card's advance (instant reveal carries no reasoning), never awaited, never blocks.
+  const onReason = (cardId: number, stem: string, text: string, model: string) => {
+    reasonCheck.mutate(
+      { question: stem, student_answer: text, correct_answer: model },
+      {
+        onSuccess: (d) => {
+          reasonScoresRef.current.push(Math.max(0, Math.min(100, d.score)));
+          reasonNotesRef.current[cardId] = d.feedback; force((x) => x + 1);
         },
-      );
-    }
+        onError: () => { reasonNotesRef.current[cardId] = "Couldn't grade that one — keep going."; force((x) => x + 1); },
+      },
+    );
   };
 
   const advance = () => {
@@ -203,7 +202,7 @@ export function Flashcards() {
         key={deckEpoch}
         card={card} idx={idx} total={total} deckTitle={deckTitle}
         checked={checked} reasonNote={reasonNotesRef.current[card.id] ?? null}
-        onCheck={onCheck} onAdvance={advance} advanceLabel={advanceLabel}
+        onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
     </FlashShell>
   );
