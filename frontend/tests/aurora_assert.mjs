@@ -157,8 +157,9 @@ for (const gone of ["/progress", "/summary"]) {
 }
 console.log("PASS: retired /progress and /summary no longer resolve");
 
-// flashcards: MCQ / multi-select with instant client-side grading, compulsory
-// typed reasoning on selected cards, and an end-of-deck results screen.
+// flashcards: "Console" no-submit study loop — a single-answer tap reveals INSTANTLY
+// (no Check/submit button), and on reason cards an OPTIONAL reflection box appears after
+// the reveal and never gates advance. Ends on an X/N results screen.
 await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
@@ -188,29 +189,31 @@ console.log("PASS: Flashcards — stepped Session→Topic flow, hero persists ac
 await np.locator('[data-testid="flash-start"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
-// Card 1: single-answer MCQ → pick correct option, Check, reveal shows model answer (no score).
+// Card 1: single-answer tap = INSTANT reveal — there is NO Check/submit button anywhere.
 await np.locator('[data-testid="flash-option"]').first().click();
-await np.locator('[data-testid="flash-check"]').click();
 await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
-if ((await np.locator('.flash-compare-label:has-text("Why")').count()) < 1) {
+if ((await np.locator('[data-testid="flash-check"]').count()) > 0) {
+  console.error("FAIL: a Check/submit button still exists — should be instant-tap"); process.exit(1);
+}
+if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) < 1) {
   console.error("FAIL: flashcards model answer not revealed"); process.exit(1);
 }
-console.log("PASS: flashcards — MCQ select → instant reveal of the model answer");
+console.log("PASS: flashcards — single-answer tap reveals instantly (no submit)");
 await np.locator('[data-testid="flash-advance"]').click();
 
-// Card 2: requires_explanation → Check is DISABLED until BOTH an option and the typed box are filled.
-await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
+// Card 2: requires_explanation → reveal is STILL instant on tap; the reflection box appears
+// AFTER the reveal and never gates advance (background-graded, optional).
+await np.waitForSelector('[data-testid="flash-option"]', { timeout: 8000 });
 await np.locator('[data-testid="flash-option"]').first().click();
-if (await np.locator('[data-testid="flash-check"]').isEnabled()) {
-  console.error("FAIL: Check enabled before typed reasoning filled"); process.exit(1);
+await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
+if ((await np.locator('[data-testid="flash-reason"]').count()) < 1) {
+  console.error("FAIL: optional reflection box missing on reason card after reveal"); process.exit(1);
+}
+if (!(await np.locator('[data-testid="flash-advance"]').isEnabled())) {
+  console.error("FAIL: advance should never be gated by the reflection"); process.exit(1);
 }
 await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
-if (!(await np.locator('[data-testid="flash-check"]').isEnabled())) {
-  console.error("FAIL: Check still disabled after option + reasoning"); process.exit(1);
-}
-await np.locator('[data-testid="flash-check"]').click();
-await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
-console.log("PASS: flashcards — typed reasoning is compulsory (Check gated until filled)");
+console.log("PASS: flashcards — typed reasoning is optional/after-reveal, ungated");
 await np.locator('[data-testid="flash-advance"]').click();
 
 // Results: instant "X / N correct".
