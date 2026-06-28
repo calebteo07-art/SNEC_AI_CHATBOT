@@ -169,22 +169,14 @@ if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); pro
 // immersive: the rail falls away on /flashcards (like the Tutor); exit affordance present.
 if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
 
-// stepped selection: step 1 (Session) shows the 2-segment progress rail and the hero,
-// then Continue advances to step 2 (Topic) where Mixed is selected by default and Start
-// commits. Tag the hero node on step 1 so we can prove it PERSISTS (morphs, not remounts)
-// across the step change.
+// stepped selection: step 1 (Session) shows the 2-segment progress rail, then Continue
+// advances to step 2 (Topic) where Mixed is selected by default and Start commits. (The
+// old iris-disc hero was retired in the medical-blue "Ophthalmic Console" redesign.)
 if ((await np.locator('[data-testid="flash-rail"]').count()) < 1) { console.error("FAIL: flashcards progress rail missing on step 1"); process.exit(1); }
 if ((await np.locator('[data-testid="flash-setup"][data-step="1"]').count()) < 1) { console.error("FAIL: flashcards did not start on step 1"); process.exit(1); }
-if ((await np.locator('[data-testid="flash-hero"]').count()) < 1) { console.error("FAIL: flashcards hero not present on step 1"); process.exit(1); }
-await np.evaluate(() => { document.querySelector('[data-testid="flash-hero"]').dataset.persistMark = "1"; });
 await np.locator('[data-testid="flash-continue"]').click();
 await np.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
-const heroPersisted = await np.evaluate(() => {
-  const h = document.querySelector('[data-testid="flash-hero"]');
-  return !!(h && h.dataset.persistMark === "1");
-});
-if (!heroPersisted) { console.error("FAIL: flashcards hero did not persist across the step change (it remounted)"); process.exit(1); }
-console.log("PASS: Flashcards — stepped Session→Topic flow, hero persists across the morph");
+console.log("PASS: Flashcards — stepped Session→Topic flow");
 // Mixed is selected by default on step 2 — Start commits straight away (topics are unmocked here).
 await np.locator('[data-testid="flash-start"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });

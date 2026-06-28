@@ -2172,28 +2172,64 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Flashcards — "Console" instrument. Light academic surface, no metaphor.
-   Lives inside .aurora-shell-immersive (.aurora-main-scroll is height:100dvh),
-   so .flash-root fills it. Three colour roles: per-topic hue = identity
-   (--flash-topic-hue, animatable so Mixed sessions cross-fade), teal = correct
-   signal, coral = error, academic blue = structural anchor. Score-driven readout
-   colour flows through --flash-score-hue, set per-reveal on the results screen.
-   The lower-band Brownian colour field (BrownianField → .flash-bg) lives inside
-   the instrument card, masked so colour never climbs into the question region.
+   Flashcards — "Ophthalmic Console". Two distinct medical-blue environments,
+   told apart by :has() on .flash-root so neither bleeds into the other:
+   • SELECTION  — a LIGHT clinical-azure room (corneal-topography rings + soft
+     cyan blooms). The chrome (rail, title, primary buttons) stays medical-blue
+     regardless of the per-topic identity hue, so the room always reads clinical.
+   • ACTIVITY   — a DEEP cobalt diagnostic field (slow OCT scan) with ONE light
+     instrument card floating on it; the card OUTLINE carries a travelling cyan
+     beam (conic --flash-angle). Per-topic hue = identity, teal = correct, coral
+     = error, score hue (--flash-score-hue) colours the results readout.
+   The lower-band Brownian colour field (BrownianField → .flash-bg) still lives
+   inside the card, masked so colour never climbs into the question region.
    ───────────────────────────────────────────────────────────────────────── */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 @property --flash-score-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
+@property --flash-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 
 .flash-root {
   position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
   --f-ink: #141d28; --f-ink2: #3c4956; --f-mono: #5d6b7a; --f-line: rgba(24,34,46,.10);
   --f-paper: rgba(255,255,255,.78); --f-teal: #0d8276; --f-coral: #d9482f; --f-blue: #1f5fa6;
+  --f-azure: #2f7fe0; --f-cyan: #1ec4dd; --f-navy: #081d38;
   color: var(--f-ink);
-  background: linear-gradient(180deg,#f7f5ef 0%,#eef0f5 100%);
+  background: #e8f0fb;
+}
+/* Atmospheric backdrop — content (.flash-content, z-index:1) floats above it. */
+.flash-root::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+
+/* SELECTION — a light clinical-azure exam room: cyan blooms + faint corneal-
+   topography contour rings sweeping from the top. */
+.flash-root:has(.flash-setup) {
+  background: radial-gradient(125% 92% at 50% -14%, #ffffff 0%, #ecf4fe 40%, #d8e8fb 74%, #c9ddf6 100%);
+}
+.flash-root:has(.flash-setup)::before {
+  background:
+    radial-gradient(38% 40% at 14% 16%, hsl(192 92% 60% / .15), transparent 70%),
+    radial-gradient(46% 46% at 88% 10%, hsl(214 94% 62% / .18), transparent 72%),
+    radial-gradient(52% 52% at 80% 98%, hsl(186 86% 58% / .12), transparent 70%),
+    repeating-radial-gradient(circle at 50% 6%, transparent 0 41px, hsl(210 72% 54% / .05) 41px 42px);
+}
+
+/* ACTIVITY (study · loading · results) — a deep cobalt OCT diagnostic field with
+   faint horizontal scan lines and one slow vertical scan band drifting down. */
+.flash-root:not(:has(.flash-setup)) {
+  background: radial-gradient(150% 115% at 50% -20%, #163a63 0%, #0d2a4c 46%, var(--f-navy) 100%);
+}
+.flash-root:not(:has(.flash-setup))::before {
+  background:
+    radial-gradient(62% 46% at 50% 0%, hsl(194 92% 60% / .15), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(126,184,242,.045) 27px 28px),
+    linear-gradient(180deg, transparent 0%, rgba(126,194,255,.11) 50%, transparent 100%);
+  background-size: auto, auto, 100% 220%;
+  background-position: center, center, center -60%;
+  animation: flash-scan 9s ease-in-out infinite alternate;
 }
 .flash-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column;
   align-items: center; justify-content: center; padding: 32px 20px; overflow-y: auto; }
+.flash-root:not(:has(.flash-setup)) .flash-content { padding: 26px 22px; }
 .flash-press { transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease; }
 .flash-press:active { transform: scale(.97); }
 .flash-exit { position: absolute; top: 18px; left: 18px; z-index: 5; display: inline-flex;
@@ -2201,44 +2237,67 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: rgba(255,255,255,.6); border: 1px solid var(--f-line); border-radius: 999px;
   padding: 8px 14px; cursor: pointer; }
 .flash-exit:hover { background: rgba(255,255,255,.92); color: var(--f-ink); }
+/* On the deep activity field the exit pill goes to glass-on-dark. */
+.flash-root:not(:has(.flash-setup)) .flash-exit {
+  background: rgba(146,196,246,.12); border-color: rgba(146,196,246,.26); color: #d4e6fa; }
+.flash-root:not(:has(.flash-setup)) .flash-exit:hover {
+  background: rgba(146,196,246,.22); color: #fff; }
 
 /* Brownian colour field — lower band, masked under the question. The parent
    (.flash-card) owns position + clip; this only fills the band and fades the top. */
-.flash-bg { position: absolute; left: 0; right: 0; bottom: 0; top: 200px; pointer-events: none;
+.flash-bg { position: absolute; left: 0; right: 0; bottom: 0; top: 210px; pointer-events: none;
   overflow: hidden; -webkit-mask-image: linear-gradient(180deg,transparent 0,#000 42px);
   mask-image: linear-gradient(180deg,transparent 0,#000 42px); }
 .flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
   mix-blend-mode: multiply; will-change: transform; }
 
-/* Instrument card */
-.flash-card { position: relative; width: 100%; max-width: 760px; border-radius: 22px;
-  padding: 28px 28px 24px; overflow: hidden; background: linear-gradient(180deg,#f8f6f0,#eef0f4);
-  border: 1px solid var(--f-line); box-shadow: 0 26px 66px -36px rgba(24,34,46,.5);
+/* Instrument card — a large light panel floating on the deep cobalt field. Width
+   comes from .flash-stage; it grows to fill the screen (but not edge to edge) and
+   carries a tall body so the Brownian field breathes in the lower band. */
+.flash-card { position: relative; width: 100%; min-height: min(72vh, 660px);
+  display: flex; flex-direction: column; border-radius: 26px;
+  padding: 38px 42px 32px; overflow: hidden; background: linear-gradient(180deg,#ffffff,#eef5fd);
+  border: 1px solid rgba(120,160,210,.30); isolation: isolate;
+  box-shadow: 0 50px 110px -50px rgba(4,16,34,.85), 0 0 0 1px rgba(150,195,245,.08);
   transition: box-shadow .35s ease, border-color .35s ease; }
-.flash-card.is-right { border-color: rgba(13,130,118,.4); box-shadow: 0 26px 66px -34px rgba(13,130,118,.5); }
-.flash-cardin { position: relative; z-index: 1; }
+/* Travelling beam — a single bright cyan arc sweeps the perimeter (conic + ring
+   mask). The faint base border is always visible beneath it. */
+.flash-card::before { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit;
+  padding: 1.6px; pointer-events: none;
+  background: conic-gradient(from var(--flash-angle),
+    transparent 0deg, transparent 58deg, var(--f-azure) 84deg, #8fe6ff 104deg,
+    var(--f-cyan) 122deg, transparent 150deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: flash-border 5.5s linear infinite; }
+.flash-card.is-right { border-color: rgba(13,130,118,.45);
+  box-shadow: 0 50px 110px -50px rgba(3,30,26,.85), 0 0 0 1px rgba(92,224,207,.16); }
+.flash-card.is-right::before { background: conic-gradient(from var(--flash-angle),
+  transparent 0deg, transparent 58deg, var(--f-teal) 84deg, #5ce0cf 104deg,
+  #19a58c 122deg, transparent 150deg, transparent 360deg); }
+.flash-cardin { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
 
 /* Top bar / telemetry */
-.flash-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.flash-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .flash-tag { display: flex; align-items: center; gap: 8px; font: 500 12px var(--font-mono);
   letter-spacing: .14em; text-transform: uppercase; color: hsl(var(--flash-topic-hue) 55% 36%); }
 .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 72% 46%); font-size: 9px; }
 .flash-track { display: flex; align-items: center; gap: 10px; }
 .flash-segs { display: flex; gap: 4px; }
-.flash-segs i { width: 14px; height: 3px; border-radius: 2px; background: #cfcabd; }
+.flash-segs i { width: 16px; height: 3px; border-radius: 2px; background: #cdd9e8; }
 .flash-segs i.is-done { background: hsl(var(--flash-topic-hue) 55% 62%); }
 .flash-segs i.is-now { background: hsl(var(--flash-topic-hue) 72% 46%); animation: flash-seg 1.8s ease-in-out infinite; }
 .flash-count { font: 500 12px var(--font-mono); color: #7f8893; letter-spacing: .1em; white-space: nowrap; }
-.flash-rule { height: 2px; border-radius: 2px; margin: 0 0 16px;
+.flash-rule { height: 2px; border-radius: 2px; margin: 0 0 18px;
   background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 72% 50%), rgba(31,95,166,.55) 60%, transparent); }
 .flash-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 60% 40%); margin: 0 0 8px; }
-.flash-q { font: 400 25px/1.34 var(--font-serif); color: var(--f-ink); margin: 0 0 22px; max-width: 52ch; }
+  color: hsl(var(--flash-topic-hue) 60% 40%); margin: 0 0 10px; }
+.flash-q { font: 400 29px/1.36 var(--font-serif); color: var(--f-ink); margin: 0 0 26px; max-width: 58ch; }
 
 /* Option instrument keys */
-.flash-options { display: flex; flex-direction: column; gap: 10px; list-style: none; padding: 0; margin: 0; }
-.flash-option { display: flex; align-items: center; gap: 15px; width: 100%; text-align: left;
-  padding: 14px 16px; border-radius: 13px; cursor: pointer; background: var(--f-paper);
+.flash-options { display: flex; flex-direction: column; gap: 12px; list-style: none; padding: 0; margin: 0; }
+.flash-option { display: flex; align-items: center; gap: 17px; width: 100%; text-align: left;
+  padding: 17px 21px; border-radius: 15px; cursor: pointer; background: var(--f-paper);
   border: 1px solid var(--f-line); opacity: 0; transform: translateY(10px);
   animation: flash-rise .5s ease forwards;
   transition: transform .12s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease; }
@@ -2252,11 +2311,11 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   transform: translateX(2px); box-shadow: 0 10px 22px -12px hsl(var(--flash-topic-hue) 50% 40% / .55);
   background: rgba(255,255,255,.94); }
 .flash-option:disabled { cursor: default; }
-.flash-lamp { position: relative; flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+.flash-lamp { position: relative; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; border: 1px solid rgba(24,34,46,.18);
-  font: 500 12px var(--font-mono); color: var(--f-mono); background: rgba(255,255,255,.6);
+  font: 500 13px var(--font-mono); color: var(--f-mono); background: rgba(255,255,255,.6);
   transition: all .2s ease; }
-.flash-otext { font: 400 15.5px/1.4 var(--font-sans); color: var(--f-ink2); }
+.flash-otext { font: 400 16.5px/1.45 var(--font-sans); color: var(--f-ink2); }
 .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 62% 46%);
   background: hsl(var(--flash-topic-hue) 70% 55% / .14); }
 .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 62% 44%);
@@ -2269,9 +2328,9 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-ignite { position: absolute; inset: -1px; border-radius: 50%; border: 2px solid var(--f-teal);
   animation: flash-ignite .6s ease-out forwards; pointer-events: none; }
 
-/* Foot: hint + lock reticle */
+/* Foot: hint + lock reticle — pinned to the bottom of the tall instrument card. */
 .flash-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px;
-  margin-top: 18px; min-height: 44px; }
+  margin-top: auto; padding-top: 22px; min-height: 44px; }
 .flash-hint { font: 500 11.5px var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: #7c858f; }
 .flash-lock { display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
   width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(24,34,46,.16);
@@ -2312,74 +2371,85 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-mark-miss { color: #c0412b; border-color: rgba(217,72,47,.4); }
 .flash-mark-miss:hover { background: rgba(217,72,47,.1); }
 
-/* Setup intake */
-.flash-setup { position: relative; width: 100%; max-width: 720px; display: flex; flex-direction: column;
-  align-items: center; gap: 22px; }
+/* Setup intake — the light clinical room. The chrome (rail, title, primary button)
+   stays medical-blue regardless of the per-topic identity hue, so picking a topic
+   never floods the room with a stray colour. The iris disc is gone; the focal
+   element is now the serif title under a softly shimmering azure→cyan underline. */
+.flash-setup { position: relative; width: 100%; max-width: 760px; display: flex; flex-direction: column;
+  align-items: center; gap: 26px; }
 .flash-rail { display: flex; gap: 8px; }
-.flash-rail-seg { width: 46px; height: 4px; border-radius: 999px; background: #d8d3c6; transition: background .3s ease; }
-.flash-rail-seg.is-active { background: hsl(var(--flash-topic-hue) 70% 50%); }
-.flash-rail-seg.is-done { background: hsl(var(--flash-topic-hue) 50% 64%); }
+.flash-rail-seg { width: 50px; height: 4px; border-radius: 999px; background: rgba(31,95,166,.16); transition: background .3s ease; }
+.flash-rail-seg.is-active { background: linear-gradient(90deg, var(--f-azure), var(--f-cyan)); }
+.flash-rail-seg.is-done { background: rgba(47,127,224,.5); }
 .flash-setup-stage { position: relative; width: 100%; display: flex; flex-direction: column;
   align-items: center; gap: 20px; }
-.flash-hero { position: relative; border-radius: 50%; flex: 0 0 auto;
-  width: 168px; height: 168px; transition: width .5s ease, height .5s ease; }
-.flash-setup[data-step="2"] .flash-hero { width: 64px; height: 64px; }
-.flash-hero-iris { position: absolute; inset: 14%; border-radius: 50%;
-  background: radial-gradient(circle at 50% 42%, hsl(var(--flash-topic-hue) 70% 60%),
-  hsl(var(--flash-topic-hue) 60% 34%) 70%, #1b2430 100%);
-  box-shadow: inset 0 6px 18px rgba(0,0,0,.35), 0 14px 34px -16px hsl(var(--flash-topic-hue) 60% 40% / .8); }
-.flash-hero-ring { position: absolute; inset: 0; border-radius: 50%;
-  border: 1px solid hsl(var(--flash-topic-hue) 50% 50% / .5); animation: flash-spin 24s linear infinite; }
-.flash-hero-ring::before { content: ""; position: absolute; top: -3px; left: 50%; width: 6px; height: 6px;
-  border-radius: 50%; background: hsl(var(--flash-topic-hue) 72% 50%); transform: translateX(-50%); }
 .flash-step { width: 100%; animation: flash-rise .4s ease both; }
-.flash-step-body { display: flex; flex-direction: column; gap: 18px; }
-.flash-step-lede { text-align: center; }
-.flash-setup-title { font: 400 30px var(--font-serif); color: var(--f-ink); margin: 0;
-  background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 60% 38%), var(--f-blue));
+.flash-step-body { display: flex; flex-direction: column; gap: 22px; }
+.flash-step-lede { position: relative; text-align: center; }
+.flash-step-lede::before { content: "ACTIVE RECALL"; display: block; font: 600 11px var(--font-mono);
+  letter-spacing: .3em; color: var(--f-azure); margin-bottom: 12px; opacity: .92; }
+.flash-step-lede::after { content: ""; display: block; width: 76px; height: 3px; margin: 16px auto 0;
+  border-radius: 999px; background: linear-gradient(90deg, transparent, var(--f-azure), var(--f-cyan), transparent);
+  background-size: 200% 100%; animation: flash-underline 3.6s ease-in-out infinite; }
+.flash-setup-title { font: 400 38px var(--font-serif); color: var(--f-ink); margin: 0; line-height: 1.05;
+  background: linear-gradient(92deg, #1c5bbd, #1ec4dd);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.flash-choices { display: flex; flex-direction: column; gap: 18px; }
-.flash-axis { display: flex; flex-direction: column; gap: 8px; }
+.flash-choices { display: flex; flex-direction: column; gap: 20px; }
+.flash-axis { display: flex; flex-direction: column; gap: 9px; }
 .flash-axis-label { font: 500 11px var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--f-mono); }
-.flash-opts { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-.flash-opt { display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 14px; cursor: pointer;
-  background: var(--f-paper); border: 1px solid var(--f-line); text-align: left; }
-.flash-opt:hover { border-color: hsl(var(--flash-topic-hue) 60% 46% / .6); background: rgba(255,255,255,.94); }
-.flash-opt[aria-checked="true"] { border-color: hsl(var(--flash-topic-hue) 62% 46%);
-  background: hsl(var(--flash-topic-hue) 70% 55% / .12);
-  box-shadow: 0 10px 24px -14px hsl(var(--flash-topic-hue) 55% 45% / .6); }
-.flash-opt-name { font: 500 15px var(--font-sans); color: var(--f-ink); }
+.flash-opts { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.flash-opt { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 15px; cursor: pointer;
+  background: rgba(255,255,255,.7); border: 1px solid rgba(31,95,166,.14); text-align: left;
+  transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+.flash-opt:hover { border-color: rgba(47,127,224,.6); background: rgba(255,255,255,.97); transform: translateY(-2px); }
+.flash-opt[aria-checked="true"] { border-color: var(--f-azure);
+  background: linear-gradient(180deg, rgba(47,127,224,.12), rgba(30,196,221,.07));
+  box-shadow: 0 14px 30px -16px rgba(31,95,166,.6); }
+.flash-opt-name { font: 600 15.5px var(--font-sans); color: var(--f-ink); }
 .flash-opt-sub { font: 400 12.5px var(--font-sans); color: var(--f-mono); }
 .flash-summary { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
   font: 400 14px var(--font-sans); color: var(--f-ink2); text-align: center; }
-.flash-summary-strong { font-weight: 600; color: var(--f-ink); }
-.flash-summary-dot { width: 4px; height: 4px; border-radius: 50%; background: hsl(var(--flash-topic-hue) 60% 55%); }
+.flash-summary-strong { font-weight: 600; color: var(--f-blue); }
+.flash-summary-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--f-cyan); }
 .flash-step-foot { display: flex; justify-content: center; margin-top: 4px; }
 .flash-step-foot-split { justify-content: space-between; }
-.flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 10px; width: 100%; }
-.flash-topic { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 16px; cursor: pointer;
-  background: var(--f-paper); border: 1px solid var(--f-line); text-align: left; }
-.flash-topic:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 60% 46% / .6); background: rgba(255,255,255,.94); }
+.flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px,1fr)); gap: 12px; width: 100%; }
+/* Topic tiles — glass cards; each shows its identity hue as a slim left accent only,
+   and selects to a medical-blue ring (never the stray hue). */
+.flash-topic { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
+  padding: 16px 16px 16px 22px; border-radius: 16px; cursor: pointer;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(31,95,166,.14); text-align: left;
+  transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+.flash-topic::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: hsl(var(--flash-topic-hue) 70% 56%); opacity: .85; }
+.flash-topic:hover:not(:disabled) { border-color: rgba(47,127,224,.55); background: rgba(255,255,255,.98);
+  transform: translateY(-2px); box-shadow: 0 16px 32px -20px rgba(31,95,166,.5); }
 .flash-topic:disabled { opacity: .45; cursor: not-allowed; }
-.flash-topic.is-selected { border-color: hsl(var(--flash-topic-hue) 62% 46%);
-  background: hsl(var(--flash-topic-hue) 70% 55% / .1);
-  box-shadow: 0 10px 26px -14px hsl(var(--flash-topic-hue) 55% 45% / .6); }
-.flash-topic-label { font: 500 15px var(--font-sans); color: var(--f-ink); }
+.flash-topic.is-selected { border-color: var(--f-azure);
+  background: linear-gradient(180deg, rgba(47,127,224,.1), rgba(30,196,221,.06));
+  box-shadow: 0 16px 34px -18px rgba(31,95,166,.6); }
+.flash-topic-label { font: 600 15px var(--font-sans); color: var(--f-ink); }
 .flash-topic-sub { font: 400 12.5px var(--font-sans); color: var(--f-mono); }
-.flash-topic.is-mixed .flash-topic-label { color: hsl(var(--flash-topic-hue) 55% 38%); }
+.flash-topic.is-mixed::before { background: linear-gradient(180deg, var(--f-azure), var(--f-cyan)); opacity: 1; }
+.flash-topic.is-mixed .flash-topic-label { color: var(--f-azure); }
+.flash-topic.is-more { justify-content: center; border-style: dashed; }
+.flash-topic.is-more::before { display: none; }
 
-/* Setup buttons */
-.flash-start { display: inline-flex; align-items: center; gap: 7px; font: 500 13px var(--font-sans);
-  color: #fff; border: none; border-radius: 12px; padding: 13px 22px; cursor: pointer;
-  background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 62% 44%), var(--f-blue));
-  box-shadow: 0 14px 30px -16px hsl(var(--flash-topic-hue) 60% 40% / .9); }
-.flash-start:hover { filter: brightness(1.06); }
-.flash-back { font: 500 13px var(--font-sans); color: var(--f-mono); background: rgba(255,255,255,.6);
-  border: 1px solid var(--f-line); border-radius: 12px; padding: 13px 20px; cursor: pointer; }
-.flash-back:hover { background: rgba(255,255,255,.92); color: var(--f-ink); }
+/* Setup buttons — medical azure→cyan primary. */
+.flash-start { display: inline-flex; align-items: center; gap: 7px; font: 600 13.5px var(--font-sans);
+  color: #fff; border: none; border-radius: 13px; padding: 14px 24px; cursor: pointer;
+  background: linear-gradient(92deg, var(--f-azure), #18b0cf);
+  box-shadow: 0 16px 32px -16px rgba(31,95,166,.85); }
+.flash-start:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.flash-back { font: 500 13px var(--font-sans); color: var(--f-mono); background: rgba(255,255,255,.66);
+  border: 1px solid rgba(31,95,166,.18); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
+.flash-back:hover { background: rgba(255,255,255,.95); color: var(--f-ink); }
 
-/* Results — diagnostic summary readout */
-.flash-results { width: 100%; max-width: 620px; text-align: center; }
+/* Results — a floating light diagnostic-summary card on the deep cobalt field. */
+.flash-results { width: 100%; max-width: 560px; text-align: center;
+  background: linear-gradient(180deg,#ffffff,#eef5fd); border: 1px solid rgba(120,160,210,.3);
+  border-radius: 24px; padding: 42px 38px;
+  box-shadow: 0 50px 110px -50px rgba(4,16,34,.85), 0 0 0 1px rgba(150,195,245,.08); }
 .flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--f-mono); }
 .flash-results-score { font: 400 64px var(--font-serif); margin: 10px 0;
   background: linear-gradient(90deg, hsl(var(--flash-score-hue) 60% 42%), var(--f-blue));
@@ -2387,33 +2457,41 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-results-score strong { font-weight: 500; }
 .flash-results-coach { font: 400 16px/1.5 var(--font-sans); color: var(--f-ink2); margin: 0 auto; max-width: 46ch; }
 .flash-results-weak { font: 400 14px var(--font-sans); color: var(--f-mono); margin: 12px 0 0; }
-.flash-results-weak strong { color: hsl(var(--flash-topic-hue) 55% 38%); font-weight: 600; }
+.flash-results-weak strong { color: var(--f-blue); font-weight: 600; }
 .flash-results-reason { font: 400 13px var(--font-mono); letter-spacing: .04em; color: var(--f-mono); margin: 8px 0 0; }
-.flash-results-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 22px; }
-.flash-results-secondary { font: 500 13px var(--font-sans); color: var(--f-mono); background: rgba(255,255,255,.6);
-  border: 1px solid var(--f-line); border-radius: 12px; padding: 13px 20px; cursor: pointer; }
-.flash-results-secondary:hover { background: rgba(255,255,255,.92); color: var(--f-ink); }
+.flash-results-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
+.flash-results-secondary { font: 500 13px var(--font-sans); color: var(--f-ink2); background: #eef2f8;
+  border: 1px solid rgba(24,34,46,.12); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
+.flash-results-secondary:hover { background: #e3e9f2; color: var(--f-ink); }
 
-/* States */
-.flash-stage { width: 100%; display: flex; flex-direction: column; align-items: center; }
+/* States — the stage caps the instrument card's width so it scales up to fill the
+   screen but never spans edge to edge. Loading/empty copy reads light on the field. */
+.flash-stage { width: min(1060px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
-.flash-msg { font: 400 18px var(--font-serif); color: var(--f-ink2); }
+.flash-msg { font: 400 20px var(--font-serif); color: #cfe2f6; }
 
 @keyframes flash-rise { to { opacity: 1; transform: none; } }
 @keyframes flash-ignite { from { transform: scale(1); opacity: .85; } to { transform: scale(3.6); opacity: 0; } }
 @keyframes flash-seg { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 @keyframes flash-pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(13,130,118,.14); } 50% { box-shadow: 0 0 0 8px rgba(13,130,118,.04); } }
-@keyframes flash-spin { to { transform: rotate(360deg); } }
+@keyframes flash-border { to { --flash-angle: 360deg; } }
+@keyframes flash-underline { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes flash-scan {
+  from { background-position: center, center, center -60%; }
+  to   { background-position: center, center, center 160%; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .flash-option, .flash-segs i.is-now, .flash-lock.is-armed, .flash-hero-ring, .flash-step { animation: none; }
+  .flash-option, .flash-segs i.is-now, .flash-lock.is-armed, .flash-step,
+  .flash-card::before, .flash-step-lede::after, .flash-root::before { animation: none; }
   .flash-option, .flash-step { opacity: 1; transform: none; }
 }
 html[data-motion="reduce"] .flash-option,
 html[data-motion="reduce"] .flash-step { opacity: 1; transform: none; animation: none; }
 html[data-motion="reduce"] .flash-segs i.is-now,
 html[data-motion="reduce"] .flash-lock.is-armed,
-html[data-motion="reduce"] .flash-hero-ring { animation: none; }
+html[data-motion="reduce"] .flash-card::before,
+html[data-motion="reduce"] .flash-step-lede::after,
+html[data-motion="reduce"] .flash-root::before { animation: none; }
 
 /* ── Station-100 debrief (renders on the dark night consult pane) ── */
 .aurora-s100-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }

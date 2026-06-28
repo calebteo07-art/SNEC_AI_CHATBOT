@@ -1,10 +1,9 @@
 "use client";
 /* SessionSetup — the two-step flashcards intake shell. Owns the step (1|2), topic pick
-   and "show all" state; renders a 2-segment progress rail, the PERSISTENT instrument
-   hero (one CSS node that morphs from a large iris disc on step 1 to a small badge on
-   step 2 — it lives here so it never unmounts), and the keyed step content
-   (StepSession → StepTopic). Mixed is selected by default so Start always works. Picking
-   a topic floods the whole setup with that topic's hue via --flash-topic-hue. */
+   and "show all" state; renders a 2-segment progress rail and the keyed step content
+   (StepSession → StepTopic). Mixed is selected by default so Start always works. The
+   chrome stays medical-blue regardless of selection; each topic tile shows its identity
+   hue (--flash-topic-hue) only as a slim accent, set per-tile in StepTopic. */
 import { useEffect, useRef, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { type Difficulty, galleryHue } from "./types";
@@ -18,17 +17,6 @@ interface Props {
   onStart: (setKey: string | null) => void;
 }
 
-/** Persistent instrument hero — a single CSS iris under a slow aperture ring. Rendered
- *  once by the shell so it never unmounts; CSS sizes it by [data-step] on the setup root.
- *  Decorative (aria-hidden); data-testid proves it persists across the morph. */
-function Hero() {
-  return (
-    <div className="flash-hero" data-testid="flash-hero" aria-hidden="true">
-      <span className="flash-hero-ring" /><span className="flash-hero-iris" />
-    </div>
-  );
-}
-
 export function SessionSetup({
   topicSets, difficulty, setDifficulty, sessionLength, setSessionLength, onStart,
 }: Props) {
@@ -40,12 +28,13 @@ export function SessionSetup({
   const sets = (topicSets ?? []).filter((s) => s.difficulty === difficulty);
   const pickDifficulty = (d: Difficulty) => { setDifficulty(d); setSelected(null); setShowAll(false); };
 
-  // The whole setup adopts the selected tile's vivid hue (Mixed → brand blue 212). Index
-  // matches the tile's gallery position so the accent equals the picked card.
+  // The room's chrome stays medical-blue; we still track the selected tile's identity hue
+  // (Mixed → brand blue 212) so .flash-root carries a sensible --flash-topic-hue for the
+  // tile accents and as the study phase's default. Index matches the tile's gallery slot.
   const selectedIndex = sets.findIndex((s) => s.set_key === selected);
   const setupHue = selectedIndex >= 0 ? galleryHue(selectedIndex) : 212;
 
-  // Publish the live hue up to .flash-root so the whole field re-tints on every pick.
+  // Publish the live identity hue up to .flash-root (the chrome ignores it; tiles read it).
   useEffect(() => {
     setupRef.current?.closest<HTMLElement>(".flash-root")?.style.setProperty("--flash-topic-hue", String(setupHue));
   }, [setupHue]);
@@ -60,7 +49,6 @@ export function SessionSetup({
       </div>
 
       <div className="flash-setup-stage">
-        <Hero />
         <div className="flash-step" key={step}>
           {step === 1 ? (
             <StepSession difficulty={difficulty} pickDifficulty={pickDifficulty}
