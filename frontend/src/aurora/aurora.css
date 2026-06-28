@@ -2412,28 +2412,6 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-summary-strong { font-weight: 600; color: var(--f-blue); }
 .flash-summary-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--f-cyan); }
 .flash-step-foot { display: flex; justify-content: center; margin-top: 4px; }
-.flash-step-foot-split { justify-content: space-between; }
-.flash-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px,1fr)); gap: 12px; width: 100%; }
-/* Topic tiles — glass cards; each shows its identity hue as a slim left accent only,
-   and selects to a medical-blue ring (never the stray hue). */
-.flash-topic { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
-  padding: 16px 16px 16px 22px; border-radius: 16px; cursor: pointer;
-  background: rgba(255,255,255,.72); border: 1px solid rgba(31,95,166,.14); text-align: left;
-  transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease; }
-.flash-topic::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-  background: hsl(var(--flash-topic-hue) 70% 56%); opacity: .85; }
-.flash-topic:hover:not(:disabled) { border-color: rgba(47,127,224,.55); background: rgba(255,255,255,.98);
-  transform: translateY(-2px); box-shadow: 0 16px 32px -20px rgba(31,95,166,.5); }
-.flash-topic:disabled { opacity: .45; cursor: not-allowed; }
-.flash-topic.is-selected { border-color: var(--f-azure);
-  background: linear-gradient(180deg, rgba(47,127,224,.1), rgba(30,196,221,.06));
-  box-shadow: 0 16px 34px -18px rgba(31,95,166,.6); }
-.flash-topic-label { font: 600 15px var(--font-sans); color: var(--f-ink); }
-.flash-topic-sub { font: 400 12.5px var(--font-sans); color: var(--f-mono); }
-.flash-topic.is-mixed::before { background: linear-gradient(180deg, var(--f-azure), var(--f-cyan)); opacity: 1; }
-.flash-topic.is-mixed .flash-topic-label { color: var(--f-azure); }
-.flash-topic.is-more { justify-content: center; border-style: dashed; }
-.flash-topic.is-more::before { display: none; }
 
 /* Setup buttons — medical azure→cyan primary. */
 .flash-start { display: inline-flex; align-items: center; gap: 7px; font: 600 13.5px var(--font-sans);
