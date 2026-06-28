@@ -1,15 +1,15 @@
 "use client";
-/* StepSession — step 1 of the flashcards setup: the calm "how" screen. The pace is
-   chosen on two rows of tactile choice cards (difficulty + length), each with a glyph,
-   a descriptor and a live accent, and a running session summary that updates as you
-   pick. No hero (the shared hero lives in the shell and morphs across steps). */
+/* StepSession — step 1 of the flashcards intake: the calm "how" screen. Difficulty and
+   length are chosen on two rows of instrument keys (role=radio), with a live session
+   summary that updates as you pick. No hero (the shared hero lives in the shell and
+   morphs across steps). */
 import { type Difficulty, LENGTHS } from "./types";
 
-/** Difficulty options + the descriptor and equalizer level shown on each card. */
-const DIFFS: { key: Difficulty; name: string; sub: string; level: 1 | 2 | 3 }[] = [
-  { key: "easy", name: "Easy", sub: "Recall the essentials", level: 1 },
-  { key: "medium", name: "Medium", sub: "Apply & reason", level: 2 },
-  { key: "hard", name: "Hard", sub: "Clinical judgement", level: 3 },
+/** Difficulty options + the descriptor shown on each key. */
+const DIFFS: { key: Difficulty; name: string; sub: string }[] = [
+  { key: "easy", name: "Easy", sub: "Recall the essentials" },
+  { key: "medium", name: "Medium", sub: "Apply & reason" },
+  { key: "hard", name: "Hard", sub: "Clinical judgement" },
 ];
 
 /** Per-length flavour copy keyed by card count. */
@@ -40,7 +40,7 @@ export function StepSession({
   const minutes = estMinutes(sessionLength, difficulty);
 
   return (
-    <div className="flash-step-body flash-step-session">
+    <div className="flash-step-body">
       <div className="flash-step-lede">
         <h2 className="flash-setup-title">Flashcards</h2>
       </div>
@@ -48,13 +48,10 @@ export function StepSession({
       <div className="flash-choices">
         <div className="flash-axis">
           <span className="flash-axis-label">Difficulty</span>
-          <div className="flash-opts flash-opts-3" role="radiogroup" aria-label="Difficulty">
+          <div className="flash-opts" role="radiogroup" aria-label="Difficulty">
             {DIFFS.map((d) => (
               <button key={d.key} type="button" role="radio" aria-checked={difficulty === d.key}
                 className="flash-opt flash-press" onClick={() => pickDifficulty(d.key)}>
-                <span className="flash-opt-glyph" aria-hidden="true">
-                  <span className="flash-meter" data-level={d.level}><i /><i /><i /></span>
-                </span>
                 <span className="flash-opt-name">{d.name}</span>
                 <span className="flash-opt-sub">{d.sub}</span>
               </button>
@@ -64,13 +61,10 @@ export function StepSession({
 
         <div className="flash-axis">
           <span className="flash-axis-label">Length</span>
-          <div className="flash-opts flash-opts-3" role="radiogroup" aria-label="Session length">
-            {LENGTHS.map((l, i) => (
+          <div className="flash-opts" role="radiogroup" aria-label="Session length">
+            {LENGTHS.map((l) => (
               <button key={l.n} type="button" role="radio" aria-checked={sessionLength === l.n}
                 className="flash-opt flash-press" onClick={() => setSessionLength(l.n)}>
-                <span className="flash-opt-glyph" aria-hidden="true">
-                  <span className="flash-stack" data-fill={i + 1}><i /><i /><i /></span>
-                </span>
                 <span className="flash-opt-name">{l.label}</span>
                 <span className="flash-opt-sub">{l.n} cards · {LENGTH_SUB[l.n]}</span>
               </button>
@@ -80,7 +74,6 @@ export function StepSession({
       </div>
 
       <p className="flash-summary" aria-live="polite">
-        <span className="flash-wave" aria-hidden="true"><i /><i /><i /><i /><i /></span>
         <span className="flash-summary-strong">{diffName}</span> pace
         <span className="flash-summary-dot" aria-hidden="true" />
         <span className="flash-summary-strong">{sessionLength} cards</span>
@@ -89,7 +82,7 @@ export function StepSession({
       </p>
 
       <div className="flash-step-foot">
-        <button type="button" className="flash-start flash-press" data-testid="flash-continue"
+        <button type="button" className="flash-continue flash-start flash-press" data-testid="flash-continue"
           onClick={onContinue}>Continue →</button>
       </div>
     </div>

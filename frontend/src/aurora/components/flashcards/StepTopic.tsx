@@ -1,8 +1,8 @@
 "use client";
-/* StepTopic — step 2 of the flashcards setup: the vivid "what" screen. The topic
-   gallery (Mixed selected by default) fills the page; picking a tile floods the
-   setup's --flash-topic-hue. Back returns to step 1; Start commits the set. No hero
-   (the shared hero lives in the shell, shrunk to a badge above this content). */
+/* StepTopic — step 2 of the flashcards intake: the "what" channel gallery. Mixed is
+   selected by default; picking a tile floods the setup's --flash-topic-hue. Back returns
+   to step 1; Start commits the set. No hero (the shared hero lives in the shell, shrunk to
+   a badge above this content). */
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { galleryHue } from "./types";
 
@@ -25,7 +25,7 @@ export function StepTopic({
   const hiddenCount = sets.length - visible.length;
 
   return (
-    <div className="flash-step-body flash-step-topic">
+    <div className="flash-step-body">
       <div className="flash-step-lede">
         <h2 className="flash-setup-title">Topics</h2>
       </div>
@@ -33,7 +33,6 @@ export function StepTopic({
       <section className="flash-topics" aria-label="Topics">
         <button type="button"
           className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
-          style={{ "--i": 0 } as React.CSSProperties}
           aria-pressed={selected === null} onClick={() => setSelected(null)}>
           <span className="flash-topic-label">Mixed</span>
           <span className="flash-topic-sub">full spectrum</span>
@@ -41,7 +40,7 @@ export function StepTopic({
         {visible.map((s, i) => (
           <button key={s.set_key} type="button" disabled={s.total === 0}
             className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
-            style={{ "--flash-topic-hue": galleryHue(i), "--i": i + 1 } as React.CSSProperties}
+            style={{ "--flash-topic-hue": galleryHue(i) } as React.CSSProperties}
             aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
             <span className="flash-topic-label">{s.label}</span>
             <span className="flash-topic-sub">{s.total} cards</span>
