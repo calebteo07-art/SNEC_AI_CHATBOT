@@ -1,64 +1,55 @@
 "use client";
-/* StepTopic — step 2 of the flashcards intake: the "what" channel gallery. Mixed is
-   selected by default; picking a tile floods the setup's --flash-topic-hue. Back returns
-   to step 1; Start commits the set. No hero (the shared hero lives in the shell, shrunk to
-   a badge above this content). */
+/* StepTopic — step 2 of the flashcards intake: the topic fan. Maps the
+   role-filtered, difficulty-filtered sets to carousel cards (Mixed first), and
+   starts a deck the moment a card is picked. Role access is enforced upstream
+   by /api/flashcards/topics; this only renders what it is given. */
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { galleryHue } from "./types";
+import { CardFanCarousel, type FanCard } from "./CardFanCarousel";
 
-const PREVIEW = 6;
+const MIXED_HUE = 212;
+
+/** topic_key → its generated portrait. Missing files fall back to a hue
+ *  placeholder inside the card (CardFanCarousel onError), so this never throws. */
+export function topicImage(topicKey: string): string {
+  const file = topicKey === "__mixed" ? "mixed" : topicKey;
+  return `/media/flashcards/topics/${file}.png`;
+}
 
 interface Props {
   sets: FlashcardSetInfo[];
-  selected: string | null;
-  setSelected: (key: string | null) => void;
-  showAll: boolean;
-  setShowAll: (v: boolean) => void;
   onBack: () => void;
-  onStart: () => void;
+  onStart: (setKey: string | null) => void;
 }
 
-export function StepTopic({
-  sets, selected, setSelected, showAll, setShowAll, onBack, onStart,
-}: Props) {
-  const visible = showAll ? sets : sets.slice(0, PREVIEW);
-  const hiddenCount = sets.length - visible.length;
+export function StepTopic({ sets, onBack, onStart }: Props) {
+  const cards: FanCard[] = [
+    { id: "__mixed", label: "Mixed", sub: "full spectrum", hue: MIXED_HUE,
+      imgUrl: topicImage("__mixed"), startable: true },
+    ...sets.map((s, i) => ({
+      id: s.set_key,
+      label: s.label,
+      sub: `${s.total} cards`,
+      hue: galleryHue(i),
+      imgUrl: topicImage(s.topic_key),
+      startable: s.total > 0,
+    })),
+  ];
 
   return (
     <div className="flash-step-body">
       <div className="flash-step-lede">
         <h2 className="flash-setup-title">Topics</h2>
+        <p className="flash-step-sub">The cards drift on their own — tap the one you want to start.</p>
       </div>
 
-      <section className="flash-topics" aria-label="Topics">
-        <button type="button"
-          className={`flash-topic is-mixed flash-press${selected === null ? " is-selected" : ""}`}
-          aria-pressed={selected === null} onClick={() => setSelected(null)}>
-          <span className="flash-topic-label">Mixed</span>
-          <span className="flash-topic-sub">full spectrum</span>
-        </button>
-        {visible.map((s, i) => (
-          <button key={s.set_key} type="button" disabled={s.total === 0}
-            className={`flash-topic flash-press${selected === s.set_key ? " is-selected" : ""}`}
-            style={{ "--flash-topic-hue": galleryHue(i) } as React.CSSProperties}
-            aria-pressed={selected === s.set_key} onClick={() => setSelected(s.set_key)}>
-            <span className="flash-topic-label">{s.label}</span>
-            <span className="flash-topic-sub">{s.total} cards</span>
-          </button>
-        ))}
-        {hiddenCount > 0 && (
-          <button type="button" className="flash-topic is-more flash-press" onClick={() => setShowAll(true)}>
-            <span className="flash-topic-label">Show all topics</span>
-            <span className="flash-topic-sub">+{hiddenCount} more</span>
-          </button>
-        )}
-      </section>
+      <CardFanCarousel
+        cards={cards}
+        onPick={(c) => onStart(c.id === "__mixed" ? null : c.id)} />
 
-      <div className="flash-step-foot flash-step-foot-split">
+      <div className="flash-step-foot">
         <button type="button" className="flash-back flash-press" data-testid="flash-back"
           onClick={onBack}>← Back</button>
-        <button type="button" className="flash-start flash-press" data-testid="flash-start"
-          onClick={onStart}>Start session →</button>
       </div>
     </div>
   );
