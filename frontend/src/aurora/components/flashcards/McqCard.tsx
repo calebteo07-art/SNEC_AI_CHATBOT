@@ -1,166 +1,157 @@
 "use client";
-/* McqCard — the centered question card. Pick option(s) → Check → instant reveal of the
-   model answer (correct/incorrect highlight + explanation). A few cards per deck carry a
-   COMPULSORY typed-reasoning box (Check disabled until filled); its grade resolves in the
-   background and never blocks the reveal. Free-text tutor cards (no options) flip to a
-   reveal + self-mark. No AI on the MCQ path. */
+/* McqCard — the Console instrument card. Tap = instant lock + reveal (no submit). Multi
+   cards toggle then fire a small lock reticle. A few cards show an OPTIONAL typed reflection
+   in the readout (background-graded, never gates). Free-text tutor cards flip to a self-mark.
+   The lower-band Brownian colour field lives inside the card, masked below the question. */
 import { useEffect, useState } from "react";
 import { type Flashcard, MAX_REASON_CHARS, gradeSelection } from "./types";
+import { BrownianField } from "./BrownianField";
+import { Icon } from "@/aurora/icons";
 
 interface Props {
-  card: Flashcard;
-  deckTitle: string;
-  /** Called when the student checks the card. `correct` is the instant MCQ verdict;
-   *  `reasoning` is the typed text (empty unless requiresExplanation). */
+  card: Flashcard; deckTitle: string; idx: number; total: number;
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
-  onAdvance: () => void;
-  advanceLabel: string;
-  /** Background typed-reasoning grade for THIS card, once it returns (else null). */
-  reasonNote: string | null;
+  onReason: (cardId: number, stem: string, text: string, model: string) => void;
+  onAdvance: () => void; advanceLabel: string; reasonNote: string | null;
 }
 
 export function McqCard(p: Props) {
   const { card } = p;
   const [selected, setSelected] = useState<number[]>([]);
   const [reasoning, setReasoning] = useState("");
+  const [sentReason, setSentReason] = useState(false);
   const [checked, setChecked] = useState(false);
   const [verdict, setVerdict] = useState(false);
 
-  // Reset per card.
-  useEffect(() => { setSelected([]); setReasoning(""); setChecked(false); setVerdict(false); }, [card.id]);
-
-  const toggle = (i: number) => {
-    if (checked) return;
-    setSelected((prev) =>
-      card.qtype === "single" ? [i] : prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
-  };
+  useEffect(() => {
+    setSelected([]); setReasoning(""); setSentReason(false); setChecked(false); setVerdict(false);
+  }, [card.id]);
 
   const needsReason = card.requiresExplanation && !card.freeText;
-  const canCheck = card.freeText
-    ? true
-    : selected.length > 0 && (!needsReason || reasoning.trim().length > 0);
+  const letters = ["a", "b", "c", "d", "e", "f"];
 
-  const doCheck = () => {
-    if (!canCheck || checked) return;
-    const correct = card.freeText ? false : gradeSelection(card, selected);
-    setVerdict(correct);
-    setChecked(true);
-    p.onCheck(correct, selected, needsReason ? reasoning.trim() : "");
+  const ignite = (li: Element | null) => {
+    const lamp = li?.querySelector(".flash-lamp"); if (!lamp) return;
+    const r = document.createElement("span"); r.className = "flash-ignite";
+    lamp.appendChild(r); setTimeout(() => r.remove(), 650);
   };
 
-  // Free-text self-mark — guard on local `checked` so a rapid double-click can't tally twice.
-  const selfMark = (got: boolean) => {
+  const doReveal = (sel: number[]) => {
     if (checked) return;
-    setChecked(true);
-    p.onCheck(got, [], "");
+    const correct = gradeSelection(card, sel);
+    setSelected(sel); setVerdict(correct); setChecked(true);
+    p.onCheck(correct, sel, "");
+  };
+
+  const tap = (i: number, el: HTMLElement) => {
+    if (checked) return;
+    if (card.qtype === "single") { ignite(el); doReveal([i]); return; }
+    setSelected((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
+  };
+  const fireLock = (root: HTMLElement) => {
+    if (checked || selected.length === 0) return;
+    selected.forEach((i) => ignite(root.querySelector(`[data-opt="${i}"]`)));
+    doReveal(selected);
+  };
+  const advance = () => {
+    if (needsReason && reasoning.trim() && !sentReason) {
+      p.onReason(card.id, card.stem, reasoning.trim(), card.explanation); setSentReason(true);
+    }
     p.onAdvance();
   };
+  const selfMark = (got: boolean) => { if (checked) return; setChecked(true); p.onCheck(got, [], ""); p.onAdvance(); };
 
-  // Free-text tutor card → flip-to-reveal self-mark.
+  const topBar = (
+    <div className="flash-top">
+      <span className="flash-tag"><span aria-hidden>&#9673;</span>{card.tag} · {p.deckTitle}{card.qtype === "multi" ? " · select all" : ""}</span>
+      <span className="flash-track" aria-label={`Card ${p.idx + 1} of ${p.total}`}>
+        <span className="flash-segs">{Array.from({ length: p.total }).map((_, i) =>
+          <i key={i} className={i < p.idx ? "is-done" : i === p.idx ? "is-now" : ""} />)}</span>
+        <span className="flash-count">{String(p.idx + 1).padStart(2, "0")} / {String(p.total).padStart(2, "0")}</span>
+      </span>
+    </div>
+  );
+
   if (card.freeText) {
     return (
-      <div className="flash-cardwrap">
-        <div className={`flash-card${checked ? " is-flipped" : ""}`}>
-          <section className="flash-face is-front">
-            <span className="flash-topictag"><span>{card.tag} · {p.deckTitle}</span></span>
-            <p className="flash-q">{card.stem}</p>
-            {!checked && (
-              <button type="button" className="flash-submit flash-press" data-testid="flash-reveal"
-                onClick={() => setChecked(true)}>Show answer</button>
-            )}
-          </section>
-          <section className="flash-face is-back">
-            {checked && (
-              <div className="flash-reveal" data-testid="flash-reveal-back">
+      <div className="flash-card"><BrownianField />
+        <div className="flash-cardin">
+          {topBar}<div className="flash-rule" /><p className="flash-kicker">recall</p>
+          <p className="flash-q">{card.stem}</p>
+          {!checked
+            ? <button type="button" className="flash-advance" data-testid="flash-reveal" onClick={() => setChecked(true)}>Show answer</button>
+            : <div className="flash-reveal" data-testid="flash-reveal-back">
                 <p className="flash-compare-label">Model answer</p>
                 <p className="flash-model">{card.explanation}</p>
                 <div className="flash-selfmark">
-                  <button type="button" className="flash-press flash-mark-miss"
-                    onClick={() => selfMark(false)}>Missed it</button>
-                  <button type="button" className="flash-press flash-mark-got"
-                    onClick={() => selfMark(true)}>Got it</button>
+                  <button type="button" className="flash-mark-miss" onClick={() => selfMark(false)}>Missed it</button>
+                  <button type="button" className="flash-mark-got" onClick={() => selfMark(true)}>Got it</button>
                 </div>
-              </div>
-            )}
-          </section>
+              </div>}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flash-cardwrap">
-      <div className={`flash-card${checked ? " is-flipped" : ""}${checked && verdict ? " is-high" : ""}`}>
-        {/* FRONT — options */}
-        <section className="flash-face is-front">
-          <span className="flash-topictag">
-            <span>{card.tag} · {p.deckTitle}{card.qtype === "multi" ? " · select all" : ""}</span>
-          </span>
-          <p className="flash-q">{card.stem}</p>
-          <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
-            {card.options.map((opt, i) => (
+    <div className={`flash-card${checked && verdict ? " is-right" : ""}`}>
+      <BrownianField />
+      <div className="flash-cardin">
+        {topBar}<div className="flash-rule" />
+        <p className="flash-kicker">question {String(p.idx + 1).padStart(2, "0")}</p>
+        <p className="flash-q">{card.stem}</p>
+        <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
+          {card.options.map((opt, i) => {
+            const picked = selected.includes(i);
+            const cls = checked
+              ? card.correct.includes(i) ? "is-correct" : picked ? "is-wrong" : ""
+              : picked ? "is-picked" : "";
+            return (
               <li key={i}>
-                <button type="button" data-testid="flash-option"
-                  role={card.qtype === "single" ? "radio" : "checkbox"}
-                  aria-checked={selected.includes(i)}
-                  className={`flash-option flash-press${selected.includes(i) ? " is-picked" : ""}`}
-                  onClick={() => toggle(i)} disabled={checked}>
-                  <span className="flash-option-mark" aria-hidden />
-                  <span className="flash-option-text">{opt}</span>
+                <button type="button" data-testid="flash-option" data-opt={i}
+                  role={card.qtype === "single" ? "radio" : "checkbox"} aria-checked={picked}
+                  className={`flash-option ${cls}`} disabled={checked}
+                  onClick={(e) => tap(i, e.currentTarget.parentElement as HTMLElement)}>
+                  <span className="flash-lamp" aria-hidden>{checked
+                    ? (card.correct.includes(i) ? "✓" : picked ? "✗" : letters[i])
+                    : letters[i]}</span>
+                  <span className="flash-otext">{opt}</span>
                 </button>
               </li>
-            ))}
-          </ul>
-          {needsReason && (
-            <div className="flash-reason">
-              <label className="flash-reason-label" htmlFor="flash-reason-box">
-                Explain your reasoning <span className="flash-reason-req">(required)</span>
-              </label>
-              <textarea id="flash-reason-box" className="flash-reason-box"
-                data-testid="flash-reason" value={reasoning} rows={2} maxLength={MAX_REASON_CHARS}
-                onChange={(e) => setReasoning(e.target.value.slice(0, MAX_REASON_CHARS))}
-                placeholder="In a sentence, why is that your answer?" />
-            </div>
-          )}
-          {!checked && (
-            <button type="button" className="flash-submit flash-press" data-testid="flash-check"
-              onClick={doCheck} disabled={!canCheck}>Check</button>
-          )}
-        </section>
+            );
+          })}
+        </ul>
 
-        {/* BACK — reveal */}
-        <section className="flash-face is-back">
-          {checked && (
-            <div className="flash-reveal" data-testid="flash-reveal-back">
-              <p className={`flash-verdict ${verdict ? "is-right" : "is-wrong"}`}>
-                {verdict ? "Correct" : "Not quite"}
-              </p>
-              <ul className="flash-options is-revealed">
-                {card.options.map((opt, i) => {
-                  const isCorrect = card.correct.includes(i);
-                  const isPicked = selected.includes(i);
-                  const cls = isCorrect ? "is-correct" : isPicked ? "is-wrongpick" : "";
-                  return (
-                    <li key={i} className={`flash-option-result ${cls}`}>
-                      <span className="flash-option-text">{opt}</span>
-                      {isCorrect && <span className="flash-tick" aria-hidden>&#10003;</span>}
-                      {!isCorrect && isPicked && <span className="flash-cross" aria-hidden>&#10007;</span>}
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className="flash-compare-label">Why</p>
-              <p className="flash-model">{card.explanation}</p>
-              {needsReason && (
-                <p className="flash-reason-note" data-testid="flash-reason-note">
-                  {p.reasonNote ?? "Reviewing your written answer…"}
-                </p>
-              )}
-              <button type="button" className="flash-advance flash-press" data-testid="flash-advance"
-                onClick={p.onAdvance}>{p.advanceLabel}</button>
-            </div>
-          )}
-        </section>
+        {!checked && (
+          <div className="flash-foot">
+            <span className="flash-hint">{card.qtype === "multi" ? "tap all that apply, then lock" : "tap to lock — no submit"}</span>
+            {card.qtype === "multi" && (
+              <button type="button" aria-label="Lock in your answer"
+                className={`flash-lock${selected.length ? " is-armed" : ""}`}
+                onClick={(e) => fireLock(e.currentTarget.closest(".flash-card") as HTMLElement)}>
+                <Icon.lock size={18} />
+              </button>
+            )}
+          </div>
+        )}
+
+        {checked && (
+          <div className="flash-reveal" data-testid="flash-reveal-back">
+            <p className={`flash-verdict ${verdict ? "is-right" : "is-wrong"}`}>{verdict ? "signal locked" : "review this one"}</p>
+            <p className="flash-compare-label">Findings</p>
+            <p className="flash-model">{card.explanation}</p>
+            {needsReason && (
+              <div className="flash-reason">
+                <textarea className="flash-reason-box" data-testid="flash-reason" rows={2}
+                  maxLength={MAX_REASON_CHARS} value={reasoning}
+                  placeholder="Optional: in a sentence, why? (we'll review it)"
+                  onChange={(e) => setReasoning(e.target.value.slice(0, MAX_REASON_CHARS))} />
+                {p.reasonNote && <p className="flash-reason-note" data-testid="flash-reason-note">{p.reasonNote}</p>}
+              </div>
+            )}
+            <button type="button" className="flash-advance" data-testid="flash-advance" onClick={advance}>{p.advanceLabel}</button>
+          </div>
+        )}
       </div>
     </div>
   );
