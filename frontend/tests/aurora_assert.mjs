@@ -161,6 +161,13 @@ console.log("PASS: retired /progress and /summary no longer resolve");
 // (no Check/submit button), and on reason cards an OPTIONAL reflection box appears after
 // the reveal and never gates advance. Ends on an X/N results screen.
 await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
+// topics: 8 easy CLINICAL sets so step 2 paginates the fan (8 + Mixed = 9 > 7).
+await navCtx.route("**/api/flashcards/topics", (r) => r.fulfill(JSON_OK({ sets: [
+  ["ocular_emergencies", "Ocular Emergencies"], ["red_eye", "Red Eye Differential"],
+  ["triage", "Triage Categories"], ["history_taking", "History Taking"],
+  ["distance_va", "Distance Visual Acuity"], ["near_vision", "Near Vision"],
+  ["pinhole", "Pinhole Testing"], ["iop_nct", "IOP & Non-Contact Tonometry"],
+].map(([topic_key, label]) => ({ set_key: `${topic_key}__easy`, topic_key, label, difficulty: "easy", total: 5, completed: 0 })) })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
@@ -177,8 +184,14 @@ if ((await np.locator('[data-testid="flash-setup"][data-step="1"]').count()) < 1
 await np.locator('[data-testid="flash-continue"]').click();
 await np.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
 console.log("PASS: Flashcards — stepped Session→Topic flow");
-// Mixed is selected by default on step 2 — Start commits straight away (topics are unmocked here).
-await np.locator('[data-testid="flash-start"]').click();
+// step 2 is an auto-rotating topic fan: Mixed + the 8 mocked topics, with
+// pagination controls. One click on any card starts that deck.
+await np.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
+const fanCount = await np.locator('[data-testid="flash-pick"]').count();
+if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
+if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
+console.log("PASS: Flashcards — topic fan renders Mixed + topics with controls");
+await np.locator('[data-card-id="ocular_emergencies__easy"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
 // Card 1: single-answer tap = INSTANT reveal — there is NO Check/submit button anywhere.
@@ -419,7 +432,7 @@ await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await stp.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
 await stp.locator('[data-testid="flash-continue"]').click();
 await stp.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
-await stp.locator('[data-testid="flash-start"]').click();
+await stp.locator('[data-card-id="__mixed"]').click();
 // graceful empty state appears; the study stage and the error boundary never do.
 await stp.waitForSelector(".flash-msg", { timeout: 15000 });
 await stp.waitForTimeout(600); // let any (mis)render settle
