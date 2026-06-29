@@ -202,7 +202,7 @@ export function Flashcards() {
       <StudyStage
         key={deckEpoch}
         card={card} idx={idx} total={total} topicLabel={labelForTag(card.tag)}
-        checked={checked} reasonNote={reasonNotesRef.current[card.id] ?? null}
+        reasonNote={reasonNotesRef.current[card.id] ?? null}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
     </FlashShell>

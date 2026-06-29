@@ -1,8 +1,9 @@
 "use client";
 /* EngravingField — faint education / eye-care line-art glyphs (eye, eye-chart,
    glasses, drop, graduation cap, open book, lightbulb, brain, DNA, pulse, atom)
-   etched STATICALLY across the activity canvas — placed once at random spots and
-   left still (no motion). DOM nodes, transform-only, no RAF loop.
+   etched STATICALLY around the card's rim — placed once in the perimeter bands
+   (top/bottom/left/right, never under the centred card) and left still (no motion).
+   DOM nodes, transform-only, no RAF loop.
    Decorative — themed for OA/OT/PSA allied-health learners, not doctors. */
 import { useEffect, useRef } from "react";
 
@@ -35,17 +36,39 @@ export function EngravingField({ className = "" }: { className?: string }) {
     const W = host.clientWidth || 1200;
     const H = host.clientHeight || 800;
 
-    // One of each glyph plus a few repeats, shuffled, so the canvas reads varied.
-    // Each is dropped at a random spot/rotation once and left still — no motion.
+    // The card floats centred — keep every glyph OUT of its footprint so the line-art
+    // frames the card (top / bottom / left / right) instead of hiding behind it.
+    // Exclusion box ≈ the card's footprint plus a breathing gap.
+    const cardW = Math.min(720, W * 0.96);
+    const cardH = Math.min(H * 0.74, 700);
+    const gap = 26;
+    const exL = (W - cardW) / 2 - gap, exR = (W + cardW) / 2 + gap;
+    const exT = (H - cardH) / 2 - gap, exB = (H + cardH) / 2 + gap;
+
+    // Pick a point in one of the four perimeter bands (top/bottom/left/right) that can
+    // hold an s×s glyph without crossing into the exclusion box. Falls back to a corner.
+    const placeOutside = (s: number): [number, number] => {
+      const bands: Array<[number, number, number, number]> = [];
+      if (exT - s > 0) bands.push([0, 0, W - s, exT - s]);                       // top band
+      if (exB < H - s) bands.push([0, exB, W - s, H - s]);                       // bottom band
+      if (exL - s > 0) bands.push([0, 0, exL - s, H - s]);                       // left column
+      if (exR < W - s) bands.push([exR, 0, W - s, H - s]);                       // right column
+      if (bands.length === 0) return [Math.max(0, W - s), Math.max(0, H - s)];
+      const [x0, y0, x1, y1] = bands[Math.floor(Math.random() * bands.length)];
+      return [x0 + Math.random() * Math.max(0, x1 - x0), y0 + Math.random() * Math.max(0, y1 - y0)];
+    };
+
+    // One of each glyph plus a few repeats, shuffled, so the rim reads varied.
+    // Each is dropped at a random perimeter spot/rotation once and left still.
     const picks = [...GLYPHS.keys(), 0, 5, 8].sort(() => Math.random() - 0.5);
     const nodes = picks.map((gi) => {
-      const s = 42 + Math.random() * 46; // 42–88px
+      const s = 44 + Math.random() * 48; // 44–92px
       const el = document.createElement("span");
       el.className = "flash-engraving";
       el.style.width = el.style.height = `${s}px`;
-      el.style.opacity = (0.12 + Math.random() * 0.06).toFixed(3);
+      el.style.opacity = (0.14 + Math.random() * 0.07).toFixed(3);
       el.innerHTML = `${SVG_OPEN}${GLYPHS[gi]}</svg>`;
-      const x = Math.random() * (W - s), y = Math.random() * (H - s);
+      const [x, y] = placeOutside(s);
       const rot = Math.random() * 44 - 22;
       el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${rot}deg)`;
       host.appendChild(el);
