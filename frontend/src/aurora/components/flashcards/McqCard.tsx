@@ -70,13 +70,12 @@ export function McqCard(p: Props) {
   };
 
   // The suspense beat → on complete, fire the verdict cue and flip.
-  const startCharge = (correct: boolean) => {
-    setCharging(true); fx.charge();
-    void correct; // cue fires on completion, below
-  };
+  const startCharge = () => { setCharging(true); fx.charge(); };
   const onCharged = () => {
     setCharging(false); setRevealed(true);
-    if (verdict) fx.win(); else fx.miss();
+    // Free-text cards have no programmatic verdict (the learner self-marks), so the
+    // reveal stays neutral — no win/miss cue and no "Correct" payoff claim.
+    if (!card.freeText) { if (verdict) fx.win(); else fx.miss(); }
   };
 
   const doReveal = (sel: number[]) => {
@@ -84,7 +83,7 @@ export function McqCard(p: Props) {
     const correct = gradeSelection(card, sel);
     setSelected(sel); setVerdict(correct); setChecked(true);
     p.onCheck(correct, sel, "");
-    if (!needsReason) startCharge(correct); // plain cards charge straight away
+    if (!needsReason) startCharge(); // plain cards charge straight away
   };
 
   const tap = (i: number, el: HTMLElement) => {
@@ -103,10 +102,10 @@ export function McqCard(p: Props) {
     if (reasoning.trim() && !sentReason) {
       p.onReason(card.id, card.stem, reasoning.trim(), card.explanation); setSentReason(true);
     }
-    startCharge(verdict);
+    startCharge();
   };
   const advance = () => { if (ready) p.onAdvance(); };
-  const showAnswerFree = () => { if (checked) return; setChecked(true); setVerdict(true); startCharge(true); };
+  const showAnswerFree = () => { if (checked) return; setChecked(true); startCharge(); };
   const selfMark = (got: boolean) => {
     if (marked || !ready) return;
     setMarked(true); p.onCheck(got, [], ""); p.onAdvance();
@@ -136,7 +135,7 @@ export function McqCard(p: Props) {
     <div className="flash-face is-back">
       <div className="flash-cardin" data-testid="flash-reveal-back">
         {topBar}<div className="flash-rule" />
-        <Payoff correct={verdict} combo={p.combo} basePoints={basePoints} />
+        {!card.freeText && <Payoff correct={verdict} combo={p.combo} basePoints={basePoints} />}
         <p className="flash-compare-label">Findings</p>
         <p className="flash-model flash-model-big">{card.explanation}</p>
         {needsReason && p.reasonNote && (
