@@ -16,6 +16,8 @@ Pools mirror check-in pooling (see flashcard_sets.py):
 """
 from __future__ import annotations
 
+import random
+
 from tools.flashcards.flashcard_sets import (
     DIFFICULTIES,
     pool_for_role,
@@ -9910,6 +9912,30 @@ def card_by_stem(role: str) -> dict[str, dict]:
     """{stem: tagged card} index for the role pool — used to rehydrate MCQ fields
     onto SM-2 due cards (which the DB stores only as front/back)."""
     return {c["stem"]: c for c in get_all_cards(role)}
+
+
+def shuffle_card_options(card: dict, rng: random.Random) -> dict:
+    """Return a copy of `card` with its MCQ options randomly permuted and the
+    `correct` indices remapped to the new positions.
+
+    The bank authors the correct answer(s) first, so served unshuffled every
+    answer reads as "option A". This randomises the slot at serve time — the
+    fix lives in one tested transform, so any future card is shuffled too.
+
+    Builds fresh lists (never mutates the source bank, whose `options`/`correct`
+    lists are shared across requests). No-op for cards with <2 options
+    (free-text / empty)."""
+    opts = card.get("options") or []
+    if len(opts) < 2:
+        return card
+    order = list(range(len(opts)))          # new position i -> old index order[i]
+    rng.shuffle(order)
+    old_to_new = {old: new for new, old in enumerate(order)}
+    return {
+        **card,
+        "options": [opts[i] for i in order],
+        "correct": sorted(old_to_new[c] for c in card.get("correct", [])),
+    }
 
 
 def mark_typed_cards(deck: list[dict], n: int) -> list[dict]:

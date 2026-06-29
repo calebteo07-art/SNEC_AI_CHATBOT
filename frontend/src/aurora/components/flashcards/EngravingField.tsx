@@ -1,8 +1,8 @@
 "use client";
 /* EngravingField — faint education / eye-care line-art glyphs (eye, eye-chart,
    glasses, drop, graduation cap, open book, lightbulb, brain, DNA, pulse, atom)
-   etched across the activity canvas, drifting with rapid Brownian motion. DOM
-   nodes, one RAF loop, transform-only. Static + frozen under reduced motion.
+   etched STATICALLY across the activity canvas — placed once at random spots and
+   left still (no motion). DOM nodes, transform-only, no RAF loop.
    Decorative — themed for OA/OT/PSA allied-health learners, not doctors. */
 import { useEffect, useRef } from "react";
 
@@ -31,53 +31,27 @@ export function EngravingField({ className = "" }: { className?: string }) {
   useEffect(() => {
     const host = ref.current;
     if (!host) return;
-    const reduced =
-      document.documentElement.dataset.motion === "reduce" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const W = () => host.clientWidth || 1200;
-    const H = () => host.clientHeight || 800;
-    type G = { el: HTMLSpanElement; s: number; rot: number; x: number; y: number; vx: number; vy: number };
+    const W = host.clientWidth || 1200;
+    const H = host.clientHeight || 800;
 
     // One of each glyph plus a few repeats, shuffled, so the canvas reads varied.
+    // Each is dropped at a random spot/rotation once and left still — no motion.
     const picks = [...GLYPHS.keys(), 0, 5, 8].sort(() => Math.random() - 0.5);
-    const items: G[] = picks.map((gi) => {
+    const nodes = picks.map((gi) => {
       const s = 42 + Math.random() * 46; // 42–88px
       const el = document.createElement("span");
       el.className = "flash-engraving";
       el.style.width = el.style.height = `${s}px`;
       el.style.opacity = (0.12 + Math.random() * 0.06).toFixed(3);
       el.innerHTML = `${SVG_OPEN}${GLYPHS[gi]}</svg>`;
+      const x = Math.random() * (W - s), y = Math.random() * (H - s);
+      const rot = Math.random() * 44 - 22;
+      el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${rot}deg)`;
       host.appendChild(el);
-      const a = Math.random() * 6.28, sp = 0.7 + Math.random() * 1.1;
-      return {
-        el, s, rot: Math.random() * 44 - 22,
-        x: Math.random() * (W() - s), y: Math.random() * (H() - s),
-        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-      };
+      return el;
     });
-    const draw = (g: G) =>
-      (g.el.style.transform = `translate(${g.x.toFixed(1)}px,${g.y.toFixed(1)}px) rotate(${g.rot}deg)`);
-    items.forEach(draw);
-    if (reduced) return () => items.forEach((g) => g.el.remove());
-
-    let raf = 0;
-    const tick = () => {
-      const w = W(), h = H();
-      for (const g of items) {
-        g.vx += (Math.random() - 0.5) * 1.0; g.vy += (Math.random() - 0.5) * 1.0; // rapid jitter
-        g.vx *= 0.96; g.vy *= 0.96;
-        const sp = Math.hypot(g.vx, g.vy), mx = 3.0; // rapid cap
-        if (sp > mx) { g.vx *= mx / sp; g.vy *= mx / sp; }
-        g.x += g.vx; g.y += g.vy;
-        if (g.x < 0) { g.x = 0; g.vx = Math.abs(g.vx); } else if (g.x > w - g.s) { g.x = w - g.s; g.vx = -Math.abs(g.vx); }
-        if (g.y < 0) { g.y = 0; g.vy = Math.abs(g.vy); } else if (g.y > h - g.s) { g.y = h - g.s; g.vy = -Math.abs(g.vy); }
-        draw(g);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(raf); items.forEach((g) => g.el.remove()); };
+    return () => nodes.forEach((el) => el.remove());
   }, []);
 
   return <div ref={ref} className={`flash-engravings ${className}`} aria-hidden="true" />;

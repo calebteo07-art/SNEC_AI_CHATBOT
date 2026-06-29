@@ -9,7 +9,7 @@ import { BrownianField } from "./BrownianField";
 import { Icon } from "@/aurora/icons";
 
 interface Props {
-  card: Flashcard; deckTitle: string; idx: number; total: number;
+  card: Flashcard; topicLabel: string; idx: number; total: number;
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
   onAdvance: () => void; advanceLabel: string; reasonNote: string | null;
@@ -63,7 +63,7 @@ export function McqCard(p: Props) {
 
   const topBar = (
     <div className="flash-top">
-      <span className="flash-tag"><span aria-hidden>&#9673;</span>{card.tag} · {p.deckTitle}{card.qtype === "multi" ? " · select all" : ""}</span>
+      <span className="flash-tag"><span aria-hidden>&#9673;</span>{p.topicLabel}</span>
       <span className="flash-track" aria-label={`Card ${p.idx + 1} of ${p.total}`}>
         <span className="flash-segs">{Array.from({ length: p.total }).map((_, i) =>
           <i key={i} className={i < p.idx ? "is-done" : i === p.idx ? "is-now" : ""} />)}</span>
@@ -98,7 +98,14 @@ export function McqCard(p: Props) {
       <BrownianField />
       <div className="flash-cardin">
         {topBar}<div className="flash-rule" />
-        <p className="flash-kicker">question {String(p.idx + 1).padStart(2, "0")}</p>
+        <p className="flash-kicker">
+          question {String(p.idx + 1).padStart(2, "0")}
+          {card.qtype === "multi" && (
+            <span className="flash-multi" data-testid="flash-multi">
+              <span aria-hidden>&#10003;&#10003;</span> Select all that apply
+            </span>
+          )}
+        </p>
         <p className="flash-q">{card.stem}</p>
         <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
           {card.options.map((opt, i) => {

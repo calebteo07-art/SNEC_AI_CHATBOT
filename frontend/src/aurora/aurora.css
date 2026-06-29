@@ -2220,7 +2220,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    with soft brand blooms. The motion lives in the drifting EngravingField behind the
    content and the card's rotating aurora rim — the field itself is calm. */
 .flash-root:not(:has(.flash-setup)) {
-  background: radial-gradient(132% 112% at 50% -12%, #ece0fa 0%, #dcc7f0 54%, #cbb4e8 100%);
+  background: radial-gradient(132% 112% at 50% -12%, #ddccf2 0%, #c6ade4 54%, #b197d6 100%);
 }
 .flash-root:not(:has(.flash-setup))::before {
   background:
@@ -2247,11 +2247,12 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root:has(.flash-setup) .flash-exit:hover {
   background: rgba(255,255,255,.14); color: #fff; }
 
-/* Engraving field — faint education / eye-care line glyphs drifting across the
-   activity canvas in rapid Brownian motion (EngravingField). Sits behind the
-   content; the Exit pill (z-index:5) and .flash-content (z-index:1) stay above it. */
+/* Engraving field — faint education / eye-care line glyphs etched STATICALLY
+   across the activity canvas (EngravingField), placed once and left still. Sits
+   behind the content; the Exit pill (z-index:5) and .flash-content (z-index:1)
+   stay above it. */
 .flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.flash-engraving { position: absolute; left: 0; top: 0; color: #5e44ad; display: block; will-change: transform; }
+.flash-engraving { position: absolute; left: 0; top: 0; color: #5e44ad; display: block; }
 .flash-engraving svg { width: 100%; height: 100%; display: block; }
 
 /* Brownian colour field — lower band inside the card, now GLOWING (screen) on the
@@ -2309,6 +2310,15 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 72% 50%), rgba(31,95,166,.55) 60%, transparent); }
 .flash-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
   color: hsl(var(--flash-topic-hue) 60% 40%); margin: 0 0 10px; }
+/* Multi-select badge — flags "Select all that apply" cards at a glance, beside the
+   kicker. Themed to the topic hue; tuned for the dark study slab. */
+.flash-multi { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px;
+  padding: 3px 10px; border-radius: 999px; font-size: 10px; letter-spacing: .12em;
+  text-transform: uppercase; vertical-align: middle; white-space: nowrap;
+  color: hsl(var(--flash-topic-hue) 82% 80%);
+  background: hsl(var(--flash-topic-hue) 70% 58% / .16);
+  border: 1px solid hsl(var(--flash-topic-hue) 70% 62% / .45); }
+.flash-multi > span[aria-hidden] { font-size: 11px; letter-spacing: -2px; }
 .flash-q { font: 400 29px/1.36 var(--font-serif); color: var(--f-ink); margin: 0 0 26px; max-width: 58ch; }
 
 /* Option instrument keys */
