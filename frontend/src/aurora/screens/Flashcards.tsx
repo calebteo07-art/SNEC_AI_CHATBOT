@@ -38,9 +38,8 @@ export function Flashcards() {
   const fromSession = sessionCards.length > 0;
 
   const { data: topicSets } = useFlashcardTopics();
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [setKey, setSetKey] = useState<string | null>(null);
-  const [sessionLength, setSessionLength] = useState(10);
+  const sessionLength = 10; // fixed deck length — no length picker
   const [pickerDone, setPickerDone] = useState(reviewMode);
 
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
@@ -159,8 +158,7 @@ export function Flashcards() {
     return (
       <FlashShell onExit={exit}>
         <SessionSetup
-          topicSets={topicSets} difficulty={difficulty} setDifficulty={setDifficulty}
-          sessionLength={sessionLength} setSessionLength={setSessionLength}
+          topicSets={topicSets}
           onStart={(key) => { setSetKey(key); setPickerDone(true); }}
         />
       </FlashShell>
