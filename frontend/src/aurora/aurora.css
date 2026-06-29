@@ -2183,9 +2183,9 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
      Action motion: a rotating conic aurora spectrum (flash-rim) orbiting a dark slab.
      Per-topic hue = identity (lifted for dark), teal = correct, coral = error, score
      hue (--flash-score-hue) colours the results readout.
-   The lower-band Brownian colour field (BrownianField → .flash-bg) still lives inside
-   the card, now glowing (screen) on the slab, masked so colour never climbs into the
-   question region.
+   The Brownian colour field (BrownianField → .flash-bg) now drifts in the BACKGROUND
+   behind everything, reading in the margins around the opaque card; the education
+   line-art (EngravingField) is etched in the perimeter bands so it frames the card.
    ───────────────────────────────────────────────────────────────────────── */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 @property --flash-score-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
@@ -2247,29 +2247,29 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root:has(.flash-setup) .flash-exit:hover {
   background: rgba(255,255,255,.14); color: #fff; }
 
-/* Engraving field — faint education / eye-care line glyphs etched STATICALLY
-   across the activity canvas (EngravingField), placed once and left still. Sits
-   behind the content; the Exit pill (z-index:5) and .flash-content (z-index:1)
-   stay above it. */
+/* Engraving field — faint education / eye-care line glyphs etched STATICALLY in the
+   perimeter bands (top/bottom/left/right) so they frame the card and never hide
+   behind it (EngravingField computes the exclusion box). Sits above the background
+   lights, behind the content; the Exit pill (z-index:5) and .flash-content
+   (z-index:1) stay above it. */
 .flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .flash-engraving { position: absolute; left: 0; top: 0; color: #5e44ad; display: block; }
 .flash-engraving svg { width: 100%; height: 100%; display: block; }
 
-/* Brownian colour field — lower band inside the card, now GLOWING (screen) on the
-   dark slab. Inset to the slab so it never paints over the aurora rim; masked at the
-   top so colour never climbs into the question. Sits above the slab (z-index:2). */
-.flash-bg { position: absolute; left: 2px; right: 2px; bottom: 2px; top: 210px; z-index: 2; pointer-events: none;
-  overflow: hidden; border-radius: 0 0 24px 24px;
-  -webkit-mask-image: linear-gradient(180deg,transparent 0,#000 48px);
-  mask-image: linear-gradient(180deg,transparent 0,#000 48px); }
+/* Brownian colour field — now the activity canvas's BACKGROUND lights (rendered by
+   FlashShell, not the card). Big soft blooms drift across the whole field behind the
+   content; the opaque dark card covers the centre, so the lights read in the margins
+   around it. Sits at the very back (z0, above the gradient ::before), below the
+   engraving rim and the content. */
+.flash-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
-  mix-blend-mode: screen; will-change: transform; }
+  mix-blend-mode: normal; filter: blur(7px); will-change: transform; }
 
 /* Instrument card — adopts the dashboard Next-Best-Action motion: a rotating conic
    aurora spectrum (flash-rim) orbits behind a frosted dark-navy slab, so a glowing
-   multi-hue rim sweeps the whole card. Width comes from .flash-stage; the tall body
-   lets the Brownian glow breathe. Light-on-dark via redefined --f-* tokens (teal /
-   coral stay vivid for correct / wrong). */
+   multi-hue rim sweeps the whole card. Width comes from .flash-stage. The colour
+   lights now live behind the canvas, not in the card. Light-on-dark via redefined
+   --f-* tokens (teal / coral stay vivid for correct / wrong). */
 .flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
   display: flex; flex-direction: column; border-radius: 26px;
   padding: 38px 42px 32px; overflow: hidden; isolation: isolate;
@@ -2319,7 +2319,10 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: hsl(var(--flash-topic-hue) 70% 58% / .16);
   border: 1px solid hsl(var(--flash-topic-hue) 70% 62% / .45); }
 .flash-multi > span[aria-hidden] { font-size: 11px; letter-spacing: -2px; }
-.flash-q { font: 400 29px/1.36 var(--font-serif); color: var(--f-ink); margin: 0 0 26px; max-width: 58ch; }
+/* Big, in-your-face question. clamp() is kept in LONGHAND (not the font shorthand) so
+   the CSS minifier can't drop the declaration. */
+.flash-q { font-family: var(--font-serif); font-weight: 600; font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.16; letter-spacing: -0.012em; color: var(--f-ink); margin: 0 0 26px; max-width: 30ch; }
 
 /* Option instrument keys */
 .flash-options { display: flex; flex-direction: column; gap: 12px; list-style: none; padding: 0; margin: 0; }
@@ -2342,7 +2345,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   display: flex; align-items: center; justify-content: center; border: 1px solid rgba(24,34,46,.18);
   font: 500 13px var(--font-mono); color: var(--f-mono); background: rgba(255,255,255,.6);
   transition: all .2s ease; }
-.flash-otext { font: 400 16.5px/1.45 var(--font-sans); color: var(--f-ink2); }
+.flash-otext { font: 500 18px/1.4 var(--font-sans); color: var(--f-ink2); }
 .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 62% 46%);
   background: hsl(var(--flash-topic-hue) 70% 55% / .14); }
 .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 62% 44%);
@@ -2387,7 +2390,32 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 62% 44%), var(--f-blue));
   border: none; border-radius: 10px; padding: 11px 17px; cursor: pointer;
   box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 60% 40% / .8); }
-.flash-advance:hover { filter: brightness(1.06); }
+.flash-advance:hover:not(:disabled) { filter: brightness(1.06); }
+.flash-advance:disabled { cursor: default; }
+
+/* Model explanation — one consistent "motion graphic in" on every card: slide-up +
+   fade, with a single sheen sweep as it lands. The Next control lives inside it. */
+.flash-modelwrap { position: relative; display: flex; flex-direction: column;
+  animation: flash-model-in .5s cubic-bezier(.22,1,.36,1) both; }
+@keyframes flash-model-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.flash-modelwrap::after { content: ""; position: absolute; inset: -4px -8px; pointer-events: none;
+  border-radius: 14px; background: linear-gradient(105deg, transparent 32%, rgba(255,255,255,.12) 48%, transparent 64%);
+  transform: translateX(-130%); animation: flash-sheen .9s ease .14s 1 both; }
+@keyframes flash-sheen { to { transform: translateX(130%); } }
+
+/* "Reveal model answer" — reflection card's gate; left-aligned under the reasoning box. */
+.flash-reveal-btn { margin-left: 0; }
+
+/* Locked-in dwell — the Next control is held disabled behind a filling ring for the
+   DWELL beat (--flash-dwell-ms) before it unlocks, so the learner sits with the
+   answer instead of tap-skipping. */
+.flash-advance.is-dwelling { background: rgba(150,170,255,.10); color: #c8cef0; box-shadow: none; padding-left: 13px; }
+.flash-dwell-ring { width: 18px; height: 18px; flex: 0 0 auto; }
+.flash-dwell-track { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 4; }
+.flash-dwell-fill { fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 94.25; stroke-dashoffset: 94.25; /* 2πr, r=15 */
+  animation: flash-dwell var(--flash-dwell-ms, 2200ms) linear forwards; }
+@keyframes flash-dwell { to { stroke-dashoffset: 0; } }
 
 /* Free-text tutor card */
 .flash-selfmark { display: flex; gap: 10px; margin-top: 16px; }
@@ -2493,7 +2521,7 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-count { color: #9aa3cc; }
 .flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 85% 70%), rgba(124,92,246,.5) 58%, transparent); }
 .flash-card .flash-kicker { color: hsl(var(--flash-topic-hue) 78% 72%); }
-.flash-card .flash-q { text-shadow: 0 1px 16px rgba(0,0,0,.35); }
+.flash-card .flash-q { color: #fbfbff; text-shadow: 0 2px 22px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.35); }
 .flash-card .flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 72% 66% / .8);
   background: rgba(150,170,255,.10); box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 70% 50% / .55); }
 .flash-card .flash-lamp { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.22); }
@@ -2513,7 +2541,10 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-reason-box { background: rgba(150,170,255,.06); }
 .flash-card .flash-advance { background: linear-gradient(95deg, #7C5CF6, #22B8D4);
   box-shadow: 0 12px 28px -14px rgba(124,92,246,.8); }
+/* Dwelling Next — out-specifies the gradient above so the held state reads as inert. */
+.flash-card .flash-advance.is-dwelling { background: rgba(150,170,255,.10); color: #c8cef0; box-shadow: none; }
 .flash-card .flash-mark-got, .flash-card .flash-mark-miss { background: rgba(150,170,255,.06); }
+.flash-card .flash-mark-got:disabled, .flash-card .flash-mark-miss:disabled { opacity: .5; cursor: default; }
 .flash-card .flash-mark-got { color: #39d0b8; border-color: rgba(57,208,184,.45); }
 .flash-card .flash-mark-got:hover { background: rgba(57,208,184,.12); }
 .flash-card .flash-mark-miss { color: #ff8a6e; border-color: rgba(255,138,110,.4); }
@@ -2564,11 +2595,18 @@ html[data-motion="reduce"] .flash-setup-title { animation: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .flash-option, .flash-segs i.is-now, .flash-lock.is-armed, .flash-step,
-  .flash-card::before, .flash-results::before, .flash-step-lede::after, .flash-root::before { animation: none; }
-  .flash-option, .flash-step { opacity: 1; transform: none; }
+  .flash-card::before, .flash-results::before, .flash-step-lede::after, .flash-root::before,
+  .flash-modelwrap, .flash-modelwrap::after, .flash-dwell-fill { animation: none; }
+  .flash-option, .flash-step, .flash-modelwrap { opacity: 1; transform: none; }
+  /* the dwell is still timed in JS; just drop the spinning ring */
+  .flash-dwell-ring { display: none; }
 }
 html[data-motion="reduce"] .flash-option,
-html[data-motion="reduce"] .flash-step { opacity: 1; transform: none; animation: none; }
+html[data-motion="reduce"] .flash-step,
+html[data-motion="reduce"] .flash-modelwrap { opacity: 1; transform: none; animation: none; }
+html[data-motion="reduce"] .flash-modelwrap::after,
+html[data-motion="reduce"] .flash-dwell-fill { animation: none; }
+html[data-motion="reduce"] .flash-dwell-ring { display: none; }
 html[data-motion="reduce"] .flash-segs i.is-now,
 html[data-motion="reduce"] .flash-lock.is-armed,
 html[data-motion="reduce"] .flash-card::before,

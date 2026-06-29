@@ -191,7 +191,8 @@ console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no diff
 await np.locator('[data-card-id="triage"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
-// Card 1: single-answer tap = INSTANT reveal — there is NO Check/submit button anywhere.
+// Card 1: single-answer tap = INSTANT verdict + model ("Findings"); NO Check/submit
+// button. The model animates in and Next is held through a "locked-in" dwell beat.
 await np.locator('[data-testid="flash-option"]').first().click();
 await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
 if ((await np.locator('[data-testid="flash-check"]').count()) > 0) {
@@ -200,23 +201,31 @@ if ((await np.locator('[data-testid="flash-check"]').count()) > 0) {
 if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) < 1) {
   console.error("FAIL: flashcards model answer not revealed"); process.exit(1);
 }
-console.log("PASS: flashcards — single-answer tap reveals instantly (no submit)");
-await np.locator('[data-testid="flash-advance"]').click();
+if (await np.locator('[data-testid="flash-advance"]').isEnabled()) {
+  console.error("FAIL: Next should be dwell-gated immediately after the reveal"); process.exit(1);
+}
+console.log("PASS: flashcards — plain tap reveals model instantly + Next is dwell-gated");
+await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the ~2.2s dwell
 
-// Card 2: requires_explanation → reveal is STILL instant on tap; the reflection box appears
-// AFTER the reveal and never gates advance (background-graded, optional).
+// Card 2: requires_explanation → the model is GATED behind the learner's reasoning.
+// Tapping shows the verdict + reasoning box first (NO model yet); revealing animates it in.
 await np.waitForSelector('[data-testid="flash-option"]', { timeout: 8000 });
 await np.locator('[data-testid="flash-option"]').first().click();
 await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
 if ((await np.locator('[data-testid="flash-reason"]').count()) < 1) {
-  console.error("FAIL: optional reflection box missing on reason card after reveal"); process.exit(1);
+  console.error("FAIL: reasoning box missing on reason card"); process.exit(1);
 }
-if (!(await np.locator('[data-testid="flash-advance"]').isEnabled())) {
-  console.error("FAIL: advance should never be gated by the reflection"); process.exit(1);
+if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) > 0) {
+  console.error("FAIL: model answer shown before the learner's reasoning on a reason card"); process.exit(1);
+}
+if ((await np.locator('[data-testid="flash-advance"]').count()) > 0) {
+  console.error("FAIL: Next should not exist until the model answer is revealed"); process.exit(1);
 }
 await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
-console.log("PASS: flashcards — typed reasoning is optional/after-reveal, ungated");
-await np.locator('[data-testid="flash-advance"]').click();
+await np.locator('[data-testid="flash-reveal-model"]').click();
+await np.waitForSelector('.flash-compare-label:has-text("Findings")', { timeout: 8000 });
+console.log("PASS: flashcards — reason card reveals model AFTER the learner's explanation");
+await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the dwell
 
 // Results: instant "X / N correct".
 await np.waitForSelector('[data-testid="flash-results-score"]', { timeout: 8000 });
