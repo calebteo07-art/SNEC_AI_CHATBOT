@@ -17,6 +17,17 @@ export const LENGTHS: { n: number; label: string }[] = [
 export const XP_CORRECT = 10;
 export const XP_ATTEMPT = 3;
 
+/** Consecutive-correct streak → points multiplier. The multiplier applies to the
+ *  card that ACHIEVES the streak (your 2nd-in-a-row correct earns x2 on itself).
+ *  Tiers: x1 (0–1), x2 (2–3), x3 (4–5), x4 (6+, capped). One source for the
+ *  orchestrator's XP award and the card's points display so they never disagree. */
+export function comboMultiplier(combo: number): number {
+  if (combo >= 6) return 4;
+  if (combo >= 4) return 3;
+  if (combo >= 2) return 2;
+  return 1;
+}
+
 export interface Flashcard {
   id: number;
   stem: string;
