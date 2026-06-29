@@ -1,19 +1,23 @@
 "use client";
-/* McqCard — the Console instrument card. Tap = instant lock + verdict (no submit).
-   The MODEL EXPLANATION then animates in the same way on every card: straight away on
-   plain cards, but AFTER the learner commits a one-line reason on reflection cards
-   (reasoning box first, then "Reveal model answer"). Once the model is showing, the
-   Next control is held for a short DWELL behind a filling ring so the learner sits with
-   it and can't tap-skip. Free-text tutor cards flip to a self-mark. The drifting colour
-   lights now live behind the whole canvas (FlashShell), not inside the card. */
-import { useEffect, useState, type CSSProperties } from "react";
-import { type Flashcard, MAX_REASON_CHARS, gradeSelection } from "./types";
+/* McqCard — the two-faced study instrument. Tap = instant ✓/✗ lock on the FRONT
+   face. A ChargeRing suspense beat plays, then the card FLIPS (CSS, .is-flipped) to
+   a full-bleed BACK face: the Payoff (verdict + combo + points + particles) over the
+   model answer ("Findings"). Plain cards charge straight after the lock; reflection
+   cards (~1 in 5) take a one-line reason on the front first, then charge. Free-text
+   tutor cards "Show answer" → charge → flip → self-mark. After the flip the Next /
+   self-mark is held for a short SETTLE so the payoff plays before advancing. The
+   drifting colour lights live behind the whole canvas (FlashShell), not in the card. */
+import { useEffect, useState } from "react";
+import { type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT } from "./types";
 import { Icon } from "@/aurora/icons";
+import { ChargeRing } from "./ChargeRing";
+import { Payoff } from "./Payoff";
+import { useFlashFx } from "./useFlashFx";
 
-const DWELL_MS = 2200; // "locked in" beat after the model answer lands before Next unlocks
+const SETTLE_MS = 700; // payoff dwell after the flip before Next/self-mark unlocks
 
 interface Props {
-  card: Flashcard; topicLabel: string; idx: number; total: number;
+  card: Flashcard; topicLabel: string; idx: number; total: number; combo: number;
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
   onAdvance: () => void; advanceLabel: string; reasonNote: string | null;
@@ -21,38 +25,40 @@ interface Props {
 
 export function McqCard(p: Props) {
   const { card } = p;
+  const fx = useFlashFx();
   const [selected, setSelected] = useState<number[]>([]);
   const [reasoning, setReasoning] = useState("");
   const [sentReason, setSentReason] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(false);   // verdict computed, options locked
   const [verdict, setVerdict] = useState(false);
-  const [modelShown, setModelShown] = useState(false); // model explanation visible + dwell armed
-  const [ready, setReady] = useState(false);           // dwell elapsed → advance allowed
-  const [marked, setMarked] = useState(false);         // free-text self-mark guard
+  const [charging, setCharging] = useState(false);  // ChargeRing on the front
+  const [revealed, setRevealed] = useState(false);  // flipped to the back face
+  const [ready, setReady] = useState(false);        // settle elapsed → advance allowed
+  const [marked, setMarked] = useState(false);      // free-text self-mark guard
 
   useEffect(() => {
     setSelected([]); setReasoning(""); setSentReason(false); setChecked(false);
-    setVerdict(false); setModelShown(false); setReady(false); setMarked(false);
+    setVerdict(false); setCharging(false); setRevealed(false); setReady(false); setMarked(false);
   }, [card.id]);
 
-  // Each time the model answer lands, hold Next for the dwell beat, then unlock.
+  // After the flip lands, hold the Next/self-mark for the settle beat, then unlock.
   useEffect(() => {
-    if (!modelShown) return;
+    if (!revealed) return;
     setReady(false);
-    const t = setTimeout(() => setReady(true), DWELL_MS);
+    const t = setTimeout(() => setReady(true), SETTLE_MS);
     return () => clearTimeout(t);
-  }, [modelShown]);
+  }, [revealed]);
 
-  // Keyboard advance (Enter / →) — only once the model is showing AND the dwell is done,
-  // and never on free-text cards where a Got it / Missed it choice is required first.
+  // Keyboard advance (Enter / →) — only once revealed AND settled, never on free-text
+  // cards where a Got it / Missed it choice is required first.
   useEffect(() => {
-    if (!modelShown || !ready || card.freeText) return;
+    if (!revealed || !ready || card.freeText) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); p.onAdvance(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modelShown, ready, card.freeText, p.onAdvance]);
+  }, [revealed, ready, card.freeText, p.onAdvance]);
 
   const needsReason = card.requiresExplanation && !card.freeText;
   const letters = ["a", "b", "c", "d", "e", "f"];
@@ -63,13 +69,22 @@ export function McqCard(p: Props) {
     lamp.appendChild(r); setTimeout(() => r.remove(), 650);
   };
 
+  // The suspense beat → on complete, fire the verdict cue and flip.
+  const startCharge = (correct: boolean) => {
+    setCharging(true); fx.charge();
+    void correct; // cue fires on completion, below
+  };
+  const onCharged = () => {
+    setCharging(false); setRevealed(true);
+    if (verdict) fx.win(); else fx.miss();
+  };
+
   const doReveal = (sel: number[]) => {
     if (checked) return;
     const correct = gradeSelection(card, sel);
     setSelected(sel); setVerdict(correct); setChecked(true);
     p.onCheck(correct, sel, "");
-    // Plain cards reveal the model straight away; reflection cards wait for the learner.
-    if (!needsReason) setModelShown(true);
+    if (!needsReason) startCharge(correct); // plain cards charge straight away
   };
 
   const tap = (i: number, el: HTMLElement) => {
@@ -82,16 +97,16 @@ export function McqCard(p: Props) {
     selected.forEach((i) => ignite(root.querySelector(`[data-opt="${i}"]`)));
     doReveal(selected);
   };
-  // Reflection card: learner commits their reason, THEN the model answer animates in.
+  // Reflection card: learner commits a reason, THEN the reveal charges + flips.
   const revealModel = () => {
-    if (modelShown) return;
+    if (charging || revealed) return;
     if (reasoning.trim() && !sentReason) {
       p.onReason(card.id, card.stem, reasoning.trim(), card.explanation); setSentReason(true);
     }
-    setModelShown(true);
+    startCharge(verdict);
   };
   const advance = () => { if (ready) p.onAdvance(); };
-  const showAnswerFree = () => { if (checked) return; setChecked(true); setModelShown(true); };
+  const showAnswerFree = () => { if (checked) return; setChecked(true); setVerdict(true); startCharge(true); };
   const selfMark = (got: boolean) => {
     if (marked || !ready) return;
     setMarked(true); p.onCheck(got, [], ""); p.onAdvance();
@@ -108,99 +123,110 @@ export function McqCard(p: Props) {
     </div>
   );
 
-  // The Next control — held disabled behind a filling ring through the dwell beat.
   const nextBtn = (
-    <button type="button" className={`flash-advance${ready ? "" : " is-dwelling"}`}
-      data-testid="flash-advance" disabled={!ready} onClick={advance}
-      style={{ "--flash-dwell-ms": `${DWELL_MS}ms` } as CSSProperties}>
-      {!ready && (
-        <svg className="flash-dwell-ring" viewBox="0 0 36 36" aria-hidden>
-          <circle className="flash-dwell-track" cx="18" cy="18" r="15" />
-          <circle className="flash-dwell-fill" cx="18" cy="18" r="15" />
-        </svg>
-      )}
+    <button type="button" className="flash-advance" data-testid="flash-advance"
+      disabled={!ready} onClick={advance}>
       <span>{ready ? p.advanceLabel : "hold…"}</span>
     </button>
   );
 
+  // Back face: the model answer, owned by the whole card, under the Payoff.
+  const basePoints = verdict ? XP_CORRECT : XP_ATTEMPT;
+  const backFace = (
+    <div className="flash-face is-back">
+      <div className="flash-cardin" data-testid="flash-reveal-back">
+        {topBar}<div className="flash-rule" />
+        <Payoff correct={verdict} combo={p.combo} basePoints={basePoints} />
+        <p className="flash-compare-label">Findings</p>
+        <p className="flash-model flash-model-big">{card.explanation}</p>
+        {needsReason && p.reasonNote && (
+          <p className="flash-reason-note" data-testid="flash-reason-note">{p.reasonNote}</p>
+        )}
+        {card.freeText ? (
+          <div className="flash-selfmark">
+            <button type="button" className="flash-mark-miss" disabled={!ready} onClick={() => selfMark(false)}>Missed it</button>
+            <button type="button" className="flash-mark-got" disabled={!ready} onClick={() => selfMark(true)}>Got it</button>
+          </div>
+        ) : nextBtn}
+      </div>
+    </div>
+  );
+
   if (card.freeText) {
     return (
-      <div className="flash-card">
-        <div className="flash-cardin">
-          {topBar}<div className="flash-rule" /><p className="flash-kicker">recall</p>
-          <p className="flash-q">{card.stem}</p>
-          {!checked
-            ? <button type="button" className="flash-advance" data-testid="flash-reveal" onClick={showAnswerFree}>Show answer</button>
-            : <div className="flash-reveal" data-testid="flash-reveal-back">
-                <div className="flash-modelwrap">
-                  <p className="flash-compare-label">Model answer</p>
-                  <p className="flash-model">{card.explanation}</p>
-                  <div className="flash-selfmark">
-                    <button type="button" className="flash-mark-miss" disabled={!ready} onClick={() => selfMark(false)}>Missed it</button>
-                    <button type="button" className="flash-mark-got" disabled={!ready} onClick={() => selfMark(true)}>Got it</button>
-                  </div>
-                </div>
-              </div>}
+      <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+        <div className="flash-flip">
+          <div className="flash-face is-front">
+            <div className="flash-cardin">
+              {topBar}<div className="flash-rule" /><p className="flash-kicker">recall</p>
+              <p className="flash-q">{card.stem}</p>
+              {!checked && (
+                <button type="button" className="flash-advance flash-reveal-btn"
+                  data-testid="flash-reveal" onClick={showAnswerFree}>Show answer</button>
+              )}
+            </div>
+          </div>
+          {backFace}
         </div>
+        {charging && <ChargeRing onComplete={onCharged} />}
       </div>
     );
   }
 
   return (
-    <div className={`flash-card${checked && verdict ? " is-right" : ""}`}>
-      <div className="flash-cardin">
-        {topBar}<div className="flash-rule" />
-        <p className="flash-kicker">
-          question {String(p.idx + 1).padStart(2, "0")}
-          {card.qtype === "multi" && (
-            <span className="flash-multi" data-testid="flash-multi">
-              <span aria-hidden>&#10003;&#10003;</span> Select all that apply
-            </span>
-          )}
-        </p>
-        <p className="flash-q">{card.stem}</p>
-        <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
-          {card.options.map((opt, i) => {
-            const picked = selected.includes(i);
-            const cls = checked
-              ? card.correct.includes(i) ? "is-correct" : picked ? "is-wrong" : ""
-              : picked ? "is-picked" : "";
-            return (
-              <li key={i}>
-                <button type="button" data-testid="flash-option" data-opt={i}
-                  role={card.qtype === "single" ? "radio" : "checkbox"} aria-checked={picked}
-                  className={`flash-option ${cls}`} disabled={checked}
-                  onClick={(e) => tap(i, e.currentTarget.parentElement as HTMLElement)}>
-                  <span className="flash-lamp" aria-hidden>{checked
-                    ? (card.correct.includes(i) ? "✓" : picked ? "✗" : letters[i])
-                    : letters[i]}</span>
-                  <span className="flash-otext">{opt}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+    <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+      <div className="flash-flip">
+        <div className="flash-face is-front">
+          <div className="flash-cardin">
+            {topBar}<div className="flash-rule" />
+            <p className="flash-kicker">
+              question {String(p.idx + 1).padStart(2, "0")}
+              {card.qtype === "multi" && (
+                <span className="flash-multi" data-testid="flash-multi">
+                  <span aria-hidden>&#10003;&#10003;</span> Select all that apply
+                </span>
+              )}
+            </p>
+            <p className="flash-q">{card.stem}</p>
+            <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
+              {card.options.map((opt, i) => {
+                const picked = selected.includes(i);
+                const cls = checked
+                  ? card.correct.includes(i) ? "is-correct" : picked ? "is-wrong" : ""
+                  : picked ? "is-picked" : "";
+                return (
+                  <li key={i}>
+                    <button type="button" data-testid="flash-option" data-opt={i}
+                      role={card.qtype === "single" ? "radio" : "checkbox"} aria-checked={picked}
+                      className={`flash-option ${cls}`} disabled={checked}
+                      onClick={(e) => tap(i, e.currentTarget.parentElement as HTMLElement)}>
+                      <span className="flash-lamp" aria-hidden>{checked
+                        ? (card.correct.includes(i) ? "✓" : picked ? "✗" : letters[i])
+                        : letters[i]}</span>
+                      <span className="flash-otext">{opt}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
 
-        {!checked && (
-          <div className="flash-foot">
-            <span className="flash-hint">{card.qtype === "multi" ? "tap all that apply, then lock" : "tap to lock — no submit"}</span>
-            {card.qtype === "multi" && (
-              <button type="button" aria-label="Lock in your answer"
-                className={`flash-lock${selected.length ? " is-armed" : ""}`}
-                onClick={(e) => fireLock(e.currentTarget.closest(".flash-card") as HTMLElement)}>
-                <Icon.lock size={18} />
-              </button>
+            {!checked && (
+              <div className="flash-foot">
+                <span className="flash-hint">{card.qtype === "multi" ? "tap all that apply, then lock" : "tap to lock — no submit"}</span>
+                {card.qtype === "multi" && (
+                  <button type="button" aria-label="Lock in your answer"
+                    className={`flash-lock${selected.length ? " is-armed" : ""}`}
+                    onClick={(e) => fireLock(e.currentTarget.closest(".flash-card") as HTMLElement)}>
+                    <Icon.lock size={18} />
+                  </button>
+                )}
+              </div>
             )}
-          </div>
-        )}
 
-        {checked && (
-          <div className="flash-reveal" data-testid="flash-reveal-back">
-            <p className={`flash-verdict ${verdict ? "is-right" : "is-wrong"}`}>{verdict ? "signal locked" : "review this one"}</p>
-
-            {/* Reflection card — your reasoning first; the model answer is gated behind it. */}
-            {needsReason && !modelShown && (
+            {/* Reflection card — reason first; the reveal is gated behind it. */}
+            {checked && needsReason && !charging && !revealed && (
               <div className="flash-reason">
+                <p className={`flash-verdict ${verdict ? "is-right" : "is-wrong"}`}>{verdict ? "signal locked" : "review this one"}</p>
                 <p className="flash-compare-label">Your reasoning first</p>
                 <textarea className="flash-reason-box" data-testid="flash-reason" rows={2}
                   maxLength={MAX_REASON_CHARS} value={reasoning} autoFocus
@@ -208,25 +234,15 @@ export function McqCard(p: Props) {
                   onChange={(e) => setReasoning(e.target.value.slice(0, MAX_REASON_CHARS))} />
                 <button type="button" className="flash-advance flash-reveal-btn"
                   data-testid="flash-reveal-model" onClick={revealModel}>
-                  Reveal model answer &rarr;
+                  Charge reveal &rarr;
                 </button>
               </div>
             )}
-
-            {/* Model explanation — animates in identically on every card. */}
-            {modelShown && (
-              <div className="flash-modelwrap">
-                <p className="flash-compare-label">Findings</p>
-                <p className="flash-model">{card.explanation}</p>
-                {needsReason && p.reasonNote && (
-                  <p className="flash-reason-note" data-testid="flash-reason-note">{p.reasonNote}</p>
-                )}
-                {nextBtn}
-              </div>
-            )}
           </div>
-        )}
+        </div>
+        {backFace}
       </div>
+      {charging && <ChargeRing onComplete={onCharged} />}
     </div>
   );
 }
