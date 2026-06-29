@@ -1,6 +1,7 @@
 """Student profile and learning endpoints."""
 import asyncio
 import json
+import random
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -10,7 +11,7 @@ from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get
 from tools.flashcards.sm2 import next_review, due_date
 from tools.flashcards.static_cards import (
     get_set_cards, get_all_cards, set_card_counts, mark_typed_cards, card_by_stem,
-    get_topic_cards, topic_card_counts,
+    get_topic_cards, topic_card_counts, shuffle_card_options,
 )
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
 from tools.profile.get_profile import get_profile
@@ -297,15 +298,21 @@ async def flashcards_generate(
             # No-difficulty selection: a bare topic_key → mix all tiers of that topic.
             topic, difficulty = set_key, None
 
+    # Per-request RNG: the bank authors the correct answer(s) first, so every
+    # served card has its options shuffled and `correct` remapped here — the
+    # answer slot is randomised instead of always being "option A".
+    rng = random.Random()
+
     def _to_out(pool_card: dict, card_id: str) -> dict:
+        c = shuffle_card_options(pool_card, rng)
         return {
             "card_id": card_id,
-            "stem": pool_card["stem"],
-            "options": pool_card["options"],
-            "correct": pool_card["correct"],
-            "qtype": pool_card["qtype"],
-            "kind": pool_card["kind"],
-            "explanation": pool_card["explanation"],
+            "stem": c["stem"],
+            "options": c["options"],
+            "correct": c["correct"],
+            "qtype": c["qtype"],
+            "kind": c["kind"],
+            "explanation": c["explanation"],
             # mark_typed_cards sets this on the final deck; pool cards never carry it.
             "requires_explanation": False,
             "topic_tag": pool_card.get("topic_tag", topic or "general"),

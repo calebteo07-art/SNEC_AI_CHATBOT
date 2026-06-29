@@ -73,12 +73,15 @@ export function Flashcards() {
   const missedRef = useRef<Flashcard[]>([]);
   const xpRef = useRef(0);
 
-  const deckTitle = useMemo(() => {
-    if (deck.length === 0) return "Flashcards";
-    const freq: Record<string, number> = {};
-    for (const c of deck) freq[c.tag] = (freq[c.tag] ?? 0) + 1;
-    return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-  }, [deck]);
+  // topic_key → human label (from the topics endpoint), falling back to a
+  // prettified key so mixed / tutor-handoff decks still name their topic clearly.
+  const topicLabels = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const s of topicSets ?? []) m[s.topic_key] = s.label;
+    return m;
+  }, [topicSets]);
+  const labelForTag = (tag: string) =>
+    topicLabels[tag] ?? tag.replace(/_/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
 
   const card = deck[idx];
   const total = deck.length;
@@ -198,7 +201,7 @@ export function Flashcards() {
     <FlashShell onExit={exit} topicHue={stageHue} engraved>
       <StudyStage
         key={deckEpoch}
-        card={card} idx={idx} total={total} deckTitle={deckTitle}
+        card={card} idx={idx} total={total} topicLabel={labelForTag(card.tag)}
         checked={checked} reasonNote={reasonNotesRef.current[card.id] ?? null}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
