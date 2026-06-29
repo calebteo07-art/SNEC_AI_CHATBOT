@@ -14,7 +14,7 @@ import {
 } from "@/hooks/useFlashcards";
 import {
   type Flashcard, type Difficulty, XP_CORRECT, XP_ATTEMPT, loadSessionCards, topicHue,
-  isRenderableCard,
+  isRenderableCard, comboMultiplier,
 } from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
@@ -72,6 +72,8 @@ export function Flashcards() {
   const reasonScoresRef = useRef<number[]>([]);
   const missedRef = useRef<Flashcard[]>([]);
   const xpRef = useRef(0);
+  const comboRef = useRef(0);          // consecutive-correct streak (deck-level)
+  const [combo, setCombo] = useState(0); // mirror for prop propagation to the card
 
   // topic_key → human label (from the topics endpoint), falling back to a
   // prettified key so mixed / tutor-handoff decks still name their topic clearly.
@@ -102,7 +104,11 @@ export function Flashcards() {
     byTopicRef.current[card.tag] = t;
     if (!correct) missedRef.current.push(card);
 
-    const xp = correct ? XP_CORRECT : XP_ATTEMPT;
+    // Combo: a correct card extends the streak and earns base × multiplier; the
+    // bonus folds into xpRef so it flows to /complete as real XP. A miss resets it.
+    const newCombo = correct ? comboRef.current + 1 : 0;
+    comboRef.current = newCombo; setCombo(newCombo);
+    const xp = correct ? XP_CORRECT * comboMultiplier(newCombo) : XP_ATTEMPT;
     xpRef.current += xp; addXP(xp); incrementTotalCards();
     const unlocked = checkAndUnlockAchievements();
     if (unlocked.length) toast.success("Achievement unlocked! 🏅");
@@ -146,7 +152,7 @@ export function Flashcards() {
     // reset accumulators for the drill round (xpRef included — otherwise the drill's
     // /complete would re-send the original deck's XP on top of its own).
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
-    reasonNotesRef.current = {}; xpRef.current = 0;
+    reasonNotesRef.current = {}; xpRef.current = 0; comboRef.current = 0; setCombo(0);
     const next = missed.slice(); missedRef.current = [];
     setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
     setIdx(0); setChecked(false); setDone(false);
@@ -202,7 +208,7 @@ export function Flashcards() {
       <StudyStage
         key={deckEpoch}
         card={card} idx={idx} total={total} topicLabel={labelForTag(card.tag)}
-        reasonNote={reasonNotesRef.current[card.id] ?? null}
+        reasonNote={reasonNotesRef.current[card.id] ?? null} combo={combo}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
     </FlashShell>
