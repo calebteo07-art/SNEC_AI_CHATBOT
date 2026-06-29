@@ -5,14 +5,18 @@
 import type { ReactNode, CSSProperties } from "react";
 import { Icon } from "@/aurora/icons";
 import { AchievementManager } from "@/screens/AchievementToast";
+import { EngravingField } from "./EngravingField";
 
 export function FlashShell({
-  newAchievements = [], onDismissAchievement = () => {}, onExit, topicHue, children,
+  newAchievements = [], onDismissAchievement = () => {}, onExit, topicHue, engraved = false, children,
 }: {
   newAchievements?: string[];
   onDismissAchievement?: (id: string) => void;
   onExit: () => void;
   topicHue?: number;
+  /** Activity flow (loading / study / results) — etches the drifting engraving canvas
+   *  behind the content. Off for the setup/fan screen, which keeps its own design. */
+  engraved?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -21,6 +25,7 @@ export function FlashShell({
       <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
         <Icon.back size={16} /> Exit
       </button>
+      {engraved && <EngravingField />}
       <AchievementManager achievements={newAchievements} onDismiss={onDismissAchievement} />
       <div className="flash-content">{children}</div>
     </div>

@@ -4,7 +4,7 @@
    one RAF loop, transform-only. Static + frozen under reduced motion. Decorative. */
 import { useEffect, useRef } from "react";
 
-const HUES = [214, 180, 250, 222, 172, 256]; // blue · teal · indigo, cohesive
+const HUES = [256, 214, 188, 276, 320, 174]; // violet · blue · cyan · indigo · magenta · teal — echoes the aurora rim
 
 export function BrownianField({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
