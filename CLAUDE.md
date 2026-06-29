@@ -116,9 +116,17 @@ CI (`.github/workflows/ci.yml`) gates pytest + typecheck + build + supply-chain
 audit on every push. Dependabot manages dependency bumps.
 
 ### Git
-After a completed task, stage + commit + push. **Never push straight to `main`
-for risky changes** — `main` auto-deploys to Render production. Branch, verify,
-then merge.
+After a completed task, stage + commit + push **directly to `main`** — no
+feature branch, no asking first (user policy, 2026-06-29: "all dev auto-ships to
+`main`"). `main` auto-deploys to Render production, so **always verify first** —
+the relevant `pytest` / `typecheck` / `build` / assert harness must be green
+before you push. Never ship red. Stage only the files relevant to the task (the
+tree often carries unrelated dirty files).
+
+The one exception: a change that would break prod the moment its code lands but
+*before* out-of-band setup is done (a new required env var/secret, a DB
+migration, a fail-closed config guard). For those, still ship — but say so
+plainly and coordinate the setup so `main` never boots broken.
 
 ## File structure
 ```
