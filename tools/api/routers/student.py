@@ -10,8 +10,9 @@ from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get
 from tools.flashcards.sm2 import next_review, due_date
 from tools.flashcards.static_cards import (
     get_set_cards, get_all_cards, set_card_counts, mark_typed_cards, card_by_stem,
+    get_topic_cards, topic_card_counts,
 )
-from tools.flashcards.flashcard_sets import sets_for, split_set_key
+from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
@@ -240,8 +241,9 @@ class FlashcardTopicsResponse(BaseModel):
 
 @router.get("/api/flashcards/topics", response_model=FlashcardTopicsResponse)
 async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user)):
-    """The 45 selectable sets (15 topics x easy/medium/hard) for the caller's role,
-    with how many cards each set has and how many the student has already seen."""
+    """One selectable deck per topic for the caller's role (difficulty collapsed —
+    each topic mixes all tiers into a single set keyed by topic_key), with how many
+    cards the topic holds and how many the student has already seen."""
     student_id = current_user["sub"]
     role = ""
     try:
@@ -249,7 +251,7 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
     except Exception:
         pass
 
-    counts = set_card_counts(role)
+    counts = topic_card_counts(role)
     served_fronts: set[str] = set()
     try:
         served_fronts = await get_served_static_fronts(student_id)
@@ -257,12 +259,12 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
         pass
 
     sets: list[FlashcardSetInfo] = []
-    for s in sets_for(role):
-        set_cards = get_set_cards(role, s["topic_key"], s["difficulty"])
-        completed = sum(1 for c in set_cards if c["stem"] in served_fronts)
+    for s in topic_sets_for(role):
+        topic_cards = get_topic_cards(role, s["topic_key"])
+        completed = sum(1 for c in topic_cards if c["stem"] in served_fronts)
         sets.append(FlashcardSetInfo(
             set_key=s["set_key"], topic_key=s["topic_key"], label=s["label"],
-            difficulty=s["difficulty"], total=counts.get(s["set_key"], 0),
+            difficulty="mixed", total=counts.get(s["topic_key"], 0),
             completed=completed,
         ))
     return FlashcardTopicsResponse(sets=sets)
@@ -289,7 +291,11 @@ async def flashcards_generate(
         pass
 
     if set_key and not (topic and difficulty):
-        topic, difficulty = split_set_key(set_key)
+        if "__" in set_key:
+            topic, difficulty = split_set_key(set_key)
+        else:
+            # No-difficulty selection: a bare topic_key → mix all tiers of that topic.
+            topic, difficulty = set_key, None
 
     def _to_out(pool_card: dict, card_id: str) -> dict:
         return {
@@ -317,7 +323,19 @@ async def flashcards_generate(
         saved = await insert_cards(student_id, rows)
         return [_to_out(pc, sv["card_id"]) for pc, sv in zip(pool_cards, saved)]
 
-    # A specific set → serve that set with no-repeat rotation.
+    # A topic-level deck (no difficulty) → mix every tier of that topic, no-repeat.
+    if topic and not difficulty:
+        pool = get_topic_cards(role, topic)
+        if not pool:
+            return []
+        served = await get_served_static_fronts(student_id)
+        served_idx = {i for i, c in enumerate(pool) if c["stem"] in served}
+        picks = pick_next_unseen(student_id, len(pool), f"flash_topic_{topic}",
+                                 served_idx, n=min(n, len(pool)))
+        out = await _persist([pool[i] for i in picks])
+        return mark_typed_cards(out, n)
+
+    # A specific (topic, difficulty) set → serve that set with no-repeat rotation.
     if topic and difficulty:
         pool = get_set_cards(role, topic, difficulty)
         if not pool:
