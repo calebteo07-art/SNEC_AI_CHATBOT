@@ -94,6 +94,16 @@ def sets_for(role: str) -> list[dict]:
     return out
 
 
+def topic_sets_for(role: str) -> list[dict]:
+    """One selectable deck per topic (difficulty collapsed) — the no-difficulty
+    selection model. `set_key` is just the `topic_key`; the API serves it by
+    mixing all tiers of that topic."""
+    return [
+        {"set_key": topic_key, "topic_key": topic_key, "label": label}
+        for topic_key, label in topics_for(role)
+    ]
+
+
 def typed_count(n: int) -> int:
     """How many typed-reasoning cards a deck of `n` should have (~1 per 5)."""
     return round(n / 5)

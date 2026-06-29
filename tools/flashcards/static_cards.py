@@ -9884,6 +9884,28 @@ def set_card_counts(role: str) -> dict[str, int]:
     return counts
 
 
+def get_topic_cards(role: str, topic_key: str) -> list[dict]:
+    """Every authored card for ONE topic across all difficulties, tagged for
+    serving. Backs the no-difficulty selection model: a topic is one mixed deck."""
+    pool = FLASHCARDS.get(pool_for_role(role), {})
+    by_diff = pool.get(topic_key, {})
+    out: list[dict] = []
+    for difficulty in DIFFICULTIES:
+        for c in by_diff.get(difficulty, []):
+            out.append(_tag(topic_key, difficulty, c))
+    return out
+
+
+def topic_card_counts(role: str) -> dict[str, int]:
+    """{topic_key: total authored cards across all difficulties} for the role pool."""
+    pool = FLASHCARDS.get(pool_for_role(role), {})
+    counts: dict[str, int] = {}
+    for topic_key, _ in topics_for(role):
+        by_diff = pool.get(topic_key, {})
+        counts[topic_key] = sum(len(by_diff.get(d, [])) for d in DIFFICULTIES)
+    return counts
+
+
 def card_by_stem(role: str) -> dict[str, dict]:
     """{stem: tagged card} index for the role pool — used to rehydrate MCQ fields
     onto SM-2 due cards (which the DB stores only as front/back)."""
