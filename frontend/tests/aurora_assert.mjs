@@ -189,43 +189,50 @@ if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (w
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
 console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
 await np.locator('[data-card-id="triage"]').click();
+// study: a single-answer tap locks an INSTANT ✓/✗ verdict on the FRONT face, a
+// charging-ring suspense beat plays, then the card FLIPS to a full-bleed back face
+// carrying the model answer ("Findings") + a gamification payoff. Emulate reduced
+// motion so the charge/flip collapse to a fast, deterministic path.
+await np.emulateMedia({ reducedMotion: "reduce" });
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
-// Card 1: single-answer tap = INSTANT verdict + model ("Findings"); NO Check/submit
-// button. The model animates in and Next is held through a "locked-in" dwell beat.
+// Card 1 (plain): tap an option → flip → back face shows "Findings" + payoff. There
+// is NO Check/submit button. Next is held for a short settle, then enables.
 await np.locator('[data-testid="flash-option"]').first().click();
 await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
 if ((await np.locator('[data-testid="flash-check"]').count()) > 0) {
-  console.error("FAIL: a Check/submit button still exists — should be instant-tap"); process.exit(1);
+  console.error("FAIL: flashcards must not have a Check/submit button"); process.exit(1);
 }
 if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) < 1) {
-  console.error("FAIL: flashcards model answer not revealed"); process.exit(1);
+  console.error("FAIL: flashcards model answer not revealed on the back face"); process.exit(1);
+}
+if ((await np.locator('[data-testid="flash-payoff"]').count()) < 1) {
+  console.error("FAIL: flashcards reveal is missing the gamification payoff"); process.exit(1);
 }
 if (await np.locator('[data-testid="flash-advance"]').isEnabled()) {
-  console.error("FAIL: Next should be dwell-gated immediately after the reveal"); process.exit(1);
+  console.error("FAIL: Next should be settle-gated immediately after the flip"); process.exit(1);
 }
-console.log("PASS: flashcards — plain tap reveals model instantly + Next is dwell-gated");
-await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the ~2.2s dwell
+console.log("PASS: flashcards — plain tap flips to a full-bleed payoff; Next is settle-gated");
+await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 
-// Card 2: requires_explanation → the model is GATED behind the learner's reasoning.
-// Tapping shows the verdict + reasoning box first (NO model yet); revealing animates it in.
+// Card 2 (requires_explanation): tapping shows the verdict + a reasoning box on the
+// FRONT face (NO model yet, NO Next). Charging the reveal flips to the back face.
 await np.waitForSelector('[data-testid="flash-option"]', { timeout: 8000 });
 await np.locator('[data-testid="flash-option"]').first().click();
-await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 });
-if ((await np.locator('[data-testid="flash-reason"]').count()) < 1) {
-  console.error("FAIL: reasoning box missing on reason card"); process.exit(1);
-}
+await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
 if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) > 0) {
   console.error("FAIL: model answer shown before the learner's reasoning on a reason card"); process.exit(1);
 }
 if ((await np.locator('[data-testid="flash-advance"]').count()) > 0) {
-  console.error("FAIL: Next should not exist until the model answer is revealed"); process.exit(1);
+  console.error("FAIL: Next should not exist until the reveal is charged"); process.exit(1);
 }
 await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
 await np.locator('[data-testid="flash-reveal-model"]').click();
 await np.waitForSelector('.flash-compare-label:has-text("Findings")', { timeout: 8000 });
-console.log("PASS: flashcards — reason card reveals model AFTER the learner's explanation");
-await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the dwell
+console.log("PASS: flashcards — reason card flips to the model AFTER the learner's explanation");
+await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
+
+await np.emulateMedia({ reducedMotion: "no-preference" });
 
 // Results: instant "X / N correct".
 await np.waitForSelector('[data-testid="flash-results-score"]', { timeout: 8000 });
