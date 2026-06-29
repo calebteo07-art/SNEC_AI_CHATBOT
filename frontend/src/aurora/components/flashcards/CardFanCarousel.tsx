@@ -35,11 +35,11 @@ const FAN_POSITIONS = [
 ];
 
 function getResponsiveMultiplier(width: number) {
-  if (width < 480) return 0.28;
-  if (width < 640) return 0.38;
-  if (width < 768) return 0.5;
-  if (width < 1024) return 0.75;
-  return 1.0;
+  if (width < 480) return 0.32;
+  if (width < 640) return 0.42;
+  if (width < 768) return 0.58;
+  if (width < 1024) return 0.85;
+  return 1.18;
 }
 
 function getHeightMultiplier(width: number) {
@@ -275,7 +275,10 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFan
             aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}`}
             onClick={() => { if (card.startable !== false) onPick(card); }}>
             <span className="fan-card-media" style={{ "--fan-hue": card.hue } as React.CSSProperties}>
-              <img src={card.imgUrl} alt="" loading="lazy"
+              {/* Eager + high priority: every card image fetches the moment the fan
+                  mounts, so they're present on entry rather than popping in as cards
+                  rotate into view. */}
+              <img src={card.imgUrl} alt="" loading="eager" decoding="async" fetchPriority="high"
                 onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
             </span>
             <span className="fan-card-cap">

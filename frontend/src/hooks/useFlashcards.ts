@@ -53,11 +53,10 @@ export function useFlashcardTopics() {
   });
 }
 
-/** Load a study deck. Pass a setKey ("topic__difficulty") to study one set,
- *  or null for the mixed/review no-repeat rotation across the whole role pool.
- *  `n` is the session length (Quick 5 / Standard 10 / Deep 20); a chosen set
- *  stays a fixed 5-card unit (n only caps it). */
-export function useFlashcards(setKey: string | null, enabled = true, n = 6) {
+/** Load a study deck. Pass a setKey (a topic_key) to study that topic — one deck
+ *  mixing all difficulty tiers — or null for the mixed/review no-repeat rotation
+ *  across the whole role pool. `n` is the fixed deck length (default 10). */
+export function useFlashcards(setKey: string | null, enabled = true, n = 10) {
   return useQuery<FlashcardItem[]>({
     queryKey: ["flashcards", setKey ?? "mixed", n],
     queryFn: async () => {

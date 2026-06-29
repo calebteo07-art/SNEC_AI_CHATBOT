@@ -161,13 +161,14 @@ console.log("PASS: retired /progress and /summary no longer resolve");
 // (no Check/submit button), and on reason cards an OPTIONAL reflection box appears after
 // the reveal and never gates advance. Ends on an X/N results screen.
 await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
-// topics: 8 easy CLINICAL sets so step 2 paginates the fan (8 + Mixed = 9 > 7).
+// topics: 8 one-per-topic CLINICAL decks (difficulty collapsed; set_key == topic_key)
+// so the fan paginates (8 + Mixed = 9 > 7).
 await navCtx.route("**/api/flashcards/topics", (r) => r.fulfill(JSON_OK({ sets: [
   ["ocular_emergencies", "Ocular Emergencies"], ["red_eye", "Red Eye Differential"],
   ["triage", "Triage Categories"], ["history_taking", "History Taking"],
   ["distance_va", "Distance Visual Acuity"], ["near_vision", "Near Vision"],
   ["pinhole", "Pinhole Testing"], ["iop_nct", "IOP & Non-Contact Tonometry"],
-].map(([topic_key, label]) => ({ set_key: `${topic_key}__easy`, topic_key, label, difficulty: "easy", total: 5, completed: 0 })) })));
+].map(([topic_key, label]) => ({ set_key: topic_key, topic_key, label, difficulty: "mixed", total: 20, completed: 0 })) })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
@@ -176,22 +177,18 @@ if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); pro
 // immersive: the rail falls away on /flashcards (like the Tutor); exit affordance present.
 if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
 
-// stepped selection: step 1 (Session) shows the 2-segment progress rail, then Continue
-// advances to step 2 (Topic) where Mixed is selected by default and Start commits. (The
-// old iris-disc hero was retired in the medical-blue "Ophthalmic Console" redesign.)
-if ((await np.locator('[data-testid="flash-rail"]').count()) < 1) { console.error("FAIL: flashcards progress rail missing on step 1"); process.exit(1); }
-if ((await np.locator('[data-testid="flash-setup"][data-step="1"]').count()) < 1) { console.error("FAIL: flashcards did not start on step 1"); process.exit(1); }
-await np.locator('[data-testid="flash-continue"]').click();
-await np.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
-console.log("PASS: Flashcards — stepped Session→Topic flow");
-// step 2 is an auto-rotating topic fan: Mixed + the 8 mocked topics, with
-// pagination controls. One click on any card starts that deck.
+// single-step selection: no difficulty/length step — /flashcards lands straight on
+// the auto-rotating topic fan (Mixed + the 8 mocked topics) with pagination. One
+// click on any card starts that topic's deck (10 cards, all tiers mixed).
 await np.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
+if ((await np.locator('[data-testid="flash-continue"]').count()) > 0) {
+  console.error("FAIL: the difficulty/length step still exists — selection should be topic-only"); process.exit(1);
+}
 const fanCount = await np.locator('[data-testid="flash-pick"]').count();
 if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
-console.log("PASS: Flashcards — topic fan renders Mixed + topics with controls");
-await np.locator('[data-card-id="ocular_emergencies__easy"]').click();
+console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
+await np.locator('[data-card-id="triage"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
 // Card 1: single-answer tap = INSTANT reveal — there is NO Check/submit button anywhere.
@@ -430,8 +427,7 @@ const staleErrors = [];
 stp.on("pageerror", (e) => staleErrors.push(String(e)));
 await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await stp.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
-await stp.locator('[data-testid="flash-continue"]').click();
-await stp.waitForSelector('[data-testid="flash-setup"][data-step="2"]', { timeout: 15000 });
+await stp.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
 await stp.locator('[data-card-id="__mixed"]').click();
 // graceful empty state appears; the study stage and the error boundary never do.
 await stp.waitForSelector(".flash-msg", { timeout: 15000 });
