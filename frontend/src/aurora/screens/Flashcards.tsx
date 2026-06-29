@@ -167,7 +167,7 @@ export function Flashcards() {
 
   if (generating || deck.length === 0 || !card) {
     return (
-      <FlashShell onExit={exit} topicHue={stageHue}>
+      <FlashShell onExit={exit} topicHue={stageHue} engraved>
         <div className="flash-stage flash-stage-msg">
           {generating
             ? <p className="flash-msg">Bringing your cards into focus…</p>
@@ -186,7 +186,7 @@ export function Flashcards() {
       missedCount: missedRef.current.length,
     };
     return (
-      <FlashShell onExit={exit} topicHue={stageHue}>
+      <FlashShell onExit={exit} topicHue={stageHue} engraved>
         <ResultsScreen result={result} onDrillMissed={startDrill} onNewDeck={newDeck} onDone={exit} />
       </FlashShell>
     );
@@ -195,7 +195,7 @@ export function Flashcards() {
   const advanceLabel = idx < total - 1 ? "Next card →" : "See results →";
 
   return (
-    <FlashShell onExit={exit} topicHue={stageHue}>
+    <FlashShell onExit={exit} topicHue={stageHue} engraved>
       <StudyStage
         key={deckEpoch}
         card={card} idx={idx} total={total} deckTitle={deckTitle}

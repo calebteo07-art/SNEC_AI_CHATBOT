@@ -2177,23 +2177,25 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    • SELECTION  — a LIGHT clinical-azure room (corneal-topography rings + soft
      cyan blooms). The chrome (rail, title, primary buttons) stays medical-blue
      regardless of the per-topic identity hue, so the room always reads clinical.
-   • ACTIVITY   — a DEEP cobalt diagnostic field (slow OCT scan) with ONE light
-     instrument card floating on it; the card OUTLINE carries a travelling cyan
-     beam (conic --flash-angle). Per-topic hue = identity, teal = correct, coral
-     = error, score hue (--flash-score-hue) colours the results readout.
-   The lower-band Brownian colour field (BrownianField → .flash-bg) still lives
-   inside the card, masked so colour never climbs into the question region.
+   • ACTIVITY   — an intense off-white-purple canvas, etched with faint education /
+     eye-care line glyphs that drift in rapid Brownian motion (EngravingField), with
+     ONE dark frosted card floating on it. The card borrows the dashboard Next-Best-
+     Action motion: a rotating conic aurora spectrum (flash-rim) orbiting a dark slab.
+     Per-topic hue = identity (lifted for dark), teal = correct, coral = error, score
+     hue (--flash-score-hue) colours the results readout.
+   The lower-band Brownian colour field (BrownianField → .flash-bg) still lives inside
+   the card, now glowing (screen) on the slab, masked so colour never climbs into the
+   question region.
    ───────────────────────────────────────────────────────────────────────── */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 @property --flash-score-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
-@property --flash-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 
 .flash-root {
   position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
   --f-ink: #141d28; --f-ink2: #3c4956; --f-mono: #5d6b7a; --f-line: rgba(24,34,46,.10);
   --f-paper: rgba(255,255,255,.78); --f-teal: #0d8276; --f-coral: #d9482f; --f-blue: #1f5fa6;
-  --f-azure: #2f7fe0; --f-cyan: #1ec4dd; --f-navy: #081d38;
+  --f-azure: #2f7fe0;
   color: var(--f-ink);
   background: #e8f0fb;
 }
@@ -2214,19 +2216,17 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
     radial-gradient(54% 34% at 70% 0%, rgba(217,101,176,.06), transparent 72%);
 }
 
-/* ACTIVITY (study · loading · results) — a deep cobalt OCT diagnostic field with
-   faint horizontal scan lines and one slow vertical scan band drifting down. */
+/* ACTIVITY (study · loading · results) — an intense off-white-purple canvas washed
+   with soft brand blooms. The motion lives in the drifting EngravingField behind the
+   content and the card's rotating aurora rim — the field itself is calm. */
 .flash-root:not(:has(.flash-setup)) {
-  background: radial-gradient(150% 115% at 50% -20%, #163a63 0%, #0d2a4c 46%, var(--f-navy) 100%);
+  background: radial-gradient(132% 112% at 50% -12%, #ece0fa 0%, #dcc7f0 54%, #cbb4e8 100%);
 }
 .flash-root:not(:has(.flash-setup))::before {
   background:
-    radial-gradient(62% 46% at 50% 0%, hsl(194 92% 60% / .15), transparent 70%),
-    repeating-linear-gradient(0deg, transparent 0 27px, rgba(126,184,242,.045) 27px 28px),
-    linear-gradient(180deg, transparent 0%, rgba(126,194,255,.11) 50%, transparent 100%);
-  background-size: auto, auto, 100% 220%;
-  background-position: center, center, center -60%;
-  animation: flash-scan 9s ease-in-out infinite alternate;
+    radial-gradient(52% 42% at 16% 0%, rgba(124,92,246,.22), transparent 70%),
+    radial-gradient(48% 38% at 86% 4%, rgba(34,184,212,.14), transparent 72%),
+    radial-gradient(58% 46% at 66% 104%, rgba(240,57,126,.12), transparent 72%);
 }
 .flash-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column;
   align-items: center; justify-content: center; padding: 32px 20px; overflow-y: auto; }
@@ -2240,45 +2240,59 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: rgba(255,255,255,.6); border: 1px solid var(--f-line); border-radius: 999px;
   padding: 8px 14px; cursor: pointer; }
 .flash-exit:hover { background: rgba(255,255,255,.92); color: var(--f-ink); }
-/* On the deep activity field the exit pill goes to glass-on-dark. */
-.flash-root .flash-exit {
+/* The Gemini-dark setup screen keeps a glass-on-dark exit pill; the lavender
+   activity field uses the light base pill above. */
+.flash-root:has(.flash-setup) .flash-exit {
   background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: #e8eaed; }
-.flash-root .flash-exit:hover {
+.flash-root:has(.flash-setup) .flash-exit:hover {
   background: rgba(255,255,255,.14); color: #fff; }
 
-/* Brownian colour field — lower band, masked under the question. The parent
-   (.flash-card) owns position + clip; this only fills the band and fades the top. */
-.flash-bg { position: absolute; left: 0; right: 0; bottom: 0; top: 210px; pointer-events: none;
-  overflow: hidden; -webkit-mask-image: linear-gradient(180deg,transparent 0,#000 42px);
-  mask-image: linear-gradient(180deg,transparent 0,#000 42px); }
-.flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
-  mix-blend-mode: multiply; will-change: transform; }
+/* Engraving field — faint education / eye-care line glyphs drifting across the
+   activity canvas in rapid Brownian motion (EngravingField). Sits behind the
+   content; the Exit pill (z-index:5) and .flash-content (z-index:1) stay above it. */
+.flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.flash-engraving { position: absolute; left: 0; top: 0; color: #5e44ad; display: block; will-change: transform; }
+.flash-engraving svg { width: 100%; height: 100%; display: block; }
 
-/* Instrument card — a large light panel floating on the deep cobalt field. Width
-   comes from .flash-stage; it grows to fill the screen (but not edge to edge) and
-   carries a tall body so the Brownian field breathes in the lower band. */
-.flash-card { position: relative; width: 100%; min-height: min(72vh, 660px);
+/* Brownian colour field — lower band inside the card, now GLOWING (screen) on the
+   dark slab. Inset to the slab so it never paints over the aurora rim; masked at the
+   top so colour never climbs into the question. Sits above the slab (z-index:2). */
+.flash-bg { position: absolute; left: 2px; right: 2px; bottom: 2px; top: 210px; z-index: 2; pointer-events: none;
+  overflow: hidden; border-radius: 0 0 24px 24px;
+  -webkit-mask-image: linear-gradient(180deg,transparent 0,#000 48px);
+  mask-image: linear-gradient(180deg,transparent 0,#000 48px); }
+.flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
+  mix-blend-mode: screen; will-change: transform; }
+
+/* Instrument card — adopts the dashboard Next-Best-Action motion: a rotating conic
+   aurora spectrum (flash-rim) orbits behind a frosted dark-navy slab, so a glowing
+   multi-hue rim sweeps the whole card. Width comes from .flash-stage; the tall body
+   lets the Brownian glow breathe. Light-on-dark via redefined --f-* tokens (teal /
+   coral stay vivid for correct / wrong). */
+.flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
   display: flex; flex-direction: column; border-radius: 26px;
-  padding: 38px 42px 32px; overflow: hidden; background: linear-gradient(180deg,#ffffff,#eef5fd);
-  border: 1px solid rgba(120,160,210,.30); isolation: isolate;
-  box-shadow: 0 50px 110px -50px rgba(4,16,34,.85), 0 0 0 1px rgba(150,195,245,.08);
-  transition: box-shadow .35s ease, border-color .35s ease; }
-/* Travelling beam — a single bright cyan arc sweeps the perimeter (conic + ring
-   mask). The faint base border is always visible beneath it. */
-.flash-card::before { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit;
-  padding: 1.6px; pointer-events: none;
-  background: conic-gradient(from var(--flash-angle),
-    transparent 0deg, transparent 58deg, var(--f-azure) 84deg, #8fe6ff 104deg,
-    var(--f-cyan) 122deg, transparent 150deg, transparent 360deg);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  animation: flash-border 5.5s linear infinite; }
-.flash-card.is-right { border-color: rgba(13,130,118,.45);
-  box-shadow: 0 50px 110px -50px rgba(3,30,26,.85), 0 0 0 1px rgba(92,224,207,.16); }
-.flash-card.is-right::before { background: conic-gradient(from var(--flash-angle),
-  transparent 0deg, transparent 58deg, var(--f-teal) 84deg, #5ce0cf 104deg,
-  #19a58c 122deg, transparent 150deg, transparent 360deg); }
-.flash-cardin { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
+  padding: 38px 42px 32px; overflow: hidden; isolation: isolate;
+  background: transparent; border: none;
+  box-shadow: 0 44px 96px -36px rgba(98,84,230,.55), 0 18px 46px -22px rgba(60,40,120,.42);
+  transition: box-shadow .35s ease;
+  --f-ink: #f3f4fc; --f-ink2: #dde2fb; --f-mono: #9aa3cc;
+  --f-line: rgba(170,185,255,.16); --f-paper: rgba(150,170,255,.05); }
+/* Rotating spectrum rim — the full aurora orbits behind the slab. */
+.flash-card::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
+  background: conic-gradient(from 0deg,
+    rgba(124,92,246,0) 0deg, #7C5CF6 55deg, #22B8D4 130deg, rgba(34,184,212,0) 188deg,
+    #FBA838 256deg, #F0397E 312deg, rgba(124,92,246,0) 360deg);
+  animation: flash-rim 9s linear infinite; }
+/* Frosted dark slab — covers all but the ~2px rim. */
+.flash-card::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 24px;
+  pointer-events: none; background: linear-gradient(135deg, rgba(24,26,56,.93), rgba(12,14,33,.96));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+/* Correct answer biases the rim teal/green so "signal locked" still reads as success. */
+.flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(13,130,118,.5), 0 18px 46px -22px rgba(8,80,70,.5); }
+.flash-card.is-right::before { background: conic-gradient(from 0deg,
+  rgba(13,130,118,0) 0deg, #0d8276 52deg, #5ce0cf 116deg, rgba(92,224,207,0) 178deg,
+  #22B8D4 250deg, #1fc780 312deg, rgba(13,130,118,0) 360deg); }
+.flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
 
 /* Top bar / telemetry */
 .flash-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
@@ -2459,46 +2473,88 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .fan-dot.is-on { background: #8ab4f8; transform: scale(1.4); }
 html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { transition: none; }
 
-/* Results — a floating light diagnostic-summary card on the deep cobalt field. */
-.flash-results { width: 100%; max-width: 560px; text-align: center;
-  background: linear-gradient(180deg,#ffffff,#eef5fd); border: 1px solid rgba(120,160,210,.3);
+/* ── Activity dark-card theme — light-on-dark overrides for the frosted slab.
+   Scoped under .flash-card so they outrank the light base rules by specificity
+   (the --f-* tokens above already flip the token-driven colours; these patch the
+   hardcoded ones). Per-topic hue stays as identity, lifted in lightness for dark. */
+.flash-card .flash-tag { color: hsl(var(--flash-topic-hue) 78% 72%); }
+.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 82% 66%); }
+.flash-card .flash-segs i { background: rgba(170,185,255,.25); }
+.flash-card .flash-count { color: #9aa3cc; }
+.flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 85% 70%), rgba(124,92,246,.5) 58%, transparent); }
+.flash-card .flash-kicker { color: hsl(var(--flash-topic-hue) 78% 72%); }
+.flash-card .flash-q { text-shadow: 0 1px 16px rgba(0,0,0,.35); }
+.flash-card .flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 72% 66% / .8);
+  background: rgba(150,170,255,.10); box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 70% 50% / .55); }
+.flash-card .flash-lamp { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.22); }
+.flash-card .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 72% 62%);
+  background: hsl(var(--flash-topic-hue) 72% 58% / .20); }
+.flash-card .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 66% 56%);
+  border-color: hsl(var(--flash-topic-hue) 66% 56%); color: #fff; }
+.flash-card .flash-option.is-correct { background: rgba(19,165,148,.22); }
+.flash-card .flash-option.is-wrong { background: rgba(217,72,47,.18); }
+.flash-card .flash-hint { color: #8b93bd; }
+.flash-card .flash-lock { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.2); color: #9fb6d6; }
+.flash-card .flash-reveal { border-top-color: rgba(170,185,255,.14); }
+.flash-card .flash-verdict.is-right { color: #39d0b8; }
+.flash-card .flash-verdict.is-wrong { color: #ff8a6e; }
+.flash-card .flash-compare-label { color: hsl(var(--flash-topic-hue) 78% 72%); }
+.flash-card .flash-model { color: rgba(236,236,247,.80); }
+.flash-card .flash-reason-box { background: rgba(150,170,255,.06); }
+.flash-card .flash-advance { background: linear-gradient(95deg, #7C5CF6, #22B8D4);
+  box-shadow: 0 12px 28px -14px rgba(124,92,246,.8); }
+.flash-card .flash-mark-got, .flash-card .flash-mark-miss { background: rgba(150,170,255,.06); }
+.flash-card .flash-mark-got { color: #39d0b8; border-color: rgba(57,208,184,.45); }
+.flash-card .flash-mark-got:hover { background: rgba(57,208,184,.12); }
+.flash-card .flash-mark-miss { color: #ff8a6e; border-color: rgba(255,138,110,.4); }
+.flash-card .flash-mark-miss:hover { background: rgba(255,138,110,.1); }
+
+/* Results — the same aurora-rim slab as the study card, floating on the lavender field. */
+.flash-results { position: relative; width: 100%; max-width: 600px; text-align: center;
+  isolation: isolate; overflow: hidden; background: transparent; border: none;
   border-radius: 24px; padding: 42px 38px;
-  box-shadow: 0 50px 110px -50px rgba(4,16,34,.85), 0 0 0 1px rgba(150,195,245,.08); }
-.flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--f-mono); }
+  box-shadow: 0 44px 96px -36px rgba(98,84,230,.55), 0 18px 46px -22px rgba(60,40,120,.42); }
+.flash-results::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
+  background: conic-gradient(from 0deg,
+    rgba(124,92,246,0) 0deg, #7C5CF6 55deg, #22B8D4 130deg, rgba(34,184,212,0) 188deg,
+    #FBA838 256deg, #F0397E 312deg, rgba(124,92,246,0) 360deg);
+  animation: flash-rim 11s linear infinite; }
+.flash-results::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 22px;
+  pointer-events: none; background: linear-gradient(135deg, rgba(24,26,56,.94), rgba(12,14,33,.96));
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.flash-results > * { position: relative; z-index: 2; }
+.flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: #a99cf2; }
 .flash-results-score { font: 400 64px var(--font-serif); margin: 10px 0;
-  background: linear-gradient(90deg, hsl(var(--flash-score-hue) 60% 42%), var(--f-blue));
+  background: linear-gradient(90deg, hsl(var(--flash-score-hue) 80% 72%), #7FE6FF);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 .flash-results-score strong { font-weight: 500; }
-.flash-results-coach { font: 400 16px/1.5 var(--font-sans); color: var(--f-ink2); margin: 0 auto; max-width: 46ch; }
-.flash-results-weak { font: 400 14px var(--font-sans); color: var(--f-mono); margin: 12px 0 0; }
-.flash-results-weak strong { color: var(--f-blue); font-weight: 600; }
-.flash-results-reason { font: 400 13px var(--font-mono); letter-spacing: .04em; color: var(--f-mono); margin: 8px 0 0; }
+.flash-results-coach { font: 400 16px/1.5 var(--font-sans); color: rgba(236,236,247,.82); margin: 0 auto; max-width: 46ch; }
+.flash-results-weak { font: 400 14px var(--font-sans); color: #9aa3cc; margin: 12px 0 0; }
+.flash-results-weak strong { color: #8fb6ff; font-weight: 600; }
+.flash-results-reason { font: 400 13px var(--font-mono); letter-spacing: .04em; color: #9aa3cc; margin: 8px 0 0; }
 .flash-results-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 24px; }
-.flash-results-secondary { font: 500 13px var(--font-sans); color: var(--f-ink2); background: #eef2f8;
-  border: 1px solid rgba(24,34,46,.12); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
-.flash-results-secondary:hover { background: #e3e9f2; color: var(--f-ink); }
+.flash-results-secondary { font: 500 13px var(--font-sans); color: #dde2fb; background: rgba(150,170,255,.07);
+  border: 1px solid rgba(170,185,255,.18); border-radius: 13px; padding: 14px 22px; cursor: pointer; }
+.flash-results-secondary:hover { background: rgba(150,170,255,.14); color: #fff; }
 
 /* States — the stage caps the instrument card's width so it scales up to fill the
    screen but never spans edge to edge. Loading/empty copy reads light on the field. */
-.flash-stage { width: min(1060px, 94vw); display: flex; flex-direction: column; align-items: center; }
+.flash-stage { width: min(680px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
-.flash-msg { font: 400 20px var(--font-serif); color: #cfe2f6; }
+.flash-msg { font: 400 20px var(--font-serif); color: #4e3d82; }
 
 @keyframes flash-rise { to { opacity: 1; transform: none; } }
 @keyframes flash-ignite { from { transform: scale(1); opacity: .85; } to { transform: scale(3.6); opacity: 0; } }
 @keyframes flash-seg { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
 @keyframes flash-pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(13,130,118,.14); } 50% { box-shadow: 0 0 0 8px rgba(13,130,118,.04); } }
-@keyframes flash-border { to { --flash-angle: 360deg; } }
+@keyframes flash-rim { to { transform: rotate(1turn); } }
 @keyframes flash-underline { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 @keyframes flash-shimmer { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 html[data-motion="reduce"] .flash-setup-title { animation: none; }
-@keyframes flash-scan {
-  from { background-position: center, center, center -60%; }
-  to   { background-position: center, center, center 160%; } }
 
 @media (prefers-reduced-motion: reduce) {
   .flash-option, .flash-segs i.is-now, .flash-lock.is-armed, .flash-step,
-  .flash-card::before, .flash-step-lede::after, .flash-root::before { animation: none; }
+  .flash-card::before, .flash-results::before, .flash-step-lede::after, .flash-root::before { animation: none; }
   .flash-option, .flash-step { opacity: 1; transform: none; }
 }
 html[data-motion="reduce"] .flash-option,
@@ -2506,6 +2562,7 @@ html[data-motion="reduce"] .flash-step { opacity: 1; transform: none; animation:
 html[data-motion="reduce"] .flash-segs i.is-now,
 html[data-motion="reduce"] .flash-lock.is-armed,
 html[data-motion="reduce"] .flash-card::before,
+html[data-motion="reduce"] .flash-results::before,
 html[data-motion="reduce"] .flash-step-lede::after,
 html[data-motion="reduce"] .flash-root::before { animation: none; }
 
