@@ -13,12 +13,17 @@ export function ChargeRing({ onComplete }: { onComplete: () => void }) {
   const [pct, setPct] = useState(0);
   const boosting = useRef(false);
   const done = useRef(false);
+  // Keep the latest onComplete WITHOUT re-running the charge effect. A parent
+  // re-render mid-charge (e.g. a reason card's background grade resolving while the
+  // ring fills) would otherwise restart the ring from 0 — killing the suspense beat.
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const reduced =
       document.documentElement.dataset.motion === "reduce" ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const finish = () => { if (done.current) return; done.current = true; onComplete(); };
+    const finish = () => { if (done.current) return; done.current = true; onCompleteRef.current(); };
 
     if (reduced) { const t = setTimeout(finish, REDUCED_MS); return () => clearTimeout(t); }
 
@@ -31,7 +36,8 @@ export function ChargeRing({ onComplete }: { onComplete: () => void }) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [onComplete]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const R = 52; const C = 2 * Math.PI * R;
   const down = () => { boosting.current = true; };
@@ -39,7 +45,7 @@ export function ChargeRing({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div className="flash-charge" data-testid="flash-charge"
-      onPointerDown={down} onPointerUp={up} onPointerLeave={up} aria-hidden>
+      onPointerDown={down} onPointerUp={up} onPointerLeave={up} onPointerCancel={up} aria-hidden>
       <svg className="flash-charge-ring" viewBox="0 0 120 120">
         <circle className="flash-charge-track" cx="60" cy="60" r={R} />
         <circle className="flash-charge-fill" cx="60" cy="60" r={R}
