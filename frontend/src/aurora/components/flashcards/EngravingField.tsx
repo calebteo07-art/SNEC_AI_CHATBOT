@@ -66,7 +66,7 @@ export function EngravingField({ className = "" }: { className?: string }) {
       const el = document.createElement("span");
       el.className = "flash-engraving";
       el.style.width = el.style.height = `${s}px`;
-      el.style.opacity = (0.14 + Math.random() * 0.07).toFixed(3);
+      el.style.opacity = (0.07 + Math.random() * 0.05).toFixed(3);
       el.innerHTML = `${SVG_OPEN}${GLYPHS[gi]}</svg>`;
       const [x, y] = placeOutside(s);
       const rot = Math.random() * 44 - 22;

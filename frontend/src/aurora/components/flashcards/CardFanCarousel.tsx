@@ -86,8 +86,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFan
   const hasEntered = useRef(false);
   const directionRef = useRef<"left" | "right" | null>(null);
   const prevVisible = useRef<Set<number>>(new Set());
-  const pausedRef = useRef(false);
-  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalCards = cards.length;
   const needsPagination = totalCards > MAX_VISIBLE;
@@ -114,22 +112,16 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFan
       : (prev - 1 + totalCards) % totalCards);
   }, [totalCards, needsPagination]);
 
-  const pauseAuto = useCallback(() => {
-    pausedRef.current = true;
-    if (resumeTimer.current) { clearTimeout(resumeTimer.current); resumeTimer.current = null; }
-  }, []);
-  const resumeAuto = useCallback(() => {
-    if (resumeTimer.current) clearTimeout(resumeTimer.current);
-    resumeTimer.current = setTimeout(() => { pausedRef.current = false; }, 1200);
-  }, []);
-
-  // Auto-advance: only when paginated and motion is allowed; pauses on hover/focus.
+  // Auto-advance: a calm, continuous rotation whenever paginated and motion is
+  // allowed. It never pauses on hover — the fan fills the viewport, so pausing on
+  // pointer presence froze it in practice; a hovered card may rotate away (the
+  // accepted trade for "it actually rotates"). Arrows still nudge it manually.
   useEffect(() => {
     if (!needsPagination || autoAdvanceMs <= 0 || prefersReducedMotion()) return;
     const id = window.setInterval(() => {
-      if (!pausedRef.current && !isAnimating.current) cycle("right");
+      if (!isAnimating.current) cycle("right");
     }, autoAdvanceMs);
-    return () => { window.clearInterval(id); if (resumeTimer.current) clearTimeout(resumeTimer.current); };
+    return () => { window.clearInterval(id); };
   }, [needsPagination, autoAdvanceMs, cycle]);
 
   // Layout + hover physics (adapted donee). Honors reduced motion via gsap.set.
@@ -263,9 +255,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFan
   if (!totalCards) return null;
 
   return (
-    <section className="fan-section" aria-label="Topics"
-      onPointerEnter={pauseAuto} onPointerLeave={resumeAuto}
-      onFocusCapture={pauseAuto} onBlurCapture={resumeAuto}>
+    <section className="fan-section" aria-label="Topics">
       <div ref={containerRef} className="fan-layout" data-testid="flash-fan">
         {cards.map((card) => (
           <button key={card.id} type="button"

@@ -44,7 +44,7 @@ export function StepTopic({ sets, onStart }: Props) {
 
       <CardFanCarousel
         cards={cards}
-        autoAdvanceMs={1300}
+        autoAdvanceMs={2600}
         onPick={(c) => onStart(c.id === "__mixed" ? null : c.id)} />
     </div>
   );

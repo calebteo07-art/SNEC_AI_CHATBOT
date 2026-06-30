@@ -97,14 +97,13 @@ export function scoreHue(score: number): number {
   }
 }
 
-/** Curated, on-brand hue arc for per-topic color: 12 evenly-spaced hues spanning
- *  blue → indigo → violet → purple → magenta → pink → rose → red → coral. Confined
- *  to the contrast-safe span so the solid --flash-topic-c (a deep hsl(H 64% 40%))
- *  keeps white button text and the chip label legible (WCAG AA, verified). Greens,
- *  teals and yellows are intentionally omitted — at any lightness vivid enough for
- *  a light UI they fail white-text/chip contrast. Decorative tints/glows/confetti
- *  stay vivid (they use the raw hue at 55–80% lightness, never --flash-topic-c). */
-const TOPIC_HUES = [210, 222, 236, 252, 268, 286, 304, 322, 338, 352, 8, 26];
+/** Per-topic hue for the STUDY activity — deliberately confined to a COOL arc
+ *  (cyan → blue → indigo, ~188–256°). The study flow is the "Gemini graphite"
+ *  world, so every deck must stay cool: warm hues (the old pink/rose/coral end of
+ *  the wheel) read as flashy against the graphite canvas. 12 evenly-spaced cool
+ *  hues keep topics distinguishable while never straying warm. White text/chip
+ *  contrast holds across this whole band at the lightnesses the card uses. */
+const TOPIC_HUES = [188, 194, 200, 206, 212, 218, 224, 230, 236, 242, 248, 256];
 
 /** Stable, non-negative string hash (djb2). */
 function hashKey(s: string): number {
