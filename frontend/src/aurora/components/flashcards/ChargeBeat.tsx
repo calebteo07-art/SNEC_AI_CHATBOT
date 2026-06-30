@@ -30,7 +30,6 @@ export function ChargeBeat({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="flash-beat" data-testid="flash-charge" onClick={finish} aria-hidden>
       <div className="flash-beat-loader"><LiquidLoading /></div>
-      <span className="flash-beat-hint">tap to reveal</span>
     </div>
   );
 }

@@ -188,12 +188,14 @@ const fanCount = await np.locator('[data-testid="flash-pick"]').count();
 if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
 console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
-await np.locator('[data-card-id="triage"]').click();
-// study: a single-answer tap locks an INSTANT ✓/✗ verdict on the FRONT face, a
-// charging-ring suspense beat plays, then the card FLIPS to a full-bleed back face
-// carrying the model answer ("Findings") + a gamification payoff. Emulate reduced
-// motion so the charge/flip collapse to a fast, deterministic path.
+// Emulate reduced motion BEFORE interacting: it freezes the continuously-flowing
+// ("river") topic fan so the pick-click lands on a STABLE card, and collapses the
+// study charge/flip to a fast, deterministic path. study: a single-answer tap locks
+// an INSTANT ✓/✗ verdict on the FRONT face, a suspense beat plays, then the card
+// FLIPS to a full-bleed back face carrying the model answer ("Findings") + a payoff.
 await np.emulateMedia({ reducedMotion: "reduce" });
+await np.waitForTimeout(450); // let the river freeze to a static fan before clicking
+await np.locator('[data-card-id="triage"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
 // Card 1 (plain): tap an option → flip → back face shows "Findings" + payoff. There
@@ -442,6 +444,7 @@ await staleCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
   { card_id: "stale1", front: "Normal IOP range?", back: "10-21 mmHg", topic_tag: "iop_nct" },
 ])));
 const stp = await staleCtx.newPage();
+await stp.emulateMedia({ reducedMotion: "reduce" }); // freeze the flowing fan so the pick-click is stable
 const staleErrors = [];
 stp.on("pageerror", (e) => staleErrors.push(String(e)));
 await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
