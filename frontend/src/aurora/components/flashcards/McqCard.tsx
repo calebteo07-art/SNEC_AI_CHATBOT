@@ -1,6 +1,6 @@
 "use client";
 /* McqCard — the two-faced study instrument. Tap = instant ✓/✗ lock on the FRONT
-   face. A ChargeRing suspense beat plays, then the card FLIPS (CSS, .is-flipped) to
+   face. A ChargeBeat (liquid loader) suspense beat plays, then the card FLIPS (CSS, .is-flipped) to
    a full-bleed BACK face: the Payoff (verdict + combo + points + particles) over the
    model answer ("Findings"). Plain cards charge straight after the lock; reflection
    cards (~1 in 5) take a one-line reason on the front first, then charge. Free-text
@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import { type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT } from "./types";
 import { Icon } from "@/aurora/icons";
-import { ChargeRing } from "./ChargeRing";
+import { ChargeBeat } from "./ChargeBeat";
 import { Payoff } from "./Payoff";
 import { useFlashFx } from "./useFlashFx";
 
@@ -167,7 +167,7 @@ export function McqCard(p: Props) {
           </div>
           {backFace}
         </div>
-        {charging && <ChargeRing onComplete={onCharged} />}
+        {charging && <ChargeBeat onComplete={onCharged} />}
       </div>
     );
   }
@@ -241,7 +241,7 @@ export function McqCard(p: Props) {
         </div>
         {backFace}
       </div>
-      {charging && <ChargeRing onComplete={onCharged} />}
+      {charging && <ChargeBeat onComplete={onCharged} />}
     </div>
   );
 }
