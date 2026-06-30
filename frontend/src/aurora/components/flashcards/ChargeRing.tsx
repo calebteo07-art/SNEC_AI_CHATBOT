@@ -51,7 +51,6 @@ export function ChargeRing({ onComplete }: { onComplete: () => void }) {
         <circle className="flash-charge-fill" cx="60" cy="60" r={R}
           style={{ strokeDasharray: C, strokeDashoffset: C * (1 - pct) }} />
       </svg>
-      <span className="flash-charge-spark" />
       <span className="flash-charge-hint">hold to charge</span>
     </div>
   );

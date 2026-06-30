@@ -6,7 +6,7 @@
    only. Static + frozen under reduced motion. Decorative. */
 import { useEffect, useRef } from "react";
 
-const HUES = [256, 214, 188, 276, 320, 174]; // violet · blue · cyan · indigo · magenta · teal — echoes the aurora rim
+const HUES = [192, 212, 226, 244, 256, 188]; // cyan · blue · blue-indigo · indigo · indigo · cyan — cool-only, echoes the indigo→cyan rim
 
 export function BrownianField({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -27,7 +27,7 @@ export function BrownianField({ className = "" }: { className?: string }) {
       el.className = "flash-spot";
       el.style.width = el.style.height = `${r * 2}px`;
       el.style.background =
-        `radial-gradient(circle, hsl(${h} 84% 64% / .50), hsl(${h} 82% 66% / .12) 52%, transparent 70%)`;
+        `radial-gradient(circle, hsl(${h} 80% 66% / .22), hsl(${h} 78% 68% / .06) 52%, transparent 70%)`;
       host.appendChild(el);
       const a = Math.random() * 6.28, sp = 0.6 + Math.random() * 0.9;
       return { el, r, x: Math.random() * W() - r, y: Math.random() * H() - r, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp };

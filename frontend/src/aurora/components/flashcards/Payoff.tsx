@@ -22,15 +22,17 @@ export function Payoff({ correct, combo, basePoints }: { correct: boolean; combo
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = cv.clientWidth, h = cv.clientHeight;
     cv.width = w * dpr; cv.height = h * dpr; ctx.scale(dpr, dpr);
-    const hue = correct ? 150 : 255;
-    const n = correct ? 36 + mult * 22 : 16;
+    // Calm celebration: teal on a hit, cool indigo on a miss — fewer, smaller, gentler
+    // particles so the payoff reads premium, not like a slot-machine jackpot.
+    const hue = correct ? 165 : 232;
+    const n = correct ? 18 + mult * 10 : 10;
     type P = { x: number; y: number; vx: number; vy: number; life: number; size: number; hue: number };
     const ps: P[] = Array.from({ length: n }, () => ({
       x: w / 2, y: h * 0.42,
-      vx: (Math.random() - 0.5) * (correct ? 7 : 2),
-      vy: (Math.random() - (correct ? 0.9 : 0.4)) * (correct ? 7 : 3),
-      life: 1, size: 2 + Math.random() * (correct ? 4 : 2),
-      hue: hue + (Math.random() - 0.5) * 50,
+      vx: (Math.random() - 0.5) * (correct ? 5 : 1.8),
+      vy: (Math.random() - (correct ? 0.85 : 0.4)) * (correct ? 5.2 : 2.6),
+      life: 1, size: 1.6 + Math.random() * (correct ? 2.6 : 1.6),
+      hue: hue + (Math.random() - 0.5) * 36,
     }));
     let raf = 0; const t0 = performance.now();
     const draw = (t: number) => {
