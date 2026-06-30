@@ -220,11 +220,14 @@ await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the
 await np.waitForSelector('[data-testid="flash-option"]', { timeout: 8000 });
 await np.locator('[data-testid="flash-option"]').first().click();
 await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
-if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) > 0) {
+// Both faces live in the DOM for the 3D flip, so assert VISIBILITY, not presence:
+// before the flip the back face (model + Next) is display:none under reduced motion
+// (rotated away with backface-hidden in full motion).
+if (await np.locator('.flash-compare-label:has-text("Findings")').isVisible()) {
   console.error("FAIL: model answer shown before the learner's reasoning on a reason card"); process.exit(1);
 }
-if ((await np.locator('[data-testid="flash-advance"]').count()) > 0) {
-  console.error("FAIL: Next should not exist until the reveal is charged"); process.exit(1);
+if (await np.locator('[data-testid="flash-advance"]').isVisible()) {
+  console.error("FAIL: Next should not be visible until the reveal is charged"); process.exit(1);
 }
 await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
 await np.locator('[data-testid="flash-reveal-model"]').click();
