@@ -2271,26 +2271,31 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    lights now live behind the canvas, not in the card. Light-on-dark via redefined
    --f-* tokens (teal / coral stay vivid for correct / wrong). */
 .flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
-  display: flex; flex-direction: column; border-radius: 26px;
-  padding: 38px 42px 32px; overflow: hidden; isolation: isolate;
-  background: transparent; border: none;
+  perspective: 1800px; background: transparent; border: none;
   box-shadow: 0 44px 96px -36px rgba(98,84,230,.55), 0 18px 46px -22px rgba(60,40,120,.42);
-  transition: box-shadow .35s ease;
+  transition: box-shadow .35s ease; isolation: isolate;
   --f-ink: #f3f4fc; --f-ink2: #dde2fb; --f-mono: #9aa3cc;
   --f-line: rgba(170,185,255,.16); --f-paper: rgba(150,170,255,.05); }
-/* Rotating spectrum rim — the full aurora orbits behind the slab. */
-.flash-card::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
+.flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(13,130,118,.5), 0 18px 46px -22px rgba(8,80,70,.5); }
+
+.flash-flip { position: relative; display: grid; width: 100%; min-height: inherit;
+  transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+.flash-card.is-flipped .flash-flip { transform: rotateY(180deg); }
+
+.flash-face { grid-area: 1 / 1; display: flex; flex-direction: column;
+  min-height: min(74vh, 700px); border-radius: 26px; padding: 38px 42px 32px;
+  overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flash-face.is-front { transform: rotateY(0deg); }
+.flash-face.is-back { transform: rotateY(180deg); }
+.flash-face::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
   background: conic-gradient(from 0deg,
     rgba(124,92,246,0) 0deg, #7C5CF6 55deg, #22B8D4 130deg, rgba(34,184,212,0) 188deg,
     #FBA838 256deg, #F0397E 312deg, rgba(124,92,246,0) 360deg);
   animation: flash-rim 9s linear infinite; }
-/* Frosted dark slab — covers all but the ~2px rim. */
-.flash-card::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 24px;
+.flash-face::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 24px;
   pointer-events: none; background: linear-gradient(135deg, rgba(24,26,56,.93), rgba(12,14,33,.96));
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-/* Correct answer biases the rim teal/green so "signal locked" still reads as success. */
-.flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(13,130,118,.5), 0 18px 46px -22px rgba(8,80,70,.5); }
-.flash-card.is-right::before { background: conic-gradient(from 0deg,
+.flash-card.is-right .flash-face.is-back::before { background: conic-gradient(from 0deg,
   rgba(13,130,118,0) 0deg, #0d8276 52deg, #5ce0cf 116deg, rgba(92,224,207,0) 178deg,
   #22B8D4 250deg, #1fc780 312deg, rgba(13,130,118,0) 360deg); }
 .flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
@@ -2406,16 +2411,61 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* "Reveal model answer" — reflection card's gate; left-aligned under the reasoning box. */
 .flash-reveal-btn { margin-left: 0; }
 
-/* Locked-in dwell — the Next control is held disabled behind a filling ring for the
-   DWELL beat (--flash-dwell-ms) before it unlocks, so the learner sits with the
-   answer instead of tap-skipping. */
-.flash-advance.is-dwelling { background: rgba(150,170,255,.10); color: #c8cef0; box-shadow: none; padding-left: 13px; }
-.flash-dwell-ring { width: 18px; height: 18px; flex: 0 0 auto; }
-.flash-dwell-track { fill: none; stroke: rgba(255,255,255,.18); stroke-width: 4; }
-.flash-dwell-fill { fill: none; stroke: currentColor; stroke-width: 4; stroke-linecap: round;
-  stroke-dasharray: 94.25; stroke-dashoffset: 94.25; /* 2πr, r=15 */
-  animation: flash-dwell var(--flash-dwell-ms, 2200ms) linear forwards; }
-@keyframes flash-dwell { to { stroke-dashoffset: 0; } }
+/* Charge ring — the suspense overlay over the front face before the flip. */
+.flash-charge { position: absolute; inset: 0; z-index: 6; display: flex;
+  flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: radial-gradient(circle at 50% 44%, rgba(8,10,28,.55), rgba(8,10,28,.78));
+  border-radius: 26px; cursor: pointer; touch-action: none; animation: flash-charge-in .25s ease both; }
+@keyframes flash-charge-in { from { opacity: 0; } to { opacity: 1; } }
+.flash-charge-ring { width: 132px; height: 132px; transform: rotate(-90deg); filter: drop-shadow(0 0 14px hsl(var(--flash-topic-hue) 80% 60% / .5)); }
+.flash-charge-track { fill: none; stroke: rgba(180,195,255,.16); stroke-width: 7; }
+.flash-charge-fill { fill: none; stroke: hsl(var(--flash-topic-hue) 80% 62%); stroke-width: 7;
+  stroke-linecap: round; transition: stroke-dashoffset .06s linear; }
+.flash-charge-spark { position: absolute; width: 12px; height: 12px; border-radius: 50%;
+  background: hsl(var(--flash-topic-hue) 90% 72%); box-shadow: 0 0 18px 6px hsl(var(--flash-topic-hue) 90% 66% / .8);
+  animation: flash-charge-orbit 1.1s linear infinite; }
+@keyframes flash-charge-orbit { from { transform: rotate(0) translateY(-58px); } to { transform: rotate(360deg) translateY(-58px); } }
+.flash-charge-hint { font: 500 10.5px var(--font-mono); letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(210,218,255,.6); }
+
+/* Payoff — back-face gamification band. */
+.flash-payoff { position: relative; margin: 0 0 14px; }
+.flash-payoff-fx { position: absolute; inset: -38px -42px auto; width: calc(100% + 84px); height: 180px;
+  pointer-events: none; z-index: 0; }
+.flash-payoff-row { position: relative; z-index: 1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; }
+.flash-payoff-verdict { font-family: var(--font-serif); font-weight: 600; font-size: clamp(30px, 4.6vw, 40px);
+  letter-spacing: -0.01em; margin: 0; }
+.flash-payoff.is-right .flash-payoff-verdict { color: #6ff0d2; text-shadow: 0 2px 26px rgba(31,199,128,.45); }
+.flash-payoff.is-wrong .flash-payoff-verdict { color: #ff9c82; text-shadow: 0 2px 22px rgba(217,72,47,.4); }
+.flash-payoff-points { margin-left: auto; font: 600 22px var(--font-mono); color: #fbfbff;
+  letter-spacing: .02em; }
+.flash-combo { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px;
+  font: 600 11px var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+  color: #ffe9b8; background: rgba(251,168,56,.18); border: 1px solid rgba(251,168,56,.55);
+  animation: flash-combo-pop .5s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes flash-combo-pop { from { opacity: 0; transform: scale(.7) translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* The model answer owns the back face — big and in-your-face. clamp() stays LONGHAND
+   (font-size, not the font shorthand) so the minifier can't drop it. */
+.flash-model-big { font-size: clamp(17px, 2.1vw, 21px); line-height: 1.55; font-weight: 400;
+  font-family: var(--font-sans); max-width: 46ch; }
+
+/* Reduced motion — the flip becomes an instant face swap; ring/orbit/combo don't animate. */
+@media (prefers-reduced-motion: reduce) {
+  .flash-flip { transition: none; }
+  .flash-card.is-flipped .flash-flip { transform: none; }
+  .flash-face.is-back { transform: none; }
+  .flash-card:not(.is-flipped) .flash-face.is-back { display: none; }
+  .flash-card.is-flipped .flash-face.is-front { display: none; }
+  .flash-charge-spark, .flash-charge, .flash-combo { animation: none; }
+}
+html[data-motion="reduce"] .flash-flip { transition: none; }
+html[data-motion="reduce"] .flash-card.is-flipped .flash-flip { transform: none; }
+html[data-motion="reduce"] .flash-face.is-back { transform: none; }
+html[data-motion="reduce"] .flash-card:not(.is-flipped) .flash-face.is-back { display: none; }
+html[data-motion="reduce"] .flash-card.is-flipped .flash-face.is-front { display: none; }
+html[data-motion="reduce"] .flash-charge-spark, html[data-motion="reduce"] .flash-charge,
+html[data-motion="reduce"] .flash-combo { animation: none; }
 
 /* Free-text tutor card */
 .flash-selfmark { display: flex; gap: 10px; margin-top: 16px; }
@@ -2538,6 +2588,7 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-verdict.is-wrong { color: #ff8a6e; }
 .flash-card .flash-compare-label { color: hsl(var(--flash-topic-hue) 78% 72%); }
 .flash-card .flash-model { color: rgba(236,236,247,.80); }
+.flash-card .flash-model-big { color: rgba(244,244,253,.92); }
 .flash-card .flash-reason-box { background: rgba(150,170,255,.06); }
 .flash-card .flash-advance { background: linear-gradient(95deg, #7C5CF6, #22B8D4);
   box-shadow: 0 12px 28px -14px rgba(124,92,246,.8); }
