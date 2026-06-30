@@ -180,7 +180,7 @@ export function Flashcards() {
       <FlashShell onExit={exit} topicHue={stageHue} engraved>
         <div className="flash-stage flash-stage-msg">
           {generating
-            ? <div className="flash-loadwrap"><LiquidLoading /><p className="flash-msg">Bringing your cards into focus…</p></div>
+            ? <LiquidLoading />
             : <p className="flash-msg">{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
         </div>
       </FlashShell>

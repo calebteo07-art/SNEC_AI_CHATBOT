@@ -1,11 +1,12 @@
 "use client";
-/* CardFanCarousel — an auto-rotating fan of portrait cards. Adapted from a
-   donated GSAP "social cards" fan: same fan math (FAN_POSITIONS, responsive
-   multipliers, entry/cycle/hover animation), retuned for our topic picker —
-   labelled, click-to-pick cards, auto-advance that pauses on hover/focus, an
-   <img> error fallback, and medical-blue controls. Reduced-motion safe. */
+/* CardFanCarousel — an arced fan of portrait topic cards that flows CONTINUOUSLY
+   like a river. A single rAF loop advances a fractional "flow" offset and writes
+   each card's transform every frame, so cards glide smoothly through the fan instead
+   of ticking card-by-card. The middle card is largest; cards fade as they slide off
+   one edge and seamlessly re-enter from the other. Click a card to pick it; the
+   arrows nudge the river by one card. Reactive to reduced motion (freezes to a
+   static fan) — also so automated clicks land on a stable card. */
 import { useState, useEffect, useRef, useCallback } from "react";
-import gsap from "gsap";
 
 export interface FanCard {
   id: string;
@@ -19,20 +20,23 @@ export interface FanCard {
 interface CardFanCarouselProps {
   cards: FanCard[];
   onPick: (card: FanCard) => void;
+  /** Milliseconds the river takes to flow one card-width (the continuous pace). */
   autoAdvanceMs?: number;
 }
 
-const MAX_VISIBLE = 7;
-const HALF = 3;
-const FAN_POSITIONS = [
-  { rot: -21, scale: 0.7756, x: -30, y: 7.3, zIndex: 1 },
-  { rot: -14, scale: 0.8498, x: -22, y: 4.0, zIndex: 2 },
-  { rot: -7,  scale: 0.9346, x: -11, y: 1.3, zIndex: 3 },
-  { rot: 0,   scale: 1.0,    x: 0,   y: 0.0, zIndex: 10 },
-  { rot: 7,   scale: 0.9346, x: 11,  y: 1.3, zIndex: 3 },
-  { rot: 14,  scale: 0.8498, x: 22,  y: 4.0, zIndex: 2 },
-  { rot: 21,  scale: 0.7756, x: 30,  y: 7.3, zIndex: 1 },
+// Fan control points — slot offset -3..+3 from centre (index 0..6). The continuous
+// layout lerps between these, so the arc matches the original stepped fan exactly at
+// integer offsets and interpolates smoothly in between.
+const FAN = [
+  { rot: -21, scale: 0.7756, x: -30, y: 7.3 },
+  { rot: -14, scale: 0.8498, x: -22, y: 4.0 },
+  { rot: -7,  scale: 0.9346, x: -11, y: 1.3 },
+  { rot: 0,   scale: 1.0,    x: 0,   y: 0.0 },
+  { rot: 7,   scale: 0.9346, x: 11,  y: 1.3 },
+  { rot: 14,  scale: 0.8498, x: 22,  y: 4.0 },
+  { rot: 21,  scale: 0.7756, x: 30,  y: 7.3 },
 ];
+const SPAN = 3; // visible half-width in slot units (the fan shows ~7 cards)
 
 function getResponsiveMultiplier(width: number) {
   if (width < 480) return 0.32;
@@ -50,27 +54,38 @@ function getHeightMultiplier(width: number) {
   else if (width < 1024) idealPx = 34 * 16;
   else idealPx = 38 * 16;
   const available = window.innerHeight * 0.7;
-  if (available >= idealPx) return 1;
-  return available / idealPx;
+  return available >= idealPx ? 1 : available / idealPx;
 }
 
-function getSlotConfig(totalCards: number, slot: number) {
-  if (totalCards >= MAX_VISIBLE) return FAN_POSITIONS[slot];
-  const center = totalCards >> 1;
-  const distance = totalCards > 1 ? (slot - center) / center : 0;
-  const absDistance = Math.abs(distance);
-  return {
-    rot: distance * 21,
-    scale: 1.0 - 0.2244 * absDistance * absDistance,
-    x: distance * 30,
-    y: absDistance * absDistance * 7.3,
-    zIndex: 10 - Math.abs(slot - center),
-  };
+function isReduced() {
+  return (typeof document !== "undefined" &&
+      document.documentElement.getAttribute("data-motion") === "reduce") ||
+    (typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 }
 
-function prefersReducedMotion() {
-  return typeof document !== "undefined" &&
-    document.documentElement.getAttribute("data-motion") === "reduce";
+type FanKey = keyof (typeof FAN)[number];
+
+// Continuous fan transform for a signed slot offset `rel` (0 = centre). Inside the
+// fan it lerps the control points; past the edge it slides the card further out and
+// fades it so the wrap to the other side is invisible.
+function fanAt(rel: number) {
+  const a = Math.abs(rel), s = Math.sign(rel);
+  let x: number, y: number, rot: number, scale: number, opacity: number;
+  if (a <= SPAN) {
+    const idx = rel + SPAN;                 // 0..6 (float)
+    const i0 = Math.floor(idx), i1 = Math.min(6, i0 + 1), f = idx - i0;
+    const L = (k: FanKey) => FAN[i0][k] + (FAN[i1][k] - FAN[i0][k]) * f;
+    x = L("x"); y = L("y"); rot = L("rot"); scale = L("scale"); opacity = 1;
+  } else {
+    const over = a - SPAN;
+    x = s * (30 + over * 26);
+    y = 7.3 + over * 3;
+    rot = s * (21 + over * 6);
+    scale = Math.max(0.5, 0.7756 - over * 0.25);
+    opacity = Math.max(0, 1 - over / 0.85);
+  }
+  return { x, y, rot, scale, opacity, zIndex: Math.round(100 - a * 10) };
 }
 
 const chevron = (direction: "left" | "right") => (
@@ -80,194 +95,95 @@ const chevron = (direction: "left" | "right") => (
   </svg>
 );
 
-export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFanCarouselProps) {
+export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFanCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isAnimating = useRef(false);
-  const hasEntered = useRef(false);
-  const directionRef = useRef<"left" | "right" | null>(null);
-  const prevVisible = useRef<Set<number>>(new Set());
+  const flowRef = useRef(0);
+  const rafRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const activeDotRef = useRef(-1);
+  const total = cards.length;
+  const [reduced, setReduced] = useState(false);
 
-  const totalCards = cards.length;
-  const needsPagination = totalCards > MAX_VISIBLE;
-  const [centerIndex, setCenterIndex] = useState(needsPagination ? HALF : totalCards >> 1);
-
-  const getVisibleMap = useCallback((center: number) => {
-    const map = new Map<number, number>();
-    if (!needsPagination) {
-      cards.forEach((_, i) => map.set(i, i));
-      return map;
-    }
-    for (let slot = 0; slot < MAX_VISIBLE; slot++) {
-      map.set(((center + slot - HALF) % totalCards + totalCards) % totalCards, slot);
-    }
-    return map;
-  }, [totalCards, needsPagination, cards]);
-
-  const cycle = useCallback((direction: "left" | "right") => {
-    if (isAnimating.current || !needsPagination) return;
-    isAnimating.current = true;
-    directionRef.current = direction;
-    setCenterIndex(prev => direction === "right"
-      ? (prev + 1) % totalCards
-      : (prev - 1 + totalCards) % totalCards);
-  }, [totalCards, needsPagination]);
-
-  // Auto-advance: a calm, continuous rotation whenever paginated and motion is
-  // allowed. It never pauses on hover — the fan fills the viewport, so pausing on
-  // pointer presence froze it in practice; a hovered card may rotate away (the
-  // accepted trade for "it actually rotates"). Arrows still nudge it manually.
-  useEffect(() => {
-    if (!needsPagination || autoAdvanceMs <= 0 || prefersReducedMotion()) return;
-    const id = window.setInterval(() => {
-      if (!isAnimating.current) cycle("right");
-    }, autoAdvanceMs);
-    return () => { window.clearInterval(id); };
-  }, [needsPagination, autoAdvanceMs, cycle]);
-
-  // Layout + hover physics (adapted donee). Honors reduced motion via gsap.set.
-  useEffect(() => {
+  // Write every visible card's transform for the current flow value (one frame).
+  const layout = useCallback(() => {
     const container = containerRef.current;
-    if (!container || !totalCards) return;
-    const cardElements = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
-    if (!cardElements.length) return;
-
-    const reduce = prefersReducedMotion();
-    const visibleMap = getVisibleMap(centerIndex);
-    const previouslyVisible = prevVisible.current;
-    const direction = directionRef.current;
-    const isFirstMount = !hasEntered.current;
-    const multiplier = getResponsiveMultiplier(window.innerWidth);
+    if (!container || !total) return;
+    const els = container.querySelectorAll<HTMLElement>(".fan-card");
+    const mult = getResponsiveMultiplier(window.innerWidth);
     const hMult = getHeightMultiplier(window.innerWidth);
-    const slotCount = needsPagination ? MAX_VISIBLE : totalCards;
-    const config = (slot: number) => getSlotConfig(slotCount, slot);
-
-    if (isFirstMount) isAnimating.current = true;
-    let completedCount = 0;
-    const visibleCount = visibleMap.size;
-    const onCardDone = () => {
-      if (++completedCount >= visibleCount) {
-        isAnimating.current = false;
-        if (isFirstMount) hasEntered.current = true;
+    const flow = flowRef.current;
+    els.forEach((el, i) => {
+      let rel = ((i - flow) % total + total) % total;
+      if (rel > total / 2) rel -= total;             // centre the wrap: -N/2..N/2
+      const t = fanAt(rel);
+      el.style.transform =
+        `translate(${(t.x * mult).toFixed(2)}rem, ${(t.y * hMult).toFixed(2)}rem) rotate(${t.rot.toFixed(2)}deg) scale(${t.scale.toFixed(3)})`;
+      el.style.opacity = t.opacity.toFixed(3);
+      el.style.zIndex = String(t.zIndex);
+      el.style.pointerEvents = t.opacity > 0.05 ? "auto" : "none";
+    });
+    // Light the dot nearest centre (direct DOM, no per-frame React re-render).
+    const active = ((Math.round(flow) % total) + total) % total;
+    if (active !== activeDotRef.current) {
+      const dots = container.parentElement?.querySelectorAll<HTMLElement>(".fan-dot");
+      if (dots) {
+        if (activeDotRef.current >= 0 && dots[activeDotRef.current]) dots[activeDotRef.current].classList.remove("is-on");
+        if (dots[active]) dots[active].classList.add("is-on");
       }
+      activeDotRef.current = active;
+    }
+  }, [total]);
+
+  // Arrows nudge the river by one card (and refresh immediately when frozen).
+  const nudge = useCallback((dir: 1 | -1) => { flowRef.current += dir; layout(); }, [layout]);
+
+  // Track reduced motion, including live changes — the test harness toggles it, and
+  // the profile toggle flips html[data-motion]. Freezing on demand also lets an
+  // automated click land on a stable (non-animating) card.
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduced(isReduced());
+    apply();
+    mq.addEventListener("change", apply);
+    const obs = new MutationObserver(apply);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
+    return () => { mq.removeEventListener("change", apply); obs.disconnect(); };
+  }, []);
+
+  // The river: one rAF loop advancing the fractional flow. Static under reduced motion.
+  useEffect(() => {
+    if (!total) return;
+    if (reduced) { layout(); return; }
+    const speed = autoAdvanceMs > 0 ? 1 / autoAdvanceMs : 0; // cards per ms
+    layout();                                   // place before first paint (no stack flash)
+    lastTimeRef.current = performance.now();
+    const tick = (now: number) => {
+      const dt = now - lastTimeRef.current; lastTimeRef.current = now;
+      flowRef.current += dt * speed;
+      layout();
+      rafRef.current = requestAnimationFrame(tick);
     };
-
-    cardElements.forEach((card, cardIndex) => {
-      const slot = visibleMap.get(cardIndex);
-      const wasVisible = previouslyVisible.has(cardIndex);
-      if (slot !== undefined) {
-        const { x, y, rot, scale, zIndex } = config(slot);
-        const target = {
-          x: `${x * multiplier}rem`, y: `${y * hMult}rem`,
-          rotation: rot, scale, opacity: 1, zIndex,
-        };
-        if (reduce) {
-          gsap.set(card, target);
-          onCardDone();
-        } else if (isFirstMount) {
-          gsap.set(card, { x: 0, y: `${12 * hMult}rem`, rotation: 0, scale: 0.5, opacity: 0 });
-          gsap.to(card, { ...target, duration: 1.2, ease: "elastic.out(1.05,.78)", delay: 0.2 + slot * 0.06, onComplete: onCardDone });
-        } else if (!wasVisible) {
-          const enterX = direction === "right" ? 40 : -40;
-          gsap.set(card, { x: `${enterX}rem`, y: `${y * hMult}rem`, rotation: direction === "right" ? 30 : -30, scale: 0.5, opacity: 0 });
-          gsap.to(card, { ...target, duration: 0.6, ease: "power2.out", onComplete: onCardDone });
-        } else {
-          gsap.to(card, { ...target, duration: 0.5, ease: "power2.out", onComplete: onCardDone });
-        }
-      } else if (wasVisible && !reduce) {
-        const exitX = direction === "right" ? -40 : 40;
-        gsap.to(card, { x: `${exitX}rem`, opacity: 0, scale: 0.5, rotation: direction === "right" ? -30 : 30, duration: 0.4, ease: "power2.in", zIndex: 0 });
-      } else {
-        gsap.set(card, { opacity: 0, scale: 0.3, x: 0, y: 0, zIndex: 0 });
-      }
-    });
-    prevVisible.current = new Set(visibleMap.keys());
-
-    if (reduce) return; // no hover physics under reduced motion
-
-    const visibleEntries: { el: HTMLElement; slot: number }[] = [];
-    cardElements.forEach((el, i) => {
-      const slot = visibleMap.get(i);
-      if (slot !== undefined) visibleEntries.push({ el, slot });
-    });
-    visibleEntries.sort((a, b) => a.slot - b.slot);
-    let activeSlot: number | null = null;
-    let leaveTimer: ReturnType<typeof setTimeout> | null = null;
-    const centerSlot = visibleEntries.length >> 1;
-
-    const updateHoverLayout = (hoveredSlot: number | null) => {
-      const mult = getResponsiveMultiplier(window.innerWidth);
-      const hM = getHeightMultiplier(window.innerWidth);
-      visibleEntries.forEach(({ el, slot }) => {
-        const base = config(slot);
-        let targetX = base.x * mult;
-        let targetY = base.y * hM;
-        let targetRot = base.rot;
-        let targetScale = base.scale;
-        let delay = 0;
-        if (hoveredSlot !== null) {
-          const distance = Math.abs(slot - hoveredSlot);
-          delay = distance * 0.02;
-          if (slot === hoveredSlot) {
-            targetY -= 2.5 * hM; targetScale *= 1.08;
-          } else {
-            const normalized = centerSlot > 0 ? (slot - centerSlot) / centerSlot : 0;
-            const pushStrength = 8 * (1 - Math.abs(normalized)) * (1 + 0.2 * Math.max(0, 3 - distance));
-            if (slot < hoveredSlot) { targetX -= pushStrength * mult; targetRot -= 3 / (distance + 1); }
-            else { targetX += pushStrength * mult; targetRot += 3 / (distance + 1); }
-            if (slot === visibleEntries.length - 1 && hoveredSlot < centerSlot) targetY -= 1 * hM;
-            if (slot === 0 && hoveredSlot > centerSlot) targetY -= 1 * hM;
-          }
-        } else {
-          delay = Math.abs(slot - centerSlot) * 0.02;
-        }
-        gsap.to(el, { x: `${targetX}rem`, y: `${targetY}rem`, rotation: targetRot, scale: targetScale, duration: 0.5, delay, ease: "elastic.out(1,.75)", overwrite: "auto" });
-        gsap.set(el, { zIndex: base.zIndex });
-      });
-    };
-
-    const enterHandlers = visibleEntries.map(({ el, slot }) => {
-      const handler = () => {
-        if (isAnimating.current) return;
-        if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
-        if (activeSlot !== slot) { activeSlot = slot; updateHoverLayout(slot); }
-      };
-      el.addEventListener("mouseenter", handler);
-      return { el, handler };
-    });
-    const onMouseLeave = () => {
-      if (isAnimating.current) return;
-      if (leaveTimer) clearTimeout(leaveTimer);
-      leaveTimer = setTimeout(() => { activeSlot = null; updateHoverLayout(null); }, 50);
-    };
-    container.addEventListener("mouseleave", onMouseLeave);
-    const onResize = () => { if (!isAnimating.current) updateHoverLayout(activeSlot); };
+    rafRef.current = requestAnimationFrame(tick);
+    const onResize = () => layout();
     window.addEventListener("resize", onResize);
+    return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", onResize); };
+  }, [total, reduced, autoAdvanceMs, layout]);
 
-    return () => {
-      gsap.killTweensOf(cardElements);
-      enterHandlers.forEach(({ el, handler }) => el.removeEventListener("mouseenter", handler));
-      container.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("resize", onResize);
-      if (leaveTimer) clearTimeout(leaveTimer);
-    };
-  }, [centerIndex, totalCards, getVisibleMap, needsPagination]);
-
-  if (!totalCards) return null;
+  if (!total) return null;
 
   return (
     <section className="fan-section" aria-label="Topics">
       <div ref={containerRef} className="fan-layout" data-testid="flash-fan">
         {cards.map((card) => (
           <button key={card.id} type="button"
-            className={`fan-card flash-press${card.startable === false ? " is-locked" : ""}`}
+            className={`fan-card${card.startable === false ? " is-locked" : ""}`}
             data-testid="flash-pick" data-card-id={card.id}
             disabled={card.startable === false}
             aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}`}
             onClick={() => { if (card.startable !== false) onPick(card); }}>
             <span className="fan-card-media" style={{ "--fan-hue": card.hue } as React.CSSProperties}>
               {/* Eager + high priority: every card image fetches the moment the fan
-                  mounts, so they're present on entry rather than popping in as cards
-                  rotate into view. */}
+                  mounts, so they're present as they flow into view. */}
               <img src={card.imgUrl} alt="" loading="eager" decoding="async" fetchPriority="high"
                 onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
             </span>
@@ -278,19 +194,15 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2800 }: CardFan
           </button>
         ))}
       </div>
-      {needsPagination && (
-        <div className="fan-controls">
-          <button type="button" className="fan-arrow flash-press" data-testid="flash-prev"
-            onClick={() => cycle("left")} aria-label="Previous">{chevron("left")}</button>
-          <div className="fan-dots" aria-hidden="true">
-            {cards.map((c, i) => (
-              <span key={c.id} className={`fan-dot${i === centerIndex ? " is-on" : ""}`} />
-            ))}
-          </div>
-          <button type="button" className="fan-arrow flash-press" data-testid="flash-next"
-            onClick={() => cycle("right")} aria-label="Next">{chevron("right")}</button>
+      <div className="fan-controls">
+        <button type="button" className="fan-arrow flash-press" data-testid="flash-prev"
+          onClick={() => nudge(-1)} aria-label="Previous">{chevron("left")}</button>
+        <div className="fan-dots" aria-hidden="true">
+          {cards.map((c) => (<span key={c.id} className="fan-dot" />))}
         </div>
-      )}
+        <button type="button" className="fan-arrow flash-press" data-testid="flash-next"
+          onClick={() => nudge(1)} aria-label="Next">{chevron("right")}</button>
+      </div>
     </section>
   );
 }

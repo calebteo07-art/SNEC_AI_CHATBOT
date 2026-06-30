@@ -2449,8 +2449,6 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 @keyframes flash-charge-in { from { opacity: 0; } to { opacity: 1; } }
 /* Scale the loader down a touch so it sits comfortably inside the card. */
 .flash-beat-loader { transform: scale(.72); transform-origin: center; }
-.flash-beat-hint { font: 500 10.5px var(--font-mono); letter-spacing: .18em; text-transform: uppercase;
-  color: rgba(210,218,255,.5); }
 
 /* Payoff — back-face gamification band. */
 .flash-payoff { position: relative; margin: 0 0 14px; }
@@ -2548,7 +2546,9 @@ html[data-motion="reduce"] .flash-face::after { opacity: 0; }
 .fan-section { position: relative; width: 96vw; max-width: 80rem;
   margin-left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.fan-layout { position: relative; width: 100%; height: 60dvh; }
+.fan-layout { position: relative; width: 100%; height: 60dvh; animation: fan-in .7s ease both; }
+@keyframes fan-in { from { opacity: 0; } to { opacity: 1; } }
+html[data-motion="reduce"] .fan-layout { animation: none; }
 @media (max-width: 639px) { .fan-layout { height: 52dvh; } }
 
 .fan-card { position: absolute; left: 50%; top: 50%;
@@ -2556,7 +2556,11 @@ html[data-motion="reduce"] .flash-face::after { opacity: 0; }
   border: none; padding: 0; cursor: pointer; overflow: hidden;
   border-radius: 22px; background: #0b1f38;
   box-shadow: 0 24px 52px -20px rgba(8,29,56,.6), 0 3px 10px rgba(8,29,56,.2);
-  outline: 2px solid transparent; outline-offset: 2px; will-change: transform; }
+  outline: 2px solid transparent; outline-offset: 2px; will-change: transform, opacity;
+  /* The continuous river writes transform/opacity every frame (rAF), so the card
+     must NOT transition those (it would smear the flow). Only the hover glow eases. */
+  transition: filter .2s ease, box-shadow .2s ease; }
+.fan-card:hover { filter: brightness(1.08); }
 /* Card sized in viewport-height units so the whole fan always fits without
    scrolling; width tracks the 3:4 portrait ratio, margins stay half for centring. */
 @media (max-width: 639px) { .fan-card { height: 46dvh; width: 34.5dvh; margin-top: -23dvh; margin-left: -17.25dvh; } }
@@ -2672,8 +2676,6 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-stage { width: min(680px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
 .flash-msg { font: 400 20px var(--font-serif); color: rgba(226,230,255,.82); }
-/* Deck-load state — the LiquidLoading bars above the caption. */
-.flash-loadwrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 
 @keyframes flash-rise { to { opacity: 1; transform: none; } }
 @keyframes flash-ignite { from { transform: scale(1); opacity: .85; } to { transform: scale(3.6); opacity: 0; } }
