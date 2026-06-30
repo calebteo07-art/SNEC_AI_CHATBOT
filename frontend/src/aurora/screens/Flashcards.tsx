@@ -20,6 +20,7 @@ import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
+import LiquidLoading from "@/components/ui/liquid-loader";
 
 function toCard(c: FlashcardItem, i: number): Flashcard {
   return {
@@ -179,7 +180,7 @@ export function Flashcards() {
       <FlashShell onExit={exit} topicHue={stageHue} engraved>
         <div className="flash-stage flash-stage-msg">
           {generating
-            ? <p className="flash-msg">Bringing your cards into focus…</p>
+            ? <div className="flash-loadwrap"><LiquidLoading /><p className="flash-msg">Bringing your cards into focus…</p></div>
             : <p className="flash-msg">{reviewMode ? "Nothing due to review — great job staying sharp!" : "No cards in this set yet — more are on the way."}</p>}
         </div>
       </FlashShell>

@@ -2172,20 +2172,21 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Flashcards — "Ophthalmic Console". Two distinct medical-blue environments,
-   told apart by :has() on .flash-root so neither bleeds into the other:
-   • SELECTION  — a LIGHT clinical-azure room (corneal-topography rings + soft
-     cyan blooms). The chrome (rail, title, primary buttons) stays medical-blue
-     regardless of the per-topic identity hue, so the room always reads clinical.
-   • ACTIVITY   — an intense off-white-purple canvas, etched with faint education /
-     eye-care line glyphs that drift in rapid Brownian motion (EngravingField), with
-     ONE dark frosted card floating on it. The card borrows the dashboard Next-Best-
-     Action motion: a rotating conic aurora spectrum (flash-rim) orbiting a dark slab.
-     Per-topic hue = identity (lifted for dark), teal = correct, coral = error, score
-     hue (--flash-score-hue) colours the results readout.
-   The Brownian colour field (BrownianField → .flash-bg) now drifts in the BACKGROUND
-   behind everything, reading in the margins around the opaque card; the education
-   line-art (EngravingField) is etched in the perimeter bands so it frames the card.
+   Flashcards — one cohesive GEMINI-GRAPHITE world, two states told apart by
+   :has() on .flash-root so neither bleeds into the other:
+   • SELECTION  — the sleek graphite room with whisper-faint cool glows; the
+     auto-rotating topic fan floats on it.
+   • ACTIVITY   — the SAME graphite canvas (cool blooms + faint etched line-art),
+     with ONE dark "lit-glass" card floating on it. The card adopts the daily
+     check-in card's language, dark-leaning: dark frosted glass + an animated
+     cool-gemini HAIRLINE ring (--flash-gemini-loop, masked border, aurora-flow)
+     + a one-shot sheen on mount + the 3D flip. Per-topic hue stays in a COOL band
+     (identity), teal = correct, coral = error, score hue (--flash-score-hue)
+     colours the results readout. Loading + the pre-flip beat use the cool
+     LiquidLoading bars (.flash-loadwrap / .flash-beat).
+   The Brownian colour field (BrownianField → .flash-bg) drifts in the BACKGROUND
+   behind everything, reading in the margins around the card; the education line-art
+   (EngravingField) is etched in the perimeter bands so it frames the card.
    ───────────────────────────────────────────────────────────────────────── */
 @property --flash-topic-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
 @property --flash-score-hue { syntax: "<number>"; inherits: true; initial-value: 212; }
@@ -2272,15 +2273,17 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
   mix-blend-mode: screen; filter: blur(9px); will-change: transform; }
 
-/* Instrument card — adopts the dashboard Next-Best-Action motion: a rotating conic
-   aurora spectrum (flash-rim) orbits behind a frosted dark-navy slab, so a glowing
-   multi-hue rim sweeps the whole card. Width comes from .flash-stage. The colour
-   lights now live behind the canvas, not in the card. Light-on-dark via redefined
-   --f-* tokens (teal / coral stay vivid for correct / wrong). */
+/* Instrument card — the check-in card's "lit glass" language, dark-leaning: a dark
+   frosted-glass slab ringed by an animated cool-gemini hairline (set per face below),
+   lit by a one-shot sheen on mount. Width comes from .flash-stage. The colour lights
+   live behind the canvas, not in the card. Light-on-dark via redefined --f-* tokens
+   (teal / coral stay vivid for correct / wrong). */
 .flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
   perspective: 1800px; background: transparent; border: none;
-  box-shadow: 0 44px 96px -36px rgba(98,84,230,.55), 0 18px 46px -22px rgba(60,40,120,.42);
+  box-shadow: 0 44px 96px -36px rgba(40,58,130,.5), 0 18px 46px -22px rgba(18,28,60,.45);
   transition: box-shadow .35s ease; isolation: isolate;
+  /* Cool "gemini" ramp (blue → indigo → cyan) for the hairline ring + clipped label. */
+  --flash-gemini-loop: linear-gradient(100deg, #5B9DFF, #6E8BFF, #22B8D4, #6E8BFF, #5B9DFF);
   --f-ink: #f3f4fc; --f-ink2: #dde2fb; --f-mono: #9aa3cc;
   --f-line: rgba(170,185,255,.16); --f-paper: rgba(150,170,255,.05); }
 .flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(13,130,118,.5), 0 18px 46px -22px rgba(8,80,70,.5); }
@@ -2291,20 +2294,39 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 
 .flash-face { grid-area: 1 / 1; display: flex; flex-direction: column;
   min-height: min(74vh, 700px); border-radius: 26px; padding: 38px 42px 32px;
-  overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  /* Dark frosted "lit glass" — the check-in card's language, dark-leaning. The card
+     floats on the graphite canvas + cool blooms, which blur through the glass. */
+  background:
+    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 72% 60% / .12), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.08), transparent 58%),
+    rgba(18, 20, 28, 0.72);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .flash-face.is-front { transform: rotateY(0deg); }
 .flash-face.is-back { transform: rotateY(180deg); }
-.flash-face::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
-  background: conic-gradient(from 0deg,
-    rgba(91,91,255,0) 0deg, #5B5BFF 60deg, #22B8D4 140deg, rgba(34,184,212,0) 210deg,
-    #5B5BFF 300deg, rgba(91,91,255,0) 360deg);
-  animation: flash-rim 9s linear infinite; }
-.flash-face::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 24px;
-  pointer-events: none; background: linear-gradient(135deg, rgba(26,28,33,.94), rgba(16,17,20,.96));
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-.flash-card.is-right .flash-face.is-back::before { background: conic-gradient(from 0deg,
-  rgba(13,130,118,0) 0deg, #0d8276 52deg, #5ce0cf 116deg, rgba(92,224,207,0) 178deg,
-  #22B8D4 250deg, #1fc780 312deg, rgba(13,130,118,0) 360deg); }
+/* Animated cool-gemini hairline ring — masked so only the 1.5px border paints. Rides
+   the shared aurora-flow loop, so it freezes with everything else under reduce. */
+.flash-face::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
+  pointer-events: none; border-radius: inherit; padding: 1.5px;
+  background-image: var(--flash-gemini-loop); background-size: 200% 100%;
+  animation: aurora-flow var(--aurora-anim) linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  opacity: .72; }
+/* One-shot diagonal sheen sweep across the glass on mount (reuses the check-in keyframe). */
+.flash-face::after { content: ""; position: absolute; top: -60%; left: -40%; width: 45%; height: 220%; z-index: 1;
+  pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent);
+  transform: translateX(-60%) rotate(9deg);
+  animation: aurora-checkin-sheen 1.15s var(--mo-ease) .2s both; }
+/* Correct → the glass warms to teal and the hairline turns teal/cyan. */
+.flash-card.is-right .flash-face {
+  background:
+    radial-gradient(130% 80% at 0% 0%, rgba(19,165,148,.14), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.08), transparent 58%),
+    rgba(15, 23, 24, 0.72); }
+.flash-card.is-right .flash-face::before {
+  background-image: linear-gradient(100deg, #13a594, #22B8D4, #5ce0cf, #22B8D4, #13a594); }
 .flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
 
 /* Top bar / telemetry */
@@ -2418,21 +2440,17 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* "Reveal model answer" — reflection card's gate; left-aligned under the reasoning box. */
 .flash-reveal-btn { margin-left: 0; }
 
-/* Charge ring — a quiet suspense beat over the front face before the flip. A slim
-   cool arc fills over the dim; no orbiting spark, no glow flare — restraint is the
-   point. The fill takes the (now cool) topic hue so it sits in the graphite world. */
-.flash-charge { position: absolute; inset: 0; z-index: 6; display: flex;
-  flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-  background: radial-gradient(circle at 50% 44%, rgba(10,11,15,.42), rgba(10,11,15,.64));
+/* Charge beat — the suspense overlay over the front face before the flip. A dimmed
+   scrim holds the LiquidLoading bars (ChargeBeat) until the card flips. Tap to skip. */
+.flash-beat { position: absolute; inset: 0; z-index: 6; display: flex;
+  flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: radial-gradient(circle at 50% 44%, rgba(10,11,15,.46), rgba(10,11,15,.7));
   border-radius: 26px; cursor: pointer; touch-action: none; animation: flash-charge-in .25s ease both; }
 @keyframes flash-charge-in { from { opacity: 0; } to { opacity: 1; } }
-.flash-charge-ring { width: 104px; height: 104px; transform: rotate(-90deg);
-  filter: drop-shadow(0 0 7px hsl(var(--flash-topic-hue) 75% 60% / .3)); }
-.flash-charge-track { fill: none; stroke: rgba(180,195,255,.12); stroke-width: 4; }
-.flash-charge-fill { fill: none; stroke: hsl(var(--flash-topic-hue) 78% 64%); stroke-width: 4;
-  stroke-linecap: round; transition: stroke-dashoffset .06s linear; }
-.flash-charge-hint { font: 500 10.5px var(--font-mono); letter-spacing: .18em; text-transform: uppercase;
-  color: rgba(210,218,255,.55); }
+/* Scale the loader down a touch so it sits comfortably inside the card. */
+.flash-beat-loader { transform: scale(.72); transform-origin: center; }
+.flash-beat-hint { font: 500 10.5px var(--font-mono); letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(210,218,255,.5); }
 
 /* Payoff — back-face gamification band. */
 .flash-payoff { position: relative; margin: 0 0 14px; }
@@ -2463,15 +2481,21 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   .flash-face.is-back { transform: none; }
   .flash-card:not(.is-flipped) .flash-face.is-back { display: none; }
   .flash-card.is-flipped .flash-face.is-front { display: none; }
-  .flash-charge, .flash-combo { animation: none; }
+  .flash-beat, .flash-combo { animation: none; }
+  .flash-face::before, .flash-face::after, .flash-results::before { animation: none; }
+  .flash-face::after { opacity: 0; }
 }
 html[data-motion="reduce"] .flash-flip { transition: none; }
 html[data-motion="reduce"] .flash-card.is-flipped .flash-flip { transform: none; }
 html[data-motion="reduce"] .flash-face.is-back { transform: none; }
 html[data-motion="reduce"] .flash-card:not(.is-flipped) .flash-face.is-back { display: none; }
 html[data-motion="reduce"] .flash-card.is-flipped .flash-face.is-front { display: none; }
-html[data-motion="reduce"] .flash-charge,
+html[data-motion="reduce"] .flash-beat,
 html[data-motion="reduce"] .flash-combo { animation: none; }
+html[data-motion="reduce"] .flash-face::before,
+html[data-motion="reduce"] .flash-face::after,
+html[data-motion="reduce"] .flash-results::before { animation: none; }
+html[data-motion="reduce"] .flash-face::after { opacity: 0; }
 
 /* Free-text tutor card */
 .flash-selfmark { display: flex; gap: 10px; margin-top: 16px; }
@@ -2571,8 +2595,12 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
    Scoped under .flash-card so they outrank the light base rules by specificity
    (the --f-* tokens above already flip the token-driven colours; these patch the
    hardcoded ones). Per-topic hue stays as identity, lifted in lightness for dark. */
-.flash-card .flash-tag { color: hsl(var(--flash-topic-hue) 78% 72%); }
-.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 82% 66%); }
+/* Gradient-clipped cool-gemini micro-label, like the check-in topic tag. */
+.flash-card .flash-tag { background: var(--flash-gemini-loop); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: aurora-flow var(--aurora-anim) linear infinite; }
+.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 82% 66%);
+  -webkit-text-fill-color: hsl(var(--flash-topic-hue) 82% 66%); }
 .flash-card .flash-segs i { background: rgba(170,185,255,.25); }
 .flash-card .flash-count { color: #9aa3cc; }
 .flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 85% 70%), rgba(124,92,246,.5) 58%, transparent); }
@@ -2596,8 +2624,8 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-model { color: rgba(236,236,247,.80); }
 .flash-card .flash-model-big { color: rgba(244,244,253,.92); }
 .flash-card .flash-reason-box { background: rgba(150,170,255,.06); }
-.flash-card .flash-advance { background: linear-gradient(95deg, #7C5CF6, #22B8D4);
-  box-shadow: 0 12px 28px -14px rgba(124,92,246,.8); }
+.flash-card .flash-advance { background: linear-gradient(95deg, #5B9DFF, #22B8D4);
+  box-shadow: 0 12px 28px -14px rgba(34,120,212,.8); }
 /* Dwelling Next — out-specifies the gradient above so the held state reads as inert. */
 .flash-card .flash-advance.is-dwelling { background: rgba(150,170,255,.10); color: #c8cef0; box-shadow: none; }
 .flash-card .flash-mark-got, .flash-card .flash-mark-miss { background: rgba(150,170,255,.06); }
@@ -2607,19 +2635,23 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-mark-miss { color: #ff8a6e; border-color: rgba(255,138,110,.4); }
 .flash-card .flash-mark-miss:hover { background: rgba(255,138,110,.1); }
 
-/* Results — the same aurora-rim slab as the study card, floating on the lavender field. */
+/* Results — the same dark frosted "lit glass" + cool-gemini hairline as the study card. */
 .flash-results { position: relative; width: 100%; max-width: 600px; text-align: center;
-  isolation: isolate; overflow: hidden; background: transparent; border: none;
-  border-radius: 24px; padding: 42px 38px;
-  box-shadow: 0 44px 96px -36px rgba(98,84,230,.55), 0 18px 46px -22px rgba(60,40,120,.42); }
-.flash-results::before { content: ""; position: absolute; inset: -55%; z-index: 0; pointer-events: none;
-  background: conic-gradient(from 0deg,
-    rgba(91,91,255,0) 0deg, #5B5BFF 60deg, #22B8D4 140deg, rgba(34,184,212,0) 210deg,
-    #5B5BFF 300deg, rgba(91,91,255,0) 360deg);
-  animation: flash-rim 11s linear infinite; }
-.flash-results::after { content: ""; position: absolute; inset: 2px; z-index: 1; border-radius: 22px;
-  pointer-events: none; background: linear-gradient(135deg, rgba(26,28,33,.94), rgba(16,17,20,.96));
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  isolation: isolate; overflow: hidden; border: none; border-radius: 24px; padding: 42px 38px;
+  background:
+    radial-gradient(130% 80% at 0% 0%, rgba(91,141,255,.12), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.08), transparent 58%),
+    rgba(18, 20, 28, 0.74);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06),
+    0 44px 96px -36px rgba(40,58,130,.5), 0 18px 46px -22px rgba(18,28,60,.45); }
+.flash-results::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box; pointer-events: none;
+  border-radius: inherit; padding: 1.5px;
+  background-image: linear-gradient(100deg, #5B9DFF, #6E8BFF, #22B8D4, #6E8BFF, #5B9DFF); background-size: 200% 100%;
+  animation: aurora-flow var(--aurora-anim) linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  opacity: .72; }
 .flash-results > * { position: relative; z-index: 2; }
 .flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: #a99cf2; }
 .flash-results-score { font: 400 64px var(--font-serif); margin: 10px 0;
@@ -2640,6 +2672,8 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-stage { width: min(680px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
 .flash-msg { font: 400 20px var(--font-serif); color: rgba(226,230,255,.82); }
+/* Deck-load state — the LiquidLoading bars above the caption. */
+.flash-loadwrap { display: flex; flex-direction: column; align-items: center; gap: 18px; }
 
 @keyframes flash-rise { to { opacity: 1; transform: none; } }
 @keyframes flash-ignite { from { transform: scale(1); opacity: .85; } to { transform: scale(3.6); opacity: 0; } }
