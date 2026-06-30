@@ -27,4 +27,7 @@ export const Icon = {
   aperture: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.2" /></svg>),
   // padlock — the flashcards "lock in" reticle for multi-select cards
   lock: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>),
+  // speaker — flashcards sound toggle (sound on / muted)
+  sound: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><path d="M5 9v6h4l5 4V5L9 9H5z" /><path d="M16 9a3 3 0 0 1 0 6" /></svg>),
+  mute: (p: IconProps) => (<svg {...S(p.size)} aria-hidden><path d="M5 9v6h4l5 4V5L9 9H5z" /><path d="M22 9l-6 6M16 9l6 6" /></svg>),
 };

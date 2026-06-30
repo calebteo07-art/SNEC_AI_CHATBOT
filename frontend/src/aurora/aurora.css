@@ -2240,6 +2240,12 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   background: rgba(255,255,255,.6); border: 1px solid var(--f-line); border-radius: 999px;
   padding: 8px 14px; cursor: pointer; }
 .flash-exit:hover { background: rgba(255,255,255,.92); color: var(--f-ink); }
+/* Subtle sound toggle — low-contrast, top-right, never competes for attention. */
+.flash-mute { position: absolute; top: 22px; right: 24px; z-index: 40; display: flex;
+  align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%;
+  background: transparent; border: 1px solid rgba(120,130,170,.22); color: rgba(150,160,200,.55);
+  cursor: pointer; transition: color .2s ease, border-color .2s ease, opacity .2s ease; opacity: .55; }
+.flash-mute:hover { color: rgba(190,200,235,.9); border-color: rgba(150,160,200,.5); opacity: 1; }
 /* The Gemini-dark setup screen keeps a glass-on-dark exit pill; the lavender
    activity field uses the light base pill above. */
 .flash-root:has(.flash-setup) .flash-exit {
