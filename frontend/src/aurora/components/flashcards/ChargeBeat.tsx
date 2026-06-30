@@ -6,7 +6,7 @@
 import { useEffect, useRef } from "react";
 import LiquidLoading from "@/components/ui/liquid-loader";
 
-export const BEAT_MS = 1200;
+export const BEAT_MS = 1700;
 const REDUCED_MS = 250;
 
 export function ChargeBeat({ onComplete }: { onComplete: () => void }) {

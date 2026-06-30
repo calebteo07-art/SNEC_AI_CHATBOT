@@ -98,44 +98,13 @@ const chevron = (direction: "left" | "right") => (
 export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFanCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const flowRef = useRef(0);
-  const rafRef = useRef(0);
-  const lastTimeRef = useRef(0);
+  const paintRef = useRef<() => void>(() => {});
   const activeDotRef = useRef(-1);
   const total = cards.length;
   const [reduced, setReduced] = useState(false);
 
-  // Write every visible card's transform for the current flow value (one frame).
-  const layout = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || !total) return;
-    const els = container.querySelectorAll<HTMLElement>(".fan-card");
-    const mult = getResponsiveMultiplier(window.innerWidth);
-    const hMult = getHeightMultiplier(window.innerWidth);
-    const flow = flowRef.current;
-    els.forEach((el, i) => {
-      let rel = ((i - flow) % total + total) % total;
-      if (rel > total / 2) rel -= total;             // centre the wrap: -N/2..N/2
-      const t = fanAt(rel);
-      el.style.transform =
-        `translate(${(t.x * mult).toFixed(2)}rem, ${(t.y * hMult).toFixed(2)}rem) rotate(${t.rot.toFixed(2)}deg) scale(${t.scale.toFixed(3)})`;
-      el.style.opacity = t.opacity.toFixed(3);
-      el.style.zIndex = String(t.zIndex);
-      el.style.pointerEvents = t.opacity > 0.05 ? "auto" : "none";
-    });
-    // Light the dot nearest centre (direct DOM, no per-frame React re-render).
-    const active = ((Math.round(flow) % total) + total) % total;
-    if (active !== activeDotRef.current) {
-      const dots = container.parentElement?.querySelectorAll<HTMLElement>(".fan-dot");
-      if (dots) {
-        if (activeDotRef.current >= 0 && dots[activeDotRef.current]) dots[activeDotRef.current].classList.remove("is-on");
-        if (dots[active]) dots[active].classList.add("is-on");
-      }
-      activeDotRef.current = active;
-    }
-  }, [total]);
-
-  // Arrows nudge the river by one card (and refresh immediately when frozen).
-  const nudge = useCallback((dir: 1 | -1) => { flowRef.current += dir; layout(); }, [layout]);
+  // Arrows nudge the river by one card (repaint immediately, esp. when frozen).
+  const nudge = useCallback((dir: 1 | -1) => { flowRef.current += dir; paintRef.current(); }, []);
 
   // Track reduced motion, including live changes — the test harness toggles it, and
   // the profile toggle flips html[data-motion]. Freezing on demand also lets an
@@ -150,24 +119,62 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     return () => { mq.removeEventListener("change", apply); obs.disconnect(); };
   }, []);
 
-  // The river: one rAF loop advancing the fractional flow. Static under reduced motion.
+  // The river. Smoothness is everything here, so per-frame work is minimal: the card
+  // nodes, the dot nodes and the responsive multipliers are read ONCE (and on resize)
+  // — never per frame (reading window.innerWidth/innerHeight or querying the DOM each
+  // frame forces a synchronous reflow → the judder we're avoiding). Each frame only
+  // writes a GPU translate3d + opacity; z-index / pointer-events are touched solely
+  // when they actually change. Static under reduced motion.
   useEffect(() => {
-    if (!total) return;
-    if (reduced) { layout(); return; }
-    const speed = autoAdvanceMs > 0 ? 1 / autoAdvanceMs : 0; // cards per ms
-    layout();                                   // place before first paint (no stack flash)
-    lastTimeRef.current = performance.now();
-    const tick = (now: number) => {
-      const dt = now - lastTimeRef.current; lastTimeRef.current = now;
-      flowRef.current += dt * speed;
-      layout();
-      rafRef.current = requestAnimationFrame(tick);
+    const container = containerRef.current;
+    if (!container || !total) return;
+    const els = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
+    const dots = Array.from(container.parentElement?.querySelectorAll<HTMLElement>(".fan-dot") ?? []);
+    const zCache = new Array(els.length).fill(NaN);
+    const peCache = new Array(els.length).fill(-1);
+    let mult = getResponsiveMultiplier(window.innerWidth);
+    let hMult = getHeightMultiplier(window.innerWidth);
+
+    const paint = () => {
+      const flow = flowRef.current;
+      for (let i = 0; i < els.length; i++) {
+        let rel = ((i - flow) % total + total) % total;
+        if (rel > total / 2) rel -= total;          // centre the wrap: -N/2..N/2
+        const t = fanAt(rel);
+        els[i].style.transform =
+          `translate3d(${(t.x * mult).toFixed(2)}rem,${(t.y * hMult).toFixed(2)}rem,0) rotate(${t.rot.toFixed(2)}deg) scale(${t.scale.toFixed(3)})`;
+        els[i].style.opacity = t.opacity.toFixed(3);
+        if (zCache[i] !== t.zIndex) { els[i].style.zIndex = String(t.zIndex); zCache[i] = t.zIndex; }
+        const pe = t.opacity > 0.05 ? 1 : 0;
+        if (peCache[i] !== pe) { els[i].style.pointerEvents = pe ? "auto" : "none"; peCache[i] = pe; }
+      }
+      const active = ((Math.round(flow) % total) + total) % total;
+      if (active !== activeDotRef.current) {
+        if (activeDotRef.current >= 0 && dots[activeDotRef.current]) dots[activeDotRef.current].classList.remove("is-on");
+        if (dots[active]) dots[active].classList.add("is-on");
+        activeDotRef.current = active;
+      }
     };
-    rafRef.current = requestAnimationFrame(tick);
-    const onResize = () => layout();
+    paintRef.current = paint;
+    paint(); // place cards before first paint (no stacked-card flash)
+
+    const onResize = () => { mult = getResponsiveMultiplier(window.innerWidth); hMult = getHeightMultiplier(window.innerWidth); paint(); };
     window.addEventListener("resize", onResize);
-    return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", onResize); };
-  }, [total, reduced, autoAdvanceMs, layout]);
+
+    let raf = 0;
+    if (!reduced) {
+      const speed = autoAdvanceMs > 0 ? 1 / autoAdvanceMs : 0; // cards per ms
+      let last = performance.now();
+      const tick = (now: number) => {
+        const dt = now - last; last = now;
+        flowRef.current += dt * speed;
+        paint();
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+  }, [total, reduced, autoAdvanceMs]);
 
   if (!total) return null;
 
