@@ -22,9 +22,9 @@ export function Payoff({ correct, combo, basePoints }: { correct: boolean; combo
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const w = cv.clientWidth, h = cv.clientHeight;
     cv.width = w * dpr; cv.height = h * dpr; ctx.scale(dpr, dpr);
-    // Calm celebration: teal on a hit, cool indigo on a miss — fewer, smaller, gentler
-    // particles so the payoff reads premium, not like a slot-machine jackpot.
-    const hue = correct ? 165 : 232;
+    // Bright green on a hit, intense red on a miss — fewer, smaller, gentler particles
+    // so the payoff reads premium, not like a slot-machine jackpot.
+    const hue = correct ? 140 : 4;
     const n = correct ? 18 + mult * 10 : 10;
     type P = { x: number; y: number; vx: number; vy: number; life: number; size: number; hue: number };
     const ps: P[] = Array.from({ length: n }, () => ({
