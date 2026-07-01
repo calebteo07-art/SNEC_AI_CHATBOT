@@ -15,7 +15,11 @@ interface Props {
 export function StudyStage(p: Props) {
   return (
     <div className="flash-stage" data-testid="study-stage">
-      <McqCard card={p.card} topicLabel={p.topicLabel} idx={p.idx} total={p.total}
+      {/* Key by card id so each card mounts FRESH on its front face. Without this the
+          one persistent instrument reverse-flips on advance while its per-card reset
+          clears the verdict → the back-face Payoff briefly shows "Review this" (jars
+          most after a correct answer). A fresh mount has no prior flipped state. */}
+      <McqCard key={p.card.id} card={p.card} topicLabel={p.topicLabel} idx={p.idx} total={p.total}
         combo={p.combo} onCheck={p.onCheck} onReason={p.onReason} onAdvance={p.onAdvance}
         advanceLabel={p.advanceLabel} reasonNote={p.reasonNote} />
     </div>

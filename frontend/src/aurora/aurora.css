@@ -2455,6 +2455,20 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-load { transform: scale(1.15); transform-origin: center; }
 .flash-beat-loader { transform: scale(.82); transform-origin: center; }
 
+/* LiquidLoading — a pure-CSS Gemini equalizer (see components/ui/liquid-loader.tsx).
+   Only `transform` animates, so the compositor runs it smoothly even while the main
+   thread is busy fetching the deck or preparing the flip. */
+.liq { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 84px; }
+.liq-bar { width: 11px; height: 100%; border-radius: 999px; transform: scaleY(.3);
+  transform-origin: bottom; will-change: transform;
+  background: linear-gradient(180deg, #4488F4 0%, #8B5CF6 42%, #D96FB0 72%, #4FC3E8 100%);
+  box-shadow: 0 0 14px rgba(139,92,246,.42);
+  animation: liq-wave 1.15s ease-in-out infinite; }
+@keyframes liq-wave { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+/* Frozen silhouette when motion is reduced (harness + profile toggle). */
+@media (prefers-reduced-motion: reduce) { .liq-bar { animation: none; transform: scaleY(.62); } }
+html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
+
 /* Payoff — back-face gamification band. */
 .flash-payoff { position: relative; margin: 0 0 14px; }
 .flash-payoff-fx { position: absolute; inset: -38px -42px auto; width: calc(100% + 84px); height: 180px;
