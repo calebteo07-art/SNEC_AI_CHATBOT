@@ -63,25 +63,17 @@
 html[data-motion="reduce"] .aurora-mesh span { animation: none; }
 @media (prefers-reduced-motion: reduce) { .aurora-mesh span { animation: none; } }
 
-/* Dashboard-only dark canvas. Scoped with :has(.aurora-dash) so it never touches
-   the other (light) student screens or the rail. Rather than a flat fill, the deep
-   indigo base keeps the existing drifting mesh alive — its three blobs are recoloured
-   to vivid cyan / violet / amber glows that echo the stat cards, so the backdrop is a
-   slow living aurora instead of a boring solid. Content cards are left untouched. */
-.aurora-main:has(.aurora-dash) {
-  /* Corner glows sit in the visible margin frame around the card-dense layout
-     (where the drifting mesh is mostly occluded), so the backdrop reads as a rich
-     coloured dark rather than flat navy. */
+/* Home (student dashboard) warm canvas. Scoped with :has(.aurora-home) so it never
+   touches the other student screens or the rail. Soft peach/rose/lilac light bleeds
+   over a warm cream base; the drifting mesh is hidden so the backdrop stays calm. */
+.aurora-main:has(.aurora-home) {
   background:
-    radial-gradient(62% 52% at 100% 0%, rgba(124, 92, 246, 0.20), transparent 72%),
-    radial-gradient(58% 48% at 0% 100%, rgba(34, 184, 212, 0.18), transparent 72%),
-    radial-gradient(52% 42% at 100% 100%, rgba(251, 168, 56, 0.13), transparent 72%),
-    linear-gradient(165deg, #11142E 0%, #0C0F22 52%, #080B16 100%);
+    radial-gradient(72% 58% at 6% -8%, #FBDDBE 0%, transparent 54%),
+    radial-gradient(64% 54% at 102% -4%, #F7D3C4 0%, transparent 52%),
+    radial-gradient(80% 60% at 50% 116%, #EFD7C9 0%, transparent 60%),
+    #F1E3CF;
 }
-.aurora-main:has(.aurora-dash) .aurora-mesh span { opacity: 0.6; filter: blur(78px); }
-.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(1) { background: radial-gradient(circle, rgba(34, 184, 212, 0.34), transparent 70%); }
-.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(2) { background: radial-gradient(circle, rgba(124, 92, 246, 0.30), transparent 70%); }
-.aurora-main:has(.aurora-dash) .aurora-mesh span:nth-child(3) { background: radial-gradient(circle, rgba(251, 168, 56, 0.20), transparent 70%); }
+.aurora-main:has(.aurora-home) .aurora-mesh { display: none; }
 
 /* Virtual Patients — a soft, LIGHT "aurora on paper" wash instead of flat white,
    so the page feels calm and premium. White patient cards lift off a gentle
