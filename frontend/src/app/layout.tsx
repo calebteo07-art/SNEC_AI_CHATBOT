@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Outfit, Playfair_Display } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Playfair_Display, Bricolage_Grotesque } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -37,6 +37,14 @@ const flourish = Playfair_Display({
   variable: "--font-flourish",
   display: "swap",
 });
+/* Warm, characterful display face for the redesigned home (greeting, tile titles,
+   big streak/stat numerals). Loaded here so it's available app-wide via the var. */
+const homeDisplay = Bricolage_Grotesque({
+  weight: ["500", "600", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-bricolage-src",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "EyeBot — SNEC Clinical Education",
@@ -67,7 +75,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable} ${homeDisplay.variable}`}
       data-motion=""
     >
       <body>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../aurora/tokens.css";
 @import "../aurora/aurora.css";
+@import "../aurora/home.css";
 @import "../aurora/motion.css";
 @import './fonts.css';
 @import './eyebot.css';
