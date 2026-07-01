@@ -2,27 +2,28 @@
 import { useState, useEffect } from 'react';
 
 /* LiquidLoading — bouncing "liquid" bars with droplets, surface tension, bubbles and
-   shimmer. Integrated for EyeBot flashcards: the colour ramp is retuned to the cool
-   blue→indigo→cyan brand band (no rainbow), the glow hexes track that ramp, and a
+   shimmer. Integrated for EyeBot flashcards: the colour ramp is the vibrant GEMINI
+   theme (blue → violet → fuchsia/pink → cyan), the glow hexes track it, and a
    reduced-motion guard freezes it into a static silhouette so it obeys the app's
    motion system (html[data-motion="reduce"] / prefers-reduced-motion). */
 
-// Cool brand ramp — blue · indigo · cyan only.
+// Vibrant Gemini ramp — blue · violet · fuchsia · pink · cyan across the bars.
 const colors = [
-  'from-indigo-500 to-blue-500',
-  'from-blue-600 to-cyan-500',
-  'from-cyan-400 to-sky-500',
-  'from-sky-500 to-blue-500',
-  'from-blue-500 to-indigo-500',
-  'from-indigo-500 to-cyan-400',
-  'from-cyan-500 to-blue-600',
+  'from-blue-500 to-violet-500',
+  'from-violet-500 to-fuchsia-500',
+  'from-fuchsia-500 to-pink-500',
+  'from-pink-400 to-violet-400',
+  'from-violet-500 to-blue-500',
+  'from-blue-500 to-cyan-400',
+  'from-cyan-400 to-violet-500',
 ];
 
-// Glow colour per bar, matched to the cool ramp above.
+// Glow colour per bar, matched to the Gemini ramp above.
 const glow = (c: string): string =>
-  c.includes('cyan') ? '#22d3ee'
-  : c.includes('sky') ? '#38bdf8'
-  : c.includes('indigo') ? '#6366f1'
+  c.includes('fuchsia') ? '#d946ef'
+  : c.includes('pink') ? '#ec4899'
+  : c.includes('cyan') ? '#22d3ee'
+  : c.includes('violet') ? '#8b5cf6'
   : '#3b82f6';
 
 const LiquidLoading = () => {
@@ -87,7 +88,7 @@ const LiquidLoading = () => {
               transform: droplets[index]
                 ? `translateY(${Math.sin(Date.now() * 0.008 + index * 0.5) * 3}px) scale(${0.8 + Math.sin(Date.now() * 0.006 + index * 0.3) * 0.4})`
                 : 'translateY(10px) scale(0.5)',
-              boxShadow: droplets[index] ? `0 0 15px ${glow(colors[index])}40` : 'none'
+              boxShadow: droplets[index] ? `0 0 13px ${glow(colors[index])}40` : 'none'
             }}
           />
 
@@ -99,7 +100,7 @@ const LiquidLoading = () => {
               transform: height < 0 ? 'scaleY(-1)' : 'scaleY(1)',
               transformOrigin: 'bottom',
               filter: 'blur(0.3px)',
-              boxShadow: `0 0 20px ${glow(colors[index])}50, inset 0 0 20px rgba(255,255,255,0.1)`
+              boxShadow: `0 0 18px ${glow(colors[index])}45, inset 0 0 18px rgba(255,255,255,0.09)`
             }}
           >
             {/* Liquid surface tension effect */}
