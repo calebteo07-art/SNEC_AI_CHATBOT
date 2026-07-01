@@ -1,63 +1,37 @@
 "use client";
-/* AURORA Dashboard — the command centre. Editorial gradient hero greeting + a
-   bold "Week Lens" streak band (the daily ritual, front and centre), a clear
-   launchpad linking every feature (Tutor / Virtual Patients / Flashcards), a
-   Next-Best-Action band, and three big distinct-colour stat cards. XP + streak
-   read from one synced source (useProgress), so the ring and the readouts never
-   drift. */
-import Link from "next/link";
-import { useEffect } from "react";
+/* AURORA Home — the warm-premium student dashboard. A bento of: the greeting hero
+   (ever-changing teasing line + level-up XP bar + Iris mascot), the daily-streak
+   tile, a 3D coverflow of the three entry points, a milestone ladder, and real-data
+   stat tiles. All numbers read from one synced source (useProgress). */
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
-import { OA_TOPICS, OT_TOPICS, PSA_TOPICS, type Track } from "@/lib/legacy/curriculum";
-import { GradientHero, type Readout } from "@/aurora/components/GradientHero";
-import { GoalRing } from "@/aurora/components/GoalRing";
-import { StreakBand } from "@/aurora/components/StreakBand";
-import { StreakBoard } from "@/aurora/components/StreakBoard";
 import { rankForLevel } from "@/lib/rank";
-import { DAILY_XP_GOAL } from "@/lib/legacy/gamification";
+import { DAILY_XP_GOAL, XP_PER_LEVEL } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
+import { pickGreeting, type GreetingCtx, type Track } from "@/aurora/lib/greeting";
+import { HomeIconSprite, Icon } from "@/aurora/components/home/HomeIcons";
+import { GreetingHero } from "@/aurora/components/home/GreetingHero";
+import { StreakTile } from "@/aurora/components/home/StreakTile";
+import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
+import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
+import { WeekStats } from "@/aurora/components/home/WeekStats";
 
-const TRACK_TOPICS: Record<Track, typeof OA_TOPICS> = { OA: OA_TOPICS, OT: OT_TOPICS, PSA: PSA_TOPICS };
-const TRACK_LABELS: Record<Track, string> = {
-  OA: "Ophthalmic Assistant",
-  OT: "Ophthalmic Technician",
-  PSA: "Patient Service Associate",
-};
-
-/* Compact line glyphs for the feature launchpad — same family as the Atlas Rail. */
-const ico = { width: 36, height: 36, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-const FEATURES = [
-  {
-    tone: "tutor", href: "/chat", title: "Tutor", sub: "Ask anything — your AI ophthalmology coach", go: "Open tutor →",
-    icon: (<svg {...ico}><path d="M5 5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3V6a1 1 0 0 1 1-1Z" /><circle cx="9" cy="10" r="0.7" fill="currentColor" /><circle cx="12.5" cy="10" r="0.7" fill="currentColor" /><circle cx="16" cy="10" r="0.7" fill="currentColor" /></svg>),
-  },
-  {
-    tone: "cases", href: "/cases", title: "Virtual Patients", sub: "Run a guided OSCE station with a real case", go: "Start a case →",
-    icon: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
-  },
-  {
-    tone: "flash", href: "/flashcards", title: "Flashcards", sub: "Active-recall drills that adapt to you", go: "Study now →",
-    icon: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14v12" /></svg>),
-  },
-] as const;
-
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
+function dayOfYear(): number {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now.getTime() - start.getTime()) / 86_400_000);
 }
 
 export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
 
-  /* Post-session debrief, inlined here now that the Summary page is gone: when a
-     flashcard run finishes it lands on the Dashboard with a one-shot flag, which
-     we turn into a celebratory toast + confetti, then clear so it fires once. */
+  /* Post-session debrief, inlined here (the Summary page is gone): a finished
+     flashcard run lands on the Home with a one-shot flag → celebratory toast +
+     confetti, then clears so it fires once. */
   useEffect(() => {
     if (sessionStorage.getItem("eyebot_session_complete") !== "1") return;
     sessionStorage.removeItem("eyebot_session_complete");
@@ -78,83 +52,85 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  const activeTrack = ((user?.studentRole as Track) || "OA");
-  const trackLabel = TRACK_LABELS[activeTrack] ?? "Trainee";
+  /* Greeting rotation seed: day-of-year + a persisted "Surprise me" counter, so the
+     line changes each visit but is stable within a render. */
+  const [bump, setBump] = useState<number>(() => {
+    if (typeof window === "undefined") return 0;
+    try { const v = parseInt(localStorage.getItem("eyebot_greet_seed") || "0", 10); return Number.isNaN(v) ? 0 : v; }
+    catch { return 0; }
+  });
+  const onSurprise = () => setBump((b) => {
+    const n = b + 1;
+    try { localStorage.setItem("eyebot_greet_seed", String(n)); } catch { /* private mode */ }
+    return n;
+  });
+
   const firstName = (user?.fullName ?? "there").split(" ")[0];
-
-  const topics = TRACK_TOPICS[activeTrack] ?? OA_TOPICS;
-  const perfFor = (id: string) => progress?.topic_performance?.find((p) => p.topic === id)?.score ?? 0;
-  const completedIds = topics.filter((t) => perfFor(t.id) >= 0.65).map((t) => t.id);
-  const nextTopic = topics.find((t) => !completedIds.includes(t.id)) ?? null;
-
+  const track = ((user?.studentRole as Track) || "OA");
   const level = progress?.level ?? 1;
-  const rank = rankForLevel(level);
-  const readouts: Readout[] = [
-    {
-      label: rank.title,
-      value: `Lv ${level}`,
-      hint: rank.nextTitle ? `${rank.levelsToNext} level${rank.levelsToNext === 1 ? "" : "s"} to ${rank.nextTitle}` : "Top rank reached — nice work!",
-    },
-    { label: "XP", value: `${progress?.xp ?? 0}`, hint: "Experience points — earn them from flashcards, virtual patients and the tutor. 500 XP per level." },
-    { label: "Sessions", value: `${progress?.session_count ?? 0}`, hint: "Total study sessions you've completed." },
-  ];
-
+  const rank = rankForLevel(level).title;
+  const xp = progress?.xp ?? 0;
+  const xpInLevel = xp % XP_PER_LEVEL;
+  const xpToNext = XP_PER_LEVEL - xpInLevel;
   const dailyGoal = progress?.daily_goal ?? DAILY_XP_GOAL;
   const xpToday = progress?.xp_today ?? 0;
+  const detail = progress?.streak_detail;
+  const streak = detail?.current ?? 0;
 
-  const nba = nextTopic
-    ? { title: nextTopic.label, sub: `Continue your ${trackLabel} pathway`, cta: "Continue", href: `/flashcards?topic=${nextTopic.id}` }
-    : { title: "All topics cleared", sub: "Sharpen weak areas or talk to a virtual patient", cta: "Open Virtual Patients", href: "/cases" };
+  const todayIdx = detail?.week.findIndex((d) => d.state === "today") ?? -1;
+  const missedYesterday = todayIdx > 0 && detail?.week[todayIdx - 1]?.state === "missed";
+
+  const ctx: GreetingCtx = {
+    firstName, track, hour: new Date().getHours(), streak,
+    doneToday: detail?.done_today ?? false,
+    missedYesterday: Boolean(missedYesterday),
+    xpToNext, goalMet: xpToday >= dailyGoal, bestStreak: detail?.best ?? 0,
+  };
+  const greeting = pickGreeting(ctx, dayOfYear() + bump);
+
+  const lastMode = progress?.sessions?.[0]?.mode;
+  const resumeHref = lastMode === "case" ? "/cases" : lastMode === "chat" ? "/chat" : "/flashcards";
 
   return (
-    <div className="aurora-dash">
+    <div className="aurora-home" data-testid="home-root">
+      <HomeIconSprite />
       {user?.mustChangePassword && (
         <ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} />
       )}
 
-      <GradientHero
-        eyebrow={`${trackLabel} · ${activeTrack} track`}
-        title={`${greeting()}, ${firstName}`}
-        readouts={readouts}
-        action={
-          <GoalRing
-            onDark
-            value={xpToday}
-            goal={dailyGoal}
-            caption={xpToday >= dailyGoal ? "Daily goal done! 🎉" : `${xpToday} / ${dailyGoal} XP today`}
-          />
-        }
-      />
-
-      {/* Daily streak — the Week Lens. Front and centre under the hero. */}
-      <StreakBand detail={progress?.streak_detail} />
-
-      {/* Primary action — bold, clean band with a big title + gradient CTA */}
-      <div className="aurora-card aurora-nba" data-testid="nba-card">
-        <div className="aurora-nba-inner">
-          <div className="aurora-nba-text">
-            <p className="aurora-nba-eyebrow">Next best action</p>
-            <p className="aurora-nba-title">{nba.title}</p>
-            <p className="aurora-nba-sub">{nba.sub}</p>
+      <div className="hm-top">
+        <div className="hm-brand">
+          <span className="hm-logo"><Icon name="eye" gem /></span>
+          <span className="hm-wm">EyeBot</span>
+        </div>
+        <div className="hm-topr">
+          <div className="hm-chip">
+            <span>Level <b>{level}</b> <small>· {rank}</small></span>
+            <span className="hm-medal"><Icon name="medal" /></span>
           </div>
-          <Link href={nba.href} className="aurora-cta aurora-flow aurora-press"><span>{nba.cta} →</span></Link>
+          <div className="hm-avatar" aria-hidden>{firstName.slice(0, 1).toUpperCase()}</div>
         </div>
       </div>
 
-      {/* Feature launchpad — the dashboard now links to every feature */}
-      <div className="aurora-launch aurora-stagger">
-        {FEATURES.map((f) => (
-          <Link key={f.href} href={f.href} className="aurora-launchcard" data-tone={f.tone}>
-            <span className="aurora-launch-ico" aria-hidden>{f.icon}</span>
-            <p className="aurora-launch-title">{f.title}</p>
-            <p className="aurora-launch-sub">{f.sub}</p>
-            <span className="aurora-launch-go">{f.go}</span>
-          </Link>
-        ))}
+      <div className="hm-hero">
+        <GreetingHero
+          greeting={greeting}
+          level={level}
+          rank={rank}
+          xpInLevel={xpInLevel}
+          xpToNext={xpToNext}
+          onSurprise={onSurprise}
+          resumeHref={resumeHref}
+        />
+        <StreakTile detail={detail} xpToday={xpToday} dailyGoal={dailyGoal} />
       </div>
 
-      {/* Milestone streak board — LinkedIn-inspired panel (replaces the stat cards) */}
-      <StreakBoard detail={progress?.streak_detail} />
+      <FeatureCarousel />
+
+      <div className="hm-lower">
+        <MilestoneLadder detail={detail} />
+        <WeekStats progress={progress} />
+      </div>
     </div>
   );
 }
