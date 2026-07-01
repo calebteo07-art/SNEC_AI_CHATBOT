@@ -6,6 +6,12 @@ mixed deck). Photoreal, medically/anatomically accurate; clinical-scene topics
 use authentic Singapore eye-clinic settings with SingHealth blue scrubs and
 orange trim. Mirrors generate_flashcards_hero.py.
 
+Each image is auto-compressed at write time (optimize_topic_images) from the
+~600 KB raw Gemini PNG to a compact ~40-90 KB progressive JPEG (dimensions kept,
+served as .png via browser sniffing) so the topic fan loads fast -- no manual
+re-optimize step to forget. To re-shrink files already on disk, run
+`python tools/media/optimize_topic_images.py`.
+
 PAID API -- run deliberately, only on explicit go-ahead.
 
     python tools/media/generate_flashcards_topics.py                 # all 31
@@ -29,6 +35,7 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(PROJECT_ROOT / ".env")
 
 from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS  # noqa: E402
+from tools.media.optimize_topic_images import optimize_image_bytes  # noqa: E402
 
 OUT_DIR = PROJECT_ROOT / "frontend" / "public" / "media" / "flashcards" / "topics"
 
@@ -205,8 +212,18 @@ def main() -> int:
                 for part in res.candidates[0].content.parts:
                     if getattr(part, "inline_data", None):
                         out = OUT_DIR / f"{stem}{suffix}.png"
-                        out.write_bytes(part.inline_data.data)
-                        print(f"  ok {out.name} ({len(part.inline_data.data) // 1024} KB)")
+                        raw = part.inline_data.data
+                        # Shrink at write time so freshly generated images are
+                        # always small (~10x). On any encode hiccup, keep the raw
+                        # bytes rather than lose the paid generation.
+                        try:
+                            data = optimize_image_bytes(raw)
+                            note = f"{len(raw) // 1024} -> {len(data) // 1024} KB"
+                        except Exception as exc:  # noqa: BLE001
+                            data = raw
+                            note = f"{len(raw) // 1024} KB RAW (optimize failed: {type(exc).__name__})"
+                        out.write_bytes(data)
+                        print(f"  ok {out.name} ({note})")
                         written += 1
                         saved = True
                         break
