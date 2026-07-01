@@ -89,14 +89,21 @@ await np.locator('.aurora-navitem:has-text("Virtual Patients")').first().click()
 await np.waitForURL("**/cases", { timeout: 6000 });
 console.log("PASS: Atlas Rail renders nav and routes to /cases");
 
-// dashboard structure: one h1, an NBA card, the streak band + milestone board.
+// home structure: the warm bento renders (one h1 greeting, streak tile, milestone
+// ladder, three feature cards) and "Surprise me" reshuffles the greeting.
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('[data-testid="nba-card"]', { timeout: 15000 });
+await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
 const h1count = await np.locator("main h1").count();
 if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
-if ((await np.locator('[data-testid="streak-band"]').count()) !== 1) { console.error("FAIL: streak band missing"); process.exit(1); }
-if ((await np.locator('[data-testid="streak-board"]').count()) !== 1) { console.error("FAIL: milestone streak board missing"); process.exit(1); }
-console.log("PASS: dashboard has one h1, an NBA card, streak band + milestone board");
+if ((await np.locator('[data-testid="streak-tile"]').count()) !== 1) { console.error("FAIL: streak tile missing"); process.exit(1); }
+if ((await np.locator('[data-testid="milestone-ladder"]').count()) !== 1) { console.error("FAIL: milestone ladder missing"); process.exit(1); }
+if ((await np.locator('[data-testid="feature-card"]').count()) !== 3) { console.error("FAIL: expected 3 feature cards"); process.exit(1); }
+const greetBefore = await np.locator('[data-testid="greeting"]').innerText();
+await np.locator('button:has-text("Surprise me")').click();
+await np.waitForTimeout(150);
+const greetAfter = await np.locator('[data-testid="greeting"]').innerText();
+if (greetBefore === greetAfter) { console.error("FAIL: 'Surprise me' did not change the greeting"); process.exit(1); }
+console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards, reshuffle)");
 
 // mobile: no horizontal overflow at 390x844.
 await np.setViewportSize({ width: 390, height: 844 });
@@ -352,10 +359,10 @@ await np.setViewportSize({ width: 1440, height: 900 });
 const rmPage = await navCtx.newPage();
 await rmPage.emulateMedia({ reducedMotion: "reduce" });
 await rmPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await rmPage.waitForSelector('[data-testid="streak-board"]', { timeout: 15000 });
-const rmAnim = await rmPage.locator(".aurora-flow").first().evaluate((el) => getComputedStyle(el).animationName);
-if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze .aurora-flow (animationName=${rmAnim})`); process.exit(1); }
-console.log("PASS: reduced motion freezes the gradient animation");
+await rmPage.waitForSelector('[data-testid="streak-tile"]', { timeout: 15000 });
+const rmAnim = await rmPage.locator(".hm-iris").first().evaluate((el) => getComputedStyle(el).animationName);
+if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the mascot (animationName=${rmAnim})`); process.exit(1); }
+console.log("PASS: reduced motion freezes the home mascot animation");
 
 // admin: AdminGuard admits an admin; the dark ConsoleRail nav + KPIs render; the
 // Students route lists rows. (The old in-page pill tabs were replaced by the
