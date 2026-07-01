@@ -2284,14 +2284,16 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   perspective: 1800px; background: transparent; border: none;
   box-shadow: 0 44px 96px -36px rgba(40,58,130,.5), 0 18px 46px -22px rgba(18,28,60,.45);
   transition: box-shadow .35s ease; isolation: isolate;
-  /* Cool "gemini" ramp (blue → indigo → cyan) for the hairline ring + clipped label. */
-  --flash-gemini-loop: linear-gradient(100deg, #5B9DFF, #6E8BFF, #22B8D4, #6E8BFF, #5B9DFF);
+  /* Vibrant GEMINI ramp (blue → violet → orchid-pink → sky-cyan) for the animated
+     outline + clipped label. This is the HERO accent — deliberately high-chroma so it
+     pops against the quiet graphite card + hushed background. */
+  --flash-gemini-loop: linear-gradient(100deg, #4488F4, #8B5CF6, #D96FB0, #4FC3E8, #4488F4);
   --f-ink: #f3f4fc; --f-ink2: #dde2fb; --f-mono: #9aa3cc;
   --f-line: rgba(170,185,255,.16); --f-paper: rgba(150,170,255,.05); }
 .flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(22,163,74,.5), 0 18px 46px -22px rgba(12,90,45,.5); }
 
 .flash-flip { position: relative; display: grid; width: 100%; min-height: inherit;
-  transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+  transform-style: preserve-3d; transition: transform 1.05s cubic-bezier(.4,0,.2,1); }
 .flash-card.is-flipped .flash-flip { transform: rotateY(180deg); }
 
 .flash-face { grid-area: 1 / 1; display: flex; flex-direction: column;
@@ -2300,22 +2302,22 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   /* Dark frosted "lit glass" — the check-in card's language, dark-leaning. The card
      floats on the graphite canvas + cool blooms, which blur through the glass. */
   background:
-    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 72% 60% / .12), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.08), transparent 58%),
-    rgba(18, 20, 28, 0.72);
-  -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
+    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 46% 58% / .10), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, hsl(var(--flash-topic-hue) 38% 54% / .05), transparent 58%),
+    rgba(17, 19, 26, 0.74);
+  -webkit-backdrop-filter: blur(24px) saturate(1.12); backdrop-filter: blur(24px) saturate(1.12);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .flash-face.is-front { transform: rotateY(0deg); }
 .flash-face.is-back { transform: rotateY(180deg); }
 /* Animated cool-gemini hairline ring — masked so only the 1.5px border paints. Rides
    the shared aurora-flow loop, so it freezes with everything else under reduce. */
 .flash-face::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
-  pointer-events: none; border-radius: inherit; padding: 1.5px;
-  background-image: var(--flash-gemini-loop); background-size: 200% 100%;
+  pointer-events: none; border-radius: inherit; padding: 2px;
+  background-image: var(--flash-gemini-loop); background-size: 220% 100%;
   animation: aurora-flow var(--aurora-anim) linear infinite;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-  opacity: .72; }
+  filter: saturate(1.18) drop-shadow(0 0 6px rgba(139,92,246,.38)); opacity: .95; }
 /* One-shot diagonal sheen sweep across the glass on mount (reuses the check-in keyframe). */
 .flash-face::after { content: ""; position: absolute; top: -60%; left: -40%; width: 45%; height: 220%; z-index: 1;
   pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent);
@@ -2351,9 +2353,9 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-multi { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px;
   padding: 3px 10px; border-radius: 999px; font-size: 10px; letter-spacing: .12em;
   text-transform: uppercase; vertical-align: middle; white-space: nowrap;
-  color: hsl(var(--flash-topic-hue) 82% 80%);
-  background: hsl(var(--flash-topic-hue) 70% 58% / .16);
-  border: 1px solid hsl(var(--flash-topic-hue) 70% 62% / .45); }
+  color: hsl(var(--flash-topic-hue) 48% 82%);
+  background: hsl(var(--flash-topic-hue) 42% 55% / .14);
+  border: 1px solid hsl(var(--flash-topic-hue) 42% 58% / .4); }
 .flash-multi > span[aria-hidden] { font-size: 11px; letter-spacing: -2px; }
 /* Big, in-your-face question. clamp() is kept in LONGHAND (not the font shorthand) so
    the CSS minifier can't drop the declaration. */
@@ -2450,8 +2452,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   border-radius: 26px; cursor: pointer; touch-action: none; animation: flash-charge-in .25s ease both; }
 @keyframes flash-charge-in { from { opacity: 0; } to { opacity: 1; } }
 /* The loader, sized up a touch for presence. Deck-load gets more room than the card. */
-.flash-load { transform: scale(1.3); transform-origin: center; }
-.flash-beat-loader { transform: scale(.92); transform-origin: center; }
+.flash-load { transform: scale(1.15); transform-origin: center; }
+.flash-beat-loader { transform: scale(.82); transform-origin: center; }
 
 /* Payoff — back-face gamification band. */
 .flash-payoff { position: relative; margin: 0 0 14px; }
@@ -2606,20 +2608,20 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-tag { background: var(--flash-gemini-loop); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: aurora-flow var(--aurora-anim) linear infinite; }
-.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 82% 66%);
-  -webkit-text-fill-color: hsl(var(--flash-topic-hue) 82% 66%); }
+.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 50% 70%);
+  -webkit-text-fill-color: hsl(var(--flash-topic-hue) 50% 70%); }
 .flash-card .flash-segs i { background: rgba(170,185,255,.25); }
 .flash-card .flash-count { color: #9aa3cc; }
-.flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 85% 70%), rgba(124,92,246,.5) 58%, transparent); }
-.flash-card .flash-kicker { color: hsl(var(--flash-topic-hue) 78% 72%); }
+.flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 46% 66%), rgba(124,130,180,.4) 58%, transparent); }
+.flash-card .flash-kicker { color: hsl(var(--flash-topic-hue) 40% 74%); }
 .flash-card .flash-q { color: #fbfbff; text-shadow: 0 2px 22px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.35); }
-.flash-card .flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 72% 66% / .8);
-  background: rgba(150,170,255,.10); box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 70% 50% / .55); }
+.flash-card .flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 46% 64% / .75);
+  background: rgba(150,163,204,.08); box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 42% 46% / .5); }
 .flash-card .flash-lamp { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.22); }
-.flash-card .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 72% 62%);
-  background: hsl(var(--flash-topic-hue) 72% 58% / .20); }
-.flash-card .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 66% 56%);
-  border-color: hsl(var(--flash-topic-hue) 66% 56%); color: #fff; }
+.flash-card .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 48% 60%);
+  background: hsl(var(--flash-topic-hue) 46% 55% / .16); }
+.flash-card .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 46% 56%);
+  border-color: hsl(var(--flash-topic-hue) 46% 56%); color: #fff; }
 .flash-card .flash-option.is-correct { background: rgba(34,197,94,.22); border-color: #22c55e; }
 .flash-card .flash-option.is-wrong { background: rgba(226,32,48,.20); border-color: #f04050; }
 .flash-card .flash-hint { color: #8b93bd; }
@@ -2627,7 +2629,7 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-card .flash-reveal { border-top-color: rgba(170,185,255,.14); }
 .flash-card .flash-verdict.is-right { color: #4ade80; }
 .flash-card .flash-verdict.is-wrong { color: #ff5d5d; }
-.flash-card .flash-compare-label { color: hsl(var(--flash-topic-hue) 78% 72%); }
+.flash-card .flash-compare-label { color: hsl(var(--flash-topic-hue) 40% 74%); }
 .flash-card .flash-model { color: rgba(236,236,247,.80); }
 .flash-card .flash-model-big { color: rgba(244,244,253,.92); }
 .flash-card .flash-reason-box { background: rgba(150,170,255,.06); }

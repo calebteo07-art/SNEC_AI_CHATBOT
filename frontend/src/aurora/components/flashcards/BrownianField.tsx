@@ -27,7 +27,7 @@ export function BrownianField({ className = "" }: { className?: string }) {
       el.className = "flash-spot";
       el.style.width = el.style.height = `${r * 2}px`;
       el.style.background =
-        `radial-gradient(circle, hsl(${h} 80% 66% / .22), hsl(${h} 78% 68% / .06) 52%, transparent 70%)`;
+        `radial-gradient(circle, hsl(${h} 42% 62% / .13), hsl(${h} 40% 64% / .04) 52%, transparent 70%)`;
       host.appendChild(el);
       const a = Math.random() * 6.28, sp = 0.6 + Math.random() * 0.9;
       return { el, r, x: Math.random() * W() - r, y: Math.random() * H() - r, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp };

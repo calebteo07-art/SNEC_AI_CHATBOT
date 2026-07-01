@@ -14,7 +14,7 @@ import { ChargeBeat } from "./ChargeBeat";
 import { Payoff } from "./Payoff";
 import { useFlashFx } from "./useFlashFx";
 
-const SETTLE_MS = 700; // payoff dwell after the flip before Next/self-mark unlocks
+const SETTLE_MS = 850; // payoff dwell after the flip before Next/self-mark unlocks
 
 interface Props {
   card: Flashcard; topicLabel: string; idx: number; total: number; combo: number;
