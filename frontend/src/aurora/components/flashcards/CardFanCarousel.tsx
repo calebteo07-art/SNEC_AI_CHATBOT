@@ -181,7 +181,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   return (
     <section className="fan-section" aria-label="Topics">
       <div ref={containerRef} className="fan-layout" data-testid="flash-fan">
-        {cards.map((card) => (
+        {cards.map((card, i) => (
           <button key={card.id} type="button"
             className={`fan-card${card.startable === false ? " is-locked" : ""}`}
             data-testid="flash-pick" data-card-id={card.id}
@@ -189,9 +189,12 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
             aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}`}
             onClick={() => { if (card.startable !== false) onPick(card); }}>
             <span className="fan-card-media" style={{ "--fan-hue": card.hue } as React.CSSProperties}>
-              {/* Eager + high priority: every card image fetches the moment the fan
-                  mounts, so they're present as they flow into view. */}
-              <img src={card.imgUrl} alt="" loading="eager" decoding="async" fetchPriority="high"
+              {/* Prioritise only the card that starts centred; the rest fetch at LOW
+                  priority so they don't all contend as "critical" and starve the one
+                  the user is actually looking at. They still flow in well before their
+                  turn on the river. */}
+              <img src={card.imgUrl} alt="" loading="eager" decoding="async"
+                fetchPriority={i === 0 ? "high" : "low"}
                 onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
             </span>
             <span className="fan-card-cap">

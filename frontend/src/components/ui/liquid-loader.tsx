@@ -1,161 +1,19 @@
 "use client";
-import { useState, useEffect } from 'react';
+/* LiquidLoading — a calm Gemini "liquid" equalizer. PURE CSS: each bar waves via a
+   compositor-driven transform keyframe (staggered per bar), so it stays smooth even
+   while the deck is fetching or the flip is being prepared. The old version drove 7
+   bars × 2 state arrays from a setInterval (~31 React re-renders/sec, each repainting
+   blurred/shadowed gradients) — that main-thread churn was the choppiness. Styles and
+   the reduced-motion freeze live in aurora.css (`.liq*`). */
 
-/* LiquidLoading — bouncing "liquid" bars with droplets, surface tension, bubbles and
-   shimmer. Integrated for EyeBot flashcards: the colour ramp is the vibrant GEMINI
-   theme (blue → violet → fuchsia/pink → cyan), the glow hexes track it, and a
-   reduced-motion guard freezes it into a static silhouette so it obeys the app's
-   motion system (html[data-motion="reduce"] / prefers-reduced-motion). */
+const BARS = 7;
 
-// Vibrant Gemini ramp — blue · violet · fuchsia · pink · cyan across the bars.
-const colors = [
-  'from-blue-500 to-violet-500',
-  'from-violet-500 to-fuchsia-500',
-  'from-fuchsia-500 to-pink-500',
-  'from-pink-400 to-violet-400',
-  'from-violet-500 to-blue-500',
-  'from-blue-500 to-cyan-400',
-  'from-cyan-400 to-violet-500',
-];
-
-// Glow colour per bar, matched to the Gemini ramp above.
-const glow = (c: string): string =>
-  c.includes('fuchsia') ? '#d946ef'
-  : c.includes('pink') ? '#ec4899'
-  : c.includes('cyan') ? '#22d3ee'
-  : c.includes('violet') ? '#8b5cf6'
-  : '#3b82f6';
-
-const LiquidLoading = () => {
-  const [heights, setHeights] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
-  const [droplets, setDroplets] = useState<boolean[]>([false, false, false, false, false, false, false]);
-
-  useEffect(() => {
-    const reduced =
-      document.documentElement.dataset.motion === 'reduce' ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Reduced motion: a calm static liquid silhouette, no loop.
-    if (reduced) {
-      setHeights([28, 44, 60, 68, 60, 44, 28]);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setHeights(prev => prev.map((_, index) => {
-        const maxHeight = 80;
-        const delay = index * 0.8; // Increased delay for slower wave propagation
-        const time = Date.now() * 0.001; // Much slower base speed
-
-        // Primary wave with bounce effect
-        const primaryWave = Math.sin(time + delay);
-
-        // Secondary bounce wave (higher frequency, lower amplitude)
-        const bounceWave = Math.sin(time * 4 + delay) * 0.15;
-
-        // Tertiary ripple effect
-        const ripple = Math.sin(time * 8 + delay) * 0.05;
-
-        // Combine waves for liquid bounce effect
-        const combinedWave = primaryWave + bounceWave + ripple;
-
-        return maxHeight * combinedWave;
-      }));
-
-      // Animate droplets with liquid timing
-      setDroplets(prev => prev.map((_, index) => {
-        const delay = index * 0.8;
-        const time = Date.now() * 0.001;
-        const waveValue = Math.sin(time + delay);
-        return waveValue > 0.8; // Show droplet at peak with tighter threshold
-      }));
-    }, 32); // Slower frame rate for more liquid feel
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="flex items-end space-x-4 p-8">
-      {heights.map((height, index) => (
-        <div key={index} className="relative flex flex-col items-center">
-          {/* Droplet with liquid physics */}
-          <div
-            className={`w-4 h-4 rounded-full bg-gradient-to-r ${colors[index]} mb-3 transition-all duration-500 ease-out ${
-              droplets[index] ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{
-              animationDelay: `${index * 0.2}s`,
-              filter: 'blur(0.5px)',
-              transform: droplets[index]
-                ? `translateY(${Math.sin(Date.now() * 0.008 + index * 0.5) * 3}px) scale(${0.8 + Math.sin(Date.now() * 0.006 + index * 0.3) * 0.4})`
-                : 'translateY(10px) scale(0.5)',
-              boxShadow: droplets[index] ? `0 0 13px ${glow(colors[index])}40` : 'none'
-            }}
-          />
-
-          {/* Main liquid bar with enhanced physics */}
-          <div
-            className={`w-10 bg-gradient-to-t ${colors[index]} rounded-full transition-all duration-200 ease-out relative overflow-hidden shadow-lg`}
-            style={{
-              height: `${Math.abs(height)}px`,
-              transform: height < 0 ? 'scaleY(-1)' : 'scaleY(1)',
-              transformOrigin: 'bottom',
-              filter: 'blur(0.3px)',
-              boxShadow: `0 0 18px ${glow(colors[index])}45, inset 0 0 18px rgba(255,255,255,0.09)`
-            }}
-          >
-            {/* Liquid surface tension effect */}
-            <div
-              className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-white/40 to-transparent rounded-full"
-              style={{
-                transform: `translateY(${Math.sin(Date.now() * 0.003 + index * 0.5) * 1}px) scaleY(${0.8 + Math.sin(Date.now() * 0.004 + index * 0.3) * 0.3})`
-              }}
-            />
-
-            {/* Liquid wave effect */}
-            <div
-              className="absolute inset-0 bg-gradient-to-t from-white/20 via-white/10 to-transparent rounded-full"
-              style={{
-                transform: `translateY(${Math.sin(Date.now() * 0.002 + index * 0.5) * 2}px)`,
-                background: `linear-gradient(0deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, transparent 100%)`
-              }}
-            />
-
-            {/* Shimmer effect */}
-            <div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full"
-              style={{
-                transform: `translateX(${Math.sin(Date.now() * 0.0015 + index * 0.7) * 8}px)`,
-                width: '140%',
-                left: '-20%'
-              }}
-            />
-
-            {/* Bubble effect */}
-            <div
-              className="absolute w-2 h-2 bg-white/30 rounded-full"
-              style={{
-                top: `${20 + Math.sin(Date.now() * 0.003 + index * 0.8) * 10}%`,
-                left: `${30 + Math.sin(Date.now() * 0.002 + index * 0.6) * 20}%`,
-                transform: `scale(${0.5 + Math.sin(Date.now() * 0.004 + index * 0.4) * 0.5})`,
-                opacity: Math.sin(Date.now() * 0.005 + index * 0.9) * 0.3 + 0.3
-              }}
-            />
-          </div>
-
-          {/* Enhanced base droplet with liquid physics */}
-          <div
-            className={`w-3 h-3 rounded-full bg-gradient-to-r ${colors[index]} mt-2 transition-all duration-300`}
-            style={{
-              opacity: Math.sin(Date.now() * 0.003 + index * 0.9) * 0.4 + 0.6,
-              transform: `scale(${0.6 + Math.sin(Date.now() * 0.002 + index * 0.6) * 0.4}) translateY(${Math.sin(Date.now() * 0.004 + index * 0.8) * 1}px)`,
-              filter: 'blur(0.2px)',
-              boxShadow: `0 2px 8px ${glow(colors[index])}40`
-            }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
+const LiquidLoading = () => (
+  <div className="liq" role="status" aria-label="Loading">
+    {Array.from({ length: BARS }).map((_, i) => (
+      <span key={i} className="liq-bar" style={{ animationDelay: `${i * 0.11}s` }} />
+    ))}
+  </div>
+);
 
 export default LiquidLoading;
