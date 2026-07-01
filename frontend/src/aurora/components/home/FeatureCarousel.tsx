@@ -31,7 +31,7 @@ export function FeatureCarousel() {
     const n = cards.length;
     if (!n || !stage) return;
 
-    const SX = 294, RY = 45, DZ = 150, SC = 0.15, OP = 0.36;
+    const SX = 300, RY = 48, DZ = 170, SC = 0.14, HALF = n / 2;
     const BASE = 0.005; // constant ever-flowing drift (~0.3 cards/sec); never stops
     const motionOff =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
@@ -48,8 +48,10 @@ export function FeatureCarousel() {
         const d = dist(i), ad = Math.abs(d);
         c.style.transform =
           `translateX(${d * SX}px) translateZ(${-ad * DZ}px) rotateY(${-d * RY}deg) scale(${1 - ad * SC})`;
-        c.style.opacity = String(Math.max(0.2, 1 - ad * OP));
-        c.style.zIndex = String(200 - Math.round(ad * 20));
+        // Quadratic fade that reaches 0 exactly at the back (ad = HALF), so the
+        // wrap-around happens while the card is invisible — no pop.
+        c.style.opacity = String(Math.max(0, 1 - (ad / HALF) ** 2));
+        c.style.zIndex = String(Math.round(1000 - ad * 100));
         c.style.pointerEvents = ad < 0.5 ? "auto" : "none";
       });
     };
