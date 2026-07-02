@@ -69,6 +69,11 @@ FLASHCARD_TOPICS: dict[str, list[tuple[str, str]]] = {
         ("orthoptics", "Orthoptics"),
         ("dayward_theatre", "Dayward & Theatre"),
         ("auto_refraction", "Auto-Refraction & Keratometry"),
+        # Gap-fill from the SNEC Procedure Manual (Ch5) + diagnostic docs:
+        ("aberrometry", "Aberrometry"),
+        ("lens_meter", "Lens Meter (Focimetry)"),
+        ("retinal_imaging", "Retinal Imaging & Photography"),
+        ("dr_grading", "Diabetic Retinopathy Grading (SORC)"),
     ],
 }
 
