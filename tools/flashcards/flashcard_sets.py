@@ -1,11 +1,14 @@
-"""Topic + difficulty taxonomy for flashcards — 45 sets per role.
+"""Topic + difficulty taxonomy for flashcards.
 
-Each role's deck is organised as 15 topics x 3 difficulty tiers (easy, medium,
-hard) = 45 selectable sets. Mirrors the
-check-in pooling so OA and PSA share one clinical pool and OT is separate:
+Topics are grouped into pools. Every role studies the shared FOUNDATIONS pool
+(knowledge domains) PLUS its own procedural pool, each topic x 3 difficulty
+tiers (easy, medium, hard). Mirrors check-in pooling for the procedural split:
+- FOUNDATIONS -> shared knowledge (anatomy, microbiology, pharmacology, disease,
+  ethics) studied by ALL roles.
 - OT  -> ophthalmic investigations / imaging pool ("OT").
 - OA and PSA study almost the same course, so they SHARE the clinical pool
   ("CLINICAL").
+So topics_for(role) = FOUNDATIONS topics + the role's procedural-pool topics.
 
 A "set" is identified by a `set_key` = "<topic_key>__<difficulty>" so the
 frontend picker can offer topic AND difficulty, and the API can serve that
@@ -15,10 +18,26 @@ from __future__ import annotations
 
 DIFFICULTIES: list[str] = ["easy", "medium", "hard"]
 
-# Ordered (topic_key, label) per pool — defines the 15 topics, in display order.
+# Ordered (topic_key, label) per pool, in display order.
+# FOUNDATIONS is a shared knowledge layer studied by EVERY role (grounded in the
+# KB knowledge domains: anatomy, microbiology, pharmacology, disease, ethics).
+# CLINICAL = OA/PSA procedures; OT = ophthalmic-investigation procedures.
+# topics_for(role) returns FOUNDATIONS + the role's procedural pool.
 FLASHCARD_TOPICS: dict[str, list[tuple[str, str]]] = {
-    "CLINICAL": [
+    "FOUNDATIONS": [
+        ("anatomy_physiology", "Ocular Anatomy & Physiology"),
+        ("microbiology_infection", "Microbiology & Infection Control"),
+        ("pharmacology", "Ocular Pharmacology"),
         ("ocular_emergencies", "Ocular Emergencies"),
+        ("professional_ethics", "Professional Practice & Ethics"),
+        ("disorders_eyelid_lacrimal_orbit", "Eyelid, Lacrimal & Orbit Disorders"),
+        ("disorders_cornea_conjunctiva", "Cornea, Sclera & Conjunctiva Disorders"),
+        ("disorders_uvea_retina", "Uvea & Retina Disorders"),
+        ("glaucoma", "Glaucoma"),
+        ("neuro_strabismus", "Neuro-ophthalmology & Strabismus"),
+        ("systemic_disease", "Systemic Disease & the Eye"),
+    ],
+    "CLINICAL": [
         ("red_eye", "Red Eye Differential"),
         ("triage", "Triage Categories"),
         ("history_taking", "History Taking"),
@@ -55,8 +74,14 @@ FLASHCARD_TOPICS: dict[str, list[tuple[str, str]]] = {
 
 
 def pool_for_role(role: str) -> str:
-    """OT has its own pool; OA and PSA share the CLINICAL pool."""
+    """The role's PROCEDURAL pool. OT has its own; OA and PSA share CLINICAL."""
     return "OT" if (role or "").upper() == "OT" else "CLINICAL"
+
+
+def pools_for(role: str) -> list[str]:
+    """Every pool a role studies — shared FOUNDATIONS first, then its procedures.
+    This (not pool_for_role) is the source of truth for card lookups."""
+    return ["FOUNDATIONS", pool_for_role(role)]
 
 
 def make_set_key(topic_key: str, difficulty: str) -> str:
@@ -70,7 +95,11 @@ def split_set_key(set_key: str) -> tuple[str, str]:
 
 
 def topics_for(role: str) -> list[tuple[str, str]]:
-    return FLASHCARD_TOPICS[pool_for_role(role)]
+    """Foundations topics + the role's procedural-pool topics, in display order."""
+    out: list[tuple[str, str]] = []
+    for pool in pools_for(role):
+        out.extend(FLASHCARD_TOPICS[pool])
+    return out
 
 
 def label_for(role: str, topic_key: str) -> str:
