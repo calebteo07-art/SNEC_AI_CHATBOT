@@ -274,6 +274,20 @@ def test_validate_cards_rejects_ungrounded_or_malformed():
     bad = [{"stem": "", "options": ["a"], "correct": [5], "qtype": "single",
             "kind": "theory", "explanation": "", "reasoning_eligible": False}]
     assert validate_cards(bad) == []
+
+def test_placeholder_cards_are_valid_and_flagged():
+    from tools.flashcards.generate_cards import placeholder_cards, validate_cards
+    pc = placeholder_cards("pharmacology", "Ocular Pharmacology", per_tier=4)
+    assert set(pc) == {"easy", "medium", "hard"}
+    for tier, cards in pc.items():
+        assert len(cards) == 4
+        assert validate_cards(cards) == [{k: c[k] for k in
+            ("stem","options","correct","qtype","kind","explanation","reasoning_eligible")}
+            for c in cards]
+        assert all(c["placeholder"] for c in cards)
+    # stems unique across the whole topic (no-duplicate-stem guard)
+    stems = [c["stem"] for cards in pc.values() for c in cards]
+    assert len(stems) == len(set(stems))
 ```
 
 - [ ] **Step 2: Run to verify it fails**
@@ -340,6 +354,25 @@ def generate_topic(topic_key: str, label: str, per_tier: int = 7) -> dict[str, l
         result[tier] = validate_cards(cards)
     return result
 
+def placeholder_cards(topic_key: str, label: str, per_tier: int = 4) -> dict[str, list[dict]]:
+    """Structurally-valid, clearly-marked stub cards so the pipeline is testable
+    WITHOUT any Gemini call. Real cards replace these later (generate_topic).
+    Stems are unique (topic+tier+index) to satisfy the no-duplicate-stem guards."""
+    out: dict[str, list[dict]] = {}
+    for tier in ("easy", "medium", "hard"):
+        cards = []
+        for i in range(1, per_tier + 1):
+            cards.append({
+                "stem": f"[PLACEHOLDER] {label} — {tier} question {i} (pending KB-grounded generation)",
+                "options": ["Placeholder option A", "Placeholder option B",
+                            "Placeholder option C", "Placeholder option D"],
+                "correct": [0], "qtype": "single", "kind": "theory",
+                "explanation": "[PLACEHOLDER — to be generated from silly.]",
+                "reasoning_eligible": False, "placeholder": True,
+            })
+        out[tier] = cards
+    return out
+
 def emit_python_block(topic_key: str, by_tier: dict[str, list[dict]]) -> str:
     """Pretty-print a `"topic_key": {tier: [...]}` block for static_cards.py."""
     return f'        "{topic_key}": ' + json.dumps(by_tier, indent=12, ensure_ascii=False) + ","
@@ -366,32 +399,64 @@ git commit -m "feat(flashcards): reusable KB-grounded MCQ generator (mock-tested
 
 ---
 
-## Task 5: Generate + verify Foundations cards (GATED paid run)
+## Task 5: Insert PLACEHOLDER Foundations cards (no Gemini)
 
 **Files:**
+- Create: `tools/flashcards/seed_placeholder_cards.py`
 - Modify: `tools/flashcards/static_cards.py` (add `"FOUNDATIONS": {...}` block)
 
-- [ ] **Step 1: Confirm the paid run with the user.** Per `CLAUDE.md`, do NOT fire live Gemini without an explicit go-ahead in the conversation. State the estimated call count (11 topics × 3 tiers = 33 calls) and wait for "yes".
+Per the standing rule (`feedback_gemini_placeholders_first`), we wire the full
+pipeline with placeholders now and defer the live paid generation to Task 5b.
 
-- [ ] **Step 2: Generate each Foundations topic**
+- [ ] **Step 1: Write a one-shot seeder** that prints the FOUNDATIONS block.
 
-Run (per topic, live): `python tools/flashcards/generate_cards.py pharmacology "Ocular Pharmacology"` … repeat for all 11 Foundations `topic_key`s from `flashcard_sets.py`.
+```python
+# tools/flashcards/seed_placeholder_cards.py
+"""One-shot: print a placeholder FOUNDATIONS block for static_cards.py.
+No Gemini. Real cards replace these via generate_cards.py (Task 5b)."""
+import sys; sys.path.insert(0, ".")
+from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
+from tools.flashcards.generate_cards import placeholder_cards
 
-- [ ] **Step 3: Verify every card against its source chunk.** Spot-check each generated block: fact is in the retrieved SOURCE, correct index is right, no hallucinated drug/dose/anatomy. Reject/fix any wrong card by hand. Reject wrong-but-plausible cards (medical-accuracy bar).
+def main() -> None:
+    print('    "FOUNDATIONS": {')
+    for tk, label in FLASHCARD_TOPICS["FOUNDATIONS"]:
+        by_tier = placeholder_cards(tk, label)
+        print(f'        "{tk}": ' + repr(by_tier).replace("True", "True") + ",")
+    print("    },")
 
-- [ ] **Step 4: Paste the verified blocks** into `FLASHCARDS` under a new top-level `"FOUNDATIONS": { ... }` key in `static_cards.py`, matching existing formatting.
+if __name__ == "__main__":
+    main()
+```
 
-- [ ] **Step 5: Run the integrity + taxonomy suite**
+- [ ] **Step 2: Generate the block and paste it** into `FLASHCARDS` as a new top-level `"FOUNDATIONS": {...}` key in `static_cards.py`.
+
+Run: `python tools/flashcards/seed_placeholder_cards.py`
+Then paste (reformatted to match file style) as the FOUNDATIONS pool.
+
+- [ ] **Step 3: Run the integrity + taxonomy suite**
 
 Run: `python -m pytest tests/flashcards -q`
-Expected: PASS — `test_static_cards_integrity` validates the new cards; the Task 3 Foundations test now runs (not skips) and passes.
+Expected: PASS — `test_static_cards_integrity` validates the placeholder MCQs (they are structurally valid, unique stems); the Task 3 Foundations test now runs (not skips) and passes.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add tools/flashcards/static_cards.py
-git commit -m "feat(flashcards): Foundations card bank (anatomy, pharmacology, disease, ethics...)"
+git add tools/flashcards/seed_placeholder_cards.py tools/flashcards/static_cards.py
+git commit -m "feat(flashcards): placeholder Foundations card bank (pending KB generation)"
 ```
+
+---
+
+## Task 5b (DEFERRED — GATED paid run): replace placeholders with real cards
+
+Do NOT run until the user gives an explicit go-ahead in the conversation.
+
+- [ ] **Step 1: Confirm the paid run.** State the estimated call count (11 Foundations + OT gap-fill topics × 3 tiers) and wait for "yes".
+- [ ] **Step 2: Generate** each topic: `python tools/flashcards/generate_cards.py <topic_key> "<Label>"`.
+- [ ] **Step 3: Verify** every card against its source chunk (fact in SOURCE, correct index right, no hallucinated drug/dose/anatomy). Reject wrong-but-plausible cards.
+- [ ] **Step 4: Replace** the corresponding placeholder blocks in `static_cards.py` with the verified cards (removing the `"placeholder": True` flag).
+- [ ] **Step 5:** `python -m pytest tests/flashcards tests/content -q` → PASS, and the placeholder-tracking test (Task 7) now reports 0 remaining. Commit.
 
 ---
 
@@ -405,7 +470,7 @@ git commit -m "feat(flashcards): Foundations card bank (anatomy, pharmacology, d
 
 - [ ] **Step 2: Add the OT topics** to `FLASHCARD_TOPICS["OT"]` in `flashcard_sets.py`.
 
-- [ ] **Step 3: Generate + verify** their cards with the Task 4 tool (same gated live-run discipline as Task 5), paste under the `"OT"` pool in `static_cards.py`.
+- [ ] **Step 3: Insert placeholder cards** for the new OT topics via `placeholder_cards()` (same as Task 5 — no Gemini), pasted under the `"OT"` pool in `static_cards.py`. Real cards come in Task 5b.
 
 - [ ] **Step 4: Run tests**
 
@@ -462,7 +527,23 @@ def test_every_topic_has_cards_in_all_tiers_for_every_role():
                 raise AssertionError(f"{role}/{topic_key} has NO cards in any pool")
             assert topic_card_counts(role).get(topic_key, 0) >= MIN_CARDS_PER_TOPIC, (
                 f"{role}/{topic_key} under {MIN_CARDS_PER_TOPIC} cards")
+
+def _placeholder_topics() -> set[str]:
+    out = set()
+    for pool, topics in FLASHCARDS.items():
+        for tk, by_diff in topics.items():
+            if any(c.get("placeholder") for cards in by_diff.values() for c in cards):
+                out.add(tk)
+    return out
+
+import pytest
+
+@pytest.mark.xfail(reason="Foundations/OT cards are placeholders until Task 5b live generation")
+def test_no_placeholder_cards_remain():
+    assert _placeholder_topics() == set(), f"still placeholder: {sorted(_placeholder_topics())}"
 ```
+
+The `xfail` marker means this test does not block CI while placeholders exist; after Task 5b generates real cards it flips to XPASS, and we remove the marker to lock in the mandate (zero placeholders = full real coverage).
 
 - [ ] **Step 2: Run it**
 
@@ -532,12 +613,12 @@ Run: `cd frontend && npm run typecheck && npm run build`
 Then warm the standalone server and run: `node frontend/tests/aurora_assert.mjs`
 Expected: typecheck/build clean; aurora_assert all green (fan renders Foundations cards via hue fallback).
 
-- [ ] **Step 4: Ship to main (only if all green)**
+- [ ] **Step 4: DO NOT push placeholder content to main.** `main` auto-deploys to prod; placeholder cards must not reach students. Keep all work as local commits (or a branch) until Task 5b replaces placeholders with real KB-grounded cards. Only after Task 5b + green `pytest`/`typecheck`/`build`/`aurora_assert` do we push:
 
 ```bash
 git add -A
 git commit -m "feat(flashcards): complete Foundations coverage across all roles"
-git push origin main
+git push origin main   # ONLY after Task 5b — never with placeholders live
 ```
 
 Confirm Render auto-deploy is healthy after push.
@@ -547,4 +628,4 @@ Confirm Render auto-deploy is healthy after push.
 ## Notes for the executor
 - Per-topic Nano-Banana images for new Foundations topics are **out of scope** — the fan's hue-placeholder fallback covers them. A later polish task can add them via `tools/media/generate_flashcards_topics.py`.
 - OSCE OA/PSA merge is a **separate plan** (`2026-07-02-osce-oa-psa-merge.md`), to be written after this ships.
-- Never fire live Gemini (Tasks 5, 6) without an explicit user go-ahead in the conversation.
+- **Placeholders-first (standing rule `feedback_gemini_placeholders_first`):** Tasks 5 and 6 insert placeholder cards with zero Gemini calls; the only live/paid step is the deferred, explicitly-gated **Task 5b**. Do not push placeholder content to `main` (prod) — hold the push until Task 5b lands real cards.
