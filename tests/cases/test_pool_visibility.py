@@ -24,3 +24,35 @@ def test_resolve_set_is_pool_consistent():
     # OA and PSA bucket the same topic into the same set
     assert resolve_set("OA", "triage_floaters_flashes") == resolve_set("PSA", "triage_floaters_flashes")
     assert resolve_set("OA", "triage_floaters_flashes") == "triage_referral"
+
+
+import pytest
+from httpx import AsyncClient, ASGITransport
+from tools.api.server import app
+from tests.api.conftest import auth_headers
+
+
+@pytest.mark.asyncio
+async def test_oa_and_psa_see_identical_case_ids(monkeypatch):
+    """OA ≡ PSA: both roles are served exactly the same clinical case set."""
+    from tools.api.routers import cases as mod
+
+    async def _prog(_sid):
+        return {}
+    monkeypatch.setattr(mod, "get_case_progress", _prog)
+
+    async def _ids_for(role: str) -> set[str]:
+        async def _profile(_sid):
+            return {"role": role}
+        monkeypatch.setattr(mod, "get_profile", _profile)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
+            r = await ac.get("/api/cases", headers=auth_headers(role=role))
+        assert r.status_code == 200
+        return {c["case_id"] for c in r.json()["cases"]}
+
+    oa_ids = await _ids_for("OA")
+    psa_ids = await _ids_for("PSA")
+    assert oa_ids == psa_ids
+    assert oa_ids, "expected a non-empty shared clinical case set"
+    # and it must exclude OT-only cases
+    assert not any(cid.startswith("case_ot_") for cid in oa_ids)

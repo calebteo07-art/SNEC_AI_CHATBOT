@@ -18,7 +18,7 @@ from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
-from tools.cases.topic_sets import resolve_set, sets_for, label_for
+from tools.cases.topic_sets import resolve_set, sets_for, label_for, case_visible
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions, has_manual_actions
@@ -241,7 +241,7 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
             c = load_case(case_id)
             _case_cache[c["case_id"]] = c
             case_role = c.get("role", "any") or "any"
-            if case_role not in (role, "any"):
+            if not case_visible(role, case_role):
                 continue
             raw_cases.append(c)
         except Exception:
@@ -340,7 +340,7 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
         except Exception:
             continue
         case_role = c.get("role", "any") or "any"
-        if case_role not in (role, "any"):
+        if not case_visible(role, case_role):
             continue
         sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
         total[sk] = total.get(sk, 0) + 1
