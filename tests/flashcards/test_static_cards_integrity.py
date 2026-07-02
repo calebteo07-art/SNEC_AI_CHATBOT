@@ -16,7 +16,7 @@ def test_every_card_is_a_valid_mcq():
         assert isinstance(c["stem"], str) and c["stem"].strip(), (topic_key, difficulty)
         assert isinstance(c["options"], list) and len(c["options"]) >= 2, c["stem"]
         assert c["qtype"] in ("single", "multi"), c["stem"]
-        assert c["kind"] in ("theory", "practical"), c["stem"]
+        assert c["kind"] in ("theory", "practical", "situational"), c["stem"]
         assert isinstance(c["explanation"], str) and c["explanation"].strip(), c["stem"]
         assert all(0 <= i < len(c["options"]) for i in c["correct"]), c["stem"]
         if c["qtype"] == "single":

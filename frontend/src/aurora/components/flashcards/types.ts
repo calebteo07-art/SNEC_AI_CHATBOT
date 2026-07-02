@@ -34,7 +34,7 @@ export interface Flashcard {
   options: string[];
   correct: number[];
   qtype: QType;
-  kind: "theory" | "practical";
+  kind: "theory" | "practical" | "situational";
   explanation: string;
   requiresExplanation: boolean;
   tag: string;

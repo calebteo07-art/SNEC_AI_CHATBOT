@@ -59,7 +59,7 @@ def validate_cards(cards: list[dict]) -> list[dict]:
                 continue
             if c.get("qtype") not in ("single", "multi"):
                 continue
-            if c.get("kind") not in ("theory", "practical"):
+            if c.get("kind") not in ("theory", "practical", "situational"):
                 continue
             if not (isinstance(c.get("explanation"), str) and c["explanation"].strip()):
                 continue
