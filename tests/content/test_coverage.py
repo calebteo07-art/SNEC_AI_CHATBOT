@@ -52,3 +52,19 @@ def _placeholder_topics() -> set[str]:
 def test_no_placeholder_cards_remain():
     remaining = _placeholder_topics()
     assert remaining == set(), f"still placeholder: {sorted(remaining)}"
+
+
+def test_every_case_set_has_at_least_one_case_per_pool():
+    """OSCE mandate: every clinical/OT topic-set has at least one case visible to
+    its pool (OA covers CLINICAL — same as PSA; OT covers OT)."""
+    import json
+    from pathlib import Path
+    from tools.cases.topic_sets import sets_for, resolve_set, case_visible
+
+    cases_dir = Path(__file__).resolve().parent.parent.parent / "cases"
+    loaded = [json.loads(p.read_text(encoding="utf-8")) for p in cases_dir.glob("case_*.json")]
+    for role in ("OA", "OT"):
+        visible = [c for c in loaded if case_visible(role, c.get("role", "any"))]
+        buckets = {resolve_set(role, c.get("topic", "")) for c in visible}
+        for set_key, _label in sets_for(role):
+            assert set_key in buckets, f"{role} pool set '{set_key}' has no case"
