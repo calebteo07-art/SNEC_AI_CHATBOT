@@ -15,6 +15,21 @@ from __future__ import annotations
 
 # Ordered (set_key, label) per role — defines the 10 sets and their display order.
 SET_LABELS: dict[str, list[tuple[str, str]]] = {
+    # OA and PSA share ONE clinical pool (OA ≡ PSA). CLINICAL is the union of the
+    # old OA + PSA sets — both perioperative (OA) and triage_referral (PSA).
+    "CLINICAL": [
+        ("ocular_emergencies", "Ocular Emergencies"),
+        ("red_eye", "Red Eye Differential"),
+        ("history_taking", "History Taking"),
+        ("visual_acuity", "Visual Acuity & Refraction"),
+        ("tonometry_iop", "Intraocular Pressure"),
+        ("eye_drops", "Eye Drop Instillation"),
+        ("pupil_dilation", "Pupil Dilation"),
+        ("colour_macular", "Colour Vision & Amsler"),
+        ("fall_risk", "Fall Risk & Assessment"),
+        ("perioperative", "Pre & Post-Operative Care"),
+        ("triage_referral", "Triage & Referral"),
+    ],
     "OA": [
         ("ocular_emergencies", "Ocular Emergencies"),
         ("red_eye", "Red Eye Differential"),
@@ -56,6 +71,33 @@ SET_LABELS: dict[str, list[tuple[str, str]]] = {
 # Ordered substring rules per role; first match wins. Order matters where a topic
 # contains several keywords (e.g. dilation before instillation).
 _RULES: dict[str, list[tuple[str, str]]] = {
+    # Unified clinical rules (OA ≡ PSA). Triage/referral gets its own set; the
+    # PSA red-flag scenarios route to ocular_emergencies.
+    "CLINICAL": [
+        ("chemical", "ocular_emergencies"), ("penetrating", "ocular_emergencies"),
+        ("foreign_body", "ocular_emergencies"), ("hyphaema", "ocular_emergencies"),
+        ("acute_angle", "ocular_emergencies"), ("acute_glaucoma", "ocular_emergencies"),
+        ("emergency", "ocular_emergencies"), ("redflags", "ocular_emergencies"),
+        ("pain_assessment", "ocular_emergencies"), ("crao", "ocular_emergencies"),
+        ("flash_burn", "ocular_emergencies"), ("welder", "ocular_emergencies"),
+        ("triage", "triage_referral"), ("referral", "triage_referral"),
+        ("floaters", "triage_referral"), ("flashes", "triage_referral"),
+        ("subconjunctival", "red_eye"), ("keratitis", "red_eye"), ("uveitis", "red_eye"),
+        ("conjunctivitis", "red_eye"), ("red_eye", "red_eye"), ("retinal_detachment", "red_eye"),
+        ("dry_eye", "red_eye"),
+        ("history", "history_taking"),
+        ("dilation", "pupil_dilation"), ("dilate", "pupil_dilation"), ("mydriasis", "pupil_dilation"),
+        ("instillation", "eye_drops"), ("eye_drop", "eye_drops"),
+        ("ishihara", "colour_macular"), ("colour", "colour_macular"), ("amsler", "colour_macular"),
+        ("fall_risk", "fall_risk"), ("pfaer", "fall_risk"),
+        ("preop", "perioperative"), ("pre_op", "perioperative"), ("postop", "perioperative"),
+        ("post_op", "perioperative"), ("perioperative", "perioperative"), ("dayward", "perioperative"),
+        ("dressing", "perioperative"), ("counselling", "perioperative"), ("cataract", "perioperative"),
+        ("nct", "tonometry_iop"), ("tonometry", "tonometry_iop"), ("iop", "tonometry_iop"),
+        ("refraction", "visual_acuity"), ("logmar", "visual_acuity"), ("snellen", "visual_acuity"),
+        ("near_vision", "visual_acuity"), ("pinhole", "visual_acuity"), ("acuity", "visual_acuity"),
+        ("va", "visual_acuity"),
+    ],
     "OA": [
         ("chemical", "ocular_emergencies"), ("penetrating", "ocular_emergencies"),
         ("foreign_body", "ocular_emergencies"), ("hyphaema", "ocular_emergencies"),
@@ -115,26 +157,40 @@ _RULES: dict[str, list[tuple[str, str]]] = {
     ],
 }
 
-# Fallback set per role when nothing matches (keeps every case bucketed).
-_DEFAULT: dict[str, str] = {"OA": "history_taking", "PSA": "history_taking", "OT": "screening"}
+# Fallback set per pool when nothing matches (keeps every case bucketed).
+_DEFAULT: dict[str, str] = {"CLINICAL": "history_taking", "OT": "screening"}
+
+
+def case_pool(role: str) -> str:
+    """OA and PSA share the CLINICAL case pool (OA ≡ PSA); OT is separate.
+    Mirrors flashcards' pool_for_role for the OSCE side."""
+    return "OT" if (role or "").upper() == "OT" else "CLINICAL"
+
+
+def case_visible(student_role: str, case_role: str) -> bool:
+    """A case is visible to a student if it's role-neutral ('any') or authored
+    for a role in the student's pool (so OA-authored cases show to PSA, etc.)."""
+    if (case_role or "any") == "any":
+        return True
+    return case_pool(case_role) == case_pool(student_role)
 
 
 def resolve_set(role: str, topic: str) -> str:
-    """Return the set_key for a case's role + granular topic."""
-    role = (role or "").upper()
+    """Return the set_key for a case's topic, bucketed within the role's POOL."""
+    pool = case_pool(role)
     topic = (topic or "").lower()
-    for kw, key in _RULES.get(role, []):
+    for kw, key in _RULES.get(pool, []):
         if kw in topic:
             return key
-    return _DEFAULT.get(role, "history_taking")
+    return _DEFAULT.get(pool, "history_taking")
 
 
 def label_for(role: str, set_key: str) -> str:
-    for key, label in SET_LABELS.get((role or "").upper(), []):
+    for key, label in SET_LABELS.get(case_pool(role), []):
         if key == set_key:
             return label
     return set_key.replace("_", " ").title()
 
 
 def sets_for(role: str) -> list[tuple[str, str]]:
-    return SET_LABELS.get((role or "").upper(), [])
+    return SET_LABELS.get(case_pool(role), [])
