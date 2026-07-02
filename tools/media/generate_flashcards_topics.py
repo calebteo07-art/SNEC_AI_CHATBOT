@@ -152,6 +152,50 @@ SUBJECTS: dict[str, str] = {
     "auto_refraction":
         "A patient at an auto-refractor and keratometer with chin on the rest "
         "looking into the optics, the instrument's target glow, clinical.",
+    # ── OT gap-fill (SNEC Procedure Manual Ch5 + diagnostic docs) ──
+    "aberrometry":
+        "A wavefront aberrometer aligned to a patient's eye mapping optical "
+        "aberrations, the instrument optics aglow, clinical close-up.",
+    "lens_meter":
+        "A lensmeter (focimeter) with a spectacle lens on the stage and the "
+        "illuminated target reticle, precise clinical instrument macro.",
+    "retinal_imaging":
+        "A fundus camera capturing a richly detailed retinal photograph, the "
+        "flash optics and a vivid fundus on the monitor, clinical close-up.",
+    "dr_grading":
+        "A graded diabetic-retinopathy fundus photograph on a reading-centre "
+        "monitor with microaneurysms and haemorrhages, clinical detail.",
+    # ── FOUNDATIONS pool (shared by all roles) ──
+    "anatomy_physiology":
+        "An elegant anatomical cross-section of the human eye rendered as a "
+        "premium medical illustration, labelled structures softly implied.",
+    "microbiology_infection":
+        "A macro of ocular microbiology culture plates and a gloved hand "
+        "practising hand hygiene, clean clinical infection-control mood.",
+    "pharmacology":
+        "An array of ophthalmic eye-drop bottles with colour-coded caps on a "
+        "clean clinical surface, pharmacology and medication theme.",
+    "professional_ethics":
+        f"{DRESS} A respectful clinician-patient consultation conveying "
+        "professionalism, empathy and confidentiality in a calm clinic.",
+    "disorders_eyelid_lacrimal_orbit":
+        "A clinical close-up of the eyelids, lash line and lacrimal region "
+        "showing eyelid and tear-drainage anatomy, true-to-life detail.",
+    "disorders_cornea_conjunctiva":
+        "A slit-lamp macro of the cornea, sclera and conjunctiva surface with "
+        "a fine light section across the clear cornea, clinically accurate.",
+    "disorders_uvea_retina":
+        "A vivid retinal fundus photograph with the optic disc, macula and "
+        "vasculature representing uvea and retina, clinically accurate.",
+    "glaucoma":
+        "A retinal fundus photograph centred on an optic disc with a notable "
+        "cup-to-disc ratio suggesting glaucoma, clinically accurate detail.",
+    "neuro_strabismus":
+        f"{DRESS} An orthoptist assessing eye alignment and ocular motility "
+        "with a paddle occluder, neuro-ophthalmology and strabismus theme.",
+    "systemic_disease":
+        "A retinal fundus photograph showing systemic-disease changes such as "
+        "diabetic and hypertensive retinopathy, clinically accurate.",
 }
 
 
