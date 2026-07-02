@@ -21,6 +21,7 @@ import random
 from tools.flashcards.flashcard_sets import (
     DIFFICULTIES,
     pool_for_role,
+    pools_for,
     topics_for,
     make_set_key,
 )
@@ -9856,19 +9857,28 @@ def _tag(topic_key: str, difficulty: str, card: dict) -> dict:
     return out
 
 
+def _by_diff(role: str, topic_key: str) -> dict[str, list[dict]]:
+    """The {difficulty: [cards]} map for a topic, searching every pool the role
+    studies (FOUNDATIONS first, then its procedural pool). A topic lives in
+    exactly one pool, so the first match wins."""
+    for pool_name in pools_for(role):
+        by_diff = FLASHCARDS.get(pool_name, {}).get(topic_key)
+        if by_diff:
+            return by_diff
+    return {}
+
+
 def get_set_cards(role: str, topic_key: str, difficulty: str) -> list[dict]:
     """Cards for one (topic, difficulty) set, tagged for serving."""
-    pool = FLASHCARDS.get(pool_for_role(role), {})
-    cards = pool.get(topic_key, {}).get(difficulty, [])
+    cards = _by_diff(role, topic_key).get(difficulty, [])
     return [_tag(topic_key, difficulty, c) for c in cards]
 
 
 def get_all_cards(role: str) -> list[dict]:
-    """Every authored card for a role's pool (used by the no-arg rotation)."""
-    pool = FLASHCARDS.get(pool_for_role(role), {})
+    """Every authored card a role studies (Foundations + procedures)."""
     out: list[dict] = []
     for topic_key, _ in topics_for(role):
-        by_diff = pool.get(topic_key, {})
+        by_diff = _by_diff(role, topic_key)
         for difficulty in DIFFICULTIES:
             for c in by_diff.get(difficulty, []):
                 out.append(_tag(topic_key, difficulty, c))
@@ -9876,11 +9886,10 @@ def get_all_cards(role: str) -> list[dict]:
 
 
 def set_card_counts(role: str) -> dict[str, int]:
-    """{set_key: number of authored cards} for every set in the role's pool."""
-    pool = FLASHCARDS.get(pool_for_role(role), {})
+    """{set_key: number of authored cards} for every set a role studies."""
     counts: dict[str, int] = {}
     for topic_key, _ in topics_for(role):
-        by_diff = pool.get(topic_key, {})
+        by_diff = _by_diff(role, topic_key)
         for difficulty in DIFFICULTIES:
             counts[make_set_key(topic_key, difficulty)] = len(by_diff.get(difficulty, []))
     return counts
@@ -9889,8 +9898,7 @@ def set_card_counts(role: str) -> dict[str, int]:
 def get_topic_cards(role: str, topic_key: str) -> list[dict]:
     """Every authored card for ONE topic across all difficulties, tagged for
     serving. Backs the no-difficulty selection model: a topic is one mixed deck."""
-    pool = FLASHCARDS.get(pool_for_role(role), {})
-    by_diff = pool.get(topic_key, {})
+    by_diff = _by_diff(role, topic_key)
     out: list[dict] = []
     for difficulty in DIFFICULTIES:
         for c in by_diff.get(difficulty, []):
@@ -9899,11 +9907,10 @@ def get_topic_cards(role: str, topic_key: str) -> list[dict]:
 
 
 def topic_card_counts(role: str) -> dict[str, int]:
-    """{topic_key: total authored cards across all difficulties} for the role pool."""
-    pool = FLASHCARDS.get(pool_for_role(role), {})
+    """{topic_key: total authored cards across all difficulties} a role studies."""
     counts: dict[str, int] = {}
     for topic_key, _ in topics_for(role):
-        by_diff = pool.get(topic_key, {})
+        by_diff = _by_diff(role, topic_key)
         counts[topic_key] = sum(len(by_diff.get(d, [])) for d in DIFFICULTIES)
     return counts
 
