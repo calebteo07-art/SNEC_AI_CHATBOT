@@ -6,13 +6,6 @@ export type QType = "single" | "multi";
 /** Hard cap on a typed reasoning answer — keeps it concise and bounds grader tokens. */
 export const MAX_REASON_CHARS = 300;
 
-/** Session-length presets (Quick / Standard / Deep). */
-export const LENGTHS: { n: number; label: string }[] = [
-  { n: 5, label: "Quick" },
-  { n: 10, label: "Standard" },
-  { n: 20, label: "Deep" },
-];
-
 /** Fixed, encouraging XP: full marks for a correct card, a consolation for an honest miss. */
 export const XP_CORRECT = 10;
 export const XP_ATTEMPT = 3;

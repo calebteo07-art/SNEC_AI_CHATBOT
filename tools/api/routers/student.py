@@ -261,11 +261,14 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
 
     sets: list[FlashcardSetInfo] = []
     for s in topic_sets_for(role):
+        total = counts.get(s["topic_key"], 0)
+        if total == 0:
+            continue  # topic not yet authored — don't show an empty deck
         topic_cards = get_topic_cards(role, s["topic_key"])
         completed = sum(1 for c in topic_cards if c["stem"] in served_fronts)
         sets.append(FlashcardSetInfo(
             set_key=s["set_key"], topic_key=s["topic_key"], label=s["label"],
-            difficulty="mixed", total=counts.get(s["topic_key"], 0),
+            difficulty="mixed", total=total,
             completed=completed,
         ))
     return FlashcardTopicsResponse(sets=sets)
@@ -280,7 +283,7 @@ async def flashcards_generate(
     topic: str | None = None,
     difficulty: str | None = None,
     set_key: str | None = None,
-    n: int = 6,
+    n: int = 10,
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
