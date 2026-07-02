@@ -32,6 +32,7 @@ FLASHCARD_TOPICS: dict[str, list[tuple[str, str]]] = {
         ("professional_ethics", "Professional Practice & Ethics"),
         ("disorders_eyelid_lacrimal_orbit", "Eyelid, Lacrimal & Orbit Disorders"),
         ("disorders_cornea_conjunctiva", "Cornea, Sclera & Conjunctiva Disorders"),
+        ("disorders_lens_cataract", "Lens & Cataract Disorders"),
         ("disorders_uvea_retina", "Uvea & Retina Disorders"),
         ("glaucoma", "Glaucoma"),
         ("neuro_strabismus", "Neuro-ophthalmology & Strabismus"),

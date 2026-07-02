@@ -12,6 +12,7 @@ REQUIRED_FOUNDATION_KEYS = {
     "anatomy_physiology", "microbiology_infection", "pharmacology",
     "ocular_emergencies", "professional_ethics",
     "disorders_eyelid_lacrimal_orbit", "disorders_cornea_conjunctiva",
+    "disorders_lens_cataract",
     "disorders_uvea_retina", "glaucoma", "neuro_strabismus", "systemic_disease",
 }
 MIN_CARDS_PER_TOPIC = 12  # ~4 per tier

@@ -6,11 +6,12 @@ FOUNDATION_KEYS = {
     "anatomy_physiology", "microbiology_infection", "pharmacology",
     "ocular_emergencies", "professional_ethics",
     "disorders_eyelid_lacrimal_orbit", "disorders_cornea_conjunctiva",
+    "disorders_lens_cataract",
     "disorders_uvea_retina", "glaucoma", "neuro_strabismus", "systemic_disease",
 }
 
 
-def test_foundations_pool_exists_with_11_topics():
+def test_foundations_pool_exists_with_12_topics():
     keys = {k for k, _ in FLASHCARD_TOPICS["FOUNDATIONS"]}
     assert keys == FOUNDATION_KEYS
 
