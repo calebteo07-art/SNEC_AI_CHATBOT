@@ -845,528 +845,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "red_eye": {
             "easy": [
-                {
-                    "stem": "In conjunctivitis, what is the discharge typically like?",
-                    "options": ["Marked discharge",
-                                "No discharge at all",
-                                "Bloody discharge",
-                                "Only at night"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Conjunctivitis typically produces marked discharge "
-                                   "(watery, mucoid or purulent depending on the cause).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Does conjunctivitis usually reduce visual acuity?",
-                    "options": ["No — vision is usually normal",
-                                "Yes — vision drops markedly",
-                                "Vision is always lost completely",
-                                "Only colour vision is affected"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "In conjunctivitis visual acuity is usually normal. "
-                                   "A red eye with reduced vision suggests something "
-                                   "more serious.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the pupil like in acute (angle-closure) glaucoma?",
-                    "options": ["Large, oval and fixed",
-                                "Small and reactive",
-                                "Pinpoint",
-                                "Normal and round"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Acute glaucoma gives a large, oval, fixed pupil — a "
-                                   "key warning sign in a painful red eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which red-eye condition has marked photophobia but little "
-                            "or no discharge?",
-                    "options": ["Iritis (anterior uveitis)",
-                                "Bacterial conjunctivitis",
-                                "Allergic conjunctivitis",
-                                "Subconjunctival haemorrhage"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Iritis (anterior uveitis) causes marked photophobia "
-                                   "with little or no discharge.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL red-eye conditions that typically cause the "
-                            "most severe pain.",
-                    "options": ["Acute (angle-closure) glaucoma",
-                                "Keratitis",
-                                "Simple conjunctivitis",
-                                "Subconjunctival haemorrhage"],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Acute glaucoma and keratitis cause the most severe "
-                                   "pain. Conjunctivitis is uncomfortable but not "
-                                   "severely painful, and a subconjunctival haemorrhage "
-                                   "is usually painless.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the pupil like in iritis (anterior uveitis)?",
-                    "options": ["Small (or normal)",
-                                "Large, oval and fixed",
-                                "White and irregular",
-                                "Always widely dilated"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Iritis usually gives a small (or normal) pupil — "
-                                   "the opposite of acute glaucoma's large fixed pupil.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Keratitis or a corneal abrasion typically causes what "
-                            "pattern of pain and discharge?",
-                    "options": ["Marked pain with little or no discharge",
-                                "No pain with heavy discharge",
-                                "No pain and no discharge",
-                                "Mild pain with bloody discharge"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Keratitis and corneal abrasions cause marked pain "
-                                   "with little or no discharge; vision varies with the "
-                                   "site of the lesion.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A painless red eye with marked discharge and normal vision "
-                            "is most likely what?",
-                    "options": ["Conjunctivitis",
-                                "Acute glaucoma",
-                                "Iritis",
-                                "Keratitis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Marked discharge with no pain and normal vision is "
-                                   "the classic picture of conjunctivitis.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Iritis is another name for which condition?",
-                    "options": ["Anterior uveitis",
-                                "Conjunctivitis",
-                                "Glaucoma",
-                                "Cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Iritis is inflammation of the iris — a form of "
-                                   "anterior uveitis.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which red-eye condition is sight-threatening and needs "
-                            "urgent care?",
-                    "options": ["Acute (angle-closure) glaucoma",
-                                "Allergic conjunctivitis",
-                                "Subconjunctival haemorrhage",
-                                "Mild dry eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Acute angle-closure glaucoma is sight-threatening "
-                                   "and must be treated urgently; the others are far "
-                                   "less serious.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A red eye with normal vision, no pain and a bright red "
-                            "patch of blood on the white of the eye suggests what?",
-                    "options": ["Subconjunctival haemorrhage",
-                                "Acute glaucoma",
-                                "Keratitis",
-                                "Iritis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A painless, flat, bright-red patch with normal "
-                                   "vision is a subconjunctival haemorrhage — alarming "
-                                   "to look at but usually harmless.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'In conjunctivitis, what is the discharge typically like?', 'options': ['Marked discharge', 'No discharge at all', 'Bloody discharge', 'Only at night'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Conjunctivitis typically produces marked discharge (watery, mucoid or purulent depending on the cause).', 'reasoning_eligible': False},
+                {'stem': 'Does conjunctivitis usually reduce visual acuity?', 'options': ['No — vision is usually normal', 'Yes — vision drops markedly', 'Vision is always lost completely', 'Only colour vision is affected'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'In conjunctivitis visual acuity is usually normal. A red eye with reduced vision suggests something more serious.', 'reasoning_eligible': False},
+                {'stem': 'What is the pupil like in acute (angle-closure) glaucoma?', 'options': ['Large, oval and fixed', 'Small and reactive', 'Pinpoint', 'Normal and round'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Acute glaucoma gives a large, oval, fixed pupil — a key warning sign in a painful red eye.', 'reasoning_eligible': False},
+                {'stem': 'Which red-eye condition has marked photophobia but little or no discharge?', 'options': ['Iritis (anterior uveitis)', 'Bacterial conjunctivitis', 'Allergic conjunctivitis', 'Subconjunctival haemorrhage'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Iritis (anterior uveitis) causes marked photophobia with little or no discharge.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL red-eye conditions that typically cause the most severe pain.', 'options': ['Acute (angle-closure) glaucoma', 'Keratitis', 'Simple conjunctivitis', 'Subconjunctival haemorrhage'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Acute glaucoma and keratitis cause the most severe pain. Conjunctivitis is uncomfortable but not severely painful, and a subconjunctival haemorrhage is usually painless.', 'reasoning_eligible': False},
+                {'stem': 'What is the pupil like in iritis (anterior uveitis)?', 'options': ['Small (or normal)', 'Large, oval and fixed', 'White and irregular', 'Always widely dilated'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Iritis usually gives a small (or normal) pupil — the opposite of acute glaucoma's large fixed pupil.", 'reasoning_eligible': False},
+                {'stem': 'Keratitis or a corneal abrasion typically causes what pattern of pain and discharge?', 'options': ['Marked pain with little or no discharge', 'No pain with heavy discharge', 'No pain and no discharge', 'Mild pain with bloody discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Keratitis and corneal abrasions cause marked pain with little or no discharge; vision varies with the site of the lesion.', 'reasoning_eligible': False},
+                {'stem': 'A painless red eye with marked discharge and normal vision is most likely what?', 'options': ['Conjunctivitis', 'Acute glaucoma', 'Iritis', 'Keratitis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Marked discharge with no pain and normal vision is the classic picture of conjunctivitis.', 'reasoning_eligible': False},
+                {'stem': 'Iritis is another name for which condition?', 'options': ['Anterior uveitis', 'Conjunctivitis', 'Glaucoma', 'Cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Iritis is inflammation of the iris — a form of anterior uveitis.', 'reasoning_eligible': False},
+                {'stem': 'Which red-eye condition is sight-threatening and needs urgent care?', 'options': ['Acute (angle-closure) glaucoma', 'Allergic conjunctivitis', 'Subconjunctival haemorrhage', 'Mild dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Acute angle-closure glaucoma is sight-threatening and must be treated urgently; the others are far less serious.', 'reasoning_eligible': False},
+                {'stem': 'A red eye with normal vision, no pain and a bright red patch of blood on the white of the eye suggests what?', 'options': ['Subconjunctival haemorrhage', 'Acute glaucoma', 'Keratitis', 'Iritis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A painless, flat, bright-red patch with normal vision is a subconjunctival haemorrhage — alarming to look at but usually harmless.', 'reasoning_eligible': False},
+                {'stem': 'A patient has red, gritty eyes with watery, clear-but-sticky discharge and follicles under the lids, following a cold. This is most likely:', 'options': ['Viral conjunctivitis', 'Acute angle-closure glaucoma', 'Anterior uveitis', 'A corneal ulcer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Viral conjunctivitis gives watery/sticky discharge, follicles and often a preceding cold; vision and comfort are largely preserved.', 'reasoning_eligible': True},
+                {'stem': 'A red eye with thick, yellow, mucopurulent discharge that glues the lashes in the morning most suggests:', 'options': ['Bacterial conjunctivitis', 'Acute glaucoma', 'Scleritis', 'Subconjunctival haemorrhage'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Mucopurulent (yellow, sticky) discharge with papillae points to bacterial conjunctivitis rather than the watery discharge of viral disease.', 'reasoning_eligible': True},
+                {'stem': 'Itchy, watery, bilateral red eyes in a patient who also has a runny nose in the pollen season suggest:', 'options': ['Allergic conjunctivitis', 'A corneal foreign body', 'Acute glaucoma', 'Endophthalmitis'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Itch is the hallmark of allergy; bilateral watery red eyes with other allergic features indicate allergic conjunctivitis.', 'reasoning_eligible': True},
+                {'stem': 'Viral conjunctivitis is important in an eye clinic mainly because it is:', 'options': ['Very contagious - good hand hygiene prevents spread', 'Always sight-threatening', 'A cause of high eye pressure', 'Only seen in newborns'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Viral conjunctivitis spreads easily via unwashed hands and shared equipment, so hygiene and disinfection are key in the clinic.', 'reasoning_eligible': False},
+                {'stem': 'Episcleritis typically presents with:', 'options': ['Mild eye redness and mild discomfort, with good vision', 'Severe boring pain and reduced vision', 'A fixed dilated pupil', 'Copious purulent discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Episcleritis is a mild, often self-limiting inflammation causing localised redness and mild discomfort without vision loss.', 'reasoning_eligible': False},
+                {'stem': 'A key piece of advice to give a patient sent home with presumed viral conjunctivitis is to:', 'options': ['Return if pain or blurred vision worsens', 'Stop washing their hands', 'Share towels with family to build immunity', 'Ignore any change in vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Simple conjunctivitis should not badly hurt or blur vision; worsening pain or blur is a red flag to return for review.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Marked discharge, no pain, no photophobia, normal vision "
-                            "and a normal pupil. What is the diagnosis?",
-                    "options": ["Conjunctivitis", "Iritis",
-                                "Acute glaucoma", "Keratitis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Marked discharge with no pain, normal vision and a "
-                                   "normal pupil is conjunctivitis.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Marked pain, photophobia, reduced vision and a small pupil. "
-                            "What is the diagnosis?",
-                    "options": ["Iritis (anterior uveitis)", "Conjunctivitis",
-                                "Subconjunctival haemorrhage", "Dry eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pain, photophobia, reduced vision and a small pupil "
-                                   "point to iritis (anterior uveitis).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Severe pain, reduced vision and a large, fixed, oval pupil. "
-                            "What is the diagnosis?",
-                    "options": ["Acute (angle-closure) glaucoma", "Conjunctivitis",
-                                "Iritis", "Allergic eye disease"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Severe pain, reduced vision and a large, fixed, oval "
-                                   "pupil are classic for acute angle-closure glaucoma.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How does the pupil separate iritis from acute glaucoma?",
-                    "options": [
-                        "Iritis: small/normal pupil; acute glaucoma: large, oval, "
-                        "fixed pupil",
-                        "Both give a large fixed pupil",
-                        "Iritis: large pupil; acute glaucoma: small pupil",
-                        "The pupil is normal in both",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The pupil is the key sign: small or normal in "
-                                   "iritis, but large, oval and fixed in acute "
-                                   "angle-closure glaucoma.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is reduced visual acuity an important red flag in a "
-                            "red eye?",
-                    "options": [
-                        "It suggests corneal or intraocular involvement, not simple "
-                        "conjunctivitis",
-                        "It always means the patient needs new glasses",
-                        "It is normal in all red eyes",
-                        "It rules out anything serious",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Conjunctivitis leaves vision normal. Reduced vision "
-                                   "in a red eye points to the cornea or inside of the "
-                                   "eye (keratitis, iritis, glaucoma) and needs review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A contact-lens wearer has a painful red eye with reduced "
-                            "vision. What must you suspect?",
-                    "options": [
-                        "Microbial (infective) keratitis",
-                        "Simple allergy",
-                        "Presbyopia",
-                        "A normal lens-wear sensation",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A painful red eye with reduced vision in a lens "
-                                   "wearer must be treated as possible microbial "
-                                   "keratitis — a sight-threatening infection.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL red-eye features that should prompt urgent "
-                            "escalation rather than routine care.",
-                    "options": [
-                        "Reduced visual acuity",
-                        "Severe pain with nausea",
-                        "A fixed, mid-dilated pupil",
-                        "Mild itch with watery discharge",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Reduced vision, severe pain with nausea, and a "
-                                   "fixed dilated pupil are red flags. Mild itch with "
-                                   "watery discharge suggests benign conjunctivitis.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which red-eye condition is usually the LEAST urgent?",
-                    "options": ["Conjunctivitis",
-                                "Acute glaucoma",
-                                "Keratitis with reduced vision",
-                                "Iritis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Simple conjunctivitis (normal vision, no severe "
-                                   "pain) is the least urgent; the others can threaten "
-                                   "sight.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Itchy, watery, bilateral red eyes in someone with hay "
-                            "fever most suggest what?",
-                    "options": ["Allergic conjunctivitis",
-                                "Acute glaucoma",
-                                "Keratitis",
-                                "Iritis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Itch, watering and both eyes affected in an "
-                                   "atopic patient point to allergic conjunctivitis.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does a hazy cornea in a red eye raise concern?",
-                    "options": [
-                        "It suggests corneal oedema from high pressure or "
-                        "significant disease",
-                        "It is a normal finding in conjunctivitis",
-                        "It proves the cause is allergy",
-                        "It means the eye is simply dry",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A hazy (cloudy) cornea suggests corneal oedema, "
-                                   "often from raised pressure (acute glaucoma) or "
-                                   "serious corneal disease — not simple conjunctivitis.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A red eye with marked pain and a branching ('dendritic') "
-                            "corneal pattern on staining suggests what?",
-                    "options": ["Herpes simplex keratitis",
-                                "Allergic conjunctivitis",
-                                "Subconjunctival haemorrhage",
-                                "Presbyopia"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A painful red eye with a branching (dendritic) "
-                                   "corneal ulcer on fluorescein staining is typical of "
-                                   "herpes simplex keratitis — flag for the doctor.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Marked discharge, no pain, no photophobia, normal vision and a normal pupil. What is the diagnosis?', 'options': ['Conjunctivitis', 'Iritis', 'Acute glaucoma', 'Keratitis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Marked discharge with no pain, normal vision and a normal pupil is conjunctivitis.', 'reasoning_eligible': False},
+                {'stem': 'Marked pain, photophobia, reduced vision and a small pupil. What is the diagnosis?', 'options': ['Iritis (anterior uveitis)', 'Conjunctivitis', 'Subconjunctival haemorrhage', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pain, photophobia, reduced vision and a small pupil point to iritis (anterior uveitis).', 'reasoning_eligible': False},
+                {'stem': 'Severe pain, reduced vision and a large, fixed, oval pupil. What is the diagnosis?', 'options': ['Acute (angle-closure) glaucoma', 'Conjunctivitis', 'Iritis', 'Allergic eye disease'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Severe pain, reduced vision and a large, fixed, oval pupil are classic for acute angle-closure glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'How does the pupil separate iritis from acute glaucoma?', 'options': ['Iritis: small/normal pupil; acute glaucoma: large, oval, fixed pupil', 'Both give a large fixed pupil', 'Iritis: large pupil; acute glaucoma: small pupil', 'The pupil is normal in both'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The pupil is the key sign: small or normal in iritis, but large, oval and fixed in acute angle-closure glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'Why is reduced visual acuity an important red flag in a red eye?', 'options': ['It suggests corneal or intraocular involvement, not simple conjunctivitis', 'It always means the patient needs new glasses', 'It is normal in all red eyes', 'It rules out anything serious'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Conjunctivitis leaves vision normal. Reduced vision in a red eye points to the cornea or inside of the eye (keratitis, iritis, glaucoma) and needs review.', 'reasoning_eligible': True},
+                {'stem': 'A contact-lens wearer has a painful red eye with reduced vision. What must you suspect?', 'options': ['Microbial (infective) keratitis', 'Simple allergy', 'Presbyopia', 'A normal lens-wear sensation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A painful red eye with reduced vision in a lens wearer must be treated as possible microbial keratitis — a sight-threatening infection.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL red-eye features that should prompt urgent escalation rather than routine care.', 'options': ['Reduced visual acuity', 'Severe pain with nausea', 'A fixed, mid-dilated pupil', 'Mild itch with watery discharge'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Reduced vision, severe pain with nausea, and a fixed dilated pupil are red flags. Mild itch with watery discharge suggests benign conjunctivitis.', 'reasoning_eligible': True},
+                {'stem': 'Which red-eye condition is usually the LEAST urgent?', 'options': ['Conjunctivitis', 'Acute glaucoma', 'Keratitis with reduced vision', 'Iritis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Simple conjunctivitis (normal vision, no severe pain) is the least urgent; the others can threaten sight.', 'reasoning_eligible': False},
+                {'stem': 'Itchy, watery, bilateral red eyes in someone with hay fever most suggest what?', 'options': ['Allergic conjunctivitis', 'Acute glaucoma', 'Keratitis', 'Iritis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Itch, watering and both eyes affected in an atopic patient point to allergic conjunctivitis.', 'reasoning_eligible': False},
+                {'stem': 'Why does a hazy cornea in a red eye raise concern?', 'options': ['It suggests corneal oedema from high pressure or significant disease', 'It is a normal finding in conjunctivitis', 'It proves the cause is allergy', 'It means the eye is simply dry'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A hazy (cloudy) cornea suggests corneal oedema, often from raised pressure (acute glaucoma) or serious corneal disease — not simple conjunctivitis.', 'reasoning_eligible': False},
+                {'stem': "A red eye with marked pain and a branching ('dendritic') corneal pattern on staining suggests what?", 'options': ['Herpes simplex keratitis', 'Allergic conjunctivitis', 'Subconjunctival haemorrhage', 'Presbyopia'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A painful red eye with a branching (dendritic) corneal ulcer on fluorescein staining is typical of herpes simplex keratitis — flag for the doctor.', 'reasoning_eligible': False},
+                {'stem': 'How can you help distinguish scleritis from episcleritis at the slit lamp / on examination?', 'options': ['Scleritis is deeply painful with tenderness on palpation and often systemic disease; episcleritis is mild', 'Episcleritis is always more painful', 'Scleritis never affects vision', 'They are indistinguishable'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Scleritis causes severe boring pain, globe tenderness and links to systemic disease; episcleritis is mild and non-tender.', 'reasoning_eligible': True},
+                {'stem': 'A newborn baby develops a red eye with copious purulent discharge in the first days of life. This should be treated as:', 'options': ['Ophthalmia neonatorum - urgent, as it can threaten sight', 'A trivial blocked tear duct only', 'Normal newborn watering', 'A cosmetic issue'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Neonatal conjunctivitis (e.g. gonococcal/chlamydial) can rapidly damage the cornea and needs urgent assessment and treatment.', 'reasoning_eligible': True},
+                {'stem': 'Why should staff disinfect the slit lamp and wash hands between red-eye patients?', 'options': ['Viral conjunctivitis can be spread by unwashed hands and inadequately cleaned equipment', "It improves the lamp's optics", "It lowers the patient's eye pressure", 'It is only for cosmetic reasons'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Adenoviral conjunctivitis is highly contagious; clinic outbreaks are prevented by hand hygiene and equipment disinfection.', 'reasoning_eligible': True},
+                {'stem': "A patient's red eye clears the superficial redness after a drop of phenylephrine. This response suggests:", 'options': ['Episcleritis (superficial vessels blanch) rather than scleritis', 'Acute glaucoma', 'A corneal ulcer', 'Endophthalmitis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Phenylephrine blanches superficial episcleral vessels; the deeper vessels of true scleritis do not blanch, aiding the distinction.', 'reasoning_eligible': True},
+                {'stem': "Which red-eye 'red flags' should always prompt escalation rather than reassurance?", 'options': ['Reduced vision, significant pain, photophobia, a hazy cornea or an abnormal pupil', 'Mild itch alone', 'A small painless red patch with normal vision', 'Slightly watery eyes in the wind'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Vision loss, pain, photophobia, corneal haze and pupil abnormality distinguish sight-threatening causes from benign conjunctivitis.', 'reasoning_eligible': True},
+                {'stem': 'A patient with rheumatoid arthritis presents with a very painful, deep-red, tender eye and disturbed sleep from the pain. You should suspect:', 'options': ['Scleritis (associated with systemic autoimmune disease)', 'Simple allergic conjunctivitis', 'Dry eye', 'A subconjunctival haemorrhage'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Severe boring pain with tenderness in a patient with autoimmune disease strongly suggests scleritis, which needs prompt specialist care.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient has a painful red eye, severe headache, nausea, a "
-                            "hazy cornea and a fixed mid-dilated pupil. What is the "
-                            "diagnosis and the priority action?",
-                    "options": [
-                        "Acute angle-closure glaucoma — escalate immediately",
-                        "Conjunctivitis — give antibiotic drops",
-                        "Dry eye — advise lubricants",
-                        "Allergy — give antihistamine",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "This cluster is classic for acute angle-closure "
-                                   "glaucoma, a sight-threatening emergency that must "
-                                   "be escalated immediately.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Match the pupil to the diagnosis: which option is correct?",
-                    "options": [
-                        "Small pupil → iritis; large fixed pupil → acute glaucoma; "
-                        "normal pupil → conjunctivitis",
-                        "Large pupil → iritis; small pupil → acute glaucoma",
-                        "All three give a fixed dilated pupil",
-                        "Pupil size is unrelated to the diagnosis",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Iritis → small pupil; acute angle-closure glaucoma "
-                                   "→ large, fixed pupil; conjunctivitis → normal "
-                                   "pupil. The pupil is a powerful triage clue.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL features that argue AGAINST simple "
-                            "conjunctivitis in a red eye.",
-                    "options": [
-                        "Reduced visual acuity",
-                        "Marked photophobia",
-                        "Severe pain",
-                        "Watery discharge with normal vision",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Reduced vision, marked photophobia and severe pain "
-                                   "all point away from conjunctivitis toward keratitis, "
-                                   "iritis or glaucoma. Watery discharge with normal "
-                                   "vision fits conjunctivitis.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must a painful red eye with reduced vision in a "
-                            "contact-lens wearer never be dismissed as 'just irritation'?",
-                    "options": [
-                        "It may be microbial keratitis, which can scar the cornea and "
-                        "destroy vision quickly",
-                        "Lens wearers never get infections",
-                        "Irritation always reduces vision harmlessly",
-                        "It is only a cosmetic issue",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Contact-lens wearers are at high risk of microbial "
-                                   "keratitis, which can rapidly scar the cornea and "
-                                   "cause permanent vision loss — it must be escalated.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Rank these red eyes from most to least urgent.",
-                    "options": [
-                        "Acute glaucoma > microbial keratitis > iritis > "
-                        "conjunctivitis",
-                        "Conjunctivitis > iritis > keratitis > acute glaucoma",
-                        "Iritis > conjunctivitis > acute glaucoma > keratitis",
-                        "Subconjunctival haemorrhage > acute glaucoma > keratitis > "
-                        "iritis",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Acute glaucoma and microbial keratitis are the most "
-                                   "sight-threatening, then iritis; simple "
-                                   "conjunctivitis is the least urgent.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient says one red eye is painful with watering but "
-                            "denies discharge, and bright light hurts the SAME eye even "
-                            "when shone in the other eye. What does this 'consensual "
-                            "photophobia' suggest?",
-                    "options": [
-                        "Iritis (anterior uveitis)",
-                        "Allergic conjunctivitis",
-                        "Subconjunctival haemorrhage",
-                        "Dry eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pain in the affected eye when light is shone in the "
-                                   "OTHER eye (consensual photophobia) is a classic sign "
-                                   "of iritis.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which combination best fits keratitis rather than iritis?",
-                    "options": [
-                        "Marked pain with a corneal lesion that stains, vision varies "
-                        "with lesion site",
-                        "Painless eye with marked discharge",
-                        "Large fixed pupil with nausea",
-                        "Bilateral itch with watering",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Keratitis features marked pain with a stainable "
-                                   "corneal lesion, and vision that varies with the "
-                                   "lesion site. Iritis is defined more by photophobia "
-                                   "and a small pupil without a corneal ulcer.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL of the following that are typically PAINLESS "
-                            "red eyes.",
-                    "options": [
-                        "Subconjunctival haemorrhage",
-                        "Simple (viral) conjunctivitis",
-                        "Acute angle-closure glaucoma",
-                        "Microbial keratitis",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Subconjunctival haemorrhage and viral conjunctivitis "
-                                   "are usually painless (at most gritty). Acute "
-                                   "glaucoma and keratitis are markedly painful.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is it unsafe to give steroid drops to a red, painful "
-                            "eye without a doctor's assessment?",
-                    "options": [
-                        "If the cause is herpes simplex keratitis, steroids can make "
-                        "it dramatically worse",
-                        "Steroids always cure red eyes instantly",
-                        "Steroids have no effect on the eye",
-                        "Steroids only help allergic eyes and nothing else",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Steroids can worsen an undiagnosed herpes simplex "
-                                   "keratitis and raise eye pressure. A red painful eye "
-                                   "needs a doctor's assessment before steroids.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "An elderly patient on warfarin has a large, painless, "
-                            "bright-red patch on the white of the eye with normal "
-                            "vision. What is the most appropriate response?",
-                    "options": [
-                        "Reassure — likely a subconjunctival haemorrhage; check BP and "
-                        "note the anticoagulant",
-                        "Treat as acute glaucoma and escalate immediately",
-                        "Start antibiotic drops urgently",
-                        "Patch the eye and send home with no follow-up",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A painless bright-red patch with normal vision is a "
-                                   "subconjunctival haemorrhage — usually benign. In an "
-                                   "anticoagulated patient it is worth checking blood "
-                                   "pressure and noting the medication.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which single feature most reliably separates a "
-                            "sight-threatening red eye from a benign one?",
-                    "options": [
-                        "Whether visual acuity is reduced",
-                        "Whether the eye waters",
-                        "Whether the redness is bright or dull",
-                        "Whether the patient is male or female",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Reduced visual acuity is the single most useful red "
-                                   "flag — benign red eyes (conjunctivitis, "
-                                   "subconjunctival haemorrhage) keep normal vision.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A patient has a painful red eye, severe headache, nausea, a hazy cornea and a fixed mid-dilated pupil. What is the diagnosis and the priority action?', 'options': ['Acute angle-closure glaucoma — escalate immediately', 'Conjunctivitis — give antibiotic drops', 'Dry eye — advise lubricants', 'Allergy — give antihistamine'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'This cluster is classic for acute angle-closure glaucoma, a sight-threatening emergency that must be escalated immediately.', 'reasoning_eligible': True},
+                {'stem': 'Match the pupil to the diagnosis: which option is correct?', 'options': ['Small pupil → iritis; large fixed pupil → acute glaucoma; normal pupil → conjunctivitis', 'Large pupil → iritis; small pupil → acute glaucoma', 'All three give a fixed dilated pupil', 'Pupil size is unrelated to the diagnosis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Iritis → small pupil; acute angle-closure glaucoma → large, fixed pupil; conjunctivitis → normal pupil. The pupil is a powerful triage clue.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL features that argue AGAINST simple conjunctivitis in a red eye.', 'options': ['Reduced visual acuity', 'Marked photophobia', 'Severe pain', 'Watery discharge with normal vision'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Reduced vision, marked photophobia and severe pain all point away from conjunctivitis toward keratitis, iritis or glaucoma. Watery discharge with normal vision fits conjunctivitis.', 'reasoning_eligible': True},
+                {'stem': "Why must a painful red eye with reduced vision in a contact-lens wearer never be dismissed as 'just irritation'?", 'options': ['It may be microbial keratitis, which can scar the cornea and destroy vision quickly', 'Lens wearers never get infections', 'Irritation always reduces vision harmlessly', 'It is only a cosmetic issue'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Contact-lens wearers are at high risk of microbial keratitis, which can rapidly scar the cornea and cause permanent vision loss — it must be escalated.', 'reasoning_eligible': True},
+                {'stem': 'Rank these red eyes from most to least urgent.', 'options': ['Acute glaucoma > microbial keratitis > iritis > conjunctivitis', 'Conjunctivitis > iritis > keratitis > acute glaucoma', 'Iritis > conjunctivitis > acute glaucoma > keratitis', 'Subconjunctival haemorrhage > acute glaucoma > keratitis > iritis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Acute glaucoma and microbial keratitis are the most sight-threatening, then iritis; simple conjunctivitis is the least urgent.', 'reasoning_eligible': False},
+                {'stem': "A patient says one red eye is painful with watering but denies discharge, and bright light hurts the SAME eye even when shone in the other eye. What does this 'consensual photophobia' suggest?", 'options': ['Iritis (anterior uveitis)', 'Allergic conjunctivitis', 'Subconjunctival haemorrhage', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pain in the affected eye when light is shone in the OTHER eye (consensual photophobia) is a classic sign of iritis.', 'reasoning_eligible': True},
+                {'stem': 'Which combination best fits keratitis rather than iritis?', 'options': ['Marked pain with a corneal lesion that stains, vision varies with lesion site', 'Painless eye with marked discharge', 'Large fixed pupil with nausea', 'Bilateral itch with watering'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Keratitis features marked pain with a stainable corneal lesion, and vision that varies with the lesion site. Iritis is defined more by photophobia and a small pupil without a corneal ulcer.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL of the following that are typically PAINLESS red eyes.', 'options': ['Subconjunctival haemorrhage', 'Simple (viral) conjunctivitis', 'Acute angle-closure glaucoma', 'Microbial keratitis'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Subconjunctival haemorrhage and viral conjunctivitis are usually painless (at most gritty). Acute glaucoma and keratitis are markedly painful.', 'reasoning_eligible': False},
+                {'stem': "Why is it unsafe to give steroid drops to a red, painful eye without a doctor's assessment?", 'options': ['If the cause is herpes simplex keratitis, steroids can make it dramatically worse', 'Steroids always cure red eyes instantly', 'Steroids have no effect on the eye', 'Steroids only help allergic eyes and nothing else'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Steroids can worsen an undiagnosed herpes simplex keratitis and raise eye pressure. A red painful eye needs a doctor's assessment before steroids.", 'reasoning_eligible': True},
+                {'stem': 'An elderly patient on warfarin has a large, painless, bright-red patch on the white of the eye with normal vision. What is the most appropriate response?', 'options': ['Reassure — likely a subconjunctival haemorrhage; check BP and note the anticoagulant', 'Treat as acute glaucoma and escalate immediately', 'Start antibiotic drops urgently', 'Patch the eye and send home with no follow-up'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A painless bright-red patch with normal vision is a subconjunctival haemorrhage — usually benign. In an anticoagulated patient it is worth checking blood pressure and noting the medication.', 'reasoning_eligible': False},
+                {'stem': 'Which single feature most reliably separates a sight-threatening red eye from a benign one?', 'options': ['Whether visual acuity is reduced', 'Whether the eye waters', 'Whether the redness is bright or dull', 'Whether the patient is male or female'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Reduced visual acuity is the single most useful red flag — benign red eyes (conjunctivitis, subconjunctival haemorrhage) keep normal vision.', 'reasoning_eligible': True},
+                {'stem': 'At the registration desk, four red-eye patients wait. Which should be fast-tracked as potentially sight-threatening?', 'options': ['The one with pain, reduced vision and photophobia', 'The one with itchy watery eyes and hay fever', 'The one with a painless bright-red patch and normal vision', 'The one with mild morning stickiness and normal vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Pain + reduced vision + photophobia flags a serious cause (uveitis, keratitis, glaucoma); the others are typically benign.', 'reasoning_eligible': True},
+                {'stem': 'A patient presents with a hyperacute red eye with profuse, rapidly-returning purulent discharge. Why is this urgent?', 'options': ['Hyperacute (e.g. gonococcal) conjunctivitis can perforate the cornea within days', 'It never affects the cornea', 'It is only a cosmetic problem', 'It always resolves without any treatment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Gonococcal conjunctivitis produces copious purulent discharge and can rapidly invade and perforate the cornea, so it needs urgent treatment.', 'reasoning_eligible': True},
+                {'stem': 'Why must you NOT hand out topical steroid drops for a painful red eye before a doctor examines it?', 'options': ['Steroids can dramatically worsen a herpetic dendritic ulcer and raise IOP', 'Steroids always cure conjunctivitis instantly', 'Steroids lower blood pressure dangerously', 'Steroids have no effect on the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'If the cause is herpes simplex keratitis, steroids allow the virus to spread and can perforate the cornea; they also raise IOP.', 'reasoning_eligible': True},
+                {'stem': "A patient reports pain in the RIGHT red eye whenever light is shone into the LEFT eye ('consensual photophobia'). This points to:", 'options': ['Anterior uveitis/iritis in the right eye', 'Simple bacterial conjunctivitis', 'A subconjunctival haemorrhage', 'Allergic conjunctivitis'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consensual photophobia (pain in the affected eye when the other eye is stimulated) is characteristic of iritis due to ciliary spasm.', 'reasoning_eligible': True},
+                {'stem': 'Which examination feature most reliably separates a benign red eye from a sight-threatening one?', 'options': ['Whether visual acuity is reduced', 'Whether the eye is watery', 'Whether the redness is bright or dull', 'Whether both eyes are involved'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Reduced visual acuity is the single most important red flag; benign causes (conjunctivitis, subconjunctival haemorrhage) spare vision.', 'reasoning_eligible': True},
             ],
         },
         "history_taking": {
