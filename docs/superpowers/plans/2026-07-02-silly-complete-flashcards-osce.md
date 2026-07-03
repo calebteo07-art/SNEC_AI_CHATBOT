@@ -764,7 +764,7 @@ git push origin main
 - [x] disorders_cornea_conjunctiva — Cornea/Sclera/Conjunctiva disease docs, contact lens infection, OphthalmicAssistant Ch14
 - [x] disorders_lens_cataract — Disorders of the Lens, cataract/perioperative content
 - [x] disorders_uvea_retina — Uvea/Retina/Uveitis/Angiography/Inflammation docs, GRT research
-- [ ] glaucoma — Glaucoma, ocular-surface-in-glaucoma research
+- [x] glaucoma — Glaucoma, ocular-surface-in-glaucoma research
 - [ ] neuro_strabismus — nerve palsy, amblyopia, strabismus, EOM, optic neuritis/GCA, orthoptics
 - [ ] systemic_disease — Diabetes, Hypertension, Asthma, systemic disorders, IOP/BMI research
 
