@@ -1717,277 +1717,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "hvf": {
             "easy": [
-                {
-                    "stem": "What does the Humphrey Visual Field (HVF) test measure?",
-                    "options": [
-                        "Central and peripheral visual field sensitivity (automated "
-                        "static perimetry)",
-                        "The eye pressure",
-                        "The corneal curvature",
-                        "The axial length",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HVF measures visual field sensitivity using "
-                                   "automated static perimetry.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which HVF programme is most common for glaucoma?",
-                    "options": ["The 24-2 programme", "The 10-1 programme",
-                                "The 60-4 programme", "The colour programme"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The 24-2 programme is the most common for glaucoma "
-                                   "(30-2 is also used).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL HVF reliability indices.",
-                    "options": ["Fixation losses", "False positives",
-                                "False negatives", "Axial length"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Fixation losses, false positives and false "
-                                   "negatives are the reliability indices. Axial length "
-                                   "is unrelated to the field test.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a high number of false positives mean?",
-                    "options": ["The test is unreliable",
-                                "The patient has perfect vision",
-                                "The glaucoma is cured",
-                                "The machine needs no attention"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A high false-positive rate (the patient responds "
-                                   "when there is no stimulus) makes the field result "
-                                   "unreliable.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Name one condition monitored with HVF.",
-                    "options": ["Glaucoma", "Cataract",
-                                "Dry eye", "Subconjunctival haemorrhage"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Glaucoma is the main condition monitored with HVF "
-                                   "(neurological and retinal disease too).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why must the correct near trial lens be used during HVF?",
-                    "options": [
-                        "To correct near focus so the central field points are tested "
-                        "accurately",
-                        "To dilate the pupil",
-                        "To measure the eye pressure",
-                        "It is optional",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The near trial lens keeps the test target in focus "
-                                   "so central points are measured accurately.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the Humphrey Visual Field (HVF) test measure?', 'options': ['Central and peripheral visual field sensitivity (automated static perimetry)', 'The eye pressure', 'The corneal curvature', 'The axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HVF measures visual field sensitivity using automated static perimetry.', 'reasoning_eligible': False},
+                {'stem': 'Which HVF programme is most common for glaucoma?', 'options': ['The 24-2 programme', 'The 10-1 programme', 'The 60-4 programme', 'The colour programme'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The 24-2 programme is the most common for glaucoma (30-2 is also used).', 'reasoning_eligible': False},
+                {'stem': 'Select ALL HVF reliability indices.', 'options': ['Fixation losses', 'False positives', 'False negatives', 'Axial length'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Fixation losses, false positives and false negatives are the reliability indices. Axial length is unrelated to the field test.', 'reasoning_eligible': False},
+                {'stem': 'What does a high number of false positives mean?', 'options': ['The test is unreliable', 'The patient has perfect vision', 'The glaucoma is cured', 'The machine needs no attention'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A high false-positive rate (the patient responds when there is no stimulus) makes the field result unreliable.', 'reasoning_eligible': False},
+                {'stem': 'Name one condition monitored with HVF.', 'options': ['Glaucoma', 'Cataract', 'Dry eye', 'Subconjunctival haemorrhage'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma is the main condition monitored with HVF (neurological and retinal disease too).', 'reasoning_eligible': False},
+                {'stem': 'Why must the correct near trial lens be used during HVF?', 'options': ['To correct near focus so the central field points are tested accurately', 'To dilate the pupil', 'To measure the eye pressure', 'It is optional'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The near trial lens keeps the test target in focus so central points are measured accurately.', 'reasoning_eligible': False},
+                {'stem': 'Before starting an HVF, the OT must first check the:', 'options': ["Doctor's written order and the correct patient (2 identifiers)", "Patient's shoe size", 'Car park ticket', "Next patient's file"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The checklist begins with confirming the visual-field order and patient identity using two identifiers.', 'reasoning_eligible': True},
+                {'stem': 'During an HVF the patient must keep looking at the:', 'options': ['Central fixation target', 'The moving stimulus', 'The examiner', 'The edge of the bowl'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady central fixation is essential so each stimulus is presented to the intended retinal location.', 'reasoning_eligible': False},
+                {'stem': 'The non-tested eye during an HVF should be:', 'options': ['Occluded (patched)', 'Kept open to help', 'Also fixating the target', 'Dilated'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "The fellow eye is occluded so only the tested eye's field is measured.", 'reasoning_eligible': False},
+                {'stem': 'The HVF machine is an example of an automated:', 'options': ['Perimeter (perimetry field analyser)', 'Tonometer', 'Keratometer', 'Slit lamp'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Humphrey Field Analyzer is an automated static perimeter that maps retinal sensitivity.', 'reasoning_eligible': False},
+                {'stem': 'After the HVF test, the OT should disinfect the equipment and:', 'options': ['Record the date/time and ensure the patient is comfortable', 'Delete the result', 'Leave the chin rest dirty', 'Send the patient off without a word'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Follow-up phase: disinfect, record date/time/VA and confirm the patient is comfortable.', 'reasoning_eligible': False},
+                {'stem': 'Hand hygiene for HVF is performed at:', 'options': ['The 5 WHO moments around patient contact', 'Only at the end of the day', 'Never, as it is non-contact', 'Only if the patient coughs'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The checklist requires the 5 moments of hand hygiene, including around chin-rest contact and surroundings.', 'reasoning_eligible': True},
+                {'stem': 'The correct near trial lens is placed for HVF because the test is done at:', 'options': ["A close bowl distance needing the patient's near correction", '6 metres', 'Infinity with no lens', 'Reading a wall chart'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The stimulus is close, so the appropriate near/age-corrected trial lens keeps it in focus for an accurate field.', 'reasoning_eligible': True},
+                {'stem': 'Which patient instruction is CORRECT for HVF?', 'options': ["'Keep looking at the centre and press the button whenever you see a light, even faint'", "'Look around for the lights'", "'Only press for bright lights'", "'Close your eyes and guess'"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Patients fixate centrally and respond to any perceived stimulus, including faint ones, for a valid threshold.', 'reasoning_eligible': False},
+                {'stem': 'The OT should MONITOR the patient throughout the HVF for:', 'options': ['Fixation losses, false positives and false negatives', 'Their blood type', 'Room temperature', 'The next appointment time'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Live monitoring of the reliability indices lets the OT re-instruct or pause before the test is spoiled.', 'reasoning_eligible': False},
+                {'stem': 'A patient tires partway through a long HVF. A reasonable OT action is to:', 'options': ['Offer a short pause/rest, then resume to keep responses reliable', 'Force them to finish without stopping', 'Abandon and record nothing', 'Speed the machine up'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Fatigue worsens reliability; a brief rest helps the patient give consistent responses for a trustworthy field.', 'reasoning_eligible': True},
+                {'stem': 'For most glaucoma monitoring, the commonly-used HVF pattern is:', 'options': ['24-2 (or 30-2)', 'A colour vision plate', 'A 6/6 letter chart', 'An OCT cube'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The 24-2 (or 30-2) pattern samples the central field used to detect and follow glaucomatous loss.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "An HVF shows high fixation losses and false positives. What "
-                            "should you do?",
-                    "options": [
-                        "Re-instruct the patient and repeat — the result is unreliable",
-                        "Report it as severe glaucoma",
-                        "Accept it as final",
-                        "Switch to measuring IOP instead",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Poor reliability indices mean the field is "
-                                   "unreliable — re-instruct and repeat rather than "
-                                   "interpreting it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What visual field pattern suggests glaucoma?",
-                    "options": ["An arcuate (Bjerrum) scotoma",
-                                "A central island only",
-                                "A bitemporal hemianopia",
-                                "A full, normal field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "An arcuate (Bjerrum) scotoma is a classic "
-                                   "glaucomatous field defect.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What field pattern suggests a lesion at the optic chiasm "
-                            "or tract?",
-                    "options": ["A hemianopia (a neurological pattern)",
-                                "An arcuate scotoma",
-                                "A central scotoma only",
-                                "A normal field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A hemianopia (loss of half the field in both eyes) "
-                                   "points to a neurological lesion at the chiasm or "
-                                   "tract.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What must be acceptable before an HVF is interpreted?",
-                    "options": [
-                        "The reliability indices (fixation losses, false positives and "
-                        "negatives)",
-                        "The patient's blood pressure",
-                        "The room temperature",
-                        "The IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Reliability indices must be acceptable first — an "
-                                   "unreliable field can't be meaningfully interpreted.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why can a first-ever HVF show a 'learning effect' that "
-                            "improves on repeat?",
-                    "options": [
-                        "Patients unfamiliar with the test often perform better once "
-                        "they understand it",
-                        "The disease improves between tests",
-                        "The machine recalibrates itself",
-                        "Repeat tests are always worse",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A first field can underperform due to "
-                                   "unfamiliarity; results often improve once the "
-                                   "patient learns the task (the learning effect).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is patient instruction and comfort so important for a "
-                            "reliable HVF?",
-                    "options": [
-                        "A tired or confused patient produces unreliable indices and "
-                        "false defects",
-                        "It only affects how long the test takes",
-                        "Instruction changes the eye pressure",
-                        "Comfort has no effect on the result",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Good instruction and comfort keep the patient "
-                                   "engaged and fixating, which is essential for "
-                                   "reliable field results.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'An HVF shows high fixation losses and false positives. What should you do?', 'options': ['Re-instruct the patient and repeat — the result is unreliable', 'Report it as severe glaucoma', 'Accept it as final', 'Switch to measuring IOP instead'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Poor reliability indices mean the field is unreliable — re-instruct and repeat rather than interpreting it.', 'reasoning_eligible': True},
+                {'stem': 'What visual field pattern suggests glaucoma?', 'options': ['An arcuate (Bjerrum) scotoma', 'A central island only', 'A bitemporal hemianopia', 'A full, normal field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'An arcuate (Bjerrum) scotoma is a classic glaucomatous field defect.', 'reasoning_eligible': False},
+                {'stem': 'What field pattern suggests a lesion at the optic chiasm or tract?', 'options': ['A hemianopia (a neurological pattern)', 'An arcuate scotoma', 'A central scotoma only', 'A normal field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A hemianopia (loss of half the field in both eyes) points to a neurological lesion at the chiasm or tract.', 'reasoning_eligible': True},
+                {'stem': 'What must be acceptable before an HVF is interpreted?', 'options': ['The reliability indices (fixation losses, false positives and negatives)', "The patient's blood pressure", 'The room temperature', 'The IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Reliability indices must be acceptable first — an unreliable field can't be meaningfully interpreted.", 'reasoning_eligible': True},
+                {'stem': "Why can a first-ever HVF show a 'learning effect' that improves on repeat?", 'options': ['Patients unfamiliar with the test often perform better once they understand it', 'The disease improves between tests', 'The machine recalibrates itself', 'Repeat tests are always worse'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A first field can underperform due to unfamiliarity; results often improve once the patient learns the task (the learning effect).', 'reasoning_eligible': False},
+                {'stem': 'Why is patient instruction and comfort so important for a reliable HVF?', 'options': ['A tired or confused patient produces unreliable indices and false defects', 'It only affects how long the test takes', 'Instruction changes the eye pressure', 'Comfort has no effect on the result'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Good instruction and comfort keep the patient engaged and fixating, which is essential for reliable field results.', 'reasoning_eligible': True},
+                {'stem': 'Halfway through, fixation losses climb above the acceptable level. The best OT response is to:', 'options': ['Pause, re-instruct on steady central fixation and reposition before continuing', 'Ignore it and finish', 'Tell the patient the result is fine', 'Increase the stimulus brightness only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'High fixation loss makes the map unreliable; re-instruction and repositioning restore valid fixation.', 'reasoning_eligible': True},
+                {'stem': "A patient presses the button constantly, even between stimuli (high false positives). This 'trigger-happy' pattern should prompt you to:", 'options': ['Re-instruct to respond only when a light is actually seen, and consider repeating', 'Praise them for being fast', 'Report a wonderful field', 'Delete the reliability indices'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Excess false positives can mask real defects; re-instruction (and a repeat) is needed for a reliable result.', 'reasoning_eligible': True},
+                {'stem': 'A drooping upper eyelid (ptosis) produces an artefactual defect in the HVF. The best step is to:', 'options': ['Tape/lift the lid clear of the pupil and re-test the affected area', 'Report it as glaucoma', 'Ignore the superior loss', 'Cancel the test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A drooping lid blocks superior stimuli, mimicking a defect; taping the lid removes this artefact.', 'reasoning_eligible': True},
+                {'stem': 'The rim of the trial lens or a mis-centred lens can cause a ring/edge artefact because it:', 'options': ['Blocks or blurs peripheral stimuli, mimicking peripheral loss', 'Improves the field', 'Lowers the eye pressure', 'Only affects colour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A poorly-centred or too-small lens holder occludes peripheral stimuli, so correct centration and lens choice matter.', 'reasoning_eligible': True},
+                {'stem': "Why must the patient's refractive correction be right for the HVF?", 'options': ['Uncorrected refractive blur causes a falsely depressed (generally reduced) field', 'It changes the eye pressure', 'It has no effect on the field', 'It only affects the blind spot'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Blur from wrong correction lowers sensitivity across the field, mimicking generalised loss; the correct trial lens prevents this.', 'reasoning_eligible': True},
+                {'stem': "A 'cloverleaf' field (only the four central-most areas tested, rest blank) usually means the patient:", 'options': ['Stopped responding/lost attention early - the test is unreliable and should be repeated', 'Has perfect vision', 'Has advanced glaucoma proven', 'Needs stronger glasses only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A cloverleaf pattern reflects inattention/fatigue after the initial seeds; the field is unreliable and repeated with better instruction.', 'reasoning_eligible': True},
+                {'stem': "Why is the SAME test pattern and eye setup used for a patient's serial HVF monitoring?", 'options': ['So change over time reflects real progression, not a change of test', 'Any pattern gives identical maps', 'It is faster', 'It changes the diagnosis'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Trend analysis requires consistent parameters; switching patterns confounds comparison of progression.', 'reasoning_eligible': True},
+                {'stem': 'An anxious first-time patient does poorly, then improves markedly on repeat. This is the:', 'options': ['Learning effect - familiarity improves a genuinely reliable second test', 'Sign of worsening glaucoma', 'Proof the machine is broken', 'A cataract forming'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'First fields often underperform; the learning effect means a repeat can be more representative of true function.', 'reasoning_eligible': True},
+                {'stem': 'The OT should ensure the correct TEST EYE and pattern are selected because:', 'options': ['Running the wrong eye/pattern gives the clinician invalid data and wastes the visit', 'The machine chooses automatically anyway', 'It never matters', 'It only affects printing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Selecting the ordered eye and correct pattern ensures the result matches what the clinician needs.', 'reasoning_eligible': True},
+                {'stem': 'Reliability indices (fixation loss, false positive, false negative) are reported so the clinician can:', 'options': ['Judge how much to trust the field before acting on it', 'Measure eye pressure', 'Set the IOL power', 'Grade a cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The indices flag unreliable tests, so an abnormal-looking field on a poor test is not over-interpreted.', 'reasoning_eligible': False},
+                {'stem': 'A patient with a small, undilated pupil (or early cataract) shows a generally depressed field. Before blaming disease, consider that:', 'options': ['Media/pupil factors can lower overall sensitivity, so note them for interpretation', 'It is definitely glaucoma', 'The machine is faulty', 'Nothing affects the field but glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A small pupil or lens opacity reduces retinal illumination, depressing the whole field; this is documented for the clinician.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A glaucoma patient's HVF shows a new arcuate scotoma but "
-                            "also 35% fixation losses and many false positives. How "
-                            "should this be handled?",
-                    "options": [
-                        "Treat the result as unreliable; re-instruct and repeat before "
-                        "concluding there is progression",
-                        "Report definite progression immediately",
-                        "Ignore the reliability indices",
-                        "Switch the patient to a different disease pathway",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Poor reliability indices undermine the apparent new "
-                                   "defect; repeat with better instruction before "
-                                   "concluding the glaucoma has progressed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does a bitemporal hemianopia point AWAY from glaucoma "
-                            "and toward a neurological cause?",
-                    "options": [
-                        "It reflects damage at the optic chiasm, not the "
-                        "glaucoma-typical nerve fibre pattern",
-                        "Glaucoma always causes hemianopia",
-                        "Hemianopia is a normal variant",
-                        "It indicates a refractive error",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A bitemporal hemianopia localises to the optic "
-                                   "chiasm (e.g. a pituitary lesion), which is a "
-                                   "neurological pattern, not the arcuate pattern of "
-                                   "glaucoma.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL steps that improve HVF reliability.",
-                    "options": [
-                        "Clear instruction and a comfortable, well-positioned patient",
-                        "The correct near trial lens in place",
-                        "Encouraging steady central fixation",
-                        "Rushing the patient to finish quickly",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Instruction, the right trial lens and steady "
-                                   "fixation all improve reliability. Rushing harms it.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is a single abnormal HVF usually confirmed with a "
-                            "repeat before changing glaucoma management?",
-                    "options": [
-                        "Field results vary, and a learning effect or poor reliability "
-                        "can mimic a defect — confirmation avoids over-reaction",
-                        "One field always proves progression",
-                        "Repeats are only for research",
-                        "The first field is always wrong",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Because fields fluctuate and can be affected by "
-                                   "learning or reliability, an apparent change is "
-                                   "usually confirmed on repeat before management is "
-                                   "altered.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement best contrasts HVF defect patterns?",
-                    "options": [
-                        "Glaucoma → arcuate/nasal step; chiasmal lesion → bitemporal "
-                        "hemianopia",
-                        "Glaucoma → hemianopia; chiasmal lesion → arcuate scotoma",
-                        "Both always give a central scotoma",
-                        "Neither produces any recognisable pattern",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Glaucoma classically gives arcuate defects/nasal "
-                                   "steps; a chiasmal lesion gives a bitemporal "
-                                   "hemianopia — different patterns point to different "
-                                   "causes.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A glaucoma patient's HVF shows a new arcuate scotoma but also 35% fixation losses and many false positives. How should this be handled?", 'options': ['Treat the result as unreliable; re-instruct and repeat before concluding there is progression', 'Report definite progression immediately', 'Ignore the reliability indices', 'Switch the patient to a different disease pathway'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Poor reliability indices undermine the apparent new defect; repeat with better instruction before concluding the glaucoma has progressed.', 'reasoning_eligible': True},
+                {'stem': 'Why does a bitemporal hemianopia point AWAY from glaucoma and toward a neurological cause?', 'options': ['It reflects damage at the optic chiasm, not the glaucoma-typical nerve fibre pattern', 'Glaucoma always causes hemianopia', 'Hemianopia is a normal variant', 'It indicates a refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A bitemporal hemianopia localises to the optic chiasm (e.g. a pituitary lesion), which is a neurological pattern, not the arcuate pattern of glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL steps that improve HVF reliability.', 'options': ['Clear instruction and a comfortable, well-positioned patient', 'The correct near trial lens in place', 'Encouraging steady central fixation', 'Rushing the patient to finish quickly'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Instruction, the right trial lens and steady fixation all improve reliability. Rushing harms it.', 'reasoning_eligible': False},
+                {'stem': 'Why is a single abnormal HVF usually confirmed with a repeat before changing glaucoma management?', 'options': ['Field results vary, and a learning effect or poor reliability can mimic a defect — confirmation avoids over-reaction', 'One field always proves progression', 'Repeats are only for research', 'The first field is always wrong'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because fields fluctuate and can be affected by learning or reliability, an apparent change is usually confirmed on repeat before management is altered.', 'reasoning_eligible': True},
+                {'stem': 'Which statement best contrasts HVF defect patterns?', 'options': ['Glaucoma → arcuate/nasal step; chiasmal lesion → bitemporal hemianopia', 'Glaucoma → hemianopia; chiasmal lesion → arcuate scotoma', 'Both always give a central scotoma', 'Neither produces any recognisable pattern'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma classically gives arcuate defects/nasal steps; a chiasmal lesion gives a bitemporal hemianopia — different patterns point to different causes.', 'reasoning_eligible': False},
+                {'stem': 'An HVF shows a new arcuate scotoma but the test has 35% fixation losses and many false positives. The correct handling is to:', 'options': ['Treat the field as unreliable, re-instruct and repeat before it informs management', 'Accept the scotoma and escalate treatment', 'Report it as definite progression', "Discard the patient's prior fields"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A defect on an unreliable test cannot be trusted; a repeat with better fixation/instruction is needed before acting.', 'reasoning_eligible': True},
+                {'stem': 'A field respects the VERTICAL midline (bitemporal loss). Why does this point away from glaucoma?', 'options': ['Vertical-midline (chiasmal/retro-chiasmal) patterns are neurological, not the arcuate/nasal pattern of glaucoma', 'Glaucoma always respects the vertical midline', 'It proves a cataract', 'It is always artefact'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Loss respecting the vertical midline localises to the chiasm/visual pathway; glaucoma follows the nerve-fibre (horizontal) pattern instead.', 'reasoning_eligible': True},
+                {'stem': 'Why is a single abnormal HVF usually CONFIRMED with a repeat before changing glaucoma management?', 'options': ['Fields are variable and subject to artefact/learning; confirmation avoids acting on a false change', 'One test is always definitive', 'Repeats are only for billing', 'The first test is always wrong'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Perimetry has test-retest variability; a repeatable defect is far more convincing than a single abnormal field.', 'reasoning_eligible': True},
+                {'stem': 'The HVF suggests loss but the RNFL OCT and optic disc look normal and stable. The best interpretation is to:', 'options': ['Correlate structure and function, check reliability, and repeat rather than diagnose on the field alone', 'Diagnose glaucoma from the field alone', 'Ignore the OCT', 'Blame the OCT machine'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Discordant structure and function prompts a check of reliability and a repeat; agreement between tests is more reliable.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST set of steps to improve HVF reliability.', 'options': ['Clear instruction, correct trial lens/centration, occlude the fellow eye, good positioning, monitor indices and offer rest', 'Skip instruction if the patient seems capable', 'Use any lens and no occluder', 'Never pause even if the patient tires'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliability improves with good instruction, correct correction/centration, occlusion, positioning, live monitoring and rest breaks.', 'reasoning_eligible': True},
+                {'stem': 'A high number of false NEGATIVES (missing bright stimuli in seen areas) in a patient most often reflects:', 'options': ['Inattention/fatigue or genuinely advanced disease - interpret with the whole test', 'A perfect, reliable field', 'The correct trial lens', 'A calibration success'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'False negatives rise with fatigue/inattention or in advanced damage; they are weighed alongside the other indices.', 'reasoning_eligible': True},
+                {'stem': 'For a patient with ADVANCED glaucoma and only a central island left, the clinician may switch to a:', 'options': ['10-2 pattern that samples the central field in more detail', '6/6 letter chart', 'Colour vision test', 'Non-contact tonometer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'When only central field remains, a 10-2 pattern gives finer central sampling to monitor the residual island.', 'reasoning_eligible': True},
+                {'stem': 'Why does the HVF plot the physiological BLIND SPOT, and how is it used during the test?', 'options': ['It marks the optic disc; the machine uses it (Heijl-Krakau) to monitor fixation losses', 'It is a glaucoma defect', 'It measures eye pressure', 'It has no purpose'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Stimuli placed in the blind spot that get a response indicate lost fixation, so the machine tracks fixation reliability.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about HVF technique and interpretation is CORRECT?', 'options': ['Ensure reliability and correct correction, exclude artefacts (lid/lens/pupil), correlate with disc/OCT, and confirm change on repeat', 'One field alone confirms progression', 'Artefacts never affect the field', 'Reliability indices can be ignored'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Sound HVF practice secures reliability and correction, excludes artefacts, correlates with structure, and confirms change before acting.', 'reasoning_eligible': True},
+                {'stem': "A patient's field shows a superior defect that exactly follows the trial-lens rim. The most likely cause is:", 'options': ['A lens/holder artefact - re-centre or reposition and re-test', 'Definite superior glaucoma', 'A chiasmal tumour', 'A retinal detachment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A defect matching the lens rim is an artefact of lens position; correcting the setup removes it rather than escalating care.', 'reasoning_eligible': True},
+                {'stem': 'Why should the OT record the test date/time and VA with the HVF and flag reliability concerns to the clinician?', 'options': ['It lets the clinician judge trend and trust; an unreliable field should not drive management', 'It is only paperwork', 'It changes the eye pressure', 'VA is unrelated to the field'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Documenting context and flagging poor reliability ensures the clinician interprets and trends the field appropriately.', 'reasoning_eligible': True},
             ],
         },
         "gvf": {
