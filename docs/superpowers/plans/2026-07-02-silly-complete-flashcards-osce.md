@@ -773,7 +773,7 @@ git push origin main
 
 **OT (19)** — new gap topics to 50 + top up existing to 50:
 - [n/a] aberrometry · lens_meter · retinal_imaging · dr_grading — these were placeholder-only OT flashcard blocks; DELETED in Phase A3 and delivered as OSCE gap cases (case_ot_051..054) instead, so they are NOT flashcard topics. Flashcard OT scope = the 15 real topics below.
-- [x] oct_macula · [x] oct_rnfl · [x] hvf · [x] gvf · [x] ascan_biometry · [ ] optical_biometry · [ ] endothelial · [ ] asoct · [ ] flare · [ ] corneal_topography · [ ] pam · [ ] hrt · [ ] orthoptics · [ ] dayward_theatre · [ ] auto_refraction
+- [x] oct_macula · [x] oct_rnfl · [x] hvf · [x] gvf · [x] ascan_biometry · [x] optical_biometry · [ ] endothelial · [ ] asoct · [ ] flare · [ ] corneal_topography · [ ] pam · [ ] hrt · [ ] orthoptics · [ ] dayward_theatre · [ ] auto_refraction
 
 ---
 
