@@ -729,546 +729,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
     "CLINICAL": {
         "triage": {
             "easy": [
-                {
-                    "stem": "Within how long must a Triage Category 1 case be seen?",
-                    "options": ["Within 10 minutes", "Within 30 minutes",
-                                "Within 60 minutes", "Within 2 hours"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 1 is the most urgent — it must be seen "
-                                   "within 10 minutes (e.g. chemical burn, CRAO).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Within how long must a Triage Category 2 case be seen?",
-                    "options": ["Within 10 minutes", "Within 30 minutes",
-                                "Within 60 minutes", "Within 2 hours"],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 2 cases must be seen within 30 minutes.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Within how long must a Triage Category 3 case be seen?",
-                    "options": ["Within 10 minutes", "Within 30 minutes",
-                                "Within 60 minutes", "Within 2 hours"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 3 cases must be seen within 60 minutes.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Within how long must a Triage Category 4 case be seen?",
-                    "options": ["Within 10 minutes", "Within 30 minutes",
-                                "Within 60 minutes", "Within 2 hours"],
-                    "correct": [3],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 4 covers minor or chronic conditions and "
-                                   "must be seen within 2 hours.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which triage category does conjunctivitis fall under?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [3],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Conjunctivitis is a minor/chronic condition — "
-                                   "Category 4 (within 2 hours).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the first action for a chemical eye burn?",
-                    "options": ["Check visual acuity", "Start irrigation immediately",
-                                "Instil anaesthetic drops", "Measure IOP"],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Chemical burns are Category 1 — start irrigation "
-                                   "immediately to wash out the chemical and limit "
-                                   "ongoing damage.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How many triage categories are there in the SNEC system?",
-                    "options": ["2", "3", "4", "5"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "There are 4 triage categories: Category 1 (within "
-                                   "10 min), Category 2 (within 30 min), Category 3 "
-                                   "(within 60 min), and Category 4 (within 2 hours).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A stable chronic glaucoma review is which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [3],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A stable chronic glaucoma review is routine — "
-                                   "Category 4 (within 2 hours).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which triage category requires the patient to be seen most urgently?",
-                    "options": ["Category 4", "Category 3",
-                                "Category 2", "Category 1"],
-                    "correct": [3],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 1 is the most urgent — the patient must "
-                                   "be seen within 10 minutes.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A welder's flash burn is which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A welder's flash burn (painful red eye / "
-                                   "photokeratitis) is Category 3 (within 60 minutes).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A total hyphaema is which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A total hyphaema (blood filling the anterior "
-                                   "chamber) is Category 2 (within 30 minutes).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Central retinal artery occlusion (CRAO) with VA <6/60 "
-                            "is which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "CRAO with VA <6/60 is a sight-threatening "
-                                   "emergency — Category 1 (within 10 minutes).",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Within how long must a Triage Category 1 case be seen?', 'options': ['Within 10 minutes', 'Within 30 minutes', 'Within 60 minutes', 'Within 2 hours'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 1 is the most urgent — it must be seen within 10 minutes (e.g. chemical burn, CRAO).', 'reasoning_eligible': False},
+                {'stem': 'Within how long must a Triage Category 2 case be seen?', 'options': ['Within 10 minutes', 'Within 30 minutes', 'Within 60 minutes', 'Within 2 hours'], 'correct': [1], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 2 cases must be seen within 30 minutes.', 'reasoning_eligible': False},
+                {'stem': 'Within how long must a Triage Category 3 case be seen?', 'options': ['Within 10 minutes', 'Within 30 minutes', 'Within 60 minutes', 'Within 2 hours'], 'correct': [2], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 3 cases must be seen within 60 minutes.', 'reasoning_eligible': False},
+                {'stem': 'Within how long must a Triage Category 4 case be seen?', 'options': ['Within 10 minutes', 'Within 30 minutes', 'Within 60 minutes', 'Within 2 hours'], 'correct': [3], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 4 covers minor or chronic conditions and must be seen within 2 hours.', 'reasoning_eligible': False},
+                {'stem': 'Which triage category does conjunctivitis fall under?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [3], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Conjunctivitis is a minor/chronic condition — Category 4 (within 2 hours).', 'reasoning_eligible': False},
+                {'stem': 'What is the first action for a chemical eye burn?', 'options': ['Check visual acuity', 'Start irrigation immediately', 'Instil anaesthetic drops', 'Measure IOP'], 'correct': [1], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Chemical burns are Category 1 — start irrigation immediately to wash out the chemical and limit ongoing damage.', 'reasoning_eligible': True},
+                {'stem': 'How many triage categories are there in the SNEC system?', 'options': ['2', '3', '4', '5'], 'correct': [2], 'qtype': 'single', 'kind': 'theory', 'explanation': 'There are 4 triage categories: Category 1 (within 10 min), Category 2 (within 30 min), Category 3 (within 60 min), and Category 4 (within 2 hours).', 'reasoning_eligible': False},
+                {'stem': 'A stable chronic glaucoma review is which triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [3], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A stable chronic glaucoma review is routine — Category 4 (within 2 hours).', 'reasoning_eligible': False},
+                {'stem': 'Which triage category requires the patient to be seen most urgently?', 'options': ['Category 4', 'Category 3', 'Category 2', 'Category 1'], 'correct': [3], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 1 is the most urgent — the patient must be seen within 10 minutes.', 'reasoning_eligible': False},
+                {'stem': "A welder's flash burn is which triage category?", 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [2], 'qtype': 'single', 'kind': 'practical', 'explanation': "A welder's flash burn (painful red eye / photokeratitis) is Category 3 (within 60 minutes).", 'reasoning_eligible': True},
+                {'stem': 'A total hyphaema is which triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [1], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A total hyphaema (blood filling the anterior chamber) is Category 2 (within 30 minutes).', 'reasoning_eligible': False},
+                {'stem': 'Central retinal artery occlusion (CRAO) with VA <6/60 is which triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'CRAO with VA <6/60 is a sight-threatening emergency — Category 1 (within 10 minutes).', 'reasoning_eligible': True},
+                {'stem': 'A construction worker walks in saying a drop of drain-cleaner (alkali) splashed into his eye 3 minutes ago. Before anything else you should:', 'options': ['Start copious irrigation immediately - even before checking vision', 'Sit him down to wait his turn', 'Take his full history first', 'Send him for a fundus photo'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Chemical injury (especially alkali) demands immediate copious irrigation before vision testing - it is Category 1.', 'reasoning_eligible': True},
+                {'stem': 'A patient telephones saying they just splashed bleach in their eye at home. The best triage advice is to:', 'options': ['Start rinsing the eye with clean water at home NOW and come in immediately', 'Wait and see if it settles by tomorrow', 'Apply antibiotic ointment and rest', 'Book a routine appointment next week'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Immediate irrigation at the scene limits damage; a chemical burn is a time-critical Category 1 emergency.', 'reasoning_eligible': True},
+                {'stem': 'A patient arrives with a metal object embedded and protruding from the eye after a workshop accident. At triage you should:', 'options': ['Shield the eye (no pad, no pressure), do not remove the object, and escalate urgently', 'Pull the object out gently', 'Pad the eye firmly', 'Instil anaesthetic drops and send home'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A protruding foreign body signals an open globe: never remove it, avoid pressure, apply a shield and refer immediately.', 'reasoning_eligible': True},
+                {'stem': 'A patient reports a painless red patch on the white of one eye after coughing, with normal vision and no pain. This is most likely:', 'options': ['A subconjunctival haemorrhage - reassure, low urgency', 'A chemical burn needing irrigation', 'Acute glaucoma', 'An open globe injury'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A spontaneous subconjunctival haemorrhage with normal vision and no pain resolves in 2-3 weeks; it is a low-urgency, reassurance case.', 'reasoning_eligible': True},
+                {'stem': "The 'golden rule' of managing ocular trauma at triage is to treat:", 'options': ['Life-threatening injuries first, then sight-threatening injuries', 'The most painful eye first', 'Whoever arrived first', 'The youngest patient first'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Life comes before sight: address life-threatening injuries first, then sight-threatening ones, then the rest.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Which triage category is a chemical burn, and what is "
-                            "the first action?",
-                    "options": [
-                        "Category 1 — start irrigation immediately",
-                        "Category 2 — check visual acuity first",
-                        "Category 3 — instil anaesthetic then irrigate",
-                        "Category 1 — measure IOP first",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Chemical burns are Category 1 (within 10 minutes). "
-                                   "The first action is immediate irrigation to wash "
-                                   "out the chemical and limit damage.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient with previous retinal history reports a sudden "
-                            "increase in floaters. Which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Suspect retinal detachment — Category 3 (within "
-                                   "60 minutes).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which of the following conditions is Triage Category 1?",
-                    "options": ["Conjunctivitis", "Stable glaucoma review",
-                                "Chemical eye burn", "Welder's flash burn"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chemical eye burn is Category 1 (within 10 "
-                                   "minutes). Conjunctivitis and stable glaucoma are "
-                                   "Category 4; a welder's flash burn is Category 3.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient presents with sudden painless loss of vision "
-                            "in one eye. What is the appropriate triage action?",
-                    "options": [
-                        "Category 4 — schedule routine review",
-                        "Category 1 — escalate immediately",
-                        "Category 3 — see within 60 minutes",
-                        "Category 2 — see within 30 minutes",
-                    ],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Sudden painless loss of vision (e.g. CRAO, "
-                                   "vitreous haemorrhage) is a sight-threatening "
-                                   "emergency — Category 1, escalate immediately.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must a chemical eye injury be irrigated before "
-                            "checking visual acuity?",
-                    "options": [
-                        "Because irrigation improves visual acuity",
-                        "To wash out the chemical and limit ongoing damage",
-                        "Because VA cannot be measured with an injured eye",
-                        "To reduce intraocular pressure first",
-                    ],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chemical burns cause ongoing tissue damage every "
-                                   "second — irrigation must begin immediately to "
-                                   "wash out the chemical. VA can wait.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which of the following are Triage Category 2 conditions?",
-                    "options": [
-                        "Total hyphaema",
-                        "Chemical burn",
-                        "Conjunctivitis",
-                        "Stable chronic glaucoma review",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Total hyphaema is Category 2 (within 30 minutes). "
-                                   "Chemical burn is Category 1; conjunctivitis and "
-                                   "stable glaucoma are Category 4.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient with acute angle-closure glaucoma presents "
-                            "with severe eye pain, nausea, and a hazy cornea. "
-                            "Which triage category?",
-                    "options": ["Category 4", "Category 3",
-                                "Category 2", "Category 1"],
-                    "correct": [3],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Acute angle-closure glaucoma is a sight-threatening "
-                                   "emergency — Category 1 (within 10 minutes).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A painful red eye with no discharge or visual loss "
-                            "is likely which triage category?",
-                    "options": ["Category 1", "Category 2",
-                                "Category 3", "Category 4"],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A painful red eye without vision-threatening "
-                                   "features (e.g. flash burn, mild keratitis) is "
-                                   "typically Category 3 (within 60 minutes).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What distinguishes Category 1 from Category 2 in "
-                            "terms of clinical urgency?",
-                    "options": [
-                        "Category 1 is seen within 10 minutes; Category 2 "
-                        "within 30 minutes",
-                        "Category 1 needs a doctor; Category 2 does not",
-                        "Category 1 requires surgery; Category 2 does not",
-                        "There is no difference",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 1 must be seen within 10 minutes "
-                                   "(sight/life-threatening); Category 2 within "
-                                   "30 minutes (urgent but not immediately "
-                                   "sight-threatening).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL conditions that are Triage Category 3 "
-                            "(seen within 60 minutes).",
-                    "options": [
-                        "Sudden increase in floaters with retinal history",
-                        "Welder's flash burn",
-                        "Chemical eye burn",
-                        "Total hyphaema",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Sudden floaters (suspect retinal detachment) and "
-                                   "welder's flash burn are both Category 3 (within "
-                                   "60 minutes). Chemical burn is Category 1; total "
-                                   "hyphaema is Category 2.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient on anticoagulants has a partial hyphaema "
-                            "after blunt trauma. What is the primary triage concern?",
-                    "options": [
-                        "The hyphaema may worsen due to bleeding risk",
-                        "Anticoagulants prevent healing",
-                        "The patient should stop the anticoagulant immediately",
-                        "No special concern — treat as Category 4",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Anticoagulants increase bleeding risk, so the "
-                                   "hyphaema may enlarge. Escalate urgently (do NOT "
-                                   "stop anticoagulants without medical instruction).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "In triage, what is the purpose of assigning a category?",
-                    "options": [
-                        "To prioritise patients by clinical urgency",
-                        "To decide which doctor sees the patient",
-                        "To determine the treatment plan",
-                        "To calculate the consultation fee",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Triage categories prioritise patients so the "
-                                   "most urgent cases are seen first.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Which triage category is a chemical burn, and what is the first action?', 'options': ['Category 1 — start irrigation immediately', 'Category 2 — check visual acuity first', 'Category 3 — instil anaesthetic then irrigate', 'Category 1 — measure IOP first'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Chemical burns are Category 1 (within 10 minutes). The first action is immediate irrigation to wash out the chemical and limit damage.', 'reasoning_eligible': True},
+                {'stem': 'A patient with previous retinal history reports a sudden increase in floaters. Which triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [2], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Suspect retinal detachment — Category 3 (within 60 minutes).', 'reasoning_eligible': True},
+                {'stem': 'Which of the following conditions is Triage Category 1?', 'options': ['Conjunctivitis', 'Stable glaucoma review', 'Chemical eye burn', "Welder's flash burn"], 'correct': [2], 'qtype': 'single', 'kind': 'theory', 'explanation': "Chemical eye burn is Category 1 (within 10 minutes). Conjunctivitis and stable glaucoma are Category 4; a welder's flash burn is Category 3.", 'reasoning_eligible': False},
+                {'stem': 'A patient presents with sudden painless loss of vision in one eye. What is the appropriate triage action?', 'options': ['Category 4 — schedule routine review', 'Category 1 — escalate immediately', 'Category 3 — see within 60 minutes', 'Category 2 — see within 30 minutes'], 'correct': [1], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sudden painless loss of vision (e.g. CRAO, vitreous haemorrhage) is a sight-threatening emergency — Category 1, escalate immediately.', 'reasoning_eligible': True},
+                {'stem': 'Why must a chemical eye injury be irrigated before checking visual acuity?', 'options': ['Because irrigation improves visual acuity', 'To wash out the chemical and limit ongoing damage', 'Because VA cannot be measured with an injured eye', 'To reduce intraocular pressure first'], 'correct': [1], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Chemical burns cause ongoing tissue damage every second — irrigation must begin immediately to wash out the chemical. VA can wait.', 'reasoning_eligible': True},
+                {'stem': 'Which of the following are Triage Category 2 conditions?', 'options': ['Total hyphaema', 'Chemical burn', 'Conjunctivitis', 'Stable chronic glaucoma review'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Total hyphaema is Category 2 (within 30 minutes). Chemical burn is Category 1; conjunctivitis and stable glaucoma are Category 4.', 'reasoning_eligible': False},
+                {'stem': 'A patient with acute angle-closure glaucoma presents with severe eye pain, nausea, and a hazy cornea. Which triage category?', 'options': ['Category 4', 'Category 3', 'Category 2', 'Category 1'], 'correct': [3], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Acute angle-closure glaucoma is a sight-threatening emergency — Category 1 (within 10 minutes).', 'reasoning_eligible': False},
+                {'stem': 'A painful red eye with no discharge or visual loss is likely which triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [2], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A painful red eye without vision-threatening features (e.g. flash burn, mild keratitis) is typically Category 3 (within 60 minutes).', 'reasoning_eligible': False},
+                {'stem': 'What distinguishes Category 1 from Category 2 in terms of clinical urgency?', 'options': ['Category 1 is seen within 10 minutes; Category 2 within 30 minutes', 'Category 1 needs a doctor; Category 2 does not', 'Category 1 requires surgery; Category 2 does not', 'There is no difference'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 1 must be seen within 10 minutes (sight/life-threatening); Category 2 within 30 minutes (urgent but not immediately sight-threatening).', 'reasoning_eligible': False},
+                {'stem': 'Select ALL conditions that are Triage Category 3 (seen within 60 minutes).', 'options': ['Sudden increase in floaters with retinal history', "Welder's flash burn", 'Chemical eye burn', 'Total hyphaema'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'practical', 'explanation': "Sudden floaters (suspect retinal detachment) and welder's flash burn are both Category 3 (within 60 minutes). Chemical burn is Category 1; total hyphaema is Category 2.", 'reasoning_eligible': True},
+                {'stem': 'A patient on anticoagulants has a partial hyphaema after blunt trauma. What is the primary triage concern?', 'options': ['The hyphaema may worsen due to bleeding risk', 'Anticoagulants prevent healing', 'The patient should stop the anticoagulant immediately', 'No special concern — treat as Category 4'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Anticoagulants increase bleeding risk, so the hyphaema may enlarge. Escalate urgently (do NOT stop anticoagulants without medical instruction).', 'reasoning_eligible': False},
+                {'stem': 'In triage, what is the purpose of assigning a category?', 'options': ['To prioritise patients by clinical urgency', 'To decide which doctor sees the patient', 'To determine the treatment plan', 'To calculate the consultation fee'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Triage categories prioritise patients so the most urgent cases are seen first.', 'reasoning_eligible': False},
+                {'stem': 'A cataract-surgery patient from 3 days ago returns with a sudden painful red eye and dropping vision. The triage priority is:', 'options': ['Treat as a Category 1 emergency - possible endophthalmitis', 'Routine post-op review', 'Reassure and rebook next month', 'Give lubricants and discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Pain, redness and falling vision after intraocular surgery suggest endophthalmitis - a blinding emergency needing same-hour attention.', 'reasoning_eligible': True},
+                {'stem': 'A contact-lens wearer has a painful red eye with a white spot on the cornea and worsening vision. The correct triage is:', 'options': ['Urgent - possible microbial keratitis, must be seen quickly', 'Routine, likely simple dry eye', 'Reassure, review in a month', 'No action needed'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A corneal infiltrate/ulcer in a lens wearer is sight-threatening microbial keratitis and needs prompt review and cultures.', 'reasoning_eligible': True},
+                {'stem': 'Why is an ALKALI burn generally triaged as more dangerous than an ACID burn of similar volume?', 'options': ['Alkalis saponify cell-membrane fats and penetrate deeper, while acids coagulate proteins forming a barrier', 'Acids are always painless', 'Alkalis never reach the cornea', 'Acids penetrate deeper than alkalis'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Alkalis dissolve membrane lipids and penetrate deeply; acids coagulate surface proteins that limit penetration - so alkali burns are usually worse.', 'reasoning_eligible': True},
+                {'stem': 'A patient after blunt trauma has severe pain, proptosis, a very tense eye and a relative afferent pupillary defect. The triage concern is:', 'options': ['Retrobulbar haemorrhage - a sight-threatening emergency needing immediate action', 'A simple bruise, review next week', 'Allergic conjunctivitis', 'Presbyopia'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Proptosis, a tense orbit, pain and RAPD after trauma indicate retrobulbar haemorrhage, which may need urgent lateral canthotomy/cantholysis.', 'reasoning_eligible': True},
+                {'stem': 'When continuing irrigation of a chemical eye burn, you should keep flushing until:', 'options': ['The tear-film pH returns to neutral (around 7.0)', 'Exactly 2 minutes have passed', 'The patient stops blinking', 'The eye looks white'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Irrigate copiously (at least 20 minutes), sweeping the fornices, and continue until the pH normalises to about 7.0.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "Select ALL conditions that are Triage Category 1 "
-                            "(seen within 10 minutes).",
-                    "options": [
-                        "Chemical eye burn",
-                        "Central retinal artery occlusion (CRAO)",
-                        "Conjunctivitis",
-                        "Stable chronic glaucoma review",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Chemical burns and CRAO are sight-threatening "
-                                   "emergencies needing treatment within minutes. "
-                                   "Conjunctivitis and a stable glaucoma review "
-                                   "are routine (Category 4).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient presents with sudden painless vision loss, "
-                            "VA <6/60, and a cherry-red spot on fundoscopy. "
-                            "What is the most likely diagnosis and triage category?",
-                    "options": [
-                        "CRAO — Category 1",
-                        "Retinal detachment — Category 3",
-                        "Vitreous haemorrhage — Category 2",
-                        "Optic neuritis — Category 3",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A cherry-red spot with sudden painless vision "
-                                   "loss and VA <6/60 is classic for CRAO — "
-                                   "Category 1 (within 10 minutes).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient splashed an unknown chemical in both eyes "
-                            "5 minutes ago. As the first responder, what do you do?",
-                    "options": [
-                        "Start bilateral irrigation immediately",
-                        "Identify the chemical before irrigating",
-                        "Check visual acuity to assess severity",
-                        "Instil anaesthetic drops and wait for the doctor",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Chemical burns are Category 1. Irrigate "
-                                   "immediately — do not delay to identify the "
-                                   "chemical or check VA. Every second counts.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is acute angle-closure glaucoma classified as "
-                            "Category 1 rather than Category 2?",
-                    "options": [
-                        "It can cause irreversible vision loss within minutes "
-                        "if untreated",
-                        "It is always bilateral",
-                        "It only occurs in elderly patients",
-                        "It requires surgery within 30 minutes",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Acute angle-closure glaucoma causes rapid, "
-                                   "irreversible optic nerve damage from high IOP. "
-                                   "It must be seen within 10 minutes (Category 1).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Rank the following from most urgent to least urgent "
-                            "triage category.",
-                    "options": [
-                        "Chemical burn > Total hyphaema > Flash burn > "
-                        "Conjunctivitis",
-                        "Total hyphaema > Chemical burn > Flash burn > "
-                        "Conjunctivitis",
-                        "Flash burn > Chemical burn > Conjunctivitis > "
-                        "Total hyphaema",
-                        "Conjunctivitis > Flash burn > Total hyphaema > "
-                        "Chemical burn",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chemical burn = Cat 1 (10 min) > Total hyphaema "
-                                   "= Cat 2 (30 min) > Flash burn = Cat 3 (60 min) "
-                                   "> Conjunctivitis = Cat 4 (2 hr).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A myopic patient with a history of retinal tears "
-                            "reports a sudden shower of floaters and a curtain "
-                            "across their vision. What triage category and why?",
-                    "options": [
-                        "Category 3 — suspect retinal detachment",
-                        "Category 4 — floaters are benign",
-                        "Category 1 — immediate surgery needed",
-                        "Category 2 — moderate urgency",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A curtain plus shower of floaters in a myope with "
-                                   "retinal history strongly suggests retinal "
-                                   "detachment — Category 3 (within 60 minutes).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Two patients arrive simultaneously: one with "
-                            "conjunctivitis and one with a chemical burn. "
-                            "Who is seen first and why?",
-                    "options": [
-                        "Chemical burn — Category 1 is more urgent than "
-                        "Category 4",
-                        "Conjunctivitis — it arrived first",
-                        "Both at the same time",
-                        "Chemical burn — but only after checking VA on both",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Chemical burn is Category 1 (within 10 minutes); "
-                                   "conjunctivitis is Category 4 (within 2 hours). "
-                                   "The chemical burn patient is seen first.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL features that would make you assign "
-                            "Category 1 to a red eye.",
-                    "options": [
-                        "Severe pain with nausea, vomiting, and a fixed "
-                        "mid-dilated pupil",
-                        "Chemical exposure requiring irrigation",
-                        "Mild itchiness with watery discharge",
-                        "Marked discharge with no pain",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Acute angle-closure glaucoma (severe pain, "
-                                   "nausea, fixed dilated pupil) and chemical "
-                                   "exposure are both Category 1. Mild itchiness "
-                                   "and painless discharge are lower categories.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient presents after blunt trauma with blood "
-                            "filling the entire anterior chamber. What is the "
-                            "condition and its triage category?",
-                    "options": [
-                        "Total hyphaema — Category 2",
-                        "Hypopyon — Category 1",
-                        "Subconjunctival haemorrhage — Category 4",
-                        "Vitreous haemorrhage — Category 3",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Blood in the anterior chamber = hyphaema. A total "
-                                   "hyphaema is Category 2 (within 30 minutes).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which statement about triage categories is correct?",
-                    "options": [
-                        "Category 1 and 2 both require the patient to be seen "
-                        "within 30 minutes",
-                        "Category 3 is for minor or chronic conditions",
-                        "Category 4 patients must be seen within 2 hours",
-                        "Categories are assigned based on the patient's age",
-                    ],
-                    "correct": [2],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Category 4 = within 2 hours (minor/chronic). "
-                                   "Category 1 = within 10 min (not 30). "
-                                   "Category 3 = within 60 min (not minor). "
-                                   "Categories are based on clinical urgency, not age.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is it important not to delay irrigation for a "
-                            "chemical burn even if the patient is in severe pain?",
-                    "options": [
-                        "The chemical causes ongoing tissue damage every second — "
-                        "irrigation must not be delayed",
-                        "Pain will resolve once irrigation starts",
-                        "The chemical neutralises itself after 10 minutes",
-                        "Irrigation is only effective within the first minute",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chemical burns cause progressive tissue "
-                                   "destruction. Immediate irrigation limits "
-                                   "damage regardless of pain level.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient with uveitis (iritis) presents with "
-                            "photophobia, a small pupil, and moderate pain. "
-                            "What triage category?",
-                    "options": [
-                        "Category 1", "Category 2",
-                        "Category 3", "Category 4",
-                    ],
-                    "correct": [1],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Uveitis is an ocular emergency. With moderate "
-                                   "pain and photophobia, it is Category 2 (within "
-                                   "30 minutes) unless vision is severely threatened, "
-                                   "which would escalate to Category 1.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Select ALL conditions that are Triage Category 1 (seen within 10 minutes).', 'options': ['Chemical eye burn', 'Central retinal artery occlusion (CRAO)', 'Conjunctivitis', 'Stable chronic glaucoma review'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Chemical burns and CRAO are sight-threatening emergencies needing treatment within minutes. Conjunctivitis and a stable glaucoma review are routine (Category 4).', 'reasoning_eligible': True},
+                {'stem': 'A patient presents with sudden painless vision loss, VA <6/60, and a cherry-red spot on fundoscopy. What is the most likely diagnosis and triage category?', 'options': ['CRAO — Category 1', 'Retinal detachment — Category 3', 'Vitreous haemorrhage — Category 2', 'Optic neuritis — Category 3'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A cherry-red spot with sudden painless vision loss and VA <6/60 is classic for CRAO — Category 1 (within 10 minutes).', 'reasoning_eligible': True},
+                {'stem': 'A patient splashed an unknown chemical in both eyes 5 minutes ago. As the first responder, what do you do?', 'options': ['Start bilateral irrigation immediately', 'Identify the chemical before irrigating', 'Check visual acuity to assess severity', 'Instil anaesthetic drops and wait for the doctor'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Chemical burns are Category 1. Irrigate immediately — do not delay to identify the chemical or check VA. Every second counts.', 'reasoning_eligible': True},
+                {'stem': 'Why is acute angle-closure glaucoma classified as Category 1 rather than Category 2?', 'options': ['It can cause irreversible vision loss within minutes if untreated', 'It is always bilateral', 'It only occurs in elderly patients', 'It requires surgery within 30 minutes'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Acute angle-closure glaucoma causes rapid, irreversible optic nerve damage from high IOP. It must be seen within 10 minutes (Category 1).', 'reasoning_eligible': True},
+                {'stem': 'Rank the following from most urgent to least urgent triage category.', 'options': ['Chemical burn > Total hyphaema > Flash burn > Conjunctivitis', 'Total hyphaema > Chemical burn > Flash burn > Conjunctivitis', 'Flash burn > Chemical burn > Conjunctivitis > Total hyphaema', 'Conjunctivitis > Flash burn > Total hyphaema > Chemical burn'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Chemical burn = Cat 1 (10 min) > Total hyphaema = Cat 2 (30 min) > Flash burn = Cat 3 (60 min) > Conjunctivitis = Cat 4 (2 hr).', 'reasoning_eligible': False},
+                {'stem': 'A myopic patient with a history of retinal tears reports a sudden shower of floaters and a curtain across their vision. What triage category and why?', 'options': ['Category 3 — suspect retinal detachment', 'Category 4 — floaters are benign', 'Category 1 — immediate surgery needed', 'Category 2 — moderate urgency'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A curtain plus shower of floaters in a myope with retinal history strongly suggests retinal detachment — Category 3 (within 60 minutes).', 'reasoning_eligible': False},
+                {'stem': 'Two patients arrive simultaneously: one with conjunctivitis and one with a chemical burn. Who is seen first and why?', 'options': ['Chemical burn — Category 1 is more urgent than Category 4', 'Conjunctivitis — it arrived first', 'Both at the same time', 'Chemical burn — but only after checking VA on both'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Chemical burn is Category 1 (within 10 minutes); conjunctivitis is Category 4 (within 2 hours). The chemical burn patient is seen first.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL features that would make you assign Category 1 to a red eye.', 'options': ['Severe pain with nausea, vomiting, and a fixed mid-dilated pupil', 'Chemical exposure requiring irrigation', 'Mild itchiness with watery discharge', 'Marked discharge with no pain'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Acute angle-closure glaucoma (severe pain, nausea, fixed dilated pupil) and chemical exposure are both Category 1. Mild itchiness and painless discharge are lower categories.', 'reasoning_eligible': True},
+                {'stem': 'A patient presents after blunt trauma with blood filling the entire anterior chamber. What is the condition and its triage category?', 'options': ['Total hyphaema — Category 2', 'Hypopyon — Category 1', 'Subconjunctival haemorrhage — Category 4', 'Vitreous haemorrhage — Category 3'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Blood in the anterior chamber = hyphaema. A total hyphaema is Category 2 (within 30 minutes).', 'reasoning_eligible': False},
+                {'stem': 'Which statement about triage categories is correct?', 'options': ['Category 1 and 2 both require the patient to be seen within 30 minutes', 'Category 3 is for minor or chronic conditions', 'Category 4 patients must be seen within 2 hours', "Categories are assigned based on the patient's age"], 'correct': [2], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Category 4 = within 2 hours (minor/chronic). Category 1 = within 10 min (not 30). Category 3 = within 60 min (not minor). Categories are based on clinical urgency, not age.', 'reasoning_eligible': False},
+                {'stem': 'Why is it important not to delay irrigation for a chemical burn even if the patient is in severe pain?', 'options': ['The chemical causes ongoing tissue damage every second — irrigation must not be delayed', 'Pain will resolve once irrigation starts', 'The chemical neutralises itself after 10 minutes', 'Irrigation is only effective within the first minute'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Chemical burns cause progressive tissue destruction. Immediate irrigation limits damage regardless of pain level.', 'reasoning_eligible': False},
+                {'stem': 'A patient with uveitis (iritis) presents with photophobia, a small pupil, and moderate pain. What triage category?', 'options': ['Category 1', 'Category 2', 'Category 3', 'Category 4'], 'correct': [1], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Uveitis is an ocular emergency. With moderate pain and photophobia, it is Category 2 (within 30 minutes) unless vision is severely threatened, which would escalate to Category 1.', 'reasoning_eligible': False},
+                {'stem': 'Three patients arrive together: (A) a routine cataract review, (B) an alkali splash 2 minutes ago, (C) a stye. Correct order of attention is:', 'options': ['B first (irrigate the chemical burn), then A and C by routine order', 'A first because booked', 'C first because painful', 'Whoever complains loudest'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The chemical burn is a Category 1, time-critical emergency; it is irrigated immediately, ahead of routine and minor cases.', 'reasoning_eligible': True},
+                {'stem': 'A patient after a fall has diplopia on looking up, a numb cheek, and the eye appears sunken. This picture suggests:', 'options': ['An orbital (blow-out) floor fracture with possible muscle entrapment - needs urgent assessment', 'Simple conjunctivitis', 'A refractive error', 'Presbyopia'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Diplopia in up-gaze, infraorbital numbness and enophthalmos indicate an orbital floor fracture; entrapment requires prompt referral.', 'reasoning_eligible': True},
+                {'stem': 'When you suspect an open-globe (penetrating) injury, which set of triage actions is correct?', 'options': ['No drops/ointment, no pressure, apply a rigid shield, keep patient nil-by-mouth and escalate', 'Pad firmly and give ointment', 'Remove any foreign body and irrigate hard', 'Reassure and book a routine slot'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'For a suspected ruptured globe: avoid pressure and drops, shield (not pad) the eye, keep NBM in case of surgery, and refer immediately.', 'reasoning_eligible': True},
+                {'stem': 'Which combination of examination signs most strongly indicates a ruptured (open) globe rather than a simple contusion?', 'options': ['A peaked pupil, prolapsing uveal tissue, shallow anterior chamber and lost red reflex', 'A round reactive pupil and clear cornea', 'Mild lid bruising alone', 'A subconjunctival haemorrhage that is resolving'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A peaked pupil, uveal prolapse, shallow AC and loss of the red reflex point to globe rupture - shield and refer, do not manipulate.', 'reasoning_eligible': True},
             ],
         },
         "ocular_emergencies": {
