@@ -758,7 +758,7 @@ git push origin main
 - [x] anatomy_physiology — A&PPartI/II/III
 - [x] microbiology_infection — Microbiology 2025, OTOAInfectionControl
 - [x] pharmacology — Harold Stein Chap 4, Duke NUS Pharmacology
-- [ ] ocular_emergencies — OcularEmergencies-RFoo, chemical eye burns update
+- [x] ocular_emergencies — OcularEmergencies-RFoo, chemical eye burns update
 - [ ] professional_ethics — Medical Ethics, Professional Etiquette, CommunicationSkills, MSW role, Nursing Informatics
 - [ ] disorders_eyelid_lacrimal_orbit — eyelid/lacrimal/orbit disease docs (chalazion, ectropion, entropion, ptosis, lacrimal, orbit, TED)
 - [ ] disorders_cornea_conjunctiva — Cornea/Sclera/Conjunctiva disease docs, contact lens infection, OphthalmicAssistant Ch14
