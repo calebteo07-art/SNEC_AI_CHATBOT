@@ -765,7 +765,7 @@ git push origin main
 - [x] disorders_lens_cataract — Disorders of the Lens, cataract/perioperative content
 - [x] disorders_uvea_retina — Uvea/Retina/Uveitis/Angiography/Inflammation docs, GRT research
 - [x] glaucoma — Glaucoma, ocular-surface-in-glaucoma research
-- [ ] neuro_strabismus — nerve palsy, amblyopia, strabismus, EOM, optic neuritis/GCA, orthoptics
+- [x] neuro_strabismus — nerve palsy, amblyopia, strabismus, EOM, optic neuritis/GCA, orthoptics
 - [ ] systemic_disease — Diabetes, Hypertension, Asthma, systemic disorders, IOP/BMI research
 
 **CLINICAL (14)** — top up existing to 50:
