@@ -1483,275 +1483,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "perioperative": {
             "easy": [
-                {
-                    "stem": "Select ALL results typically recorded in a pre-operative "
-                            "assessment.",
-                    "options": ["ECG", "Blood pressure",
-                                "Blood sugar", "Favourite food"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "A pre-op assessment records results such as ECG, "
-                                   "blood pressure and blood/urine sugar.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is covered in pre-operative counselling?",
-                    "options": [
-                        "Date of surgery, current medications and fasting requirement",
-                        "The patient's hobbies",
-                        "Only the surgery fee",
-                        "The colour of the theatre gown",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Pre-op counselling covers the surgery date, current "
-                                   "medications and the fasting requirement.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "For cataract surgery, what vision is recorded at the "
-                            "post-op dressing?",
-                    "options": ["Vision pre-surgery and post-surgery",
-                                "Only the pre-surgery vision",
-                                "Only colour vision",
-                                "No vision is recorded"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "At the post-op dressing, both the pre-surgery and "
-                                   "post-surgery vision are recorded.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL structures observed during a post-op dressing.",
-                    "options": ["The lids", "The conjunctiva",
-                                "The wound section", "The patient's ears"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "The lids, conjunctiva and wound section are "
-                                   "inspected at the post-op dressing.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Abnormal post-op findings should be reported to whom?",
-                    "options": ["The nurse-in-charge", "No one",
-                                "The receptionist", "Another patient"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Report any abnormal post-op finding to the "
-                                   "nurse-in-charge.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is fasting status documented before surgery?",
-                    "options": [
-                        "To ensure the patient is safely prepared for "
-                        "anaesthesia/surgery",
-                        "To decide the lunch order",
-                        "It is not actually needed",
-                        "To calculate the IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Fasting status is documented to ensure the patient "
-                                   "is safe for anaesthesia and surgery.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Select ALL results typically recorded in a pre-operative assessment.', 'options': ['ECG', 'Blood pressure', 'Blood sugar', 'Favourite food'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'A pre-op assessment records results such as ECG, blood pressure and blood/urine sugar.', 'reasoning_eligible': False},
+                {'stem': 'What is covered in pre-operative counselling?', 'options': ['Date of surgery, current medications and fasting requirement', "The patient's hobbies", 'Only the surgery fee', 'The colour of the theatre gown'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Pre-op counselling covers the surgery date, current medications and the fasting requirement.', 'reasoning_eligible': False},
+                {'stem': 'For cataract surgery, what vision is recorded at the post-op dressing?', 'options': ['Vision pre-surgery and post-surgery', 'Only the pre-surgery vision', 'Only colour vision', 'No vision is recorded'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'At the post-op dressing, both the pre-surgery and post-surgery vision are recorded.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL structures observed during a post-op dressing.', 'options': ['The lids', 'The conjunctiva', 'The wound section', "The patient's ears"], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'The lids, conjunctiva and wound section are inspected at the post-op dressing.', 'reasoning_eligible': False},
+                {'stem': 'Abnormal post-op findings should be reported to whom?', 'options': ['The nurse-in-charge', 'No one', 'The receptionist', 'Another patient'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Report any abnormal post-op finding to the nurse-in-charge.', 'reasoning_eligible': False},
+                {'stem': 'Why is fasting status documented before surgery?', 'options': ['To ensure the patient is safely prepared for anaesthesia/surgery', 'To decide the lunch order', 'It is not actually needed', 'To calculate the IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Fasting status is documented to ensure the patient is safe for anaesthesia and surgery.', 'reasoning_eligible': False},
+                {'stem': 'Before eye surgery, valid informed consent must be:', 'options': ['Obtained for the specific procedure and eye', 'Skipped if the patient looks willing', 'Signed only after surgery', 'Given verbally with no record'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Documented informed consent for the correct procedure and eye is a fundamental pre-operative safety step.', 'reasoning_eligible': False},
+                {'stem': 'Which anaesthesia options may be recorded for eye surgery?', 'options': ['General, local (regional) or topical', 'Only general anaesthesia', 'Only acupuncture', 'None are ever used'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Eye surgery may use general anaesthesia, local/regional blocks, or topical (drop) anaesthesia, noted on the pre-op form.', 'reasoning_eligible': False},
+                {'stem': 'For cataract surgery, the lens implant (IOL) power is determined before surgery by:', 'options': ['Biometry (ocular measurements)', "Guessing from the patient's age", 'The Amsler grid', 'Colour vision testing'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Biometry measures the eye to calculate the correct intraocular lens power for the planned refractive outcome.', 'reasoning_eligible': False},
+                {'stem': 'A patient having surgery under general anaesthesia is asked to fast beforehand because:', 'options': ['A full stomach risks aspiration under anaesthesia', 'Fasting improves the vision', 'It lowers the eye pressure', 'It is just tradition'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Fasting (nil-by-mouth) reduces the risk of stomach contents being aspirated into the lungs during anaesthesia.', 'reasoning_eligible': False},
+                {'stem': 'On return to the ward after surgery, which observations are recorded?', 'options': ['Vital signs (BP, pulse, respiratory rate) and post-op medication', "Only the patient's weight", 'The room temperature', "The next patient's details"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Post-operative monitoring records vitals (BP/PR/RR), the eye operated, medications and the follow-up (TCU) date.', 'reasoning_eligible': False},
+                {'stem': 'After eye surgery a protective ______ is often applied to guard the operated eye.', 'options': ['Eye shield', 'Contact lens', 'Pinhole', 'Colour filter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A rigid eye shield protects the healing eye, especially at night, from accidental rubbing or knocks.', 'reasoning_eligible': False},
+                {'stem': "'TCU' recorded after surgery refers to the:", 'options': ['Follow-up (to-come-up / return) appointment', 'Type of cataract', 'Total corneal ulcer', 'Tonometer calibration unit'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'TCU is the scheduled follow-up visit, recorded so the patient is reviewed after surgery.', 'reasoning_eligible': False},
+                {'stem': 'A patient must be asked about allergies before surgery because:', 'options': ['Anaesthetics, antibiotics or antiseptics could trigger a reaction', 'It predicts the refraction', 'It changes the IOL power', 'Allergies do not matter for surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Known allergies (drugs, antiseptics, latex) are documented to avoid a peri-operative allergic or anaphylactic reaction.', 'reasoning_eligible': False},
+                {'stem': 'The pre-op assessment mnemonic captures Diagnosis, Indication, Surgery and:', 'options': ['Medical condition (with the eye and anaesthesia type)', 'Marital status', 'Meal preference', 'Music choice'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pre-op record notes Diagnosis, Indication, Surgery, Medical condition, plus the eye and anaesthesia (GA/LA/topical).', 'reasoning_eligible': False},
+                {'stem': 'Which staff member should abnormal post-operative eye findings be reported to?', 'options': ['The doctor / nurse in charge', 'No one', 'The next patient', 'The receptionist only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Any abnormal post-op finding is escalated promptly to the doctor/nurse so complications are managed early.', 'reasoning_eligible': False},
+                {'stem': 'After cataract surgery, a small amount of which of these is usually EXPECTED and not alarming?', 'options': ['Mild grittiness/foreign-body sensation and watering', 'Severe pain with vision loss', 'A hypopyon', 'Sudden total blindness'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Mild grittiness and watering are normal early after surgery; severe pain, redness or vision loss are red flags.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Select ALL abnormal lid/conjunctiva findings to watch for "
-                            "after surgery.",
-                    "options": ["Lid oedema or redness", "Discharge",
-                                "Conjunctival redness or chemosis",
-                                "A calm, white, comfortable eye"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Lid oedema/redness, discharge and conjunctival "
-                                   "redness/chemosis are abnormal. A calm white eye is "
-                                   "the normal, reassuring finding.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL wound-section problems to look for after "
-                            "surgery.",
-                    "options": ["Haematoma", "Loose sutures",
-                                "Signs of infection", "A clean, intact wound"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Watch for haematoma, loose sutures and signs of "
-                                   "infection at the wound. A clean intact wound is "
-                                   "normal.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is an anticoagulant important in pre-op planning?",
-                    "options": [
-                        "It increases bleeding risk and may affect the surgical plan",
-                        "It improves wound healing",
-                        "It changes the IOL power",
-                        "It has no surgical relevance",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Anticoagulants raise bleeding risk and may change "
-                                   "how or when surgery is done, so they must be known "
-                                   "beforehand.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient has increasing pain, redness and worsening "
-                            "vision a few days after surgery. What is the concern?",
-                    "options": [
-                        "A serious complication such as endophthalmitis — escalate "
-                        "urgently",
-                        "Normal healing — reassure and discharge",
-                        "A refractive change — order glasses",
-                        "Dry eye — give lubricants",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Increasing pain, redness and falling vision after "
-                                   "surgery suggest endophthalmitis (infection inside "
-                                   "the eye) — a sight-threatening emergency to "
-                                   "escalate urgently.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why confirm current medications during pre-op counselling?",
-                    "options": [
-                        "Some drugs (e.g. anticoagulants) affect surgical safety and "
-                        "planning",
-                        "Only to fill the form",
-                        "Medications never matter for eye surgery",
-                        "To decide the appointment time",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Knowing current medications (especially blood "
-                                   "thinners) is essential for surgical safety and "
-                                   "planning.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A diabetic patient's blood sugar is very high on the "
-                            "morning of surgery. What is the appropriate step?",
-                    "options": ["Flag it to the nurse/doctor before the patient "
-                                "proceeds",
-                                "Proceed regardless",
-                                "Send the patient home without telling anyone",
-                                "Give them sugar to balance it"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Abnormal pre-op results (like very high blood "
-                                   "sugar) should be flagged to the nurse/doctor before "
-                                   "surgery proceeds.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Select ALL abnormal lid/conjunctiva findings to watch for after surgery.', 'options': ['Lid oedema or redness', 'Discharge', 'Conjunctival redness or chemosis', 'A calm, white, comfortable eye'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Lid oedema/redness, discharge and conjunctival redness/chemosis are abnormal. A calm white eye is the normal, reassuring finding.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL wound-section problems to look for after surgery.', 'options': ['Haematoma', 'Loose sutures', 'Signs of infection', 'A clean, intact wound'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Watch for haematoma, loose sutures and signs of infection at the wound. A clean intact wound is normal.', 'reasoning_eligible': False},
+                {'stem': 'Why is an anticoagulant important in pre-op planning?', 'options': ['It increases bleeding risk and may affect the surgical plan', 'It improves wound healing', 'It changes the IOL power', 'It has no surgical relevance'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Anticoagulants raise bleeding risk and may change how or when surgery is done, so they must be known beforehand.', 'reasoning_eligible': True},
+                {'stem': 'A patient has increasing pain, redness and worsening vision a few days after surgery. What is the concern?', 'options': ['A serious complication such as endophthalmitis — escalate urgently', 'Normal healing — reassure and discharge', 'A refractive change — order glasses', 'Dry eye — give lubricants'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Increasing pain, redness and falling vision after surgery suggest endophthalmitis (infection inside the eye) — a sight-threatening emergency to escalate urgently.', 'reasoning_eligible': True},
+                {'stem': 'Why confirm current medications during pre-op counselling?', 'options': ['Some drugs (e.g. anticoagulants) affect surgical safety and planning', 'Only to fill the form', 'Medications never matter for eye surgery', 'To decide the appointment time'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Knowing current medications (especially blood thinners) is essential for surgical safety and planning.', 'reasoning_eligible': False},
+                {'stem': "A diabetic patient's blood sugar is very high on the morning of surgery. What is the appropriate step?", 'options': ['Flag it to the nurse/doctor before the patient proceeds', 'Proceed regardless', 'Send the patient home without telling anyone', 'Give them sugar to balance it'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Abnormal pre-op results (like very high blood sugar) should be flagged to the nurse/doctor before surgery proceeds.', 'reasoning_eligible': True},
+                {'stem': "A surgical 'time-out' (WHO checklist) is performed before starting to confirm:", 'options': ['The correct patient, procedure and correct/marked eye', 'The lunch order', 'The parking arrangements', "The next day's list"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The team time-out verifies patient, procedure and the marked operative eye to prevent wrong-site surgery.', 'reasoning_eligible': True},
+                {'stem': 'Why is the operative eye MARKED before surgery?', 'options': ['To prevent wrong-eye (wrong-site) surgery', 'To improve the IOL power', 'To dilate the pupil', 'For decoration'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A clear preoperative mark on the correct eye, checked at time-out, is a key barrier against operating on the wrong eye.', 'reasoning_eligible': True},
+                {'stem': 'A patient on warfarin is listed for surgery. Why does this need pre-op planning?', 'options': ["Anticoagulation raises bleeding risk and may need adjustment per the surgeon's plan", 'It changes the IOL colour', 'It has no bearing on surgery', 'It only matters after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Anticoagulants/antiplatelets increase bleeding risk; the team decides whether to continue, adjust or bridge them before surgery.', 'reasoning_eligible': True},
+                {'stem': "On the morning of surgery a diabetic patient's blood glucose is very high. The appropriate step is to:", 'options': ['Flag it to the surgical/anaesthetic team before proceeding', 'Ignore it and continue', 'Give extra dilating drops', 'Cancel all future surgery permanently'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Markedly abnormal glucose can affect anaesthesia and healing; it is escalated to the team who decide how to proceed.', 'reasoning_eligible': True},
+                {'stem': 'Pre-operative eye drops before cataract surgery typically include:', 'options': ['Dilating drops (and often an antibiotic)', 'Only lubricants', 'Only anaesthetic for the whole day', 'No drops at all'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The pupil is dilated (and antisepsis/antibiotic given) to allow safe access to the lens during cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'After surgery, a patient is usually advised to AVOID which activities for a period?', 'options': ['Rubbing the eye, swimming, and heavy lifting/straining', 'Blinking and breathing', 'Wearing their eye shield', 'Attending follow-up'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Rubbing, swimming and straining can stress the wound or introduce infection; patients are counselled to avoid them while healing.', 'reasoning_eligible': True},
+                {'stem': "Why confirm the patient's CURRENT medications during pre-op counselling?", 'options': ['Some drugs (e.g. anticoagulants, tamsulosin) affect bleeding or surgery and must be planned for', 'It is only for the record', 'Medications never affect eye surgery', 'To calculate the bill'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Drugs such as anticoagulants (bleeding) and alpha-blockers like tamsulosin (floppy-iris) directly affect surgical planning.', 'reasoning_eligible': True},
+                {'stem': 'At the post-op dressing after cataract surgery, the vision recorded is used to:', 'options': ['Provide a baseline of the early post-op visual result', 'Set the IOL power', 'Decide the anaesthesia', 'Replace the follow-up'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the post-op vision documents the early outcome and a baseline for the follow-up review.', 'reasoning_eligible': False},
+                {'stem': 'A patient having LOCAL/topical anaesthesia (awake) for cataract surgery should be counselled that they:', 'options': ['May see lights/movement and should stay still and communicate, but will not feel pain', 'Will be fully asleep', 'Will feel the full surgery', 'Cannot have the surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Under topical/local anaesthesia patients are awake, may perceive light/movement, and should keep still - but the eye is numb.', 'reasoning_eligible': True},
+                {'stem': 'Why are the pre-op vital signs (BP, pulse) recorded before surgery?', 'options': ['To ensure the patient is fit and to give a baseline for peri-operative monitoring', 'To choose the IOL', 'To test colour vision', 'They are not needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Baseline vitals confirm fitness for anaesthesia/surgery and allow comparison if the patient's condition changes.", 'reasoning_eligible': False},
+                {'stem': 'A post-op patient is comfortable with a white, quiet eye but their vision is the SAME as before surgery. This should be:', 'options': ['Documented and reviewed at follow-up - early vision can lag or another factor may exist', 'Treated as an emergency needing surgery tonight', 'Ignored completely', 'Assumed to be a failed operation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Early vision may not yet have improved (residual refraction, coexisting disease); a quiet comfortable eye is documented and reviewed at TCU.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient returns 3 days after cataract surgery with "
-                            "increasing pain, a red eye, a hypopyon and dropping "
-                            "vision. What is the likely diagnosis and action?",
-                    "options": [
-                        "Endophthalmitis — escalate as a sight-threatening emergency",
-                        "Normal post-op inflammation — reassure",
-                        "A stye — warm compresses",
-                        "Allergic reaction — antihistamine",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Worsening pain, redness, a hypopyon and falling "
-                                   "vision after surgery are classic for "
-                                   "endophthalmitis — escalate immediately.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL post-op findings that warrant urgent "
-                            "escalation rather than routine reassurance.",
-                    "options": [
-                        "Increasing pain with worsening vision",
-                        "A hypopyon (pus in the anterior chamber)",
-                        "Marked, increasing redness and discharge",
-                        "A comfortable white eye with stable vision",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Worsening pain/vision, a hypopyon, and "
-                                   "increasing redness/discharge are red flags. A "
-                                   "comfortable white eye with stable vision is "
-                                   "reassuring.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does a thorough pre-op assessment (vitals, sugars, "
-                            "medications, fasting) matter beyond the eye itself?",
-                    "options": [
-                        "Systemic factors affect anaesthetic and surgical safety, not "
-                        "just the eye",
-                        "Only the eye matters in eye surgery",
-                        "It is purely administrative",
-                        "It replaces the surgeon's assessment",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Blood pressure, sugars, medications and fasting all "
-                                   "affect how safely the patient tolerates anaesthesia "
-                                   "and surgery — the whole patient matters.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must the correct eye be confirmed (and marked) before "
-                            "eye surgery?",
-                    "options": [
-                        "To prevent wrong-eye surgery — a critical safety step",
-                        "To decide which eye is dilated",
-                        "For billing purposes only",
-                        "It is not really necessary",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Confirming and marking the correct eye prevents "
-                                   "wrong-eye surgery, a never-event the whole team "
-                                   "guards against.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A post-op patient is comfortable with a white eye but "
-                            "their vision is the same as before surgery. What is the "
-                            "appropriate interpretation?",
-                    "options": [
-                        "Recovery can take time; record findings and follow the normal "
-                        "review plan, escalating only if red flags appear",
-                        "This always means the surgery failed",
-                        "Escalate as an emergency immediately",
-                        "Tell the patient nothing will improve",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A quiet, comfortable eye without red flags is "
-                                   "reassuring; vision often improves over the early "
-                                   "recovery period. Record and follow the review plan, "
-                                   "escalating only if warning signs appear.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A patient returns 3 days after cataract surgery with increasing pain, a red eye, a hypopyon and dropping vision. What is the likely diagnosis and action?', 'options': ['Endophthalmitis — escalate as a sight-threatening emergency', 'Normal post-op inflammation — reassure', 'A stye — warm compresses', 'Allergic reaction — antihistamine'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Worsening pain, redness, a hypopyon and falling vision after surgery are classic for endophthalmitis — escalate immediately.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL post-op findings that warrant urgent escalation rather than routine reassurance.', 'options': ['Increasing pain with worsening vision', 'A hypopyon (pus in the anterior chamber)', 'Marked, increasing redness and discharge', 'A comfortable white eye with stable vision'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Worsening pain/vision, a hypopyon, and increasing redness/discharge are red flags. A comfortable white eye with stable vision is reassuring.', 'reasoning_eligible': True},
+                {'stem': 'Why does a thorough pre-op assessment (vitals, sugars, medications, fasting) matter beyond the eye itself?', 'options': ['Systemic factors affect anaesthetic and surgical safety, not just the eye', 'Only the eye matters in eye surgery', 'It is purely administrative', "It replaces the surgeon's assessment"], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Blood pressure, sugars, medications and fasting all affect how safely the patient tolerates anaesthesia and surgery — the whole patient matters.', 'reasoning_eligible': True},
+                {'stem': 'Why must the correct eye be confirmed (and marked) before eye surgery?', 'options': ['To prevent wrong-eye surgery — a critical safety step', 'To decide which eye is dilated', 'For billing purposes only', 'It is not really necessary'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirming and marking the correct eye prevents wrong-eye surgery, a never-event the whole team guards against.', 'reasoning_eligible': False},
+                {'stem': 'A post-op patient is comfortable with a white eye but their vision is the same as before surgery. What is the appropriate interpretation?', 'options': ['Recovery can take time; record findings and follow the normal review plan, escalating only if red flags appear', 'This always means the surgery failed', 'Escalate as an emergency immediately', 'Tell the patient nothing will improve'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A quiet, comfortable eye without red flags is reassuring; vision often improves over the early recovery period. Record and follow the review plan, escalating only if warning signs appear.', 'reasoning_eligible': True},
+                {'stem': 'A patient returns 3 days after cataract surgery with increasing pain, a red eye, a hypopyon and dropping vision. The priority is:', 'options': ['Treat as endophthalmitis - a blinding emergency needing immediate escalation', 'Reassure and review next month', 'Give lubricants and discharge', 'Prescribe reading glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-op pain, hypopyon and falling vision indicate endophthalmitis; urgent tap-and-inject/antibiotics are needed to save sight.', 'reasoning_eligible': True},
+                {'stem': 'A patient on tamsulosin (an alpha-blocker for the prostate) is listed for cataract surgery. Why flag this?', 'options': ['It causes intra-operative floppy iris syndrome, so the surgeon must plan for it', 'It changes the eye colour', 'It has no surgical relevance', 'It cures the cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Tamsulosin relaxes the iris dilator, causing floppy-iris syndrome; forewarning lets the surgeon use techniques to manage it.', 'reasoning_eligible': True},
+                {'stem': 'Which post-op findings warrant URGENT escalation rather than routine reassurance?', 'options': ['Increasing pain, marked redness, discharge, a hypopyon, or dropping vision', 'Mild grittiness and slight watering', 'A small subconjunctival haemorrhage with good vision', 'Expected mild blur on day one'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Escalating pain, redness, discharge, hypopyon or vision loss suggest infection/complication; mild grit/watering/redness are usually benign.', 'reasoning_eligible': True},
+                {'stem': 'Why must the correct eye be confirmed AND marked, then re-checked at the time-out?', 'options': ["Multiple independent checks make wrong-eye surgery, a 'never event', far less likely", 'One quick glance is enough', 'Marking improves the IOL power', 'It is only a formality with no safety value'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Wrong-site surgery is a catastrophic 'never event'; layered checks (consent, mark, time-out) provide redundant safety barriers.", 'reasoning_eligible': True},
+                {'stem': 'Why does a thorough pre-op assessment (vitals, glucose, medications, fasting) matter beyond the eye itself?', 'options': ['Systemic factors affect anaesthetic safety, bleeding and healing, not just the eye', 'The eye is the only concern', 'It is purely administrative', 'Systemic health never affects surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Anaesthesia and healing depend on the whole patient; uncontrolled BP, glucose or anticoagulation can cause serious complications.', 'reasoning_eligible': True},
+                {'stem': 'During the pre-op check you find the consent form names the LEFT eye but the biometry and plan are for the RIGHT eye. You should:', 'options': ['Stop and resolve the discrepancy with the surgeon before proceeding', 'Proceed with the left eye as written', 'Pick whichever eye looks worse', 'Ignore it - forms often differ'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A mismatch between consent and the surgical plan is a red flag for wrong-site surgery; it must be clarified before going ahead.', 'reasoning_eligible': True},
+                {'stem': 'A patient is very anxious about being awake for topical-anaesthesia cataract surgery. The best pre-op action is to:', 'options': ['Explain what to expect, reassure, and inform the team so support can be arranged', 'Tell them to just cope', 'Cancel the surgery without discussion', 'Give them a stronger dilating drop'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Clear explanation and reassurance, with the team informed, reduce anxiety and help the awake patient cooperate safely.', 'reasoning_eligible': True},
+                {'stem': 'Why must the IOL selected in theatre be checked against the biometry for the CORRECT eye and power?', 'options': ['Implanting the wrong-power or wrong-eye lens gives a poor refractive result and may need re-operation', 'IOL power never matters', 'Any lens works equally', 'It only affects the colour of vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The IOL is patient- and eye-specific; a mismatch causes a large refractive surprise, so it is verified against the biometry.', 'reasoning_eligible': True},
+                {'stem': 'A post-op patient reports new flashes, floaters and a shadow days after surgery. This should prompt concern for:', 'options': ['Retinal detachment - a recognised post-op complication needing urgent review', 'Normal healing only', 'A refractive error', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Flashes, floaters and a field shadow can indicate a post-operative retinal detachment, which requires prompt assessment.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about peri-operative care is CORRECT?', 'options': ['Confirm identity/consent/eye, screen systemic fitness, counsel the patient, and monitor and safety-net after surgery', 'Only the surgery itself matters', 'Consent and eye-marking are optional', 'Post-op red flags can always be ignored'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe peri-operative care spans correct identity/consent/eye, systemic assessment, counselling, and post-op monitoring with clear safety-netting.', 'reasoning_eligible': True},
+                {'stem': 'Why is a patient told they must NOT drive themselves home after eye surgery?', 'options': ['Anaesthesia, dilation, a shield/pad and blurred vision make driving unsafe', 'It is a legal tax', 'Driving improves healing', 'There is no reason'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-op blur, a padded/shielded eye and residual sedation impair driving; patients arrange alternative transport home.', 'reasoning_eligible': True},
             ],
         },
         "abbreviations": {
