@@ -1309,287 +1309,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "colour_vision": {
             "easy": [
-                {
-                    "stem": "What does the Ishihara chart test for?",
-                    "options": ["Colour vision deficiency (commonly red-green)",
-                                "Visual field loss",
-                                "Eye pressure",
-                                "Near vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Ishihara chart tests for colour vision "
-                                   "deficiency, most often red-green.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How does the patient respond to an Ishihara plate?",
-                    "options": ["By identifying the number formed within the coloured "
-                                "dots",
-                                "By pressing a buzzer when they see light",
-                                "By reading letters on a chart",
-                                "By following a moving target"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The patient names the number hidden within the "
-                                   "coloured dots of each plate.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How is an Ishihara result documented?",
-                    "options": ["As the number of plates read correctly",
-                                "As a Snellen fraction",
-                                "As mmHg",
-                                "As N5"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The result is recorded as the number of plates read "
-                                   "correctly (e.g. 13/17).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How is each eye tested with the Ishihara chart?",
-                    "options": ["Separately (one eye at a time)",
-                                "Both eyes together only",
-                                "With both eyes closed",
-                                "Only the better eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Each eye is tested separately so a one-sided defect "
-                                   "is not missed.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which plate version helps a patient who cannot read "
-                            "numbers?",
-                    "options": ["The winding-line (tracing) plates",
-                                "The tumbling E chart",
-                                "The Amsler grid",
-                                "The Goldmann chart"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Winding-line (tracing) plates let the patient trace "
-                                   "a path instead of reading a number.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why ensure good lighting and no tinted lenses during the "
-                            "Ishihara test?",
-                    "options": ["To keep the test valid and avoid false results",
-                                "To make the colours brighter than real life",
-                                "To speed up the test",
-                                "It does not matter"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Tinted lenses or poor lighting can change how "
-                                   "colours appear, giving false results — so they are "
-                                   "avoided.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A reduced number of plates read correctly suggests what?",
-                    "options": ["A colour vision deficiency",
-                                "Perfect colour vision",
-                                "A cataract",
-                                "Raised eye pressure"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Reading fewer plates correctly than expected "
-                                   "suggests a colour vision deficiency.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the Ishihara chart test for?', 'options': ['Colour vision deficiency (commonly red-green)', 'Visual field loss', 'Eye pressure', 'Near vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Ishihara chart tests for colour vision deficiency, most often red-green.', 'reasoning_eligible': False},
+                {'stem': 'How does the patient respond to an Ishihara plate?', 'options': ['By identifying the number formed within the coloured dots', 'By pressing a buzzer when they see light', 'By reading letters on a chart', 'By following a moving target'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The patient names the number hidden within the coloured dots of each plate.', 'reasoning_eligible': False},
+                {'stem': 'How is an Ishihara result documented?', 'options': ['As the number of plates read correctly', 'As a Snellen fraction', 'As mmHg', 'As N5'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The result is recorded as the number of plates read correctly (e.g. 13/17).', 'reasoning_eligible': False},
+                {'stem': 'How is each eye tested with the Ishihara chart?', 'options': ['Separately (one eye at a time)', 'Both eyes together only', 'With both eyes closed', 'Only the better eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Each eye is tested separately so a one-sided defect is not missed.', 'reasoning_eligible': False},
+                {'stem': 'Which plate version helps a patient who cannot read numbers?', 'options': ['The winding-line (tracing) plates', 'The tumbling E chart', 'The Amsler grid', 'The Goldmann chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Winding-line (tracing) plates let the patient trace a path instead of reading a number.', 'reasoning_eligible': False},
+                {'stem': 'Why ensure good lighting and no tinted lenses during the Ishihara test?', 'options': ['To keep the test valid and avoid false results', 'To make the colours brighter than real life', 'To speed up the test', 'It does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Tinted lenses or poor lighting can change how colours appear, giving false results — so they are avoided.', 'reasoning_eligible': False},
+                {'stem': 'A reduced number of plates read correctly suggests what?', 'options': ['A colour vision deficiency', 'Perfect colour vision', 'A cataract', 'Raised eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Reading fewer plates correctly than expected suggests a colour vision deficiency.', 'reasoning_eligible': False},
+                {'stem': 'The Ishihara test uses plates made of coloured dots to detect mainly:', 'options': ['Red-green colour deficiency', 'Cataract', 'High eye pressure', 'Astigmatism'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Ishihara pseudoisochromatic plates screen for red-green colour vision deficiency.', 'reasoning_eligible': False},
+                {'stem': 'The Ishihara test should be performed under:', 'options': ['Good natural daylight-type illumination', 'Dim red light', 'Coloured spotlights', 'Complete darkness'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Standardised daylight-quality lighting is required; coloured or dim light alters the appearance of the plates.', 'reasoning_eligible': False},
+                {'stem': 'Each eye is tested for colour vision:', 'options': ['Separately (one eye at a time)', 'Only together', 'Only the right eye', 'Through both eyes at once for speed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Monocular testing can reveal an acquired defect affecting one eye that binocular testing would mask.', 'reasoning_eligible': False},
+                {'stem': 'An Ishihara result is usually documented as:', 'options': ['The number of plates read correctly out of the total (e.g. 15/17)', 'A single pass/fail with no number', 'The eye pressure', 'The refraction'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording plates correct/total (per eye) gives a quantitative, comparable colour-vision result.', 'reasoning_eligible': False},
+                {'stem': 'For a patient who cannot read numbers, the Ishihara book offers plates that use:', 'options': ['A winding/traceable line to follow', 'Musical notes', 'Spoken words', 'Braille dots'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Tracing (winding-line) plates let non-readers and children demonstrate colour discrimination by following a path.', 'reasoning_eligible': False},
+                {'stem': 'Congenital (inherited) red-green colour deficiency is much more common in:', 'options': ['Males (it is X-linked recessive)', 'Females', 'Only the elderly', 'Only children under 5'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Red-green deficiency is X-linked recessive, affecting roughly 8% of males but far fewer females.', 'reasoning_eligible': False},
+                {'stem': 'Tinted contact lenses or coloured glasses should be removed before the Ishihara test because they:', 'options': ['Alter the colours and invalidate the result', 'Improve accuracy', 'Are required for the test', 'Lower the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Coloured lenses change the plate appearance, giving a false result; the test is done without any tint.', 'reasoning_eligible': True},
+                {'stem': 'Colour vision testing is sometimes required before certain jobs because:', 'options': ['Some occupations (pilots, electricians, drivers) depend on accurate colour discrimination', 'It measures intelligence', 'It predicts eye pressure', 'It replaces a driving test'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safety-critical roles that rely on colour codes/signals require proven normal colour vision.', 'reasoning_eligible': False},
+                {'stem': 'Reading fewer plates correctly than normal suggests:', 'options': ['A colour vision deficiency (congenital or acquired)', 'Perfect colour vision', 'High eye pressure', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A reduced score indicates impaired colour discrimination that then needs congenital-versus-acquired characterisation.', 'reasoning_eligible': False},
+                {'stem': 'How should the patient respond to each Ishihara plate?', 'options': ['State the number they see (or trace the line) promptly, within a few seconds', 'Stare for a full minute each', 'Guess the same number every time', 'Describe the colours only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A prompt response (about 3 seconds) per plate is expected; long hesitation or tracing errors are noted.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Is congenital colour deficiency usually symmetrical or "
-                            "asymmetrical?",
-                    "options": ["Symmetrical (both eyes) and lifelong",
-                                "Asymmetrical and recent",
-                                "Present in one eye only",
-                                "It comes and goes"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Congenital colour deficiency is usually symmetrical "
-                                   "(both eyes equally) and lifelong.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A recent colour change that is worse in one eye suggests "
-                            "congenital or acquired deficiency?",
-                    "options": ["Acquired — it needs doctor review",
-                                "Congenital — no action needed",
-                                "Normal ageing — reassure",
-                                "A testing error only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A recent, one-eye-worse change points to an "
-                                   "acquired cause (e.g. optic nerve disease) and needs "
-                                   "doctor review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How do you adapt the Ishihara test for a patient who "
-                            "cannot read numbers (e.g. a young child or non-reader)?",
-                    "options": ["Use the winding-line (tracing) plates",
-                                "Skip the test entirely",
-                                "Read the numbers out for them",
-                                "Use the Snellen chart instead"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Winding-line plates let non-readers trace the path, "
-                                   "so the test still works.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is each eye tested separately for colour vision?",
-                    "options": [
-                        "A one-sided (acquired) defect would be missed if both eyes "
-                        "were tested together",
-                        "It is faster than testing together",
-                        "The plates only work for one eye",
-                        "It has no real reason",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Testing eyes separately catches a one-sided "
-                                   "(acquired) defect that binocular testing could "
-                                   "mask.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why might colour vision testing be required for certain "
-                            "occupations?",
-                    "options": [
-                        "Some jobs (e.g. pilots, electricians) depend on accurate "
-                        "colour discrimination for safety",
-                        "It predicts the patient's eye pressure",
-                        "It replaces a vision test",
-                        "It is only for cosmetic interest",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Colour discrimination matters for safety-critical "
-                                   "jobs, so colour vision is screened for some "
-                                   "occupations.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL conditions for a valid Ishihara test.",
-                    "options": ["Good, natural-style lighting",
-                                "No tinted lenses worn",
-                                "Each eye tested separately",
-                                "The patient guessing quickly under time pressure"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Good lighting, no tinted lenses and separate eye "
-                                   "testing keep the test valid. Rushing/guessing does "
-                                   "not.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Is congenital colour deficiency usually symmetrical or asymmetrical?', 'options': ['Symmetrical (both eyes) and lifelong', 'Asymmetrical and recent', 'Present in one eye only', 'It comes and goes'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Congenital colour deficiency is usually symmetrical (both eyes equally) and lifelong.', 'reasoning_eligible': True},
+                {'stem': 'A recent colour change that is worse in one eye suggests congenital or acquired deficiency?', 'options': ['Acquired — it needs doctor review', 'Congenital — no action needed', 'Normal ageing — reassure', 'A testing error only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A recent, one-eye-worse change points to an acquired cause (e.g. optic nerve disease) and needs doctor review.', 'reasoning_eligible': True},
+                {'stem': 'How do you adapt the Ishihara test for a patient who cannot read numbers (e.g. a young child or non-reader)?', 'options': ['Use the winding-line (tracing) plates', 'Skip the test entirely', 'Read the numbers out for them', 'Use the Snellen chart instead'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Winding-line plates let non-readers trace the path, so the test still works.', 'reasoning_eligible': False},
+                {'stem': 'Why is each eye tested separately for colour vision?', 'options': ['A one-sided (acquired) defect would be missed if both eyes were tested together', 'It is faster than testing together', 'The plates only work for one eye', 'It has no real reason'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Testing eyes separately catches a one-sided (acquired) defect that binocular testing could mask.', 'reasoning_eligible': True},
+                {'stem': 'Why might colour vision testing be required for certain occupations?', 'options': ['Some jobs (e.g. pilots, electricians) depend on accurate colour discrimination for safety', "It predicts the patient's eye pressure", 'It replaces a vision test', 'It is only for cosmetic interest'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Colour discrimination matters for safety-critical jobs, so colour vision is screened for some occupations.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL conditions for a valid Ishihara test.', 'options': ['Good, natural-style lighting', 'No tinted lenses worn', 'Each eye tested separately', 'The patient guessing quickly under time pressure'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Good lighting, no tinted lenses and separate eye testing keep the test valid. Rushing/guessing does not.', 'reasoning_eligible': False},
+                {'stem': 'Congenital colour deficiency is typically:', 'options': ['Symmetrical (both eyes equally affected) and stable over life', 'Worse in one eye and progressive', 'Present only after age 60', 'Curable with drops'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inherited colour deficiency affects both eyes equally and does not change over time.', 'reasoning_eligible': True},
+                {'stem': 'A colour defect that is WORSE in one eye and recently acquired most suggests:', 'options': ['An acquired cause (e.g. optic nerve or retinal disease)', 'A normal finding', 'Simple inherited colour blindness', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Asymmetry and recent onset point to acquired pathology (often optic-nerve disease), unlike stable symmetrical congenital deficiency.', 'reasoning_eligible': True},
+                {'stem': 'A young child cannot name the numbers. The best adaptation of the Ishihara test is to:', 'options': ['Use the tracing (winding-line) plates and have them follow the path', 'Skip the test', 'Insist they read the numbers', 'Test both eyes together only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Winding-line plates let pre-literate children demonstrate colour vision without needing to read.', 'reasoning_eligible': True},
+                {'stem': 'Why is colour vision tested SEPARATELY in each eye rather than both together?', 'options': ['A one-eye acquired defect could be missed if the good eye compensates binocularly', 'It is faster this way', 'Both eyes never differ', 'The plates only work one eye at a time'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Binocular testing lets the better eye mask a unilateral acquired defect; monocular testing detects it.', 'reasoning_eligible': True},
+                {'stem': 'The two main types of inherited red-green deficiency are:', 'options': ['Protan (red) and deutan (green)', 'Tritan and monochromacy', 'Myopia and hyperopia', 'Open and closed angle'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inherited red-green deficiency is protan (red-weak/blind) or deutan (green-weak/blind); tritan (blue-yellow) is usually acquired.', 'reasoning_eligible': False},
+                {'stem': 'A blue-yellow (tritan) colour defect is important because it is often:', 'options': ['Acquired, suggesting retinal or optic-nerve disease', 'The commonest inherited defect', 'A sign of perfect vision', 'Caused by wearing glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Tritan defects are usually acquired and can signal retinal or optic-nerve pathology, warranting further assessment.', 'reasoning_eligible': True},
+                {'stem': 'Why must lighting be standardised and not tinted for colour testing?', 'options': ['Ambient colour casts change how the plates appear and can produce false results', 'Bright light hurts the eyes', 'It saves electricity', 'It has no effect at all'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The plates rely on subtle colour contrasts; non-standard or tinted lighting shifts these and invalidates the test.', 'reasoning_eligible': True},
+                {'stem': "A patient's optic neuritis is being monitored. Reduced Ishihara score with 'red looks washed out' reflects:", 'options': ['Red desaturation - a sensitive sign of optic-nerve dysfunction', 'A new cataract', 'Normal ageing', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Optic-nerve disease characteristically dulls colour (especially red); reduced colour scores track this dysfunction.', 'reasoning_eligible': True},
+                {'stem': 'Congenital colour deficiency currently has which treatment?', 'options': ['No cure - it is managed with awareness and occupational counselling', 'Eye drops that cure it', 'Laser surgery', 'A short course of tablets'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inherited colour deficiency cannot be cured; management is advice, aids (e.g. tinted filters) and occupational guidance.', 'reasoning_eligible': False},
+                {'stem': "Documenting colour vision as '12/17 right eye, 17/17 left eye' most likely indicates:", 'options': ['An asymmetrical (probably acquired) defect in the right eye to flag', 'Perfectly normal colour vision', 'Inherited deficiency', 'A machine fault'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A one-eye reduction (asymmetry) suggests an acquired cause and should be flagged for clinician review.', 'reasoning_eligible': True},
+                {'stem': "Why is it useful to ask whether a colour problem has 'always been there' or is recent?", 'options': ['Lifelong symmetrical defect suggests congenital; recent onset suggests acquired disease', 'It is only small talk', 'Onset never matters', 'Only the family history matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The timeline separates stable inherited deficiency from an acquired, potentially treatable/serious cause.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A 30-year-old reports their colour vision suddenly seems "
-                            "'washed out' in the LEFT eye over two weeks, with some eye "
-                            "ache on movement. Why is this concerning?",
-                    "options": [
-                        "A recent, one-sided acquired colour defect can signal optic "
-                        "nerve disease (e.g. optic neuritis) — refer",
-                        "It is simple congenital colour blindness",
-                        "Colour vision cannot change in adults",
-                        "It is a normal finding, reassure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A recent unilateral acquired colour defect, "
-                                   "especially with pain on eye movement, suggests "
-                                   "optic nerve disease such as optic neuritis and "
-                                   "needs prompt review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How does the pattern of a defect help distinguish "
-                            "congenital from acquired colour deficiency?",
-                    "options": [
-                        "Congenital is symmetrical, stable and lifelong; acquired is "
-                        "often one-sided, recent or changing",
-                        "They are impossible to tell apart",
-                        "Congenital is always one-sided",
-                        "Acquired is always symmetrical and lifelong",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Congenital deficiency is symmetrical and stable; "
-                                   "acquired deficiency tends to be asymmetrical, recent "
-                                   "or progressive — a key clue to refer.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL findings that should prompt referral after a "
-                            "colour vision test.",
-                    "options": [
-                        "A new, one-eye-worse colour defect",
-                        "A colour change that is getting worse over weeks",
-                        "Associated reduced vision or eye-movement pain",
-                        "A lifelong, symmetrical red-green deficiency with no change",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "New, asymmetrical, progressive defects or those "
-                                   "with other symptoms warrant referral. A stable "
-                                   "lifelong symmetrical deficiency usually does not.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should a tinted contact lens or coloured glasses be "
-                            "removed before Ishihara testing?",
-                    "options": [
-                        "They alter the colours the patient perceives and invalidate "
-                        "the result",
-                        "They make the test faster",
-                        "They improve the patient's true colour vision",
-                        "They have no effect on the plates",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Tinted lenses change the perceived colours, so they "
-                                   "must be removed for a valid Ishihara result.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient reads most plates but misses several specific "
-                            "red-green plates equally in both eyes, and says it has "
-                            "always been so. What is the most likely interpretation?",
-                    "options": [
-                        "A congenital red-green deficiency (symmetrical, lifelong)",
-                        "An acquired optic nerve problem",
-                        "A cataract in one eye",
-                        "A testing artefact only",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Symmetrical, lifelong red-green errors are typical "
-                                   "of a congenital deficiency rather than an acquired "
-                                   "disease.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A 30-year-old reports their colour vision suddenly seems 'washed out' in the LEFT eye over two weeks, with some eye ache on movement. Why is this concerning?", 'options': ['A recent, one-sided acquired colour defect can signal optic nerve disease (e.g. optic neuritis) — refer', 'It is simple congenital colour blindness', 'Colour vision cannot change in adults', 'It is a normal finding, reassure'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A recent unilateral acquired colour defect, especially with pain on eye movement, suggests optic nerve disease such as optic neuritis and needs prompt review.', 'reasoning_eligible': True},
+                {'stem': 'How does the pattern of a defect help distinguish congenital from acquired colour deficiency?', 'options': ['Congenital is symmetrical, stable and lifelong; acquired is often one-sided, recent or changing', 'They are impossible to tell apart', 'Congenital is always one-sided', 'Acquired is always symmetrical and lifelong'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Congenital deficiency is symmetrical and stable; acquired deficiency tends to be asymmetrical, recent or progressive — a key clue to refer.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL findings that should prompt referral after a colour vision test.', 'options': ['A new, one-eye-worse colour defect', 'A colour change that is getting worse over weeks', 'Associated reduced vision or eye-movement pain', 'A lifelong, symmetrical red-green deficiency with no change'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'New, asymmetrical, progressive defects or those with other symptoms warrant referral. A stable lifelong symmetrical deficiency usually does not.', 'reasoning_eligible': True},
+                {'stem': 'Why should a tinted contact lens or coloured glasses be removed before Ishihara testing?', 'options': ['They alter the colours the patient perceives and invalidate the result', 'They make the test faster', "They improve the patient's true colour vision", 'They have no effect on the plates'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tinted lenses change the perceived colours, so they must be removed for a valid Ishihara result.', 'reasoning_eligible': False},
+                {'stem': 'A patient reads most plates but misses several specific red-green plates equally in both eyes, and says it has always been so. What is the most likely interpretation?', 'options': ['A congenital red-green deficiency (symmetrical, lifelong)', 'An acquired optic nerve problem', 'A cataract in one eye', 'A testing artefact only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Symmetrical, lifelong red-green errors are typical of a congenital deficiency rather than an acquired disease.', 'reasoning_eligible': False},
+                {'stem': "A 30-year-old reports colour looking 'washed out' in the LEFT eye over two weeks, with ache on eye movement. Ishihara is 8/17 left, 17/17 right. This most concerning pattern suggests:", 'options': ['Acquired unilateral optic-nerve disease (e.g. optic neuritis) - refer promptly', 'Simple inherited colour blindness', 'A normal variant', 'A need for reading glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Recent, unilateral, asymmetrical colour loss with painful eye movement is classic optic neuritis and needs urgent assessment.', 'reasoning_eligible': True},
+                {'stem': 'A man misses the SAME specific red-green plates equally in both eyes and says it has been lifelong. The most likely interpretation is:', 'options': ['Congenital red-green colour deficiency', 'Acquired optic-nerve disease', 'A retinal detachment', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Symmetrical, stable, lifelong red-green errors in a male fit inherited (X-linked) colour deficiency, not acquired disease.', 'reasoning_eligible': True},
+                {'stem': 'How does the PATTERN of a colour defect help distinguish congenital from acquired causes?', 'options': ['Congenital is symmetrical/stable/red-green; acquired is often asymmetrical, progressive and may be blue-yellow', 'They are indistinguishable', 'Congenital is always blue-yellow', 'Acquired is always symmetrical'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Symmetry, stability and a red-green axis suggest congenital; asymmetry, progression and a tritan (blue-yellow) axis suggest acquired disease.', 'reasoning_eligible': True},
+                {'stem': 'Which set of findings after a colour vision test should prompt referral?', 'options': ['Recent onset, asymmetry between eyes, associated vision/pain symptoms, or a blue-yellow defect', 'A lifelong symmetrical red-green defect with no other symptoms', 'A perfect 17/17 both eyes', 'Wearing reading glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Acquired-pattern features (recent, asymmetrical, symptomatic, tritan) warrant referral; a stable congenital defect usually does not.', 'reasoning_eligible': True},
+                {'stem': 'A pilot applicant fails several Ishihara plates. What is the appropriate role of the technician?', 'options': ["Record the result accurately and refer for formal assessment - do not 'pass' them informally", 'Coach them to memorise the plates', 'Ignore the failures', 'Tell them they can never see colour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Occupational colour standards are strict; the technician documents objectively and refers for definitive testing, without coaching.', 'reasoning_eligible': True},
+                {'stem': 'Why can a patient with reduced central vision from macular disease also score poorly on Ishihara?', 'options': ['Colour discrimination relies on central (macular/cone) function, which macular disease impairs', 'Ishihara tests peripheral vision', 'Colour vision is unrelated to the retina', 'The plates are too small to see'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The cone-rich macula mediates colour; macular disease degrades both acuity and colour scores, an acquired pattern to note.', 'reasoning_eligible': True},
+                {'stem': 'A patient insists they see the numbers but consistently names them wrongly and slowly. Best practice is to:', 'options': ['Record the actual responses/errors objectively rather than what they claim', 'Mark them all correct to be kind', 'Stop after one plate', 'Let them retake it until they pass'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Objective recording of the responses (and hesitation) gives the clinician an accurate picture; wishful scoring is unsafe.', 'reasoning_eligible': True},
+                {'stem': 'Why is Ishihara a SCREENING test rather than a full characterisation of colour vision?', 'options': ['It detects red-green deficiency but does not fully grade severity or blue-yellow defects', 'It cures colour blindness', 'It measures the exact refraction', 'It replaces the eye examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Ishihara flags red-green deficiency; fuller grading (e.g. anomaloscope, D-15) characterises type/severity and blue-yellow defects.', 'reasoning_eligible': True},
+                {'stem': 'A diabetic on ethambutol (a TB drug) develops a new acquired colour defect. Why is this relevant to note?', 'options': ['Certain drugs (e.g. ethambutol) are toxic to the optic nerve and can impair colour vision', 'Drugs never affect colour vision', 'It proves inherited colour blindness', 'It is unrelated to the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Ethambutol optic neuropathy classically reduces colour vision; a new acquired defect on such a drug must be flagged urgently.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about colour vision testing is CORRECT?', 'options': ['Test each eye separately in good untinted light, record plates correct/total, and interpret pattern (congenital vs acquired)', 'Test both eyes together under coloured light', 'A single number for both eyes is enough', 'Congenital and acquired defects look identical and cannot be separated'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good practice tests each eye in standard light, records a score per eye, and uses the defect pattern to distinguish congenital from acquired causes.', 'reasoning_eligible': True},
+                {'stem': 'A monocular patient (only one functioning eye) needs colour vision assessed. The sensible approach is to:', 'options': ['Test the functioning eye and document that only one eye could be assessed', "Record 'untestable' and stop", 'Test the blind eye only', 'Assume normal colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Assess and document the seeing eye's colour vision, clearly noting that only one eye was testable for the clinician.", 'reasoning_eligible': True},
             ],
         },
         "amsler_macula": {
