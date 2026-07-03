@@ -2007,228 +2007,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "asoct": {
             "easy": [
-                {
-                    "stem": "What does ASOCT (anterior segment OCT) image?",
-                    "options": [
-                        "The anterior segment — cornea, anterior chamber, angle, iris "
-                        "and lens",
-                        "The macula and retina",
-                        "The optic nerve head",
-                        "The visual field",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT images the front of the eye — cornea, "
-                                   "anterior chamber, angle, iris and lens.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is ASOCT a contact or non-contact test?",
-                    "options": ["Non-contact", "Contact with a lens on the eye",
-                                "Contact with gel", "It uses ultrasound"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT is a non-contact, light-based imaging test.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which angle does ASOCT help assess?",
-                    "options": ["The anterior chamber (drainage) angle",
-                                "The angle of squint",
-                                "The optic disc angle",
-                                "The angle kappa only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT images the anterior chamber drainage angle, "
-                                   "useful in glaucoma assessment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What kind of image does ASOCT produce?",
-                    "options": ["A high-resolution cross-sectional image",
-                                "A colour photograph only",
-                                "A pressure reading",
-                                "A field map"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT produces a high-resolution cross-sectional "
-                                   "image of the anterior segment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL recognised uses of ASOCT.",
-                    "options": ["Anterior chamber angle assessment in glaucoma",
-                                "Corneal disease/thickness assessment",
-                                "Post-surgery / refractive planning",
-                                "Measuring the eye pressure"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "ASOCT is used for the angle, corneal assessment and "
-                                   "surgical/refractive planning. It does not measure "
-                                   "eye pressure.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does ASOCT (anterior segment OCT) image?', 'options': ['The anterior segment — cornea, anterior chamber, angle, iris and lens', 'The macula and retina', 'The optic nerve head', 'The visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT images the front of the eye — cornea, anterior chamber, angle, iris and lens.', 'reasoning_eligible': False},
+                {'stem': 'Is ASOCT a contact or non-contact test?', 'options': ['Non-contact', 'Contact with a lens on the eye', 'Contact with gel', 'It uses ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT is a non-contact, light-based imaging test.', 'reasoning_eligible': False},
+                {'stem': 'Which angle does ASOCT help assess?', 'options': ['The anterior chamber (drainage) angle', 'The angle of squint', 'The optic disc angle', 'The angle kappa only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT images the anterior chamber drainage angle, useful in glaucoma assessment.', 'reasoning_eligible': False},
+                {'stem': 'What kind of image does ASOCT produce?', 'options': ['A high-resolution cross-sectional image', 'A colour photograph only', 'A pressure reading', 'A field map'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT produces a high-resolution cross-sectional image of the anterior segment.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL recognised uses of ASOCT.', 'options': ['Anterior chamber angle assessment in glaucoma', 'Corneal disease/thickness assessment', 'Post-surgery / refractive planning', 'Measuring the eye pressure'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'ASOCT is used for the angle, corneal assessment and surgical/refractive planning. It does not measure eye pressure.', 'reasoning_eligible': False},
+                {'stem': 'ASOCT produces a cross-sectional image of the:', 'options': ['Front of the eye (cornea, angle, anterior chamber, iris)', 'Retina and optic nerve', 'Eyelid muscles', 'Tear ducts'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Anterior segment OCT images the cornea, drainage angle, anterior chamber and iris in cross-section.', 'reasoning_eligible': False},
+                {'stem': 'During ASOCT the patient is asked to:', 'options': ['Fixate steadily so the scan captures the intended structure', 'Look all around the room', 'Close both eyes', 'Read a distance chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation keeps the target structure (e.g. the angle or cornea) in the scan plane for a clear image.', 'reasoning_eligible': False},
+                {'stem': 'A big advantage of ASOCT over gonioscopy for the angle is that ASOCT is:', 'options': ['Non-contact and comfortable', 'An X-ray', 'A blood test', 'A contact ultrasound probe'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT images the angle without touching the eye, unlike the contact gonioscopy lens.', 'reasoning_eligible': False},
+                {'stem': 'ASOCT can measure the corneal thickness, useful in conditions such as:', 'options': ['Corneal oedema or keratoconus assessment', 'Colour blindness', 'A squint', 'Dry mouth'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT provides pachymetry and corneal imaging, aiding assessment of oedema, thinning and other corneal disease.', 'reasoning_eligible': False},
+                {'stem': 'The OT should capture the ASOCT and:', 'options': ['Record the images/measurements for the clinician, not diagnose', 'Diagnose glaucoma and start drops', 'Delete the scan', 'Prescribe surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT acquires and documents the scan; interpretation and management stay with the clinician.', 'reasoning_eligible': True},
+                {'stem': 'ASOCT differs from a MACULAR OCT in that it images the:', 'options': ['Anterior segment rather than the retina', 'Optic nerve', 'Eyelid', 'Tear film only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT targets the front of the eye; macular OCT targets the central retina.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if ASOCT will touch or hurt the eye. The correct reassurance is:', 'options': ['It is a quick, non-contact light scan with nothing touching the eye', 'It uses a needle', 'It presses a lens on the eye', 'It is painful'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT is painless and non-contact; explaining this reduces anxiety and improves fixation/cooperation.', 'reasoning_eligible': True},
+                {'stem': 'After a corneal transplant, ASOCT is useful to check:', 'options': ['Whether the graft is well-attached to the host cornea', "The patient's colour vision", 'The eye pressure', 'The eyelid position'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT shows graft-host apposition (e.g. after DSAEK/DMEK), helping detect detachment early.', 'reasoning_eligible': True},
+                {'stem': "The OT should ensure the patient's head is well positioned and the scan is:", 'options': ['Focused and aligned on the structure of interest before capturing', 'Taken at any random angle', 'Captured with eyes closed', 'Done without fixation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Correct positioning, focus and alignment on the target (angle/cornea) give an interpretable image.', 'reasoning_eligible': False},
+                {'stem': 'ASOCT is commonly used to assess the drainage ANGLE in patients being evaluated for:', 'options': ['Narrow-angle / angle-closure glaucoma', 'Cataract colour', 'Dry eye only', 'A squint'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT visualises and quantifies the angle, aiding assessment of narrow or occludable angles.', 'reasoning_eligible': False},
+                {'stem': 'ASOCT uses which type of energy?', 'options': ['Light (optical coherence)', 'Ultrasound contact', 'X-rays', 'A dye injection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Like other OCT, ASOCT uses light interferometry to build cross-sectional images non-invasively.', 'reasoning_eligible': False},
+                {'stem': 'The OT should confirm which eye/structure is ORDERED because:', 'options': ['Scanning the wrong eye or structure gives the clinician the wrong information', 'Both eyes are always identical', 'It only affects printing', 'It never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirming the ordered eye and target (angle, cornea, etc.) ensures the scan answers the clinical question.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Why is ASOCT useful in a narrow-angle glaucoma suspect?",
-                    "options": [
-                        "It images the anterior chamber angle to assess how narrow or "
-                        "open it is",
-                        "It measures the retinal thickness",
-                        "It lowers the eye pressure",
-                        "It tests the visual field",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "ASOCT shows the angle's configuration, helping "
-                                   "judge whether it is narrow or open in a "
-                                   "glaucoma suspect.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "ASOCT versus macular OCT — what is the difference in "
-                            "target?",
-                    "options": [
-                        "ASOCT images the anterior segment; macular OCT images the "
-                        "retina/macula",
-                        "They image the same structures",
-                        "ASOCT images the retina; macular OCT the cornea",
-                        "Both image the optic nerve",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT targets the front of the eye; macular OCT "
-                                   "targets the central retina.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is ASOCT preferred over a contact method for assessing "
-                            "the angle?",
-                    "options": [
-                        "It is non-contact, comfortable and high-resolution",
-                        "It is the only test that touches the eye",
-                        "It measures the cornea's colour",
-                        "It is always cheaper",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Being non-contact and high-resolution makes ASOCT a "
-                                   "comfortable way to image the angle without touching "
-                                   "the eye.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Name a corneal use of ASOCT.",
-                    "options": [
-                        "Assessing corneal thickness, disease, or "
-                        "post-surgical/refractive planning",
-                        "Measuring the visual field",
-                        "Counting endothelial cells",
-                        "Testing colour vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT can assess corneal thickness and disease and "
-                                   "support refractive/surgical planning.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the OT document for an ASOCT?",
-                    "options": ["Diagnosis, indication, eye(s) and findings",
-                                "Only the patient's name",
-                                "The IOL power",
-                                "Nothing is documented"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Document the diagnosis, indication, eye(s) tested "
-                                   "and the findings.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why is ASOCT useful in a narrow-angle glaucoma suspect?', 'options': ['It images the anterior chamber angle to assess how narrow or open it is', 'It measures the retinal thickness', 'It lowers the eye pressure', 'It tests the visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "ASOCT shows the angle's configuration, helping judge whether it is narrow or open in a glaucoma suspect.", 'reasoning_eligible': True},
+                {'stem': 'ASOCT versus macular OCT — what is the difference in target?', 'options': ['ASOCT images the anterior segment; macular OCT images the retina/macula', 'They image the same structures', 'ASOCT images the retina; macular OCT the cornea', 'Both image the optic nerve'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT targets the front of the eye; macular OCT targets the central retina.', 'reasoning_eligible': False},
+                {'stem': 'Why is ASOCT preferred over a contact method for assessing the angle?', 'options': ['It is non-contact, comfortable and high-resolution', 'It is the only test that touches the eye', "It measures the cornea's colour", 'It is always cheaper'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Being non-contact and high-resolution makes ASOCT a comfortable way to image the angle without touching the eye.', 'reasoning_eligible': True},
+                {'stem': 'Name a corneal use of ASOCT.', 'options': ['Assessing corneal thickness, disease, or post-surgical/refractive planning', 'Measuring the visual field', 'Counting endothelial cells', 'Testing colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT can assess corneal thickness and disease and support refractive/surgical planning.', 'reasoning_eligible': False},
+                {'stem': 'What does the OT document for an ASOCT?', 'options': ['Diagnosis, indication, eye(s) and findings', "Only the patient's name", 'The IOL power', 'Nothing is documented'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Document the diagnosis, indication, eye(s) tested and the findings.', 'reasoning_eligible': False},
+                {'stem': 'A narrow-angle glaucoma SUSPECT is booked before dilation. How does ASOCT help the decision to dilate?', 'options': ['It objectively shows how narrow/occludable the angle is, informing the risk of angle closure', 'It measures the retina', 'It replaces the need for any assessment', 'It has no role before dilation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT quantifies the angle so the clinician can judge the risk before dilating a potentially occludable eye.', 'reasoning_eligible': True},
+                {'stem': 'Why can ASOCT be done in a DARK room to catch appositional angle closure?', 'options': ['Being non-contact, it images the angle as the pupil dilates in the dark, when closure may occur', 'Darkness improves the retina', 'It needs no light source', 'Darkness lowers the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'In darkness the pupil dilates and a narrow angle may close; ASOCT can capture this without a contact lens opening the angle.', 'reasoning_eligible': True},
+                {'stem': 'A DSAEK graft patient reports blurred vision. ASOCT shows a gap between graft and host. This indicates:', 'options': ['Graft detachment - flag urgently to the clinician', 'A normal graft', 'A cataract', 'A refractive error only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A graft-host gap on ASOCT suggests detachment, which may need re-bubbling; the OT documents and escalates.', 'reasoning_eligible': True},
+                {'stem': 'A poor-quality ASOCT (blurred, off-axis, blink artefact) is captured. The OT should:', 'options': ['Re-align, ask for a blink, and re-scan rather than accept the poor image', 'Report the artefact as pathology', 'Increase print brightness', 'Diagnose from the blur'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only a clear, well-aligned scan is interpretable; poor captures are repeated after optimising alignment and tear film.', 'reasoning_eligible': True},
+                {'stem': 'Why are ASOCT and GONIOSCOPY considered complementary for the angle?', 'options': ['ASOCT gives objective non-contact cross-sections; gonioscopy is the dynamic, dark-room contact gold standard', 'They measure the retina together', 'One replaces the other entirely', 'Both test colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT quantifies structure objectively; gonioscopy lets the clinician view and manipulate the angle - together they give a fuller picture.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a phakic (implantable) IOL has ASOCT to check the:', 'options': ['Vault (clearance) between the implant and the natural lens', 'Retinal thickness', 'Colour vision', 'Eyelid height'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT measures phakic-IOL vaulting; too low risks cataract, too high risks angle crowding - useful for monitoring.', 'reasoning_eligible': True},
+                {'stem': 'For a corneal OPACITY, ASOCT helps the surgeon by showing the:', 'options': ['Depth of the opacity, guiding lamellar versus full-thickness surgery', "Patient's blood pressure", 'Eye pressure', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Knowing how deep an opacity extends helps decide between a partial (lamellar) or full-thickness corneal graft.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document for an ASOCT?', 'options': ['Eye, the structure/scan type, image quality and any relevant measurements', "Only the patient's age", "The clinic's opening hours", 'Nothing at all'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the eye, scan type, quality and measurements lets the clinician interpret and compare the study.', 'reasoning_eligible': False},
+                {'stem': 'After trabeculectomy, ASOCT can image the filtering BLEB to assess:', 'options': ['Its morphology (e.g. wall thickness, fluid spaces) related to function', 'The retina', 'Colour vision', 'The eyelid muscles'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Bleb morphology on ASOCT correlates with drainage function, aiding post-glaucoma-surgery assessment.', 'reasoning_eligible': True},
+                {'stem': 'Why is ASOCT preferred over a CONTACT method for a patient with a fragile or recently operated eye?', 'options': ['It avoids touching the eye, reducing discomfort and infection/injury risk', 'It presses harder for detail', 'It is an X-ray', 'Contact methods are always better'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Non-contact imaging is safer and more comfortable for delicate or post-surgical eyes than a contact lens/probe.', 'reasoning_eligible': True},
+                {'stem': 'The OT selects the correct SCAN MODE (e.g. angle vs corneal/pachymetry) because:', 'options': ['Different modes optimise the image for the structure the clinician needs', 'Any mode shows everything equally', 'Mode never matters', 'It only changes the colour'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Choosing the appropriate scan mode/protocol optimises resolution for the angle, cornea or whole anterior segment as ordered.', 'reasoning_eligible': False},
+                {'stem': "A corneal-oedema patient's ASOCT shows marked corneal thickening. This most likely reflects:", 'options': ['Fluid accumulation from endothelial dysfunction - flag for the clinician', 'A thinner, healthier cornea', 'A refractive error', 'Normal ageing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Increased corneal thickness on ASOCT indicates oedema (often endothelial failure), which is documented and flagged.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A glaucoma suspect has very shallow chambers. How does "
-                            "ASOCT support safe management compared with relying on "
-                            "examination alone?",
-                    "options": [
-                        "It objectively images and documents the angle, helping decide "
-                        "whether dilation/treatment is safe",
-                        "It treats the narrow angle directly",
-                        "It replaces the doctor's decision",
-                        "It measures the eye pressure instead",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "ASOCT gives an objective, documented image of the "
-                                   "angle configuration, informing decisions about "
-                                   "dilation risk and management.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL clinical questions ASOCT can help answer.",
-                    "options": [
-                        "Is the anterior chamber angle narrow or open?",
-                        "How thick is the cornea in cross-section?",
-                        "What is the anterior segment anatomy after surgery?",
-                        "What is the retinal nerve fibre layer thickness?",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "ASOCT addresses angle width, corneal thickness and "
-                                   "post-surgical anterior anatomy. The RNFL is a "
-                                   "posterior structure assessed by RNFL OCT, not "
-                                   "ASOCT.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why might ASOCT and gonioscopy be considered complementary "
-                            "for angle assessment?",
-                    "options": [
-                        "ASOCT gives an objective non-contact cross-section; "
-                        "gonioscopy gives a direct dynamic view — together they "
-                        "characterise the angle",
-                        "They measure entirely unrelated things",
-                        "ASOCT replaces all other angle assessment",
-                        "Gonioscopy images the retina",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT provides an objective cross-sectional image "
-                                   "while gonioscopy gives a direct dynamic view; "
-                                   "together they build a fuller picture of the angle.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about ASOCT is correct?",
-                    "options": [
-                        "It is a non-contact, high-resolution cross-section of the "
-                        "anterior segment, useful for the angle and cornea",
-                        "It is a contact test that images the retina",
-                        "It measures intraocular pressure",
-                        "It is only used for colour vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "ASOCT is a non-contact, high-resolution "
-                                   "cross-sectional scan of the anterior segment, used "
-                                   "for angle and corneal assessment.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A glaucoma suspect has very shallow chambers. How does ASOCT support safe management compared with relying on examination alone?', 'options': ['It objectively images and documents the angle, helping decide whether dilation/treatment is safe', 'It treats the narrow angle directly', "It replaces the doctor's decision", 'It measures the eye pressure instead'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'ASOCT gives an objective, documented image of the angle configuration, informing decisions about dilation risk and management.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL clinical questions ASOCT can help answer.', 'options': ['Is the anterior chamber angle narrow or open?', 'How thick is the cornea in cross-section?', 'What is the anterior segment anatomy after surgery?', 'What is the retinal nerve fibre layer thickness?'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'ASOCT addresses angle width, corneal thickness and post-surgical anterior anatomy. The RNFL is a posterior structure assessed by RNFL OCT, not ASOCT.', 'reasoning_eligible': True},
+                {'stem': 'Why might ASOCT and gonioscopy be considered complementary for angle assessment?', 'options': ['ASOCT gives an objective non-contact cross-section; gonioscopy gives a direct dynamic view — together they characterise the angle', 'They measure entirely unrelated things', 'ASOCT replaces all other angle assessment', 'Gonioscopy images the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT provides an objective cross-sectional image while gonioscopy gives a direct dynamic view; together they build a fuller picture of the angle.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about ASOCT is correct?', 'options': ['It is a non-contact, high-resolution cross-section of the anterior segment, useful for the angle and cornea', 'It is a contact test that images the retina', 'It measures intraocular pressure', 'It is only used for colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT is a non-contact, high-resolution cross-sectional scan of the anterior segment, used for angle and corneal assessment.', 'reasoning_eligible': False},
+                {'stem': 'A glaucoma suspect has very shallow chambers. How does ASOCT support SAFE management versus examination alone?', 'options': ['It objectively documents and quantifies the narrow angle, guiding whether dilation or laser iridotomy is safer', 'It replaces the clinician entirely', 'It cures the glaucoma', 'It measures colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Objective angle imaging supports the clinician's decision on dilation risk and prophylactic iridotomy, beyond a subjective look.", 'reasoning_eligible': True},
+                {'stem': 'Which clinical question is ASOCT best suited to answer?', 'options': ['Is the angle narrow, is a corneal graft attached, how deep is an opacity, or what is the phakic-IOL vault', 'What is the retinal nerve fibre thickness', 'What is the visual field', 'What is the colour vision score'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT addresses anterior-segment questions - angle width, graft apposition, opacity depth, IOL vault - not retinal/field/colour tests.', 'reasoning_eligible': True},
+                {'stem': "Why might a scan that looks like a 'closed angle' actually be an ARTEFACT to check?", 'options': ['Off-axis alignment or lid/lash shadowing can obscure the angle recess, mimicking closure', 'Artefacts always widen the angle', 'The angle cannot be imaged', 'Artefacts raise the count'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Poor alignment or a shadow can hide the recess; correct capture is needed before calling an angle closed.', 'reasoning_eligible': True},
+                {'stem': 'Why must the scan plane be correctly oriented across the ANGLE to measure it reliably?', 'options': ['An oblique plane distorts the angle width, giving a false measurement', 'Orientation never matters', 'The angle is the same from any direction', 'It only affects the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The angle must be imaged perpendicular to the recess; an oblique cut misrepresents its true width.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about ASOCT is CORRECT?', 'options': ['It is a non-contact cross-sectional scan of the anterior segment, complementary to (not a replacement for) gonioscopy', 'It images the retina', 'It requires a contact lens on the eye', 'It measures the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'ASOCT non-invasively images the front of the eye and complements gonioscopy for angle assessment.', 'reasoning_eligible': True},
+                {'stem': 'A post-LASIK patient needs the flap/residual bed assessed. ASOCT helps by:', 'options': ['Measuring flap thickness and residual stromal bed non-invasively', 'Measuring the retina', 'Testing colour vision', 'Checking the eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'ASOCT images the LASIK interface, quantifying flap and residual bed thickness relevant to corneal stability.', 'reasoning_eligible': True},
+                {'stem': 'Why should the OT capture the angle in BOTH light and dark conditions when appositional closure is suspected?', 'options': ['A narrow angle may look open in light but close as the pupil dilates in the dark', 'Light and dark give identical images', 'Dark damages the scan', 'Only light matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dynamic (light/dark) ASOCT can reveal appositional closure that a bright-room scan misses.', 'reasoning_eligible': True},
+                {'stem': 'An ASOCT for a corneal graft rejection query shows increased thickness and folds. The OT should:', 'options': ['Document the findings and flag them promptly to the clinician', 'Reassure the patient it is normal', 'Diagnose rejection and prescribe steroids', 'Delete the scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Graft thickening/folds can signal rejection or failure; the OT records and escalates rather than diagnosing or treating.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good ASOCT practice?', 'options': ['Confirm eye/order, choose the right scan mode, align perpendicular to the target, capture a clear image, document and flag concerns', 'Any alignment is fine', 'Diagnose and treat from the scan', 'Skip documentation if the image looks nice'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good ASOCT means correct setup and mode, proper alignment, a clear captured image, documentation and escalation of concerns.', 'reasoning_eligible': True},
+                {'stem': 'Why can ASOCT struggle to image the angle recess in a very pigmented or narrow angle compared with the cornea?', 'options': ['Light penetration and shadowing at the recess can limit the view, so capture/interpretation need care', 'The angle is the easiest structure to image', 'ASOCT cannot image the cornea', 'Pigment improves imaging'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Optical shadowing at the deep, pigmented recess can limit ASOCT, so careful capture and clinician interpretation are needed.', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot open the eye widely, causing lid/lash shadow over the superior angle. The OT should:', 'options': ['Gently hold the lids clear (without pressing the globe) and re-scan', 'Report the shadow as a closed angle', 'Press firmly on the eye', 'Abandon all imaging'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Lifting the lids clear (without indenting the globe) removes the shadow so the true angle can be imaged.', 'reasoning_eligible': True},
+                {'stem': 'Why is ASOCT valuable for planning in anterior-segment surgery generally?', 'options': ['It gives objective, reproducible measurements of structures the surgeon must work around', 'It measures hormone levels', 'It replaces the operation', 'It only shows the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reproducible anterior-segment metrics (depths, thicknesses, spaces) help the surgeon plan safe, tailored procedures.', 'reasoning_eligible': True},
             ],
         },
         "flare": {
