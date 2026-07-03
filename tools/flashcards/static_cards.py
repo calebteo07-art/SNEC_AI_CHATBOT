@@ -1019,481 +1019,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "near_vision": {
             "easy": [
-                {
-                    "stem": "At what distance is the near vision (N) chart usually held?",
-                    "options": ["35 cm", "6 metres", "1 metre", "10 cm"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The near vision chart is held at about 35 cm — a "
-                                   "normal reading distance.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is normal near vision?",
-                    "options": ["N5 (the finest print)", "N48", "6/6", "N18"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "N5 is the finest near print and represents normal "
-                                   "near vision.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How is each eye tested for near vision?",
-                    "options": ["Separately, with the other eye occluded",
-                                "Both eyes together only",
-                                "With both eyes closed",
-                                "Only the dominant eye is tested"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Near vision is tested one eye at a time, with the "
-                                   "other eye occluded.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Should reading correction be worn for the near VA test?",
-                    "options": ["Yes — record near VA with correction in place",
-                                "No — always test unaided",
-                                "Only for children",
-                                "Only if the patient asks"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Near VA is recorded with the patient's reading "
-                                   "correction in place (and noted as such).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How is a near vision result documented?",
-                    "options": ["As the smallest line read, e.g. N5, N6, N8, N10",
-                                "As a Snellen fraction like 6/6",
-                                "As a percentage",
-                                "As pass or fail only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Near vision is recorded as the smallest print read "
-                                   "comfortably (N5, N6, N8, N10, etc.).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "When is near vision typically tested?",
-                    "options": ["On the first visit and when ordered",
-                                "Only in an emergency",
-                                "Never for adults",
-                                "Only after surgery"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Near vision is checked on the first visit and "
-                                   "whenever specifically ordered.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient holds reading material further away to focus. "
-                            "What does this suggest?",
-                    "options": ["Presbyopia", "Myopia",
-                                "Glaucoma", "Colour blindness"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Holding text further away to focus is a classic "
-                                   "sign of presbyopia (age-related loss of near "
-                                   "focus).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is adequate lighting important for the near vision "
-                            "test?",
-                    "options": ["Poor lighting falsely reduces the recorded near "
-                                "acuity",
-                                "Lighting has no effect on near vision",
-                                "Bright light blurs near print",
-                                "It only matters for distance vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inadequate lighting can make near acuity look worse "
-                                   "than it is, so good lighting is needed for a valid "
-                                   "result.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does presbyopia affect?",
-                    "options": ["The ability to focus on near objects",
-                                "Distance vision only",
-                                "Colour perception",
-                                "The visual field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Presbyopia is the age-related loss of the eye's "
-                                   "ability to focus up close.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL correct statements about testing near vision.",
-                    "options": [
-                        "It is held at about 35 cm",
-                        "Each eye is tested separately",
-                        "Reading correction is worn and noted",
-                        "It is recorded as a Snellen 6/x fraction",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Near vision is held at ~35 cm, tested one eye at a "
-                                   "time, with correction worn and noted. It is "
-                                   "recorded as N-notation (N5, N6…), not a 6/x "
-                                   "fraction.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'At what distance is the near vision (N) chart usually held?', 'options': ['35 cm', '6 metres', '1 metre', '10 cm'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The near vision chart is held at about 35 cm — a normal reading distance.', 'reasoning_eligible': False},
+                {'stem': 'What is normal near vision?', 'options': ['N5 (the finest print)', 'N48', '6/6', 'N18'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'N5 is the finest near print and represents normal near vision.', 'reasoning_eligible': False},
+                {'stem': 'How is each eye tested for near vision?', 'options': ['Separately, with the other eye occluded', 'Both eyes together only', 'With both eyes closed', 'Only the dominant eye is tested'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Near vision is tested one eye at a time, with the other eye occluded.', 'reasoning_eligible': False},
+                {'stem': 'Should reading correction be worn for the near VA test?', 'options': ['Yes — record near VA with correction in place', 'No — always test unaided', 'Only for children', 'Only if the patient asks'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Near VA is recorded with the patient's reading correction in place (and noted as such).", 'reasoning_eligible': False},
+                {'stem': 'How is a near vision result documented?', 'options': ['As the smallest line read, e.g. N5, N6, N8, N10', 'As a Snellen fraction like 6/6', 'As a percentage', 'As pass or fail only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Near vision is recorded as the smallest print read comfortably (N5, N6, N8, N10, etc.).', 'reasoning_eligible': False},
+                {'stem': 'When is near vision typically tested?', 'options': ['On the first visit and when ordered', 'Only in an emergency', 'Never for adults', 'Only after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Near vision is checked on the first visit and whenever specifically ordered.', 'reasoning_eligible': False},
+                {'stem': 'A patient holds reading material further away to focus. What does this suggest?', 'options': ['Presbyopia', 'Myopia', 'Glaucoma', 'Colour blindness'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Holding text further away to focus is a classic sign of presbyopia (age-related loss of near focus).', 'reasoning_eligible': False},
+                {'stem': 'Why is adequate lighting important for the near vision test?', 'options': ['Poor lighting falsely reduces the recorded near acuity', 'Lighting has no effect on near vision', 'Bright light blurs near print', 'It only matters for distance vision'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inadequate lighting can make near acuity look worse than it is, so good lighting is needed for a valid result.', 'reasoning_eligible': False},
+                {'stem': 'What does presbyopia affect?', 'options': ['The ability to focus on near objects', 'Distance vision only', 'Colour perception', 'The visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Presbyopia is the age-related loss of the eye's ability to focus up close.", 'reasoning_eligible': False},
+                {'stem': 'Select ALL correct statements about testing near vision.', 'options': ['It is held at about 35 cm', 'Each eye is tested separately', 'Reading correction is worn and noted', 'It is recorded as a Snellen 6/x fraction'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Near vision is held at ~35 cm, tested one eye at a time, with correction worn and noted. It is recorded as N-notation (N5, N6…), not a 6/x fraction.', 'reasoning_eligible': False},
+                {'stem': 'The SNEC near-vision procedure specifies holding the reading card at approximately:', 'options': ['40 cm from the patient', '6 metres', '10 cm', '2 metres'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Near vision is tested at about 40 cm, a typical comfortable reading distance.', 'reasoning_eligible': False},
+                {'stem': 'For a literate adult, which reading material is used for near vision testing at SNEC?', 'options': ['The Moorfields Reading Book (letter/number type)', 'The Snellen distance chart at 6 m', 'An Amsler grid', 'An Ishihara book'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Literate adults/children use reading books such as Moorfields, Curpax or Maclure reading type.', 'reasoning_eligible': False},
+                {'stem': "A near-vision reading of 'N5' or 'J2' should be documented together with:", 'options': ['Whether it was with or without glasses', "The patient's phone number", 'The room number only', 'Nothing else is needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Record e.g. 'N5 with glasses' - the correction used matters for interpreting the result.", 'reasoning_eligible': False},
+                {'stem': 'As with distance testing, near vision is tested one eye at a time, starting with the:', 'options': ['Right eye (occluding the left)', 'Left eye', 'Both eyes together', 'Worse eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'By convention the right eye is tested first with the left occluded, then the left eye.', 'reasoning_eligible': False},
+                {'stem': 'Good lighting is required for near-vision testing because:', 'options': ['Poor light artificially worsens the reading result', "It changes the eye's refraction", "It is only for the tester's comfort", 'It has no effect on reading'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Adequate, standardised lighting ensures the recorded near acuity reflects the eye, not dim conditions.', 'reasoning_eligible': True},
+                {'stem': 'The occluder used for near testing should be wiped with alcohol:', 'options': ['Before AND after the procedure', 'Never', 'Only once a month', 'Only if visibly dirty'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Disinfecting the occluder before and after each patient is a standard infection-control step.', 'reasoning_eligible': False},
+                {'stem': 'A patient who cannot read letters (illiterate) can still have near vision tested using:', 'options': ["A matching card with reduced Snellen or Kay's near cards", 'Only the letter reading book', 'No test is possible', 'The distance chart at 6 m'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "For non-readers, a matching card (reduced Snellen or Kay's pictures) lets them match symbols instead of naming letters.", 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "A 50-year-old reads N10 unaided but N5 with a reading add. "
-                            "What is the diagnosis?",
-                    "options": ["Presbyopia", "Myopia",
-                                "Cataract", "Macular degeneration"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Improving from N10 to N5 with a reading add at age "
-                                   "50 is classic presbyopia.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Distance VA is 6/6 but near VA is reduced. What pattern "
-                            "does this suggest?",
-                    "options": ["Presbyopia (age-related loss of near focus)",
-                                "Cataract",
-                                "Glaucoma",
-                                "Retinal detachment"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Good distance vision with poor near vision is the "
-                                   "typical pattern of presbyopia.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must reading correction be worn (and noted) for the "
-                            "near test?",
-                    "options": [
-                        "Near vision is meaningful at the patient's working "
-                        "correction, and it must be comparable later",
-                        "Glasses always make near vision worse",
-                        "It is only for cosmetic reasons",
-                        "Correction is irrelevant to near vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Recording near VA with the usual reading correction "
-                                   "(and noting it) makes the result clinically "
-                                   "meaningful and comparable at later visits.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A young patient with good distance vision struggles to "
-                            "read N5 and gets headaches when reading. What might this "
-                            "suggest?",
-                    "options": [
-                        "Uncorrected hyperopia or a near/focusing problem worth "
-                        "review",
-                        "Definite presbyopia (they are too young)",
-                        "A retinal detachment",
-                        "Normal vision — no action needed",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A young person is too young for presbyopia; near "
-                                   "difficulty with headaches may reflect uncorrected "
-                                   "long-sightedness or a focusing problem worth "
-                                   "review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How is a near vision result of 'smallest comfortable line "
-                            "N8' recorded?",
-                    "options": ["As N8", "As 6/8", "As 80%", "As N5"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Near vision is recorded in N-notation as the "
-                                   "smallest line read comfortably — here N8.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why test near vision separately from distance vision?",
-                    "options": [
-                        "Near and distance focus can be affected independently",
-                        "They always give the same result",
-                        "Near vision replaces the distance test",
-                        "It is only done to fill in the form",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Distance and near focusing can be affected "
-                                   "independently (e.g. presbyopia spares distance), so "
-                                   "both are tested.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient's near vision is worse in dim restaurant "
-                            "lighting than in clinic. What is the likely explanation?",
-                    "options": [
-                        "Reduced lighting lowers near acuity, especially with early "
-                        "lens changes",
-                        "Their eyes are healthier in dim light",
-                        "Near vision is unaffected by light",
-                        "They are imagining the difference",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Near acuity falls in poor light, and early lens "
-                                   "changes make this worse — a common real-world "
-                                   "complaint.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL findings consistent with simple presbyopia.",
-                    "options": [
-                        "Reduced near vision that improves with a reading add",
-                        "Normal distance vision",
-                        "Onset around the 40s-50s",
-                        "Sudden painful loss of vision",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Presbyopia gives reduced near vision corrected by a "
-                                   "reading add, normal distance vision, and onset in "
-                                   "the 40s-50s. Sudden painful vision loss is NOT "
-                                   "presbyopia.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Near vision is reduced AND does not improve with a reading "
-                            "add in an older patient. What does this suggest?",
-                    "options": [
-                        "Something beyond presbyopia (e.g. macular problem) — worth "
-                        "review",
-                        "Definitely just presbyopia",
-                        "A refractive error in the distance only",
-                        "Normal ageing, no action",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If a reading add doesn't help, the cause may be "
-                                   "beyond presbyopia (e.g. a macular problem) and "
-                                   "should be reviewed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why record the near working distance if it differs from "
-                            "35 cm?",
-                    "options": [
-                        "Some patients (e.g. musicians) need vision at a specific "
-                        "distance, which affects the add",
-                        "The distance never matters",
-                        "It changes the eye being tested",
-                        "Only 35 cm is ever acceptable",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Some patients need clear vision at a particular "
-                                   "working distance, so noting it helps the doctor "
-                                   "choose the right reading add.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A 50-year-old reads N10 unaided but N5 with a reading add. What is the diagnosis?', 'options': ['Presbyopia', 'Myopia', 'Cataract', 'Macular degeneration'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Improving from N10 to N5 with a reading add at age 50 is classic presbyopia.', 'reasoning_eligible': True},
+                {'stem': 'Distance VA is 6/6 but near VA is reduced. What pattern does this suggest?', 'options': ['Presbyopia (age-related loss of near focus)', 'Cataract', 'Glaucoma', 'Retinal detachment'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Good distance vision with poor near vision is the typical pattern of presbyopia.', 'reasoning_eligible': True},
+                {'stem': 'Why must reading correction be worn (and noted) for the near test?', 'options': ["Near vision is meaningful at the patient's working correction, and it must be comparable later", 'Glasses always make near vision worse', 'It is only for cosmetic reasons', 'Correction is irrelevant to near vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Recording near VA with the usual reading correction (and noting it) makes the result clinically meaningful and comparable at later visits.', 'reasoning_eligible': False},
+                {'stem': 'A young patient with good distance vision struggles to read N5 and gets headaches when reading. What might this suggest?', 'options': ['Uncorrected hyperopia or a near/focusing problem worth review', 'Definite presbyopia (they are too young)', 'A retinal detachment', 'Normal vision — no action needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A young person is too young for presbyopia; near difficulty with headaches may reflect uncorrected long-sightedness or a focusing problem worth review.', 'reasoning_eligible': True},
+                {'stem': "How is a near vision result of 'smallest comfortable line N8' recorded?", 'options': ['As N8', 'As 6/8', 'As 80%', 'As N5'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Near vision is recorded in N-notation as the smallest line read comfortably — here N8.', 'reasoning_eligible': False},
+                {'stem': 'Why test near vision separately from distance vision?', 'options': ['Near and distance focus can be affected independently', 'They always give the same result', 'Near vision replaces the distance test', 'It is only done to fill in the form'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Distance and near focusing can be affected independently (e.g. presbyopia spares distance), so both are tested.', 'reasoning_eligible': False},
+                {'stem': "A patient's near vision is worse in dim restaurant lighting than in clinic. What is the likely explanation?", 'options': ['Reduced lighting lowers near acuity, especially with early lens changes', 'Their eyes are healthier in dim light', 'Near vision is unaffected by light', 'They are imagining the difference'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Near acuity falls in poor light, and early lens changes make this worse — a common real-world complaint.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL findings consistent with simple presbyopia.', 'options': ['Reduced near vision that improves with a reading add', 'Normal distance vision', 'Onset around the 40s-50s', 'Sudden painful loss of vision'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Presbyopia gives reduced near vision corrected by a reading add, normal distance vision, and onset in the 40s-50s. Sudden painful vision loss is NOT presbyopia.', 'reasoning_eligible': False},
+                {'stem': 'Near vision is reduced AND does not improve with a reading add in an older patient. What does this suggest?', 'options': ['Something beyond presbyopia (e.g. macular problem) — worth review', 'Definitely just presbyopia', 'A refractive error in the distance only', 'Normal ageing, no action'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "If a reading add doesn't help, the cause may be beyond presbyopia (e.g. a macular problem) and should be reviewed.", 'reasoning_eligible': True},
+                {'stem': 'Why record the near working distance if it differs from 35 cm?', 'options': ['Some patients (e.g. musicians) need vision at a specific distance, which affects the add', 'The distance never matters', 'It changes the eye being tested', 'Only 35 cm is ever acceptable'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Some patients need clear vision at a particular working distance, so noting it helps the doctor choose the right reading add.', 'reasoning_eligible': False},
+                {'stem': 'A young child who cannot name letters needs near vision assessed. The best tool is:', 'options': ["Kay's screening near card with a matching card", 'The adult Moorfields letter book only', 'The Ishihara plates', 'No test until they can read'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Kay's pictures with a matching card allow pre-literate children to point/match, giving a usable near acuity.", 'reasoning_eligible': True},
+                {'stem': 'A presbyopic clerk complains of blur only for fine print at work. Which detail is most useful to record?', 'options': ['The near acuity with their reading correction and the working distance used', 'Their distance acuity only', 'Their favourite font', 'The colour of the print'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Documenting near acuity with correction and the actual working distance guides the reading-add prescription.', 'reasoning_eligible': True},
+                {'stem': "'N' notation (e.g. N5, N8) and 'J' notation (e.g. J2) both describe:", 'options': ['Near-vision print sizes on reading charts', 'Distance acuity', 'Intraocular pressure', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'N (point size) and J (Jaeger) are two scales for near reading print sizes; both are recorded for near VA.', 'reasoning_eligible': False},
+                {'stem': 'A patient forgot their reading glasses. The correct action for the near test is to:', 'options': ['Test and clearly document that it was done WITHOUT reading correction', 'Cancel the test', 'Lend them any random glasses', 'Record it as N5 anyway'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "You can still test unaided, but must document 'without glasses' so the result is interpreted correctly.", 'reasoning_eligible': True},
+                {'stem': "Why does the near-vision procedure begin (like other tests) with checking the doctor's order and two patient identifiers?", 'options': ['To ensure the right test is done on the right patient and recorded correctly', 'It is optional paperwork', 'It improves the lighting', 'It calibrates the reading book'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirming the order and identity prevents wrong-test/wrong-patient errors and mis-filed results.', 'reasoning_eligible': True},
+                {'stem': 'A patient reads N8 at 40 cm but says they read fine at home. What is a sensible note to add?', 'options': ['Their habitual working distance may differ from 40 cm - record the distance used', 'That they are exaggerating', 'Nothing - ignore the discrepancy', 'Record N5 to match their claim'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reading comfort depends on the working distance; noting the distance used explains apparent discrepancies.', 'reasoning_eligible': True},
+                {'stem': 'Why is near vision recorded as a baseline observation at many visits?', 'options': ['To monitor change in near visual function over time', 'To fill the record with numbers', 'Because distance vision cannot be trusted', 'It replaces the eye examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Serial near-vision readings act as a baseline to detect change and monitor conditions affecting reading.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A 48-year-old reports recent reading difficulty. Distance "
-                            "VA is 6/6, near improves from N10 to N5 with a +1.50 add. "
-                            "What is the diagnosis and the reasoning?",
-                    "options": [
-                        "Presbyopia — age-appropriate loss of near focus corrected by "
-                        "a reading add",
-                        "Cataract — the lens is opaque",
-                        "Macular degeneration — central vision is destroyed",
-                        "Glaucoma — peripheral field is lost",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Age 48, normal distance vision, and near vision "
-                                   "corrected by a plus add is textbook presbyopia.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does presbyopia spare distance vision while reducing "
-                            "near vision?",
-                    "options": [
-                        "The ageing lens loses flexibility needed to focus up close, "
-                        "but distance focus is unaffected",
-                        "It damages the retina centrally",
-                        "It clouds the lens like a cataract",
-                        "It raises the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "With age the lens stiffens and can no longer change "
-                                   "shape to focus near objects; distance focus needs "
-                                   "no such change, so it is preserved.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "An elderly patient has reduced near vision that a reading "
-                            "add does NOT improve, plus distortion of straight lines. "
-                            "What should you do?",
-                    "options": [
-                        "Suspect a macular problem and flag for review (it's not "
-                        "simple presbyopia)",
-                        "Prescribe a stronger reading add and discharge",
-                        "Reassure that it is normal ageing",
-                        "Repeat only the distance VA",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Near vision unhelped by an add, with distortion, "
-                                   "suggests a macular problem (e.g. AMD) rather than "
-                                   "presbyopia — flag for review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL factors that could make a near vision result "
-                            "unreliable.",
-                    "options": [
-                        "Poor lighting",
-                        "Holding the chart at the wrong distance",
-                        "Not wearing the usual reading correction",
-                        "Testing each eye separately",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Poor light, wrong test distance, and missing "
-                                   "reading correction all make near VA unreliable. "
-                                   "Testing each eye separately is correct technique, "
-                                   "not a source of error.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why can a patient have 6/6 distance vision yet be unable to "
-                            "read a menu comfortably?",
-                    "options": [
-                        "Distance and near focus are separate; near focus can fail "
-                        "(presbyopia) while distance is normal",
-                        "6/6 vision is impossible with reading trouble",
-                        "The menu print is always too small to read",
-                        "They must be exaggerating",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Distance acuity (6/6) says nothing about near "
-                                   "focusing; presbyopia commonly leaves distance "
-                                   "perfect while near reading suffers.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient claims their 'old glasses stopped working' for "
-                            "reading after a few years. What is the most likely "
-                            "explanation?",
-                    "options": [
-                        "Presbyopia has progressed, so a stronger reading add is "
-                        "needed",
-                        "The glasses physically wore out",
-                        "Their distance vision has failed",
-                        "They have developed colour blindness",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Presbyopia increases with age, so an add that "
-                                   "worked a few years ago may now be too weak — a "
-                                   "stronger reading add is usually needed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement best contrasts presbyopia with myopia?",
-                    "options": [
-                        "Presbyopia reduces NEAR vision with age; myopia blurs "
-                        "DISTANCE vision",
-                        "Both blur only near vision",
-                        "Presbyopia blurs distance; myopia blurs near",
-                        "They are the same condition",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Presbyopia is an age-related NEAR problem; myopia "
-                                   "(short sight) blurs DISTANCE vision. They are "
-                                   "different.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How would you document a near test where the patient reads "
-                            "N6 right eye and N8 left eye, both with reading glasses?",
-                    "options": [
-                        "RE N6, LE N8, with reading correction",
-                        "Near vision 6/6 both eyes",
-                        "N6 both eyes together",
-                        "Pass, with no detail",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Record each eye's smallest line and that reading "
-                                   "correction was worn: RE N6, LE N8 (with correction).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is it useful to compare near vision between visits, "
-                            "not just within one visit?",
-                    "options": [
-                        "A genuine decline over time can signal disease, separate "
-                        "from a fixed presbyopic level",
-                        "Near vision never changes once measured",
-                        "Comparison is only needed for distance vision",
-                        "It is done only for paperwork",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Tracking near vision over visits can reveal a real "
-                                   "decline (e.g. macular change) as opposed to a "
-                                   "stable presbyopic baseline.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A diabetic's near vision fluctuates day to day. What is a "
-                            "plausible explanation worth noting?",
-                    "options": [
-                        "Blood sugar swings can temporarily shift the eye's focus",
-                        "Diabetes never affects vision",
-                        "Near charts are simply unreliable",
-                        "The patient needs new frames",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Fluctuating blood glucose can cause temporary "
-                                   "refractive shifts and variable vision — worth "
-                                   "noting in a diabetic before changing glasses.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A 48-year-old reports recent reading difficulty. Distance VA is 6/6, near improves from N10 to N5 with a +1.50 add. What is the diagnosis and the reasoning?', 'options': ['Presbyopia — age-appropriate loss of near focus corrected by a reading add', 'Cataract — the lens is opaque', 'Macular degeneration — central vision is destroyed', 'Glaucoma — peripheral field is lost'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Age 48, normal distance vision, and near vision corrected by a plus add is textbook presbyopia.', 'reasoning_eligible': True},
+                {'stem': 'Why does presbyopia spare distance vision while reducing near vision?', 'options': ['The ageing lens loses flexibility needed to focus up close, but distance focus is unaffected', 'It damages the retina centrally', 'It clouds the lens like a cataract', 'It raises the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'With age the lens stiffens and can no longer change shape to focus near objects; distance focus needs no such change, so it is preserved.', 'reasoning_eligible': True},
+                {'stem': 'An elderly patient has reduced near vision that a reading add does NOT improve, plus distortion of straight lines. What should you do?', 'options': ["Suspect a macular problem and flag for review (it's not simple presbyopia)", 'Prescribe a stronger reading add and discharge', 'Reassure that it is normal ageing', 'Repeat only the distance VA'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Near vision unhelped by an add, with distortion, suggests a macular problem (e.g. AMD) rather than presbyopia — flag for review.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL factors that could make a near vision result unreliable.', 'options': ['Poor lighting', 'Holding the chart at the wrong distance', 'Not wearing the usual reading correction', 'Testing each eye separately'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Poor light, wrong test distance, and missing reading correction all make near VA unreliable. Testing each eye separately is correct technique, not a source of error.', 'reasoning_eligible': False},
+                {'stem': 'Why can a patient have 6/6 distance vision yet be unable to read a menu comfortably?', 'options': ['Distance and near focus are separate; near focus can fail (presbyopia) while distance is normal', '6/6 vision is impossible with reading trouble', 'The menu print is always too small to read', 'They must be exaggerating'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Distance acuity (6/6) says nothing about near focusing; presbyopia commonly leaves distance perfect while near reading suffers.', 'reasoning_eligible': True},
+                {'stem': "A patient claims their 'old glasses stopped working' for reading after a few years. What is the most likely explanation?", 'options': ['Presbyopia has progressed, so a stronger reading add is needed', 'The glasses physically wore out', 'Their distance vision has failed', 'They have developed colour blindness'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Presbyopia increases with age, so an add that worked a few years ago may now be too weak — a stronger reading add is usually needed.', 'reasoning_eligible': True},
+                {'stem': 'Which statement best contrasts presbyopia with myopia?', 'options': ['Presbyopia reduces NEAR vision with age; myopia blurs DISTANCE vision', 'Both blur only near vision', 'Presbyopia blurs distance; myopia blurs near', 'They are the same condition'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Presbyopia is an age-related NEAR problem; myopia (short sight) blurs DISTANCE vision. They are different.', 'reasoning_eligible': False},
+                {'stem': 'How would you document a near test where the patient reads N6 right eye and N8 left eye, both with reading glasses?', 'options': ['RE N6, LE N8, with reading correction', 'Near vision 6/6 both eyes', 'N6 both eyes together', 'Pass, with no detail'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Record each eye's smallest line and that reading correction was worn: RE N6, LE N8 (with correction).", 'reasoning_eligible': False},
+                {'stem': 'Why is it useful to compare near vision between visits, not just within one visit?', 'options': ['A genuine decline over time can signal disease, separate from a fixed presbyopic level', 'Near vision never changes once measured', 'Comparison is only needed for distance vision', 'It is done only for paperwork'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tracking near vision over visits can reveal a real decline (e.g. macular change) as opposed to a stable presbyopic baseline.', 'reasoning_eligible': True},
+                {'stem': "A diabetic's near vision fluctuates day to day. What is a plausible explanation worth noting?", 'options': ["Blood sugar swings can temporarily shift the eye's focus", 'Diabetes never affects vision', 'Near charts are simply unreliable', 'The patient needs new frames'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Fluctuating blood glucose can cause temporary refractive shifts and variable vision — worth noting in a diabetic before changing glasses.', 'reasoning_eligible': True},
+                {'stem': 'An elderly patient reads only N18 even WITH their reading glasses and reports central distortion. The most appropriate response is to:', 'options': ['Document the poor aided near vision and distortion and flag for clinician review (possible macular disease)', 'Reassure that it is just old glasses', 'Give a stronger reading add and discharge', 'Ignore the distortion'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Near vision that a reading add cannot correct, with distortion, suggests macular pathology and needs clinician assessment (e.g. Amsler/OCT).', 'reasoning_eligible': True},
+                {'stem': 'A patient with an infected right eye needs near vision tested. Best practice is to:', 'options': ['Use disinfected/appropriate equipment, test carefully and clean/hand-hygiene afterwards to avoid cross-infection', 'Skip infection control to save time', 'Use the same unwiped occluder for the next patient', 'Refuse to test the patient'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'As with distance testing, infected eyes require strict cleaning of equipment and hand hygiene to prevent spread.', 'reasoning_eligible': True},
+                {'stem': "A 45-year-old with 6/6 distance vision now needs to hold text at arm's length and reads only N12 unaided, improving to N5 with a +1.00 add. This pattern indicates:", 'options': ['Early presbyopia - reduced accommodation corrected by a reading add', 'Cataract', 'Retinal detachment', 'Optic neuritis'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Age-related loss of accommodation (presbyopia) spares distance vision and is corrected by a plus reading add - the classic mid-40s picture.', 'reasoning_eligible': True},
+                {'stem': 'How should you record a near test where the right eye reads N6 and the left reads N8, both with reading glasses?', 'options': ["N6 (right) and N8 (left), both 'with glasses', at the tested distance", "Just 'N6 both eyes'", 'Only the better eye', 'As a single averaged value'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Record each eye separately with the correction used (and distance if non-standard), e.g. 'RE N6 c gls, LE N8 c gls'.", 'reasoning_eligible': True},
+                {'stem': 'A diabetic reports their near vision is sharp some days and blurred others. A plausible explanation worth noting is:', 'options': ['Fluctuating blood glucose transiently shifts the lens refraction', 'The reading book is faulty', 'They are imagining it', 'Near vision never fluctuates'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Swings in blood glucose change the lens's hydration and power, causing day-to-day refractive (and reading) fluctuation - worth documenting.", 'reasoning_eligible': True},
+                {'stem': 'Which statement about near-vision testing is CORRECT?', 'options': ['It is done at ~40 cm, one eye at a time, with any reading correction worn and clearly documented', 'It is done at 6 m without correction', 'Both eyes are always tested together only', 'The correction used never needs recording'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Near VA is tested monocularly at ~40 cm, with the patient's reading correction, and the result recorded with/without glasses.", 'reasoning_eligible': True},
             ],
         },
         "pinhole": {
