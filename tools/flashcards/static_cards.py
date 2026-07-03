@@ -1891,237 +1891,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "optical_biometry": {
             "easy": [
-                {
-                    "stem": "Is optical biometry a contact or non-contact test?",
-                    "options": ["Non-contact", "Contact (applanation)",
-                                "Contact with gel", "It uses an ultrasound probe"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Optical biometry is non-contact — it uses light, "
-                                   "nothing touches the eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL measurements optical biometry can provide.",
-                    "options": ["Axial length",
-                                "Corneal curvature (keratometry)",
-                                "Anterior chamber depth",
-                                "Intraocular pressure"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Optical biometry provides axial length, keratometry "
-                                   "and anterior chamber depth. It does not measure "
-                                   "eye pressure.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the main indication for optical biometry?",
-                    "options": ["Pre-cataract surgery IOL power calculation",
-                                "Glaucoma field testing",
-                                "Colour vision screening",
-                                "Dry eye assessment"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Optical biometry is mainly used to calculate the "
-                                   "IOL power before cataract surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Optical biometry versus A-scan — which is more accurate in "
-                            "most eyes?",
-                    "options": ["Optical biometry", "A-scan ultrasound",
-                                "They are identical", "Neither is accurate"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Optical biometry is more accurate than ultrasound "
-                                   "A-scan for IOL calculation in most eyes.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the optical biometry measurement feed into?",
-                    "options": ["The IOL power calculation",
-                                "The visual field analysis",
-                                "The colour vision score",
-                                "The eye pressure record"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The measurements feed the IOL power calculation for "
-                                   "cataract surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Who selects the final IOL power from the biometry?",
-                    "options": ["The doctor — the OT measures and documents",
-                                "The OT decides the IOL power",
-                                "The patient chooses",
-                                "The machine implants it automatically"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The OT measures and documents; the doctor selects "
-                                   "the IOL power.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Is optical biometry a contact or non-contact test?', 'options': ['Non-contact', 'Contact (applanation)', 'Contact with gel', 'It uses an ultrasound probe'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometry is non-contact — it uses light, nothing touches the eye.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL measurements optical biometry can provide.', 'options': ['Axial length', 'Corneal curvature (keratometry)', 'Anterior chamber depth', 'Intraocular pressure'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Optical biometry provides axial length, keratometry and anterior chamber depth. It does not measure eye pressure.', 'reasoning_eligible': False},
+                {'stem': 'What is the main indication for optical biometry?', 'options': ['Pre-cataract surgery IOL power calculation', 'Glaucoma field testing', 'Colour vision screening', 'Dry eye assessment'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometry is mainly used to calculate the IOL power before cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'Optical biometry versus A-scan — which is more accurate in most eyes?', 'options': ['Optical biometry', 'A-scan ultrasound', 'They are identical', 'Neither is accurate'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometry is more accurate than ultrasound A-scan for IOL calculation in most eyes.', 'reasoning_eligible': False},
+                {'stem': 'What does the optical biometry measurement feed into?', 'options': ['The IOL power calculation', 'The visual field analysis', 'The colour vision score', 'The eye pressure record'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The measurements feed the IOL power calculation for cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'Who selects the final IOL power from the biometry?', 'options': ['The doctor — the OT measures and documents', 'The OT decides the IOL power', 'The patient chooses', 'The machine implants it automatically'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The OT measures and documents; the doctor selects the IOL power.', 'reasoning_eligible': False},
+                {'stem': 'Optical biometry (e.g. IOL Master) works by:', 'options': ['Shining light into the eye (non-contact) and timing reflections', 'Pressing an ultrasound probe on the cornea', 'Taking a blood sample', 'Injecting dye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometers use light interferometry, measuring the eye without touching it.', 'reasoning_eligible': False},
+                {'stem': "Before optical biometry the OT checks the doctor's request and:", 'options': ['Confirms the correct patient with 2 identifiers', "The patient's favourite colour", 'The car park', 'The next appointment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The checklist starts with the biometry order and two-identifier patient confirmation.', 'reasoning_eligible': True},
+                {'stem': 'Optical biometry can measure axial length, corneal power (K) and also:', 'options': ['Anterior chamber depth and white-to-white / lens thickness', 'Eye pressure', 'Colour vision', 'Blood glucose'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Modern optical biometers capture AL, K, ACD, white-to-white and lens thickness for IOL calculation.', 'reasoning_eligible': False},
+                {'stem': 'During optical biometry the patient is asked to:', 'options': ['Look steadily at the fixation light and blink normally between captures', 'Look around the room', 'Close both eyes', 'Stare without ever blinking'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation aligns the scan on the visual axis; a normal blink keeps the tear film smooth for clean K readings.', 'reasoning_eligible': False},
+                {'stem': "The OT must set the eye's lens status before scanning, i.e. whether it is:", 'options': ['Phakic, pseudophakic or aphakic', 'Left or right dominant', 'Wet or dry', 'Blue or brown'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The device needs the correct lens/refractive status to interpret the measurements accurately.', 'reasoning_eligible': False},
+                {'stem': 'At the end of optical biometry the OT should:', 'options': ['Validate and print the result for the operating eye, then care for the instrument', 'Delete the reading', 'Print the wrong eye', 'Skip validation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The validated measurement for the correct eye is printed/recorded and the device is maintained/disinfected.', 'reasoning_eligible': False},
+                {'stem': 'Optical biometry mainly supports which procedure?', 'options': ['Cataract surgery IOL power calculation', 'A visual field test', 'Colour vision screening', 'A fall-risk assessment'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Its measurements feed the IOL formula to choose the implant power for cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'A patient in a wheelchair needs optical biometry. The OT should:', 'options': ['Assess needs and arrange safe positioning/assistance at the instrument', 'Ask them to stand unaided', 'Cancel the scan', 'Ignore the wheelchair'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Receiving the patient with respect and meeting positioning/assistance needs is part of good practice.', 'reasoning_eligible': True},
+                {'stem': 'Why is optical biometry usually MORE accurate than contact ultrasound A-scan?', 'options': ['Being non-contact, it avoids corneal indentation error', 'It presses harder for a clearer signal', 'It uses X-rays', 'It guesses the axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'No probe touches the cornea, so there is no indentation to shorten the axial length; measurements are highly reproducible.', 'reasoning_eligible': False},
+                {'stem': 'The OT should take multiple optical biometry captures to:', 'options': ['Confirm the readings are consistent and reliable', "Use up the machine's memory", 'Slow the clinic', 'Make the print longer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Several consistent captures confirm the values before they are used to choose an IOL.', 'reasoning_eligible': True},
+                {'stem': 'The final IOL power for the patient is chosen by the:', 'options': ['Surgeon/clinician, using the biometry and refractive target', 'Receptionist', 'Patient alone', 'The OT without any plan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT provides accurate measurements; the surgeon selects the IOL power against the planned refractive outcome.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why is optical biometry preferred over A-scan when "
-                            "possible?",
-                    "options": [
-                        "It is non-contact and more accurate for IOL calculation in "
-                        "most eyes",
-                        "It is the only test that works through a dense cataract",
-                        "It measures the eye pressure too",
-                        "It is cheaper to run",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Being non-contact (more comfortable, no indentation "
-                                   "error) and more accurate makes optical biometry the "
-                                   "first choice when the media are clear enough.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "When does optical biometry fail, needing A-scan instead?",
-                    "options": ["With a dense cataract that blocks the light signal",
-                                "When the patient is elderly",
-                                "When the cornea is clear",
-                                "It never fails"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A dense cataract can block the optical light "
-                                   "signal, so ultrasound A-scan is used instead.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why take multiple optical biometry readings?",
-                    "options": ["To confirm consistency before the values are used",
-                                "To dilate the pupil",
-                                "To tire the patient",
-                                "Single readings are always perfect"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Repeated readings are checked for consistency "
-                                   "before being accepted for the IOL calculation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Besides cataract surgery, name one other use of optical "
-                            "biometry data.",
-                    "options": ["Contact lens fitting",
-                                "Measuring eye pressure",
-                                "Colour vision testing",
-                                "Visual field mapping"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Corneal curvature data can also help with contact "
-                                   "lens fitting.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does being non-contact make optical biometry more "
-                            "comfortable AND potentially more accurate than contact "
-                            "A-scan?",
-                    "options": [
-                        "Nothing touches or indents the cornea, avoiding both "
-                        "discomfort and the false-shortening error",
-                        "It uses a stronger anaesthetic",
-                        "It presses more firmly for a better reading",
-                        "It has no effect on accuracy",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Without touching the cornea there is no discomfort "
-                                   "and no indentation error, which both improves "
-                                   "comfort and avoids falsely shortening the axial "
-                                   "length.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Why is optical biometry preferred over A-scan when possible?', 'options': ['It is non-contact and more accurate for IOL calculation in most eyes', 'It is the only test that works through a dense cataract', 'It measures the eye pressure too', 'It is cheaper to run'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Being non-contact (more comfortable, no indentation error) and more accurate makes optical biometry the first choice when the media are clear enough.', 'reasoning_eligible': True},
+                {'stem': 'When does optical biometry fail, needing A-scan instead?', 'options': ['With a dense cataract that blocks the light signal', 'When the patient is elderly', 'When the cornea is clear', 'It never fails'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A dense cataract can block the optical light signal, so ultrasound A-scan is used instead.', 'reasoning_eligible': True},
+                {'stem': 'Why take multiple optical biometry readings?', 'options': ['To confirm consistency before the values are used', 'To dilate the pupil', 'To tire the patient', 'Single readings are always perfect'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Repeated readings are checked for consistency before being accepted for the IOL calculation.', 'reasoning_eligible': False},
+                {'stem': 'Besides cataract surgery, name one other use of optical biometry data.', 'options': ['Contact lens fitting', 'Measuring eye pressure', 'Colour vision testing', 'Visual field mapping'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Corneal curvature data can also help with contact lens fitting.', 'reasoning_eligible': False},
+                {'stem': 'Why does being non-contact make optical biometry more comfortable AND potentially more accurate than contact A-scan?', 'options': ['Nothing touches or indents the cornea, avoiding both discomfort and the false-shortening error', 'It uses a stronger anaesthetic', 'It presses more firmly for a better reading', 'It has no effect on accuracy'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Without touching the cornea there is no discomfort and no indentation error, which both improves comfort and avoids falsely shortening the axial length.', 'reasoning_eligible': True},
+                {'stem': 'Optical biometry FAILS to get an axial length in a very dense/mature cataract because:', 'options': ['The light cannot penetrate the opaque lens - ultrasound A-scan is used instead', 'The eye is too small', 'The machine is always broken', 'Light is faster than sound'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dense opacities block the optical beam; ultrasound penetrates them, so A-scan becomes the fallback.', 'reasoning_eligible': True},
+                {'stem': 'A patient with significant dry eye gives noisy, variable K (corneal power) readings. The OT should:', 'options': ['Ask the patient to blink / instil a lubricant, then re-measure', 'Report the noisy K as final', 'Press on the eye', 'Ignore the K values'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An unstable tear film distorts K readings; a blink or lubricant smooths the surface for reliable corneal power.', 'reasoning_eligible': True},
+                {'stem': 'Poor or wandering fixation during optical biometry can cause:', 'options': ['An off-axis, inaccurate axial length - re-instruct and re-measure', 'A perfect reading', 'A lower eye pressure', 'A colour vision defect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Off-axis scans misread the axial length; steady on-axis fixation is required for an accurate result.', 'reasoning_eligible': True},
+                {'stem': 'White-to-white (WTW) and anterior chamber depth are captured partly to help:', 'options': ['Select and size the IOL (including toric/premium lenses) via the formula', 'Measure eye pressure', 'Grade a cataract', 'Test colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'WTW and ACD feed newer formulae and help size lenses (e.g. toric axis planning), improving the refractive result.', 'reasoning_eligible': True},
+                {'stem': 'For a TORIC IOL, why are the corneal astigmatism magnitude AND axis from biometry so important?', 'options': ['The toric lens must match the corneal astigmatism at the correct axis to work', 'Astigmatism does not matter for toric lenses', 'Only axial length matters', 'The axis is chosen at random'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A toric IOL corrects corneal astigmatism only if its power and alignment axis match the measured cornea.', 'reasoning_eligible': True},
+                {'stem': 'A patient had previous LASIK. Why flag this before optical biometry/IOL calculation?', 'options': ['Altered corneal power misleads standard formulae; a special method is needed', 'It has no effect', 'LASIK eyes cannot be scanned', 'It only changes the print'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Refractive surgery changes the cornea so standard K-based formulae err; the clinician uses a post-refractive method.', 'reasoning_eligible': True},
+                {'stem': "The two eyes' biometry differs by an unexpectedly large amount. The OT should:", 'options': ['Recheck the measurements before they are used for surgery', 'Average and proceed', 'Pick one at random', 'Ignore it'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A large inter-eye difference may indicate an error; rechecking avoids selecting the wrong IOL.', 'reasoning_eligible': True},
+                {'stem': "Why must the OT confirm the OPERATING eye and print/record that eye's result?", 'options': ["The IOL is chosen from that eye's data; a wrong-eye result risks a wrong-power lens", 'Both eyes get the same lens', 'It is only tidiness', 'It never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Biometry is eye-specific; supplying the wrong eye's numbers could put an incorrect IOL in the operative eye.", 'reasoning_eligible': True},
+                {'stem': 'A low signal-to-noise / poor-quality axial-length capture appears. The correct response is to:', 'options': ['Reject it, optimise fixation/tear film, and repeat until quality is acceptable', 'Accept the poor capture', 'Increase the print brightness', 'Report the eye as unmeasurable'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Only good-quality captures should inform the IOL; poor signal is repeated after optimising conditions.', 'reasoning_eligible': True},
+                {'stem': 'Besides cataract IOL calculation, optical biometry data (e.g. axial length) is also used to:', 'options': ['Monitor axial-length growth in childhood myopia management', 'Measure blood pressure', 'Grade colour vision', 'Set the eye drops'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Axial-length tracking helps monitor progression in myopia-control programmes, among other uses.', 'reasoning_eligible': False},
+                {'stem': 'Why does a stable, intact tear film improve optical biometry K readings specifically?', 'options': ["The cornea's front surface (tear film) is where corneal power is measured, so it must be smooth", 'The tear film changes the axial length', 'It raises the eye pressure', 'It has no relevance'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Keratometry reflects off the tear-film surface; an irregular film scatters the reflection and corrupts the K value.', 'reasoning_eligible': True},
+                {'stem': "The OT should 'validate' each optical biometry measurement, meaning:", 'options': ['Confirm the quality indicators/signal are acceptable before accepting the value', 'Simply save the first number', 'Change the eye pressure', 'Validation is optional'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Checking the device's quality/reliability indicators ensures only valid captures inform the IOL calculation.", 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient's optical biometry cannot get a reliable axial "
-                            "length because of a very dense cataract. What is the "
-                            "correct next step?",
-                    "options": [
-                        "Use ultrasound A-scan (e.g. immersion) to obtain the axial "
-                        "length",
-                        "Guess the axial length from the other eye",
-                        "Proceed with no axial length",
-                        "Cancel the cataract surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "When optical biometry fails on a dense cataract, "
-                                   "ultrasound A-scan (which penetrates the opacity) is "
-                                   "used to get the axial length.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL reasons optical biometry is usually the "
-                            "first-choice method for IOL calculation.",
-                    "options": [
-                        "It is non-contact and comfortable",
-                        "It avoids the corneal-indentation error of contact A-scan",
-                        "It is more accurate in most clear-media eyes",
-                        "It works even through a dense cataract",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Optical biometry is non-contact, avoids indentation "
-                                   "error and is more accurate in clear-media eyes. It "
-                                   "does NOT work well through a dense cataract — that "
-                                   "is when A-scan is needed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is consistency between biometry readings and between "
-                            "the two eyes checked before accepting the values?",
-                    "options": [
-                        "Unexpected differences may indicate a measurement error that "
-                        "would give the wrong IOL power",
-                        "Eyes must always be identical",
-                        "It is only a formality",
-                        "Differences never matter",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inconsistent or markedly asymmetric values flag a "
-                                   "possible error; catching it avoids a wrong IOL "
-                                   "power and a poor refractive result.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about optical versus ultrasound biometry "
-                            "is correct?",
-                    "options": [
-                        "Optical is non-contact and more accurate in clear media; "
-                        "A-scan is the fallback when a dense cataract blocks light",
-                        "A-scan is non-contact and always more accurate",
-                        "Optical biometry uses ultrasound",
-                        "They cannot measure axial length",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Optical biometry (light, non-contact) is preferred "
-                                   "in clear media; ultrasound A-scan is the fallback "
-                                   "when dense opacity blocks the optical signal.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A patient's optical biometry cannot get a reliable axial length because of a very dense cataract. What is the correct next step?", 'options': ['Use ultrasound A-scan (e.g. immersion) to obtain the axial length', 'Guess the axial length from the other eye', 'Proceed with no axial length', 'Cancel the cataract surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'When optical biometry fails on a dense cataract, ultrasound A-scan (which penetrates the opacity) is used to get the axial length.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL reasons optical biometry is usually the first-choice method for IOL calculation.', 'options': ['It is non-contact and comfortable', 'It avoids the corneal-indentation error of contact A-scan', 'It is more accurate in most clear-media eyes', 'It works even through a dense cataract'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Optical biometry is non-contact, avoids indentation error and is more accurate in clear-media eyes. It does NOT work well through a dense cataract — that is when A-scan is needed.', 'reasoning_eligible': True},
+                {'stem': 'Why is consistency between biometry readings and between the two eyes checked before accepting the values?', 'options': ['Unexpected differences may indicate a measurement error that would give the wrong IOL power', 'Eyes must always be identical', 'It is only a formality', 'Differences never matter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inconsistent or markedly asymmetric values flag a possible error; catching it avoids a wrong IOL power and a poor refractive result.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about optical versus ultrasound biometry is correct?', 'options': ['Optical is non-contact and more accurate in clear media; A-scan is the fallback when a dense cataract blocks light', 'A-scan is non-contact and always more accurate', 'Optical biometry uses ultrasound', 'They cannot measure axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometry (light, non-contact) is preferred in clear media; ultrasound A-scan is the fallback when dense opacity blocks the optical signal.', 'reasoning_eligible': False},
+                {'stem': "A patient's optical biometry cannot obtain a reliable axial length despite good fixation, due to a dense cataract. The correct next step is to:", 'options': ['Switch to ultrasound A-scan, which penetrates the opacity', 'Report the eye as unmeasurable', 'Guess the axial length', 'Cancel cataract surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'When light cannot get an axial length through a dense lens, ultrasound A-scan is the established fallback.', 'reasoning_eligible': True},
+                {'stem': 'What best explains why optical biometry is usually the FIRST-choice method for IOL calculation?', 'options': ['It is non-contact/comfortable, highly reproducible, and captures multiple parameters (AL, K, ACD, WTW) in one sitting', 'It works through any density of cataract', 'It needs no fixation from the patient', 'It also measures eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Optical biometry is preferred for being non-contact, reproducible and multi-parameter - but it does need clear media and fixation.', 'reasoning_eligible': True},
+                {'stem': 'Two optical biometry sessions give IOL powers that differ substantially for the same eye. The safe action is to:', 'options': ['Re-measure/validate and resolve the discrepancy with the clinician before surgery', 'Average and book surgery', 'Use the higher power', 'Proceed with either'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A large discrepancy suggests an error; re-measurement and clinician review prevent implanting the wrong IOL.', 'reasoning_eligible': True},
+                {'stem': 'Why must the intended refractive TARGET be known when biometry is used to choose the IOL?', 'options': ['The same eye needs a different IOL power for emmetropia versus planned myopia (e.g. monovision)', 'The target never affects the IOL', 'Targets are cosmetic only', 'Biometry sets its own target'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "IOL power combines the measurements with the desired post-op refraction, so the surgeon's target must be specified.", 'reasoning_eligible': True},
+                {'stem': 'A silicone-oil-filled eye needs biometry after prior retinal surgery. Why flag it?', 'options': ['Oil changes optical/ultrasound properties, so the correct mode/setting is needed for a valid axial length', 'Oil-filled eyes cannot be measured', 'It changes the eye colour', 'It has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Silicone oil alters how light/sound travel; the appropriate setting or method is required or the axial length is wrong.', 'reasoning_eligible': True},
+                {'stem': 'Why is consistency between the readings AND between the two eyes checked before accepting biometry?', 'options': ['It catches measurement errors early, preventing a wrong-power IOL and refractive surprise', 'It is purely administrative', 'Eyes are always identical', 'Consistency has no bearing on the IOL'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cross-checking readings and eyes flags outliers/errors so the implanted IOL delivers the intended result.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about optical versus ultrasound biometry is CORRECT?', 'options': ['Optical is non-contact and more reproducible for clear media; ultrasound is needed when opacity blocks the light', 'Ultrasound is always more accurate', 'Optical works through any dense cataract', 'They give identical results in every eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Optical biometry is first-line for clear media (non-contact, reproducible); ultrasound A-scan is the fallback for dense opacities.', 'reasoning_eligible': True},
+                {'stem': "An OT notices the biometer flags high astigmatism that disagrees with the patient's known corneal topography. The best step is to:", 'options': ['Re-measure after optimising the tear film and correlate with topography before it informs a toric IOL', 'Trust the single reading', 'Ignore the topography', 'Report it as final without checking'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Discordant astigmatism may be tear-film artefact; re-measuring and correlating with topography protects toric IOL planning.', 'reasoning_eligible': True},
+                {'stem': 'Why can a poorly-fixating patient with a macular problem give an unreliable optical axial length?', 'options': ['Off-axis fixation measures to the wrong retinal point, skewing the axial length', 'Macular disease has no effect', 'It only changes the K readings', 'The machine compensates automatically'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The axial length is measured to the fixated point; unsteady/eccentric fixation moves that point and biases the result.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good optical biometry practice?', 'options': ['Confirm order/ID and lens status, optimise tear film/fixation, take validated consistent captures, check both eyes, and hand quality data to the surgeon', 'One quick capture is enough', 'Press the sensor to the cornea for a clear signal', 'Skip validation if the patient is cooperative'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable biometry means correct setup, optimised surface/fixation, validated consistent multi-parameter captures, cross-checked, for the surgeon to use.', 'reasoning_eligible': True},
+                {'stem': 'Which sequence of steps correctly ORDERS an optical biometry acquisition?', 'options': ['Confirm order/ID and lens status -> position and align -> optimise fixation/tear film -> capture and validate -> print for the operating eye', 'Capture first, then check the order', 'Print, then position the patient', 'Validate before switching the machine on'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The workflow runs order/ID and setup first, then aligned capture with a good surface, validation, and a printout for the correct eye.', 'reasoning_eligible': False},
+                {'stem': "A patient's optical biometry axial length is borderline very long with a possible staphyloma. The OT should:", 'options': ['Ensure foveal fixation for the measurement and flag the finding for careful formula choice', 'Accept any reading', 'Use the shortest capture', 'Skip the axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Long/staphylomatous eyes need foveal-aligned measurement and appropriate formulae; flagging it helps the surgeon choose correctly.', 'reasoning_eligible': True},
             ],
         },
         "endothelial": {
