@@ -1775,233 +1775,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "gvf": {
             "easy": [
-                {
-                    "stem": "What does the Goldmann visual field (GVF) use?",
-                    "options": ["Manual kinetic perimetry that maps isopters",
-                                "Automated static perimetry",
-                                "An air puff",
-                                "Ultrasound"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "GVF uses manual kinetic perimetry, mapping isopters "
-                                   "with a moving target.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is GVF static or kinetic perimetry?",
-                    "options": ["Kinetic (a moving target)",
-                                "Static (a stationary target)",
-                                "Neither — it measures pressure",
-                                "Both at once"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "GVF is kinetic perimetry — a target is moved until "
-                                   "the patient sees it.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does an isopter represent?",
-                    "options": ["A line joining points of equal retinal sensitivity",
-                                "The optic disc outline",
-                                "The corneal curvature",
-                                "The pupil margin"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "An isopter is a contour line joining points of "
-                                   "equal retinal sensitivity on the field map.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Name one advantage of GVF over automated fields.",
-                    "options": [
-                        "It can test very large fields and suits patients who cannot "
-                        "do automated testing",
-                        "It is fully automatic and needs no operator",
-                        "It measures eye pressure too",
-                        "It is faster for every patient",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "GVF can map large/peripheral fields and is suitable "
-                                   "for patients who can't manage automated testing.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL recognised indications for GVF.",
-                    "options": ["Advanced glaucoma",
-                                "Neurological conditions",
-                                "Low vision or disability certification",
-                                "Routine cataract follow-up"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "GVF is used in advanced glaucoma, neurological "
-                                   "conditions, and low-vision/disability "
-                                   "certification. Routine cataract follow-up is not a "
-                                   "typical indication.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the Goldmann visual field (GVF) use?', 'options': ['Manual kinetic perimetry that maps isopters', 'Automated static perimetry', 'An air puff', 'Ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF uses manual kinetic perimetry, mapping isopters with a moving target.', 'reasoning_eligible': False},
+                {'stem': 'Is GVF static or kinetic perimetry?', 'options': ['Kinetic (a moving target)', 'Static (a stationary target)', 'Neither — it measures pressure', 'Both at once'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF is kinetic perimetry — a target is moved until the patient sees it.', 'reasoning_eligible': False},
+                {'stem': 'What does an isopter represent?', 'options': ['A line joining points of equal retinal sensitivity', 'The optic disc outline', 'The corneal curvature', 'The pupil margin'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'An isopter is a contour line joining points of equal retinal sensitivity on the field map.', 'reasoning_eligible': False},
+                {'stem': 'Name one advantage of GVF over automated fields.', 'options': ['It can test very large fields and suits patients who cannot do automated testing', 'It is fully automatic and needs no operator', 'It measures eye pressure too', 'It is faster for every patient'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "GVF can map large/peripheral fields and is suitable for patients who can't manage automated testing.", 'reasoning_eligible': False},
+                {'stem': 'Select ALL recognised indications for GVF.', 'options': ['Advanced glaucoma', 'Neurological conditions', 'Low vision or disability certification', 'Routine cataract follow-up'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'GVF is used in advanced glaucoma, neurological conditions, and low-vision/disability certification. Routine cataract follow-up is not a typical indication.', 'reasoning_eligible': False},
+                {'stem': 'In Goldmann perimetry the stimulus is:', 'options': ['Moved by the operator from non-seeing to seeing areas (kinetic)', 'Flashed statically at fixed points', 'Never moved', 'A row of letters'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF is kinetic perimetry: a moving target of set size/brightness is brought in until the patient first sees it.', 'reasoning_eligible': False},
+                {'stem': 'An isopter on a GVF chart joins points of:', 'options': ['Equal sensitivity for a given stimulus', 'Equal eye pressure', 'Equal corneal thickness', 'The same colour'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Each isopter maps the boundary where a particular stimulus (size/intensity) is just seen across the field.', 'reasoning_eligible': False},
+                {'stem': 'GVF maps the WHOLE field including the far periphery, unlike a standard HVF 24-2 which tests the:', 'options': ['Central field only', 'Peripheral field only', 'Colour vision', 'Eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF can plot out to the far periphery, whereas the common HVF 24-2/30-2 samples the central field.', 'reasoning_eligible': False},
+                {'stem': 'The physiological blind spot on a field lies approximately:', 'options': ['15 degrees temporal to fixation', 'At the very centre', 'In the far nasal periphery', 'Below the chin'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The blind spot (the optic disc) sits about 15 degrees temporal to fixation and is used to check fixation.', 'reasoning_eligible': False},
+                {'stem': 'GVF depends heavily on the skill of the:', 'options': ['Operator (perimetrist) moving and recording the stimulus', 'Receptionist', "Patient's relative", 'Cleaner'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because the operator presents and plots each stimulus, GVF results depend on consistent, skilled technique.', 'reasoning_eligible': False},
+                {'stem': "A quick BEDSIDE screen of the visual field, comparing the examiner's field to the patient's, is:", 'options': ['Confrontation visual field testing', 'Goldmann perimetry', 'OCT', 'Tonometry'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Confrontation compares the examiner's field with the patient's - a fast screen when formal perimetry is not possible.", 'reasoning_eligible': True},
+                {'stem': 'A patient who cannot manage the automated HVF may instead be offered:', 'options': ['Goldmann (kinetic) perimetry with operator guidance', 'No field test at all', 'A colour vision plate', 'A stronger pair of glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "GVF's interactive, operator-led approach suits patients who struggle with the automated static test.", 'reasoning_eligible': True},
+                {'stem': 'GVF is commonly used for follow-up in glaucoma and:', 'options': ['Neuro-ophthalmology', 'Dry eye', 'Refraction for glasses', 'Cataract grading'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF is valuable in glaucoma and neuro-ophthalmology, where full-field mapping aids diagnosis and monitoring.', 'reasoning_eligible': False},
+                {'stem': 'During GVF the patient must keep steadily fixating the central target so that:', 'options': ['Each plotted point corresponds to a known retinal location', 'The stimulus moves faster', 'The eye pressure drops', 'The chart prints itself'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Stable fixation is essential for the operator to map each response to the correct field position.', 'reasoning_eligible': False},
+                {'stem': 'A larger, brighter Goldmann stimulus (e.g. V4e vs I2e) will map:', 'options': ['A larger isopter (it is seen further into the periphery)', 'A smaller isopter', 'Nothing at all', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Bigger/brighter targets are detected further out, producing larger isopters; smaller/dimmer ones map inner isopters.', 'reasoning_eligible': False},
+                {'stem': 'The fellow (non-tested) eye during GVF should be:', 'options': ['Occluded', 'Kept fixating too', 'Dilated', 'Closed only sometimes'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Occluding the fellow eye ensures the plotted field belongs solely to the eye being tested.', 'reasoning_eligible': False},
+                {'stem': 'GVF records each isopter labelled with the:', 'options': ['Stimulus size and intensity used', "Patient's phone number", 'Room temperature', 'Time of lunch'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Isopters are annotated with the target parameters so the map can be interpreted and reproduced.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "A patient cannot cooperate with the automated HVF. What "
-                            "alternative field test can be offered?",
-                    "options": ["Goldmann visual field (GVF)",
-                                "Another HVF immediately",
-                                "An OCT instead",
-                                "No field test is possible"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "GVF (manual kinetic) can be performed by an "
-                                   "operator and suits patients who cannot do the "
-                                   "automated HVF.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is GVF useful in advanced glaucoma?",
-                    "options": [
-                        "It maps the remaining field, including large/peripheral areas "
-                        "automated tests handle poorly",
-                        "It cures the glaucoma",
-                        "It measures the optic nerve directly",
-                        "It is the only test that shows IOP",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "In advanced glaucoma, GVF maps the remaining "
-                                   "(often peripheral) field that automated static "
-                                   "tests struggle with.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "GVF versus HVF — which is automated static perimetry?",
-                    "options": ["HVF is automated static; GVF is manual kinetic",
-                                "GVF is automated static; HVF is manual kinetic",
-                                "Both are automated static",
-                                "Both are manual kinetic"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HVF is automated static perimetry; GVF is manual "
-                                   "kinetic perimetry.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is documented for a GVF?",
-                    "options": [
-                        "Diagnosis, indication, and interpretation of the isopter "
-                        "results",
-                        "Only the patient's name",
-                        "The eye pressure",
-                        "The IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Record the diagnosis, indication and an "
-                                   "interpretation of the isopter map for a GVF.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does GVF rely heavily on operator skill compared with "
-                            "automated fields?",
-                    "options": [
-                        "The operator manually moves the target and plots responses, "
-                        "so technique affects the result",
-                        "The machine does everything automatically",
-                        "Operator skill is irrelevant to GVF",
-                        "It only needs the patient, no operator",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Because the operator moves the stimulus and plots "
-                                   "the isopters by hand, GVF results depend on a "
-                                   "skilled, consistent technique.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A patient cannot cooperate with the automated HVF. What alternative field test can be offered?', 'options': ['Goldmann visual field (GVF)', 'Another HVF immediately', 'An OCT instead', 'No field test is possible'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'GVF (manual kinetic) can be performed by an operator and suits patients who cannot do the automated HVF.', 'reasoning_eligible': True},
+                {'stem': 'Why is GVF useful in advanced glaucoma?', 'options': ['It maps the remaining field, including large/peripheral areas automated tests handle poorly', 'It cures the glaucoma', 'It measures the optic nerve directly', 'It is the only test that shows IOP'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'In advanced glaucoma, GVF maps the remaining (often peripheral) field that automated static tests struggle with.', 'reasoning_eligible': True},
+                {'stem': 'GVF versus HVF — which is automated static perimetry?', 'options': ['HVF is automated static; GVF is manual kinetic', 'GVF is automated static; HVF is manual kinetic', 'Both are automated static', 'Both are manual kinetic'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HVF is automated static perimetry; GVF is manual kinetic perimetry.', 'reasoning_eligible': False},
+                {'stem': 'What is documented for a GVF?', 'options': ['Diagnosis, indication, and interpretation of the isopter results', "Only the patient's name", 'The eye pressure', 'The IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Record the diagnosis, indication and an interpretation of the isopter map for a GVF.', 'reasoning_eligible': False},
+                {'stem': 'Why does GVF rely heavily on operator skill compared with automated fields?', 'options': ['The operator manually moves the target and plots responses, so technique affects the result', 'The machine does everything automatically', 'Operator skill is irrelevant to GVF', 'It only needs the patient, no operator'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because the operator moves the stimulus and plots the isopters by hand, GVF results depend on a skilled, consistent technique.', 'reasoning_eligible': True},
+                {'stem': 'An elderly patient with very advanced glaucoma has only a small central island left. Why might GVF be preferred over another HVF?', 'options': ['Kinetic GVF can map the residual peripheral island and is easier for a poorly-concentrating patient', 'GVF measures eye pressure instead', 'HVF cannot test glaucoma', 'GVF is always faster and needs no skill'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'GVF maps remaining peripheral vision and its interactive style suits patients who cannot sustain the automated test.', 'reasoning_eligible': True},
+                {'stem': "A neuro patient's GVF shows loss on the same side in BOTH eyes respecting the vertical midline. This pattern suggests:", 'options': ['A homonymous defect from a retro-chiasmal (brain) lesion - flag for the clinician', 'Glaucoma', 'A cataract', 'A normal field'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Homonymous, vertical-midline-respecting loss localises behind the chiasm; GVF's full-field map helps reveal it.", 'reasoning_eligible': True},
+                {'stem': "Why must the SAME operator technique and stimulus settings be used for a patient's serial GVF comparison?", 'options': ['GVF is operator-dependent, so consistency is needed to attribute change to disease not technique', 'Any technique gives identical maps', 'It changes the diagnosis', 'It only affects printing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because results vary with technique, consistent stimulus and method let true progression be distinguished from operator variation.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a drooping upper lid shows an artefactual superior isopter defect. The OT should:', 'options': ['Lift/tape the lid clear and re-plot the affected area', 'Record it as field loss', 'Ignore the superior field', 'Abandon the test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A ptotic lid blocks superior targets, mimicking loss; taping the lid removes the artefact, as in automated fields.', 'reasoning_eligible': True},
+                {'stem': 'The correct near trial lens is used for the CENTRAL isopters but removed for the periphery because:', 'options': ['The lens rim would block peripheral targets and create a false ring defect', 'Peripheral vision needs no focus at all', 'It changes eye pressure', 'The lens improves the periphery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The trial-lens rim occludes peripheral stimuli, so it is used for central testing and removed when plotting the periphery.', 'reasoning_eligible': True},
+                {'stem': 'Progressive SHRINKAGE of the isopters over visits (a constricting field) can indicate conditions such as:', 'options': ['Retinitis pigmentosa or advancing glaucoma - flag the change', 'Improving vision', 'A new pair of glasses needed', 'Nothing of note'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Constricting isopters (tunnel vision) occur in retinitis pigmentosa and advanced glaucoma and should be flagged.', 'reasoning_eligible': True},
+                {'stem': 'During GVF the operator monitors fixation, partly by occasionally presenting a stimulus in the:', 'options': ['Blind spot - a response there signals lost fixation', 'Far periphery only', "Patient's ear", 'Central 1 degree only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "A 'seen' target placed in the physiological blind spot means the eye has moved off fixation, prompting re-instruction.", 'reasoning_eligible': True},
+                {'stem': 'Why is patient instruction and rapport especially important in GVF?', 'options': ['The patient must reliably signal the moment they FIRST see the moving target', 'The machine does everything automatically', 'It has no effect on the result', 'Only the lens matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Kinetic perimetry depends on prompt, honest responses as the target appears; good instruction improves accuracy.', 'reasoning_eligible': True},
+                {'stem': 'A patient fatigues during a long GVF. A sensible OT action is to:', 'options': ['Offer a brief rest, then resume, to keep responses consistent', 'Push on without stopping', 'Speed up the stimulus', 'Record an incomplete field as final'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Fatigue degrades kinetic responses; a short rest helps the patient respond reliably for a trustworthy map.', 'reasoning_eligible': True},
+                {'stem': 'GVF may be chosen for a young child or a patient with limited attention because it:', 'options': ['Is interactive and can be adapted in real time by the operator', 'Requires no cooperation at all', 'Measures the retina structurally', 'Replaces the eye exam'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The operator can pace, encourage and adapt GVF live, making it workable for patients who cannot manage automated testing.', 'reasoning_eligible': True},
+                {'stem': 'What is the main practical DISADVANTAGE of GVF compared with automated perimetry?', 'options': ['It is operator-dependent and less standardised/reproducible', 'It cannot map the periphery', 'It needs no training', 'It measures eye pressure poorly'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "GVF's reliance on operator skill makes it less standardised and harder to reproduce than automated static perimetry.", 'reasoning_eligible': False},
+                {'stem': 'Which is documented so a GVF can be interpreted and repeated consistently?', 'options': ['The stimulus used for each isopter, the eye tested, fixation and any lid/lens notes', "Only the patient's age", "The clinic's opening hours", 'Nothing needs recording'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording stimulus parameters, eye, fixation reliability and artefacts lets the clinician trust and trend the field.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "An elderly patient with very advanced glaucoma and poor "
-                            "concentration needs field testing. Why might GVF be "
-                            "preferred over repeating the HVF?",
-                    "options": [
-                        "An operator can guide GVF and map the small remaining field, "
-                        "which the automated HVF handles poorly",
-                        "GVF is fully automated and needs no cooperation",
-                        "HVF cannot test glaucoma at all",
-                        "GVF measures the eye pressure as well",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "GVF lets a skilled operator guide a "
-                                   "poorly-concentrating patient and map the small "
-                                   "remaining field of advanced glaucoma better than "
-                                   "the automated HVF.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL situations where GVF is a sensible choice over "
-                            "automated static perimetry.",
-                    "options": [
-                        "A patient who cannot cooperate with automated testing",
-                        "Mapping a large/peripheral field in advanced disease",
-                        "Disability or low-vision certification",
-                        "A young, reliable patient with early glaucoma",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "GVF suits poor cooperators, large-field mapping and "
-                                   "certification. A young reliable patient with early "
-                                   "disease is well served by automated HVF.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is consistent operator technique essential when "
-                            "comparing a patient's GVF over several visits?",
-                    "options": [
-                        "Variation in how the target is moved/plotted can mimic real "
-                        "change, confounding progression assessment",
-                        "Technique never affects kinetic perimetry",
-                        "Only the machine settings matter",
-                        "GVF results cannot be compared at all",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Because GVF is operator-dependent, inconsistent "
-                                   "technique can create apparent changes — consistency "
-                                   "is needed to judge true progression.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement best distinguishes GVF from HVF in "
-                            "practice?",
-                    "options": [
-                        "GVF = manual, kinetic, operator-driven, large fields; HVF = "
-                        "automated, static, standardised, central fields",
-                        "They are identical methods with different names",
-                        "GVF is automated and HVF is manual",
-                        "Both only test the central 10 degrees",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "GVF is manual kinetic perimetry (operator-driven, "
-                                   "good for large fields); HVF is automated static "
-                                   "perimetry (standardised, central field). They suit "
-                                   "different patients.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'An elderly patient with very advanced glaucoma and poor concentration needs field testing. Why might GVF be preferred over repeating the HVF?', 'options': ['An operator can guide GVF and map the small remaining field, which the automated HVF handles poorly', 'GVF is fully automated and needs no cooperation', 'HVF cannot test glaucoma at all', 'GVF measures the eye pressure as well'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'GVF lets a skilled operator guide a poorly-concentrating patient and map the small remaining field of advanced glaucoma better than the automated HVF.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL situations where GVF is a sensible choice over automated static perimetry.', 'options': ['A patient who cannot cooperate with automated testing', 'Mapping a large/peripheral field in advanced disease', 'Disability or low-vision certification', 'A young, reliable patient with early glaucoma'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'GVF suits poor cooperators, large-field mapping and certification. A young reliable patient with early disease is well served by automated HVF.', 'reasoning_eligible': True},
+                {'stem': "Why is consistent operator technique essential when comparing a patient's GVF over several visits?", 'options': ['Variation in how the target is moved/plotted can mimic real change, confounding progression assessment', 'Technique never affects kinetic perimetry', 'Only the machine settings matter', 'GVF results cannot be compared at all'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because GVF is operator-dependent, inconsistent technique can create apparent changes — consistency is needed to judge true progression.', 'reasoning_eligible': True},
+                {'stem': 'Which statement best distinguishes GVF from HVF in practice?', 'options': ['GVF = manual, kinetic, operator-driven, large fields; HVF = automated, static, standardised, central fields', 'They are identical methods with different names', 'GVF is automated and HVF is manual', 'Both only test the central 10 degrees'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF is manual kinetic perimetry (operator-driven, good for large fields); HVF is automated static perimetry (standardised, central field). They suit different patients.', 'reasoning_eligible': False},
+                {'stem': "A patient's GVF shows isopters that spiral inward or cross over as testing continues, with no anatomical pattern. This most likely reflects:", 'options': ['Non-physiological (functional) responses - note it objectively for the clinician', 'Definite glaucoma', 'A retinal detachment', 'Perfect reliability'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Spiralling/crossing isopters that defy anatomy suggest a functional/non-organic field; the OT records the observation without judging.', 'reasoning_eligible': True},
+                {'stem': 'A clinic must decide between GVF and a repeat HVF for a frail patient who could not complete automation. The deciding factor favouring GVF is that it:', 'options': ['Is operator-guided and can be paced/encouraged in real time for a difficult patient', 'Needs no operator skill', 'Measures the eye pressure', 'Is the only glaucoma test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "GVF's interactive, operator-paced nature makes it the better option when a patient cannot sustain the automated static test.", 'reasoning_eligible': True},
+                {'stem': 'A GVF shows a defect respecting the vertical midline in one eye plus a matching contralateral pattern. Why flag this urgently to the clinician?', 'options': ['Vertical-midline (chiasmal/retrochiasmal) loss can signal a neurological lesion needing investigation', 'It is a normal variant', 'It proves cataract', 'It only needs new glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Loss localising to the chiasm/visual pathway may indicate a tumour or vascular lesion and warrants prompt work-up.', 'reasoning_eligible': True},
+                {'stem': 'Why can a GVF from one clinic be hard to compare directly with a GVF done elsewhere by a different perimetrist?', 'options': ['Technique and stimulus handling vary between operators, reducing reproducibility', 'GVF is fully automated and identical everywhere', 'The blind spot moves between clinics', 'Charts are randomly generated'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Operator-dependent kinetic testing varies between perimetrists, so cross-site comparison is less reliable than automated fields.', 'reasoning_eligible': True},
+                {'stem': "For a patient with end-stage glaucoma whose HVF is 'too noisy' to interpret, GVF is offered. The value is that it:", 'options': ['Can still map the residual peripheral island the automated central test cannot capture', 'Cures the glaucoma', 'Measures corneal thickness', 'Removes the need for follow-up'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'When central automated testing is unrewarding in end-stage disease, kinetic GVF maps the remaining peripheral field for monitoring.', 'reasoning_eligible': True},
+                {'stem': 'Which statement best DISTINGUISHES GVF from HVF in practice?', 'options': ['GVF is kinetic, operator-driven and full-field; HVF is automated, static and usually central/standardised', 'They are identical tests', 'HVF is kinetic and GVF is automated', 'Both only test colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'GVF = kinetic, operator-dependent, whole-field; HVF = automated, static, standardised central perimetry.', 'reasoning_eligible': True},
+                {'stem': 'Before attributing a GVF change to disease progression, the OT/clinician should first exclude:', 'options': ['Operator/technique differences, lid or lens artefact, and poor fixation/fatigue', 'Good fixation', 'A correctly labelled isopter', 'A cooperative patient'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Apparent change must not be an artefact of technique, lid/lens obstruction or fatigue before it is called true progression.', 'reasoning_eligible': True},
+                {'stem': 'A confrontation field at the bedside is grossly full, but the patient reports difficulty. The appropriate next step is often to:', 'options': ['Arrange formal perimetry (GVF/HVF), as confrontation is only a coarse screen', 'Conclude the field is perfect', 'Ignore the symptom', 'Repeat confrontation forever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Confrontation detects only gross defects; symptomatic patients need formal perimetry to quantify the field.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT confirm the correct trial-lens power AND centration for the central GVF isopters?', 'options': ['Wrong power blurs and a decentred rim occludes, both distorting the central isopters', 'Lenses never affect GVF', 'It sets the eye pressure', 'Only the periphery needs a lens'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An incorrect or off-centre lens introduces blur or rim artefact into the central field, so power and centration are checked.', 'reasoning_eligible': True},
+                {'stem': "A patient's GVF isopters are markedly asymmetric between the two eyes. The OT should:", 'options': ['Ensure both were tested with the same technique/stimulus, then flag the asymmetry to the clinician', 'Assume disease without checking technique', 'Ignore it', 'Re-label the isopters to match'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'True inter-eye asymmetry is meaningful only if both fields were tested comparably; then it is flagged for interpretation.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good GVF practice?', 'options': ['Consistent skilled technique, correct correction, occlusion, fixation monitoring, artefact control, and clear labelling/documentation', 'Any technique as long as it is quick', 'No occlusion and random stimuli', 'Skip documentation if the chart looks nice'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Reliable GVF needs consistent technique, correct correction/occlusion, fixation checks, artefact control and thorough labelling.', 'reasoning_eligible': True},
+                {'stem': 'A neuro-ophthalmology clinic specifically requests GVF rather than HVF for a patient with a suspected pituitary lesion because GVF:', 'options': ['Maps the full peripheral field and the shape of a bitemporal defect clearly', 'Measures hormone levels', 'Is the only test for glaucoma', 'Replaces an MRI scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "GVF's full-field kinetic map delineates the extent/shape of a bitemporal defect from chiasmal compression, aiding neuro assessment.", 'reasoning_eligible': True},
             ],
         },
         "ascan_biometry": {
