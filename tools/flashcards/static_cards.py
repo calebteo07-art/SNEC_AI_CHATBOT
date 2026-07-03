@@ -1425,274 +1425,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "fall_risk": {
             "easy": [
-                {
-                    "stem": "How often are patients assessed for fall risk?",
-                    "options": ["Every visit (all patients)",
-                                "Only after a fall",
-                                "Only on the first visit",
-                                "Only patients over 80"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Fall risk is assessed at every visit for all "
-                                   "patients.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL groups that are at high risk of falls.",
-                    "options": ["The elderly", "The visually impaired",
-                                "Post-dilation patients", "Healthy young patients"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "The elderly, the visually impaired and "
-                                   "post-dilation patients are high-risk for falls.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "If a patient is high fall risk, what must you document?",
-                    "options": ["The action taken (e.g. accompany, wheelchair)",
-                                "Only the risk score",
-                                "Nothing — documentation is optional",
-                                "Their distance vision only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Document the action taken (e.g. accompany the "
-                                   "patient, provide a wheelchair), not just the risk.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does dilation increase fall risk?",
-                    "options": ["It blurs vision and causes light sensitivity",
-                                "It weakens the legs",
-                                "It lowers blood pressure",
-                                "It does not affect falls"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Dilation blurs vision and causes light sensitivity, "
-                                   "making the patient less steady.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is documenting the fall risk enough on its own?",
-                    "options": ["No — you must also take active measures",
-                                "Yes — documenting is sufficient",
-                                "Only if the patient is elderly",
-                                "Only if a fall has already happened"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Documenting is not enough — you must take active "
-                                   "measures to keep the patient safe.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Who should you inform about a high-fall-risk patient?",
-                    "options": ["The nurse-in-charge / relevant staff",
-                                "No one",
-                                "Only the patient",
-                                "The receptionist only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inform the nurse-in-charge or relevant staff so the "
-                                   "team can keep the patient safe.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'How often are patients assessed for fall risk?', 'options': ['Every visit (all patients)', 'Only after a fall', 'Only on the first visit', 'Only patients over 80'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Fall risk is assessed at every visit for all patients.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL groups that are at high risk of falls.', 'options': ['The elderly', 'The visually impaired', 'Post-dilation patients', 'Healthy young patients'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'The elderly, the visually impaired and post-dilation patients are high-risk for falls.', 'reasoning_eligible': False},
+                {'stem': 'If a patient is high fall risk, what must you document?', 'options': ['The action taken (e.g. accompany, wheelchair)', 'Only the risk score', 'Nothing — documentation is optional', 'Their distance vision only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Document the action taken (e.g. accompany the patient, provide a wheelchair), not just the risk.', 'reasoning_eligible': False},
+                {'stem': 'Why does dilation increase fall risk?', 'options': ['It blurs vision and causes light sensitivity', 'It weakens the legs', 'It lowers blood pressure', 'It does not affect falls'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Dilation blurs vision and causes light sensitivity, making the patient less steady.', 'reasoning_eligible': False},
+                {'stem': 'Is documenting the fall risk enough on its own?', 'options': ['No — you must also take active measures', 'Yes — documenting is sufficient', 'Only if the patient is elderly', 'Only if a fall has already happened'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Documenting is not enough — you must take active measures to keep the patient safe.', 'reasoning_eligible': False},
+                {'stem': 'Who should you inform about a high-fall-risk patient?', 'options': ['The nurse-in-charge / relevant staff', 'No one', 'Only the patient', 'The receptionist only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inform the nurse-in-charge or relevant staff so the team can keep the patient safe.', 'reasoning_eligible': False},
+                {'stem': 'The fall-risk assessment includes asking the patient about their:', 'options': ['History of falls', 'Favourite food', 'Shoe brand', 'Holiday plans'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A prior fall is one of the strongest predictors of future falls, so history of falls is always asked.', 'reasoning_eligible': False},
+                {'stem': "Besides history of falls, the fall assessment scores the patient's:", 'options': ['Transfer and mobility ability', 'Blood type', 'Eye colour', 'Handwriting'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Transfer (getting in/out of a chair) and mobility scores contribute to the total weighted fall-risk score.', 'reasoning_eligible': False},
+                {'stem': 'When a patient is identified as high fall-risk, you should place a Fall Risk Sticker on:', 'options': ["The top of the appointment slip and the patient's shoulder area", 'The floor beside them', 'The waiting-room wall', 'The reception desk only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "A visible fall-risk sticker on the slip and the patient's shoulder alerts all staff to take precautions.", 'reasoning_eligible': False},
+                {'stem': 'After scoring the fall assessment, you must:', 'options': ['Identify the fall-risk category and act on it', 'Ignore the number', 'Only file it away', 'Tell the next patient'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The total weighted score is used to assign a risk category that then guides precautions.', 'reasoning_eligible': False},
+                {'stem': 'For a high fall-risk patient, after documentation you should also:', 'options': ['Initiate fall precautions and provide falls-precaution education', 'Do nothing further', 'Send them home immediately', 'Remove their walking aid'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Identifying risk is only useful if precautions are started and the patient is educated to prevent a fall.', 'reasoning_eligible': True},
+                {'stem': 'The fall assessment also asks about vision and toileting pattern because:', 'options': ['Poor vision and urgent/frequent toileting both raise the chance of falling', 'They affect the eye pressure', 'They are needed for billing', 'They change the refraction'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Impaired vision and rushing to the toilet are recognised fall-risk factors captured in the assessment.', 'reasoning_eligible': False},
+                {'stem': 'Fall-risk assessment in the clinic is performed for:', 'options': ['Patients (as a routine screen), not just obvious cases', 'Only patients who have already fallen', 'Only children', 'Only staff'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Routine screening catches at-risk patients who may not look obviously unsteady.', 'reasoning_eligible': False},
+                {'stem': 'Mental status is assessed in the fall screen because confusion:', 'options': ['Increases the risk of unsafe movement and falls', 'Improves balance', 'Lowers eye pressure', 'Has no effect on falls'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Confusion or poor awareness makes a patient more likely to move unsafely and fall.', 'reasoning_eligible': False},
+                {'stem': 'Who should be informed when a patient is high fall-risk?', 'options': ['The nurse in charge / care team, so precautions are coordinated', 'No one', "Only the patient's employer", 'The next patient in the queue'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Communicating the risk to the nurse/team ensures precautions (escort, aids, supervision) are put in place.', 'reasoning_eligible': False},
+                {'stem': 'The fall-risk assessment begins, like other procedures, by:', 'options': ["Introducing yourself and confirming the patient's identity with 2 identifiers", 'Dilating the pupils', 'Measuring the eye pressure', "Removing the patient's shoes"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Introduction, explanation and two-identifier confirmation start the assessment safely on the correct patient.', 'reasoning_eligible': False},
+                {'stem': 'A recognised high-risk group for falls in the eye clinic is:', 'options': ['The elderly with poor vision', 'Young adults with normal vision', 'Teenagers wearing glasses', 'Staff at the reception desk'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Older patients with reduced vision (often plus medications and unsteadiness) are a classic high fall-risk group.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "An elderly, post-dilation patient is unaccompanied with no "
-                            "walking aid. What is the risk level and response?",
-                    "options": ["High fall risk — take active measures",
-                                "Low risk — no action needed",
-                                "Risk only if they complain",
-                                "Routine — just document"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Elderly + post-dilation + unaccompanied + no aid = "
-                                   "high fall risk; take active measures, don't just "
-                                   "note it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL appropriate active measures for a high-fall-risk "
-                            "patient.",
-                    "options": ["Accompany and seat them safely",
-                                "Alert the nurse-in-charge",
-                                "Offer a wheelchair",
-                                "Leave them to walk out alone quickly"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Accompany/seat safely, alert the nurse, and offer a "
-                                   "wheelchair. Leaving them to walk out alone is the "
-                                   "opposite of safe.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient looks well but admits a recent near-fall and a "
-                            "new sedative. How do you classify them?",
-                    "options": [
-                        "At risk — screening uncovers hidden risk, so act on it",
-                        "Low risk — they look fine",
-                        "No risk — sedatives don't matter",
-                        "Risk only if they fall in clinic",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A near-fall and a new sedative are hidden risks "
-                                   "that screening reveals — treat the patient as at "
-                                   "risk despite looking well.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does severe visual field loss raise fall risk even "
-                            "with good central vision?",
-                    "options": [
-                        "Loss of side vision makes navigating obstacles hazardous",
-                        "Central vision is all that matters for walking",
-                        "Field loss improves balance",
-                        "It has no effect on falls",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Side (peripheral) vision warns of obstacles; losing "
-                                   "it makes moving around hazardous even when central "
-                                   "vision is sharp.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is fall risk screened for EVERY patient rather than "
-                            "only obvious cases?",
-                    "options": [
-                        "Some at-risk patients look well, so routine screening catches "
-                        "hidden risk",
-                        "It is a billing requirement only",
-                        "Only elderly patients ever fall",
-                        "It replaces the eye examination",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Routine screening catches at-risk patients who look "
-                                   "well (e.g. on new sedatives, recent near-fall) and "
-                                   "would otherwise be missed.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient becomes unsteady after dilation in a brightly "
-                            "lit waiting area. What is the best immediate action?",
-                    "options": [
-                        "Seat them safely, offer shade/sunglasses, and alert staff",
-                        "Tell them to hurry to the exit",
-                        "Turn up the lights further",
-                        "Ignore it — dilation always feels like that",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Seat them safely, reduce glare (shade/sunglasses), "
-                                   "and alert staff — practical measures to prevent a "
-                                   "fall.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'An elderly, post-dilation patient is unaccompanied with no walking aid. What is the risk level and response?', 'options': ['High fall risk — take active measures', 'Low risk — no action needed', 'Risk only if they complain', 'Routine — just document'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Elderly + post-dilation + unaccompanied + no aid = high fall risk; take active measures, don't just note it.", 'reasoning_eligible': True},
+                {'stem': 'Select ALL appropriate active measures for a high-fall-risk patient.', 'options': ['Accompany and seat them safely', 'Alert the nurse-in-charge', 'Offer a wheelchair', 'Leave them to walk out alone quickly'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Accompany/seat safely, alert the nurse, and offer a wheelchair. Leaving them to walk out alone is the opposite of safe.', 'reasoning_eligible': False},
+                {'stem': 'A patient looks well but admits a recent near-fall and a new sedative. How do you classify them?', 'options': ['At risk — screening uncovers hidden risk, so act on it', 'Low risk — they look fine', "No risk — sedatives don't matter", 'Risk only if they fall in clinic'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A near-fall and a new sedative are hidden risks that screening reveals — treat the patient as at risk despite looking well.', 'reasoning_eligible': True},
+                {'stem': 'Why does severe visual field loss raise fall risk even with good central vision?', 'options': ['Loss of side vision makes navigating obstacles hazardous', 'Central vision is all that matters for walking', 'Field loss improves balance', 'It has no effect on falls'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Side (peripheral) vision warns of obstacles; losing it makes moving around hazardous even when central vision is sharp.', 'reasoning_eligible': True},
+                {'stem': 'Why is fall risk screened for EVERY patient rather than only obvious cases?', 'options': ['Some at-risk patients look well, so routine screening catches hidden risk', 'It is a billing requirement only', 'Only elderly patients ever fall', 'It replaces the eye examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Routine screening catches at-risk patients who look well (e.g. on new sedatives, recent near-fall) and would otherwise be missed.', 'reasoning_eligible': False},
+                {'stem': 'A patient becomes unsteady after dilation in a brightly lit waiting area. What is the best immediate action?', 'options': ['Seat them safely, offer shade/sunglasses, and alert staff', 'Tell them to hurry to the exit', 'Turn up the lights further', 'Ignore it — dilation always feels like that'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Seat them safely, reduce glare (shade/sunglasses), and alert staff — practical measures to prevent a fall.', 'reasoning_eligible': False},
+                {'stem': 'The PFAER screen also flags NUTRITIONAL concerns. Poor intake for over 5 days or losing 2 kg in a month should prompt:', 'options': ['Referral to a GP/polyclinic', 'No action', 'An eye pressure check', 'A new pair of glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Significant poor intake or unplanned weight loss is referred to the GP/polyclinic as part of holistic screening.', 'reasoning_eligible': True},
+                {'stem': 'During PFAER psychosocial screening, a patient reveals financial difficulty and low mood. The appropriate action is to:', 'options': ['Refer to the Medical Social Worker (MSW)', 'Ignore it as irrelevant', 'Refract the patient', 'Dilate the pupils'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Abnormal emotions or financial concerns are referred to the MSW, who supports the patient's psychosocial needs.", 'reasoning_eligible': True},
+                {'stem': 'A patient has a learning barrier (e.g. does not speak the language, poor hearing). Good practice is to:', 'options': ['Identify the barrier and select an appropriate intervention (interpreter, written aids)', 'Skip all education', 'Speak faster', 'Assume they understood'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'PFAER requires identifying learning barriers and choosing an intervention so education is actually understood.', 'reasoning_eligible': True},
+                {'stem': 'Why does severe visual field loss raise fall risk even when central acuity is good?', 'options': ['Loss of peripheral vision means kerbs, steps and obstacles are not seen', 'It weakens the legs', 'It lowers blood pressure', 'Central vision is all that matters for walking'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Peripheral field detects hazards underfoot and to the side; losing it (e.g. glaucoma) increases trips and falls despite good central vision.', 'reasoning_eligible': True},
+                {'stem': 'An elderly patient about to be dilated is unaccompanied with no walking aid. The best response is to:', 'options': ['Treat as elevated risk - counsel, offer assistance/escort and arrange safe transport', 'Dilate and send them off quickly', 'Ignore it', 'Give them a stronger dilating drop'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation blur plus age and being alone raise fall risk; precautions (escort, sunglasses, transport advice) are needed.', 'reasoning_eligible': True},
+                {'stem': 'Why must education and teaching for a patient be RECORDED (date, staff, needs, response)?', 'options': ['It documents what the patient was taught and understood, for safe continuity of care', 'It is optional decoration', 'It measures eye pressure', 'It replaces the fall sticker'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Recording the education (needs, mode, response) shows what was taught and understood, supporting safe, coordinated care.', 'reasoning_eligible': True},
+                {'stem': 'A patient looks well but admits a recent near-fall and starting a new sedative. You should classify them as:', 'options': ['Elevated fall risk despite appearances - screen and apply precautions', 'Low risk because they look fine', 'No risk at all', 'Only at risk if they actually fall in clinic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A recent near-fall and a new sedating drug are strong risk factors even in a well-looking patient; act on the screen, not appearances.', 'reasoning_eligible': True},
+                {'stem': 'A wheelchair-bound patient scores high on the fall assessment. Precautions should:', 'options': ['Still be applied - risk continues during transfers to/from the chair and equipment', 'Be skipped because they are seated', 'Only apply if they can walk', 'Be removed entirely'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Wheelchair users are still at risk during transfers and toileting; fall precautions and safe-transfer support remain important.', 'reasoning_eligible': True},
+                {'stem': 'A patient scores just BELOW the high-risk threshold but has one strong factor (a recent fracture from a fall). You should:', 'options': ['Use clinical judgement and consider precautions - a single strong factor can still warrant care', 'Rely only on the number and do nothing', 'Discharge without advice', 'Increase their dilating drops'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Scores guide but do not replace judgement; a serious prior fall injury justifies precautions even at a borderline score.', 'reasoning_eligible': True},
+                {'stem': 'A patient becomes unsteady after dilation in a busy waiting area. The best immediate action is to:', 'options': ['Sit them safely, stay with them/summon help, and arrange assistance before they move', 'Tell them to walk it off', 'Leave them to manage alone', 'Send them straight down the stairs'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Prevent a fall by seating them safely, staying with them or calling for help, and arranging support before they mobilise.', 'reasoning_eligible': True},
+                {'stem': "The fall-risk score is described as a 'total WEIGHTED risk score'. This means:", 'options': ['Different factors contribute different amounts to the final risk figure', 'Every factor counts equally as 1', 'Only weight in kilograms is used', 'It is a random number'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Factors (history, mental status, mobility, etc.) are weighted by their impact and summed into an overall risk score.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "An 82-year-old with glaucoma field loss, on a new sleeping "
-                            "tablet, attends alone and will be dilated. Why is this a "
-                            "high-risk combination, and what do you do?",
-                    "options": [
-                        "Multiple risks stack (age, field loss, sedative, dilation, "
-                        "alone) — arrange escort/wheelchair and alert the nurse",
-                        "Each factor is minor, so no action is needed",
-                        "Only the dilation matters; ignore the rest",
-                        "Tell them to drive home carefully",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Age, field loss, a sedative, dilation and being "
-                                   "alone all add up to high risk. Arrange an "
-                                   "escort/wheelchair and alert the nurse-in-charge.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL factors that should raise your fall-risk "
-                            "concern, even individually.",
-                    "options": [
-                        "Recent dilation",
-                        "Severe visual field loss",
-                        "A new sedative medication",
-                        "Arriving with a steady, accompanying relative",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Dilation, field loss and new sedatives each raise "
-                                   "fall risk. Arriving with a steady companion lowers "
-                                   "it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is 'the patient looked fine so I just noted low risk' "
-                            "an unsafe approach?",
-                    "options": [
-                        "Appearance can hide real risk (sedatives, field loss, "
-                        "near-falls); screening and action are needed",
-                        "Looking fine always proves low risk",
-                        "Documentation alone keeps patients safe",
-                        "Fall risk is not the clinic's concern",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A well-looking patient can still be high-risk; you "
-                                   "must screen properly and take action, not judge by "
-                                   "appearance alone.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "After a high-risk patient is identified, what completes "
-                            "the safe response?",
-                    "options": [
-                        "Take an active measure AND document it AND inform the "
-                        "relevant staff",
-                        "Document the score and nothing more",
-                        "Tell the patient to be careful",
-                        "Wait to see if they fall",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Safe practice combines an active measure "
-                                   "(escort/wheelchair/seating), documentation, and "
-                                   "informing staff — all three.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which statement about fall-risk management is correct?",
-                    "options": [
-                        "Screen everyone, act on risk, and communicate it — not just "
-                        "record a number",
-                        "Only assess patients who have already fallen",
-                        "Documentation by itself prevents falls",
-                        "Dilation and field loss are unrelated to falls",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Good fall-risk management means universal "
-                                   "screening, active measures, and communication — "
-                                   "documentation alone is not enough.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'An 82-year-old with glaucoma field loss, on a new sleeping tablet, attends alone and will be dilated. Why is this a high-risk combination, and what do you do?', 'options': ['Multiple risks stack (age, field loss, sedative, dilation, alone) — arrange escort/wheelchair and alert the nurse', 'Each factor is minor, so no action is needed', 'Only the dilation matters; ignore the rest', 'Tell them to drive home carefully'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Age, field loss, a sedative, dilation and being alone all add up to high risk. Arrange an escort/wheelchair and alert the nurse-in-charge.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL factors that should raise your fall-risk concern, even individually.', 'options': ['Recent dilation', 'Severe visual field loss', 'A new sedative medication', 'Arriving with a steady, accompanying relative'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Dilation, field loss and new sedatives each raise fall risk. Arriving with a steady companion lowers it.', 'reasoning_eligible': True},
+                {'stem': "Why is 'the patient looked fine so I just noted low risk' an unsafe approach?", 'options': ['Appearance can hide real risk (sedatives, field loss, near-falls); screening and action are needed', 'Looking fine always proves low risk', 'Documentation alone keeps patients safe', "Fall risk is not the clinic's concern"], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A well-looking patient can still be high-risk; you must screen properly and take action, not judge by appearance alone.', 'reasoning_eligible': True},
+                {'stem': 'After a high-risk patient is identified, what completes the safe response?', 'options': ['Take an active measure AND document it AND inform the relevant staff', 'Document the score and nothing more', 'Tell the patient to be careful', 'Wait to see if they fall'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Safe practice combines an active measure (escort/wheelchair/seating), documentation, and informing staff — all three.', 'reasoning_eligible': False},
+                {'stem': 'Which statement about fall-risk management is correct?', 'options': ['Screen everyone, act on risk, and communicate it — not just record a number', 'Only assess patients who have already fallen', 'Documentation by itself prevents falls', 'Dilation and field loss are unrelated to falls'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good fall-risk management means universal screening, active measures, and communication — documentation alone is not enough.', 'reasoning_eligible': False},
+                {'stem': 'An 82-year-old with glaucomatous field loss, on a new sleeping tablet, attends alone and will be dilated. Why is this high-risk and what do you do?', 'options': ['Multiple additive factors (age, field loss, sedative, alone, dilation) - screen, apply precautions, educate and arrange help', 'Only one factor matters, so treat as low risk', 'Dilate quickly and discharge', 'Ignore the medication'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The factors compound; identify the high risk, initiate precautions, provide falls education and arrange escort/transport.', 'reasoning_eligible': True},
+                {'stem': "Why is 'the patient looked fine, so I just noted low risk' an unsafe approach?", 'options': ['Fall risk is judged by the structured assessment, not appearance - hidden factors are common', 'Appearance is the most accurate test', 'Low risk needs no documentation', 'Looking fine guarantees safety'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Objective screening (history, medication, mobility, vision) catches risk that a quick look misses; skipping it endangers the patient.', 'reasoning_eligible': True},
+                {'stem': 'After a high-risk patient is identified, which sequence COMPLETES the safe response?', 'options': ['Initiate fall precautions, educate the patient, place the fall-risk sticker, and inform the team', 'Only write the score down', 'Just tell the patient to be careful', 'Remove their glasses and aids'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Beyond scoring, safety needs active precautions, patient education, visible flagging (sticker) and team communication.', 'reasoning_eligible': True},
+                {'stem': 'A confused patient scores high on falls but refuses any assistance and wants to walk off. The best action is to:', 'options': ['Escalate to the nurse/team to manage safety while respecting the patient, rather than let them leave unsupervised', 'Let them go alone', 'Physically restrain them yourself', 'Ignore the refusal and the risk'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Balance autonomy with safety by involving the nurse/team; an unsupervised high-risk confused patient needs coordinated management.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about fall-risk management is CORRECT?', 'options': ['Screen every patient, score risk, and for high risk initiate precautions, educate, flag and inform the team', 'Only screen those who look frail', 'Documentation alone keeps the patient safe', 'Fall risk cannot be reduced'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe practice is universal screening plus, for high-risk patients, active precautions, education, visible flagging and team communication.', 'reasoning_eligible': True},
+                {'stem': 'A patient on multiple blood-pressure medications feels dizzy on standing (postural hypotension). In fall terms this:', 'options': ['Adds to their fall risk and warrants precautions and slow, supported mobilising', 'Reduces fall risk', 'Is unrelated to falls', 'Only matters for the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Postural hypotension causes unsteadiness on standing; it is a genuine fall factor requiring caution when the patient rises.', 'reasoning_eligible': True},
+                {'stem': 'Why should falls-precaution EDUCATION be given to the patient/caregiver, not just precautions applied in clinic?', 'options': ['The patient is also at risk at home; understanding precautions reduces falls beyond the clinic visit', 'Education is only a formality', 'It lowers eye pressure', 'Precautions only matter in clinic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Most falls happen at home; educating the patient/caregiver extends protection beyond the clinic environment.', 'reasoning_eligible': True},
+                {'stem': 'A newly-dilated, high-risk patient must cross a dimly-lit corridor with steps. The safest plan is to:', 'options': ['Arrange an escort/aid and ensure adequate lighting before they walk', 'Let them find their own way', 'Turn off the lights to protect their eyes', 'Rush them across quickly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Blur from dilation plus poor lighting and steps is hazardous; an escort, walking aid and good lighting prevent a fall.', 'reasoning_eligible': True},
+                {'stem': 'Why does a recent change in medication (e.g. a new sedative or antihypertensive) specifically raise fall concern?', 'options': ['New drugs can cause drowsiness or dizziness before the patient has adjusted', 'Medications never affect balance', 'Only old medications matter', 'It only affects vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A newly-started sedating or blood-pressure drug can cause drowsiness/postural dizziness, transiently increasing fall risk.', 'reasoning_eligible': True},
+                {'stem': 'The broader PFAER screen (nutrition, psychosocial, learning, education) alongside fall risk reflects the principle that:', 'options': ['Patient safety and wellbeing are assessed holistically, not just the eye complaint', 'Only the eyes ever matter', 'Screening wastes clinic time', 'Falls are the only concern'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PFAER screens nutrition, psychosocial needs, learning barriers, education and falls - a whole-person approach to safe care.', 'reasoning_eligible': True},
+                {'stem': "A high-fall-risk patient's appointment slip is missing its fall-risk sticker when they move between stations. The risk is that:", 'options': ['Downstream staff will not know to take precautions, so the sticker/flag must be applied', 'Nothing - the score is enough', 'It improves their vision', 'The patient is now low risk'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The visible sticker communicates risk as the patient moves through the clinic; without it, staff may not apply precautions.', 'reasoning_eligible': True},
             ],
         },
         "perioperative": {
