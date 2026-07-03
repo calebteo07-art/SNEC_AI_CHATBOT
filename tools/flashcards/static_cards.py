@@ -2065,229 +2065,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "flare": {
             "easy": [
-                {
-                    "stem": "What does the flare test measure?",
-                    "options": [
-                        "Aqueous flare — protein concentration in the anterior chamber",
-                        "The axial length",
-                        "The visual field",
-                        "The corneal curvature",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The flare test measures aqueous flare — the protein "
-                                   "concentration in the anterior chamber.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Aqueous flare is an indicator of what?",
-                    "options": ["Intraocular inflammation",
-                                "High eye pressure",
-                                "A refractive error",
-                                "Corneal thickness"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Flare reflects protein leakage from inflamed "
-                                   "vessels — an indicator of intraocular inflammation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is the flare test contact or non-contact?",
-                    "options": ["Non-contact (laser flare photometry)",
-                                "Contact with anaesthetic",
-                                "Contact with a probe",
-                                "It uses ultrasound"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "It is a non-contact test using laser flare "
-                                   "photometry.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a higher flare value mean?",
-                    "options": ["More intraocular inflammation",
-                                "Less inflammation",
-                                "Lower eye pressure",
-                                "Better vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A higher flare value indicates more intraocular "
-                                   "inflammation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL recognised indications for the flare test.",
-                    "options": ["Uveitis monitoring",
-                                "Post-surgical inflammation assessment",
-                                "Tracking inflammation over time",
-                                "IOL power calculation"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Flare is used to monitor uveitis, assess "
-                                   "post-surgical inflammation and track it over time. "
-                                   "It is not used for IOL calculation.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the flare test measure?', 'options': ['Aqueous flare — protein concentration in the anterior chamber', 'The axial length', 'The visual field', 'The corneal curvature'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The flare test measures aqueous flare — the protein concentration in the anterior chamber.', 'reasoning_eligible': False},
+                {'stem': 'Aqueous flare is an indicator of what?', 'options': ['Intraocular inflammation', 'High eye pressure', 'A refractive error', 'Corneal thickness'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Flare reflects protein leakage from inflamed vessels — an indicator of intraocular inflammation.', 'reasoning_eligible': False},
+                {'stem': 'Is the flare test contact or non-contact?', 'options': ['Non-contact (laser flare photometry)', 'Contact with anaesthetic', 'Contact with a probe', 'It uses ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'It is a non-contact test using laser flare photometry.', 'reasoning_eligible': False},
+                {'stem': 'What does a higher flare value mean?', 'options': ['More intraocular inflammation', 'Less inflammation', 'Lower eye pressure', 'Better vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A higher flare value indicates more intraocular inflammation.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL recognised indications for the flare test.', 'options': ['Uveitis monitoring', 'Post-surgical inflammation assessment', 'Tracking inflammation over time', 'IOL power calculation'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Flare is used to monitor uveitis, assess post-surgical inflammation and track it over time. It is not used for IOL calculation.', 'reasoning_eligible': False},
+                {'stem': 'Laser flare photometry measures protein (flare) in the:', 'options': ['Aqueous of the anterior chamber', 'Retina', 'Tear film', 'Eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The flare meter quantifies light scattered by protein in the aqueous, reflecting anterior-chamber inflammation.', 'reasoning_eligible': False},
+                {'stem': 'The flare test is:', 'options': ['Non-contact (nothing touches the eye)', 'A contact probe on the cornea', 'An injection', 'A blood test'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Laser flare photometry is a non-contact optical measurement, comfortable for repeated monitoring.', 'reasoning_eligible': False},
+                {'stem': 'A HIGHER flare value means:', 'options': ['More protein/inflammation in the anterior chamber', 'A perfectly quiet eye', 'Lower eye pressure', 'Better colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'More aqueous protein scatters more light, so a higher reading indicates more active inflammation.', 'reasoning_eligible': False},
+                {'stem': 'During the flare test the patient is asked to:', 'options': ['Fixate steadily so the meter samples the anterior chamber consistently', 'Look all around', 'Close both eyes', 'Read a wall chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation keeps the measurement window in the anterior chamber for a reliable reading.', 'reasoning_eligible': False},
+                {'stem': 'Aqueous flare arises from a breakdown of the:', 'options': ['Blood-aqueous barrier, letting protein leak in', 'Tear film', 'Corneal epithelium only', 'Optic nerve'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inflammation disrupts the blood-aqueous barrier, allowing protein into the aqueous and raising flare.', 'reasoning_eligible': False},
+                {'stem': 'The flare test is commonly used to monitor:', 'options': ['Uveitis (intraocular inflammation)', 'Refractive error', 'Colour blindness', 'A squint'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Objective flare values track anterior-chamber inflammation, valuable in uveitis follow-up.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if the flare test will hurt. The correct reassurance is:', 'options': ['It is a quick, non-contact light measurement with nothing touching the eye', 'It uses a needle', 'It presses on the eye', 'It is painful'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Flare photometry is painless and non-contact; explaining this reduces anxiety and improves fixation.', 'reasoning_eligible': True},
+                {'stem': 'The OT should record the flare value and:', 'options': ['Report it for the clinician, not decide treatment', 'Diagnose uveitis and start steroids', 'Delete the reading', 'Prescribe eye drops'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT provides the objective measurement; the clinician interprets it and decides on treatment.', 'reasoning_eligible': True},
+                {'stem': 'The flare test is often done in a:', 'options': ['Dimly-lit room to reduce background light interference', 'Brightly-lit room deliberately', 'Total darkness with the lights broken', 'Sunlit outdoor area'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Reducing ambient light lowers background scatter so the measured flare reflects the aqueous, not the room.', 'reasoning_eligible': False},
+                {'stem': 'Flare differs from anterior-chamber CELLS in that flare reflects:', 'options': ['Dissolved protein, whereas cells are individual inflammatory cells', 'The retina', 'The eyelid', 'Eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Flare is protein-related haze; cells are discrete inflammatory cells - both are graded in uveitis but are distinct.', 'reasoning_eligible': False},
+                {'stem': 'Why measure the FELLOW (other) eye during a flare assessment?', 'options': ['To provide a comparison/baseline for the affected eye', 'Because the fellow eye is always diseased', 'It measures the glasses power', 'It is never done'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "The fellow eye gives a baseline/comparison, helping interpret whether the affected eye's flare is truly raised.", 'reasoning_eligible': True},
+                {'stem': 'The final treatment decision from a flare value is made by the:', 'options': ['Clinician (using the value with the whole clinical picture)', 'Receptionist', 'OT alone', 'Patient'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "The objective flare number informs, but does not replace, the clinician's overall assessment and management.", 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why use the flare test in uveitis?",
-                    "options": [
-                        "To objectively measure and monitor anterior chamber "
-                        "inflammation over time",
-                        "To measure the eye pressure",
-                        "To calculate the IOL power",
-                        "To test colour vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Flare photometry gives an objective number for "
-                                   "anterior chamber inflammation, useful for "
-                                   "monitoring uveitis and its response to treatment.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How does the flare test help after surgery?",
-                    "options": [
-                        "It quantifies post-operative inflammation to guide treatment "
-                        "such as steroid tapering",
-                        "It measures the wound strength",
-                        "It checks the IOL position",
-                        "It has no post-op use",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Measuring post-op flare quantifies inflammation, "
-                                   "helping the doctor guide steroid treatment and "
-                                   "tapering.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A mildly raised flare a week after cataract surgery — how "
-                            "is this interpreted?",
-                    "options": [
-                        "Expected early post-operative inflammation (lower than acute "
-                        "uveitis)",
-                        "A definite serious infection",
-                        "A machine error",
-                        "Completely normal — flare is never raised post-op",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Some flare is expected early after surgery; mildly "
-                                   "raised values a week post-op usually reflect normal "
-                                   "healing rather than acute uveitis.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why also measure the fellow (other) eye in a flare "
-                            "assessment?",
-                    "options": ["As a baseline for comparison",
-                                "To dilate it",
-                                "To measure its pressure",
-                                "There is no reason to"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The fellow eye provides a baseline flare value to "
-                                   "compare against the affected eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Who decides on treatment based on the flare value?",
-                    "options": ["The doctor — the OT measures and documents",
-                                "The OT prescribes the steroids",
-                                "The patient decides",
-                                "The machine decides automatically"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The OT measures and documents the flare; the doctor "
-                                   "decides on treatment.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why use the flare test in uveitis?', 'options': ['To objectively measure and monitor anterior chamber inflammation over time', 'To measure the eye pressure', 'To calculate the IOL power', 'To test colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Flare photometry gives an objective number for anterior chamber inflammation, useful for monitoring uveitis and its response to treatment.', 'reasoning_eligible': True},
+                {'stem': 'How does the flare test help after surgery?', 'options': ['It quantifies post-operative inflammation to guide treatment such as steroid tapering', 'It measures the wound strength', 'It checks the IOL position', 'It has no post-op use'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Measuring post-op flare quantifies inflammation, helping the doctor guide steroid treatment and tapering.', 'reasoning_eligible': True},
+                {'stem': 'A mildly raised flare a week after cataract surgery — how is this interpreted?', 'options': ['Expected early post-operative inflammation (lower than acute uveitis)', 'A definite serious infection', 'A machine error', 'Completely normal — flare is never raised post-op'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Some flare is expected early after surgery; mildly raised values a week post-op usually reflect normal healing rather than acute uveitis.', 'reasoning_eligible': True},
+                {'stem': 'Why also measure the fellow (other) eye in a flare assessment?', 'options': ['As a baseline for comparison', 'To dilate it', 'To measure its pressure', 'There is no reason to'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The fellow eye provides a baseline flare value to compare against the affected eye.', 'reasoning_eligible': False},
+                {'stem': 'Who decides on treatment based on the flare value?', 'options': ['The doctor — the OT measures and documents', 'The OT prescribes the steroids', 'The patient decides', 'The machine decides automatically'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The OT measures and documents the flare; the doctor decides on treatment.', 'reasoning_eligible': False},
+                {'stem': "A uveitis patient's flare value has RISEN markedly since last visit despite treatment. This suggests:", 'options': ['Active/worsening inflammation - the OT documents and flags it to the clinician', 'The eye is now healthy', 'A refractive error', 'A cataract only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A rising flare indicates increasing inflammation; the OT records the trend and escalates, leaving treatment to the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Why is an OBJECTIVE flare value more useful than a subjective slit-lamp impression for monitoring?', 'options': ['It gives a reproducible number to compare over time, reducing observer variability', 'It is prettier to look at', 'It measures the retina', 'Subjective grading is always identical between observers'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A quantitative value trends reliably between visits and examiners, unlike a subjective 0-4+ grade that varies.', 'reasoning_eligible': True},
+                {'stem': 'A mildly raised flare a WEEK after cataract surgery is usually interpreted as:', 'options': ['Expected post-operative inflammation that should settle - monitor', 'A definite infection needing surgery', 'A normal quiet eye', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Some post-op flare is normal and settles with routine drops; a persistent or rising value would prompt closer review.', 'reasoning_eligible': True},
+                {'stem': 'Why does a DIABETIC patient often have a higher baseline flare even without active uveitis?', 'options': ['Diabetes can cause a chronic breakdown of the blood-aqueous barrier', 'Diabetes lowers the flare', 'Diabetics have no aqueous', 'It is a machine error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Diabetic vascular changes leak protein into the aqueous, raising baseline flare - context the clinician considers.', 'reasoning_eligible': True},
+                {'stem': 'A dense cataract or corneal opacity sits in the measurement beam. This can:', 'options': ['Scatter light and artefactually raise/alter the flare reading - note it', 'Have no effect at all', 'Lower the eye pressure', 'Improve accuracy'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Media opacities scatter light and can corrupt the flare value; the OT notes this so the clinician interprets with care.', 'reasoning_eligible': True},
+                {'stem': 'Why take SEVERAL flare readings and use a consistent technique each visit?', 'options': ['To average out noise and make serial comparison valid', 'To use more of the machine', 'To slow the clinic', 'Because one reading is illegal'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Multiple readings with a standard method reduce variability so a real change over time can be trusted.', 'reasoning_eligible': False},
+                {'stem': 'A poor-quality flare capture (patient blinking, off-axis) is obtained. The OT should:', 'options': ['Re-instruct fixation and repeat rather than record an unreliable value', 'Report the poor value as final', 'Increase print brightness', 'Diagnose from it'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only a clean, on-axis capture gives a valid flare number; poor captures are repeated after optimising fixation.', 'reasoning_eligible': True},
+                {'stem': 'In a child with juvenile idiopathic arthritis (JIA)-associated uveitis, serial flare is valuable because it:', 'options': ['Objectively tracks a chronic, often silent inflammation to guide follow-up', 'Cures the arthritis', 'Measures the retina', 'Replaces the eye exam entirely'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'JIA uveitis can smoulder silently; objective flare monitoring helps detect activity and guide treatment intensity.', 'reasoning_eligible': True},
+                {'stem': 'Why is the flare test useful AFTER intraocular surgery in an eye with prior uveitis?', 'options': ['It objectively monitors post-op inflammation, which such eyes are prone to', 'It sets the IOL power', 'It measures colour vision', 'It has no post-op role'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Uveitic eyes inflame more after surgery; flare monitoring helps the clinician manage inflammation and prevent complications.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document with a flare measurement?', 'options': ['The value, eye, date and any factors (cataract/pigment) that could affect it', "Only the patient's age", 'The clinic hours', 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the value, eye, date and confounders lets the clinician trend and correctly interpret the flare.', 'reasoning_eligible': False},
+                {'stem': 'A heavily pigmented anterior chamber (e.g. pigment dispersion) may:', 'options': ['Add background scatter that the OT should note when reporting the flare', 'Guarantee a zero reading', 'Lower the eye pressure', 'Improve the measurement'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dispersed pigment scatters light and can influence the reading; noting it helps the clinician interpret the value.', 'reasoning_eligible': True},
+                {'stem': 'The flare meter should be aligned so the measurement window sits:', 'options': ['In clear aqueous, avoiding the iris, lens or cornea in the beam', 'On the eyelid', 'On the retina', 'Anywhere at random'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sampling clear aqueous (not iris/lens/cornea) ensures the reading reflects true anterior-chamber protein.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A uveitis patient's flare value has risen markedly since "
-                            "the last visit despite treatment. What does this suggest "
-                            "and what is the OT's role?",
-                    "options": [
-                        "Worsening inflammation — document and flag the trend for the "
-                        "doctor to review treatment",
-                        "The uveitis is cured — stop monitoring",
-                        "A machine fault — ignore it",
-                        "The OT should increase the steroid dose",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A rising flare suggests worsening inflammation. The "
-                                   "OT documents and flags the trend; the doctor adjusts "
-                                   "treatment.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is an objective flare value more useful than a "
-                            "subjective impression of inflammation for monitoring?",
-                    "options": [
-                        "A number can be compared reliably over visits, reducing "
-                        "observer variability",
-                        "Subjective impressions are always more accurate",
-                        "Flare numbers cannot be compared",
-                        "Objective values change randomly",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "An objective, repeatable number lets the team track "
-                                   "inflammation across visits without the variability "
-                                   "of subjective grading.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL situations where serial flare measurement is "
-                            "valuable.",
-                    "options": [
-                        "Monitoring response of uveitis to treatment",
-                        "Tracking post-operative inflammation as it settles",
-                        "Comparing the affected eye with a fellow-eye baseline",
-                        "Calculating the IOL power for cataract surgery",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Serial flare is valuable for uveitis monitoring, "
-                                   "post-op inflammation and fellow-eye comparison. It "
-                                   "has nothing to do with IOL calculation.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about the flare test is correct?",
-                    "options": [
-                        "It non-invasively measures anterior chamber protein "
-                        "(inflammation); higher = more inflammation; the doctor acts on "
-                        "it",
-                        "It measures eye pressure by air puff",
-                        "A higher value means less inflammation",
-                        "It requires touching the eye with a probe",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Laser flare photometry non-invasively measures "
-                                   "anterior chamber protein; a higher value means more "
-                                   "inflammation, and the doctor decides on treatment.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A uveitis patient's flare value has risen markedly since the last visit despite treatment. What does this suggest and what is the OT's role?", 'options': ['Worsening inflammation — document and flag the trend for the doctor to review treatment', 'The uveitis is cured — stop monitoring', 'A machine fault — ignore it', 'The OT should increase the steroid dose'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A rising flare suggests worsening inflammation. The OT documents and flags the trend; the doctor adjusts treatment.', 'reasoning_eligible': True},
+                {'stem': 'Why is an objective flare value more useful than a subjective impression of inflammation for monitoring?', 'options': ['A number can be compared reliably over visits, reducing observer variability', 'Subjective impressions are always more accurate', 'Flare numbers cannot be compared', 'Objective values change randomly'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'An objective, repeatable number lets the team track inflammation across visits without the variability of subjective grading.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL situations where serial flare measurement is valuable.', 'options': ['Monitoring response of uveitis to treatment', 'Tracking post-operative inflammation as it settles', 'Comparing the affected eye with a fellow-eye baseline', 'Calculating the IOL power for cataract surgery'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Serial flare is valuable for uveitis monitoring, post-op inflammation and fellow-eye comparison. It has nothing to do with IOL calculation.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about the flare test is correct?', 'options': ['It non-invasively measures anterior chamber protein (inflammation); higher = more inflammation; the doctor acts on it', 'It measures eye pressure by air puff', 'A higher value means less inflammation', 'It requires touching the eye with a probe'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Laser flare photometry non-invasively measures anterior chamber protein; a higher value means more inflammation, and the doctor decides on treatment.', 'reasoning_eligible': False},
+                {'stem': "A uveitis patient's flare keeps CLIMBING over three visits despite escalating drops. The OT's role is to:", 'options': ['Provide accurate serial values and flag the upward trend clearly to the clinician', 'Increase the steroid dose themselves', 'Reassure and discharge', 'Stop measuring'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A persistently rising trend signals uncontrolled inflammation; the OT supplies reliable data and escalates, not treats.', 'reasoning_eligible': True},
+                {'stem': 'Why can serial flare monitoring detect a uveitis RELAPSE earlier than symptoms alone?', 'options': ['The objective value can rise before the patient notices symptoms', 'Symptoms always precede any change', 'Flare only changes after vision is lost', 'It measures the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Objective flare can increase subclinically, flagging reactivation before the patient reports symptoms.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good flare-test practice.', 'options': ['Dim room, steady fixation, clear-aqueous alignment, several consistent readings, note confounders, document and flag trends', 'One quick reading in bright light', 'Diagnose and treat from the value', 'Ignore cataract/pigment in the beam'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable flare testing needs a dim room, good fixation/alignment, repeated readings, noting confounders, and documenting/flagging trends.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about the flare test is CORRECT?', 'options': ['It objectively quantifies aqueous protein (inflammation) non-invasively, complementing clinical assessment', 'It measures the eye pressure', 'It requires a contact lens', 'It replaces the clinical examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Laser flare photometry gives an objective, non-contact measure of anterior-chamber protein to support clinical monitoring.', 'reasoning_eligible': True},
+                {'stem': 'A post-op eye shows a flare that is high but FALLING over successive visits. This trend most likely means:', 'options': ['Resolving post-operative inflammation - reassuring, keep monitoring', 'Worsening infection', 'A new cataract', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A downward trend indicates settling inflammation; the direction of change is often more informative than a single value.', 'reasoning_eligible': True},
+                {'stem': "Why should the OT interpret a single high flare value in the CONTEXT of the patient's baseline and comorbidities?", 'options': ['Conditions like diabetes raise baseline flare, so a high value may not mean new active uveitis', 'Baseline never matters', 'All eyes have identical flare', 'Comorbidities lower flare to zero'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "A raised value must be read against the individual's baseline and diseases (e.g. diabetes) to avoid over-calling activity.", 'reasoning_eligible': True},
+                {'stem': 'In which situations is SERIAL flare measurement especially valuable?', 'options': ['Chronic uveitis follow-up, post-op inflammation monitoring, and assessing response to anti-inflammatory treatment', 'Choosing glasses power', 'Measuring the visual field', 'Grading colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Serial flare is most useful for tracking chronic uveitis, post-operative inflammation and treatment response over time.', 'reasoning_eligible': True},
+                {'stem': 'Why might two flare readings taken minutes apart differ, and how is this handled?', 'options': ['Small measurement variability occurs; taking several and averaging gives a more reliable value', 'Any difference means the machine is broken', 'Flare cannot vary', 'The first reading is always wrong'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Minor variability is normal; averaging multiple standardised readings yields a dependable value for the record.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a small, poorly-dilating pupil and dense inflammation is hard to measure. The OT should:', 'options': ['Optimise alignment/fixation, capture the best clear-aqueous reading, and note the limitation', 'Report an arbitrary value', 'Press on the eye', 'Skip the record entirely'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Difficult eyes are measured as well as possible with the limitation documented, so the clinician interprets the value appropriately.', 'reasoning_eligible': True},
+                {'stem': "Why is a consistent DEVICE and technique important for a patient's flare trend across visits?", 'options': ['Values are most comparable when measured the same way on the same instrument', 'Any device gives identical numbers', 'It changes the eye colour', 'Only the first visit matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistent equipment and method make the serial values comparable, so a real change reflects inflammation not method.', 'reasoning_eligible': True},
+                {'stem': 'A clinician asks the OT to measure flare BEFORE instilling any drops. Why?', 'options': ['To capture the true baseline inflammation before treatment/dilation alters the eye', 'Drops make the machine faster', 'It changes the IOL power', 'Order never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A pre-treatment baseline reflects the untreated inflammatory state, giving a clean reference for monitoring.', 'reasoning_eligible': True},
+                {'stem': 'How does objective flare data support tapering of anti-inflammatory treatment?', 'options': ['A steadily low/falling flare supports careful reduction, guided by the clinician', 'It dictates the taper without a clinician', 'It has no role in treatment decisions', 'It measures the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistently low flare reassures the clinician that inflammation is controlled, supporting a considered taper of therapy.', 'reasoning_eligible': True},
             ],
         },
         "corneal_topography": {
