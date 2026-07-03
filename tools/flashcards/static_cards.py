@@ -787,554 +787,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "ocular_emergencies": {
             "easy": [
-                {
-                    "stem": "What is a hyphaema?",
-                    "options": ["Blood in the anterior chamber",
-                                "Pus in the anterior chamber",
-                                "Blood in the vitreous cavity",
-                                "Fluid under the retina"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A hyphaema is blood in the anterior chamber — the "
-                                   "front part of the eye, between the cornea and iris.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is a hypopyon?",
-                    "options": ["Pus in the anterior chamber",
-                                "Blood in the anterior chamber",
-                                "A clear fluid level in the eye",
-                                "Swelling of the eyelid"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A hypopyon is pus in the anterior chamber — a sign "
-                                   "of infection or severe inflammation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the classic pupil sign in acute angle-closure "
-                            "glaucoma?",
-                    "options": ["A fixed, mid-dilated, oval pupil",
-                                "A small, constricted pupil",
-                                "An irregular, peaked pupil",
-                                "A normal, reactive pupil"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Acute angle-closure glaucoma classically shows a "
-                                   "fixed, mid-dilated (large, oval) pupil.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is acute glaucoma considered an ocular emergency?",
-                    "options": ["Yes — it can cause rapid, permanent vision loss",
-                                "No — it is a routine chronic condition",
-                                "Only if both eyes are affected",
-                                "Only in patients over 70"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Acute glaucoma is one of the recognised ocular "
-                                   "emergencies — high pressure can damage the optic "
-                                   "nerve within hours.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which finding in the anterior chamber points to infection?",
-                    "options": ["Hypopyon (pus)", "Hyphaema (blood)",
-                                "A deep, quiet chamber", "A clear cornea"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A hypopyon (pus in the anterior chamber) signals "
-                                   "infection or severe inflammation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A chemical is splashed into a patient's eye. What is the "
-                            "single most important first action?",
-                    "options": ["Start irrigation immediately",
-                                "Measure the intraocular pressure",
-                                "Check the visual acuity first",
-                                "Identify the exact chemical"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Irrigate immediately to wash out the chemical and "
-                                   "limit ongoing tissue damage — everything else waits.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A welder has painful, red, watering eyes a few hours after "
-                            "work. What is the likely cause?",
-                    "options": ["Flash burn (photokeratitis) from UV exposure",
-                                "Acute angle-closure glaucoma",
-                                "Bacterial conjunctivitis",
-                                "A hyphaema"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "UV exposure from welding causes a flash burn "
-                                   "(photokeratitis); the pain is typically delayed by "
-                                   "a few hours.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which of these is NOT one of the recognised ocular "
-                            "emergencies?",
-                    "options": ["Presbyopia",
-                                "Chemical injury",
-                                "Acute glaucoma",
-                                "Painless sudden loss of vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Presbyopia is a normal age-related loss of near "
-                                   "focus, not an emergency. Chemical injury, acute "
-                                   "glaucoma and sudden painless vision loss are all "
-                                   "ocular emergencies.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does 'photophobia' mean?",
-                    "options": ["Sensitivity to light",
-                                "Fear of the dark",
-                                "Loss of colour vision",
-                                "Double vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Photophobia means sensitivity to (discomfort in) "
-                                   "light — common in uveitis and corneal problems.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Severe eye pain with headache, nausea and vomiting should "
-                            "make you suspect which emergency?",
-                    "options": ["Acute angle-closure glaucoma",
-                                "Conjunctivitis",
-                                "Presbyopia",
-                                "A subconjunctival haemorrhage"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Severe pain with headache, nausea and vomiting is "
-                                   "the classic picture of acute angle-closure glaucoma.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How does the pupil typically appear in uveitis (iritis)?",
-                    "options": ["Small or normal in size",
-                                "Large, oval and fixed",
-                                "Irregular and white",
-                                "Always perfectly round and dilated"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "In uveitis the pupil is usually small or normal — "
-                                   "unlike acute glaucoma, where it is large, oval and "
-                                   "fixed.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What is a hyphaema?', 'options': ['Blood in the anterior chamber', 'Pus in the anterior chamber', 'Blood in the vitreous cavity', 'Fluid under the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A hyphaema is blood in the anterior chamber — the front part of the eye, between the cornea and iris.', 'reasoning_eligible': False},
+                {'stem': 'What is a hypopyon?', 'options': ['Pus in the anterior chamber', 'Blood in the anterior chamber', 'A clear fluid level in the eye', 'Swelling of the eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A hypopyon is pus in the anterior chamber — a sign of infection or severe inflammation.', 'reasoning_eligible': False},
+                {'stem': 'What is the classic pupil sign in acute angle-closure glaucoma?', 'options': ['A fixed, mid-dilated, oval pupil', 'A small, constricted pupil', 'An irregular, peaked pupil', 'A normal, reactive pupil'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Acute angle-closure glaucoma classically shows a fixed, mid-dilated (large, oval) pupil.', 'reasoning_eligible': False},
+                {'stem': 'Is acute glaucoma considered an ocular emergency?', 'options': ['Yes — it can cause rapid, permanent vision loss', 'No — it is a routine chronic condition', 'Only if both eyes are affected', 'Only in patients over 70'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Acute glaucoma is one of the recognised ocular emergencies — high pressure can damage the optic nerve within hours.', 'reasoning_eligible': False},
+                {'stem': 'Which finding in the anterior chamber points to infection?', 'options': ['Hypopyon (pus)', 'Hyphaema (blood)', 'A deep, quiet chamber', 'A clear cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A hypopyon (pus in the anterior chamber) signals infection or severe inflammation.', 'reasoning_eligible': False},
+                {'stem': "A chemical is splashed into a patient's eye. What is the single most important first action?", 'options': ['Start irrigation immediately', 'Measure the intraocular pressure', 'Check the visual acuity first', 'Identify the exact chemical'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Irrigate immediately to wash out the chemical and limit ongoing tissue damage — everything else waits.', 'reasoning_eligible': True},
+                {'stem': 'A welder has painful, red, watering eyes a few hours after work. What is the likely cause?', 'options': ['Flash burn (photokeratitis) from UV exposure', 'Acute angle-closure glaucoma', 'Bacterial conjunctivitis', 'A hyphaema'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'UV exposure from welding causes a flash burn (photokeratitis); the pain is typically delayed by a few hours.', 'reasoning_eligible': False},
+                {'stem': 'Which of these is NOT one of the recognised ocular emergencies?', 'options': ['Presbyopia', 'Chemical injury', 'Acute glaucoma', 'Painless sudden loss of vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Presbyopia is a normal age-related loss of near focus, not an emergency. Chemical injury, acute glaucoma and sudden painless vision loss are all ocular emergencies.', 'reasoning_eligible': False},
+                {'stem': "What does 'photophobia' mean?", 'options': ['Sensitivity to light', 'Fear of the dark', 'Loss of colour vision', 'Double vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Photophobia means sensitivity to (discomfort in) light — common in uveitis and corneal problems.', 'reasoning_eligible': False},
+                {'stem': 'Severe eye pain with headache, nausea and vomiting should make you suspect which emergency?', 'options': ['Acute angle-closure glaucoma', 'Conjunctivitis', 'Presbyopia', 'A subconjunctival haemorrhage'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Severe pain with headache, nausea and vomiting is the classic picture of acute angle-closure glaucoma.', 'reasoning_eligible': False},
+                {'stem': 'How does the pupil typically appear in uveitis (iritis)?', 'options': ['Small or normal in size', 'Large, oval and fixed', 'Irregular and white', 'Always perfectly round and dilated'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'In uveitis the pupil is usually small or normal — unlike acute glaucoma, where it is large, oval and fixed.', 'reasoning_eligible': False},
+                {'stem': 'A patient reports sudden, painless, total loss of vision in one eye that came on within seconds. This should be treated as:', 'options': ['A time-critical emergency (e.g. central retinal artery occlusion)', 'A routine refraction', 'A minor dry-eye problem', 'A cosmetic concern'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Sudden painless monocular vision loss (CRAO/retinal detachment/vascular event) is an emergency needing immediate escalation.', 'reasoning_eligible': True},
+                {'stem': "A grinder operator feels something 'scratching' under his upper lid with tearing and foreign-body sensation. The key examination step is to:", 'options': ['Evert the upper lid to look for a sub-tarsal foreign body', 'Send him home with lubricants', 'Dilate the pupil first', 'Measure near acuity only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Vertical linear corneal scratches suggest a foreign body under the upper lid; everting the lid is essential to find and remove it.', 'reasoning_eligible': True},
+                {'stem': 'A corneal abrasion is best demonstrated on the cornea using:', 'options': ['Fluorescein staining under blue light', 'A colour vision chart', 'An Amsler grid', 'A pinhole'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Fluorescein pools in the epithelial defect and glows green under cobalt-blue light, showing the abrasion's sharp borders.", 'reasoning_eligible': False},
+                {'stem': 'Alkali chemical burns (e.g. bleach, cement) are considered more dangerous than acid burns because they:', 'options': ['Penetrate deeper into the eye', 'Are always painless', 'Only affect the eyelids', 'Cannot damage the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Alkalis saponify membrane fats and penetrate deeply, whereas acids coagulate surface proteins that limit penetration.', 'reasoning_eligible': False},
+                {'stem': 'A patient arrives after a squash ball struck the eye, now with blood layering in the front of the eye. This is a:', 'options': ['Hyphaema', 'Hypopyon', 'Subconjunctival haemorrhage', 'Chalazion'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Blood in the anterior chamber after blunt trauma is a hyphaema; it needs rest and IOP monitoring to prevent complications.', 'reasoning_eligible': True},
+                {'stem': 'When an open (penetrating) globe injury is suspected, you should NOT:', 'options': ['Apply pressure, drops or ointment, or remove a protruding object', 'Apply a protective shield', 'Keep the patient calm', 'Escalate urgently'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'With a suspected ruptured globe, avoid pressure, drops and removing any object; shield the eye and refer immediately.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why must a chemical eye injury be irrigated before checking "
-                            "the visual acuity?",
-                    "options": [
-                        "The chemical keeps damaging tissue every second — irrigation "
-                        "cannot wait",
-                        "Irrigation improves the visual acuity reading",
-                        "Visual acuity cannot be measured in an injured eye",
-                        "Irrigation lowers the eye pressure first",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A chemical burn causes ongoing tissue damage every "
-                                   "second. Immediate irrigation washes it out and "
-                                   "limits the damage; visual acuity can wait.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How does the pupil help separate acute glaucoma from "
-                            "uveitis?",
-                    "options": [
-                        "Acute glaucoma: large, oval, fixed; uveitis: small or normal",
-                        "Acute glaucoma: small; uveitis: large and fixed",
-                        "Both have a large, fixed pupil",
-                        "The pupil is normal in both",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Acute angle-closure glaucoma gives a large, oval, "
-                                   "fixed pupil; uveitis gives a small or normal pupil. "
-                                   "The pupil is a key distinguishing sign.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL features that point to acute angle-closure "
-                            "glaucoma rather than a simple red eye.",
-                    "options": [
-                        "Severe pain with nausea and vomiting",
-                        "Haloes around lights and a hazy cornea",
-                        "A fixed, mid-dilated pupil",
-                        "Mild itch with watery discharge",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Nausea/vomiting, haloes with a hazy cornea, and a "
-                                   "fixed mid-dilated pupil all point to acute "
-                                   "angle-closure glaucoma. Mild itch with watery "
-                                   "discharge suggests simple conjunctivitis.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the pain from a welder's flash burn usually delayed "
-                            "by several hours?",
-                    "options": [
-                        "The UV damage to the corneal surface takes time to become "
-                        "symptomatic",
-                        "Welders always wear protection during work",
-                        "The eye numbs itself during exposure",
-                        "Flash burns do not actually cause pain",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "UV exposure damages the corneal surface "
-                                   "(photokeratitis), but the painful symptoms "
-                                   "characteristically appear a few hours later.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient on warfarin develops a hyphaema after blunt "
-                            "trauma. What is the main added concern?",
-                    "options": [
-                        "The anticoagulant raises the risk of further bleeding",
-                        "The anticoagulant prevents the eye from healing",
-                        "Warfarin makes the pupil dilate",
-                        "There is no added concern",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Anticoagulants increase the risk of re-bleeding, so "
-                                   "a traumatic hyphaema may worsen. Escalate; never "
-                                   "stop the anticoagulant without medical instruction.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A hypopyon in a contact-lens wearer with a painful red eye "
-                            "most suggests what?",
-                    "options": [
-                        "A serious corneal infection (microbial keratitis)",
-                        "Simple allergic conjunctivitis",
-                        "Presbyopia",
-                        "A normal finding in lens wearers",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pus in the anterior chamber (hypopyon) with a "
-                                   "painful red eye in a lens wearer raises concern for "
-                                   "sight-threatening microbial keratitis — escalate.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Sudden painless loss of vision in one eye — is this an "
-                            "emergency?",
-                    "options": [
-                        "Yes — it is one of the recognised ocular emergencies",
-                        "No — painless problems are never urgent",
-                        "Only if the patient also has pain",
-                        "Only if vision returns on its own",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Painless sudden loss of vision (e.g. CRAO, vitreous "
-                                   "haemorrhage) is a recognised ocular emergency and "
-                                   "must be escalated quickly.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which red-flag combination most strongly suggests acute "
-                            "angle-closure glaucoma in a red, painful eye?",
-                    "options": [
-                        "Hazy cornea, haloes, and a fixed mid-dilated pupil",
-                        "Watery discharge with a normal pupil",
-                        "Itchy lids with crusting",
-                        "Gritty feeling that clears on blinking",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A hazy cornea, haloes around lights and a fixed "
-                                   "mid-dilated pupil together strongly suggest acute "
-                                   "angle-closure glaucoma.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is a painful third-nerve (CN III) palsy treated as an "
-                            "emergency?",
-                    "options": [
-                        "It may signal a compressive lesion such as an aneurysm",
-                        "It always means the patient has glaucoma",
-                        "It is only a cosmetic concern",
-                        "It resolves within minutes on its own",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A painful CN III palsy can be caused by a "
-                                   "compressive lesion (e.g. an aneurysm), so it needs "
-                                   "urgent assessment.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL of the following that are recognised ocular "
-                            "emergencies.",
-                    "options": [
-                        "Chemical injury",
-                        "Acute glaucoma",
-                        "Uveitis",
-                        "Presbyopia",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Chemical injury, acute glaucoma and uveitis are all "
-                                   "ocular emergencies. Presbyopia is a normal "
-                                   "age-related change, not an emergency.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient reports severe pain, blurred vision and seeing "
-                            "haloes around lights this evening. What should you do?",
-                    "options": [
-                        "Treat as a possible acute glaucoma and escalate urgently",
-                        "Reassure and book a routine appointment",
-                        "Give reading glasses",
-                        "Advise warm compresses and discharge home",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Severe pain, blurred vision and haloes suggest "
-                                   "acute angle-closure glaucoma — a sight-threatening "
-                                   "emergency that must be escalated urgently.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why must a chemical eye injury be irrigated before checking the visual acuity?', 'options': ['The chemical keeps damaging tissue every second — irrigation cannot wait', 'Irrigation improves the visual acuity reading', 'Visual acuity cannot be measured in an injured eye', 'Irrigation lowers the eye pressure first'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A chemical burn causes ongoing tissue damage every second. Immediate irrigation washes it out and limits the damage; visual acuity can wait.', 'reasoning_eligible': True},
+                {'stem': 'How does the pupil help separate acute glaucoma from uveitis?', 'options': ['Acute glaucoma: large, oval, fixed; uveitis: small or normal', 'Acute glaucoma: small; uveitis: large and fixed', 'Both have a large, fixed pupil', 'The pupil is normal in both'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Acute angle-closure glaucoma gives a large, oval, fixed pupil; uveitis gives a small or normal pupil. The pupil is a key distinguishing sign.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL features that point to acute angle-closure glaucoma rather than a simple red eye.', 'options': ['Severe pain with nausea and vomiting', 'Haloes around lights and a hazy cornea', 'A fixed, mid-dilated pupil', 'Mild itch with watery discharge'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Nausea/vomiting, haloes with a hazy cornea, and a fixed mid-dilated pupil all point to acute angle-closure glaucoma. Mild itch with watery discharge suggests simple conjunctivitis.', 'reasoning_eligible': True},
+                {'stem': "Why is the pain from a welder's flash burn usually delayed by several hours?", 'options': ['The UV damage to the corneal surface takes time to become symptomatic', 'Welders always wear protection during work', 'The eye numbs itself during exposure', 'Flash burns do not actually cause pain'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'UV exposure damages the corneal surface (photokeratitis), but the painful symptoms characteristically appear a few hours later.', 'reasoning_eligible': False},
+                {'stem': 'A patient on warfarin develops a hyphaema after blunt trauma. What is the main added concern?', 'options': ['The anticoagulant raises the risk of further bleeding', 'The anticoagulant prevents the eye from healing', 'Warfarin makes the pupil dilate', 'There is no added concern'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Anticoagulants increase the risk of re-bleeding, so a traumatic hyphaema may worsen. Escalate; never stop the anticoagulant without medical instruction.', 'reasoning_eligible': False},
+                {'stem': 'A hypopyon in a contact-lens wearer with a painful red eye most suggests what?', 'options': ['A serious corneal infection (microbial keratitis)', 'Simple allergic conjunctivitis', 'Presbyopia', 'A normal finding in lens wearers'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pus in the anterior chamber (hypopyon) with a painful red eye in a lens wearer raises concern for sight-threatening microbial keratitis — escalate.', 'reasoning_eligible': True},
+                {'stem': 'Sudden painless loss of vision in one eye — is this an emergency?', 'options': ['Yes — it is one of the recognised ocular emergencies', 'No — painless problems are never urgent', 'Only if the patient also has pain', 'Only if vision returns on its own'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Painless sudden loss of vision (e.g. CRAO, vitreous haemorrhage) is a recognised ocular emergency and must be escalated quickly.', 'reasoning_eligible': False},
+                {'stem': 'Which red-flag combination most strongly suggests acute angle-closure glaucoma in a red, painful eye?', 'options': ['Hazy cornea, haloes, and a fixed mid-dilated pupil', 'Watery discharge with a normal pupil', 'Itchy lids with crusting', 'Gritty feeling that clears on blinking'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A hazy cornea, haloes around lights and a fixed mid-dilated pupil together strongly suggest acute angle-closure glaucoma.', 'reasoning_eligible': False},
+                {'stem': 'Why is a painful third-nerve (CN III) palsy treated as an emergency?', 'options': ['It may signal a compressive lesion such as an aneurysm', 'It always means the patient has glaucoma', 'It is only a cosmetic concern', 'It resolves within minutes on its own'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A painful CN III palsy can be caused by a compressive lesion (e.g. an aneurysm), so it needs urgent assessment.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL of the following that are recognised ocular emergencies.', 'options': ['Chemical injury', 'Acute glaucoma', 'Uveitis', 'Presbyopia'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Chemical injury, acute glaucoma and uveitis are all ocular emergencies. Presbyopia is a normal age-related change, not an emergency.', 'reasoning_eligible': False},
+                {'stem': 'A patient reports severe pain, blurred vision and seeing haloes around lights this evening. What should you do?', 'options': ['Treat as a possible acute glaucoma and escalate urgently', 'Reassure and book a routine appointment', 'Give reading glasses', 'Advise warm compresses and discharge home'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Severe pain, blurred vision and haloes suggest acute angle-closure glaucoma — a sight-threatening emergency that must be escalated urgently.', 'reasoning_eligible': False},
+                {'stem': 'A patient 4 days after cataract surgery returns with increasing pain, redness, a hypopyon and worsening vision. The priority is:', 'options': ['Immediate escalation for suspected endophthalmitis', 'A routine post-op check next week', 'Reassurance and lubricants', 'New spectacles'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Pain, hypopyon and dropping vision after intraocular surgery signal endophthalmitis - a blinding emergency needing urgent treatment.', 'reasoning_eligible': True},
+                {'stem': 'A patient after a fist injury has severe orbital pain, a bulging eye, and a relative afferent pupillary defect. The emergency to recognise is:', 'options': ['Retrobulbar haemorrhage (may need urgent canthotomy/cantholysis)', 'Simple conjunctivitis', 'Allergic eye disease', 'Presbyopia'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Proptosis, pain and RAPD after trauma suggest orbital compartment syndrome from retrobulbar haemorrhage - a sight-threatening emergency.', 'reasoning_eligible': True},
+                {'stem': 'Why is decreased colour vision and a relative afferent pupillary defect after head/orbital trauma concerning?', 'options': ['They suggest traumatic optic neuropathy (optic-nerve damage)', 'They confirm a simple bruise', 'They mean the patient needs reading glasses', 'They are always normal after trauma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reduced acuity, dyschromatopsia and an RAPD indicate optic-nerve dysfunction (traumatic optic neuropathy), which needs urgent assessment.', 'reasoning_eligible': True},
+                {'stem': 'A contact-lens wearer has a painful red eye with a white corneal infiltrate and a small hypopyon. The most likely emergency is:', 'options': ['Microbial (bacterial) keratitis', 'Simple dry eye', 'Presbyopia', 'A stye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A corneal ulcer with hypopyon in a lens wearer is microbial keratitis - sight-threatening, requiring urgent review and corneal scrape.', 'reasoning_eligible': True},
+                {'stem': 'The correct sequence when a chemical is splashed in the eye is:', 'options': ['Instil topical anaesthetic if needed, then irrigate copiously and sweep the fornices before formal assessment', 'Take a full history, then irrigate an hour later', 'Pad the eye and book a routine slot', 'Check visual acuity fully before any irrigation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Irrigation is immediate and copious (anaesthetic aids cooperation); assessment and pH checks follow - never delay flushing.', 'reasoning_eligible': True},
+                {'stem': "A myopic patient reports new flashes, a shower of floaters and a 'curtain' descending over the vision. This suggests:", 'options': ['Retinal detachment - needs urgent referral', 'Simple eye strain', 'A blocked tear duct', 'Normal ageing needing no action'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Flashes, floaters and a progressing field defect ('curtain') are classic retinal detachment symptoms and warrant prompt referral.", 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient presents with a severely painful red eye, nausea, "
-                            "a hazy cornea and a fixed mid-dilated pupil. What is the "
-                            "most likely diagnosis and why is it urgent?",
-                    "options": [
-                        "Acute angle-closure glaucoma — high pressure can damage the "
-                        "optic nerve within hours",
-                        "Bacterial conjunctivitis — it spreads to others",
-                        "Presbyopia — it worsens with age",
-                        "Subconjunctival haemorrhage — it looks dramatic",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Severe pain, nausea, a hazy cornea and a fixed "
-                                   "mid-dilated pupil are classic for acute "
-                                   "angle-closure glaucoma. The very high pressure can "
-                                   "cause irreversible optic nerve damage within hours.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Two patients arrive together: one with a chemical splash 3 "
-                            "minutes ago, one with a hypopyon and a 2-day painful red "
-                            "eye. Who is managed first and why?",
-                    "options": [
-                        "The chemical splash — irrigation is time-critical and cannot "
-                        "be delayed",
-                        "The hypopyon — pus is always more serious",
-                        "Whoever registered first",
-                        "Both can wait for the next routine slot",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A fresh chemical injury needs immediate irrigation "
-                                   "(every second counts), so it is managed first. The "
-                                   "hypopyon is serious and must also be escalated, but "
-                                   "irrigation of the chemical burn cannot be delayed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL signs that distinguish acute angle-closure "
-                            "glaucoma from anterior uveitis.",
-                    "options": [
-                        "A large, oval, fixed pupil (vs small in uveitis)",
-                        "Nausea and vomiting with severe pain",
-                        "Haloes around lights with a hazy cornea",
-                        "Marked discharge with normal vision",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "A large fixed pupil, systemic nausea/vomiting, and "
-                                   "haloes with a hazy cornea point to acute glaucoma. "
-                                   "Uveitis gives a small pupil. Marked discharge with "
-                                   "normal vision suggests conjunctivitis, not either.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should you NOT delay irrigating a chemical burn even to "
-                            "instil anaesthetic or check vision?",
-                    "options": [
-                        "The chemical causes progressive tissue destruction every "
-                        "second of contact",
-                        "Anaesthetic neutralises the chemical",
-                        "Vision testing is impossible in a red eye",
-                        "Irrigation only works in the first 60 seconds",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chemicals keep destroying tissue for as long as "
-                                   "they remain in contact, so irrigation must start "
-                                   "immediately — before anaesthetic or vision checks.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Rank these from most to least immediately sight-threatening.",
-                    "options": [
-                        "Chemical burn > acute angle-closure glaucoma > flash burn > "
-                        "viral conjunctivitis",
-                        "Viral conjunctivitis > flash burn > chemical burn > acute "
-                        "glaucoma",
-                        "Flash burn > chemical burn > conjunctivitis > acute glaucoma",
-                        "Acute glaucoma > conjunctivitis > chemical burn > flash burn",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A chemical burn and acute angle-closure glaucoma are "
-                                   "the most immediately sight-threatening; a flash burn "
-                                   "is painful but self-limiting; viral conjunctivitis "
-                                   "is minor.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A trauma patient has blood filling the whole anterior "
-                            "chamber. Name the sign and the main risk if missed.",
-                    "options": [
-                        "Total hyphaema — re-bleeding and a pressure rise can "
-                        "threaten vision",
-                        "Hypopyon — it will clear on its own",
-                        "Subconjunctival haemorrhage — purely cosmetic",
-                        "Cataract — it needs routine surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Blood filling the anterior chamber is a total "
-                                   "hyphaema. The main risks are re-bleeding and a rise "
-                                   "in intraocular pressure, both of which can threaten "
-                                   "vision — escalate.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient with a painful red eye, photophobia and a small "
-                            "pupil has no discharge. What is the most likely diagnosis?",
-                    "options": [
-                        "Anterior uveitis (iritis)",
-                        "Bacterial conjunctivitis",
-                        "Acute angle-closure glaucoma",
-                        "Dry eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pain, photophobia and a small pupil with little or "
-                                   "no discharge are typical of anterior uveitis "
-                                   "(iritis).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL situations that warrant immediate escalation as "
-                            "an ocular emergency.",
-                    "options": [
-                        "A fresh chemical splash to the eye",
-                        "Sudden painless loss of vision",
-                        "Severe pain with a fixed mid-dilated pupil",
-                        "A mild gritty sensation that clears on blinking",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "A chemical splash, sudden painless vision loss, and "
-                                   "severe pain with a fixed dilated pupil are all "
-                                   "emergencies. A transient gritty feeling that clears "
-                                   "is not.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why can acute angle-closure glaucoma cause vomiting?",
-                    "options": [
-                        "The sudden, very high eye pressure triggers a strong "
-                        "vagal/autonomic response",
-                        "The eye drops used always cause nausea",
-                        "Vomiting lowers the eye pressure deliberately",
-                        "It is unrelated — vomiting is coincidental",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The abrupt, very high intraocular pressure in acute "
-                                   "angle-closure glaucoma triggers an autonomic "
-                                   "response that can cause nausea and vomiting — which "
-                                   "can be mistaken for a stomach upset.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient has a painful CN III palsy with a drooping lid "
-                            "and a dilated pupil. Why is the dilated ('blown') pupil "
-                            "especially concerning?",
-                    "options": [
-                        "Pupil involvement raises suspicion of a compressive aneurysm",
-                        "It proves the cause is simply old age",
-                        "A dilated pupil means the problem is minor",
-                        "It indicates the patient needs reading glasses",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "In a third-nerve palsy, pupil involvement (a "
-                                   "'blown' pupil) raises concern for a compressive "
-                                   "cause such as an aneurysm — a neurosurgical "
-                                   "emergency.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about anterior-chamber signs is correct?",
-                    "options": [
-                        "Hyphaema is blood and hypopyon is pus; both warrant "
-                        "escalation",
-                        "Hyphaema is pus and hypopyon is blood",
-                        "Both are normal findings after dilation",
-                        "Only hyphaema needs review; hypopyon can be ignored",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Hyphaema = blood in the anterior chamber; hypopyon "
-                                   "= pus. Both are abnormal and should be flagged for "
-                                   "the doctor.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient presents with a severely painful red eye, nausea, a hazy cornea and a fixed mid-dilated pupil. What is the most likely diagnosis and why is it urgent?', 'options': ['Acute angle-closure glaucoma — high pressure can damage the optic nerve within hours', 'Bacterial conjunctivitis — it spreads to others', 'Presbyopia — it worsens with age', 'Subconjunctival haemorrhage — it looks dramatic'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Severe pain, nausea, a hazy cornea and a fixed mid-dilated pupil are classic for acute angle-closure glaucoma. The very high pressure can cause irreversible optic nerve damage within hours.', 'reasoning_eligible': True},
+                {'stem': 'Two patients arrive together: one with a chemical splash 3 minutes ago, one with a hypopyon and a 2-day painful red eye. Who is managed first and why?', 'options': ['The chemical splash — irrigation is time-critical and cannot be delayed', 'The hypopyon — pus is always more serious', 'Whoever registered first', 'Both can wait for the next routine slot'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A fresh chemical injury needs immediate irrigation (every second counts), so it is managed first. The hypopyon is serious and must also be escalated, but irrigation of the chemical burn cannot be delayed.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL signs that distinguish acute angle-closure glaucoma from anterior uveitis.', 'options': ['A large, oval, fixed pupil (vs small in uveitis)', 'Nausea and vomiting with severe pain', 'Haloes around lights with a hazy cornea', 'Marked discharge with normal vision'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'A large fixed pupil, systemic nausea/vomiting, and haloes with a hazy cornea point to acute glaucoma. Uveitis gives a small pupil. Marked discharge with normal vision suggests conjunctivitis, not either.', 'reasoning_eligible': True},
+                {'stem': 'Why should you NOT delay irrigating a chemical burn even to instil anaesthetic or check vision?', 'options': ['The chemical causes progressive tissue destruction every second of contact', 'Anaesthetic neutralises the chemical', 'Vision testing is impossible in a red eye', 'Irrigation only works in the first 60 seconds'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Chemicals keep destroying tissue for as long as they remain in contact, so irrigation must start immediately — before anaesthetic or vision checks.', 'reasoning_eligible': True},
+                {'stem': 'Rank these from most to least immediately sight-threatening.', 'options': ['Chemical burn > acute angle-closure glaucoma > flash burn > viral conjunctivitis', 'Viral conjunctivitis > flash burn > chemical burn > acute glaucoma', 'Flash burn > chemical burn > conjunctivitis > acute glaucoma', 'Acute glaucoma > conjunctivitis > chemical burn > flash burn'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A chemical burn and acute angle-closure glaucoma are the most immediately sight-threatening; a flash burn is painful but self-limiting; viral conjunctivitis is minor.', 'reasoning_eligible': False},
+                {'stem': 'A trauma patient has blood filling the whole anterior chamber. Name the sign and the main risk if missed.', 'options': ['Total hyphaema — re-bleeding and a pressure rise can threaten vision', 'Hypopyon — it will clear on its own', 'Subconjunctival haemorrhage — purely cosmetic', 'Cataract — it needs routine surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Blood filling the anterior chamber is a total hyphaema. The main risks are re-bleeding and a rise in intraocular pressure, both of which can threaten vision — escalate.', 'reasoning_eligible': False},
+                {'stem': 'A patient with a painful red eye, photophobia and a small pupil has no discharge. What is the most likely diagnosis?', 'options': ['Anterior uveitis (iritis)', 'Bacterial conjunctivitis', 'Acute angle-closure glaucoma', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pain, photophobia and a small pupil with little or no discharge are typical of anterior uveitis (iritis).', 'reasoning_eligible': False},
+                {'stem': 'Select ALL situations that warrant immediate escalation as an ocular emergency.', 'options': ['A fresh chemical splash to the eye', 'Sudden painless loss of vision', 'Severe pain with a fixed mid-dilated pupil', 'A mild gritty sensation that clears on blinking'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'A chemical splash, sudden painless vision loss, and severe pain with a fixed dilated pupil are all emergencies. A transient gritty feeling that clears is not.', 'reasoning_eligible': True},
+                {'stem': 'Why can acute angle-closure glaucoma cause vomiting?', 'options': ['The sudden, very high eye pressure triggers a strong vagal/autonomic response', 'The eye drops used always cause nausea', 'Vomiting lowers the eye pressure deliberately', 'It is unrelated — vomiting is coincidental'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The abrupt, very high intraocular pressure in acute angle-closure glaucoma triggers an autonomic response that can cause nausea and vomiting — which can be mistaken for a stomach upset.', 'reasoning_eligible': True},
+                {'stem': "A patient has a painful CN III palsy with a drooping lid and a dilated pupil. Why is the dilated ('blown') pupil especially concerning?", 'options': ['Pupil involvement raises suspicion of a compressive aneurysm', 'It proves the cause is simply old age', 'A dilated pupil means the problem is minor', 'It indicates the patient needs reading glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "In a third-nerve palsy, pupil involvement (a 'blown' pupil) raises concern for a compressive cause such as an aneurysm — a neurosurgical emergency.", 'reasoning_eligible': True},
+                {'stem': 'Which statement about anterior-chamber signs is correct?', 'options': ['Hyphaema is blood and hypopyon is pus; both warrant escalation', 'Hyphaema is pus and hypopyon is blood', 'Both are normal findings after dilation', 'Only hyphaema needs review; hypopyon can be ignored'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Hyphaema = blood in the anterior chamber; hypopyon = pus. Both are abnormal and should be flagged for the doctor.', 'reasoning_eligible': False},
+                {'stem': 'A welder presents 6 hours after work with intense bilateral pain, tearing and photophobia; corneas show diffuse punctate fluorescein staining. The diagnosis and reason for the delay are:', 'options': ['Ultraviolet (arc-eye) photokeratitis - symptoms are delayed as the damaged epithelium sloughs hours later', 'Acute glaucoma - pain is always immediate', 'Cataract - it never causes pain', 'A foreign body only - staining is never diffuse'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'UV exposure causes a superficial keratitis whose pain peaks hours later as epithelial cells die and slough - hence the classic delayed presentation.', 'reasoning_eligible': True},
+                {'stem': 'A patient after a car crash has a peaked (teardrop) pupil, a shallow anterior chamber and dark tissue at the wound. Correct management is to:', 'options': ['Shield the eye, give nothing by mouth, avoid all pressure/drops, and refer for surgery', 'Irrigate vigorously and pad tightly', 'Remove the dark tissue and instil ointment', 'Reassure and discharge with lubricants'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A peaked pupil with uveal prolapse indicates an open globe; shield (not pad), keep NBM for theatre, and avoid pressure or manipulation.', 'reasoning_eligible': True},
+                {'stem': 'Ranking these by immediacy of sight-threat, which is MOST time-critical (minutes matter)?', 'options': ['Central retinal artery occlusion / chemical alkali burn', 'A slowly progressing cataract', 'A resolving subconjunctival haemorrhage', 'A chalazion'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'CRAO and alkali burns cause damage within minutes, so they are the most time-critical; cataract and chalazion are non-urgent.', 'reasoning_eligible': True},
+                {'stem': 'After blunt trauma a patient has diplopia looking up, a numb lower eyelid/cheek and restricted up-gaze. Which is the key advice while awaiting review?', 'options': ['Avoid nose-blowing (risk of orbital emphysema) - likely orbital floor fracture with entrapment', 'Blow the nose to clear pressure', 'Rub the eye to relieve diplopia', 'Apply firm pressure over the orbit'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Blow-out fractures connect the orbit to the sinus; nose-blowing can force air into the orbit, so it must be avoided pending assessment.', 'reasoning_eligible': True},
+                {'stem': 'Which single feature best separates a minor corneal ABRASION from a sight-threatening corneal ULCER (microbial keratitis)?', 'options': ['A white stromal infiltrate/opacity (with possible hypopyon) indicates infection, not a simple abrasion', 'The presence of any pain', 'Watering of the eye', 'Mild conjunctival redness'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'An abrasion is a clean epithelial defect; a white infiltrate/opacity (± hypopyon) signals infective keratitis and needs urgent treatment.', 'reasoning_eligible': True},
             ],
         },
         "red_eye": {
