@@ -1135,336 +1135,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "iop_nct": {
             "easy": [
-                {
-                    "stem": "What is the normal range for intraocular pressure (IOP)?",
-                    "options": ["10-21 mmHg", "0-5 mmHg",
-                                "30-40 mmHg", "50-60 mmHg"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Normal IOP is 10-21 mmHg.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a non-contact tonometer use to measure the eye "
-                            "pressure?",
-                    "options": ["A puff of air", "A probe touching the cornea",
-                                "An ultrasound gel", "A bright light"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The non-contact tonometer (NCT) uses a puff of air "
-                                   "to measure IOP without touching the eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "For which patients and visits is IOP measured?",
-                    "options": ["All patients, all visits",
-                                "Only glaucoma patients",
-                                "Only on the first visit",
-                                "Only patients over 60"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "IOP is measured for all patients at all visits, as "
-                                   "raised pressure is often symptomless.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "When measuring IOP, which eye is done first by convention?",
-                    "options": ["The right eye", "The left eye",
-                                "Whichever has higher pressure", "Both together"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "By convention the right eye is measured first.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What must you do to the machine parts that come near the "
-                            "patient before and after NCT?",
-                    "options": ["Wipe them with alcohol wipes and perform hand hygiene",
-                                "Leave them as they are",
-                                "Rinse them with tap water only",
-                                "Replace them after every patient"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Wipe the contact parts with alcohol wipes and do "
-                                   "hand hygiene before and after, for infection "
-                                   "control.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why are glasses or contact lenses removed before NCT?",
-                    "options": ["They interfere with the air-puff measurement",
-                                "They improve the reading",
-                                "They protect the cornea",
-                                "It is only for comfort"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Glasses and contact lenses interfere with the "
-                                   "air-puff measurement, so they are removed first.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is the air-puff tonometer a contact or non-contact device?",
-                    "options": ["Non-contact", "Contact",
-                                "Semi-contact with gel", "It uses a probe"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The air-puff tonometer is non-contact — nothing "
-                                   "touches the eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL factors that can make an NCT reading unreliable.",
-                    "options": ["Blinking or poor cooperation",
-                                "Poor positioning or alignment",
-                                "Wearing glasses during the test",
-                                "Sitting still and looking straight ahead"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Blinking/poor cooperation, poor positioning, and "
-                                   "leaving glasses on all reduce reliability. Sitting "
-                                   "still and fixating is correct technique.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What is the normal range for intraocular pressure (IOP)?', 'options': ['10-21 mmHg', '0-5 mmHg', '30-40 mmHg', '50-60 mmHg'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Normal IOP is 10-21 mmHg.', 'reasoning_eligible': False},
+                {'stem': 'What does a non-contact tonometer use to measure the eye pressure?', 'options': ['A puff of air', 'A probe touching the cornea', 'An ultrasound gel', 'A bright light'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The non-contact tonometer (NCT) uses a puff of air to measure IOP without touching the eye.', 'reasoning_eligible': False},
+                {'stem': 'For which patients and visits is IOP measured?', 'options': ['All patients, all visits', 'Only glaucoma patients', 'Only on the first visit', 'Only patients over 60'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'IOP is measured for all patients at all visits, as raised pressure is often symptomless.', 'reasoning_eligible': False},
+                {'stem': 'When measuring IOP, which eye is done first by convention?', 'options': ['The right eye', 'The left eye', 'Whichever has higher pressure', 'Both together'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'By convention the right eye is measured first.', 'reasoning_eligible': False},
+                {'stem': 'What must you do to the machine parts that come near the patient before and after NCT?', 'options': ['Wipe them with alcohol wipes and perform hand hygiene', 'Leave them as they are', 'Rinse them with tap water only', 'Replace them after every patient'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Wipe the contact parts with alcohol wipes and do hand hygiene before and after, for infection control.', 'reasoning_eligible': False},
+                {'stem': 'Why are glasses or contact lenses removed before NCT?', 'options': ['They interfere with the air-puff measurement', 'They improve the reading', 'They protect the cornea', 'It is only for comfort'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Glasses and contact lenses interfere with the air-puff measurement, so they are removed first.', 'reasoning_eligible': False},
+                {'stem': 'Is the air-puff tonometer a contact or non-contact device?', 'options': ['Non-contact', 'Contact', 'Semi-contact with gel', 'It uses a probe'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The air-puff tonometer is non-contact — nothing touches the eye.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL factors that can make an NCT reading unreliable.', 'options': ['Blinking or poor cooperation', 'Poor positioning or alignment', 'Wearing glasses during the test', 'Sitting still and looking straight ahead'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Blinking/poor cooperation, poor positioning, and leaving glasses on all reduce reliability. Sitting still and fixating is correct technique.', 'reasoning_eligible': False},
+                {'stem': 'During non-contact tonometry the patient should rest their:', 'options': ["Chin and forehead firmly against the machine's rests", 'Chin only, forehead free', 'Hands on the machine', 'Cheek against the lens'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A firm chin-and-forehead position keeps the eye steady and correctly distanced for an accurate air-puff reading.', 'reasoning_eligible': False},
+                {'stem': 'When the air puff is delivered, the patient should be told to:', 'options': ['Keep the eye open and NOT squeeze the eyelids', 'Squeeze the eyes tightly shut', 'Look away from the target', 'Hold their breath and strain'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Squeezing the lids falsely raises the reading and blocks the puff; the patient keeps the eye open and relaxed.', 'reasoning_eligible': False},
+                {'stem': 'For a reliable NCT result, roughly how many readings are taken to obtain an average?', 'options': ['About three readings', 'Exactly one', 'Ten readings', 'None - one glance is enough'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Around three readings are taken and averaged to verify accuracy and reduce single-reading error.', 'reasoning_eligible': False},
+                {'stem': 'If the initial NCT reading is 24 mmHg or higher, the correct practice is to:', 'options': ['Take three readings to verify accuracy', 'Record it once and ignore it', 'Stop testing that eye', 'Assume it is a machine error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An initial reading of >=24 mmHg is verified by taking three readings before it is acted on.', 'reasoning_eligible': True},
+                {'stem': 'The normal range of intraocular pressure is approximately:', 'options': ['10-21 mmHg', '30-45 mmHg', '0-5 mmHg', '50-60 mmHg'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Normal IOP is about 10-21 mmHg, though some eyes are damaged within this range and others tolerate higher.', 'reasoning_eligible': False},
+                {'stem': 'The alignment target for NCT is achieved by adjusting height so that the:', 'options': ["Outer canthus lines up with the machine's marker and the alignment dot sits on the cornea", 'Nose touches the lens', 'Patient looks at the ceiling', 'Machine is as far away as possible'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Aligning the outer canthus to the marker and centring the reflected dot on the cornea ensures the puff hits correctly.', 'reasoning_eligible': False},
+                {'stem': 'The parts of the tonometer near the patient are wiped with alcohol:', 'options': ['Before AND after each patient', 'Only at the end of the day', 'Never', 'Only if the patient asks'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Cleaning the chin/forehead rests before and after each patient is standard infection control.', 'reasoning_eligible': False},
+                {'stem': 'Contact lenses should be removed before NCT because they:', 'options': ['Interfere with the air-puff measurement of the cornea', 'Increase the true eye pressure', 'Improve accuracy', 'Protect the machine'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A lens on the cornea distorts the air-puff applanation, so lenses (and glasses) are removed first.', 'reasoning_eligible': False},
+                {'stem': "As with other tests, NCT begins by checking the doctor's order and:", 'options': ['Confirming patient identity with at least 2 identifiers', 'Dilating the pupil', "Removing the patient's shoes", 'Turning off the lights'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Two-identifier confirmation against the record prevents wrong-patient testing and mis-recording.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "NCT readings remain unreliable despite re-testing. What is "
-                            "the appropriate next step?",
-                    "options": ["Refer for Goldmann applanation tonometry",
-                                "Record the unreliable value and move on",
-                                "Double the reading",
-                                "Skip IOP for this visit"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If NCT stays unreliable, refer for Goldmann "
-                                   "applanation tonometry, the more accurate contact "
-                                   "method.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "An asymptomatic patient has IOP 26/24 mmHg. What should "
-                            "you do?",
-                    "options": [
-                        "Confirm on repeat and flag for assessment — it is above "
-                        "normal",
-                        "Ignore it because the patient feels fine",
-                        "Tell the patient they have glaucoma",
-                        "Re-test only if symptoms appear",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "26/24 mmHg is above the normal 10-21 range. "
-                                   "Glaucoma is often symptomless, so confirm on repeat "
-                                   "and flag for assessment.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why might the air-puff tonometer overestimate at higher "
-                            "pressures?",
-                    "options": [
-                        "NCT tends to read higher than true IOP at high pressures",
-                        "It always reads lower than true IOP",
-                        "It cannot measure above 21 mmHg",
-                        "Air puffs lower the pressure as they measure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The air-puff method tends to overestimate at higher "
-                                   "IOP values, so high NCT readings are often "
-                                   "confirmed by applanation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Name two common causes of an unreliable NCT reading.",
-                    "options": [
-                        "Blinking/poor cooperation and poor positioning/alignment",
-                        "Good fixation and correct alignment",
-                        "Removing glasses and sitting still",
-                        "A calm patient and a clean machine",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Blinking or poor cooperation and poor "
-                                   "positioning/alignment are the common causes of "
-                                   "unreliable NCT readings.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is raised IOP important to detect even when the "
-                            "patient has no symptoms?",
-                    "options": [
-                        "Glaucoma can silently damage the optic nerve before symptoms "
-                        "appear",
-                        "Raised IOP always causes obvious pain",
-                        "It has no effect unless symptomatic",
-                        "Symptomless pressure is never harmful",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Chronic glaucoma is usually painless and can damage "
-                                   "vision before the patient notices — which is why "
-                                   "IOP is checked routinely.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is alcohol-wiping the contact parts before AND after "
-                            "each patient important?",
-                    "options": [
-                        "To prevent cross-infection between patients",
-                        "To improve the air-puff strength",
-                        "To calibrate the machine",
-                        "It is optional and only cosmetic",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Cleaning the parts that approach the eye prevents "
-                                   "cross-infection between patients — basic infection "
-                                   "control.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A single NCT reading is borderline high. What is good "
-                            "practice before flagging it?",
-                    "options": [
-                        "Repeat to confirm, ensuring good cooperation and alignment",
-                        "Report it as definite glaucoma",
-                        "Discard it without repeating",
-                        "Average it with the other eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Confirm a borderline reading by repeating it with "
-                                   "good technique before flagging — single readings "
-                                   "can be falsely high.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'NCT readings remain unreliable despite re-testing. What is the appropriate next step?', 'options': ['Refer for Goldmann applanation tonometry', 'Record the unreliable value and move on', 'Double the reading', 'Skip IOP for this visit'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'If NCT stays unreliable, refer for Goldmann applanation tonometry, the more accurate contact method.', 'reasoning_eligible': True},
+                {'stem': 'An asymptomatic patient has IOP 26/24 mmHg. What should you do?', 'options': ['Confirm on repeat and flag for assessment — it is above normal', 'Ignore it because the patient feels fine', 'Tell the patient they have glaucoma', 'Re-test only if symptoms appear'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': '26/24 mmHg is above the normal 10-21 range. Glaucoma is often symptomless, so confirm on repeat and flag for assessment.', 'reasoning_eligible': True},
+                {'stem': 'Why might the air-puff tonometer overestimate at higher pressures?', 'options': ['NCT tends to read higher than true IOP at high pressures', 'It always reads lower than true IOP', 'It cannot measure above 21 mmHg', 'Air puffs lower the pressure as they measure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The air-puff method tends to overestimate at higher IOP values, so high NCT readings are often confirmed by applanation.', 'reasoning_eligible': False},
+                {'stem': 'Name two common causes of an unreliable NCT reading.', 'options': ['Blinking/poor cooperation and poor positioning/alignment', 'Good fixation and correct alignment', 'Removing glasses and sitting still', 'A calm patient and a clean machine'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Blinking or poor cooperation and poor positioning/alignment are the common causes of unreliable NCT readings.', 'reasoning_eligible': False},
+                {'stem': 'Why is raised IOP important to detect even when the patient has no symptoms?', 'options': ['Glaucoma can silently damage the optic nerve before symptoms appear', 'Raised IOP always causes obvious pain', 'It has no effect unless symptomatic', 'Symptomless pressure is never harmful'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Chronic glaucoma is usually painless and can damage vision before the patient notices — which is why IOP is checked routinely.', 'reasoning_eligible': True},
+                {'stem': 'Why is alcohol-wiping the contact parts before AND after each patient important?', 'options': ['To prevent cross-infection between patients', 'To improve the air-puff strength', 'To calibrate the machine', 'It is optional and only cosmetic'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Cleaning the parts that approach the eye prevents cross-infection between patients — basic infection control.', 'reasoning_eligible': False},
+                {'stem': 'A single NCT reading is borderline high. What is good practice before flagging it?', 'options': ['Repeat to confirm, ensuring good cooperation and alignment', 'Report it as definite glaucoma', 'Discard it without repeating', 'Average it with the other eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirm a borderline reading by repeating it with good technique before flagging — single readings can be falsely high.', 'reasoning_eligible': False},
+                {'stem': 'A very anxious patient repeatedly flinches and squeezes their lids during NCT. This is likely to make the reading:', 'options': ['Falsely high', 'Falsely low', 'Exactly correct', 'Impossible to record ever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Lid squeezing and straining raise measured IOP; reassure and re-test to get a valid reading.', 'reasoning_eligible': True},
+                {'stem': 'A thick central cornea can cause the air-puff tonometer to read the IOP as:', 'options': ['Falsely high', 'Falsely low', 'Always zero', 'Unaffected'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A thicker cornea resists applanation, over-reading IOP; a thin cornea (e.g. post-LASIK) under-reads it.', 'reasoning_eligible': True},
+                {'stem': 'A patient who had LASIK refractive surgery has a thinned cornea. NCT may therefore:', 'options': ['Underestimate the true IOP', 'Overestimate the true IOP by a lot', 'Be perfectly accurate', 'Read exactly 21 always'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A thin post-LASIK cornea applanates more easily, so the tonometer tends to under-read the pressure - worth noting.', 'reasoning_eligible': True},
+                {'stem': "A patient's IOP is measured at 8 am one visit and 4 pm the next. Why note the time?", 'options': ['IOP varies through the day (diurnal variation), often higher in the morning', 'Time never affects IOP', 'The machine works better in the morning', 'It is only for billing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'IOP fluctuates diurnally; recording the time lets the clinician compare like with like across visits.', 'reasoning_eligible': True},
+                {'stem': 'A tight shirt collar or the patient straining/holding their breath during NCT can:', 'options': ['Transiently raise the measured IOP', 'Lower the IOP to zero', 'Improve accuracy', 'Have no possible effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Valsalva and neck compression raise episcleral venous pressure and IOP; loosen tight collars and let the patient relax.', 'reasoning_eligible': True},
+                {'stem': 'The IOP reads 26 mmHg in the right eye and 15 mmHg in the left. The asymmetry:', 'options': ['Is worth flagging - a difference between eyes can be clinically significant', 'Should be averaged into one number', 'Means the machine is broken', 'Is always normal and ignored'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A significant inter-eye IOP difference can indicate pathology; record both and flag the asymmetry for the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Why is a raised NCT reading usually confirmed with Goldmann applanation tonometry before acting on it?', 'options': ['Goldmann is the reference standard and less affected by the sources of NCT error', 'Goldmann is faster', 'NCT cannot measure high pressures', 'Goldmann needs no cleaning'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'NCT is a good screen but Goldmann applanation is the gold standard used to confirm a genuinely high pressure.', 'reasoning_eligible': True},
+                {'stem': 'For a patient already on glaucoma eye-drops, why measure IOP at every visit?', 'options': ['To check the treatment is keeping the pressure controlled', 'To justify the appointment', 'Because drops change eye colour', 'It is not necessary'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Serial IOP tells the clinician whether the drops are achieving target pressure or need adjusting.', 'reasoning_eligible': True},
+                {'stem': 'Why is raised IOP important to detect even when the patient feels completely well?', 'options': ['Open-angle glaucoma is symptomless early, yet raised IOP can be silently damaging the optic nerve', 'High IOP always causes obvious pain', 'It only matters if vision is already lost', 'It is only a cosmetic issue'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because chronic glaucoma is asymptomatic until late, detecting raised IOP allows treatment before vision is lost.', 'reasoning_eligible': True},
+                {'stem': 'An NCT reading over a scarred or oedematous cornea is likely to be:', 'options': ['Unreliable and should be interpreted with caution', 'Perfectly accurate', 'Always exactly normal', 'Higher precision than a clear cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An irregular, scarred or swollen cornea distorts applanation, so the reading is unreliable and may need an alternative method.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient's NCT reads 32 mmHg but they blink hard on every "
-                            "puff and won't hold still. How do you proceed?",
-                    "options": [
-                        "Re-attempt with coaching/alignment; if still unreliable, "
-                        "refer for Goldmann applanation",
-                        "Record 32 mmHg as the definitive pressure",
-                        "Assume the eye is normal and move on",
-                        "Tell the patient they need surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Blinking and poor fixation make the reading "
-                                   "unreliable. Re-attempt with coaching; if it stays "
-                                   "unreliable, refer for Goldmann applanation rather "
-                                   "than trusting the figure.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is a high NCT reading usually confirmed by Goldmann "
-                            "applanation before acting on it?",
-                    "options": [
-                        "Air-puff tends to overestimate at high IOP, so applanation "
-                        "gives a more accurate value",
-                        "Goldmann always reads higher than NCT",
-                        "NCT cannot detect high pressure at all",
-                        "Applanation is faster than NCT",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Because the air-puff can overestimate at high "
-                                   "pressures, a high NCT is confirmed with the more "
-                                   "accurate Goldmann applanation before decisions are "
-                                   "made.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL steps that improve the reliability of an NCT "
-                            "measurement.",
-                    "options": [
-                        "Remove glasses/contact lenses first",
-                        "Align and position the patient correctly",
-                        "Encourage the patient to keep the eye open and fixate",
-                        "Take the reading while the patient is mid-blink",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Removing lenses, correct alignment, and steady "
-                                   "fixation all improve reliability. Measuring "
-                                   "mid-blink does the opposite.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "An asymptomatic 55-year-old has IOP 27 mmHg confirmed on "
-                            "repeat, with a family history of glaucoma. Why is this "
-                            "important?",
-                    "options": [
-                        "Raised IOP plus family history raises glaucoma risk — flag "
-                        "for assessment though the patient feels well",
-                        "It is harmless because there are no symptoms",
-                        "Family history is irrelevant to IOP",
-                        "27 mmHg is within the normal range",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Confirmed raised IOP with a family history "
-                                   "increases glaucoma risk. Because early glaucoma is "
-                                   "symptomless, it must be flagged for assessment.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does measuring IOP at every visit matter for a patient "
-                            "already on glaucoma drops?",
-                    "options": [
-                        "It checks that treatment is keeping the pressure controlled "
-                        "over time",
-                        "It is only needed once at diagnosis",
-                        "Drops make IOP irrelevant",
-                        "It is done purely for records",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Serial IOP measurements show whether the treatment "
-                                   "is controlling the pressure and guide any "
-                                   "adjustments.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about NCT versus Goldmann applanation is "
-                            "correct?",
-                    "options": [
-                        "NCT is a quick non-contact screen; Goldmann applanation is "
-                        "the more accurate contact reference",
-                        "Goldmann is non-contact and less accurate",
-                        "They are identical methods",
-                        "NCT requires anaesthetic drops; Goldmann does not",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "NCT is a fast, non-contact screen; Goldmann "
-                                   "applanation (a contact method) is the more accurate "
-                                   "reference used to confirm.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A patient's NCT reads 32 mmHg but they blink hard on every puff and won't hold still. How do you proceed?", 'options': ['Re-attempt with coaching/alignment; if still unreliable, refer for Goldmann applanation', 'Record 32 mmHg as the definitive pressure', 'Assume the eye is normal and move on', 'Tell the patient they need surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Blinking and poor fixation make the reading unreliable. Re-attempt with coaching; if it stays unreliable, refer for Goldmann applanation rather than trusting the figure.', 'reasoning_eligible': True},
+                {'stem': 'Why is a high NCT reading usually confirmed by Goldmann applanation before acting on it?', 'options': ['Air-puff tends to overestimate at high IOP, so applanation gives a more accurate value', 'Goldmann always reads higher than NCT', 'NCT cannot detect high pressure at all', 'Applanation is faster than NCT'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because the air-puff can overestimate at high pressures, a high NCT is confirmed with the more accurate Goldmann applanation before decisions are made.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL steps that improve the reliability of an NCT measurement.', 'options': ['Remove glasses/contact lenses first', 'Align and position the patient correctly', 'Encourage the patient to keep the eye open and fixate', 'Take the reading while the patient is mid-blink'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Removing lenses, correct alignment, and steady fixation all improve reliability. Measuring mid-blink does the opposite.', 'reasoning_eligible': False},
+                {'stem': 'An asymptomatic 55-year-old has IOP 27 mmHg confirmed on repeat, with a family history of glaucoma. Why is this important?', 'options': ['Raised IOP plus family history raises glaucoma risk — flag for assessment though the patient feels well', 'It is harmless because there are no symptoms', 'Family history is irrelevant to IOP', '27 mmHg is within the normal range'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirmed raised IOP with a family history increases glaucoma risk. Because early glaucoma is symptomless, it must be flagged for assessment.', 'reasoning_eligible': True},
+                {'stem': 'Why does measuring IOP at every visit matter for a patient already on glaucoma drops?', 'options': ['It checks that treatment is keeping the pressure controlled over time', 'It is only needed once at diagnosis', 'Drops make IOP irrelevant', 'It is done purely for records'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Serial IOP measurements show whether the treatment is controlling the pressure and guide any adjustments.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about NCT versus Goldmann applanation is correct?', 'options': ['NCT is a quick non-contact screen; Goldmann applanation is the more accurate contact reference', 'Goldmann is non-contact and less accurate', 'They are identical methods', 'NCT requires anaesthetic drops; Goldmann does not'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'NCT is a fast, non-contact screen; Goldmann applanation (a contact method) is the more accurate reference used to confirm.', 'reasoning_eligible': False},
+                {'stem': 'A patient walks in with a severely painful red eye, haloes, nausea, and the NCT reads 52 mmHg. The correct response is to:', 'options': ['Treat as acute angle-closure glaucoma - an emergency needing immediate escalation', 'Reassure and rebook', 'Repeat next month', 'Give lubricants and discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A very high IOP with pain, haloes and nausea is acute angle-closure glaucoma; urgent pressure-lowering treatment is needed to save sight.', 'reasoning_eligible': True},
+                {'stem': 'A 55-year-old has IOP 27 mmHg confirmed on repeat, no symptoms, and a father with glaucoma. Why does this matter?', 'options': ['Raised IOP plus family history raises glaucoma risk, warranting full assessment (disc, fields)', 'It is irrelevant without pain', 'Family history does not affect glaucoma risk', '27 mmHg is within the normal range'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Ocular hypertension with a positive family history increases glaucoma risk; the clinician should assess the disc and visual fields.', 'reasoning_eligible': True},
+                {'stem': "A patient's NCT reads 33 mmHg but they blink hard on every puff and cannot hold still. The best next step is to:", 'options': ['Reassure, reposition and repeat; if still unreliable, arrange applanation by a clinician', 'Record 33 mmHg as final and act on it', 'Abandon IOP assessment entirely', 'Assume it is definitely normal'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Blinking/squeezing gives unreliable high readings; optimise technique and, if needed, confirm with Goldmann rather than trusting a flawed value.', 'reasoning_eligible': True},
+                {'stem': 'Two patients each read 24 mmHg on NCT. Patient A has a very thick cornea; Patient B a very thin cornea. What is likely TRUE?', 'options': ["A's true IOP may be lower and B's true IOP may be higher than 24 once corneal thickness is considered", 'Both true IOPs are exactly 24', "A's true IOP is higher, B's lower", 'Corneal thickness does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Thick corneas over-read (true pressure lower) and thin corneas under-read (true pressure higher), so CCT reframes the same number.', 'reasoning_eligible': True},
+                {'stem': 'Why should you avoid pressing on or holding the lids open during tonometry when a patient struggles to keep the eye open?', 'options': ['Pressure on the globe artificially raises the measured IOP', 'It lowers the IOP falsely', 'It cleans the cornea', 'It has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Any external pressure on the globe (including lid-holding) raises IOP; use gentle technique and reassurance instead.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about NCT versus Goldmann applanation tonometry is CORRECT?', 'options': ['NCT is a quick no-touch screen; Goldmann is the contact gold standard used to confirm abnormal results', 'NCT is the gold standard and Goldmann is a screen', 'Both require topical anaesthetic', 'Goldmann uses an air puff'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'NCT screens without touching the eye or anaesthetic; Goldmann (contact, with fluorescein/anaesthetic) is the confirmatory gold standard.', 'reasoning_eligible': True},
+                {'stem': "A glaucoma patient's IOP has risen from 14 to 25 mmHg since their last visit despite unchanged drops. The most useful action is to:", 'options': ['Record and flag the rise for the clinician (possible poor adherence or disease progression)', 'Ignore it as random', 'Tell the patient it is fine', 'Delete the previous reading'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A significant rise on stable therapy suggests non-adherence or progression; documenting and flagging it prompts clinical review.', 'reasoning_eligible': True},
+                {'stem': "Why can a single 'borderline high' NCT reading be misleading without repetition?", 'options': ['Momentary factors (blink, alignment, breath-holding) can spuriously raise one reading', 'IOP can never be measured twice', 'Repeating always lowers the value', 'One reading is always definitive'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Transient artefacts affect single readings; averaging several (or repeating >=24 mmHg) separates a real elevation from noise.', 'reasoning_eligible': True},
+                {'stem': 'An NCT machine gives wildly varying readings (12, 30, 18) on one eye. Before flagging the eye, you should:', 'options': ['Check alignment/technique and repeat, since scatter suggests a measurement problem', 'Report the highest value only', 'Report the average of the three as final and act', 'Assume the eye is diseased'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Highly scattered readings usually reflect poor fixation/alignment; correct the technique and repeat before drawing conclusions.', 'reasoning_eligible': True},
+                {'stem': 'Which combination of steps BEST improves NCT reliability?', 'options': ['Good alignment, relaxed open eye, loosened tight collar, several readings, and cleaned rests', 'One quick puff with the patient squinting', "Testing through the patient's glasses", 'Pressing firmly on the lids'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Reliability comes from correct alignment, a relaxed open eye, no Valsalva, averaging readings, and clean equipment.', 'reasoning_eligible': True},
             ],
         },
         "eye_drops": {
