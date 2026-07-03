@@ -766,7 +766,7 @@ git push origin main
 - [x] disorders_uvea_retina — Uvea/Retina/Uveitis/Angiography/Inflammation docs, GRT research
 - [x] glaucoma — Glaucoma, ocular-surface-in-glaucoma research
 - [x] neuro_strabismus — nerve palsy, amblyopia, strabismus, EOM, optic neuritis/GCA, orthoptics
-- [ ] systemic_disease — Diabetes, Hypertension, Asthma, systemic disorders, IOP/BMI research
+- [x] systemic_disease — Diabetes, Hypertension, Asthma, systemic disorders, IOP/BMI research
 
 **CLINICAL (14)** — top up existing to 50:
 - [ ] red_eye · [ ] triage · [ ] history_taking · [ ] distance_va · [ ] near_vision · [ ] pinhole · [ ] iop_nct · [ ] eye_drops · [ ] pupil_dilation · [ ] colour_vision · [ ] amsler_macula · [ ] fall_risk · [ ] perioperative · [ ] abbreviations
