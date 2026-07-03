@@ -2297,255 +2297,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "orthoptics": {
             "easy": [
-                {
-                    "stem": "What do cover/uncover tests detect?",
-                    "options": [
-                        "Manifest (tropia) or latent (phoria) strabismus",
-                        "The eye pressure",
-                        "The corneal curvature",
-                        "Colour vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Cover/uncover tests detect eye misalignment — "
-                                   "manifest (tropia) or latent (phoria).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the Hirschberg test use to estimate eye "
-                            "alignment?",
-                    "options": ["The corneal light reflex",
-                                "An air puff",
-                                "A moving target",
-                                "Ultrasound"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Hirschberg test uses the position of the "
-                                   "corneal light reflex to estimate alignment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the normal near point of convergence (NPC)?",
-                    "options": ["Less than 10 cm", "About 35 cm",
-                                "About 1 metre", "6 metres"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A normal near point of convergence is less than "
-                                   "about 10 cm.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What do versions and ductions assess?",
-                    "options": ["Eye movements in the directions of gaze",
-                                "The eye pressure",
-                                "The visual field",
-                                "Colour vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Versions (both eyes) and ductions (one eye) assess "
-                                   "eye movements in the different directions of gaze.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the Krimsky test estimate?",
-                    "options": [
-                        "The angle of deviation, using prisms over the light reflex",
-                        "The corneal thickness",
-                        "The retinal sensitivity",
-                        "The axial length",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Krimsky test uses prisms over the corneal light "
-                                   "reflex to estimate the angle of deviation.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a 'tropia' mean?",
-                    "options": ["A manifest (constant) eye deviation",
-                                "A latent deviation seen only on cover testing",
-                                "Normal alignment",
-                                "A type of cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A tropia is a manifest deviation — present with "
-                                   "both eyes open — unlike a latent phoria.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What do cover/uncover tests detect?', 'options': ['Manifest (tropia) or latent (phoria) strabismus', 'The eye pressure', 'The corneal curvature', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Cover/uncover tests detect eye misalignment — manifest (tropia) or latent (phoria).', 'reasoning_eligible': False},
+                {'stem': 'What does the Hirschberg test use to estimate eye alignment?', 'options': ['The corneal light reflex', 'An air puff', 'A moving target', 'Ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Hirschberg test uses the position of the corneal light reflex to estimate alignment.', 'reasoning_eligible': False},
+                {'stem': 'What is the normal near point of convergence (NPC)?', 'options': ['Less than 10 cm', 'About 35 cm', 'About 1 metre', '6 metres'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A normal near point of convergence is less than about 10 cm.', 'reasoning_eligible': False},
+                {'stem': 'What do versions and ductions assess?', 'options': ['Eye movements in the directions of gaze', 'The eye pressure', 'The visual field', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Versions (both eyes) and ductions (one eye) assess eye movements in the different directions of gaze.', 'reasoning_eligible': False},
+                {'stem': 'What does the Krimsky test estimate?', 'options': ['The angle of deviation, using prisms over the light reflex', 'The corneal thickness', 'The retinal sensitivity', 'The axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Krimsky test uses prisms over the corneal light reflex to estimate the angle of deviation.', 'reasoning_eligible': False},
+                {'stem': "What does a 'tropia' mean?", 'options': ['A manifest (constant) eye deviation', 'A latent deviation seen only on cover testing', 'Normal alignment', 'A type of cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A tropia is a manifest deviation — present with both eyes open — unlike a latent phoria.', 'reasoning_eligible': False},
+                {'stem': 'The cover test is performed using a(n):', 'options': ['Occluder to cover one eye while watching for movement', 'Blood pressure cuff', 'Ultrasound probe', 'Colour vision book'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'An occluder covers one eye while the examiner watches the other for any refixation movement.', 'reasoning_eligible': False},
+                {'stem': "A 'phoria' is a squint that is:", 'options': ['Latent - controlled normally, revealed only on cover testing', 'Always constant and obvious', 'A retinal disease', 'A type of cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A phoria is a latent tendency kept straight by fusion, becoming manifest only when fusion is broken (cover test).', 'reasoning_eligible': False},
+                {'stem': 'During the cover test the patient should fixate a:', 'options': ['Clear accommodative target (letter/picture) at the test distance', 'Bright bare bulb', "The examiner's ear", 'Nothing in particular'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A defined accommodative target keeps fixation and accommodation steady so any deviation is accurately detected.', 'reasoning_eligible': False},
+                {'stem': 'The Hirschberg test estimates alignment by observing the:', 'options': ['Position of the corneal light reflex in each eye', 'Eye pressure', 'Colour vision', 'Retinal thickness'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A symmetrically centred corneal light reflex indicates straight eyes; displacement suggests a deviation.', 'reasoning_eligible': False},
+                {'stem': 'The near point of convergence (NPC) is:', 'options': ['The closest point the eyes can converge on before one drifts out', 'The eye pressure at near', 'The reading glasses power', 'The blind spot location'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'NPC is the nearest point the eyes can maintain fusion while converging; a remote NPC suggests convergence weakness.', 'reasoning_eligible': False},
+                {'stem': 'Versions and ductions assess the:', 'options': ['Eye movements (motility)', 'Eye pressure', 'Colour vision', 'Corneal thickness'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Ductions (one eye) and versions (both eyes together) test the range and coordination of eye movements.', 'reasoning_eligible': False},
+                {'stem': 'A patient reports the test is confusing. Good practice for the OT is to:', 'options': ['Explain clearly and demonstrate, ensuring the patient understands before testing', 'Proceed without explaining', 'Skip the test', 'Speak faster'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Clear explanation and demonstration improve cooperation and the reliability of orthoptic tests.', 'reasoning_eligible': True},
+                {'stem': "A 'tropia' is a squint that is:", 'options': ['Manifest - present even with both eyes open', 'Only latent', 'A corneal ulcer', 'A refractive error only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A tropia is a manifest deviation seen under normal binocular viewing, unlike a latent phoria.', 'reasoning_eligible': False},
+                {'stem': 'The OT performs orthoptic tests and:', 'options': ['Records the findings for the clinician/orthoptist, without diagnosing', 'Diagnoses and prescribes prism glasses', 'Performs squint surgery', 'Deletes the results'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT documents the measurements; diagnosis and management stay with the clinician/orthoptist.', 'reasoning_eligible': True},
+                {'stem': 'For a young child who cannot cooperate with the cover test, a useful alternative is the:', 'options': ['Hirschberg (corneal light reflex) test', 'Humphrey visual field', 'Applanation tonometry', 'A-scan biometry'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The light-reflex (Hirschberg) test needs minimal cooperation, making it useful in young or uncooperative children.', 'reasoning_eligible': True},
+                {'stem': 'The Krimsky test uses prisms with the corneal reflex to:', 'options': ['Estimate the size of a deviation', 'Measure the eye pressure', 'Test colour vision', 'Grade a cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Krimsky places prisms to centre the light reflex, estimating the angle of a strabismus.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "A child's corneal light reflex is displaced temporally in "
-                            "one eye. What does this suggest?",
-                    "options": ["Esotropia (an inward turn)",
-                                "Exotropia (an outward turn)",
-                                "Normal alignment",
-                                "A cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A temporally displaced light reflex indicates the "
-                                   "eye is turned inward — esotropia.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why assess a child's squint early?",
-                    "options": ["Childhood squint can cause amblyopia (lazy eye)",
-                                "Squints always resolve by adulthood",
-                                "It is only a cosmetic concern",
-                                "Early squint cannot be treated"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "An untreated childhood squint can lead to amblyopia "
-                                   "(lazy eye), so early assessment matters.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient cannot do automated fields. Which gross field "
-                            "test can you perform?",
-                    "options": ["The confrontation visual field test",
-                                "Another automated HVF",
-                                "An OCT",
-                                "No field test is possible"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Confrontation field testing is a simple, "
-                                   "equipment-free way to grossly check the visual "
-                                   "field.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a remote (reduced) near point of convergence "
-                            "indicate?",
-                    "options": ["Convergence insufficiency",
-                                "Normal convergence",
-                                "Esotropia",
-                                "A cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A near point of convergence further than normal "
-                                   "(receded) indicates convergence insufficiency.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Cover/uncover reveals a deviation only when an eye is "
-                            "uncovered. Which type is this?",
-                    "options": [
-                        "A latent deviation (phoria)",
-                        "A manifest deviation (tropia)",
-                        "Normal alignment",
-                        "Convergence excess",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A deviation that appears only when the eye is "
-                                   "uncovered (and is otherwise controlled) is a latent "
-                                   "phoria; a tropia is present with both eyes open.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': "A child's corneal light reflex is displaced temporally in one eye. What does this suggest?", 'options': ['Esotropia (an inward turn)', 'Exotropia (an outward turn)', 'Normal alignment', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A temporally displaced light reflex indicates the eye is turned inward — esotropia.', 'reasoning_eligible': True},
+                {'stem': "Why assess a child's squint early?", 'options': ['Childhood squint can cause amblyopia (lazy eye)', 'Squints always resolve by adulthood', 'It is only a cosmetic concern', 'Early squint cannot be treated'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'An untreated childhood squint can lead to amblyopia (lazy eye), so early assessment matters.', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot do automated fields. Which gross field test can you perform?', 'options': ['The confrontation visual field test', 'Another automated HVF', 'An OCT', 'No field test is possible'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confrontation field testing is a simple, equipment-free way to grossly check the visual field.', 'reasoning_eligible': False},
+                {'stem': 'What does a remote (reduced) near point of convergence indicate?', 'options': ['Convergence insufficiency', 'Normal convergence', 'Esotropia', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A near point of convergence further than normal (receded) indicates convergence insufficiency.', 'reasoning_eligible': True},
+                {'stem': 'Cover/uncover reveals a deviation only when an eye is uncovered. Which type is this?', 'options': ['A latent deviation (phoria)', 'A manifest deviation (tropia)', 'Normal alignment', 'Convergence excess'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A deviation that appears only when the eye is uncovered (and is otherwise controlled) is a latent phoria; a tropia is present with both eyes open.', 'reasoning_eligible': True},
+                {'stem': 'On cover testing, a deviation appears ONLY when an eye is covered and straightens when uncovered. This is a:', 'options': ['Phoria (latent deviation)', 'Constant tropia', 'Cataract', 'Retinal detachment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Movement seen only under cover, correcting when uncovered, indicates a latent phoria controlled by fusion.', 'reasoning_eligible': True},
+                {'stem': "A child's corneal light reflex is displaced TEMPORALLY in one eye. This suggests that eye is turned:", 'options': ['Inward (esotropia)', 'Perfectly straight', 'Outward always', 'Backward'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A temporally-displaced reflex means the eye is deviated nasally (inward) - an esotropia to flag.', 'reasoning_eligible': True},
+                {'stem': 'A young adult reports eye strain and DOUBLE VISION when reading, with a receded NPC. This picture suggests:', 'options': ['Convergence insufficiency - flag for possible exercises/management', 'A cataract', 'Glaucoma', 'A corneal ulcer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Near diplopia/strain with a remote near point of convergence is typical of convergence insufficiency.', 'reasoning_eligible': True},
+                {'stem': "Why is EARLY assessment and referral of a child's squint so important?", 'options': ['Untreated strabismus can cause amblyopia, and the treatment window is limited in childhood', 'Squints always resolve alone', 'It only matters cosmetically', 'Children cannot be treated'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A constant childhood squint risks amblyopia; early treatment (during visual development) gives the best outcome.', 'reasoning_eligible': True},
+                {'stem': 'A patient develops SUDDEN horizontal double vision and an eye that will not turn outward. This suggests:', 'options': ['A sixth (abducens) nerve palsy - flag for prompt assessment', 'A normal finding', 'A cataract', 'Simple eye strain'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Failure of abduction with horizontal diplopia points to a sixth-nerve palsy, which needs clinical evaluation.', 'reasoning_eligible': True},
+                {'stem': 'A child has epicanthal folds and a wide nasal bridge but a CENTRAL, symmetric light reflex. This is likely:', 'options': ['Pseudostrabismus (only appears crossed) - reassure and confirm with the clinician', 'A true large esotropia', 'A retinal detachment', 'Acute glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A central symmetric reflex indicates the eyes are truly straight; the crossed look is pseudostrabismus from facial features.', 'reasoning_eligible': True},
+                {'stem': 'To QUANTIFY the size of a manifest squint, the orthoptist uses the:', 'options': ['Prism cover test (measuring in prism dioptres)', 'Applanation tonometer', 'Ishihara plates', 'A-scan'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The prism cover test neutralises the refixation movement with prisms to measure the deviation in prism dioptres.', 'reasoning_eligible': False},
+                {'stem': 'A patient adopts an abnormal HEAD POSTURE (turn/tilt) to avoid double vision. The OT should:', 'options': ['Note the head posture, as it may compensate for a squint/palsy, and flag it', 'Ignore it', 'Force the head straight and stop testing', 'Assume it is unrelated'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A compensatory head posture helps maintain single vision in some palsies; documenting it aids diagnosis.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document for an orthoptic assessment?', 'options': ['The deviation type/size, distance/near, motility and any head posture or symptoms', "Only the patient's age", 'The clinic hours', 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording deviation type/size, distance/near findings, motility and posture gives the clinician a full orthoptic picture.', 'reasoning_eligible': False},
+                {'stem': 'Why perform cover testing at BOTH distance and near?', 'options': ['A deviation can differ between distance and near, changing the diagnosis/management', 'Distance and near are always identical', 'It saves time', 'Only near matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Distance-near differences (e.g. convergence excess/insufficiency) are diagnostically important, so both are tested.', 'reasoning_eligible': True},
+                {'stem': 'The OT covers and uncovers each eye smoothly and allows fixation to settle because:', 'options': ['Rushing can miss or misjudge the refixation movement', 'Speed improves accuracy', 'It lowers the eye pressure', 'Technique never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A controlled pace lets the examiner see the true refixation movement, giving an accurate cover-test result.', 'reasoning_eligible': False},
+                {'stem': "A patient's eye movements show a restricted, 'tethered' feel with lid retraction and proptosis. The OT should flag possible:", 'options': ['Thyroid eye disease (restrictive) - document and refer', 'A normal finding', 'A cataract', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Restricted movement with lid retraction/proptosis suggests thyroid eye disease, which is documented and flagged.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A 3-year-old has a constant inward turn of one eye and a "
-                            "temporally displaced light reflex. Why is prompt referral "
-                            "important?",
-                    "options": [
-                        "A constant childhood esotropia risks amblyopia; early "
-                        "treatment protects vision",
-                        "Squints in children never need treatment",
-                        "It is purely cosmetic",
-                        "It will worsen if treated",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A constant esotropia in a young child risks "
-                                   "amblyopia; prompt referral allows treatment during "
-                                   "the period vision is still developing.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How do you distinguish a phoria from a tropia on cover "
-                            "testing?",
-                    "options": [
-                        "A tropia is present with both eyes open; a phoria appears "
-                        "only when binocular fusion is broken by covering an eye",
-                        "A phoria is always present; a tropia only when covered",
-                        "They cannot be distinguished",
-                        "Both are only seen with both eyes open",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A tropia (manifest) shows with both eyes open; a "
-                                   "phoria (latent) only appears when covering an eye "
-                                   "breaks fusion.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL orthoptic tools that assess eye alignment or "
-                            "movement.",
-                    "options": [
-                        "Cover/uncover test",
-                        "Hirschberg (corneal light reflex)",
-                        "Versions and ductions",
-                        "Ishihara plates",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Cover/uncover, Hirschberg and versions/ductions all "
-                                   "assess alignment or movement. Ishihara plates test "
-                                   "colour vision, not alignment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A young adult reports eye strain and double vision when "
-                            "reading, with a receded near point of convergence. What "
-                            "does this picture suggest?",
-                    "options": [
-                        "Convergence insufficiency — the eyes struggle to converge for "
-                        "near work",
-                        "A constant esotropia",
-                        "A dense cataract",
-                        "Normal near vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Near eye strain and diplopia with a receded NPC "
-                                   "are typical of convergence insufficiency.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about basic orthoptic assessment is "
-                            "correct?",
-                    "options": [
-                        "Cover tests reveal tropia/phoria, Hirschberg/Krimsky estimate "
-                        "the angle, and the NPC checks convergence",
-                        "All orthoptic tests measure the eye pressure",
-                        "The Krimsky test maps the visual field",
-                        "Convergence is assessed by the air-puff tonometer",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Cover tests classify deviations, Hirschberg/Krimsky "
-                                   "estimate the angle, and the near point of "
-                                   "convergence checks convergence — the core orthoptic "
-                                   "tools.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A 3-year-old has a constant inward turn of one eye and a temporally displaced light reflex. Why is prompt referral important?', 'options': ['A constant childhood esotropia risks amblyopia; early treatment protects vision', 'Squints in children never need treatment', 'It is purely cosmetic', 'It will worsen if treated'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A constant esotropia in a young child risks amblyopia; prompt referral allows treatment during the period vision is still developing.', 'reasoning_eligible': True},
+                {'stem': 'How do you distinguish a phoria from a tropia on cover testing?', 'options': ['A tropia is present with both eyes open; a phoria appears only when binocular fusion is broken by covering an eye', 'A phoria is always present; a tropia only when covered', 'They cannot be distinguished', 'Both are only seen with both eyes open'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A tropia (manifest) shows with both eyes open; a phoria (latent) only appears when covering an eye breaks fusion.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL orthoptic tools that assess eye alignment or movement.', 'options': ['Cover/uncover test', 'Hirschberg (corneal light reflex)', 'Versions and ductions', 'Ishihara plates'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Cover/uncover, Hirschberg and versions/ductions all assess alignment or movement. Ishihara plates test colour vision, not alignment.', 'reasoning_eligible': False},
+                {'stem': 'A young adult reports eye strain and double vision when reading, with a receded near point of convergence. What does this picture suggest?', 'options': ['Convergence insufficiency — the eyes struggle to converge for near work', 'A constant esotropia', 'A dense cataract', 'Normal near vision'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Near eye strain and diplopia with a receded NPC are typical of convergence insufficiency.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about basic orthoptic assessment is correct?', 'options': ['Cover tests reveal tropia/phoria, Hirschberg/Krimsky estimate the angle, and the NPC checks convergence', 'All orthoptic tests measure the eye pressure', 'The Krimsky test maps the visual field', 'Convergence is assessed by the air-puff tonometer'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Cover tests classify deviations, Hirschberg/Krimsky estimate the angle, and the near point of convergence checks convergence — the core orthoptic tools.', 'reasoning_eligible': False},
+                {'stem': 'A 3-year-old has a CONSTANT inward turn of one eye and a temporally-displaced light reflex. Why is prompt referral important?', 'options': ['A constant squint in a young child risks amblyopia; early treatment protects vision', 'It will resolve without any action', 'It is purely cosmetic', 'Nothing can be done'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Constant strabismus during visual development can cause amblyopia; prompt referral allows treatment within the critical window.', 'reasoning_eligible': True},
+                {'stem': 'How do you distinguish a PHORIA from a TROPIA on cover testing?', 'options': ['A tropia shows movement of the uncovered eye; a phoria shows movement only of the eye as it is uncovered', 'They are identical', 'A phoria is always larger', 'Neither shows any movement'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Covering one eye and seeing the OTHER move indicates a tropia; movement only on uncovering (recovery) indicates a phoria.', 'reasoning_eligible': True},
+                {'stem': 'A patient has SUDDEN vertical double vision, a droopy lid and a dilated pupil on one side. Why is this an emergency to flag?', 'options': ['A third-nerve palsy with a dilated pupil can signal a compressive aneurysm - urgent referral', 'It is a normal variant', 'It is simple eye strain', 'It only needs new glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A pupil-involving third-nerve palsy may indicate an aneurysm compressing the nerve, a neurosurgical emergency.', 'reasoning_eligible': True},
+                {'stem': 'Which orthoptic tools assess eye ALIGNMENT or MOVEMENT?', 'options': ['Cover/uncover and prism cover tests, Hirschberg/Krimsky, and versions/ductions', 'Ishihara plates and Amsler grid', 'Tonometry and pachymetry', 'OCT and biometry'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cover tests, light-reflex tests (Hirschberg/Krimsky) and motility (versions/ductions) assess alignment and movement.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about basic orthoptic assessment is CORRECT?', 'options': ['Use cover tests and light-reflex/motility exams to detect and measure deviations, then flag abnormal findings to the clinician', 'The OT diagnoses and operates on squints', 'One test alone characterises every squint', 'Orthoptic tests measure the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Basic orthoptics detects and measures deviations via cover/light-reflex/motility tests, with the OT flagging findings for management.', 'reasoning_eligible': True},
+                {'stem': 'A remote (receded) near point of convergence with reading strain in a student most likely indicates:', 'options': ['Convergence insufficiency, which may respond to orthoptic exercises', 'Acute glaucoma', 'A retinal detachment', 'A dense cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A remote NPC with near symptoms is typical of convergence insufficiency, often managed with exercises by the orthoptist.', 'reasoning_eligible': True},
+                {'stem': 'Why should the OT check the patient is wearing their usual REFRACTIVE correction for orthoptic testing?', 'options': ['Uncorrected refractive error (esp. hyperopia) can drive or mask a squint, altering the result', 'Glasses never affect the squint', 'It measures the eye pressure', 'Correction only matters for reading'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Accommodation from uncorrected hyperopia can cause/alter esotropia, so testing is done with the usual correction.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a fourth-nerve (superior oblique) palsy often adopts a compensatory:', 'options': ['Head tilt away from the affected side to control vertical diplopia', 'Complete eye closure permanently', 'Chin-up posture for reading only', 'No posture at all'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A head tilt (typically away from the palsy) helps fuse and avoid vertical double vision in fourth-nerve palsy.', 'reasoning_eligible': True},
+                {'stem': 'Why is a NEW-onset squint with diplopia in an adult treated differently from a longstanding childhood squint?', 'options': ['New adult diplopia may signal a cranial-nerve palsy or systemic cause needing investigation', 'Adults never get squints', 'It is always cosmetic', 'It needs no assessment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A new adult squint with diplopia can reflect a neurological or systemic cause, warranting prompt evaluation rather than reassurance.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good basic orthoptic practice.', 'options': ['Correct refraction on, clear explanation, cover/light-reflex/motility testing at distance and near, document deviations and posture, and flag red flags', 'One quick uncorrected cover test is enough', 'Diagnose and treat the squint yourself', 'Skip documentation if the eyes look straight'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good practice uses correct refraction, clear instruction, systematic testing at distance/near, full documentation and escalation of red flags.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT note whether a squint is CONSTANT or INTERMITTENT?', 'options': ['It affects the amblyopia risk and management priority', 'It never matters', 'Only the eye colour matters', 'Constancy changes the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A constant squint carries greater amblyopia risk than an intermittent one, influencing urgency and management.', 'reasoning_eligible': True},
             ],
         },
         "dayward_theatre": {
