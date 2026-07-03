@@ -1367,278 +1367,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "amsler_macula": {
             "easy": [
-                {
-                    "stem": "What does the Amsler grid detect?",
-                    "options": ["Central field defects and distortion "
-                                "(metamorphopsia)",
-                                "Eye pressure",
-                                "Colour vision",
-                                "Peripheral field loss only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Amsler grid detects central field defects and "
-                                   "metamorphopsia (distortion of straight lines).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the patient fixate on during the Amsler test?",
-                    "options": ["The central dot",
-                                "The top-left corner",
-                                "A moving target",
-                                "The examiner's finger"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The patient stares at the central dot and reports "
-                                   "any distortion or missing areas around it.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How is each eye tested with the Amsler grid?",
-                    "options": ["One eye at a time (cover the other)",
-                                "Both eyes together",
-                                "With both eyes shut",
-                                "Only the worse eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Each eye is tested separately, covering the other, "
-                                   "so a one-sided change is not missed.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which condition is commonly monitored with the Amsler "
-                            "grid?",
-                    "options": ["Macular disease such as age-related macular "
-                                "degeneration (AMD)",
-                                "Glaucoma",
-                                "Cataract",
-                                "Conjunctivitis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Amsler grid is used to monitor macular disease, "
-                                   "especially AMD.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does 'metamorphopsia' mean?",
-                    "options": ["Straight lines appear wavy or distorted",
-                                "Loss of all vision",
-                                "Seeing double",
-                                "Sensitivity to light"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Metamorphopsia means distortion — straight lines "
-                                   "look wavy or bent.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Should reading correction be worn for the Amsler test?",
-                    "options": ["Yes, at the usual near distance",
-                                "No, always test unaided",
-                                "Only distance glasses",
-                                "Only sunglasses"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The grid is viewed at the usual near distance with "
-                                   "reading correction, since it tests central near "
-                                   "vision.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the Amsler grid detect?', 'options': ['Central field defects and distortion (metamorphopsia)', 'Eye pressure', 'Colour vision', 'Peripheral field loss only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Amsler grid detects central field defects and metamorphopsia (distortion of straight lines).', 'reasoning_eligible': False},
+                {'stem': 'What does the patient fixate on during the Amsler test?', 'options': ['The central dot', 'The top-left corner', 'A moving target', "The examiner's finger"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The patient stares at the central dot and reports any distortion or missing areas around it.', 'reasoning_eligible': False},
+                {'stem': 'How is each eye tested with the Amsler grid?', 'options': ['One eye at a time (cover the other)', 'Both eyes together', 'With both eyes shut', 'Only the worse eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Each eye is tested separately, covering the other, so a one-sided change is not missed.', 'reasoning_eligible': False},
+                {'stem': 'Which condition is commonly monitored with the Amsler grid?', 'options': ['Macular disease such as age-related macular degeneration (AMD)', 'Glaucoma', 'Cataract', 'Conjunctivitis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Amsler grid is used to monitor macular disease, especially AMD.', 'reasoning_eligible': False},
+                {'stem': "What does 'metamorphopsia' mean?", 'options': ['Straight lines appear wavy or distorted', 'Loss of all vision', 'Seeing double', 'Sensitivity to light'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Metamorphopsia means distortion — straight lines look wavy or bent.', 'reasoning_eligible': False},
+                {'stem': 'Should reading correction be worn for the Amsler test?', 'options': ['Yes, at the usual near distance', 'No, always test unaided', 'Only distance glasses', 'Only sunglasses'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The grid is viewed at the usual near distance with reading correction, since it tests central near vision.', 'reasoning_eligible': False},
+                {'stem': 'The Amsler grid is held at approximately what distance from the patient?', 'options': ['Normal reading distance (about 30 cm)', '6 metres', '1 metre', 'Touching the nose'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The Amsler grid is a near test, held at the usual reading distance of about 30 cm.', 'reasoning_eligible': False},
+                {'stem': 'The Amsler grid mainly assesses which part of the visual field?', 'options': ['The central field (macular function)', 'The far periphery', 'The blind spot only', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The grid maps the central ~10 degrees around fixation, testing macular function.', 'reasoning_eligible': False},
+                {'stem': 'During the Amsler test the patient must keep looking at the:', 'options': ['Central dot', 'Top-left corner', "Examiner's face", 'Nearest wavy line'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady central fixation is essential so the surrounding lines fall on the macula being tested.', 'reasoning_eligible': False},
+                {'stem': 'Reading correction (near glasses) should be:', 'options': ['Worn during the Amsler test', 'Removed for the test', 'Replaced by sunglasses', 'Only worn for the right eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "As a near test, the Amsler grid is done with the patient's reading correction for a clear image.", 'reasoning_eligible': False},
+                {'stem': 'The Amsler grid is a common home-monitoring tool for which condition?', 'options': ['Age-related macular degeneration (AMD)', 'Glaucoma', 'Cataract', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AMD patients use the grid at home to detect new distortion or scotoma that may signal progression.', 'reasoning_eligible': False},
+                {'stem': 'Wavy or bent lines seen on the Amsler grid are called:', 'options': ['Metamorphopsia', 'Diplopia', 'Photophobia', 'Nystagmus'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Metamorphopsia is distortion of straight lines, a classic macular symptom.', 'reasoning_eligible': False},
+                {'stem': 'Each eye should be tested with the Amsler grid:', 'options': ['Separately, covering the other eye', 'Both together only', 'Only the worse eye', 'Only the better eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Monocular testing reveals a defect in one eye that the fellow eye would otherwise mask.', 'reasoning_eligible': False},
+                {'stem': 'A dark or missing patch on the Amsler grid represents a:', 'options': ['Scotoma (an area of lost vision)', 'A cataract', 'High eye pressure', 'A refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A scotoma is a blind/greyed-out spot; a new central scotoma suggests macular pathology.', 'reasoning_eligible': False},
+                {'stem': 'Good lighting is needed for the Amsler test because:', 'options': ['Poor light makes subtle distortion or scotomas harder to detect', 'It raises the eye pressure', 'It dilates the pupil', 'It changes the grid colour'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Adequate, even illumination lets the patient reliably notice fine distortions or missing areas.', 'reasoning_eligible': False},
+                {'stem': 'The standard Amsler grid appears as:', 'options': ['A square grid of straight lines with a central fixation dot', 'A single large letter', 'Coloured dots forming a number', 'A ring of lights'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'It is a grid of evenly-spaced horizontal and vertical lines with a central dot for fixation.', 'reasoning_eligible': False},
+                {'stem': 'The key questions to ask during the Amsler test are whether any lines look:', 'options': ['Wavy, blurred, or missing', 'Green or red', 'Too bright to read', 'Moving side to side only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'You ask if lines are distorted (wavy), blurred, or if any squares/areas are missing.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "A patient reports wavy lines on the Amsler grid. What does "
-                            "this suggest?",
-                    "options": ["Metamorphopsia — possible macular disease; flag for "
-                                "review",
-                                "Normal vision",
-                                "Glaucoma",
-                                "A refractive error only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Wavy lines (metamorphopsia) suggest a macular "
-                                   "problem and should be flagged for review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A new missing patch (scotoma) appears on the grid. What do "
-                            "you do?",
-                    "options": ["Treat it as abnormal and escalate to the doctor "
-                                "promptly",
-                                "Ignore it as normal",
-                                "Repeat in a year",
-                                "Reassure and discharge"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A new scotoma is abnormal and should be escalated "
-                                   "promptly — it may signal active macular disease.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should AMD patients monitor with an Amsler grid at "
-                            "home?",
-                    "options": [
-                        "To detect new distortion early, which can signal treatable "
-                        "progression",
-                        "To measure their own eye pressure",
-                        "To replace clinic visits entirely",
-                        "It has no real benefit",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Home Amsler monitoring helps AMD patients catch new "
-                                   "distortion early, when treatment may still help.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "New distortion plus reduced vision in a known AMD patient — "
-                            "how urgent is this?",
-                    "options": ["Prompt doctor review (possible wet AMD)",
-                                "Routine review within a year",
-                                "No review needed",
-                                "Only if both eyes are affected"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "New distortion with reduced vision in AMD may mean "
-                                   "conversion to wet AMD — it needs prompt doctor "
-                                   "review.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must the patient keep fixating on the central dot "
-                            "throughout the Amsler test?",
-                    "options": [
-                        "So defects are mapped relative to the centre of vision (the "
-                        "macula)",
-                        "To keep the eye from drying out",
-                        "To dilate the pupil",
-                        "It is not actually necessary",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Steady central fixation lets distortions or "
-                                   "scotomas be located relative to the centre of "
-                                   "vision, where the macula projects.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL findings on the Amsler grid that should be "
-                            "flagged.",
-                    "options": ["Wavy or bent lines",
-                                "A new blurred or missing patch",
-                                "Lines that look faded or distorted",
-                                "A perfectly square, even grid"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Wavy lines, missing patches and distortion are all "
-                                   "abnormal and should be flagged. A perfectly even "
-                                   "grid is normal.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient reports wavy lines on the Amsler grid. What does this suggest?', 'options': ['Metamorphopsia — possible macular disease; flag for review', 'Normal vision', 'Glaucoma', 'A refractive error only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Wavy lines (metamorphopsia) suggest a macular problem and should be flagged for review.', 'reasoning_eligible': True},
+                {'stem': 'A new missing patch (scotoma) appears on the grid. What do you do?', 'options': ['Treat it as abnormal and escalate to the doctor promptly', 'Ignore it as normal', 'Repeat in a year', 'Reassure and discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A new scotoma is abnormal and should be escalated promptly — it may signal active macular disease.', 'reasoning_eligible': True},
+                {'stem': 'Why should AMD patients monitor with an Amsler grid at home?', 'options': ['To detect new distortion early, which can signal treatable progression', 'To measure their own eye pressure', 'To replace clinic visits entirely', 'It has no real benefit'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Home Amsler monitoring helps AMD patients catch new distortion early, when treatment may still help.', 'reasoning_eligible': True},
+                {'stem': 'New distortion plus reduced vision in a known AMD patient — how urgent is this?', 'options': ['Prompt doctor review (possible wet AMD)', 'Routine review within a year', 'No review needed', 'Only if both eyes are affected'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'New distortion with reduced vision in AMD may mean conversion to wet AMD — it needs prompt doctor review.', 'reasoning_eligible': True},
+                {'stem': 'Why must the patient keep fixating on the central dot throughout the Amsler test?', 'options': ['So defects are mapped relative to the centre of vision (the macula)', 'To keep the eye from drying out', 'To dilate the pupil', 'It is not actually necessary'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Steady central fixation lets distortions or scotomas be located relative to the centre of vision, where the macula projects.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL findings on the Amsler grid that should be flagged.', 'options': ['Wavy or bent lines', 'A new blurred or missing patch', 'Lines that look faded or distorted', 'A perfectly square, even grid'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Wavy lines, missing patches and distortion are all abnormal and should be flagged. A perfectly even grid is normal.', 'reasoning_eligible': False},
+                {'stem': "An AMD patient's home Amsler shows a line that was straight is now WAVY. This should be treated as:", 'options': ['A warning of possible progression (e.g. to wet AMD) needing prompt review', 'A normal daily variation', 'A reason to stop monitoring', 'A sign of good control'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'New metamorphopsia can herald conversion to wet AMD, where prompt anti-VEGF treatment protects vision.', 'reasoning_eligible': True},
+                {'stem': 'Why is early detection of wet AMD via the Amsler grid so valuable?', 'options': ['Prompt anti-VEGF treatment can preserve vision if started early', 'Wet AMD needs no treatment', 'It cannot change the outcome', 'The grid cures the disease'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Wet AMD responds to timely anti-VEGF injections; catching new distortion early gives the best chance of preserving sight.', 'reasoning_eligible': True},
+                {'stem': 'A patient only notices distortion when reminded to keep their reading glasses on. This highlights that:', 'options': ['Correct near correction is essential or the result is unreliable', 'Glasses cause macular disease', 'The grid is faulty', 'Distortion is imaginary'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Without near correction the image is simply blurred; proper reading glasses are needed to interpret true distortion.', 'reasoning_eligible': True},
+                {'stem': 'Why must the patient maintain central fixation throughout the Amsler test?', 'options': ["If they look around, they may 'find' the defect and the map becomes inaccurate", 'It saves time', 'It lowers eye pressure', 'Fixation does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Wandering fixation lets the patient look past a scotoma; steady fixation keeps the tested area over the macula.', 'reasoning_eligible': True},
+                {'stem': 'A known AMD patient reports new distortion AND reduced central vision. How urgent is this?', 'options': ['Urgent - it may be active (wet) AMD needing prompt treatment', 'Routine, review in a year', 'No follow-up needed', 'Only cosmetic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'New distortion with falling vision suggests active neovascular AMD; prompt referral for possible anti-VEGF is warranted.', 'reasoning_eligible': True},
+                {'stem': 'The Amsler grid is a useful COMPLEMENT to macular OCT because it:', 'options': ['Lets the patient self-monitor symptoms between clinic OCT scans', 'Replaces the OCT entirely', 'Measures retinal thickness in microns', 'Images the retina in colour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The grid is a cheap, at-home subjective monitor; OCT gives objective structural detail in clinic - they work together.', 'reasoning_eligible': True},
+                {'stem': 'Why does the Amsler grid mainly reveal CENTRAL problems rather than peripheral ones like glaucoma?', 'options': ['It samples only the central ~10 degrees around fixation (the macula)', 'It is too bright peripherally', 'Glaucoma never affects vision', 'It tests the whole retina equally'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The small grid subtends only the central field, so it detects macular disease but misses peripheral (e.g. glaucomatous) loss.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a macular hole is likely to describe on the Amsler grid:', 'options': ['A central distortion or a missing/grey central spot', 'Loss of the outer corners only', 'Perfectly normal lines', 'Double vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A macular hole typically causes central metamorphopsia and a central scotoma on the grid.', 'reasoning_eligible': True},
+                {'stem': 'How should a new Amsler abnormality be documented for the clinician?', 'options': ['Note which eye, the type (wavy/missing/blurred) and rough location relative to the centre', "Just write 'abnormal'", 'Record the eye pressure instead', 'No documentation is needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording eye, type and location of the defect helps the clinician localise and monitor the macular problem.', 'reasoning_eligible': True},
+                {'stem': 'Why is the Amsler grid especially suited to HOME monitoring?', 'options': ['It is simple, quick and lets patients detect changes early between appointments', 'It needs a technician each time', 'It requires dilation', 'It uses expensive equipment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Its simplicity means patients can self-test regularly and seek care promptly when new distortion appears.', 'reasoning_eligible': True},
+                {'stem': 'Which instruction to the patient is CORRECT for the Amsler test?', 'options': ["'Keep staring at the central dot and tell me if any lines are wavy, blurred or missing'", "'Scan the whole grid quickly'", "'Look at each corner in turn'", "'Read the numbers aloud'"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Fixate centrally and report distortion/blur/missing areas - scanning around defeats the purpose of the test.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "An AMD patient on treatment notices, on home Amsler "
-                            "testing, that a previously straight line is now wavy and "
-                            "there is a new grey patch. What should they be advised?",
-                    "options": [
-                        "Contact the clinic promptly — it may indicate disease "
-                        "activity needing review",
-                        "Wait for the next routine yearly appointment",
-                        "Stop all treatment immediately",
-                        "Ignore it — distortion is expected",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "New distortion and a fresh scotoma can signal "
-                                   "active (wet) AMD; the patient should contact the "
-                                   "clinic promptly rather than wait.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the Amsler grid a useful complement to a macular "
-                            "OCT rather than a replacement?",
-                    "options": [
-                        "Amsler is a quick subjective check of central distortion; OCT "
-                        "objectively images the retinal structure",
-                        "Amsler measures retinal thickness precisely",
-                        "OCT cannot detect macular disease",
-                        "They test completely unrelated things",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The Amsler grid is a fast subjective screen for "
-                                   "distortion that the patient can do at home; OCT "
-                                   "gives the objective structural detail in clinic. "
-                                   "They complement each other.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL points of good Amsler technique.",
-                    "options": [
-                        "Wear reading correction at the usual near distance",
-                        "Test one eye at a time, covering the other",
-                        "Keep fixation on the central dot",
-                        "Scan the eyes around the grid looking for defects",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Use reading correction, test each eye separately, "
-                                   "and hold central fixation. Letting the eye wander "
-                                   "around the grid defeats the test.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does the Amsler grid mainly reveal CENTRAL problems "
-                            "rather than peripheral ones?",
-                    "options": [
-                        "It maps the small central area of vision served by the "
-                        "macula",
-                        "It is too large to test the centre",
-                        "It only tests the peripheral retina",
-                        "It measures the optic nerve, not the retina",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Held at near with central fixation, the grid maps "
-                                   "the central visual field served by the macula, so "
-                                   "it picks up central distortion and scotomas.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient's Amsler shows distortion only when you remind "
-                            "them to keep their reading glasses on. What does this "
-                            "highlight about technique?",
-                    "options": [
-                        "Using the correct near correction is essential or the result "
-                        "can be misleading",
-                        "Reading glasses cause false distortion",
-                        "The grid should be done without any correction",
-                        "Technique does not affect the result",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The grid must be viewed clearly at the proper near "
-                                   "distance with correction; otherwise blur can mimic "
-                                   "or hide true macular distortion.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'An AMD patient on treatment notices, on home Amsler testing, that a previously straight line is now wavy and there is a new grey patch. What should they be advised?', 'options': ['Contact the clinic promptly — it may indicate disease activity needing review', 'Wait for the next routine yearly appointment', 'Stop all treatment immediately', 'Ignore it — distortion is expected'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'New distortion and a fresh scotoma can signal active (wet) AMD; the patient should contact the clinic promptly rather than wait.', 'reasoning_eligible': True},
+                {'stem': 'Why is the Amsler grid a useful complement to a macular OCT rather than a replacement?', 'options': ['Amsler is a quick subjective check of central distortion; OCT objectively images the retinal structure', 'Amsler measures retinal thickness precisely', 'OCT cannot detect macular disease', 'They test completely unrelated things'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The Amsler grid is a fast subjective screen for distortion that the patient can do at home; OCT gives the objective structural detail in clinic. They complement each other.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL points of good Amsler technique.', 'options': ['Wear reading correction at the usual near distance', 'Test one eye at a time, covering the other', 'Keep fixation on the central dot', 'Scan the eyes around the grid looking for defects'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Use reading correction, test each eye separately, and hold central fixation. Letting the eye wander around the grid defeats the test.', 'reasoning_eligible': False},
+                {'stem': 'Why does the Amsler grid mainly reveal CENTRAL problems rather than peripheral ones?', 'options': ['It maps the small central area of vision served by the macula', 'It is too large to test the centre', 'It only tests the peripheral retina', 'It measures the optic nerve, not the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Held at near with central fixation, the grid maps the central visual field served by the macula, so it picks up central distortion and scotomas.', 'reasoning_eligible': False},
+                {'stem': "A patient's Amsler shows distortion only when you remind them to keep their reading glasses on. What does this highlight about technique?", 'options': ['Using the correct near correction is essential or the result can be misleading', 'Reading glasses cause false distortion', 'The grid should be done without any correction', 'Technique does not affect the result'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The grid must be viewed clearly at the proper near distance with correction; otherwise blur can mimic or hide true macular distortion.', 'reasoning_eligible': True},
+                {'stem': 'An AMD patient on treatment does home Amsler testing and finds a previously straight line is now wavy with a new grey patch. They should be advised to:', 'options': ['Contact the eye clinic promptly - this may be reactivation needing urgent assessment', 'Wait for the next routine visit in 6 months', 'Stop testing as it is normal', 'Cover the eye and ignore it'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'New distortion and scotoma suggest reactivation of wet AMD; prompt review allows timely re-treatment to protect vision.', 'reasoning_eligible': True},
+                {'stem': "Why can a patient with a dense central scotoma paradoxically report the grid looks 'normal'?", 'options': ["The brain can 'fill in' a stable central defect, so careful questioning/fixation is needed to detect it", 'Scotomas never affect the grid', 'The grid is too small', 'They have perfect vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Perceptual filling-in can mask a longstanding scotoma; steady fixation and specific prompting help uncover it.', 'reasoning_eligible': True},
+                {'stem': 'A diabetic with macular oedema is monitored with the Amsler grid. A new area of distortion most likely reflects:', 'options': ['Worsening macular oedema affecting central retina - flag for review', 'A new refractive error', 'A cataract', 'Normal ageing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Increasing central distortion in diabetic macular oedema suggests worsening that may need treatment adjustment.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good Amsler technique.', 'options': ['Near correction on, one eye at a time, steady central fixation, good light, and note wavy/missing/blurred areas', 'No glasses, both eyes together, scanning the grid', 'In dim light with sunglasses on', 'Fixating a corner while reading numbers'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Proper technique uses near correction, monocular testing, central fixation and good light, recording any distortion/scotoma.', 'reasoning_eligible': True},
+                {'stem': 'Why is the Amsler grid NOT a substitute for a macular OCT scan?', 'options': ['It is subjective and gives no structural detail; OCT objectively images retinal layers/thickness', 'It is more accurate than OCT', 'It measures blood pressure', 'OCT cannot see the macula'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "The grid reflects the patient's subjective perception; OCT provides objective cross-sectional structural data the grid cannot.", 'reasoning_eligible': True},
+                {'stem': 'A patient reports the CENTRE of the grid is missing but the outer lines are straight. This pattern indicates:', 'options': ['A central scotoma (macular lesion) with preserved surrounding field', 'Peripheral field loss', 'Glaucoma', 'A totally normal test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A central defect with intact surrounds localises to the macula/fovea, consistent with a macular lesion.', 'reasoning_eligible': True},
+                {'stem': 'An AMD patient forgets which eye to test first and tests both together at home. Why is this a problem?', 'options': ['The good eye can mask early distortion in the affected eye, delaying detection', 'It doubles the accuracy', 'Both eyes are always identical', 'It cannot be done at home'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Binocular testing lets the better eye compensate, hiding a new unilateral defect; each eye must be checked separately.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about metamorphopsia on the Amsler grid is CORRECT?', 'options': ['It reflects distortion of the retina at the macula (e.g. fluid or a membrane bending the photoreceptors)', 'It is a refractive error corrected by glasses', 'It is caused by high eye pressure', 'It always means a cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Distortion arises when macular fluid, a membrane or a lesion displaces photoreceptors, so straight lines appear bent.', 'reasoning_eligible': True},
+                {'stem': 'A patient with early cataract but a healthy macula struggles with the grid because of blur, not distortion. The correct interpretation is:', 'options': ['Blur without true distortion points to a media/refractive cause rather than macular disease', 'It confirms wet AMD', 'It proves a macular hole', 'The grid is broken'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Generalised blur (no bending/missing lines) suggests media opacity or uncorrected refraction, not the distortion of macular pathology.', 'reasoning_eligible': True},
+                {'stem': 'Why should a patient monitoring AMD be taught to test at the SAME distance and lighting each time?', 'options': ['Consistent conditions make a genuine change (new distortion/scotoma) easier to recognise', 'It looks more professional', 'Distance never affects the grid', 'To save the grid from wear'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Standardising distance and light means any new abnormality reflects a real change, not altered test conditions.', 'reasoning_eligible': True},
+                {'stem': 'An elderly AMD patient has poor understanding of the test. The best practical step is to:', 'options': ['Demonstrate clearly, confirm understanding, and involve a caregiver for home testing', 'Assume they will manage', 'Skip home monitoring entirely', 'Give a smaller grid without instructions'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Clear demonstration, checking understanding and enlisting a caregiver make home monitoring reliable and safe.', 'reasoning_eligible': True},
             ],
         },
         "fall_risk": {
