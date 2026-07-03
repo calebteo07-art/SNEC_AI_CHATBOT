@@ -1833,254 +1833,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "ascan_biometry": {
             "easy": [
-                {
-                    "stem": "What does A-scan biometry measure?",
-                    "options": ["The axial length of the eye",
-                                "The corneal endothelial count",
-                                "The visual field",
-                                "The eye pressure"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A-scan biometry measures the axial length of the "
-                                   "eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the main indication for A-scan biometry?",
-                    "options": ["Pre-cataract surgery IOL power calculation",
-                                "Glaucoma field monitoring",
-                                "Colour vision testing",
-                                "Dry eye assessment"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A-scan biometry is mainly done before cataract "
-                                   "surgery to help calculate the IOL power.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What kind of energy does A-scan biometry use?",
-                    "options": ["Ultrasound", "Near-infrared light",
-                                "X-rays", "An air puff"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A-scan biometry uses ultrasound to measure the "
-                                   "axial length.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "For the contact A-scan method, what is instilled first?",
-                    "options": ["A topical anaesthetic",
-                                "A dilating drop",
-                                "A lubricant only",
-                                "Nothing is needed"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The contact (applanation) method touches the "
-                                   "cornea, so a topical anaesthetic is instilled "
-                                   "first.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL recognised A-scan techniques.",
-                    "options": ["Contact (applanation)", "Immersion",
-                                "Air-puff", "Kinetic"],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "The two A-scan techniques are contact (applanation) "
-                                   "and immersion. Air-puff and kinetic refer to other "
-                                   "tests.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A-scan gives axial length — what else is needed to "
-                            "calculate IOL power?",
-                    "options": ["Keratometry (corneal curvature)",
-                                "The visual field",
-                                "The colour vision result",
-                                "The eye pressure"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "IOL power needs both the axial length and the "
-                                   "keratometry (corneal curvature).",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does A-scan biometry measure?', 'options': ['The axial length of the eye', 'The corneal endothelial count', 'The visual field', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A-scan biometry measures the axial length of the eye.', 'reasoning_eligible': False},
+                {'stem': 'What is the main indication for A-scan biometry?', 'options': ['Pre-cataract surgery IOL power calculation', 'Glaucoma field monitoring', 'Colour vision testing', 'Dry eye assessment'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A-scan biometry is mainly done before cataract surgery to help calculate the IOL power.', 'reasoning_eligible': False},
+                {'stem': 'What kind of energy does A-scan biometry use?', 'options': ['Ultrasound', 'Near-infrared light', 'X-rays', 'An air puff'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A-scan biometry uses ultrasound to measure the axial length.', 'reasoning_eligible': False},
+                {'stem': 'For the contact A-scan method, what is instilled first?', 'options': ['A topical anaesthetic', 'A dilating drop', 'A lubricant only', 'Nothing is needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The contact (applanation) method touches the cornea, so a topical anaesthetic is instilled first.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL recognised A-scan techniques.', 'options': ['Contact (applanation)', 'Immersion', 'Air-puff', 'Kinetic'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'The two A-scan techniques are contact (applanation) and immersion. Air-puff and kinetic refer to other tests.', 'reasoning_eligible': False},
+                {'stem': 'A-scan gives axial length — what else is needed to calculate IOL power?', 'options': ['Keratometry (corneal curvature)', 'The visual field', 'The colour vision result', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'IOL power needs both the axial length and the keratometry (corneal curvature).', 'reasoning_eligible': False},
+                {'stem': 'Before A-scan biometry, the OT should first check the:', 'options': ["Doctor's biometry request and the correct patient (2 identifiers)", "Patient's car park slip", 'Room thermostat', "Next patient's file"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Biometry starts with confirming the order and patient identity using two identifiers, as for any investigation.', 'reasoning_eligible': True},
+                {'stem': 'A-scan biometry combined with keratometry (K readings) is used to calculate the:', 'options': ['Intraocular lens (IOL) power for cataract surgery', 'Eye pressure', 'Colour vision score', 'Corneal cell count'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Axial length plus corneal power feed an IOL formula to select the implant power for the desired refractive outcome.', 'reasoning_eligible': False},
+                {'stem': 'For the CONTACT A-scan method, before the probe touches the eye the OT instils:', 'options': ['Topical anaesthetic drops', 'Dilating drops only', 'Antibiotic ointment', 'Nothing at all'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Topical anaesthesia numbs the cornea so the ultrasound probe can gently contact it comfortably.', 'reasoning_eligible': False},
+                {'stem': 'A patient arrives in a wheelchair for biometry. Good practice is to:', 'options': ['Check their needs and arrange assistance/positioning before starting', 'Ask them to stand unaided', 'Cancel the test', 'Ignore the wheelchair'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The checklist reminds staff to receive the patient with respect and address needs (wheelchair, assistance) first.', 'reasoning_eligible': True},
+                {'stem': 'The OT must set the correct lens/refractive status of the eye before scanning, i.e. whether it is:', 'options': ['Phakic, pseudophakic or aphakic', 'Left- or right-handed', 'Blue or brown', 'Wet or dry'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sound travels at different speeds through the natural lens, an implant or an aphakic eye, so the setting must match.', 'reasoning_eligible': False},
+                {'stem': 'At the end of biometry the OT should:', 'options': ['Validate and print the result for the operating eye, then disinfect the probe', 'Delete the reading', 'Leave the probe unclean', 'Print the wrong eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The validated measurement for the correct eye is printed/recorded, and the equipment is disinfected after use.', 'reasoning_eligible': False},
+                {'stem': 'A-scan biometry uses which form of energy?', 'options': ['Ultrasound (sound waves)', 'X-rays', 'A laser needle', 'Radio dye injection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A-scan is an ultrasound technique; echoes from ocular interfaces give the axial length.', 'reasoning_eligible': False},
+                {'stem': 'Why are MULTIPLE A-scan readings taken rather than a single one?', 'options': ['To check consistency and average out small measurement errors', 'To use more gel', 'To slow the clinic down', 'Because one reading is illegal'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Several consistent readings confirm reliability; a single reading could be an outlier that skews the IOL power.', 'reasoning_eligible': True},
+                {'stem': "A very dense, mature cataract blocks the optical biometer's beam. A sensible alternative is:", 'options': ['Ultrasound A-scan, which penetrates the opaque lens', 'No measurement is possible', 'A colour vision test', 'A visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Sound passes through opacities that stop light, so ultrasound A-scan measures eyes too dense for optical biometry.', 'reasoning_eligible': True},
+                {'stem': "The OT should ensure the instrument table and patient's head are:", 'options': ['Positioned correctly at the right height before scanning', 'Left wherever they are', 'Tilted fully back', 'Irrelevant to the reading'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Correct table height and head positioning give a stable, comfortable, well-aligned measurement.', 'reasoning_eligible': False},
+                {'stem': 'An accurate axial length matters because a small error can lead to:', 'options': ['The wrong IOL power and an unexpected refractive result after surgery', 'A change in eye colour', 'Higher eye pressure', 'A colour vision defect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'IOL power is very sensitive to axial length; an error of even a fraction of a millimetre causes a refractive surprise.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "When is A-scan preferred over optical biometry?",
-                    "options": [
-                        "When a dense cataract blocks the optical (light) signal",
-                        "When the patient is young",
-                        "When the cornea is perfectly clear",
-                        "Optical biometry is never preferred",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A dense cataract can block the light used by "
-                                   "optical biometry, so ultrasound A-scan is used "
-                                   "instead.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What error does corneal indentation cause in contact "
-                            "A-scan?",
-                    "options": ["It falsely shortens the axial length",
-                                "It falsely lengthens the axial length",
-                                "It changes the corneal curvature reading",
-                                "It has no effect"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Pressing on (indenting) the cornea compresses the "
-                                   "eye slightly, falsely shortening the measured axial "
-                                   "length.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How does the immersion technique avoid the corneal "
-                            "indentation error?",
-                    "options": ["It avoids pressing on (indenting) the cornea",
-                                "It uses light instead of ultrasound",
-                                "It measures the cornea instead",
-                                "It does not avoid the error"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Immersion couples the probe through fluid without "
-                                   "pressing on the cornea, avoiding the false "
-                                   "shortening.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why take multiple A-scan readings?",
-                    "options": ["To confirm consistency before accepting the axial "
-                                "length",
-                                "To use up the gel",
-                                "To tire the patient",
-                                "Single readings are always perfect"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Several readings are taken and checked for "
-                                   "consistency before the axial length is accepted.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is an accurate axial length so important before "
-                            "cataract surgery?",
-                    "options": [
-                        "A small axial-length error leads to a wrong IOL power and a "
-                        "poor refractive result",
-                        "It determines the eye pressure",
-                        "It only matters for glaucoma",
-                        "Axial length is not used in surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "IOL power is very sensitive to axial length; a "
-                                   "small error can leave the patient significantly "
-                                   "under- or over-corrected after surgery.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'When is A-scan preferred over optical biometry?', 'options': ['When a dense cataract blocks the optical (light) signal', 'When the patient is young', 'When the cornea is perfectly clear', 'Optical biometry is never preferred'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A dense cataract can block the light used by optical biometry, so ultrasound A-scan is used instead.', 'reasoning_eligible': True},
+                {'stem': 'What error does corneal indentation cause in contact A-scan?', 'options': ['It falsely shortens the axial length', 'It falsely lengthens the axial length', 'It changes the corneal curvature reading', 'It has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Pressing on (indenting) the cornea compresses the eye slightly, falsely shortening the measured axial length.', 'reasoning_eligible': True},
+                {'stem': 'How does the immersion technique avoid the corneal indentation error?', 'options': ['It avoids pressing on (indenting) the cornea', 'It uses light instead of ultrasound', 'It measures the cornea instead', 'It does not avoid the error'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Immersion couples the probe through fluid without pressing on the cornea, avoiding the false shortening.', 'reasoning_eligible': True},
+                {'stem': 'Why take multiple A-scan readings?', 'options': ['To confirm consistency before accepting the axial length', 'To use up the gel', 'To tire the patient', 'Single readings are always perfect'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Several readings are taken and checked for consistency before the axial length is accepted.', 'reasoning_eligible': False},
+                {'stem': 'Why is an accurate axial length so important before cataract surgery?', 'options': ['A small axial-length error leads to a wrong IOL power and a poor refractive result', 'It determines the eye pressure', 'It only matters for glaucoma', 'Axial length is not used in surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'IOL power is very sensitive to axial length; a small error can leave the patient significantly under- or over-corrected after surgery.', 'reasoning_eligible': True},
+                {'stem': 'In CONTACT A-scan, pressing the probe too hard on the cornea causes the axial length to read:', 'options': ['Falsely SHORT (corneal indentation), risking a hyperopic surprise', 'Falsely long', 'Exactly correct always', 'The eye pressure instead'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Indenting the cornea shortens the measured axial length; the calculated IOL is then too weak, leaving the patient hyperopic.', 'reasoning_eligible': True},
+                {'stem': 'How does the IMMERSION A-scan technique avoid the corneal-indentation error?', 'options': ['A fluid coupling means the probe does not press on the cornea', 'It uses a stronger probe force', 'It skips the cornea entirely', 'It uses light not sound'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Immersion places fluid between probe and cornea, so there is no indentation and the axial length is more accurate.', 'reasoning_eligible': True},
+                {'stem': 'A contact A-scan reads 0.3 mm SHORTER than a prior immersion reading on the same eye. The likely cause is:', 'options': ['Corneal indentation by the contact probe', 'The eye genuinely shrank', 'A faulty immersion reading always', 'A new cataract overnight'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Contact probing tends to indent the cornea and under-read axial length compared with the no-touch immersion method.', 'reasoning_eligible': True},
+                {'stem': "The two biometry readings for a patient's eyes differ by a large, unexpected amount. The OT should:", 'options': ['Recheck the measurements before the result is used for surgery', 'Pick one at random', 'Average and proceed regardless', 'Ignore the difference'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A big inter-eye discrepancy may signal an error; rechecking prevents an incorrect IOL choice and refractive surprise.', 'reasoning_eligible': True},
+                {'stem': "Why must the OT 'validate the measurement' before accepting an A-scan reading?", 'options': ['To confirm the echo spikes/quality are genuine, not noise or an off-axis scan', 'It is only a formality', 'To change the eye pressure', 'Validation is optional'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A valid A-scan shows the expected clean interface echoes on-axis; validating rejects poor scans before they mislead the calculation.', 'reasoning_eligible': True},
+                {'stem': 'A silicone oil-filled eye needs biometry. Why must the OT flag this before scanning?', 'options': ['Ultrasound travels differently through silicone oil, needing a velocity correction', 'Oil-filled eyes cannot be measured at all', 'It changes the eye colour', 'It has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Silicone oil changes the sound velocity; the correct setting/correction is required or the axial length is wrong.', 'reasoning_eligible': True},
+                {'stem': "The OT selects the correct IOL FORMULA partly based on the eye's:", 'options': ['Axial length (short, normal or long eyes suit different formulae)', 'Iris colour', 'Blood pressure', 'Eyelid position'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Different formulae perform better for short, average or long eyes, so the axial length guides formula choice.', 'reasoning_eligible': True},
+                {'stem': 'Why must the OT confirm which is the OPERATING eye and print that result?', 'options': ["The IOL is chosen from that eye's measurements; a wrong-eye print risks a wrong-power lens", 'Both eyes always get the same lens', 'Only for tidiness', 'It never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Biometry is eye-specific; supplying the wrong eye's data could put an incorrect IOL in the operative eye.", 'reasoning_eligible': True},
+                {'stem': "A patient's contact A-scan shows widely varying axial lengths between shots. This most likely reflects:", 'options': ['Variable probe pressure/alignment - repeat with a light, on-axis technique', 'A perfect measurement', 'The eye pressure rising', 'A colour vision defect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Scatter between shots signals inconsistent contact/alignment; a gentle, on-axis, repeated technique gives reliable values.', 'reasoning_eligible': True},
+                {'stem': 'Immersion (or optical) biometry is often preferred over contact A-scan when available because it:', 'options': ['Avoids corneal indentation and tends to be more accurate/reproducible', 'Is always cheaper', 'Needs no training', 'Measures eye pressure too'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'No-touch methods remove the indentation error, improving accuracy and reproducibility of the axial length.', 'reasoning_eligible': False},
+                {'stem': 'What are the expected echo spikes on a good axial A-scan, in order?', 'options': ['Cornea, anterior lens, posterior lens, retina (and sclera/orbit)', 'Only one spike', 'Random noise', 'Iris and eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'An on-axis A-scan shows sequential interface echoes - cornea, lens surfaces, retina - confirming a valid measurement.', 'reasoning_eligible': False},
+                {'stem': 'A patient had previous LASIK. Why note this for biometry/IOL calculation?', 'options': ['Refractive surgery alters corneal power, so a special formula/method is needed', 'It has no effect', 'It changes the axial length only', 'LASIK eyes cannot have cataract surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-LASIK corneas mislead standard K-based formulae; flagging it lets the clinician use an appropriate calculation.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A contact A-scan gives an axial length 0.3 mm shorter than "
-                            "a prior immersion reading on the same eye. What is the "
-                            "most likely explanation?",
-                    "options": [
-                        "Corneal indentation during the contact scan falsely shortened "
-                        "it",
-                        "The eye genuinely shrank",
-                        "The immersion scan must be wrong",
-                        "Axial length naturally varies that much",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Contact applanation can indent the cornea and "
-                                   "falsely shorten the axial length — a known reason "
-                                   "immersion or optical methods are often preferred.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL good-practice steps for reliable A-scan "
-                            "biometry.",
-                    "options": [
-                        "Instil anaesthetic before the contact method",
-                        "Avoid pressing on the cornea (or use immersion)",
-                        "Take and compare multiple readings",
-                        "Accept the first reading without checking",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Anaesthetise for contact, avoid corneal "
-                                   "indentation, and confirm with multiple readings. "
-                                   "Accepting one unchecked reading is poor practice.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why might a patient with a very dense cataract be measured "
-                            "with A-scan ultrasound rather than optical biometry?",
-                    "options": [
-                        "Ultrasound penetrates the opacity that blocks the optical "
-                        "light signal",
-                        "Ultrasound is always more accurate",
-                        "Optical biometry damages cataracts",
-                        "A-scan measures the cataract density",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "When a dense cataract blocks the optical signal, "
-                                   "ultrasound A-scan can still measure the axial "
-                                   "length through the opacity.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is consistency between several biometry readings (and "
-                            "between eyes) checked before surgery?",
-                    "options": [
-                        "Inconsistent or asymmetric values may signal a measurement "
-                        "error that would give the wrong IOL power",
-                        "It is only a formality",
-                        "Eyes are always identical, so any difference is fine",
-                        "Consistency has no clinical value",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Large inconsistencies or unexpected asymmetry "
-                                   "suggest a measurement error; catching it prevents a "
-                                   "wrong IOL power and a poor outcome.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about A-scan biometry is correct?",
-                    "options": [
-                        "It measures axial length by ultrasound; immersion avoids "
-                        "corneal indentation; keratometry is also needed for IOL power",
-                        "It measures corneal curvature by light",
-                        "Contact and immersion give identical results in every case",
-                        "Axial length alone fully determines IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A-scan uses ultrasound for axial length; immersion "
-                                   "avoids indentation error; and keratometry is also "
-                                   "required for the IOL calculation.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A contact A-scan gives an axial length 0.3 mm shorter than a prior immersion reading on the same eye. What is the most likely explanation?', 'options': ['Corneal indentation during the contact scan falsely shortened it', 'The eye genuinely shrank', 'The immersion scan must be wrong', 'Axial length naturally varies that much'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Contact applanation can indent the cornea and falsely shorten the axial length — a known reason immersion or optical methods are often preferred.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL good-practice steps for reliable A-scan biometry.', 'options': ['Instil anaesthetic before the contact method', 'Avoid pressing on the cornea (or use immersion)', 'Take and compare multiple readings', 'Accept the first reading without checking'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Anaesthetise for contact, avoid corneal indentation, and confirm with multiple readings. Accepting one unchecked reading is poor practice.', 'reasoning_eligible': True},
+                {'stem': 'Why might a patient with a very dense cataract be measured with A-scan ultrasound rather than optical biometry?', 'options': ['Ultrasound penetrates the opacity that blocks the optical light signal', 'Ultrasound is always more accurate', 'Optical biometry damages cataracts', 'A-scan measures the cataract density'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'When a dense cataract blocks the optical signal, ultrasound A-scan can still measure the axial length through the opacity.', 'reasoning_eligible': True},
+                {'stem': 'Why is consistency between several biometry readings (and between eyes) checked before surgery?', 'options': ['Inconsistent or asymmetric values may signal a measurement error that would give the wrong IOL power', 'It is only a formality', 'Eyes are always identical, so any difference is fine', 'Consistency has no clinical value'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Large inconsistencies or unexpected asymmetry suggest a measurement error; catching it prevents a wrong IOL power and a poor outcome.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about A-scan biometry is correct?', 'options': ['It measures axial length by ultrasound; immersion avoids corneal indentation; keratometry is also needed for IOL power', 'It measures corneal curvature by light', 'Contact and immersion give identical results in every case', 'Axial length alone fully determines IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A-scan uses ultrasound for axial length; immersion avoids indentation error; and keratometry is also required for the IOL calculation.', 'reasoning_eligible': False},
+                {'stem': 'A high myope with a very long eye and a posterior staphyloma is booked for biometry. The special care needed is to:', 'options': ['Ensure the scan is aligned to the fovea (not the staphyloma) and cross-check the axial length', 'Assume any reading is fine', 'Use the shortest reading', 'Skip biometry'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A staphyloma can give a false axial length if the scan targets the bulge; foveal alignment and cross-checking are essential.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST set of good-practice steps for reliable A-scan biometry.', 'options': ['Confirm order/ID, set lens status, take multiple validated on-axis readings with light/no touch, check inter-eye consistency, use the right formula', 'One quick contact reading is enough', 'Press firmly for a clear echo', 'Use any formula for every eye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable biometry means correct setup, several validated on-axis readings without indentation, consistency checks and the right formula.', 'reasoning_eligible': True},
+                {'stem': 'Why is a small axial-length error MORE consequential in a short (hyperopic) eye than a long one?', 'options': ['Short eyes need high-power IOLs where each millimetre shifts the result more, so accuracy is critical', 'Short eyes are never operated on', 'Long eyes have no IOL', 'Axial length does not matter in short eyes'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'In short eyes the IOL power is high and very sensitive to axial length, so a tiny error causes a large refractive miss.', 'reasoning_eligible': True},
+                {'stem': 'Optical biometry failed (no reading) on a dense cataract, so ultrasound A-scan is used. The OT should still:', 'options': ['Take multiple validated readings and check consistency, as accuracy remains vital', 'Accept the first single reading', 'Skip the K readings', 'Report the eye as unmeasurable'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Even as a fallback, A-scan needs multiple validated, consistent readings so the IOL power is accurate for a good outcome.', 'reasoning_eligible': True},
+                {'stem': 'Two biometry results give IOL powers that differ substantially for the same eye. The safe action is to:', 'options': ['Repeat/re-validate and resolve the discrepancy with the clinician before surgery', 'Average and book surgery', 'Use the higher power', 'Proceed with either'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A large discrepancy signals a possible error; re-measuring and clinician review prevent implanting the wrong IOL.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT select the correct sound-VELOCITY setting (phakic/pseudophakic/aphakic/silicone) before an A-scan?', 'options': ["Axial length is derived from echo timing, which depends on the medium's sound speed", 'Velocity never affects the result', 'It sets the eye colour', 'It only changes the print layout'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The device converts echo time to distance using assumed velocities; a wrong medium setting mis-calculates the axial length.', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot fixate the internal target for biometry (poor central vision). The OT should:', 'options': ['Use guidance/an external fixation aid and confirm the scan is on the visual axis', 'Give up', 'Guess the alignment', 'Report the eye as normal'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Poor fixation risks an off-axis, inaccurate axial length; using fixation aids/guidance keeps the scan on the visual axis.', 'reasoning_eligible': True},
+                {'stem': 'Why must biometry be interpreted alongside the intended refractive TARGET the surgeon has chosen?', 'options': ['The same eye needs a different IOL power for emmetropia versus planned myopia (e.g. monovision)', 'The target never affects the IOL', 'Targets are only cosmetic', 'Biometry sets its own target'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'IOL power selection combines the measurements with the desired post-op refraction, so the target must be known.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about A-scan biometry is CORRECT?', 'options': ['Set the correct velocity/lens status, take validated on-axis readings (avoid indentation), and combine axial length with K for IOL power', 'One contact reading with firm pressure is ideal', 'Axial length alone gives the IOL power', 'Indentation improves accuracy'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Correct A-scan practice sets the right velocity, takes validated on-axis non-indented readings, and uses axial length with K in a formula.', 'reasoning_eligible': True},
+                {'stem': 'A pseudophakic eye (already has an implant) is scanned with the phakic velocity setting by mistake. The consequence is:', 'options': ['An incorrect axial length, because the sound velocity assumption is wrong for an implant', 'No effect at all', 'A more accurate result', 'A change in eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The IOL transmits sound differently from a natural lens; the wrong velocity setting yields a wrong axial length.', 'reasoning_eligible': True},
+                {'stem': 'Why is consistency between several readings AND between the two eyes checked before cataract surgery?', 'options': ['It catches measurement errors early, preventing a wrong-power IOL and refractive surprise', 'It is purely administrative', 'Eyes are always identical', 'Consistency has no bearing on the IOL'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cross-checking readings and eyes flags outliers/errors so the implanted IOL gives the intended refractive result.', 'reasoning_eligible': True},
             ],
         },
         "optical_biometry": {
