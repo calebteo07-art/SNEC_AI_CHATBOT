@@ -138,6 +138,13 @@ _RULES: dict[str, list[tuple[str, str]]] = {
         ("va", "visual_acuity"),
     ],
     "OT": [
+        # Gap-fill OT stations (aberrometry, lens meter, retinal imaging, DR grading).
+        ("aberrometry", "refraction_acuity"), ("wavefront", "refraction_acuity"),
+        ("lens_meter", "refraction_acuity"), ("lensmeter", "refraction_acuity"),
+        ("focimetry", "refraction_acuity"),
+        ("retinal_imaging", "oct_imaging"), ("fundus_photography", "oct_imaging"),
+        ("angiography", "oct_imaging"), ("photography", "oct_imaging"),
+        ("dr_grading", "screening"), ("sorc", "screening"), ("retinopathy_grading", "screening"),
         ("asoct", "anterior_segment"), ("endothelial", "anterior_segment"), ("flare", "anterior_segment"),
         ("oct", "oct_imaging"), ("macular", "oct_imaging"), ("rnfl", "oct_imaging"),
         ("hvf", "visual_fields"), ("humphrey", "visual_fields"), ("gvf", "visual_fields"),
