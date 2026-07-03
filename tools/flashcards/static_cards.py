@@ -1251,288 +1251,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "pupil_dilation": {
             "easy": [
-                {
-                    "stem": "Name a common dilating (mydriatic) drop.",
-                    "options": ["Tropicamide 1%", "Chloramphenicol",
-                                "Artificial tears", "Fluorescein"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Tropicamide 1% (or phenylephrine 2.5%) is a common "
-                                   "dilating drop.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How long do the effects of dilation usually last?",
-                    "options": ["About 4-6 hours", "About 10 minutes",
-                                "About 24 hours", "About a week"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Dilation effects typically last about 4-6 hours.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL effects you should warn the patient about after "
-                            "dilation.",
-                    "options": ["Blurred near vision", "Light sensitivity "
-                                "(photophobia)", "Glare", "Permanent vision loss"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Warn about blurred near vision, light sensitivity "
-                                   "and glare for a few hours. Dilation does not cause "
-                                   "permanent vision loss.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is a contraindication to routine pupil dilation?",
-                    "options": ["Narrow (drainage) angles",
-                                "Short-sightedness",
-                                "Wearing glasses",
-                                "A history of dry eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Narrow drainage angles are a caution against "
-                                   "routine dilation, which could trigger angle-closure.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL details you should document for a dilation.",
-                    "options": ["The eye(s) dilated", "The pre-dilation pupil size",
-                                "The drug, dose and time", "The patient's blood group"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Document the eye(s), the pre-dilation pupil size, "
-                                   "and the drug/dose/time. Blood group is irrelevant.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why warn a patient who drove to the clinic about dilation?",
-                    "options": ["Blurred vision and glare make driving unsafe for "
-                                "several hours",
-                                "Dilation improves their driving",
-                                "It changes their eye colour",
-                                "It has no effect on driving"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Dilation blurs near vision and causes glare, making "
-                                   "driving unsafe for several hours — warn the patient.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What comfort measure can you offer after dilation?",
-                    "options": ["Sunglasses / UV protectors for light sensitivity",
-                                "An eye patch for a week",
-                                "Reading without glasses",
-                                "Bright lighting to help focus"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Offer sunglasses or UV protectors to ease the "
-                                   "photosensitivity after dilation.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Name a common dilating (mydriatic) drop.', 'options': ['Tropicamide 1%', 'Chloramphenicol', 'Artificial tears', 'Fluorescein'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tropicamide 1% (or phenylephrine 2.5%) is a common dilating drop.', 'reasoning_eligible': False},
+                {'stem': 'How long do the effects of dilation usually last?', 'options': ['About 4-6 hours', 'About 10 minutes', 'About 24 hours', 'About a week'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Dilation effects typically last about 4-6 hours.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL effects you should warn the patient about after dilation.', 'options': ['Blurred near vision', 'Light sensitivity (photophobia)', 'Glare', 'Permanent vision loss'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Warn about blurred near vision, light sensitivity and glare for a few hours. Dilation does not cause permanent vision loss.', 'reasoning_eligible': False},
+                {'stem': 'What is a contraindication to routine pupil dilation?', 'options': ['Narrow (drainage) angles', 'Short-sightedness', 'Wearing glasses', 'A history of dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Narrow drainage angles are a caution against routine dilation, which could trigger angle-closure.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL details you should document for a dilation.', 'options': ['The eye(s) dilated', 'The pre-dilation pupil size', 'The drug, dose and time', "The patient's blood group"], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Document the eye(s), the pre-dilation pupil size, and the drug/dose/time. Blood group is irrelevant.', 'reasoning_eligible': False},
+                {'stem': 'Why warn a patient who drove to the clinic about dilation?', 'options': ['Blurred vision and glare make driving unsafe for several hours', 'Dilation improves their driving', 'It changes their eye colour', 'It has no effect on driving'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Dilation blurs near vision and causes glare, making driving unsafe for several hours — warn the patient.', 'reasoning_eligible': False},
+                {'stem': 'What comfort measure can you offer after dilation?', 'options': ['Sunglasses / UV protectors for light sensitivity', 'An eye patch for a week', 'Reading without glasses', 'Bright lighting to help focus'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Offer sunglasses or UV protectors to ease the photosensitivity after dilation.', 'reasoning_eligible': False},
+                {'stem': 'The main clinical purpose of dilating the pupil is to:', 'options': ['Allow a clear view of the retina and lens (fundus examination/imaging)', 'Lower the eye pressure', 'Numb the eye', 'Cure a squint'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A wide pupil gives the examiner/camera a large window to inspect the lens, retina and optic nerve.', 'reasoning_eligible': False},
+                {'stem': 'Tropicamide is classed as a:', 'options': ['Mydriatic (pupil-dilating) drop', 'Antibiotic', 'Pressure-lowering drop', 'Lubricant'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tropicamide is a short-acting mydriatic/cycloplegic used to dilate the pupil for examination.', 'reasoning_eligible': False},
+                {'stem': 'Phenylephrine dilates the pupil by:', 'options': ['Stimulating the iris dilator muscle (a sympathomimetic)', 'Paralysing accommodation only', 'Lowering the eye pressure', 'Constricting the pupil'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Phenylephrine is a sympathomimetic that contracts the iris dilator; it dilates but does not paralyse accommodation.', 'reasoning_eligible': False},
+                {'stem': 'After dilation, patients should be advised to bring or wear:', 'options': ['Sunglasses, because of light sensitivity', 'Reading glasses only for distance', 'An eye patch for a week', 'Nothing special'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Dilated pupils let in more light, causing glare/photophobia; sunglasses ease the discomfort outdoors.', 'reasoning_eligible': False},
+                {'stem': 'The near blur experienced after some dilating drops is due to:', 'options': ['Cycloplegia - temporary paralysis of accommodation', 'A rise in eye pressure', 'Corneal swelling', 'A new refractive error that is permanent'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Cycloplegic agents (e.g. tropicamide, cyclopentolate) relax the focusing muscle, blurring near vision until they wear off.', 'reasoning_eligible': False},
+                {'stem': 'Before dilating, you should record the pre-dilation:', 'options': ['Pupil size and reaction', "Patient's height", 'Room temperature', 'Chart brightness'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Baseline pupil size/reaction is documented because dilation abolishes these signs for the rest of the visit.', 'reasoning_eligible': False},
+                {'stem': 'A long-acting dilating/cycloplegic drop whose effects can last for days is:', 'options': ['Atropine', 'Tropicamide', 'Normal saline', 'Fluorescein'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Atropine is a potent, long-acting cycloplegic/mydriatic lasting up to a week or more, unlike short-acting tropicamide.', 'reasoning_eligible': False},
+                {'stem': 'A patient who DROVE themselves to clinic is about to be dilated. You should:', 'options': ['Warn them their vision will be blurred/glary and advise not to drive until it wears off', 'Say nothing', 'Tell them it is fine to drive immediately', 'Cancel the dilation permanently'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation blurs vision and causes glare for hours; warn drivers and arrange alternative transport if needed.', 'reasoning_eligible': True},
+                {'stem': 'A recognised contraindication/caution to routine dilation is:', 'options': ['Very narrow angles or a history of acute angle-closure glaucoma', 'Wearing glasses', 'Being right-handed', 'Normal blood pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Dilating a narrow/occludable angle can precipitate acute angle-closure glaucoma, so such eyes are checked first.', 'reasoning_eligible': False},
+                {'stem': 'For each dilation you should document the drug, time, eye and:', 'options': ['The pre-dilation pupil size', "The patient's occupation", "The clinic's opening hours", "The next patient's name"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording drug, eye, time and baseline pupil ensures a safe, traceable account of the dilation.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "A patient mentions a previous acute angle-closure attack. "
-                            "What should you do before dilating?",
-                    "options": [
-                        "Do not dilate routinely — check with the nurse/doctor first",
-                        "Dilate as normal",
-                        "Use a double dose to be sure",
-                        "Dilate only the other eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A history of angle-closure is a contraindication to "
-                                   "routine dilation — check with the nurse/doctor "
-                                   "before proceeding.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the pre-dilation pupil size recorded?",
-                    "options": [
-                        "To document the baseline and monitor the dilation response",
-                        "To calculate the IOL power",
-                        "To set the air-puff strength",
-                        "It is not actually needed",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Recording the starting pupil size gives a baseline "
-                                   "and lets you judge how well the eye dilates.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why does dilation raise the fall risk in an elderly "
-                            "patient?",
-                    "options": [
-                        "It blurs vision and adds light sensitivity on top of existing "
-                        "risks",
-                        "It makes the legs weak",
-                        "It causes dizziness directly",
-                        "It does not affect fall risk",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Blurred vision and photosensitivity from dilation "
-                                   "add to an elderly patient's existing fall risk.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must the correct eye(s) and drug be confirmed before "
-                            "instilling a dilating drop?",
-                    "options": [
-                        "To avoid wrong-eye/wrong-drug errors and respect any "
-                        "contraindication",
-                        "Because dilating drops are harmless either way",
-                        "Only to complete the paperwork",
-                        "It is not necessary for dilating drops",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "As with any drop, confirm eye and drug — and check "
-                                   "there is no contraindication such as narrow angles "
-                                   "— before dilating.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient asks why everything looks blurry up close after "
-                            "their dilation. What is the best explanation?",
-                    "options": [
-                        "The dilating drop temporarily relaxes near focusing, so near "
-                        "vision blurs for a few hours",
-                        "The drop has damaged their reading vision",
-                        "They need new reading glasses now",
-                        "It means the dilation failed",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Dilating drops temporarily relax the eye's near "
-                                   "focusing, blurring near vision for a few hours — it "
-                                   "wears off.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "An unaccompanied elderly patient is about to be dilated for "
-                            "a fundus check. What is a sensible safety step?",
-                    "options": [
-                        "Plan for safe escort/seating and warn about glare before they "
-                        "leave",
-                        "Tell them to drive home immediately",
-                        "Dilate both eyes and discharge at once",
-                        "Skip the safety advice to save time",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Because dilation increases fall and glare risk, "
-                                   "plan safe seating/escort and give clear advice "
-                                   "before the patient leaves.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A patient mentions a previous acute angle-closure attack. What should you do before dilating?', 'options': ['Do not dilate routinely — check with the nurse/doctor first', 'Dilate as normal', 'Use a double dose to be sure', 'Dilate only the other eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A history of angle-closure is a contraindication to routine dilation — check with the nurse/doctor before proceeding.', 'reasoning_eligible': True},
+                {'stem': 'Why is the pre-dilation pupil size recorded?', 'options': ['To document the baseline and monitor the dilation response', 'To calculate the IOL power', 'To set the air-puff strength', 'It is not actually needed'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Recording the starting pupil size gives a baseline and lets you judge how well the eye dilates.', 'reasoning_eligible': False},
+                {'stem': 'Why does dilation raise the fall risk in an elderly patient?', 'options': ['It blurs vision and adds light sensitivity on top of existing risks', 'It makes the legs weak', 'It causes dizziness directly', 'It does not affect fall risk'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Blurred vision and photosensitivity from dilation add to an elderly patient's existing fall risk.", 'reasoning_eligible': True},
+                {'stem': 'Why must the correct eye(s) and drug be confirmed before instilling a dilating drop?', 'options': ['To avoid wrong-eye/wrong-drug errors and respect any contraindication', 'Because dilating drops are harmless either way', 'Only to complete the paperwork', 'It is not necessary for dilating drops'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'As with any drop, confirm eye and drug — and check there is no contraindication such as narrow angles — before dilating.', 'reasoning_eligible': True},
+                {'stem': 'A patient asks why everything looks blurry up close after their dilation. What is the best explanation?', 'options': ['The dilating drop temporarily relaxes near focusing, so near vision blurs for a few hours', 'The drop has damaged their reading vision', 'They need new reading glasses now', 'It means the dilation failed'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Dilating drops temporarily relax the eye's near focusing, blurring near vision for a few hours — it wears off.", 'reasoning_eligible': False},
+                {'stem': 'An unaccompanied elderly patient is about to be dilated for a fundus check. What is a sensible safety step?', 'options': ['Plan for safe escort/seating and warn about glare before they leave', 'Tell them to drive home immediately', 'Dilate both eyes and discharge at once', 'Skip the safety advice to save time'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Because dilation increases fall and glare risk, plan safe seating/escort and give clear advice before the patient leaves.', 'reasoning_eligible': True},
+                {'stem': 'Why is it important to assess the pupil reactions (and check for an RAPD) BEFORE instilling dilating drops?', 'options': ['Dilation abolishes the pupil signs, so they cannot be assessed afterwards', 'It makes dilation faster', 'It changes the drug dose', 'The drops sting less'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Once dilated, the pupil no longer reacts, so any diagnostic pupil examination (including RAPD) must be done first.', 'reasoning_eligible': True},
+                {'stem': 'A patient with known cardiovascular disease/hypertension is to be dilated. Which agent warrants extra caution?', 'options': ['High-concentration phenylephrine (10%), due to systemic pressor effects', 'A lubricant drop', 'Fluorescein', 'Chloramphenicol'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Phenylephrine, especially 10%, can raise blood pressure/heart rate systemically; lower strengths or caution are used in cardiovascular disease.', 'reasoning_eligible': True},
+                {'stem': "Cyclopentolate or atropine are chosen over tropicamide for children's refraction because they:", 'options': ["Produce stronger, longer cycloplegia needed to fully relax a child's strong accommodation", 'Are cheaper', 'Dilate less', 'Have no cycloplegic effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Children accommodate powerfully; stronger cycloplegics (cyclopentolate/atropine) fully relax focusing to reveal the true refraction.', 'reasoning_eligible': True},
+                {'stem': 'Why does dilation raise the fall risk, particularly in the elderly?', 'options': ['Blurred near vision and glare impair judging steps, kerbs and obstacles', 'It weakens the legs', 'It lowers blood pressure', 'It causes dizziness directly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-dilation blur and light sensitivity make navigating steps and obstacles harder, increasing the risk of falls.', 'reasoning_eligible': True},
+                {'stem': 'An unaccompanied elderly patient is about to be dilated for a fundus check. A sensible safety step is to:', 'options': ['Advise on the temporary effects, offer sunglasses and consider assistance/rest before they leave', 'Rush them out immediately', 'Dilate both eyes and both hands', 'Refuse to help them at all'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Counselling, sunglasses, and offering help or a rest reduce fall/transport risk for a lone dilated patient.', 'reasoning_eligible': True},
+                {'stem': 'A patient reports a previous acute angle-closure attack. Before dilating you should:', 'options': ['Pause and check with the clinician - dilation could trigger another attack', 'Dilate quickly before they change their mind', 'Use a double dose', 'Ignore the history'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A prior angle-closure attack signals an occludable angle; dilation must be cleared by the clinician to avoid precipitating another.', 'reasoning_eligible': True},
+                {'stem': 'How long do the effects of a routine tropicamide dilation typically last?', 'options': ['A few hours (about 4-6 hours)', 'About 5 minutes', 'Two weeks', 'Permanently'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tropicamide dilation usually wears off within a few hours; atropine, by contrast, can last days.', 'reasoning_eligible': False},
+                {'stem': 'Why confirm the correct eye(s) before instilling a dilating drop for a unilateral procedure?', 'options': ['Dilating the wrong eye can disrupt the planned assessment and inconvenience/harm the patient', 'It never matters which eye', 'Both eyes are always dilated', 'Only for documentation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Wrong-eye dilation can spoil a planned examination and expose the patient to unnecessary effects; always confirm the ordered eye.', 'reasoning_eligible': True},
+                {'stem': 'A patient asks why their near vision is blurry but distance seems okay after dilation. The best explanation is:', 'options': ["The drop temporarily paralysed the eye's focusing (accommodation) needed for near work", 'Their glasses broke', 'They developed a cataract', 'Their retina detached'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cycloplegia removes the accommodation used for near focus, so reading blurs while distance is less affected - and it is temporary.', 'reasoning_eligible': True},
+                {'stem': 'Dilating drops are often part of the work-up before which of the following?', 'options': ['A dilated fundus examination, retinal photography or cataract/biometry assessment', 'A blood pressure check', 'A hearing test', 'A dental review'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Dilation is needed for good views in fundus exams, retinal imaging and lens/retina assessment before cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'A comfort measure you can offer a patient struggling with glare after dilation is:', 'options': ['Disposable sunglasses / dimming the lights and reassurance it is temporary', 'A stronger dilating drop', 'A bright reading lamp in their face', 'Telling them it is permanent'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sunglasses, reduced lighting and reassurance that the effect is temporary make the dilated patient more comfortable.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A glaucoma-suspect patient with very shallow anterior "
-                            "chambers is sent for dilation. Why should you pause and "
-                            "check first?",
-                    "options": [
-                        "Dilating a narrow-angle eye risks triggering an "
-                        "angle-closure attack",
-                        "Dilation is always completely safe",
-                        "Shallow chambers make dilation more effective",
-                        "Narrow angles only matter for cataract surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "In a narrow-angle eye, dilation can precipitate "
-                                   "acute angle-closure glaucoma — verify with the "
-                                   "nurse/doctor before instilling.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL appropriate actions when dilating an elderly "
-                            "patient who came alone.",
-                    "options": [
-                        "Record pre-dilation pupil size and the drug/time",
-                        "Warn about blurred near vision and glare",
-                        "Offer sunglasses and ensure safe seating",
-                        "Reassure them it is safe to drive straight after",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Document, warn about blur/glare, and ensure safety "
-                                   "(sunglasses, seating). Do NOT reassure them to drive "
-                                   "immediately — dilation makes driving unsafe.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is a careful history essential before routine "
-                            "dilation, even in a busy clinic?",
-                    "options": [
-                        "It uncovers contraindications (narrow angles, prior "
-                        "angle-closure) that change whether to dilate",
-                        "It is only for billing",
-                        "Dilation never has contraindications",
-                        "History has no bearing on dilation",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A quick history can reveal narrow angles or a prior "
-                                   "attack — contraindications that must be checked "
-                                   "before dilating.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "After dilation a patient develops a painful red eye with "
-                            "haloes and a hazy cornea. What has likely happened and "
-                            "what do you do?",
-                    "options": [
-                        "Possible acute angle-closure triggered by dilation — escalate "
-                        "urgently",
-                        "Normal dilation effect — reassure and discharge",
-                        "A drug allergy — give antihistamine and wait",
-                        "Simple dry eye — give lubricants",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pain, haloes and a hazy cornea after dilation "
-                                   "suggest an acute angle-closure attack — a "
-                                   "sight-threatening emergency to escalate at once.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about pupil dilation is correct?",
-                    "options": [
-                        "It aids fundus/retinal examination but needs a check for "
-                        "narrow angles and clear after-care advice",
-                        "It permanently enlarges the pupil",
-                        "It is safe in every patient without checking",
-                        "It improves the patient's reading vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Dilation helps examine the retina but requires "
-                                   "screening for narrow angles and after-care advice "
-                                   "about blur, glare and safety.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A glaucoma-suspect patient with very shallow anterior chambers is sent for dilation. Why should you pause and check first?', 'options': ['Dilating a narrow-angle eye risks triggering an angle-closure attack', 'Dilation is always completely safe', 'Shallow chambers make dilation more effective', 'Narrow angles only matter for cataract surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'In a narrow-angle eye, dilation can precipitate acute angle-closure glaucoma — verify with the nurse/doctor before instilling.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL appropriate actions when dilating an elderly patient who came alone.', 'options': ['Record pre-dilation pupil size and the drug/time', 'Warn about blurred near vision and glare', 'Offer sunglasses and ensure safe seating', 'Reassure them it is safe to drive straight after'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Document, warn about blur/glare, and ensure safety (sunglasses, seating). Do NOT reassure them to drive immediately — dilation makes driving unsafe.', 'reasoning_eligible': True},
+                {'stem': 'Why is a careful history essential before routine dilation, even in a busy clinic?', 'options': ['It uncovers contraindications (narrow angles, prior angle-closure) that change whether to dilate', 'It is only for billing', 'Dilation never has contraindications', 'History has no bearing on dilation'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A quick history can reveal narrow angles or a prior attack — contraindications that must be checked before dilating.', 'reasoning_eligible': True},
+                {'stem': 'After dilation a patient develops a painful red eye with haloes and a hazy cornea. What has likely happened and what do you do?', 'options': ['Possible acute angle-closure triggered by dilation — escalate urgently', 'Normal dilation effect — reassure and discharge', 'A drug allergy — give antihistamine and wait', 'Simple dry eye — give lubricants'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pain, haloes and a hazy cornea after dilation suggest an acute angle-closure attack — a sight-threatening emergency to escalate at once.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about pupil dilation is correct?', 'options': ['It aids fundus/retinal examination but needs a check for narrow angles and clear after-care advice', 'It permanently enlarges the pupil', 'It is safe in every patient without checking', "It improves the patient's reading vision"], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Dilation helps examine the retina but requires screening for narrow angles and after-care advice about blur, glare and safety.', 'reasoning_eligible': False},
+                {'stem': 'Hours after dilation a patient returns with a painful red eye, haloes around lights, a hazy cornea and a fixed mid-dilated pupil. The likely event and action are:', 'options': ['Acute angle-closure glaucoma provoked by dilation - treat as an emergency, escalate immediately', 'Simple conjunctivitis - reassure', 'Normal after-effect - send home', 'Allergy - give antihistamine and discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation can precipitate angle closure in a predisposed eye; the painful red eye with haloes and hazy cornea is an emergency needing urgent IOP-lowering.', 'reasoning_eligible': True},
+                {'stem': 'A glaucoma-suspect with very shallow anterior chambers is booked for dilation. Why pause and check first?', 'options': ['Shallow chambers can close on dilation, risking an acute angle-closure attack', 'Shallow chambers dilate too fast', 'The drops will not work', 'There is no reason to pause'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A shallow/narrow angle is at risk of occlusion when the pupil dilates; the clinician should assess the angle before dilation.', 'reasoning_eligible': True},
+                {'stem': 'Why must a careful history (angles, prior attacks, cardiac status, allergies) be taken before routine dilation even in a busy clinic?', 'options': ['It identifies patients in whom dilation could cause angle closure or systemic harm', 'It is only paperwork', 'History never changes dilation safety', 'It slows the clinic for no benefit'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A quick targeted history flags occludable angles, cardiovascular risk and allergies - preventing serious, avoidable complications.', 'reasoning_eligible': True},
+                {'stem': "A doctor wants to assess a patient's pupil reactions for a suspected 3rd nerve palsy, but a technician has already dilated the eye. The consequence is:", 'options': ['The pupil signs can no longer be assessed until the drops wear off - dilation should have waited', 'No problem, pupils still react normally', 'The palsy is now cured', 'The dilation makes the exam easier'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation abolishes pupil responses, so pupil-dependent diagnosis must precede dilation; premature dilation delays assessment.', 'reasoning_eligible': True},
+                {'stem': 'A patient with an anterior-chamber/iris-supported intraocular lens is referred for dilation. Why note this?', 'options': ['Dilation may be limited or risk lens instability, so check the plan with the clinician', 'It guarantees faster dilation', 'It lowers eye pressure', 'It has no relevance'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Certain lens types can be affected by dilation; confirming with the clinician avoids unexpected problems.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST counselling package to give a patient immediately after dilation.', 'options': ['Expect blur/glare for a few hours, wear sunglasses, do not drive until it clears, and it is temporary', 'Your vision is permanently changed', 'You can drive straight away with no issues', 'Rub the eyes to speed recovery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Effective counselling covers the temporary blur/glare, sunglasses, not driving until recovery, and reassurance about resolution.', 'reasoning_eligible': True},
+                {'stem': 'Why might a technician re-instil a dilating drop after 15-20 minutes?', 'options': ['If the pupil has not dilated adequately for the examination/imaging', 'To keep the patient longer', 'To lower the eye pressure', 'Drops always need two doses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'If dilation is inadequate (e.g. dark irides, diabetes), a repeat drop is given to achieve a pupil large enough to examine.', 'reasoning_eligible': True},
+                {'stem': 'A diabetic patient dilates poorly and slowly. A reasonable explanation to note is that:', 'options': ['Diabetes can cause a rigid, poorly-dilating pupil (autonomic effect)', 'Diabetics cannot be dilated at all', 'The drops are always faulty in diabetics', 'Diabetes speeds up dilation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Long-standing diabetes can impair the iris autonomic response, giving a small, sluggishly-dilating pupil that may need repeat drops.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about pupil dilation is CORRECT?', 'options': ['Assess pupils first, screen for narrow angles/cautions, warn about blur/glare and driving, and document', 'Dilate everyone without any history', 'Pupil reactions can be checked after dilating', 'Dilation permanently changes the pupil'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe dilation examines pupils first, screens for angle/systemic risk, counsels the patient, and is documented; the effect is temporary.', 'reasoning_eligible': True},
+                {'stem': 'Why is phenylephrine sometimes combined with tropicamide for dilation?', 'options': ['They dilate by different mechanisms, giving a wider, more reliable pupil together', 'To lower the eye pressure', 'To numb the cornea', 'To treat infection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tropicamide relaxes the sphincter (antimuscarinic) while phenylephrine stimulates the dilator (sympathomimetic); combined they dilate more fully.', 'reasoning_eligible': True},
+                {'stem': 'A breastfeeding/pregnant patient needs dilation. The appropriate approach is to:', 'options': ["Check the clinician's guidance and use the lowest effective agent, documenting the discussion", 'Use the strongest atropine routinely', 'Refuse all eye care', 'Ignore the pregnancy entirely'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Some agents are used cautiously in pregnancy/lactation; confirm the plan, minimise systemic exposure (e.g. punctal occlusion) and document.', 'reasoning_eligible': True},
             ],
         },
         "colour_vision": {
