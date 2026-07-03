@@ -2355,236 +2355,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "dayward_theatre": {
             "easy": [
-                {
-                    "stem": "What does the DISM mnemonic stand for?",
-                    "options": [
-                        "Diagnosis, Indication, Surgery planned, Medical conditions",
-                        "Dose, Injection, Suture, Medication",
-                        "Distance, IOP, Sugar, Medication",
-                        "Diagnosis, IOL, Sutures, Monitoring",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "DISM = Diagnosis, Indication, Surgery planned, "
-                                   "Medical conditions — a pre-op framework.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL anaesthesia types recorded pre-operatively.",
-                    "options": ["GA (general)", "LA (local)",
-                                "Topical", "Spinal block of the eye"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Eye surgery anaesthesia is recorded as GA "
-                                   "(general), LA (local) or topical.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL vital signs monitored in post-op care.",
-                    "options": ["Blood pressure (BP)", "Respiratory rate (RR)",
-                                "Pulse rate (PR)", "Colour vision"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Post-op monitoring includes BP, RR and PR. Colour "
-                                   "vision is not a vital sign.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does 'TCU' document post-op?",
-                    "options": ["The time and date of the next follow-up appointment",
-                                "The total corneal ulcer size",
-                                "The surgical fee",
-                                "The IOL power"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "TCU ('to come back') records the next follow-up "
-                                   "appointment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What must be confirmed about the eye before theatre?",
-                    "options": [
-                        "The correct eye to be operated (and that it is marked)",
-                        "The colour of the iris",
-                        "The patient's near vision",
-                        "The room temperature",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Confirm (and mark) the correct eye before theatre "
-                                   "to prevent wrong-eye surgery.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the DISM mnemonic stand for?', 'options': ['Diagnosis, Indication, Surgery planned, Medical conditions', 'Dose, Injection, Suture, Medication', 'Distance, IOP, Sugar, Medication', 'Diagnosis, IOL, Sutures, Monitoring'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'DISM = Diagnosis, Indication, Surgery planned, Medical conditions — a pre-op framework.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL anaesthesia types recorded pre-operatively.', 'options': ['GA (general)', 'LA (local)', 'Topical', 'Spinal block of the eye'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Eye surgery anaesthesia is recorded as GA (general), LA (local) or topical.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL vital signs monitored in post-op care.', 'options': ['Blood pressure (BP)', 'Respiratory rate (RR)', 'Pulse rate (PR)', 'Colour vision'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Post-op monitoring includes BP, RR and PR. Colour vision is not a vital sign.', 'reasoning_eligible': False},
+                {'stem': "What does 'TCU' document post-op?", 'options': ['The time and date of the next follow-up appointment', 'The total corneal ulcer size', 'The surgical fee', 'The IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "TCU ('to come back') records the next follow-up appointment.", 'reasoning_eligible': False},
+                {'stem': 'What must be confirmed about the eye before theatre?', 'options': ['The correct eye to be operated (and that it is marked)', 'The colour of the iris', "The patient's near vision", 'The room temperature'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirm (and mark) the correct eye before theatre to prevent wrong-eye surgery.', 'reasoning_eligible': False},
+                {'stem': 'The day-ward pre-operative assessment begins by confirming the:', 'options': ["Patient's identity and the planned surgery/eye against the record", 'Car park ticket', 'Room temperature', "Next patient's file"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Safe day-ward care starts with confirming identity and the planned procedure/eye against the medical record.', 'reasoning_eligible': True},
+                {'stem': "In the DISM pre-op record, the 'S' stands for:", 'options': ['Surgery (the planned procedure)', 'Sex', 'Systolic pressure', 'Skin colour'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'DISM = Diagnosis, Indication, Surgery, Medical condition - the core pre-op summary.', 'reasoning_eligible': False},
+                {'stem': "On return to the ward after surgery, the OT helps record the patient's:", 'options': ['Vital signs (BP, pulse, respiratory rate) and post-op medication', 'Favourite food', 'Shoe size', 'Holiday plans'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Post-op monitoring records vitals (BP/PR/RR), the eye operated, medications and the follow-up (TCU) date.', 'reasoning_eligible': False},
+                {'stem': 'A protective eye ______ is applied over the operated eye after surgery.', 'options': ['Shield', 'Contact lens', 'Colour filter', 'Pinhole'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A rigid shield protects the healing eye from accidental rubbing or knocks, especially overnight.', 'reasoning_eligible': False},
+                {'stem': 'Before a general anaesthetic, a patient is asked to:', 'options': ['Fast (nil by mouth) for the required period', 'Eat a large meal', 'Drink plenty of coffee', 'Chew gum continuously'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Fasting reduces the risk of aspiration of stomach contents during anaesthesia.', 'reasoning_eligible': False},
+                {'stem': 'The correct operative eye is confirmed and:', 'options': ['Marked before surgery', 'Left unmarked to save time', 'Guessed in theatre', 'Chosen by the patient in theatre'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Marking the correct eye, verified at the time-out, is a key barrier against wrong-site surgery.', 'reasoning_eligible': False},
+                {'stem': 'A patient waiting for theatre looks very anxious. A good first step for the OT is to:', 'options': ['Reassure them, explain what to expect, and inform the team', 'Ignore them', 'Tell them to calm down and move on', 'Cancel their surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reassurance, clear explanation and informing the team help an anxious patient cooperate and feel supported.', 'reasoning_eligible': True},
+                {'stem': 'Before discharge after day surgery, the patient should have a(n):', 'options': ['Responsible escort and understanding of their post-op instructions', 'Second surgery booked', 'New pair of glasses', 'Full meal in theatre'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Safe discharge requires a stable, alert patient with an escort and clear understanding of aftercare.', 'reasoning_eligible': True},
+                {'stem': "The OT's role in the day ward and theatre is to:", 'options': ['Observe, assist and document within their scope, escalating concerns', 'Perform the surgery', 'Decide the operation independently', 'Prescribe the anaesthetic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT supports and documents care within scope, escalating any concern to the surgical/nursing team.', 'reasoning_eligible': True},
+                {'stem': 'A patient is asked about allergies before surgery because:', 'options': ['Anaesthetics, antibiotics or antiseptics could trigger a reaction', 'It predicts the refraction', 'It changes the IOL power', 'Allergies do not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Documented allergies prevent an avoidable peri-operative allergic or anaphylactic reaction.', 'reasoning_eligible': False},
+                {'stem': "In the DISM pre-op record, the 'M' stands for:", 'options': ['Medical condition (relevant health background)', 'Money', 'Muscle tone', 'Marital status'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'DISM records the Medical condition alongside Diagnosis, Indication and Surgery for safe pre-op planning.', 'reasoning_eligible': False},
+                {'stem': "'TCU' recorded at discharge refers to the:", 'options': ['Follow-up (return) appointment', 'Type of cataract', 'Total corneal ulcer', 'Tonometer unit'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'TCU is the scheduled post-op follow-up visit, recorded so the patient is reviewed.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Why use the DISM framework pre-operatively?",
-                    "options": [
-                        "To capture key surgical details (diagnosis, indication, "
-                        "surgery, medical conditions) for safety",
-                        "To decide the theatre lighting",
-                        "To calculate the IOL power",
-                        "It is only for billing",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "DISM ensures the key surgical details are captured "
-                                   "consistently, supporting safe surgery.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "When is a patient ready for discharge after day surgery?",
-                    "options": ["When vital signs are stable and the patient is "
-                                "comfortable",
-                                "Immediately after the operation regardless",
-                                "Only after an overnight stay",
-                                "When the next patient arrives"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Discharge follows stable vital signs and patient "
-                                   "comfort after day surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why confirm and mark the correct eye?",
-                    "options": ["To prevent wrong-eye surgery — a critical safety step",
-                                "To decide which eye is dilated",
-                                "For billing only",
-                                "It is optional"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Marking the correct eye is a critical safety step "
-                                   "that prevents wrong-eye surgery.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Abnormal pre-op vital signs are found. What do you do?",
-                    "options": [
-                        "Escalate to the nurse/doctor before the patient proceeds",
-                        "Proceed to theatre regardless",
-                        "Send the patient home without telling anyone",
-                        "Re-check only after surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Abnormal pre-op vitals must be escalated to the "
-                                   "nurse/doctor before surgery proceeds.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL items recorded for post-op discharge.",
-                    "options": ["The TCU (next follow-up)",
-                                "The post-op medications prescribed",
-                                "Discharge advice/observations",
-                                "The patient's favourite meal"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Record the TCU, the post-op medications and "
-                                   "discharge advice/observations. The favourite meal "
-                                   "is irrelevant.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why use the DISM framework pre-operatively?', 'options': ['To capture key surgical details (diagnosis, indication, surgery, medical conditions) for safety', 'To decide the theatre lighting', 'To calculate the IOL power', 'It is only for billing'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'DISM ensures the key surgical details are captured consistently, supporting safe surgery.', 'reasoning_eligible': True},
+                {'stem': 'When is a patient ready for discharge after day surgery?', 'options': ['When vital signs are stable and the patient is comfortable', 'Immediately after the operation regardless', 'Only after an overnight stay', 'When the next patient arrives'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Discharge follows stable vital signs and patient comfort after day surgery.', 'reasoning_eligible': False},
+                {'stem': 'Why confirm and mark the correct eye?', 'options': ['To prevent wrong-eye surgery — a critical safety step', 'To decide which eye is dilated', 'For billing only', 'It is optional'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Marking the correct eye is a critical safety step that prevents wrong-eye surgery.', 'reasoning_eligible': True},
+                {'stem': 'Abnormal pre-op vital signs are found. What do you do?', 'options': ['Escalate to the nurse/doctor before the patient proceeds', 'Proceed to theatre regardless', 'Send the patient home without telling anyone', 'Re-check only after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Abnormal pre-op vitals must be escalated to the nurse/doctor before surgery proceeds.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL items recorded for post-op discharge.', 'options': ['The TCU (next follow-up)', 'The post-op medications prescribed', 'Discharge advice/observations', "The patient's favourite meal"], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Record the TCU, the post-op medications and discharge advice/observations. The favourite meal is irrelevant.', 'reasoning_eligible': False},
+                {'stem': 'On the pre-theatre check the consent says LEFT eye but the mark is on the RIGHT. What must happen?', 'options': ['Stop and resolve the discrepancy with the surgeon before proceeding', 'Proceed with the marked eye', 'Proceed with the consented eye', 'Pick whichever looks worse'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A consent-mark mismatch is a wrong-site red flag; the procedure must stop until it is clarified and corrected.', 'reasoning_eligible': True},
+                {'stem': 'Abnormal pre-op vital signs (e.g. very high blood pressure) are found. The OT should:', 'options': ['Flag them to the surgical/anaesthetic team before the patient proceeds', 'Ignore them and continue', 'Send the patient straight to theatre', 'Cancel all surgery permanently'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Abnormal vitals can affect anaesthetic safety; they are escalated so the team decides whether to proceed.', 'reasoning_eligible': True},
+                {'stem': "A diabetic patient's morning blood glucose is very high on the day of surgery. The appropriate step is to:", 'options': ['Flag it to the team before proceeding', 'Ignore it', 'Give extra dilating drops', 'Send them home forever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Markedly abnormal glucose affects anaesthesia and healing; the team decides how to manage it before surgery.', 'reasoning_eligible': True},
+                {'stem': 'When is a patient generally READY for discharge after day surgery?', 'options': ['Stable vitals, alert, comfortable, tolerating fluids, with an escort and clear instructions', 'As soon as surgery ends, regardless of state', "Only after a week's stay", 'When they feel like leaving, no checks'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Discharge criteria include stable observations, alertness, comfort, an escort and understood aftercare.', 'reasoning_eligible': True},
+                {'stem': 'Why confirm and MARK the correct eye before theatre?', 'options': ['To prevent wrong-eye (wrong-site) surgery', 'To improve the IOL power', 'To dilate the pupil', 'For decoration'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Site marking, checked at the time-out, is a critical safeguard against operating on the wrong eye.', 'reasoning_eligible': True},
+                {'stem': 'For a general anaesthetic, the pre-op checklist often includes removing:', 'options': ['Dentures, jewellery and nail polish as required', "The patient's identity band", 'The consent form', 'The surgical mark'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Removing dentures/jewellery/nail polish supports safe airway management and monitoring under GA.', 'reasoning_eligible': False},
+                {'stem': 'Why is the DISM framework used pre-operatively?', 'options': ['It gives a concise, consistent summary (diagnosis, indication, surgery, medical condition) for safe planning', 'It measures the eye pressure', 'It is only decoration', 'It replaces consent'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'DISM standardises the key pre-op information so the team plans and checks the case consistently.', 'reasoning_eligible': True},
+                {'stem': 'A patient on an anticoagulant is listed for surgery. Why must this be flagged pre-operatively?', 'options': ['It raises bleeding risk and may need a management plan from the team', 'It changes the eye colour', 'It has no relevance', 'It only matters after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Anticoagulation increases bleeding risk; the team decides whether to continue, adjust or bridge it before surgery.', 'reasoning_eligible': True},
+                {'stem': 'What items are recorded for a safe post-op DISCHARGE?', 'options': ['Vitals, the eye operated, post-op medication, the follow-up (TCU) and aftercare given', "Only the patient's age", "The clinic's opening hours", 'Nothing needs recording'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Discharge documentation covers vitals, operative eye, medication, TCU and the aftercare instructions provided.', 'reasoning_eligible': False},
+                {'stem': 'A patient reports they did NOT fast as instructed before their general anaesthetic. The OT should:', 'options': ['Inform the anaesthetic team promptly, as it affects safety and timing', 'Say nothing and proceed', 'Tell the patient to eat more', 'Cancel the follow-up'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Not fasting raises the aspiration risk; the anaesthetic team must know to decide whether to delay or proceed.', 'reasoning_eligible': True},
+                {'stem': "Why does the surgical team perform a 'time-out' before starting?", 'options': ['To confirm the correct patient, procedure and marked eye as a final safety check', 'To decide the lunch order', 'To arrange parking', 'To plan the next day'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The team time-out is a final verification of patient, procedure and site to prevent errors.', 'reasoning_eligible': True},
+                {'stem': 'The OT confirms a responsible ESCORT is arranged before discharge because the patient:', 'options': ['Has blurred vision/sedation and should not travel or manage alone', 'Cannot walk ever again', 'Needs a second opinion', 'Must return to theatre'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-op blur, a shielded eye and residual sedation make travelling alone unsafe, so an escort is required.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "On the WHO-style pre-theatre check, the consent says left "
-                            "eye but the mark is on the right. What must happen?",
-                    "options": [
-                        "Stop and resolve the discrepancy before any surgery proceeds",
-                        "Proceed with the marked eye",
-                        "Proceed with the consented eye",
-                        "Let the surgeon decide in theatre without checking",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Any mismatch between consent and the site mark must "
-                                   "be stopped and resolved before surgery — this "
-                                   "prevents a wrong-eye never-event.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why are pre-op checks (DISM, correct-eye marking, vitals) "
-                            "treated as non-negotiable safety steps?",
-                    "options": [
-                        "They prevent serious, avoidable errors such as wrong-eye "
-                        "surgery or operating on an unfit patient",
-                        "They are only paperwork formalities",
-                        "They slow the list down for no benefit",
-                        "They replace the surgeon's judgement",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "These checks catch avoidable, high-harm errors "
-                                   "(wrong eye, unfit patient), which is why they are "
-                                   "mandatory regardless of time pressure.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL findings that should delay a patient proceeding "
-                            "to theatre until reviewed.",
-                    "options": [
-                        "Markedly abnormal pre-op vital signs",
-                        "A mismatch between consent and the marked eye",
-                        "Uncertainty about fasting or key medications",
-                        "A calm patient with stable, normal vitals",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Abnormal vitals, a consent/mark mismatch and "
-                                   "fasting/medication uncertainty all warrant review "
-                                   "first. Stable normal vitals do not.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "After day surgery a patient is drowsy with a falling blood "
-                            "pressure. What is the appropriate response?",
-                    "options": [
-                        "Escalate to the nurse/doctor promptly — do not discharge "
-                        "until stable",
-                        "Discharge them quickly to free the bed",
-                        "Record it and ignore it",
-                        "Give them the next patient's slot",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Drowsiness with a falling BP is not a safe "
-                                   "discharge state — escalate and keep the patient "
-                                   "until stable.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about day-ward and theatre care is "
-                            "correct?",
-                    "options": [
-                        "DISM captures surgical details, the correct eye is confirmed "
-                        "and marked, and discharge follows stable vitals and comfort",
-                        "The correct eye is confirmed only after surgery",
-                        "Vitals are not monitored post-op",
-                        "TCU records the IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Safe day-surgery care uses DISM, confirms/marks the "
-                                   "correct eye beforehand, monitors vitals, and "
-                                   "discharges only when the patient is stable and "
-                                   "comfortable.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'On the WHO-style pre-theatre check, the consent says left eye but the mark is on the right. What must happen?', 'options': ['Stop and resolve the discrepancy before any surgery proceeds', 'Proceed with the marked eye', 'Proceed with the consented eye', 'Let the surgeon decide in theatre without checking'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Any mismatch between consent and the site mark must be stopped and resolved before surgery — this prevents a wrong-eye never-event.', 'reasoning_eligible': True},
+                {'stem': 'Why are pre-op checks (DISM, correct-eye marking, vitals) treated as non-negotiable safety steps?', 'options': ['They prevent serious, avoidable errors such as wrong-eye surgery or operating on an unfit patient', 'They are only paperwork formalities', 'They slow the list down for no benefit', "They replace the surgeon's judgement"], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'These checks catch avoidable, high-harm errors (wrong eye, unfit patient), which is why they are mandatory regardless of time pressure.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL findings that should delay a patient proceeding to theatre until reviewed.', 'options': ['Markedly abnormal pre-op vital signs', 'A mismatch between consent and the marked eye', 'Uncertainty about fasting or key medications', 'A calm patient with stable, normal vitals'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Abnormal vitals, a consent/mark mismatch and fasting/medication uncertainty all warrant review first. Stable normal vitals do not.', 'reasoning_eligible': True},
+                {'stem': 'After day surgery a patient is drowsy with a falling blood pressure. What is the appropriate response?', 'options': ['Escalate to the nurse/doctor promptly — do not discharge until stable', 'Discharge them quickly to free the bed', 'Record it and ignore it', "Give them the next patient's slot"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Drowsiness with a falling BP is not a safe discharge state — escalate and keep the patient until stable.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about day-ward and theatre care is correct?', 'options': ['DISM captures surgical details, the correct eye is confirmed and marked, and discharge follows stable vitals and comfort', 'The correct eye is confirmed only after surgery', 'Vitals are not monitored post-op', 'TCU records the IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe day-surgery care uses DISM, confirms/marks the correct eye beforehand, monitors vitals, and discharges only when the patient is stable and comfortable.', 'reasoning_eligible': False},
+                {'stem': 'After day surgery a patient is drowsy with a FALLING blood pressure. The appropriate response is to:', 'options': ['Escalate urgently to the nursing/medical team and monitor closely', 'Discharge them quickly', 'Reassure and ignore it', 'Give them a drink and send them home'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Drowsiness with a falling BP may signal a serious problem; it requires urgent escalation and close monitoring, not discharge.', 'reasoning_eligible': True},
+                {'stem': 'Why are pre-op checks (DISM, correct-eye marking, vitals, fasting) treated as NON-NEGOTIABLE safety steps?', 'options': ['They prevent catastrophic errors like wrong-site surgery or anaesthetic complications', 'They are optional paperwork', 'They only slow the list down', 'They have no safety value'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'These layered checks guard against serious, avoidable harm; skipping them risks wrong-site or unsafe surgery.', 'reasoning_eligible': True},
+                {'stem': 'Which findings should DELAY a patient proceeding to theatre until reviewed?', 'options': ['Unfasted for GA, abnormal vitals/glucose, a consent-site mismatch, or unmanaged anticoagulation', 'A calm, fasted, stable patient with matching consent', 'A correctly marked eye', 'A normal blood pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Any of these (unfasted, abnormal vitals, consent mismatch, anticoagulation) needs review before the patient proceeds.', 'reasoning_eligible': True},
+                {'stem': 'A post-op patient develops sudden severe eye PAIN with nausea and vomiting. The OT should:', 'options': ['Escalate promptly - this may indicate a complication such as raised pressure', 'Reassure and discharge', 'Ignore it as normal', 'Give them food and wait'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Severe post-op pain with nausea/vomiting can signal a serious complication (e.g. an acute pressure rise) needing urgent review.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about day-ward and theatre care is CORRECT?', 'options': ['Confirm identity/consent/eye and fitness pre-op, verify at time-out, and monitor and safety-net post-op before discharge', 'Only the surgery itself matters', 'Consent and marking are optional', 'Post-op red flags can be ignored'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe care spans correct pre-op checks, the theatre time-out, and post-op monitoring with clear discharge safety-netting.', 'reasoning_eligible': True},
+                {'stem': "A patient's identity band details do not match the consent form. The OT should:", 'options': ['Stop and resolve the mismatch with the team before anything proceeds', 'Assume it is a typo and continue', 'Change the band to match', 'Ignore it'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An identity discrepancy is a serious safety flag; it must be resolved before the patient proceeds.', 'reasoning_eligible': True},
+                {'stem': 'Why must a specimen (e.g. a biopsy) taken in theatre be correctly LABELLED and documented?', 'options': ['Mislabelling could give a wrong result for the wrong patient/eye, with serious consequences', 'Labels are only decorative', 'Specimens never matter', 'It only affects tidiness'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Accurate specimen labelling/documentation prevents dangerous mix-ups in diagnosis and management.', 'reasoning_eligible': True},
+                {'stem': 'A patient is comfortable post-op but has NO escort and cannot arrange one. The safe action is to:', 'options': ['Flag this to the team - discharge may need to be delayed or alternative support arranged', 'Discharge them alone anyway', 'Let them drive home', 'Ignore the requirement'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Without an escort a sedated/visually-impaired patient is unsafe to discharge; the team arranges support or delays discharge.', 'reasoning_eligible': True},
+                {'stem': 'Why is a clear HANDOVER (with documentation) important when a patient moves between day ward, theatre and recovery?', 'options': ["It ensures each team knows the patient's status, plan and any concerns for safe continuity", 'Handover is only a formality', 'It slows care for no benefit', 'Documentation is unnecessary'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Structured handover and documentation carry the plan and concerns between teams, preventing errors and omissions.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good day-ward/theatre practice.', 'options': ['Verify identity/consent/eye and fitness, complete safety checks and time-out, monitor post-op, and discharge only when criteria are met', 'Rush the checks if the list is busy', 'Skip marking for quick cases', 'Discharge everyone immediately after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good practice means thorough pre-op verification, safety checks/time-out, post-op monitoring and criteria-based discharge.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT confirm the surgical MARK is still visible after the eye is prepped and draped?', 'options': ['The mark must remain checkable at the time-out to confirm the correct site', 'Marks are only for before prepping', 'The mark changes the anaesthetic', 'It has no purpose after draping'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A mark placed so it stays visible after draping lets the team verify the correct site during the final time-out.', 'reasoning_eligible': True},
             ],
         },
         "auto_refraction": {
