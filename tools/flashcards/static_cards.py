@@ -1659,295 +1659,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "oct_rnfl": {
             "easy": [
-                {
-                    "stem": "What does an RNFL OCT measure?",
-                    "options": [
-                        "The retinal nerve fibre layer thickness around the optic disc",
-                        "The thickness of the cornea",
-                        "The axial length of the eye",
-                        "The anterior chamber angle",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "RNFL OCT measures the retinal nerve fibre layer "
-                                   "thickness around the optic disc.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "RNFL OCT is mainly used to monitor which disease?",
-                    "options": ["Glaucoma", "Cataract",
-                                "Conjunctivitis", "Keratoconus"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "RNFL OCT is used mainly to detect and monitor "
-                                   "glaucoma.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Where must an RNFL scan be centred?",
-                    "options": ["On the optic disc (peripapillary)",
-                                "On the fovea",
-                                "On the cornea",
-                                "On the pupil margin"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The RNFL scan is centred on the optic disc "
-                                   "(peripapillary region) to measure the nerve fibre "
-                                   "layer correctly.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is RNFL OCT a contact or non-contact test?",
-                    "options": ["Non-contact", "Contact",
-                                "Semi-contact with gel", "It uses an ultrasound probe"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "RNFL OCT is a non-contact, light-based scan.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is an RNFL scan saved?",
-                    "options": ["For serial comparison to track glaucoma progression",
-                                "To calculate the IOL power",
-                                "To measure the eye pressure",
-                                "To replace the visual field test"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "RNFL scans are saved so they can be compared over "
-                                   "time to track glaucoma progression.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What RNFL finding is typical of glaucoma?",
-                    "options": ["RNFL thinning (often inferior or superior)",
-                                "RNFL thickening",
-                                "A normal, even RNFL",
-                                "Corneal thinning"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Glaucoma typically causes RNFL thinning, often in "
-                                   "the inferior or superior sectors.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL quality checks before saving an RNFL scan.",
-                    "options": ["Adequate signal strength",
-                                "Correct centration on the optic disc",
-                                "Stable fixation (minimal motion artefact)",
-                                "Normal blood pressure"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Check signal strength, disc centration and stable "
-                                   "fixation. Blood pressure is a systemic measure, not "
-                                   "an OCT quality check.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does an RNFL OCT measure?', 'options': ['The retinal nerve fibre layer thickness around the optic disc', 'The thickness of the cornea', 'The axial length of the eye', 'The anterior chamber angle'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT measures the retinal nerve fibre layer thickness around the optic disc.', 'reasoning_eligible': False},
+                {'stem': 'RNFL OCT is mainly used to monitor which disease?', 'options': ['Glaucoma', 'Cataract', 'Conjunctivitis', 'Keratoconus'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT is used mainly to detect and monitor glaucoma.', 'reasoning_eligible': False},
+                {'stem': 'Where must an RNFL scan be centred?', 'options': ['On the optic disc (peripapillary)', 'On the fovea', 'On the cornea', 'On the pupil margin'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The RNFL scan is centred on the optic disc (peripapillary region) to measure the nerve fibre layer correctly.', 'reasoning_eligible': False},
+                {'stem': 'Is RNFL OCT a contact or non-contact test?', 'options': ['Non-contact', 'Contact', 'Semi-contact with gel', 'It uses an ultrasound probe'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT is a non-contact, light-based scan.', 'reasoning_eligible': False},
+                {'stem': 'Why is an RNFL scan saved?', 'options': ['For serial comparison to track glaucoma progression', 'To calculate the IOL power', 'To measure the eye pressure', 'To replace the visual field test'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'RNFL scans are saved so they can be compared over time to track glaucoma progression.', 'reasoning_eligible': False},
+                {'stem': 'What RNFL finding is typical of glaucoma?', 'options': ['RNFL thinning (often inferior or superior)', 'RNFL thickening', 'A normal, even RNFL', 'Corneal thinning'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma typically causes RNFL thinning, often in the inferior or superior sectors.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL quality checks before saving an RNFL scan.', 'options': ['Adequate signal strength', 'Correct centration on the optic disc', 'Stable fixation (minimal motion artefact)', 'Normal blood pressure'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Check signal strength, disc centration and stable fixation. Blood pressure is a systemic measure, not an OCT quality check.', 'reasoning_eligible': False},
+                {'stem': 'An RNFL OCT scan must be centred on the:', 'options': ['Optic disc (optic nerve head)', 'Fovea', 'Cornea', 'Pupil margin'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The RNFL protocol places the scan circle around the optic disc; centring elsewhere gives an invalid measurement.', 'reasoning_eligible': True},
+                {'stem': 'RNFL OCT is most useful in the assessment and monitoring of:', 'options': ['Glaucoma', 'Cataract', 'Dry eye', 'Conjunctivitis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL thinning reflects loss of optic-nerve axons, making it central to glaucoma monitoring.', 'reasoning_eligible': False},
+                {'stem': 'On a Cirrus RNFL printout, sectors coded RED usually indicate:', 'options': ['Values outside the normal range (borderline/abnormal thinning)', 'A perfect scan', "The patient's favourite colour", 'High signal strength'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The normative colour code flags red as outside normal limits; it prompts correlation with disc and field, not an automatic diagnosis.', 'reasoning_eligible': True},
+                {'stem': 'Before an RNFL scan, the OT should confirm the:', 'options': ["Doctor's order and the correct patient with 2 identifiers", "Patient's shoe size", 'Room temperature', 'Next appointment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'As with any investigation, the order and patient identity (2 identifiers) are verified before scanning.', 'reasoning_eligible': True},
+                {'stem': 'RNFL OCT, like other OCT scans, is:', 'options': ['Non-contact and uses light (no radiation)', 'A contact test needing anaesthetic', 'An X-ray', 'An injection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'OCT is a non-contact optical (light-based) scan, comfortable and safe for repeated monitoring.', 'reasoning_eligible': False},
+                {'stem': 'A good-quality RNFL scan requires adequate:', 'options': ['Signal strength, disc centration and steady fixation', 'Room noise', 'Patient height only', 'Pupil colour'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Signal strength, correct centration on the disc and stable fixation are the core quality checks.', 'reasoning_eligible': False},
+                {'stem': 'The classic RNFL pattern in glaucoma is thinning that is often worst:', 'options': ['Inferiorly and superiorly (the poles)', 'Only nasally', 'Only at the fovea', 'Uniformly everywhere first'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma tends to thin the inferior and superior arcuate bundles first, matching arcuate field defects.', 'reasoning_eligible': False},
+                {'stem': 'At the end of the RNFL scan the OT should:', 'options': ['Save/print the result for the clinician and record it against the patient', 'Delete it', 'Keep it only on screen', 'Email it to the patient directly'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The scan is saved/printed and filed so the clinician can review and compare it over time.', 'reasoning_eligible': False},
+                {'stem': 'RNFL OCT differs from macular OCT mainly in that it images the:', 'options': ['Nerve-fibre layer around the optic disc, not the central retina', 'Cornea instead of the retina', 'Eyelid', 'Tear film'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT measures peripapillary nerve-fibre thickness; macular OCT images the central retina/fovea.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if the RNFL scan will hurt. The correct reassurance is:', 'options': ['It is a quick, non-contact light scan with nothing touching the eye', 'It uses a needle', 'It is painful but brief', 'It requires an injection of dye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'RNFL OCT is painless and non-contact; explaining this reduces anxiety and improves fixation/cooperation.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why is correct disc centration important for RNFL OCT?",
-                    "options": [
-                        "An off-centre measurement ring gives inaccurate, "
-                        "non-comparable thickness values",
-                        "It changes the patient's eye pressure",
-                        "It only affects the image colour",
-                        "Centration does not matter",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If the measurement ring is off-centre, the RNFL "
-                                   "thickness values are inaccurate and can't be "
-                                   "reliably compared over time.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How is RNFL OCT used alongside the visual field?",
-                    "options": [
-                        "Structural RNFL change is correlated with functional field "
-                        "loss to monitor glaucoma",
-                        "It replaces the visual field entirely",
-                        "They measure unrelated things",
-                        "The field test calibrates the OCT",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "RNFL OCT (structure) and the visual field "
-                                   "(function) are compared together — structural "
-                                   "thinning often precedes or matches field loss in "
-                                   "glaucoma.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A decentred RNFL scan shows asymmetric thinning. What "
-                            "should the OT do?",
-                    "options": ["Re-acquire a properly centred scan before it is used",
-                                "Report the thinning as glaucoma",
-                                "Save it anyway",
-                                "Switch to A-scan biometry"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Decentration can create false asymmetry — "
-                                   "re-acquire a properly centred scan before the "
-                                   "result is interpreted.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What is the key difference between RNFL OCT and macular "
-                            "OCT?",
-                    "options": [
-                        "RNFL OCT scans the optic disc for glaucoma; macular OCT scans "
-                        "the central retina for conditions like DME and AMD",
-                        "There is no difference",
-                        "RNFL OCT uses ultrasound",
-                        "Macular OCT measures the cornea",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "RNFL OCT images around the optic disc for glaucoma; "
-                                   "macular OCT images the central retina for diabetic "
-                                   "macular oedema and AMD.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why might motion artefact during an RNFL scan be a "
-                            "problem?",
-                    "options": [
-                        "It can distort the thickness measurement and reduce "
-                        "reliability",
-                        "It improves the image detail",
-                        "It only changes the colour scale",
-                        "It has no effect on the result",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Movement during the scan distorts the measurement, "
-                                   "so stable fixation is needed for a reliable RNFL "
-                                   "value.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is serial RNFL comparison more useful than a single "
-                            "scan in glaucoma?",
-                    "options": [
-                        "It reveals whether the nerve fibre layer is thinning over "
-                        "time (progression)",
-                        "A single scan already shows the future",
-                        "Comparison calibrates the machine",
-                        "Single scans are always unreliable",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Comparing RNFL scans over time shows progressive "
-                                   "thinning, which a single scan cannot — key to "
-                                   "monitoring glaucoma.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Why is correct disc centration important for RNFL OCT?', 'options': ['An off-centre measurement ring gives inaccurate, non-comparable thickness values', "It changes the patient's eye pressure", 'It only affects the image colour', 'Centration does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "If the measurement ring is off-centre, the RNFL thickness values are inaccurate and can't be reliably compared over time.", 'reasoning_eligible': True},
+                {'stem': 'How is RNFL OCT used alongside the visual field?', 'options': ['Structural RNFL change is correlated with functional field loss to monitor glaucoma', 'It replaces the visual field entirely', 'They measure unrelated things', 'The field test calibrates the OCT'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT (structure) and the visual field (function) are compared together — structural thinning often precedes or matches field loss in glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'A decentred RNFL scan shows asymmetric thinning. What should the OT do?', 'options': ['Re-acquire a properly centred scan before it is used', 'Report the thinning as glaucoma', 'Save it anyway', 'Switch to A-scan biometry'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Decentration can create false asymmetry — re-acquire a properly centred scan before the result is interpreted.', 'reasoning_eligible': True},
+                {'stem': 'What is the key difference between RNFL OCT and macular OCT?', 'options': ['RNFL OCT scans the optic disc for glaucoma; macular OCT scans the central retina for conditions like DME and AMD', 'There is no difference', 'RNFL OCT uses ultrasound', 'Macular OCT measures the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'RNFL OCT images around the optic disc for glaucoma; macular OCT images the central retina for diabetic macular oedema and AMD.', 'reasoning_eligible': False},
+                {'stem': 'Why might motion artefact during an RNFL scan be a problem?', 'options': ['It can distort the thickness measurement and reduce reliability', 'It improves the image detail', 'It only changes the colour scale', 'It has no effect on the result'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Movement during the scan distorts the measurement, so stable fixation is needed for a reliable RNFL value.', 'reasoning_eligible': False},
+                {'stem': 'Why is serial RNFL comparison more useful than a single scan in glaucoma?', 'options': ['It reveals whether the nerve fibre layer is thinning over time (progression)', 'A single scan already shows the future', 'Comparison calibrates the machine', 'Single scans are always unreliable'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Comparing RNFL scans over time shows progressive thinning, which a single scan cannot — key to monitoring glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'An RNFL scan is decentred so the circle sits off the disc. The OT should:', 'options': ['Re-centre on the optic disc and re-acquire the scan', 'Save it anyway', 'Report the thinning as glaucoma', 'Switch to a macular scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A decentred circle mismeasures the RNFL and can produce false thinning/thickening; re-centring is required for a valid scan.', 'reasoning_eligible': True},
+                {'stem': "A glaucoma patient's RNFL is thinner than last year in the inferior sector. The OT should:", 'options': ['Ensure scan quality and comparability, then flag the change to the clinician', 'Diagnose progression and change treatment', 'Ignore it', 'Delete the prior scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Apparent progression must be on quality, well-registered scans; the OT confirms comparability and flags it, leaving decisions to the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Why is RNFL OCT used ALONGSIDE the visual field in glaucoma?', 'options': ['Structural (RNFL) and functional (field) tests corroborate each other', 'The field replaces the OCT', 'They measure the same thing twice for no reason', 'OCT measures eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Structure (RNFL thinning) and function (field loss) that agree strengthen the glaucoma picture; discordance prompts a closer look.', 'reasoning_eligible': True},
+                {'stem': 'A high myope has a thin RNFL but stable scans and no field loss over years. This most likely reflects:', 'options': ['Myopia-related RNFL appearance rather than true glaucomatous progression', 'Definite active glaucoma', 'A scanning fault every time', 'A macular hole'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Myopic eyes can read as 'thin/red' on normative databases without glaucoma; stability and a normal field argue against progression.", 'reasoning_eligible': True},
+                {'stem': 'Motion artefact during an RNFL scan matters because it can:', 'options': ['Distort the measured thickness and mimic or hide real change', 'Improve accuracy', 'Lower the eye pressure', 'Only affect the colour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Movement shifts the scan circle/segmentation, producing spurious thinning or thickening; artefacted scans should be repeated.', 'reasoning_eligible': True},
+                {'stem': 'Why must signal strength be adequate before trusting an RNFL result?', 'options': ['Low signal (e.g. cataract, dry eye) degrades segmentation and can falsely lower the RNFL', 'Signal never affects RNFL', 'High signal causes glaucoma', 'It only affects the macula'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Poor signal makes the software mis-draw the layer; media/tear-film optimisation is done before attributing thinning to disease.', 'reasoning_eligible': True},
+                {'stem': 'For reliable glaucoma monitoring, RNFL scans should be compared:', 'options': ["Serially against the same patient's prior scans (registered baseline)", "Only to a stranger's scan", 'Never - each is read alone', 'To a macular scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Trend analysis against the patient's own registered baseline detects true change better than a single snapshot.", 'reasoning_eligible': True},
+                {'stem': 'A patient with a small, undilated pupil gives a weak RNFL signal. A sensible step is to:', 'options': ['Optimise the tear film and, if appropriate/ordered, dilate to improve the scan', 'Report it as severe glaucoma', 'Refuse to scan', 'Turn up the print brightness'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A clearer media path (blink, lubricant, dilation where allowed) improves signal so the RNFL is measured accurately.', 'reasoning_eligible': True},
+                {'stem': 'The TSNIT / sector plot on an RNFL printout shows thickness:', 'options': ['Around the disc by sector (temporal-superior-nasal-inferior-temporal)', 'Of the cornea', 'Of the eyelid', 'Of the tear film'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The TSNIT curve plots peripapillary RNFL thickness by sector, revealing the double-hump (superior/inferior) pattern.', 'reasoning_eligible': False},
+                {'stem': "Why record the patient's refraction/axial length context with an RNFL scan when known?", 'options': ['Very myopic eyes can read abnormal on the database, so context aids interpretation', 'It changes the eye pressure', 'It is required to print', 'It has no value'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Myopia/long eyes shift normative comparisons; noting this helps the clinician avoid over-calling glaucoma.', 'reasoning_eligible': True},
+                {'stem': 'Which instruction helps a patient hold still for an RNFL scan?', 'options': ['Ask them to look steadily at the fixation target and blink between captures', 'Tell them to look around the room', 'Ask them to keep the eyes wide open for a full minute without blinking', 'Have them talk during the scan'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation with a full blink just before capture gives a smooth tear film and a well-aligned, artefact-free scan.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A glaucoma patient's RNFL shows new inferior thinning "
-                            "compared with last year, matching a new superior field "
-                            "defect. What does this combination indicate?",
-                    "options": [
-                        "Structure-function agreement suggesting glaucoma progression "
-                        "— flag for review",
-                        "A machine error, ignore it",
-                        "Improvement in the glaucoma",
-                        "A purely refractive change",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inferior RNFL thinning corresponds to a superior "
-                                   "field defect; structure and function agreeing "
-                                   "strongly suggests true progression — flag it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must scan quality (signal, centration, fixation) be "
-                            "confirmed before attributing RNFL thinning to glaucoma?",
-                    "options": [
-                        "Poor-quality scans can mimic thinning, leading to a false "
-                        "impression of progression",
-                        "Quality never affects the numbers",
-                        "Glaucoma is diagnosed on a single scan regardless",
-                        "Quality only matters for macular OCT",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Artefacts and poor centration can falsely lower "
-                                   "RNFL values, so quality must be verified before "
-                                   "concluding there is real thinning.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL reasons RNFL OCT and the visual field are used "
-                            "TOGETHER in glaucoma.",
-                    "options": [
-                        "OCT gives objective structural data",
-                        "The field gives functional (vision) data",
-                        "Agreement between them increases confidence in progression",
-                        "Either one alone is always sufficient",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "OCT (structure) and the field (function) complement "
-                                   "each other; agreement strengthens confidence. "
-                                   "Relying on just one is weaker.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A high myope has a thin RNFL but no field loss and stable "
-                            "scans over years. Why is caution needed before calling "
-                            "this glaucoma?",
-                    "options": [
-                        "High myopia can give a thin RNFL baseline without "
-                        "progression — stability matters more than one low value",
-                        "Myopes cannot have a thin RNFL",
-                        "A single low value always means glaucoma",
-                        "Field tests are unnecessary in myopes",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Myopic eyes can have a thinner baseline RNFL; "
-                                   "without progression or field loss, a single low "
-                                   "value doesn't confirm glaucoma — the doctor "
-                                   "interprets the trend.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about RNFL OCT technique is correct?",
-                    "options": [
-                        "Centre on the disc, ensure good signal and fixation, and "
-                        "compare to prior scans",
-                        "Centre on the fovea and read it in isolation",
-                        "Any centration is fine if the signal is strong",
-                        "It measures eye pressure as well",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Good RNFL practice: disc-centred, strong signal and "
-                                   "fixation, and serial comparison — not foveal "
-                                   "centration or single-scan reading.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A glaucoma patient's RNFL shows new inferior thinning compared with last year, matching a new superior field defect. What does this combination indicate?", 'options': ['Structure-function agreement suggesting glaucoma progression — flag for review', 'A machine error, ignore it', 'Improvement in the glaucoma', 'A purely refractive change'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inferior RNFL thinning corresponds to a superior field defect; structure and function agreeing strongly suggests true progression — flag it.', 'reasoning_eligible': True},
+                {'stem': 'Why must scan quality (signal, centration, fixation) be confirmed before attributing RNFL thinning to glaucoma?', 'options': ['Poor-quality scans can mimic thinning, leading to a false impression of progression', 'Quality never affects the numbers', 'Glaucoma is diagnosed on a single scan regardless', 'Quality only matters for macular OCT'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Artefacts and poor centration can falsely lower RNFL values, so quality must be verified before concluding there is real thinning.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL reasons RNFL OCT and the visual field are used TOGETHER in glaucoma.', 'options': ['OCT gives objective structural data', 'The field gives functional (vision) data', 'Agreement between them increases confidence in progression', 'Either one alone is always sufficient'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'OCT (structure) and the field (function) complement each other; agreement strengthens confidence. Relying on just one is weaker.', 'reasoning_eligible': True},
+                {'stem': 'A high myope has a thin RNFL but no field loss and stable scans over years. Why is caution needed before calling this glaucoma?', 'options': ['High myopia can give a thin RNFL baseline without progression — stability matters more than one low value', 'Myopes cannot have a thin RNFL', 'A single low value always means glaucoma', 'Field tests are unnecessary in myopes'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Myopic eyes can have a thinner baseline RNFL; without progression or field loss, a single low value doesn't confirm glaucoma — the doctor interprets the trend.", 'reasoning_eligible': True},
+                {'stem': 'Which statement about RNFL OCT technique is correct?', 'options': ['Centre on the disc, ensure good signal and fixation, and compare to prior scans', 'Centre on the fovea and read it in isolation', 'Any centration is fine if the signal is strong', 'It measures eye pressure as well'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good RNFL practice: disc-centred, strong signal and fixation, and serial comparison — not foveal centration or single-scan reading.', 'reasoning_eligible': False},
+                {'stem': 'An RNFL shows new inferior thinning that matches a new SUPERIOR arcuate field defect. This structure-function agreement suggests:', 'options': ['Genuine glaucomatous progression - flag for the clinician', 'A scanning error', 'A cataract', 'Nothing of concern'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Inferior RNFL loss corresponds to a superior field defect; concordant structural and functional change is convincing for progression.', 'reasoning_eligible': True},
+                {'stem': 'Before attributing RNFL thinning to glaucoma, the OT/clinician must first exclude:', 'options': ['Poor signal, decentration, motion artefact and segmentation error', 'Good fixation', 'A normal disc', 'A recent eye test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Artefactual thinning from low signal, decentration or mis-segmentation must be ruled out so real disease is not over- or under-called.', 'reasoning_eligible': True},
+                {'stem': "A very advanced glaucoma patient's RNFL is already very thin and barely changes on further scans. This 'floor effect' means:", 'options': ['RNFL is less useful for tracking late progression; the field becomes more informative', 'The glaucoma is cured', 'The scan is faulty', 'The RNFL will thicken again'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Once RNFL reaches its measurement floor, further loss is hard to detect, so functional (field) testing guides late monitoring.', 'reasoning_eligible': True},
+                {'stem': "An RNFL prints as 'red' (abnormal) but the disc looks healthy and the field is full and stable. The best interpretation is:", 'options': ['Possible false positive (e.g. myopia/database mismatch) - correlate, do not diagnose on OCT alone', 'Definite glaucoma - start treatment', 'The OCT machine is broken', 'Ignore the disc and field'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "A 'red' sector with a healthy disc and normal field may be a normative false positive; clinical correlation prevents over-diagnosis.", 'reasoning_eligible': True},
+                {'stem': 'Select the BEST practice for acquiring a monitoring RNFL scan.', 'options': ['Verify order/ID, optimise media/fixation, centre on the disc, confirm signal, and register to baseline', 'Any centration is fine if signal is high', 'Save the first image regardless of quality', "Compare to another patient's scan"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable monitoring needs correct patient, good media/fixation, disc centration, adequate signal and registration to the prior baseline.', 'reasoning_eligible': True},
+                {'stem': 'Why can epiretinal membrane or vitreous traction near the disc confound an RNFL reading?', 'options': ['They distort the layer the software segments, giving falsely thick or irregular RNFL', 'They always thin the RNFL to zero', 'They lower the eye pressure', 'They have no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Traction/membranes alter the retinal contour and segmentation, so the RNFL value may not reflect true nerve-fibre thickness.', 'reasoning_eligible': True},
+                {'stem': "A glaucoma-suspect's single RNFL is borderline. The most useful next step for monitoring is to:", 'options': ['Establish a quality baseline and repeat over time to look for a trend', 'Diagnose glaucoma immediately', 'Never scan again', 'Rely on one scan forever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A borderline single scan is best interpreted by trend; a good baseline plus follow-up scans reveal real change.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about RNFL OCT technique is CORRECT?', 'options': ['Centre on the disc, ensure adequate signal and fixation, register to baseline, and correlate with disc/field', 'Centre anywhere near the retina', 'One scan alone confirms progression', 'OCT replaces the clinical exam'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good RNFL practice centres on the disc, ensures quality, compares serially, and is interpreted with the disc and visual field.', 'reasoning_eligible': True},
+                {'stem': "A patient's RNFL asymmetry between eyes is flagged. Before acting, the OT should confirm:", 'options': ['That both scans are quality, centred and comparable (not an artefact of acquisition)', "The patient's age only", 'Nothing - asymmetry always means disease', 'The room lighting'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Inter-eye asymmetry is meaningful only on comparable, artefact-free scans; acquisition differences can create false asymmetry.', 'reasoning_eligible': True},
+                {'stem': "Why does the OT confirm the SAME device/scan protocol is used for a patient's serial RNFL monitoring?", 'options': ['RNFL values are not interchangeable between different OCT machines, so trends need the same platform', 'Any machine gives identical numbers', 'It changes the eye colour', 'Only the first scan matters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Different OCT devices have different normative values; consistent equipment ensures valid trend comparison over time.', 'reasoning_eligible': True},
+                {'stem': 'An RNFL scan and macular ganglion-cell scan are both ordered for early glaucoma. Why both?', 'options': ['They sample optic-nerve damage at complementary locations, improving early detection', 'One is a backup only', 'Macular OCT measures eye pressure', 'They are the same scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Peripapillary RNFL and macular ganglion-cell analysis detect glaucomatous loss in different regions, aiding earlier, more reliable diagnosis.', 'reasoning_eligible': True},
             ],
         },
         "hvf": {
