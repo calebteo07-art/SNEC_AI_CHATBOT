@@ -761,7 +761,7 @@ git push origin main
 - [x] ocular_emergencies — OcularEmergencies-RFoo, chemical eye burns update
 - [x] professional_ethics — Medical Ethics, Professional Etiquette, CommunicationSkills, MSW role, Nursing Informatics
 - [x] disorders_eyelid_lacrimal_orbit — eyelid/lacrimal/orbit disease docs (chalazion, ectropion, entropion, ptosis, lacrimal, orbit, TED)
-- [ ] disorders_cornea_conjunctiva — Cornea/Sclera/Conjunctiva disease docs, contact lens infection, OphthalmicAssistant Ch14
+- [x] disorders_cornea_conjunctiva — Cornea/Sclera/Conjunctiva disease docs, contact lens infection, OphthalmicAssistant Ch14
 - [ ] disorders_lens_cataract — Disorders of the Lens, cataract/perioperative content
 - [ ] disorders_uvea_retina — Uvea/Retina/Uveitis/Angiography/Inflammation docs, GRT research
 - [ ] glaucoma — Glaucoma, ocular-surface-in-glaucoma research
