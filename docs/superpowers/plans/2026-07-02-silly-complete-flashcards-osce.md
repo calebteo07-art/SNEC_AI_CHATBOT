@@ -755,7 +755,7 @@ git push origin main
 ### Topic checklist (author each to 50; tick when shipped)
 
 **FOUNDATIONS (12)** — author first (currently absent):
-- [ ] anatomy_physiology — A&PPartI/II/III
+- [x] anatomy_physiology — A&PPartI/II/III
 - [ ] microbiology_infection — Microbiology 2025, OTOAInfectionControl
 - [x] pharmacology — Harold Stein Chap 4, Duke NUS Pharmacology
 - [ ] ocular_emergencies — OcularEmergencies-RFoo, chemical eye burns update
