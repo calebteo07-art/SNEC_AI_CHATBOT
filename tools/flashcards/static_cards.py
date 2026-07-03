@@ -1949,261 +1949,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "endothelial": {
             "easy": [
-                {
-                    "stem": "What does an endothelial cell count measure?",
-                    "options": ["Corneal endothelial cell density (cells/mm2)",
-                                "The axial length",
-                                "The visual field",
-                                "The eye pressure"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "It measures the density of cells in the corneal "
-                                   "endothelium (cells per mm2).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is a normal corneal endothelial cell density?",
-                    "options": ["Above 2000 cells/mm2", "Below 500 cells/mm2",
-                                "About 100 cells/mm2", "Exactly 1000 cells/mm2"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A normal endothelial cell density is above 2000 "
-                                   "cells/mm2.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Below roughly what count is concern raised?",
-                    "options": ["Below 1500 cells/mm2", "Below 2500 cells/mm2",
-                                "Below 3000 cells/mm2", "There is no threshold"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A count below about 1500 cells/mm2 is a concern, "
-                                   "especially before surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is the endothelial cell count a contact or non-contact "
-                            "test?",
-                    "options": ["Non-contact (specular microscopy)",
-                                "Contact with anaesthetic",
-                                "Contact with a probe",
-                                "It uses ultrasound"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "It is usually a non-contact test using specular "
-                                   "microscopy.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL recognised indications for an endothelial cell "
-                            "count.",
-                    "options": ["Pre-cataract surgery",
-                                "Fuchs dystrophy",
-                                "Long-term contact lens wear / post-corneal transplant",
-                                "Routine colour vision screening"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Indications include pre-cataract surgery, Fuchs "
-                                   "dystrophy, contact lens wearers and post-transplant "
-                                   "eyes. Colour vision screening is unrelated.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A count of 1300 cells/mm2 is normal or concerning?",
-                    "options": ["Concerning — below the ~1500 threshold",
-                                "Normal — well above threshold",
-                                "Normal — exactly average",
-                                "Impossible to interpret"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "1300 cells/mm2 is below the ~1500 threshold, so it "
-                                   "is a concern.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does an endothelial cell count measure?', 'options': ['Corneal endothelial cell density (cells/mm2)', 'The axial length', 'The visual field', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'It measures the density of cells in the corneal endothelium (cells per mm2).', 'reasoning_eligible': False},
+                {'stem': 'What is a normal corneal endothelial cell density?', 'options': ['Above 2000 cells/mm2', 'Below 500 cells/mm2', 'About 100 cells/mm2', 'Exactly 1000 cells/mm2'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A normal endothelial cell density is above 2000 cells/mm2.', 'reasoning_eligible': False},
+                {'stem': 'Below roughly what count is concern raised?', 'options': ['Below 1500 cells/mm2', 'Below 2500 cells/mm2', 'Below 3000 cells/mm2', 'There is no threshold'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A count below about 1500 cells/mm2 is a concern, especially before surgery.', 'reasoning_eligible': False},
+                {'stem': 'Is the endothelial cell count a contact or non-contact test?', 'options': ['Non-contact (specular microscopy)', 'Contact with anaesthetic', 'Contact with a probe', 'It uses ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'It is usually a non-contact test using specular microscopy.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL recognised indications for an endothelial cell count.', 'options': ['Pre-cataract surgery', 'Fuchs dystrophy', 'Long-term contact lens wear / post-corneal transplant', 'Routine colour vision screening'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Indications include pre-cataract surgery, Fuchs dystrophy, contact lens wearers and post-transplant eyes. Colour vision screening is unrelated.', 'reasoning_eligible': False},
+                {'stem': 'A count of 1300 cells/mm2 is normal or concerning?', 'options': ['Concerning — below the ~1500 threshold', 'Normal — well above threshold', 'Normal — exactly average', 'Impossible to interpret'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': '1300 cells/mm2 is below the ~1500 threshold, so it is a concern.', 'reasoning_eligible': False},
+                {'stem': 'An endothelial cell count is usually performed with a:', 'options': ['Specular microscope (non-contact)', 'Blood pressure cuff', 'Tonometer probe on the cornea', 'Colour vision book'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A specular microscope images the endothelial mosaic without touching the eye to count and analyse the cells.', 'reasoning_eligible': False},
+                {'stem': 'During the test the patient is asked to:', 'options': ['Fixate the target steadily while the image is focused on the endothelium', 'Look around the room', 'Close both eyes', 'Read a wall chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation lets the operator focus on and capture the endothelial cell layer clearly.', 'reasoning_eligible': False},
+                {'stem': "The corneal endothelium's main job is to:", 'options': ['Pump fluid out to keep the cornea clear (deturgescence)', 'Focus light like a lens', 'Produce tears', 'Sense pain'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Endothelial cells actively pump fluid from the stroma, keeping the cornea thin and transparent.', 'reasoning_eligible': False},
+                {'stem': 'Dark, dew-drop-like excrescences on the endothelium (guttae) are characteristic of:', 'options': ['Fuchs endothelial dystrophy', 'Glaucoma', 'Conjunctivitis', 'A normal cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Guttae are a hallmark of Fuchs dystrophy and make the endothelial cells harder to count.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if the endothelial test will hurt. The correct reassurance is:', 'options': ['It is a quick, non-contact photograph of the cornea with nothing touching the eye', 'It uses a needle', 'It requires an injection', 'It is painful but brief'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Specular microscopy is painless and non-contact; explaining this eases anxiety and improves cooperation/fixation.', 'reasoning_eligible': True},
+                {'stem': 'Besides cell density, an endothelial assessment also reports the:', 'options': ['Cell size variation (polymegathism) and shape (pleomorphism/hexagonality)', 'Blood glucose', 'Eye pressure', 'Colour vision score'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Coefficient of variation (polymegathism) and hexagonality (pleomorphism) describe endothelial health beyond raw count.', 'reasoning_eligible': False},
+                {'stem': 'Endothelial cells are precious because they:', 'options': ['Do not regenerate well - lost cells are not replaced', 'Grow back quickly overnight', 'Multiply every year', 'Are unimportant to vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Human corneal endothelium has minimal regenerative capacity, so cell loss is largely permanent.', 'reasoning_eligible': False},
+                {'stem': 'A long-term contact lens wearer is sent for an endothelial count because CL wear can:', 'options': ['Cause chronic hypoxic stress and endothelial changes over time', 'Improve the count', 'Cure Fuchs dystrophy', 'Raise the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Years of contact-lens-related hypoxia can alter endothelial morphology, so a baseline count is useful.', 'reasoning_eligible': True},
+                {'stem': 'The OT should capture the endothelial image and:', 'options': ['Record the count/morphology for the clinician, not make a diagnosis', 'Diagnose Fuchs and counsel on transplant', 'Delete the image', 'Prescribe eye drops'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT provides the measurement; interpretation and diagnosis remain with the clinician.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a corneal graft (transplant) has regular endothelial counts to:', 'options': ["Monitor the graft's endothelial cell loss over time", 'Measure their glasses power', 'Check colour vision', 'Set the eye drops'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Grafts lose endothelial cells over time; serial counts help detect failure early.', 'reasoning_eligible': True},
+                {'stem': 'If the endothelium fails, the cornea will:', 'options': ['Swell and become cloudy (oedema/decompensation)', 'Turn red', 'Shrink and clear', 'Change colour of the iris'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Without adequate pumping, fluid accumulates and the cornea swells and clouds, reducing vision.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Why does a low endothelial count matter before cataract "
-                            "surgery?",
-                    "options": [
-                        "It raises the risk of corneal decompensation (oedema) after "
-                        "surgery",
-                        "It changes the IOL power",
-                        "It improves healing",
-                        "It has no surgical relevance",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Endothelial cells keep the cornea clear by pumping "
-                                   "out fluid. A low count risks corneal swelling "
-                                   "(decompensation) after surgical stress.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Vision is worse in the morning and improves later in the "
-                            "day. Which corneal condition does this suggest?",
-                    "options": ["Endothelial dysfunction such as Fuchs dystrophy",
-                                "Simple presbyopia",
-                                "Glaucoma",
-                                "Allergic conjunctivitis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Morning blur that clears later is typical of "
-                                   "endothelial dysfunction (e.g. Fuchs) — fluid builds "
-                                   "up overnight and evaporates when the eyes open.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Besides cell density, what else is recorded in an "
-                            "endothelial assessment?",
-                    "options": ["Cell morphology (e.g. irregular cell shapes)",
-                                "The visual field",
-                                "The axial length",
-                                "The colour vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Cell morphology — size and shape variation — is "
-                                   "recorded alongside the density.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why might a long-term contact lens wearer need this test?",
-                    "options": ["Long-term lens wear can reduce endothelial cell "
-                                "density",
-                                "Lenses increase the cell count",
-                                "It measures the lens fit",
-                                "Lens wearers never need it"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Years of contact lens wear can lower endothelial "
-                                   "cell density, so it may be checked.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why are endothelial cells especially important given they "
-                            "do not regenerate well?",
-                    "options": [
-                        "Lost cells are not replaced, so a falling count is "
-                        "cumulative and matters long-term",
-                        "They regrow quickly, so the count is irrelevant",
-                        "They only matter in children",
-                        "They have no role in corneal clarity",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Corneal endothelial cells have very limited "
-                                   "regeneration, so losses accumulate over a lifetime "
-                                   "— making the count clinically important.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Why does a low endothelial count matter before cataract surgery?', 'options': ['It raises the risk of corneal decompensation (oedema) after surgery', 'It changes the IOL power', 'It improves healing', 'It has no surgical relevance'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Endothelial cells keep the cornea clear by pumping out fluid. A low count risks corneal swelling (decompensation) after surgical stress.', 'reasoning_eligible': True},
+                {'stem': 'Vision is worse in the morning and improves later in the day. Which corneal condition does this suggest?', 'options': ['Endothelial dysfunction such as Fuchs dystrophy', 'Simple presbyopia', 'Glaucoma', 'Allergic conjunctivitis'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Morning blur that clears later is typical of endothelial dysfunction (e.g. Fuchs) — fluid builds up overnight and evaporates when the eyes open.', 'reasoning_eligible': True},
+                {'stem': 'Besides cell density, what else is recorded in an endothelial assessment?', 'options': ['Cell morphology (e.g. irregular cell shapes)', 'The visual field', 'The axial length', 'The colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Cell morphology — size and shape variation — is recorded alongside the density.', 'reasoning_eligible': False},
+                {'stem': 'Why might a long-term contact lens wearer need this test?', 'options': ['Long-term lens wear can reduce endothelial cell density', 'Lenses increase the cell count', 'It measures the lens fit', 'Lens wearers never need it'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Years of contact lens wear can lower endothelial cell density, so it may be checked.', 'reasoning_eligible': False},
+                {'stem': 'Why are endothelial cells especially important given they do not regenerate well?', 'options': ['Lost cells are not replaced, so a falling count is cumulative and matters long-term', 'They regrow quickly, so the count is irrelevant', 'They only matter in children', 'They have no role in corneal clarity'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Corneal endothelial cells have very limited regeneration, so losses accumulate over a lifetime — making the count clinically important.', 'reasoning_eligible': True},
+                {'stem': "A patient's vision is blurry in the MORNING and clears through the day. On endothelial testing you should expect and flag:", 'options': ['Signs of endothelial dysfunction (e.g. Fuchs) causing overnight corneal swelling', 'A normal healthy endothelium', 'Glaucoma', 'A refractive error only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Overnight lid closure reduces evaporation, so a weak endothelium lets the cornea swell; it clears as the day's evaporation resumes.", 'reasoning_eligible': True},
+                {'stem': 'Why does a LOW endothelial count matter specifically before cataract surgery?', 'options': ['Surgery stresses the endothelium; a marginal cornea may decompensate afterwards', 'It changes the IOL colour', 'It has no bearing on surgery', 'It only matters after surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Phaco causes some endothelial loss; a low baseline count risks post-op corneal oedema, so the surgeon plans protective techniques.', 'reasoning_eligible': True},
+                {'stem': 'Guttae make an automated endothelial count unreliable because they:', 'options': ['Appear as dark gaps the software cannot count as cells - review the image', 'Increase the true cell count', 'Raise the eye pressure', 'Improve the mosaic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Guttae disrupt the mosaic and read as dark spaces, so automated counts must be checked and interpreted with care.', 'reasoning_eligible': True},
+                {'stem': 'A poor-quality endothelial image (blurred, off-centre) is obtained. The OT should:', 'options': ['Re-focus/re-align and recapture rather than accept a poor image', 'Report the blur as disease', 'Increase the print brightness', 'Diagnose from the blur'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only a clear, well-focused mosaic gives a valid count; poor captures are repeated after optimising focus and alignment.', 'reasoning_eligible': True},
+                {'stem': 'Central corneal thickness (pachymetry) is often recorded WITH the endothelial count because:', 'options': ['A thickened cornea suggests oedema from failing endothelial pump function', 'It measures the glasses power', 'It sets the eye pressure', 'It has no relation to the endothelium'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Rising corneal thickness signals fluid retention, corroborating a struggling endothelium alongside a low count.', 'reasoning_eligible': True},
+                {'stem': 'A patient has had multiple previous intraocular surgeries. Why check the endothelial count now?', 'options': ['Each intraocular procedure can reduce endothelial cells, risking decompensation', 'Surgery increases cell numbers', 'It is unrelated to the endothelium', 'Only trauma affects the count'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cumulative surgical trauma lowers the endothelial reserve; a count informs the risk of further procedures.', 'reasoning_eligible': True},
+                {'stem': "The coefficient of variation (CV) of cell size is HIGH on a patient's report. This indicates:", 'options': ['Polymegathism - variable cell sizes, a sign of endothelial stress', 'A perfectly healthy endothelium', 'High eye pressure', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A high CV means the cells vary in size (polymegathism), reflecting stress even if the count is still adequate.', 'reasoning_eligible': True},
+                {'stem': 'A normal adult central endothelial density is broadly around:', 'options': ['2000-3000 cells/mm2 (declining slowly with age)', 'Under 500 cells/mm2', '10 cells/mm2', 'Exactly 100 cells/mm2'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Healthy adult endothelial density is roughly 2000-3000 cells/mm2 and falls gradually with age.', 'reasoning_eligible': False},
+                {'stem': 'Why is the percentage of HEXAGONAL cells (pleomorphism) reported?', 'options': ['A healthy endothelium is mostly regular hexagons; fewer hexagons signals stress/remodelling', 'Hexagons measure eye pressure', 'It shows the glasses power', 'Shape is irrelevant'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Loss of the regular hexagonal pattern (pleomorphism) indicates endothelial stress even before the count drops markedly.', 'reasoning_eligible': True},
+                {'stem': 'A patient with acute corneal oedema and pain after recent surgery has a very low count. The OT should:', 'options': ['Capture what is possible and flag the low count and oedema urgently to the clinician', 'Reassure and discharge', 'Diagnose graft failure and plan surgery', 'Ignore the oedema'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Post-op oedema with a low count may signal decompensation; the OT documents and escalates for prompt clinical review.', 'reasoning_eligible': True},
+                {'stem': 'Why obtain BOTH central and (where possible) peripheral endothelial samples?', 'options': ['Cell density can vary across the cornea, so more sampling gives a fuller picture', 'The periphery has no endothelium', 'It measures the eyelid', 'Only the centre ever matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Regional variation means a single central sample may not represent the whole cornea; broader sampling aids interpretation.', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot fixate the target because of poor central vision. A sensible step is to:', 'options': ['Use an external fixation aid/guidance and capture the best clear mosaic possible', 'Abandon the test', 'Guess the count', 'Press the device onto the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Fixation aids help align the non-contact capture when central vision is poor, so a usable image can still be obtained.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A cataract patient has an endothelial count of 900 "
-                            "cells/mm2 with irregular cell shapes. Why is this "
-                            "flagged before surgery?",
-                    "options": [
-                        "A very low, abnormal count raises the risk of corneal "
-                        "decompensation after surgery — the surgeon must know",
-                        "It is a normal count, no action needed",
-                        "It changes the colour vision result",
-                        "It means surgery is impossible",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A count of 900 with abnormal morphology is well "
-                                   "below safe levels; it raises the risk of "
-                                   "post-operative corneal swelling, so the surgeon is "
-                                   "informed for planning.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL findings that would concern you on an "
-                            "endothelial assessment.",
-                    "options": [
-                        "A density below ~1500 cells/mm2",
-                        "Marked variation in cell size/shape (poor morphology)",
-                        "A history of Fuchs dystrophy or prior transplant",
-                        "A density above 2500 with uniform cells",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Low density, poor morphology and relevant history "
-                                   "all raise concern. A high density with uniform "
-                                   "cells is reassuring.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does the cornea swell (decompensate) when endothelial "
-                            "function is poor?",
-                    "options": [
-                        "The endothelium pumps fluid out of the cornea; if it fails, "
-                        "fluid accumulates and the cornea clouds",
-                        "The endothelium adds fluid to keep the cornea clear",
-                        "Swelling is unrelated to the endothelium",
-                        "The cornea thins rather than swells",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Endothelial cells actively pump fluid out to keep "
-                                   "the cornea clear; when too few function, fluid "
-                                   "builds up and the cornea becomes oedematous and "
-                                   "hazy.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient with Fuchs dystrophy reports gradually worsening "
-                            "morning blur over months. How does the endothelial count "
-                            "help the clinical picture?",
-                    "options": [
-                        "A declining count supports progressive endothelial failure, "
-                        "guiding monitoring and surgical planning",
-                        "It proves the patient needs glasses",
-                        "It measures the cataract directly",
-                        "It is irrelevant to Fuchs dystrophy",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A falling endothelial count in Fuchs correlates "
-                                   "with worsening function and symptoms, helping the "
-                                   "team monitor and plan any surgery.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about the endothelial cell count is "
-                            "correct?",
-                    "options": [
-                        "Normal is >2000/mm2, concern <1500/mm2; it predicts corneal "
-                        "decompensation risk, especially before surgery",
-                        "Normal is <500/mm2",
-                        "It measures the eye pressure",
-                        "Endothelial cells regenerate fully, so the count is "
-                        "irrelevant",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Normal endothelial density is >2000/mm2 and "
-                                   "concern arises below ~1500/mm2; a low count flags "
-                                   "the risk of corneal decompensation, important "
-                                   "before surgery.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A cataract patient has an endothelial count of 900 cells/mm2 with irregular cell shapes. Why is this flagged before surgery?', 'options': ['A very low, abnormal count raises the risk of corneal decompensation after surgery — the surgeon must know', 'It is a normal count, no action needed', 'It changes the colour vision result', 'It means surgery is impossible'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A count of 900 with abnormal morphology is well below safe levels; it raises the risk of post-operative corneal swelling, so the surgeon is informed for planning.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL findings that would concern you on an endothelial assessment.', 'options': ['A density below ~1500 cells/mm2', 'Marked variation in cell size/shape (poor morphology)', 'A history of Fuchs dystrophy or prior transplant', 'A density above 2500 with uniform cells'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Low density, poor morphology and relevant history all raise concern. A high density with uniform cells is reassuring.', 'reasoning_eligible': True},
+                {'stem': 'Why does the cornea swell (decompensate) when endothelial function is poor?', 'options': ['The endothelium pumps fluid out of the cornea; if it fails, fluid accumulates and the cornea clouds', 'The endothelium adds fluid to keep the cornea clear', 'Swelling is unrelated to the endothelium', 'The cornea thins rather than swells'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Endothelial cells actively pump fluid out to keep the cornea clear; when too few function, fluid builds up and the cornea becomes oedematous and hazy.', 'reasoning_eligible': True},
+                {'stem': 'A patient with Fuchs dystrophy reports gradually worsening morning blur over months. How does the endothelial count help the clinical picture?', 'options': ['A declining count supports progressive endothelial failure, guiding monitoring and surgical planning', 'It proves the patient needs glasses', 'It measures the cataract directly', 'It is irrelevant to Fuchs dystrophy'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A falling endothelial count in Fuchs correlates with worsening function and symptoms, helping the team monitor and plan any surgery.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about the endothelial cell count is correct?', 'options': ['Normal is >2000/mm2, concern <1500/mm2; it predicts corneal decompensation risk, especially before surgery', 'Normal is <500/mm2', 'It measures the eye pressure', 'Endothelial cells regenerate fully, so the count is irrelevant'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Normal endothelial density is >2000/mm2 and concern arises below ~1500/mm2; a low count flags the risk of corneal decompensation, important before surgery.', 'reasoning_eligible': False},
+                {'stem': 'A cataract patient has an endothelial count of 900 cells/mm2 with marked polymegathism. Why is this flagged BEFORE surgery?', 'options': ['The cornea has little reserve and may decompensate after phaco - the surgeon plans protective measures', 'It guarantees a perfect result', 'It means surgery is impossible forever', 'It only matters for glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A low count with abnormal morphology risks post-op oedema; forewarned, the surgeon uses gentle technique and a dispersive viscoelastic.', 'reasoning_eligible': True},
+                {'stem': 'Which set of findings on an endothelial assessment should concern you and be flagged?', 'options': ['Low cell density, high polymegathism/low hexagonality, guttae, and increased corneal thickness', 'High density with regular hexagons', 'A clear thin cornea with a normal count', 'Good fixation and a sharp image'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Low count plus abnormal morphology, guttae and corneal thickening together indicate a compromised, at-risk endothelium.', 'reasoning_eligible': True},
+                {'stem': 'Why does the cornea DECOMPENSATE (swell) when endothelial function is poor?', 'options': ['Too few working pump cells cannot remove stromal fluid, so it accumulates', 'The cornea makes extra tears', 'The iris blocks fluid', 'High pressure pushes the lens forward'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The endothelial pump keeps the stroma dehydrated; when it fails, fluid builds up and the cornea swells and clouds.', 'reasoning_eligible': True},
+                {'stem': 'A patient with Fuchs dystrophy reports gradually worsening MORNING blur over months. How does the endothelial count help?', 'options': ['It quantifies the falling cell density/guttae, supporting the diagnosis and timing of intervention', 'It measures the glasses power', 'It cures the dystrophy', 'It has no role'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Serial counts document the endothelial decline in Fuchs, helping the clinician correlate symptoms and plan any surgery.', 'reasoning_eligible': True},
+                {'stem': 'A corneal graft (DSAEK) patient shows a steadily FALLING endothelial count over serial visits. The significance is:', 'options': ['Possible chronic graft endothelial loss/failure - flag the trend to the clinician', 'The graft is improving', 'A refractive error', 'Nothing to note'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A downward trend in graft endothelial density can herald failure; documenting the trend prompts timely review.', 'reasoning_eligible': True},
+                {'stem': 'Why must a low automated count on a guttae-rich cornea be interpreted with caution?', 'options': ['Guttae obscure cells, so the software may under- or mis-count - manual review is needed', 'Guttae make counts too high', 'The count is always perfect', 'Guttae raise the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because guttae disrupt automated cell detection, the image should be reviewed so the reported count is not misleading.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about the endothelial cell count is CORRECT?', 'options': ['It is a non-contact measure of cell density and morphology used to judge corneal reserve and surgical risk', 'It measures the eye pressure', 'Endothelial cells regenerate fully after loss', 'A low count never affects surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The count assesses endothelial density and morphology non-invasively, informing corneal health and the risk of surgery.', 'reasoning_eligible': True},
+                {'stem': 'An OT obtains a count of 2600 cells/mm2 with regular hexagonal cells and normal thickness. The appropriate action is to:', 'options': ['Record it as a reassuring/normal result for the clinician', 'Flag it as urgent decompensation', 'Repeat 20 times', 'Diagnose Fuchs dystrophy'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A healthy density with regular morphology and normal pachymetry is a reassuring result to document normally.', 'reasoning_eligible': True},
+                {'stem': 'Why does a patient with corneal oedema sometimes give a poor endothelial image?', 'options': ['Stromal/epithelial oedema scatters light, blurring the view of the endothelial mosaic', 'Oedema sharpens the image', 'The endothelium moves to the front', 'It has no effect on imaging'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A hazy, swollen cornea degrades the specular image, so the count may be limited and this is noted for the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good endothelial-count practice?', 'options': ['Confirm ID/order, obtain a clear focused mosaic, record density and morphology (and thickness), and flag abnormal/at-risk findings', 'One blurred image is enough', 'Diagnose and counsel the patient directly', 'Skip morphology if the count looks fine'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good practice secures a clear image, records density/morphology/thickness, and flags concerning findings for the clinician.', 'reasoning_eligible': True},
+                {'stem': 'A glaucoma patient scheduled for a drainage device has an endothelial count. Why is the baseline useful?', 'options': ['Tube devices can accelerate endothelial loss; a baseline lets the team monitor the cornea over time', 'It sets the eye pressure target', 'It measures the visual field', 'It has no relevance to glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Glaucoma drainage implants can touch/threaten the endothelium; a baseline count enables monitoring for corneal decompensation.', 'reasoning_eligible': True},
             ],
         },
         "asoct": {
