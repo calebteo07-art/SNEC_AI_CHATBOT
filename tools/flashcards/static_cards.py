@@ -961,488 +961,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "distance_va": {
             "easy": [
-                {
-                    "stem": "What is normal distance visual acuity on the Snellen scale?",
-                    "options": ["6/6", "6/60", "6/12", "3/6"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "6/6 is normal distance vision on the Snellen scale.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "By convention, which eye is tested first?",
-                    "options": ["The right eye", "The left eye",
-                                "Whichever is worse", "Both together"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "By convention the right eye is tested first, then "
-                                   "the left.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "At what visual acuity should you apply the pinhole?",
-                    "options": ["When VA is 6/12 or worse",
-                                "Only when VA is 6/6",
-                                "Never during a VA test",
-                                "Only for near vision"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The pinhole is used when distance VA is reduced "
-                                   "(6/12 or worse) to check for a refractive cause.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "In the fraction 6/18, what does the top number (6) mean?",
-                    "options": ["The testing distance in metres",
-                                "The number of letters read",
-                                "The patient's age",
-                                "The line number on the chart"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The top number is the testing distance (6 metres); "
-                                   "the bottom number is the distance at which a normal "
-                                   "eye reads that line.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which chart is used for patients who cannot read letters?",
-                    "options": ["The tumbling E chart",
-                                "The Ishihara chart",
-                                "The Amsler grid",
-                                "The Goldmann chart"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The tumbling E chart lets patients who cannot read "
-                                   "letters indicate the direction the E points.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does 'CF' mean in a visual acuity record?",
-                    "options": ["Count Fingers", "Clear Focus",
-                                "Central Field", "Colour Found"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "CF means Count Fingers — used when the patient "
-                                   "cannot read the lowest chart line.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL of these that are low-vision acuity levels "
-                            "below chart letters.",
-                    "options": ["Count Fingers (CF)", "Hand Movement (HM)",
-                                "Perception of Light (PL)", "6/6"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "CF, HM and PL are the low-vision levels used when "
-                                   "the patient cannot read chart letters. 6/6 is "
-                                   "normal vision.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does 'NPL' stand for in a VA record?",
-                    "options": ["No Perception of Light",
-                                "Near Print Level",
-                                "Normal Pupil Light",
-                                "New Patient Letter"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "NPL means No Perception of Light — the lowest "
-                                   "possible acuity, indicating the eye cannot detect "
-                                   "any light.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Vision improves with the pinhole. What does this suggest?",
-                    "options": ["A refractive cause (likely correctable with glasses)",
-                                "A retinal detachment",
-                                "Optic nerve disease",
-                                "A dense cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If the pinhole improves vision, the cause is likely "
-                                   "refractive — correctable with glasses.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Vision does NOT improve with the pinhole. What does this "
-                            "suggest?",
-                    "options": [
-                        "A non-refractive cause such as media opacity or "
-                        "retinal/optic nerve disease",
-                        "Simple uncorrected long-sightedness",
-                        "The patient needs reading glasses",
-                        "Nothing — the test failed",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "No improvement with the pinhole points to a "
-                                   "non-refractive cause — media opacity (e.g. "
-                                   "cataract), retinal or optic nerve disease.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What is normal distance visual acuity on the Snellen scale?', 'options': ['6/6', '6/60', '6/12', '3/6'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': '6/6 is normal distance vision on the Snellen scale.', 'reasoning_eligible': False},
+                {'stem': 'By convention, which eye is tested first?', 'options': ['The right eye', 'The left eye', 'Whichever is worse', 'Both together'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'By convention the right eye is tested first, then the left.', 'reasoning_eligible': False},
+                {'stem': 'At what visual acuity should you apply the pinhole?', 'options': ['When VA is 6/12 or worse', 'Only when VA is 6/6', 'Never during a VA test', 'Only for near vision'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The pinhole is used when distance VA is reduced (6/12 or worse) to check for a refractive cause.', 'reasoning_eligible': False},
+                {'stem': 'In the fraction 6/18, what does the top number (6) mean?', 'options': ['The testing distance in metres', 'The number of letters read', "The patient's age", 'The line number on the chart'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The top number is the testing distance (6 metres); the bottom number is the distance at which a normal eye reads that line.', 'reasoning_eligible': False},
+                {'stem': 'Which chart is used for patients who cannot read letters?', 'options': ['The tumbling E chart', 'The Ishihara chart', 'The Amsler grid', 'The Goldmann chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The tumbling E chart lets patients who cannot read letters indicate the direction the E points.', 'reasoning_eligible': False},
+                {'stem': "What does 'CF' mean in a visual acuity record?", 'options': ['Count Fingers', 'Clear Focus', 'Central Field', 'Colour Found'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'CF means Count Fingers — used when the patient cannot read the lowest chart line.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL of these that are low-vision acuity levels below chart letters.', 'options': ['Count Fingers (CF)', 'Hand Movement (HM)', 'Perception of Light (PL)', '6/6'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'CF, HM and PL are the low-vision levels used when the patient cannot read chart letters. 6/6 is normal vision.', 'reasoning_eligible': False},
+                {'stem': "What does 'NPL' stand for in a VA record?", 'options': ['No Perception of Light', 'Near Print Level', 'Normal Pupil Light', 'New Patient Letter'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'NPL means No Perception of Light — the lowest possible acuity, indicating the eye cannot detect any light.', 'reasoning_eligible': False},
+                {'stem': 'Vision improves with the pinhole. What does this suggest?', 'options': ['A refractive cause (likely correctable with glasses)', 'A retinal detachment', 'Optic nerve disease', 'A dense cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'If the pinhole improves vision, the cause is likely refractive — correctable with glasses.', 'reasoning_eligible': False},
+                {'stem': 'Vision does NOT improve with the pinhole. What does this suggest?', 'options': ['A non-refractive cause such as media opacity or retinal/optic nerve disease', 'Simple uncorrected long-sightedness', 'The patient needs reading glasses', 'Nothing — the test failed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'No improvement with the pinhole points to a non-refractive cause — media opacity (e.g. cataract), retinal or optic nerve disease.', 'reasoning_eligible': False},
+                {'stem': "What does 'LogMAR' stand for?", 'options': ['Logarithm of the Minimum Angle of Resolution', 'Long-range Magnified Acuity Reading', 'Lens-Optimised Global Macular Acuity Ratio', 'Low-Gain Manual Acuity Record'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'LogMAR = Logarithm of the Minimum Angle of Resolution, the basis of the modern acuity chart used at SNEC.', 'reasoning_eligible': False},
+                {'stem': 'On the LogMAR scale, 6/6 vision corresponds to a LogMAR value of:', 'options': ['0.00', '1.00', '6.00', '0.60'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': '6/6 (normal) equals LogMAR 0.00; higher LogMAR numbers mean worse vision.', 'reasoning_eligible': False},
+                {'stem': 'Before testing distance vision, you should first:', 'options': ["Check the doctor's order in the medical record/EMR", 'Occlude both eyes', 'Dilate the pupil', 'Start at the smallest line'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "The checklist begins with confirming the doctor's order for the VA test before preparing the patient.", 'reasoning_eligible': False},
+                {'stem': 'If a patient normally wears glasses, distance VA should be tested:', 'options': ['With their corrective glasses/contact lenses on', 'Only without any correction', "With someone else's glasses", 'Through a dilated pupil only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Record the patient's functional acuity by testing with their own glasses/contact lenses if worn.", 'reasoning_eligible': True},
+                {'stem': 'By convention, when measuring distance VA you occlude the left eye and test the:', 'options': ['Right eye first', 'Left eye first', 'Both eyes together first', 'Worse eye first'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The right eye is tested first by convention, occluding the left with the appropriate occluder.', 'reasoning_eligible': False},
+                {'stem': "'CF', 'HM', 'PL' and 'NPL' in a VA record refer, in order, to:", 'options': ['Count fingers, hand movements, perception of light, no perception of light', 'Central fixation, high myopia, poor light, near point loss', 'Corneal focus, hyperopia, pinhole, no pinhole', 'Contrast field, halo, photophobia, night'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Below chart letters, vision is graded as CF (count fingers), HM (hand movements), PL (perception of light) and NPL (none).', 'reasoning_eligible': False},
+                {'stem': 'The correct patient must be identified before the test using:', 'options': ['At least 2 identifiers (name plus ID number/DOB/address)', 'The chair they sat in', 'Only their appearance', 'The order they arrived'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Two identifiers matched to the record prevent testing (and documenting on) the wrong patient.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "A patient cannot read any of the 6/60 line. What is the "
-                            "next step?",
-                    "options": [
-                        "Move to 6/120; if still unable, test CF, then HM, PL, NPL",
-                        "Record the vision as 6/6",
-                        "Stop the test and reschedule",
-                        "Switch straight to the near chart",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If 6/60 cannot be read, try 6/120, then step down "
-                                   "the low-vision scale: Count Fingers → Hand Movement "
-                                   "→ Perception of Light → No Perception of Light.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Put the low-vision steps in the correct order (most to "
-                            "least vision) after 6/120 cannot be read.",
-                    "options": [
-                        "Count Fingers → Hand Movement → Perception of Light → No "
-                        "Perception of Light",
-                        "No Perception of Light → Perception of Light → Hand Movement "
-                        "→ Count Fingers",
-                        "Hand Movement → Count Fingers → No Perception of Light → "
-                        "Perception of Light",
-                        "Perception of Light → Count Fingers → Hand Movement → No "
-                        "Perception of Light",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The descending order is CF → HM → PL → NPL, from "
-                                   "most to least remaining vision.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A cataract patient's VA does not improve with the pinhole. "
-                            "Why?",
-                    "options": [
-                        "The reduced vision is from media opacity (cloudy lens), not "
-                        "refractive error",
-                        "The pinhole was the wrong size",
-                        "The patient simply needs stronger glasses",
-                        "Cataracts always improve with a pinhole",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A cataract is a media opacity — the pinhole cannot "
-                                   "overcome it, so vision does not improve.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient's VA has dropped from 6/12 to 6/120 since the "
-                            "last visit. What should you do?",
-                    "options": [
-                        "Highlight the significant drop to the doctor",
-                        "Record it and book a routine review in a year",
-                        "Repeat only if the patient complains",
-                        "Ignore it — VA always fluctuates",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A large drop in VA between visits is significant "
-                                   "and should be highlighted to the doctor.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the pinhole test useful when VA is reduced?",
-                    "options": [
-                        "It screens whether the cause is refractive or not",
-                        "It gives the exact spectacle prescription",
-                        "It measures the eye pressure",
-                        "It replaces a full eye examination",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole quickly screens whether reduced vision "
-                                   "is from refractive error (improves) or another "
-                                   "cause (no improvement). It is not a prescription.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient reads down to 6/9 but no further. How is this "
-                            "recorded?",
-                    "options": ["As 6/9 (the smallest line read)",
-                                "As 6/6",
-                                "As 6/60",
-                                "As CF"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "VA is recorded as the smallest line the patient can "
-                                   "read — here 6/9.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which sequence correctly orders these from BEST to WORST "
-                            "vision?",
-                    "options": [
-                        "6/6 → 6/12 → 6/60 → Count Fingers",
-                        "Count Fingers → 6/60 → 6/12 → 6/6",
-                        "6/60 → 6/6 → 6/12 → Count Fingers",
-                        "6/12 → 6/6 → Count Fingers → 6/60",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "From best to worst: 6/6 (normal) → 6/12 → 6/60 → "
-                                   "Count Fingers.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A myope forgot their glasses and reads 6/36, improving to "
-                            "6/9 with the pinhole. What does this indicate?",
-                    "options": [
-                        "Uncorrected refractive error — glasses are likely to help",
-                        "A cataract",
-                        "Optic nerve disease",
-                        "A retinal detachment",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Marked improvement with the pinhole indicates "
-                                   "uncorrected refractive error; the patient's own "
-                                   "glasses should restore the vision.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should the room and chart lighting be standardised for "
-                            "a VA test?",
-                    "options": [
-                        "Poor or uneven lighting can falsely change the recorded "
-                        "acuity",
-                        "Lighting has no effect on VA",
-                        "Bright light always improves VA",
-                        "It only matters for colour vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Inconsistent lighting can make the recorded VA "
-                                   "unreliable, so chart illumination is standardised.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL correct statements about the Snellen fraction "
-                            "6/18.",
-                    "options": [
-                        "The 6 is the testing distance in metres",
-                        "It represents reduced vision (worse than 6/6)",
-                        "A normal eye reads this line at 18 metres",
-                        "It means the patient read 18 letters",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "In 6/18, 6 m is the testing distance, a normal eye "
-                                   "reads that line at 18 m, and it is worse than 6/6. "
-                                   "The numbers are not a letter count.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient cannot read any of the 6/60 line. What is the next step?', 'options': ['Move to 6/120; if still unable, test CF, then HM, PL, NPL', 'Record the vision as 6/6', 'Stop the test and reschedule', 'Switch straight to the near chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'If 6/60 cannot be read, try 6/120, then step down the low-vision scale: Count Fingers → Hand Movement → Perception of Light → No Perception of Light.', 'reasoning_eligible': True},
+                {'stem': 'Put the low-vision steps in the correct order (most to least vision) after 6/120 cannot be read.', 'options': ['Count Fingers → Hand Movement → Perception of Light → No Perception of Light', 'No Perception of Light → Perception of Light → Hand Movement → Count Fingers', 'Hand Movement → Count Fingers → No Perception of Light → Perception of Light', 'Perception of Light → Count Fingers → Hand Movement → No Perception of Light'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The descending order is CF → HM → PL → NPL, from most to least remaining vision.', 'reasoning_eligible': False},
+                {'stem': "A cataract patient's VA does not improve with the pinhole. Why?", 'options': ['The reduced vision is from media opacity (cloudy lens), not refractive error', 'The pinhole was the wrong size', 'The patient simply needs stronger glasses', 'Cataracts always improve with a pinhole'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A cataract is a media opacity — the pinhole cannot overcome it, so vision does not improve.', 'reasoning_eligible': True},
+                {'stem': "A patient's VA has dropped from 6/12 to 6/120 since the last visit. What should you do?", 'options': ['Highlight the significant drop to the doctor', 'Record it and book a routine review in a year', 'Repeat only if the patient complains', 'Ignore it — VA always fluctuates'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A large drop in VA between visits is significant and should be highlighted to the doctor.', 'reasoning_eligible': True},
+                {'stem': 'Why is the pinhole test useful when VA is reduced?', 'options': ['It screens whether the cause is refractive or not', 'It gives the exact spectacle prescription', 'It measures the eye pressure', 'It replaces a full eye examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole quickly screens whether reduced vision is from refractive error (improves) or another cause (no improvement). It is not a prescription.', 'reasoning_eligible': False},
+                {'stem': 'A patient reads down to 6/9 but no further. How is this recorded?', 'options': ['As 6/9 (the smallest line read)', 'As 6/6', 'As 6/60', 'As CF'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'VA is recorded as the smallest line the patient can read — here 6/9.', 'reasoning_eligible': False},
+                {'stem': 'Which sequence correctly orders these from BEST to WORST vision?', 'options': ['6/6 → 6/12 → 6/60 → Count Fingers', 'Count Fingers → 6/60 → 6/12 → 6/6', '6/60 → 6/6 → 6/12 → Count Fingers', '6/12 → 6/6 → Count Fingers → 6/60'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'From best to worst: 6/6 (normal) → 6/12 → 6/60 → Count Fingers.', 'reasoning_eligible': False},
+                {'stem': 'A myope forgot their glasses and reads 6/36, improving to 6/9 with the pinhole. What does this indicate?', 'options': ['Uncorrected refractive error — glasses are likely to help', 'A cataract', 'Optic nerve disease', 'A retinal detachment'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Marked improvement with the pinhole indicates uncorrected refractive error; the patient's own glasses should restore the vision.", 'reasoning_eligible': True},
+                {'stem': 'Why should the room and chart lighting be standardised for a VA test?', 'options': ['Poor or uneven lighting can falsely change the recorded acuity', 'Lighting has no effect on VA', 'Bright light always improves VA', 'It only matters for colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inconsistent lighting can make the recorded VA unreliable, so chart illumination is standardised.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL correct statements about the Snellen fraction 6/18.', 'options': ['The 6 is the testing distance in metres', 'It represents reduced vision (worse than 6/6)', 'A normal eye reads this line at 18 metres', 'It means the patient read 18 letters'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'In 6/18, 6 m is the testing distance, a normal eye reads that line at 18 m, and it is worse than 6/6. The numbers are not a letter count.', 'reasoning_eligible': False},
+                {'stem': 'A patient has an infected (red, discharging) eye. Which occluder should you use?', 'options': ['The occluder marked with an orange sticker (for infected cases)', 'The general shared occluder', 'No occluder at all', "The patient's own tissue"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'SNEC uses a dedicated orange-sticker occluder for infected eyes to prevent cross-infection of other patients.', 'reasoning_eligible': True},
+                {'stem': 'Between patients (and before starting), the occluder should be:', 'options': ['Wiped with an alcohol wipe', 'Rinsed in tap water only', 'Left as is', 'Wiped with a dry cloth once a week'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Disinfecting the occluder with alcohol between uses is a key infection-control step, especially with red-eye patients.', 'reasoning_eligible': True},
+                {'stem': 'On the LogMAR line-by-line test, the patient must read how many letters correctly before moving to the next line?', 'options': ['All 5 letters on the current line', 'Just 1 letter', 'Any 2 letters', '3 of 5 letters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The patient reads all 5 letters of a line correctly before progressing to the next smaller line.', 'reasoning_eligible': False},
+                {'stem': 'A patient reads the whole 6/19 line but only 2 of 5 letters on the next line. How is this best recorded?', 'options': ['The last fully-read line (6/19), noting the extra letters read on the next line', 'As 6/6 because they tried', 'As NPL', 'As count fingers'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Record the smallest line read in full (with LogMAR value); partial letters on the next line may be annotated (e.g. 6/19 +2).', 'reasoning_eligible': True},
+                {'stem': "Why does SNEC record VA in BOTH Snellen and LogMAR (e.g. '6/19 (0.5)')?", 'options': ['Snellen is familiar while LogMAR allows precise, statistically-valid tracking of change', 'It is just tradition with no benefit', 'LogMAR is only for children', 'Snellen is more accurate for research'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Dual recording keeps the familiar Snellen fraction while LogMAR's equal steps allow accurate monitoring and averaging.", 'reasoning_eligible': True},
+                {'stem': "The LogMAR M&S Smart system is 'calibrated according to room length'. Why does this matter?", 'options': ['The letter sizes must match the testing distance to give a correct acuity', 'It changes the colours shown', 'It sets the room temperature', 'It has no effect on the reading'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Acuity depends on the angle subtended, so the display must be calibrated to the actual test distance to read correctly.', 'reasoning_eligible': True},
+                {'stem': 'A patient becomes confused and starts guessing letters loudly. The best practice is to:', 'options': ['Encourage them to read only what they can clearly see, without guessing whole lines', 'Accept every guess as correct', 'End the test and record NPL', 'Move them closer until they pass'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable acuity needs genuine reading, not guessing; gently coach the patient to report only letters they can actually see.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient reads 6/36, improving only to 6/24 with the "
-                            "pinhole, and has a dense cataract. How do you interpret "
-                            "this?",
-                    "options": [
-                        "Mainly a non-refractive (media) cause, perhaps with a small "
-                        "refractive component",
-                        "Purely refractive error",
-                        "Normal vision",
-                        "A failed test that must be repeated",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Only slight pinhole improvement with a dense "
-                                   "cataract suggests the reduced vision is mainly from "
-                                   "media opacity, with maybe a small refractive part.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does the pinhole sharpen vision in uncorrected "
-                            "refractive error?",
-                    "options": [
-                        "It blocks blurred peripheral rays so only central, focused "
-                        "rays reach the retina",
-                        "It magnifies the chart letters",
-                        "It increases the light entering the eye",
-                        "It corrects the retina directly",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole admits only central light rays, "
-                                   "removing the blur from out-of-focus peripheral "
-                                   "rays — this sharpens the retinal image in "
-                                   "refractive error.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Two patients both read 6/60. One improves to 6/9 with the "
-                            "pinhole; the other shows no change. What does this tell "
-                            "you?",
-                    "options": [
-                        "The first likely has a refractive cause; the second likely "
-                        "has a media/retinal/nerve cause",
-                        "Both have the same cause",
-                        "Both need urgent surgery",
-                        "Neither result is meaningful",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pinhole improvement points to refractive error; no "
-                                   "improvement points to a non-refractive cause "
-                                   "(media opacity, retina or optic nerve).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient cannot see the chart at all. How do you test and "
-                            "record their vision correctly?",
-                    "options": [
-                        "Test Count Fingers, then Hand Movement, then Perception of "
-                        "Light, and record the best level achieved",
-                        "Record NPL immediately without further testing",
-                        "Record 6/60 as a default",
-                        "Skip the eye and test the other one only",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Step through CF → HM → PL → NPL and record the best "
-                                   "level the patient can manage — don't jump straight "
-                                   "to NPL.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why must a significant unexplained VA drop be flagged even "
-                            "if the pinhole improves it somewhat?",
-                    "options": [
-                        "Partial improvement doesn't exclude serious disease behind a "
-                        "new refractive change",
-                        "Any pinhole improvement always means it is harmless",
-                        "VA drops never need flagging",
-                        "Only total loss of vision matters",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A new, large VA drop can still hide serious disease "
-                                   "even if a pinhole helps a little, so it is flagged "
-                                   "for the doctor rather than assumed to be glasses.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL situations where you would apply the pinhole.",
-                    "options": [
-                        "VA of 6/12",
-                        "VA of 6/60",
-                        "VA of Count Fingers due to suspected refractive error",
-                        "VA of 6/6",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Apply the pinhole when VA is reduced (6/12 or "
-                                   "worse), including very low vision if a refractive "
-                                   "cause is suspected. A normal 6/6 needs no pinhole.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient's VA is 6/6 in each eye separately but they "
-                            "complain of poor vision. What is a sensible next "
-                            "consideration?",
-                    "options": [
-                        "Check near vision and ask about symptoms not captured by "
-                        "distance VA",
-                        "Record the complaint as invalid",
-                        "Repeat distance VA ten times",
-                        "Tell them their eyes are perfect and discharge",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Normal distance VA doesn't capture everything — "
-                                   "near vision, field, or intermittent symptoms may "
-                                   "explain the complaint and deserve attention.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the pinhole NOT a substitute for a formal "
-                            "refraction?",
-                    "options": [
-                        "It only screens for a refractive cause; it does not give the "
-                        "actual prescription",
-                        "It gives a more accurate prescription than refraction",
-                        "It measures eye pressure instead",
-                        "It is only for children",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole only indicates whether a refractive "
-                                   "cause is present; the exact lens powers still need "
-                                   "a formal refraction.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which statement about recording VA is correct?",
-                    "options": [
-                        "Record the smallest line read, the eye, and whether "
-                        "correction/pinhole was used",
-                        "Record only the largest line the patient can see",
-                        "Record vision for both eyes together only",
-                        "Recording the eye tested is unnecessary",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Good documentation notes the smallest line read, "
-                                   "which eye, and whether glasses or a pinhole were "
-                                   "used — so results are comparable over time.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A diabetic reads 6/9 today but read 6/6 three months ago, "
-                            "with no pinhole improvement. Why does this combination "
-                            "concern you?",
-                    "options": [
-                        "A drop that the pinhole can't fix may reflect retinal change "
-                        "(e.g. macular oedema) — flag it",
-                        "It is a normal day-to-day variation, ignore it",
-                        "It means the patient needs new glasses only",
-                        "Diabetics never have VA changes",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A new VA drop not corrected by the pinhole in a "
-                                   "diabetic raises concern for retinal involvement "
-                                   "(e.g. macular oedema) and should be flagged.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A patient reads 6/36, improving only to 6/24 with the pinhole, and has a dense cataract. How do you interpret this?', 'options': ['Mainly a non-refractive (media) cause, perhaps with a small refractive component', 'Purely refractive error', 'Normal vision', 'A failed test that must be repeated'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only slight pinhole improvement with a dense cataract suggests the reduced vision is mainly from media opacity, with maybe a small refractive part.', 'reasoning_eligible': True},
+                {'stem': 'Why does the pinhole sharpen vision in uncorrected refractive error?', 'options': ['It blocks blurred peripheral rays so only central, focused rays reach the retina', 'It magnifies the chart letters', 'It increases the light entering the eye', 'It corrects the retina directly'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole admits only central light rays, removing the blur from out-of-focus peripheral rays — this sharpens the retinal image in refractive error.', 'reasoning_eligible': True},
+                {'stem': 'Two patients both read 6/60. One improves to 6/9 with the pinhole; the other shows no change. What does this tell you?', 'options': ['The first likely has a refractive cause; the second likely has a media/retinal/nerve cause', 'Both have the same cause', 'Both need urgent surgery', 'Neither result is meaningful'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pinhole improvement points to refractive error; no improvement points to a non-refractive cause (media opacity, retina or optic nerve).', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot see the chart at all. How do you test and record their vision correctly?', 'options': ['Test Count Fingers, then Hand Movement, then Perception of Light, and record the best level achieved', 'Record NPL immediately without further testing', 'Record 6/60 as a default', 'Skip the eye and test the other one only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Step through CF → HM → PL → NPL and record the best level the patient can manage — don't jump straight to NPL.", 'reasoning_eligible': True},
+                {'stem': 'Why must a significant unexplained VA drop be flagged even if the pinhole improves it somewhat?', 'options': ["Partial improvement doesn't exclude serious disease behind a new refractive change", 'Any pinhole improvement always means it is harmless', 'VA drops never need flagging', 'Only total loss of vision matters'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A new, large VA drop can still hide serious disease even if a pinhole helps a little, so it is flagged for the doctor rather than assumed to be glasses.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL situations where you would apply the pinhole.', 'options': ['VA of 6/12', 'VA of 6/60', 'VA of Count Fingers due to suspected refractive error', 'VA of 6/6'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Apply the pinhole when VA is reduced (6/12 or worse), including very low vision if a refractive cause is suspected. A normal 6/6 needs no pinhole.', 'reasoning_eligible': False},
+                {'stem': "A patient's VA is 6/6 in each eye separately but they complain of poor vision. What is a sensible next consideration?", 'options': ['Check near vision and ask about symptoms not captured by distance VA', 'Record the complaint as invalid', 'Repeat distance VA ten times', 'Tell them their eyes are perfect and discharge'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Normal distance VA doesn't capture everything — near vision, field, or intermittent symptoms may explain the complaint and deserve attention.", 'reasoning_eligible': True},
+                {'stem': 'Why is the pinhole NOT a substitute for a formal refraction?', 'options': ['It only screens for a refractive cause; it does not give the actual prescription', 'It gives a more accurate prescription than refraction', 'It measures eye pressure instead', 'It is only for children'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole only indicates whether a refractive cause is present; the exact lens powers still need a formal refraction.', 'reasoning_eligible': False},
+                {'stem': 'Which statement about recording VA is correct?', 'options': ['Record the smallest line read, the eye, and whether correction/pinhole was used', 'Record only the largest line the patient can see', 'Record vision for both eyes together only', 'Recording the eye tested is unnecessary'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good documentation notes the smallest line read, which eye, and whether glasses or a pinhole were used — so results are comparable over time.', 'reasoning_eligible': False},
+                {'stem': 'A diabetic reads 6/9 today but read 6/6 three months ago, with no pinhole improvement. Why does this combination concern you?', 'options': ["A drop that the pinhole can't fix may reflect retinal change (e.g. macular oedema) — flag it", 'It is a normal day-to-day variation, ignore it', 'It means the patient needs new glasses only', 'Diabetics never have VA changes'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A new VA drop not corrected by the pinhole in a diabetic raises concern for retinal involvement (e.g. macular oedema) and should be flagged.', 'reasoning_eligible': True},
+                {'stem': 'Each full line on a LogMAR chart changes the score by 0.1 LogMAR. A patient improves from 0.6 to 0.3 LogMAR. How many lines did they gain?', 'options': ['3 lines', '1 line', '6 lines', 'No change'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': '0.6 - 0.3 = 0.3 LogMAR; at 0.1 per line that is a 3-line improvement, a clinically meaningful change.', 'reasoning_eligible': True},
+                {'stem': 'You are testing an infected eye with the orange-sticker occluder. After finishing, the next essential step before the next patient is to:', 'options': ['Disinfect the equipment/occluder and perform hand hygiene', 'Reuse it immediately without cleaning', 'Store it with the clean occluders', 'Wipe it only if it looks dirty'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'After an infected case, disinfect the occluder/equipment and clean your hands to prevent transmission to the next patient.', 'reasoning_eligible': True},
+                {'stem': 'A patient cannot read even the largest LogMAR line at 6m. What is the correct progression to grade vision?', 'options': ['Move to count fingers, then hand movements, then perception of light, then NPL', 'Immediately record NPL', 'Record 6/60 anyway', 'Skip straight to perception of light'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Below chart letters, step down through CF -> HM -> PL -> NPL, recording the best level the patient can achieve.', 'reasoning_eligible': True},
+                {'stem': "A patient's right-eye VA is 6/9 with glasses but they insist their vision is 'terrible'. A sensible next step, given normal acuity, is to:", 'options': ['Consider factors acuity misses (fields, contrast, glare, near vision) and flag for the clinician', 'Tell them their vision is perfect and dismiss the concern', 'Repeat the same line ten times', 'Record NPL'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good letter acuity does not exclude field loss, poor contrast or glare; document the discrepancy and let the clinician investigate.', 'reasoning_eligible': True},
+                {'stem': 'Why must you check the patient is reading with the SAME correction and distance at each visit when trending VA?', 'options': ['Otherwise a change in glasses/distance, not the disease, could explain any difference', 'It does not matter how VA is measured', 'Only the room temperature matters', 'VA never changes between visits'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistent conditions (same correction, distance, chart) are essential so that a true VA change reflects the eye, not the method.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about LogMAR versus Snellen scoring is CORRECT?', 'options': ['On LogMAR a LOWER number is better vision, and its equal steps allow letter-by-letter scoring', 'On LogMAR a higher number is better vision', 'Snellen allows more precise averaging than LogMAR', 'LogMAR cannot be converted to Snellen'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'LogMAR decreases as vision improves (0.0 = 6/6) and its uniform 0.1 steps allow precise, per-letter scoring unlike Snellen.', 'reasoning_eligible': True},
             ],
         },
         "near_vision": {

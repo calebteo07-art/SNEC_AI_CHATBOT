@@ -769,7 +769,7 @@ git push origin main
 - [x] systemic_disease — Diabetes, Hypertension, Asthma, systemic disorders, IOP/BMI research
 
 **CLINICAL (14)** — top up existing to 50:
-- [x] red_eye · [x] triage · [x] ocular_emergencies · [x] history_taking · [ ] distance_va · [ ] near_vision · [ ] pinhole · [ ] iop_nct · [ ] eye_drops · [ ] pupil_dilation · [ ] colour_vision · [ ] amsler_macula · [ ] fall_risk · [ ] perioperative · [ ] abbreviations
+- [x] red_eye · [x] triage · [x] ocular_emergencies · [x] history_taking · [x] distance_va · [ ] near_vision · [ ] pinhole · [ ] iop_nct · [ ] eye_drops · [ ] pupil_dilation · [ ] colour_vision · [ ] amsler_macula · [ ] fall_risk · [ ] perioperative · [ ] abbreviations
 
 **OT (19)** — new gap topics to 50 + top up existing to 50:
 - [ ] aberrometry · [ ] lens_meter · [ ] retinal_imaging · [ ] dr_grading (new)
