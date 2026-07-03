@@ -1193,339 +1193,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "eye_drops": {
             "easy": [
-                {
-                    "stem": "Before instilling an eye drop, what must you confirm about "
-                            "the eye?",
-                    "options": ["The correct eye (right, left, or both)",
-                                "The colour of the iris",
-                                "The patient's distance vision",
-                                "Whether the patient wears glasses"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Always confirm the correct eye (right, left or "
-                                   "both) before instilling a drop.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What must you check about the patient before instilling a "
-                            "drop?",
-                    "options": ["That they are not allergic to it",
-                                "Their favourite colour",
-                                "Their height",
-                                "Whether they had breakfast"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Check the patient is not allergic to the drug "
-                                   "before instilling it.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Where is an eye drop instilled?",
-                    "options": ["Into the lower fornix (pull the lower lid down)",
-                                "Directly onto the cornea (the clear centre)",
-                                "Onto the upper lid",
-                                "Into the corner near the nose only"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Gently pull the lower lid down and instil the drop "
-                                   "into the lower fornix.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "After instilling a drop, what should the patient do?",
-                    "options": [
-                        "Close the eye gently and apply light pressure over the "
-                        "nasolacrimal area",
-                        "Blink rapidly for a minute",
-                        "Rub the eye firmly",
-                        "Tilt the head forward and open the eye wide",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Ask the patient to close the eye gently and press "
-                                   "lightly over the nasolacrimal area (inner corner).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL details you should document for eye drop "
-                            "instillation.",
-                    "options": ["The diagnosis or purpose",
-                                "The drop name and strength",
-                                "The eye(s) treated",
-                                "The patient's shoe size"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Document the purpose, the drug name and strength, "
-                                   "and the eye(s) treated. Shoe size is irrelevant.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why pull the lower lid down and tilt the head back when "
-                            "instilling a drop?",
-                    "options": ["To expose the lower fornix so the drop lands correctly",
-                                "To dilate the pupil",
-                                "To reduce the eye pressure",
-                                "To test the visual field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Tilting back and pulling the lower lid down exposes "
-                                   "the lower fornix so the drop lands where it should.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient says a previous drop made the eye itchy and "
-                            "swollen. What should you do?",
-                    "options": [
-                        "Treat it as a drug allergy — do not use that drop and flag it "
-                        "clearly",
-                        "Use it anyway in a smaller dose",
-                        "Use it in the other eye instead",
-                        "Ignore it as a coincidence",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Itching and swelling after a drop suggests an "
-                                   "allergy — avoid that drop and flag it clearly in "
-                                   "the record.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Before instilling an eye drop, what must you confirm about the eye?', 'options': ['The correct eye (right, left, or both)', 'The colour of the iris', "The patient's distance vision", 'Whether the patient wears glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Always confirm the correct eye (right, left or both) before instilling a drop.', 'reasoning_eligible': False},
+                {'stem': 'What must you check about the patient before instilling a drop?', 'options': ['That they are not allergic to it', 'Their favourite colour', 'Their height', 'Whether they had breakfast'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Check the patient is not allergic to the drug before instilling it.', 'reasoning_eligible': False},
+                {'stem': 'Where is an eye drop instilled?', 'options': ['Into the lower fornix (pull the lower lid down)', 'Directly onto the cornea (the clear centre)', 'Onto the upper lid', 'Into the corner near the nose only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Gently pull the lower lid down and instil the drop into the lower fornix.', 'reasoning_eligible': False},
+                {'stem': 'After instilling a drop, what should the patient do?', 'options': ['Close the eye gently and apply light pressure over the nasolacrimal area', 'Blink rapidly for a minute', 'Rub the eye firmly', 'Tilt the head forward and open the eye wide'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Ask the patient to close the eye gently and press lightly over the nasolacrimal area (inner corner).', 'reasoning_eligible': False},
+                {'stem': 'Select ALL details you should document for eye drop instillation.', 'options': ['The diagnosis or purpose', 'The drop name and strength', 'The eye(s) treated', "The patient's shoe size"], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Document the purpose, the drug name and strength, and the eye(s) treated. Shoe size is irrelevant.', 'reasoning_eligible': False},
+                {'stem': 'Why pull the lower lid down and tilt the head back when instilling a drop?', 'options': ['To expose the lower fornix so the drop lands correctly', 'To dilate the pupil', 'To reduce the eye pressure', 'To test the visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Tilting back and pulling the lower lid down exposes the lower fornix so the drop lands where it should.', 'reasoning_eligible': False},
+                {'stem': 'A patient says a previous drop made the eye itchy and swollen. What should you do?', 'options': ['Treat it as a drug allergy — do not use that drop and flag it clearly', 'Use it anyway in a smaller dose', 'Use it in the other eye instead', 'Ignore it as a coincidence'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Itching and swelling after a drop suggests an allergy — avoid that drop and flag it clearly in the record.', 'reasoning_eligible': True},
+                {'stem': 'Before instilling any eye drop you must confirm the patient is:', 'options': ['NOT allergic to the drug (check record and ask the patient)', 'Wearing their glasses', 'Fasting', 'Standing up'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Allergy is checked against the record and by asking the patient before any drop is given.', 'reasoning_eligible': False},
+                {'stem': 'The eye drop should be instilled into the:', 'options': ['Centre of the lower fornix (pocket made by pulling the lower lid down)', 'Directly onto the black of the cornea', 'Corner of the eye by the nose only', 'Onto the closed eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pulling the lower lid down exposes the lower fornix, a comfortable pocket that holds the drop.', 'reasoning_eligible': False},
+                {'stem': 'Roughly how far from the eye should the bottle tip be held during instillation?', 'options': ['About 2.5 cm', 'Touching the eyeball', 'About 30 cm', 'Pressed onto the lashes'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Holding the bottle about 2.5 cm away lets the drop fall accurately without contaminating the tip.', 'reasoning_eligible': False},
+                {'stem': 'The tip of the eye-drop bottle should:', 'options': ['Never touch the eyelashes, lid or eye', 'Rest gently on the cornea', 'Be wiped on the lashes first', 'Touch the lower lid for aim'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Touching the eye/lashes contaminates the bottle and can injure the eye; keep the tip clear.', 'reasoning_eligible': False},
+                {'stem': 'How many drops are usually instilled into the eye at one time?', 'options': ['1 to 2 drops', '5 to 6 drops', '10 drops', 'As many as fit'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The fornix holds only about one drop; 1-2 is sufficient and extra simply overflows and is wasted.', 'reasoning_eligible': False},
+                {'stem': "Before checking the drug, you should verify the eye-drop bottle's:", 'options': ["Manufacturer's expiry date", 'Barcode colour', 'Weight', 'Country of origin'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Always check the expiry date (and that the drug/strength is correct) before instillation.', 'reasoning_eligible': False},
+                {'stem': 'Immediately before instilling a drop you should perform:', 'options': ['Hand hygiene', 'A visual field test', 'An air-puff reading', 'A refraction'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Hand hygiene before instillation minimises the risk of cross-infection.', 'reasoning_eligible': False},
+                {'stem': 'During instillation the patient is asked to:', 'options': ['Tilt the head back, look up and not blink', 'Look down and blink rapidly', 'Close both eyes tightly', 'Turn away from you'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Head back, looking up with the lower lid pulled down exposes the fornix and steadies the eye for the drop.', 'reasoning_eligible': False},
+                {'stem': 'After the drop is in, the patient should gently close the eye for about:', 'options': ['30 seconds (or until comfortable)', '5 milliseconds', '10 minutes with the eye open', 'No time at all'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Closing the eye for around 30 seconds helps the drop spread and be absorbed.', 'reasoning_eligible': False},
+                {'stem': 'The date, time, drug and which eye the drop was given must be:', 'options': ["Recorded in the patient's medical record/EMR", 'Kept in memory only', 'Told to the next patient', 'Written on the bottle'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Documentation of the drug, eye, time and date ensures safe, traceable care.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Why apply light pressure over the nasolacrimal area after "
-                            "instillation?",
-                    "options": [
-                        "To reduce systemic absorption and keep the drop in the eye",
-                        "To raise the eye pressure",
-                        "To speed up tear production",
-                        "To dilate the pupil",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Pressing over the inner corner (punctal occlusion) "
-                                   "slows drainage into the nose, reducing systemic "
-                                   "absorption and keeping the drug on the eye.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why confirm the correct eye AND the correct drug before "
-                            "instilling?",
-                    "options": [
-                        "To avoid wrong-eye or wrong-drug errors — a patient-safety "
-                        "step",
-                        "Because it speeds up the clinic",
-                        "It is only needed for new patients",
-                        "To decide the triage category",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Confirming the right eye and right drug prevents "
-                                   "wrong-eye/wrong-drug errors — a core patient-safety "
-                                   "check.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Two different drops are ordered for the same eye. What is "
-                            "good practice?",
-                    "options": [
-                        "Wait a short interval between them so the first is not washed "
-                        "out",
-                        "Instil both at exactly the same moment",
-                        "Mix them together first",
-                        "Give only one and skip the other",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Leave a short gap between drops so the second does "
-                                   "not wash out the first before it is absorbed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should the dropper tip not touch the eye or lashes?",
-                    "options": [
-                        "To keep the bottle sterile and avoid contaminating it",
-                        "To make the drop bigger",
-                        "To avoid magnifying the drug",
-                        "It does not matter if it touches",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Touching the eye or lashes can contaminate the "
-                                   "bottle, so the tip is kept clear of them.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient on multiple eye drops asks why the order and "
-                            "timing matter. What is the best explanation?",
-                    "options": [
-                        "Spacing prevents one drop washing out another, so each works "
-                        "properly",
-                        "The order changes the colour of the drops",
-                        "Timing only matters for tablets",
-                        "It makes no real difference",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Spacing drops a few minutes apart stops the second "
-                                   "from flushing out the first, so each is properly "
-                                   "absorbed.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A frail patient cannot instil their own drops at home. "
-                            "What is a helpful action?",
-                    "options": [
-                        "Teach a caregiver the technique and document the plan",
-                        "Tell them to manage somehow",
-                        "Double the dose to compensate",
-                        "Stop the drops to avoid the problem",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Teaching a caregiver the correct technique (and "
-                                   "documenting it) helps ensure the drops are actually "
-                                   "given safely.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL correct steps in safe eye-drop instillation.",
-                    "options": [
-                        "Confirm the correct eye and drug",
-                        "Check for allergy to the drug",
-                        "Instil into the lower fornix without touching the eye",
-                        "Have the patient rub the eye hard afterwards",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Confirm eye/drug, check allergy, and instil into "
-                                   "the lower fornix without touching the eye. Rubbing "
-                                   "hard afterwards is wrong — close gently instead.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why apply light pressure over the nasolacrimal area after instillation?', 'options': ['To reduce systemic absorption and keep the drop in the eye', 'To raise the eye pressure', 'To speed up tear production', 'To dilate the pupil'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Pressing over the inner corner (punctal occlusion) slows drainage into the nose, reducing systemic absorption and keeping the drug on the eye.', 'reasoning_eligible': True},
+                {'stem': 'Why confirm the correct eye AND the correct drug before instilling?', 'options': ['To avoid wrong-eye or wrong-drug errors — a patient-safety step', 'Because it speeds up the clinic', 'It is only needed for new patients', 'To decide the triage category'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Confirming the right eye and right drug prevents wrong-eye/wrong-drug errors — a core patient-safety check.', 'reasoning_eligible': True},
+                {'stem': 'Two different drops are ordered for the same eye. What is good practice?', 'options': ['Wait a short interval between them so the first is not washed out', 'Instil both at exactly the same moment', 'Mix them together first', 'Give only one and skip the other'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Leave a short gap between drops so the second does not wash out the first before it is absorbed.', 'reasoning_eligible': True},
+                {'stem': 'Why should the dropper tip not touch the eye or lashes?', 'options': ['To keep the bottle sterile and avoid contaminating it', 'To make the drop bigger', 'To avoid magnifying the drug', 'It does not matter if it touches'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Touching the eye or lashes can contaminate the bottle, so the tip is kept clear of them.', 'reasoning_eligible': False},
+                {'stem': 'A patient on multiple eye drops asks why the order and timing matter. What is the best explanation?', 'options': ['Spacing prevents one drop washing out another, so each works properly', 'The order changes the colour of the drops', 'Timing only matters for tablets', 'It makes no real difference'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Spacing drops a few minutes apart stops the second from flushing out the first, so each is properly absorbed.', 'reasoning_eligible': False},
+                {'stem': 'A frail patient cannot instil their own drops at home. What is a helpful action?', 'options': ['Teach a caregiver the technique and document the plan', 'Tell them to manage somehow', 'Double the dose to compensate', 'Stop the drops to avoid the problem'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Teaching a caregiver the correct technique (and documenting it) helps ensure the drops are actually given safely.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL correct steps in safe eye-drop instillation.', 'options': ['Confirm the correct eye and drug', 'Check for allergy to the drug', 'Instil into the lower fornix without touching the eye', 'Have the patient rub the eye hard afterwards'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Confirm eye/drug, check allergy, and instil into the lower fornix without touching the eye. Rubbing hard afterwards is wrong — close gently instead.', 'reasoning_eligible': False},
+                {'stem': 'Applying gentle pressure over the inner corner (punctal/nasolacrimal occlusion) after a drop:', 'options': ['Reduces drainage into the nose, cutting systemic absorption and keeping more drug on the eye', 'Raises the eye pressure', 'Cleans the cornea', 'Has no purpose'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Punctal occlusion slows tear drainage, increasing ocular contact time and reducing systemic side effects.', 'reasoning_eligible': True},
+                {'stem': 'Two DIFFERENT drops are ordered for the same eye. Good practice is to:', 'options': ['Leave about 5 minutes between them so the first is not washed out', 'Give them at the same instant', 'Mix them in one bottle', 'Give one and skip the other'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A gap (about 5 minutes) prevents the second drop washing the first out before it is absorbed.', 'reasoning_eligible': True},
+                {'stem': 'When a patient needs both a drop and an ointment in the same eye, you should give:', 'options': ['The drop first, then the ointment', 'The ointment first, then the drop', 'Both mixed together', 'Only the ointment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Ointment forms a barrier, so drops go first; the greasy ointment last avoids blocking absorption of the drop.', 'reasoning_eligible': True},
+                {'stem': 'Why should the eye-drop bottle cap be held (not laid tip-down on the table) during instillation?', 'options': ['To minimise contamination of the cap and bottle', 'To keep the drop cold', 'To speed up the drop', 'It makes no difference'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Keeping the cap clean (held, or placed facing up) prevents contamination of the bottle and cross-infection.', 'reasoning_eligible': True},
+                {'stem': 'A patient wearing soft contact lenses is prescribed a preserved eye drop. The safest advice is to:', 'options': ['Remove the lenses before instillation (preservatives can bind to lenses)', 'Leave lenses in for accuracy', 'Instil the drop onto the lens', 'Double the dose'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Preservatives (e.g. benzalkonium) accumulate in soft lenses and can harm the cornea; remove lenses first.', 'reasoning_eligible': True},
+                {'stem': 'A frail elderly patient cannot instil their own drops at home. A helpful action is to:', 'options': ['Teach a caregiver, suggest aids, and document the difficulty for follow-up', 'Tell them to manage anyway', 'Stop their treatment', 'Give all the drops in clinic only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Involving a caregiver, offering drop-aid devices and flagging the issue supports adherence to essential treatment.', 'reasoning_eligible': True},
+                {'stem': 'Why is confirming the CORRECT EYE (right/left/both) before instilling especially important for dilating or glaucoma drops?', 'options': ['Instilling in the wrong eye can cause unwanted effects and disrupt the planned assessment/treatment', 'The eyes are identical so it never matters', 'It is only for documentation', 'Both eyes always get the same drops'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Wrong-eye instillation (e.g. dilating the wrong eye) can compromise the exam or cause harm; always confirm the ordered eye.', 'reasoning_eligible': True},
+                {'stem': 'A dilating drop such as tropicamide is used to:', 'options': ['Widen the pupil for fundus examination', 'Lower the eye pressure', 'Numb the eye', 'Treat infection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Tropicamide is a mydriatic/cycloplegic that dilates the pupil (and relaxes accommodation) to allow fundus examination.', 'reasoning_eligible': False},
+                {'stem': 'After pupil-dilating drops, a patient should be warned that they may:', 'options': ['Have blurred near vision and glare for a few hours and should not drive until it wears off', 'Go permanently blind', 'Have no effects at all', 'See colours change forever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation causes temporary blur and light sensitivity; advise sunglasses and not driving until vision returns to normal.', 'reasoning_eligible': True},
+                {'stem': 'Why must a fresh, single-patient technique (not sharing a bottle between patients) be used in the clinic?', 'options': ["To prevent transmitting infection from one patient's eye to another", 'To use up stock faster', 'Because bottles expire in an hour', 'It improves the drug potency'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Sharing a bottle risks spreading eye infections; clinics avoid cross-contamination with careful single-patient technique.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient is prescribed a glaucoma drop with known "
-                            "systemic side effects (e.g. a beta-blocker). Why does "
-                            "punctal occlusion especially matter here?",
-                    "options": [
-                        "It reduces drainage into the bloodstream, lowering systemic "
-                        "side effects",
-                        "It makes the drop work only on the lashes",
-                        "It increases the systemic dose deliberately",
-                        "It has no effect on absorption",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pressing the inner corner limits the drug draining "
-                                   "into the nose and bloodstream, reducing systemic "
-                                   "effects of drugs like beta-blocker drops.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient reports their previous clinic gave a drop that "
-                            "caused lip swelling and breathing difficulty. What is the "
-                            "priority before any drop today?",
-                    "options": [
-                        "Verify and clearly flag the allergy; never use that agent and "
-                        "alert the team",
-                        "Give a small test amount of the same drop",
-                        "Use it in the unaffected eye only",
-                        "Proceed — it was probably unrelated",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Lip swelling and breathing difficulty suggest a "
-                                   "serious allergic reaction. Verify, flag prominently, "
-                                   "avoid the agent entirely and alert the team.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL measures that improve how much of an eye drop "
-                            "actually reaches and stays on the eye.",
-                    "options": [
-                        "Instilling into the lower fornix, not onto the cornea",
-                        "Closing the eye gently afterwards",
-                        "Applying light pressure over the inner corner",
-                        "Blinking hard and rubbing the eye",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Using the lower fornix, gentle closure and punctal "
-                                   "occlusion all keep more drug on the eye. Blinking "
-                                   "hard and rubbing wash it away.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is instilling onto the lower fornix preferred over "
-                            "dropping directly onto the cornea?",
-                    "options": [
-                        "It is more comfortable, less likely to make the patient "
-                        "blink the drop out, and reaches the eye well",
-                        "The cornea cannot absorb any drug",
-                        "It magnifies the drug effect",
-                        "It is required only for children",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The cornea is very sensitive; a drop onto the lower "
-                                   "fornix is more comfortable and less likely to be "
-                                   "blinked straight out, while still reaching the eye.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient needs both a drop and an ointment in the same "
-                            "eye. What is the correct order and why?",
-                    "options": [
-                        "Drop first, then ointment — the ointment would otherwise "
-                        "block the drop from being absorbed",
-                        "Ointment first, then drop, to seal it in",
-                        "Either order, it makes no difference",
-                        "Mix them on the lid first",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Give the drop first and the ointment last; "
-                                   "ointment forms a barrier that would stop a "
-                                   "subsequent drop being absorbed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about safe eye-drop practice is correct?",
-                    "options": [
-                        "Confirm eye and drug, check allergies, avoid touching the "
-                        "eye, and document what was given",
-                        "Any drop can go in any eye if the patient agrees",
-                        "Allergy checks are unnecessary for eye drops",
-                        "Documentation is optional for routine drops",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Safe practice means confirming eye and drug, "
-                                   "checking allergies, keeping the tip clean, and "
-                                   "documenting the drug, strength and eye treated.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient is prescribed a glaucoma drop with known systemic side effects (e.g. a beta-blocker). Why does punctal occlusion especially matter here?', 'options': ['It reduces drainage into the bloodstream, lowering systemic side effects', 'It makes the drop work only on the lashes', 'It increases the systemic dose deliberately', 'It has no effect on absorption'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pressing the inner corner limits the drug draining into the nose and bloodstream, reducing systemic effects of drugs like beta-blocker drops.', 'reasoning_eligible': True},
+                {'stem': 'A patient reports their previous clinic gave a drop that caused lip swelling and breathing difficulty. What is the priority before any drop today?', 'options': ['Verify and clearly flag the allergy; never use that agent and alert the team', 'Give a small test amount of the same drop', 'Use it in the unaffected eye only', 'Proceed — it was probably unrelated'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Lip swelling and breathing difficulty suggest a serious allergic reaction. Verify, flag prominently, avoid the agent entirely and alert the team.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL measures that improve how much of an eye drop actually reaches and stays on the eye.', 'options': ['Instilling into the lower fornix, not onto the cornea', 'Closing the eye gently afterwards', 'Applying light pressure over the inner corner', 'Blinking hard and rubbing the eye'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Using the lower fornix, gentle closure and punctal occlusion all keep more drug on the eye. Blinking hard and rubbing wash it away.', 'reasoning_eligible': True},
+                {'stem': 'Why is instilling onto the lower fornix preferred over dropping directly onto the cornea?', 'options': ['It is more comfortable, less likely to make the patient blink the drop out, and reaches the eye well', 'The cornea cannot absorb any drug', 'It magnifies the drug effect', 'It is required only for children'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The cornea is very sensitive; a drop onto the lower fornix is more comfortable and less likely to be blinked straight out, while still reaching the eye.', 'reasoning_eligible': False},
+                {'stem': 'A patient needs both a drop and an ointment in the same eye. What is the correct order and why?', 'options': ['Drop first, then ointment — the ointment would otherwise block the drop from being absorbed', 'Ointment first, then drop, to seal it in', 'Either order, it makes no difference', 'Mix them on the lid first'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Give the drop first and the ointment last; ointment forms a barrier that would stop a subsequent drop being absorbed.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about safe eye-drop practice is correct?', 'options': ['Confirm eye and drug, check allergies, avoid touching the eye, and document what was given', 'Any drop can go in any eye if the patient agrees', 'Allergy checks are unnecessary for eye drops', 'Documentation is optional for routine drops'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe practice means confirming eye and drug, checking allergies, keeping the tip clean, and documenting the drug, strength and eye treated.', 'reasoning_eligible': False},
+                {'stem': 'A patient says a previous clinic drop caused lip swelling and difficulty breathing. Before giving ANY drop today you must:', 'options': ['Stop and clarify/flag the allergy - this describes a possible anaphylactic reaction', 'Give the same drop again to confirm', 'Ignore it as unrelated', 'Give a double dose slowly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Lip swelling and breathing difficulty suggest anaphylaxis; the allergy must be verified and clearly flagged before any drop.', 'reasoning_eligible': True},
+                {'stem': 'A glaucoma patient is on a topical beta-blocker (e.g. timolol). Why does punctal occlusion especially matter for them?', 'options': ['It limits systemic absorption that could cause bradycardia or bronchospasm (dangerous in asthma/heart disease)', 'It changes the eye colour', 'It has no systemic relevance', 'It increases the heart rate'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Systemically absorbed timolol can slow the heart and trigger bronchospasm; punctal occlusion reduces this risk, important in asthma/heart disease.', 'reasoning_eligible': True},
+                {'stem': "Before dilating a patient's pupils, which history point is most important to consider?", 'options': ['A history of acute angle-closure glaucoma or very narrow angles', 'Their favourite colour', 'Whether they had breakfast', 'Their shoe size'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Dilation can precipitate acute angle closure in predisposed eyes; a history of angle closure/narrow angles must be checked first.', 'reasoning_eligible': True},
+                {'stem': 'A patient is given a topical anaesthetic drop before a procedure and wants to rub the numb eye. You should:', 'options': ['Advise them NOT to rub, as the numb eye can be injured without them feeling it', 'Encourage rubbing to spread the drop', 'Give another anaesthetic drop', 'Tell them it does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Anaesthesia removes the protective pain response, so rubbing can abrade the cornea unnoticed; warn the patient not to rub.', 'reasoning_eligible': True},
+                {'stem': 'Which set of measures BEST increases how much drop reaches and stays on the eye?', 'options': ['One well-aimed drop in the fornix, eyes gently closed, and punctal occlusion', 'Several drops rapidly with blinking', 'Dropping onto the cornea and rubbing', 'Instilling with the eyes wide and blinking hard'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A single accurate drop, gentle closure and punctal occlusion maximise ocular contact time; blinking and excess drops waste medication.', 'reasoning_eligible': True},
+                {'stem': 'Why is instilling into the lower fornix preferred to dropping directly onto the cornea?', 'options': ['It is more comfortable and avoids the blink/reflex that would expel the drop', 'The cornea cannot absorb drops', 'It looks more professional only', 'The fornix is closer to the brain'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The cornea is very sensitive; a corneal drop triggers reflex blinking and tearing that expel it, whereas the fornix holds it comfortably.', 'reasoning_eligible': True},
+                {'stem': 'A patient on FOUR different glaucoma/lubricant drops asks why the order and timing matter. The best explanation is:', 'options': ['Spacing drops (about 5 min) stops each washing out the last, so all are properly absorbed', 'Order and timing never matter', 'They should take all four at once', 'Only the last drop counts'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Without spacing, a later drop dilutes and flushes out the earlier one; a few minutes between drops ensures each is effective.', 'reasoning_eligible': True},
+                {'stem': 'A child needs dilating drops but clenches the eyes shut. A safe practical approach is to:', 'options': ['Position gently, place the drop in the inner corner and let it flow in when the eye opens', 'Force the lids apart hard', 'Give up and cancel the exam', 'Use double the adult dose'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'With an uncooperative child, pooling the drop at the medial canthus lets it enter when the eye opens, avoiding force and injury.', 'reasoning_eligible': True},
+                {'stem': 'You realise you almost picked up a bottle that expired last month. The correct action is to:', 'options': ['Discard/return it and use an in-date bottle', 'Use it anyway if it looks clear', 'Use half the dose', 'Hide it back in the drawer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Expired drops may be ineffective or contaminated; they are removed from use and only in-date stock is instilled.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about safe eye-drop practice is CORRECT?', 'options': ['Confirm patient/eye/drug/allergy/expiry, use clean single-patient technique, one drop in the fornix, and document', 'Any bottle, any eye, as many drops as possible is fine', 'Allergy checks are optional', 'The bottle tip should rest on the eye for accuracy'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Safe practice checks identity/eye/drug/allergy/expiry, keeps the tip clean, instils into the fornix, and documents the administration.', 'reasoning_eligible': True},
             ],
         },
         "pupil_dilation": {
