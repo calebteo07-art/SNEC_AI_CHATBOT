@@ -1077,359 +1077,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "pinhole": {
             "easy": [
-                {
-                    "stem": "What does a pinhole occluder physically do to the light "
-                            "entering the eye?",
-                    "options": [
-                        "It blocks peripheral rays so only central rays enter",
-                        "It magnifies the chart letters",
-                        "It increases the brightness of the chart",
-                        "It changes the colour of the image",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole blocks blurred peripheral light rays so "
-                                   "that only central, well-focused rays reach the "
-                                   "retina.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "When, during a vision check, is the pinhole occluder used?",
-                    "options": ["When the visual acuity is reduced (6/12 or worse)",
-                                "Only when vision is a perfect 6/6",
-                                "Before measuring any vision at all",
-                                "Only for colour vision testing"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "The pinhole is applied once VA is found to be "
-                                   "reduced (6/12 or worse) to screen for a refractive "
-                                   "cause.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Through the pinhole a patient sees noticeably better. Is "
-                            "the cause more likely refractive or non-refractive?",
-                    "options": ["Refractive (likely helped by glasses)",
-                                "Non-refractive (retinal disease)",
-                                "Non-refractive (optic nerve disease)",
-                                "It cannot be interpreted"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Improvement through the pinhole points to a "
-                                   "refractive cause that glasses are likely to correct.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Can the pinhole replace a full (formal) refraction?",
-                    "options": ["No — it only screens for a refractive cause",
-                                "Yes — it gives the exact prescription",
-                                "Yes — it replaces the eye examination",
-                                "Only in children"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole only indicates whether a refractive "
-                                   "cause is present; the precise lens powers still need "
-                                   "a formal refraction.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Does the pinhole magnify what the patient is looking at?",
-                    "options": ["No — it sharpens by limiting the light rays, it does "
-                                "not magnify",
-                                "Yes — it works like a magnifier",
-                                "Yes — it doubles the letter size",
-                                "Only at near"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole sharpens the image by admitting only "
-                                   "central rays; it does not magnify.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL causes of reduced vision that will NOT improve "
-                            "with a pinhole.",
-                    "options": ["A dense cataract (media opacity)",
-                                "Retinal disease",
-                                "Optic nerve disease",
-                                "Uncorrected short-sightedness"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Media opacity, retinal disease and optic nerve "
-                                   "disease are non-refractive, so the pinhole doesn't "
-                                   "help. Uncorrected short-sightedness IS refractive "
-                                   "and does improve.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the pinhole mainly used to screen for?",
-                    "options": ["Whether reduced vision has a refractive cause",
-                                "The eye pressure",
-                                "Colour vision",
-                                "The visual field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The pinhole is a quick screen for whether reduced "
-                                   "vision is refractive (correctable) or not.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient with uncorrected astigmatism looks through the "
-                            "pinhole. What is the expected result?",
-                    "options": ["Vision improves (it is a refractive error)",
-                                "Vision stays exactly the same",
-                                "Vision gets worse",
-                                "The pupil dilates"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Astigmatism is a refractive error, so vision "
-                                   "typically improves through the pinhole.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does a pinhole occluder physically do to the light entering the eye?', 'options': ['It blocks peripheral rays so only central rays enter', 'It magnifies the chart letters', 'It increases the brightness of the chart', 'It changes the colour of the image'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole blocks blurred peripheral light rays so that only central, well-focused rays reach the retina.', 'reasoning_eligible': False},
+                {'stem': 'When, during a vision check, is the pinhole occluder used?', 'options': ['When the visual acuity is reduced (6/12 or worse)', 'Only when vision is a perfect 6/6', 'Before measuring any vision at all', 'Only for colour vision testing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The pinhole is applied once VA is found to be reduced (6/12 or worse) to screen for a refractive cause.', 'reasoning_eligible': False},
+                {'stem': 'Through the pinhole a patient sees noticeably better. Is the cause more likely refractive or non-refractive?', 'options': ['Refractive (likely helped by glasses)', 'Non-refractive (retinal disease)', 'Non-refractive (optic nerve disease)', 'It cannot be interpreted'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Improvement through the pinhole points to a refractive cause that glasses are likely to correct.', 'reasoning_eligible': False},
+                {'stem': 'Can the pinhole replace a full (formal) refraction?', 'options': ['No — it only screens for a refractive cause', 'Yes — it gives the exact prescription', 'Yes — it replaces the eye examination', 'Only in children'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole only indicates whether a refractive cause is present; the precise lens powers still need a formal refraction.', 'reasoning_eligible': False},
+                {'stem': 'Does the pinhole magnify what the patient is looking at?', 'options': ['No — it sharpens by limiting the light rays, it does not magnify', 'Yes — it works like a magnifier', 'Yes — it doubles the letter size', 'Only at near'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole sharpens the image by admitting only central rays; it does not magnify.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL causes of reduced vision that will NOT improve with a pinhole.', 'options': ['A dense cataract (media opacity)', 'Retinal disease', 'Optic nerve disease', 'Uncorrected short-sightedness'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': "Media opacity, retinal disease and optic nerve disease are non-refractive, so the pinhole doesn't help. Uncorrected short-sightedness IS refractive and does improve.", 'reasoning_eligible': False},
+                {'stem': 'What is the pinhole mainly used to screen for?', 'options': ['Whether reduced vision has a refractive cause', 'The eye pressure', 'Colour vision', 'The visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole is a quick screen for whether reduced vision is refractive (correctable) or not.', 'reasoning_eligible': False},
+                {'stem': 'A patient with uncorrected astigmatism looks through the pinhole. What is the expected result?', 'options': ['Vision improves (it is a refractive error)', 'Vision stays exactly the same', 'Vision gets worse', 'The pupil dilates'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Astigmatism is a refractive error, so vision typically improves through the pinhole.', 'reasoning_eligible': False},
+                {'stem': 'By admitting only the central rays of light, the pinhole lets a patient:', 'options': ['See fine detail without optical correction if the cause is refractive', 'See magnified images', 'See brighter colours', 'Feel less eye pain'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole passes only paraxial rays that do not need corneal/lens refraction, so a blurred refractive image sharpens.', 'reasoning_eligible': False},
+                {'stem': 'A pinhole visual acuity is usually documented as, for example:', 'options': ["'6/9 PH'", "'N5'", "'21 mmHg'", "'Ishihara 14/14'"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Pinhole acuity is written with the 'PH' annotation, e.g. '6/9 PH', beside the unaided/aided value.", 'reasoning_eligible': False},
+                {'stem': 'The pinhole test is most useful for deciding whether reduced vision is due to:', 'options': ['An uncorrected refractive error versus another cause', 'High or low eye pressure', 'Colour blindness', 'A blocked tear duct'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Improvement with the pinhole points to a refractive cause; no improvement suggests media, retinal or neural pathology.', 'reasoning_eligible': False},
+                {'stem': "A patient's uncorrected vision is 6/24. You should apply the pinhole:", 'options': ['To check whether glasses would sharpen the vision', 'To measure the eye pressure', 'To dilate the pupil', 'To treat the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'When VA is subnormal, the pinhole is a quick screen for a correctable refractive component.', 'reasoning_eligible': False},
+                {'stem': 'If vision improves markedly through the pinhole, the patient most likely needs:', 'options': ['A refraction / spectacle correction', 'Urgent surgery', 'Antibiotic drops', 'Reassurance only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A pinhole improvement flags an uncorrected refractive error, so the next step is a formal refraction.', 'reasoning_eligible': True},
+                {'stem': 'A pinhole occluder should be cleaned between patients because:', 'options': ['It is held against the face/around the eye and can transmit infection', 'It changes the pinhole size', 'It improves the optics', 'Cleaning is not needed'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Like any occluder, the pinhole is disinfected between patients as part of infection control.', 'reasoning_eligible': False},
+                {'stem': 'The pinhole does NOT correct which of the following?', 'options': ['A dense cataract or macular disease', 'Uncorrected myopia', 'Uncorrected hyperopia', 'Uncorrected astigmatism'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole bypasses refractive blur but cannot overcome opacities or retinal/neural disease.', 'reasoning_eligible': False},
+                {'stem': 'The pinhole is best described as a ______, not a treatment.', 'options': ['Screening/triage tool', 'Cure for cataract', 'Type of eye drop', 'Surgical instrument'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'It is a quick screening tool to separate refractive from non-refractive vision loss, not a therapy.', 'reasoning_eligible': False},
+                {'stem': 'A patient with healthy eyes but no glasses reads 6/36, improving to 6/6 with the pinhole. The sensible plan is to:', 'options': ['Arrange a refraction - the loss is refractive and correctable', 'Book urgent surgery', 'Start antibiotics', 'Do nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Full recovery to 6/6 with the pinhole shows the deficit is refractive; spectacles/refraction will correct it.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "A patient with a cloudy lens sees no better through the "
-                            "pinhole. What does this indicate?",
-                    "options": [
-                        "The reduced vision is from media opacity, not refractive "
-                        "error",
-                        "The patient simply needs glasses",
-                        "The pinhole was used incorrectly",
-                        "The vision is actually normal",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A cloudy lens (cataract) is a media opacity; the "
-                                   "pinhole can't overcome it, so vision doesn't "
-                                   "improve.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does the pinhole sharpen vision when refractive error "
-                            "is uncorrected?",
-                    "options": [
-                        "It removes the blur from out-of-focus peripheral rays",
-                        "It brightens the retina",
-                        "It relaxes the focusing muscle",
-                        "It enlarges the retinal image",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "By blocking peripheral rays, the pinhole removes "
-                                   "their blur and leaves a sharper central image — "
-                                   "improving vision in refractive error.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A dense cataract gives only slight improvement with the "
-                            "pinhole. How do you interpret this?",
-                    "options": [
-                        "Mainly a non-refractive (media) cause, perhaps with a small "
-                        "refractive component",
-                        "Purely refractive error",
-                        "The retina is definitely diseased",
-                        "Normal vision",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Slight improvement suggests the reduced vision is "
-                                   "mostly from media opacity, with maybe a small "
-                                   "refractive part.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What is the correct sequence when distance VA comes back "
-                            "reduced?",
-                    "options": [
-                        "Record the unaided VA, then re-test through the pinhole",
-                        "Apply the pinhole before measuring any VA",
-                        "Skip the pinhole and refer everyone",
-                        "Only use the pinhole if the patient asks",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "First record the (unaided or corrected) VA, then "
-                                   "re-test with the pinhole to screen for a refractive "
-                                   "cause.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why might the pinhole give limited improvement in a "
-                            "patient with a very small pupil already?",
-                    "options": [
-                        "A small pupil already limits peripheral rays, so the pinhole "
-                        "adds less benefit",
-                        "Small pupils make the pinhole magnify",
-                        "The pinhole only works in the dark",
-                        "Pupil size has no effect on the pinhole",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A naturally small pupil already restricts "
-                                   "peripheral rays, so the extra effect of a pinhole "
-                                   "may be smaller.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient improves from 6/24 to 6/6 with the pinhole. What "
-                            "is the practical conclusion?",
-                    "options": [
-                        "Their reduced vision is refractive — refraction/glasses "
-                        "should help",
-                        "They have a retinal detachment",
-                        "They have optic nerve disease",
-                        "The result is invalid",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Full improvement to 6/6 with the pinhole strongly "
-                                   "indicates a correctable refractive error.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL true statements about pinhole testing.",
-                    "options": [
-                        "It screens for a refractive cause of reduced vision",
-                        "Improvement suggests glasses may help",
-                        "No improvement suggests a media, retinal or nerve cause",
-                        "It provides the final spectacle prescription",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "The pinhole screens for refractive causes; "
-                                   "improvement implies glasses may help and no "
-                                   "improvement implies a non-refractive cause. It does "
-                                   "NOT give the final prescription.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient with a cloudy lens sees no better through the pinhole. What does this indicate?', 'options': ['The reduced vision is from media opacity, not refractive error', 'The patient simply needs glasses', 'The pinhole was used incorrectly', 'The vision is actually normal'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "A cloudy lens (cataract) is a media opacity; the pinhole can't overcome it, so vision doesn't improve.", 'reasoning_eligible': True},
+                {'stem': 'Why does the pinhole sharpen vision when refractive error is uncorrected?', 'options': ['It removes the blur from out-of-focus peripheral rays', 'It brightens the retina', 'It relaxes the focusing muscle', 'It enlarges the retinal image'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'By blocking peripheral rays, the pinhole removes their blur and leaves a sharper central image — improving vision in refractive error.', 'reasoning_eligible': True},
+                {'stem': 'A dense cataract gives only slight improvement with the pinhole. How do you interpret this?', 'options': ['Mainly a non-refractive (media) cause, perhaps with a small refractive component', 'Purely refractive error', 'The retina is definitely diseased', 'Normal vision'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Slight improvement suggests the reduced vision is mostly from media opacity, with maybe a small refractive part.', 'reasoning_eligible': True},
+                {'stem': 'What is the correct sequence when distance VA comes back reduced?', 'options': ['Record the unaided VA, then re-test through the pinhole', 'Apply the pinhole before measuring any VA', 'Skip the pinhole and refer everyone', 'Only use the pinhole if the patient asks'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'First record the (unaided or corrected) VA, then re-test with the pinhole to screen for a refractive cause.', 'reasoning_eligible': False},
+                {'stem': 'Why might the pinhole give limited improvement in a patient with a very small pupil already?', 'options': ['A small pupil already limits peripheral rays, so the pinhole adds less benefit', 'Small pupils make the pinhole magnify', 'The pinhole only works in the dark', 'Pupil size has no effect on the pinhole'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A naturally small pupil already restricts peripheral rays, so the extra effect of a pinhole may be smaller.', 'reasoning_eligible': False},
+                {'stem': 'A patient improves from 6/24 to 6/6 with the pinhole. What is the practical conclusion?', 'options': ['Their reduced vision is refractive — refraction/glasses should help', 'They have a retinal detachment', 'They have optic nerve disease', 'The result is invalid'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Full improvement to 6/6 with the pinhole strongly indicates a correctable refractive error.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL true statements about pinhole testing.', 'options': ['It screens for a refractive cause of reduced vision', 'Improvement suggests glasses may help', 'No improvement suggests a media, retinal or nerve cause', 'It provides the final spectacle prescription'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'The pinhole screens for refractive causes; improvement implies glasses may help and no improvement implies a non-refractive cause. It does NOT give the final prescription.', 'reasoning_eligible': False},
+                {'stem': "A patient's vision does NOT improve with the pinhole. Which conclusion is most appropriate?", 'options': ['The cause is probably non-refractive (media opacity, retinal or neural)', 'They definitely just need stronger glasses', 'The eye is perfectly normal', 'The test was performed wrongly by definition'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'No pinhole improvement suggests the loss is not simply refractive - think cataract, macular or optic-nerve disease.', 'reasoning_eligible': True},
+                {'stem': 'Why can a patient with an already very small (miotic) pupil show little pinhole improvement?', 'options': ['Their small pupil is already acting like a pinhole', 'The pinhole is too big', 'The chart is too bright', 'Small pupils cannot see letters'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A miotic pupil already limits peripheral rays, so adding a pinhole adds little further sharpening.', 'reasoning_eligible': True},
+                {'stem': 'In dim illumination or with a dense cataract, the pinhole can sometimes make vision WORSE because it:', 'options': ['Reduces the amount of light reaching the retina', 'Adds refractive error', 'Magnifies the blur', 'Increases glare only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The pinhole cuts total light; when the media are cloudy or lighting is poor, less light can outweigh reduced blur.', 'reasoning_eligible': True},
+                {'stem': 'A keratoconus patient with irregular astigmatism often improves substantially with the pinhole because it:', 'options': ['Blocks the distorted peripheral rays from the irregular cornea', 'Flattens the cornea', 'Removes the cone', 'Adds a cylindrical lens'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'By passing only central rays, the pinhole avoids the irregular peripheral cornea, so irregular astigmatism sharpens markedly.', 'reasoning_eligible': True},
+                {'stem': 'Why is the pinhole helpful in a busy clinic BEFORE arranging a full refraction?', 'options': ['It quickly indicates who is likely to benefit from glasses versus who needs medical assessment', 'It replaces the doctor', 'It measures eye pressure faster', 'It cleans the equipment'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A fast pinhole check triages refractive cases (to refraction) from non-refractive ones (to the clinician), saving time.', 'reasoning_eligible': True},
+                {'stem': 'A patient improves only partially (6/36 to 6/18) with the pinhole. The best interpretation is:', 'options': ['There may be BOTH a refractive component and another cause needing assessment', 'Nothing is wrong', 'It is purely refractive', 'It is purely cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Partial improvement suggests a mixed picture - some correctable refractive error plus another limiting factor.', 'reasoning_eligible': True},
+                {'stem': 'The optimal pinhole aperture size is around 1.0-1.5 mm because:', 'options': ['It balances reducing blur against not losing too much light or causing diffraction', 'Larger is always better', 'It magnifies the image', "It matches the cornea's diameter"], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'About 1.2 mm optimally trims blur; much smaller apertures lose light and add diffraction, much larger ones fail to cut blur.', 'reasoning_eligible': False},
+                {'stem': 'Why should you make sure the patient aligns the pinhole with their line of sight?', 'options': ['A poorly aligned pinhole blocks the visual axis and gives a falsely poor result', 'It changes the pupil size', 'It magnifies the letters', 'Alignment does not matter'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'If the hole is off-axis the patient looks through opaque material, wrongly suggesting no improvement.', 'reasoning_eligible': True},
+                {'stem': "A patient with amblyopia ('lazy eye') is tested with the pinhole. The expected result is:", 'options': ['Little or no improvement, because amblyopia is not refractive at the time of testing', 'Full recovery to 6/6', 'Total blindness', 'Improved colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Amblyopic vision loss is neural/developmental, so the pinhole does not restore it despite correcting any refractive blur.', 'reasoning_eligible': True},
+                {'stem': 'How does a pinhole result guide documentation for the clinician?', 'options': ['Record the pinhole VA alongside unaided/aided VA so the refractive potential is clear', 'Only record if it improves', 'Never record pinhole results', 'Record it as the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Documenting the PH acuity beside the other values tells the clinician how much of the deficit is potentially correctable.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "Two patients read 6/36. One improves to 6/6 with the "
-                            "pinhole; the other does not change at all. What does each "
-                            "result imply for next steps?",
-                    "options": [
-                        "First: likely refractive — arrange refraction; second: likely "
-                        "media/retina/nerve — needs further assessment",
-                        "Both simply need glasses",
-                        "Both need urgent surgery",
-                        "Neither result means anything",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Pinhole improvement points toward refraction; no "
-                                   "change points toward a non-refractive cause needing "
-                                   "further work-up.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why can the pinhole give a falsely poor result if the "
-                            "patient struggles to line it up with their visual axis?",
-                    "options": [
-                        "If they don't look through the hole, peripheral blur (or no "
-                        "image) is seen, underestimating the true potential",
-                        "The pinhole always overestimates vision",
-                        "Misalignment magnifies the letters",
-                        "Alignment makes no difference",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "If the patient doesn't look straight through the "
-                                   "aperture, they see edge blur or nothing, so the "
-                                   "pinhole VA can read worse than the eye's true "
-                                   "potential — coach them to align it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A cataract patient improves only from 6/60 to 6/36 with "
-                            "the pinhole. The doctor still expects good vision after "
-                            "surgery. Why is that not a contradiction?",
-                    "options": [
-                        "The pinhole reflects current media opacity, not the retina's "
-                        "potential once the lens is removed",
-                        "The pinhole already measured the post-surgery vision",
-                        "Cataracts never affect the pinhole",
-                        "The doctor must be mistaken",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A limited pinhole result is dominated by the "
-                                   "cataract; it doesn't reveal the retina's potential "
-                                   "once the cloudy lens is removed (that is what a PAM "
-                                   "estimates).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which combination would you expect in PURE uncorrected "
-                            "myopia with healthy eyes otherwise?",
-                    "options": [
-                        "Reduced unaided distance VA that improves markedly with the "
-                        "pinhole",
-                        "Reduced VA that does not change with the pinhole",
-                        "Normal unaided VA that worsens with the pinhole",
-                        "No measurable vision at all",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Uncorrected myopia blurs distance vision but the "
-                                   "eye is otherwise healthy, so the pinhole produces a "
-                                   "marked improvement.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL situations where a pinhole result must be "
-                            "interpreted with caution.",
-                    "options": [
-                        "Dense media opacity limiting the image",
-                        "A patient who cannot align the aperture",
-                        "Mixed refractive plus media causes",
-                        "A cooperative patient with simple myopia",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Dense opacity, poor alignment, and mixed causes all "
-                                   "make pinhole interpretation tricky. A cooperative "
-                                   "myope is the straightforward case.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the pinhole especially useful in a busy clinic "
-                            "before deciding who needs a full refraction?",
-                    "options": [
-                        "It quickly flags whether glasses are likely to restore "
-                        "vision, prioritising further tests",
-                        "It replaces the doctor's assessment entirely",
-                        "It measures eye pressure at the same time",
-                        "It cures the refractive error",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "As a fast screen, the pinhole helps sort patients "
-                                   "whose vision is simply uncorrected from those "
-                                   "needing deeper assessment.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Two patients read 6/36. One improves to 6/6 with the pinhole; the other does not change at all. What does each result imply for next steps?', 'options': ['First: likely refractive — arrange refraction; second: likely media/retina/nerve — needs further assessment', 'Both simply need glasses', 'Both need urgent surgery', 'Neither result means anything'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Pinhole improvement points toward refraction; no change points toward a non-refractive cause needing further work-up.', 'reasoning_eligible': True},
+                {'stem': 'Why can the pinhole give a falsely poor result if the patient struggles to line it up with their visual axis?', 'options': ["If they don't look through the hole, peripheral blur (or no image) is seen, underestimating the true potential", 'The pinhole always overestimates vision', 'Misalignment magnifies the letters', 'Alignment makes no difference'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "If the patient doesn't look straight through the aperture, they see edge blur or nothing, so the pinhole VA can read worse than the eye's true potential — coach them to align it.", 'reasoning_eligible': True},
+                {'stem': 'A cataract patient improves only from 6/60 to 6/36 with the pinhole. The doctor still expects good vision after surgery. Why is that not a contradiction?', 'options': ["The pinhole reflects current media opacity, not the retina's potential once the lens is removed", 'The pinhole already measured the post-surgery vision', 'Cataracts never affect the pinhole', 'The doctor must be mistaken'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "A limited pinhole result is dominated by the cataract; it doesn't reveal the retina's potential once the cloudy lens is removed (that is what a PAM estimates).", 'reasoning_eligible': True},
+                {'stem': 'Which combination would you expect in PURE uncorrected myopia with healthy eyes otherwise?', 'options': ['Reduced unaided distance VA that improves markedly with the pinhole', 'Reduced VA that does not change with the pinhole', 'Normal unaided VA that worsens with the pinhole', 'No measurable vision at all'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Uncorrected myopia blurs distance vision but the eye is otherwise healthy, so the pinhole produces a marked improvement.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL situations where a pinhole result must be interpreted with caution.', 'options': ['Dense media opacity limiting the image', 'A patient who cannot align the aperture', 'Mixed refractive plus media causes', 'A cooperative patient with simple myopia'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Dense opacity, poor alignment, and mixed causes all make pinhole interpretation tricky. A cooperative myope is the straightforward case.', 'reasoning_eligible': True},
+                {'stem': 'Why is the pinhole especially useful in a busy clinic before deciding who needs a full refraction?', 'options': ['It quickly flags whether glasses are likely to restore vision, prioritising further tests', "It replaces the doctor's assessment entirely", 'It measures eye pressure at the same time', 'It cures the refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'As a fast screen, the pinhole helps sort patients whose vision is simply uncorrected from those needing deeper assessment.', 'reasoning_eligible': False},
+                {'stem': 'A cataract patient reads 6/60 improving only to 6/36 with the pinhole, yet the surgeon expects excellent vision after surgery. Why is there no contradiction?', 'options': ['The cloudy lens itself scatters light, limiting pinhole gain; removing it at surgery can still restore vision', 'The pinhole result proves surgery will fail', 'The retina must be dead', 'The pinhole always predicts the post-op result exactly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A pinhole cannot see past lens opacity, so it underestimates the potential vision that lens removal (with a clear IOL) can restore.', 'reasoning_eligible': True},
+                {'stem': 'Two patients both read 6/36. Patient A improves to 6/6 with the pinhole; Patient B shows no change. The correct next steps are:', 'options': ['A -> refraction for glasses; B -> clinician assessment for a medical/media cause', 'Both need surgery', 'Both need only glasses', 'Neither needs anything'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Pinhole improvement (A) indicates a correctable refractive error; no improvement (B) points to a non-refractive cause needing assessment.', 'reasoning_eligible': True},
+                {'stem': 'A patient claims total blindness in one eye, but reads several letters when a pinhole is placed over it. This suggests:', 'options': ['A functional/non-organic component worth flagging (some genuine vision is present)', 'Complete retinal detachment', 'A dense cataract', 'Optic nerve transection'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Reading through a pinhole over a supposedly 'blind' eye shows real vision exists, hinting at a functional overlay to document and escalate.", 'reasoning_eligible': True},
+                {'stem': 'A patient with a macular hole reads 6/60 and does not improve with the pinhole, also reporting central distortion. This pattern indicates:', 'options': ['A non-refractive (macular) cause - refract will not help; needs clinician/OCT assessment', 'Simple myopia', 'That glasses will fix it', 'A dirty pinhole'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Central distortion with no pinhole gain localises the problem to the macula, not refraction; imaging and clinician review are needed.', 'reasoning_eligible': True},
+                {'stem': 'Which combination is expected in PURE uncorrected high myopia with otherwise healthy eyes?', 'options': ['Poor unaided distance VA that improves to near-normal with the pinhole', 'Poor VA that does NOT improve with the pinhole', 'Normal unaided VA needing no pinhole', 'Distorted vision with a central scotoma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Refractive error alone blurs the image; the pinhole removes that blur, so pure myopia improves substantially with a pinhole.', 'reasoning_eligible': True},
+                {'stem': 'Why must a pinhole result be interpreted with caution in an elderly, unsteady or poorly-cooperative patient?', 'options': ['Difficulty aligning/holding the pinhole can produce a falsely poor result', 'It always over-reads vision', 'It measures pressure instead', 'Age improves pinhole vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Alignment and cooperation strongly affect the reading; a shaky or confused patient may under-read despite a correctable error.', 'reasoning_eligible': True},
+                {'stem': "A patient's aided (with-glasses) vision is 6/18 and improves to 6/9 with the pinhole. What does this tell you about their spectacles?", 'options': ['Their current glasses are under-correcting - the prescription may need updating', 'Their glasses are perfect', 'They have a cataract for certain', 'They need urgent surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'If the pinhole still improves the aided vision, residual refractive error remains, suggesting the spectacle prescription is outdated.', 'reasoning_eligible': True},
+                {'stem': 'Why is the pinhole NOT a substitute for a formal refraction even when it improves vision?', 'options': ['It shows a correctable error exists but not the exact lens power/axis needed', 'It gives the full spectacle prescription', 'It measures the eye pressure', 'It is more accurate than refraction'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole confirms refractive potential but cannot quantify sphere/cylinder/axis; only a refraction yields the actual prescription.', 'reasoning_eligible': True},
+                {'stem': 'A diabetic with fluctuating vision reads 6/24 today, improving to 6/9 with the pinhole. A useful note for the clinician is that:', 'options': ['The blur is currently refractive (glucose-related refractive shift), so refraction may be unstable', 'They are permanently blind', 'The pinhole is broken', 'Nothing should be recorded'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Pinhole improvement shows the current deficit is refractive; glucose-driven refractive shifts make the prescription unstable, worth documenting.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about pinhole testing is CORRECT?', 'options': ['It screens for correctable refractive error but cannot see past opacities or fix retinal/neural loss', 'It cures refractive error', 'It magnifies the target', 'A no-improvement result always means the patient needs glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The pinhole distinguishes refractive from non-refractive loss; it neither treats disease nor sees through media opacities.', 'reasoning_eligible': True},
             ],
         },
         "iop_nct": {
