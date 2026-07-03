@@ -903,498 +903,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "history_taking": {
             "easy": [
-                {
-                    "stem": "Which systemic condition is especially important to ask "
-                            "about in an eye history?",
-                    "options": ["Diabetes", "Presbyopia",
-                                "Colour blindness", "A common cold"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Diabetes (like hypertension) is a vascular disease "
-                                   "that affects the eyes, so it is a key part of the "
-                                   "history.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which medication group must you specifically ask about "
-                            "because it raises bleeding risk?",
-                    "options": ["Anticoagulants", "Lubricant eye drops",
-                                "Vitamin C", "Paracetamol"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Anticoagulants (blood thinners) increase bleeding "
-                                   "risk during procedures or after trauma, so they "
-                                   "must be asked about.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "For a visual complaint, which question is most important "
-                            "to ask?",
-                    "options": ["Was the change sudden or gradual?",
-                                "What colour are your eyes?",
-                                "Do you wear sunglasses?",
-                                "How tall are you?"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Whether vision changed suddenly or gradually is a "
-                                   "key question — sudden change is more likely to be "
-                                   "urgent.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What scale is used to assess a patient's pain?",
-                    "options": ["A 0-10 pain scale", "The Snellen chart",
-                                "The Ishihara chart", "The 6/6 scale"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Pain is assessed on a 0-10 scale, where 0 is no "
-                                   "pain and 10 is the worst imaginable.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which condition is worth asking about in the FAMILY "
-                            "ocular history?",
-                    "options": ["Glaucoma", "Conjunctivitis",
-                                "A stye", "A black eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Glaucoma (and cataract, retinal detachment, squint) "
-                                   "can run in families, so family history matters.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why ask whether a visual change is in one eye or both?",
-                    "options": [
-                        "It helps localise the cause and judge urgency",
-                        "It decides which eye is tested first",
-                        "It changes the consultation fee",
-                        "It is not actually important",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Whether one or both eyes are affected (and whether "
-                                   "the loss is partial or total) helps localise the "
-                                   "problem and judge how urgent it is.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL medication groups you should specifically ask "
-                            "about in an eye history.",
-                    "options": ["Anticoagulants", "Steroids",
-                                "Herbal supplements and vitamins", "Toothpaste"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Anticoagulants, steroids, and herbal "
-                                   "supplements/vitamins (and anti-malarials) all "
-                                   "matter in an eye history. Toothpaste does not.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which TWO vascular systemic diseases most commonly affect "
-                            "the eyes?",
-                    "options": ["Diabetes and hypertension",
-                                "Asthma and eczema",
-                                "Gout and reflux",
-                                "Migraine and sinusitis"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Diabetes and hypertension are the key vascular "
-                                   "diseases that damage the eye's blood vessels.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why ask about recent overseas travel when a patient has "
-                            "purulent (pus-like) discharge?",
-                    "options": [
-                        "It may point to an acquired infection or poor hygiene",
-                        "Travel improves eye health",
-                        "It decides the triage category automatically",
-                        "It is asked only for billing",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Recent travel with purulent discharge may indicate "
-                                   "an acquired infection or exposure to poor hygiene "
-                                   "conditions.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A myopic patient reports new flashes and floaters. Why does "
-                            "this matter?",
-                    "options": [
-                        "Myopia raises retinal detachment risk, so new flashes and "
-                        "floaters need prompt review",
-                        "Flashes and floaters are always harmless",
-                        "Myopes never get retinal problems",
-                        "It only matters if both eyes are affected",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Short-sighted (myopic) eyes have a higher risk of "
-                                   "retinal detachment, so new flashes and floaters "
-                                   "should be reviewed promptly.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Which systemic condition is especially important to ask about in an eye history?', 'options': ['Diabetes', 'Presbyopia', 'Colour blindness', 'A common cold'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Diabetes (like hypertension) is a vascular disease that affects the eyes, so it is a key part of the history.', 'reasoning_eligible': False},
+                {'stem': 'Which medication group must you specifically ask about because it raises bleeding risk?', 'options': ['Anticoagulants', 'Lubricant eye drops', 'Vitamin C', 'Paracetamol'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Anticoagulants (blood thinners) increase bleeding risk during procedures or after trauma, so they must be asked about.', 'reasoning_eligible': False},
+                {'stem': 'For a visual complaint, which question is most important to ask?', 'options': ['Was the change sudden or gradual?', 'What colour are your eyes?', 'Do you wear sunglasses?', 'How tall are you?'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Whether vision changed suddenly or gradually is a key question — sudden change is more likely to be urgent.', 'reasoning_eligible': False},
+                {'stem': "What scale is used to assess a patient's pain?", 'options': ['A 0-10 pain scale', 'The Snellen chart', 'The Ishihara chart', 'The 6/6 scale'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Pain is assessed on a 0-10 scale, where 0 is no pain and 10 is the worst imaginable.', 'reasoning_eligible': False},
+                {'stem': 'Which condition is worth asking about in the FAMILY ocular history?', 'options': ['Glaucoma', 'Conjunctivitis', 'A stye', 'A black eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma (and cataract, retinal detachment, squint) can run in families, so family history matters.', 'reasoning_eligible': False},
+                {'stem': 'Why ask whether a visual change is in one eye or both?', 'options': ['It helps localise the cause and judge urgency', 'It decides which eye is tested first', 'It changes the consultation fee', 'It is not actually important'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Whether one or both eyes are affected (and whether the loss is partial or total) helps localise the problem and judge how urgent it is.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL medication groups you should specifically ask about in an eye history.', 'options': ['Anticoagulants', 'Steroids', 'Herbal supplements and vitamins', 'Toothpaste'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Anticoagulants, steroids, and herbal supplements/vitamins (and anti-malarials) all matter in an eye history. Toothpaste does not.', 'reasoning_eligible': False},
+                {'stem': 'Which TWO vascular systemic diseases most commonly affect the eyes?', 'options': ['Diabetes and hypertension', 'Asthma and eczema', 'Gout and reflux', 'Migraine and sinusitis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Diabetes and hypertension are the key vascular diseases that damage the eye's blood vessels.", 'reasoning_eligible': False},
+                {'stem': 'Why ask about recent overseas travel when a patient has purulent (pus-like) discharge?', 'options': ['It may point to an acquired infection or poor hygiene', 'Travel improves eye health', 'It decides the triage category automatically', 'It is asked only for billing'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Recent travel with purulent discharge may indicate an acquired infection or exposure to poor hygiene conditions.', 'reasoning_eligible': False},
+                {'stem': 'A myopic patient reports new flashes and floaters. Why does this matter?', 'options': ['Myopia raises retinal detachment risk, so new flashes and floaters need prompt review', 'Flashes and floaters are always harmless', 'Myopes never get retinal problems', 'It only matters if both eyes are affected'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Short-sighted (myopic) eyes have a higher risk of retinal detachment, so new flashes and floaters should be reviewed promptly.', 'reasoning_eligible': True},
+                {'stem': 'Before starting to take a history, you must confirm you have the correct patient by checking:', 'options': ['At least 2 identifiers (e.g. name AND identification number/date of birth) against the record', "Only the patient's first name", 'Only the room number', 'Nothing - just start asking questions'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Patient safety requires positive ID with at least two identifiers (name plus NRIC/DOB/address) matched to the medical record.', 'reasoning_eligible': False},
+                {'stem': 'At the start of the interview, the correct first step is to:', 'options': ["Introduce yourself by full name and use the patient's name", 'Immediately ask about medications', 'Start writing notes silently', 'Dilate the pupils'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "Opening the interview by introducing yourself and using the patient's name builds rapport and orients the patient.", 'reasoning_eligible': False},
+                {'stem': 'When a patient begins describing their problem, the best practice is to:', 'options': ['Listen attentively to the opening statement without interrupting', 'Interrupt to speed things up', 'Finish their sentences for them', 'Ignore them and read the notes'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Active listening without interruption lets patients tell their story and often reveals the key complaint.', 'reasoning_eligible': True},
+                {'stem': "An 'open-ended' question is preferred early in history taking because it:", 'options': ['Invites the patient to describe symptoms in their own words', 'Can only be answered yes or no', 'Leads the patient to a particular answer', 'Ends the conversation quickly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Open questions (e.g. 'Tell me about your eye') gather richer information than closed yes/no questions.", 'reasoning_eligible': True},
+                {'stem': 'After touching a patient during history taking, you should:', 'options': ['Perform hand hygiene (hand wash / sanitise)', 'Do nothing', 'Only wash hands at the end of the day', 'Reuse the same gloves for everyone'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Hand hygiene after patient contact is a basic infection-control step, especially important with red/contagious eyes.', 'reasoning_eligible': False},
+                {'stem': 'At the end of history taking, the information should be:', 'options': ["Documented in the patient's medical record with date and time", 'Kept only in your memory', 'Told to the next patient', 'Written on a scrap of paper and discarded'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Accurate, timed documentation in the record ensures continuity of care and a medico-legal account.', 'reasoning_eligible': False},
+                {'stem': "'Giving false reassurance' (e.g. 'I'm sure it's nothing') is considered:", 'options': ['A barrier to effective communication', 'The best way to calm every patient', 'A required part of every history', 'A way to speed up documentation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'False reassurance is a communication barrier - it can dismiss real concerns and erode trust; be honest and escalate appropriately.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why is it important to ask about anticoagulants before a "
-                            "procedure?",
-                    "options": [
-                        "They increase bleeding risk during the procedure or after "
-                        "trauma",
-                        "They make the pupil dilate",
-                        "They improve healing",
-                        "They change the refractive error",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Anticoagulants raise the risk of bleeding during "
-                                   "procedures and after injury, so they must be known "
-                                   "in advance.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Severe eye pain with nausea and vomiting noted in the "
-                            "history should make you suspect what?",
-                    "options": ["Acute angle-closure glaucoma",
-                                "Simple conjunctivitis",
-                                "Presbyopia",
-                                "Dry eye"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Severe pain with nausea and vomiting is a classic "
-                                   "history for acute angle-closure glaucoma.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A contact-lens wearer has a red eye. Select ALL history "
-                            "points that raise infection risk.",
-                    "options": [
-                        "Wearing daily lenses for 2-3 days without removal (overwear)",
-                        "Using an incorrect lens-care solution",
-                        "Wearing prescription sunglasses",
-                        "Reading in good light",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Lens overwear and incorrect lens-care solution both "
-                                   "raise the risk of infection. Sunglasses and good "
-                                   "reading light do not.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why ask about steroid use in an eye history?",
-                    "options": [
-                        "Long-term steroids can raise eye pressure and cause cataract",
-                        "Steroids improve night vision",
-                        "Steroids change eye colour",
-                        "Steroids are irrelevant to the eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Steroids (drops, tablets or inhalers) can raise "
-                                   "intraocular pressure and contribute to cataract, so "
-                                   "their use is important to record.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why does asking 'sudden or gradual?' help in a vision "
-                            "complaint?",
-                    "options": [
-                        "Sudden loss is more likely to be an emergency than gradual "
-                        "loss",
-                        "Gradual loss is always an emergency",
-                        "The timing has no clinical meaning",
-                        "It decides the eye drop dose",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Sudden vision loss (e.g. vascular occlusion, "
-                                   "detachment) is more likely to be urgent; gradual "
-                                   "loss (e.g. cataract) is usually less acute.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A patient mentions a previous acute angle-closure attack. "
-                            "Why is this history important before dilation?",
-                    "options": [
-                        "Dilating drops could trigger another angle-closure attack",
-                        "It means the patient must always be dilated",
-                        "It only matters for colour vision testing",
-                        "It has no bearing on dilation",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A history of angle-closure is a caution against "
-                                   "routine dilation, which could precipitate another "
-                                   "attack — check with the nurse/doctor first.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why ask about anti-malarial medication in an eye history?",
-                    "options": [
-                        "Long-term use can affect the retina and needs monitoring",
-                        "It changes the patient's refraction",
-                        "It is asked only for travel records",
-                        "It has no effect on the eye",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Some anti-malarials (e.g. hydroxychloroquine) can "
-                                   "affect the retina with long-term use, so patients "
-                                   "on them are monitored.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which family-history conditions are most worth recording?",
-                    "options": [
-                        "Glaucoma, cataract and retinal detachment",
-                        "Conjunctivitis and styes",
-                        "Short-sightedness alone",
-                        "Eye colour and lash length",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Glaucoma, cataract, retinal detachment (and "
-                                   "dystrophies/squint) can be inherited, so they are "
-                                   "the key family-history items.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why record current systemic medications even if the "
-                            "patient came only for a routine eye check?",
-                    "options": [
-                        "Some drugs affect the eyes or interact with eye treatment",
-                        "It is required for insurance only",
-                        "Medications never affect the eyes",
-                        "Only eye drops are relevant",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Systemic drugs can affect the eyes (e.g. steroids, "
-                                   "anti-malarials) or interact with planned eye "
-                                   "treatment, so a full medication list is recorded.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient reports vision 'like a curtain coming down' in "
-                            "one eye. What history detail is most relevant?",
-                    "options": [
-                        "Whether they are short-sighted or have had retinal problems",
-                        "Their favourite colour",
-                        "Whether they prefer reading or TV",
-                        "How many pillows they use",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A 'curtain' over the vision suggests retinal "
-                                   "detachment; myopia and previous retinal problems "
-                                   "raise that risk, so they are the key history "
-                                   "points.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'Why is it important to ask about anticoagulants before a procedure?', 'options': ['They increase bleeding risk during the procedure or after trauma', 'They make the pupil dilate', 'They improve healing', 'They change the refractive error'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Anticoagulants raise the risk of bleeding during procedures and after injury, so they must be known in advance.', 'reasoning_eligible': True},
+                {'stem': 'Severe eye pain with nausea and vomiting noted in the history should make you suspect what?', 'options': ['Acute angle-closure glaucoma', 'Simple conjunctivitis', 'Presbyopia', 'Dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Severe pain with nausea and vomiting is a classic history for acute angle-closure glaucoma.', 'reasoning_eligible': False},
+                {'stem': 'A contact-lens wearer has a red eye. Select ALL history points that raise infection risk.', 'options': ['Wearing daily lenses for 2-3 days without removal (overwear)', 'Using an incorrect lens-care solution', 'Wearing prescription sunglasses', 'Reading in good light'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Lens overwear and incorrect lens-care solution both raise the risk of infection. Sunglasses and good reading light do not.', 'reasoning_eligible': True},
+                {'stem': 'Why ask about steroid use in an eye history?', 'options': ['Long-term steroids can raise eye pressure and cause cataract', 'Steroids improve night vision', 'Steroids change eye colour', 'Steroids are irrelevant to the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Steroids (drops, tablets or inhalers) can raise intraocular pressure and contribute to cataract, so their use is important to record.', 'reasoning_eligible': True},
+                {'stem': "Why does asking 'sudden or gradual?' help in a vision complaint?", 'options': ['Sudden loss is more likely to be an emergency than gradual loss', 'Gradual loss is always an emergency', 'The timing has no clinical meaning', 'It decides the eye drop dose'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sudden vision loss (e.g. vascular occlusion, detachment) is more likely to be urgent; gradual loss (e.g. cataract) is usually less acute.', 'reasoning_eligible': True},
+                {'stem': 'A patient mentions a previous acute angle-closure attack. Why is this history important before dilation?', 'options': ['Dilating drops could trigger another angle-closure attack', 'It means the patient must always be dilated', 'It only matters for colour vision testing', 'It has no bearing on dilation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A history of angle-closure is a caution against routine dilation, which could precipitate another attack — check with the nurse/doctor first.', 'reasoning_eligible': True},
+                {'stem': 'Why ask about anti-malarial medication in an eye history?', 'options': ['Long-term use can affect the retina and needs monitoring', "It changes the patient's refraction", 'It is asked only for travel records', 'It has no effect on the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Some anti-malarials (e.g. hydroxychloroquine) can affect the retina with long-term use, so patients on them are monitored.', 'reasoning_eligible': False},
+                {'stem': 'Which family-history conditions are most worth recording?', 'options': ['Glaucoma, cataract and retinal detachment', 'Conjunctivitis and styes', 'Short-sightedness alone', 'Eye colour and lash length'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Glaucoma, cataract, retinal detachment (and dystrophies/squint) can be inherited, so they are the key family-history items.', 'reasoning_eligible': False},
+                {'stem': 'Why record current systemic medications even if the patient came only for a routine eye check?', 'options': ['Some drugs affect the eyes or interact with eye treatment', 'It is required for insurance only', 'Medications never affect the eyes', 'Only eye drops are relevant'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Systemic drugs can affect the eyes (e.g. steroids, anti-malarials) or interact with planned eye treatment, so a full medication list is recorded.', 'reasoning_eligible': False},
+                {'stem': "A patient reports vision 'like a curtain coming down' in one eye. What history detail is most relevant?", 'options': ['Whether they are short-sighted or have had retinal problems', 'Their favourite colour', 'Whether they prefer reading or TV', 'How many pillows they use'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': "A 'curtain' over the vision suggests retinal detachment; myopia and previous retinal problems raise that risk, so they are the key history points.", 'reasoning_eligible': True},
+                {'stem': 'A patient speaks little English and looks anxious during history taking. The best approach is to:', 'options': ['Arrange an interpreter / use available language support and non-verbal reassurance', 'Speak louder in English', 'Skip the history entirely', 'Ask another patient to translate confidential details'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Language barriers are overcome with proper interpretation and supportive non-verbal cues, not by raising your voice or breaching confidentiality.', 'reasoning_eligible': True},
+                {'stem': 'For a red-eye complaint, which cluster of symptom questions is most relevant to ask?', 'options': ['Onset (sudden/gradual), pain, itch, light sensitivity, discharge and any vision change', 'Favourite colour and hobbies', 'Only their home address', 'Only their occupation'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Characterising onset, pain, itch, photophobia, discharge and vision change helps separate benign from serious red eyes.', 'reasoning_eligible': True},
+                {'stem': 'A distressed patient becomes tearful while describing sudden vision loss. A therapeutic response is to:', 'options': ['Use empathy and allow a pause (therapeutic silence) before continuing', 'Tell them to stop crying', 'Change the subject abruptly', 'Offer your personal opinion on their marriage'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Empathy and allowing silence let the patient regain composure and feel heard, improving the therapeutic relationship.', 'reasoning_eligible': True},
+                {'stem': 'Why should non-verbal communication (body language, eye contact) be consistent with your words?', 'options': ['Mixed messages confuse and reduce trust; consistency reassures the patient', 'It is not important at all', 'Patients never notice body language', 'Only the words matter in health care'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Non-verbal cues carry much of a message; when they contradict speech, patients sense insincerity and trust falls.', 'reasoning_eligible': True},
+                {'stem': "'Summarising' back to the patient near the end of the history is useful because it:", 'options': ['Confirms you understood correctly and lets the patient add or correct details', 'Wastes time', 'Replaces documentation', 'Is only for teaching'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Paraphrasing/summarising checks accuracy and shows the patient they were heard, catching any missed or wrong details.', 'reasoning_eligible': True},
+                {'stem': "Repeatedly asking 'Why?' (e.g. 'Why didn't you come sooner?') during a history is discouraged because it:", 'options': ['Can sound accusatory and make the patient defensive', 'Is the most efficient question', 'Always yields the best answers', 'Is required by the checklist'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "'Why' questions can feel like blame; softer phrasing ('What led you to come today?') keeps the patient at ease.", 'reasoning_eligible': True},
+                {'stem': "The 'orientation phase' of the patient interview mainly involves:", 'options': ['Establishing rapport, defining roles, and collecting initial information', 'Saying goodbye', 'Performing surgery', 'Discharging the patient'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'In the orientation phase you build rapport, clarify roles, gather information and set goals before the working phase.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A 60-year-old diabetic on warfarin reports gradual vision "
-                            "blurring. Which TWO history facts most change your level "
-                            "of concern, and why?",
-                    "options": [
-                        "Diabetes (retinopathy risk) and warfarin (bleeding risk)",
-                        "Their height and weight",
-                        "Their favourite hobby",
-                        "The colour of their glasses frames",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Diabetes raises the risk of retinopathy/macular "
-                                   "oedema, and warfarin raises bleeding risk — both "
-                                   "shape how the case is assessed and escalated.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL history features that should raise your "
-                            "suspicion of a sight-threatening problem.",
-                    "options": [
-                        "Sudden loss of vision",
-                        "New flashes and floaters in a myope",
-                        "Severe pain with nausea",
-                        "Mild eye strain after long reading",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Sudden vision loss, new flashes/floaters in a "
-                                   "myope, and severe pain with nausea are red flags. "
-                                   "Mild eye strain after reading is usually benign.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is a thorough drug history (including herbal "
-                            "supplements) sometimes more revealing than the patient's "
-                            "stated complaint?",
-                    "options": [
-                        "Drugs and supplements can cause or worsen eye problems the "
-                        "patient hasn't linked to them",
-                        "Patients always know exactly what is wrong",
-                        "Supplements are never relevant",
-                        "It saves time to skip the complaint",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Medications and supplements can cause ocular "
-                                   "effects the patient hasn't connected to their "
-                                   "symptoms, so a careful drug history can uncover the "
-                                   "real cause.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A contact-lens wearer with a painful red eye admits to "
-                            "swimming in lenses and topping up old solution. Why is "
-                            "this history alarming?",
-                    "options": [
-                        "These habits strongly raise the risk of microbial keratitis",
-                        "Swimming improves lens hygiene",
-                        "Topping up solution sterilises the lens",
-                        "These habits are completely safe",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Swimming in lenses and reusing/topping up solution "
-                                   "are classic risk factors for serious microbial "
-                                   "keratitis — this history demands prompt escalation.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why should you ask BOTH 'one eye or both?' AND 'partial "
-                            "or total?' for a vision complaint?",
-                    "options": [
-                        "Together they help localise the problem and gauge severity",
-                        "They are the same question asked twice",
-                        "Only one of them ever matters",
-                        "They are asked only for the record, not for clinical use",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Laterality (one vs both eyes) and extent (partial "
-                                   "vs total) together narrow down where the problem is "
-                                   "and how serious it is.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "An elderly patient is vague about their medications. What "
-                            "is the safest practical approach?",
-                    "options": [
-                        "Ask them to bring their medication list/packets and confirm "
-                        "with records",
-                        "Guess based on their age",
-                        "Skip the drug history to save time",
-                        "Record 'nil medications' by default",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "When a patient is unsure, the safest approach is to "
-                                   "verify — ask for their medication list or packets "
-                                   "and check the records rather than guessing.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which statement about taking an eye history is correct?",
-                    "options": [
-                        "Systemic disease, medications, family history and the "
-                        "symptom timeline all matter",
-                        "Only the presenting eye symptom matters",
-                        "Family history is never relevant",
-                        "Medications are irrelevant unless they are eye drops",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "A good eye history covers systemic disease, all "
-                                   "medications, family history and the timeline of "
-                                   "symptoms — not just the eye complaint.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "A patient reports painless, sudden, total loss of vision "
-                            "in one eye an hour ago. Why does the history alone justify "
-                            "urgent escalation?",
-                    "options": [
-                        "Sudden painless monocular loss can be a vascular emergency "
-                        "(e.g. CRAO) where time is critical",
-                        "Painless problems are never urgent",
-                        "One-hour-old symptoms are too late to matter",
-                        "It is only urgent if the patient has pain",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Sudden, painless, total loss of vision in one eye "
-                                   "suggests a vascular emergency such as CRAO — the "
-                                   "history alone warrants urgent escalation.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL reasons to specifically ask a woman of "
-                            "child-bearing age about pregnancy before eye treatment.",
-                    "options": [
-                        "Some eye drops and medications are unsafe in pregnancy",
-                        "Dilating/other drugs may need to be avoided or changed",
-                        "It changes her eye colour",
-                        "It determines which eye is tested first",
-                    ],
-                    "correct": [0, 1],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Pregnancy can affect which drops and medications "
-                                   "are safe to use, so it is asked before treatment. "
-                                   "It has nothing to do with eye colour or test order.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is the symptom TIMELINE (onset, duration, progression) "
-                            "central to an eye history?",
-                    "options": [
-                        "It distinguishes acute emergencies from chronic, stable "
-                        "problems",
-                        "It is only used for appointment scheduling",
-                        "It replaces the need for examination",
-                        "It has no diagnostic value",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "How and when symptoms started and changed helps "
-                                   "separate urgent acute problems from slow chronic "
-                                   "ones, guiding the level of response.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A 60-year-old diabetic on warfarin reports gradual vision blurring. Which TWO history facts most change your level of concern, and why?', 'options': ['Diabetes (retinopathy risk) and warfarin (bleeding risk)', 'Their height and weight', 'Their favourite hobby', 'The colour of their glasses frames'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Diabetes raises the risk of retinopathy/macular oedema, and warfarin raises bleeding risk — both shape how the case is assessed and escalated.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL history features that should raise your suspicion of a sight-threatening problem.', 'options': ['Sudden loss of vision', 'New flashes and floaters in a myope', 'Severe pain with nausea', 'Mild eye strain after long reading'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Sudden vision loss, new flashes/floaters in a myope, and severe pain with nausea are red flags. Mild eye strain after reading is usually benign.', 'reasoning_eligible': True},
+                {'stem': "Why is a thorough drug history (including herbal supplements) sometimes more revealing than the patient's stated complaint?", 'options': ["Drugs and supplements can cause or worsen eye problems the patient hasn't linked to them", 'Patients always know exactly what is wrong', 'Supplements are never relevant', 'It saves time to skip the complaint'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Medications and supplements can cause ocular effects the patient hasn't connected to their symptoms, so a careful drug history can uncover the real cause.", 'reasoning_eligible': True},
+                {'stem': 'A contact-lens wearer with a painful red eye admits to swimming in lenses and topping up old solution. Why is this history alarming?', 'options': ['These habits strongly raise the risk of microbial keratitis', 'Swimming improves lens hygiene', 'Topping up solution sterilises the lens', 'These habits are completely safe'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Swimming in lenses and reusing/topping up solution are classic risk factors for serious microbial keratitis — this history demands prompt escalation.', 'reasoning_eligible': True},
+                {'stem': "Why should you ask BOTH 'one eye or both?' AND 'partial or total?' for a vision complaint?", 'options': ['Together they help localise the problem and gauge severity', 'They are the same question asked twice', 'Only one of them ever matters', 'They are asked only for the record, not for clinical use'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Laterality (one vs both eyes) and extent (partial vs total) together narrow down where the problem is and how serious it is.', 'reasoning_eligible': True},
+                {'stem': 'An elderly patient is vague about their medications. What is the safest practical approach?', 'options': ['Ask them to bring their medication list/packets and confirm with records', 'Guess based on their age', 'Skip the drug history to save time', "Record 'nil medications' by default"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'When a patient is unsure, the safest approach is to verify — ask for their medication list or packets and check the records rather than guessing.', 'reasoning_eligible': False},
+                {'stem': 'Which statement about taking an eye history is correct?', 'options': ['Systemic disease, medications, family history and the symptom timeline all matter', 'Only the presenting eye symptom matters', 'Family history is never relevant', 'Medications are irrelevant unless they are eye drops'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A good eye history covers systemic disease, all medications, family history and the timeline of symptoms — not just the eye complaint.', 'reasoning_eligible': False},
+                {'stem': 'A patient reports painless, sudden, total loss of vision in one eye an hour ago. Why does the history alone justify urgent escalation?', 'options': ['Sudden painless monocular loss can be a vascular emergency (e.g. CRAO) where time is critical', 'Painless problems are never urgent', 'One-hour-old symptoms are too late to matter', 'It is only urgent if the patient has pain'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Sudden, painless, total loss of vision in one eye suggests a vascular emergency such as CRAO — the history alone warrants urgent escalation.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL reasons to specifically ask a woman of child-bearing age about pregnancy before eye treatment.', 'options': ['Some eye drops and medications are unsafe in pregnancy', 'Dilating/other drugs may need to be avoided or changed', 'It changes her eye colour', 'It determines which eye is tested first'], 'correct': [0, 1], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Pregnancy can affect which drops and medications are safe to use, so it is asked before treatment. It has nothing to do with eye colour or test order.', 'reasoning_eligible': False},
+                {'stem': 'Why is the symptom TIMELINE (onset, duration, progression) central to an eye history?', 'options': ['It distinguishes acute emergencies from chronic, stable problems', 'It is only used for appointment scheduling', 'It replaces the need for examination', 'It has no diagnostic value'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'How and when symptoms started and changed helps separate urgent acute problems from slow chronic ones, guiding the level of response.', 'reasoning_eligible': True},
+                {'stem': 'You realise the notes in front of you belong to a different patient with a similar name. The safest action is to:', 'options': ['Stop, re-verify identity with two identifiers, and retrieve the correct record before proceeding', 'Carry on since the names are close', 'Guess which record is right', "Ask the patient to use the other person's record"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Similar-name mix-ups are a classic error; always re-confirm two identifiers and use the correct record before any care.', 'reasoning_eligible': True},
+                {'stem': "A patient discloses something 'in confidence' and asks you not to write it down. The correct approach is to:", 'options': ['Explain that relevant clinical information must be documented for safe care, while respecting privacy', 'Agree never to record anything', 'Tell other patients about it', 'Post it where colleagues can gossip'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Clinically relevant information belongs in the record for continuity and safety; confidentiality is maintained within the care team, not by omission.', 'reasoning_eligible': True},
+                {'stem': "Why is it dangerous to accept a patient's vague 'I take some heart pills' without clarifying?", 'options': ['Anticoagulants/antiplatelets and other drugs change bleeding and procedure risk, so the exact drugs matter', 'Medications never matter in eye care', 'It saves time to move on', "The patient's word is always specific enough"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "'Heart pills' may include warfarin/aspirin/clopidogrel; the specific drug materially changes bleeding risk before injections or surgery.", 'reasoning_eligible': True},
+                {'stem': 'A patient with dementia is a poor historian and attends alone. The best practical approach is to:', 'options': ['Gather what you can, corroborate with the record/family/carer where possible, and document the limitation', 'Accept every uncertain answer as fact', 'Skip the history', 'Guess the missing details'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'With an unreliable historian, use collateral sources (records, carers) and clearly document the uncertainty for safe care.', 'reasoning_eligible': True},
+                {'stem': 'Why must a woman of child-bearing age be asked about possible pregnancy before certain eye treatments/imaging?', 'options': ['Some drugs and investigations can harm a fetus, so pregnancy status changes management', 'It is only for statistics', 'Pregnancy never affects eye care', 'It is an optional courtesy question'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Certain medications (and some imaging/dyes) are contraindicated in pregnancy, so this history directly affects safe treatment choices.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about structuring an eye history is CORRECT?', 'options': ['Cover presenting complaint, past ocular history, past medical history, drugs/allergies and family history systematically', 'Only the presenting complaint ever matters', 'Family history is never relevant', 'Medications should not be recorded for routine visits'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A complete history systematically covers the complaint, POH, PMH, drug/allergy and family history - each can change management.', 'reasoning_eligible': True},
             ],
         },
         "distance_va": {
