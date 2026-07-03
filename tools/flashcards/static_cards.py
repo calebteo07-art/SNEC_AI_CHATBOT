@@ -2239,218 +2239,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "hrt": {
             "easy": [
-                {
-                    "stem": "What does HRT (Heidelberg Retinal Tomography) scan?",
-                    "options": ["The optic nerve head (a 3D laser scan)",
-                                "The cornea",
-                                "The anterior chamber angle",
-                                "The lens"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT is a 3D laser scan of the optic nerve head.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does HRT measure?",
-                    "options": [
-                        "The retinal nerve fibre layer (RNFL) and optic disc "
-                        "parameters",
-                        "The axial length",
-                        "The corneal curvature",
-                        "The eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT measures RNFL and optic disc parameters.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the main indication for HRT?",
-                    "options": ["Glaucoma diagnosis and monitoring",
-                                "Cataract grading",
-                                "Dry eye assessment",
-                                "Colour vision testing"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT is used for glaucoma diagnosis and monitoring.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What technology does HRT use?",
-                    "options": ["3D laser scanning", "Ultrasound",
-                                "An air puff", "X-rays"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT uses 3D laser scanning of the optic nerve head.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is HRT structural or functional testing?",
-                    "options": ["Structural (the visual field is the functional test)",
-                                "Functional",
-                                "Both equally",
-                                "Neither"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT is a structural test of the optic nerve head; "
-                                   "the visual field is the matching functional test.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does HRT (Heidelberg Retinal Tomography) scan?', 'options': ['The optic nerve head (a 3D laser scan)', 'The cornea', 'The anterior chamber angle', 'The lens'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT is a 3D laser scan of the optic nerve head.', 'reasoning_eligible': False},
+                {'stem': 'What does HRT measure?', 'options': ['The retinal nerve fibre layer (RNFL) and optic disc parameters', 'The axial length', 'The corneal curvature', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT measures RNFL and optic disc parameters.', 'reasoning_eligible': False},
+                {'stem': 'What is the main indication for HRT?', 'options': ['Glaucoma diagnosis and monitoring', 'Cataract grading', 'Dry eye assessment', 'Colour vision testing'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT is used for glaucoma diagnosis and monitoring.', 'reasoning_eligible': False},
+                {'stem': 'What technology does HRT use?', 'options': ['3D laser scanning', 'Ultrasound', 'An air puff', 'X-rays'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT uses 3D laser scanning of the optic nerve head.', 'reasoning_eligible': False},
+                {'stem': 'Is HRT structural or functional testing?', 'options': ['Structural (the visual field is the functional test)', 'Functional', 'Both equally', 'Neither'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT is a structural test of the optic nerve head; the visual field is the matching functional test.', 'reasoning_eligible': False},
+                {'stem': 'HRT produces a three-dimensional topographic image of the:', 'options': ['Optic nerve head (optic disc)', 'Retinal periphery', 'Cornea', 'Eyelid'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "The Heidelberg Retinal Tomograph maps the optic disc's surface topography for glaucoma assessment.", 'reasoning_eligible': False},
+                {'stem': 'HRT is a:', 'options': ['Non-contact confocal scanning laser test', 'Contact ultrasound probe', 'Blood test', 'An X-ray'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT uses a confocal scanning laser to image the disc without touching the eye.', 'reasoning_eligible': False},
+                {'stem': 'During HRT the patient must:', 'options': ['Fixate steadily so the disc is imaged clearly', 'Look all around the room', 'Close both eyes', 'Read a wall chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation keeps the optic disc in the scan for an accurate, repeatable topographic image.', 'reasoning_eligible': False},
+                {'stem': 'HRT is a STRUCTURAL test, meaning it assesses the:', 'options': ['Physical shape of the optic nerve head', "The patient's visual function directly", 'The eye pressure', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT measures optic-disc structure (rim, cup); function is assessed separately by the visual field.', 'reasoning_eligible': False},
+                {'stem': 'HRT is used mainly in the assessment and monitoring of:', 'options': ['Glaucoma (optic-nerve damage)', 'Cataract', 'Dry eye', 'Conjunctivitis'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'By quantifying disc/rim change over time, HRT supports glaucoma diagnosis and monitoring.', 'reasoning_eligible': False},
+                {'stem': 'After acquiring the scan, the operator often draws a:', 'options': ['Contour line around the disc margin for the analysis', 'Circle on the cornea', 'Line on the eyelid', 'Mark on the retina periphery'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A contour line at the disc margin defines the reference for rim/cup measurements - a key, operator-dependent step.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if HRT will hurt. The correct reassurance is:', 'options': ['It is a quick, non-contact laser scan with nothing touching the eye', 'It uses a needle', 'It presses on the eye', 'It is painful'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'HRT is painless and non-contact; explaining this eases anxiety and helps fixation/cooperation.', 'reasoning_eligible': True},
+                {'stem': 'HRT and RNFL OCT both assess which structure in glaucoma?', 'options': ['The optic nerve head / nerve-fibre region', 'The lens', 'The eyelid', 'The tear film'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Both are structural tests of the optic nerve head/RNFL, complementing the functional visual field.', 'reasoning_eligible': False},
+                {'stem': 'The OT performs HRT and:', 'options': ['Records the images/parameters for the clinician, without diagnosing', 'Diagnoses glaucoma and starts drops', 'Deletes the scan', 'Prescribes glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT acquires and documents the study; diagnosis and management remain with the clinician.', 'reasoning_eligible': True},
+                {'stem': 'HRT reports disc parameters such as:', 'options': ['Rim area, cup volume and cup-to-disc ratio', 'Blood glucose', 'The eye pressure', 'The glasses power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT quantifies rim area, cup volume, cup-disc ratio and related optic-nerve-head measures.', 'reasoning_eligible': False},
+                {'stem': 'The OT should ensure a clear MEDIA and good focus before the HRT because:', 'options': ['Opacity or poor focus degrades the disc image and its measurements', 'It changes the eye pressure', 'It improves colour vision', 'Focus never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A clear media and good focus give a sharp disc image so the rim/cup measurements are reliable.', 'reasoning_eligible': False},
+                {'stem': 'HRT should be captured on the correct EYE ordered because:', 'options': ["The clinician needs the right eye's disc data to make decisions", 'Both eyes are identical', 'It only affects tidiness', 'It never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirming the ordered eye ensures the disc analysis answers the clinical question.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "How does HRT help in glaucoma?",
-                    "options": [
-                        "It quantifies the optic disc and RNFL to detect and monitor "
-                        "glaucomatous change",
-                        "It lowers the eye pressure",
-                        "It measures the visual field",
-                        "It calculates the IOL power",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT gives objective optic disc/RNFL measurements to "
-                                   "detect and track glaucomatous structural change.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "HRT and RNFL OCT both assess which structure?",
-                    "options": ["The optic nerve head / RNFL (structural glaucoma "
-                                "assessment)",
-                                "The macula",
-                                "The cornea",
-                                "The anterior chamber"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Both HRT and RNFL OCT assess the optic nerve "
-                                   "head/RNFL structurally for glaucoma.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why repeat HRT over time?",
-                    "options": ["To monitor progression of optic disc/RNFL change",
-                                "To recalibrate the laser",
-                                "To measure the cataract",
-                                "There is no reason to repeat it"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Serial HRT scans track progressive optic disc/RNFL "
-                                   "change, which is central to glaucoma monitoring.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What does the OT document for an HRT?",
-                    "options": [
-                        "Diagnosis, indication, eye(s), and the disc/RNFL findings",
-                        "Only the patient's name",
-                        "The IOL power",
-                        "Nothing is documented",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Record the diagnosis, indication, eye(s) and the "
-                                   "optic disc/RNFL findings.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why are structural tests like HRT used alongside the "
-                            "visual field in glaucoma?",
-                    "options": [
-                        "Structure (HRT) and function (field) together give a fuller, "
-                        "more reliable picture",
-                        "The field test is unnecessary if HRT is done",
-                        "They measure unrelated diseases",
-                        "HRT replaces the need for any other test",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Combining structural HRT data with the functional "
-                                   "visual field gives a more complete and reliable "
-                                   "assessment of glaucoma.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'How does HRT help in glaucoma?', 'options': ['It quantifies the optic disc and RNFL to detect and monitor glaucomatous change', 'It lowers the eye pressure', 'It measures the visual field', 'It calculates the IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT gives objective optic disc/RNFL measurements to detect and track glaucomatous structural change.', 'reasoning_eligible': True},
+                {'stem': 'HRT and RNFL OCT both assess which structure?', 'options': ['The optic nerve head / RNFL (structural glaucoma assessment)', 'The macula', 'The cornea', 'The anterior chamber'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Both HRT and RNFL OCT assess the optic nerve head/RNFL structurally for glaucoma.', 'reasoning_eligible': False},
+                {'stem': 'Why repeat HRT over time?', 'options': ['To monitor progression of optic disc/RNFL change', 'To recalibrate the laser', 'To measure the cataract', 'There is no reason to repeat it'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Serial HRT scans track progressive optic disc/RNFL change, which is central to glaucoma monitoring.', 'reasoning_eligible': True},
+                {'stem': 'What does the OT document for an HRT?', 'options': ['Diagnosis, indication, eye(s), and the disc/RNFL findings', "Only the patient's name", 'The IOL power', 'Nothing is documented'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Record the diagnosis, indication, eye(s) and the optic disc/RNFL findings.', 'reasoning_eligible': False},
+                {'stem': 'Why are structural tests like HRT used alongside the visual field in glaucoma?', 'options': ['Structure (HRT) and function (field) together give a fuller, more reliable picture', 'The field test is unnecessary if HRT is done', 'They measure unrelated diseases', 'HRT replaces the need for any other test'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Combining structural HRT data with the functional visual field gives a more complete and reliable assessment of glaucoma.', 'reasoning_eligible': True},
+                {'stem': "Why must the operator's CONTOUR LINE be drawn consistently for a patient's serial HRT?", 'options': ['The rim/cup measurements depend on it, so inconsistency can mimic or hide change', 'It never affects the result', 'It measures the retina', 'The machine draws it randomly'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because parameters are referenced to the operator-drawn contour, a consistent line is essential for valid serial comparison.', 'reasoning_eligible': True},
+                {'stem': "A glaucoma patient's HRT shows progressive rim thinning. The OT should:", 'options': ['Ensure scan quality/comparability and flag the change to the clinician', 'Diagnose progression and change treatment', 'Ignore it', 'Delete the prior scans'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Apparent progression must be on quality, comparable scans; the OT confirms and flags it, leaving decisions to the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Why is HRT used ALONGSIDE the visual field in glaucoma?', 'options': ['Structural (disc) and functional (field) findings corroborate each other', 'The field replaces HRT', 'They measure the same thing pointlessly', 'HRT measures eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Agreement between structural disc change and functional field loss strengthens the glaucoma assessment.', 'reasoning_eligible': True},
+                {'stem': 'A poor-quality HRT (blurred, poor fixation, high variability) is obtained. The OT should:', 'options': ['Optimise fixation/focus and re-acquire rather than accept it', 'Report the blur as disease', 'Increase print brightness', 'Diagnose from the poor scan'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only a sharp, low-variability scan gives valid measurements; poor captures are repeated after optimising conditions.', 'reasoning_eligible': True},
+                {'stem': 'Why repeat HRT over time rather than relying on a single scan?', 'options': ['Trend analysis detects true structural change better than one snapshot', 'One scan is always definitive', 'Repeats are only for billing', 'The first scan is always wrong'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Serial scans referenced to a baseline reveal genuine progression, which a single scan cannot show.', 'reasoning_eligible': True},
+                {'stem': "A highly MYOPIC or tilted disc reads as 'abnormal' on the HRT database, but is stable with a normal field. This most likely reflects:", 'options': ['An anatomical variant confounding the normative comparison, not true glaucoma', 'Definite active glaucoma', 'A scanning fault every time', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Myopic/tilted discs can flag as abnormal on databases; stability and a normal field argue against glaucomatous change.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document for an HRT?', 'options': ['The eye, scan quality, the contour line used and relevant parameters', "Only the patient's age", 'The clinic hours', 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the eye, quality, contour and parameters lets the clinician interpret and compare studies reliably.', 'reasoning_eligible': False},
+                {'stem': 'For valid serial monitoring, the OT should keep the HRT scans:', 'options': ['On the same device with a consistent contour/reference for comparison', 'On different machines each time', 'With a new random contour every visit', 'As single unrepeated snapshots'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistent equipment and reference let true change be distinguished from acquisition/analysis differences.', 'reasoning_eligible': True},
+                {'stem': 'Peripapillary atrophy near the disc can affect HRT because it:', 'options': ['Blurs the true disc margin, complicating the contour line - note it', 'Improves the measurement', 'Lowers the eye pressure', 'Has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Atrophy around the disc obscures the margin, making the contour harder to place; the OT notes this for interpretation.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT confirm good FIXATION specifically for HRT of the optic disc?', 'options': ['Eye movement blurs the disc image and adds variability to the measurements', 'Fixation never matters', 'It changes the eye pressure', 'It improves colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation keeps the disc sharp and the topography reproducible, reducing measurement noise.', 'reasoning_eligible': False},
+                {'stem': 'HRT is a structural test, so a normal HRT with a clearly abnormal field should prompt the clinician to:', 'options': ['Correlate the discordance and investigate further, not ignore the field', 'Trust only the HRT', 'Discharge the patient', 'Assume the field is always wrong'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Discordant structure and function needs correlation; a normal HRT does not rule out disease shown by the field.', 'reasoning_eligible': True},
+                {'stem': 'The OT should keep the scan focused and the disc CENTRED because:', 'options': ['Off-centre or defocused scans distort the topographic measurements', 'Centring never matters', 'It measures the cornea', 'It only affects the colour'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A centred, focused disc gives an accurate 3D topography; poor centring/focus corrupts the parameters.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A glaucoma patient's serial HRT shows progressive optic "
-                            "disc cupping that matches worsening visual fields. What "
-                            "does this combination indicate?",
-                    "options": [
-                        "Structure-function agreement supporting glaucoma progression "
-                        "— flag for review",
-                        "A machine artefact to ignore",
-                        "Improvement in the glaucoma",
-                        "A purely refractive change",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Progressive cupping on HRT matching field "
-                                   "worsening is concordant structure-function "
-                                   "evidence of glaucoma progression — flag it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is HRT described as complementary to, not a "
-                            "replacement for, the visual field?",
-                    "options": [
-                        "HRT measures structure objectively; the field measures the "
-                        "patient's actual vision — both are needed",
-                        "HRT already measures vision directly",
-                        "The field test measures structure",
-                        "They test completely different diseases",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT objectively images the optic nerve structure, "
-                                   "but only the visual field shows how the patient "
-                                   "actually sees — the two complement each other.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL true statements about HRT.",
-                    "options": [
-                        "It is a 3D laser scan of the optic nerve head",
-                        "It is a structural test for glaucoma",
-                        "Serial scans track disc/RNFL progression",
-                        "It measures the patient's visual field directly",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "HRT is a 3D laser structural scan of the optic "
-                                   "nerve head, tracked over time for glaucoma. It does "
-                                   "NOT measure the visual field (that is perimetry).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement best summarises HRT's role?",
-                    "options": [
-                        "An objective, repeatable structural assessment of the optic "
-                        "nerve head/RNFL for glaucoma, used with the visual field",
-                        "A functional test that replaces perimetry",
-                        "A contact ultrasound of the retina",
-                        "A test of corneal curvature",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "HRT provides objective, repeatable structural data "
-                                   "on the optic nerve head/RNFL for glaucoma, used "
-                                   "alongside the functional visual field.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': "A glaucoma patient's serial HRT shows progressive optic disc cupping that matches worsening visual fields. What does this combination indicate?", 'options': ['Structure-function agreement supporting glaucoma progression — flag for review', 'A machine artefact to ignore', 'Improvement in the glaucoma', 'A purely refractive change'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Progressive cupping on HRT matching field worsening is concordant structure-function evidence of glaucoma progression — flag it.', 'reasoning_eligible': True},
+                {'stem': 'Why is HRT described as complementary to, not a replacement for, the visual field?', 'options': ["HRT measures structure objectively; the field measures the patient's actual vision — both are needed", 'HRT already measures vision directly', 'The field test measures structure', 'They test completely different diseases'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT objectively images the optic nerve structure, but only the visual field shows how the patient actually sees — the two complement each other.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL true statements about HRT.', 'options': ['It is a 3D laser scan of the optic nerve head', 'It is a structural test for glaucoma', 'Serial scans track disc/RNFL progression', "It measures the patient's visual field directly"], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'HRT is a 3D laser structural scan of the optic nerve head, tracked over time for glaucoma. It does NOT measure the visual field (that is perimetry).', 'reasoning_eligible': True},
+                {'stem': "Which statement best summarises HRT's role?", 'options': ['An objective, repeatable structural assessment of the optic nerve head/RNFL for glaucoma, used with the visual field', 'A functional test that replaces perimetry', 'A contact ultrasound of the retina', 'A test of corneal curvature'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT provides objective, repeatable structural data on the optic nerve head/RNFL for glaucoma, used alongside the functional visual field.', 'reasoning_eligible': False},
+                {'stem': "A glaucoma patient's serial HRT shows progressive optic-disc cupping that MATCHES worsening visual fields. This combination indicates:", 'options': ['Genuine glaucomatous progression - flag for the clinician', 'A scanning error', 'A cataract', 'Nothing of concern'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Concordant structural (cupping) and functional (field) worsening is convincing for true glaucoma progression.', 'reasoning_eligible': True},
+                {'stem': 'Why is HRT described as COMPLEMENTARY to, not a replacement for, the visual field?', 'options': ['It measures structure; the field measures function, and both are needed for a full picture', 'The field is obsolete', 'HRT measures function too', 'They are identical tests'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Structure (HRT) and function (field) can change at different times; using both gives the most reliable glaucoma assessment.', 'reasoning_eligible': True},
+                {'stem': 'Before attributing HRT rim loss to glaucoma, the clinician/OT should exclude:', 'options': ['Poor image quality, inconsistent contour line, fixation loss and anatomical disc variants', 'Good fixation', 'A sharp, centred scan', 'A consistent contour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Artefactual 'change' from quality, contour or anatomy must be ruled out so real progression is not over- or under-called.", 'reasoning_eligible': True},
+                {'stem': "Which statement BEST summarises HRT's role?", 'options': ['A non-contact structural scan of the optic nerve head that supports glaucoma diagnosis/monitoring alongside the field', 'It measures the eye pressure', 'It replaces the visual field', 'It images the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'HRT non-invasively quantifies optic-disc structure to aid glaucoma care, used together with the visual field.', 'reasoning_eligible': True},
+                {'stem': 'Why can an operator-dependent contour line make HRT harder to compare between DIFFERENT technicians?', 'options': ['Different contour placements shift the rim/cup values, reducing reproducibility', 'The contour never affects values', 'The machine ignores the contour', 'Contours are automatic and identical'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because measurements reference the drawn contour, inter-operator differences reduce comparability - consistency matters.', 'reasoning_eligible': True},
+                {'stem': "A glaucoma-suspect's single HRT is borderline. The most useful next step for monitoring is to:", 'options': ['Establish a quality baseline and repeat over time to look for a trend', 'Diagnose glaucoma immediately', 'Never scan again', 'Rely on the one scan forever'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A borderline single scan is best judged by trend; a good baseline plus follow-up reveals real structural change.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST practice for acquiring a monitoring HRT.', 'options': ['Confirm order/ID, ensure clear media/good fixation, centre and focus on the disc, draw a consistent contour, and register to baseline', 'Any focus is fine if fixation is poor', 'Save the first blurred image', 'Use a new random contour each visit'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable HRT needs correct setup, clear media/fixation, a centred focused disc, a consistent contour and baseline registration.', 'reasoning_eligible': True},
+                {'stem': 'Why might HRT and OCT sometimes give slightly different optic-nerve assessments in the same eye?', 'options': ['They use different technologies and reference methods, so values are not directly interchangeable', 'One is always wrong', 'They measure the retina periphery', 'They measure eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Different platforms/algorithms mean HRT and OCT parameters are not interchangeable; trends are followed on the same device.', 'reasoning_eligible': True},
+                {'stem': 'A patient with dense cataract gives a poor, low-quality HRT. The correct interpretation is:', 'options': ['The media opacity limits the scan; the poor image may not reflect true disc disease', 'The disc is definitely damaged', 'The scan is perfect', 'It proves glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cataract degrades the disc image, so a poor HRT through dense media should not be over-interpreted as optic-nerve disease.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good HRT practice?', 'options': ['Confirm eye/order, secure a clear focused centred disc image, draw a consistent contour, document quality/parameters, and flag concerns', 'Any single blurred scan is fine', 'Diagnose and treat from the scan', 'Skip the contour line'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good HRT means correct setup, a quality centred disc image, a consistent contour, documentation and escalation of concerns.', 'reasoning_eligible': True},
+                {'stem': 'Why should the OT flag a large ASYMMETRY in disc parameters between the two eyes?', 'options': ['Marked asymmetry can be an early structural sign of glaucoma to correlate with the field', 'Asymmetry is always artefact', 'Discs are always identical', 'It measures the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Inter-eye disc asymmetry may indicate early glaucomatous damage and is flagged for correlation with the field/IOP.', 'reasoning_eligible': True},
+                {'stem': "Why does the OT correlate the HRT disc appearance with the clinician's optic-disc examination?", 'options': ['Agreement between imaging and the clinical disc exam increases confidence; mismatches prompt a closer look', 'The exam is irrelevant', 'HRT always overrides the exam', 'It measures colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistency between HRT and the clinical disc assessment strengthens interpretation; discrepancies prompt further evaluation.', 'reasoning_eligible': True},
             ],
         },
         "orthoptics": {
