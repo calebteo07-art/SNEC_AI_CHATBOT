@@ -2413,240 +2413,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "auto_refraction": {
             "easy": [
-                {
-                    "stem": "What does auto-refraction (AR) measure?",
-                    "options": [
-                        "Refractive error objectively (myopia, hyperopia, astigmatism)",
-                        "The eye pressure",
-                        "The visual field",
-                        "The endothelial cell count",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Auto-refraction objectively estimates the "
-                                   "refractive error (myopia, hyperopia, astigmatism).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does auto-keratometry (AK) measure?",
-                    "options": ["Corneal curvature and corneal astigmatism",
-                                "The retinal thickness",
-                                "The axial length",
-                                "The eye pressure"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Auto-keratometry measures the corneal curvature and "
-                                   "corneal astigmatism.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "When is AR/AK typically done?",
-                    "options": ["For new patients and pre-operative assessment",
-                                "Only in an emergency",
-                                "Only after surgery",
-                                "Never for adults"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "AR/AK is typically performed for new patients and "
-                                   "as part of pre-operative assessment.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Should glasses/contact lenses be removed for AR/AK?",
-                    "options": ["Yes", "No", "Only glasses", "Only contact lenses"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Glasses and contact lenses are removed so they do "
-                                   "not affect the AR/AK measurement.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "AK is especially important for which calculation?",
-                    "options": ["IOL power calculation in cataract surgery",
-                                "The visual field index",
-                                "The endothelial count",
-                                "The triage category"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Corneal curvature (keratometry) is needed for the "
-                                   "IOL power calculation in cataract surgery.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does auto-refraction (AR) measure?', 'options': ['Refractive error objectively (myopia, hyperopia, astigmatism)', 'The eye pressure', 'The visual field', 'The endothelial cell count'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Auto-refraction objectively estimates the refractive error (myopia, hyperopia, astigmatism).', 'reasoning_eligible': False},
+                {'stem': 'What does auto-keratometry (AK) measure?', 'options': ['Corneal curvature and corneal astigmatism', 'The retinal thickness', 'The axial length', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Auto-keratometry measures the corneal curvature and corneal astigmatism.', 'reasoning_eligible': False},
+                {'stem': 'When is AR/AK typically done?', 'options': ['For new patients and pre-operative assessment', 'Only in an emergency', 'Only after surgery', 'Never for adults'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR/AK is typically performed for new patients and as part of pre-operative assessment.', 'reasoning_eligible': False},
+                {'stem': 'Should glasses/contact lenses be removed for AR/AK?', 'options': ['Yes', 'No', 'Only glasses', 'Only contact lenses'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Glasses and contact lenses are removed so they do not affect the AR/AK measurement.', 'reasoning_eligible': False},
+                {'stem': 'AK is especially important for which calculation?', 'options': ['IOL power calculation in cataract surgery', 'The visual field index', 'The endothelial count', 'The triage category'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Corneal curvature (keratometry) is needed for the IOL power calculation in cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'Auto-refraction (AR) provides an OBJECTIVE estimate of the:', 'options': ['Refractive error (sphere, cylinder, axis)', 'Eye pressure', 'Colour vision', 'Retinal thickness'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "The auto-refractor estimates the eye's refractive error automatically as a starting point for refraction.", 'reasoning_eligible': False},
+                {'stem': 'Auto-keratometry (AK) measures the:', 'options': ['Curvature of the front of the cornea (K readings)', 'Eye pressure', 'Retinal nerve fibre layer', 'Tear volume'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AK measures anterior corneal curvature, giving K values and the astigmatism magnitude and axis.', 'reasoning_eligible': False},
+                {'stem': 'Before AR/AK the patient should:', 'options': ['Remove glasses and contact lenses', 'Keep their glasses on', 'Wear sunglasses', 'Instil dilating drops always'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Glasses/contact lenses are removed so the machine measures the eye itself, not the correction.', 'reasoning_eligible': False},
+                {'stem': 'During AR/AK the patient is asked to:', 'options': ['Fixate the internal target steadily and blink normally', 'Look around the room', 'Close both eyes', 'Read a distance chart aloud'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation and a normal blink give a focused, smooth-surface reading for reliable AR/AK values.', 'reasoning_eligible': False},
+                {'stem': 'The AR result is:', 'options': ['A starting point that a subjective refraction refines, not the final prescription', 'The final spectacle prescription', 'The eye pressure', 'The IOL power'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR gives an objective estimate; the final prescription comes from subjective refinement by the refractionist.', 'reasoning_eligible': False},
+                {'stem': 'AK (keratometry) is especially important for which calculation?', 'options': ['Intraocular lens (IOL) power before cataract surgery', 'The eye pressure', 'Colour vision score', 'Fall-risk score'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Corneal power (K) is a key input, with axial length, to the IOL formula for cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'The final spectacle prescription is set by the:', 'options': ['Refractionist/optometrist after subjective refinement', 'Auto-refractor alone', 'Receptionist', 'Patient'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The AR is refined by a subjective refraction; the refractionist/optometrist determines the final prescription.', 'reasoning_eligible': True},
+                {'stem': 'The OT should take AR/AK and:', 'options': ['Record the readings for the refraction/clinician, noting reliability', 'Dispense glasses from the AR directly', 'Diagnose eye disease', 'Delete the values'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT documents the objective readings and any reliability concerns for the refractionist/clinician to use.', 'reasoning_eligible': True},
+                {'stem': 'AK reports astigmatism as a:', 'options': ['Magnitude and an axis', 'Single colour', 'Yes/no only', 'Pressure in mmHg'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Keratometry gives the amount of corneal astigmatism and the axis along which it lies.', 'reasoning_eligible': False},
+                {'stem': 'AR/AK is a:', 'options': ['Quick, non-contact automated measurement', 'Contact ultrasound test', 'Blood test', 'An injection'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The auto kerato-refractometer takes non-contact readings quickly, comfortable for the patient.', 'reasoning_eligible': False},
+                {'stem': 'Why take SEVERAL AR/AK readings rather than one?', 'options': ['To check consistency and average out small errors', 'To use more electricity', 'To slow the clinic', 'Because one reading is illegal'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Multiple consistent readings confirm reliability; a single reading could be an outlier.', 'reasoning_eligible': True},
+                {'stem': 'The OT should position the patient with the chin and forehead:', 'options': ['Correctly on the rests, aligned to the machine', 'Off the rests entirely', 'Tilted fully back', 'Turned away from the target'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Correct chin/forehead positioning and alignment give a focused, on-axis reading.', 'reasoning_eligible': False},
             ],
             "medium": [
-                {
-                    "stem": "Why might AR/AK readings be inconsistent?",
-                    "options": ["An unstable tear film (dry eye) or poor fixation",
-                                "The patient is too tall",
-                                "The room is too warm",
-                                "AR/AK is never inconsistent"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "An unstable tear film (dry eye) or poor fixation "
-                                   "commonly cause inconsistent AR/AK readings.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How do you improve unreliable AR/AK caused by dry eye?",
-                    "options": [
-                        "Ask the patient to blink or instil a lubricant, then "
-                        "re-acquire",
-                        "Increase the scan speed",
-                        "Dilate the pupil",
-                        "Switch to ultrasound",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A blink or a lubricant drop refreshes the tear "
-                                   "film, improving the reading — then re-acquire.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Is the AR result a final spectacle prescription?",
-                    "options": [
-                        "No — it is an objective starting point; subjective refraction "
-                        "confirms it",
-                        "Yes — it is the final prescription",
-                        "Only for children",
-                        "Only for cataract patients",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "AR gives an objective starting point; the final "
-                                   "prescription is set by subjective refraction.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is AK used before cataract surgery?",
-                    "options": [
-                        "Corneal curvature is needed for the IOL power calculation",
-                        "It measures the cataract density",
-                        "It checks the visual field",
-                        "It lowers the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The corneal curvature from AK feeds into the IOL "
-                                   "power calculation for cataract surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Who sets the final spectacle prescription?",
-                    "options": [
-                        "The doctor/optometrist via subjective refraction",
-                        "The auto-refractor decides it",
-                        "The patient chooses it",
-                        "The OT prescribes it",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "The final prescription is determined by the "
-                                   "doctor/optometrist through subjective refraction, "
-                                   "starting from the AR.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why might AR/AK readings be inconsistent?', 'options': ['An unstable tear film (dry eye) or poor fixation', 'The patient is too tall', 'The room is too warm', 'AR/AK is never inconsistent'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'An unstable tear film (dry eye) or poor fixation commonly cause inconsistent AR/AK readings.', 'reasoning_eligible': True},
+                {'stem': 'How do you improve unreliable AR/AK caused by dry eye?', 'options': ['Ask the patient to blink or instil a lubricant, then re-acquire', 'Increase the scan speed', 'Dilate the pupil', 'Switch to ultrasound'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A blink or a lubricant drop refreshes the tear film, improving the reading — then re-acquire.', 'reasoning_eligible': True},
+                {'stem': 'Is the AR result a final spectacle prescription?', 'options': ['No — it is an objective starting point; subjective refraction confirms it', 'Yes — it is the final prescription', 'Only for children', 'Only for cataract patients'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR gives an objective starting point; the final prescription is set by subjective refraction.', 'reasoning_eligible': True},
+                {'stem': 'Why is AK used before cataract surgery?', 'options': ['Corneal curvature is needed for the IOL power calculation', 'It measures the cataract density', 'It checks the visual field', 'It lowers the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The corneal curvature from AK feeds into the IOL power calculation for cataract surgery.', 'reasoning_eligible': False},
+                {'stem': 'Who sets the final spectacle prescription?', 'options': ['The doctor/optometrist via subjective refraction', 'The auto-refractor decides it', 'The patient chooses it', 'The OT prescribes it'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The final prescription is determined by the doctor/optometrist through subjective refraction, starting from the AR.', 'reasoning_eligible': False},
+                {'stem': "A patient's AR/AK values are SCATTERED and inconsistent. A common cause and fix is:", 'options': ['A poor tear film - ask them to blink or instil a lubricant and re-measure', 'Nothing can be done', 'Press on the eye', 'Report the scatter as their prescription'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An unstable tear film scatters the measurement; a blink or lubricant smooths the surface for consistent readings.', 'reasoning_eligible': True},
+                {'stem': "A young patient's AR reads much more MINUS (myopic) than expected. This is often due to:", 'options': ['Accommodation during the test (instrument myopia) - may need cycloplegia for accuracy', 'A machine fault always', 'A cataract', 'High eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Active accommodation can make AR over-minus; a cycloplegic refraction gives the true error in accommodating patients/children.', 'reasoning_eligible': True},
+                {'stem': 'A contact-lens wearer needs AK before cataract surgery. Why ask them to stop lenses first?', 'options': ['Lenses can warp the cornea, giving inaccurate K and a wrong IOL', 'Lenses improve the K reading', 'It has no effect', 'It lowers the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Contact-lens warpage distorts corneal curvature; a lens-free interval lets the true K be measured for the IOL.', 'reasoning_eligible': True},
+                {'stem': 'Why is the AR treated as a STARTING POINT rather than the final prescription?', 'options': ["It does not account for the patient's subjective preference/binocular balance, which refraction refines", 'It is always exactly right', 'It measures the retina', 'It sets the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'AR is objective but does not capture subjective comfort/balance; the refractionist refines it to a final prescription.', 'reasoning_eligible': True},
+                {'stem': 'Why is AK used BEFORE cataract surgery?', 'options': ['Corneal power (K) is needed with axial length to calculate the IOL power', 'It measures the retina', 'It sets the anaesthesia', 'It grades the cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'K readings and axial length feed the IOL formula, so accurate keratometry is essential pre-operatively.', 'reasoning_eligible': True},
+                {'stem': 'A patient with a small pupil or a drooping lid gives poor AR/AK. A sensible step is to:', 'options': ['Optimise positioning/lid clearance and re-measure for a valid reading', 'Report the poor value as final', 'Press on the eye', 'Diagnose ptosis and stop'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Lifting a drooping lid clear and optimising alignment lets the machine obtain a usable, accurate reading.', 'reasoning_eligible': True},
+                {'stem': 'A patient with irregular, inconsistent K on AK also has suspicious corneal topography. The OT should:', 'options': ['Flag the irregularity - it may reflect keratoconus needing correlation, not just noise', 'Assume the machine is broken', 'Average and ignore it', 'Diagnose keratoconus and counsel surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Irregular K with abnormal topography can indicate keratoconus; the OT flags it for the clinician rather than dismissing it.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document with an AR/AK study?', 'options': ['The readings, the eye, reliability/consistency and any confounders (dry eye, CL wear)', "Only the patient's age", 'The clinic hours', 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording readings, eye, reliability and confounders lets the refractionist/clinician interpret them correctly.', 'reasoning_eligible': False},
+                {'stem': "Why must the patient look at the internal target and NOT try to 'focus hard' during AR?", 'options': ['Straining to focus triggers accommodation, biasing the reading toward myopia', 'Focusing improves accuracy', 'It changes the eye pressure', 'It has no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Encouraging relaxed viewing of the (fogged) target minimises accommodation, giving a truer refractive estimate.', 'reasoning_eligible': True},
+                {'stem': 'A post-LASIK patient needs AK before cataract surgery. Why flag the refractive-surgery history?', 'options': ['Altered corneal power makes standard K/formulae inaccurate, so a special method is needed', 'It has no effect', 'LASIK eyes cannot be measured', 'It only changes the axial length'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Refractive surgery changes corneal power; standard K-based IOL formulae err, so the clinician uses a post-refractive approach.', 'reasoning_eligible': True},
+                {'stem': 'The AR/AK is well-focused, aligned and consistent across readings. The OT should:', 'options': ['Record it as a reliable objective baseline for the refraction/IOL calculation', 'Flag it as abnormal', 'Repeat 30 times', 'Dispense glasses from it'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A well-acquired, consistent AR/AK is a reliable objective starting point for refraction or IOL planning.', 'reasoning_eligible': True},
+                {'stem': 'Why does AK matter for planning a TORIC IOL specifically?', 'options': ['It provides the corneal astigmatism magnitude and axis the toric lens must match', 'Astigmatism does not matter for toric lenses', 'It measures the retina', 'It sets the anaesthesia'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A toric IOL corrects corneal astigmatism only if its power/axis match the K readings, so accurate AK is essential.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A patient with dry eye has scattered, inconsistent AR/AK "
-                            "values. Why must this be corrected before the data is "
-                            "used for IOL calculation?",
-                    "options": [
-                        "Unstable keratometry feeds a wrong IOL power, risking a poor "
-                        "refractive outcome",
-                        "Inconsistent AR/AK improves the IOL result",
-                        "AR/AK is irrelevant to IOL power",
-                        "Dry eye cannot affect the cornea",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Tear-film instability scatters the keratometry; "
-                                   "using it would give a wrong IOL power and a poor "
-                                   "outcome — refresh the tear film and re-measure "
-                                   "first.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is the auto-refraction treated as a starting point "
-                            "rather than the final prescription?",
-                    "options": [
-                        "It is an objective estimate; subjective refraction refines it "
-                        "to what the patient actually sees best with",
-                        "It is always exactly right",
-                        "It measures the retina, not refraction",
-                        "Subjective refraction is less accurate",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "AR objectively estimates the error, but the patient "
-                                   "must confirm the best subjective result — so it is "
-                                   "a starting point, then refined.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL steps that improve AR/AK reliability.",
-                    "options": [
-                        "Remove glasses and contact lenses first",
-                        "Refresh the tear film (blink/lubricant) if it is unstable",
-                        "Ensure good, steady fixation",
-                        "Leave a contact lens in to keep the eye moist",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Remove lenses, refresh a poor tear film, and ensure "
-                                   "steady fixation. Leaving a contact lens in would "
-                                   "corrupt the measurement.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "How do AR and AK each contribute differently to "
-                            "pre-cataract assessment?",
-                    "options": [
-                        "AR estimates the patient's refractive error; AK provides "
-                        "corneal curvature for the IOL calculation",
-                        "Both measure only the refractive error",
-                        "AK measures refraction; AR measures the cornea",
-                        "Neither is used before cataract surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "AR gives the refractive starting point; AK gives "
-                                   "corneal curvature for the IOL power calculation — "
-                                   "complementary pre-cataract data.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Which statement about AR/AK is correct?",
-                    "options": [
-                        "Remove lenses, ensure a stable tear film and fixation; AR is "
-                        "an objective starting point and AK feeds the IOL calculation",
-                        "AR is the final prescription and needs no confirmation",
-                        "Glasses should be left on during AR/AK",
-                        "AK measures the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Good AR/AK practice removes lenses, ensures a stable "
-                                   "tear film and fixation; AR is an objective starting "
-                                   "point and AK supplies corneal curvature for the IOL "
-                                   "calculation.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient with dry eye has scattered, inconsistent AR/AK values. Why must this be corrected before the data is used for IOL calculation?', 'options': ['Unstable keratometry feeds a wrong IOL power, risking a poor refractive outcome', 'Inconsistent AR/AK improves the IOL result', 'AR/AK is irrelevant to IOL power', 'Dry eye cannot affect the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Tear-film instability scatters the keratometry; using it would give a wrong IOL power and a poor outcome — refresh the tear film and re-measure first.', 'reasoning_eligible': True},
+                {'stem': 'Why is the auto-refraction treated as a starting point rather than the final prescription?', 'options': ['It is an objective estimate; subjective refraction refines it to what the patient actually sees best with', 'It is always exactly right', 'It measures the retina, not refraction', 'Subjective refraction is less accurate'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR objectively estimates the error, but the patient must confirm the best subjective result — so it is a starting point, then refined.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL steps that improve AR/AK reliability.', 'options': ['Remove glasses and contact lenses first', 'Refresh the tear film (blink/lubricant) if it is unstable', 'Ensure good, steady fixation', 'Leave a contact lens in to keep the eye moist'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Remove lenses, refresh a poor tear film, and ensure steady fixation. Leaving a contact lens in would corrupt the measurement.', 'reasoning_eligible': True},
+                {'stem': 'How do AR and AK each contribute differently to pre-cataract assessment?', 'options': ["AR estimates the patient's refractive error; AK provides corneal curvature for the IOL calculation", 'Both measure only the refractive error', 'AK measures refraction; AR measures the cornea', 'Neither is used before cataract surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR gives the refractive starting point; AK gives corneal curvature for the IOL power calculation — complementary pre-cataract data.', 'reasoning_eligible': False},
+                {'stem': 'Which statement about AR/AK is correct?', 'options': ['Remove lenses, ensure a stable tear film and fixation; AR is an objective starting point and AK feeds the IOL calculation', 'AR is the final prescription and needs no confirmation', 'Glasses should be left on during AR/AK', 'AK measures the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Good AR/AK practice removes lenses, ensures a stable tear film and fixation; AR is an objective starting point and AK supplies corneal curvature for the IOL calculation.', 'reasoning_eligible': False},
+                {'stem': 'A dry-eye patient has scattered, inconsistent AR/AK. Why MUST this be corrected before the data informs IOL calculation?', 'options': ['Unreliable K would give a wrong IOL power and a refractive surprise after surgery', 'It only affects glasses', 'It changes the eye colour', 'IOL power ignores K'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The IOL depends on accurate K; noisy dry-eye readings must be optimised first or the implant power will be wrong.', 'reasoning_eligible': True},
+                {'stem': 'Which set of steps improves AR/AK reliability?', 'options': ['Remove glasses/CL, optimise the tear film, align and focus, relax accommodation, and take several consistent readings', "One quick reading through the patient's glasses", 'Encourage the patient to focus hard', 'Press the sensor on the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable AR/AK needs no lenses, a good tear film, correct alignment, relaxed accommodation and multiple consistent readings.', 'reasoning_eligible': True},
+                {'stem': 'How do AR and AK contribute DIFFERENTLY to pre-cataract assessment?', 'options': ['AR estimates the whole-eye refractive error; AK measures corneal power (K) for the IOL formula', 'They measure the same thing', 'AK measures the retina', 'AR sets the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "AR gives the eye's refractive error; AK gives corneal power - the latter feeds the IOL calculation with axial length.", 'reasoning_eligible': True},
+                {'stem': 'Which statement about AR/AK is CORRECT?', 'options': ['It is a quick objective measure of refraction and corneal power, a starting point refined by subjective refraction and used (K) for IOL planning', 'It gives the final spectacle prescription', 'It measures the eye pressure', 'It replaces subjective refraction entirely'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'AR/AK objectively estimates refraction and K as a basis for subjective refraction and (via K) IOL calculation.', 'reasoning_eligible': True},
+                {'stem': 'A patient with nystagmus (constant eye movement) gives unstable AR/AK. The OT should:', 'options': ['Take the best readings possible, note the limitation, and flag it for the refractionist', 'Report a random value', 'Press on the eye to stop it', 'Refuse to document anything'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Unsteady fixation limits automated readings; the OT captures the best data, documents the limitation and flags it.', 'reasoning_eligible': True},
+                {'stem': 'Why can a dense cataract or media opacity make AR unreliable?', 'options': ['The instrument cannot get a clean measurement through the opacity, so the AR may be inaccurate', 'Cataract improves the AR', 'It only affects the retina', 'AR ignores the lens'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Opacity scatters the measuring beam, so AR through a dense cataract may be unreliable and interpreted with caution.', 'reasoning_eligible': True},
+                {'stem': 'A child needs an accurate refraction but accommodates strongly, over-minusing the AR. The appropriate approach is to:', 'options': ['Perform a cycloplegic refraction as directed, to relax accommodation', 'Dispense from the AR directly', 'Ignore the over-minus', 'Assume the child is very myopic'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Cycloplegia relaxes a child's strong accommodation, revealing the true refractive error rather than an over-minused AR.", 'reasoning_eligible': True},
+                {'stem': 'Why should the OT NOT dispense spectacles directly from the auto-refraction?', 'options': ["AR is an objective estimate that may not match the patient's best subjective/comfortable correction", 'AR is always perfect', 'AR measures the retina', 'Dispensing from AR is faster and better'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "AR can differ from the patient's preferred correction; a subjective refraction is needed before prescribing glasses.", 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good AR/AK practice.', 'options': ['Remove correction, position/align, optimise tear film and fixation, take consistent readings, document reliability, and pass to the refractionist/clinician', 'One quick reading through glasses is fine', 'Dispense glasses straight from the AR', 'Skip documentation if it looks normal'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good AR/AK means no lenses, correct setup, an optimised surface/fixation, consistent documented readings, passed on for refinement.', 'reasoning_eligible': True},
+                {'stem': 'The AK astigmatism axis disagrees markedly with the topography and biometry. The safe action is to:', 'options': ['Re-measure after optimising the tear film and correlate before it informs a toric IOL', 'Trust the single AK reading', 'Ignore the topography', 'Report it as final'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Disagreement may be tear-film artefact; re-measuring and cross-checking prevents a wrong toric-IOL axis.', 'reasoning_eligible': True},
+                {'stem': "Why does the OT correlate the AR with the patient's PRESENTING vision and old glasses when available?", 'options': ['A gross mismatch may signal an unreliable reading or a change to investigate before refracting', 'Old glasses are irrelevant', 'It measures the eye pressure', 'AR always matches old glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Comparing AR with presenting vision/old correction flags unreliable readings or genuine change, guiding the refraction.', 'reasoning_eligible': True},
             ],
         },
     },
