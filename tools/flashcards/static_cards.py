@@ -2123,244 +2123,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "corneal_topography": {
             "easy": [
-                {
-                    "stem": "What does corneal topography map?",
-                    "options": [
-                        "Corneal curvature and elevation across the whole corneal "
-                        "surface",
-                        "The retinal thickness",
-                        "The axial length",
-                        "The eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Corneal topography maps the curvature and elevation "
-                                   "of the entire corneal surface.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Name one indication for corneal topography.",
-                    "options": ["Keratoconus screening",
-                                "Glaucoma field testing",
-                                "Cataract density grading",
-                                "Colour vision testing"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Topography is used for keratoconus screening (also "
-                                   "pre-LASIK and contact lens fitting).",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What corneal pattern suggests keratoconus?",
-                    "options": [
-                        "Inferior steepening / asymmetric bow-tie / irregular "
-                        "astigmatism",
-                        "A perfectly symmetrical, smooth surface",
-                        "Uniform central flattening",
-                        "No measurable pattern",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Inferior steepening, an asymmetric bow-tie and "
-                                   "irregular astigmatism are classic topographic signs "
-                                   "of keratoconus.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Select ALL details corneal topography documents.",
-                    "options": ["K readings", "The pattern of curvature",
-                                "Any irregularity", "The visual field indices"],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "Topography documents the K readings, the curvature "
-                                   "pattern and any irregularity. Visual field indices "
-                                   "come from perimetry, not topography.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Is corneal topography used before refractive surgery?",
-                    "options": ["Yes — for pre-LASIK assessment",
-                                "No — it is never used for surgery",
-                                "Only after surgery",
-                                "Only for glaucoma"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Topography is part of pre-LASIK assessment to "
-                                   "screen for unsuitable corneas.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How does topography help contact lens fitting?",
-                    "options": ["It maps the corneal shape to select a well-fitting "
-                                "lens",
-                                "It measures the eye pressure",
-                                "It counts endothelial cells",
-                                "It tests the visual field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "By mapping the corneal shape, topography guides "
-                                   "selection of a lens that fits well.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does corneal topography map?', 'options': ['Corneal curvature and elevation across the whole corneal surface', 'The retinal thickness', 'The axial length', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Corneal topography maps the curvature and elevation of the entire corneal surface.', 'reasoning_eligible': False},
+                {'stem': 'Name one indication for corneal topography.', 'options': ['Keratoconus screening', 'Glaucoma field testing', 'Cataract density grading', 'Colour vision testing'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Topography is used for keratoconus screening (also pre-LASIK and contact lens fitting).', 'reasoning_eligible': False},
+                {'stem': 'What corneal pattern suggests keratoconus?', 'options': ['Inferior steepening / asymmetric bow-tie / irregular astigmatism', 'A perfectly symmetrical, smooth surface', 'Uniform central flattening', 'No measurable pattern'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inferior steepening, an asymmetric bow-tie and irregular astigmatism are classic topographic signs of keratoconus.', 'reasoning_eligible': False},
+                {'stem': 'Select ALL details corneal topography documents.', 'options': ['K readings', 'The pattern of curvature', 'Any irregularity', 'The visual field indices'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'Topography documents the K readings, the curvature pattern and any irregularity. Visual field indices come from perimetry, not topography.', 'reasoning_eligible': False},
+                {'stem': 'Is corneal topography used before refractive surgery?', 'options': ['Yes — for pre-LASIK assessment', 'No — it is never used for surgery', 'Only after surgery', 'Only for glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Topography is part of pre-LASIK assessment to screen for unsuitable corneas.', 'reasoning_eligible': False},
+                {'stem': 'How does topography help contact lens fitting?', 'options': ['It maps the corneal shape to select a well-fitting lens', 'It measures the eye pressure', 'It counts endothelial cells', 'It tests the visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'By mapping the corneal shape, topography guides selection of a lens that fits well.', 'reasoning_eligible': False},
+                {'stem': 'Before corneal topography, the OT should first check the:', 'options': ["Doctor's order and the correct patient (2 identifiers)", "Patient's car park slip", 'Room thermostat', "Next patient's file"], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Topography starts with confirming the order and patient identity using two identifiers.', 'reasoning_eligible': True},
+                {'stem': 'During topography the patient is asked to:', 'options': ['Fixate steadily and blink to keep a smooth tear film before capture', 'Look all around', 'Close both eyes', 'Read a distance chart'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Steady fixation and a full blink give a smooth reflective surface for clean, accurate corneal maps.', 'reasoning_eligible': False},
+                {'stem': 'Corneal topography is a:', 'options': ['Non-contact map of the corneal surface/curvature', 'Contact ultrasound probe', 'Blood test', 'An X-ray'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Topography images the cornea's shape without touching it, mapping curvature (and often elevation/thickness).", 'reasoning_eligible': False},
+                {'stem': 'At the end of the test the OT should validate the capture and:', 'options': ['Print the maps and record date/time/VA, then disinfect the device', 'Delete the maps', 'Leave the device dirty', 'Print the wrong eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The validated maps are printed/recorded (with date/time/VA) and the instrument is disinfected after use.', 'reasoning_eligible': False},
+                {'stem': "A symmetric 'bow-tie' pattern on topography usually represents:", 'options': ['Regular astigmatism', 'Keratoconus', 'A normal spherical cornea only', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A symmetric bow-tie reflects regular (with- or against-the-rule) astigmatism.', 'reasoning_eligible': False},
+                {'stem': 'Inferior steepening with an ASYMMETRIC bow-tie suggests:', 'options': ['Keratoconus', 'A perfectly normal cornea', 'Glaucoma', 'A blocked tear duct'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Inferior steepening and asymmetry are classic early signs of keratoconus.', 'reasoning_eligible': False},
+                {'stem': 'A patient asks if topography will touch or hurt the eye. The correct reassurance is:', 'options': ['It is a quick, non-contact scan with nothing touching the eye', 'It uses a needle', 'It presses a lens on the eye', 'It is painful'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Topography is painless and non-contact; explaining this eases anxiety and improves fixation/cooperation.', 'reasoning_eligible': True},
+                {'stem': 'Corneal topography is routinely performed BEFORE which procedure?', 'options': ['LASIK / refractive surgery screening', 'A hearing test', 'A blood pressure check', 'A dental review'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Pre-refractive-surgery topography screens for keratoconus and irregular corneas that contraindicate LASIK.', 'reasoning_eligible': False},
+                {'stem': 'The OT should confirm the correct EYE and print the required maps because:', 'options': ["The clinician needs the right eye's maps to make decisions", 'Both eyes are always identical', 'It only affects tidiness', 'It never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Confirming the eye and producing the standard map set ensures the study answers the clinical question.', 'reasoning_eligible': False},
+                {'stem': 'Topography helps in fitting which type of lens onto an irregular cornea?', 'options': ['Rigid gas-permeable (RGP) / specialty contact lenses', 'Reading spectacles only', 'Sunglasses', 'An eye patch'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'The corneal map guides RGP/specialty lens fitting, especially on irregular corneas like keratoconus.', 'reasoning_eligible': False},
+                {'stem': 'The OT captures the topography and:', 'options': ['Records the maps for the clinician, without diagnosing', 'Diagnoses keratoconus and counsels on surgery', 'Prescribes glasses', 'Deletes the images'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "The OT acquires and documents the maps; diagnosis and management remain the clinician's role.", 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "A young patient has inferior steepening and irregular "
-                            "astigmatism on topography. What do you suspect?",
-                    "options": ["Keratoconus", "Cataract",
-                                "Glaucoma", "Macular degeneration"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inferior steepening with irregular astigmatism in a "
-                                   "young patient suggests keratoconus.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is topography done before LASIK?",
-                    "options": [
-                        "To screen for keratoconus and irregular corneas that "
-                        "contraindicate surgery",
-                        "To measure the IOL power",
-                        "To test colour vision",
-                        "To check the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Topography screens for keratoconus/irregular "
-                                   "corneas, which are contraindications to LASIK.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Topography versus keratometry — what is topography's "
-                            "advantage?",
-                    "options": [
-                        "It maps the entire corneal surface, not just the central "
-                        "curvature",
-                        "It is faster but less detailed",
-                        "It measures the retina too",
-                        "There is no advantage",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Keratometry samples only the central curvature; "
-                                   "topography maps the whole surface, revealing "
-                                   "irregularity a few central points would miss.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "What does an asymmetric bow-tie pattern suggest?",
-                    "options": ["Irregular astigmatism, possibly early keratoconus",
-                                "A perfectly normal cornea",
-                                "Glaucoma",
-                                "A cataract"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "An asymmetric bow-tie indicates irregular "
-                                   "astigmatism, which can be an early sign of "
-                                   "keratoconus.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Why is detecting keratoconus before LASIK so important?",
-                    "options": [
-                        "Operating on a keratoconic cornea can worsen it and harm "
-                        "vision (ectasia)",
-                        "Keratoconus makes LASIK more effective",
-                        "It only affects the cosmetic result",
-                        "It has no impact on surgery",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "LASIK on a weak/keratoconic cornea risks "
-                                   "progressive ectasia and vision loss, so screening "
-                                   "it out is critical.",
-                    "reasoning_eligible": True,
-                },
+                {'stem': 'A young patient has inferior steepening and irregular astigmatism on topography. What do you suspect?', 'options': ['Keratoconus', 'Cataract', 'Glaucoma', 'Macular degeneration'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inferior steepening with irregular astigmatism in a young patient suggests keratoconus.', 'reasoning_eligible': True},
+                {'stem': 'Why is topography done before LASIK?', 'options': ['To screen for keratoconus and irregular corneas that contraindicate surgery', 'To measure the IOL power', 'To test colour vision', 'To check the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Topography screens for keratoconus/irregular corneas, which are contraindications to LASIK.', 'reasoning_eligible': True},
+                {'stem': "Topography versus keratometry — what is topography's advantage?", 'options': ['It maps the entire corneal surface, not just the central curvature', 'It is faster but less detailed', 'It measures the retina too', 'There is no advantage'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Keratometry samples only the central curvature; topography maps the whole surface, revealing irregularity a few central points would miss.', 'reasoning_eligible': True},
+                {'stem': 'What does an asymmetric bow-tie pattern suggest?', 'options': ['Irregular astigmatism, possibly early keratoconus', 'A perfectly normal cornea', 'Glaucoma', 'A cataract'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'An asymmetric bow-tie indicates irregular astigmatism, which can be an early sign of keratoconus.', 'reasoning_eligible': False},
+                {'stem': 'Why is detecting keratoconus before LASIK so important?', 'options': ['Operating on a keratoconic cornea can worsen it and harm vision (ectasia)', 'Keratoconus makes LASIK more effective', 'It only affects the cosmetic result', 'It has no impact on surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'LASIK on a weak/keratoconic cornea risks progressive ectasia and vision loss, so screening it out is critical.', 'reasoning_eligible': True},
+                {'stem': 'A young patient wanting LASIK has inferior steepening and irregular astigmatism on topography. The OT should:', 'options': ['Capture quality maps and flag the suspicious pattern to the clinician (possible keratoconus)', 'Reassure them LASIK is fine', 'Diagnose keratoconus and refuse surgery themselves', 'Ignore the pattern'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Suspicious topography before LASIK must be flagged; operating on a keratoconic cornea risks post-LASIK ectasia.', 'reasoning_eligible': True},
+                {'stem': 'A patient wore soft contact lenses this morning before topography. Why might the map be misleading?', 'options': ['Contact lenses can temporarily warp the cornea, distorting the map', 'Lenses improve the map', 'Lenses lower the eye pressure', 'They have no effect'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Contact-lens warpage alters corneal shape; patients usually stop lenses (soft ~days, RGP longer) before topography for a true map.', 'reasoning_eligible': True},
+                {'stem': 'A dry-eye patient gives an irregular, patchy topography map. A simple first step is to:', 'options': ['Ask them to blink / instil a lubricant and re-capture', 'Report the irregularity as keratoconus', 'Press on the eye', 'Record the poor map as final'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'An unstable tear film scatters the reflected pattern; a blink or lubricant smooths the surface for a valid map.', 'reasoning_eligible': True},
+                {'stem': 'Why is topography superior to simple keratometry for detecting early keratoconus?', 'options': ["It maps the whole cornea, revealing localised/inferior irregularity keratometry's few central points miss", 'It measures the retina', 'Keratometry maps more of the cornea', 'They are identical'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "Keratometry samples only a few central points; topography's full map catches peripheral/inferior steepening of early cones.", 'reasoning_eligible': True},
+                {'stem': 'A poor-quality topography capture (blink, decentration, missing data) appears. The OT should:', 'options': ['Re-align, ensure a good tear film, and re-acquire rather than accept it', 'Report the artefact as disease', 'Increase print brightness', 'Diagnose from the artefact'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Only a well-centred, complete capture is valid; poor maps are repeated after optimising alignment and tear film.', 'reasoning_eligible': True},
+                {'stem': 'For monitoring known keratoconus over time, the OT should use:', 'options': ['The same device and technique each visit for valid comparison', 'A different machine each time', 'Any random settings', 'Only the first-ever scan'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Consistent equipment and method let real progression be distinguished from measurement differences.', 'reasoning_eligible': True},
+                {'stem': 'Topography before cataract surgery helps plan a TORIC IOL by showing the:', 'options': ['Magnitude and axis of corneal astigmatism (and its regularity)', 'Retinal thickness', 'Eye pressure', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Corneal astigmatism magnitude, axis and regularity guide whether and how to use a toric IOL.', 'reasoning_eligible': True},
+                {'stem': 'A patient reports frequent eye-rubbing and atopy. On topography you note early inferior steepening. This is relevant because:', 'options': ['Eye-rubbing/atopy are risk factors for keratoconus, adding weight to a suspicious map', 'Rubbing improves the cornea', 'Atopy prevents keratoconus', 'It is unrelated'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Chronic rubbing and atopy are keratoconus risk factors; combined with suspicious topography they raise concern to flag.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document with a topography study?', 'options': ['Eye, the maps/indices, capture quality and any contact-lens or tear-film factors', "Only the patient's age", "The clinic's opening hours", 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the eye, maps, quality and confounders (CL wear, dry eye) helps the clinician interpret and compare studies.', 'reasoning_eligible': False},
+                {'stem': 'Elevation-based topography (e.g. Scheimpflug/Orbscan) adds value by also showing:', 'options': ['Posterior corneal surface and thickness (pachymetry), aiding early ectasia detection', 'The retina', 'The eye pressure', 'Colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Elevation systems map the back surface and thickness, catching early ectasia that front-surface (Placido) maps may miss.', 'reasoning_eligible': False},
+                {'stem': "Why keep the patient's eyes wide and well-positioned during capture?", 'options': ['Lid/lash shadowing or poor centration can drop data and distort the map', 'It changes the eye pressure', 'It improves colour vision', 'Position never matters'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Good lid opening and centration prevent missing data and artefacts, giving a complete, accurate corneal map.', 'reasoning_eligible': False},
+                {'stem': 'Topography after a corneal GRAFT is useful to assess:', 'options': ['Post-graft irregular astigmatism, guiding suture management and lens fitting', 'The retina', 'Colour vision', 'The eyelid muscles'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Grafts often have high irregular astigmatism; topography guides suture adjustment/removal and RGP fitting.', 'reasoning_eligible': True},
             ],
             "hard": [
-                {
-                    "stem": "A 22-year-old wants LASIK. Topography shows inferior "
-                            "steepening and an asymmetric bow-tie; vision fluctuates and "
-                            "they rub their eyes often. Why is this concerning?",
-                    "options": [
-                        "The pattern and history suggest keratoconus — LASIK would be "
-                        "contraindicated; flag for the doctor",
-                        "It is a normal young cornea — proceed with LASIK",
-                        "Eye rubbing protects the cornea",
-                        "Topography is irrelevant to LASIK planning",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Inferior steepening, asymmetric bow-tie, "
-                                   "fluctuating vision and eye-rubbing point to "
-                                   "keratoconus — a contraindication to LASIK that must "
-                                   "be flagged.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL situations where corneal topography is "
-                            "clinically valuable.",
-                    "options": [
-                        "Screening for keratoconus",
-                        "Pre-LASIK suitability assessment",
-                        "Fitting a contact lens to an irregular cornea",
-                        "Calculating the visual field indices",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "practical",
-                    "explanation": "Topography helps keratoconus screening, LASIK "
-                                   "assessment and irregular-cornea lens fitting. It "
-                                   "does not produce visual field indices.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why can topography detect early keratoconus that simple "
-                            "keratometry might miss?",
-                    "options": [
-                        "It maps the whole surface, revealing localised inferior "
-                        "steepening outside the central zone",
-                        "It measures the retina as well",
-                        "Keratometry maps more of the cornea than topography",
-                        "Early keratoconus only affects the centre",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Early keratoconus often steepens inferiorly, "
-                                   "outside the few central points keratometry samples; "
-                                   "whole-surface topography catches it.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement about corneal topography is correct?",
-                    "options": [
-                        "It maps whole-surface curvature/elevation, screens "
-                        "keratoconus, and supports LASIK and lens-fitting decisions",
-                        "It measures the eye pressure",
-                        "It only samples the central cornea",
-                        "It images the retina",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Topography maps the full corneal surface, screens "
-                                   "for keratoconus, and informs LASIK suitability and "
-                                   "contact lens fitting.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A 22-year-old wants LASIK. Topography shows inferior steepening and an asymmetric bow-tie; vision fluctuates and they rub their eyes often. Why is this concerning?', 'options': ['The pattern and history suggest keratoconus — LASIK would be contraindicated; flag for the doctor', 'It is a normal young cornea — proceed with LASIK', 'Eye rubbing protects the cornea', 'Topography is irrelevant to LASIK planning'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Inferior steepening, asymmetric bow-tie, fluctuating vision and eye-rubbing point to keratoconus — a contraindication to LASIK that must be flagged.', 'reasoning_eligible': True},
+                {'stem': 'Select ALL situations where corneal topography is clinically valuable.', 'options': ['Screening for keratoconus', 'Pre-LASIK suitability assessment', 'Fitting a contact lens to an irregular cornea', 'Calculating the visual field indices'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'practical', 'explanation': 'Topography helps keratoconus screening, LASIK assessment and irregular-cornea lens fitting. It does not produce visual field indices.', 'reasoning_eligible': True},
+                {'stem': 'Why can topography detect early keratoconus that simple keratometry might miss?', 'options': ['It maps the whole surface, revealing localised inferior steepening outside the central zone', 'It measures the retina as well', 'Keratometry maps more of the cornea than topography', 'Early keratoconus only affects the centre'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Early keratoconus often steepens inferiorly, outside the few central points keratometry samples; whole-surface topography catches it.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about corneal topography is correct?', 'options': ['It maps whole-surface curvature/elevation, screens keratoconus, and supports LASIK and lens-fitting decisions', 'It measures the eye pressure', 'It only samples the central cornea', 'It images the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Topography maps the full corneal surface, screens for keratoconus, and informs LASIK suitability and contact lens fitting.', 'reasoning_eligible': False},
+                {'stem': 'A patient shows clearly ASYMMETRIC astigmatism between the two eyes on topography (one regular, one with inferior steepening). Why flag this?', 'options': ['Asymmetry can be an early sign of keratoconus in the abnormal eye - flag for the clinician', 'Asymmetry proves both eyes are healthy', 'It only means new glasses', 'It is always a machine fault'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Inter-eye asymmetry with unilateral inferior steepening raises suspicion of early keratoconus and warrants clinician review.', 'reasoning_eligible': True},
+                {'stem': 'In which situations is corneal topography especially valuable?', 'options': ['Keratoconus screening/monitoring, pre-refractive-surgery assessment, irregular astigmatism, and RGP/toric-IOL planning', 'Measuring the visual field', 'Grading colour vision', 'Checking the retinal nerve fibre layer'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Topography is key for keratoconus, refractive-surgery screening, irregular astigmatism and specialty-lens/toric-IOL planning.', 'reasoning_eligible': True},
+                {'stem': 'Why can topography detect EARLY keratoconus that simple keratometry might miss?', 'options': ['It maps thousands of points across the whole cornea, revealing localised inferior steepening', 'It only reads the central 3 mm', 'It measures the retina', 'Keratometry samples more points'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Full-corneal mapping catches subtle, off-centre irregularity that a few central keratometry readings cannot.', 'reasoning_eligible': True},
+                {'stem': 'A post-LASIK patient develops worsening vision and topography shows progressive inferior steepening/thinning. This suggests:', 'options': ['Post-LASIK ectasia - document and flag urgently to the clinician', 'A normal healed cornea', 'A cataract', 'A refractive error easily fixed with glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Progressive steepening/thinning after LASIK indicates ectasia; the OT records and escalates for cross-linking/other management.', 'reasoning_eligible': True},
+                {'stem': 'Which statement about corneal topography is CORRECT?', 'options': ['It non-invasively maps corneal shape to screen for keratoconus/ectasia and plan surgery, complementing the clinical exam', 'It measures the eye pressure', 'It requires a contact probe', 'It replaces the slit-lamp examination'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Topography maps the corneal surface non-invasively for screening and planning, supporting (not replacing) clinical assessment.', 'reasoning_eligible': True},
+                {'stem': 'A keratoconus patient had corneal cross-linking; the OT does serial topography to help the clinician judge whether the cornea is:', 'options': ['Stable or still progressing after treatment', 'A different colour', 'Producing more tears', 'Changing eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Serial maps show whether cross-linking has halted progression, informing further management.', 'reasoning_eligible': True},
+                {'stem': 'Why must a contact-lens wearer often STOP lenses for a period before topography for LASIK screening?', 'options': ['Lens-induced corneal warpage can mask or mimic keratoconus, so the cornea must return to baseline', 'Lenses have no effect on the map', 'It only affects the retina', 'Stopping lenses changes the eye colour'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Warpage can hide a real cone or create a false one; a lens-free interval lets the true corneal shape be measured before surgery.', 'reasoning_eligible': True},
+                {'stem': "A topography 'irregularity' is actually due to a broken-up tear film in a dry eye. The safe approach is to:", 'options': ['Optimise the tear film and re-capture before the map informs any surgical decision', 'Trust the single irregular map', 'Diagnose keratoconus from it', 'Ignore the dry eye'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Tear-film artefact can masquerade as pathology; re-capturing on a smooth film prevents a wrong surgical decision.', 'reasoning_eligible': True},
+                {'stem': 'Which is the BEST overall description of good corneal-topography practice?', 'options': ['Confirm eye/order, optimise tear film/fixation/centration, validate a complete capture, print the maps, document confounders and flag concerns', 'Any single capture is fine', 'Diagnose and treat from the map', 'Skip validation if it looks nice'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Good topography means correct setup, an optimised surface/centration, a validated complete map, documentation and escalation of concerns.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT correlate a topography astigmatism value with the biometry before toric-IOL planning?', 'options': ['Agreement between measurements increases confidence; a mismatch may be tear-film artefact to resolve', 'They never need to agree', 'Topography sets the IOL power alone', 'It measures the retina'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Cross-checking topography and biometry astigmatism guards against artefact before committing to a toric IOL axis/power.', 'reasoning_eligible': True},
+                {'stem': "A patient's four topography maps show good, consistent data with a symmetric bow-tie and normal thickness. The OT should:", 'options': ['Record it as a reassuring/regular result for the clinician', 'Flag it as urgent keratoconus', 'Repeat 20 times', 'Diagnose ectasia'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A regular, symmetric map with normal thickness is reassuring and is documented normally for the clinician.', 'reasoning_eligible': True},
+                {'stem': 'Why is detecting keratoconus BEFORE refractive surgery so important?', 'options': ['Laser ablation thins and weakens the cornea, so operating on a cone risks sight-threatening ectasia', 'Keratoconus improves LASIK results', 'It has no bearing on surgery', 'It only affects glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A weak keratoconic cornea can progress to ectasia after ablation; screening prevents this serious, avoidable complication.', 'reasoning_eligible': True},
             ],
         },
         "pam": {
