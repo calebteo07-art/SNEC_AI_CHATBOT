@@ -1,0 +1,97 @@
+{
+  "case_id": "case_ot_052_lens_meter_focimetry",
+  "title": "Reading the Spectacles",
+  "difficulty": "beginner",
+  "topic": "lens_meter_focimetry",
+  "role": "OT",
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "estimated_minutes": 12,
+  "patient": {
+    "name": "Mr Goh Kim Seng",
+    "age": 68,
+    "gender": "male",
+    "occupation": "retired teacher",
+    "presenting_complaint": "New varifocals feel 'off'; asked to verify his current and new spectacles on the lensmeter",
+    "nric": "S5623418E",
+    "date_of_birth": "1958-03-03",
+    "address": "Blk 305 Clementi Ave 4, #08-77, Singapore 120305",
+    "contact_number": "90014455"
+  },
+  "history": {
+    "hpc": "Mr Goh reports his newly dispensed progressive spectacles cause swim and difficulty finding the reading zone. He brought both his old and new glasses. You are asked to neutralise (read) both pairs on the focimeter to document the actual sphere, cylinder, axis, add, and any prism, so the optometrist can compare against the prescription.",
+    "pmhx": "Presbyopia, mild cataract both eyes. Pseudophakic right eye (uneventful phaco 1 year ago).",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Reads and uses a tablet daily."
+  },
+  "examination_findings": {
+    "va": {"right": "6/7.5 with current specs", "left": "6/9 with current specs"},
+    "iop": {"right": "15 mmHg (NCT)", "left": "16 mmHg (NCT)"},
+    "anterior_segment": "Right eye pseudophakic; left eye early nuclear sclerosis",
+    "fundus": "Not assessed — not indicated"
+  },
+  "investigations": {
+    "focimetry_old": "Old spectacles neutralised on the focimeter: RE -2.00/-0.75 x 90, LE -1.75/-0.50 x 85, Add +2.50, no prism. Optical centres aligned to his PD.",
+    "focimetry_new": "New progressive spectacles read: RE -2.00/-0.75 x 90, LE -1.75/-0.50 x 85, Add +2.50 — sphere/cyl/axis/add all match the prescription. However the right lens shows ~1.5 prism dioptres base-in not specified on the Rx, and the fitting/segment height appears high, likely explaining the 'swim'.",
+    "technique_notes": "Focused the eyepiece to eliminate examiner accommodation before starting; measured distance portion first, then the near add via the add/near zone; verified axis and marked the optical centre; checked for unwanted prism at the visual point."
+  },
+  "diagnosis": "Focimetry shows the new progressive lenses match the prescribed sphere/cyl/axis/add, but carry unintended right-lens prism with a high fitting — a dispensing/fitting error rather than a wrong prescription. Documented for the optometrist/dispensing optician to remake or refit; the technician measures and reports, and does not re-prescribe.",
+  "management": {
+    "immediate": [
+      "Focus the focimeter eyepiece to remove examiner accommodation before any reading",
+      "Neutralise the distance portion of each lens: record sphere, cylinder, and axis",
+      "Measure the near addition (add) using the near/add zone of the lens",
+      "Locate and mark the optical centre and check the visual point for any unwanted prism",
+      "Read both old and new spectacles and compare against the written prescription",
+      "Identify the unspecified right-lens prism and the high fitting as the likely cause of 'swim'"
+    ],
+    "follow_up": [
+      "Document old and new readings (sphere/cyl/axis/add/prism) clearly for the optometrist",
+      "Flag the discrepancy (unintended prism + fitting) for remake/refit",
+      "Do not alter the prescription — refer the dispensing decision to the optometrist/optician"
+    ],
+    "patient_education": [
+      "Explain that the machine reads exactly what is in each lens so it can be checked against what was ordered",
+      "Reassure him the lens power matches, but a fitting issue was found and will be corrected",
+      "Advise him to keep using the old glasses meanwhile if more comfortable"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Clarifies the complaint (swim, trouble finding the reading zone) with the new progressives",
+        "Confirms both old and new spectacles are available for comparison",
+        "Confirms the purpose: neutralise/verify against the written prescription",
+        "Notes relevant ocular history (pseudophakia, cataract) affecting expectations"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Focuses the eyepiece to eliminate examiner accommodation before reading",
+        "Measures distance sphere/cylinder/axis correctly for each lens",
+        "Measures the near add via the correct zone",
+        "Locates the optical centre and checks for unwanted prism at the visual point"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Confirms the new lens power matches the prescription (sphere/cyl/axis/add)",
+        "Detects the unintended right-lens prism",
+        "Attributes 'swim' to the prism/high fitting rather than a wrong prescription",
+        "Recognises this is a dispensing/fitting issue for remake, not re-prescription"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents old and new readings including any prism clearly",
+        "Flags the discrepancy for the optometrist/optician to remake or refit",
+        "Stays within scope — does not change the prescription",
+        "Gives clear, reassuring patient education"
+      ]
+    }
+  }
+}

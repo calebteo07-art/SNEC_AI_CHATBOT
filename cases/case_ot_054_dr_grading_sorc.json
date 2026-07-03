@@ -1,0 +1,96 @@
+{
+  "case_id": "case_ot_054_dr_grading_sorc",
+  "title": "Grading the Grid: A Diabetic Screening Set",
+  "difficulty": "intermediate",
+  "topic": "dr_grading_sorc_retinopathy",
+  "role": "OT",
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Mr Rajendran s/o Kumar",
+    "age": 61,
+    "gender": "male",
+    "occupation": "retired bus captain",
+    "presenting_complaint": "Attending diabetic eye screening; no visual complaints",
+    "nric": "S6012345C",
+    "date_of_birth": "1965-02-11",
+    "address": "Blk 210 Ang Mo Kio Ave 3, #05-123, Singapore 560210",
+    "contact_number": "91234567"
+  },
+  "history": {
+    "hpc": "Referred from the polyclinic diabetic registry (SiDRP) for annual retinal photography and grading. No blurring, floaters, or distortion. Last screening 14 months ago was graded R0M0.",
+    "pmhx": "Type 2 diabetes 12 years, last HbA1c 8.1%. Hypertension.",
+    "family_hx": "Nil significant",
+    "medications": ["Metformin 1g BD", "Amlodipine 5mg OD"],
+    "social_hx": "Lives with wife; independent in daily activities."
+  },
+  "examination_findings": {
+    "va": {"right": "6/9 (LogMAR 0.2)", "left": "6/7.5 (LogMAR 0.1)"},
+    "iop": {"right": "16 mmHg (NCT)", "left": "15 mmHg (NCT)"},
+    "anterior_segment": "Early nuclear sclerosis both eyes; otherwise unremarkable",
+    "fundus": "Right eye: several dot-and-blot haemorrhages and microaneurysms in more than one quadrant, with a few hard exudates outside the macula. Left eye: occasional microaneurysms only. No new vessels, no venous beading."
+  },
+  "investigations": {
+    "fundus_photography": "Two-field digital colour fundus photographs (macula-centred and disc-centred) captured per SiDRP/SORC protocol for both eyes; images slightly hazy from early cataract but gradable.",
+    "grading_notes": "Right eye pattern = moderate NPDR; left eye = mild NPDR. No proliferative features. No exudates or thickening within one disc diameter of the fovea in either eye (no referable maculopathy today)."
+  },
+  "diagnosis": "Moderate non-proliferative diabetic retinopathy right eye, mild NPDR left eye on SiDRP/SORC grading, no maculopathy. No sight-threatening features today; route along the SORC referral pathway at the recommended interval.",
+  "management": {
+    "immediate": [
+      "Capture gradable two-field fundus photographs (macula- and disc-centred) for both eyes per SiDRP/SORC protocol",
+      "Confirm correct patient/eye labelling and image quality before accepting the set",
+      "Apply grading systematically: microaneurysms, dot-blot haemorrhages, hard exudates, venous beading, and new vessels, noting the number of quadrants involved",
+      "Assess the macula specifically for exudates or thickening within one disc diameter of the fovea (maculopathy)",
+      "Grade each eye (right = moderate NPDR, left = mild NPDR; M0 both) and record the SORC-recommended review/referral interval",
+      "Document that early cataract limited image clarity"
+    ],
+    "follow_up": [
+      "Route the graded set to the reviewing ophthalmologist/senior grader per the SORC pathway",
+      "Inform the patient of the screening outcome in lay terms and the next screening interval",
+      "Recommend optimisation of glycaemic and blood-pressure control via the diabetic team"
+    ],
+    "patient_education": [
+      "Explain that diabetic retinopathy is common and often symptomless early, so regular screening matters",
+      "Reassure that nothing needing urgent treatment was seen today, but changes were noted that need monitoring",
+      "Advise to report any sudden blurring, floaters, or distortion before the next appointment"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Confirms diabetic history, duration, and control (HbA1c)",
+        "Confirms referral source (SiDRP diabetic registry) and last grade/interval",
+        "Screens for symptoms of sight-threatening disease (distortion, floaters, sudden blurring)",
+        "Notes systemic risk factors (hypertension) relevant to retinopathy"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Captures gradable two-field fundus photographs per SiDRP/SORC protocol",
+        "Verifies correct patient/eye labelling and adequate image quality",
+        "Recognises and documents media opacity limiting image clarity",
+        "Ensures both eyes are imaged with correct technique/settings for diabetic screening"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Applies grading criteria per eye correctly (moderate vs mild NPDR)",
+        "Assesses the macula for referable maculopathy (within one disc diameter of fovea)",
+        "Distinguishes non-proliferative from proliferative features (no new vessels/venous beading here)",
+        "States the SORC-recommended review/referral interval"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents the grade per eye clearly for the reviewing ophthalmologist/senior grader",
+        "Routes the set correctly along the SORC referral pathway",
+        "Gives appropriate patient education and safety-netting",
+        "Reinforces systemic (glycaemic/BP) optimisation via the diabetic team"
+      ]
+    }
+  }
+}

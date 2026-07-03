@@ -124,8 +124,8 @@ skipped. Full OA/PSA → shared-CLINICAL merge is the separate OSCE plan.
 | hvf / gvf | `case_ot_*_hvf*`, `case_ot_*_gvf*` |
 | corneal_topography / asoct | `case_ot_*_topography*`, `case_ot_*_asoct*` |
 | endothelial / flare / pam / hrt | `case_ot_*_endothelial*` etc. |
-| auto_refraction / aberrometry / lens_meter | `case_ot_*_auto_refraction*` (+ gap-fill stations to author) |
-| retinal_imaging / dr_grading | to author as OT stations (photography/angiography/SORC) |
+| auto_refraction / aberrometry / lens_meter | `case_ot_*_auto_refraction*`, `case_ot_051_aberrometry_wavefront`, `case_ot_052_lens_meter_focimetry` |
+| retinal_imaging / dr_grading | `case_ot_053_retinal_imaging_fundus_photography`, `case_ot_054_dr_grading_sorc` |
 | dayward_theatre / orthoptics | `case_ot_*_dayward*`, orthoptics scenarios |
 | anatomy_physiology / microbiology_infection / pharmacology / professional_ethics / disorder regions | knowledge exercised within the above scenarios; primarily flashcards/tutor. Standalone stations only if the user wants them. |
 

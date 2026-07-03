@@ -1,0 +1,96 @@
+{
+  "case_id": "case_ot_051_aberrometry_wavefront",
+  "title": "The Blur Beyond the Numbers",
+  "difficulty": "intermediate",
+  "topic": "aberrometry_wavefront_refraction",
+  "role": "OT",
+  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "estimated_minutes": 15,
+  "patient": {
+    "name": "Ms Tan Wei Ling",
+    "age": 34,
+    "gender": "female",
+    "occupation": "graphic designer",
+    "presenting_complaint": "Glare and haloes at night despite 'perfect' glasses; referred for wavefront aberrometry before a refractive surgery consult",
+    "nric": "S9034561D",
+    "date_of_birth": "1992-07-19",
+    "address": "Blk 88 Bishan St 13, #12-45, Singapore 570088",
+    "contact_number": "98761234"
+  },
+  "history": {
+    "hpc": "Ms Tan is spectacle- and contact-lens-corrected to 6/6 but complains of night-time glare, starbursts around headlights, and difficulty with fine screen work in dim light. Her subjective refraction is stable. She is being worked up for possible refractive surgery and needs objective measurement of her total (lower- and higher-order) aberrations.",
+    "pmhx": "Myopia since teens. No prior ocular surgery. No dry eye diagnosis.",
+    "family_hx": "Nil significant",
+    "medications": ["Nil regular"],
+    "social_hx": "Wears soft contact lenses on weekends; drives at night."
+  },
+  "examination_findings": {
+    "va": {"right": "6/6 (LogMAR 0.0) with correction", "left": "6/6 (LogMAR 0.0) with correction"},
+    "iop": {"right": "14 mmHg (NCT)", "left": "14 mmHg (NCT)"},
+    "anterior_segment": "Clear corneas, no significant tear-film instability at the slit lamp; pupils equal and reactive",
+    "fundus": "Not assessed — not indicated for this measurement"
+  },
+  "investigations": {
+    "aberrometry": "Wavefront aberrometry captured with a good-quality Hartmann-Shack image over a well-centred, adequately sized pupil. Lower-order aberrations match her manifest refraction (myopic astigmatism). Higher-order aberrations show elevated spherical aberration and coma, larger over the scotopic (dilated) pupil — consistent with her night-time glare/haloes.",
+    "quality_checks": "Contact lenses removed beforehand; measurement repeated to confirm reproducibility; alignment and fixation confirmed; ambient light lowered to obtain the physiological (larger) pupil for night-symptom correlation."
+  },
+  "diagnosis": "Good-quality wavefront aberrometry showing myopic astigmatism (lower-order) plus elevated higher-order aberrations (spherical aberration and coma) that increase with pupil size — a plausible explanation for her night-time glare and haloes. Findings handed to the ophthalmologist for the refractive surgery decision; the technician does not decide suitability.",
+  "management": {
+    "immediate": [
+      "Confirm identity, explain the test, and ensure contact lenses have been out long enough before measuring",
+      "Seat and align the patient; ensure steady fixation and a well-centred pupil",
+      "Capture a good-quality wavefront (Hartmann-Shack) image and check the acquisition/quality indices before accepting it",
+      "Repeat the measurement to confirm reproducibility",
+      "Measure under lowered ambient light so the larger (scotopic) pupil is captured, since her symptoms are nocturnal",
+      "Recognise that lower-order aberrations should track her manifest refraction; flag the elevated higher-order aberrations"
+    ],
+    "follow_up": [
+      "Document the total, lower-order, and higher-order aberrations with pupil size and image-quality notes",
+      "Hand the report to the ophthalmologist for the refractive-surgery decision (out of technician scope)",
+      "Retain the images for comparison at follow-up"
+    ],
+    "patient_education": [
+      "Explain in plain terms that the test maps how light focuses through her eye, beyond what glasses measure",
+      "Reassure that the glare/haloes she describes fit the higher-order pattern seen",
+      "Advise that the doctor will use these results to advise on suitability and options"
+    ]
+  },
+  "rubric": {
+    "history": {
+      "points": 10,
+      "key_points": [
+        "Elicits the specific visual symptoms (glare, haloes, night difficulty) and their context (driving, dim screen work)",
+        "Confirms stable subjective refraction and reason for referral (refractive surgery work-up)",
+        "Checks contact lens wear and ensures adequate lens-free interval before measurement",
+        "Screens for confounders such as dry eye that degrade wavefront quality"
+      ]
+    },
+    "investigations": {
+      "points": 10,
+      "key_points": [
+        "Aligns the patient and obtains steady fixation with a well-centred pupil",
+        "Captures a good-quality wavefront image and checks acquisition/quality indices before accepting",
+        "Repeats the measurement to confirm reproducibility",
+        "Captures under lowered ambient light to obtain the scotopic pupil relevant to night symptoms"
+      ]
+    },
+    "diagnosis": {
+      "points": 10,
+      "key_points": [
+        "Confirms lower-order aberrations correspond to the manifest refraction",
+        "Identifies elevated higher-order aberrations (spherical aberration, coma)",
+        "Links the pupil-size dependence to the patient's nocturnal symptoms",
+        "Stays within scope — measures and reports, does not decide surgical suitability"
+      ]
+    },
+    "management": {
+      "points": 10,
+      "key_points": [
+        "Documents total/lower-/higher-order aberrations with pupil size and image quality",
+        "Hands the report to the ophthalmologist for decision-making",
+        "Gives clear, reassuring patient education",
+        "Retains images for future comparison"
+      ]
+    }
+  }
+}
