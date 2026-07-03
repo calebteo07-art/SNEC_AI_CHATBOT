@@ -2181,235 +2181,60 @@ FLASHCARDS: dict[str, dict[str, dict[str, list[dict]]]] = {
         },
         "pam": {
             "easy": [
-                {
-                    "stem": "What does the PAM (Potential Acuity Meter) predict?",
-                    "options": ["The potential visual acuity after cataract surgery",
-                                "The eye pressure",
-                                "The corneal curvature",
-                                "The visual field"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "PAM predicts the potential visual acuity once a "
-                                   "cataract is removed.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "How does PAM work?",
-                    "options": [
-                        "It projects a Snellen chart onto the retina, bypassing the "
-                        "cataract",
-                        "It measures the lens thickness",
-                        "It uses ultrasound on the eye",
-                        "It counts endothelial cells",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "PAM projects a Snellen chart through a clear part "
-                                   "of the lens onto the retina, bypassing the "
-                                   "cataract.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What preparation does PAM need?",
-                    "options": ["Pupil dilation", "Topical anaesthetic",
-                                "A fasting patient", "Ultrasound gel"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "PAM requires pupil dilation to project the chart "
-                                   "through the clearest part of the lens.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What is the main indication for PAM?",
-                    "options": [
-                        "A dense cataract — to assess retinal function before surgery",
-                        "Glaucoma field monitoring",
-                        "Dry eye assessment",
-                        "Colour vision screening",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "PAM is used with a dense cataract to estimate how "
-                                   "well the retina is likely to see after surgery.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does a good PAM result suggest?",
-                    "options": ["Good potential vision after the cataract is removed",
-                                "The cataract is mild",
-                                "The eye pressure is normal",
-                                "Surgery is unnecessary"],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A good PAM result suggests the retina can see well, "
-                                   "so vision is likely to improve after cataract "
-                                   "removal.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'What does the PAM (Potential Acuity Meter) predict?', 'options': ['The potential visual acuity after cataract surgery', 'The eye pressure', 'The corneal curvature', 'The visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM predicts the potential visual acuity once a cataract is removed.', 'reasoning_eligible': False},
+                {'stem': 'How does PAM work?', 'options': ['It projects a Snellen chart onto the retina, bypassing the cataract', 'It measures the lens thickness', 'It uses ultrasound on the eye', 'It counts endothelial cells'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM projects a Snellen chart through a clear part of the lens onto the retina, bypassing the cataract.', 'reasoning_eligible': False},
+                {'stem': 'What preparation does PAM need?', 'options': ['Pupil dilation', 'Topical anaesthetic', 'A fasting patient', 'Ultrasound gel'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'PAM requires pupil dilation to project the chart through the clearest part of the lens.', 'reasoning_eligible': False},
+                {'stem': 'What is the main indication for PAM?', 'options': ['A dense cataract — to assess retinal function before surgery', 'Glaucoma field monitoring', 'Dry eye assessment', 'Colour vision screening'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM is used with a dense cataract to estimate how well the retina is likely to see after surgery.', 'reasoning_eligible': False},
+                {'stem': 'What does a good PAM result suggest?', 'options': ['Good potential vision after the cataract is removed', 'The cataract is mild', 'The eye pressure is normal', 'Surgery is unnecessary'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A good PAM result suggests the retina can see well, so vision is likely to improve after cataract removal.', 'reasoning_eligible': False},
+                {'stem': 'The Potential Acuity Meter (PAM) predicts the vision a patient could achieve:', 'options': ['After the cataract (media opacity) is removed', 'Only with stronger glasses today', 'Only in the dark', 'After eye drops for a week'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM estimates the potential post-operative acuity by projecting a chart past the opacity onto the retina.', 'reasoning_eligible': False},
+                {'stem': 'PAM works by projecting a tiny chart through:', 'options': ['A clear window/aperture in the media onto the retina', 'The eyelid', 'A blood vessel', 'The tear duct'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'A narrow beam carries a Snellen-type chart through the clearest part of the cataract to test the retina behind it.', 'reasoning_eligible': False},
+                {'stem': 'PAM usually requires the pupil to be:', 'options': ['Dilated, to find a clear path through the lens', 'Constricted fully', 'Untouched and small', 'Patched'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Dilation gives the operator room to aim the beam through a clearer area of the cataractous lens.', 'reasoning_eligible': False},
+                {'stem': 'A GOOD PAM result (patient reads small letters) suggests the:', 'options': ['Retina/macula is likely healthy and vision should improve after surgery', 'Cataract is inoperable', 'Eye pressure is high', 'Patient needs no surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reading fine letters through the opacity implies the retina behind it works, predicting a good post-op result.', 'reasoning_eligible': True},
+                {'stem': 'PAM is mainly used in patients with:', 'options': ['A cataract, to estimate the post-operative visual potential', 'Perfectly clear lenses', 'A squint only', 'Dry eye only'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Its role is to predict outcome when a cataract clouds the view, especially if coexisting retinal disease is suspected.', 'reasoning_eligible': False},
+                {'stem': 'PAM assesses the function of the:', 'options': ['Retina/macula behind the cataract, not the lens itself', 'Eyelid', 'Cornea only', 'Tear film'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "By projecting past the lens opacity, PAM tests the retina/macula's potential rather than the cloudy lens.", 'reasoning_eligible': False},
+                {'stem': 'A patient asks whether PAM hurts. The correct reassurance is:', 'options': ['It is a quick, non-contact test where they just read letters through a small light', 'It uses a needle', 'It presses on the eye', 'It is painful'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'PAM is painless and non-contact; explaining it (read the smallest letters you can) improves cooperation.', 'reasoning_eligible': True},
+                {'stem': 'The OT performs PAM and:', 'options': ['Records the best line read for the clinician, without giving a prognosis', 'Diagnoses macular disease and counsels the patient', 'Cancels the surgery', 'Prescribes glasses'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The OT documents the result; the surgeon interprets it and counsels the patient on the expected outcome.', 'reasoning_eligible': True},
+                {'stem': 'During PAM the patient is asked to:', 'options': ['Read the smallest line of letters they can see through the beam', 'Look around the room', 'Close both eyes', 'Describe colours only'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'The patient reads down the projected chart; the smallest line read estimates their potential acuity.', 'reasoning_eligible': False},
+                {'stem': 'PAM is often combined with which other test for a fuller pre-cataract prognosis?', 'options': ['Macular OCT', 'A hearing test', 'Blood pressure', 'A dental x-ray'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Structural macular OCT plus functional PAM together give a better estimate of likely post-op vision.', 'reasoning_eligible': False},
+                {'stem': 'The OT should aim the PAM beam through the:', 'options': ['Clearest part of the cataract to reach the retina', 'Densest part of the cataract', 'Edge of the eyelid', "Patient's other eye"], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Targeting the clearest window maximises the chance of projecting a readable chart onto the retina.', 'reasoning_eligible': False},
+                {'stem': 'PAM is especially considered when a cataract patient ALSO has:', 'options': ['Suspected macular or optic-nerve disease that could limit the outcome', 'Perfect vision already', 'No lens opacity at all', 'A simple refractive error only'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'When coexisting retinal/optic disease is suspected, PAM helps predict whether surgery will actually help vision.', 'reasoning_eligible': True},
             ],
             "medium": [
-                {
-                    "stem": "Why use PAM in a dense cataract?",
-                    "options": [
-                        "To estimate how much vision is limited by the lens versus the "
-                        "retina",
-                        "To measure the cataract's hardness",
-                        "To calculate the IOL power",
-                        "To check the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "PAM helps separate vision loss due to the cataract "
-                                   "(removable) from loss due to the retina "
-                                   "(not removable by cataract surgery).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "A dense cataract with a good PAM result — how is this "
-                            "interpreted?",
-                    "options": [
-                        "The retina likely functions well; surgery may improve vision",
-                        "The retina is damaged; surgery is pointless",
-                        "The cataract is not actually dense",
-                        "The patient has glaucoma",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A good PAM despite a dense cataract suggests the "
-                                   "retina works well, so removing the cataract is "
-                                   "likely to improve vision.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why is dilation needed for PAM?",
-                    "options": [
-                        "To project the chart through the clearest part of the lens "
-                        "onto the retina",
-                        "To relax the patient",
-                        "To lower the eye pressure",
-                        "To numb the cornea",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A dilated pupil lets the chart be projected through "
-                                   "a clearer area of the lens, around the densest "
-                                   "cataract, onto the retina.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "Does PAM measure lens or retinal function?",
-                    "options": [
-                        "Retinal (and visual pathway) function, bypassing the lens",
-                        "Only the lens density",
-                        "The corneal curvature",
-                        "The eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "By bypassing the cataract, PAM tests the retina and "
-                                   "visual pathway rather than the lens itself.",
-                    "reasoning_eligible": False,
-                },
-                {
-                    "stem": "What does the OT document for a PAM?",
-                    "options": [
-                        "Diagnosis, indication, preparation and the predicted post-op "
-                        "VA",
-                        "Only the patient's name",
-                        "The IOL power",
-                        "Nothing is recorded",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "Document the diagnosis, indication, preparation "
-                                   "(dilation) and the predicted post-operative visual "
-                                   "acuity.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'Why use PAM in a dense cataract?', 'options': ['To estimate how much vision is limited by the lens versus the retina', "To measure the cataract's hardness", 'To calculate the IOL power', 'To check the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM helps separate vision loss due to the cataract (removable) from loss due to the retina (not removable by cataract surgery).', 'reasoning_eligible': True},
+                {'stem': 'A dense cataract with a good PAM result — how is this interpreted?', 'options': ['The retina likely functions well; surgery may improve vision', 'The retina is damaged; surgery is pointless', 'The cataract is not actually dense', 'The patient has glaucoma'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A good PAM despite a dense cataract suggests the retina works well, so removing the cataract is likely to improve vision.', 'reasoning_eligible': True},
+                {'stem': 'Why is dilation needed for PAM?', 'options': ['To project the chart through the clearest part of the lens onto the retina', 'To relax the patient', 'To lower the eye pressure', 'To numb the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A dilated pupil lets the chart be projected through a clearer area of the lens, around the densest cataract, onto the retina.', 'reasoning_eligible': False},
+                {'stem': 'Does PAM measure lens or retinal function?', 'options': ['Retinal (and visual pathway) function, bypassing the lens', 'Only the lens density', 'The corneal curvature', 'The eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'By bypassing the cataract, PAM tests the retina and visual pathway rather than the lens itself.', 'reasoning_eligible': False},
+                {'stem': 'What does the OT document for a PAM?', 'options': ['Diagnosis, indication, preparation and the predicted post-op VA', "Only the patient's name", 'The IOL power', 'Nothing is recorded'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Document the diagnosis, indication, preparation (dilation) and the predicted post-operative visual acuity.', 'reasoning_eligible': False},
+                {'stem': 'A patient has a dense cataract but a GOOD PAM result. How is this interpreted for surgery?', 'options': ['The retina is probably healthy, so cataract surgery is likely to improve vision', 'Surgery will not help', 'The patient has macular disease', 'The cataract should be left alone'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A good PAM behind a dense cataract predicts a good post-op result, supporting the decision to operate.', 'reasoning_eligible': True},
+                {'stem': 'A cataract patient has a POOR PAM result AND suspected macular disease. How does this influence counselling?', 'options': ['Expectations should be guarded - vision may not fully recover after surgery', 'Guarantee perfect vision after surgery', 'Cancel all future care', 'It means the cataract is not real'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A poor PAM with macular disease suggests the retina limits the outcome, so the patient is counselled to expect limited gain.', 'reasoning_eligible': True},
+                {'stem': 'Why can PAM be MORE informative than measuring visual acuity alone in a dense-cataract patient?', 'options': ["Standard VA is limited by the cataract, whereas PAM estimates the retina's potential behind it", 'PAM measures the eye pressure', 'VA is always perfect in cataract', 'They give identical information'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'The cataract caps ordinary VA; PAM peeks past it to estimate what the retina could achieve once the lens is clear.', 'reasoning_eligible': True},
+                {'stem': 'A VERY dense (mature) cataract gives an unreliable PAM. Why?', 'options': ['The beam cannot find a clear path to project the chart onto the retina', 'The retina is always dead', 'PAM works best on black lenses', 'Density improves PAM'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'If no clear window exists, the chart cannot reach the retina, so a poor PAM may reflect the opacity, not the retina.', 'reasoning_eligible': True},
+                {'stem': 'Why does the OT dilate the pupil before PAM?', 'options': ['To give more clear lens area to aim the projected chart through', 'To lower the eye pressure', 'To numb the eye', 'To test colour vision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A wider pupil offers more of the lens to find a clear path, improving the chance of a valid PAM.', 'reasoning_eligible': True},
+                {'stem': 'What should the OT document for a PAM?', 'options': ['The eye, the best line read, and conditions (dilation, cataract density)', "Only the patient's age", 'The clinic hours', 'Nothing'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'Recording the eye, best acuity read and conditions helps the clinician interpret the prognostic value.', 'reasoning_eligible': False},
+                {'stem': "An amblyopic ('lazy') eye gives a poor PAM despite a clear enough media path. This is because:", 'options': ['Amblyopia itself limits acuity, independent of the cataract', 'The cataract is worse than thought', 'PAM is broken', 'The retina is detached'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'In amblyopia the visual pathway limits acuity, so PAM (and post-op vision) will be capped regardless of the lens.', 'reasoning_eligible': True},
+                {'stem': "A patient's ordinary VA is 6/60 but PAM reads 6/9. This discrepancy suggests:", 'options': ['Much of the poor vision is due to the cataract, with good retinal potential', 'The retina is severely damaged', 'PAM is always wrong', 'Surgery is pointless'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A large gap (poor VA, good PAM) implies the cataract is the main problem and surgery should substantially help.', 'reasoning_eligible': True},
+                {'stem': 'Why is PAM regarded as a COMPLEMENT to, not a replacement for, the retinal examination/OCT?', 'options': ['It is a functional estimate that can over/under-predict; structural tests add objective detail', 'It images the retina directly', 'It measures corneal thickness', 'It replaces the eye exam'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "PAM's subjective functional estimate is combined with objective structural tests (OCT/exam) for a reliable prognosis.", 'reasoning_eligible': True},
+                {'stem': 'A poor-quality PAM (patient unsure, poor fixation) is obtained. The OT should:', 'options': ['Re-explain, re-aim through the clearest window, and repeat before recording', 'Report the poor result as final', 'Diagnose macular disease', 'Press on the eye'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A reliable PAM needs good understanding, fixation and aiming; poor attempts are repeated after re-instruction.', 'reasoning_eligible': True},
+                {'stem': 'PAM helps the surgeon and patient by:', 'options': ['Setting realistic expectations about the likely visual gain from surgery', 'Guaranteeing 6/6 vision', 'Measuring the IOL power', 'Replacing biometry'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'By estimating potential vision, PAM informs realistic pre-operative counselling about the expected benefit.', 'reasoning_eligible': True},
+                {'stem': 'PAM is a SUBJECTIVE test, meaning it depends on:', 'options': ["The patient's responses and cooperation", 'A blood sample', 'The eye pressure', 'The room temperature'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'Because the patient reads the letters, PAM relies on their cooperation and understanding for a valid result.', 'reasoning_eligible': False},
             ],
             "hard": [
-                {
-                    "stem": "A patient with a dense cataract AND suspected macular "
-                            "disease has a poor PAM result. How might this influence "
-                            "expectations?",
-                    "options": [
-                        "It tempers expectations — poor retinal potential means "
-                        "cataract surgery alone may not restore good vision",
-                        "It guarantees perfect vision after surgery",
-                        "It means the cataract is mild",
-                        "PAM results are irrelevant to outcomes",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "practical",
-                    "explanation": "A poor PAM suggests limited retinal potential; "
-                                   "surgery may remove the cataract but vision could "
-                                   "stay limited by the macular disease — useful for "
-                                   "counselling expectations.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Why can PAM be more informative than visual acuity alone "
-                            "in a dense-cataract patient?",
-                    "options": [
-                        "Standard VA is dragged down by the cataract; PAM peeks past "
-                        "it to gauge the retina's potential",
-                        "PAM measures the cataract density precisely",
-                        "VA already shows the post-op result",
-                        "PAM measures the eye pressure",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "Ordinary VA reflects the cataract's blur; PAM "
-                                   "projects past the opacity to estimate what the "
-                                   "retina could achieve once it is removed.",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Select ALL true statements about PAM.",
-                    "options": [
-                        "It needs dilation",
-                        "It estimates potential post-cataract vision",
-                        "It assesses retinal/visual-pathway function past the lens",
-                        "It determines the IOL power",
-                    ],
-                    "correct": [0, 1, 2],
-                    "qtype": "multi",
-                    "kind": "theory",
-                    "explanation": "PAM needs dilation, estimates potential post-op "
-                                   "vision and tests function past the lens. It does "
-                                   "not calculate IOL power (that is biometry).",
-                    "reasoning_eligible": True,
-                },
-                {
-                    "stem": "Which statement best captures the role of PAM before "
-                            "cataract surgery?",
-                    "options": [
-                        "It helps predict whether removing the cataract will improve "
-                        "vision, informing surgical decisions and counselling",
-                        "It replaces biometry for IOL selection",
-                        "It treats the cataract",
-                        "It measures the visual field",
-                    ],
-                    "correct": [0],
-                    "qtype": "single",
-                    "kind": "theory",
-                    "explanation": "PAM predicts the likely visual benefit of cataract "
-                                   "removal, supporting the decision to operate and "
-                                   "patient counselling.",
-                    "reasoning_eligible": False,
-                },
+                {'stem': 'A patient with a dense cataract AND suspected macular disease has a poor PAM result. How might this influence expectations?', 'options': ['It tempers expectations — poor retinal potential means cataract surgery alone may not restore good vision', 'It guarantees perfect vision after surgery', 'It means the cataract is mild', 'PAM results are irrelevant to outcomes'], 'correct': [0], 'qtype': 'single', 'kind': 'practical', 'explanation': 'A poor PAM suggests limited retinal potential; surgery may remove the cataract but vision could stay limited by the macular disease — useful for counselling expectations.', 'reasoning_eligible': True},
+                {'stem': 'Why can PAM be more informative than visual acuity alone in a dense-cataract patient?', 'options': ["Standard VA is dragged down by the cataract; PAM peeks past it to gauge the retina's potential", 'PAM measures the cataract density precisely', 'VA already shows the post-op result', 'PAM measures the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': "Ordinary VA reflects the cataract's blur; PAM projects past the opacity to estimate what the retina could achieve once it is removed.", 'reasoning_eligible': True},
+                {'stem': 'Select ALL true statements about PAM.', 'options': ['It needs dilation', 'It estimates potential post-cataract vision', 'It assesses retinal/visual-pathway function past the lens', 'It determines the IOL power'], 'correct': [0, 1, 2], 'qtype': 'multi', 'kind': 'theory', 'explanation': 'PAM needs dilation, estimates potential post-op vision and tests function past the lens. It does not calculate IOL power (that is biometry).', 'reasoning_eligible': True},
+                {'stem': 'Which statement best captures the role of PAM before cataract surgery?', 'options': ['It helps predict whether removing the cataract will improve vision, informing surgical decisions and counselling', 'It replaces biometry for IOL selection', 'It treats the cataract', 'It measures the visual field'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM predicts the likely visual benefit of cataract removal, supporting the decision to operate and patient counselling.', 'reasoning_eligible': False},
+                {'stem': 'A cataract patient has a poor PAM AND a macular OCT showing atrophy. How should expectations be set?', 'options': ['Guarded - the macular disease is likely to limit visual recovery even after successful surgery', 'Promise full recovery', 'Assume the OCT is wrong', 'Cancel surgery permanently'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Concordant poor PAM and macular atrophy indicate the retina limits the outcome, so the patient is counselled for a modest gain.', 'reasoning_eligible': True},
+                {'stem': 'A dense cataract gives a poor PAM, yet the macula looks healthy on OCT. The correct interpretation is:', 'options': ['The poor PAM may be an artefact of the dense media, not true retinal disease - interpret with caution', 'The retina is definitely diseased', 'Surgery is pointless', 'PAM is always accurate'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A very dense cataract can block the PAM beam, so a poor result with a healthy OCT should not be over-interpreted as retinal disease.', 'reasoning_eligible': True},
+                {'stem': "Which statement BEST captures PAM's role before cataract surgery?", 'options': ['It estimates potential post-op vision to aid patient selection and counselling, alongside other tests', 'It measures the IOL power', 'It diagnoses glaucoma', 'It replaces biometry and OCT'], 'correct': [0], 'qtype': 'single', 'kind': 'theory', 'explanation': 'PAM helps predict the likely visual benefit and set expectations, working with biometry, OCT and the clinical exam.', 'reasoning_eligible': True},
+                {'stem': 'Why must a POOR PAM never be the sole reason to deny a patient cataract surgery?', 'options': ['Dense media or poor cooperation can under-predict; the whole clinical picture must be considered', 'PAM is the only test that matters', 'A poor PAM always means blindness', 'Surgery is never denied'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': "PAM can under-predict through dense media or with poor responses, so decisions combine it with OCT, exam and the patient's needs.", 'reasoning_eligible': True},
+                {'stem': 'How does a GOOD PAM in an eye with borderline macular changes help the surgeon?', 'options': ['It reassures that useful vision is achievable, supporting a decision to operate', 'It proves the macula is diseased', 'It sets the IOL power', 'It has no bearing on the decision'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A good PAM despite borderline macular findings suggests the retina can still deliver useful vision, favouring surgery.', 'reasoning_eligible': True},
+                {'stem': 'Why is careful aiming and repeated testing important for a reliable PAM?', 'options': ['The result depends on finding a clear media window and consistent patient responses', 'Aiming never matters', 'One quick attempt is always accurate', 'It measures the cornea'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Because PAM projects through a small clear path and relies on responses, careful aiming and repetition give a trustworthy estimate.', 'reasoning_eligible': True},
+                {'stem': 'A patient reads well on PAM but has a known dense amblyopia in that eye. The likely post-op outcome is:', 'options': ['Limited by the amblyopia despite the encouraging PAM - counsel accordingly', 'Guaranteed 6/6', 'Unaffected by amblyopia', 'Improved to normal by surgery'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Amblyopia caps the visual pathway; even a good PAM/clear media may not overcome it, so counselling is guarded.', 'reasoning_eligible': True},
+                {'stem': 'Select the BEST description of good PAM practice.', 'options': ['Dilate, explain clearly, aim through the clearest window, record the best line and conditions, and interpret alongside OCT/exam', 'One quick undilated attempt is enough', 'Diagnose retinal disease from PAM alone', 'Skip documentation'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Reliable PAM involves dilation, clear explanation, careful aiming, documentation, and interpretation with structural tests.', 'reasoning_eligible': True},
+                {'stem': 'Why can PAM occasionally OVER-predict the post-operative vision?', 'options': ['Some retinal/optic conditions are not fully reflected by reading letters through a small beam', 'It always underestimates', 'It measures the lens directly', 'It cannot over-predict'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Certain subtle pathologies may still allow good PAM letter-reading, so the predicted acuity can exceed the real outcome - hence corroboration.', 'reasoning_eligible': True},
+                {'stem': 'An OT records a PAM of 6/6 in a cataract patient whose macula and optic nerve look healthy. The appropriate message is:', 'options': ["A reassuring prediction of good potential vision - documented for the surgeon's counselling", 'An urgent abnormal finding', 'Proof surgery will fail', 'A reason to repeat 20 times'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'A strong PAM with a healthy macula/nerve is reassuring and is documented to support optimistic (but realistic) counselling.', 'reasoning_eligible': True},
+                {'stem': "Why does the OT correlate the PAM with the patient's actual complaints and other findings?", 'options': ['Consistency across tests gives the clinician confidence in the prognosis; discrepancies prompt further checks', 'PAM stands entirely alone', 'Complaints are irrelevant', 'It measures the eye pressure'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'Agreement between PAM, symptoms and structural findings strengthens the prognosis; a mismatch signals a need to investigate further.', 'reasoning_eligible': True},
+                {'stem': 'In a patient with BOTH cataract and early glaucoma, how does PAM fit into the assessment?', 'options': ['It estimates central acuity potential but does not assess the visual field/optic-nerve status', 'It fully assesses glaucoma', 'It measures the eye pressure', 'It replaces the visual field test'], 'correct': [0], 'qtype': 'single', 'kind': 'situational', 'explanation': 'PAM gauges central acuity potential only; glaucomatous field/optic-nerve status needs perimetry and disc/RNFL assessment.', 'reasoning_eligible': True},
             ],
         },
         "hrt": {
