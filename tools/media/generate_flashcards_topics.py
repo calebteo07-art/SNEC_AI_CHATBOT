@@ -184,6 +184,9 @@ SUBJECTS: dict[str, str] = {
     "disorders_cornea_conjunctiva":
         "A slit-lamp macro of the cornea, sclera and conjunctiva surface with "
         "a fine light section across the clear cornea, clinically accurate.",
+    "disorders_lens_cataract":
+        "A slit-lamp view of the crystalline lens showing a cataract with "
+        "nuclear and cortical opacity behind the pupil, clinically accurate.",
     "disorders_uvea_retina":
         "A vivid retinal fundus photograph with the optic disc, macula and "
         "vasculature representing uvea and retina, clinically accurate.",
