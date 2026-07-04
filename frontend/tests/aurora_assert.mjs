@@ -141,25 +141,22 @@ if (!(regionCases >= 1 && regionCases < allCases)) {
 }
 console.log("PASS: Atlas Map region filters the case list");
 
-// tutor: cosmic gradient wash, composer renders, the EyeBot reply avatar uses the
-// default Selena mascot photo (ricoe A3), one h1.
-// (the dark-cosmos redesign moved the wash to the parent .aurora-chat; .aurora-chat-thread is transparent.)
+// tutor greeting landing (ricoe A2): /chat OPENS on the greeting landing (hello h1 +
+// prompt + recent sessions), not the thread. cosmic wash, composer, SNEC co-brand, one h1.
 await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
 await np.waitForSelector(".aurora-chat", { timeout: 15000 });
 const wash = await np.locator(".aurora-chat").evaluate((el) => getComputedStyle(el).backgroundImage);
 if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat cosmic wash missing (bg=${wash})`); process.exit(1); }
+if ((await np.locator('[data-testid="tutor-landing"]').count()) < 1) { console.error("FAIL: tutor greeting landing not shown on /chat"); process.exit(1); }
 if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: composer not rendered"); process.exit(1); }
-if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-mascot').count()) < 1) {
-  console.error("FAIL: EyeBot reply avatar not using the default Selena mascot"); process.exit(1);
-}
 // ricoe E2: the rail (which carries the SNEC mark) is hidden on the immersive Tutor,
-// so the SNEC co-brand must be present in the header.
+// so the SNEC co-brand must be present.
 if ((await np.locator('.aurora-chat-snec').count()) < 1) {
   console.error("FAIL: SNEC co-brand missing on the immersive Tutor"); process.exit(1);
 }
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
-console.log("PASS: Tutor chat — cosmic wash, composer, Selena mascot avatar, SNEC co-brand, one h1");
+console.log("PASS: Tutor greeting landing — cosmic wash, prompt, SNEC co-brand, one h1");
 
 // SSE: mock /api/chat as an event-stream; sending must append the streamed reply
 // through the new composer + thread (proves the streaming reader path survived the rebuild).
@@ -173,7 +170,12 @@ await np.waitForSelector(".aurora-composer-field", { timeout: 15000 });
 await np.locator(".aurora-composer-field").fill("Tell me about the optic disc");
 await np.locator(".aurora-composer-send").click();
 await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
-console.log("PASS: Tutor SSE stream appends the assistant reply");
+// asking from the landing cross-faded into the live thread (ricoe A2); the EyeBot reply
+// avatar is the default Selena mascot (ricoe A3).
+if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-mascot').count()) < 1) {
+  console.error("FAIL: EyeBot reply avatar not using the default Selena mascot"); process.exit(1);
+}
+console.log("PASS: Tutor landing→thread transition + SSE stream + Selena mascot reply avatar");
 
 // progress + summary were retired: /progress and /summary must 404 (no route).
 await np.setViewportSize({ width: 1440, height: 900 });

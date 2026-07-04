@@ -1547,6 +1547,69 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 .aurora-shell-immersive .aurora-main-scroll { padding: 0; height: 100dvh; }
 .aurora-shell-immersive .aurora-chat { height: 100dvh; }
 
+/* ─── Tutor greeting landing (ricoe A2) ───────────────────────────────────────
+   The empty state of /chat: a hello + prompt + recent sessions, which cross-fades
+   into the live thread. The constellation canvas is shared, so the swap reads as one
+   surface. Gemini-accented (gradient name, gradient prompt focus) on the ivory tutor. */
+.aurora-chat-convo { position: relative; z-index: 1; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.aurora-chat-convo[data-entering] { animation: tl-convo-in 0.55s cubic-bezier(0.2, 0.7, 0.2, 1); }
+@keyframes tl-convo-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.tutor-landing { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column;
+  overflow-y: auto; padding: 0 clamp(16px, 4vw, 40px); animation: tl-in 0.5s ease; }
+@keyframes tl-in { from { opacity: 0; } to { opacity: 1; } }
+.tutor-landing[data-leaving] { animation: tl-out 0.46s cubic-bezier(0.4, 0, 0.2, 1) forwards; pointer-events: none; }
+@keyframes tl-out { to { opacity: 0; transform: translateY(-22px) scale(0.985); filter: blur(3px); } }
+
+.tl-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 2px 0; flex: 0 0 auto; }
+.tl-snec { width: 58px; }
+
+.tl-hero { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: clamp(22px, 7vh, 84px) 0 20px; }
+.tl-hello { font-family: inherit; font-size: clamp(34px, 5.2vw, 58px); font-weight: 700; letter-spacing: -0.03em;
+  line-height: 1.05; margin: 0; color: var(--mono-ink); }
+.tl-hello em { font-style: normal; background: linear-gradient(100deg, #4285F4, #9B72F6 48%, #EC4899);
+  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tl-sub { margin: 14px 0 0; font-size: clamp(15px, 1.7vw, 19px); color: var(--mono-ink-2); font-weight: 500; }
+.tl-prompt { width: min(680px, 100%); margin: 26px auto 0; }
+.tl-prompt .aurora-composer { border-radius: 22px; padding: 10px 10px 10px 20px; min-height: 62px; align-items: center;
+  box-shadow: 0 18px 44px -22px rgba(60, 60, 120, 0.4); }
+.tl-prompt .aurora-composer-field { font-size: 16.5px; }
+.tl-prompt .aurora-composer:focus-within { border-color: rgba(91, 91, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(123, 92, 246, 0.18), 0 18px 44px -20px rgba(60, 60, 120, 0.45); }
+
+.tl-recent { flex: 1 1 auto; width: min(1100px, 100%); margin: 0 auto; padding: 8px 0 40px; }
+.tl-recent-h { font-size: 15px; font-weight: 700; color: var(--mono-ink-2); letter-spacing: -0.01em; margin: 0 0 14px; }
+.tl-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(212px, 1fr)); gap: 14px; }
+.tl-card { display: flex; flex-direction: column; gap: 7px; align-items: flex-start; text-align: left;
+  padding: 16px 16px 14px; border-radius: 18px; background: var(--mono-card); border: 1px solid var(--mono-line);
+  cursor: pointer; box-shadow: 0 1px 2px rgba(20, 20, 40, 0.04);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s; }
+.tl-card:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -18px rgba(60, 60, 120, 0.4); border-color: rgba(91, 91, 255, 0.4); }
+.tl-card-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; }
+.tl-card-tag.tutor { color: #5B5BFF; background: rgba(91, 91, 255, 0.1); }
+.tl-card-tag.case { color: #0C8F7E; background: rgba(18, 181, 160, 0.12); }
+.tl-card-tag.flash { color: #C2410C; background: rgba(251, 146, 60, 0.14); }
+.tl-card-topic { font-weight: 700; font-size: 15.5px; color: var(--mono-ink); letter-spacing: -0.01em; }
+.tl-card-sum { font-size: 13px; color: var(--mono-ink-2); line-height: 1.4; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tl-card-foot { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 3px; }
+.tl-card-when { font-size: 11.5px; color: var(--mono-ink-3); font-weight: 600; }
+.tl-card-go { font-size: 12.5px; font-weight: 700; color: #5B5BFF; opacity: 0; transform: translateX(-4px);
+  transition: opacity 0.16s, transform 0.16s; }
+.tl-card:hover .tl-card-go { opacity: 1; transform: none; }
+.tl-starters { display: flex; flex-wrap: wrap; gap: 10px; }
+.tl-starter { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--mono-line); background: var(--mono-card);
+  font-size: 14px; font-weight: 600; color: var(--mono-ink); cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+.tl-starter:hover { border-color: rgba(91, 91, 255, 0.5); transform: translateY(-2px); }
+
+html[data-motion="reduce"] .tutor-landing,
+html[data-motion="reduce"] .tutor-landing[data-leaving],
+html[data-motion="reduce"] .aurora-chat-convo[data-entering] { animation: none !important; }
+
+/* CoBrand mascot mark (used by the rail-less-page co-brand lockup) */
+.aurora-cobrand-mark { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; object-position: 50% 42%; display: block; }
+
 /* ─── Shared diagnostic helpers (used by staff drill-downs + EngagementBlock) ─── */
 .aurora-prog-card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
 .aurora-prog-count { font-family: var(--font-mono); font-size: 12.3px; color: var(--ink-3); }

@@ -16,6 +16,9 @@ import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
 import { addChatXp, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useGamificationSync } from "@/hooks/useGamification";
+import { TutorLanding, type RecentSession } from "@/aurora/components/TutorLanding";
+import { useAuth } from "@/screens/AuthContext";
+import { useProgress } from "@/hooks/useProgress";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -42,6 +45,21 @@ export function Tutor() {
   const threadRef = useRef<HTMLDivElement>(null);
   const chatCapNotified = useRef(false);
   const { mutate: syncGamification } = useGamificationSync();
+  const { user } = useAuth();
+  const { data: progress } = useProgress();
+  const firstName = (user?.fullName ?? "there").split(" ")[0];
+
+  // Greeting landing (ricoe A2): /chat opens on a hello + prompt + recent sessions, then
+  // cross-fades into the live thread once the student asks something. "leaving" keeps both
+  // mounted for the ~460ms cross-fade; the shared constellation canvas bridges them.
+  const [phase, setPhase] = useState<"landing" | "leaving" | "chat">("landing");
+  const [subSeed, setSubSeed] = useState(0); // 0 on SSR/first render; randomised after mount
+  useEffect(() => { setSubSeed(Math.floor(Math.random() * 997)); }, []);
+  const enterChat = () => { setPhase("leaving"); window.setTimeout(() => setPhase("chat"), 460); };
+  const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
+  const startWith = (text: string) => { if (!text.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(text); };
+  const resumeSession = (s: RecentSession) =>
+    startWith(`Let's pick up where I left off on ${s.topic}.${s.summary ? ` Earlier: ${s.summary}` : ""} Can we go a bit deeper?`);
 
   // F3 — "Explain this" from a flashcard pre-seeds the composer with the question.
   useEffect(() => {
@@ -61,10 +79,12 @@ export function Tutor() {
     if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
   }, [messages, isTyping]);
 
-  /* Preserved verbatim: SSE streaming send. */
-  const sendMessage = async () => {
-    if (!input.trim() || isTyping || streamingId) return;
-    const userMsg: UserMessage = { type: "user", id: Date.now().toString(), text: input.trim() };
+  /* SSE streaming send. Accepts an optional override (resume / quick-start from the
+     landing) so it doesn't depend on the async `input` state having flushed. */
+  const sendMessage = async (override?: string) => {
+    const text = (override ?? input).trim();
+    if (!text || isTyping || streamingId) return;
+    const userMsg: UserMessage = { type: "user", id: Date.now().toString(), text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
@@ -149,63 +169,82 @@ export function Tutor() {
         onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
       />
 
-      <header className="aurora-chat-head">
-        <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
-          <Icon.back size={24} />
-        </Link>
-        <span className="aurora-chat-avatar">
-          <span className="aurora-chat-eye">
-            <span className="aurora-chat-eye-orb">
-              {/* Reuse the Nano-Banana login eye — a photoreal round iris on near-white. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/login-eye.png" alt="" />
-              <span className="aurora-chat-eye-lid" aria-hidden="true" />
+      {phase !== "chat" && (
+        <TutorLanding
+          firstName={firstName}
+          input={input}
+          onChange={setInput}
+          onSend={startFromLanding}
+          disabled={isTyping || streamingId !== null}
+          sessions={(progress?.sessions ?? []) as RecentSession[]}
+          onResume={resumeSession}
+          onStarter={startWith}
+          subSeed={subSeed}
+          leaving={phase === "leaving"}
+        />
+      )}
+
+      {phase !== "landing" && (
+        <div className="aurora-chat-convo" data-entering={phase === "leaving" || undefined}>
+          <header className="aurora-chat-head">
+            <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
+              <Icon.back size={24} />
+            </Link>
+            <span className="aurora-chat-avatar">
+              <span className="aurora-chat-eye">
+                <span className="aurora-chat-eye-orb">
+                  {/* Reuse the Nano-Banana login eye — a photoreal round iris on near-white. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/brand/login-eye.png" alt="" />
+                  <span className="aurora-chat-eye-lid" aria-hidden="true" />
+                </span>
+                <span className="aurora-chat-eye-ring" aria-hidden="true" />
+              </span>
             </span>
-            <span className="aurora-chat-eye-ring" aria-hidden="true" />
-          </span>
-        </span>
-        <h1 className="aurora-chat-name">eyebot</h1>
-        <svg className="aurora-chat-oct" viewBox="0 0 120 16" aria-hidden="true">
-          <polyline points="0,8 16,8 22,3 28,13 34,8 56,8 62,2 68,14 74,8 120,8" />
-        </svg>
-        {/* SNEC co-brand — the rail (which normally carries it) is hidden on the
-            immersive Tutor, so complete the EyeBot + SNEC lockup here (ricoe E2). */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="aurora-snec aurora-chat-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
-      </header>
+            <h1 className="aurora-chat-name">eyebot</h1>
+            <svg className="aurora-chat-oct" viewBox="0 0 120 16" aria-hidden="true">
+              <polyline points="0,8 16,8 22,3 28,13 34,8 56,8 62,2 68,14 74,8 120,8" />
+            </svg>
+            {/* SNEC co-brand — the rail (which normally carries it) is hidden on the
+                immersive Tutor, so complete the EyeBot + SNEC lockup here (ricoe E2). */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="aurora-snec aurora-chat-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
+          </header>
 
-      <ChatThread ref={threadRef}>
-        {messages.map((m) => (
-          <MessageBubble
-            key={m.id}
-            role={m.type === "ai" ? "eyebot" : "user"}
-            streaming={streamingId === m.id}
-          >
-            {m.type === "ai" ? m.content : m.text}
-          </MessageBubble>
-        ))}
-        {isTyping && (
-          <MessageBubble role="eyebot">
-            <span className="aurora-typing" aria-label="EyeBot is typing"><i /><i /><i /></span>
-          </MessageBubble>
-        )}
-      </ChatThread>
-
-      <footer className="aurora-chat-foot">
-        <div className="aurora-chat-foot-inner">
-          <div className="aurora-chat-followups aurora-stagger">
-            {SUGGESTIONS.map((s) => (
-              <FollowupChip key={s} label={s} active={input === s} onClick={() => setInput(s)} />
+          <ChatThread ref={threadRef}>
+            {messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                role={m.type === "ai" ? "eyebot" : "user"}
+                streaming={streamingId === m.id}
+              >
+                {m.type === "ai" ? m.content : m.text}
+              </MessageBubble>
             ))}
-          </div>
-          <Composer
-            value={input}
-            onChange={setInput}
-            onSend={sendMessage}
-            disabled={isTyping || streamingId !== null}
-          />
+            {isTyping && (
+              <MessageBubble role="eyebot">
+                <span className="aurora-typing" aria-label="EyeBot is typing"><i /><i /><i /></span>
+              </MessageBubble>
+            )}
+          </ChatThread>
+
+          <footer className="aurora-chat-foot">
+            <div className="aurora-chat-foot-inner">
+              <div className="aurora-chat-followups aurora-stagger">
+                {SUGGESTIONS.map((s) => (
+                  <FollowupChip key={s} label={s} active={input === s} onClick={() => setInput(s)} />
+                ))}
+              </div>
+              <Composer
+                value={input}
+                onChange={setInput}
+                onSend={() => void sendMessage()}
+                disabled={isTyping || streamingId !== null}
+              />
+            </div>
+          </footer>
         </div>
-      </footer>
+      )}
     </section>
   );
 }
