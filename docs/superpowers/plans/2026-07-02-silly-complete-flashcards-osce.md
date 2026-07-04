@@ -772,7 +772,7 @@ git push origin main
 - [x] red_eye · [x] triage · [x] ocular_emergencies · [x] history_taking · [x] distance_va · [x] near_vision · [x] pinhole · [x] iop_nct · [x] eye_drops · [x] pupil_dilation · [x] colour_vision · [x] amsler_macula · [x] fall_risk · [x] perioperative · [x] abbreviations
 
 **OT (19)** — new gap topics to 50 + top up existing to 50:
-- [n/a] aberrometry · lens_meter · retinal_imaging · dr_grading — these were placeholder-only OT flashcard blocks; DELETED in Phase A3 and delivered as OSCE gap cases (case_ot_051..054) instead, so they are NOT flashcard topics. Flashcard OT scope = the 15 real topics below.
+- [x] aberrometry · [x] lens_meter · [x] retinal_imaging · [x] dr_grading — (user directive 2026-07-04: author all 4 to 50 so every OT topic has BOTH flashcards AND OSCE). Placeholders were deleted in Phase A3; these are freshly hand-authored full 50-card topics (also covered by OSCE cases case_ot_051..054).
 - [x] oct_macula · [x] oct_rnfl · [x] hvf · [x] gvf · [x] ascan_biometry · [x] optical_biometry · [x] endothelial · [x] asoct · [x] flare · [x] corneal_topography · [x] pam · [x] hrt · [x] orthoptics · [x] dayward_theatre · [x] auto_refraction
 
 ---
