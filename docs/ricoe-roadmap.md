@@ -27,7 +27,7 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 ## Homepage
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 4 | Fix feature/shortcut cards not routing (click does nothing) | D3-bug | ⬜ 🔒 |
+| 4 | Fix feature/shortcut cards not routing (click does nothing) | D3-bug | ✅ 🔒 (root cause: perpetual drift + 3D projection made clicks fall through to the stage, and side cards were pointer-events:none; fix = resolve the tap at the stage → open nearest card; regression test added, aurora 26/26) |
 | 5 | Make Tutor/OSCE/Flashcard shortcut cards custom + less boring | D3-polish | ⬜ 🔒 |
 | 6 | Reduce side white-space, enlarge all cards sideways | D4 | ⬜ 🔒 |
 | 7 | Greeting card + streak: shorter but wider | D5 | ⬜ 🔒 |

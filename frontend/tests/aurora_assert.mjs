@@ -105,6 +105,21 @@ const greetAfter = await np.locator('[data-testid="greeting"]').innerText();
 if (greetBefore === greetAfter) { console.error("FAIL: 'Surprise me' did not change the greeting"); process.exit(1); }
 console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards, reshuffle)");
 
+// feature cards must NAVIGATE on tap (ricoe D3): the perpetual drift + 3D projection
+// used to swallow the click and leave the user stuck on the dashboard. A tap on the
+// carousel now routes to a feature (nearest card, resolved at the stage).
+await np.waitForSelector('[data-testid="feature-carousel"]', { timeout: 15000 });
+const cbox = await np.locator('[data-testid="feature-carousel"]').boundingBox();
+await np.mouse.click(cbox.x + cbox.width / 2, cbox.y + cbox.height / 2);
+await np.waitForTimeout(600);
+const featPath = new URL(np.url()).pathname;
+if (!["/chat", "/cases", "/flashcards"].includes(featPath)) {
+  console.error(`FAIL: tapping a feature card did not route (still ${featPath})`); process.exit(1);
+}
+console.log(`PASS: feature card tap routes to a feature (${featPath})`);
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
+
 // mobile: no horizontal overflow at 390x844.
 await np.setViewportSize({ width: 390, height: 844 });
 await np.waitForTimeout(400);

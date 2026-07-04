@@ -88,10 +88,13 @@
 
 /* ── feature carousel (3D coverflow) ── */
 .hm-carousel { position:relative; height:306px; perspective:1500px; }
-.hm-ring3d { position:absolute; inset:0; transform-style:preserve-3d; }
+.hm-ring3d { position:absolute; inset:0; transform-style:preserve-3d; cursor:pointer; }
+/* Cards are pointer-events:none so every tap lands on the stage, which resolves it
+   to the nearest card (see FeatureCarousel.tsx). Keeps clicks from being swallowed
+   by the drift / 3D projection. Keyboard Enter still navigates via the <a href>. */
 .hm-fcard { position:absolute; left:50%; top:50%; width:360px; height:214px; margin-left:-180px; margin-top:-107px;
   border-radius:var(--hr); padding:28px 28px 26px; color:#fff; display:flex; flex-direction:column; overflow:hidden;
-  box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; cursor:grab; text-decoration:none; }
+  box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
 .hm-fcard.tutor { background:linear-gradient(155deg,#A78BFA 0%,#7C3AED 100%); }
 .hm-fcard.vp    { background:linear-gradient(155deg,#2DD4BF 0%,#0D9488 100%); }
 .hm-fcard.flash { background:linear-gradient(155deg,#FDBA74 0%,#F43F5E 100%); }
