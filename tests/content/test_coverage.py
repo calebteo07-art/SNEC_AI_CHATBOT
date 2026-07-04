@@ -3,8 +3,6 @@ domain is a topic; every topic that has cards carries a theory/practical/
 situational mix; the whole bank is authored to 50 cards/topic. See
 reference_silly_kb + project_role_content_model.
 """
-import pytest
-
 from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS, topics_for
 from tools.flashcards.static_cards import FLASHCARDS
 
@@ -59,7 +57,6 @@ def test_completed_topics_have_full_mix():
             assert counts[k] >= MIN_PER_KIND, f"{tk}: kind '{k}'={counts[k]} (<{MIN_PER_KIND})"
 
 
-@pytest.mark.xfail(reason="cards authored to 50/topic incrementally; flips to XPASS when the bank is complete, then remove this marker (Phase C)")
 def test_every_topic_has_50_cards_full_mix():
     problems: list[str] = []
     for tk in _all_taxonomy_topics():
