@@ -143,7 +143,6 @@ export function Tutor() {
   return (
     <section className="aurora-chat">
       <ChatField />
-      <span className="aurora-chat-sweep" aria-hidden="true" />
 
       <AchievementManager
         achievements={newAchievements}
