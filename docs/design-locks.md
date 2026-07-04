@@ -25,6 +25,16 @@ Kept verbatim from the original app (explicit user preference). Do not restyle.
   ChargeBeat, 3D flip to full-bleed explanation, combo/XP payoff). Cool cyan→indigo hue
   band only; verdicts bright green `#16a34a` / intense red `#e22030`; Next button
   centered, solid indigo.
+- **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1
+  — "Up next", the gradient topic name, a one-line blurb (`TOPIC_BLURBS`), a
+  `N cards · mixed difficulty · instant scoring` meta and a Begin CTA — in the study
+  card's dark lit-glass language. The deck loads in the background; tutor-handoff and
+  `?mode=review` flows skip it.
+- **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-
+  phrased `ComboBurst` slam over the stage (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 /
+  GODLIKE 10+) with the ×N, a shockwave ring and the streak count; `pointer-events:none`,
+  self-dismissing, keeps rewarding every 2-in-a-row past the ×4 cap. Phrase + multiplier
+  come from `comboCallout`/`comboMultiplier` so they never disagree.
 - **Out of scope for refinements**: scoring model (deterministic, no AI in study loop),
   two-pool role content model {OA=PSA}+{OT}, 50-cards-per-topic mandate.
 

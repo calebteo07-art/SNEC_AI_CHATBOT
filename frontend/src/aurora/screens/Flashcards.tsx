@@ -18,6 +18,8 @@ import {
 } from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
+import { TopicIntro } from "@/aurora/components/flashcards/TopicIntro";
+import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import LiquidLoading from "@/components/ui/liquid-loader";
@@ -42,6 +44,9 @@ export function Flashcards() {
   const [setKey, setSetKey] = useState<string | null>(null);
   const sessionLength = 10; // fixed deck length — no length picker
   const [pickerDone, setPickerDone] = useState(reviewMode);
+  // ricoe B5: after a fan pick, show a topic name+description intro card before Q1.
+  // Only fan picks get an intro — tutor-handoff and ?mode=review flows skip straight in.
+  const [intro, setIntro] = useState(false);
 
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
   const reasonCheck = useReasonCheck();
@@ -75,6 +80,8 @@ export function Flashcards() {
   const xpRef = useRef(0);
   const comboRef = useRef(0);          // consecutive-correct streak (deck-level)
   const [combo, setCombo] = useState(0); // mirror for prop propagation to the card
+  // ricoe B3: the loud combo popup. Keyed so each qualifying streak restarts it.
+  const [burst, setBurst] = useState<{ key: number; combo: number } | null>(null);
 
   // topic_key → human label (from the topics endpoint), falling back to a
   // prettified key so mixed / tutor-handoff decks still name their topic clearly.
@@ -107,8 +114,16 @@ export function Flashcards() {
 
     // Combo: a correct card extends the streak and earns base × multiplier; the
     // bonus folds into xpRef so it flows to /complete as real XP. A miss resets it.
-    const newCombo = correct ? comboRef.current + 1 : 0;
+    const oldCombo = comboRef.current;
+    const newCombo = correct ? oldCombo + 1 : 0;
     comboRef.current = newCombo; setCombo(newCombo);
+    // ricoe B3: fire the loud popup when the streak crosses into a new multiplier tier
+    // (×2 at 2, ×3 at 4, ×4 at 6), then keep rewarding every 2-in-a-row past the cap.
+    if (correct) {
+      const tierUp = comboMultiplier(newCombo) > comboMultiplier(oldCombo);
+      const pastCap = newCombo >= 6 && newCombo % 2 === 0;
+      if (tierUp || pastCap) setBurst({ key: Date.now(), combo: newCombo });
+    }
     const xp = correct ? XP_CORRECT * comboMultiplier(newCombo) : XP_ATTEMPT;
     xpRef.current += xp; addXP(xp); incrementTotalCards();
     const unlocked = checkAndUnlockAchievements();
@@ -154,6 +169,7 @@ export function Flashcards() {
     // /complete would re-send the original deck's XP on top of its own).
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
     reasonNotesRef.current = {}; xpRef.current = 0; comboRef.current = 0; setCombo(0);
+    setBurst(null);
     const next = missed.slice(); missedRef.current = [];
     setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
     setIdx(0); setChecked(false); setDone(false);
@@ -172,9 +188,9 @@ export function Flashcards() {
     // Normal deck → reset the run + selection state in place → the topic fan shows again.
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
     reasonNotesRef.current = {}; missedRef.current = [];
-    xpRef.current = 0; comboRef.current = 0; setCombo(0);
+    xpRef.current = 0; comboRef.current = 0; setCombo(0); setBurst(null);
     setDrill([]); setIdx(0); setChecked(false); setDone(false);
-    setSetKey(null); setPickerDone(false);
+    setSetKey(null); setPickerDone(false); setIntro(false);
   };
   const exit = () => router.push("/dashboard");
 
@@ -184,8 +200,21 @@ export function Flashcards() {
       <FlashShell onExit={exit}>
         <SessionSetup
           topicSets={topicSets}
-          onStart={(key) => { setSetKey(key); setPickerDone(true); }}
+          onStart={(key) => { setSetKey(key); setPickerDone(true); setIntro(true); }}
         />
+      </FlashShell>
+    );
+  }
+
+  // ricoe B5 — the pre-deck intro. Only for fan picks (not tutor-handoff / review),
+  // and only until Begin. The deck loads in the background while it shows.
+  if (intro && !fromSession && !reviewMode) {
+    const introKey = setKey ?? "__mixed";
+    const introLabel = setKey ? labelForTag(setKey) : "Mixed";
+    return (
+      <FlashShell onExit={exit} topicHue={topicHue(introKey)} engraved>
+        <TopicIntro label={introLabel} topicKey={introKey}
+          count={baseCards.length} onBegin={() => setIntro(false)} />
       </FlashShell>
     );
   }
@@ -227,6 +256,7 @@ export function Flashcards() {
         reasonNote={reasonNotesRef.current[card.id] ?? null} combo={combo}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
+      {burst && <ComboBurst key={burst.key} combo={burst.combo} onDone={() => setBurst(null)} />}
     </FlashShell>
   );
 }

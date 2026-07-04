@@ -226,6 +226,17 @@ console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no diff
 await np.emulateMedia({ reducedMotion: "reduce" });
 await np.waitForTimeout(450); // let the river freeze to a static fan before clicking
 await np.locator('[data-card-id="triage"]').click();
+// ricoe B5: a topic pick shows an intro card (name + description) BEFORE Q1; Begin
+// drops into the deck. The intro names the topic, so the title must be non-empty.
+await np.waitForSelector('[data-testid="flash-intro"]', { timeout: 15000 });
+if (((await np.locator('[data-testid="flash-intro"] .flash-intro-title').innerText()).trim().length) < 2) {
+  console.error("FAIL: topic intro card is missing its title (ricoe B5)"); process.exit(1);
+}
+if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
+  console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
+}
+console.log("PASS: flashcards — topic intro card shows the topic name + description before Q1 (ricoe B5)");
+await np.locator('[data-testid="flash-intro-begin"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
 // Card 1 (plain): tap an option → flip → back face shows "Findings" + payoff. There
@@ -251,6 +262,12 @@ await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the
 // FRONT face (NO model yet, NO Next). Charging the reveal flips to the back face.
 await np.waitForSelector('[data-testid="flash-option"]', { timeout: 8000 });
 await np.locator('[data-testid="flash-option"]').first().click();
+// ricoe B3: two correct in a row → the loud, game-phrased combo popup fires (×2). It
+// renders in the same commit as the verdict, so it's present immediately after the tap.
+if ((await np.locator('[data-testid="flash-burst"]').count()) < 1) {
+  console.error("FAIL: the loud combo popup did not fire on a 2× streak (ricoe B3)"); process.exit(1);
+}
+console.log("PASS: flashcards — loud game-phrased combo popup fires on a streak (ricoe B3)");
 await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
 // Both faces live in the DOM for the 3D flip, so assert VISIBILITY, not presence:
 // before the flip the back face (model + Next) is display:none under reduced motion
@@ -488,6 +505,8 @@ await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await stp.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
 await stp.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
 await stp.locator('[data-card-id="__mixed"]').click();
+// through the pre-deck intro beat (ricoe B5) into the deck…
+await stp.locator('[data-testid="flash-intro-begin"]').click();
 // graceful empty state appears; the study stage and the error boundary never do.
 await stp.waitForSelector(".flash-msg", { timeout: 15000 });
 await stp.waitForTimeout(600); // let any (mis)render settle
