@@ -51,9 +51,9 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 4 | Fix feature/shortcut cards not routing (click does nothing) | D3-bug | ✅ 🔒 (tap resolved at stage → nearest card; regression test; aurora 26/26) |
-| 5 | Make Tutor/OSCE/Flashcard shortcut cards custom + less boring | D3-polish | ⬜ 🔒 |
-| 6 | Reduce side white-space, enlarge all cards sideways | D4 | ⬜ 🔒 |
-| 7 | Greeting card + streak: shorter but wider | D5 | ⬜ 🔒 |
+| 5 | Make Tutor/OSCE/Flashcard shortcut cards custom + less boring | D3-polish | ✅ 🔒 (kicker pill + light-bloom orb + tile row; richer copy) |
+| 6 | Reduce side white-space, enlarge all cards sideways | D4 | ✅ 🔒 (canvas 1360px; feature cards 384×220) |
+| 7 | Greeting card + streak: shorter but wider | D5 | ✅ 🔒 (hero grid 1.9fr/1fr, tighter greeting padding) |
 
 ## Overall
 | # | Phase | ricoe | Status |

@@ -17,9 +17,9 @@ import { useEffect, useRef } from "react";
 import { Icon } from "./HomeIcons";
 
 const FEATURES = [
-  { tone: "tutor", href: "/chat", icon: "tutor", title: "Tutor", sub: "Ask anything — your AI eye coach", cta: "Open chat" },
-  { tone: "vp", href: "/cases", icon: "vp", title: "Virtual Patients", sub: "Run a real OSCE station", cta: "Start a case" },
-  { tone: "flash", href: "/flashcards", icon: "flash", title: "Flashcards", sub: "Active-recall drills that adapt", cta: "Study now" },
+  { tone: "tutor", href: "/chat", icon: "tutor", kicker: "AI eye coach", title: "Tutor", sub: "Ask anything — your Socratic guide", cta: "Open chat" },
+  { tone: "vp", href: "/cases", icon: "vp", kicker: "OSCE station", title: "Virtual Patients", sub: "Examine a real virtual patient", cta: "Start a case" },
+  { tone: "flash", href: "/flashcards", icon: "flash", kicker: "Active recall", title: "Flashcards", sub: "Adaptive drills that stick", cta: "Study now" },
 ] as const;
 
 export function FeatureCarousel() {
@@ -156,7 +156,11 @@ export function FeatureCarousel() {
             ref={(el) => { cardsRef.current[idx] = el; }}
           >
             <Icon name={f.icon} className="hm-deco ico" />
-            <span className="hm-tile"><Icon name={f.icon} /></span>
+            <span className="hm-fcard-orb" aria-hidden />
+            <span className="hm-fcard-top">
+              <span className="hm-tile"><Icon name={f.icon} /></span>
+              <span className="hm-kicker">{f.kicker}</span>
+            </span>
             <h3 className="disp">{f.title}</h3>
             <p>{f.sub}</p>
             <span className="hm-open">{f.cta} <Icon name="arrow" /></span>
