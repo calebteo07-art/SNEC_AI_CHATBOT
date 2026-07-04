@@ -152,9 +152,14 @@ if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: c
 if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-mascot').count()) < 1) {
   console.error("FAIL: EyeBot reply avatar not using the default Selena mascot"); process.exit(1);
 }
+// ricoe E2: the rail (which carries the SNEC mark) is hidden on the immersive Tutor,
+// so the SNEC co-brand must be present in the header.
+if ((await np.locator('.aurora-chat-snec').count()) < 1) {
+  console.error("FAIL: SNEC co-brand missing on the immersive Tutor"); process.exit(1);
+}
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
-console.log("PASS: Tutor chat — cosmic wash, composer, default Selena mascot avatar, one h1");
+console.log("PASS: Tutor chat — cosmic wash, composer, Selena mascot avatar, SNEC co-brand, one h1");
 
 // SSE: mock /api/chat as an event-stream; sending must append the streamed reply
 // through the new composer + thread (proves the streaming reader path survived the rebuild).

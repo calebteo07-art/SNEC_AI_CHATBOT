@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
+import { CoBrand } from "@/aurora/components/CoBrand";
 
 type Phase = "loading" | "question" | "result";
 interface QuestionData { question: string; topic: string; options: string[]; question_id: string; }
@@ -99,6 +100,7 @@ export function CheckIn() {
     <div className="aurora-checkin">
       <div className="aurora-checkin-mesh" aria-hidden><span /><span /></div>
       <main className="aurora-checkin-wrap aurora-rise-in">
+        <CoBrand className="aurora-checkin-cobrand" />
         <header className="aurora-checkin-head">
           <p className="aurora-eyebrow">Daily check-in</p>
           <h1 className="aurora-checkin-h1">Today&apos;s question</h1>

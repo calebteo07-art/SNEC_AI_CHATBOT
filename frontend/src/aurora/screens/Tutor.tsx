@@ -168,6 +168,10 @@ export function Tutor() {
         <svg className="aurora-chat-oct" viewBox="0 0 120 16" aria-hidden="true">
           <polyline points="0,8 16,8 22,3 28,13 34,8 56,8 62,2 68,14 74,8 120,8" />
         </svg>
+        {/* SNEC co-brand — the rail (which normally carries it) is hidden on the
+            immersive Tutor, so complete the EyeBot + SNEC lockup here (ricoe E2). */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="aurora-snec aurora-chat-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
       </header>
 
       <ChatThread ref={threadRef}>

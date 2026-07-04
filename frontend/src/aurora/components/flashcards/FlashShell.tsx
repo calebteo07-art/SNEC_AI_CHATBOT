@@ -8,6 +8,7 @@ import { AchievementManager } from "@/screens/AchievementToast";
 import { EngravingField } from "./EngravingField";
 import { BrownianField } from "./BrownianField";
 import { useFlashMute } from "./useFlashFx";
+import { CoBrand } from "@/aurora/components/CoBrand";
 
 export function FlashShell({
   newAchievements = [], onDismissAchievement = () => {}, onExit, topicHue, engraved = false, children,
@@ -29,6 +30,8 @@ export function FlashShell({
       <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
         <Icon.back size={16} /> Exit
       </button>
+      <CoBrand dark className="flash-cobrand" />
+
       {engraved && (
         <button type="button" className="flash-mute" data-testid="flash-mute"
           aria-pressed={muted} aria-label={muted ? "Unmute sound" : "Mute sound"} onClick={toggleMute}>
