@@ -21,6 +21,80 @@ export function comboMultiplier(combo: number): number {
   return 1;
 }
 
+/** Game-phrased combo callout for the loud gamification popup (ricoe B3). Returns
+ *  null below the first multiplier tier (combo < 2); escalates with the streak and
+ *  the top phrase repeats past the ×4 cap. Kept in one place so the burst word and the
+ *  multiplier can never disagree with comboMultiplier. */
+export function comboCallout(combo: number): { word: string; sub: string } | null {
+  if (combo >= 10) return { word: "GODLIKE", sub: `${combo} in a row` };
+  if (combo >= 6) return { word: "UNSTOPPABLE", sub: `${combo} in a row` };
+  if (combo >= 4) return { word: "ON FIRE", sub: `${combo} in a row` };
+  if (combo >= 2) return { word: "DOUBLE UP", sub: `${combo} in a row` };
+  return null;
+}
+
+/** One-line topic blurbs for the pre-deck intro card (ricoe B5). Keyed by topic_key
+ *  (the selectable set key); an unknown key falls back to a generic line. Kept concise
+ *  and clinically accurate — this is the last thing a learner reads before Q1. */
+export const TOPIC_BLURBS: Record<string, string> = {
+  // Foundations — shared knowledge, every role
+  anatomy_physiology: "How the eye is built and how each part earns its keep — cornea to cortex.",
+  microbiology_infection: "The bugs that threaten the eye, and the sterile technique that keeps them out.",
+  pharmacology: "Ocular drugs — what they do, how they're given, and what to warn patients about.",
+  ocular_emergencies: "The can't-miss, sight-threatening presentations and how fast they move.",
+  professional_ethics: "Consent, confidentiality, chaperoning and scope — practising safely and well.",
+  disorders_eyelid_lacrimal_orbit: "Lids, tear drainage and the orbit — from styes to the watery eye.",
+  disorders_cornea_conjunctiva: "The ocular surface — red eyes, dry eyes, ulcers and the clear front window.",
+  disorders_lens_cataract: "The lens and its clouding — cataract types, symptoms and the road to surgery.",
+  disorders_uvea_retina: "Inside the eye — uveitis, retinal disease and the threats to central vision.",
+  glaucoma: "The pressure-and-nerve disease that steals sight silently — detection and monitoring.",
+  neuro_strabismus: "When eyes and nerves misfire — squints, double vision and telling pupil signs.",
+  systemic_disease: "How diabetes, hypertension and thyroid disease show up first in the eye.",
+  // Clinical — OA / PSA procedures
+  red_eye: "Sorting the harmless red eye from the sight-threatening one.",
+  triage: "Deciding who is seen now, soon or routinely — safe prioritising.",
+  history_taking: "Asking the right questions to frame every clinical picture.",
+  distance_va: "Measuring distance vision accurately, the SNEC way.",
+  near_vision: "Testing reading vision and near tasks reliably.",
+  pinhole: "The quick test that separates refractive blur from real pathology.",
+  iop_nct: "Measuring eye pressure with non-contact tonometry.",
+  eye_drops: "Instilling drops safely, cleanly and in the right order.",
+  pupil_dilation: "Dilating safely — the drugs, the checks and the cautions.",
+  colour_vision: "Screening colour vision with the Ishihara plates.",
+  amsler_macula: "Checking the macula for distortion with the Amsler grid.",
+  fall_risk: "Spotting and managing patients at risk of a fall.",
+  perioperative: "Preparing patients before surgery and caring for them after.",
+  abbreviations: "The shorthand of the eye clinic, decoded.",
+  // OT — ophthalmic investigations / imaging
+  oct_macula: "Cross-sectioning the macula to reveal fluid, layers and disease.",
+  oct_rnfl: "Measuring the nerve-fibre layer to track glaucoma.",
+  hvf: "Automated visual fields — mapping where sight is lost.",
+  gvf: "Manual kinetic perimetry across the whole field of vision.",
+  ascan_biometry: "Ultrasound axial length for choosing the right lens implant.",
+  optical_biometry: "Optical measurement of the eye for cataract-surgery planning.",
+  endothelial: "Counting the cornea's pump cells before surgery.",
+  asoct: "Imaging the front of the eye — angles, cornea and more.",
+  flare: "Quantifying inflammation in the anterior chamber.",
+  corneal_topography: "Mapping the cornea's curvature and shape.",
+  pam: "Estimating the vision a cataract patient could regain.",
+  hrt: "Laser-scanning the optic nerve head in glaucoma.",
+  orthoptics: "Assessing eye alignment, movement and binocular vision.",
+  dayward_theatre: "The flow of day surgery — from ward to theatre and back.",
+  auto_refraction: "Automated refraction and keratometry as a starting point.",
+  aberrometry: "Measuring the higher-order optical errors of the eye.",
+  lens_meter: "Reading a spectacle prescription off the lens (focimetry).",
+  retinal_imaging: "Photographing the retina to document and screen.",
+  dr_grading: "Grading diabetic retinopathy by the SORC scheme.",
+};
+
+/** topic_key → its one-line intro blurb, with graceful fallbacks for Mixed and any
+ *  unmapped key so the intro card always has something to say. */
+export function topicBlurb(topicKey: string): string {
+  if (!topicKey || topicKey === "__mixed")
+    return "A mixed deck spanning every topic you study — a broad warm-up.";
+  return TOPIC_BLURBS[topicKey] ?? "A focused 10-card deck to sharpen this topic.";
+}
+
 export interface Flashcard {
   id: number;
   stem: string;

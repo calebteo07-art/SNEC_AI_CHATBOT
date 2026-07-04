@@ -65,8 +65,8 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 9 | "New deck" button after finishing → topic-selection page | B4 | ✅ 🔒 (newDeck resets run+selection state in place → topic fan, not /dashboard; session/review flows hard-reload into the fan; regression test added) |
-| 10 | On topic click, show topic name+description intro card before Q1 | B5 | ⬜ 🔒 |
-| 11 | Louder gamification: XP/2×-combo → powerful game-phrased popup | B3 | ⬜ 🔒 |
+| 10 | On topic click, show topic name+description intro card before Q1 | B5 | ✅ 🔒 (new `TopicIntro`: "Up next" + gradient topic name + 1-line blurb from `TOPIC_BLURBS` (all 45 topics + Mixed) + `N cards · mixed difficulty · instant scoring` + Begin; deck loads in bg; fan picks only, review/handoff skip; aurora 29/29 + screenshot) |
+| 11 | Louder gamification: XP/2×-combo → powerful game-phrased popup | B3 | ✅ 🔒 (new `ComboBurst`: streak tier-up fires a big game-phrased slam — DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 / GODLIKE 10+ — with ×N, shockwave rings, streak count; `pointer-events:none`, self-dismisses; keeps rewarding past the cap; `comboCallout` in types.ts; aurora 29/29 + screenshot) |
 | 12 | Convert flashcards to light mode (purple off-white + dark-purple card) | B6 | ⬜ 🔒 |
 | — | Ghibli topic cards / topic-card picture list | B1,B2 | 🚫 skip ("ignore first dont do") |
 
