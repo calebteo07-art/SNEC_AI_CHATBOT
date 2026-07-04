@@ -76,6 +76,8 @@
 
 - Add eyebot logo + snec logo on every page
 
+- I want to redesign the eyebot logo to default selena but another variation (eg: another angle, headshot, etc), not the same one in the homepage greeting card.
+
 ---
 
 ## create a new leaderboard page:

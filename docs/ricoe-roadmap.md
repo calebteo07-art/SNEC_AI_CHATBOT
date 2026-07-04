@@ -1,9 +1,12 @@
 # ricoe Roadmap — granular phased execution
 
-Source of truth: [`ricoe.md`](../ricoe.md) (Caleb's verbatim intended changes, captured 2026-07-03).
+Source of truth: [`ricoe.md`](../ricoe.md) (Caleb's verbatim intended changes, captured
+2026-07-03; logo-redesign item added 2026-07-04).
 This roadmap decomposes ricoe into **small, independently shippable phases** so nothing
 gets skipped or neglected (user directive 2026-07-04: *"plan and execute ricoe in more and
-smaller phases, not too huge and packed phases"*).
+smaller phases, not too huge and packed phases"* and *"replan and execute ricoe in the most
+effective and efficient way … make sure nothing gets skipped or neglected … do not compromise
+on any quality"*).
 
 **Working rule:** one phase = one atomic change → TDD/verify where applicable →
 `/ship-check` for any user-facing state invariant → commit + push to `main`. Mark status
@@ -17,6 +20,26 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 
 ---
 
+## Execution batches — efficient order (2026-07-04 re-plan)
+
+Grouped so each surface/file is touched once, ordered low-risk → high-risk, with all
+paid image-gen deferred to one consolidated go-ahead. **Free code ships continuously; paid
+gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explicit go-ahead.**
+
+| Batch | Phases | Surface | Cost | Notes |
+|-------|--------|---------|------|-------|
+| **1 · Homepage layout** | 6, 7, 5 | `home.css` + `FeatureCarousel`/`GreetingHero`/`StreakTile` | free 🔒 | shorter-wider cards, less whitespace, richer shortcut cards. Refine within Home lock. |
+| **2 · Branding** | 8 | `AppShell`/`AtlasRail`/`layout` + `Logo.tsx` | free | EyeBot + SNEC logo on every page. |
+| **3 · Flashcards flow** | 9, 10, 11 | `Flashcards.tsx` + flash components | free 🔒 | new-deck button, topic intro card, louder gamification popup. |
+| **4 · Flashcards light mode** | 12 | flash CSS | free 🔒→🔓 | **lock-break**: dark→purple-off-white. New brief in design-locks first. |
+| **5 · OSCE frontend** | 13, 14, 15, 18, 19, 20, 21 | `CaseSession`/`ActionPalette`/`Cases`/eye plate | free 🔒 | button fix, auto-scroll, skip-explanation, eye-diagram filter, static pfps. |
+| **6 · OSCE scoring/grading** | 16, 17 | backend grader + `/observe` + scoring | free 🔒 | TDD + ship-check (state invariants). |
+| **7 · Leaderboard** | 26, 27 | new router + new page | free (27 headshot 💳) | XP-ranked, role filter; default-Selena headshot placeholder. |
+| **8 · Paid image gen (ONE go-ahead)** | 28, 22, 24, 23, 25, 27-headshot | Nano-Banana assets | 💳 | logo variation, patient faces, milestone icons, avatar system, Selena surfacing. |
+| **Blocked** | 3 | tutor landing | ⛔ | needs Caleb's inspiration screenshot. |
+
+---
+
 ## Tutor
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
@@ -27,7 +50,7 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 ## Homepage
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 4 | Fix feature/shortcut cards not routing (click does nothing) | D3-bug | ✅ 🔒 (root cause: perpetual drift + 3D projection made clicks fall through to the stage, and side cards were pointer-events:none; fix = resolve the tap at the stage → open nearest card; regression test added, aurora 26/26) |
+| 4 | Fix feature/shortcut cards not routing (click does nothing) | D3-bug | ✅ 🔒 (tap resolved at stage → nearest card; regression test; aurora 26/26) |
 | 5 | Make Tutor/OSCE/Flashcard shortcut cards custom + less boring | D3-polish | ⬜ 🔒 |
 | 6 | Reduce side white-space, enlarge all cards sideways | D4 | ⬜ 🔒 |
 | 7 | Greeting card + streak: shorter but wider | D5 | ⬜ 🔒 |
@@ -36,6 +59,7 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 8 | EyeBot logo + SNEC logo on every page | E2 | ⬜ |
+| 28 | Redesign EyeBot logo → a *different* Selena variation (angle/headshot), not the greeting-card pose | E3 | ⬜ 💳 🔒 (breaks "mono Spark-Eye logo" global lock — needs new brief + paid gen) |
 
 ## Flashcards
 | # | Phase | ricoe | Status |
@@ -78,7 +102,8 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 ## Notes carried into execution
 - **Locked features** (`docs/design-locks.md`): tutor, home, flashcards, OSCE are all
   locked. Every 🔒 phase *refines within the lock* — name the acceptance criterion being
-  changed; do not silently rebuild.
+  changed; do not silently rebuild. Two phases **consciously break** a lock and MUST write a
+  new brief first: #12 (flashcards dark→light) and #28 (mono Spark-Eye logo → Selena raster).
 - **Paid image gen** (💳): scaffold with clearly-marked placeholders first (green,
   keyless), run the live paid Nano-Banana generation only on Caleb's explicit go-ahead
   (user rule 2026-07-02). SNEC staff = SingHealth blue scrubs + orange trim.
