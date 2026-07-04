@@ -126,19 +126,20 @@ if (!(regionCases >= 1 && regionCases < allCases)) {
 }
 console.log("PASS: Atlas Map region filters the case list");
 
-// tutor: cosmic gradient wash, composer renders, the EyeBot avatar uses the Spark Eye logo, one h1.
+// tutor: cosmic gradient wash, composer renders, the EyeBot reply avatar uses the
+// default Selena mascot photo (ricoe A3), one h1.
 // (the dark-cosmos redesign moved the wash to the parent .aurora-chat; .aurora-chat-thread is transparent.)
 await np.goto(base + "/chat", { waitUntil: "domcontentloaded" });
 await np.waitForSelector(".aurora-chat", { timeout: 15000 });
 const wash = await np.locator(".aurora-chat").evaluate((el) => getComputedStyle(el).backgroundImage);
 if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat cosmic wash missing (bg=${wash})`); process.exit(1); }
 if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: composer not rendered"); process.exit(1); }
-if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar [data-testid="aurora-logo"]').count()) < 1) {
-  console.error("FAIL: EyeBot avatar not using the logo"); process.exit(1);
+if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-mascot').count()) < 1) {
+  console.error("FAIL: EyeBot reply avatar not using the default Selena mascot"); process.exit(1);
 }
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
-console.log("PASS: Tutor chat — cosmic wash, composer, logo avatar, one h1");
+console.log("PASS: Tutor chat — cosmic wash, composer, default Selena mascot avatar, one h1");
 
 // SSE: mock /api/chat as an event-stream; sending must append the streamed reply
 // through the new composer + thread (proves the streaming reader path survived the rebuild).

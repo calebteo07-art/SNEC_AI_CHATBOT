@@ -4,7 +4,6 @@
    "think" bubble (the 💭 reflective lead) stacked above a grey answer bubble.
    Greeting / fallback text (no 💭) renders as a single grey bubble. */
 import type { ReactNode } from "react";
-import { Logo } from "@/aurora/Logo";
 import { parseReply } from "@/aurora/lib/parseReply";
 
 export function MessageBubble({
@@ -26,7 +25,12 @@ export function MessageBubble({
 
   const avatar = (
     <span className="aurora-msg-avatar">
-      <span className="aurora-msg-ring"><Logo size={18} tone="white" /></span>
+      {/* Default Selena mascot as the tutor's reply avatar — always the base mascot,
+          never the student's customised avatar (ricoe A3). */}
+      <span className="aurora-msg-ring">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="aurora-msg-mascot" src="/brand/iris.png" alt="" width={32} height={32} />
+      </span>
     </span>
   );
 

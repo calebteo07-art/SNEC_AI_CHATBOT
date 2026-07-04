@@ -21,7 +21,7 @@ Gemini/Nano-Banana go-ahead · 🔒 touches a locked design (`docs/design-locks.
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 1 | Remove the sliding-light background in tutor | A1 | ✅ 🔒 (removed `.aurora-chat-sweep` scan-bar; constellation + mesh kept) |
-| 2 | Tutor output-message pfp → default avatar, not customised Selena | A3 | ⬜ 🔒 |
+| 2 | Tutor output-message pfp → default avatar, not customised Selena | A3 | ✅ 🔒 (reply avatar = default Selena mascot `/brand/iris.png`; guardrail: never the student's customised avatar) |
 | 3 | Tutor greeting/landing page w/ recent sessions (resume/read) | A2 | ⛔ needs inspiration screenshot from Caleb |
 
 ## Homepage
