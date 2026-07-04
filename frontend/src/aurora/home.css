@@ -13,8 +13,10 @@
   --sh:0 1px 2px rgba(80,50,20,.05), 0 12px 28px -14px rgba(90,58,24,.20);
   --sh-lg:0 2px 6px rgba(80,50,20,.07), 0 28px 54px -24px rgba(90,58,24,.30);
   --hr:24px;
-  max-width:1160px; margin:0 auto; padding:20px 26px 34px; color:var(--hink);
-  display:flex; flex-direction:column; gap:14px;
+  /* D4: wider canvas so the bento fills the page and every card grows sideways
+     (ricoe "homepage sides too much white space, enlarge all cards sideways"). */
+  max-width:1360px; margin:0 auto; padding:20px 30px 34px; color:var(--hink);
+  display:flex; flex-direction:column; gap:16px;
 }
 .aurora-home .disp { font-family:var(--font-home); }
 .aurora-home .ico { width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
@@ -35,54 +37,56 @@
 .hm-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#34D399,#06B6D4); box-shadow:var(--sh); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:15px; }
 
 /* ── bento hero ── */
-.hm-hero { display:grid; grid-template-columns:1.82fr 1fr; gap:14px; }
-.hm-greet { position:relative; overflow:hidden; border-radius:var(--hr); padding:30px 34px; box-shadow:var(--sh-lg);
+/* D5: greeting + streak are shorter (tighter vertical rhythm) but wider (they inherit
+   the D4 wide canvas), reading as one wide banner rather than a tall block. */
+.hm-hero { display:grid; grid-template-columns:1.9fr 1fr; gap:16px; }
+.hm-greet { position:relative; overflow:hidden; border-radius:var(--hr); padding:24px 36px 22px; box-shadow:var(--sh-lg);
   background:radial-gradient(135% 155% at 6% 0%, #FFE3C2 0%, #FFD2E0 46%, #E7D9FF 100%); }
 .hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
-.hm-eyebrow { position:relative; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.64); border:1px solid rgba(255,255,255,.72); border-radius:999px; padding:7px 15px 7px 12px; font-weight:700; font-size:13px; letter-spacing:.02em; color:#9333EA; margin-bottom:17px; }
+.hm-eyebrow { position:relative; display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.64); border:1px solid rgba(255,255,255,.72); border-radius:999px; padding:7px 15px 7px 12px; font-weight:700; font-size:13px; letter-spacing:.02em; color:#9333EA; margin-bottom:13px; }
 .hm-eyebrow .ico { width:16px; height:16px; stroke-width:2; }
-.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:51px; line-height:1.0; letter-spacing:-.028em; max-width:450px; margin:0; color:var(--hink); }
+.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:46px; line-height:1.0; letter-spacing:-.028em; max-width:560px; margin:0; color:var(--hink); }
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
-.hm-sub { position:relative; margin-top:14px; font-size:17px; font-weight:500; color:#65546F; max-width:420px; line-height:1.5; }
-.hm-lvl { position:relative; margin-top:22px; max-width:440px; }
+.hm-sub { position:relative; margin-top:11px; font-size:17px; font-weight:500; color:#65546F; max-width:530px; line-height:1.5; }
+.hm-lvl { position:relative; margin-top:17px; max-width:560px; }
 .hm-lvl .hm-lr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
 .hm-lvl .hm-lr b { font-weight:700; font-size:14.5px; } .hm-lvl .hm-lr b span { color:var(--violet-d); }
 .hm-lvl .hm-lr .hm-z { font-size:12.5px; font-weight:600; color:#9b8fa8; }
 .hm-lvbar { height:12px; border-radius:999px; background:rgba(255,255,255,.62); overflow:hidden; box-shadow:inset 0 1px 2px rgba(120,80,40,.12); }
 .hm-lvbar > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
-.hm-cta-row { position:relative; margin-top:24px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.hm-cta-row { position:relative; margin-top:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 .hm-btn { display:inline-flex; align-items:center; gap:9px; font-weight:700; font-size:16px; padding:14px 24px; border-radius:15px; cursor:pointer; border:none; text-decoration:none; font-family:inherit; }
 .hm-btn.primary { background:#2B2431; color:#fff; box-shadow:0 14px 26px -10px rgba(43,36,49,.65); }
 .hm-btn.primary .ico { width:20px; height:20px; }
 .hm-btn.ghost { background:rgba(255,255,255,.7); color:#65546F; border:1px solid rgba(255,255,255,.82); }
 .hm-btn.ghost .ico { width:18px; height:18px; color:#9b7fb5; }
-.hm-reshuffle { position:relative; margin-top:13px; font-size:13px; color:#a893b8; font-weight:600; display:flex; align-items:center; gap:6px; }
+.hm-reshuffle { position:relative; margin-top:10px; font-size:13px; color:#a893b8; font-weight:600; display:flex; align-items:center; gap:6px; }
 .hm-reshuffle .ico { width:14px; height:14px; }
-.hm-iriswrap { position:absolute; right:10px; bottom:0; width:250px; height:224px; z-index:1; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
-.hm-irisfloor { position:absolute; left:50%; bottom:18px; width:164px; height:26px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
-.hm-iris { position:relative; width:232px; height:232px; margin-bottom:6px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
+.hm-iriswrap { position:absolute; right:10px; bottom:0; width:236px; height:210px; z-index:1; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+.hm-irisfloor { position:absolute; left:50%; bottom:16px; width:156px; height:24px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
+.hm-iris { position:relative; width:216px; height:216px; margin-bottom:6px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
 @keyframes hm-iris-bob { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-7px) rotate(1.5deg); } }
 
 /* ── streak tile ── */
-.hm-streak { border-radius:var(--hr); background:var(--card); border:1px solid var(--line); box-shadow:var(--sh-lg); padding:26px 28px; display:flex; flex-direction:column; justify-content:space-between; }
+.hm-streak { border-radius:var(--hr); background:var(--card); border:1px solid var(--line); box-shadow:var(--sh-lg); padding:22px 28px; display:flex; flex-direction:column; justify-content:space-between; }
 .hm-sh { display:flex; align-items:center; justify-content:space-between; }
 .hm-sh .hm-t { font-family:var(--font-home); font-weight:700; font-size:15px; color:var(--hink2); display:flex; align-items:center; gap:8px; }
 .hm-sh .hm-t .ico { width:18px; height:18px; color:var(--flame2); }
 .hm-sh .hm-goalring { position:relative; width:48px; height:48px; }
 .hm-sh .hm-goalring .hm-rc { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--violet-d); }
-.hm-big { display:flex; align-items:center; gap:15px; margin:18px 0 4px; }
+.hm-big { display:flex; align-items:center; gap:15px; margin:14px 0 4px; }
 .aurora-home .hm-flame { width:66px; height:66px; color:var(--flame1); filter:drop-shadow(0 8px 15px rgba(240,67,31,.35)); flex-shrink:0; }
 .hm-flame .core { color:var(--flame2); }
 .hm-snum { font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; background:linear-gradient(180deg,#FB923C,#EF4444); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .hm-slbl { font-weight:700; font-size:13px; letter-spacing:.02em; color:#C2410C; text-transform:uppercase; margin-top:3px; }
-.hm-week { display:flex; gap:8px; margin-top:20px; list-style:none; padding:0; }
+.hm-week { display:flex; gap:8px; margin-top:16px; list-style:none; padding:0; }
 .hm-wd { flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; }
 .hm-wdot { width:100%; aspect-ratio:1; max-width:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#F4EDE1; color:#C9B79E; border:1px solid var(--line); }
 .hm-wdot .ico { width:17px; height:17px; stroke-width:2.4; }
 .hm-wd.on .hm-wdot { background:linear-gradient(150deg,#FB923C,#F43F5E); color:#fff; border:none; box-shadow:0 5px 12px -3px rgba(244,63,94,.55); }
 .hm-wd.today .hm-wdot { background:#fff; color:var(--violet); border:2px solid var(--violet); box-shadow:0 0 0 4px rgba(124,92,246,.14); }
 .hm-wd .hm-wl { font-size:11px; font-weight:700; color:var(--hink3); letter-spacing:.05em; }
-.hm-nexttier { margin-top:20px; padding-top:16px; border-top:1px dashed var(--line); display:flex; align-items:center; justify-content:space-between; }
+.hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed var(--line); display:flex; align-items:center; justify-content:space-between; }
 .hm-nexttier .hm-nl { font-size:13.5px; color:var(--hink2); } .hm-nexttier .hm-nl b { color:var(--hink); font-weight:700; }
 .hm-nexttier .hm-tag { font-size:12px; font-weight:700; color:var(--violet-d); background:#F1ECFF; border-radius:999px; padding:6px 12px; }
 
@@ -92,19 +96,25 @@
 /* Cards are pointer-events:none so every tap lands on the stage, which resolves it
    to the nearest card (see FeatureCarousel.tsx). Keeps clicks from being swallowed
    by the drift / 3D projection. Keyboard Enter still navigates via the <a href>. */
-.hm-fcard { position:absolute; left:50%; top:50%; width:360px; height:214px; margin-left:-180px; margin-top:-107px;
-  border-radius:var(--hr); padding:28px 28px 26px; color:#fff; display:flex; flex-direction:column; overflow:hidden;
+.hm-fcard { position:absolute; left:50%; top:50%; width:384px; height:220px; margin-left:-192px; margin-top:-110px;
+  border-radius:var(--hr); padding:24px 26px 24px; color:#fff; display:flex; flex-direction:column; overflow:hidden;
   box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
 .hm-fcard.tutor { background:linear-gradient(155deg,#A78BFA 0%,#7C3AED 100%); }
 .hm-fcard.vp    { background:linear-gradient(155deg,#2DD4BF 0%,#0D9488 100%); }
 .hm-fcard.flash { background:linear-gradient(155deg,#FDBA74 0%,#F43F5E 100%); }
 .hm-fcard::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,.17),transparent 34%); }
-.hm-fcard .hm-deco { position:absolute; right:-22px; bottom:-28px; width:158px; height:158px; opacity:.15; color:#fff; }
-.hm-fcard .hm-tile { position:relative; width:56px; height:56px; border-radius:16px; background:rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; box-shadow:inset 0 0 0 1px rgba(255,255,255,.26); }
-.hm-fcard .hm-tile .ico { width:29px; height:29px; }
-.hm-fcard h3 { position:relative; font-family:var(--font-home); font-weight:700; font-size:25px; margin:auto 0 0; }
+.hm-fcard .hm-deco { position:absolute; right:-22px; bottom:-28px; width:158px; height:158px; opacity:.16; color:#fff; }
+/* decorative light bloom, top-right — gives each card depth instead of a flat panel */
+.hm-fcard .hm-fcard-orb { position:absolute; right:-46px; top:-56px; width:186px; height:186px; border-radius:50%;
+  background:radial-gradient(circle at 42% 42%,rgba(255,255,255,.34),transparent 62%); pointer-events:none; }
+.hm-fcard-top { position:relative; display:flex; align-items:center; gap:13px; }
+.hm-fcard .hm-tile { position:relative; width:54px; height:54px; border-radius:16px; background:rgba(255,255,255,.24); display:flex; align-items:center; justify-content:center; box-shadow:inset 0 0 0 1px rgba(255,255,255,.3), 0 8px 18px -8px rgba(0,0,0,.35); }
+.hm-fcard .hm-tile .ico { width:28px; height:28px; }
+.hm-kicker { font-weight:700; font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:#fff;
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); padding:6px 12px; border-radius:999px; }
+.hm-fcard h3 { position:relative; font-family:var(--font-home); font-weight:700; font-size:26px; margin:auto 0 0; letter-spacing:-.01em; }
 .hm-fcard p { position:relative; font-size:14.5px; font-weight:500; opacity:.95; margin:3px 0 0; }
-.hm-fcard .hm-open { position:relative; margin-top:15px; display:inline-flex; align-items:center; gap:8px; align-self:flex-start; background:rgba(255,255,255,.92); color:#2B2431; font-weight:700; font-size:14px; padding:9px 16px; border-radius:11px; box-shadow:0 7px 15px -6px rgba(0,0,0,.32); }
+.hm-fcard .hm-open { position:relative; margin-top:15px; display:inline-flex; align-items:center; gap:8px; align-self:flex-start; background:rgba(255,255,255,.94); color:#2B2431; font-weight:700; font-size:14px; padding:9px 16px; border-radius:11px; box-shadow:0 7px 15px -6px rgba(0,0,0,.32); }
 .hm-fcard .hm-open .ico { width:16px; height:16px; stroke-width:2.1; }
 .hm-carnav { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 6px; pointer-events:none; z-index:60; }
 .hm-carbtn { pointer-events:auto; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--hink); font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--sh); cursor:pointer; padding-bottom:3px; transition:transform .15s, background .15s; }
