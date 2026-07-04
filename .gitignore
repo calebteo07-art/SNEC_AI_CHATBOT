@@ -49,7 +49,12 @@ token.json
 !.tmp/.gitkeep
 
 # Claude Code / superpowers
-.claude/
+# Ignore all of .claude/ EXCEPT the portable, team-shareable pieces so the
+# friction-guardrail commands + hook survive an account switch (audit 2026-07-04).
+.claude/*
+!.claude/commands/
+!.claude/hooks/
+!.claude/settings.json
 .superpowers/
 .pytest_cache/
 

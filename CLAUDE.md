@@ -101,9 +101,9 @@ endpoint map and `docs/SECURITY.md` for the security model.
 python -m pytest -q
 # Frontend
 cd frontend && npm run typecheck && npm run build
-# Visual harnesses (need the standalone server running)
-node frontend/tests/aurora_assert.mjs
-node frontend/tests/station_assert.mjs
+# Visual harnesses — ONE canonical runner (build → copy static/public into
+# .next/standalone → serve → warm dynamic routes → assert). Never `next start`.
+bash scripts/start-harness.sh [aurora|station|all|serve|stop]   # SKIP_BUILD=1 to reuse the build
 # Local dev API
 uvicorn tools.api.server:app --reload --port 8000
 ```
@@ -127,6 +127,34 @@ The one exception: a change that would break prod the moment its code lands but
 *before* out-of-band setup is done (a new required env var/secret, a DB
 migration, a fail-closed config guard). For those, still ship — but say so
 plainly and coordinate the setup so `main` never boots broken.
+
+## Recurring-friction guardrails (session audit, 2026-07-04)
+
+Each rule below encodes a failure that recurred across multiple sessions. The
+project slash commands (`.claude/commands/`) are the executable versions.
+
+- **Shell discipline.** PowerShell cmdlets go in the PowerShell tool; the Bash
+  tool is POSIX-only (32 sessions hit exit-127 mixing them). A PreToolUse hook
+  (`.claude/hooks/bash_guard.py`) blocks violations — don't fight it, switch tools.
+- **DB migrations → `/db-migrate`.** Never paste a file *path* into the Supabase
+  SQL editor, and never emit `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY IF
+  NOT EXISTS` (Postgres rejects both, error 42601). `tools/db/lint_migration.py`
+  gates this; applied migrations are ledgered in `tools/db/migrations/APPLIED.md`.
+- **Render preflight.** The live service builds the `Dockerfile` — never delete it
+  (broke prod 2026-06-26). Render blocks outbound SMTP (25/465/587): email goes via
+  HTTPS providers (Brevo), never `smtplib`. Code needing a new env var ships only
+  with the dashboard value coordinated (see Git exception above).
+- **Fixes must stick → `/ship-check`.** Any user-facing *state* invariant
+  (show-once-per-day, streaks, idempotent submits) requires a regression test that
+  covers the repeat case (second login, same calendar day) AND a behavioral verify
+  on the running app — green unit tests alone repeatedly failed to keep the
+  check-in bug fixed (re-reported 5× over 10 days, June 2026).
+- **Design is locked → `/design-lock`.** Settled UI directions live in
+  `docs/design-locks.md`. Refine within a lock (name the acceptance criterion you're
+  changing); never silently rebuild a locked feature from scratch.
+- **Session scoping.** Commit after every completed sub-task, not just at the end.
+  Nearing context limits, run `/handoff` proactively (~70% budget) — the snapshot
+  is the only thing that survives an account switch.
 
 ## File structure
 ```
