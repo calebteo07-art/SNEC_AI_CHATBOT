@@ -312,6 +312,13 @@ if (persistedKeys.some((k) => Array.isArray(k) && k[0] === "flashcards")) {
 }
 console.log("PASS: flashcards — deck NOT persisted; offline cache holds", JSON.stringify(persistedKeys));
 
+// ricoe B4: from the results screen, "New deck" returns to the topic fan (it used to
+// push to /dashboard). Runs last of the study-flow checks, as it leaves the results screen.
+await np.locator('button:has-text("New deck")').click();
+await np.waitForSelector('[data-testid="flash-fan"]', { timeout: 8000 });
+if (new URL(np.url()).pathname !== "/flashcards") { console.error(`FAIL: 'New deck' left /flashcards (${new URL(np.url()).pathname})`); process.exit(1); }
+console.log("PASS: flashcards — 'New deck' returns to the topic fan");
+
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
 // is immersive (no rail), so return to a rail route before asserting the logo.
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
