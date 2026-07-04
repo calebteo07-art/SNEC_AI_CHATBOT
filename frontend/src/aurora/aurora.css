@@ -1437,8 +1437,10 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-msg.is-eyebot { align-self: flex-start; }
 .aurora-msg.is-user { align-self: flex-end; }
 .aurora-msg-avatar { flex-shrink: 0; }
-.aurora-msg-ring { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--mono-ink); box-shadow: 0 0 0 1px rgba(91, 91, 255, 0.4), 0 4px 12px -6px rgba(91, 91, 255, 0.5); }
-.aurora-msg-ring > svg { width: 18px; height: 18px; }
+/* Holds the default Selena mascot photo (round). Soft light fill behind the
+   transparent PNG so the peach character reads on the ivory thread. */
+.aurora-msg-ring { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: radial-gradient(120% 120% at 50% 22%, #FFFFFF 0%, #EEF0FF 100%); box-shadow: 0 0 0 1px rgba(91, 91, 255, 0.4), 0 4px 12px -6px rgba(91, 91, 255, 0.5); }
+.aurora-msg-mascot { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; display: block; }
 .aurora-msg-stack { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
 /* Bubbles — ivory paper for EyeBot, confident charcoal for the student */
