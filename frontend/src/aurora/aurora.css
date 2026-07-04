@@ -180,6 +180,21 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
 .aurora-rail-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--hairline); }
 .aurora-snec-wrap { padding: 0 6px 8px; }
 .aurora-snec { width: 124px; height: auto; display: block; opacity: 0.82; mix-blend-mode: multiply; }
+
+/* EyeBot + SNEC co-brand lockup (CoBrand.tsx) — on pages that render without a rail
+   (immersive Tutor / Flashcards, daily check-in) so both marks appear everywhere (ricoe E2). */
+.aurora-cobrand { display: inline-flex; align-items: center; gap: 12px; }
+.aurora-cobrand-eb { display: inline-flex; align-items: center; gap: 8px; }
+.aurora-cobrand-wm { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; color: var(--ink); }
+.aurora-cobrand.is-dark .aurora-cobrand-wm { color: #fff; }
+.aurora-cobrand-div { width: 1px; height: 20px; background: rgba(20, 20, 25, 0.18); }
+.aurora-cobrand.is-dark .aurora-cobrand-div { background: rgba(255, 255, 255, 0.28); }
+.aurora-cobrand .aurora-snec { width: 56px; }
+.aurora-cobrand.is-dark .aurora-snec { mix-blend-mode: normal; opacity: 0.74; filter: invert(1) grayscale(1) brightness(1.7); }
+/* placements */
+.aurora-checkin-cobrand { justify-content: center; margin: 0 auto 18px; }
+.aurora-chat-snec { width: 54px; margin-left: 6px; flex-shrink: 0; }
+.flash-cobrand { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 6; opacity: 0.92; }
 .aurora-profile { display: flex; align-items: center; gap: 10px; padding: 4px 6px; min-width: 0; }
 .aurora-avatar {
   width: 32px; height: 32px; flex-shrink: 0;

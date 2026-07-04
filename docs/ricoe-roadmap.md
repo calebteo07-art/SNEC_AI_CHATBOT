@@ -58,7 +58,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 ## Overall
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 8 | EyeBot logo + SNEC logo on every page | E2 | ⬜ |
+| 8 | EyeBot logo + SNEC logo on every page | E2 | ✅ (rails already had both; added `CoBrand` lockup to rail-less pages — tutor header SNEC, check-in header, flashcards dark-variant; verified by screenshot + aurora SNEC assertion) |
 | 28 | Redesign EyeBot logo → a *different* Selena variation (angle/headshot), not the greeting-card pose | E3 | ⬜ 💳 🔒 (breaks "mono Spark-Eye logo" global lock — needs new brief + paid gen) |
 
 ## Flashcards
