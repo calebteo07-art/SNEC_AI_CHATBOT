@@ -34,11 +34,19 @@ ever-changing greeting engine + **Iris** mascot, StreakTile, FeatureCarousel (3D
 coverflow, back-card fade), MilestoneLadder, WeekStats (real data only — no invented
 stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not revive.
 
-## Tutor Chat — LOCKED 2026-06-22
+## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
 unchanged from pre-recolor. Live constellation canvas (ChatField), realistic eye avatar
 under a charging electric ring + blink, OCT trace, charging streaming-bubble borders.
-`.aurora-chat` background must keep a linear-gradient (harness asserts it).
+`.aurora-chat` background must keep a linear-gradient (harness asserts it). No sliding
+scan-sweep (removed, ricoe A1). Reply-bubble avatar = the default Selena mascot, never a
+student's customised avatar (ricoe A3).
+- **Greeting landing (ricoe A2)**: `/chat` opens on `TutorLanding` (the empty state) —
+  time-of-day hello with a Gemini-gradient name, an ever-changing cheeky sub, a big
+  centred prompt (reuses `Composer`), and the student's real recent sessions ("Pick up
+  where you left off" cards from `progress.sessions`). Asking / resuming cross-fades
+  (`phase: landing → leaving → chat`, ~460ms) into the thread; the shared constellation
+  canvas bridges the two so it reads as one surface. Gemini accents on the ivory surface.
 
 ## Virtual Patients / OSCE Station — LOCKED 2026-06-25
 Living Eye selection plate (photoreal cross-section + fundus inset, calibrated pins).
