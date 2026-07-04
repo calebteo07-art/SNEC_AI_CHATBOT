@@ -160,7 +160,22 @@ export function Flashcards() {
     setDeckEpoch((e) => e + 1);
   };
 
-  const newDeck = () => router.push("/dashboard");  // re-enter setup from dashboard launchpad
+  const newDeck = () => {
+    // ricoe B4: "New deck" goes back to the topic-selection fan, not the dashboard.
+    if (fromSession || reviewMode) {
+      // These flows bypass the fan (seeded from a Tutor handoff / ?mode=review); clear
+      // their origin and reload straight into a fresh topic fan.
+      try { sessionStorage.removeItem("eyebot_session"); } catch { /* private mode */ }
+      window.location.assign("/flashcards");
+      return;
+    }
+    // Normal deck → reset the run + selection state in place → the topic fan shows again.
+    resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
+    reasonNotesRef.current = {}; missedRef.current = [];
+    xpRef.current = 0; comboRef.current = 0; setCombo(0);
+    setDrill([]); setIdx(0); setChecked(false); setDone(false);
+    setSetKey(null); setPickerDone(false);
+  };
   const exit = () => router.push("/dashboard");
 
   // ── Selection ──

@@ -64,7 +64,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 ## Flashcards
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 9 | "New deck" button after finishing → topic-selection page | B4 | ⬜ 🔒 |
+| 9 | "New deck" button after finishing → topic-selection page | B4 | ✅ 🔒 (newDeck resets run+selection state in place → topic fan, not /dashboard; session/review flows hard-reload into the fan; regression test added) |
 | 10 | On topic click, show topic name+description intro card before Q1 | B5 | ⬜ 🔒 |
 | 11 | Louder gamification: XP/2×-combo → powerful game-phrased popup | B3 | ⬜ 🔒 |
 | 12 | Convert flashcards to light mode (purple off-white + dark-purple card) | B6 | ⬜ 🔒 |
