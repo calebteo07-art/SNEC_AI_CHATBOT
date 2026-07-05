@@ -24,7 +24,7 @@
 
 - **Create** `tools/avatar/__init__.py` — empty package marker.
 - **Create** `tools/avatar/parts.py` — parts registry (`AVATAR_AXES`, `DEFAULT_AVATAR`, `CONFIG_VERSION`) + `validate_config()` + `InvalidAvatarConfig`. Single responsibility: define valid avatar options and validate a config. Pure, no I/O.
-- **Create** `tools/api/routers/avatar.py` — `GET`/`PUT /api/avatar`. Single responsibility: HTTP surface; delegates validation to `parts.py` and persistence to `tools/profile/*`.
+- **Create** `tools/api/routers/avatar.py` — `GET`/`PUT /api/avatar`. Single responsibility: HTTP surface; delegates validation to `parts.py`, reads via `tools/profile/get_profile.py` (graceful), and persists the `avatar_config` column via the generic `tools/shared/db.update_profile(sub, **fields)` setter (the `tools/profile/update_profile.py` helper is the session-domain updater and does **not** accept `avatar_config`).
 - **Modify** `tools/api/server.py` — register the new router (near the other `include_router` calls, lines 152–159).
 - **Create** `tools/db/migrations/006_avatar.sql` — the JSONB column.
 - **Create** `tests/api/test_avatar_endpoints.py` — validator unit tests + endpoint tests.
@@ -275,8 +275,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from tools.api.shared import limiter
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, validate_config, InvalidAvatarConfig
-from tools.profile.get_profile import get_profile
-from tools.profile.update_profile import update_profile
+from tools.profile.get_profile import get_profile          # graceful read (never raises, ensures a row)
+from tools.shared.db import update_profile                 # generic column setter: update_profile(sub, **fields)
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -393,7 +393,7 @@ Then flag to the human: **migration 006 must be applied in Supabase** (via `/db-
 
 ## Self-review
 
-**Spec coverage (spec §5.1 Avatar backend):** ✅ migration adds `avatar_config` JSONB on `student_profiles`; ✅ `GET /api/avatar` (identity from JWT, default when null, returns the parts catalog for the builder); ✅ `PUT /api/avatar` (validates every id against the registry, persists); ✅ invariants — fail closed on invalid ids (422), identity from `current_user["sub"]` not the body, non-blocking async persistence via the existing `tools/profile/*` helpers; ✅ TDD tests: default-when-absent, round-trip, rejects unknown ids, identity-from-JWT. The leaderboard-visibility columns from the spec's combined "006" are **deliberately deferred** to the leaderboard plan's own migration (kept out so this plan ships independently) — note this refinement of spec §5.2's migration naming.
+**Spec coverage (spec §5.1 Avatar backend):** ✅ migration adds `avatar_config` JSONB on `student_profiles`; ✅ `GET /api/avatar` (identity from JWT, default when null, returns the parts catalog for the builder); ✅ `PUT /api/avatar` (validates every id against the registry, persists); ✅ invariants — fail closed on invalid ids (422), identity from `current_user["sub"]` not the body, non-blocking async persistence via the existing async Supabase helpers (`tools/profile/get_profile.py` for reads, `tools/shared/db.update_profile` for the write — the `tools/profile/update_profile.py` session-domain helper takes no `avatar_config` kwarg, so the generic column setter is used); ✅ TDD tests: default-when-absent, round-trip, rejects unknown ids, identity-from-JWT. The leaderboard-visibility columns from the spec's combined "006" are **deliberately deferred** to the leaderboard plan's own migration (kept out so this plan ships independently) — note this refinement of spec §5.2's migration naming.
 
 **Placeholder scan:** none — exact files, code, commands, expected output throughout.
 
