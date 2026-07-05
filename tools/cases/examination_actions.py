@@ -82,6 +82,15 @@ _VERBAL_LABELS = {
     "Patient comfortable", "Listen actively", "Instruct patient", "Doctor to examine",
 }
 
+# Manual chips that are a single mechanical confirmation — no assessable technique to
+# describe — tick on ONE click with no typed explanation (ricoe C5, "some actions no need
+# to type explanation"). Skill procedures (VA, IOP, slit-lamp, drops instillation, hand
+# hygiene's WHO moments…) are the assessment itself and stay non-quick.
+_QUICK_LABELS = {
+    "Wipe occluder", "Disinfect equipment", "Discard waste",
+    "Print results", "Document results", "Remove glasses / CL",
+}
+
 
 def _clip_words(text: str, max_chars: int) -> str:
     """Trim to whole words within max_chars — never cut a word mid-character so chip
@@ -161,15 +170,17 @@ def build_actions(examination_findings: dict, steps: list[dict]) -> list[dict]:
         n = int(s.get("step_number", 0))
         if _is_say(action):
             prompt = _say_prompt(action)
-            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal"}
+            chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal", "quick": False}
         else:
             label = _do_label(action, str(s.get("category", "")))
+            kind = "verbal" if label in _VERBAL_LABELS else "manual"
             chip = {
                 "label": label,
                 "mode": "do",
                 "reveal_text": _finding_for_step(action, examination_findings),
                 "prompt_text": "",
-                "kind": "verbal" if label in _VERBAL_LABELS else "manual",
+                "kind": kind,
+                "quick": kind == "manual" and label in _QUICK_LABELS,
             }
         chip.update({
             "step_number": n,

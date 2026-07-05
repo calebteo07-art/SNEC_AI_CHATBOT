@@ -97,6 +97,27 @@ def test_long_unknown_do_label_never_cuts_mid_word():
     assert all(word in long_action.split() for word in label.split())
 
 
+def test_clerical_manual_action_is_quick_no_typing():
+    # ricoe C5: a mechanical confirmation (no assessable technique) ticks on one click —
+    # marked quick so the UI skips procedure mode.
+    disc = build_actions({}, [{"step_number": 1, "action": "Discard sharps into the waste bag", "category": "infection_control", "critical": False}])[0]
+    assert disc["kind"] == "manual"
+    assert disc["quick"] is True
+
+
+def test_skill_procedure_still_requires_explanation():
+    # A real technique (IOP, VA, slit-lamp…) is the assessment — must stay non-quick.
+    iop = build_actions({}, [{"step_number": 1, "action": "Measure IOP with the non-contact tonometer", "category": "clinical", "critical": True}])[0]
+    assert iop["kind"] == "manual"
+    assert iop["quick"] is False
+
+
+def test_verbal_action_is_never_quick():
+    intro = next(a for a in build_actions({}, STEPS) if a["label"] == "Introduce self")
+    assert intro["kind"] == "verbal"
+    assert intro["quick"] is False
+
+
 def test_has_manual_actions_false_for_all_verbal_steps():
     steps = [
         {"step_number": 1, "action": "Introduce yourself to the patient", "critical": True},

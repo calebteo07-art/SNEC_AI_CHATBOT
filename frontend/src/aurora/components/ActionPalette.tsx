@@ -22,6 +22,8 @@ export interface ExamAction {
   critical: boolean;
   step_number: number;
   kind: "manual" | "verbal";
+  /** Manual chip with no assessable technique — ticks on one click, no typed explanation. */
+  quick?: boolean;
 }
 
 export function ActionPalette({
@@ -41,7 +43,7 @@ export function ActionPalette({
   if (manual.length === 0) return null;
   return (
     <div className="aurora-protray">
-      <span className="aurora-protray-cap">Manual procedures · click one, then type your technique</span>
+      <span className="aurora-protray-cap">Manual procedures · click one, then type your technique <em>(some just tick)</em></span>
       <div className="aurora-protray-chips">
         {manual.map((a) => {
           const done = a.satisfies_steps.every((n) => ticked.has(n));
@@ -57,12 +59,13 @@ export function ActionPalette({
               data-active={active ? "true" : "false"}
               data-locked={locked ? "true" : "false"}
               data-crit={a.critical ? "true" : "false"}
+              data-quick={a.quick ? "true" : "false"}
               disabled={done || locked}
               onClick={() => onPerform(a)}
-              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : `Perform ${a.label}`}
-              title={locked ? "Finish the steps above first" : a.reveal_text || a.label}
+              aria-label={done ? `${a.label} — done` : locked ? `${a.label} — locked` : a.quick ? `Mark ${a.label} done` : `Perform ${a.label}`}
+              title={locked ? "Finish the steps above first" : a.quick ? "Click to mark done — no typing needed" : a.reveal_text || a.label}
             >
-              <span className="ic" aria-hidden>{done ? "✓" : active ? "✎" : locked ? "🔒" : "+"}</span>
+              <span className="ic" aria-hidden>{done ? "✓" : active ? "✎" : locked ? "🔒" : a.quick ? "⚡" : "+"}</span>
               {a.label}
             </button>
           );

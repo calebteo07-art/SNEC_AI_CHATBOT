@@ -253,6 +253,15 @@ export function CaseSession() {
   const performAction = (a: ExamAction) => {
     if (sending || isStreaming) return; // don't interleave with a live patient stream
     if (a.satisfies_steps.every((n) => tickedRef.current.has(n))) return;
+    // Quick (mechanical) procedures need no typed technique — tick on one click with a short
+    // performed note, and skip the AI coaching call (nothing to coach) (ricoe C5).
+    if (a.quick) {
+      const body = a.reveal_text ? ` → performed · Result: ${a.reveal_text}` : "";
+      setMessages((prev) => [...prev, { role: "user", content: `${EXAM_PREFIX}${a.label}${body}]`, channel: "eyebot" }]);
+      addAuto(a.satisfies_steps);
+      scheduleObserve();
+      return;
+    }
     setActiveProcedure(a);
     setProcText("");
   };
