@@ -34,6 +34,20 @@
   --logo-ink: #15161B; /* logo monochrome on light */
 
   --aurora-anim: 4.5s; /* canonical gradient sweep duration */
+
+  /* ── RICOE v2 semantic surfaces + motion (2026-07-05) ───────────
+     Flashcards "ivory & ink" (spec D2): a deepened warm canvas so the
+     bright-white study card pops (strong card-vs-canvas contrast), plus
+     a deep-ink face for the answer reveal. Motion tokens standardise
+     duration/easing so surfaces stop hardcoding them. */
+  --flash-canvas: #ECE6DA;
+  --flash-card:   #FFFFFF;
+  --flash-ink:    #141416;
+  --flash-ink-2:  #E9E7F2;
+
+  --dur-fast: 140ms; --dur-base: 260ms; --dur-slow: 460ms;
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 html[data-motion="reduce"] {
@@ -52,3 +66,18 @@ body { font-family: var(--font-sans); color: var(--ink); background: var(--canva
 .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(155,114,203,.16), rgba(217,101,112,.10), rgba(155,114,203,.16)); border: 1px solid rgba(155,114,203,.22); }
 .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(217,101,112,.15), rgba(155,114,203,.10), rgba(217,101,112,.15)); border: 1px solid rgba(217,101,112,.22); }
 .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(52,168,83,.14), rgba(66,133,244,.08), rgba(52,168,83,.14)); border: 1px solid rgba(52,168,83,.22); }
+
+/* ── Moving Gemini-gradient accent (RICOE v2, spec D2) ─────────────
+   One reusable primitive so every surface animates the accent the same
+   way (flashcards accent hairline/keyline, etc.). Uses the loopable
+   5-stop gradient; freezes under reduced motion. Apply the class to any
+   element — or set data-static="true" to hold it still deliberately. */
+@keyframes aurora-gemini-slide { to { background-position: -200% 0; } }
+.aurora-gemini-accent {
+  background-image: var(--gemini-loop);
+  background-size: 200% 100%;
+  animation: aurora-gemini-slide var(--aurora-anim, 4.5s) linear infinite;
+}
+html[data-motion="reduce"] .aurora-gemini-accent,
+.aurora-gemini-accent[data-static="true"] { animation: none; }
+@media (prefers-reduced-motion: reduce) { .aurora-gemini-accent { animation: none; } }
