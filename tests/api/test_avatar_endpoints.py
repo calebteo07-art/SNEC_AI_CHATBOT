@@ -41,3 +41,56 @@ def test_validate_ignores_unknown_axis():
 
 def test_validate_handles_none():
     assert validate_config(None) == DEFAULT_AVATAR
+
+
+# ── endpoints ───────────────────────────────────────────────────────────────
+
+def test_get_avatar_requires_auth():
+    r = client.get("/api/avatar")
+    assert r.status_code in (401, 403)
+
+def test_put_avatar_requires_auth():
+    r = client.put("/api/avatar", json={"skinTone": "deep"})
+    assert r.status_code in (401, 403)
+
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_returns_default_when_unset(mock_get):
+    mock_get.return_value = {"student_id": "user_001"}  # no avatar_config key
+    r = client.get("/api/avatar", cookies=_student_cookies())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["config"] == DEFAULT_AVATAR
+    assert body["axes"] == AVATAR_AXES
+
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_returns_saved_config(mock_get):
+    saved = dict(DEFAULT_AVATAR, skinTone="ebony", eyeColor="violet")
+    mock_get.return_value = {"student_id": "user_001", "avatar_config": saved}
+    r = client.get("/api/avatar", cookies=_student_cookies())
+    assert r.json()["config"]["skinTone"] == "ebony"
+    assert r.json()["config"]["eyeColor"] == "violet"
+
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_falls_back_to_default_on_corrupt_saved(mock_get):
+    mock_get.return_value = {"avatar_config": {"skinTone": "neon"}}  # invalid stored value
+    r = client.get("/api/avatar", cookies=_student_cookies())
+    assert r.status_code == 200
+    assert r.json()["config"] == DEFAULT_AVATAR
+
+@patch("tools.api.routers.avatar.update_profile", new_callable=AsyncMock)
+def test_put_avatar_persists_valid_config(mock_update):
+    payload = {"skinTone": "deep", "hairStyle": "afro", "eyeColor": "green"}
+    r = client.put("/api/avatar", json=payload, cookies=_student_cookies("user_042"))
+    assert r.status_code == 200
+    clean = r.json()["config"]
+    assert clean["skinTone"] == "deep" and clean["eyeColor"] == "green"
+    mock_update.assert_awaited_once()
+    args, kwargs = mock_update.call_args
+    assert args[0] == "user_042"                       # identity from JWT sub, not body
+    assert kwargs["avatar_config"]["hairStyle"] == "afro"
+
+@patch("tools.api.routers.avatar.update_profile", new_callable=AsyncMock)
+def test_put_avatar_rejects_unknown_option(mock_update):
+    r = client.put("/api/avatar", json={"skinTone": "neon"}, cookies=_student_cookies())
+    assert r.status_code == 422
+    mock_update.assert_not_awaited()
