@@ -1003,15 +1003,18 @@ html[data-motion="reduce"] .aurora-atlas-focus { animation: none; }
 /* Region pins, positioned on the real structures. Labels stay in the DOM (the
    smoke test reads their text) but reveal on hover/active for a clean hero. */
 .aurora-pin { position: absolute; z-index: 4; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; padding: 0; }
-.aurora-pin-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, 0.32); border: 2px solid rgba(255, 255, 255, 0.92); box-shadow: 0 0 0 6px rgba(8, 7, 18, 0.28), 0 2px 8px rgba(0, 0, 0, 0.5); transition: transform 0.2s, box-shadow 0.3s, background 0.2s; flex-shrink: 0; }
-.aurora-pin-label { position: absolute; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10.6px; letter-spacing: 0.04em; color: #fff; white-space: nowrap; background: rgba(8, 7, 18, 0.78); padding: 3px 8px; border-radius: 7px; opacity: 0; transform: scale(0.9); transform-origin: center; transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); pointer-events: none; box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.7); }
-.aurora-pin[data-side="up"] .aurora-pin-label { bottom: 20px; }
-.aurora-pin[data-side="down"] .aurora-pin-label { top: 20px; }
-.aurora-pin[data-side="right"] .aurora-pin-label { left: 20px; }
-.aurora-pin[data-side="left"] .aurora-pin-label { right: 20px; }
-.aurora-pin:hover .aurora-pin-dot, .aurora-pin:focus-visible .aurora-pin-dot { transform: scale(1.22); background: rgba(255, 255, 255, 0.7); }
-.aurora-pin:hover .aurora-pin-label, .aurora-pin:focus-visible .aurora-pin-label, .aurora-pin[data-active="true"] .aurora-pin-label { opacity: 1; transform: scale(1); }
-.aurora-pin-count { font-style: normal; font-weight: 700; font-size: 9.5px; line-height: 1; padding: 2px 5px; border-radius: 999px; background: rgba(255, 255, 255, 0.18); }
+/* ricoe C3 — bigger, more apparent eye-part buttons. */
+.aurora-pin-dot { width: 19px; height: 19px; border-radius: 50%; background: rgba(255, 255, 255, 0.42); border: 2.5px solid rgba(255, 255, 255, 0.96); box-shadow: 0 0 0 7px rgba(8, 7, 18, 0.3), 0 2px 10px rgba(0, 0, 0, 0.55); transition: transform 0.2s, box-shadow 0.3s, background 0.2s; flex-shrink: 0; }
+/* Labels are visible by default now (not hover-only) so every eye part is clearly
+   named and its patient count is on show — the pins read as real buttons (ricoe C3). */
+.aurora-pin-label { position: absolute; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.03em; color: #fff; white-space: nowrap; background: rgba(8, 7, 18, 0.82); padding: 4px 10px; border-radius: 8px; opacity: 0.92; transform: scale(1); transform-origin: center; transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); pointer-events: none; box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.7); }
+.aurora-pin[data-side="up"] .aurora-pin-label { bottom: 24px; }
+.aurora-pin[data-side="down"] .aurora-pin-label { top: 24px; }
+.aurora-pin[data-side="right"] .aurora-pin-label { left: 24px; }
+.aurora-pin[data-side="left"] .aurora-pin-label { right: 24px; }
+.aurora-pin:hover .aurora-pin-dot, .aurora-pin:focus-visible .aurora-pin-dot { transform: scale(1.22); background: rgba(255, 255, 255, 0.78); }
+.aurora-pin:hover .aurora-pin-label, .aurora-pin:focus-visible .aurora-pin-label, .aurora-pin[data-active="true"] .aurora-pin-label { opacity: 1; transform: scale(1.05); }
+.aurora-pin-count { font-style: normal; font-weight: 700; font-size: 11px; line-height: 1; padding: 2px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); }
 .aurora-pin[data-empty="true"] .aurora-pin-dot { opacity: 0.45; }
 .aurora-pin[data-active="true"] .aurora-pin-dot { background: transparent; border-color: #fff; box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.35), 0 0 18px 4px rgba(120, 110, 220, 0.6); animation: aurora-pin-pulse 2.4s ease-in-out infinite; }
 .aurora-pin[data-active="true"] .aurora-pin-label { background: linear-gradient(100deg, rgba(66, 133, 244, 0.95), rgba(155, 114, 203, 0.95)); }

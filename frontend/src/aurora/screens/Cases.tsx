@@ -1,18 +1,15 @@
 "use client";
-/* AURORA Virtual Patients — "the Living Eye". The eye is the navigator: pick a
-   part of the eye and the patient journey filters to it. Patients are laid out
-   as a learning path grouped by difficulty tier (Foundational → Developing →
-   Advanced). Topics are a quiet secondary filter tucked into a popover (no chip
-   wall). Preserves the /api/cases fetch + the sessionStorage handoff into a case
-   session, and the .aurora-atlas-plate / .aurora-pin / case-list hooks the smoke
-   test relies on. */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+/* AURORA Virtual Patients — "the Living Eye". The eye is the navigator and the
+   ONLY filter (ricoe C4): pick a part of the eye and the patient journey filters
+   to it. Patients are laid out as a learning path grouped by difficulty tier
+   (Foundational → Developing → Advanced). Preserves the /api/cases fetch + the
+   sessionStorage handoff into a case session, and the .aurora-atlas-plate /
+   .aurora-pin / case-list hooks the smoke test relies on. */
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtlasMap, caseInRegion, REGIONS, type RegionId } from "@/aurora/components/AtlasMap";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
 import { PLATE } from "@/aurora/media";
-
-interface TopicInfo { set_key: string; label: string; total: number; completed: number; }
 
 const TIERS: { key: string; label: string; hint: string }[] = [
   { key: "beginner", label: "Foundational", hint: "Build the basics" },
@@ -23,43 +20,21 @@ const TIERS: { key: string; label: string; hint: string }[] = [
 export function Cases() {
   const router = useRouter();
   const [cases, setCases] = useState<CaseInfo[]>([]);
-  const [topics, setTopics] = useState<TopicInfo[]>([]);
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [topicOpen, setTopicOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [region, setRegion] = useState<RegionId>("all");
-  const popRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch("/api/cases/topics", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : { topics: [] }))
-      .then((d) => setTopics(d.topics ?? []))
-      .catch(() => setTopics([]));
-  }, []);
 
   const fetchCases = useCallback(() => {
     setError(null);
     setLoading(true);
-    const url = selectedTopic ? `/api/cases?topic_set=${encodeURIComponent(selectedTopic)}` : "/api/cases";
-    fetch(url, { credentials: "include" })
+    fetch("/api/cases", { credentials: "include" })
       .then((r) => { if (!r.ok) throw new Error("Server error"); return r.json(); })
       .then((data) => setCases(data.cases ?? []))
       .catch(() => setError("Could not load patients. Please try again."))
       .finally(() => setLoading(false));
-  }, [selectedTopic]);
+  }, []);
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
-
-  // Close the topic popover on outside click / Escape.
-  useEffect(() => {
-    if (!topicOpen) return;
-    const onDoc = (e: MouseEvent) => { if (popRef.current && !popRef.current.contains(e.target as Node)) setTopicOpen(false); };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setTopicOpen(false); };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
-  }, [topicOpen]);
 
   const openCase = useCallback((c: CaseInfo) => {
     try { sessionStorage.setItem("eyebot_case_handoff", JSON.stringify(c)); } catch { /* quota/private */ }
@@ -92,7 +67,6 @@ export function Cases() {
   }, [filtered]);
 
   const activeLabel = REGIONS.find((r) => r.id === region)?.label;
-  const selectedTopicLabel = topics.find((t) => t.set_key === selectedTopic)?.label;
 
   return (
     <div className="aurora-cases">
@@ -101,49 +75,6 @@ export function Cases() {
           <p className="aurora-eyebrow">Virtual patients · the living eye</p>
           <h1 className="aurora-h1">Explore the eye, <em>meet your patient</em></h1>
         </div>
-
-        {topics.length > 0 && (
-          <div className="aurora-topic-pop" ref={popRef}>
-            <button
-              type="button"
-              className={`aurora-topic-trigger${selectedTopic ? " is-set" : ""}`}
-              aria-haspopup="listbox"
-              aria-expanded={topicOpen}
-              onClick={() => setTopicOpen((v) => !v)}
-            >
-              <span className="aurora-topic-trigger-k">Topic</span>
-              <span className="aurora-topic-trigger-v">{selectedTopicLabel ?? "All topics"}</span>
-              <span className="aurora-topic-caret" aria-hidden>▾</span>
-            </button>
-            {topicOpen && (
-              <div className="aurora-topic-menu" role="listbox" aria-label="Filter patients by topic">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={!selectedTopic}
-                  className={`aurora-topic-opt${!selectedTopic ? " is-active" : ""}`}
-                  onClick={() => { setSelectedTopic(null); setTopicOpen(false); }}
-                >
-                  All topics
-                </button>
-                {topics.map((t) => (
-                  <button
-                    key={t.set_key}
-                    type="button"
-                    role="option"
-                    aria-selected={selectedTopic === t.set_key}
-                    className={`aurora-topic-opt${selectedTopic === t.set_key ? " is-active" : ""}`}
-                    onClick={() => { setSelectedTopic(t.set_key); setTopicOpen(false); }}
-                    disabled={t.total === 0}
-                  >
-                    <span>{t.label}</span>
-                    <span className="aurora-topic-opt-count">{t.completed}/{t.total}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </header>
 
       <div className="aurora-cases-body">
@@ -184,9 +115,7 @@ export function Cases() {
               <p className="aurora-muted aurora-cases-empty">
                 {region !== "all"
                   ? "No patients in this part of the eye yet — try another region."
-                  : selectedTopic
-                    ? "No patients in this topic yet — more are on the way."
-                    : "No patients here yet — check back soon."}
+                  : "No patients here yet — check back soon."}
               </p>
             ) : (
               <div className="aurora-journey aurora-stagger">
