@@ -51,6 +51,7 @@ from tools.api.routers.chat import router as chat_router
 from tools.api.routers.checkin import router as checkin_router
 from tools.api.routers.student import router as student_router
 from tools.api.routers.media import router as media_router
+from tools.api.routers.avatar import router as avatar_router
 
 # Largest request body we accept (bytes). One oversized request must not be able
 # to exhaust the instance. Tune via env; uploads are well under this.
@@ -157,6 +158,7 @@ app.include_router(chat_router)
 app.include_router(checkin_router)
 app.include_router(student_router)
 app.include_router(media_router)
+app.include_router(avatar_router)
 
 
 @app.get("/health")
