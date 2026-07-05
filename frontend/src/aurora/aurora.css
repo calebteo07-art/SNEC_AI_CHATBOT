@@ -1341,7 +1341,8 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 
 /* shared slim pane header */
 .aurora-pane-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; padding-bottom: 9px; border-bottom: 1px solid rgba(120,90,170,.16); }
-.aurora-pane-dot { width: 30px; height: 30px; flex: none; border-radius: 50%; }
+.aurora-pane-dot { width: 30px; height: 30px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.aurora-pane-dot svg { width: 17px; height: 17px; }
 .aurora-pane-nm { font-size: 14.6px; font-weight: 700; color: var(--ink); }
 .aurora-pane-mt { font-size: 11px; color: var(--ink-2); margin-top: 1px; }
 .aurora-station-bubble.bot { background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.22); color: var(--ink); align-self: flex-start; }
