@@ -67,7 +67,11 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
   checklist_comparison: [], per_phase: [],
 })));
 await ctx.route("**/api/cases/C001/action", (r) => r.fulfill(J({
-  coaching: "Good — steady hand, you kept clear of the globe. Average three readings next time.",
+  verdict: "partial",
+  covered: ["Explains the procedure to the patient before starting"],
+  missing: ["Takes 3 readings per eye and records the average"],
+  model_answer: "Explains the procedure to the patient before starting · Takes 3 readings per eye and records the average",
+  coaching: "Good coverage so far. To match the model answer, also take 3 readings per eye and record the average.",
 })));
 // C002 — a case with NO manual actions (all verbal) → EyeBot pane must collapse away.
 await ctx.route("**/api/cases/C002/station", (r) => r.fulfill(J({
@@ -197,11 +201,13 @@ if (!(await p.locator('.aurora-pchip[data-done="true"]:has-text("Measure IOP")')
 if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) < 1) die("confirm did not tick the step row");
 ok("manual chip → procedure mode → confirm logs technique + result + ticks step");
 
-// 5c. EyeBot replies with a coaching note (result + tip) after the procedure confirms.
-//     Wait for the coaching TEXT specifically — a `.bot` typing-dots bubble appears the
-//     instant the call starts, so a bare `.bot` wait would race ahead of the reply.
-await p.waitForSelector('.aurora-station-bubble.bot:has-text("steady hand")', { timeout: 8000 });
-ok("EyeBot replies with coaching after a manual procedure");
+// 5c. EyeBot returns a real-time GRADE vs the crafted model answer (ricoe C6): a verdict
+//     card with covered/missing points + the model answer — not a hardcoded "good job".
+await p.waitForSelector('[data-testid="action-grade"]', { timeout: 8000 });
+if (!(await p.locator('.aurora-grade-badge:has-text("Partial")').count())) die("grade verdict badge missing");
+if (!(await p.locator('.aurora-grade-model:has-text("Model answer")').count())) die("crafted model answer not surfaced");
+if (!(await p.locator('.aurora-grade-list.is-missing').count())) die("missing model-answer points not shown");
+ok("action panel grades the technique vs the model answer (ricoe C6)");
 
 // 5d. A "quick" mechanical procedure ticks on ONE click — no procedure composer opens,
 //     no typed explanation (ricoe C5). First advance the gate to it (finish step 4).

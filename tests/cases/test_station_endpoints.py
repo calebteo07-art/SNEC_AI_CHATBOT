@@ -74,30 +74,44 @@ def test_observe_returns_newly_satisfied():
     assert r.json()["newly_satisfied"] == [1]
 
 
-def test_action_returns_coaching():
-    with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False):
+def test_action_grades_against_model_answer():
+    # ricoe C6: the action panel returns a real-time GRADE vs the crafted model answer,
+    # not a hardcoded "good job". The verdict/covered/missing/model_answer are deterministic.
+    case = {**CASE, "rubric": {"investigations": {"key_points": [
+        "Performs NCT correctly: explains to patient, takes 3 readings per eye, records average",
+        "Records the reading accurately in the patient record",
+    ]}}}
+    with patch.dict("tools.api.shared._case_cache", {"case_test_station": case}, clear=False), \
+         patch("tools.api.routers.cases.ask", side_effect=RuntimeError("no ai")):
         r = client.post(
             "/api/cases/case_test_station/action",
             json={
                 "action_label": "Measure IOP",
-                "technique": "Seat patient at the tonometer, look straight ahead, take three readings and average.",
+                "technique": "I explained the NCT to the patient, took 3 readings per eye and recorded the average.",
                 "finding": "IOP R 18 mmHg · L 20 mmHg",
+                "satisfies_steps": [2],
             },
             cookies=_cookie(),
         )
     assert r.status_code == 200
     body = r.json()
-    assert isinstance(body["coaching"], str)
-    assert body["coaching"]  # non-empty in MOCK_MODE
+    assert body["verdict"] in ("strong", "partial", "developing")
+    assert "readings" in body["model_answer"].lower()  # crafted model answer surfaced
+    assert "good job" not in body["coaching"].lower()
 
 
 def test_action_degrades_gracefully_on_model_error():
+    # With no AI, the panel still returns the DETERMINISTIC grade + a grounded coaching
+    # line (never a silent empty string, never a 500).
     with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False), \
          patch("tools.api.routers.cases.ask", side_effect=RuntimeError("model down")):
         r = client.post(
             "/api/cases/case_test_station/action",
-            json={"action_label": "Measure IOP", "technique": "x" * 12, "finding": ""},
+            json={"action_label": "Measure IOP", "technique": "x" * 12, "finding": "", "satisfies_steps": [2]},
             cookies=_cookie(),
         )
     assert r.status_code == 200
-    assert r.json()["coaching"] == ""  # never errors the request; empty coaching
+    body = r.json()
+    assert body["coaching"]           # grounded deterministic line, not empty
+    assert body["model_answer"]       # always surfaces a reference to learn from
+    assert body["verdict"] in ("strong", "partial", "developing")

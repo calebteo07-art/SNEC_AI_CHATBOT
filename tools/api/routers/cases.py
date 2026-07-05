@@ -23,14 +23,21 @@ from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions, has_manual_actions
 from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
+from tools.cases.action_model_answer import grade_action
 from tools.kb.search import get_checklist_by_name
 
+# The action panel grades the typed technique against the case's crafted model answer
+# in REAL TIME and deterministically (grade_action) — never a hardcoded "good job"
+# (ricoe C6). This prompt only polishes the wording of ONE tip and is grounded in the
+# concrete missing points, so the model cannot fall back to empty praise. Graceful:
+# any failure keeps the deterministic coaching line.
 ACTION_COACH = (
-    "You are EyeBot, a friendly OSCE examiner for allied-health ophthalmic students. "
-    "Given a manual procedure, the student's described technique, and the measured finding, "
-    "reply in 1-2 short sentences: acknowledge one thing done well and give at most one "
-    "concrete technique tip. Be encouraging and specific. Never invent a different result "
-    "or add a medical diagnosis."
+    "You are EyeBot, an OSCE examiner for allied-health ophthalmic students. You are given a "
+    "procedure, the student's described technique, the model-answer points, and which of those "
+    "points they still MISSED. In ONE short sentence, give the single most useful, concrete "
+    "technique tip drawn from a missed point (or affirm a specific strength if nothing was "
+    "missed). Be specific — name the actual step. Never give empty praise like 'good job', never "
+    "invent a different result, never add a medical diagnosis."
 )
 
 _COACHING_SCHEMA = {
@@ -210,9 +217,14 @@ class ActionRequest(BaseModel):
     action_label: str = Field(max_length=120)
     technique: str = Field(max_length=2000)
     finding: str = Field(default="", max_length=2000)
+    satisfies_steps: list[int] = []
 
 class ActionResponse(BaseModel):
     coaching: str = ""
+    verdict: str = ""              # strong | partial | developing
+    covered: list[str] = []        # model-answer points the technique addressed
+    missing: list[str] = []        # model-answer points still to include
+    model_answer: str = ""         # the crafted reference, surfaced so they learn
 
 
 # ── Case endpoints ─────────────────────────────────────────────────────────
@@ -558,15 +570,27 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
 @limiter.limit("40/minute")
 async def case_action(case_id: str, request: Request, body: ActionRequest,
                       current_user: CurrentUser = Depends(get_current_user)):
-    """EyeBot micro-coaching for one manual procedure: a 1-2 sentence technique note.
-    The deterministic result is shown client-side regardless; this only adds the note and
-    NEVER blocks the tick — any failure returns empty coaching (graceful degradation)."""
-    _load_case_or_404(case_id)  # validate the case exists (parity with observe_case)
+    """Real-time grade of one manual procedure against the case's crafted model answer
+    (ricoe C6). The verdict/covered/missing/model_answer are computed DETERMINISTICALLY
+    (grade_action) so the panel responds instantly, keyless, and never with a hardcoded
+    'good job'. A grounded AI tip may refine the coaching line; any AI failure keeps the
+    deterministic line. Never blocks the tick — the step already ticked client-side."""
+    case = _load_case_or_404(case_id)
+
+    # Resolve the same checklist the station showed so the model answer can fall back to
+    # the exact step text when the rubric has no matching investigations point.
+    try:
+        steps = _station_checklist(case).get("steps", [])
+    except Exception:
+        steps = []
+    grade = grade_action(case, body.action_label, body.satisfies_steps, steps, body.technique)
 
     user_msg = (
         f"Procedure: {body.action_label}\n"
         f"Student technique: {body.technique}\n"
-        f"Measured finding: {body.finding or '(none)'}"
+        f"Measured finding: {body.finding or '(none)'}\n"
+        f"Model answer points: {' | '.join(grade['model_points']) or '(none)'}\n"
+        f"Points still MISSED: {' | '.join(grade['missing']) or '(none — all covered)'}"
     )
     # All fields are student-supplied free text → filter the whole prompt like /chat
     # before the model sees it (not just `technique`).
@@ -575,25 +599,38 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
         if not guard["safe"]:
             audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_action",
                       detail=f"reason={guard['reason']}")
-            return ActionResponse(coaching="")
+            # Still return the deterministic grade — only the AI tip is suppressed.
+            return ActionResponse(
+                coaching=grade["coaching"], verdict=grade["verdict"],
+                covered=grade["covered"], missing=grade["missing"],
+                model_answer=grade["model_answer"],
+            )
     except Exception:
         pass
+
+    coaching = grade["coaching"]
     try:
-        coaching = await asyncio.wait_for(
+        tip = await asyncio.wait_for(
             asyncio.to_thread(
                 ask,
                 system_prompt=ACTION_COACH,
                 messages=[{"role": "user", "content": user_msg}],
-                max_tokens=220,            # 1-2 sentences; MINIMAL = no thinking, so no starve
+                max_tokens=220,            # 1 sentence; MINIMAL = no thinking, so no starve
                 feature="case_action",
                 model=MODEL,
                 thinking_level="MINIMAL",
             ),
             timeout=12.0,                  # single-worker safety: never hang the event loop
         )
+        if tip and tip.strip():
+            coaching = tip.strip()
     except Exception:
-        coaching = ""
-    return ActionResponse(coaching=(coaching or "").strip())
+        pass  # graceful: keep the grounded deterministic coaching line
+    return ActionResponse(
+        coaching=coaching, verdict=grade["verdict"],
+        covered=grade["covered"], missing=grade["missing"],
+        model_answer=grade["model_answer"],
+    )
 
 
 @router.post("/api/cases/{case_id}/chat")

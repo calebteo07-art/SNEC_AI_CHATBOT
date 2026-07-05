@@ -13,7 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
-import { type ExamAction, EXAM_PREFIX } from "@/aurora/components/ActionPalette";
+import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
@@ -281,8 +281,10 @@ export function CaseSession() {
     void runAction(a, steps);
   };
 
-  // EyeBot micro-coaching. Non-blocking + graceful: the result is already shown and the step
-  // already ticked, so a failure just means no coaching bubble.
+  // Real-time technique grade vs the crafted model answer (ricoe C6). Non-blocking +
+  // graceful: the result is already shown and the step already ticked, so a failure just
+  // means no grade card. The grade is encoded into one eyebot-channel message so it flows
+  // through the existing thread; EyeBotPanel renders it as a structured card.
   const runAction = async (a: ExamAction, technique: string) => {
     if (!caseId) return;
     setCoachingCount((c) => c + 1);
@@ -291,14 +293,17 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ action_label: a.label, technique, finding: a.reveal_text }),
+        body: JSON.stringify({ action_label: a.label, technique, finding: a.reveal_text, satisfies_steps: a.satisfies_steps }),
       });
       if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as { coaching?: string };
-      const note = data.coaching;
-      if (note) setMessages((prev) => [...prev, { role: "assistant", content: note, channel: "eyebot" }]);
+      const data = (await res.json()) as ActionGrade;
+      if (data && data.verdict) {
+        setMessages((prev) => [...prev, { role: "assistant", content: `${GRADE_PREFIX}${JSON.stringify(data)}`, channel: "eyebot" }]);
+      } else if (data && data.coaching) {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.coaching, channel: "eyebot" }]);
+      }
     } catch {
-      /* graceful: result already shown, no coaching */
+      /* graceful: result already shown, no grade card */
     } finally {
       setCoachingCount((c) => c - 1);
     }
