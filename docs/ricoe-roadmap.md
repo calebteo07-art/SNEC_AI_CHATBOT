@@ -79,8 +79,8 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | 16 | Grade action responses in real time vs crafted model answer (not hardcoded "good job") | C6 | ⬜ 🔒 |
 | 17 | Count OSCE checklist toward the final /100 | C7 | ⬜ 🔒 |
 | 18 | Eye-diagram filter: always show cases on every eye part, even locked | C2 | ⬜ 🔒 |
-| 19 | Eye-part buttons bigger + more apparent | C3 | ⬜ 🔒 |
-| 20 | Remove topic filter — eye diagram is the only filter | C4 | ⬜ 🔒 |
+| 19 | Eye-part buttons bigger + more apparent | C3 | ✅ 🔒 (pins were a "normally-invisible overlay" — labels `opacity:0` until hover. Now labels are visible by DEFAULT (0.92) with their patient-count badge on show, dot 14→19px + stronger ring, label 10.6→12px, offsets 20→24px, brighter hover/active. `.aurora-pin` CSS only; region-pin filter + 390px no-overflow still green) |
+| 20 | Remove topic filter — eye diagram is the only filter | C4 | ✅ 🔒 (removed the topic popover + `topics`/`selectedTopic`/`topicOpen` state, the `/api/cases/topics` fetch, outside-click effect and the `topic_set` query param — `/api/cases` always fetches all; empty-state simplified. Eye diagram is the sole filter. aurora 28/28, 0 fail — region pin still narrows the list) |
 | 21 | Conversation pfp = static talking head; action pfp = static hand | C9 | ⬜ 🔒 |
 | 22 | Patient face pfps (Chua Ah Hoon + all) via Nano Banana (default = non-premium) | C10 | ⬜ 💳 |
 
