@@ -189,6 +189,7 @@ class ExaminationAction(BaseModel):
     critical: bool = False
     step_number: int = 0
     kind: str = "manual"  # "manual" → shortcut chip; "verbal" → stays in the live chat
+    quick: bool = False   # manual + no assessable technique → ticks on one click, no typing
 
 class StationChecklist(BaseModel):
     procedure_name: str

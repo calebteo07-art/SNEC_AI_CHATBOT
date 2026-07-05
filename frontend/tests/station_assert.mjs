@@ -40,7 +40,7 @@ await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
     { key: "s2", label: "Explain procedure", reveal_text: "", satisfies_steps: [2], mode: "do", prompt_text: "", phase: 1, critical: false, step_number: 2, kind: "verbal" },
     { key: "s3", label: "Measure IOP", reveal_text: "IOP (NCT) · avg of 3 → R 18 mmHg · L 20 mmHg", satisfies_steps: [3], mode: "do", prompt_text: "", phase: 2, critical: true, step_number: 3, kind: "manual" },
     { key: "s4", label: "Test distance VA", reveal_text: "Distance VA → R 6/9 · L 6/12", satisfies_steps: [4], mode: "do", prompt_text: "", phase: 2, critical: false, step_number: 4, kind: "manual" },
-    { key: "s5", label: "Document results", reveal_text: "", satisfies_steps: [5], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 5, kind: "manual" },
+    { key: "s5", label: "Document results", reveal_text: "", satisfies_steps: [5], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 5, kind: "manual", quick: true },
     { key: "s6", label: "Advise on follow-up", reveal_text: "", satisfies_steps: [6], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 6, kind: "verbal" },
   ],
 })));
@@ -196,6 +196,19 @@ ok("manual chip → procedure mode → confirm logs technique + result + ticks s
 //     instant the call starts, so a bare `.bot` wait would race ahead of the reply.
 await p.waitForSelector('.aurora-station-bubble.bot:has-text("steady hand")', { timeout: 8000 });
 ok("EyeBot replies with coaching after a manual procedure");
+
+// 5d. A "quick" mechanical procedure ticks on ONE click — no procedure composer opens,
+//     no typed explanation (ricoe C5). First advance the gate to it (finish step 4).
+await p.locator('.aurora-pchip:has-text("Test distance VA")').click();
+await p.waitForSelector(".aurora-station-proc", { timeout: 5000 });
+await p.locator(".aurora-station-proc-input").fill("Occlude one eye at 6m, use the LogMAR chart, record the lowest line read correctly.");
+await p.locator(".aurora-station-proc-go").click();
+await p.waitForSelector('.aurora-pchip[data-done="true"]:has-text("Test distance VA")', { timeout: 5000 });
+if (!(await p.locator('.aurora-pchip[data-quick="true"]:has-text("Document results")').count())) die("Document results must render as a quick chip");
+await p.locator('.aurora-pchip[data-quick="true"]:has-text("Document results")').click();
+if (await p.locator(".aurora-station-proc").count()) die("quick chip must NOT open the procedure composer");
+await p.waitForSelector('.aurora-pchip[data-done="true"]:has-text("Document results")', { timeout: 5000 });
+ok("quick procedure ticks on one click — no typed explanation (ricoe C5)");
 
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
