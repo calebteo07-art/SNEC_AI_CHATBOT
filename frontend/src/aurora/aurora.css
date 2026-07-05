@@ -1348,6 +1348,31 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-station-bubble.bot { background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.22); color: var(--ink); align-self: flex-start; }
 .aurora-station-bubble.bot .who { color: #185FA5; }
 
+/* Real-time technique grade card (ricoe C6) — a graded verdict against the crafted
+   model answer, not a "good job" bubble. Verdict tone colours the badge + rail. */
+.aurora-grade { align-self: stretch; border-radius: 13px; padding: 11px 13px; background: rgba(66,133,244,.06);
+  border: 1px solid rgba(66,133,244,.22); border-left-width: 4px; animation: station-revealin .34s ease both; }
+.aurora-grade[data-tone="great"] { border-left-color: #16a34a; background: rgba(22,163,74,.07); }
+.aurora-grade[data-tone="ok"] { border-left-color: #d98a00; background: rgba(217,138,0,.07); }
+.aurora-grade[data-tone="low"] { border-left-color: #e2603a; background: rgba(226,96,58,.07); }
+.aurora-grade-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.aurora-grade-badge { font-size: 10.4px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; color: #fff; background: #185FA5; white-space: nowrap; }
+.aurora-grade[data-tone="great"] .aurora-grade-badge { background: #16a34a; }
+.aurora-grade[data-tone="ok"] .aurora-grade-badge { background: #d98a00; }
+.aurora-grade[data-tone="low"] .aurora-grade-badge { background: #e2603a; }
+.aurora-grade-tip { font-size: 12.6px; color: var(--ink); font-weight: 600; }
+.aurora-grade-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.aurora-grade-list li { display: flex; gap: 7px; font-size: 12.2px; color: var(--ink-2); line-height: 1.35; }
+.aurora-grade-list li span { font-weight: 800; flex: none; }
+.aurora-grade-list.is-covered li span { color: #16a34a; }
+.aurora-grade-list.is-missing li { color: var(--ink); }
+.aurora-grade-list.is-missing li span { color: #b06a00; }
+.aurora-grade-model { margin: 9px 0 0; font-size: 11.4px; color: var(--ink-2); line-height: 1.4;
+  padding-top: 8px; border-top: 1px dashed rgba(66,133,244,.22); }
+.aurora-grade-model b { color: var(--ink); }
+html[data-motion="reduce"] .aurora-grade { animation: none !important; }
+
 /* Patient pane — warm coral */
 .aurora-patient .aurora-pane-dot { background: linear-gradient(135deg, #D85A30, #F0997B); }
 .aurora-patient .aurora-pane-head { border-bottom-color: rgba(216,90,48,.22); }

@@ -11,6 +11,19 @@
 // never drift out of sync.
 export const EXAM_PREFIX = "[Examination performed: ";
 
+// Marker for a real-time technique GRADE (ricoe C6). The JSON payload follows the
+// marker with no trailing bracket (JSON may contain "]"), so readers slice the prefix
+// only. Written by CaseSession.runAction, rendered by EyeBotPanel.
+export const GRADE_PREFIX = "[[GRADE]]";
+
+export interface ActionGrade {
+  verdict: "strong" | "partial" | "developing" | string;
+  covered: string[];
+  missing: string[];
+  model_answer: string;
+  coaching: string;
+}
+
 export interface ExamAction {
   key: string;
   label: string;

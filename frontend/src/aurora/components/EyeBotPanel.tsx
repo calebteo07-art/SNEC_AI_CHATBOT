@@ -4,7 +4,39 @@
    EyeBot replies with the deterministic reading + a short coaching note. Renders
    only eyebot-channel messages. Presentational — state lives in CaseSession. */
 import { useEffect, useRef } from "react";
-import { ActionPalette, EXAM_PREFIX, type ExamAction } from "@/aurora/components/ActionPalette";
+import { ActionPalette, EXAM_PREFIX, GRADE_PREFIX, type ExamAction, type ActionGrade } from "@/aurora/components/ActionPalette";
+
+const VERDICT_LABEL: Record<string, string> = {
+  strong: "Strong technique", partial: "Partial", developing: "Developing",
+};
+
+/* Real-time grade of a typed technique vs the case's crafted model answer (ricoe C6):
+   a verdict chip, what the student covered, what the model answer still expects, the
+   grounded coaching tip, and the model answer itself so they learn the reference. */
+function GradeCard({ grade }: { grade: ActionGrade }) {
+  const tone = grade.verdict === "strong" ? "great" : grade.verdict === "partial" ? "ok" : "low";
+  return (
+    <div className="aurora-grade" data-tone={tone} data-testid="action-grade">
+      <div className="aurora-grade-head">
+        <span className="aurora-grade-badge">{VERDICT_LABEL[grade.verdict] ?? grade.verdict}</span>
+        {grade.coaching && <span className="aurora-grade-tip">{grade.coaching}</span>}
+      </div>
+      {grade.covered.length > 0 && (
+        <ul className="aurora-grade-list is-covered">
+          {grade.covered.map((c, i) => <li key={i}><span aria-hidden>✓</span>{c}</li>)}
+        </ul>
+      )}
+      {grade.missing.length > 0 && (
+        <ul className="aurora-grade-list is-missing">
+          {grade.missing.map((m, i) => <li key={i}><span aria-hidden>◦</span>{m}</li>)}
+        </ul>
+      )}
+      {grade.model_answer && (
+        <p className="aurora-grade-model"><b>Model answer:</b> {grade.model_answer}</p>
+      )}
+    </div>
+  );
+}
 
 interface EyeBotMessage { role: "user" | "assistant"; content: string }
 
@@ -85,6 +117,12 @@ export function EyeBotPanel({
                 {resultText && <div className="rs">Result · {resultText}</div>}
               </div>
             );
+          }
+          if (m.role === "assistant" && m.content.startsWith(GRADE_PREFIX)) {
+            try {
+              const grade = JSON.parse(m.content.slice(GRADE_PREFIX.length)) as ActionGrade;
+              return <GradeCard key={i} grade={grade} />;
+            } catch { /* fall through to a plain bubble */ }
           }
           return (
             <div key={i} className="aurora-station-bubble bot">
