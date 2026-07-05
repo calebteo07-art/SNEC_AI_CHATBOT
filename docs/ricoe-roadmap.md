@@ -74,7 +74,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
 | 13 | Action buttons: fix cut-off words / duplicate buttons | C1 | ✅ 🔒 (refine-within-lock: one chip per distinct procedure, never truncated mid-word. `examination_actions.py` — `_clip_words` word-boundary trim replaces hard `[:34]`/`[:30]` slices; merge now collapses ALL same-(label,mode) chips not just consecutive runs, so a recurring action like hand-hygiene-before/after is ONE chip the gate re-locks between occurrences; `white-space:nowrap` on `.aurora-pchip`. TDD: 2 new failing→green tests; 489 pytest / typecheck / build green) |
-| 14 | Auto-scroll every panel (conversation/action/checklist) to latest | C8 | ⬜ 🔒 |
+| 14 | Auto-scroll every panel (conversation/action/checklist) to latest | C8 | ✅ 🔒 (patient consult already followed; added self-contained scroll to the other two — `EyeBotPanel` threadRef pins `.aurora-eyebot-thread` to bottom on new reveal/coaching/typing; `StationChecklist` brings the current step into view via `scrollIntoView({block:"nearest"})` as the gate advances. Scoped to each container, never yanks the page, safe no-op on mobile stack. Frontend-only; typecheck / build / station_assert 17/17 green) |
 | 15 | Some actions skip the typed explanation (you-decide which) | C5 | ⬜ 🔒 |
 | 16 | Grade action responses in real time vs crafted model answer (not hardcoded "good job") | C6 | ⬜ 🔒 |
 | 17 | Count OSCE checklist toward the final /100 | C7 | ⬜ 🔒 |

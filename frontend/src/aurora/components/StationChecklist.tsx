@@ -5,6 +5,7 @@
    so every action reads as one discrete, scannable line — clearest for students.
    A 3-segment phase rail and per-phase counters show progress at a glance.
    Presentational — all tick state is owned by the parent. */
+import { useEffect, useRef } from "react";
 
 export interface StationStep {
   step_number: number;
@@ -37,6 +38,12 @@ export function StationChecklist({
   current: number | null;
   onToggle: (stepNumber: number) => void;
 }) {
+  // Keep the step you're on in view as the gate advances (ricoe C8). `block:"nearest"`
+  // scrolls only the checklist's scroll container, minimally, and does nothing if the
+  // current step is already visible — so no distracting jump on every auto-tick.
+  const curRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => { curRef.current?.scrollIntoView({ block: "nearest" }); }, [current]);
+
   const doneCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number)).length);
   const totalSteps = phases.reduce((n, p) => n + p.steps.length, 0);
   const doneTotal = doneCounts.reduce((n, d) => n + d, 0);
@@ -83,6 +90,7 @@ export function StationChecklist({
               return (
                 <button
                   key={s.step_number}
+                  ref={isCurrent ? curRef : undefined}
                   type="button"
                   className="aurora-station-step"
                   data-ticked={isDone ? "true" : "false"}

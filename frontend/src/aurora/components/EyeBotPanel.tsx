@@ -3,6 +3,7 @@
    The student picks a procedure chip (ActionPalette), types their technique, and
    EyeBot replies with the deterministic reading + a short coaching note. Renders
    only eyebot-channel messages. Presentational — state lives in CaseSession. */
+import { useEffect, useRef } from "react";
 import { ActionPalette, EXAM_PREFIX, type ExamAction } from "@/aurora/components/ActionPalette";
 
 interface EyeBotMessage { role: "user" | "assistant"; content: string }
@@ -36,6 +37,15 @@ export function EyeBotPanel({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  // Auto-scroll the EyeBot thread to the latest reveal / coaching note (ricoe C8), scoped
+  // to the pane so it never yanks the page. Setting scrollTop directly is a no-op when the
+  // thread isn't a scroll container (mobile stack), so it's safe across layouts.
+  const threadRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = threadRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages.length, coaching]);
+
   return (
     <section className="aurora-station-card aurora-station-main aurora-eyebot" data-testid="eyebot-pane">
       <div className="aurora-pane-head aurora-eyebot-head">
@@ -46,7 +56,7 @@ export function EyeBotPanel({
         </div>
       </div>
 
-      <div className="aurora-station-thread aurora-eyebot-thread">
+      <div className="aurora-station-thread aurora-eyebot-thread" ref={threadRef}>
         {messages.length === 0 && (
           <p className="aurora-station-hint">Pick a procedure below, then describe your technique. EyeBot returns the reading and a quick tip.</p>
         )}
