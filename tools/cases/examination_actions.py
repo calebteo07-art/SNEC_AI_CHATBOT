@@ -83,6 +83,23 @@ _VERBAL_LABELS = {
 }
 
 
+def _clip_words(text: str, max_chars: int) -> str:
+    """Trim to whole words within max_chars — never cut a word mid-character so chip
+    labels never read as truncated garble (ricoe C1: "words cut off")."""
+    text = text.strip()
+    if len(text) <= max_chars:
+        return text
+    out: list[str] = []
+    total = 0
+    for w in text.split():
+        add = (1 if out else 0) + len(w)
+        if total + add > max_chars:
+            break
+        out.append(w)
+        total += add
+    return " ".join(out) if out else text[:max_chars]
+
+
 def _reveal_text(value) -> str:
     if isinstance(value, dict):
         parts = [f"{s[0].upper()}: {value[s]}" for s in ("right", "left") if s in value]
@@ -108,7 +125,7 @@ def _say_prompt(action: str) -> str:
 def _say_label(prompt: str) -> str:
     p = prompt.strip().rstrip("?").strip()
     short = " ".join(p.split()[:5])
-    return short[:30] or "Ask"
+    return _clip_words(short, 30) or "Ask"
 
 
 def _do_label(action: str, category: str) -> str:
@@ -117,8 +134,8 @@ def _do_label(action: str, category: str) -> str:
         if any(kw in low for kw in keywords):
             return label
     head = action.split(":")[0].strip()
-    short = " ".join(head.split()[:4]).rstrip(".,;:")
-    return short[:34] or (category.replace("_", " ").title() if category else "Step")
+    short = _clip_words(" ".join(head.split()[:4]).rstrip(".,;:"), 34)
+    return short or (category.replace("_", " ").title() if category else "Step")
 
 
 def _finding_for_step(action: str, findings: dict) -> str:
@@ -162,15 +179,23 @@ def build_actions(examination_findings: dict, steps: list[dict]) -> list[dict]:
         })
         raw.append(chip)
 
+    # Collapse EVERY same-(label, mode) chip into one — not just consecutive runs — so a
+    # recurring procedure (hand hygiene before AND after a step in between) is a single chip,
+    # never a duplicate (ricoe C1). The step-gate ticks only the in-order run from the current
+    # step, so the one chip re-locks until the later occurrence is reached; first appearance
+    # keeps its position.
     merged: list[dict] = []
+    by_key: dict[tuple[str, str], dict] = {}
     for a in raw:
-        prev = merged[-1] if merged else None
-        if prev and prev["label"] == a["label"] and prev["mode"] == a["mode"]:
+        key = (a["label"], a["mode"])
+        prev = by_key.get(key)
+        if prev is not None:
             prev["satisfies_steps"] = sorted(set(prev["satisfies_steps"]) | set(a["satisfies_steps"]))
             prev["critical"] = prev["critical"] or a["critical"]
             if not prev["reveal_text"] and a["reveal_text"]:
                 prev["reveal_text"] = a["reveal_text"]
         else:
+            by_key[key] = a
             merged.append(a)
 
     for a in merged:

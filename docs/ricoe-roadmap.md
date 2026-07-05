@@ -73,7 +73,7 @@ gen scaffolds a clearly-marked placeholder now and fires only on Caleb's explici
 ## OSCE
 | # | Phase | ricoe | Status |
 |---|-------|-------|--------|
-| 13 | Action buttons: fix cut-off words / duplicate buttons | C1 | ⬜ 🔒 |
+| 13 | Action buttons: fix cut-off words / duplicate buttons | C1 | ✅ 🔒 (refine-within-lock: one chip per distinct procedure, never truncated mid-word. `examination_actions.py` — `_clip_words` word-boundary trim replaces hard `[:34]`/`[:30]` slices; merge now collapses ALL same-(label,mode) chips not just consecutive runs, so a recurring action like hand-hygiene-before/after is ONE chip the gate re-locks between occurrences; `white-space:nowrap` on `.aurora-pchip`. TDD: 2 new failing→green tests; 489 pytest / typecheck / build green) |
 | 14 | Auto-scroll every panel (conversation/action/checklist) to latest | C8 | ⬜ 🔒 |
 | 15 | Some actions skip the typed explanation (you-decide which) | C5 | ⬜ 🔒 |
 | 16 | Grade action responses in real time vs crafted model answer (not hardcoded "good job") | C6 | ⬜ 🔒 |

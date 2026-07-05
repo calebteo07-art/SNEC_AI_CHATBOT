@@ -73,6 +73,30 @@ def test_has_manual_actions_true_for_procedure_steps():
     assert has_manual_actions({}, steps) is True
 
 
+def test_recurring_label_merges_even_when_not_consecutive():
+    # ricoe C1 (duplicate buttons): a recurring procedure — hand hygiene BEFORE and
+    # AFTER a step in between — must collapse to ONE chip, not two identical ones. The
+    # gate ticks only the in-order run from the current step, so the single chip re-locks
+    # until the later occurrence is reached (recurring-button UX).
+    steps = [
+        {"step_number": 1, "action": "Perform hand hygiene", "category": "infection_control", "critical": True},
+        {"step_number": 2, "action": "Measure distance visual acuity with LogMAR", "category": "clinical_assessment", "critical": False},
+        {"step_number": 3, "action": "Perform hand hygiene", "category": "infection_control", "critical": True},
+    ]
+    hh = [a for a in build_actions({}, steps) if a["label"] == "Hand hygiene"]
+    assert len(hh) == 1
+    assert set(hh[0]["satisfies_steps"]) == {1, 3}
+
+
+def test_long_unknown_do_label_never_cuts_mid_word():
+    # ricoe C1 (words cut off): an unknown long procedure must trim on a WORD boundary,
+    # never mid-character — every word in the chip label is a whole word from the source.
+    long_action = "Perform comprehensive ophthalmoscopic examination thoroughly"
+    label = build_actions({}, [{"step_number": 1, "action": long_action, "category": "clinical", "critical": False}])[0]["label"]
+    assert len(label) <= 34
+    assert all(word in long_action.split() for word in label.split())
+
+
 def test_has_manual_actions_false_for_all_verbal_steps():
     steps = [
         {"step_number": 1, "action": "Introduce yourself to the patient", "critical": True},
