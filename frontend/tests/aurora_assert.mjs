@@ -530,4 +530,48 @@ if (staleErrors.some((e) => /reading 'map'|reading "map"|\.map/.test(e))) {
 }
 console.log("PASS: flashcards — stale/old-shaped cards degrade gracefully (no white-screen)");
 
+// ── RICOE v2 Foundation 1: semantic token contract ────────────────
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+const rv2Tokens = await np.evaluate(() => {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    "flash-canvas": cs.getPropertyValue("--flash-canvas").trim(),
+    "flash-card": cs.getPropertyValue("--flash-card").trim(),
+    "flash-ink": cs.getPropertyValue("--flash-ink").trim(),
+    "dur-base": cs.getPropertyValue("--dur-base").trim(),
+    "ease-out": cs.getPropertyValue("--ease-out").trim(),
+  };
+});
+for (const [name, val] of Object.entries(rv2Tokens)) {
+  if (!val) { console.error(`FAIL: token --${name} is not defined`); process.exit(1); }
+}
+console.log("PASS: RICOE v2 semantic tokens resolve");
+
+// ── RICOE v2 Foundation 1: animated Gemini-accent primitive ───────
+const accent = await np.evaluate(() => {
+  const el = document.createElement("div");
+  el.className = "aurora-gemini-accent";
+  document.body.appendChild(el);
+  const cs = getComputedStyle(el);
+  const out = { bg: cs.backgroundImage, size: cs.backgroundSize, anim: cs.animationName };
+  el.remove();
+  return out;
+});
+if (!/gradient/.test(accent.bg)) { console.error(`FAIL: gemini accent has no gradient (${accent.bg})`); process.exit(1); }
+if (accent.anim !== "aurora-gemini-slide") { console.error(`FAIL: gemini accent not animated (${accent.anim})`); process.exit(1); }
+console.log("PASS: animated Gemini accent primitive renders + animates");
+
+await np.evaluate(() => document.documentElement.setAttribute("data-motion", "reduce"));
+const frozen = await np.evaluate(() => {
+  const el = document.createElement("div");
+  el.className = "aurora-gemini-accent";
+  document.body.appendChild(el);
+  const name = getComputedStyle(el).animationName;
+  el.remove();
+  return name;
+});
+if (frozen !== "none") { console.error(`FAIL: gemini accent not frozen under reduced motion (${frozen})`); process.exit(1); }
+console.log("PASS: Gemini accent freezes under reduced motion");
+await np.evaluate(() => document.documentElement.removeAttribute("data-motion"));
+
 await b.close();
