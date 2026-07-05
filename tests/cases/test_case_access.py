@@ -152,6 +152,21 @@ async def test_unknown_difficulty_allowed():
         await _check_case_access("stu_test", case)
 
 
+def test_cases_list_returns_full_library_including_locked():
+    """ricoe C2: the eye-diagram is the sole navigator and every part must stay
+    populated — so GET /api/cases returns the FULL library (not a small unlocked-only
+    rotating window), and locked cases are still returned marked locked so the student
+    sees them (as locked cards) attached to their part of the eye."""
+    with _patch_all_cases({}):  # no passes → intermediate + advanced locked
+        r = client.get("/api/cases", cookies=_auth_cookie("stu_test"))
+    assert r.status_code == 200
+    cases = r.json()["cases"]
+    ids = {c["case_id"] for c in cases}
+    assert ids == {c["case_id"] for c in ALL_CASES}, "every case must be returned, not a window"
+    locked = {c["case_id"] for c in cases if c["locked"]}
+    assert locked == {"int_1", "int_2", "int_3", "adv_1"}
+
+
 def _locked_advanced_case() -> dict:
     return _make_case("adv_locked", "advanced")
 

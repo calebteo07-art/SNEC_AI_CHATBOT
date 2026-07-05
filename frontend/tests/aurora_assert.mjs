@@ -51,6 +51,8 @@ await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12, patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
   { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
   { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
+  // ricoe C2: a LOCKED case is still returned so it shows (as a locked card) attached to its eye part.
+  { case_id: "C004", title: "Advanced disc assessment", difficulty: "advanced", topic: "Glaucoma optic disc", estimated_minutes: 15, locked: true, patient: { name: "Mr Ng", age: 68, presenting_complaint: "Progressive field loss" } },
 ] })));
 await navCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 4, weak_topic: "Glaucoma staging" })));
 await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question_id: "OA-0", question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma", options: ["About 0.3", "About 0.7", "Exactly 1.0", "About 0.9"] })));
@@ -140,6 +142,13 @@ if (!(regionCases >= 1 && regionCases < allCases)) {
   console.error(`FAIL: region filter did not narrow the list (all=${allCases}, region=${regionCases})`); process.exit(1);
 }
 console.log("PASS: Atlas Map region filters the case list");
+
+// ricoe C2: locked cases stay attached to their eye part — the Optic disc region still
+// shows the locked case as a (non-startable) locked card, so no part reads as empty.
+if ((await np.locator('[data-testid="case-list"] .aurora-case--locked').count()) < 1) {
+  console.error("FAIL: locked case must still show (as a locked card) in its eye region"); process.exit(1);
+}
+console.log("PASS: locked cases still show attached to their part of the eye (ricoe C2)");
 
 // tutor greeting landing (ricoe A2): /chat OPENS on the greeting landing (hello h1 +
 // prompt + recent sessions), not the thread. cosmic wash, composer, SNEC co-brand, one h1.

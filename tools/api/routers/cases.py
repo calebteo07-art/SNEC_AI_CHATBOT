@@ -17,7 +17,6 @@ from tools.profile.get_profile import get_profile
 from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
-from tools.shared.static_pools import pick_next_unseen
 from tools.cases.topic_sets import resolve_set, sets_for, label_for, case_visible
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
@@ -25,10 +24,6 @@ from tools.cases.examination_actions import build_actions, has_manual_actions
 from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
 from tools.kb.search import get_checklist_by_name
-
-# How many cases to surface per student per visit (a small rotating set, not the
-# whole library). The student cycles through every unlocked case before repeats.
-CASE_WINDOW = 6
 
 ACTION_COACH = (
     "You are EyeBot, a friendly OSCE examiner for allied-health ophthalmic students. "
@@ -301,21 +296,11 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
         cases = [c for c in cases if c.set_key == topic_set]
         return CasesResponse(cases=cases)
 
-    # Default view — per-student no-repeat rotation: surface a small window of
-    # unlocked cases the student hasn't completed yet, cycling through all of
-    # them before repeating. "Served" = completed (from case_progress).
-    unlocked = [c for c in cases if not c.locked]
-    if unlocked:
-        completed_ids = set(case_progress.keys())
-        served = {i for i, c in enumerate(unlocked) if c.case_id in completed_ids}
-        picks = pick_next_unseen(student_id, len(unlocked), "cases", served, n=CASE_WINDOW)
-        seen: set[int] = set()
-        window = []
-        for i in picks:
-            if i not in seen:
-                seen.add(i)
-                window.append(unlocked[i])
-        cases = window
+    # Default view — the Living-Eye diagram is the sole navigator (ricoe C4), so it
+    # needs the FULL library: every part of the eye must stay populated, and LOCKED
+    # cases are still returned (marked locked) so the student sees them as locked cards
+    # rather than an empty region (ricoe C2). Difficulty locks still gate entry — the
+    # station/chat/submit endpoints fail closed on a locked case (_check_case_access).
     return CasesResponse(cases=cases)
 
 
