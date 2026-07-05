@@ -15,16 +15,25 @@ wrappers (MotionProvider is not mounted).
 ## Login — LOCKED 2026-06-13
 Kept verbatim from the original app (explicit user preference). Do not restyle.
 
-## Flashcards — LOCKED 2026-06-30
-- **Selection**: single-screen Gemini-dark topic fan carousel, continuous "river" flow
-  (single rAF loop, seamless wrap, static under reduced motion), per-topic Nano Banana
-  images, no difficulty picker, fixed decks, no scroll (dvh-sized).
-- **Study**: "Console" instant-tap MCQ on a dark lit-glass card (check-in card language,
-  animated cool-Gemini hairline), Brownian colour lights on the canvas background,
-  engravings at the card perimeter. Reveal = **Charge → Flip → Payoff** (LiquidLoading
-  ChargeBeat, 3D flip to full-bleed explanation, combo/XP payoff). Cool cyan→indigo hue
-  band only; verdicts bright green `#16a34a` / intense red `#e22030`; Next button
-  centered, solid indigo.
+## Flashcards — LOCKED 2026-06-30 · re-themed light 2026-07-05 (ricoe B6)
+**Theme (ricoe B6, lock-break 2026-07-05)**: the flashcards world is now **light** — a
+**purple off-white canvas** (soft lavender gradient) carrying a **dark-purple study/intro/
+results card**. This reverses the former Gemini-graphite dark canvas; the card stays dark
+(now purple, not navy) so its light-on-dark interior, verdict colours and Gemini hairline
+are unchanged. Canvas-level chrome (Exit pill, mute, empty/loading copy, fan captions/
+controls, engravings, Brownian blooms) is recoloured for the light surface; CoBrand uses
+its **light** variant. Acceptance criterion when refining: canvas = light lavender, card =
+dark purple, WCAG-legible text on both.
+- **Selection**: single-screen topic fan carousel, continuous "river" flow (single rAF
+  loop, seamless wrap, static under reduced motion), per-topic Nano Banana images, no
+  difficulty picker, fixed decks, no scroll (dvh-sized). Fan cards remain dark photo
+  tiles with white captions (they sit on their own images); controls are purple.
+- **Study**: "Console" instant-tap MCQ on the **dark-purple** lit-glass card (check-in
+  card language, animated cool-Gemini hairline), Brownian colour blooms on the light
+  canvas background, engravings etched in the card perimeter. Reveal = **Charge → Flip →
+  Payoff** (LiquidLoading ChargeBeat, 3D flip to full-bleed explanation, combo/XP payoff).
+  Cool cyan→indigo hue band only; verdicts bright green `#16a34a` / intense red `#e22030`;
+  Next button centered, solid indigo.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1
   — "Up next", the gradient topic name, a one-line blurb (`TOPIC_BLURBS`), a
   `N cards · mixed difficulty · instant scoring` meta and a Begin CTA — in the study
