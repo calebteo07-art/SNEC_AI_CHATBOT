@@ -496,7 +496,7 @@ function StationResult({ result, coaching, onMore, onDash }: {
   // and each denominator comes from the score so the 40/30/30 (manual) vs
   // 50/–/50 (conversation-only) split renders correctly.
   const comps: { label: string; pts: number; max: number; sub: string }[] = [
-    { label: "Steps completed", pts: result.thoroughness, max: result.thoroughness_max, sub: result.thoroughness_detail },
+    { label: "OSCE checklist", pts: result.thoroughness, max: result.thoroughness_max, sub: `${result.thoroughness_detail} · the checklist counts toward your /100` },
     ...(result.technique_applies
       ? [{ label: "Technique", pts: result.technique, max: result.technique_max, sub: "How well you performed the procedure(s)" }]
       : []),
