@@ -159,6 +159,12 @@ if (await p.locator('[data-testid="patient-pane"] .aurora-pchip').count()) die("
 if (!(await p.locator('[data-testid="eyebot-pane"] .aurora-pchip:has-text("Measure IOP")').count())) die("Measure IOP chip must live in the EyeBot pane");
 ok("two distinct panes; manual chips live in the EyeBot pane only");
 
+// 5q. ricoe C9: each pane carries a static pfp icon — a talking head on the conversation
+//     pane, a hand on the action pane (simple, non-animated SVGs in the pane-head dot).
+if (!(await p.locator('[data-testid="patient-pane"] .aurora-pane-dot svg').count())) die("conversation pane missing its static talking-head pfp");
+if (!(await p.locator('[data-testid="eyebot-pane"] .aurora-pane-dot svg').count())) die("action pane missing its static hand pfp");
+ok("static pfps — talking head on the conversation pane, hand on the action pane (ricoe C9)");
+
 // 5g. Gating: at load nothing is ticked → gate is step 1. Later steps + their chips
 //     must be locked, and the in-order help caption present.
 if (!(await p.locator('.aurora-station-cl-help:has-text("unlock in order")').count())) die("missing the in-order help caption");
