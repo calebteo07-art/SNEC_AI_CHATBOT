@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
+import { useAvatar } from "@/hooks/useAvatar";
+import { Selena } from "@/aurora/avatar/Selena";
 import { Wordmark } from "@/aurora/Logo";
 
 type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS };
@@ -28,8 +30,11 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
   const router = useRouter();
   const { user, logout } = useAuth();
   const { data: progress } = useProgress();
+  const { data: avatar } = useAvatar((user?.role ?? "student") === "student");
 
   const role = user?.role ?? "student";
+  // The nav chip is a student identity surface → their customised Selena (staff keep initials).
+  const selenaConfig = role === "student" ? avatar?.config : undefined;
   const showOversight = role === "admin" || role === "supervisor";
   const initials = (user?.fullName ?? "EyeBot")
     .split(" ")
@@ -94,7 +99,9 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
           <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
         </div>
         <Link href="/profile" className="aurora-profile" aria-label="Profile">
-          <span className="aurora-avatar">{initials}</span>
+          <span className="aurora-avatar" data-selena={selenaConfig ? "" : undefined}>
+            {selenaConfig ? <Selena config={selenaConfig} size={30} /> : initials}
+          </span>
           <span className="aurora-profile-meta">
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
             <span className="aurora-profile-role">{role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>

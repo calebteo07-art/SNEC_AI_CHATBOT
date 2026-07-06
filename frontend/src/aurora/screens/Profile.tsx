@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
+import { useAvatar } from "@/hooks/useAvatar";
+import { Selena } from "@/aurora/avatar/Selena";
 
 function roleLabel(role: string, studentRole: string): string {
   if (role === "admin") return "Administrator";
@@ -35,12 +37,16 @@ export function Profile() {
 
   const role = user?.role ?? "student";
   const initials = (user?.fullName ?? "?").split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  const { data: avatar } = useAvatar(role === "student");
+  const selenaConfig = role === "student" ? avatar?.config : undefined;
 
   return (
     <div className="aurora-profile-screen">
       <section className="aurora-card aurora-profile-card">
         <div className="aurora-profile-id">
-          <span className="aurora-profile-avatar-lg aurora-flow">{initials}</span>
+          <span className="aurora-profile-avatar-lg aurora-flow" data-selena={selenaConfig ? "" : undefined}>
+            {selenaConfig ? <Selena config={selenaConfig} size={62} /> : initials}
+          </span>
           <h1 className="aurora-profile-name">{user?.fullName ?? "—"}</h1>
           <p className="aurora-profile-email">{user?.email ?? "—"}</p>
           <span className="aurora-profile-badge">{roleLabel(role, user?.studentRole ?? "")}</span>

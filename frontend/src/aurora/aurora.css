@@ -206,6 +206,11 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
   font-size: 13.4px;
   color: var(--ink);
 }
+/* The student's saved Selena, clipped into the identity chip (replaces initials). The
+   Selena SVG is transparent, so we give it a soft light tile that reads on any surface. */
+.aurora-avatar[data-selena] { padding: 0; overflow: hidden; background: #F4F6FF; }
+.aurora-rail-night .aurora-avatar[data-selena] { background: rgba(244, 246, 255, 0.94); border-color: rgba(255, 255, 255, 0.28); box-shadow: 0 4px 14px -6px rgba(34, 184, 212, 0.5); }
+.aurora-avatar[data-selena] > span { display: block; }
 .aurora-profile-meta { min-width: 0; display: flex; flex-direction: column; }
 .aurora-profile-name { font-size: 14.6px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .aurora-profile-role { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.08em; color: var(--ink-3); text-transform: uppercase; }
@@ -1728,6 +1733,10 @@ html[data-motion="reduce"] .aurora-coach-bubble, html[data-motion="reduce"] .aur
 .aurora-profile-card { padding: 0; overflow: hidden; }
 .aurora-profile-id { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 32px 24px 24px; }
 .aurora-profile-avatar-lg { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 26.9px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 16px; }
+/* When the student's Selena fills the profile disc, drop the animated gradient for a soft
+   tile so the (transparent) mascot reads, and clip it to the circle. */
+.aurora-profile-avatar-lg[data-selena] { overflow: hidden; background: #F4F6FF !important; animation: none !important; }
+.aurora-profile-avatar-lg[data-selena] > span { display: block; }
 .aurora-profile-name { font-size: 24.6px; font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin: 0; }
 .aurora-profile-email { font-size: 14.6px; color: var(--ink-2); margin: 4px 0 12px; }
 .aurora-profile-badge { font-size: 12.3px; font-weight: 600; color: var(--on-purple); background: rgba(120, 110, 200, 0.10); border: 1px solid rgba(120, 110, 200, 0.28); padding: 5px 14px; border-radius: 999px; }

@@ -125,18 +125,44 @@
 .hm-panel { border-radius:var(--hr); background:var(--card); border:1px solid var(--line); box-shadow:var(--sh); padding:24px 26px; }
 .hm-ph { font-family:var(--font-home); font-weight:700; font-size:18px; margin:0 0 18px; display:flex; align-items:center; justify-content:space-between; }
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
-.hm-miles { display:flex; gap:12px; list-style:none; margin:0; padding:0; }
-.hm-mile { flex:1; text-align:center; border-radius:17px; padding:17px 6px 15px; background:#FAF4EA; border:1px solid var(--line); }
-.hm-mi { width:46px; height:46px; border-radius:50%; margin:0 auto 11px; display:flex; align-items:center; justify-content:center; background:#EFE8DC; color:#B7ABBB; }
-.hm-mi .ico { width:24px; height:24px; }
-.hm-mn { font-weight:700; font-size:13.5px; color:var(--hink); }
-.hm-mm { font-size:11px; font-weight:600; color:var(--hink3); margin-top:4px; letter-spacing:.03em; text-transform:uppercase; }
-.hm-mile.done { background:linear-gradient(160deg,#FEEFD6,#FBDAE4); border-color:#F5D6C2; }
-.hm-mile.done .hm-mi { background:linear-gradient(150deg,#FBBF24,#FB7185); color:#fff; box-shadow:0 6px 14px -5px rgba(251,113,133,.6); }
-.hm-mile.done .hm-mm { color:#C2410C; }
-.hm-mile.next { border:1.5px solid var(--violet); background:#F6F2FF; box-shadow:0 0 0 4px rgba(124,92,246,.09); }
-.hm-mile.next .hm-mi { background:#EDE7FF; color:var(--violet-d); }
-.hm-mile.next .hm-mm { color:var(--violet-d); }
+/* ── streak badge collection — generated collectible medallions (Nano Banana flash) ── */
+.hm-badges { display:grid; grid-template-columns:repeat(3,1fr); gap:16px 12px; list-style:none; margin:0; padding:2px 0 0; }
+.hm-badge { display:flex; flex-direction:column; align-items:center; text-align:center; gap:7px; }
+.hm-badge-medal { position:relative; width:76px; height:76px; }
+.hm-badge-art { width:76px; height:76px; object-fit:cover; border-radius:20px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
+.hm-badge-name { font-weight:700; font-size:12.5px; color:var(--hink); line-height:1.15; }
+.hm-badge-meta { font-size:10.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--hink3); }
+.hm-badge-seal { position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; color:#fff; background:linear-gradient(150deg,#FBBF24,#FB7185); box-shadow:0 3px 8px -2px rgba(251,113,133,.7); border:2px solid var(--card); }
+.hm-badge-lock { position:absolute; inset:0; display:grid; place-items:center; font-size:23px; }
+
+/* collected: vivid, gentle float + a diagonal shine sweep clipped to the medallion */
+.hm-badge[data-state="collected"] .hm-badge-medal { animation:badge-float 4.6s ease-in-out infinite; }
+.hm-badge[data-state="collected"] .hm-badge-medal::after {
+  content:""; position:absolute; inset:0; border-radius:20px; pointer-events:none; mix-blend-mode:screen;
+  background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.6) 48%,transparent 56%);
+  background-size:250% 100%; background-position:150% 0; animation:badge-shine 4.2s ease-in-out infinite;
+}
+/* rarity glow escalates with tier */
+.hm-badge[data-state="collected"][data-rarity="common"]    .hm-badge-art { box-shadow:0 5px 16px -4px rgba(226,144,58,.6); }
+.hm-badge[data-state="collected"][data-rarity="uncommon"]  .hm-badge-art { box-shadow:0 5px 16px -4px rgba(46,166,198,.6); }
+.hm-badge[data-state="collected"][data-rarity="rare"]      .hm-badge-art { box-shadow:0 5px 16px -4px rgba(38,174,106,.6); }
+.hm-badge[data-state="collected"][data-rarity="epic"]      .hm-badge-art { box-shadow:0 5px 18px -4px rgba(124,92,246,.7); }
+.hm-badge[data-state="collected"][data-rarity="mythic"]    .hm-badge-art { box-shadow:0 5px 18px -4px rgba(225,29,72,.7); }
+.hm-badge[data-state="collected"][data-rarity="legendary"] .hm-badge-medal { animation:badge-float 4.6s ease-in-out infinite, badge-legend 3s ease-in-out infinite; }
+
+/* next: full-colour teaser with a pulsing violet call-to-action ring + progress accent */
+.hm-badge[data-state="next"] .hm-badge-art { animation:badge-pulse 1.9s ease-in-out infinite; }
+.hm-badge[data-state="next"] .hm-badge-meta { color:var(--violet-d); }
+
+/* locked: greyscale mystery until earned — the colour art is the reward */
+.hm-badge[data-state="locked"] .hm-badge-art { filter:grayscale(1) brightness(.6) contrast(.9); opacity:.72; }
+.hm-badge[data-state="locked"] .hm-badge-lock { color:#fff; text-shadow:0 2px 6px rgba(0,0,0,.65); }
+.hm-badge[data-state="locked"] .hm-badge-name { color:var(--hink3); }
+
+@keyframes badge-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+@keyframes badge-shine { 0%,55%{background-position:150% 0;} 100%{background-position:-90% 0;} }
+@keyframes badge-pulse { 0%,100%{box-shadow:0 0 0 3px rgba(124,92,246,.22),0 6px 16px -5px rgba(124,92,246,.45);} 50%{box-shadow:0 0 0 6px rgba(124,92,246,.30),0 6px 20px -5px rgba(124,92,246,.6);} }
+@keyframes badge-legend { 0%,100%{filter:drop-shadow(0 0 6px rgba(251,191,36,.7));} 50%{filter:drop-shadow(0 0 13px rgba(124,92,246,.85));} }
 .hm-stats { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
 .hm-stat { background:#FAF4EA; border:1px solid var(--line); border-radius:17px; padding:17px 18px; }
 .hm-stat .hm-sv { font-family:var(--font-home); font-weight:800; font-size:34px; line-height:1; }
@@ -155,8 +181,16 @@
 }
 @media (max-width:560px) {
   .hm-iriswrap { display:none; }
-  .hm-miles { flex-wrap:wrap; }
-  .hm-mile { flex:1 1 28%; }
+  .hm-badges { gap:14px 10px; }
+  .hm-badge-medal, .hm-badge-art { width:66px; height:66px; }
+}
+
+/* reduced motion — freeze the badge float / shine / pulse / legendary glow */
+html[data-motion="reduce"] .hm-badge-medal,
+html[data-motion="reduce"] .hm-badge-art,
+html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .hm-badge-medal, .hm-badge-art, .hm-badge-medal::after { animation:none !important; }
 }
 
 /* ── reduced motion ── */

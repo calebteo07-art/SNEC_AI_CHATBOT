@@ -19,7 +19,7 @@ export interface AvatarResponse {
  *  greeting can paint Selena offline. While a portrait render is in flight
  *  (status "pending") we poll so the UI swaps to the real 3D PNG the moment it's
  *  ready; polling stops as soon as the status settles. */
-export function useAvatar() {
+export function useAvatar(enabled = true) {
   return useQuery<AvatarResponse>({
     queryKey: ["avatar"],
     queryFn: async () => {
@@ -27,6 +27,7 @@ export function useAvatar() {
       if (!res.ok) throw new Error("Failed to load avatar");
       return res.json();
     },
+    enabled,
     staleTime: 5 * 60_000,
     placeholderData: (prev) => prev,
     refetchInterval: (q) => (q.state.data?.portrait_status === "pending" ? 4000 : false),
