@@ -45,19 +45,29 @@ class AvatarUpdate(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-async def _current_config(student_id: str) -> dict:
-    """Resolve the student's saved Selena config (or the default), fail-closed.
+async def _resolve_config(student_id: str) -> tuple[dict, bool]:
+    """(config, customized) for the student, fail-closed.
 
-    A stored config that has gone stale (a retired option id) never 500s a read —
-    it falls back to the default and logs the drift for staff.
+    A stored config that has gone stale (a retired option id) never 500s a read — it
+    falls back to the default and logs the drift for staff. ``customized`` is True the
+    moment a student has EVER saved a config (even a now-stale one), so the first-run
+    onboarding gate (ricoe §7) never re-nags someone who already built their Selena.
     """
     profile = await get_profile(student_id) or {}
     stored = profile.get("avatar_config")
+    customized = bool(stored)
     try:
-        return validate_config(stored) if stored else dict(DEFAULT_AVATAR)
+        config = validate_config(stored) if stored else dict(DEFAULT_AVATAR)
     except InvalidAvatarConfig as e:
         log("avatar_config_corrupt", student_id=student_id, feature="avatar", detail=str(e))
-        return dict(DEFAULT_AVATAR)
+        config = dict(DEFAULT_AVATAR)
+    return config, customized
+
+
+async def _current_config(student_id: str) -> dict:
+    """The student's saved Selena config (or the default), fail-closed."""
+    config, _ = await _resolve_config(student_id)
+    return config
 
 
 def _recent(updated_at, max_age_s: int = _PENDING_TTL_S) -> bool:
@@ -104,11 +114,14 @@ async def _generate_portrait(config: dict, chash: str) -> None:
 
 @router.get("/api/avatar")
 async def get_avatar(current_user: CurrentUser = Depends(get_current_user)):
-    """Return the student's saved Selena config (or default) + the parts catalog + portrait state."""
+    """Return the student's saved Selena config (or default) + catalog + portrait state + customized."""
     student_id = current_user["sub"]
-    config = await _current_config(student_id)
+    config, customized = await _resolve_config(student_id)
     status, url = await _portrait_state(config)
-    return {"config": config, "axes": AVATAR_AXES, "portrait_status": status, "portrait_url": url}
+    return {
+        "config": config, "axes": AVATAR_AXES,
+        "portrait_status": status, "portrait_url": url, "customized": customized,
+    }
 
 
 @router.put("/api/avatar")

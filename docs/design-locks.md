@@ -115,6 +115,23 @@ surfaces.
   No redesign of any locked surface; the convo-header eye avatar keeps its own charging-
   ring/blink life.
 
+## First-run Selena onboarding — LOCKED 2026-07-06 (ricoe §7)
+**Direction**: a student who has **never customized** their Selena (`avatar_config` null →
+`GET /api/avatar` returns `customized: false`) is routed **once**, on their first authenticated
+visit (after check-in), into the existing gamified **Selena Studio** in a **`welcome` mode**
+(`/studio?welcome=1`) — "Meet Selena … let's make her yours". The gate lives in `CheckInGuard`
+(the same chokepoint as the check-in gate; students only, never staff, exempts `/studio`). Saving
+(or **Skip for now**) returns to home; both set a local `eyebot_selena_onboarded` flag so the gate
+never nags again, and a save flips `customized` server-side (the real source of truth). An **"Edit
+Selena"** entry lives on **home** + the **leaderboard** thereafter (Profile already links Studio).
+- **Acceptance criteria when refining**: null-avatar student is redirected to `/studio?welcome=1`
+  once; a customized student (or one who skipped) is **never** redirected (show-once invariant —
+  regression-tested for the repeat case); the gate never loops on `/studio` and never blocks staff
+  or the check-in flow; Save/Skip in welcome mode return to `/dashboard`; Edit-Selena entries route
+  to `/studio`; WCAG-legible, 390px-safe.
+- **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
+  paid 3D portrait (fires on save as today); staff.
+
 ## Generated imagery standard — STANDING
 Medically and anatomically correct AND beautiful; accuracy baked into prompts; SNEC
 staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, plain

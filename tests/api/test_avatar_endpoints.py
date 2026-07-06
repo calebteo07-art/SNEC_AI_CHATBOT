@@ -80,6 +80,32 @@ def test_get_avatar_falls_back_to_default_on_corrupt_saved(mock_get, _mock_img):
     assert r.status_code == 200
     assert r.json()["config"] == DEFAULT_AVATAR
 
+
+# ── `customized` flag — drives the first-run onboarding gate (ricoe §7) ────────
+# A student who has never saved a config is routed once into the Studio to build
+# their Selena. The gate keys off `customized`, so it MUST be false only when unset.
+
+@patch("tools.api.routers.avatar.get_avatar_image", new_callable=AsyncMock, return_value=None)
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_customized_false_when_never_saved(mock_get, _mock_img):
+    mock_get.return_value = {"student_id": "user_001"}      # no avatar_config key
+    assert client.get("/api/avatar", cookies=_student_cookies()).json()["customized"] is False
+
+@patch("tools.api.routers.avatar.get_avatar_image", new_callable=AsyncMock, return_value=None)
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_customized_true_when_saved(mock_get, _mock_img):
+    mock_get.return_value = {"avatar_config": dict(DEFAULT_AVATAR, bodyColor="ebony")}
+    assert client.get("/api/avatar", cookies=_student_cookies()).json()["customized"] is True
+
+@patch("tools.api.routers.avatar.get_avatar_image", new_callable=AsyncMock, return_value=None)
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_customized_true_even_when_stored_is_corrupt(mock_get, _mock_img):
+    # They DID customize once; a since-retired option id shouldn't re-trigger onboarding.
+    mock_get.return_value = {"avatar_config": {"irisColor": "neon"}}
+    body = client.get("/api/avatar", cookies=_student_cookies()).json()
+    assert body["customized"] is True
+    assert body["config"] == DEFAULT_AVATAR
+
 @patch("tools.api.routers.avatar.update_profile", new_callable=AsyncMock)
 def test_put_avatar_persists_valid_config(mock_update):
     payload = {"bodyColor": "deep", "topper": "crown", "irisColor": "green"}
