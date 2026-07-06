@@ -361,3 +361,33 @@ async def delete_supervisor(email: str) -> None:
     """Delete a supervisors row."""
     client = await _get_client()
     await client.table("supervisors").delete().eq("email", email).execute()
+
+
+# ── avatar_images (Selena 3D-portrait cache, migration 007) ───────────────────
+
+async def get_avatar_image(config_hash: str) -> dict | None:
+    """Return the cached portrait row for a config hash, or None.
+
+    Raises if the table is missing (pre-migration 007) — callers catch that and
+    fall back to the instant SVG (the portrait cache is a graceful add-on)."""
+    client = await _get_client()
+    result = (
+        await client.table("avatar_images")
+        .select("*")
+        .eq("config_hash", config_hash)
+        .limit(1)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
+async def upsert_avatar_image(
+    config_hash: str, status: str, image_url: str | None = None
+) -> None:
+    """Insert or update a portrait cache row (keyed by config_hash). status ∈
+    pending|ready|failed."""
+    client = await _get_client()
+    payload: dict = {"config_hash": config_hash, "status": status, "updated_at": "now()"}
+    if image_url is not None:
+        payload["image_url"] = image_url
+    await client.table("avatar_images").upsert(payload, on_conflict="config_hash").execute()
