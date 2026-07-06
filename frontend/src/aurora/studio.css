@@ -66,6 +66,38 @@
 }
 .studio-hero[data-float] { animation: studio-float 5s ease-in-out infinite; }
 .studio-hero > span { display: block; }
+
+/* <SelenaPortrait> — the CSS backdrop (from the `background` axis) sits behind the
+   transparent 3D PNG (or the SVG fallback). */
+.selena-portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.selena-portrait > span,
+.selena-portrait > svg { display: block; }
+.selena-portrait-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.selena-portrait-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink, #1b1b1f);
+  background: color-mix(in srgb, var(--surface, #fff) 82%, transparent);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  box-shadow: var(--shadow-1, 0 1px 4px rgba(0, 0, 0, 0.12));
+}
 .studio-skel { width: 203px; height: 220px; background: var(--surface-tonal); animation: studio-pulse 1.4s ease-in-out infinite; }
 .studio-stage-meta { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; min-height: 1.5rem; }
 .studio-chip {

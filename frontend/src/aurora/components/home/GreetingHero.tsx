@@ -14,6 +14,8 @@ export function GreetingHero({
   xpToNext,
   onSurprise,
   resumeHref,
+  portraitUrl,
+  portraitStatus,
 }: {
   greeting: Greeting;
   level: number;
@@ -22,7 +24,12 @@ export function GreetingHero({
   xpToNext: number;
   onSurprise: () => void;
   resumeHref: string;
+  /** The student's saved 3D Selena, shown grounded on the card when ready. Absent /
+   *  not-ready → the canonical Iris mascot, preserving the locked grounded-Iris look. */
+  portraitUrl?: string | null;
+  portraitStatus?: string;
 }) {
+  const irisSrc = portraitStatus === "ready" && portraitUrl ? portraitUrl : "/brand/iris.png";
   // Split the title at the first occurrence of the accent word so it can be emphasised.
   const i = greeting.title.indexOf(greeting.emphasis);
   const pre = i >= 0 ? greeting.title.slice(0, i) : greeting.title;
@@ -58,7 +65,7 @@ export function GreetingHero({
       <div className="hm-iriswrap" aria-hidden>
         <span className="hm-irisfloor" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="hm-iris" src="/brand/iris.png" alt="" width={232} height={232} />
+        <img className="hm-iris" src={irisSrc} alt="" width={232} height={232} />
       </div>
     </section>
   );
