@@ -15,30 +15,37 @@ wrappers (MotionProvider is not mounted).
 ## Login — LOCKED 2026-06-13
 Kept verbatim from the original app (explicit user preference). Do not restyle.
 
-## Flashcards — LOCKED 2026-06-30 · re-themed light 2026-07-05 (ricoe B6)
-**Theme (ricoe B6, lock-break 2026-07-05)**: the flashcards world is now **light** — a
-**purple off-white canvas** (soft lavender gradient) carrying a **dark-purple study/intro/
-results card**. This reverses the former Gemini-graphite dark canvas; the card stays dark
-(now purple, not navy) so its light-on-dark interior, verdict colours and Gemini hairline
-are unchanged. Canvas-level chrome (Exit pill, mute, empty/loading copy, fan captions/
-controls, engravings, Brownian blooms) is recoloured for the light surface; CoBrand uses
-its **light** variant. Acceptance criterion when refining: canvas = light lavender, card =
-dark purple, WCAG-legible text on both.
+## Flashcards — LOCKED 2026-06-30 · re-themed "ivory & ink" 2026-07-06 (ricoe D2)
+**Theme (ricoe D2, refine 2026-07-06 — supersedes the rejected purple B6)**: the flashcards
+world is **"ivory & ink"** — a **warm greige/paper canvas** (`--flash-canvas` #ECE6DA,
+deepened toward the edges for contrast) carrying a **crisp bright-white study card**
+(`--flash-card` #FFFFFF) with deep-ink text and subtle elevation, so the card pops off the
+canvas. The **reveal flips the card to a deep-ink back face** (`--flash-ink` #141416, light
+text) — white while you read/answer, deep ink for the answer moment. **Topic intro** uses the
+white study-card language; **results** uses the deep-ink reveal language. The **accent is a
+*moving* Gemini gradient** (blue→indigo→magenta, animated via `aurora-flow` — not flat indigo)
+on the card hairline / progress / keylines. Canvas chrome (Exit pill, mute, empty/loading
+copy, fan controls, engravings, Brownian blooms) is warm-ink / gemini-toned for the greige
+surface; CoBrand uses its **light** variant. Surfaces consume the RICOE v2 semantic tokens
+(`--flash-canvas`/`--flash-card`/`--flash-ink` in `tokens.css`), not hardcoded colours.
+**Acceptance criteria when refining**: canvas = warm greige; study-card front = bright white
+with deep-ink legible text; reveal/results = deep ink with legible light text; accent = moving
+Gemini gradient; verdicts bright green `#16a34a` / red `#e22030`; WCAG-legible on every surface.
 - **Selection**: single-screen topic fan carousel, continuous "river" flow (single rAF
   loop, seamless wrap, static under reduced motion), per-topic Nano Banana images, no
   difficulty picker, fixed decks, no scroll (dvh-sized). Fan cards remain dark photo
-  tiles with white captions (they sit on their own images); controls are purple.
-- **Study**: "Console" instant-tap MCQ on the **dark-purple** lit-glass card (check-in
-  card language, animated cool-Gemini hairline), Brownian colour blooms on the light
+  tiles with white captions (they sit on their own images); controls are warm-ink on greige.
+- **Study**: "Console" instant-tap MCQ on the **bright-white** study card (front face —
+  deep-ink text, animated Gemini hairline), Brownian gemini-toned blooms on the greige
   canvas background, engravings etched in the card perimeter. Reveal = **Charge → Flip →
-  Payoff** (LiquidLoading ChargeBeat, 3D flip to full-bleed explanation, combo/XP payoff).
-  Cool cyan→indigo hue band only; verdicts bright green `#16a34a` / intense red `#e22030`;
-  Next button centered, solid indigo.
+  Payoff** (LiquidLoading ChargeBeat, 3D flip to a **deep-ink** full-bleed explanation,
+  combo/XP payoff). Per-topic hue band tuned per face (darker on white, lighter on ink);
+  verdicts bright green `#16a34a` / intense red `#e22030`; Next button centered, solid indigo.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1
   — "Up next", the gradient topic name, a one-line blurb (`TOPIC_BLURBS`), a
   `N cards · mixed difficulty · instant scoring` meta and a Begin CTA — in the study
-  card's dark lit-glass language. The deck loads in the background; tutor-handoff and
-  `?mode=review` flows skip it.
+  card's bright-white language (gemini-gradient topic name). The deck loads in the
+  background; tutor-handoff and `?mode=review` flows skip it.
 - **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-
   phrased `ComboBurst` slam over the stage (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 /
   GODLIKE 10+) with the ×N, a shockwave ring and the streak count; `pointer-events:none`,
