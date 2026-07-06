@@ -123,6 +123,22 @@ def upload_kb_image(storage_path: str, image_bytes: bytes) -> str:
     return client.storage.from_("kb-images").get_public_url(storage_path)
 
 
+def upload_avatar(storage_path: str, image_bytes: bytes) -> str:
+    """Upload a Selena portrait PNG to the public `selena-avatars` Storage bucket.
+
+    Returns the public URL. The bucket must exist and be set to public in the
+    Supabase dashboard (RICOE v2 · Selena 3D portrait). `upsert=true` so re-storing
+    the same config-hash is idempotent.
+    """
+    client = get_client()
+    client.storage.from_("selena-avatars").upload(
+        path=storage_path,
+        file=image_bytes,
+        file_options={"content-type": "image/png", "upsert": "true"},
+    )
+    return client.storage.from_("selena-avatars").get_public_url(storage_path)
+
+
 if __name__ == "__main__":
     url = os.getenv("SUPABASE_URL", "")
     if not url:
