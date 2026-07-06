@@ -21,11 +21,13 @@ PORTRAIT_AXES: list[str] = list(AVATAR_AXES)
 # The invariant style contract — what keeps a generated look recognizably Iris. Mirrors
 # the STYLE in generate_sprites.py; kept here so the prompt core is self-contained.
 _CONTRACT = (
-    "Character: 'Iris', a cute one-eyed mascot — exactly ONE big round glossy eye on a "
-    "smooth, rounded, hairless blob-like body (no hair), two tiny stubby arms, friendly. "
-    "Soft 3D Pixar/Ghibli style, gentle studio lighting, soft subsurface shading, subtle "
-    "contact shadow. Front view, centered, full body, generous margin. Render as a polished "
-    "square portrait with the cohesive background described below. "
+    "Character: 'Iris', an adorable one-eyed mascot — exactly ONE big round glossy eye on a "
+    "smooth, rounded, hairless blob-like body (no hair), two tiny stubby arms. "
+    "Render as a PREMIUM, over-the-top COLLECTIBLE character portrait: bold soft-3D Pixar "
+    "style, ultra-glossy, vibrant saturated colours, dramatic cinematic rim-lighting, a dreamy "
+    "glow with floating sparkles, rich depth and a wow-factor — genuinely eye-catching and "
+    "delightful, like a legendary game-reward icon. Front view, centered, full body, generous "
+    "margin, polished square, with the cohesive background described below. "
     "IMPORTANT: no text, no border, and NEVER paint a checkerboard or transparency pattern — "
     "always fill the background with the described scene."
 )
@@ -36,60 +38,65 @@ def _humanize(id: str) -> str:
     return s
 
 
+# Every phrasing is deliberately over-the-top + eye-catching (user, 2026-07-06): the render
+# should feel like a premium collectible, not a flat sticker. Marquee options go maximalist.
 _BODY = {
-    "porcelain": "a porcelain skin-toned", "light": "a light skin-toned", "warm": "a warm skin-toned",
-    "tan": "a tan skin-toned", "brown": "a brown skin-toned", "deep": "a deep brown skin-toned",
-    "rich": "a rich dark brown", "ebony": "an ebony",
+    "porcelain": "a glossy porcelain", "light": "a soft glowing light-skinned", "warm": "a warm sun-kissed",
+    "tan": "a golden tan", "brown": "a rich glossy brown", "deep": "a deep glowing brown",
+    "rich": "a gorgeous rich dark-brown", "ebony": "a radiant ebony",
 }
 _IRIS = {
-    "galaxy": "a swirling galaxy-purple iris full of tiny stars", "darkBrown": "a dark brown iris",
-    "rose": "a rosy-pink iris", "gold": "a golden iris",
+    "galaxy": "a mesmerizing swirling galaxy iris exploding with tiny stars, glowing nebula wisps and cosmic sparkles",
+    "darkBrown": "a deep glossy dark-brown iris with a bright starry catchlight",
+    "rose": "a luminous rosy-pink iris that softly glows", "gold": "a radiant molten-gold iris that gleams like treasure",
 }
 _EYE = {
-    "round": "large and round", "wide": "wide and bright", "almond": "a gentle almond shape",
-    "sleepy": "soft and sleepy", "upturned": "slightly upturned",
-    "sparkle": "round with a happy sparkle", "starry": "round with star-shaped highlights",
+    "round": "enormous, round and impossibly glossy", "wide": "wide, bright and full of wonder",
+    "almond": "an elegant almond shape", "sleepy": "dreamy and half-lidded",
+    "upturned": "playfully upturned", "sparkle": "huge and sparkling with dazzling highlights",
+    "starry": "beaming with big star-shaped highlights",
 }
 _MOUTH = {
-    "smile": "a calm gentle smile", "grin": "a big happy open grin", "soft": "a soft small smile",
-    "open": "a small open 'oh'", "smirk": "a playful smirk", "ooh": "a surprised little 'ooh'",
-    "tongue": "a cheeky tongue-out grin",
+    "smile": "a warm beaming smile", "grin": "an enormous joyful open grin", "soft": "a sweet gentle smile",
+    "open": "a delighted little 'oh!'", "smirk": "a mischievous confident smirk",
+    "ooh": "a starstruck 'ooh!'", "tongue": "a cheeky tongue-out grin",
 }
-_LASHES = {"natural": "soft natural lashes", "glam": "long glamorous lashes", "cyber": "neon cyber lashes"}
+_LASHES = {"natural": "soft fluttery lashes", "glam": "long, dramatic glamorous lashes", "cyber": "glowing neon cyber-lashes"}
 _BLUSH = {
-    "rose": "rosy blush", "coral": "coral blush", "peach": "soft peach blush", "plum": "plum blush",
-    "berry": "berry blush", "sky": "sky-blue blush", "mint": "minty blush", "gold": "golden blush",
-    "grape": "grape blush", "teal": "teal blush", "stars": "tiny star freckles on the cheeks",
-    "freckles": "light freckles on the cheeks",
+    "rose": "rosy glowing blush", "coral": "warm coral blush", "peach": "soft peachy blush", "plum": "rich plum blush",
+    "berry": "bold berry blush", "sky": "dreamy sky-blue blush", "mint": "cool minty blush", "gold": "shimmering golden blush",
+    "grape": "vivid grape blush", "teal": "bright teal blush", "stars": "a scatter of tiny glowing star freckles",
+    "freckles": "cute sprinkled freckles",
 }
 _GLASSES = {
-    "round": "round glasses", "square": "square glasses", "catEye": "cat-eye glasses",
-    "monocle": "a gold monocle", "reading": "reading glasses", "goggles": "swim goggles",
-    "heart": "heart-shaped glasses", "visor": "a futuristic visor",
+    "round": "chic round glasses", "square": "bold square glasses", "catEye": "sassy cat-eye glasses",
+    "monocle": "a fancy gold monocle", "reading": "smart reading glasses", "goggles": "splashy swim goggles",
+    "heart": "adorable heart-shaped glasses", "visor": "a sleek glowing futuristic visor",
 }
 _TOPPER = {
-    "sprout": "a tiny green leaf sprout on top", "bow": "a cute bow", "cap": "a baseball cap",
-    "beanie": "a cozy beanie", "halo": "a glowing halo", "clip": "a little clip", "flower": "a small flower",
-    "antenna": "tiny antennae", "crown": "a small gold crown", "horns": "tiny horns", "flame": "a little flame",
+    "sprout": "a cute little green sprout popping from the top", "bow": "an oversized adorable bow",
+    "cap": "a cool backwards baseball cap", "beanie": "a cozy slouchy beanie", "halo": "a glowing golden halo",
+    "clip": "a sparkly hair clip", "flower": "a bright blooming flower", "antenna": "wiggly little antennae",
+    "crown": "a dazzling jewel-encrusted gold crown", "horns": "tiny cheeky devil horns", "flame": "a dramatic dancing flame",
 }
 _ACCESSORY = {
-    "headphones": "headphones", "earmuffs": "fuzzy earmuffs", "bandage": "a small bandage",
-    "sticker": "a star sticker", "sparkles": "floating sparkles",
+    "headphones": "big cool headphones", "earmuffs": "fluffy oversized earmuffs", "bandage": "a tiny cute bandage",
+    "sticker": "a shiny star sticker", "sparkles": "a flurry of floating magical sparkles",
 }
 _OUTFIT = {
-    "scarf": "a cozy knitted scarf", "bowtie": "a bowtie", "collar": "a little collar",
-    "lanyard": "a staff lanyard", "hoodie": "a hoodie", "labcoat": "a white lab coat",
-    "turtleneck": "a turtleneck", "overalls": "denim overalls", "cape": "a flowing cape",
+    "scarf": "a cozy oversized knitted scarf", "bowtie": "a dapper bowtie", "collar": "a neat little collar",
+    "lanyard": "an official staff lanyard", "hoodie": "a comfy streetwear hoodie", "labcoat": "a crisp white lab coat",
+    "turtleneck": "a chic turtleneck", "overalls": "cute denim overalls", "cape": "a flowing heroic cape that billows dramatically",
 }
 _BG = {
-    "mist": "a soft neutral misty-grey studio background",
-    "blush": "a soft blush-pink background", "sky": "a gentle sky-blue background",
-    "mint": "a soft mint-green background", "lilac": "a soft lilac background",
-    "sun": "a warm sunny-yellow background", "graphite": "a deep graphite charcoal background",
-    "gemini": "a dreamy Gemini-gradient background (lavender into peach)",
-    "galaxy": "a deep starry galaxy background", "confetti": "a playful pastel confetti background",
-    "sunset": "a warm sunset-gradient background", "ocean": "a calm ocean-blue background",
-    "forest": "a soft forest-green background",
+    "mist": "a soft dreamy misty-grey studio glow", "blush": "a warm glowing blush-pink backdrop",
+    "sky": "a bright cheerful sky-blue backdrop", "mint": "a fresh minty-green glow",
+    "lilac": "a soft magical lilac haze", "sun": "a radiant sunny-yellow burst",
+    "graphite": "a moody dramatic graphite-charcoal backdrop with a rim glow",
+    "gemini": "a dreamy shimmering Gemini-gradient (lavender melting into peach)",
+    "galaxy": "an epic deep-space galaxy full of stars and swirling nebulae",
+    "confetti": "an explosion of playful pastel confetti", "sunset": "a glowing golden-hour sunset gradient",
+    "ocean": "a serene glowing ocean-blue backdrop", "forest": "a soft enchanted forest-green glow",
 }
 
 
@@ -113,9 +120,9 @@ def config_to_prompt(config: dict) -> str:
     """Compose the image prompt for a look. Skips `none` options; bakes in `background`."""
     c = _norm(config)
     lines = [_CONTRACT]
-    lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a ' + _humanize(c['bodyColor']) + '-coloured')} body.")
+    lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a vibrant glossy ' + _humanize(c['bodyColor']) + '-coloured')} body.")
     lines.append(f"Her single eye is {_EYE.get(c['eyeShape'], _humanize(c['eyeShape']))} "
-                 f"with {_IRIS.get(c['irisColor'], 'a ' + _humanize(c['irisColor']) + ' iris')}.")
+                 f"with {_IRIS.get(c['irisColor'], 'a vivid, glowing ' + _humanize(c['irisColor']) + ' iris')}.")
     if c["lashes"] != "none":
         lines.append(f"Lashes: {_LASHES.get(c['lashes'], _humanize(c['lashes']))}.")
     lines.append(f"Expression: {_MOUTH.get(c['mouth'], _humanize(c['mouth']))}.")
@@ -129,7 +136,7 @@ def config_to_prompt(config: dict) -> str:
         lines.append(f"Extra: {_ACCESSORY.get(c['accessory'], _humanize(c['accessory']))}.")
     if c["outfit"] != "none":
         lines.append(f"Outfit: {_OUTFIT.get(c['outfit'], _humanize(c['outfit']))}.")
-    lines.append(f"Background: {_BG.get(c['background'], 'a soft ' + _humanize(c['background']) + ' background')}.")
+    lines.append(f"Background: {_BG.get(c['background'], 'a vivid, glowing ' + _humanize(c['background']) + ' backdrop')}.")
     return "\n".join(lines)
 
 

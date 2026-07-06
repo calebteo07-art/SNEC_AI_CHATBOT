@@ -64,3 +64,17 @@ def test_prompt_includes_background():
 def test_prompt_includes_galaxy_iris_when_chosen():
     p = config_to_prompt({"irisColor": "galaxy"}).lower()
     assert "galaxy" in p
+
+
+def test_contract_pushes_eye_catching_collectible_energy():
+    # Every render should read as a premium, over-the-top collectible — not a flat sticker.
+    p = config_to_prompt({}).lower()
+    assert "collectible" in p
+    assert "vibrant" in p
+    assert "eye-catching" in p
+
+
+def test_galaxy_iris_phrasing_is_over_the_top():
+    # Marquee options get ridiculous, evocative phrasing (galaxy = nebula + stars, not "galaxy iris").
+    p = config_to_prompt({"irisColor": "galaxy"}).lower()
+    assert "nebula" in p
