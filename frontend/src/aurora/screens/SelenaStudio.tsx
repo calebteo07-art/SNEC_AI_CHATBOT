@@ -8,9 +8,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Selena } from "@/aurora/avatar/Selena";
+import { SelenaPortrait } from "@/aurora/avatar/SelenaPortrait";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
-import { useAvatar, useSaveAvatar, AVATAR_COMBOS } from "@/hooks/useAvatar";
+import { useAvatar, useSaveAvatar, useRequestPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
 
 interface Step {
   axis: AvatarAxis;
@@ -55,6 +56,7 @@ export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
   const router = useRouter();
   const { data, isPending, isError } = useAvatar();
   const saveMut = useSaveAvatar();
+  const portraitMut = useRequestPortrait();
 
   const [draft, setDraft] = useState<AvatarConfig | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
@@ -110,9 +112,18 @@ export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
       onSuccess: () => {
         setCelebrate(true);
         window.setTimeout(() => setCelebrate(false), 1800);
+        // Kick the real 3D render of the just-saved look; the hero swaps SVG → PNG
+        // once it's ready (useAvatar polls while pending). Cache-gated server-side.
+        portraitMut.mutate();
       },
     });
   };
+
+  // The 3D portrait only reflects the SAVED look; while the draft has unsaved edits
+  // the hero stays on the instant SVG preview. Once saved (draft === server config),
+  // show whatever portrait state the server reports (pending badge → ready PNG).
+  const heroStatus = dirty ? "none" : data?.portrait_status;
+  const heroUrl = dirty ? null : data?.portrait_url;
 
   return (
     <div className="studio-wrap">
@@ -131,7 +142,7 @@ export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
 
       <section className="studio-stage" aria-live="polite">
         <div className="studio-hero" data-float>
-          <Selena config={draft} size={220} />
+          <SelenaPortrait config={draft} portraitStatus={heroStatus} portraitUrl={heroUrl} size={220} />
         </div>
         <div className="studio-stage-meta">
           {dirty && <span className="studio-chip">Unsaved changes</span>}

@@ -376,13 +376,25 @@ console.log("PASS: Profile — one h1, reduced-motion toggle flips data-motion")
 // uids per call, so we detect the repaint via a STABLE signal — the aqua base hex landing
 // in the preview — not raw SVG equality (which always differs).
 let savedAvatar = null;
+let portraitState = { portrait_status: "none", portrait_url: null };
+// 1×1 transparent PNG — stands in for the generated 3D Selena so the swap is deterministic.
+const PORTRAIT_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 const DEFAULT_CFG = { version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "natural", mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none", outfit: "none", background: "mist" };
+// GET seeds the draft (echoes the saved config once saved) + reports portrait state;
+// PUT captures the edit. Registered before the more specific portrait route below.
 await navCtx.route("**/api/avatar", (r) => {
   if (r.request().method() === "PUT") {
     try { savedAvatar = JSON.parse(r.request().postData() || "{}"); } catch { savedAvatar = null; }
     return r.fulfill(JSON_OK({ config: savedAvatar }));
   }
-  return r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {} }));
+  const cfg = savedAvatar ? { ...DEFAULT_CFG, ...savedAvatar } : DEFAULT_CFG;
+  return r.fulfill(JSON_OK({ config: cfg, axes: {}, ...portraitState }));
+});
+// POST /api/avatar/portrait — the mock "renders instantly": mark the portrait ready so
+// the next GET swaps the hero to the PNG. Registered last ⇒ wins for this exact path.
+await navCtx.route("**/api/avatar/portrait", (r) => {
+  portraitState = { portrait_status: "ready", portrait_url: PORTRAIT_PNG };
+  return r.fulfill(JSON_OK({ portrait_status: "pending", portrait_url: null }));
 });
 await np.goto(base + "/studio", { waitUntil: "domcontentloaded" });
 await np.waitForSelector(".studio-hero svg", { timeout: 15000 });
@@ -411,6 +423,16 @@ if (!savedAvatar || savedAvatar.bodyColor !== "aqua") {
   console.error(`FAIL: Save did not PUT the edited config (savedAvatar=${JSON.stringify(savedAvatar)})`); process.exit(1);
 }
 console.log("PASS: Selena Studio — Save round-trips the edited config to PUT /api/avatar (bodyColor=aqua)");
+
+// 3D portrait swap (part 3, Task 4): Save enqueues POST /api/avatar/portrait; once the
+// mock reports it ready, useAvatar's poll swaps the hero from the SVG <Selena> preview to
+// the transparent 3D PNG. Assert the hero now renders the generated portrait image.
+await np.waitForSelector(".studio-hero .selena-portrait-img", { timeout: 8000 });
+const heroPortraitSrc = await np.locator(".studio-hero .selena-portrait-img").getAttribute("src");
+if (!heroPortraitSrc || !heroPortraitSrc.startsWith("data:image/png")) {
+  console.error(`FAIL: studio hero did not swap to the generated 3D portrait (src=${heroPortraitSrc})`); process.exit(1);
+}
+console.log("PASS: Selena Studio — Save renders + swaps the hero to the 3D portrait PNG");
 
 await np.setViewportSize({ width: 390, height: 844 });
 await np.waitForTimeout(250);
