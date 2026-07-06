@@ -13,6 +13,9 @@ export interface AvatarResponse {
   axes: Record<string, string[]>;
   portrait_status?: string;
   portrait_url?: string | null;
+  /** True once the student has saved any config — false only for a never-customized
+   *  student. Drives the first-run "Create your Selena" onboarding gate (ricoe §7). */
+  customized?: boolean;
 }
 
 /** The student's saved Selena. Persisted by TanStack (small + stable) so the home

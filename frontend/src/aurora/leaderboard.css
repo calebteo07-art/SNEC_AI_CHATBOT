@@ -101,6 +101,8 @@
   box-shadow: var(--shadow-brand);
 }
 .lb-name-save:disabled { background: var(--surface-tonal); color: var(--ink-faint); box-shadow: none; }
+/* Edit-Selena entry (ricoe §7) — a link styled like the Save pill. */
+.lb-edit-selena { text-decoration: none; display: inline-flex; align-items: center; }
 
 /* ── role filter ──────────────────────────────────────────── */
 .lb-filter { display: flex; flex-wrap: wrap; gap: 0.4rem; }

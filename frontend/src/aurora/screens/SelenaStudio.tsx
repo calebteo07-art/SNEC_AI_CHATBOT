@@ -6,7 +6,8 @@
    Wired to GET/PUT /api/avatar. Parts are still free placeholder art (RICOE D11) — the
    curated 3D sprite library swaps in behind <Selena> later, on explicit go-ahead. */
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { SELENA_ONBOARDED_KEY } from "@/screens/CheckInGuard";
 import { Selena } from "@/aurora/avatar/Selena";
 import { SelenaPortrait } from "@/aurora/avatar/SelenaPortrait";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
@@ -52,8 +53,12 @@ function humanize(id: string): string {
 
 const randOf = (arr: readonly string[]): string => arr[Math.floor(Math.random() * arr.length)] as string;
 
-export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
+export function SelenaStudio() {
   const router = useRouter();
+  // First-run onboarding routes here as /studio?welcome=1 (ricoe §7) — a warmer framing
+  // and a Skip/Save that both return home and settle the onboarding gate.
+  const welcome = useSearchParams().get("welcome") === "1";
+  const mode: "welcome" | "edit" = welcome ? "welcome" : "edit";
   const { data, isPending, isError } = useAvatar();
   const saveMut = useSaveAvatar();
   const portraitMut = useRequestPortrait();
@@ -106,15 +111,28 @@ export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
       return next;
     });
 
+  // Settle the first-run onboarding gate (local flag; a save also flips `customized`
+  // server-side) and return home. Used by Skip and by welcome-mode Save.
+  const finishOnboarding = () => {
+    try { localStorage.setItem(SELENA_ONBOARDED_KEY, "1"); } catch { /* no storage */ }
+    router.push("/dashboard");
+  };
+
   const save = () => {
     if (!draft) return;
     saveMut.mutate(draft, {
       onSuccess: () => {
         setCelebrate(true);
-        window.setTimeout(() => setCelebrate(false), 1800);
         // Kick the real 3D render of the just-saved look; the hero swaps SVG → PNG
         // once it's ready (useAvatar polls while pending). Cache-gated server-side.
         portraitMut.mutate();
+        if (mode === "welcome") {
+          // First-run: celebrate briefly, mark onboarded, then land on home.
+          try { localStorage.setItem(SELENA_ONBOARDED_KEY, "1"); } catch { /* no storage */ }
+          window.setTimeout(() => router.push("/dashboard"), 1500);
+        } else {
+          window.setTimeout(() => setCelebrate(false), 1800);
+        }
       },
     });
   };
@@ -128,9 +146,13 @@ export function SelenaStudio({ mode = "edit" }: { mode?: "welcome" | "edit" }) {
   return (
     <div className="studio-wrap">
       <header className="studio-top">
-        <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>
-          ✕
-        </button>
+        {mode === "welcome" ? (
+          <button className="studio-skip aurora-press" onClick={finishOnboarding}>Skip for now</button>
+        ) : (
+          <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>
+            ✕
+          </button>
+        )}
         <div className="studio-title">
           <h1>{mode === "welcome" ? "Meet Selena" : "Selena Studio"}</h1>
           <p>{mode === "welcome" ? "Your study buddy — let's make her yours." : "Your one-eyed study buddy, your way."}</p>

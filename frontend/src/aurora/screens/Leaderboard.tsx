@@ -4,6 +4,7 @@
    name. Role filter tabs rank within a role; the viewer's own row is highlighted.
    Photopic tokens + CSS-only motion (matches studio.css / motion.css policy). */
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useLeaderboard, useSetLeaderboardPrefs } from "@/hooks/useLeaderboard";
 import { Selena } from "@/aurora/avatar/Selena";
 
@@ -85,6 +86,14 @@ export function Leaderboard() {
               Save
             </button>
           </div>
+        </div>
+
+        <div className="lb-you-row">
+          <div className="lb-you-copy">
+            <p className="lb-you-title">Your Selena</p>
+            <p className="lb-you-hint">The avatar shown next to your name on the board.</p>
+          </div>
+          <Link href="/studio" className="lb-name-save lb-edit-selena" data-testid="edit-selena">Edit Selena</Link>
         </div>
       </section>
 

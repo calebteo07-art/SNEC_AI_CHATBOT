@@ -52,6 +52,9 @@ export function GreetingHero({
         <button type="button" className="hm-btn ghost" onClick={onSurprise}>
           <Icon name="refresh" /> Surprise me
         </button>
+        <Link href="/studio" className="hm-btn ghost" data-testid="edit-selena">
+          <Icon name="eye" /> Edit Selena
+        </Link>
       </div>
       <div className="hm-reshuffle"><Icon name="refresh" /> a new hello every visit</div>
 

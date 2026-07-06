@@ -530,7 +530,8 @@ const youRow = np.locator('.lb-row[data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);
 }
-console.log("PASS: Leaderboard — XP-ranked rows with Selena headshots + current user highlighted");
+if ((await np.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on the leaderboard (ricoe §7)"); process.exit(1); }
+console.log("PASS: Leaderboard — XP-ranked rows with Selena headshots + current user highlighted + Edit Selena entry");
 
 // role filter narrows the board to a single role (OT → just Bob).
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
@@ -600,6 +601,51 @@ await rmPage.waitForSelector('[data-testid="streak-tile"]', { timeout: 15000 });
 const rmAnim = await rmPage.locator(".hm-iris").first().evaluate((el) => getComputedStyle(el).animationName);
 if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the mascot (animationName=${rmAnim})`); process.exit(1); }
 console.log("PASS: reduced motion freezes the home mascot animation");
+
+// first-run Selena onboarding gate (ricoe §7): a student who has NEVER customized their
+// Selena (GET /api/avatar → customized:false) is routed once into welcome-mode Studio.
+// Show-once is the historically-fragile invariant, so we also cover the repeat case: after
+// a skip (local flag) AND once customized, /dashboard must NOT re-gate.
+const onbUser = { full_name: "New Student", email: "new@snec.com.sg", student_id: "S777", role: "student", student_role: "OA", must_change: false };
+const onbCtx = await b.newContext({ viewport: { width: 1280, height: 860 } });
+await onbCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1");
+}, onbUser);
+await onbCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+let onbCustomized = false;
+await onbCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await onbCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(onbUser)));
+await onbCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 0 })));
+await onbCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({ xp: 0, xp_today: 0, daily_goal: 100, hearts: 3, level: 1, streak: 0, streak_detail: { current: 0, best: 0, week: [] }, weak_topics: [], topic_performance: [], sessions: [] })));
+await onbCtx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: onbCustomized })));
+const onbPage = await onbCtx.newPage();
+
+// A) never-customized → routed to welcome-mode Studio.
+await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await onbPage.waitForURL(/\/studio\?welcome=1/, { timeout: 15000 });
+await onbPage.waitForSelector(".studio-skip", { timeout: 10000 });
+console.log("PASS: onboarding — never-customized student is routed to /studio?welcome=1 (welcome mode)");
+
+// B) show-once (repeat case): after a skip sets the local flag, /dashboard is NOT re-gated.
+await onbPage.evaluate(() => localStorage.setItem("eyebot_selena_onboarded", "1"));
+await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await onbPage.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
+if (/\/studio/.test(onbPage.url())) { console.error("FAIL: onboarding re-nagged a student who skipped (show-once broken)"); process.exit(1); }
+console.log("PASS: onboarding — a student who skipped is not re-gated (show-once)");
+
+// C) a customized student is never gated (even with no local flag).
+onbCustomized = true;
+await onbPage.evaluate(() => localStorage.removeItem("eyebot_selena_onboarded"));
+await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await onbPage.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
+if (/\/studio/.test(onbPage.url())) { console.error("FAIL: a customized student was wrongly gated into onboarding"); process.exit(1); }
+if ((await onbPage.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on home (ricoe §7)"); process.exit(1); }
+console.log("PASS: onboarding — customized student never gated + Edit Selena entry on home");
 
 // admin: AdminGuard admits an admin; the dark ConsoleRail nav + KPIs render; the
 // Students route lists rows. (The old in-page pill tabs were replaced by the
