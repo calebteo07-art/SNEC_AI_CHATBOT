@@ -1,0 +1,118 @@
+"""Selena 3D portrait — the pure config→prompt and config→hash core (part 3, Task 1).
+
+The portrait is a TRANSPARENT 3D Iris rendered from a student's saved config. Because
+it's transparent, the `background` axis is a CSS backdrop in the app, NOT part of the
+character — so it's excluded here from both the prompt and the cache hash. Two looks
+that differ only in backdrop therefore share one generated PNG (a real cost saving).
+
+Pure + registry-derived: `config_to_prompt` and `config_hash` do no I/O and never call
+an API. Generation/storage live in later tasks; these are their deterministic inputs.
+"""
+import hashlib
+import json
+
+from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR
+
+# Every axis except `background` (which becomes a CSS backdrop behind the transparent PNG).
+PORTRAIT_AXES: list[str] = [a for a in AVATAR_AXES if a != "background"]
+
+# The invariant style contract — what keeps a generated look recognizably Iris. Mirrors
+# the STYLE in generate_sprites.py; kept here so the prompt core is self-contained.
+_CONTRACT = (
+    "Character: 'Iris', a cute one-eyed mascot — exactly ONE big round glossy eye on a "
+    "smooth, rounded, hairless blob-like body (no hair), two tiny stubby arms, friendly. "
+    "Soft 3D Pixar/Ghibli style, gentle studio lighting, soft subsurface shading, subtle "
+    "contact shadow. Front view, centered, full body. "
+    "IMPORTANT: fully TRANSPARENT background (alpha), no scene, no ground, no text, no border."
+)
+
+
+def _humanize(id: str) -> str:
+    s = "".join(f" {ch}" if ch.isupper() else ch for ch in id).strip().lower()
+    return s
+
+
+_BODY = {
+    "porcelain": "a porcelain skin-toned", "light": "a light skin-toned", "warm": "a warm skin-toned",
+    "tan": "a tan skin-toned", "brown": "a brown skin-toned", "deep": "a deep brown skin-toned",
+    "rich": "a rich dark brown", "ebony": "an ebony",
+}
+_IRIS = {
+    "galaxy": "a swirling galaxy-purple iris full of tiny stars", "darkBrown": "a dark brown iris",
+    "rose": "a rosy-pink iris", "gold": "a golden iris",
+}
+_EYE = {
+    "round": "large and round", "wide": "wide and bright", "almond": "a gentle almond shape",
+    "sleepy": "soft and sleepy", "upturned": "slightly upturned",
+    "sparkle": "round with a happy sparkle", "starry": "round with star-shaped highlights",
+}
+_MOUTH = {
+    "smile": "a calm gentle smile", "grin": "a big happy open grin", "soft": "a soft small smile",
+    "open": "a small open 'oh'", "smirk": "a playful smirk", "ooh": "a surprised little 'ooh'",
+    "tongue": "a cheeky tongue-out grin",
+}
+_LASHES = {"natural": "soft natural lashes", "glam": "long glamorous lashes", "cyber": "neon cyber lashes"}
+_BLUSH = {
+    "rose": "rosy blush", "coral": "coral blush", "peach": "soft peach blush", "plum": "plum blush",
+    "berry": "berry blush", "sky": "sky-blue blush", "mint": "minty blush", "gold": "golden blush",
+    "grape": "grape blush", "teal": "teal blush", "stars": "tiny star freckles on the cheeks",
+    "freckles": "light freckles on the cheeks",
+}
+_GLASSES = {
+    "round": "round glasses", "square": "square glasses", "catEye": "cat-eye glasses",
+    "monocle": "a gold monocle", "reading": "reading glasses", "goggles": "swim goggles",
+    "heart": "heart-shaped glasses", "visor": "a futuristic visor",
+}
+_TOPPER = {
+    "sprout": "a tiny green leaf sprout on top", "bow": "a cute bow", "cap": "a baseball cap",
+    "beanie": "a cozy beanie", "halo": "a glowing halo", "clip": "a little clip", "flower": "a small flower",
+    "antenna": "tiny antennae", "crown": "a small gold crown", "horns": "tiny horns", "flame": "a little flame",
+}
+_ACCESSORY = {
+    "headphones": "headphones", "earmuffs": "fuzzy earmuffs", "bandage": "a small bandage",
+    "sticker": "a star sticker", "sparkles": "floating sparkles",
+}
+_OUTFIT = {
+    "scarf": "a cozy knitted scarf", "bowtie": "a bowtie", "collar": "a little collar",
+    "lanyard": "a staff lanyard", "hoodie": "a hoodie", "labcoat": "a white lab coat",
+    "turtleneck": "a turtleneck", "overalls": "denim overalls", "cape": "a flowing cape",
+}
+
+
+def _norm(config: dict) -> dict:
+    """Fill defaults then apply the config's portrait axes — background/version/extras dropped."""
+    out = {k: DEFAULT_AVATAR[k] for k in PORTRAIT_AXES}
+    for k in PORTRAIT_AXES:
+        if k in config and config[k] is not None:
+            out[k] = config[k]
+    return out
+
+
+def config_hash(config: dict) -> str:
+    """Stable 16-hex id for a character look (order-, extra-key-, and background-invariant)."""
+    norm = _norm(config)
+    blob = json.dumps(norm, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
+def config_to_prompt(config: dict) -> str:
+    """Compose the image prompt for a look. Skips `none` options; excludes `background`."""
+    c = _norm(config)
+    lines = [_CONTRACT]
+    lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a ' + _humanize(c['bodyColor']) + '-coloured')} body.")
+    lines.append(f"Her single eye is {_EYE.get(c['eyeShape'], _humanize(c['eyeShape']))} "
+                 f"with {_IRIS.get(c['irisColor'], 'a ' + _humanize(c['irisColor']) + ' iris')}.")
+    if c["lashes"] != "none":
+        lines.append(f"Lashes: {_LASHES.get(c['lashes'], _humanize(c['lashes']))}.")
+    lines.append(f"Expression: {_MOUTH.get(c['mouth'], _humanize(c['mouth']))}.")
+    if c["blush"] != "none":
+        lines.append(f"Cheeks: {_BLUSH.get(c['blush'], _humanize(c['blush']) + ' blush')}.")
+    if c["glasses"] != "none":
+        lines.append(f"Wearing {_GLASSES.get(c['glasses'], _humanize(c['glasses']))}.")
+    if c["topper"] != "none":
+        lines.append(f"On top: {_TOPPER.get(c['topper'], _humanize(c['topper']))}.")
+    if c["accessory"] != "none":
+        lines.append(f"Extra: {_ACCESSORY.get(c['accessory'], _humanize(c['accessory']))}.")
+    if c["outfit"] != "none":
+        lines.append(f"Outfit: {_OUTFIT.get(c['outfit'], _humanize(c['outfit']))}.")
+    return "\n".join(lines)
