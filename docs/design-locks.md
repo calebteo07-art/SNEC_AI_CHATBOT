@@ -73,6 +73,9 @@ student's customised avatar (ricoe A3).
   where you left off" cards from `progress.sessions`). Asking / resuming cross-fades
   (`phase: landing → leaving → chat`, ~460ms) into the thread; the shared constellation
   canvas bridges the two so it reads as one surface. Gemini accents on the ivory surface.
+  A **waving Selena** greets above the hello — the **same `iris.png` mascot as the Home
+  greeting card**, given a whole-image wave + bob (see the Branding lock; default mascot
+  only, frozen under reduced motion).
 
 ## Virtual Patients / OSCE Station — LOCKED 2026-06-25
 Living Eye selection plate (photoreal cross-section + fundus inset, calibrated pins).
@@ -97,6 +100,15 @@ surfaces.
   under `data-motion=reduce` / `prefers-reduced-motion`; the Tutor landing lockup reads
   native to the "Mono + Electric" ivory surface (no bolted-on chip); WCAG-legible, no
   layout shift, 390px-safe.
+- **Waving Selena on the Tutor landing (2026-07-06)**: the Tutor greeting (`TutorLanding`)
+  shows a **waving Selena** above the hello. It MUST be the **same `iris.png` mascot as the
+  Home greeting card** — identical look (Caleb, 2026-07-06: the flat vector `<Selena>` engine
+  looks nothing like the homepage raster; use the raster) — given a **whole-image wave** (a
+  tilt burst pivoting near its base, `transform-origin: 50% 92%`) + a gentle bob, with a
+  floor shadow to ground it (`.tl-iriswrap`/`.tl-irisfloor`/`.tl-iris`, keyframe
+  `tl-iris-wave`). It's the **default** mascot, never a student's custom (matches ricoe A3 /
+  the reply-avatar rule). CSS-only; **frozen** under reduced motion. (The layered-vector
+  `<Selena>` engine stays the customisation/preview renderer — it is NOT the branding mascot.)
 - **Out of scope**: Login (LOCKED verbatim — no brand added). The **logo → a different
   Selena raster variation** is paid + deferred (ricoe §8) and would break the mono
   Spark-Eye global lock — needs its own brief + paid gen. Uniforms excluded (ricoe §2).

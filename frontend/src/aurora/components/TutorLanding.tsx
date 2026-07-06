@@ -94,6 +94,14 @@ export function TutorLanding({
       </div>
 
       <div className="tl-hero">
+        {/* Selena greets with a wave — the SAME iris.png mascot as the Home greeting card
+            (default look only, never a student's custom; ricoe A3), given a whole-image
+            wave + gentle bob. Floor shadow grounds it. */}
+        <div className="tl-iriswrap" aria-hidden>
+          <span className="tl-irisfloor" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="tl-iris" src="/brand/iris.png" alt="" width={216} height={216} />
+        </div>
         <h1 className="tl-hello">{timeHello(hour)}, <em>{firstName}</em></h1>
         <p className="tl-sub">{sub}</p>
         <div className="tl-prompt">
