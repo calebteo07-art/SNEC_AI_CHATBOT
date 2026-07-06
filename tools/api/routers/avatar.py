@@ -1,20 +1,35 @@
-"""Selena avatar endpoints — per-student customization (RICOE v2 Foundation 2).
+"""Selena avatar endpoints — per-student customization + 3D portrait (RICOE v2 Foundation 2).
 
-Identity always comes from the JWT (current_user["sub"]), never the body. The
-config is validated against the server-authoritative parts registry (fail closed)
-before it is persisted to student_profiles.avatar_config (JSONB).
+Identity always comes from the JWT (current_user["sub"]), never the body. The config is
+validated against the server-authoritative parts registry (fail closed) before it is
+persisted to student_profiles.avatar_config (JSONB).
+
+The 3D portrait is a real transparent Iris PNG generated from the SAVED config and cached
+by config-hash (avatar_images, migration 007). Generation is paid + slow (~15–30s), so
+POST /api/avatar/portrait enqueues it off the event loop (BackgroundTasks → to_thread) and
+returns immediately; the client polls GET /api/avatar for {portrait_status, portrait_url}.
+The instant SVG <Selena> is the always-available fallback, so every path degrades
+gracefully when the bucket/table or a live key is absent.
 """
-from fastapi import APIRouter, Depends, HTTPException, Request
+import asyncio
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 
 from tools.api.shared import limiter
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, validate_config, InvalidAvatarConfig
+from tools.avatar.portrait import config_hash, render_portrait, store_portrait
 from tools.profile.get_profile import get_profile          # graceful read (never raises, ensures a row)
 from tools.shared.audit_log import log
 from tools.shared.db import update_profile                 # generic column setter: update_profile(sub, **fields)
+from tools.shared.db import get_avatar_image, upsert_avatar_image
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
+
+# A pending render older than this is treated as lost (a crashed/evicted task) and re-enqueued.
+_PENDING_TTL_S = 180
 
 
 class AvatarUpdate(BaseModel):
@@ -30,20 +45,70 @@ class AvatarUpdate(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-@router.get("/api/avatar")
-async def get_avatar(current_user: CurrentUser = Depends(get_current_user)):
-    """Return the student's saved Selena config (or the default) + the parts catalog."""
-    student_id = current_user["sub"]
+async def _current_config(student_id: str) -> dict:
+    """Resolve the student's saved Selena config (or the default), fail-closed.
+
+    A stored config that has gone stale (a retired option id) never 500s a read —
+    it falls back to the default and logs the drift for staff.
+    """
     profile = await get_profile(student_id) or {}
     stored = profile.get("avatar_config")
     try:
-        config = validate_config(stored) if stored else dict(DEFAULT_AVATAR)
+        return validate_config(stored) if stored else dict(DEFAULT_AVATAR)
     except InvalidAvatarConfig as e:
-        # A stored config went stale (e.g. an option id was retired). Never 500 a
-        # read — fall back to the default, but log it so staff can see config drift.
         log("avatar_config_corrupt", student_id=student_id, feature="avatar", detail=str(e))
-        config = dict(DEFAULT_AVATAR)
-    return {"config": config, "axes": AVATAR_AXES}
+        return dict(DEFAULT_AVATAR)
+
+
+def _recent(updated_at, max_age_s: int = _PENDING_TTL_S) -> bool:
+    """True if an ISO timestamp is within max_age_s of now. Unparseable ⇒ not recent."""
+    if not updated_at:
+        return False
+    try:
+        ts = datetime.fromisoformat(str(updated_at).replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - ts).total_seconds() < max_age_s
+    except (ValueError, TypeError):
+        return False
+
+
+async def _portrait_state(config: dict) -> tuple[str, str | None]:
+    """(status, url) for a look's cached portrait. Missing table ⇒ ('unavailable', None)."""
+    try:
+        row = await get_avatar_image(config_hash(config))
+    except Exception:
+        return "unavailable", None      # pre-migration 007 — the SVG fallback carries the UI
+    if not row:
+        return "none", None
+    return (row.get("status") or "none"), row.get("image_url")
+
+
+async def _generate_portrait(config: dict, chash: str) -> None:
+    """Render + store the portrait off the event loop, then mark the cache ready/failed.
+
+    Both blocking calls (the ~15–30s Gemini render and the sync Supabase upload) run in a
+    threadpool so the single uvicorn worker's event loop stays free.
+    """
+    try:
+        image_bytes = await asyncio.to_thread(render_portrait, config)
+        url = await asyncio.to_thread(store_portrait, chash, image_bytes)
+        await upsert_avatar_image(chash, "ready", url)
+    except Exception as exc:
+        log("portrait_gen_failed", feature="avatar", detail=str(exc))
+        try:
+            await upsert_avatar_image(chash, "failed")
+        except Exception:
+            pass
+
+
+@router.get("/api/avatar")
+async def get_avatar(current_user: CurrentUser = Depends(get_current_user)):
+    """Return the student's saved Selena config (or default) + the parts catalog + portrait state."""
+    student_id = current_user["sub"]
+    config = await _current_config(student_id)
+    status, url = await _portrait_state(config)
+    return {"config": config, "axes": AVATAR_AXES, "portrait_status": status, "portrait_url": url}
 
 
 @router.put("/api/avatar")
@@ -61,3 +126,36 @@ async def put_avatar(
         raise HTTPException(status_code=422, detail=str(e))
     await update_profile(student_id, avatar_config=clean)
     return {"config": clean}
+
+
+@router.post("/api/avatar/portrait")
+@limiter.limit("20/minute")
+async def request_portrait(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    """Ensure a 3D portrait exists for the caller's SAVED look; generate on a cache miss.
+
+    Returns immediately: ``ready`` with the URL if cached, else ``pending`` (a fresh render
+    is enqueued). Cache-gated + rate-limited so a paid render fires only on a genuinely new
+    look. Identity — and therefore the look being rendered — comes from the JWT.
+    """
+    student_id = current_user["sub"]
+    config = await _current_config(student_id)
+    chash = config_hash(config)
+
+    try:
+        row = await get_avatar_image(chash)
+    except Exception:
+        return {"portrait_status": "unavailable", "portrait_url": None}
+
+    if row and row.get("status") == "ready" and row.get("image_url"):
+        return {"portrait_status": "ready", "portrait_url": row["image_url"]}
+    if row and row.get("status") == "pending" and _recent(row.get("updated_at")):
+        return {"portrait_status": "pending", "portrait_url": None}
+
+    # Miss / failed / stale-pending → mark pending and enqueue exactly one render.
+    await upsert_avatar_image(chash, "pending")
+    background_tasks.add_task(_generate_portrait, config, chash)
+    return {"portrait_status": "pending", "portrait_url": None}
