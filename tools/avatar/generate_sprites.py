@@ -87,47 +87,61 @@ def _prompt(look_desc: str) -> str:
     return f"{STYLE}\n\nThis specific look: {look_desc}"
 
 
-def generate_one(name: str, look_desc: str, out_dir: Path, model: str = MODEL_IMAGE, attempts: int = 3) -> Path | None:
-    """Generate one Iris image and save it as a PNG. Returns the path, or None.
+def generate_image_bytes(prompt: str, model: str = MODEL_IMAGE, attempts: int = 3, reference: bool = True) -> bytes | None:
+    """Generate one image from a fully-formed prompt; return PNG bytes (or None).
 
-    Retries on a transient deadline/unavailable error (image gen is slow and
-    occasionally 504s server-side even within the client deadline).
+    The lower-level core shared by `generate_one` (pilot, writes to disk) and the
+    portrait path (`portrait.render_portrait`, keeps bytes). Retries on a transient
+    504/503/deadline (image gen is slow and occasionally 504s server-side even within
+    the client deadline). Anchored to the Iris reference image when `reference=True`.
     """
     from google.genai import types
 
     client = _image_client()
+    contents: list = [prompt]
+    if reference:
+        contents.append(_load_reference())
     last = ""
     for attempt in range(attempts):
         try:
             resp = client.models.generate_content(
                 model=model,
-                contents=[_prompt(look_desc), _load_reference()],
+                contents=contents,
                 config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
             )
-        except Exception as e:  # transient 504/503 → retry once
+        except Exception as e:  # transient 504/503 → retry
             last = f"{type(e).__name__}: {str(e)[:200]}"
             msg = str(e)
             if attempt + 1 < attempts and any(s in msg for s in ("504", "503", "DEADLINE", "UNAVAILABLE")):
-                print(f"  [{name}] transient ({last}) — retrying…")
+                print(f"  transient ({last}) — retrying…")
                 continue
-            print(f"  [{name}] FAILED: {last}")
+            print(f"  FAILED: {last}")
             return None
         if not resp.candidates:
-            print(f"  [{name}] no candidates returned")
+            print("  no candidates returned")
             return None
         for part in resp.candidates[0].content.parts:
             inline = getattr(part, "inline_data", None)
             if inline is not None and getattr(inline, "data", None):
-                out_dir.mkdir(parents=True, exist_ok=True)
-                out = out_dir / f"{name}.png"
-                out.write_bytes(inline.data)
-                print(f"  [{name}] saved {out} ({len(inline.data):,} bytes)")
-                return out
+                return inline.data
         txt = "".join(getattr(p, "text", "") or "" for p in resp.candidates[0].content.parts)
-        print(f"  [{name}] no image part in response. Model text: {txt[:200]!r}")
+        print(f"  no image part in response. Model text: {txt[:200]!r}")
         return None
-    print(f"  [{name}] FAILED after {attempts} attempts: {last}")
+    print(f"  FAILED after {attempts} attempts: {last}")
     return None
+
+
+def generate_one(name: str, look_desc: str, out_dir: Path, model: str = MODEL_IMAGE, attempts: int = 3) -> Path | None:
+    """Generate one Iris image and save it as a PNG. Returns the path, or None."""
+    data = generate_image_bytes(_prompt(look_desc), model=model, attempts=attempts)
+    if not data:
+        print(f"  [{name}] no image generated")
+        return None
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"{name}.png"
+    out.write_bytes(data)
+    print(f"  [{name}] saved {out} ({len(data):,} bytes)")
+    return out
 
 
 def run_estimate(looks: list[tuple[str, str]]) -> None:

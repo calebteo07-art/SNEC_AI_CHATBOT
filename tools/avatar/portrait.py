@@ -11,7 +11,9 @@ an API. Generation/storage live in later tasks; these are their deterministic in
 import hashlib
 import json
 
+from tools.avatar import generate_sprites
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR
+from tools.shared.gemini_client import MOCK_MODE
 
 # Every axis except `background` (which becomes a CSS backdrop behind the transparent PNG).
 PORTRAIT_AXES: list[str] = [a for a in AVATAR_AXES if a != "background"]
@@ -116,3 +118,34 @@ def config_to_prompt(config: dict) -> str:
     if c["outfit"] != "none":
         lines.append(f"Outfit: {_OUTFIT.get(c['outfit'], _humanize(c['outfit']))}.")
     return "\n".join(lines)
+
+
+# ── Generation + storage (Task 2 — the PAID path) ────────────────────────────
+# These do real I/O. They are only ever reached on the genuine cache-missed save
+# path (Task 3), never in tests: render_portrait refuses to run in MOCK_MODE.
+
+
+def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"]) -> bytes:
+    """Render the transparent 3D Iris PNG for a look. LIVE + PAID (~1–2¢/image).
+
+    Refuses in MOCK_MODE — we never fabricate art in tests/CI. Builds the prompt
+    from the config (background excluded → CSS backdrop) and anchors to iris.png via
+    the shared image client. Returns raw PNG bytes.
+    """
+    if MOCK_MODE:
+        raise RuntimeError(
+            "render_portrait needs a live GEMINI_API_KEY; refusing to fabricate art in MOCK_MODE"
+        )
+    data = generate_sprites.generate_image_bytes(config_to_prompt(config), model=model)
+    if not data:
+        raise RuntimeError("portrait generation returned no image bytes")
+    return data
+
+
+def store_portrait(config_hash: str, image_bytes: bytes) -> str:
+    """Upload a rendered portrait to the public `selena-avatars` bucket, keyed by hash.
+
+    Returns the public URL. Idempotent (upsert), so re-storing the same look is safe.
+    """
+    from tools.kb import supabase_client
+    return supabase_client.upload_avatar(f"{config_hash}.png", image_bytes)
