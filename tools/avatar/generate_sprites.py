@@ -35,8 +35,10 @@ PILOT_DIR = PROJECT_ROOT / ".tmp" / "selena-pilot"
 # "Nano Banana" image models served on this key (verified 2026-07-06). pro renders the
 # richest art but is slow (~60–120s) and 504s often under load; flash is fast + reliable
 # and the practical choice for a batch. Select with --model.
+# Default to flash everywhere (fastest + reliable). Reserve pro only for clinical/medical
+# imagery that needs professional accuracy (user rule 2026-07-06). pro also 504s under load.
 MODELS = {"pro": "gemini-3-pro-image", "flash": "gemini-3.1-flash-image"}
-MODEL_IMAGE = MODELS["pro"]
+MODEL_IMAGE = MODELS["flash"]
 
 # The invariant style contract baked into every prompt — this is what keeps a
 # generated look recognizably Iris.
@@ -156,7 +158,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Generate Iris/Selena 3D art (paid; go-ahead only).")
     ap.add_argument("--estimate", action="store_true", help="Print prompts + count + cost. No API calls.")
     ap.add_argument("--pilot", action="store_true", help="Generate the ~3-image pilot into .tmp/selena-pilot/.")
-    ap.add_argument("--model", choices=list(MODELS), default="pro", help="Image model (default: pro).")
+    ap.add_argument("--model", choices=list(MODELS), default="flash", help="Image model (default: flash).")
     ap.add_argument("--only", default="", help="Comma-separated look names to generate (default: all).")
     args = ap.parse_args()
     model = MODELS[args.model]

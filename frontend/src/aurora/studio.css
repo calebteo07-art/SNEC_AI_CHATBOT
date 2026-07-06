@@ -74,6 +74,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  border-radius: var(--radius-2xl, 24px);
 }
 .selena-portrait > span,
 .selena-portrait > svg { display: block; }
@@ -81,7 +82,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;  /* the generated card is opaque (backdrop baked in) — fill, don't letterbox */
 }
 .selena-portrait-badge {
   position: absolute;

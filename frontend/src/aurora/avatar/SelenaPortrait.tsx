@@ -1,8 +1,8 @@
 /* <SelenaPortrait> — the display surface for a student's Selena (RICOE v2, part 3).
-   When the real 3D portrait is ready it shows the transparent Iris PNG; otherwise it
-   falls back to the instant SVG <Selena> (the free live-edit preview). Either way it
-   sits over a CSS backdrop derived from the `background` axis — the backdrop is pure
-   CSS (never baked into the PNG), so backdrop-only changes cost nothing to render.
+   When the real 3D portrait is ready it shows the generated image, a polished OPAQUE card
+   (flash-image bakes its own background — including the `background` axis — since it can't
+   emit true alpha). Until then it falls back to the instant SVG <Selena> preview, drawn over
+   a CSS backdrop derived from the `background` axis so the live edit still previews the scene.
    Presentational + hook-free, so it renders on the server or client. */
 import type { AvatarConfig } from "./axes.generated";
 import { Selena } from "./Selena";
@@ -42,7 +42,9 @@ export function SelenaPortrait({
     <span
       className={`selena-portrait${className ? " " + className : ""}`}
       data-ready={ready || undefined}
-      style={{ width: size, height: h, background: backdrop(config?.background) }}
+      // The ready image is opaque (backdrop baked in) → no CSS backdrop; the SVG preview
+      // is transparent → show the axis backdrop behind it.
+      style={{ width: size, height: h, background: ready ? undefined : backdrop(config?.background) }}
     >
       {ready ? (
         // eslint-disable-next-line @next/next/no-img-element -- generated portrait, no next/image on standalone

@@ -35,7 +35,7 @@ def test_render_portrait_builds_prompt_and_returns_bytes(monkeypatch):
 
     assert out == b"PNGDATA"
     p = captured["prompt"].lower()
-    assert "one" in p and "transparent" in p      # the invariant Iris contract is carried
+    assert "one" in p and "eye" in p              # the invariant Iris contract is carried
     assert "crown" in p                           # a set option is reflected
     assert "glasses" not in p                     # a `none` option contributes nothing
     assert captured["model"] == "gemini-3.1-flash-image"  # flash-image (pro 504s under load)
@@ -48,12 +48,13 @@ def test_render_portrait_raises_when_no_image(monkeypatch):
         portrait.render_portrait({"bodyColor": "aqua"})
 
 
-def test_store_portrait_uploads_hash_png_and_returns_url(monkeypatch):
+def test_store_portrait_defaults_to_png(monkeypatch):
     seen = {}
 
-    def fake_upload(path, data):
+    def fake_upload(path, data, content_type="image/png"):
         seen["path"] = path
         seen["data"] = data
+        seen["ctype"] = content_type
         return f"https://cdn.example/selena-avatars/{path}"
 
     monkeypatch.setattr(supabase_client, "upload_avatar", fake_upload)
@@ -62,7 +63,27 @@ def test_store_portrait_uploads_hash_png_and_returns_url(monkeypatch):
 
     assert seen["path"] == "abc123def456ab00.png"   # stored by config hash
     assert seen["data"] == b"PNGDATA"
+    assert seen["ctype"] == "image/png"
     assert url.endswith("abc123def456ab00.png")
+
+
+def test_store_portrait_uses_jpg_for_jpeg_bytes(monkeypatch):
+    # flash-image actually returns JPEG — store it with the right extension + content-type.
+    seen = {}
+
+    def fake_upload(path, data, content_type="image/png"):
+        seen["path"] = path
+        seen["ctype"] = content_type
+        return f"https://cdn.example/selena-avatars/{path}"
+
+    monkeypatch.setattr(supabase_client, "upload_avatar", fake_upload)
+
+    jpeg = b"\xff\xd8\xff\xe0\x00\x10JFIF" + b"\x00" * 32
+    url = portrait.store_portrait("deadbeefdeadbeef", jpeg)
+
+    assert seen["path"] == "deadbeefdeadbeef.jpg"
+    assert seen["ctype"] == "image/jpeg"
+    assert url.endswith(".jpg")
 
 
 def test_upload_avatar_targets_public_selena_avatars_bucket(monkeypatch):
@@ -85,9 +106,9 @@ def test_upload_avatar_targets_public_selena_avatars_bucket(monkeypatch):
 
     monkeypatch.setattr(supabase_client, "get_client", lambda: FakeClient())
 
-    url = supabase_client.upload_avatar("h.png", b"X")
+    url = supabase_client.upload_avatar("h.jpg", b"X", content_type="image/jpeg")
 
     assert calls["bucket"] == "selena-avatars"
-    assert calls["upload"][0] == "h.png"
-    assert calls["upload"][2]["content-type"] == "image/png"
-    assert url == "https://cdn/h.png"
+    assert calls["upload"][0] == "h.jpg"
+    assert calls["upload"][2]["content-type"] == "image/jpeg"
+    assert url == "https://cdn/h.jpg"

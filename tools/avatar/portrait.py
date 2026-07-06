@@ -1,12 +1,12 @@
-"""Selena 3D portrait — the pure config→prompt and config→hash core (part 3, Task 1).
+"""Selena 3D portrait — the pure config→prompt and config→hash core (part 3).
 
-The portrait is a TRANSPARENT 3D Iris rendered from a student's saved config. Because
-it's transparent, the `background` axis is a CSS backdrop in the app, NOT part of the
-character — so it's excluded here from both the prompt and the cache hash. Two looks
-that differ only in backdrop therefore share one generated PNG (a real cost saving).
+The portrait is a soft-3D Iris rendered from a student's saved config. flash-image can't
+emit true alpha (asked for transparency it paints a checkerboard), so the image bakes its
+OWN background from the `background` axis — which therefore IS part of the look and affects
+both the prompt and the cache hash (revised 2026-07-06 from the transparent-over-CSS design).
 
 Pure + registry-derived: `config_to_prompt` and `config_hash` do no I/O and never call
-an API. Generation/storage live in later tasks; these are their deterministic inputs.
+an API. Generation/storage live below; these are their deterministic inputs.
 """
 import hashlib
 import json
@@ -15,8 +15,8 @@ from tools.avatar import generate_sprites
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR
 from tools.shared.gemini_client import MOCK_MODE
 
-# Every axis except `background` (which becomes a CSS backdrop behind the transparent PNG).
-PORTRAIT_AXES: list[str] = [a for a in AVATAR_AXES if a != "background"]
+# Every axis, background included — the render bakes its own backdrop (no true alpha).
+PORTRAIT_AXES: list[str] = list(AVATAR_AXES)
 
 # The invariant style contract — what keeps a generated look recognizably Iris. Mirrors
 # the STYLE in generate_sprites.py; kept here so the prompt core is self-contained.
@@ -24,8 +24,10 @@ _CONTRACT = (
     "Character: 'Iris', a cute one-eyed mascot — exactly ONE big round glossy eye on a "
     "smooth, rounded, hairless blob-like body (no hair), two tiny stubby arms, friendly. "
     "Soft 3D Pixar/Ghibli style, gentle studio lighting, soft subsurface shading, subtle "
-    "contact shadow. Front view, centered, full body. "
-    "IMPORTANT: fully TRANSPARENT background (alpha), no scene, no ground, no text, no border."
+    "contact shadow. Front view, centered, full body, generous margin. Render as a polished "
+    "square portrait with the cohesive background described below. "
+    "IMPORTANT: no text, no border, and NEVER paint a checkerboard or transparency pattern — "
+    "always fill the background with the described scene."
 )
 
 
@@ -79,6 +81,16 @@ _OUTFIT = {
     "lanyard": "a staff lanyard", "hoodie": "a hoodie", "labcoat": "a white lab coat",
     "turtleneck": "a turtleneck", "overalls": "denim overalls", "cape": "a flowing cape",
 }
+_BG = {
+    "mist": "a soft neutral misty-grey studio background",
+    "blush": "a soft blush-pink background", "sky": "a gentle sky-blue background",
+    "mint": "a soft mint-green background", "lilac": "a soft lilac background",
+    "sun": "a warm sunny-yellow background", "graphite": "a deep graphite charcoal background",
+    "gemini": "a dreamy Gemini-gradient background (lavender into peach)",
+    "galaxy": "a deep starry galaxy background", "confetti": "a playful pastel confetti background",
+    "sunset": "a warm sunset-gradient background", "ocean": "a calm ocean-blue background",
+    "forest": "a soft forest-green background",
+}
 
 
 def _norm(config: dict) -> dict:
@@ -98,7 +110,7 @@ def config_hash(config: dict) -> str:
 
 
 def config_to_prompt(config: dict) -> str:
-    """Compose the image prompt for a look. Skips `none` options; excludes `background`."""
+    """Compose the image prompt for a look. Skips `none` options; bakes in `background`."""
     c = _norm(config)
     lines = [_CONTRACT]
     lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a ' + _humanize(c['bodyColor']) + '-coloured')} body.")
@@ -117,6 +129,7 @@ def config_to_prompt(config: dict) -> str:
         lines.append(f"Extra: {_ACCESSORY.get(c['accessory'], _humanize(c['accessory']))}.")
     if c["outfit"] != "none":
         lines.append(f"Outfit: {_OUTFIT.get(c['outfit'], _humanize(c['outfit']))}.")
+    lines.append(f"Background: {_BG.get(c['background'], 'a soft ' + _humanize(c['background']) + ' background')}.")
     return "\n".join(lines)
 
 
@@ -126,11 +139,11 @@ def config_to_prompt(config: dict) -> str:
 
 
 def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"]) -> bytes:
-    """Render the transparent 3D Iris PNG for a look. LIVE + PAID (~1–2¢/image).
+    """Render the soft-3D Iris image for a look. LIVE + PAID (~1–2¢/image).
 
-    Refuses in MOCK_MODE — we never fabricate art in tests/CI. Builds the prompt
-    from the config (background excluded → CSS backdrop) and anchors to iris.png via
-    the shared image client. Returns raw PNG bytes.
+    Refuses in MOCK_MODE — we never fabricate art in tests/CI. Builds the prompt from
+    the config (background baked in — flash-image has no true alpha) and anchors to
+    iris.png via the shared image client. Returns the raw image bytes (JPEG in practice).
     """
     if MOCK_MODE:
         raise RuntimeError(
@@ -142,10 +155,22 @@ def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"])
     return data
 
 
+def _image_kind(data: bytes) -> tuple[str, str]:
+    """(extension, content_type) sniffed from magic bytes. flash-image returns JPEG;
+    default to PNG for anything unrecognized so we never mislabel the object."""
+    if data[:3] == b"\xff\xd8\xff":
+        return "jpg", "image/jpeg"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp", "image/webp"
+    return "png", "image/png"
+
+
 def store_portrait(config_hash: str, image_bytes: bytes) -> str:
     """Upload a rendered portrait to the public `selena-avatars` bucket, keyed by hash.
 
-    Returns the public URL. Idempotent (upsert), so re-storing the same look is safe.
+    Returns the public URL. The extension + content-type are sniffed from the bytes
+    (flash-image actually returns JPEG). Idempotent (upsert), so re-storing is safe.
     """
+    ext, ctype = _image_kind(image_bytes)
     from tools.kb import supabase_client
-    return supabase_client.upload_avatar(f"{config_hash}.png", image_bytes)
+    return supabase_client.upload_avatar(f"{config_hash}.{ext}", image_bytes, content_type=ctype)
