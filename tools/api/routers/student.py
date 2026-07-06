@@ -14,6 +14,7 @@ from tools.flashcards.static_cards import (
     get_topic_cards, topic_card_counts, shuffle_card_options,
 )
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
+from tools.gamification.leaderboard import rank_entries
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
@@ -455,89 +456,77 @@ async def flashcards_complete(
     return FlashcardCompleteResponse(xp=xp, level=(xp // 500) + 1)
 
 
-# ── Cohort leaderboard (opt-in, supervisor-gated) ───────────────────────────
+# ── Cohort leaderboard (D7: everyone by default, opt-out, XP-ranked) ──────────
+# Ranking is the pure `rank_entries` core; this layer only wires DB reads to it and
+# reports the viewer's own visibility state back for the hide toggle / display-name form.
 
-def _short_name(full: str) -> str:
-    """First name + last initial, e.g. 'Caleb T.' — shown for opted-in students."""
-    parts = (full or "").strip().split()
-    if not parts:
-        return "Student"
-    if len(parts) == 1:
-        return parts[0]
-    return f"{parts[0]} {parts[-1][0]}."
-
-
-class LeaderboardEntry(BaseModel):
+class LbEntry(BaseModel):
     rank: int
     name: str
+    role: str
     xp: int
     level: int
+    streak_days: int
+    avatar_config: dict | None = None
     is_you: bool
 
 
-class LeaderboardResponse(BaseModel):
-    enabled: bool
-    opted_in: bool
-    entries: list[LeaderboardEntry]
+class LbResponse(BaseModel):
+    entries: list[LbEntry]
+    you_hidden: bool
+    display_name: str | None = None
+    roles: list[str]
 
 
-class OptInRequest(BaseModel):
-    opt_in: bool
+class LbPrefs(BaseModel):
+    hidden: bool | None = None
+    display_name: str | None = None
 
 
-@router.get("/api/leaderboard", response_model=LeaderboardResponse)
-async def leaderboard(current_user: CurrentUser = Depends(get_current_user)):
-    """The cohort leaderboard — only populated when a supervisor has enabled it
-    AND the calling student has opted in. Entries are the opted-in students,
-    ranked by XP and shown as first name + last initial."""
+@router.get("/api/leaderboard", response_model=LbResponse)
+async def leaderboard(role: str | None = None, current_user: CurrentUser = Depends(get_current_user)):
+    """The cohort leaderboard (D7): everyone is ranked by XP unless they've hidden
+    themselves. An optional `role` filter ranks within a single role. The viewer's own
+    row is flagged; their current hidden state + display name come back for the form.
+    Degrades to an empty board (never 500) until migration 008 lands."""
     student_id = current_user["sub"]
     try:
-        enabled = await db.get_leaderboard_enabled()
+        profiles = await db.get_all_profiles()
+        consent = await db.get_all_consent()
     except Exception:
-        enabled = False
+        return LbResponse(entries=[], you_hidden=False, display_name=None, roles=[])
 
-    opted_in = False
-    try:
-        prof = await get_profile(student_id)
-        opted_in = bool(prof.get("leaderboard_opt_in"))
-    except Exception:
-        pass
-
-    entries: list[LeaderboardEntry] = []
-    if enabled and opted_in:
-        try:
-            profiles = await db.get_all_profiles()
-            consent = await db.get_all_consent()
-            name_map = {r["student_id"]: (r.get("student_name") or "") for r in consent}
-            ranked = sorted(
-                [p for p in profiles if p.get("leaderboard_opt_in")],
-                key=lambda p: int(p.get("xp") or 0),
-                reverse=True,
-            )
-            for i, p in enumerate(ranked):
-                sid = p["student_id"]
-                entries.append(LeaderboardEntry(
-                    rank=i + 1,
-                    name=_short_name(name_map.get(sid, "Student")),
-                    xp=int(p.get("xp") or 0),
-                    level=int(p.get("level") or 1),
-                    is_you=(sid == student_id),
-                ))
-        except Exception:
-            entries = []
-
-    return LeaderboardResponse(enabled=enabled, opted_in=opted_in, entries=entries)
+    names = {r["student_id"]: (r.get("student_name") or "") for r in consent}
+    entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None)
+    me = next((p for p in profiles if p.get("student_id") == student_id), {})
+    roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
+    return LbResponse(
+        entries=[LbEntry(**e) for e in entries],
+        you_hidden=bool(me.get("leaderboard_hidden")),
+        display_name=(me.get("display_name") or None),
+        roles=roles,
+    )
 
 
-@router.post("/api/leaderboard/opt-in")
-async def leaderboard_opt_in(body: OptInRequest, current_user: CurrentUser = Depends(get_current_user)):
-    """Student joins or leaves the cohort leaderboard."""
+@router.post("/api/leaderboard/prefs")
+async def leaderboard_prefs(body: LbPrefs, current_user: CurrentUser = Depends(get_current_user)):
+    """Update the caller's leaderboard preferences: hide/show themselves (D7 opt-out)
+    and/or set an optional display name (blank clears it). Identity comes from the JWT,
+    never the body. 503 until migration 008 adds the columns."""
     student_id = current_user["sub"]
+    fields: dict = {}
+    if body.hidden is not None:
+        fields["leaderboard_hidden"] = bool(body.hidden)
+    if body.display_name is not None:
+        dn = body.display_name.strip()[:40]
+        fields["display_name"] = dn or None
+    if not fields:
+        return {"ok": True}
     try:
-        await db.update_profile(student_id, leaderboard_opt_in=body.opt_in)
+        await db.update_profile(student_id, **fields)
     except Exception:
-        raise HTTPException(status_code=503, detail="The leaderboard isn't available yet.")
-    return {"ok": True, "opted_in": body.opt_in}
+        raise HTTPException(status_code=503, detail="Leaderboard settings aren't available yet.")
+    return {"ok": True, **fields}
 
 
 # ── Study suggestion ───────────────────────────────────────────────────────
