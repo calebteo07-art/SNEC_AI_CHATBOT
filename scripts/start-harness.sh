@@ -63,7 +63,7 @@ else
 fi
 
 echo "── warming routes (authed curl; cold-compile guard)…"
-for route in / /checkin /dashboard /chat /flashcards /cases /cases/C001 /profile /admin /supervisor; do
+for route in / /checkin /dashboard /chat /flashcards /cases /cases/C001 /profile /studio /admin /supervisor; do
   curl -s -o /dev/null --max-time 45 -H "Cookie: eyebot_token=pw-harness" "$BASE$route" || true
 done
 
