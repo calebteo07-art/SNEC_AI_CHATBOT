@@ -24,7 +24,7 @@ export const queryClient = new QueryClient({
  * it, a pre-MCQ flashcards deck ({front,back}, no `options`) cached under the same
  * ["flashcards", …] key was rehydrated and painted by the new MCQ card, whose
  * options.map() white-screened the page (prod incident 2026-06-27). */
-const PERSIST_SCHEMA_VERSION = "2";
+const PERSIST_SCHEMA_VERSION = "3";  // bumped: ["leaderboard"] payload reshaped for D7
 
 /** Which queries are safe to write to the offline cache. The flashcards study DECK
  *  (["flashcards", …]) is deliberately excluded: it's ephemeral per-session content,

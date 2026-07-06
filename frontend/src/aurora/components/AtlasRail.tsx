@@ -16,6 +16,7 @@ const STUDY: NavItem[] = [
   { href: "/chat", label: "Tutor", icon: "tutor" },
   { href: "/cases", label: "Virtual Patients", icon: "cases" },
   { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
+  { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
 ];
 const OVERSIGHT: NavItem[] = [
   { href: "/supervisor", label: "Supervisor", icon: "supervisor" },
@@ -118,6 +119,7 @@ const NAV_ICONS = {
   tutor: (<svg {...ico}><path d="M5 5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H9l-4 3V6a1 1 0 0 1 1-1Z" /><circle cx="9" cy="10" r="0.6" fill="currentColor" /><circle cx="12.5" cy="10" r="0.6" fill="currentColor" /><circle cx="16" cy="10" r="0.6" fill="currentColor" /></svg>),
   cases: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
   flashcards: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14a0 0 0 0 1 0 0v12" /></svg>),
+  leaderboard: (<svg {...ico}><path d="M3 20h18" /><path d="M5 20v-6h4v6" /><path d="M10 20V8h4v12" /><path d="M15 20v-9h4v9" /></svg>),
   supervisor: (<svg {...ico}><circle cx="9" cy="8" r="3" /><path d="M4 19a5 5 0 0 1 10 0" /><path d="M16 6.5a3 3 0 0 1 0 5.5" /><path d="M16.5 19a5 5 0 0 0-2-4" /></svg>),
   admin: (<svg {...ico}><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2 4-4" /></svg>),
 } as const;

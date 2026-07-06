@@ -441,6 +441,57 @@ if (studioOverflow > 2) { console.error(`FAIL: /studio horizontal overflow at 39
 console.log("PASS: Selena Studio — no horizontal overflow at 390px");
 await np.setViewportSize({ width: 1440, height: 900 });
 
+// Leaderboard (RICOE v2, D7): everyone by default, ranked by XP, with Selena headshots.
+// The GET mock honours the ?role= filter and reflects the hide state so the hide toggle is a
+// real behavioral verify (clicking it removes the viewer's own row). prefs POST flips the flag.
+let lbHidden = false;
+const LB_ROWS = [
+  { name: "Bob B.", role: "OT", xp: 1240, level: 3, streak_days: 6, avatar_config: { bodyColor: "aqua", irisColor: "galaxy" }, is_you: false },
+  { name: "You",    role: "OA", xp: 980,  level: 2, streak_days: 4, avatar_config: { bodyColor: "peach" }, is_you: true },
+  { name: "Cy C.",  role: "OA", xp: 300,  level: 1, streak_days: 0, avatar_config: null, is_you: false },
+];
+await navCtx.route("**/api/leaderboard**", (r) => {
+  if (r.request().method() === "POST") {  // /prefs — flip the hide flag from the body
+    try { const b = JSON.parse(r.request().postData() || "{}"); if (typeof b.hidden === "boolean") lbHidden = b.hidden; } catch { /* noop */ }
+    return r.fulfill(JSON_OK({ ok: true }));
+  }
+  const role = new URL(r.request().url()).searchParams.get("role");
+  let rows = LB_ROWS.filter((e) => !(lbHidden && e.is_you));
+  if (role) rows = rows.filter((e) => e.role === role);
+  const entries = rows.map((e, i) => ({ ...e, rank: i + 1 }));
+  return r.fulfill(JSON_OK({ entries, you_hidden: lbHidden, display_name: null, roles: ["OA", "OT"] }));
+});
+await np.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".lb-list .lb-row", { timeout: 15000 });
+const lbH1 = await np.locator("main h1").count();
+if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
+if ((await np.locator(".lb-row").count()) !== 3) { console.error("FAIL: leaderboard did not render 3 ranked rows"); process.exit(1); }
+if ((await np.locator(".lb-face svg").count()) < 3) { console.error("FAIL: leaderboard rows missing Selena headshots"); process.exit(1); }
+const youRow = np.locator('.lb-row[data-you]');
+if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
+  console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);
+}
+console.log("PASS: Leaderboard — XP-ranked rows with Selena headshots + current user highlighted");
+
+// role filter narrows the board to a single role (OT → just Bob).
+await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
+await np.waitForFunction(() => document.querySelectorAll(".lb-row").length === 1, { timeout: 8000 });
+console.log("PASS: Leaderboard — role filter narrows the board");
+await np.locator('.lb-filter .lb-chip:has-text("All")').click();
+await np.waitForFunction(() => document.querySelectorAll(".lb-row").length === 3, { timeout: 8000 });
+
+// hide toggle (D7 opt-out): flipping it off removes the viewer's own row from the board.
+await np.locator(".lb-switch").click();
+await np.waitForFunction(() => document.querySelectorAll('.lb-row[data-you]').length === 0, { timeout: 8000 });
+console.log("PASS: Leaderboard — hide toggle removes you from the board");
+
+await np.setViewportSize({ width: 390, height: 844 });
+await np.waitForTimeout(250);
+const lbOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+if (lbOverflow > 2) { console.error(`FAIL: /leaderboard horizontal overflow at 390px = ${lbOverflow}px`); process.exit(1); }
+console.log("PASS: Leaderboard — no horizontal overflow at 390px");
+await np.setViewportSize({ width: 1440, height: 900 });
+
 // daily check-in (auth group, no rail): the MCQ icebreaker renders its 4 options + one h1.
 // (the redesign replaced the free-text textarea with a tap-to-answer multiple choice.)
 await np.goto(base + "/checkin", { waitUntil: "domcontentloaded" });
