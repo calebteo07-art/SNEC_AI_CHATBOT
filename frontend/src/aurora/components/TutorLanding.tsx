@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/aurora/icons";
 import { Composer } from "@/aurora/components/Composer";
+import { CoBrand } from "@/aurora/components/CoBrand";
 
 export interface RecentSession {
   session_id: string; timestamp: string; topic: string; summary: string; mode: string;
@@ -86,8 +87,10 @@ export function TutorLanding({
         <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
           <Icon.back size={24} />
         </Link>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="aurora-snec aurora-chat-snec tl-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
+        {/* Complete the EyeBot + SNEC lockup on the immersive Tutor's landing — the rail
+            that normally carries it is hidden here, and a lone SNEC mark is not a lockup
+            (Branding lock, ricoe §6.6 / E2). */}
+        <CoBrand className="tl-cobrand" />
       </div>
 
       <div className="tl-hero">

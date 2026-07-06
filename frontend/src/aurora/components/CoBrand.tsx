@@ -9,8 +9,12 @@ export function CoBrand({ dark = false, className = "" }: { dark?: boolean; clas
     <div className={`aurora-cobrand${dark ? " is-dark" : ""} ${className}`.trim()}
          title="EyeBot — a Singapore National Eye Centre initiative">
       <span className="aurora-cobrand-eb">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="aurora-cobrand-mark" src="/brand/iris.png" alt="" />
+        {/* The mascot mark is alive: a gentle breathe + a breathing Gemini halo (CSS-only,
+            frozen under reduced motion). The wrapper hosts the halo pseudo-element. */}
+        <span className="aurora-cobrand-mark-wrap" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="aurora-cobrand-mark" src="/brand/iris.png" alt="" />
+        </span>
         <span className="aurora-cobrand-wm">EyeBot</span>
       </span>
       <span className="aurora-cobrand-div" aria-hidden />

@@ -191,6 +191,31 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
 .aurora-cobrand.is-dark .aurora-cobrand-div { background: rgba(255, 255, 255, 0.28); }
 .aurora-cobrand .aurora-snec { width: 56px; }
 .aurora-cobrand.is-dark .aurora-snec { mix-blend-mode: normal; opacity: 0.74; filter: invert(1) grayscale(1) brightness(1.7); }
+/* living mascot mark — a gentle breathe + a breathing Gemini halo behind the iris, so the
+   brand mark reads warm + alive on every lockup (Branding lock, ricoe §6.6). CSS-only. */
+.aurora-cobrand-mark-wrap { position: relative; display: inline-flex; }
+.aurora-cobrand-mark-wrap::before {
+  content: ""; position: absolute; inset: -3px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(from 0deg, #4285F4, #9b72f2, #d96570, #4285F4);
+  filter: blur(4px); opacity: 0;
+  animation: cobrand-halo 5.6s ease-in-out infinite;
+}
+.aurora-cobrand-mark { animation: cobrand-breathe 4.6s ease-in-out infinite; will-change: transform; }
+@keyframes cobrand-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.05); }
+}
+@keyframes cobrand-halo {
+  0%, 100% { opacity: 0; transform: rotate(0deg) scale(0.94); }
+  50% { opacity: 0.5; transform: rotate(180deg) scale(1.06); }
+}
+html[data-motion="reduce"] .aurora-cobrand-mark,
+html[data-motion="reduce"] .aurora-cobrand-mark-wrap::before { animation: none; }
+html[data-motion="reduce"] .aurora-cobrand-mark-wrap::before { opacity: 0.26; }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-cobrand-mark, .aurora-cobrand-mark-wrap::before { animation: none; }
+  .aurora-cobrand-mark-wrap::before { opacity: 0.26; }
+}
 /* placements */
 .aurora-checkin-cobrand { justify-content: center; margin: 0 auto 18px; }
 .aurora-chat-snec { width: 54px; margin-left: 6px; flex-shrink: 0; }
@@ -1596,7 +1621,7 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 @keyframes tl-out { to { opacity: 0; transform: translateY(-22px) scale(0.985); filter: blur(3px); } }
 
 .tl-top { display: flex; align-items: center; justify-content: space-between; padding: 14px 2px 0; flex: 0 0 auto; }
-.tl-snec { width: 58px; }
+.tl-cobrand { flex: 0 0 auto; }
 
 .tl-hero { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: clamp(22px, 7vh, 84px) 0 20px; }

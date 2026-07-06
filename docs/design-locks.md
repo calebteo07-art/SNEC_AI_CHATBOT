@@ -81,6 +81,28 @@ in-order gating (stationGate.ts — only current step unlockable), Moderate-merg
 checklist rows, allied-health handover framing (Findings & clinical impression /
 Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
 
+## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
+**Direction**: the **EyeBot + SNEC co-brand lockup** appears on *every* page. The shell rails
+carry it; the rail-less / immersive surfaces (Tutor landing + conversation, Flashcards,
+daily Check-in) each render their own complete lockup — a **lone SNEC mark is never a
+lockup**. The canonical lockup is `CoBrand.tsx`: the **living EyeBot mascot mark** (the
+Selena/Iris one-eyed mascot, `/brand/iris.png`) + "EyeBot" wordmark + hairline divider +
+SNEC mark. The mascot mark is **alive** — a subtle CSS-only idle (gentle breathe + a
+breathing Gemini-gradient halo), frozen to a faint static halo under reduced motion. The
+brand mark is always the **default** Selena, never a student's customised avatar (matches
+the Tutor reply-avatar rule, ricoe A3). `dark` inverts the (white-bg) SNEC mark on dark
+surfaces.
+- **Acceptance criteria when refining**: every rail-less surface renders BOTH an EyeBot
+  mark and a SNEC mark (a full lockup); the mascot mark has a tasteful idle that freezes
+  under `data-motion=reduce` / `prefers-reduced-motion`; the Tutor landing lockup reads
+  native to the "Mono + Electric" ivory surface (no bolted-on chip); WCAG-legible, no
+  layout shift, 390px-safe.
+- **Out of scope**: Login (LOCKED verbatim — no brand added). The **logo → a different
+  Selena raster variation** is paid + deferred (ricoe §8) and would break the mono
+  Spark-Eye global lock — needs its own brief + paid gen. Uniforms excluded (ricoe §2).
+  No redesign of any locked surface; the convo-header eye avatar keeps its own charging-
+  ring/blink life.
+
 ## Generated imagery standard — STANDING
 Medically and anatomically correct AND beautiful; accuracy baked into prompts; SNEC
 staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, plain

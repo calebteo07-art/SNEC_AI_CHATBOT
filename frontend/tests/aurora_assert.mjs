@@ -172,14 +172,16 @@ const wash = await np.locator(".aurora-chat").evaluate((el) => getComputedStyle(
 if (!wash.includes("linear-gradient")) { console.error(`FAIL: chat cosmic wash missing (bg=${wash})`); process.exit(1); }
 if ((await np.locator('[data-testid="tutor-landing"]').count()) < 1) { console.error("FAIL: tutor greeting landing not shown on /chat"); process.exit(1); }
 if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: composer not rendered"); process.exit(1); }
-// ricoe E2: the rail (which carries the SNEC mark) is hidden on the immersive Tutor,
-// so the SNEC co-brand must be present.
-if ((await np.locator('.aurora-chat-snec').count()) < 1) {
-  console.error("FAIL: SNEC co-brand missing on the immersive Tutor"); process.exit(1);
-}
+// Branding lock (ricoe §6.6 / E2): the rail (which carries the lockup) is hidden on the
+// immersive Tutor, so the FULL EyeBot + SNEC co-brand lockup must be present on the landing
+// — a lone SNEC mark is not a lockup. Assert BOTH marks inside the landing.
+const ldEb = await np.locator('[data-testid="tutor-landing"] .aurora-cobrand-mark').count();
+const ldSnec = await np.locator('[data-testid="tutor-landing"] .aurora-snec').count();
+if (ldEb < 1) { console.error("FAIL: EyeBot mark missing on the Tutor landing (lone SNEC is not a lockup)"); process.exit(1); }
+if (ldSnec < 1) { console.error("FAIL: SNEC mark missing on the Tutor landing"); process.exit(1); }
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
-console.log("PASS: Tutor greeting landing — cosmic wash, prompt, SNEC co-brand, one h1");
+console.log("PASS: Tutor greeting landing — cosmic wash, prompt, full EyeBot + SNEC lockup, one h1");
 
 // SSE: mock /api/chat as an event-stream; sending must append the streamed reply
 // through the new composer + thread (proves the streaming reader path survived the rebuild).
