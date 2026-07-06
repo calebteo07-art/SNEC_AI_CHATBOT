@@ -57,6 +57,14 @@ export function Profile() {
             <span className="aurora-switch" data-on={reduce} aria-hidden><span className="aurora-switch-knob" /></span>
           </button>
 
+          <button type="button" className="aurora-profile-action" onClick={() => router.push("/studio")}>
+            <span className="aurora-profile-action-text">
+              <span>Customize Selena</span>
+              <span className="aurora-profile-action-sub">Style your one-eyed study buddy</span>
+            </span>
+            <span className="aurora-profile-chevron" aria-hidden>›</span>
+          </button>
+
           <button type="button" className="aurora-profile-action" onClick={() => setShowChangePassword(true)}>
             <span className="aurora-profile-action-text"><span>Change password</span></span>
             <span className="aurora-profile-chevron" aria-hidden>›</span>
