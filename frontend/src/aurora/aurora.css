@@ -2280,15 +2280,18 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* ─────────────────────────────────────────────────────────────────────────
    Flashcards — one cohesive GEMINI-GRAPHITE world, two states told apart by
    :has() on .flash-root so neither bleeds into the other:
-   • SELECTION  — the sleek graphite room with whisper-faint cool glows; the
-     auto-rotating topic fan floats on it.
-   • ACTIVITY   — the SAME graphite canvas (cool blooms + faint etched line-art),
-     with ONE dark "lit-glass" card floating on it. The card adopts the daily
-     check-in card's language, dark-leaning: dark frosted glass + an animated
-     cool-gemini HAIRLINE ring (--flash-gemini-loop, masked border, aurora-flow)
-     + a one-shot sheen on mount + the 3D flip. Per-topic hue stays in a COOL band
-     (identity), teal = correct, coral = error, score hue (--flash-score-hue)
-     colours the results readout. Loading + the pre-flip beat use the cool
+   "Ivory & ink" (ricoe D2) — supersedes the rejected purple B6:
+   • SELECTION  — a warm greige/paper room with whisper-faint gemini glows; the
+     auto-rotating topic fan (dark photo tiles) floats on it.
+   • ACTIVITY   — the SAME greige canvas (gemini-toned blooms + faint etched
+     line-art), with ONE card floating on it. The card's FRONT face is a crisp
+     BRIGHT-WHITE study card (deep-ink text) — where you read + answer; the reveal
+     FLIPS the card to a DEEP-INK back face (light text) for the answer moment.
+     Both faces carry the animated moving-gemini HAIRLINE ring (--flash-gemini-loop,
+     masked border, aurora-flow) + a one-shot sheen on mount + the 3D flip. Per-topic
+     hue is the identity accent, tuned per face via --f-hue-l (darker on white,
+     lighter on ink); green = correct, red = error, score hue (--flash-score-hue)
+     colours the results readout. Loading + the pre-flip beat use the
      LiquidLoading bars (.flash-loadwrap / .flash-beat).
    The Brownian colour field (BrownianField → .flash-bg) drifts in the BACKGROUND
    behind everything, reading in the margins around the card; the education line-art
@@ -2300,41 +2303,42 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root {
   position: relative; height: 100%; min-height: 100dvh; width: 100%; overflow: hidden;
   --flash-topic-hue: 212;
-  /* Light "purple off-white" world (ricoe B6): dark-purple canvas ink on lavender. */
-  --f-ink: #2a2350; --f-ink2: #4a4276; --f-mono: #6b6394; --f-line: rgba(60,40,110,.12);
+  --f-hue-l: 42%; /* per-face topic-hue lightness (front=dark, back overrides lighter) */
+  /* "Ivory & ink" world (ricoe D2): deep-ink text on a warm greige canvas. */
+  --f-ink: var(--flash-ink); --f-ink2: #45403a; --f-mono: #6f6a60; --f-line: rgba(28,24,18,.13);
   /* Correct = a bright, confident GREEN; wrong = an intense RED (kept legible enough
      for the white ✓/✗ glyph filled into the option lamp). */
-  --f-paper: rgba(255,255,255,.78); --f-teal: #16a34a; --f-coral: #e22030; --f-blue: #5b4a9e;
-  --f-azure: #7c5fe0;
+  --f-paper: rgba(255,255,255,.66); --f-teal: #16a34a; --f-coral: #e22030; --f-blue: #4285F4;
+  --f-azure: #6E8BFF;
   color: var(--f-ink);
-  background: #EDE6F8;
+  background: var(--flash-canvas);
 }
 /* Atmospheric backdrop — content (.flash-content, z-index:1) floats above it. */
 .flash-root::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 
-/* SELECTION — a light "purple off-white" room (ricoe B6): a soft lavender wash lit by
-   two whisper-faint violet glows up top. The colour lives in the gradient title + the
-   dark-purple cards, not a loud backdrop. */
+/* SELECTION — a warm greige/paper room (ricoe D2): a soft ivory wash deepened toward
+   the edges for contrast, lit by two whisper-faint gemini glows up top. The colour
+   lives in the gradient title + the bright-white card, not a loud backdrop. */
 .flash-root:has(.flash-setup) {
-  background: radial-gradient(125% 100% at 50% -8%, #F6F2FD 0%, #EDE6F8 52%, #E7DEF4 100%);
+  background: radial-gradient(125% 100% at 50% -8%, #F5F1E8 0%, #ECE6DA 52%, #E2D9C7 100%);
 }
 .flash-root:has(.flash-setup)::before {
   background:
-    radial-gradient(58% 36% at 38% -4%, rgba(139,92,246,.12), transparent 70%),
-    radial-gradient(54% 34% at 70% 0%, rgba(190,120,220,.09), transparent 72%);
+    radial-gradient(58% 36% at 38% -4%, rgba(66,133,244,.08), transparent 70%),
+    radial-gradient(54% 34% at 70% 0%, rgba(217,101,112,.06), transparent 72%);
 }
 
-/* ACTIVITY (study · loading · results) — the SAME light lavender as the selection
-   screen, so the whole flashcards flow reads as one cohesive light world. Two
-   whisper-faint violet glows sit up top; the colour lives in the dark-purple card's
-   rim and the drifting blooms, never in a loud backdrop. */
+/* ACTIVITY (study · loading · results) — the SAME warm greige as the selection
+   screen, so the whole flashcards flow reads as one cohesive ivory world. Two
+   whisper-faint gemini glows sit up top; the colour lives in the white study card,
+   the deep-ink reveal + the drifting blooms, never in a loud backdrop. */
 .flash-root:not(:has(.flash-setup)) {
-  background: radial-gradient(125% 100% at 50% -8%, #F6F2FD 0%, #EDE6F8 52%, #E7DEF4 100%);
+  background: radial-gradient(125% 100% at 50% -8%, #F5F1E8 0%, #ECE6DA 52%, #E2D9C7 100%);
 }
 .flash-root:not(:has(.flash-setup))::before {
   background:
-    radial-gradient(54% 42% at 18% 0%, rgba(124,95,224,.14), transparent 70%),
-    radial-gradient(50% 38% at 84% 4%, rgba(168,120,230,.10), transparent 72%);
+    radial-gradient(54% 42% at 18% 0%, rgba(66,133,244,.10), transparent 70%),
+    radial-gradient(50% 38% at 84% 4%, rgba(155,114,203,.08), transparent 72%);
 }
 .flash-content { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column;
   align-items: center; justify-content: center; padding: 32px 20px; overflow-y: auto; }
@@ -2351,15 +2355,15 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 /* Subtle sound toggle — low-contrast, top-right, never competes for attention. */
 .flash-mute { position: absolute; top: 22px; right: 24px; z-index: 40; display: flex;
   align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%;
-  background: transparent; border: 1px solid rgba(110,90,170,.28); color: rgba(110,90,160,.6);
+  background: transparent; border: 1px solid rgba(40,34,24,.22); color: rgba(60,54,44,.62);
   cursor: pointer; transition: color .2s ease, border-color .2s ease, opacity .2s ease; opacity: .6; }
-.flash-mute:hover { color: rgba(80,60,140,.95); border-color: rgba(110,90,170,.55); opacity: 1; }
-/* Both flashcards screens are now light lavender (ricoe B6), so the Exit pill is a
-   soft white-on-lavender glass pill with a purple ink. */
+.flash-mute:hover { color: rgba(20,18,12,.95); border-color: rgba(40,34,24,.5); opacity: 1; }
+/* Both flashcards screens are warm greige (ricoe D2), so the Exit pill is a soft
+   white-on-greige glass pill with a warm-ink label. */
 .flash-root .flash-exit {
-  background: rgba(255,255,255,.6); border-color: rgba(90,70,150,.16); color: #5a4a8c; }
+  background: rgba(255,255,255,.62); border-color: rgba(40,34,24,.14); color: #4a463d; }
 .flash-root .flash-exit:hover {
-  background: rgba(255,255,255,.9); color: #3c2f70; }
+  background: rgba(255,255,255,.95); color: var(--flash-ink); }
 
 /* Engraving field — faint education / eye-care line glyphs etched STATICALLY in the
    perimeter bands (top/bottom/left/right) so they frame the card and never hide
@@ -2367,8 +2371,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    lights, behind the content; the Exit pill (z-index:5) and .flash-content
    (z-index:1) stay above it. */
 .flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-/* Etched dark-purple line-art on the light lavender canvas (ricoe B6). */
-.flash-engraving { position: absolute; left: 0; top: 0; color: #5a4a9a; display: block; }
+/* Etched warm greige-ink line-art on the ivory canvas (ricoe D2). */
+.flash-engraving { position: absolute; left: 0; top: 0; color: #8a8168; display: block; }
 .flash-engraving svg { width: 100%; height: 100%; display: block; }
 
 /* Brownian colour field — now the activity canvas's BACKGROUND lights (rendered by
@@ -2377,26 +2381,24 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
    around it. Sits at the very back (z0, above the gradient ::before), below the
    engraving rim and the content. */
 .flash-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-/* On the light lavender canvas (ricoe B6) the blooms darken it (multiply) into soft
-   violet clouds rather than lightening it (screen, which washes out on light). */
+/* On the warm greige canvas (ricoe D2) the blooms darken it (multiply) into soft
+   gemini-toned clouds rather than lightening it (screen, which washes out on light). */
 .flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
   mix-blend-mode: multiply; filter: blur(16px); opacity: .9; will-change: transform; }
 
-/* Instrument card — the check-in card's "lit glass" language, dark-leaning: a dark
-   frosted-glass slab ringed by an animated cool-gemini hairline (set per face below),
-   lit by a one-shot sheen on mount. Width comes from .flash-stage. The colour lights
-   live behind the canvas, not in the card. Light-on-dark via redefined --f-* tokens
-   (teal / coral stay vivid for correct / wrong). */
+/* Instrument card — a two-faced study slab (ricoe D2): the FRONT is a crisp bright-white
+   study card, the reveal FLIPS to a deep-ink back face. Both faces carry the animated
+   moving-gemini hairline (--flash-gemini-loop) + a one-shot sheen. Per-face --f-* tokens
+   (below) flip the surface between white (dark text) and ink (light text). Width comes
+   from .flash-stage; teal / red stay vivid for correct / wrong. */
 .flash-card { position: relative; width: 100%; min-height: min(74vh, 700px);
   perspective: 1800px; background: transparent; border: none;
-  box-shadow: 0 44px 96px -36px rgba(70,40,140,.42), 0 18px 46px -22px rgba(40,24,90,.34);
+  box-shadow: 0 44px 96px -36px rgba(30,26,20,.34), 0 18px 46px -22px rgba(20,16,10,.24);
   transition: box-shadow .35s ease; isolation: isolate;
   /* Vibrant GEMINI ramp (blue → violet → orchid-pink → sky-cyan) for the animated
-     outline + clipped label. This is the HERO accent — deliberately high-chroma so it
-     pops against the quiet graphite card + hushed background. */
-  --flash-gemini-loop: linear-gradient(100deg, #4488F4, #8B5CF6, #D96FB0, #4FC3E8, #4488F4);
-  --f-ink: #f3f4fc; --f-ink2: #dde2fb; --f-mono: #9aa3cc;
-  --f-line: rgba(170,185,255,.16); --f-paper: rgba(150,170,255,.05); }
+     outline + clipped label. The HERO accent — high-chroma so it pops on both the
+     white front + the ink back. */
+  --flash-gemini-loop: linear-gradient(100deg, #4488F4, #8B5CF6, #D96FB0, #4FC3E8, #4488F4); }
 .flash-card.is-right { box-shadow: 0 44px 96px -36px rgba(22,163,74,.5), 0 18px 46px -22px rgba(12,90,45,.5); }
 
 .flash-flip { position: relative; display: grid; width: 100%; min-height: inherit;
@@ -2405,17 +2407,26 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 
 .flash-face { grid-area: 1 / 1; display: flex; flex-direction: column;
   min-height: min(74vh, 700px); border-radius: 26px; padding: 38px 42px 32px;
-  overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  /* Dark frosted "lit glass" — the check-in card's language, dark-leaning. The card
-     floats on the graphite canvas + cool blooms, which blur through the glass. */
+  overflow: hidden; isolation: isolate; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* FRONT — the crisp BRIGHT-WHITE study card (ricoe D2): deep-ink text, a whisper of the
+   topic hue in the top corner, subtle inner elevation. Where you read + answer. */
+.flash-face.is-front { transform: rotateY(0deg);
+  --f-ink: var(--flash-ink); --f-ink2: #35322c; --f-mono: #6d6860;
+  --f-line: rgba(28,24,18,.13); --f-paper: rgba(28,24,18,.028); --f-hue-l: 42%;
   background:
-    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 52% 62% / .14), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(150, 96, 224, .12), transparent 58%),
-    rgba(28, 18, 52, 0.94);
-  -webkit-backdrop-filter: blur(24px) saturate(1.12); backdrop-filter: blur(24px) saturate(1.12);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
-.flash-face.is-front { transform: rotateY(0deg); }
-.flash-face.is-back { transform: rotateY(180deg); }
+    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 64% 90% / .55), transparent 58%),
+    var(--flash-card);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(28,24,18,.05); }
+/* BACK — the reveal FLIPS to DEEP INK (ricoe D2): light text, a cool topic glow. The
+   answer moment. */
+.flash-face.is-back { transform: rotateY(180deg);
+  --f-ink: #f4f3fb; --f-ink2: #dcdae6; --f-mono: #9c988e;
+  --f-line: rgba(255,255,255,.14); --f-paper: rgba(255,255,255,.05); --f-hue-l: 74%;
+  background:
+    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 55% 55% / .20), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(120, 96, 210, .12), transparent 58%),
+    var(--flash-ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 /* Animated cool-gemini hairline ring — masked so only the 1.5px border paints. Rides
    the shared aurora-flow loop, so it freezes with everything else under reduce. */
 .flash-face::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
@@ -2430,12 +2441,14 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   pointer-events: none; background: linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent);
   transform: translateX(-60%) rotate(9deg);
   animation: aurora-checkin-sheen 1.15s var(--mo-ease) .2s both; }
-/* Correct → the glass warms to teal and the hairline turns teal/cyan. */
-.flash-card.is-right .flash-face {
+/* Correct → the ink stays ink (--flash-ink), but the reveal warms with a green/teal
+   glow and the hairline turns teal/green. Scoped to the back face so the win reads on
+   the reveal (and the back keeps its deep-ink base colour). */
+.flash-card.is-right .flash-face.is-back {
   background:
-    radial-gradient(130% 80% at 0% 0%, rgba(34,197,94,.16), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.09), transparent 58%),
-    rgba(20, 22, 40, 0.92); }
+    radial-gradient(130% 80% at 0% 0%, rgba(34,197,94,.22), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(34,184,212,.12), transparent 58%),
+    var(--flash-ink); }
 .flash-card.is-right .flash-face::before {
   background-image: linear-gradient(100deg, #22c55e, #4ade80, #16a34a, #4ade80, #22c55e); }
 .flash-cardin { position: relative; z-index: 3; display: flex; flex-direction: column; flex: 1; }
@@ -2452,7 +2465,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-segs i.is-now { background: hsl(var(--flash-topic-hue) 72% 46%); animation: flash-seg 1.8s ease-in-out infinite; }
 .flash-count { font: 500 12px var(--font-mono); color: #7f8893; letter-spacing: .1em; white-space: nowrap; }
 .flash-rule { height: 2px; border-radius: 2px; margin: 0 0 18px;
-  background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 72% 50%), rgba(31,95,166,.55) 60%, transparent); }
+  background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 66% var(--f-hue-l, 50%)),
+    hsl(var(--flash-topic-hue) 30% var(--f-hue-l, 50%) / .5) 60%, transparent); }
 .flash-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
   color: hsl(var(--flash-topic-hue) 60% 40%); margin: 0 0 10px; }
 /* Multi-select badge — flags "Select all that apply" cards at a glance, beside the
@@ -2460,9 +2474,9 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-multi { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px;
   padding: 3px 10px; border-radius: 999px; font-size: 10px; letter-spacing: .12em;
   text-transform: uppercase; vertical-align: middle; white-space: nowrap;
-  color: hsl(var(--flash-topic-hue) 48% 82%);
-  background: hsl(var(--flash-topic-hue) 42% 55% / .14);
-  border: 1px solid hsl(var(--flash-topic-hue) 42% 58% / .4); }
+  color: hsl(var(--flash-topic-hue) 55% 40%);
+  background: hsl(var(--flash-topic-hue) 55% 55% / .12);
+  border: 1px solid hsl(var(--flash-topic-hue) 50% 50% / .35); }
 .flash-multi > span[aria-hidden] { font-size: 11px; letter-spacing: -2px; }
 /* Big, in-your-face question. clamp() is kept in LONGHAND (not the font shorthand) so
    the CSS minifier can't drop the declaration. */
@@ -2482,9 +2496,9 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-option:nth-child(4) { animation-delay: .20s; }
 .flash-option:nth-child(5) { animation-delay: .26s; }
 .flash-option:nth-child(6) { animation-delay: .32s; }
-.flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 60% 46% / .65);
-  transform: translateX(2px); box-shadow: 0 10px 22px -12px hsl(var(--flash-topic-hue) 50% 40% / .55);
-  background: rgba(255,255,255,.94); }
+.flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 60% 46% / .55);
+  transform: translateX(2px); box-shadow: 0 10px 22px -12px hsl(var(--flash-topic-hue) 50% 45% / .3);
+  background: hsl(var(--flash-topic-hue) 60% 55% / .06); }
 .flash-option:disabled { cursor: default; }
 .flash-lamp { position: relative; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; border: 1px solid rgba(24,34,46,.18);
@@ -2522,7 +2536,7 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-verdict.is-right { color: var(--f-teal); }
 .flash-verdict.is-wrong { color: #cf2230; }
 .flash-compare-label { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 60% 40%); margin: 0 0 4px; }
+  color: hsl(var(--flash-topic-hue) 55% var(--f-hue-l, 40%)); margin: 0 0 4px; }
 .flash-model { font: 400 14.5px/1.6 var(--font-sans); color: #434d59; margin: 0; max-width: 60ch; }
 .flash-reason { margin-top: 14px; }
 .flash-reason-box { width: 100%; resize: none; border-radius: 10px; border: 1px solid var(--f-line);
@@ -2642,7 +2656,7 @@ html[data-motion="reduce"] .flash-face::after { opacity: 0; }
 .flash-step-body { display: flex; flex-direction: column; gap: 14px; }
 .flash-step-lede { position: relative; text-align: center; }
 .flash-step-lede::before { content: "ACTIVE RECALL"; display: block; font: 600 13px var(--font-mono);
-  letter-spacing: .32em; color: #8878b8; margin-bottom: 11px; opacity: 1; }
+  letter-spacing: .32em; color: #6f6857; margin-bottom: 11px; opacity: 1; }
 .flash-step-lede::after { content: ""; display: block; width: 104px; height: 2px; margin: 14px auto 0;
   border-radius: 999px; background: linear-gradient(90deg, transparent, #5e97f6, #b39ddb, #ee99c2, transparent);
   background-size: 200% 100%; animation: flash-underline 3.6s ease-in-out infinite; }
@@ -2667,7 +2681,7 @@ html[data-motion="reduce"] .flash-face::after { opacity: 0; }
    blue. The section breaks out past the 760px setup column so the fan can
    spread. .fan-card transforms are driven by GSAP (CardFanCarousel). */
 .flash-step-sub { text-align: center; margin: 10px 0 0;
-  font: 400 20px var(--font-sans); color: #6b6294; letter-spacing: .002em; }
+  font: 400 20px var(--font-sans); color: #5b5648; letter-spacing: .002em; }
 
 .fan-section { position: relative; width: 96vw; max-width: 80rem;
   margin-left: 50%; transform: translateX(-50%);
@@ -2712,72 +2726,56 @@ html[data-motion="reduce"] .fan-layout { animation: none; }
 .fan-controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
 .fan-arrow { width: 42px; height: 42px; border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-  color: #5a4a8c; background: rgba(255,255,255,.5);
-  border: 1px solid rgba(90,70,150,.16); box-shadow: 0 4px 14px -8px rgba(60,40,110,.4); }
-.fan-arrow:hover { color: #3c2f70; background: rgba(255,255,255,.85); border-color: rgba(90,70,150,.3); }
+  color: #4a463d; background: rgba(255,255,255,.55);
+  border: 1px solid rgba(40,34,24,.16); box-shadow: 0 4px 14px -8px rgba(30,26,20,.4); }
+.fan-arrow:hover { color: var(--flash-ink); background: rgba(255,255,255,.9); border-color: rgba(40,34,24,.32); }
 .fan-dots { display: flex; align-items: center; gap: 7px; }
 .fan-dot { width: 7px; height: 7px; border-radius: 999px;
-  background: rgba(90,70,150,.26); transition: transform .3s ease, background .3s ease; }
-.fan-dot.is-on { background: #7c5fe0; transform: scale(1.4); }
+  background: rgba(40,34,24,.24); transition: transform .3s ease, background .3s ease; }
+.fan-dot.is-on { background: #4285F4; transform: scale(1.4); }
 html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { transition: none; }
 
-/* ── Activity dark-card theme — light-on-dark overrides for the frosted slab.
-   Scoped under .flash-card so they outrank the light base rules by specificity
-   (the --f-* tokens above already flip the token-driven colours; these patch the
-   hardcoded ones). Per-topic hue stays as identity, lifted in lightness for dark. */
-/* Gradient-clipped cool-gemini micro-label, like the check-in topic tag. */
+/* ── Per-face theme patches (ricoe D2). The token-driven --f-* rules above already flip
+   most colours between the white FRONT and the ink BACK; these patch the few hardcoded
+   ones. Shared accents (the gemini-clipped tag) stay on .flash-card (both faces); the
+   light-on-ink patches are scoped to .is-back so the white front keeps the dark base. */
+/* Gradient-clipped moving-gemini micro-label — the hero accent on BOTH faces. */
 .flash-card .flash-tag { background: var(--flash-gemini-loop); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: aurora-flow var(--aurora-anim) linear infinite; }
-.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 50% 70%);
-  -webkit-text-fill-color: hsl(var(--flash-topic-hue) 50% 70%); }
-.flash-card .flash-segs i { background: rgba(170,185,255,.25); }
-.flash-card .flash-count { color: #9aa3cc; }
-.flash-card .flash-rule { background: linear-gradient(90deg, hsl(var(--flash-topic-hue) 46% 66%), rgba(124,130,180,.4) 58%, transparent); }
-.flash-card .flash-kicker { color: hsl(var(--flash-topic-hue) 40% 74%); }
-.flash-card .flash-q { color: #fbfbff; text-shadow: 0 2px 22px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.35); }
-.flash-card .flash-option:hover:not(:disabled) { border-color: hsl(var(--flash-topic-hue) 46% 64% / .75);
-  background: rgba(150,163,204,.08); box-shadow: 0 12px 26px -14px hsl(var(--flash-topic-hue) 42% 46% / .5); }
-.flash-card .flash-lamp { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.22); }
-.flash-card .flash-option.is-picked { border-color: hsl(var(--flash-topic-hue) 48% 60%);
-  background: hsl(var(--flash-topic-hue) 46% 55% / .16); }
-.flash-card .flash-option.is-picked .flash-lamp { background: hsl(var(--flash-topic-hue) 46% 56%);
-  border-color: hsl(var(--flash-topic-hue) 46% 56%); color: #fff; }
-.flash-card .flash-option.is-correct { background: rgba(34,197,94,.22); border-color: #22c55e; }
-.flash-card .flash-option.is-wrong { background: rgba(226,32,48,.20); border-color: #f04050; }
-.flash-card .flash-hint { color: #8b93bd; }
-.flash-card .flash-lock { background: rgba(150,170,255,.06); border-color: rgba(170,185,255,.2); color: #9fb6d6; }
-.flash-card .flash-reveal { border-top-color: rgba(170,185,255,.14); }
-.flash-card .flash-verdict.is-right { color: #4ade80; }
-.flash-card .flash-verdict.is-wrong { color: #ff5d5d; }
-.flash-card .flash-compare-label { color: hsl(var(--flash-topic-hue) 40% 74%); }
-.flash-card .flash-model { color: rgba(236,236,247,.80); }
-.flash-card .flash-model-big { color: rgba(244,244,253,.92); }
-.flash-card .flash-reason-box { background: rgba(150,170,255,.06); }
-/* Next card — a calm SOLID indigo (no gradient, no glow): a clear action that stays
-   out of the way of the green/red verdicts. */
+.flash-card .flash-tag > span[aria-hidden] { color: hsl(var(--flash-topic-hue) 58% var(--f-hue-l, 50%));
+  -webkit-text-fill-color: hsl(var(--flash-topic-hue) 58% var(--f-hue-l, 50%)); }
+/* Progress segs: base #cdd9e8 reads on the white front; lift to light on the ink back. */
+.flash-face.is-back .flash-segs i { background: rgba(255,255,255,.22); }
+.flash-face.is-back .flash-count { color: #b8b4ac; }
+/* Deep-ink BACK: the "Findings" model answer is light on ink. */
+.flash-face.is-back .flash-model { color: rgba(236,236,247,.82); }
+.flash-face.is-back .flash-model-big { color: rgba(244,244,253,.92); }
+/* Next card — a calm SOLID indigo (no gradient, no glow) on BOTH faces: a clear action
+   that stays out of the way of the green/red verdicts. */
 .flash-card .flash-advance { background: #5b63d6;
-  box-shadow: 0 8px 20px -12px rgba(0,0,0,.55); }
+  box-shadow: 0 8px 20px -12px rgba(0,0,0,.4); }
 .flash-card .flash-advance:hover:not(:disabled) { background: #656ddf; filter: none; }
-/* Dwelling Next — out-specifies the gradient above so the held state reads as inert. */
-.flash-card .flash-advance.is-dwelling { background: rgba(150,170,255,.10); color: #c8cef0; box-shadow: none; }
-.flash-card .flash-mark-got, .flash-card .flash-mark-miss { background: rgba(150,170,255,.06); }
-.flash-card .flash-mark-got:disabled, .flash-card .flash-mark-miss:disabled { opacity: .5; cursor: default; }
-.flash-card .flash-mark-got { color: #4ade80; border-color: rgba(74,222,128,.45); }
-.flash-card .flash-mark-got:hover { background: rgba(74,222,128,.12); }
-.flash-card .flash-mark-miss { color: #ff5d5d; border-color: rgba(255,93,93,.4); }
-.flash-card .flash-mark-miss:hover { background: rgba(255,93,93,.1); }
+/* Dwelling Next — out-specifies the solid indigo above so the held state reads as inert. */
+.flash-face.is-back .flash-advance.is-dwelling { background: rgba(255,255,255,.10); color: #c8cef0; box-shadow: none; }
+/* Free-text self-mark lives on the ink BACK face. */
+.flash-face.is-back .flash-mark-got, .flash-face.is-back .flash-mark-miss { background: rgba(255,255,255,.06); }
+.flash-face.is-back .flash-mark-got:disabled, .flash-face.is-back .flash-mark-miss:disabled { opacity: .5; cursor: default; }
+.flash-face.is-back .flash-mark-got { color: #4ade80; border-color: rgba(74,222,128,.45); }
+.flash-face.is-back .flash-mark-got:hover { background: rgba(74,222,128,.12); }
+.flash-face.is-back .flash-mark-miss { color: #ff5d5d; border-color: rgba(255,93,93,.4); }
+.flash-face.is-back .flash-mark-miss:hover { background: rgba(255,93,93,.1); }
 
-/* Results — the same dark frosted "lit glass" + cool-gemini hairline as the study card. */
+/* Results — the DEEP-INK reveal language (ricoe D2): the answer-moment ink + the moving
+   gemini hairline, as the celebratory finish to the deck. */
 .flash-results { position: relative; width: 100%; max-width: 600px; text-align: center;
   isolation: isolate; overflow: hidden; border: none; border-radius: 24px; padding: 42px 38px;
   background:
-    radial-gradient(130% 80% at 0% 0%, rgba(150,110,235,.16), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(90,150,235,.09), transparent 58%),
-    rgba(28, 18, 52, 0.94);
-  -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
+    radial-gradient(130% 80% at 0% 0%, rgba(91,157,255,.16), transparent 58%),
+    radial-gradient(130% 90% at 100% 100%, rgba(150,110,235,.10), transparent 58%),
+    var(--flash-ink);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.07),
-    0 44px 96px -36px rgba(70,40,140,.4), 0 18px 46px -22px rgba(40,24,90,.36); }
+    0 44px 96px -36px rgba(30,26,20,.4), 0 18px 46px -22px rgba(20,16,10,.3); }
 .flash-results::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box; pointer-events: none;
   border-radius: inherit; padding: 1.5px;
   background-image: linear-gradient(100deg, #5B9DFF, #6E8BFF, #22B8D4, #6E8BFF, #5B9DFF); background-size: 200% 100%;
@@ -2786,7 +2784,7 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
   -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
   opacity: .72; }
 .flash-results > * { position: relative; z-index: 2; }
-.flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: #a99cf2; }
+.flash-results-kicker { font: 500 11px var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: #b7bdf0; }
 .flash-results-score { font: 400 64px var(--font-serif); margin: 10px 0;
   background: linear-gradient(90deg, hsl(var(--flash-score-hue) 80% 72%), #7FE6FF);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
@@ -2804,19 +2802,17 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
    screen but never spans edge to edge. Loading/empty copy reads light on the field. */
 .flash-stage { width: min(680px, 94vw); display: flex; flex-direction: column; align-items: center; }
 .flash-stage-msg { text-align: center; }
-.flash-msg { font: 400 20px var(--font-serif); color: #4a3f7a; }
+.flash-msg { font: 400 20px var(--font-serif); color: #5b5648; }
 
-/* Topic intro (ricoe B5) — the pre-deck beat. The study card's dark "lit glass"
-   language as a single face (no flip), sized by .flash-stage, adopting the topic hue. */
+/* Topic intro (ricoe B5) — the pre-deck beat. The bright-white study-card language
+   (ricoe D2) as a single face (no flip), sized by .flash-stage, adopting the topic hue. */
 .flash-intro { position: relative; width: 100%; border-radius: 26px; overflow: hidden;
-  isolation: isolate; padding: 46px 44px 40px;
+  isolation: isolate; padding: 46px 44px 40px; --f-hue-l: 42%;
   background:
-    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 52% 62% / .16), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(150, 96, 224, .12), transparent 58%),
-    rgba(28, 18, 52, 0.94);
-  -webkit-backdrop-filter: blur(22px) saturate(1.15); backdrop-filter: blur(22px) saturate(1.15);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07),
-    0 44px 96px -36px rgba(70,40,140,.4), 0 18px 46px -22px rgba(40,24,90,.36);
+    radial-gradient(130% 80% at 0% 0%, hsl(var(--flash-topic-hue) 64% 90% / .55), transparent 58%),
+    var(--flash-card);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(28,24,18,.05),
+    0 44px 96px -36px rgba(30,26,20,.28), 0 18px 46px -22px rgba(20,16,10,.2);
   animation: flash-intro-in .5s cubic-bezier(.2,.7,.2,1) both; }
 .flash-intro::before { content: ""; position: absolute; inset: 0; z-index: 0; box-sizing: border-box;
   pointer-events: none; border-radius: inherit; padding: 2px;
@@ -2827,7 +2823,7 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
   filter: saturate(1.18) drop-shadow(0 0 6px rgba(139,92,246,.34)); opacity: .9; }
 .flash-intro-in { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; }
 .flash-intro-kicker { font: 500 11px var(--font-mono); letter-spacing: .22em; text-transform: uppercase;
-  color: hsl(var(--flash-topic-hue) 46% 76%); margin: 0 0 14px; }
+  color: hsl(var(--flash-topic-hue) 55% 42%); margin: 0 0 14px; }
 .flash-intro-title { font-family: var(--font-serif); font-weight: 500; font-size: clamp(30px, 5vw, 46px);
   line-height: 1.05; margin: 0;
   background: var(--flash-gemini-loop, linear-gradient(100deg,#4488F4,#8B5CF6,#D96FB0,#4FC3E8,#4488F4));
@@ -2835,8 +2831,8 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
   animation: flash-shimmer 9s ease-in-out infinite; }
 .flash-intro-blurb { font: 400 clamp(16px, 2.1vw, 20px)/1.55 var(--font-sans);
-  color: rgba(236,236,247,.86); margin: 16px 0 0; max-width: 42ch; }
-.flash-intro-meta { font: 500 12px var(--font-mono); letter-spacing: .05em; color: #9aa3cc; margin: 18px 0 0; }
+  color: #45403a; margin: 16px 0 0; max-width: 42ch; }
+.flash-intro-meta { font: 500 12px var(--font-mono); letter-spacing: .05em; color: #6d6860; margin: 18px 0 0; }
 .flash-intro-go { margin-top: 30px; align-self: stretch; }
 @keyframes flash-intro-in { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
 

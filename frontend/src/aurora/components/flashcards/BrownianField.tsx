@@ -1,12 +1,12 @@
 "use client";
-/* BrownianField — a cohesive cool-palette colour field that drifts with Brownian
+/* BrownianField — a cohesive gemini-palette colour field that drifts with Brownian
    motion across its parent (the parent owns the position + blend). Now the activity
-   canvas's BACKGROUND layer: large soft blooms wander the whole lavender field and
+   canvas's BACKGROUND layer: large soft blooms wander the whole greige field and
    read in the margins around the (opaque) card. DOM spots, one RAF loop, transform-
    only. Static + frozen under reduced motion. Decorative. */
 import { useEffect, useRef } from "react";
 
-const HUES = [258, 272, 286, 246, 292, 264]; // indigo · violet · purple · blue-indigo · magenta-purple · indigo — violet-forward for the light "purple off-white" world (ricoe B6)
+const HUES = [216, 250, 288, 232, 344, 200]; // blue · indigo · violet · blue-indigo · rose · cyan — gemini-toned blooms for the warm greige "ivory & ink" world (ricoe D2)
 
 export function BrownianField({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);

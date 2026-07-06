@@ -279,6 +279,31 @@ if (await np.locator('[data-testid="flash-advance"]').isEnabled()) {
   console.error("FAIL: Next should be settle-gated immediately after the flip"); process.exit(1);
 }
 console.log("PASS: flashcards — plain tap flips to a full-bleed payoff; Next is settle-gated");
+
+// ── RICOE v2 D2: flashcards is "ivory & ink" (supersedes the rejected purple B6). The
+// study-card FRONT is bright white (--flash-card), the reveal BACK flips to deep ink
+// (--flash-ink #141416), and the canvas is warm greige — never the old #EDE6F8 lavender.
+const d2 = await np.evaluate(() => {
+  const front = document.querySelector(".flash-card .flash-face.is-front");
+  const back = document.querySelector(".flash-card .flash-face.is-back");
+  const root = document.querySelector(".flash-root");
+  return {
+    front: front ? getComputedStyle(front).backgroundColor : "",
+    back: back ? getComputedStyle(back).backgroundColor : "",
+    rootImg: root ? getComputedStyle(root).backgroundImage : "",
+  };
+});
+if (d2.front !== "rgb(255, 255, 255)") {
+  console.error(`FAIL: D2 study-card front face must be bright white (got '${d2.front}')`); process.exit(1);
+}
+if (d2.back !== "rgb(20, 20, 22)") {
+  console.error(`FAIL: D2 reveal back face must be deep ink #141416 (got '${d2.back}')`); process.exit(1);
+}
+if (/237,\s*230,\s*248/.test(d2.rootImg)) {
+  console.error("FAIL: D2 canvas is still the purple B6 lavender (#EDE6F8)"); process.exit(1);
+}
+console.log("PASS: flashcards — ivory & ink (white study card, deep-ink reveal, greige canvas)");
+
 await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 
 // Card 2 (requires_explanation): tapping shows the verdict + a reasoning box on the
