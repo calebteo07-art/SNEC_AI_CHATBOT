@@ -107,6 +107,20 @@ const greetAfter = await np.locator('[data-testid="greeting"]').innerText();
 if (greetBefore === greetAfter) { console.error("FAIL: 'Surprise me' did not change the greeting"); process.exit(1); }
 console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards, reshuffle)");
 
+// Streak badge collection (Selena everywhere): the milestone ladder is a shelf of generated
+// collectible medallions. With streak=4, First Light is collected, Clear View is next, the
+// other four are locked. Verifies the state mapping AND that the generated art asset is served.
+const ladder = '[data-testid="milestone-ladder"]';
+if ((await np.locator(`${ladder} .hm-badge`).count()) !== 6) { console.error("FAIL: expected 6 streak badges"); process.exit(1); }
+if ((await np.locator(`${ladder} .hm-badge-art`).count()) !== 6) { console.error("FAIL: streak badges missing medallion art"); process.exit(1); }
+const bCollected = await np.locator(`${ladder} .hm-badge[data-state="collected"]`).count();
+const bNext = await np.locator(`${ladder} .hm-badge[data-state="next"]`).count();
+const bLocked = await np.locator(`${ladder} .hm-badge[data-state="locked"]`).count();
+if (bCollected !== 1 || bNext !== 1 || bLocked !== 4) { console.error(`FAIL: badge states (collected=${bCollected} next=${bNext} locked=${bLocked})`); process.exit(1); }
+const badgeServed = await np.evaluate(async () => (await fetch("/brand/badges/first-light.jpg")).ok);
+if (!badgeServed) { console.error("FAIL: badge art /brand/badges/first-light.jpg not served"); process.exit(1); }
+console.log("PASS: Selena everywhere — streak badge collection (6 generated medallions; collected/next/locked; art served)");
+
 // feature cards must NAVIGATE on tap (ricoe D3): the perpetual drift + 3D projection
 // used to swallow the click and leave the user stuck on the dashboard. A tap on the
 // carousel now routes to a feature (nearest card, resolved at the stage).
@@ -440,6 +454,16 @@ const studioOverflow = await np.evaluate(() => document.documentElement.scrollWi
 if (studioOverflow > 2) { console.error(`FAIL: /studio horizontal overflow at 390px = ${studioOverflow}px`); process.exit(1); }
 console.log("PASS: Selena Studio — no horizontal overflow at 390px");
 await np.setViewportSize({ width: 1440, height: 900 });
+
+// Selena everywhere — identity surfaces: the student's saved Selena replaces initials on the
+// Profile avatar and the Atlas Rail profile chip (the tutor + home keep the BASE mascot per the
+// ricoe A3 / home Iris locks). /api/avatar is mocked above, so a real config renders.
+await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
+await np.waitForSelector(".aurora-profile-avatar-lg[data-selena] svg", { timeout: 12000 });
+if ((await np.locator(".aurora-rail .aurora-avatar[data-selena] svg").count()) < 1) {
+  console.error("FAIL: rail profile chip did not render the student's saved Selena"); process.exit(1);
+}
+console.log("PASS: Selena everywhere — Profile avatar + rail chip render the student's saved Selena");
 
 // Leaderboard (RICOE v2, D7): everyone by default, ranked by XP, with Selena headshots.
 // The GET mock honours the ?role= filter and reflects the hide state so the hide toggle is a
