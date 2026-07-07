@@ -42,7 +42,7 @@ def generate_one(pose_id: str) -> Path | None:
     if not data:
         print(f"  [{pose_id}] no image generated")
         return None
-    keyed = keying.normalize_512(keying.key_out(Image.open(io.BytesIO(data)), BG_KEY))
+    keyed = keying.normalize_512(keying.despill_green(keying.key_out(Image.open(io.BytesIO(data)), BG_KEY)))
     TMP_DIR.mkdir(parents=True, exist_ok=True)
     out = TMP_DIR / f"{pose_id}.png"
     keyed.save(out)

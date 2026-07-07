@@ -52,6 +52,25 @@ def key_out(img: Image.Image, bg_hex: str, tol: int = 48) -> Image.Image:
     return img
 
 
+def despill_green(img: Image.Image) -> Image.Image:
+    """Neutralise green chroma spill on the keyed subject's anti-aliased edge.
+
+    Corner-flood keying leaves a rim of edge pixels that blended the subject with
+    the green backdrop — a faint green outline on light surfaces. The Iris mascot
+    has no truly-green content (peachy body, blue eye), so on every opaque
+    green-dominant pixel we clamp green down to max(red, blue): the rim goes
+    neutral while the body and eye are untouched (their green never dominates)."""
+    img = img.convert("RGBA")
+    px = img.load()
+    w, h = img.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a and g > r and g > b:
+                px[x, y] = (r, max(r, b), b, a)
+    return img
+
+
 def normalize_512(img: Image.Image, canvas: int = 512, margin: float = 0.06) -> Image.Image:
     """Trim to the opaque subject, centre it, and letterbox onto a transparent
     square canvas so every pose shares the iris.png framing/scale."""
