@@ -55,9 +55,20 @@ def test_exam_step_reveals_finding_and_is_manual():
     assert va["kind"] == "manual"
 
 
-def test_unknown_do_step_defaults_to_manual():
+def test_unknown_do_step_defaults_to_verbal():
+    # The action panel lists ONLY recognised hands-on procedures (ricoe C1: "only manual
+    # ones"). An unrecognised step is not a known hands-on procedure, so it defaults to
+    # verbal — no chip clutter, no generically-clipped label. It's still completable from
+    # the checklist (tap the current row) and auto-ticks from the consult.
     actions = build_actions({}, [{"step_number": 9, "action": "Calibrate the widget array", "category": "equipment", "critical": False}])
-    assert actions[0]["kind"] == "manual"
+    assert actions[0]["kind"] == "verbal"
+
+
+def test_documentation_do_step_is_verbal_not_a_chip():
+    # A "record/document" style step that isn't a recognised hands-on procedure must NOT
+    # become a manual chip (ricoe C1: "talking / non-manual actions removed from the panel").
+    actions = build_actions({}, [{"step_number": 3, "action": "Record readings in EMR", "category": "post_procedure", "critical": False}])
+    assert actions[0]["kind"] == "verbal"
 
 
 def test_blank_action_is_skipped():
