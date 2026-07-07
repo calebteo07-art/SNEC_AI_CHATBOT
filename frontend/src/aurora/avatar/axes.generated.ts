@@ -25,7 +25,7 @@ export const DEFAULT_AVATAR = {
   bodyColor: "peach",
   irisColor: "blue",
   eyeShape: "round",
-  lashes: "natural",
+  lashes: "none",
   mouth: "smile",
   blush: "peach",
   glasses: "none",
