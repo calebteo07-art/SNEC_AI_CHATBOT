@@ -132,6 +132,25 @@ Selena"** entry lives on **home** + the **leaderboard** thereafter (Profile alre
 - **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
   paid 3D portrait (fires on save as today); staff.
 
+## Selena preview renderer — raster-composite, LOCKED 2026-07-07
+**Direction**: the instant `<Selena>` preview is composited **on top of the real homepage
+raster** (`/brand/iris.png`), not drawn as flat vector — the user's non-negotiable
+("identical to the selena in the homepage", 2026-07-07, after rejecting two vector looks).
+The raster is the SVG base layer; customizations apply as scoped recolors + sticker overlays:
+bodyColor = hue/sat/gamma filter with the eyeball repainted from the original (sclera and
+highlights stay true), irisColor = the same tint clipped to the measured iris circle,
+eyeShape = body-matched lids clipped to the eyeball, mouth = skin patch over the baked smile
+plus a drawn mouth, everything else = remapped sticker overlays (`renderSelena.ts`).
+- **Acceptance criteria when refining**: the DEFAULT config renders pixel-identical to the
+  Home greeting mascot (it IS iris.png — default lashes are `none` to match); every axis id
+  in the backend registry stays handled (typed-Record parity guard must compile); recolors
+  keep the painterly look (whites stay white, pupil stays black — gamma, never linear);
+  overlays stay anchored to the measured raster geometry (eye centre ≈ 234,234 in the 512px
+  source); free/instant/deterministic — no AI in the preview loop.
+- **Out of scope**: the paid per-config 3D portrait (D12, unchanged — still swaps in after
+  save); the D11 curated sprite library (largely superseded by this: the base already IS the
+  3D art; revisit only if extras need painterly treatment).
+
 ## Generated imagery standard — STANDING
 Medically and anatomically correct AND beautiful; accuracy baked into prompts; SNEC
 staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, plain

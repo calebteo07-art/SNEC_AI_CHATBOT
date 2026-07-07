@@ -44,14 +44,15 @@ AVATAR_AXES: dict[str, list[str]] = {
                    "galaxy", "confetti", "sunset", "ocean", "forest"],
 }
 
-# The default Selena — matches the homepage Iris: peachy body, big blue iris,
-# gentle smile, soft blush, clean background, no extras.
+# The default Selena — IDENTICAL to the homepage Iris raster: peachy body, big blue
+# iris, gentle smile, soft blush, clean background, no lashes, no extras. The frontend
+# renders the default as the literal iris.png, so every default axis must match it.
 DEFAULT_AVATAR: dict[str, object] = {
     "version": CONFIG_VERSION,
     "bodyColor": "peach",
     "irisColor": "blue",
     "eyeShape": "round",
-    "lashes": "natural",
+    "lashes": "none",
     "mouth": "smile",
     "blush": "peach",
     "glasses": "none",

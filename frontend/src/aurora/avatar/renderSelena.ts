@@ -1,8 +1,17 @@
-// Selena renderer — builds the layered one-eyed mascot as an SVG string.
+// Selena renderer — composites a custom Selena ON TOP of the real homepage raster.
 //
-// Scaffold (RICOE D11): parts are FREE placeholder SVG in a soft-3D style. The
-// curated Nano-Banana 3D sprite library swaps in later (part 3) by replacing the
-// per-part renderers below — the config contract and layer order stay the same.
+// The base layer IS `/brand/iris.png` (the homepage greeting mascot), so the default
+// config renders pixel-identical to the Selena everyone meets on the Home card — the
+// user's non-negotiable (2026-07-07: "identical to the selena in the homepage").
+// Customizations apply as scoped recolors + sticker overlays on that raster:
+//   bodyColor  → hue-rotate/saturate/gamma filter on the whole image, with the eyeball
+//                repainted from the ORIGINAL raster so the sclera/highlights stay true
+//   irisColor  → the same tint math clipped to the (measured) iris circle
+//   eyeShape   → body-matched lid shapes clipped to the eyeball / pupil overlays
+//   mouth      → skin patch over the baked smile + a drawn mouth (smile = the raster's own)
+//   the rest   → vector sticker overlays remapped onto the raster's anchor points
+// Gamma (not linear) recoloring keeps whites white and blacks black, which is what
+// lets one painterly source image survive 20 body tints without going muddy.
 //
 // The shape-axis registries are typed Record<IdUnion, ...>, so `npm run typecheck`
 // fails if the backend registry gains an id this renderer doesn't handle. That is
@@ -13,6 +22,33 @@ import {
   type EyeShape, type Lashes, type Mouth, type Glasses, type Topper, type Accessory, type Outfit,
 } from "./manifest";
 
+const SELENA_IMG = "/brand/iris.png";
+
+// ── measured raster geometry (iris.png is 512×512; placed at 250×250 in the 240×260
+//    viewBox). Measured with PIL: eye centre (234,234), blue iris r≈92, brow chord
+//    over the eye at y≈150, char top/bottom y≈84/436, baked smile centre (232,350),
+//    body peach rgb(226,168,142), iris HSL ≈ (207°, 0.52, 0.51). ──
+const S = 250 / 512, IX = 0, IY = 6;
+const EX = 234 * S + IX;          // eye centre x ≈ 114.3
+const EY = 234 * S + IY;          // eye centre y ≈ 120.3
+const IR = 92 * S;                // iris radius ≈ 44.9
+const EBR = 100 * S;              // eyeball radius ≈ 48.8
+const BROW_Y = 150 * S + IY;      // brow chord ≈ 79.2
+const HEAD_TOP = 84 * S + IY;     // ≈ 47
+const CHAR_BOT = 436 * S + IY;    // ≈ 219
+const MOUTH_X = 232 * S + IX;     // baked smile ≈ (113.3, 176.9)
+const MOUTH_Y = 350 * S + IY;
+const BODY_BASE = { h: 18.6, s: 0.59, l: 0.72 };   // raster body peach
+const IRIS_BASE = { h: 207, s: 0.52, l: 0.51 };    // raster iris blue
+const BODY_BASE_HEX = "#E2A88E";                   // sampled cheek tone (lids/patches)
+
+// Sticker registries were authored around the old vector anchors (eye centre 120,108 /
+// head top 44 / body bottom 216); these transforms remap them onto the raster.
+const EYE_XFORM = `translate(${EX.toFixed(1)} ${EY.toFixed(1)}) scale(${((EBR + 4) / 56).toFixed(3)}) translate(-120 -108)`;
+const TOP_XFORM = `translate(-1 ${(HEAD_TOP - 44).toFixed(1)})`;
+const NECK_XFORM = `translate(-3 ${(CHAR_BOT - 230).toFixed(1)})`;
+const SIDE_XFORM = `translate(0 6)`;
+
 function shade(hex: string, amt: number): string {
   const n = parseInt(hex.slice(1), 16);
   let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
@@ -21,55 +57,93 @@ function shade(hex: string, amt: number): string {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 const pick = <T,>(m: Record<string, T>, k: string, fb: T): T => (k in m ? m[k] : fb);
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
-type EyeSpec = { rx: number; ry: number; lid: number; spark?: boolean; star?: boolean; tilt?: number };
-const EYE_SHAPES: Record<EyeShape, EyeSpec> = {
-  round: { rx: 52, ry: 54, lid: 16 },
-  wide: { rx: 58, ry: 55, lid: 16 },
-  almond: { rx: 56, ry: 42, lid: 13 },
-  sleepy: { rx: 52, ry: 38, lid: 26 },
-  upturned: { rx: 54, ry: 50, lid: 16, tilt: -6 },
-  sparkle: { rx: 52, ry: 54, lid: 16, spark: true },
-  starry: { rx: 52, ry: 54, lid: 16, star: true },
-};
+type Hsl = { h: number; s: number; l: number };
+function hexToHsl(hex: string): Hsl {
+  const n = parseInt(hex.slice(1), 16);
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  const l = (mx + mn) / 2;
+  if (mx === mn) return { h: 0, s: 0, l };
+  const d = mx - mn;
+  const s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  let h;
+  if (mx === r) h = (g - b) / d + (g < b ? 6 : 0);
+  else if (mx === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  return { h: h * 60, s, l };
+}
 
-function eye(iris: string, body: string, shape: EyeShape, uid: number): string {
-  const cx = 120, cy = 108, lidc = shade(body, -0.22);
-  const s = pick(EYE_SHAPES, shape, EYE_SHAPES.round);
-  const iR = Math.min(s.rx, s.ry) - 9;
-  const star = (r: number, cxx: number, cyy: number, fill: string) => {
+/** hue-rotate + saturate + gamma filter mapping a measured base region to a target hex.
+ *  Gamma preserves pure white/black, so sclera, highlights and pupil survive. */
+function tintFilter(id: string, base: Hsl, hex: string): string {
+  const t = hexToHsl(hex);
+  const rot = (t.h - base.h).toFixed(1);
+  const sat = clamp(t.s / Math.max(base.s, 0.01), 0.3, 2).toFixed(2);
+  const exp = clamp(Math.log(clamp(t.l, 0.05, 0.95)) / Math.log(base.l), 0.5, 4).toFixed(2);
+  const g = (ch: string) => `<feFunc${ch} type="gamma" amplitude="1" exponent="${exp}" offset="0"/>`;
+  return `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix type="hueRotate" values="${rot}"/><feColorMatrix type="saturate" values="${sat}"/><feComponentTransfer>${g("R")}${g("G")}${g("B")}</feComponentTransfer></filter>`;
+}
+
+/** The same tint transform applied to a hex in JS — for lids/patches that must match
+ *  the (possibly tinted) body. */
+function tintHex(base: Hsl, baseHex: string, hex: string): string {
+  const t = hexToHsl(hex), b = hexToHsl(baseHex);
+  const h = (b.h + (t.h - base.h) + 360) % 360;
+  const s = clamp(b.s * (t.s / Math.max(base.s, 0.01)), 0, 1);
+  const l = clamp(Math.pow(clamp(b.l, 0.01, 0.99), Math.log(clamp(t.l, 0.05, 0.95)) / Math.log(base.l)), 0, 1);
+  const f = (p: number, q: number, tt: number) => {
+    tt = (tt + 1) % 1;
+    if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+    if (tt < 1 / 2) return q;
+    if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const to = (v: number) => Math.round(clamp(f(p, q, v), 0, 1) * 255).toString(16).padStart(2, "0");
+  return "#" + to(h / 360 + 1 / 3) + to(h / 360) + to(h / 360 - 1 / 3);
+}
+
+// ── eye-shape treatments over the raster eye. Lids are body-matched blurred shapes
+//    CLIPPED to the eyeball, so their outer edge coincides exactly with the eye. ──
+function upperLid(covTop: number, uid: number): string {
+  const y = EY - EBR + 2 * EBR * covTop;
+  return `<g clip-path="url(#eb${uid})"><path d="M${(EX - EBR - 8).toFixed(1)} ${(BROW_Y - 24).toFixed(1)} L${(EX + EBR + 8).toFixed(1)} ${(BROW_Y - 24).toFixed(1)} L${(EX + EBR + 8).toFixed(1)} ${(y - 6).toFixed(1)} Q ${EX.toFixed(1)} ${(y + 12).toFixed(1)} ${(EX - EBR - 8).toFixed(1)} ${(y - 6).toFixed(1)} Z" fill="url(#lid${uid})" filter="url(#lidblur${uid})"/></g>`;
+}
+function lowerLid(covBot: number, uid: number): string {
+  const y = EY + EBR - 2 * EBR * covBot;
+  return `<g clip-path="url(#eb${uid})"><path d="M${(EX - EBR - 8).toFixed(1)} ${(EY + EBR + 12).toFixed(1)} L${(EX + EBR + 8).toFixed(1)} ${(EY + EBR + 12).toFixed(1)} L${(EX + EBR + 8).toFixed(1)} ${(y + 6).toFixed(1)} Q ${EX.toFixed(1)} ${(y - 12).toFixed(1)} ${(EX - EBR - 8).toFixed(1)} ${(y + 6).toFixed(1)} Z" fill="url(#lid${uid})" filter="url(#lidblur${uid})"/></g>`;
+}
+const EYE_SHAPES: Record<EyeShape, (uid: number) => string> = {
+  round: () => "",
+  wide: () => "", // handled by a slight eyeball scale-up in the repaint layer
+  almond: (uid) => upperLid(0.24, uid) + lowerLid(0.18, uid),
+  sleepy: (uid) => upperLid(0.36, uid),
+  upturned: (uid) => `<g transform="rotate(-7 ${EX.toFixed(1)} ${EY.toFixed(1)})">${upperLid(0.18, uid)}</g>`,
+  sparkle: () =>
+    `<g fill="#fff"><circle cx="${(EX + IR * 0.52).toFixed(1)}" cy="${(EY - IR * 0.46).toFixed(1)}" r="4"/><circle cx="${(EX - IR * 0.1).toFixed(1)}" cy="${(EY + IR * 0.6).toFixed(1)}" r="2.4"/><path d="M${(EX + IR * 0.05).toFixed(1)} ${(EY - IR * 0.75).toFixed(1)} l1.6 4.4 4.4 1.6 -4.4 1.6 -1.6 4.4 -1.6 -4.4 -4.4 -1.6 4.4 -1.6 Z"/></g>`,
+  starry: () => {
+    const r = IR * 0.34;
     let pts = "";
     for (let i = 0; i < 10; i++) {
       const rad = i % 2 ? r * 0.45 : r, a = (Math.PI / 5) * i - Math.PI / 2;
-      pts += `${(cxx + Math.cos(a) * rad).toFixed(1)},${(cyy + Math.sin(a) * rad).toFixed(1)} `;
+      pts += `${(EX + Math.cos(a) * rad).toFixed(1)},${(EY + 2 + Math.sin(a) * rad).toFixed(1)} `;
     }
-    return `<polygon points="${pts}" fill="${fill}"/>`;
-  };
-  let o = `<g transform="rotate(${s.tilt ?? 0} ${cx} ${cy})">`;
-  o += `<ellipse cx="${cx}" cy="${cy}" rx="${s.rx}" ry="${s.ry}" fill="#FBFAF7"/>`;
-  o += `<circle cx="${cx}" cy="${cy + 2}" r="${iR}" fill="url(#ir${uid})"/>`;
-  o += `<ellipse cx="${cx}" cy="${cy + iR * 0.42}" rx="${iR * 0.66}" ry="${iR * 0.34}" fill="${shade(iris, 0.32)}" opacity="0.55"/>`;
-  o += `<circle cx="${cx}" cy="${cy + 2}" r="${iR}" fill="none" stroke="${shade(iris, -0.5)}" stroke-width="2.2" opacity="0.7"/>`;
-  if (s.star) o += star(iR * 0.5, cx, cy + 2, "#12181f");
-  else o += `<circle cx="${cx}" cy="${cy + 2}" r="${iR * 0.44}" fill="#12181f"/>`;
-  o += `<circle cx="${cx - iR * 0.36}" cy="${cy - iR * 0.36}" r="${iR * 0.42}" fill="url(#hl${uid})"/>`;
-  o += `<circle cx="${cx - iR * 0.3}" cy="${cy - iR * 0.34}" r="${iR * 0.14}" fill="#fff"/>`;
-  if (s.spark) o += `<circle cx="${cx + iR * 0.56}" cy="${cy - iR * 0.52}" r="3.4" fill="#fff"/><circle cx="${cx}" cy="${cy + iR * 0.66}" r="2" fill="#fff"/>`;
-  o += `<path d="M${cx - s.rx - 2} ${cy - 2} Q ${cx} ${cy - s.ry - s.lid} ${cx + s.rx + 2} ${cy - 2} Q ${cx} ${cy - s.ry + s.lid} ${cx - s.rx - 2} ${cy - 2} Z" fill="url(#bd${uid})"/>`;
-  o += `<path d="M${cx - s.rx + 2} ${cy - 3} Q ${cx} ${cy - s.ry + s.lid - 1} ${cx + s.rx - 2} ${cy - 3}" fill="none" stroke="${lidc}" stroke-width="3.4" stroke-linecap="round"/>`;
-  o += `</g>`;
-  return o;
-}
+    return `<circle cx="${EX.toFixed(1)}" cy="${(EY + 2).toFixed(1)}" r="${(r + 4).toFixed(1)}" fill="#14202e"/><polygon points="${pts}" fill="#ffd76a"/>`;
+  },
+};
 
 const LASHES: Record<Lashes, () => string> = {
   none: () => "",
-  natural: () => `<g fill="none" stroke="#2b2622" stroke-width="2.4" stroke-linecap="round"><path d="M70 74 q -6 -6 -12 -6"/><path d="M120 62 q 0 -8 0 -10"/><path d="M170 74 q 6 -6 12 -6"/></g>`,
-  glam: () => `<g fill="none" stroke="#1c1a18" stroke-width="3" stroke-linecap="round"><path d="M66 76 q -12 -10 -22 -8"/><path d="M96 64 q -4 -10 -10 -12"/><path d="M144 64 q 4 -10 10 -12"/><path d="M174 76 q 12 -10 22 -8"/></g>`,
-  cyber: () => `<g fill="none" stroke="#37E0D6" stroke-width="2.4" stroke-linecap="round"><path d="M64 74 l -16 -8"/><path d="M64 80 l -18 0"/><path d="M176 74 l 16 -8"/><path d="M176 80 l 18 0"/></g>`,
+  natural: () => `<g fill="none" stroke="#2b2622" stroke-width="2.6" stroke-linecap="round"><path d="M58 92 q -8 -2 -14 2"/><path d="M182 92 q 8 -2 14 2"/></g>`,
+  glam: () => `<g fill="none" stroke="#1c1a18" stroke-width="3" stroke-linecap="round"><path d="M56 96 q -12 -4 -22 0"/><path d="M184 96 q 12 -4 22 0"/><path d="M64 84 q -6 -8 -14 -10"/><path d="M176 84 q 6 -8 14 -10"/></g>`,
+  cyber: () => `<g fill="none" stroke="#37E0D6" stroke-width="2.6" stroke-linecap="round"><path d="M54 96 l -16 -6"/><path d="M186 96 l 16 -6"/></g>`,
 };
 
-const MOUTHS: Record<Mouth, () => string> = {
-  smile: () => `<path d="M105 184 q 15 12 30 0" fill="none" stroke="#B95863" stroke-width="3.2" stroke-linecap="round"/>`,
+// smile = null: the raster's own baked smile IS the smile option.
+const MOUTHS: Record<Mouth, (() => string) | null> = {
+  smile: null,
   grin: () => `<path d="M101 181 q 19 6 38 0 q -7 18 -19 18 q -12 0 -19 -18 Z" fill="#AB4653"/><path d="M103 182 q 17 5 34 0 l -2 5 q -15 3 -30 0 Z" fill="#fff"/>`,
   soft: () => `<path d="M111 184 q 9 6 18 0" fill="none" stroke="#B95863" stroke-width="3" stroke-linecap="round"/>`,
   open: () => `<ellipse cx="120" cy="186" rx="9" ry="11" fill="#AB4653"/><path d="M111 182 q 9 5 18 0" fill="none" stroke="#fff" stroke-width="2.4"/>`,
@@ -127,22 +201,13 @@ const OUTFITS: Record<Outfit, () => string> = {
   cape: () => `<path d="M84 198 Q 120 214 156 198 L 168 244 L 72 244 Z" fill="#7A3B9E"/><path d="M100 200 L120 214 L140 200 L134 194 L120 204 L106 194 Z" fill="#F6C64B"/>`,
 };
 
-function bodyLayer(body: string, uid: number): string {
-  const dk = shade(body, -0.28);
-  let o = `<ellipse cx="120" cy="238" rx="72" ry="9" fill="#000" opacity="0.13"/>`;
-  o += `<g fill="url(#bd${uid})"><ellipse cx="26" cy="152" rx="14" ry="16"/><rect x="19" y="120" width="13" height="24" rx="6"/><ellipse cx="214" cy="160" rx="15" ry="13"/></g>`;
-  o += `<ellipse cx="120" cy="128" rx="94" ry="88" fill="url(#bd${uid})"/>`;
-  o += `<ellipse cx="120" cy="128" rx="94" ry="88" fill="none" stroke="${dk}" stroke-width="2" opacity="0.32"/>`;
-  o += `<path d="M46 98 Q 72 46 130 40" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity="0.26"/>`;
-  return o;
-}
-
+// peach = the raster's own baked blush; none can't unbake it (visually the same soft base).
 function blushLayer(id: string, uid: number): string {
   const hex = pick(BLUSH_COLORS, id, null);
-  if (!hex) return "";
-  if (id === "stars") return `<g fill="${hex}"><path d="M58 158 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z"/><path d="M182 158 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z"/></g>`;
-  if (id === "freckles") return `<g fill="${hex}">${[52, 60, 68, 172, 180, 188].map((x, i) => `<circle cx="${x}" cy="${158 + (i % 2) * 6}" r="2.4"/>`).join("")}</g>`;
-  return `<ellipse cx="56" cy="162" rx="21" ry="13" fill="url(#bl${uid})"/><ellipse cx="184" cy="162" rx="21" ry="13" fill="url(#bl${uid})"/>`;
+  if (!hex || id === "peach") return "";
+  if (id === "stars") return `<g fill="${hex}"><path d="M52 170 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z"/><path d="M188 170 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z"/></g>`;
+  if (id === "freckles") return `<g fill="${hex}">${[46, 54, 62, 178, 186, 194].map((x, i) => `<circle cx="${x}" cy="${170 + (i % 2) * 6}" r="2.4"/>`).join("")}</g>`;
+  return `<ellipse cx="52" cy="172" rx="21" ry="13" fill="url(#bl${uid})"/><ellipse cx="188" cy="172" rx="21" ry="13" fill="url(#bl${uid})"/>`;
 }
 
 function backgroundLayer(id: string, uid: number): string {
@@ -161,36 +226,72 @@ let CTR = 0;
 export function renderSelenaSvg(config: Partial<AvatarConfig>, size: number): string {
   const c = { ...DEFAULT_AVATAR, ...config };
   const uid = ++CTR;
-  const body = pick(BODY_COLORS, c.bodyColor, BODY_COLORS[DEFAULT_AVATAR.bodyColor]);
-  const iris = pick(IRIS_COLORS, c.irisColor, IRIS_COLORS[DEFAULT_AVATAR.irisColor]);
+  const bodyHex = pick(BODY_COLORS, c.bodyColor, BODY_COLORS[DEFAULT_AVATAR.bodyColor]);
+  const irisHex = pick(IRIS_COLORS, c.irisColor, IRIS_COLORS[DEFAULT_AVATAR.irisColor]);
   const blc = pick(BLUSH_COLORS, c.blush, null);
   const bg = pick(BG_COLORS, c.background, BG_COLORS.mist);
+  const tintBody = c.bodyColor !== DEFAULT_AVATAR.bodyColor;
+  const tintIris = c.irisColor !== DEFAULT_AVATAR.irisColor;
+  const lidHex = tintBody ? tintHex(BODY_BASE, BODY_BASE_HEX, bodyHex) : BODY_BASE_HEX;
+  const shapeFn = pick(EYE_SHAPES, c.eyeShape, EYE_SHAPES.round);
+  const usesLids = c.eyeShape === "sleepy" || c.eyeShape === "almond" || c.eyeShape === "upturned";
+  const mouthFn = pick(MOUTHS, c.mouth, null);
+  const repaintEye = tintBody || tintIris || c.eyeShape === "wide";
 
   let d = `<defs>`;
-  d += `<radialGradient id="bd${uid}" cx="38%" cy="30%" r="82%"><stop offset="0" stop-color="${shade(body, 0.22)}"/><stop offset="0.55" stop-color="${body}"/><stop offset="1" stop-color="${shade(body, -0.15)}"/></radialGradient>`;
-  d += `<radialGradient id="ir${uid}" cx="50%" cy="38%" r="64%"><stop offset="0" stop-color="${shade(iris, 0.36)}"/><stop offset="0.45" stop-color="${iris}"/><stop offset="1" stop-color="${shade(iris, -0.44)}"/></radialGradient>`;
-  d += `<radialGradient id="hl${uid}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity="0.95"/><stop offset="0.55" stop-color="#fff" stop-opacity="0.45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>`;
-  if (blc) d += `<radialGradient id="bl${uid}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${blc}" stop-opacity="0.8"/><stop offset="1" stop-color="${blc}" stop-opacity="0"/></radialGradient>`;
-  d += `<radialGradient id="bv${uid}" cx="50%" cy="32%" r="82%"><stop offset="0" stop-color="${shade(bg, 0.07)}"/><stop offset="1" stop-color="${shade(bg, -0.09)}"/></radialGradient>`;
+  d += `<radialGradient id="bv${uid}" cx="50%" cy="30%" r="84%"><stop offset="0" stop-color="${shade(bg, 0.07)}"/><stop offset="1" stop-color="${shade(bg, -0.09)}"/></radialGradient>`;
   if (c.background === "gemini") d += `<linearGradient id="gm${uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4285F4"/><stop offset="0.5" stop-color="#9C6BF0"/><stop offset="1" stop-color="#E5734F"/></linearGradient>`;
   if (c.background === "galaxy") d += `<radialGradient id="gx${uid}" cx="50%" cy="40%" r="80%"><stop offset="0" stop-color="#4B3A82"/><stop offset="1" stop-color="#1C1533"/></radialGradient>`;
   if (c.background === "sunset") d += `<linearGradient id="ss${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBD0A0"/><stop offset="1" stop-color="#F2A0B4"/></linearGradient>`;
   if (c.background === "ocean") d += `<linearGradient id="oc${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFEAF6"/><stop offset="1" stop-color="#8CC6E6"/></linearGradient>`;
   if (c.background === "forest") d += `<linearGradient id="fo${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCEED8"/><stop offset="1" stop-color="#A8CFA0"/></linearGradient>`;
+  if (blc && c.blush !== "peach") d += `<radialGradient id="bl${uid}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${blc}" stop-opacity="0.8"/><stop offset="1" stop-color="${blc}" stop-opacity="0"/></radialGradient>`;
+  if (tintBody) d += tintFilter(`bt${uid}`, BODY_BASE, bodyHex);
+  if (tintIris) d += tintFilter(`it${uid}`, IRIS_BASE, irisHex);
+  if (repaintEye || usesLids) {
+    // eyeball clip: circle with the top cut along the brow chord
+    const w = Math.sqrt(Math.max(EBR * EBR - Math.pow(EY - BROW_Y, 2), 1)).toFixed(1);
+    d += `<clipPath id="eb${uid}"><path d="M${(EX - Number(w)).toFixed(1)} ${BROW_Y.toFixed(1)} A ${EBR.toFixed(1)} ${EBR.toFixed(1)} 0 1 0 ${(EX + Number(w)).toFixed(1)} ${BROW_Y.toFixed(1)} Z"/></clipPath>`;
+  }
+  if (tintIris) d += `<clipPath id="ic${uid}"><circle cx="${EX.toFixed(1)}" cy="${(EY + 1.5).toFixed(1)}" r="${(IR - 1).toFixed(1)}"/></clipPath>`;
+  if (usesLids) {
+    d += `<radialGradient id="lid${uid}" cx="42%" cy="20%" r="90%"><stop offset="0" stop-color="${shade(lidHex, 0.16)}"/><stop offset="1" stop-color="${shade(lidHex, -0.08)}"/></radialGradient>`;
+    d += `<filter id="lidblur${uid}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>`;
+  }
+  if (mouthFn) d += `<filter id="patchblur${uid}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3"/></filter>`;
   d += `</defs>`;
 
-  let svg = `<svg viewBox="0 0 240 260" width="${size}" height="${(size * 260) / 240}" role="img" xmlns="http://www.w3.org/2000/svg"><title>Selena avatar</title><desc>One-eyed EyeBot mascot composited from parts (placeholder art).</desc>`;
+  // data-body/data-iris expose the resolved palette hexes as a stable repaint signal
+  // (the tints themselves are numeric filters — tests key off these attributes).
+  let svg = `<svg viewBox="0 0 240 260" width="${size}" height="${(size * 260) / 240}" role="img" data-body="${bodyHex}" data-iris="${irisHex}" xmlns="http://www.w3.org/2000/svg"><title>Selena avatar</title><desc>The homepage Selena mascot with this student's customizations layered on.</desc>`;
   svg += d;
   svg += backgroundLayer(c.background, uid);
-  svg += bodyLayer(body, uid);
-  svg += blushLayer(c.blush, uid);
-  svg += eye(iris, body, (c.eyeShape as EyeShape), uid);
-  svg += pick(LASHES, c.lashes, LASHES.none)();
-  svg += pick(MOUTHS, c.mouth, MOUTHS.smile)();
-  svg += pick(GLASSES, c.glasses, GLASSES.none)();
-  svg += pick(OUTFITS, c.outfit, OUTFITS.none)();
-  svg += pick(ACCESSORIES, c.accessory, ACCESSORIES.none)();
-  svg += pick(TOPPERS, c.topper, TOPPERS.none)();
+  // 1) the homepage raster, body-tinted if needed (tint shifts the eye too — repainted next)
+  svg += `<image href="${SELENA_IMG}" x="${IX}" y="${IY}" width="250" height="250"${tintBody ? ` filter="url(#bt${uid})"` : ""}/>`;
+  // 2) repaint the eyeball from the ORIGINAL raster so the sclera/highlights stay true
+  if (repaintEye) {
+    const scale = c.eyeShape === "wide" ? ` transform="translate(${EX.toFixed(1)} ${EY.toFixed(1)}) scale(1.08 1.02) translate(${(-EX).toFixed(1)} ${(-EY).toFixed(1)})"` : "";
+    svg += `<g${scale}><g clip-path="url(#eb${uid})"><image href="${SELENA_IMG}" x="${IX}" y="${IY}" width="250" height="250"/></g>`;
+    if (tintIris) svg += `<g clip-path="url(#ic${uid})"><image href="${SELENA_IMG}" x="${IX}" y="${IY}" width="250" height="250" filter="url(#it${uid})"/></g>`;
+    svg += `</g>`;
+  }
+  // 3) blush over the cheeks (peach = the raster's own baked blush)
+  svg += `<g transform="${SIDE_XFORM}">${blushLayer(c.blush, uid)}</g>`;
+  // 4) eye-shape treatment (lids / sparkles / star pupil)
+  svg += shapeFn(uid);
+  // 5) lashes + mouth + glasses framed on the raster's anchors
+  const lash = pick(LASHES, c.lashes, LASHES.none)();
+  if (lash) svg += `<g transform="${EYE_XFORM}">${lash}</g>`;
+  // mouth override (smile = the raster's own): patch the baked smile, draw the new one
+  if (mouthFn) {
+    svg += `<ellipse cx="${MOUTH_X.toFixed(1)}" cy="${MOUTH_Y.toFixed(1)}" rx="24" ry="10" fill="${lidHex}" filter="url(#patchblur${uid})"/>`;
+    svg += `<g transform="translate(${(MOUTH_X - 120).toFixed(1)} ${(MOUTH_Y - 186).toFixed(1)})">${mouthFn()}</g>`;
+  }
+  const glasses = pick(GLASSES, c.glasses, GLASSES.none)();
+  if (glasses) svg += `<g transform="${EYE_XFORM}">${glasses}</g>`;
+  svg += `<g transform="${NECK_XFORM}">${pick(OUTFITS, c.outfit, OUTFITS.none)()}</g>`;
+  svg += `<g transform="${SIDE_XFORM}">${pick(ACCESSORIES, c.accessory, ACCESSORIES.none)()}</g>`;
+  svg += `<g transform="${TOP_XFORM}">${pick(TOPPERS, c.topper, TOPPERS.none)()}</g>`;
   svg += `</svg>`;
   return svg;
 }
