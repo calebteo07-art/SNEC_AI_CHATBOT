@@ -1212,7 +1212,7 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 
 .aurora-station-pt { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
 .aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
-.aurora-station-av { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
+.aurora-station-av { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 30%; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
 .aurora-station-nm { font-size: 17.9px; font-weight: 700; color: var(--ink); }
 .aurora-station-mt { font-size: 12.3px; color: var(--ink-2); margin-top: 2px; }
 .aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: 11px; padding: 9px 12px; font-size: 13.4px; color: var(--on-purple); margin-bottom: 14px; line-height: 1.5; font-style: italic; }
@@ -1374,7 +1374,7 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-pane-dot { width: 30px; height: 30px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .aurora-pane-dot svg { width: 17px; height: 17px; }
 .aurora-pane-face { overflow: hidden; }
-.aurora-pane-face img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+.aurora-pane-face img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; border-radius: 50%; display: block; }
 .aurora-pane-nm { font-size: 14.6px; font-weight: 700; color: var(--ink); }
 .aurora-pane-mt { font-size: 11px; color: var(--ink-2); margin-top: 1px; }
 .aurora-station-bubble.bot { background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.22); color: var(--ink); align-self: flex-start; }
