@@ -5,6 +5,7 @@
 import Link from "next/link";
 import type { Greeting } from "@/aurora/lib/greeting";
 import { Icon } from "./HomeIcons";
+import { SelenaLogo } from "@/aurora/components/SelenaLogo";
 
 export function GreetingHero({
   greeting,
@@ -60,8 +61,7 @@ export function GreetingHero({
 
       <div className="hm-iriswrap" aria-hidden>
         <span className="hm-irisfloor" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="hm-iris" src="/brand/iris.png" alt="" width={232} height={232} />
+        <SelenaLogo motion="hello" className="hm-iris" />
       </div>
     </section>
   );

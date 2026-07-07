@@ -143,6 +143,16 @@ const overflow = await np.evaluate(() => document.documentElement.scrollWidth - 
 if (overflow > 2) { console.error(`FAIL: horizontal overflow at 390px = ${overflow}px`); process.exit(1); }
 console.log("PASS: dashboard has no horizontal overflow at 390px");
 
+// Animated Selena logo greets on Home (logo→raster brief): the rest frame IS the
+// homepage iris.png, running the calm "hello" motion.
+const homeLogo = np.locator('[data-testid="selena-logo"]').first();
+if ((await homeLogo.count()) < 1) { console.error("FAIL: SelenaLogo missing on the Home greeting"); process.exit(1); }
+const homeMotion = await homeLogo.getAttribute("data-motion");
+if (homeMotion !== "hello") { console.error(`FAIL: Home SelenaLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
+const homeRestSrc = (await homeLogo.locator(".selena-logo-rest").getAttribute("src")) ?? "";
+if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home SelenaLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
+console.log("PASS: Home — animated SelenaLogo (hello) on the iris.png rest frame");
+
 // cases: the Atlas Map renders and a region pin filters the case list.
 await np.setViewportSize({ width: 1440, height: 900 });
 await np.goto(base + "/cases", { waitUntil: "domcontentloaded" });
