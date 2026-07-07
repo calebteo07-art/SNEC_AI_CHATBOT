@@ -20,7 +20,7 @@ await ctx.route("**/api/**", (r) => r.fulfill(J({})));
 await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
 await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
   case: { case_id: "C001", title: "Routine glaucoma follow-up", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12,
-          patient: { name: "Mr Rajasekaran", age: 55, presenting_complaint: "Here for my 6-month glaucoma review." } },
+          patient: { name: "Mr Rajasekaran", age: 55, presenting_complaint: "Here for my 6-month glaucoma review.", face: "/patients/indian_male_middle.webp" } },
   checklist: {
     procedure_name: "Non-Contact Tonometry", source: "checklist", total_steps: 6, critical_count: 2,
     phases: [
@@ -163,11 +163,13 @@ if (await p.locator('[data-testid="patient-pane"] .aurora-pchip').count()) die("
 if (!(await p.locator('[data-testid="eyebot-pane"] .aurora-pchip:has-text("Measure IOP")').count())) die("Measure IOP chip must live in the EyeBot pane");
 ok("two distinct panes; manual chips live in the EyeBot pane only");
 
-// 5q. ricoe C9: each pane carries a static pfp icon — a talking head on the conversation
-//     pane, a hand on the action pane (simple, non-animated SVGs in the pane-head dot).
-if (!(await p.locator('[data-testid="patient-pane"] .aurora-pane-dot svg').count())) die("conversation pane missing its static talking-head pfp");
+// 5q. ricoe §8: the conversation pane shows the patient's demographic archetype FACE
+//     (an img, ricoe §8), the action pane keeps its static hand SVG (ricoe C9). The
+//     face falls back to the talking-head SVG when absent — verified on C002 below.
+const faceSrc = await p.getAttribute('[data-testid="patient-pane"] .aurora-pane-face img', "src");
+if (!faceSrc || !faceSrc.includes("/patients/")) die(`patient pane must show the archetype face, src=${faceSrc}`);
 if (!(await p.locator('[data-testid="eyebot-pane"] .aurora-pane-dot svg').count())) die("action pane missing its static hand pfp");
-ok("static pfps — talking head on the conversation pane, hand on the action pane (ricoe C9)");
+ok("patient face pfp (img) + static hand on the action pane (ricoe §8)");
 
 // 5g. Gating: at load nothing is ticked → gate is step 1. Later steps + their chips
 //     must be locked, and the in-order help caption present.
@@ -252,6 +254,12 @@ await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
 if (await p.locator('[data-testid="eyebot-pane"]').count()) die("no-manual case must NOT render the EyeBot pane");
 if (!(await p.locator('[data-testid="patient-pane"]').count())) die("patient pane must still render in the no-manual case");
 ok("no manual actions → EyeBot pane collapses (patient chat only)");
+
+// 7c. ricoe §8: C002's patient has NO face → the pfp gracefully falls back to the
+//     static talking-head SVG (nothing depends on the face asset existing).
+if (await p.locator('[data-testid="patient-pane"] .aurora-pane-face img').count()) die("no-face case must not render a face img");
+if (!(await p.locator('[data-testid="patient-pane"] .aurora-pane-face svg').count())) die("no-face patient pane must fall back to the talking-head SVG");
+ok("patient pfp falls back to the talking-head SVG when no face (graceful)");
 
 // 8. mobile: no horizontal overflow at 390px
 await p.setViewportSize({ width: 390, height: 844 });

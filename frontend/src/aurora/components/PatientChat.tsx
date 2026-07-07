@@ -9,6 +9,7 @@ interface PatientMessage { role: "user" | "assistant"; content: string }
 
 export function PatientChat({
   patientName,
+  patientFace,
   messages,
   input,
   sending,
@@ -20,6 +21,7 @@ export function PatientChat({
   onKeyDown,
 }: {
   patientName: string;
+  patientFace?: string;
   messages: PatientMessage[];
   input: string;
   sending: boolean;
@@ -33,12 +35,16 @@ export function PatientChat({
   return (
     <section className="aurora-station-card aurora-station-main aurora-patient" data-testid="patient-pane">
       <div className="aurora-pane-head aurora-patient-head">
-        {/* Conversation pfp — a static talking head (ricoe C9). */}
-        <span className="aurora-pane-dot" aria-hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
+        {/* Conversation pfp — the demographic archetype face (ricoe §8), SVG fallback. */}
+        <span className="aurora-pane-dot aurora-pane-face" aria-hidden>
+          {patientFace ? (
+            <img src={patientFace} alt="" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+          ) : (
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          )}
         </span>
         <div>
           <div className="aurora-pane-nm">{patientName}</div>
