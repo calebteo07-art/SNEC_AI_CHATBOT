@@ -151,6 +151,39 @@ plus a drawn mouth, everything else = remapped sticker overlays (`renderSelena.t
   save); the D11 curated sprite library (largely superseded by this: the base already IS the
   3D art; revisit only if extras need painterly treatment).
 
+## OSCE patient faces — LOCKED 2026-07-07 (ricoe §8 paid art)
+**Direction**: every OSCE virtual patient shows a warm, **semi-realistic** archetype face in
+the consult pfp (`PatientChat`) + the station patient card (`CaseSession`), **deterministically
+mapped** from the case's patient demographics — never a per-patient unique render. A curated
+library of **26 faces** keyed by ethnicity × gender × age-band (+ 2 children), generated once via
+**Nano-Banana flash** and committed as static `.webp` under `frontend/public/patients/`. The
+classifier (`tools/patients/archetypes.py`) is the single source of truth; the cases API serves the
+face path on `CasePatientInfo`; the pfp **falls back to the generic talking-head SVG** when a face
+is absent (nothing depends on the asset existing).
+- **Archetype axes**: ethnicity {Chinese, Malay, Indian} × gender {male, female} × age-band
+  {young 18–39, middle 40–59, senior 60–74, elderly 75+} = 24 adults, + `child_boy`/`child_girl`
+  (age < 16, ethnicity-agnostic) = 26. Ambiguous/Eurasian names default to Chinese (SG's largest
+  group), logged — a conservative, default-safe heuristic, never a wrong guess that crashes.
+- **Style**: warm, softly-rendered semi-realistic portraits — photo-like, dignified, plain
+  warm-neutral background, head-and-shoulders, front-facing; **not** hyperreal, **not** cartoon.
+  Culturally appropriate dress renders naturally (tudung, songkok, batik, sari).
+- **Approved prompt contract** (recorded per the generated-imagery standing rule) — Nano-Banana
+  flash (`gemini-3.1-flash-image`), `reference=False` (patients are NOT the Iris mascot):
+  > "A warm, semi-realistic portrait of {a/an [elderly] `<Ethnicity>` Singaporean `<man|woman>`
+  > in their `<age>`} / {a Singaporean `<boy|girl>` around eight years old}, friendly approachable
+  > expression, soft even studio lighting, plain warm-neutral background, head-and-shoulders,
+  > facing the camera, dignified and natural. Softly rendered photorealism — not hyperreal, not a
+  > cartoon. No text, no border, no watermark."
+- **Rendering**: circular pfp, `object-fit: cover` + `object-position: center 30%` (biases the crop
+  to the face for both landscape and portrait renders); **static** (OSCE lock — no motion); graceful
+  SVG fallback.
+- **Acceptance criteria when refining**: every case resolves to a registered archetype (coverage
+  test); face served on `CasePatientInfo`; dignified + demographically plausible + culturally
+  appropriate; WCAG / 390px-safe; SVG fallback intact. Regenerate individual faces with
+  `python tools/patients/generate_faces.py --generate --only <ids>` then `--install`.
+- **Out of scope**: per-patient unique faces; SNEC clinical uniforms (excluded until specified);
+  the logo→Selena raster (separate deferred brief); any animation on the face.
+
 ## Generated imagery standard — STANDING
 Medically and anatomically correct AND beautiful; accuracy baked into prompts; SNEC
 staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, plain
