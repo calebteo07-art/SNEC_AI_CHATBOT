@@ -20,7 +20,7 @@ import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
-  patient: { name: string; age: number; presenting_complaint: string };
+  patient: { name: string; age: number; presenting_complaint: string; face?: string };
 }
 interface StationData {
   case: CaseInfo;
@@ -385,7 +385,7 @@ export function CaseSession() {
           {caseInfo && (
             <>
               <div className="aurora-station-pt">
-                <div className="aurora-station-ring"><img className="aurora-station-av" src={PLATE.caseSession} alt="" aria-hidden onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }} /></div>
+                <div className="aurora-station-ring"><img className="aurora-station-av" src={caseInfo.patient.face ?? PLATE.caseSession} alt="" aria-hidden onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }} /></div>
                 <div>
                   <div className="aurora-station-nm">{caseInfo.patient.name}</div>
                   <div className="aurora-station-mt">{caseInfo.patient.age} years · {caseInfo.topic}</div>
@@ -417,6 +417,7 @@ export function CaseSession() {
         {/* Middle — patient consult (warm) */}
         <PatientChat
           patientName={caseInfo?.patient.name ?? "Patient"}
+          patientFace={caseInfo?.patient.face}
           messages={patientMessages}
           input={input}
           sending={sending}
