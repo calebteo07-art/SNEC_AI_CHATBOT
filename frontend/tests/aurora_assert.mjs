@@ -72,6 +72,19 @@ await navCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
 ])));
 await navCtx.route("**/api/flashcards/complete", (r) => r.fulfill(JSON_OK({ xp: 140, level: 1 })));
 const np = await navCtx.newPage();
+// The branded Selena splash shows while the app-shell chunk loads on first paint.
+await np.goto(base + "/dashboard", { waitUntil: "commit" });
+const splash = np.locator('[data-testid="brand-splash"]');
+try {
+  await splash.waitFor({ state: "attached", timeout: 5000 });
+  const role = await splash.getAttribute("role");
+  if (role !== "status") { console.error(`FAIL: BrandSplash missing role=status (got ${role})`); process.exit(1); }
+  if ((await splash.locator('[data-testid="selena-logo"]').count()) < 1) { console.error("FAIL: BrandSplash has no SelenaLogo"); process.exit(1); }
+  console.log("PASS: BrandSplash — branded loading boundary with a grooving SelenaLogo");
+} catch {
+  console.error("FAIL: BrandSplash loading boundary never appeared on first paint");
+  process.exit(1);
+}
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
 await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
@@ -185,7 +198,9 @@ if ((await np.locator(".aurora-composer").count()) < 1) { console.error("FAIL: c
 // Branding lock (ricoe §6.6 / E2): the rail (which carries the lockup) is hidden on the
 // immersive Tutor, so the FULL EyeBot + SNEC co-brand lockup must be present on the landing
 // — a lone SNEC mark is not a lockup. Assert BOTH marks inside the landing.
-const ldEb = await np.locator('[data-testid="tutor-landing"] .aurora-cobrand-mark').count();
+const ldEb = await np.locator('[data-testid="tutor-landing"] .aurora-cobrand-mark-wrap [data-testid="selena-logo"]').count();
+const ldEbSrc = (await np.locator('[data-testid="tutor-landing"] .aurora-cobrand-mark-wrap .selena-logo-rest').getAttribute("src")) ?? "";
+if (ldEb >= 1 && !/\/brand\/iris\.png/.test(ldEbSrc)) { console.error(`FAIL: CoBrand mark is not the iris.png Selena (src=${ldEbSrc})`); process.exit(1); }
 const ldSnec = await np.locator('[data-testid="tutor-landing"] .aurora-snec').count();
 if (ldEb < 1) { console.error("FAIL: EyeBot mark missing on the Tutor landing (lone SNEC is not a lockup)"); process.exit(1); }
 if (ldSnec < 1) { console.error("FAIL: SNEC mark missing on the Tutor landing"); process.exit(1); }
@@ -424,6 +439,13 @@ const motionToggle = np.locator('.aurora-profile-action[aria-pressed]').first();
 await motionToggle.click();
 let dm = await np.evaluate(() => document.documentElement.dataset.motion);
 if (dm !== "reduce") { console.error(`FAIL: reduced-motion toggle did not set data-motion (got '${dm}')`); process.exit(1); }
+// Under reduced motion the mascot swap frame is fully hidden (static rest only).
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+const swapOpacity = await np.locator('[data-testid="selena-logo"] .selena-logo-swap').first()
+  .evaluate((el) => getComputedStyle(el).opacity).catch(() => "0");
+if (swapOpacity !== "0") { console.error(`FAIL: SelenaLogo swap not hidden under reduced motion (opacity=${swapOpacity})`); process.exit(1); }
+console.log("PASS: reduced motion — SelenaLogo swap frozen (static rest)");
+await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
 await motionToggle.click();
 dm = await np.evaluate(() => document.documentElement.dataset.motion);
 if (dm === "reduce") { console.error("FAIL: reduced-motion toggle did not turn off"); process.exit(1); }
