@@ -25,10 +25,10 @@ GENDERS = ("male", "female")
 ADULT_BANDS = ("young", "middle", "senior", "elderly")
 
 _BAND_PHRASE = {
-    "young": "adult in their early thirties",
-    "middle": "person in their early fifties",
-    "senior": "person in their late sixties",
-    "elderly": "elderly person in their late seventies",
+    "young": "in their early thirties",
+    "middle": "in their early fifties",
+    "senior": "in their late sixties",
+    "elderly": "in their late seventies",
 }
 _ETH_PHRASE = {"chinese": "Chinese", "malay": "Malay", "indian": "Indian"}
 
@@ -39,15 +39,20 @@ def _gender_noun(gender: str, band: str) -> str:
     return "man" if gender == "male" else "woman"
 
 
+def _article(word: str) -> str:
+    return "an" if word[:1].lower() in "aeiou" else "a"
+
+
 def _adult_prompt(ethnicity: str, gender: str, band: str) -> str:
     noun = _gender_noun(gender, band)
+    eth = _ETH_PHRASE[ethnicity]
+    head = f"an elderly {eth}" if band == "elderly" else f"{_article(eth)} {eth}"
     return (
-        f"A warm, semi-realistic portrait of a {_BAND_PHRASE[band]} "
-        f"{_ETH_PHRASE[ethnicity]} Singaporean {noun}, friendly approachable "
-        "expression, soft even studio lighting, plain warm-neutral background, "
-        "head-and-shoulders, facing the camera, dignified and natural. Softly "
-        "rendered photorealism — not hyperreal, not a cartoon. No text, no "
-        "border, no watermark."
+        f"A warm, semi-realistic portrait of {head} Singaporean {noun} "
+        f"{_BAND_PHRASE[band]}, friendly approachable expression, soft even "
+        "studio lighting, plain warm-neutral background, head-and-shoulders, "
+        "facing the camera, dignified and natural. Softly rendered photorealism "
+        "— not hyperreal, not a cartoon. No text, no border, no watermark."
     )
 
 
