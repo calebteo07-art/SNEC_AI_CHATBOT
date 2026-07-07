@@ -109,9 +109,10 @@ surfaces.
   `tl-iris-wave`). It's the **default** mascot, never a student's custom (matches ricoe A3 /
   the reply-avatar rule). CSS-only; **frozen** under reduced motion. (The layered-vector
   `<Selena>` engine stays the customisation/preview renderer — it is NOT the branding mascot.)
-- **Out of scope**: Login (LOCKED verbatim — no brand added). The **logo → a different
-  Selena raster variation** is paid + deferred (ricoe §8) and would break the mono
-  Spark-Eye global lock — needs its own brief + paid gen. Uniforms excluded (ricoe §2).
+- **Out of scope**: Login (LOCKED verbatim — no brand added). The **logo → animated
+  Selena hero raster** was delivered as its own brief (see the "Animated Selena hero
+  logo" lock, 2026-07-07); the mono Spark-Eye rail + favicon lock is preserved.
+  Uniforms excluded (ricoe §2).
   No redesign of any locked surface; the convo-header eye avatar keeps its own charging-
   ring/blink life.
 
@@ -150,6 +151,40 @@ plus a drawn mouth, everything else = remapped sticker overlays (`renderSelena.t
 - **Out of scope**: the paid per-config 3D portrait (D12, unchanged — still swaps in after
   save); the D11 curated sprite library (largely superseded by this: the base already IS the
   3D art; revisit only if extras need painterly treatment).
+
+## Animated Selena hero logo — LOCKED 2026-07-07 (logo→raster brief)
+**Direction**: a **living Selena mascot logo** on three hero surfaces — the Home
+greeting, a new full-screen **Splash/loading** screen, and the **CoBrand** lockups —
+driven by CSS choreography over **3 paid Nano-Banana-flash pose frames** (`wave`,
+`cheer`, `groove`) anchored to `iris.png` (`reference=True`), plus the existing
+`iris.png` reused free as the `rest` frame. The component is `<SelenaLogo>` (two
+stacked rasters: rest + one pose that cross-fades on a beat) with a live CSS
+"EyeBot" wordmark — never baked into a raster. The **mono Spark-Eye** mark
+(`Logo.tsx` / `icon.svg`) stays **unchanged** in the rails + favicon / PWA icon;
+**Login** stays untouched.
+- **Flash can't emit alpha** (D12): poses render opaque on flat chroma-green
+  (`#00B140`) and are keyed to transparency + normalised to 512² by a **dev-only**
+  PIL pipeline (`tools/brand/keying.py`) so they register with `iris.png`. Fallback
+  if a pose halos: place it on a soft circular chip (as the OSCE faces do).
+- **Motion** (CSS-only, frozen to static `rest` under reduced motion): Home = calm
+  bob + a ~9s wave beat; Splash = continuous groove; CoBrand = restrained breathe +
+  a rare ~12s cheer-blink. A missing/failed pose degrades to the calm rest mascot.
+- **Approved prompt contract** — flash (`gemini-3.1-flash-image`), `reference=True`:
+  > "The same one-eyed EyeBot mascot as the reference image — a soft, rounded,
+  > hairless teal-and-cream character with a single large friendly eye and a calm
+  > gentle smile, identical proportions, colours, and rendering to the reference.
+  > `<pose line>`. Full body centered, plain flat solid chroma-green (#00B140)
+  > background, soft even lighting. No text, no border, no watermark, no extra
+  > characters."
+- **Acceptance criteria when refining**: every surface reads identical to homepage
+  `iris.png` (rest IS iris.png); poses keyed + 512²-normalised so swaps don't jump;
+  all motion freezes to static rest under `prefers-reduced-motion` / `data-motion=reduce`;
+  wordmark is live text; mono Spark-Eye rails + favicon and Login unchanged;
+  WCAG-legible, 390px-safe, no layout shift. Regenerate a pose with
+  `python tools/brand/generate_poses.py --generate --only <id>` then `--install`.
+- **Out of scope**: rails / favicon / PWA icon (mono stays); Login; flipbook
+  sequences; any new API/DB/runtime AI; the student-customisation `<Selena>` preview
+  renderer (unchanged).
 
 ## OSCE patient faces — LOCKED 2026-07-07 (ricoe §8 paid art)
 **Direction**: every OSCE virtual patient shows a warm, **semi-realistic** archetype face in
