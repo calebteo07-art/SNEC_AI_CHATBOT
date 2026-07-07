@@ -440,9 +440,14 @@ await motionToggle.click();
 let dm = await np.evaluate(() => document.documentElement.dataset.motion);
 if (dm !== "reduce") { console.error(`FAIL: reduced-motion toggle did not set data-motion (got '${dm}')`); process.exit(1); }
 // Under reduced motion the mascot swap frame is fully hidden (static rest only).
+// Sample the Home mascot specifically (.hm-iris) once it's mounted AND the persisted
+// reduced-motion pref has re-applied on this navigation — avoids grabbing the transient
+// BrandSplash mascot mid-unmount (getComputedStyle on a detaching node returns "").
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-const swapOpacity = await np.locator('[data-testid="selena-logo"] .selena-logo-swap').first()
-  .evaluate((el) => getComputedStyle(el).opacity).catch(() => "0");
+await np.waitForSelector('.hm-iris .selena-logo-swap', { state: "attached", timeout: 15000 });
+await np.waitForFunction(() => document.documentElement.dataset.motion === "reduce", null, { timeout: 5000 });
+const swapOpacity = await np.locator('.hm-iris .selena-logo-swap').first()
+  .evaluate((el) => getComputedStyle(el).opacity);
 if (swapOpacity !== "0") { console.error(`FAIL: SelenaLogo swap not hidden under reduced motion (opacity=${swapOpacity})`); process.exit(1); }
 console.log("PASS: reduced motion — SelenaLogo swap frozen (static rest)");
 await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
