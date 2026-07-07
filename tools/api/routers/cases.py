@@ -59,6 +59,23 @@ class CasePatientInfo(BaseModel):
     name: str
     age: int
     presenting_complaint: str
+    face: str = ""   # public path to the demographic archetype face (ricoe §8)
+
+
+def _patient_info(raw: dict) -> CasePatientInfo:
+    """Build the API patient block from a raw case `patient` dict, deriving the
+    demographic archetype face (deterministic, no I/O)."""
+    from tools.patients import archetypes
+    try:
+        age = int(raw.get("age", 30))
+    except (TypeError, ValueError):
+        age = 30
+    return CasePatientInfo(
+        name=raw["name"],
+        age=age,
+        presenting_complaint=raw.get("presenting_complaint", ""),
+        face=archetypes.face_path(archetypes.classify_patient(raw)),
+    )
 
 class CaseInfo(BaseModel):
     case_id: str
@@ -292,11 +309,7 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
             difficulty=diff,
             topic=c["topic"],
             estimated_minutes=c["estimated_minutes"],
-            patient=CasePatientInfo(
-                name=c["patient"]["name"],
-                age=c["patient"]["age"],
-                presenting_complaint=c["patient"]["presenting_complaint"],
-            ),
+            patient=_patient_info(c["patient"]),
             locked=locked,
             set_key=sk,
             set_label=label_for(role, sk),
@@ -411,11 +424,7 @@ def get_case(case_id: str):
         difficulty=case.get("difficulty", "intermediate"),
         topic=case.get("topic", ""),
         estimated_minutes=case.get("estimated_minutes", 15),
-        patient=CasePatientInfo(
-            name=case["patient"]["name"],
-            age=int(case["patient"].get("age", 30)),
-            presenting_complaint=case["patient"].get("presenting_complaint", ""),
-        ),
+        patient=_patient_info(case["patient"]),
     )
 
 
@@ -537,11 +546,7 @@ def get_case_station(case_id: str, current_user: CurrentUser = Depends(get_curre
             difficulty=case.get("difficulty", "beginner"),
             topic=case.get("topic", ""),
             estimated_minutes=case.get("estimated_minutes", 15),
-            patient=CasePatientInfo(
-                name=case["patient"]["name"],
-                age=int(case["patient"].get("age", 30)),
-                presenting_complaint=case["patient"].get("presenting_complaint", ""),
-            ),
+            patient=_patient_info(case["patient"]),
         ),
         checklist=StationChecklist(
             procedure_name=cl["procedure_name"],
