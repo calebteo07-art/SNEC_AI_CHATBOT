@@ -1211,8 +1211,11 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 .aurora-station-clscroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px; }
 
 .aurora-station-pt { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
-.aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
-.aurora-station-av { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 30%; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
+/* Only the gradient ring rotates (a ::before behind the face); the patient photo itself
+   stays perfectly still — a spinning face reads as broken (Caleb, 2026-07-07). */
+.aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; }
+.aurora-station-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
+.aurora-station-av { position: relative; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 30%; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
 .aurora-station-nm { font-size: 17.9px; font-weight: 700; color: var(--ink); }
 .aurora-station-mt { font-size: 12.3px; color: var(--ink-2); margin-top: 2px; }
 .aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: 11px; padding: 9px 12px; font-size: 13.4px; color: var(--on-purple); margin-bottom: 14px; line-height: 1.5; font-style: italic; }
@@ -1347,12 +1350,12 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
   .aurora-eyebot-thread { overflow: visible; flex: none; min-height: 220px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .aurora-station-mesh, .aurora-station-ring, .aurora-station-title em, .aurora-station-rl.is-now,
+  .aurora-station-mesh, .aurora-station-ring::before, .aurora-station-title em, .aurora-station-rl.is-now,
   .aurora-station-phase .aurora-station-node, .aurora-station-bubble, .aurora-station-reveal,
   .aurora-station-reveal::after, .aurora-station-step[data-ticked="true"] .bx, .aurora-station-step[data-current="true"] .bx, .aurora-station-pbar i { animation: none !important; }
 }
 html[data-motion="reduce"] .aurora-station-mesh,
-html[data-motion="reduce"] .aurora-station-ring,
+html[data-motion="reduce"] .aurora-station-ring::before,
 html[data-motion="reduce"] .aurora-station-title em,
 html[data-motion="reduce"] .aurora-station-rl.is-now,
 html[data-motion="reduce"] .aurora-station-phase .aurora-station-node,
@@ -3000,8 +3003,10 @@ html[data-motion="reduce"] .flash-root::before { animation: none; }
    `.aurora-palette` so it no longer inherits the command-palette modal box.) */
 .aurora-protray { margin-top:10px; }
 .aurora-protray-cap { display:block; font-size:.72rem; color:var(--ink-3); margin:0 0 6px 2px; }
-.aurora-protray-chips { display:flex; flex-wrap:wrap; gap:6px; max-height:120px; overflow-y:auto; }
-.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; padding:5px 11px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:nowrap; transition:transform .12s, background .2s, border-color .2s; }
+/* Only genuine hands-on procedures reach this tray now, so it rarely overflows; a
+   roomier cap + bottom padding means a row is never sheared off halfway (ricoe C1). */
+.aurora-protray-chips { display:flex; flex-wrap:wrap; gap:6px; max-height:210px; overflow-y:auto; padding-bottom:2px; }
+.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; padding:5px 11px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:normal; text-align:left; transition:transform .12s, background .2s, border-color .2s; }
 .aurora-pchip:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(155,114,203,.55); color:var(--ink); }
 .aurora-pchip .ic { font-weight:700; opacity:.55; }
 .aurora-pchip[data-quick="true"] .ic { opacity:.9; }

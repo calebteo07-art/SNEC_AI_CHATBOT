@@ -1,14 +1,20 @@
 # tools/cases/examination_actions.py
-"""Build the OSCE action palette — one clickable chip for EVERY checklist step.
+"""Build the OSCE exam actions — every checklist step, classified manual vs verbal.
 
-Each step becomes an action the student can click above the composer:
-  - "do" steps (hand hygiene, identify patient, measure VA…) tick + post a
-    performed note, and reveal a finding if the step maps to an examination_finding.
-  - "say" steps (history questions) carry a patient-directed `prompt_text` the UI
-    sends so the patient actually responds.
+build_actions emits an entry for EVERY non-blank step (nothing dropped), tagging each
+with `kind` so the frontend can show the right affordance:
+  - `kind="manual"` — a recognised HANDS-ON procedure (hand hygiene, VA, IOP, slit-lamp,
+    drop instillation…). Only these get a chip in the action panel; the student clicks it
+    and describes/performs the technique, which reveals a finding if the step maps to an
+    examination_finding.
+  - `kind="verbal"` — everything else: history/"say" steps, identification, consent,
+    documentation, and any UNRECOGNISED step. Verbal steps carry NO chip — the student
+    does them by talking to the patient in the consult (auto-ticked by the examiner) or by
+    tapping the current checklist row. "say" steps also carry a patient-directed
+    `prompt_text`.
 Consecutive chips that share the same (label, mode) merge, so split runs (e.g. the
 "5 moments of hand hygiene" sub-rows) collapse into one chip that ticks them all.
-Every non-blank step is covered — nothing is dropped. Pure + deterministic.
+Pure + deterministic.
 """
 
 FINDING_LABELS: dict[str, str] = {
@@ -73,13 +79,21 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
 
 _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
 
-# Patient-directed / verbal labels stay in the live chat (no shortcut chip). Any
-# non-"say" step whose label is NOT in this set is a hands-on manual procedure and
-# becomes a shortcut; unknown "do" steps therefore default to manual (still completable).
-_VERBAL_LABELS = {
-    "Introduce self", "Identify patient", "Confirm name", "Confirm NRIC / DOB",
-    "Check allergy", "Check doctor's order", "Explain procedure", "Take consent",
-    "Patient comfortable", "Listen actively", "Instruct patient", "Doctor to examine",
+# The action panel lists ONLY genuine hands-on procedures (ricoe C1). This is an
+# ALLOW-list of the recognised manual procedures — every "do" step whose canonical
+# label is in this set gets a chip; EVERYTHING ELSE is verbal and stays in the live
+# consult (no chip). Talking / identification / consent / documentation steps and any
+# UNRECOGNISED step therefore default to verbal — the student does them by talking to
+# the patient (auto-ticked from the consult) or by tapping the current checklist row.
+# A verbal step never needs a chip, so the panel never lists "every single action" and
+# never shows a generically-clipped label.
+_MANUAL_LABELS = {
+    "Hand hygiene", "Wipe occluder", "Disinfect equipment", "Discard waste",
+    "Remove glasses / CL", "Prepare eye drops", "Instill drops", "Pinhole test",
+    "Test near VA", "Test distance VA", "Measure IOP", "Anterior segment",
+    "Fundus exam", "Colour vision", "Amsler grid", "Position patient",
+    "Align & focus", "Validate reading", "Print results", "Document results",
+    "Safety check",
 }
 
 # Manual chips that are a single mechanical confirmation — no assessable technique to
@@ -173,7 +187,7 @@ def build_actions(examination_findings: dict, steps: list[dict]) -> list[dict]:
             chip = {"label": _say_label(prompt), "mode": "say", "reveal_text": "", "prompt_text": prompt, "kind": "verbal", "quick": False}
         else:
             label = _do_label(action, str(s.get("category", "")))
-            kind = "verbal" if label in _VERBAL_LABELS else "manual"
+            kind = "manual" if label in _MANUAL_LABELS else "verbal"
             chip = {
                 "label": label,
                 "mode": "do",
