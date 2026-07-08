@@ -489,6 +489,9 @@ await np.locator('.studio-swatch:has-text("Aqua")').click();
 await np.waitForSelector(".studio-chip", { timeout: 8000 });
 console.log("PASS: Selena Studio — selecting an option marks unsaved changes (no client compositing)");
 
+if ((await np.locator(".studio-tray-chip").count()) < 1) { console.error("FAIL: loadout tray did not dock the pending pick"); process.exit(1); }
+console.log("PASS: Selena Studio — loadout tray docks pending picks as tile chips");
+
 // shape steps render static option-tile art (not swatches). Jump to the last
 // step (Backdrop) via its progress dot and assert the tile grid renders.
 await np.locator(".studio-dots .studio-dot").last().click();
