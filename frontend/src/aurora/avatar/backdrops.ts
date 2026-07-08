@@ -12,6 +12,10 @@ const GRADIENTS: Partial<Record<Background, string>> = {
   confetti: "radial-gradient(circle at 30% 20%,#fbe3eb,#fbf0f4)",
   sun: "linear-gradient(160deg,#fef2d4,#fbe6b0)",
   forest: "linear-gradient(160deg,#dceed8,#b9d9af)",
+  aurora: "linear-gradient(160deg,#d8f3ec,#bfe7dc 45%,#cfd8f2)",
+  lavaLamp: "linear-gradient(180deg,#fbe0ef,#f6c9e2 40%,#e9d1f5)",
+  arcade: "radial-gradient(circle at 50% 20%,#2c3466,#1e2340 70%)",
+  sakura: "linear-gradient(160deg,#fdeef2,#f9d9e2)",
 };
 
 /** Full backdrop CSS for a background id ("transparent" when unset/unknown). */

@@ -57,24 +57,51 @@ _BODY = {
     "porcelain": "a glossy porcelain", "light": "a soft glowing light-skinned", "warm": "a warm sun-kissed",
     "tan": "a golden tan", "brown": "a rich glossy brown", "deep": "a deep glowing brown",
     "rich": "a gorgeous rich dark-brown", "ebony": "a radiant ebony",
+    "peach": "the classic warm peachy", "coral": "a juicy coral-pink", "rose": "a soft rosy-pink",
+    "butter": "a creamy butter-yellow", "mint": "a fresh minty-green", "sage": "a gentle sage-green",
+    "sky": "a dreamy sky-blue", "periwinkle": "a soft periwinkle-blue", "lavender": "a magical lavender",
+    "slate": "a cool slate-blue", "bubblegum": "a poppy bubblegum-pink", "aqua": "a splashy aqua",
+    "gold": "a gleaming molten-gold, like a trophy", "silver": "a polished chrome-silver, mirror-shiny",
+    "midnight": "a deep midnight-navy with a starry shimmer", "watermelon": "a juicy watermelon-pink with a hint of green",
 }
 _IRIS = {
     "galaxy": "a mesmerizing swirling galaxy iris exploding with tiny stars, glowing nebula wisps and cosmic sparkles",
     "darkBrown": "a deep glossy dark-brown iris with a bright starry catchlight",
     "rose": "a luminous rosy-pink iris that softly glows", "gold": "a radiant molten-gold iris that gleams like treasure",
+    "brown": "a warm glossy brown iris", "hazel": "a sparkling hazel iris flecked with gold",
+    "amber": "a glowing amber iris like warm honey", "green": "a vivid emerald-green iris",
+    "blue": "a brilliant crystal-blue iris", "gray": "a cool silvery-gray iris",
+    "violet": "a dazzling violet iris", "teal": "a luminous teal iris",
+    "lava": "a molten lava iris, glowing orange-red with ember cracks",
+    "ice": "a glacial ice iris, pale crystal blue with frosty sparkle",
+    "rainbow": "an impossible rainbow iris, a full spectrum swirl",
 }
 _EYE = {
     "round": "enormous, round and impossibly glossy", "wide": "wide, bright and full of wonder",
     "almond": "an elegant almond shape", "sleepy": "dreamy and half-lidded",
     "upturned": "playfully upturned", "sparkle": "huge and sparkling with dazzling highlights",
     "starry": "beaming with big star-shaped highlights",
+    "heart": "shaped like a huge lovestruck heart",
+    "dizzy": "a hilarious dizzy swirl, totally starstruck",
+    "laser": "narrowed into an intense laser-focus glare with a glowing scanline",
+    "pixel": "rendered as a chunky retro 8-bit pixel eye",
+    "rainbow": "beaming a soft rainbow arc across the iris",
 }
 _MOUTH = {
     "smile": "a warm beaming smile", "grin": "an enormous joyful open grin", "soft": "a sweet gentle smile",
     "open": "a delighted little 'oh!'", "smirk": "a mischievous confident smirk",
     "ooh": "a starstruck 'ooh!'", "tongue": "a cheeky tongue-out grin",
+    "laugh": "an uncontrollable head-back belly laugh",
+    "catSmile": "a smug little :3 cat smile", "chomp": "a giant goofy chomp with one tooth showing",
+    "whistle": "casually whistling with a tiny musical note",
+    "pout": "a dramatic theatrical pout", "shocked": "a totally shocked jaw-drop",
+    "evilGrin": "a cartoonishly evil scheming grin",
 }
-_LASHES = {"natural": "soft fluttery lashes", "glam": "long, dramatic glamorous lashes", "cyber": "glowing neon cyber-lashes"}
+_LASHES = {
+    "natural": "soft fluttery lashes", "glam": "long, dramatic glamorous lashes", "cyber": "glowing neon cyber-lashes",
+    "feathery": "huge feathery false lashes, full drama",
+    "butterfly": "lashes that curl into tiny butterfly wings",
+}
 _BLUSH = {
     "rose": "rosy glowing blush", "coral": "warm coral blush", "peach": "soft peachy blush", "plum": "rich plum blush",
     "berry": "bold berry blush", "sky": "dreamy sky-blue blush", "mint": "cool minty blush", "gold": "shimmering golden blush",
@@ -85,21 +112,60 @@ _GLASSES = {
     "round": "chic round glasses", "square": "bold square glasses", "catEye": "sassy cat-eye glasses",
     "monocle": "a fancy gold monocle", "reading": "smart reading glasses", "goggles": "splashy swim goggles",
     "heart": "adorable heart-shaped glasses", "visor": "a sleek glowing futuristic visor",
+    "dealWithIt": "pixelated 8-bit 'deal with it' sunglasses",
+    "cinema3d": "retro red-and-cyan 3D cinema glasses",
+    "ski": "mirrored ski goggles with a rainbow sheen",
+    "star": "oversized star-shaped party glasses",
+    "magnifier": "a comically huge detective's magnifying glass held up to the eye",
+    "steampunk": "brass steampunk goggles with tiny gears",
+    "broken": "cracked, taped-together nerd glasses worn proudly",
 }
 _TOPPER = {
     "sprout": "a cute little green sprout popping from the top", "bow": "an oversized adorable bow",
     "cap": "a cool backwards baseball cap", "beanie": "a cozy slouchy beanie", "halo": "a glowing golden halo",
     "clip": "a sparkly hair clip", "flower": "a bright blooming flower", "antenna": "wiggly little antennae",
     "crown": "a dazzling jewel-encrusted gold crown", "horns": "tiny cheeky devil horns", "flame": "a dramatic dancing flame",
+    "wizardHat": "a giant starry wizard hat, slightly too big",
+    "propeller": "a classic propeller beanie, propeller mid-spin",
+    "trafficCone": "a tiny orange traffic cone worn proudly as a hat",
+    "rubberDuck": "a small yellow rubber duck sitting calmly on top",
+    "croissant": "a golden buttery croissant balanced like a beret",
+    "vikingHelm": "a horned viking helmet, fearsome yet adorable",
+    "pirateHat": "a swashbuckling pirate tricorn with a tiny skull",
+    "cowboyHat": "a ten-gallon cowboy hat, yee-haw energy",
+    "chefToque": "a tall white chef's toque",
+    "discoBall": "a glittering mini disco ball hovering above, scattering sparkles",
+    "catEars": "a soft pink cat-ear headband",
+    "mushroom": "a cute red-and-white spotted mushroom cap",
 }
 _ACCESSORY = {
     "headphones": "big cool headphones", "earmuffs": "fluffy oversized earmuffs", "bandage": "a tiny cute bandage",
     "sticker": "a shiny star sticker", "sparkles": "a flurry of floating magical sparkles",
+    "snorkel": "a snorkel and mask pushed up ready for adventure",
+    "bobaTea": "clutching a giant boba milk tea with both tiny arms",
+    "magicWand": "holding a sparkling magic wand mid-spell",
+    "balloon": "holding a bright red balloon on a string",
+    "goldChain": "an oversized chunky gold chain, maximum swagger",
+    "mustache": "a magnificent curly gentleman's mustache",
+    "fannyPack": "a neon 90s fanny pack worn with total confidence",
+    "petSnail": "a tiny happy pet snail sitting beside her",
+    "jetpack": "a mini rocket jetpack with a gentle flame",
+    "umbrella": "a tiny striped umbrella held aloft",
 }
 _OUTFIT = {
     "scarf": "a cozy oversized knitted scarf", "bowtie": "a dapper bowtie", "collar": "a neat little collar",
     "lanyard": "an official staff lanyard", "hoodie": "a comfy streetwear hoodie", "labcoat": "a crisp white lab coat",
     "turtleneck": "a chic turtleneck", "overalls": "cute denim overalls", "cape": "a flowing heroic cape that billows dramatically",
+    "dinoOnesie": "a full green dinosaur onesie with a hood of little teeth",
+    "astronaut": "a puffy white astronaut suit with a mission patch",
+    "tuxedo": "a dapper black tuxedo with a crisp bow tie",
+    "bananaSuit": "a ridiculous full banana costume",
+    "bubbleWrap": "armor made entirely of bubble wrap",
+    "hawaiian": "a loud hibiscus-print hawaiian shirt",
+    "knightArmor": "shining knight armor with a tiny plume",
+    "chefApron": "a flour-dusted chef's apron",
+    "pufferJacket": "an oversized cloud-like puffer jacket",
+    "superSuit": "a heroic super-suit with a lightning emblem",
 }
 
 # axis → bespoke phrase map. Single lookup point for the tile prompts and the

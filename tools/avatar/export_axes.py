@@ -2,7 +2,7 @@
 """Export the Selena avatar registry to a TypeScript mirror for the frontend.
 
 The Python `AVATAR_AXES` in tools/avatar/parts.py is the SINGLE SOURCE OF TRUTH.
-The frontend needs the same ids to build the sprite manifest + option pickers, so
+The frontend needs the same ids to build the Studio option pickers + tiles, so
 this script renders a generated TS module. A parity test
 (tests/avatar/test_axes_parity.py) fails if the checked-in file drifts from the
 registry, so the two can never disagree.
@@ -30,7 +30,7 @@ def render_ts() -> str:
     lines: list[str] = [
         "// AUTO-GENERATED from tools/avatar/parts.py by tools/avatar/export_axes.py.",
         "// Do not edit by hand — run `python tools/avatar/export_axes.py` and commit.",
-        "// Selena is Iris: a one-eyed mascot; these ids map to sprite parts (RICOE D9/D10).",
+        "// Selena is Iris: a one-eyed mascot; these ids drive her portrait render + Studio option tiles.",
         "",
         f"export const CONFIG_VERSION = {CONFIG_VERSION} as const;",
         "",
