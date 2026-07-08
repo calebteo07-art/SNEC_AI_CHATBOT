@@ -1,15 +1,18 @@
-"""Restore transparency to opaque flash renders (logo→raster brief).
+"""Chroma-key helpers — restore transparency to opaque flash renders.
 
-Flash-image can't emit alpha (D12): poses come back opaque on a flat chroma
+flash-image can't emit alpha: renders come back opaque on a flat chroma
 backdrop. `key_out` floods that backdrop to transparent from the corners;
-`normalize_512` trims to the subject and letterboxes onto the iris.png 512²
-canvas so pose frames register with the rest frame. Pure PIL — dev/asset-build
-only, no new prod dependency."""
+`despill_green` neutralises the green rim; `normalize_512` trims to the
+subject and letterboxes onto a 512² canvas so frames register with iris.png.
+Pure PIL. PROD-PATH code: the Selena portrait pipeline keys every student
+render server-side (as well as the offline brand/tile asset builds)."""
 from __future__ import annotations
 
 from collections import deque
 
 from PIL import Image
+
+BG_KEY = "#00B140"  # canonical flat chroma-green backdrop (absent from the mascot's palette)
 
 
 def _hex_rgb(h: str) -> tuple[int, int, int]:
