@@ -1,9 +1,10 @@
 """Task 1 of the Selena 3D-portrait plan: the pure deterministic core.
 
 config_hash + config_to_prompt must be pure and derived from the parts registry.
-The portrait bakes its OWN background (flash-image can't emit true alpha), so `background`
-IS part of the look — it affects both the hash and the prompt (revised from the original
-transparent-over-CSS-backdrop design, 2026-07-06). No network / API here.
+v2: the portrait is a transparent cutout keyed from a flat chroma-green render — the
+`background` axis is a CSS backdrop applied client-side, so it never reaches the prompt
+or the cache hash (revised back to the transparent-over-CSS design, 2026-07-08).
+No network / API here.
 """
 from tools.avatar.portrait import config_hash, config_to_prompt, PORTRAIT_AXES
 
@@ -19,10 +20,10 @@ def test_hash_is_order_and_extra_key_invariant():
     assert a == b
 
 
-def test_hash_changes_with_background():
-    # background is now baked into the image, so it IS part of the cache key.
+def test_hash_is_background_invariant():
+    # v2 portraits are transparent cutouts — the backdrop is CSS, not pixels.
     base = {"bodyColor": "aqua", "irisColor": "green"}
-    assert config_hash({**base, "background": "mist"}) != config_hash({**base, "background": "galaxy"})
+    assert config_hash({**base, "background": "mist"}) == config_hash({**base, "background": "galaxy"})
 
 
 def test_hash_changes_when_a_character_axis_changes():
@@ -37,9 +38,26 @@ def test_defaults_fill_so_partial_equals_explicit():
     assert config_hash(partial) == config_hash(explicit)
 
 
-def test_background_in_portrait_axes():
-    assert "background" in PORTRAIT_AXES
+def test_background_not_in_portrait_axes():
+    assert "background" not in PORTRAIT_AXES
     assert "bodyColor" in PORTRAIT_AXES and "topper" in PORTRAIT_AXES
+
+
+def test_hash_is_salted_v2():
+    # The v2 salt must cache-bust every pre-existing opaque portrait.
+    import hashlib, json
+    from tools.avatar.parts import DEFAULT_AVATAR
+    norm = {k: DEFAULT_AVATAR[k] for k in PORTRAIT_AXES}
+    unsalted = hashlib.sha256(
+        json.dumps(norm, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()[:16]
+    assert config_hash({}) != unsalted
+
+
+def test_prompt_demands_flat_chroma_green_background():
+    p = config_to_prompt({"background": "galaxy"}).lower()
+    assert "#00b140" in p
+    assert "galaxy" not in p          # background axis no longer reaches the prompt
 
 
 def test_prompt_always_carries_the_iris_contract():
@@ -53,12 +71,6 @@ def test_prompt_reflects_set_options_and_skips_none():
     p = config_to_prompt({"topper": "crown", "glasses": "none"})
     assert "crown" in p.lower()
     assert "glasses" not in p.lower()  # a none option contributes nothing
-
-
-def test_prompt_includes_background():
-    # background is now baked into the render, so it must appear in the prompt.
-    p = config_to_prompt({"background": "galaxy", "irisColor": "blue"}).lower()
-    assert "galaxy" in p and "background" in p
 
 
 def test_prompt_includes_galaxy_iris_when_chosen():

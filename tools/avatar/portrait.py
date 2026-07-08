@@ -1,22 +1,33 @@
 """Selena 3D portrait — the pure config→prompt and config→hash core (part 3).
 
 The portrait is a soft-3D Iris rendered from a student's saved config. flash-image can't
-emit true alpha (asked for transparency it paints a checkerboard), so the image bakes its
-OWN background from the `background` axis — which therefore IS part of the look and affects
-both the prompt and the cache hash (revised 2026-07-06 from the transparent-over-CSS design).
+emit true alpha, so v2 asks for a flat chroma-green (#00B140) backdrop instead and keys the
+opaque render to a transparent 512² webp server-side (`tools.shared.keying`). The backdrop
+is therefore a CSS layer applied client-side, NOT part of the look — `background` is excluded
+from both the prompt and the cache hash (reverted to the transparent-over-CSS design,
+2026-07-08; v1 briefly baked the background into the pixels, 2026-07-06).
 
 Pure + registry-derived: `config_to_prompt` and `config_hash` do no I/O and never call
 an API. Generation/storage live below; these are their deterministic inputs.
 """
 import hashlib
+import io
 import json
+
+from PIL import Image
 
 from tools.avatar import generate_sprites
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR
 from tools.shared.gemini_client import MOCK_MODE
+from tools.shared.keying import BG_KEY, despill_green, key_out, normalize_512
 
-# Every axis, background included — the render bakes its own backdrop (no true alpha).
-PORTRAIT_AXES: list[str] = list(AVATAR_AXES)
+# The character axes only — v2 portraits are transparent cutouts, so `background`
+# is a CSS layer behind the image and never reaches the prompt or the cache key.
+PORTRAIT_AXES: list[str] = [a for a in AVATAR_AXES if a != "background"]
+
+# Bumped whenever the render contract changes: salting the hash cache-busts every
+# portrait minted under the old contract (v1 = opaque, baked background).
+_HASH_SALT = "portrait:v2"
 
 # The invariant style contract — what keeps a generated look recognizably Iris. Mirrors
 # the STYLE in generate_sprites.py; kept here so the prompt core is self-contained.
@@ -26,10 +37,11 @@ _CONTRACT = (
     "Render as a PREMIUM, over-the-top COLLECTIBLE character portrait: bold soft-3D Pixar "
     "style, ultra-glossy, vibrant saturated colours, dramatic cinematic rim-lighting, a dreamy "
     "glow with floating sparkles, rich depth and a wow-factor — genuinely eye-catching and "
-    "delightful, like a legendary game-reward icon. Front view, centered, full body, generous "
-    "margin, polished square, with the cohesive background described below. "
-    "IMPORTANT: no text, no border, and NEVER paint a checkerboard or transparency pattern — "
-    "always fill the background with the described scene."
+    "delightful, like a legendary game-reward icon. "
+    "Front view, centered, full body, generous margin, polished square. "
+    f"IMPORTANT: the ENTIRE background must be one flat, uniform, solid chroma-green ({BG_KEY}) — "
+    "no gradient, no scene, no backdrop shadows, no text, no border, and NEVER a checkerboard "
+    "or transparency pattern. Only the character casts subtle self-shading."
 )
 
 
@@ -88,16 +100,6 @@ _OUTFIT = {
     "lanyard": "an official staff lanyard", "hoodie": "a comfy streetwear hoodie", "labcoat": "a crisp white lab coat",
     "turtleneck": "a chic turtleneck", "overalls": "cute denim overalls", "cape": "a flowing heroic cape that billows dramatically",
 }
-_BG = {
-    "mist": "a soft dreamy misty-grey studio glow", "blush": "a warm glowing blush-pink backdrop",
-    "sky": "a bright cheerful sky-blue backdrop", "mint": "a fresh minty-green glow",
-    "lilac": "a soft magical lilac haze", "sun": "a radiant sunny-yellow burst",
-    "graphite": "a moody dramatic graphite-charcoal backdrop with a rim glow",
-    "gemini": "a dreamy shimmering Gemini-gradient (lavender melting into peach)",
-    "galaxy": "an epic deep-space galaxy full of stars and swirling nebulae",
-    "confetti": "an explosion of playful pastel confetti", "sunset": "a glowing golden-hour sunset gradient",
-    "ocean": "a serene glowing ocean-blue backdrop", "forest": "a soft enchanted forest-green glow",
-}
 
 
 def _norm(config: dict) -> dict:
@@ -112,12 +114,13 @@ def _norm(config: dict) -> dict:
 def config_hash(config: dict) -> str:
     """Stable 16-hex id for a character look (order-, extra-key-, and background-invariant)."""
     norm = _norm(config)
-    blob = json.dumps(norm, sort_keys=True, separators=(",", ":"))
+    blob = json.dumps({"salt": _HASH_SALT, **norm}, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 
 def config_to_prompt(config: dict) -> str:
-    """Compose the image prompt for a look. Skips `none` options; bakes in `background`."""
+    """Compose the image prompt for a look. Skips `none` options; `background` is never
+    included — the render always demands a flat chroma-green backdrop (see `_CONTRACT`)."""
     c = _norm(config)
     lines = [_CONTRACT]
     lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a vibrant glossy ' + _humanize(c['bodyColor']) + '-coloured')} body.")
@@ -136,7 +139,6 @@ def config_to_prompt(config: dict) -> str:
         lines.append(f"Extra: {_ACCESSORY.get(c['accessory'], _humanize(c['accessory']))}.")
     if c["outfit"] != "none":
         lines.append(f"Outfit: {_OUTFIT.get(c['outfit'], _humanize(c['outfit']))}.")
-    lines.append(f"Background: {_BG.get(c['background'], 'a vivid, glowing ' + _humanize(c['background']) + ' backdrop')}.")
     return "\n".join(lines)
 
 
@@ -145,21 +147,46 @@ def config_to_prompt(config: dict) -> str:
 # path (Task 3), never in tests: render_portrait refuses to run in MOCK_MODE.
 
 
-def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"]) -> bytes:
-    """Render the soft-3D Iris image for a look. LIVE + PAID (~1–2¢/image).
+# Below this fraction of fully-transparent pixels, the model ignored the chroma
+# backdrop (a real keyed cutout is mostly transparent margin).
+_MIN_ALPHA_RATIO = 0.05
 
-    Refuses in MOCK_MODE — we never fabricate art in tests/CI. Builds the prompt from
-    the config (background baked in — flash-image has no true alpha) and anchors to
-    iris.png via the shared image client. Returns the raw image bytes (JPEG in practice).
+
+def _alpha_ratio(img: Image.Image) -> float:
+    return img.getchannel("A").histogram()[0] / float(img.width * img.height)
+
+
+def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"]) -> bytes:
+    """Render + key one transparent Selena cutout. LIVE + PAID (~1–2¢/image).
+
+    Refuses in MOCK_MODE — we never fabricate art in tests/CI. The flash render
+    comes back opaque on flat chroma green (flash has no true alpha); we key it
+    out, despill, and normalise onto the 512² iris.png canvas. If the model
+    ignored the green screen (almost no transparent pixels after keying) we
+    retry once, then fail so the caller marks the look `failed` (the UI falls
+    back to the default mascot — never broken art). Returns RGBA webp bytes.
     """
     if MOCK_MODE:
         raise RuntimeError(
             "render_portrait needs a live GEMINI_API_KEY; refusing to fabricate art in MOCK_MODE"
         )
-    data = generate_sprites.generate_image_bytes(config_to_prompt(config), model=model)
-    if not data:
-        raise RuntimeError("portrait generation returned no image bytes")
-    return data
+    prompt = config_to_prompt(config)
+    last = "generation returned no image bytes"
+    for _ in range(2):
+        data = generate_sprites.generate_image_bytes(prompt, model=model)
+        if not data:
+            continue
+        keyed = key_out(Image.open(io.BytesIO(data)), BG_KEY)
+        # Check BEFORE normalize_512 — normalize always adds a transparent letterbox
+        # margin, which would mask a render that never keyed out any real background.
+        if _alpha_ratio(keyed) < _MIN_ALPHA_RATIO:
+            last = "model ignored the chroma backdrop (<5% transparent after keying)"
+            continue
+        img = normalize_512(despill_green(keyed))
+        buf = io.BytesIO()
+        img.save(buf, "WEBP", quality=90)
+        return buf.getvalue()
+    raise RuntimeError(f"portrait generation failed: {last}")
 
 
 def _image_kind(data: bytes) -> tuple[str, str]:
