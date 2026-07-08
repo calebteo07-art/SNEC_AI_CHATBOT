@@ -120,6 +120,7 @@ export function Leaderboard() {
             <li key={`${e.rank}-${e.name}`} className="lb-row" data-you={e.is_you || undefined} data-top={e.rank <= 3 || undefined}>
               <span className="lb-rank" aria-hidden>{MEDALS[e.rank] ?? e.rank}</span>
               <span className="lb-face" aria-hidden>
+                {/* default mascot for every row until Task 8 wires real per-student portrait URLs */}
                 <Selena size={44} />
               </span>
               <span className="lb-meta">

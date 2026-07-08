@@ -124,8 +124,9 @@ export function SelenaStudio() {
     saveMut.mutate(draft, {
       onSuccess: () => {
         setCelebrate(true);
-        // Kick the real 3D render of the just-saved look; the hero swaps SVG → PNG
-        // once it's ready (useAvatar polls while pending). Cache-gated server-side.
+        // Kick the transparent-portrait render of the just-saved look; the hero swaps
+        // the default iris.png mascot → the portrait cutout PNG once it's ready
+        // (useAvatar polls while pending). Cache-gated server-side.
         portraitMut.mutate();
         if (mode === "welcome") {
           // First-run: celebrate briefly, mark onboarded, then land on home.
