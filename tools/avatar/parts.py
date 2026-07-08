@@ -6,42 +6,54 @@ tiny arms, a little smile, and a floor shadow. Every custom Selena is an Iris
 variant; there is no hair and no second eye. This module is the SINGLE SOURCE OF
 TRUTH for which option ids are valid on each axis.
 
-Rendering (RICOE D10): the frontend `<Selena>` is a layered **sprite compositor**.
-Each option id here maps to a pre-generated 3D part sprite in a curated library
-(built once, offline, via Nano Banana on explicit go-ahead — RICOE D11); the
-renderer swaps sprites at runtime, so it stays free/instant/deterministic while
-keeping the 3D look. A parity test in the renderer plan keeps the sprite manifest
-in sync with these ids. Validation fails closed: any id not listed here is
-rejected, so a tampered request body cannot inject arbitrary values.
+Rendering: Selena is ONE whole-look AI-rendered transparent portrait per config
+(`tools/avatar/portrait.py`), generated on save and cached by config hash — not a
+layered sprite compositor (that approach was deleted in Task 3). The Studio
+builder shows static per-option preview tiles (`tools/avatar/tiles.py`,
+`frontend/public/avatar/tiles/**`) so students can browse choices without a live
+render; the final look is always the single portrait render, never a client-side
+composite. Validation fails closed: any id not listed here is rejected, so a
+tampered request body cannot inject arbitrary values.
 """
 from __future__ import annotations
 
 CONFIG_VERSION = 2
 
 # axis -> ordered list of valid option ids (order = display order in the builder).
-# Rich, with a few deliberately unconventional options (galaxy iris, star eyes,
-# star/freckle blush, horns/crown/flame toppers, heart glasses, cape, galaxy bg)
-# so customization is fun. Each id maps to a sprite in the 3D part library.
+# Rich and deliberately silly (galaxy iris, laser eyes, traffic-cone hat, boba tea,
+# dino onesie, dealWithIt shades, aurora bg) so customization is genuinely fun.
+# Each id maps to a bespoke prompt phrase in portrait.py and (for prop axes) a
+# static preview tile.
 AVATAR_AXES: dict[str, list[str]] = {
     "bodyColor":  ["porcelain", "light", "warm", "tan", "brown", "deep", "rich", "ebony",
                    "peach", "coral", "rose", "butter", "mint", "sage", "sky", "periwinkle",
-                   "lavender", "slate", "bubblegum", "aqua"],
+                   "lavender", "slate", "bubblegum", "aqua", "gold", "silver", "midnight", "watermelon"],
     "irisColor":  ["darkBrown", "brown", "hazel", "amber", "green", "blue", "gray", "violet",
-                   "teal", "rose", "gold", "galaxy"],
-    "eyeShape":   ["round", "wide", "almond", "sleepy", "upturned", "sparkle", "starry"],
-    "lashes":     ["none", "natural", "glam", "cyber"],
-    "mouth":      ["smile", "grin", "soft", "open", "smirk", "ooh", "tongue"],
+                   "teal", "rose", "gold", "galaxy", "lava", "ice", "rainbow"],
+    "eyeShape":   ["round", "wide", "almond", "sleepy", "upturned", "sparkle", "starry",
+                   "heart", "dizzy", "laser", "pixel", "rainbow"],
+    "lashes":     ["none", "natural", "glam", "cyber", "feathery", "butterfly"],
+    "mouth":      ["smile", "grin", "soft", "open", "smirk", "ooh", "tongue",
+                   "laugh", "catSmile", "chomp", "whistle", "pout", "shocked", "evilGrin"],
     "blush":      ["none", "rose", "coral", "peach", "plum", "berry", "sky", "mint",
                    "gold", "grape", "teal", "stars", "freckles"],
     "glasses":    ["none", "round", "square", "catEye", "monocle", "reading", "goggles",
-                   "heart", "visor"],
+                   "heart", "visor", "dealWithIt", "cinema3d", "ski", "star", "magnifier",
+                   "steampunk", "broken"],
     "topper":     ["none", "sprout", "bow", "cap", "beanie", "halo", "clip", "flower",
-                   "antenna", "crown", "horns", "flame"],
-    "accessory":  ["none", "headphones", "earmuffs", "bandage", "sticker", "sparkles"],
+                   "antenna", "crown", "horns", "flame", "wizardHat", "propeller",
+                   "trafficCone", "rubberDuck", "croissant", "vikingHelm", "pirateHat",
+                   "cowboyHat", "chefToque", "discoBall", "catEars", "mushroom"],
+    "accessory":  ["none", "headphones", "earmuffs", "bandage", "sticker", "sparkles",
+                   "snorkel", "bobaTea", "magicWand", "balloon", "goldChain", "mustache",
+                   "fannyPack", "petSnail", "jetpack", "umbrella"],
     "outfit":     ["none", "scarf", "bowtie", "collar", "lanyard", "hoodie", "labcoat",
-                   "turtleneck", "overalls", "cape"],
+                   "turtleneck", "overalls", "cape", "dinoOnesie", "astronaut", "tuxedo",
+                   "bananaSuit", "bubbleWrap", "hawaiian", "knightArmor", "chefApron",
+                   "pufferJacket", "superSuit"],
     "background": ["mist", "blush", "sky", "mint", "lilac", "sun", "graphite", "gemini",
-                   "galaxy", "confetti", "sunset", "ocean", "forest"],
+                   "galaxy", "confetti", "sunset", "ocean", "forest", "aurora", "lavaLamp",
+                   "arcade", "rainyWindow", "candy", "sakura"],
 }
 
 # The default Selena — IDENTICAL to the homepage Iris raster: peachy body, big blue
