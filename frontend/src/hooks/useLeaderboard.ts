@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AvatarConfig } from "@/aurora/avatar/axes.generated";
 
-/** One ranked row. `avatar_config` drives the Selena headshot (null → default look);
- *  `name` is the student's display name or first-name + last-initial. */
+/** One ranked row. `avatar_config` is reserved: per-row portrait URLs (Task 8) will
+ *  drive the Selena headshot; it is not rendered yet (every row shows the default
+ *  mascot). `name` is the student's display name or first-name + last-initial. */
 export interface LeaderboardEntry {
   rank: number;
   name: string;
