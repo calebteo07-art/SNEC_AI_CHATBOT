@@ -102,8 +102,9 @@ _OUTFIT = {
     "turtleneck": "a chic turtleneck", "overalls": "cute denim overalls", "cape": "a flowing heroic cape that billows dramatically",
 }
 
-# axis → bespoke phrase map. Single lookup point for the portrait prompt, the tile
-# prompts, and the phrase-coverage gate (no shipped id may fall back to _humanize).
+# axis → bespoke phrase map. Single lookup point for the tile prompts and the
+# phrase-coverage gate (no shipped tile id may fall back to _humanize). The portrait
+# prompt reads these same dicts directly in config_to_prompt.
 PROMPT_MAPS: dict[str, dict[str, str]] = {
     "bodyColor": _BODY, "irisColor": _IRIS, "eyeShape": _EYE, "mouth": _MOUTH,
     "lashes": _LASHES, "blush": _BLUSH, "glasses": _GLASSES, "topper": _TOPPER,
