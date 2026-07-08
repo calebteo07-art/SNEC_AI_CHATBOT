@@ -1,13 +1,8 @@
 """Tile registry + mandate: every non-colour, non-none option id ships a static
 tile art file (placeholder first, paid art later) — same style of gate as the
 50-cards-per-topic mandate. Colour axes render as swatches, not tiles."""
-from pathlib import Path
-
-from tools.avatar.parts import AVATAR_AXES
 from tools.avatar.portrait import phrase_for
-from tools.avatar.tiles import TILE_AXES, tile_ids, tile_path
-
-TILES_ROOT = Path("frontend/public/avatar/tiles")
+from tools.avatar.tiles import TILE_AXES, TILES_ROOT, tile_ids, tile_path
 
 
 def test_tile_axes_are_the_prop_axes():

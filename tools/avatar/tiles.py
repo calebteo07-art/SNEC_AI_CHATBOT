@@ -10,11 +10,11 @@ from pathlib import Path
 
 from tools.avatar.parts import AVATAR_AXES
 
-# Relative to the project root — every entry point here (pytest, the CLI tools,
-# the harness) runs with the repo root as cwd, and keeping this relative (rather
-# than resolved via __file__) makes it compare equal to the frontend-convention
-# path the tests and other tools build the same way.
-TILES_ROOT = Path("frontend") / "public" / "avatar" / "tiles"
+# Anchored to the repo root via __file__ (tools/avatar/tiles.py → parents[2]),
+# so the CLI tools and the paid --install path resolve the same tile tree no
+# matter what cwd they run from — matching every sibling tool in tools/avatar/.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+TILES_ROOT = PROJECT_ROOT / "frontend" / "public" / "avatar" / "tiles"
 
 # The prop/shape axes — everything that isn't a colour swatch or the CSS backdrop.
 TILE_AXES: list[str] = ["eyeShape", "lashes", "mouth", "glasses", "topper", "accessory", "outfit"]
