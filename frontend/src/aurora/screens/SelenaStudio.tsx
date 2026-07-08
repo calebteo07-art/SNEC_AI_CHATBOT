@@ -79,6 +79,14 @@ export function SelenaStudio() {
     [draft, data],
   );
 
+  // The loadout: picks that differ from the SAVED look. Each docks under the hero
+  // as a tile chip — the honest pending-changes state (the hero itself only ever
+  // shows real rendered art; picks fuse into a new render on Save).
+  const pending = useMemo(() => {
+    if (!draft || !data?.config) return [];
+    return STEPS.filter((s) => draft[s.axis] !== data.config[s.axis]);
+  }, [draft, data]);
+
   if (isError) {
     return (
       <div className="studio-wrap">
@@ -166,7 +174,7 @@ export function SelenaStudio() {
       </header>
 
       <section className="studio-stage" aria-live="polite">
-        <div className="studio-hero" data-float>
+        <div className="studio-hero" data-float data-alive>
           <Selena
             portraitUrl={heroStatus === "ready" ? heroUrl : null}
             background={draft.background}
@@ -182,6 +190,21 @@ export function SelenaStudio() {
             One of <b>{AVATAR_COMBOS.toLocaleString()}</b> possible looks
           </p>
         </div>
+        {pending.length > 0 && (
+          <ul className="studio-tray" aria-label="Your unsaved picks">
+            {pending.map((s) => (
+              <li key={s.axis} className="studio-tray-chip">
+                {!COLOR_MAP[s.axis] && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={tileSrc(s.axis, draft[s.axis])} alt="" width={30} height={30}
+                       onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                )}
+                <span aria-hidden>{s.emoji}</span> {humanize(draft[s.axis])}
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="studio-explain">Your picks bake into one hand-crafted render when you save.</p>
       </section>
 
       <nav className="studio-dots" aria-label="Customization steps">
