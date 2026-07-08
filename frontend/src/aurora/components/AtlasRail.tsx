@@ -35,6 +35,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
   const role = user?.role ?? "student";
   // The nav chip is a student identity surface → their customised Selena (staff keep initials).
   const selenaConfig = role === "student" ? avatar?.config : undefined;
+  const selenaPortraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
   const showOversight = role === "admin" || role === "supervisor";
   const initials = (user?.fullName ?? "EyeBot")
     .split(" ")
@@ -100,7 +101,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
         </div>
         <Link href="/profile" className="aurora-profile" aria-label="Profile">
           <span className="aurora-avatar" data-selena={selenaConfig ? "" : undefined}>
-            {selenaConfig ? <Selena config={selenaConfig} size={30} /> : initials}
+            {selenaConfig ? <Selena portraitUrl={selenaPortraitUrl} size={30} /> : initials}
           </span>
           <span className="aurora-profile-meta">
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>

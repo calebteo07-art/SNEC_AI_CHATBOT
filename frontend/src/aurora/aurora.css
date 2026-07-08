@@ -3078,6 +3078,10 @@ html[data-motion="reduce"] .flash-root::before { animation: none; }
 .aurora-station-overlay-card .aurora-station-result { margin-top:0; }
 @keyframes aurora-scrim-in { from { opacity:0; } to { opacity:1; } }
 @keyframes aurora-pop-in { from { opacity:0; transform:scale(.9) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
+/* <Selena> v3 — raster cutout (or the default iris.png) over an optional CSS backdrop. */
+.selena-wrap { display: inline-grid; place-items: center; overflow: hidden; border-radius: 18%; line-height: 0; }
+.selena-wrap .selena-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-overlay-scrim, .aurora-station-overlay-card { animation:none; }
 }

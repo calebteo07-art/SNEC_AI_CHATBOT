@@ -1,28 +1,43 @@
-/* <Selena> — the one-eyed EyeBot mascot, composited from a saved avatar_config.
-   Presentational + hook-free, so it renders on the server or client. The parts are
-   free placeholder SVG for now (RICOE D11); the curated 3D sprite library swaps in
-   behind renderSelenaSvg later, on explicit go-ahead. */
-import type { AvatarConfig } from "./axes.generated";
-import { renderSelenaSvg } from "./renderSelena";
+/* <Selena> — a student's Selena, raster-only (seamless-custom spec, 2026-07-07).
+   The custom look is ONE transparent AI render of the whole configuration
+   (accessories baked in by the model — never client-side compositing, which was
+   rejected). No portrait yet / failed / never customized → the literal homepage
+   iris.png. Optional CSS backdrop from the `background` axis sits behind the
+   cutout. Presentational + hook-free, renders on server or client. */
+import { backdropCss } from "./backdrops";
+
+const IRIS_SRC = "/brand/iris.png";
 
 export function Selena({
-  config,
+  portraitUrl,
+  background,
   size = 240,
   className,
 }: {
-  config?: Partial<AvatarConfig>;
+  portraitUrl?: string | null;
+  background?: string;
   size?: number;
   className?: string;
 }) {
-  const svg = renderSelenaSvg(config ?? {}, size);
   return (
     <span
       role="img"
       aria-label="Selena, your avatar"
-      className={className}
-      style={{ display: "inline-block", width: size, height: (size * 260) / 240, lineHeight: 0 }}
-      // eslint-disable-next-line react/no-danger -- SVG is fully generated from a typed config, no user HTML
-      dangerouslySetInnerHTML={{ __html: svg }}
-    />
+      className={`selena-wrap${className ? " " + className : ""}`}
+      style={{ width: size, height: size, background: backdropCss(background) }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- generated raster; no next/image on standalone */}
+      <img
+        className="selena-img"
+        src={portraitUrl || IRIS_SRC}
+        alt=""
+        width={size}
+        height={size}
+        onError={(e) => {
+          // A dead portrait URL degrades to the default mascot — never broken art.
+          if (e.currentTarget.getAttribute("src") !== IRIS_SRC) e.currentTarget.src = IRIS_SRC;
+        }}
+      />
+    </span>
   );
 }
