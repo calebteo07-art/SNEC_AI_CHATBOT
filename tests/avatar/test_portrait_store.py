@@ -66,10 +66,37 @@ def test_render_portrait_builds_prompt_and_returns_bytes(monkeypatch):
 
 
 def test_render_portrait_raises_when_no_image(monkeypatch):
+    # A falsy return means generate_image_bytes ALREADY exhausted its own internal
+    # retries — the outer loop must not amplify that into more paid invocations.
+    calls = {"n": 0}
+
+    def none_gen(*a, **k):
+        calls["n"] += 1
+        return None
+
     monkeypatch.setattr(portrait, "MOCK_MODE", False)
-    monkeypatch.setattr(portrait.generate_sprites, "generate_image_bytes", lambda *a, **k: None)
-    with pytest.raises(RuntimeError):
+    monkeypatch.setattr(portrait.generate_sprites, "generate_image_bytes", none_gen)
+    with pytest.raises(RuntimeError, match="no image bytes"):
         portrait.render_portrait({"bodyColor": "aqua"})
+    assert calls["n"] == 1                                # terminal, not retried
+
+
+def test_render_portrait_retries_undecodable_bytes_then_succeeds(monkeypatch):
+    # Garbage bytes are a render-quality failure like a missed green screen:
+    # worth exactly one more attempt, then the good render goes through keying.
+    calls = {"n": 0}
+
+    def flaky(*a, **k):
+        calls["n"] += 1
+        return b"NOTANIMAGE" if calls["n"] == 1 else _green_png_with_subject()
+
+    monkeypatch.setattr(portrait, "MOCK_MODE", False)
+    monkeypatch.setattr(portrait.generate_sprites, "generate_image_bytes", flaky)
+
+    out = portrait.render_portrait({"bodyColor": "aqua"})
+
+    assert out[:4] == b"RIFF" and out[8:12] == b"WEBP"
+    assert calls["n"] == 2
 
 
 def test_render_portrait_keys_to_transparent_webp(monkeypatch):

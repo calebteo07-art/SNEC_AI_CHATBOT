@@ -26,7 +26,8 @@ from tools.shared.keying import BG_KEY, despill_green, key_out, normalize_512
 PORTRAIT_AXES: list[str] = [a for a in AVATAR_AXES if a != "background"]
 
 # Bumped whenever the render contract changes: salting the hash cache-busts every
-# portrait minted under the old contract (v1 = opaque, baked background).
+# portrait minted under the old contract (v1 = opaque, baked background). Old v1
+# cache rows and bucket objects are simply orphaned by the new hashes, not GC'd.
 _HASH_SALT = "portrait:v2"
 
 # The invariant style contract — what keeps a generated look recognizably Iris. Mirrors
@@ -161,22 +162,30 @@ def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"])
 
     Refuses in MOCK_MODE — we never fabricate art in tests/CI. The flash render
     comes back opaque on flat chroma green (flash has no true alpha); we key it
-    out, despill, and normalise onto the 512² iris.png canvas. If the model
-    ignored the green screen (almost no transparent pixels after keying) we
-    retry once, then fail so the caller marks the look `failed` (the UI falls
-    back to the default mascot — never broken art). Returns RGBA webp bytes.
+    out, despill, and normalise onto the 512² iris.png canvas. Render-QUALITY
+    failures (undecodable bytes, ignored green screen) get exactly one retry;
+    no-bytes-at-all is terminal — generate_image_bytes already retried transient
+    upstream errors internally, so another outer pass would only amplify paid
+    calls. On failure the caller marks the look `failed` (the UI falls back to
+    the default mascot — never broken art). Returns RGBA webp bytes.
     """
     if MOCK_MODE:
         raise RuntimeError(
             "render_portrait needs a live GEMINI_API_KEY; refusing to fabricate art in MOCK_MODE"
         )
     prompt = config_to_prompt(config)
-    last = "generation returned no image bytes"
+    last = "no render attempted"
     for _ in range(2):
         data = generate_sprites.generate_image_bytes(prompt, model=model)
         if not data:
+            raise RuntimeError(
+                "portrait generation returned no image bytes (client retries already exhausted)"
+            )
+        try:
+            keyed = key_out(Image.open(io.BytesIO(data)), BG_KEY)
+        except Exception:  # garbage/truncated bytes — a render-quality miss, worth one retry
+            last = "render was not a decodable image"
             continue
-        keyed = key_out(Image.open(io.BytesIO(data)), BG_KEY)
         # Check BEFORE normalize_512 — normalize always adds a transparent letterbox
         # margin, which would mask a render that never keyed out any real background.
         if _alpha_ratio(keyed) < _MIN_ALPHA_RATIO:
@@ -190,8 +199,9 @@ def render_portrait(config: dict, model: str = generate_sprites.MODELS["flash"])
 
 
 def _image_kind(data: bytes) -> tuple[str, str]:
-    """(extension, content_type) sniffed from magic bytes. flash-image returns JPEG;
-    default to PNG for anything unrecognized so we never mislabel the object."""
+    """(extension, content_type) sniffed from magic bytes. The v2 pipeline emits keyed
+    RGBA webp; the JPEG branch stays defensively (raw un-keyed flash output is JPEG).
+    Default to PNG for anything unrecognized so we never mislabel the object."""
     if data[:3] == b"\xff\xd8\xff":
         return "jpg", "image/jpeg"
     if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
@@ -203,7 +213,8 @@ def store_portrait(config_hash: str, image_bytes: bytes) -> str:
     """Upload a rendered portrait to the public `selena-avatars` bucket, keyed by hash.
 
     Returns the public URL. The extension + content-type are sniffed from the bytes
-    (flash-image actually returns JPEG). Idempotent (upsert), so re-storing is safe.
+    (webp for keyed v2 renders; JPEG kept as a defensive branch for raw flash output).
+    Idempotent (upsert), so re-storing is safe.
     """
     ext, ctype = _image_kind(image_bytes)
     from tools.kb import supabase_client

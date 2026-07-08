@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections import deque
 
-from PIL import Image
+from PIL import Image, ImageFilter
 
 BG_KEY = "#00B140"  # canonical flat chroma-green backdrop (absent from the mascot's palette)
 
@@ -59,17 +59,21 @@ def despill_green(img: Image.Image) -> Image.Image:
     """Neutralise green chroma spill on the keyed subject's anti-aliased edge.
 
     Corner-flood keying leaves a rim of edge pixels that blended the subject with
-    the green backdrop — a faint green outline on light surfaces. The Iris mascot
-    has no truly-green content (peachy body, blue eye), so on every opaque
-    green-dominant pixel we clamp green down to max(red, blue): the rim goes
-    neutral while the body and eye are untouched (their green never dominates)."""
+    the green backdrop — a faint green outline on light surfaces. Spill lives ONLY
+    on that rim, so the clamp (green down to max(red, blue)) is restricted to
+    opaque green-dominant pixels within 2px of keyed transparency: portrait configs
+    include genuinely green subjects (mint/sage/aqua bodies, green outfits) whose
+    interiors must survive untouched. The rim mask is the alpha==0 mask dilated by
+    a 5×5 max filter (transparent neighbour within Chebyshev distance 2)."""
     img = img.convert("RGBA")
+    rim = img.getchannel("A").point(lambda a: 255 if a == 0 else 0).filter(ImageFilter.MaxFilter(5))
     px = img.load()
+    rm = rim.load()
     w, h = img.size
     for y in range(h):
         for x in range(w):
             r, g, b, a = px[x, y]
-            if a and g > r and g > b:
+            if a and g > r and g > b and rm[x, y]:
                 px[x, y] = (r, max(r, b), b, a)
     return img
 
