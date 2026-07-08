@@ -102,6 +102,19 @@ _OUTFIT = {
     "turtleneck": "a chic turtleneck", "overalls": "cute denim overalls", "cape": "a flowing heroic cape that billows dramatically",
 }
 
+# axis → bespoke phrase map. Single lookup point for the portrait prompt, the tile
+# prompts, and the phrase-coverage gate (no shipped id may fall back to _humanize).
+PROMPT_MAPS: dict[str, dict[str, str]] = {
+    "bodyColor": _BODY, "irisColor": _IRIS, "eyeShape": _EYE, "mouth": _MOUTH,
+    "lashes": _LASHES, "blush": _BLUSH, "glasses": _GLASSES, "topper": _TOPPER,
+    "accessory": _ACCESSORY, "outfit": _OUTFIT,
+}
+
+
+def phrase_for(axis: str, option_id: str) -> str | None:
+    """The bespoke prompt phrase for an option id, or None if unmapped."""
+    return PROMPT_MAPS.get(axis, {}).get(option_id)
+
 
 def _norm(config: dict) -> dict:
     """Fill defaults then apply the config's portrait axes — background/version/extras dropped."""
