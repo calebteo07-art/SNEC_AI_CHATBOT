@@ -1,15 +1,16 @@
 "use client";
 /* Selena Studio — the Bitmoji-inspired, gamified avatar builder (RICOE v2, plan 2b
    Task 3). ONE customization per page (user's "1 customization to 1 page"): a big
-   live <Selena> pinned on top, then a step per axis with either a colour-swatch grid
-   (colour axes) or a grid of mini live-<Selena> tiles that preview the option on you.
-   Wired to GET/PUT /api/avatar. Parts are still free placeholder art (RICOE D11) — the
-   curated 3D sprite library swaps in behind <Selena> later, on explicit go-ahead. */
+   <Selena> hero pinned on top, then a step per axis with either a colour-swatch grid
+   (colour axes) or a grid of static option-tile art that previews the choice.
+   Wired to GET/PUT /api/avatar. The hero and tiles are real rendered art (seamless-
+   custom spec, 2026-07-07) — the client-side sticker compositor is gone; the custom
+   look is ONE transparent AI portrait rendered server-side from the saved config. */
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SELENA_ONBOARDED_KEY } from "@/screens/CheckInGuard";
 import { Selena } from "@/aurora/avatar/Selena";
-import { SelenaPortrait } from "@/aurora/avatar/SelenaPortrait";
+import { tileSrc } from "@/aurora/avatar/tiles";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
 import { useAvatar, useSaveAvatar, useRequestPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
@@ -22,7 +23,7 @@ interface Step {
 }
 
 /** One step per axis, in a friendly order. Colour axes (in COLOR_MAP) render as
- *  swatches; the rest render as live mini-<Selena> tiles. */
+ *  swatches; the rest render as static option-tile art. */
 const STEPS: Step[] = [
   { axis: "bodyColor", label: "Body colour", help: "Pick your shade — go natural, or go totally out there.", emoji: "🎨" },
   { axis: "irisColor", label: "Eye colour", help: "Selena has one big eye. Make it pop.", emoji: "👁️" },
@@ -38,7 +39,7 @@ const STEPS: Step[] = [
 ];
 
 /** Colour axes → id-to-hex maps (null = a "none" option). Any axis not here renders
- *  as live mini-<Selena> tiles instead. */
+ *  as static option-tile art instead. */
 const COLOR_MAP: Partial<Record<AvatarAxis, Record<string, string | null>>> = {
   bodyColor: BODY_COLORS,
   irisColor: IRIS_COLORS,
@@ -137,9 +138,10 @@ export function SelenaStudio() {
     });
   };
 
-  // The 3D portrait only reflects the SAVED look; while the draft has unsaved edits
-  // the hero stays on the instant SVG preview. Once saved (draft === server config),
-  // show whatever portrait state the server reports (pending badge → ready PNG).
+  // The transparent portrait only reflects the SAVED look; while the draft has
+  // unsaved edits the hero falls back to the default mascot. Once saved (draft ===
+  // server config), show whatever portrait state the server reports (fusing beat →
+  // ready cutout).
   const heroStatus = dirty ? "none" : data?.portrait_status;
   const heroUrl = dirty ? null : data?.portrait_url;
 
@@ -164,7 +166,14 @@ export function SelenaStudio() {
 
       <section className="studio-stage" aria-live="polite">
         <div className="studio-hero" data-float>
-          <SelenaPortrait config={draft} portraitStatus={heroStatus} portraitUrl={heroUrl} size={220} />
+          <Selena
+            portraitUrl={heroStatus === "ready" ? heroUrl : null}
+            background={draft.background}
+            size={220}
+          />
+          {heroStatus === "pending" && (
+            <span className="studio-fusing" role="status">✨ Fusing your look…</span>
+          )}
         </div>
         <div className="studio-stage-meta">
           {dirty && <span className="studio-chip">Unsaved changes</span>}
@@ -236,7 +245,16 @@ export function SelenaStudio() {
                   aria-pressed={sel}
                   onClick={() => setOption(step.axis, id)}
                 >
-                  <Selena config={{ ...draft, [step.axis]: id }} size={80} />
+                  {/* eslint-disable-next-line @next/next/no-img-element -- file-convention art, no next/image on standalone */}
+                  <img
+                    className="studio-tile-art"
+                    src={tileSrc(step.axis, id)}
+                    alt=""
+                    width={80}
+                    height={80}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
                   <span className="studio-tile-label">{humanize(id)}</span>
                 </button>
               );
@@ -268,7 +286,7 @@ export function SelenaStudio() {
       {celebrate && (
         <div className="studio-celebrate" role="status">
           <div className="studio-celebrate-card">
-            <Selena config={draft} size={140} />
+            <Selena portraitUrl={data?.portrait_status === "ready" ? data?.portrait_url : null} size={140} />
             <p>Selena saved!</p>
           </div>
         </div>

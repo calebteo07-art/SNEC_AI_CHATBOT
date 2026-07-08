@@ -457,10 +457,9 @@ if (dm === "reduce") { console.error("FAIL: reduced-motion toggle did not turn o
 console.log("PASS: Profile — one h1, reduced-motion toggle flips data-motion");
 
 // Selena Studio (RICOE v2, plan 2b Task 3): the one-per-page avatar builder. GET seeds
-// the draft; selecting an option repaints the pinned <Selena>; Save round-trips the edit
-// to PUT /api/avatar (the persist state-invariant). renderSelenaSvg mints fresh gradient
-// uids per call, so we detect the repaint via a STABLE signal — the aqua base hex landing
-// in the preview — not raw SVG equality (which always differs).
+// the draft; selecting an option marks the draft dirty (no client-side compositing —
+// the hero only ever shows the SAVED portrait or the default mascot); Save round-trips
+// the edit to PUT /api/avatar (the persist state-invariant).
 let savedAvatar = null;
 let portraitState = { portrait_status: "none", portrait_url: null };
 // 1×1 transparent PNG — stands in for the generated 3D Selena so the swap is deterministic.
@@ -483,24 +482,18 @@ await navCtx.route("**/api/avatar/portrait", (r) => {
   return r.fulfill(JSON_OK({ portrait_status: "pending", portrait_url: null }));
 });
 await np.goto(base + "/studio", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".studio-hero svg", { timeout: 15000 });
+await np.waitForSelector(".studio-hero img.selena-img", { timeout: 15000 });
 const studioH1 = await np.locator("main h1").count();
 if (studioH1 !== 1) { console.error(`FAIL: studio main h1 count = ${studioH1}`); process.exit(1); }
-const AQUA = "#8FD8D2"; // BODY_COLORS.aqua — the middle stop of the body gradient
-const heroBefore = await np.locator(".studio-hero").innerHTML();
-if (heroBefore.includes(AQUA)) { console.error("FAIL: preview already aqua before selecting it"); process.exit(1); }
 await np.locator('.studio-swatch:has-text("Aqua")').click();
-await np.waitForTimeout(150);
-const heroAfter = await np.locator(".studio-hero").innerHTML();
-if (!heroAfter.includes(AQUA)) { console.error("FAIL: selecting a body colour did not repaint the live <Selena> preview"); process.exit(1); }
-if ((await np.locator(".studio-chip").count()) < 1) { console.error("FAIL: 'Unsaved changes' chip missing after an edit"); process.exit(1); }
-console.log("PASS: Selena Studio — selecting an option repaints the pinned <Selena> preview");
+await np.waitForSelector(".studio-chip", { timeout: 8000 });
+console.log("PASS: Selena Studio — selecting an option marks unsaved changes (no client compositing)");
 
-// shape steps render live mini-<Selena> option tiles (not swatches). Jump to the last
-// step (Backdrop) via its progress dot and assert the tile grid paints avatars.
+// shape steps render static option-tile art (not swatches). Jump to the last
+// step (Backdrop) via its progress dot and assert the tile grid renders.
 await np.locator(".studio-dots .studio-dot").last().click();
-await np.waitForSelector(".studio-tiles .studio-tile svg", { timeout: 8000 });
-console.log("PASS: Selena Studio — shape steps render live mini-<Selena> option tiles");
+await np.waitForSelector(".studio-tiles .studio-tile", { timeout: 8000 });
+console.log("PASS: Selena Studio — shape steps render option-tile art");
 
 // Save round-trips the edited config to PUT /api/avatar; the celebration confirms success.
 await np.locator(".studio-save").click();
@@ -511,11 +504,14 @@ if (!savedAvatar || savedAvatar.bodyColor !== "aqua") {
 console.log("PASS: Selena Studio — Save round-trips the edited config to PUT /api/avatar (bodyColor=aqua)");
 
 // 3D portrait swap (part 3, Task 4): Save enqueues POST /api/avatar/portrait; once the
-// mock reports it ready, useAvatar's poll swaps the hero from the SVG <Selena> preview to
-// the transparent 3D PNG. Assert the hero now renders the generated portrait image.
-await np.waitForSelector(".studio-hero .selena-portrait-img", { timeout: 8000 });
-const heroPortraitSrc = await np.locator(".studio-hero .selena-portrait-img").getAttribute("src");
-if (!heroPortraitSrc || !heroPortraitSrc.startsWith("data:image/png")) {
+// mock reports it ready, useAvatar's poll swaps the hero from the default iris.png
+// mascot to the transparent 3D PNG. Assert the hero now renders the generated portrait.
+await np.waitForFunction(() => {
+  const img = document.querySelector(".studio-hero img.selena-img");
+  return img && img.getAttribute("src")?.startsWith("data:");
+}, { timeout: 8000 });
+const heroPortraitSrc = await np.locator(".studio-hero img.selena-img").getAttribute("src");
+if (!heroPortraitSrc || !heroPortraitSrc.startsWith("data:")) {
   console.error(`FAIL: studio hero did not swap to the generated 3D portrait (src=${heroPortraitSrc})`); process.exit(1);
 }
 console.log("PASS: Selena Studio — Save renders + swaps the hero to the 3D portrait PNG");
@@ -531,8 +527,8 @@ await np.setViewportSize({ width: 1440, height: 900 });
 // Profile avatar and the Atlas Rail profile chip (the tutor + home keep the BASE mascot per the
 // ricoe A3 / home Iris locks). /api/avatar is mocked above, so a real config renders.
 await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-profile-avatar-lg[data-selena] svg", { timeout: 12000 });
-if ((await np.locator(".aurora-rail .aurora-avatar[data-selena] svg").count()) < 1) {
+await np.waitForSelector(".aurora-profile-avatar-lg[data-selena] img.selena-img", { timeout: 12000 });
+if ((await np.locator(".aurora-rail .aurora-avatar[data-selena] img.selena-img").count()) < 1) {
   console.error("FAIL: rail profile chip did not render the student's saved Selena"); process.exit(1);
 }
 console.log("PASS: Selena everywhere — Profile avatar + rail chip render the student's saved Selena");
@@ -562,7 +558,7 @@ await np.waitForSelector(".lb-list .lb-row", { timeout: 15000 });
 const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator(".lb-row").count()) !== 3) { console.error("FAIL: leaderboard did not render 3 ranked rows"); process.exit(1); }
-if ((await np.locator(".lb-face svg").count()) < 3) { console.error("FAIL: leaderboard rows missing Selena headshots"); process.exit(1); }
+if ((await np.locator(".lb-face img.selena-img").count()) < 3) { console.error("FAIL: leaderboard rows missing Selena headshots"); process.exit(1); }
 const youRow = np.locator('.lb-row[data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);

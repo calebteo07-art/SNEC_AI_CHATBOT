@@ -1,43 +1,14 @@
-// Selena sprite/part manifest — the runtime side of RICOE D10.
-//
-// Selena is Iris: a one-eyed mascot composited from layered parts. This file is
-// the single place that maps every option id (from the generated registry mirror)
-// to how it renders. Colour axes map an id -> hex; shape axes are handled by the
-// typed part registries in renderSelena.ts. Both are typed as Record<IdUnion, ...>
-// derived from AVATAR_AXES, so `npm run typecheck` fails if any id is unmapped —
-// a compile-time parity guard against the backend registry (no drift possible).
-//
-// Scaffold note (RICOE D11): parts currently render as free placeholder SVG. The
-// curated 3D sprite library (Nano Banana) swaps in later, on explicit go-ahead —
-// a localized change to the part renderers, not this contract.
+// Selena colour manifest — the swatch maps for the colour axes (body/iris/blush)
+// plus the background base tints consumed by backdrops.ts. Typed Record<IdUnion,
+// string> derived from the generated registry, so `npm run typecheck` fails if an
+// id is unmapped. Shape/prop axes have NO client-side art: they render only inside
+// the one AI portrait (seamless-custom spec) and as static tiles in the Studio.
 import { AVATAR_AXES } from "./axes.generated";
 
 export type BodyColor = (typeof AVATAR_AXES)["bodyColor"][number];
 export type IrisColor = (typeof AVATAR_AXES)["irisColor"][number];
-export type EyeShape = (typeof AVATAR_AXES)["eyeShape"][number];
-export type Lashes = (typeof AVATAR_AXES)["lashes"][number];
-export type Mouth = (typeof AVATAR_AXES)["mouth"][number];
 export type Blush = (typeof AVATAR_AXES)["blush"][number];
-export type Glasses = (typeof AVATAR_AXES)["glasses"][number];
-export type Topper = (typeof AVATAR_AXES)["topper"][number];
-export type Accessory = (typeof AVATAR_AXES)["accessory"][number];
-export type Outfit = (typeof AVATAR_AXES)["outfit"][number];
 export type Background = (typeof AVATAR_AXES)["background"][number];
-
-// Draw order, back to front. Colour axes tint the base body/eye/bg shapes; shape
-// axes overlay on top.
-export const LAYER_ORDER = [
-  "background",
-  "body",
-  "blush",
-  "eye",
-  "lashes",
-  "mouth",
-  "glasses",
-  "outfit",
-  "accessory",
-  "topper",
-] as const;
 
 export const BODY_COLORS: Record<BodyColor, string> = {
   porcelain: "#FCE7DA", light: "#FAD7BD", warm: "#EFC29A", tan: "#DBA472",

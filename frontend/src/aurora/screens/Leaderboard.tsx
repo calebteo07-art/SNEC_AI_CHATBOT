@@ -120,7 +120,7 @@ export function Leaderboard() {
             <li key={`${e.rank}-${e.name}`} className="lb-row" data-you={e.is_you || undefined} data-top={e.rank <= 3 || undefined}>
               <span className="lb-rank" aria-hidden>{MEDALS[e.rank] ?? e.rank}</span>
               <span className="lb-face" aria-hidden>
-                <Selena config={e.avatar_config ?? undefined} size={44} />
+                <Selena size={44} />
               </span>
               <span className="lb-meta">
                 <span className="lb-name">{e.name}{e.is_you && <span className="lb-youtag">You</span>}</span>
