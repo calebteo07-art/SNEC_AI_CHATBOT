@@ -20,8 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, so `t
 from PIL import Image
 
 from tools.avatar import generate_sprites
-from tools.brand import keying
 from tools.brand.logo_poses import BG_KEY, POSES, prompt
+from tools.shared import keying
 from tools.shared.gemini_client import MOCK_MODE
 
 MODEL = generate_sprites.MODELS["flash"]  # nano-banana flash only

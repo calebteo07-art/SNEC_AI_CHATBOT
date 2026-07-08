@@ -1,6 +1,6 @@
 from PIL import Image
 
-from tools.brand.keying import _hex_rgb, despill_green, key_out, normalize_512
+from tools.shared.keying import _hex_rgb, despill_green, key_out, normalize_512
 
 
 def _subject_on_chroma(size: int = 64, bg: str = "#00B140") -> Image.Image:

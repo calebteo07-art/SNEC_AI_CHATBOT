@@ -6,12 +6,12 @@ no I/O, no network.
 reused free. Each pose is a whole-image expression/tilt variant of the one-eyed
 Iris mascot (D9: Selena IS Iris — no limbs, no hair), anchored to iris.png at
 generation time (reference=True). Prompts render on a flat chroma background that
-the keying step (tools/brand/keying.py) removes to restore transparency."""
+the keying step (tools/shared/keying.py) removes to restore transparency."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-BG_KEY = "#00B140"  # flat chroma-green backdrop for keying (absent from the teal/cream mascot)
+from tools.shared.keying import BG_KEY  # canonical chroma green (shared with the portrait pipeline)
 
 _ANCHOR = (
     "The same one-eyed EyeBot mascot as the reference image — a soft, rounded, "
