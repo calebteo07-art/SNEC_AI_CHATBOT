@@ -67,6 +67,19 @@
 .hm-iris { position:relative; width:216px; height:216px; margin-bottom:6px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
 @keyframes hm-iris-bob { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-7px) rotate(1.5deg); } }
 
+/* ── the student's OWN Selena on the greeting card (seamless-custom spec) ──
+   One transparent render, animated CSS-only: entrance rise, continuous
+   breathe/bob, and a soft halo glow tinted by their chosen backdrop. */
+.hm-selena { position:relative; width:216px; height:216px; margin-bottom:6px; display:block;
+  animation: hm-selena-enter 0.9s cubic-bezier(0.2,0.9,0.3,1.15); }
+.hm-selena-img { position:relative; width:100%; height:100%; object-fit:contain; display:block;
+  animation: hm-iris-bob 4.8s ease-in-out infinite; transform-origin:50% 90%; }
+.hm-selena-halo { position:absolute; inset:8%; border-radius:50%; z-index:-1;
+  background: radial-gradient(circle, var(--halo, #f2e2d0) 0%, transparent 68%);
+  opacity:0.55; filter: blur(10px); animation: hm-halo-breathe 4.8s ease-in-out infinite; }
+@keyframes hm-selena-enter { from { opacity:0; transform: translateY(18px) scale(0.94); } to { opacity:1; transform: translateY(0) scale(1); } }
+@keyframes hm-halo-breathe { 0%,100% { opacity:0.42; } 50% { opacity:0.68; } }
+
 /* ── streak tile ── */
 .hm-streak { border-radius:var(--hr); background:var(--card); border:1px solid var(--line); box-shadow:var(--sh-lg); padding:22px 28px; display:flex; flex-direction:column; justify-content:space-between; }
 .hm-sh { display:flex; align-items:center; justify-content:space-between; }
@@ -177,6 +190,7 @@
   .hm-greet h1 { font-size:40px; max-width:none; }
   .hm-iriswrap { width:170px; height:150px; right:2px; }
   .hm-iris { width:158px; height:158px; }
+  .hm-selena { width:158px; height:158px; }
   .hm-carousel { height:270px; }
 }
 @media (max-width:560px) {
@@ -194,5 +208,8 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
 }
 
 /* ── reduced motion ── */
-@media (prefers-reduced-motion: reduce) { .aurora-home .hm-iris { animation:none; } }
-html[data-motion="reduce"] .aurora-home .hm-iris { animation:none; }
+@media (prefers-reduced-motion: reduce) { .aurora-home .hm-iris, .aurora-home .hm-selena, .aurora-home .hm-selena-img, .aurora-home .hm-selena-halo { animation:none; } }
+html[data-motion="reduce"] .aurora-home .hm-iris,
+html[data-motion="reduce"] .aurora-home .hm-selena,
+html[data-motion="reduce"] .aurora-home .hm-selena-img,
+html[data-motion="reduce"] .aurora-home .hm-selena-halo { animation:none; }
