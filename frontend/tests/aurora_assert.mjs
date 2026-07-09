@@ -558,9 +558,9 @@ reportCustomized = false;
 // real behavioral verify (clicking it removes the viewer's own row). prefs POST flips the flag.
 let lbHidden = false;
 const LB_ROWS = [
-  { name: "Bob B.", role: "OT", xp: 1240, level: 3, streak_days: 6, avatar_config: { bodyColor: "aqua", irisColor: "galaxy" }, is_you: false },
-  { name: "You",    role: "OA", xp: 980,  level: 2, streak_days: 4, avatar_config: { bodyColor: "peach" }, is_you: true },
-  { name: "Cy C.",  role: "OA", xp: 300,  level: 1, streak_days: 0, avatar_config: null, is_you: false },
+  { name: "Bob B.", role: "OT", xp: 1240, level: 3, streak_days: 6, avatar_config: { bodyColor: "aqua", irisColor: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "You",    role: "OA", xp: 980,  level: 2, streak_days: 4, avatar_config: { bodyColor: "peach" }, portrait_url: null, is_you: true },
+  { name: "Cy C.",  role: "OA", xp: 300,  level: 1, streak_days: 0, avatar_config: null, portrait_url: null, is_you: false },
 ];
 await navCtx.route("**/api/leaderboard**", (r) => {
   if (r.request().method() === "POST") {  // /prefs — flip the hide flag from the body
@@ -579,6 +579,10 @@ const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator(".lb-row").count()) !== 3) { console.error("FAIL: leaderboard did not render 3 ranked rows"); process.exit(1); }
 if ((await np.locator(".lb-face img.selena-img").count()) < 3) { console.error("FAIL: leaderboard rows missing Selena headshots"); process.exit(1); }
+if ((await np.locator('.lb-face img.selena-img[src^="data:"]').count()) < 1) {
+  console.error("FAIL: leaderboard did not render a student's real rendered portrait as the headshot"); process.exit(1);
+}
+console.log("PASS: Leaderboard — a student's real rendered portrait shows as the headshot");
 const youRow = np.locator('.lb-row[data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);

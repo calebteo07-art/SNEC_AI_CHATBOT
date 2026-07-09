@@ -96,3 +96,14 @@ def test_missing_streak_and_avatar_default_safely():
     out = rank_entries(profiles, names, viewer_id="a")
     assert out[0]["streak_days"] == 0
     assert out[0]["avatar_config"] is None
+
+
+def test_rank_entries_carries_portrait_urls():
+    profiles = [
+        {"student_id": "a", "xp": 10, "avatar_config": {"topper": "crown"}},
+        {"student_id": "b", "xp": 5, "avatar_config": None},
+    ]
+    urls = {"a": "https://cdn/x.webp"}
+    entries = rank_entries(profiles, {}, viewer_id="a", portraits=urls)
+    assert entries[0]["portrait_url"] == "https://cdn/x.webp"
+    assert entries[1]["portrait_url"] is None

@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
+from tools.avatar.portrait import config_hash
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
@@ -46,6 +47,21 @@ def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
     assert body["entries"][1]["avatar_config"] == {"bodyColor": "aqua"}
     assert body["entries"][0]["avatar_config"] is None                   # Bob has none
     assert body["you_hidden"] is False
+
+
+@patch("tools.shared.db.get_avatar_images_bulk", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
+@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, return_value=PROFILES)
+def test_leaderboard_portrait_urls_from_bulk_lookup(mock_p, mock_c, mock_bulk):
+    # Only user_001's config_hash resolves to a ready portrait; user_002 has no
+    # avatar_config (a different hash) so its entry falls back to no portrait_url.
+    h = config_hash(PROFILES[0]["avatar_config"])
+    mock_bulk.return_value = {h: "https://cdn/p.webp"}
+    r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
+    body = r.json()
+    entries = {e["name"]: e for e in body["entries"]}
+    assert entries["Ann A."]["portrait_url"] == "https://cdn/p.webp"  # user_001
+    assert entries["Bob B."]["portrait_url"] is None                  # user_002, no hash match
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)

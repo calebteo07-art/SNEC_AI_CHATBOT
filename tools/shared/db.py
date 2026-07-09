@@ -381,6 +381,25 @@ async def get_avatar_image(config_hash: str) -> dict | None:
     return result.data[0] if result.data else None
 
 
+async def get_avatar_images_bulk(config_hashes: list[str]) -> dict[str, str]:
+    """hash → public image URL for every READY portrait among the given hashes.
+    One query (no N+1). Raises if the table is missing — callers degrade to {}."""
+    if not config_hashes:
+        return {}
+    client = await _get_client()
+    result = (
+        await client.table("avatar_images")
+        .select("config_hash,status,image_url")
+        .in_("config_hash", list(set(config_hashes)))
+        .execute()
+    )
+    return {
+        r["config_hash"]: r["image_url"]
+        for r in (result.data or [])
+        if r.get("status") == "ready" and r.get("image_url")
+    }
+
+
 async def upsert_avatar_image(
     config_hash: str, status: str, image_url: str | None = None
 ) -> None:
