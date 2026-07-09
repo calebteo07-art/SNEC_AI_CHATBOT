@@ -15,6 +15,7 @@ await navCtx.addInitScript((u) => {
   sessionStorage.setItem("eyebot_checkin_session", "1");
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
+  localStorage.setItem("eyebot_selena_onboarded", "1"); // returning, already-onboarded student ⇒ the welcome-Studio gate (CheckInGuard) must not redirect /profile etc. when a GET reports customized:false
 }, studentUser);
 await navCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 const JSON_OK = (body) => ({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
