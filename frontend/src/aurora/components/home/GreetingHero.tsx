@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Greeting } from "@/aurora/lib/greeting";
 import { Icon } from "./HomeIcons";
 import { SelenaLogo } from "@/aurora/components/SelenaLogo";
+import { backdropGlow } from "@/aurora/avatar/backdrops";
 
 export function GreetingHero({
   greeting,
@@ -15,6 +16,8 @@ export function GreetingHero({
   xpToNext,
   onSurprise,
   resumeHref,
+  portraitUrl,
+  background,
 }: {
   greeting: Greeting;
   level: number;
@@ -23,6 +26,9 @@ export function GreetingHero({
   xpToNext: number;
   onSurprise: () => void;
   resumeHref: string;
+  /** the student's transparent custom render — null/undefined → default brand mascot */
+  portraitUrl?: string | null;
+  background?: string;
 }) {
   // Split the title at the first occurrence of the accent word so it can be emphasised.
   const i = greeting.title.indexOf(greeting.emphasis);
@@ -61,7 +67,20 @@ export function GreetingHero({
 
       <div className="hm-iriswrap" aria-hidden>
         <span className="hm-irisfloor" />
-        <SelenaLogo motion="hello" className="hm-iris" />
+        {portraitUrl ? (
+          <span className="hm-selena" style={{ ["--halo" as string]: backdropGlow(background) }}>
+            <span className="hm-selena-halo" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="hm-selena-img"
+              src={portraitUrl}
+              alt=""
+              onError={(e) => { e.currentTarget.src = "/brand/iris.png"; }}
+            />
+          </span>
+        ) : (
+          <SelenaLogo motion="hello" className="hm-iris" />
+        )}
       </div>
     </section>
   );

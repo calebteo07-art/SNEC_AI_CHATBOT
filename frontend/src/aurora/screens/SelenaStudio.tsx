@@ -13,7 +13,7 @@ import { Selena } from "@/aurora/avatar/Selena";
 import { tileSrc } from "@/aurora/avatar/tiles";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
-import { useAvatar, useSaveAvatar, useRequestPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
+import { useAvatar, useSaveAvatar, useRequestPortrait, useSelfHealPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
 
 interface Step {
   axis: AvatarAxis;
@@ -61,6 +61,7 @@ export function SelenaStudio() {
   const welcome = useSearchParams().get("welcome") === "1";
   const mode: "welcome" | "edit" = welcome ? "welcome" : "edit";
   const { data, isPending, isError } = useAvatar();
+  useSelfHealPortrait(data);
   const saveMut = useSaveAvatar();
   const portraitMut = useRequestPortrait();
 

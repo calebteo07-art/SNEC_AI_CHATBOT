@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AVATAR_AXES, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 
@@ -35,6 +36,29 @@ export function useAvatar(enabled = true) {
     placeholderData: (prev) => prev,
     refetchInterval: (q) => (q.state.data?.portrait_status === "pending" ? 4000 : false),
   });
+}
+
+const SELF_HEAL_KEY = "eyebot_portrait_heal";
+
+/** v2 portraits are salted, so a customized student's pre-v2 look reads
+ *  `portrait_status: "none"` — fire the (cache-gated, rate-limited) render request
+ *  once per browser session so every existing student self-heals without visiting
+ *  the Studio. Server-side gating makes an accidental double-fire harmless. */
+export function useSelfHealPortrait(data?: AvatarResponse) {
+  const requestPortrait = useRequestPortrait();
+  const mutate = requestPortrait.mutate;
+  useEffect(() => {
+    if (!data?.customized) return;
+    const s = data.portrait_status;
+    if (s !== "none" && s !== "failed") return;
+    try {
+      if (sessionStorage.getItem(SELF_HEAL_KEY)) return;
+      sessionStorage.setItem(SELF_HEAL_KEY, "1");
+    } catch {
+      return; // no storage → skip rather than risk firing every render
+    }
+    mutate();
+  }, [data?.customized, data?.portrait_status, mutate]);
 }
 
 /** Kick off (or reuse) the 3D portrait render for the caller's SAVED look. The

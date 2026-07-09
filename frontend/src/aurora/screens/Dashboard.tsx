@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
+import { useAvatar, useSelfHealPortrait } from "@/hooks/useAvatar";
 import { rankForLevel } from "@/lib/rank";
 import { DAILY_XP_GOAL, XP_PER_LEVEL } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
@@ -28,6 +29,10 @@ function dayOfYear(): number {
 export function Dashboard() {
   const { user, setMustChangePassword } = useAuth();
   const { data: progress } = useProgress();
+  const { data: avatar } = useAvatar();
+  useSelfHealPortrait(avatar);
+  const portraitUrl =
+    avatar?.customized && avatar.portrait_status === "ready" ? avatar.portrait_url : null;
 
   /* Post-session debrief, inlined here (the Summary page is gone): a finished
      flashcard run lands on the Home with a one-shot flag → celebratory toast +
@@ -121,6 +126,8 @@ export function Dashboard() {
           xpToNext={xpToNext}
           onSurprise={onSurprise}
           resumeHref={resumeHref}
+          portraitUrl={portraitUrl}
+          background={avatar?.config?.background}
         />
         <StreakTile detail={detail} xpToday={xpToday} dailyGoal={dailyGoal} />
       </div>
