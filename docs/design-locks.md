@@ -133,7 +133,12 @@ Selena"** entry lives on **home** + the **leaderboard** thereafter (Profile alre
 - **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
   paid 3D portrait (fires on save as today); staff.
 
-## Selena preview renderer — raster-composite, LOCKED 2026-07-07
+## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08
+**Superseded 2026-07-08** by *Custom Selena surfaces* (below): client-side raster compositing
+was removed (`renderSelena.ts` deleted, seamless-custom spec) — a student's look is now ONE
+transparent AI render, and the **Selena Studio** became a **loadout** builder (the **hero** shows
+only the saved render or the default mascot; picks dock as **tiles** in a **tray**; Save fuses a
+new render). The original raster-composite direction is retained below for history only.
 **Direction**: the instant `<Selena>` preview is composited **on top of the real homepage
 raster** (`/brand/iris.png`), not drawn as flat vector — the user's non-negotiable
 ("identical to the selena in the homepage", 2026-07-07, after rejecting two vector looks).
@@ -151,6 +156,15 @@ plus a drawn mouth, everything else = remapped sticker overlays (`renderSelena.t
 - **Out of scope**: the paid per-config 3D portrait (D12, unchanged — still swaps in after
   save); the D11 curated sprite library (largely superseded by this: the base already IS the
   3D art; revisit only if extras need painterly treatment).
+
+## Custom Selena surfaces (LOCKED 2026-07-08)
+A student's Selena is ONE AI render of the whole look — transparent, anchored to
+iris.png — shown by the raster-only `<Selena>` component. No client-side part
+compositing anywhere (vector stickers over the raster were rejected as ugly,
+2026-07-08). Every fallback path is the default `/brand/iris.png`. The greeting
+card hosts the custom render with CSS living motion once customized; brand
+surfaces (SelenaLogo, CoBrand, splash, rails, favicon, login) stay the DEFAULT
+mascot. Spec: docs/superpowers/specs/2026-07-07-selena-seamless-custom-design.md.
 
 ## Animated Selena hero logo — LOCKED 2026-07-07 (logo→raster brief)
 **Direction**: a **living Selena mascot logo** on three hero surfaces — the Home
