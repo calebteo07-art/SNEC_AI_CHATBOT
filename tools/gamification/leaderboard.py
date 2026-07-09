@@ -31,9 +31,12 @@ def rank_entries(
     names: dict[str, str],
     viewer_id: str,
     role: str | None = None,
+    portraits: dict[str, str] | None = None,
 ) -> list[dict]:
     """Rank visible profiles by XP (desc), ties stable by name. Excludes hidden rows and
-    (optionally) filters to a single role. Returns display-ready entry dicts."""
+    (optionally) filters to a single role. Returns display-ready entry dicts. `portraits`
+    is an optional student_id -> rendered headshot URL map (bulk-fetched by the router);
+    missing entries just mean the default-mascot headshot shows."""
     rows = [
         p for p in profiles
         if not p.get("leaderboard_hidden")
@@ -54,6 +57,7 @@ def rank_entries(
             "level": int(p.get("level") or 1),
             "streak_days": int(p.get("streak") or 0),
             "avatar_config": p.get("avatar_config"),
+            "portrait_url": (portraits or {}).get(sid),
             "is_you": sid == viewer_id,
         })
     return entries
