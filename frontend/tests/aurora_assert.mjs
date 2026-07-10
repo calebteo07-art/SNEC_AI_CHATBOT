@@ -557,17 +557,21 @@ if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting ma
 console.log("PASS: Home greeting — always the DEFAULT living Selena, even when customized (lock amended 2026-07-10)");
 reportCustomized = false;
 
-// Leaderboard (RICOE v2, D7): everyone by default, ranked by XP, with Selena headshots.
-// The GET mock honours the ?role= filter and reflects the hide state so the hide toggle is a
-// real behavioral verify (clicking it removes the viewer's own row). prefs POST flips the flag.
+// Leaderboard "The Climb" (ricoe D7 refresh): podium (top 3) + rivalry spotlight + XP
+// tiers + glowing tiered rows. The GET mock honours ?role= and reflects the hide state
+// so the filter + hide toggle are real behavioral verifies; prefs POST flips the flag.
 let lbHidden = false;
 const LB_ROWS = [
-  { name: "Bob B.", role: "OT", xp: 1240, level: 3, streak_days: 6, avatar_config: { bodyColor: "aqua", irisColor: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
-  { name: "You",    role: "OA", xp: 980,  level: 2, streak_days: 4, avatar_config: { bodyColor: "peach" }, portrait_url: null, is_you: true },
-  { name: "Cy C.",  role: "OA", xp: 300,  level: 1, streak_days: 0, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "Aisha R.",   role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "Wei Jie T.", role: "OA", xp: 10240, level: 22, streak_days: 18, avatar_config: { background: "mist" }, portrait_url: null, is_you: false },
+  { name: "Priya N.",   role: "OT", xp: 7720,  level: 18, streak_days: 12, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "You",        role: "OA", xp: 7660,  level: 17, streak_days: 9,  avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
+  { name: "Marcus L.",  role: "OT", xp: 7635,  level: 17, streak_days: 6,  avatar_config: null, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "Siti N.",    role: "OA", xp: 6120,  level: 15, streak_days: 22, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "Daniel O.",  role: "OT", xp: 5540,  level: 14, streak_days: 0,  avatar_config: null, portrait_url: null, is_you: false },
 ];
 await navCtx.route("**/api/leaderboard**", (r) => {
-  if (r.request().method() === "POST") {  // /prefs — flip the hide flag from the body
+  if (r.request().method() === "POST") { // /prefs — flip the hide flag from the body
     try { const b = JSON.parse(r.request().postData() || "{}"); if (typeof b.hidden === "boolean") lbHidden = b.hidden; } catch { /* noop */ }
     return r.fulfill(JSON_OK({ ok: true }));
   }
@@ -578,32 +582,34 @@ await navCtx.route("**/api/leaderboard**", (r) => {
   return r.fulfill(JSON_OK({ entries, you_hidden: lbHidden, display_name: null, roles: ["OA", "OT"] }));
 });
 await np.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".lb-list .lb-row", { timeout: 15000 });
+await np.waitForSelector('[data-testid="podium-slot"]', { timeout: 15000 });
 const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
-if ((await np.locator(".lb-row").count()) !== 3) { console.error("FAIL: leaderboard did not render 3 ranked rows"); process.exit(1); }
-if ((await np.locator(".lb-face img.selena-img").count()) < 3) { console.error("FAIL: leaderboard rows missing Selena headshots"); process.exit(1); }
-if ((await np.locator('.lb-face img.selena-img[src^="data:"]').count()) < 1) {
-  console.error("FAIL: leaderboard did not render a student's real rendered portrait as the headshot"); process.exit(1);
+if ((await np.locator('[data-testid="podium-slot"]').count()) !== 3) { console.error("FAIL: leaderboard podium did not render 3 slots"); process.exit(1); }
+if ((await np.locator('[data-testid="lb-row"]').count()) !== 4) { console.error("FAIL: expected 4 ranked rows below the podium"); process.exit(1); }
+if ((await np.locator('[data-testid="leaderboard-root"] .selena-img[src^="data:"]').count()) < 1) {
+  console.error("FAIL: leaderboard did not render any student's real rendered portrait"); process.exit(1);
 }
-console.log("PASS: Leaderboard — a student's real rendered portrait shows as the headshot");
-const youRow = np.locator('.lb-row[data-you]');
+const youRow = np.locator('[data-testid="lb-row"][data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);
 }
+const spot = np.locator('[data-testid="rivalry-spotlight"]');
+if ((await spot.count()) !== 1) { console.error("FAIL: rivalry spotlight missing"); process.exit(1); }
+if (!(await spot.innerText()).toLowerCase().includes("overtake")) { console.error("FAIL: rivalry spotlight is not showing the overtake gap"); process.exit(1); }
 if ((await np.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on the leaderboard (ricoe §7)"); process.exit(1); }
-console.log("PASS: Leaderboard — XP-ranked rows with Selena headshots + current user highlighted + Edit Selena entry");
+console.log("PASS: Leaderboard 'The Climb' — podium, rivalry spotlight, tiered rows, you-row highlight, real portrait, Edit Selena");
 
-// role filter narrows the board to a single role (OT → just Bob).
+// role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
-await np.waitForFunction(() => document.querySelectorAll(".lb-row").length === 1, { timeout: 8000 });
+await np.waitForFunction(() => document.querySelectorAll('[data-testid="podium-slot"], [data-testid="lb-row"]').length === 4, { timeout: 8000 });
 console.log("PASS: Leaderboard — role filter narrows the board");
 await np.locator('.lb-filter .lb-chip:has-text("All")').click();
-await np.waitForFunction(() => document.querySelectorAll(".lb-row").length === 3, { timeout: 8000 });
+await np.waitForFunction(() => document.querySelectorAll('[data-testid="podium-slot"], [data-testid="lb-row"]').length === 7, { timeout: 8000 });
 
 // hide toggle (D7 opt-out): flipping it off removes the viewer's own row from the board.
-await np.locator(".lb-switch").click();
-await np.waitForFunction(() => document.querySelectorAll('.lb-row[data-you]').length === 0, { timeout: 8000 });
+await np.locator('[data-testid="lb-hide-switch"]').click();
+await np.waitForFunction(() => document.querySelectorAll('[data-testid="lb-row"][data-you]').length === 0, { timeout: 8000 });
 console.log("PASS: Leaderboard — hide toggle removes you from the board");
 
 await np.setViewportSize({ width: 390, height: 844 });
