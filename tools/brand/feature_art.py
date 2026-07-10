@@ -15,7 +15,8 @@ _BASE = (
     "identical proportions, colours and rendering to the reference. {scene} "
     "Warm premium studio lighting, soft depth of field, a {tone} gradient atmosphere. "
     "The lower third of the frame is calmer and less busy to leave room for text. "
-    "Landscape 3:2, mascot to one side. No text, no border, no watermark, no extra "
+    "Landscape 3:2, mascot to one side. Absolutely NO text, letters, numbers, labels, "
+    "callout lines or captions anywhere in the image; no border, no watermark, no extra "
     "characters, no human faces."
 )
 
@@ -28,8 +29,10 @@ SCENES: dict[str, tuple[str, str]] = {
     ),
     "vp": (
         "teal",
-        "She plays a caring clinician at an ophthalmic slit-lamp examination station, a soft "
-        "glowing eye-diagram floating beside her, clinical yet warm and approachable.",
+        "She plays a caring clinician in a clean white coat at an ophthalmic slit-lamp "
+        "examination station, a soft glowing simplified cross-section eye diagram floating "
+        "beside her that is completely UNLABELLED (no words, letters or callout lines on it), "
+        "clinical yet warm and approachable.",
     ),
     "flash": (
         "amber-to-coral",
