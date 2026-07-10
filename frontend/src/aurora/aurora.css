@@ -596,35 +596,6 @@ html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
 .aurora-statcard[data-tone="rose"] .aurora-statcard-label { color: var(--on-rose-2); }
 .aurora-statcard[data-tone="green"] .aurora-statcard-label { color: var(--on-green-2); }
 
-/* PlateWell */
-.aurora-plate {
-  position: relative;
-  width: 100%;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: #0e0a07;
-  display: grid;
-  place-items: center;
-}
-.aurora-plate-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.aurora-plate-ph { position: absolute; inset: 0; display: grid; place-items: center; }
-.aurora-plate-iris {
-  width: 46%; aspect-ratio: 1; border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #07080c 16%, transparent 17%),
-    radial-gradient(circle at 50% 50%, rgba(66, 133, 244, 0.55), rgba(155, 114, 203, 0.5) 45%, rgba(217, 101, 112, 0.42) 72%, transparent 82%);
-  box-shadow: 0 0 48px rgba(120, 110, 200, 0.35) inset;
-}
-.aurora-plate-tag {
-  position: absolute; bottom: 10px; left: 12px;
-  font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.18em;
-  color: rgba(255, 255, 255, 0.45);
-}
-.aurora-plate-caption {
-  position: absolute; bottom: 10px; right: 12px;
-  font-family: var(--font-mono); font-size: 11.2px; color: rgba(255, 255, 255, 0.7);
-}
-
 /* ProgressBar */
 .aurora-progress { width: 100%; height: 8px; border-radius: 999px; background: rgba(31, 31, 31, 0.10); overflow: hidden; }
 .aurora-progress-fill { height: 100%; border-radius: 999px; min-width: 6px; }
