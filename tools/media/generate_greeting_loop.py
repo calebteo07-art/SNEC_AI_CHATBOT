@@ -42,46 +42,57 @@ def run_probe() -> int:
 
 
 def _build_frame() -> Path:
-    """Composite the transparent iris.png mascot onto a warm card-matching gradient
-    (9:16 portrait) — the conditioning first/last frame. Veo can't emit alpha, so
-    baking the background here controls the look and (as last_frame) makes the loop
-    seamless. Returns the saved frame path (also used as the poster)."""
-    from PIL import Image
+    """Composite the transparent iris.png mascot onto a warm card-matching gradient,
+    LANDSCAPE 16:9 with the mascot on the RIGHT and calm open space on the LEFT for the
+    greeting copy — the conditioning first/last frame (also the poster). Veo can't emit
+    alpha, so baking the background here controls the look and (as last_frame) makes the
+    loop seamless. Returns the saved frame path."""
+    from PIL import Image, ImageFilter
 
-    W, H = 720, 1280
-    # vertical warm gradient ~ the greeting card (lavender -> pink -> peach)
-    top, mid, bot = (0xF3, 0xE6, 0xFF), (0xFF, 0xDC, 0xEA), (0xFF, 0xE9, 0xCE)
-    bg = Image.new("RGB", (W, H))
-    px = bg.load()
-    for y in range(H):
-        t = y / (H - 1)
-        c0, c1 = (top, mid) if t < 0.5 else (mid, bot)
-        tt = (t if t < 0.5 else t - 0.5) * 2
-        px[0, y] = tuple(round(c0[i] + (c1[i] - c0[i]) * tt) for i in range(3))
-    for y in range(H):  # fill each row
-        row = px[0, y]
-        for x in range(W):
-            px[x, y] = row
+    W, H = 1280, 720
+    # radial warm gradient matching .hm-greet:
+    #   radial-gradient(135% 155% at 6% 0%, #FFE3C2 0%, #FFD2E0 46%, #E7D9FF 100%)
+    # computed at low res then upscaled (smooth + dependency-free, no numpy).
+    peach, pink, lav = (0xFF, 0xE3, 0xC2), (0xFF, 0xD2, 0xE0), (0xE7, 0xD9, 0xFF)
+
+    def _mix(a, b, t):
+        return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+    GW, GH = 192, 108
+    cx, cy = 0.06 * GW, 0.0
+    rx, ry = 1.35 * GW, 1.55 * GH
+    small = Image.new("RGB", (GW, GH))
+    sp = small.load()
+    for y in range(GH):
+        for x in range(GW):
+            d = (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2) ** 0.5
+            if d <= 0.46:
+                sp[x, y] = _mix(peach, pink, d / 0.46)
+            elif d >= 1.0:
+                sp[x, y] = lav
+            else:
+                sp[x, y] = _mix(pink, lav, (d - 0.46) / 0.54)
+    bg = small.resize((W, H), Image.LANCZOS).convert("RGBA")
 
     mascot = Image.open(IMAGE_REF).convert("RGBA")
-    scale = int(W * 0.78) / mascot.width
-    m = mascot.resize((int(mascot.width * scale), int(mascot.height * scale)), Image.LANCZOS)
-    mx = (W - m.width) // 2
-    my = int(H * 0.60) - m.height // 2  # sit a touch below centre, grounded
+    target_h = int(H * 0.70)
+    scale = target_h / mascot.height
+    m = mascot.resize((round(mascot.width * scale), target_h), Image.LANCZOS)
+    mx = int(W * 0.75) - m.width // 2   # centred on the right third
+    my = int(H * 0.55) - m.height // 2  # grounded a touch below centre
     # soft contact shadow
     shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    sd = Image.new("RGBA", (m.width, 60), (60, 30, 15, 90))
-    shadow.paste(sd, (mx, my + m.height - 24), sd)
-    from PIL import ImageFilter
-    shadow = shadow.filter(ImageFilter.GaussianBlur(14))
-    base = bg.convert("RGBA")
-    base.alpha_composite(shadow)
-    base.alpha_composite(m, (mx, my))
+    sd = Image.new("RGBA", (int(m.width * 0.8), 54), (70, 35, 18, 95))
+    shadow.paste(sd, (mx + (m.width - sd.width) // 2, my + m.height - 26), sd)
+    shadow = shadow.filter(ImageFilter.GaussianBlur(16))
+    bg.alpha_composite(shadow)
+    bg.alpha_composite(m, (mx, my))
+
     TMP.mkdir(parents=True, exist_ok=True)
     frame = TMP / "greeting-frame.jpg"
-    base.convert("RGB").save(frame, "JPEG", quality=92)
-    base.convert("RGB").save(TMP / "greeting-selena.jpg", "JPEG", quality=88)  # poster
-    print(f"  built conditioning frame {frame}")
+    bg.convert("RGB").save(frame, "JPEG", quality=92)
+    bg.convert("RGB").save(TMP / "greeting-selena.jpg", "JPEG", quality=88)  # poster
+    print(f"  built conditioning frame {frame} ({W}x{H}, mascot right)")
     return frame
 
 
@@ -96,7 +107,7 @@ def run_generate(model: str) -> int:
     first = types.Image.from_file(location=str(frame_path))
     cfg = dict(
         number_of_videos=1,
-        aspect_ratio="9:16",
+        aspect_ratio="16:9",
         negative_prompt="text, letters, watermark, logo, extra characters, camera movement, "
         "zoom, pan, morphing, distortion, flicker",
     )
