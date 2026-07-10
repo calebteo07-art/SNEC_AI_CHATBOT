@@ -31,8 +31,6 @@ export function Dashboard() {
   const { data: progress } = useProgress();
   const { data: avatar } = useAvatar();
   useSelfHealPortrait(avatar);
-  const portraitUrl =
-    avatar?.customized && avatar.portrait_status === "ready" ? avatar.portrait_url : null;
 
   /* Post-session debrief, inlined here (the Summary page is gone): a finished
      flashcard run lands on the Home with a one-shot flag → celebratory toast +
@@ -126,8 +124,6 @@ export function Dashboard() {
           xpToNext={xpToNext}
           onSurprise={onSurprise}
           resumeHref={resumeHref}
-          portraitUrl={portraitUrl}
-          background={avatar?.config?.background}
         />
         <StreakTile detail={detail} xpToday={xpToday} dailyGoal={dailyGoal} />
       </div>
