@@ -105,8 +105,9 @@ await np.locator('.aurora-navitem:has-text("Virtual Patients")').first().click()
 await np.waitForURL("**/cases", { timeout: 6000 });
 console.log("PASS: Atlas Rail renders nav and routes to /cases");
 
-// home structure: the warm bento renders (one h1 greeting, streak tile, milestone
-// ladder, three feature cards) and "Surprise me" reshuffles the greeting.
+// home structure: the warm bento renders (one non-empty h1 greeting, streak tile,
+// milestone ladder, three feature cards). The greeting card is deliberately chrome-
+// light (no eyebrow / CTA row — stripped 2026-07-10), so only the h1 is asserted.
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
 const h1count = await np.locator("main h1").count();
@@ -114,12 +115,9 @@ if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`)
 if ((await np.locator('[data-testid="streak-tile"]').count()) !== 1) { console.error("FAIL: streak tile missing"); process.exit(1); }
 if ((await np.locator('[data-testid="milestone-ladder"]').count()) !== 1) { console.error("FAIL: milestone ladder missing"); process.exit(1); }
 if ((await np.locator('[data-testid="feature-card"]').count()) !== 3) { console.error("FAIL: expected 3 feature cards"); process.exit(1); }
-const greetBefore = await np.locator('[data-testid="greeting"]').innerText();
-await np.locator('button:has-text("Surprise me")').click();
-await np.waitForTimeout(150);
-const greetAfter = await np.locator('[data-testid="greeting"]').innerText();
-if (greetBefore === greetAfter) { console.error("FAIL: 'Surprise me' did not change the greeting"); process.exit(1); }
-console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards, reshuffle)");
+const greetText = (await np.locator('[data-testid="greeting"]').innerText()).trim();
+if (!greetText) { console.error("FAIL: greeting h1 is empty"); process.exit(1); }
+console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards)");
 
 // Streak badge collection (Selena everywhere): the milestone ladder is a shelf of generated
 // collectible medallions. With streak=4, First Light is collected, Clear View is next, the
@@ -712,8 +710,9 @@ await onbPage.evaluate(() => localStorage.removeItem("eyebot_selena_onboarded"))
 await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await onbPage.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
 if (/\/studio/.test(onbPage.url())) { console.error("FAIL: a customized student was wrongly gated into onboarding"); process.exit(1); }
-if ((await onbPage.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on home (ricoe §7)"); process.exit(1); }
-console.log("PASS: onboarding — customized student never gated + Edit Selena entry on home");
+// (The home greeting card no longer carries an Edit-Selena entry — stripped 2026-07-10;
+//  it now lives on the leaderboard + Profile only. The leaderboard entry is asserted above.)
+console.log("PASS: onboarding — customized student never gated");
 
 // self-heal (once-per-session state invariant, /ship-check): a customized student whose
 // portrait is still "none" (pre-v2 salted look) fires ONE cache-gated render request when

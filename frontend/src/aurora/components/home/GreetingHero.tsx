@@ -1,11 +1,11 @@
 /* GreetingHero — the warm greeting tile. The card's BASE LAYER is the ALWAYS-DEFAULT
-   living Selena Veo loop, full-bleed behind a soft legibility veil; the eyebrow, big
-   rotating teasing headline (accent word emphasised), level-up XP bar, and primary +
-   "Surprise me" CTAs layer on top. Never a student's custom render — that lives in
-   Studio + the leaderboard (Custom-Selena lock amended 2026-07-10). The default
-   <SelenaLogo> stays mounted beneath as the reduced-motion / no-video fallback.
-   Presentational; the Dashboard owns the greeting seed. */
-import Link from "next/link";
+   living Selena Veo loop, full-bleed behind a soft legibility veil; a big rotating
+   teasing headline (accent word emphasised), the teasing sub, and the level-up XP bar
+   layer on top (no eyebrow / CTA row — stripped 2026-07-10 for a cleaner, bigger card).
+   Never a student's custom render — that lives in Studio + the leaderboard
+   (Custom-Selena lock amended 2026-07-10). The default <SelenaLogo> stays mounted
+   beneath as the reduced-motion / no-video fallback. Presentational; the Dashboard
+   owns the greeting seed. */
 import type { Greeting } from "@/aurora/lib/greeting";
 import { Icon } from "./HomeIcons";
 import { SelenaLogo } from "@/aurora/components/SelenaLogo";
@@ -22,16 +22,12 @@ export function GreetingHero({
   rank,
   xpInLevel,
   xpToNext,
-  onSurprise,
-  resumeHref,
 }: {
   greeting: Greeting;
   level: number;
   rank: string;
   xpInLevel: number;
   xpToNext: number;
-  onSurprise: () => void;
-  resumeHref: string;
 }) {
   // Split the title at the first occurrence of the accent word so it can be emphasised.
   const i = greeting.title.indexOf(greeting.emphasis);
@@ -52,7 +48,6 @@ export function GreetingHero({
       </div>
 
       <div className="hm-greet-body">
-        <span className="hm-eyebrow"><Icon name="eye" /> {greeting.eyebrow}</span>
         <h1 data-testid="greeting">
           {pre}{i >= 0 && <em>{greeting.emphasis}</em>}{post}
         </h1>
@@ -66,17 +61,6 @@ export function GreetingHero({
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>
 
-        <div className="hm-cta-row">
-          <Link href={resumeHref} className="hm-btn primary">
-            Pick up where you left off <Icon name="arrow" />
-          </Link>
-          <button type="button" className="hm-btn ghost" onClick={onSurprise}>
-            <Icon name="refresh" /> Surprise me
-          </button>
-          <Link href="/studio" className="hm-btn ghost" data-testid="edit-selena">
-            <Icon name="eye" /> Edit Selena
-          </Link>
-        </div>
         <div className="hm-reshuffle"><Icon name="refresh" /> a new hello every visit</div>
       </div>
     </section>

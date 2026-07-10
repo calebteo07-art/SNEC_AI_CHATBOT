@@ -70,6 +70,17 @@ stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not
   The greeting mascot is **always the default living Selena** (see the Custom-Selena
   amendment) — never a student's custom render. Acceptance: WCAG-AA legible, 390px-safe,
   all added motion freezes under `prefers-reduced-motion` / `data-motion=reduce`.
+- **Greeting-card simplification (refine 2026-07-10, user directive)**: the greeting card
+  is now **chrome-light** — the eyebrow (role · time-of-day), the `hm-cta-row` (the "Pick
+  up where you left off", "Surprise me", and "Edit Selena" buttons), and the greeting
+  reshuffle seed are all **removed**. What remains — the big rotating headline, the teasing
+  sub, and the level-up XP readout — is **enlarged** (headline 50→62px, sub 19→23px, XP
+  readout up), and the living Selena is **nudged rightward** (Veo-loop framing + the
+  fallback mascot). The greeting still rotates by day-of-year (no in-page re-roll now that
+  "Surprise me" is gone). **Acceptance when refining**: greeting card shows only headline +
+  sub + XP bar (+ the small "a new hello every visit" note), no eyebrow, no CTA buttons;
+  type is visibly larger yet WCAG-AA legible and 390px-safe; Selena sits toward the right;
+  Edit-Selena is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
@@ -135,12 +146,13 @@ visit (after check-in), into the existing gamified **Selena Studio** in a **`wel
 (the same chokepoint as the check-in gate; students only, never staff, exempts `/studio`). Saving
 (or **Skip for now**) returns to home; both set a local `eyebot_selena_onboarded` flag so the gate
 never nags again, and a save flips `customized` server-side (the real source of truth). An **"Edit
-Selena"** entry lives on **home** + the **leaderboard** thereafter (Profile already links Studio).
+Selena"** entry lives on the **leaderboard** thereafter (Profile already links Studio; the home
+greeting-card entry was **removed 2026-07-10** — see the Home greeting-card simplification refine).
 - **Acceptance criteria when refining**: null-avatar student is redirected to `/studio?welcome=1`
   once; a customized student (or one who skipped) is **never** redirected (show-once invariant —
   regression-tested for the repeat case); the gate never loops on `/studio` and never blocks staff
-  or the check-in flow; Save/Skip in welcome mode return to `/dashboard`; Edit-Selena entries route
-  to `/studio`; WCAG-legible, 390px-safe.
+  or the check-in flow; Save/Skip in welcome mode return to `/dashboard`; the Edit-Selena entry
+  (leaderboard) routes to `/studio`; WCAG-legible, 390px-safe.
 - **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
   paid 3D portrait (fires on save as today); staff.
 

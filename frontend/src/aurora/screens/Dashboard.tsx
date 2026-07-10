@@ -3,7 +3,7 @@
    (ever-changing teasing line + level-up XP bar + Iris mascot), the daily-streak
    tile, a 3D coverflow of the three entry points, a milestone ladder, and real-data
    stat tiles. All numbers read from one synced source (useProgress). */
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
@@ -55,19 +55,6 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  /* Greeting rotation seed: day-of-year + a persisted "Surprise me" counter, so the
-     line changes each visit but is stable within a render. */
-  const [bump, setBump] = useState<number>(() => {
-    if (typeof window === "undefined") return 0;
-    try { const v = parseInt(localStorage.getItem("eyebot_greet_seed") || "0", 10); return Number.isNaN(v) ? 0 : v; }
-    catch { return 0; }
-  });
-  const onSurprise = () => setBump((b) => {
-    const n = b + 1;
-    try { localStorage.setItem("eyebot_greet_seed", String(n)); } catch { /* private mode */ }
-    return n;
-  });
-
   const firstName = (user?.fullName ?? "there").split(" ")[0];
   const track = ((user?.studentRole as Track) || "OA");
   const level = progress?.level ?? 1;
@@ -89,10 +76,9 @@ export function Dashboard() {
     missedYesterday: Boolean(missedYesterday),
     xpToNext, goalMet: xpToday >= dailyGoal, bestStreak: detail?.best ?? 0,
   };
-  const greeting = pickGreeting(ctx, dayOfYear() + bump);
-
-  const lastMode = progress?.sessions?.[0]?.mode;
-  const resumeHref = lastMode === "case" ? "/cases" : lastMode === "chat" ? "/chat" : "/flashcards";
+  /* Greeting rotation seed: day-of-year, so the teasing line changes each visit but
+     stays stable within a render. */
+  const greeting = pickGreeting(ctx, dayOfYear());
 
   return (
     <div className="aurora-home" data-testid="home-root">
@@ -122,8 +108,6 @@ export function Dashboard() {
           rank={rank}
           xpInLevel={xpInLevel}
           xpToNext={xpToNext}
-          onSurprise={onSurprise}
-          resumeHref={resumeHref}
         />
         <StreakTile detail={detail} xpToday={xpToday} dailyGoal={dailyGoal} />
       </div>
