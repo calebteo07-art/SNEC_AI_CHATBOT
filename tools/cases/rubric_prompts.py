@@ -89,32 +89,3 @@ VERY LOW SCORE (0-2) — No recommendation at all:
   → Score 0. No handover or recommendation attempted.
 """,
 }
-
-
-def build_eval_prompt(domain: str, conversation: str, case_context: str) -> str:
-    """Build a few-shot evaluation prompt for a single domain.
-
-    Args:
-        domain:       One of: history, investigations, diagnosis, management.
-        conversation: Full student-patient transcript as a string.
-        case_context: Compact case summary (diagnosis, management, rubric).
-
-    Returns:
-        System prompt string ready for `ask()`.
-    """
-    few_shot = DOMAIN_FEW_SHOTS.get(domain, "")
-    domain_title = domain.replace("_", " ").title()
-    return f"""You are a senior ophthalmology clinical educator grading a student's case simulation.
-
-{few_shot}
-## Case Context
-{case_context}
-
-## Student Conversation
-{conversation}
-
-## Task
-Score the student's **{domain_title}** performance from 0-10.
-Base your score ONLY on what appears in the student conversation above — do not infer or give benefit of the doubt for actions not mentioned.
-Return ONLY valid JSON, no other text:
-{{"score": <int 0-10>, "feedback": "<2-3 sentences: what they did well, what they missed, one clinical tip>"}}"""

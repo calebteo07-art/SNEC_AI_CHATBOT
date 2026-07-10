@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Runtime RAG search — called by server.py before each chat response.
+"""KB semantic search + checklist lookup helpers.
 
-Embeds the user's query and retrieves the most relevant knowledge base chunks
-from Supabase. Falls back gracefully if Supabase is not configured.
-
-Usage (from server.py):
-    from tools.kb.search import search, format_context, search_checklist
-    chunks = search("how is intraocular pressure measured?")
-    context = format_context(chunks)
+`search`/`format_context` embed a query and pull the most relevant knowledge-base
+chunks from Supabase. NOTE: runtime chat RAG was removed for speed (the tutor now
+injects the static KB directly, see tools/api/routers/chat.py) — these are retained
+for the ingestion self-test and a possible future re-enable. `get_checklist_by_name`
+backs the OSCE checklist lookup used by the cases router. All degrade gracefully
+when Supabase is not configured.
 
 Self-test:
     python tools/kb/search.py "how is IOP measured?"
@@ -79,31 +78,6 @@ def format_context(chunks: list[dict]) -> str:
         sections.append(f"### {title}\n\n{combined}")
 
     return "\n\n---\n\n".join(sections)
-
-
-def search_checklist(procedure_name: str) -> dict | None:
-    """Retrieve the checklist for a specific procedure by name.
-
-    Returns the parsed checklist dict (the `steps` column content) or None
-    if no matching checklist is found or Supabase is not configured.
-    """
-    if not _SUPABASE_ENABLED or not procedure_name:
-        return None
-
-    from tools.kb.supabase_client import get_client
-
-    try:
-        client = get_client()
-        result = client.rpc(
-            "checklist_search",
-            {"procedure": procedure_name},
-        ).execute()
-        if result.data:
-            return result.data[0].get("steps")
-    except Exception as exc:
-        print(f"[checklist-search-error] {exc}", flush=True)
-
-    return None
 
 
 def get_checklist_by_name(name: str) -> dict | None:
