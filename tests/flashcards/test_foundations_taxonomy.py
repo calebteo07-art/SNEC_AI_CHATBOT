@@ -36,10 +36,9 @@ def test_ocular_emergencies_moved_out_of_clinical():
 
 
 def test_get_topic_cards_resolves_foundations_topic():
-    # Requires at least one authored/placeholder card under FOUNDATIONS/pharmacology.
-    from tools.flashcards.static_cards import FLASHCARDS, get_topic_cards, topic_card_counts
-    if "pharmacology" not in FLASHCARDS.get("FOUNDATIONS", {}):
-        import pytest
-        pytest.skip("Foundations cards not seeded yet")
+    # FOUNDATIONS/pharmacology is a seeded topic (50-cards-per-topic is a hard bank
+    # gate), so this resolves unconditionally -- the old "not seeded yet" skip guard
+    # could never fire and was dropped.
+    from tools.flashcards.static_cards import get_topic_cards, topic_card_counts
     assert len(get_topic_cards("OT", "pharmacology")) > 0
     assert topic_card_counts("OT").get("pharmacology", 0) > 0
