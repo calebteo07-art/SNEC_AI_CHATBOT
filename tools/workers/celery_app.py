@@ -1,7 +1,7 @@
 """Celery application — broker and worker configuration.
 
 Start worker:
-    celery -A tools.workers.celery_app worker --loglevel=info --queues=sm2,media
+    celery -A tools.workers.celery_app worker --loglevel=info --queues=sm2
 
 Or via Docker Compose:
     docker compose up worker
@@ -24,7 +24,6 @@ app = Celery(
     backend=REDIS_URL,
     include=[
         "tools.workers.tasks.sm2_review",
-        "tools.workers.tasks.media_refresh",
     ],
 )
 
@@ -36,6 +35,5 @@ app.conf.update(
     worker_prefetch_multiplier=1,  # fair dispatch — no head-of-line blocking
     task_routes={
         "tools.workers.tasks.sm2_review.*":      {"queue": "sm2"},
-        "tools.workers.tasks.media_refresh.*":   {"queue": "media"},
     },
 )

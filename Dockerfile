@@ -39,13 +39,8 @@ COPY scripts/start-prod.sh ./scripts/start-prod.sh
 # Copy the self-contained Next server (includes traced node_modules)
 COPY --from=frontend-build /build/frontend/.next/standalone ./frontend/.next/standalone
 
-# Media library at the repo-canonical path: FastAPI serves /api/media/manifest
-# from here, and the Celery media worker regenerates it in place (hence chown).
-# Next serves the user-facing /media/* from its own standalone public/ copy.
-COPY --from=frontend-build /build/frontend/public/media ./frontend/public/media
-
 # Pre-create writable directories
-RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp /app/frontend/public/media
+RUN mkdir -p /app/.tmp && chown -R eyebot:eyebot /app/.tmp
 
 # Switch to non-root
 USER eyebot

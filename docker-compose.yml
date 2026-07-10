@@ -20,7 +20,7 @@ services:
     command: >
       celery -A tools.workers.celery_app worker
       --loglevel=info
-      --queues=cards,sm2,media
+      --queues=cards,sm2
       --concurrency=2
     env_file: .env
     environment:
