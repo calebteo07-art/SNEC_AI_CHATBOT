@@ -2,7 +2,6 @@
 /* AURORA admin overview — cohort KPIs, AI insight, at-risk list, weak-topic
    bars, and the generative-media refresh control. Same endpoints as before. */
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { useAdminOutlet, fmtTokens } from "@/screens/adminShared";
 import { StatCard } from "@/aurora/components/StatCard";
 import { ProgressBar } from "@/aurora/components/ProgressBar";
@@ -35,27 +34,6 @@ export function AdminOverview() {
       setInsight(insightData?.narrative ?? insightData?.insight ?? "");
     }).finally(() => setLoading(false));
   }, []);
-
-  const refreshMedia = async () => {
-    try {
-      const res = await fetch("/api/media/refresh", {
-        method: "POST", credentials: "include",
-        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kinds: ["svg"] }),
-      });
-      const data = await res.json();
-      if (!res.ok) { toast.error(data.detail ?? "Media refresh unavailable."); return; }
-      if (data.status !== "queued") { toast.info(data.detail ?? "Nothing to queue."); return; }
-      toast.info("Media refresh queued — regenerating accents…");
-      const poll = setInterval(async () => {
-        try {
-          const jr = await fetch(`/api/media/jobs/${data.job_id}`, { credentials: "include" });
-          const job = await jr.json();
-          if (job.status === "success") { clearInterval(poll); toast.success(`Media library v${job.result?.manifest_version} ready (${job.result?.accents} accents).`); }
-          else if (job.status === "failure") { clearInterval(poll); toast.error(`Media refresh failed: ${job.detail ?? "unknown error"}`); }
-        } catch { clearInterval(poll); }
-      }, 4000);
-    } catch { toast.error("Media refresh unavailable."); }
-  };
 
   if (loading) return <p className="aurora-muted">Loading cohort…</p>;
 
@@ -146,20 +124,6 @@ export function AdminOverview() {
         </p>
       </section>
 
-      {/* Quiet maintenance utility — pulled out of the header so it doesn't
-          compete with the cohort signal. */}
-      <details className="console-disclosure">
-        <summary>
-          <span>Media library<span className="console-disc-sub" style={{ marginLeft: 8 }}>maintenance</span></span>
-          <svg className="console-disc-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
-        </summary>
-        <div className="console-disclosure-body">
-          <p className="aurora-muted" style={{ margin: "8px 0 12px", lineHeight: 1.6 }}>
-            Regenerate the illustrative accent artwork shown across the student app. Runs in the background — students are never blocked.
-          </p>
-          <button type="button" className="aurora-btn-ghost" onClick={refreshMedia}>↻ Refresh media library</button>
-        </div>
-      </details>
     </div>
   );
 }
