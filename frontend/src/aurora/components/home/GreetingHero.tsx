@@ -9,10 +9,10 @@ import { Icon } from "./HomeIcons";
 import { SelenaLogo } from "@/aurora/components/SelenaLogo";
 import { SelenaGreetingLoop } from "./SelenaGreetingLoop";
 
-/* Flip to `true` once a reviewed Veo loop is installed at
-   /media/loops/greeting-selena.mp4 (plan Task 9). Until then the mascot is the
-   CSS-alive SelenaLogo. */
-const GREETING_LOOP = false;
+/* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
+   The opaque baked-bg tile overlays the CSS-alive SelenaLogo, which stays beneath
+   as the always-present fallback (null under reduced-motion / save-data / error). */
+const GREETING_LOOP = true;
 
 export function GreetingHero({
   greeting,
