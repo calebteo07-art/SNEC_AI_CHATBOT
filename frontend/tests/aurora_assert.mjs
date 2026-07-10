@@ -541,16 +541,20 @@ if ((await np.locator(".aurora-rail .aurora-avatar[data-selena] img.selena-img")
 }
 console.log("PASS: Selena everywhere — Profile avatar + rail chip render the student's saved Selena");
 
-// The greeting card now hosts YOUR Selena (one transparent render, living motion)
-// once customized + rendered; never-customized students keep the brand SelenaLogo.
-// The mock's `customized` field is scoped narrow (see `reportCustomized` above) so
-// the sections below (reduced motion, onboarding) still see the untouched default.
+// The greeting card is ALWAYS the default living mascot — even for a customized
+// student (Custom-Selena lock amended 2026-07-10; user directive "greeting Selena
+// default from now on"). The custom render lives on Studio + the leaderboard only,
+// so a customized student must still see the brand SelenaLogo here (no .hm-selena
+// custom render node).
 reportCustomized = true;
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".hm-selena img.hm-selena-img", { timeout: 15000 });
-const heroSrc = (await np.locator(".hm-selena-img").getAttribute("src")) ?? "";
-if (!heroSrc.startsWith("data:")) { console.error(`FAIL: greeting hero is not the custom portrait (src=${heroSrc})`); process.exit(1); }
-console.log("PASS: Home greeting — the student's OWN rendered Selena, animated (custom replaces brand mascot)");
+await np.waitForSelector('.hm-iriswrap [data-testid="selena-logo"]', { timeout: 15000 });
+if ((await np.locator(".hm-selena img.hm-selena-img").count()) > 0) {
+  console.error("FAIL: greeting shows a custom render for a customized student (should always be the default mascot)"); process.exit(1);
+}
+const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="selena-logo"] .selena-logo-rest').getAttribute("src")) ?? "";
+if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
+console.log("PASS: Home greeting — always the DEFAULT living Selena, even when customized (lock amended 2026-07-10)");
 reportCustomized = false;
 
 // Leaderboard (RICOE v2, D7): everyone by default, ranked by XP, with Selena headshots.

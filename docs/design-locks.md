@@ -54,11 +54,22 @@ Gemini gradient; verdicts bright green `#16a34a` / red `#e22030`; WCAG-legible o
 - **Out of scope for refinements**: scoring model (deterministic, no AI in study loop),
   two-pool role content model {OA=PSA}+{OT}, 50-cards-per-topic mandate.
 
-## Home / Dashboard — LOCKED 2026-07-01
+## Home / Dashboard — LOCKED 2026-07-01 · refined "come alive" 2026-07-10
 Warm-premium bento `.aurora-home` (Bricolage Grotesque): GreetingHero with the
 ever-changing greeting engine + **Iris** mascot, StreakTile, FeatureCarousel (3D
 coverflow, back-card fade), MilestoneLadder, WeekStats (real data only — no invented
 stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not revive.
+- **"Come alive" refine (2026-07-10, spec `2026-07-10-homepage-come-alive-design.md`)**:
+  enlarged type scale on every card (bigger *and* clearer — darkened a few low-contrast
+  grays); the streak flame is **enlarged + alive** (CSS flicker + ember, frozen under
+  reduced motion) on a warm surface wash; the FeatureCarousel cards are reskinned to
+  **full-bleed default-Selena scenes** (Nano-Banana flash, `reference=True`, a bottom-up
+  scrim keeps text legible; the tone gradient is the graceful fallback) — coverflow
+  **mechanics unchanged** (drift / tap-to-nearest / arrows / keyboard); the plain
+  badge + progress panels are lifted (gradient header rule, themed stat tiles, depth).
+  The greeting mascot is **always the default living Selena** (see the Custom-Selena
+  amendment) — never a student's custom render. Acceptance: WCAG-AA legible, 390px-safe,
+  all added motion freezes under `prefers-reduced-motion` / `data-motion=reduce`.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
@@ -157,14 +168,20 @@ plus a drawn mouth, everything else = remapped sticker overlays (`renderSelena.t
   save); the D11 curated sprite library (largely superseded by this: the base already IS the
   3D art; revisit only if extras need painterly treatment).
 
-## Custom Selena surfaces (LOCKED 2026-07-08)
+## Custom Selena surfaces (LOCKED 2026-07-08 · amended 2026-07-10)
 A student's Selena is ONE AI render of the whole look — transparent, anchored to
 iris.png — shown by the raster-only `<Selena>` component. No client-side part
 compositing anywhere (vector stickers over the raster were rejected as ugly,
-2026-07-08). Every fallback path is the default `/brand/iris.png`. The greeting
-card hosts the custom render with CSS living motion once customized; brand
-surfaces (SelenaLogo, CoBrand, splash, rails, favicon, login) stay the DEFAULT
-mascot. Spec: docs/superpowers/specs/2026-07-07-selena-seamless-custom-design.md.
+2026-07-08). Every fallback path is the default `/brand/iris.png`. The custom
+render is shown in **Selena Studio + the leaderboard**; brand surfaces
+(SelenaLogo, CoBrand, splash, rails, favicon, login) stay the DEFAULT mascot.
+Spec: docs/superpowers/specs/2026-07-07-selena-seamless-custom-design.md.
+- **Amended 2026-07-10 (come-alive spec)**: the **greeting card now hosts the
+  DEFAULT living mascot for every student** (CSS-alive `<SelenaLogo>`; an optional
+  baked **Veo** loop swaps in when installed via `<SelenaGreetingLoop>`), **not**
+  the custom render (user directive 2026-07-10, "greeting Selena default from now
+  on"). `GreetingHero` no longer takes `portraitUrl`. The custom render is
+  unaffected on Studio + the leaderboard; all other brand surfaces unchanged.
 
 ## Animated Selena hero logo — LOCKED 2026-07-07 (logo→raster brief)
 **Direction**: a **living Selena mascot logo** on three hero surfaces — the Home
