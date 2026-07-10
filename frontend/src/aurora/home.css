@@ -43,22 +43,20 @@
 .hm-greet { position:relative; overflow:hidden; border-radius:var(--hr); padding:34px 44px 30px; box-shadow:var(--sh-lg);
   background:radial-gradient(135% 155% at 6% 0%, #FFE3C2 0%, #FFD2E0 46%, #E7D9FF 100%); }
 .hm-greet::after { content:""; position:absolute; right:-70px; top:-70px; width:250px; height:250px; border-radius:50%; background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.52),transparent 62%); }
-.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:62px; line-height:1.02; letter-spacing:-.03em; max-width:600px; margin:0; color:var(--hink); }
+.hm-greet h1 { position:relative; font-family:var(--font-home); font-weight:800; font-size:62px; line-height:1.02; letter-spacing:-.03em; max-width:540px; margin:0; color:var(--hink); }
 .hm-greet h1 em { font-style:normal; color:var(--violet-d); }
-.hm-sub { position:relative; margin-top:15px; font-size:23px; font-weight:500; color:#5A4B64; max-width:560px; line-height:1.45; }
-/* narrower than the headline so the right-aligned XP readout stays over the calm
-   left of the card, clear of the full-bleed mascot on the right. */
-.hm-lvl { position:relative; margin-top:24px; max-width:440px; }
+/* text columns are held to the calm left of the card so no word runs under the
+   full-bleed mascot on the right (she's nudged further right below). */
+.hm-sub { position:relative; margin-top:15px; font-size:23px; font-weight:500; color:#5A4B64; max-width:440px; line-height:1.45; }
+.hm-lvl { position:relative; margin-top:24px; max-width:380px; }
 .hm-lvl .hm-lr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
 .hm-lvl .hm-lr b { font-weight:700; font-size:17px; } .hm-lvl .hm-lr b span { color:var(--violet-d); }
 .hm-lvl .hm-lr .hm-z { font-size:14px; font-weight:600; color:#9b8fa8; }
 .hm-lvbar { height:15px; border-radius:999px; background:rgba(255,255,255,.62); overflow:hidden; box-shadow:inset 0 1px 2px rgba(120,80,40,.12); }
 .hm-lvbar > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
-.hm-reshuffle { position:relative; margin-top:18px; font-size:14px; color:#a893b8; font-weight:600; display:flex; align-items:center; gap:7px; }
-.hm-reshuffle .ico { width:15px; height:15px; }
 /* the default mascot sits BEHIND the full-bleed Veo loop (z-index:0) — it's the
    reduced-motion / no-video fallback that shows through when the clip is absent. */
-.hm-iriswrap { position:absolute; right:-14px; bottom:0; width:236px; height:210px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
+.hm-iriswrap { position:absolute; right:-34px; bottom:0; width:236px; height:210px; z-index:0; pointer-events:none; display:flex; align-items:flex-end; justify-content:center; }
 .hm-irisfloor { position:absolute; left:50%; bottom:16px; width:156px; height:24px; transform:translateX(-50%); background:radial-gradient(ellipse at center,rgba(120,60,30,.24),transparent 70%); filter:blur(2px); }
 .hm-iris { position:relative; z-index:1; width:216px; height:216px; margin-bottom:6px; animation:hm-iris-bob 4.8s ease-in-out infinite; }
 /* single transform track (no stacked conflicting animations): the bob carries a
@@ -94,7 +92,7 @@
    alpha) so it fully covers the fallback SelenaLogo beneath. A soft veil over it keeps
    the headline/CTAs legible; the greeting body layers on top. ── */
 .hm-selenaloop { position:absolute; inset:0; z-index:1; pointer-events:none; }
-.hm-selenaloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:66% 46%; }
+.hm-selenaloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:78% 46%; transform:translateX(2.5%); }
 .hm-greet-veil { position:absolute; inset:0; z-index:2; pointer-events:none;
   background:linear-gradient(96deg, rgba(255,246,236,.68) 0%, rgba(255,246,236,.44) 32%, rgba(255,246,236,.12) 55%, rgba(255,246,236,0) 72%); }
 .hm-greet-body { position:relative; z-index:3; }
@@ -244,13 +242,17 @@
   .hm-carousel { height:270px; }
 }
 @media (max-width:560px) {
-  .hm-greet h1 { font-size:37px; }
-  .hm-sub { font-size:18px; }
+  .hm-greet h1 { font-size:37px; max-width:76%; }
+  .hm-sub { font-size:18px; max-width:63%; }
   .hm-iriswrap { display:none; }
   /* narrow card: bias the mascot further right so the copy + XP readout keep a clear
      left column, and stack the level readout left of the mascot instead of pushing
      the XP figures onto its face (space-between collided on 390px). */
-  .hm-selenaloop-v { object-position:82% 45%; }
+  .hm-selenaloop-v { object-position:88% 45%; }
+  /* on the narrow card the mascot's big eye is unavoidably behind the left copy, so the
+     legibility veil carries a stronger cream wash across the left ~66% (she stays visible
+     on the right) — keeps the headline/sub WCAG-legible where they meet her. */
+  .hm-greet-veil { background:linear-gradient(96deg, rgba(255,246,236,.92) 0%, rgba(255,246,236,.82) 44%, rgba(255,246,236,.42) 64%, rgba(255,246,236,0) 84%); }
   .hm-lvl { max-width:62%; margin-top:20px; }
   .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
   .hm-badges { gap:14px 10px; }

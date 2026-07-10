@@ -7,7 +7,6 @@
    beneath as the reduced-motion / no-video fallback. Presentational; the Dashboard
    owns the greeting seed. */
 import type { Greeting } from "@/aurora/lib/greeting";
-import { Icon } from "./HomeIcons";
 import { SelenaLogo } from "@/aurora/components/SelenaLogo";
 import { SelenaGreetingLoop } from "./SelenaGreetingLoop";
 
@@ -60,8 +59,6 @@ export function GreetingHero({
           </div>
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>
-
-        <div className="hm-reshuffle"><Icon name="refresh" /> a new hello every visit</div>
       </div>
     </section>
   );
