@@ -89,6 +89,13 @@ endpoint map and `docs/SECURITY.md` for the security model.
   files focused; a growing file usually signals too many responsibilities.
 - **Verify before asserting.** Confirm against the code, DB, or `docs/` before
   claiming how the system behaves — the stack drifts and memory goes stale.
+- **Spend tokens like they cost money — never at quality's expense.** Read only
+  the files/ranges you need (targeted `Grep`/`Read`, not whole-tree dumps), reuse
+  context already in the conversation instead of re-deriving it, run parallel
+  independent tool calls in one turn, and keep prose tight. But never skip a test,
+  a verify, an edge case, or a real fix to save tokens — correctness, security,
+  and the production invariants above always win. Efficiency is cutting waste, not
+  cutting corners.
 - **Live AI calls cost real money and burn prod quota.** Tests and the visual
   harnesses run keyless in `MOCK_MODE`; never fire a live Gemini text/image
   generation without explicit user go-ahead.
