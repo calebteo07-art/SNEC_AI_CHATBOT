@@ -72,15 +72,19 @@ stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not
   all added motion freezes under `prefers-reduced-motion` / `data-motion=reduce`.
 - **Greeting-card simplification (refine 2026-07-10, user directive)**: the greeting card
   is now **chrome-light** — the eyebrow (role · time-of-day), the `hm-cta-row` (the "Pick
-  up where you left off", "Surprise me", and "Edit Selena" buttons), and the greeting
-  reshuffle seed are all **removed**. What remains — the big rotating headline, the teasing
-  sub, and the level-up XP readout — is **enlarged** (headline 50→62px, sub 19→23px, XP
-  readout up), and the living Selena is **nudged rightward** (Veo-loop framing + the
-  fallback mascot). The greeting still rotates by day-of-year (no in-page re-roll now that
-  "Surprise me" is gone). **Acceptance when refining**: greeting card shows only headline +
-  sub + XP bar (+ the small "a new hello every visit" note), no eyebrow, no CTA buttons;
-  type is visibly larger yet WCAG-AA legible and 390px-safe; Selena sits toward the right;
-  Edit-Selena is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
+  up where you left off", "Surprise me", and "Edit Selena" buttons), the greeting reshuffle
+  seed, and the "a new hello every visit" note are all **removed**. What remains — the big
+  rotating headline, the teasing sub, and the level-up XP readout — is **enlarged** (headline
+  50→62px, sub 19→23px, XP readout up) and held to the calm **left column** (capped widths)
+  so no word runs under the mascot; the living Selena is **nudged well to the right** (Veo-loop
+  framing + a small right shift, plus the fallback mascot). On the narrow (≤560px) card the
+  copy is column-capped, the level readout stacks left, and the legibility veil carries a
+  stronger cream wash across the left ~66% so text stays WCAG-legible where it meets her big
+  eye. The greeting still rotates by day-of-year (no in-page re-roll now that "Surprise me" is
+  gone). **Acceptance when refining**: greeting card shows only headline + sub + XP bar — no
+  eyebrow, no CTA buttons, no reshuffle note; type is visibly larger yet WCAG-AA legible and
+  390px-safe; no word overlaps the mascot illegibly; Selena sits toward the right; Edit-Selena
+  is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
