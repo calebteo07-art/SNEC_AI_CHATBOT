@@ -85,6 +85,27 @@ stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not
   eyebrow, no CTA buttons, no reshuffle note; type is visibly larger yet WCAG-AA legible and
   390px-safe; no word overlaps the mascot illegibly; Selena sits toward the right; Edit-Selena
   is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
+- **"Toybox vibrancy" refine (2026-07-11, user directive: "colors more bold and vibrant
+  like all the games in RODTANG, don't hold back")**: a **colour + material + juice** pass on
+  every card, applying RODTANG's cozy-premium grammar — *saturate the actors, calm the stage;
+  glossy vinyl-toy material; high-key light; springy squash-and-stretch juice*. Concretely, all
+  in `home.css` (CSS-only): the warm cream **canvas stays calm** while the **actors go bold** —
+  candy-saturated feature-card tone gradients, **bold saturated candy stat tiles** (white
+  numerals/labels on dark-enough violet/teal/orange/coral fills), a **juicy XP meter** (chunkier,
+  candy gradient, gloss highlight + a shine sweep), a **glossier streak** (brighter candy numeral
+  + a pulsing heat-glow behind the flame), **jewel week-dots** (springy pop-in, glossy on-state,
+  pulsing today), **bolder badge rarity glows**, a **candy next-tier pill**, and vinyl **gloss
+  sheens** on the toy surfaces. **Nothing structural changes** and **no generated asset is touched.**
+- **PRESERVED / untouched (hard constraint of this refine)**: every generated asset — the **Veo
+  greeting loop** (`media/loops/greeting-selena.mp4`), **iris.png + poses**, the **feature scenes**
+  (`brand/features/{tutor,vp,flash}.webp`), the **badge medallions** (`brand/badges/*.jpg`); the
+  bento **layout + card set**; the FeatureCarousel **coverflow mechanics**; **WeekStats real-data-only**;
+  the **default Iris mascot**; the greeting-card simplification; and every prior Home acceptance.
+- **Acceptance criteria when refining**: bold/saturated yet **WCAG-AA legible on every surface**
+  (white-on-fill kept ≥3:1 for the large numerals/labels); **390px-safe** (no horizontal overflow);
+  **all added motion** (XP shine, heat-glow, jewel pop, today-pulse, springs) **freezes** under
+  `prefers-reduced-motion` / `data-motion=reduce`; the aurora harness stays green (structure,
+  testids, badge states, mascot reduced-motion freeze all intact); **no generated asset replaced.**
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
