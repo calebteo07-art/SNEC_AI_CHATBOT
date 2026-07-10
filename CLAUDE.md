@@ -1,178 +1,152 @@
 # EyeBot — Agent Operating Guide
 
-EyeBot is a production AI training platform for **SNEC** (Singapore National Eye
-Centre) allied-health students — Ophthalmic Assistants (OA), Technicians (OT),
-and Patient Service Associates (PSA). It runs a Socratic tutor, virtual-patient
-OSCE stations, spaced-repetition flashcards, daily check-ins, gamification, and
-staff dashboards, grounded in a Supabase RAG knowledge base.
+EyeBot is a **production** AI training platform for **SNEC** (Singapore National
+Eye Centre) allied-health students — Ophthalmic Assistants (OA), Technicians (OT),
+Patient Service Associates (PSA): a Socratic tutor, virtual-patient OSCE stations,
+spaced-repetition flashcards, daily check-ins, gamification, and staff dashboards,
+grounded in a Supabase RAG knowledge base. It's deployed to real institutions.
+**Treat every change as production-bound: secure, reproducible, observable, scale-safe.**
 
-This is a **real system deployed to higher-education institutions**. Treat every
-change as production-bound: secure, reproducible, observable, and scale-safe.
+## How to work
 
----
+Four principles (biased toward caution over speed — use judgment on trivial fixes):
 
-## The WAT Architecture (Workflows · Agents · Tools)
+- **Think before coding.** Surface assumptions and tradeoffs. If a request has
+  multiple readings or a simpler path exists, say so. Ask only when genuinely
+  blocked or when the ambiguity changes *what* you build — otherwise pick the
+  sensible default and proceed.
+- **Simplicity first.** Minimum code that solves the problem. No speculative
+  abstraction, config, or error handling for impossible cases. If 200 lines could
+  be 50, rewrite. Would a senior engineer call it overcomplicated?
+- **Surgical changes.** Touch only what the task needs; match surrounding style
+  (comment density, naming, async idioms). No drive-by refactors. Remove only the
+  orphans your change created; flag unrelated dead code, don't delete it. Every
+  changed line traces to the request.
+- **Goal-driven execution.** Turn tasks into verifiable success criteria and loop.
+  TDD for any feature/bugfix (failing test first → watch it fail → minimal pass);
+  systematic debugging before proposing a fix.
 
-Probabilistic AI handles reasoning; deterministic code handles execution. That
-separation is what makes the system reliable — five chained 90%-accurate AI steps
-compound to ~59% success, so we offload execution to tested scripts.
+And:
 
-- **Workflows** (`workflows/`) — Markdown SOPs: objective, inputs, which tools,
-  expected outputs, edge cases.
-- **Agents** (you) — read the workflow, run tools in order, recover from errors,
-  ask when genuinely blocked. Connect intent to execution; don't do everything
-  inline.
-- **Tools** (`tools/`) — Python scripts doing the actual work (AI calls, DB,
-  transforms). Consistent, testable, fast. **Look for an existing tool before
-  building one.** Don't create/overwrite workflows without explicit permission.
+- **Process skills first** — brainstorm before building, then TDD, then systematic
+  debugging. Tests live in `tests/` (pytest) and `frontend/tests/` (Node harnesses).
+- **Read before you edit; verify before you assert.** Read only the files/ranges
+  you need; don't re-read unchanged files. Confirm behavior against the code, DB, or
+  `docs/` before claiming it — never guess APIs, versions, flags, commit SHAs, or
+  package names. The stack drifts and memory goes stale.
+- **Concise output, thorough reasoning.** Spend tokens like they cost money — tight
+  prose, targeted reads, parallel independent tool calls — but never at the expense
+  of a test, an edge case, or a real fix. Efficiency is cutting waste, not corners.
+- **Live AI calls cost real money and prod quota.** Tests and harnesses run keyless
+  in `MOCK_MODE`; never fire a live Gemini text/image call without explicit go-ahead.
+- **Self-improvement loop:** broke → fix the tool → verify → update the workflow →
+  move on more robust.
 
----
+## WAT architecture (Workflows · Agents · Tools)
 
-## System architecture (the real stack)
+Probabilistic AI reasons; deterministic code executes. Five chained 90%-accurate AI
+steps compound to ~59%, so execution is offloaded to tested scripts.
 
-**Single-container topology** (`scripts/start-prod.sh`):
-```
-browser ──HTTPS──▶ Next.js standalone (public, $PORT)
-                      │  next.config.ts rewrites /api/* and /health
-                      ▼
-                   FastAPI (internal, 127.0.0.1:8000)  ──▶ Supabase · Gemini · Redis
-```
-Same-origin proxy keeps cookies + SSE intact. **Next owns page security headers
-(CSP); FastAPI returns only JSON/SSE.**
+- **Workflows** (`workflows/`) — Markdown SOPs. Don't create/overwrite one without
+  explicit permission.
+- **Agents** (you) — read the workflow, run tools in order, recover from errors, ask
+  when genuinely blocked. Connect intent to execution; don't do everything inline.
+- **Tools** (`tools/`) — Python scripts doing the work (AI, DB, transforms).
+  **Look for an existing tool before building one.**
 
-| Layer      | Reality (verify before asserting) |
-|------------|-----------------------------------|
-| Frontend   | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion/GSAP, R3F. Node 24. |
-| Backend    | FastAPI + uvicorn (Python **3.12** in prod), async-first. |
-| AI         | Google Gemini via `google-genai` (`tools/shared/gemini_client.py`). `MOCK_MODE` when no key. |
-| Data       | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
-| Auth       | Custom JWT in an **HttpOnly** cookie (`eyebot_token`); bcrypt(cost 12); OTP reset. |
-| Async      | Celery + Redis workers (`tools/workers/`). |
-| Deploy     | Render, auto-deploys `main` + keep-alive cron. **The live service builds the `Dockerfile`** (multi-stage → Next standalone + Python 3.12, runs `scripts/start-prod.sh`). `render.yaml` *also* declares an equivalent native-Python build (`render-build.sh`) — they've drifted, so **do not delete the `Dockerfile`**: removing it broke prod (2026-06-26). Keep both paths working. |
+## The stack
 
-Backend entrypoint: `tools/api/server.py`. Routers: `tools/api/routers/`
-(auth, cases, admin, supervisor, chat, checkin, student, media). Shared singletons
-+ rate-limit keying: `tools/api/shared.py`. See `docs/ARCHITECTURE.md` for the
-endpoint map and `docs/SECURITY.md` for the security model.
+Single-container (`scripts/start-prod.sh`): browser →HTTPS→ **Next.js standalone**
+(public, `$PORT`; `next.config.ts` rewrites `/api/*` + `/health`) →internal→
+**FastAPI** (`127.0.0.1:8000`) → Supabase · Gemini · Redis. The same-origin proxy
+keeps cookies + SSE intact. **Next owns page security headers (CSP); FastAPI returns
+only JSON/SSE.**
 
----
+| Layer    | Reality (verify before asserting) |
+|----------|-----------------------------------|
+| Frontend | Next.js 16 (App Router, `output: standalone`), React 19, Tailwind 4, TanStack Query, Motion/GSAP, R3F. Node 24. |
+| Backend  | FastAPI + uvicorn, Python **3.12** in prod, async-first. Entry `tools/api/server.py`; routers `tools/api/routers/`; shared singletons + rate-limit keying `tools/api/shared.py`. |
+| AI       | Gemini via `google-genai` (`tools/shared/gemini_client.py`); `MOCK_MODE` when no key. |
+| Data     | Supabase (Postgres + pgvector RAG); Google Sheets for some rosters. |
+| Auth     | Custom JWT in an **HttpOnly** cookie `eyebot_token`; bcrypt(cost 12); OTP reset. |
+| Async    | Celery + Redis workers (`tools/workers/`). |
+| Deploy   | Render, auto-deploys `main` + keep-alive cron. The live service builds the **`Dockerfile`**; `render.yaml` declares a drifted native-Python path too — keep both working. |
 
-## Production invariants (do not violate)
+Endpoint map: `docs/ARCHITECTURE.md`. Security model: `docs/SECURITY.md`.
 
-1. **Never block the event loop.** Prod is a few uvicorn workers on a small Render
-   instance. Wrap every blocking call (Gemini, bcrypt, SMTP, Supabase sync
-   client) in `asyncio.to_thread` with a timeout. One blocking call stalls the
-   whole worker.
-2. **No per-process in-memory state that must be shared.** Workers scale
-   horizontally (`WEB_CONCURRENCY`). Shared state (rate-limit counters) lives in
-   Redis when `REDIS_URL` is set; OTPs live in Supabase. The case cache is an
-   idempotent per-worker read cache only.
-3. **Fail closed.** `tools/shared/config.py::assert_production_ready()` runs in the
-   app lifespan and refuses to boot in production on an insecure `JWT_SECRET`,
-   missing Supabase keys, or wildcard/empty `ALLOWED_ORIGINS`. Don't weaken it.
-4. **Identity comes from the JWT, never the request body.** `current_user["sub"]`
-   is the source of truth (`tools/shared/jwt_utils.py`).
+## Production invariants (never violate)
+
+1. **Never block the event loop.** Wrap every blocking call (Gemini, bcrypt, SMTP,
+   Supabase sync client) in `asyncio.to_thread` + timeout — one blocking call stalls
+   the whole Render worker.
+2. **No shared in-process state.** Workers scale horizontally (`WEB_CONCURRENCY`);
+   shared counters live in Redis (when `REDIS_URL` is set), OTPs in Supabase. The
+   case cache is a per-worker idempotent read cache only.
+3. **Fail closed.** `tools/shared/config.py::assert_production_ready()` refuses to
+   boot in prod on an insecure `JWT_SECRET`, missing Supabase keys, or wildcard/empty
+   `ALLOWED_ORIGINS`. Don't weaken it.
+4. **Identity = JWT `current_user["sub"]`, never the request body**
+   (`tools/shared/jwt_utils.py`).
 5. **Secrets only in env / Render dashboard.** Never commit `.env`,
    `credentials.json`, or `token.json` (all gitignored).
 6. **Rate-limit keys identify the real caller** (JWT sub, else `X-Forwarded-For`),
    not the Next proxy peer. Keep new endpoints on the shared `limiter`.
 
----
+## Commands
 
-## Working in this codebase
-
-- **Process skills first.** Brainstorm before building; TDD for any feature or
-  bugfix (write the failing test, watch it fail, minimal pass); systematic
-  debugging before proposing fixes. Tests live in `tests/` (pytest) and
-  `frontend/tests/` (Node harnesses).
-- **Match the surrounding code.** Comment density, naming, async idioms. Keep
-  files focused; a growing file usually signals too many responsibilities.
-- **Verify before asserting.** Confirm against the code, DB, or `docs/` before
-  claiming how the system behaves — the stack drifts and memory goes stale.
-- **Spend tokens like they cost money — never at quality's expense.** Read only
-  the files/ranges you need (targeted `Grep`/`Read`, not whole-tree dumps), reuse
-  context already in the conversation instead of re-deriving it, run parallel
-  independent tool calls in one turn, and keep prose tight. But never skip a test,
-  a verify, an edge case, or a real fix to save tokens — correctness, security,
-  and the production invariants above always win. Efficiency is cutting waste, not
-  cutting corners.
-- **Live AI calls cost real money and burn prod quota.** Tests and the visual
-  harnesses run keyless in `MOCK_MODE`; never fire a live Gemini text/image
-  generation without explicit user go-ahead.
-- **Self-improvement loop:** identify what broke → fix the tool → verify → update
-  the workflow → move on more robust.
-
-### Commands
 ```bash
-# Backend tests (mirror CI — Python 3.12)
-python -m pytest -q
-# Frontend
-cd frontend && npm run typecheck && npm run build
-# Visual harnesses — ONE canonical runner (build → copy static/public into
-# .next/standalone → serve → warm dynamic routes → assert). Never `next start`.
-bash scripts/start-harness.sh [aurora|station|all|serve|stop]   # SKIP_BUILD=1 to reuse the build
-# Local dev API
-uvicorn tools.api.server:app --reload --port 8000
+python -m pytest -q                                   # backend tests (Python 3.12; MOCK_MODE auto when GEMINI_API_KEY unset)
+cd frontend && npm run typecheck && npm run build     # frontend
+bash scripts/start-harness.sh [aurora|station|all|serve|stop]   # visual harness (SKIP_BUILD=1 to reuse). Never `next start`.
+uvicorn tools.api.server:app --reload --port 8000     # local dev API
 ```
 
-`pytest` auto-enables `MOCK_MODE` when `GEMINI_API_KEY` is unset — no key or
-network needed. The dev box is **Windows / PowerShell**; the POSIX snippets above
-also run via the Bash tool.
+CI (`.github/workflows/ci.yml`) gates pytest + typecheck + build + supply-chain audit
+on every push; Dependabot handles bumps. Dev box is **Windows / PowerShell**; the
+POSIX snippets above also run via the Bash tool.
 
-CI (`.github/workflows/ci.yml`) gates pytest + typecheck + build + supply-chain
-audit on every push. Dependabot manages dependency bumps.
+## Git
 
-### Git
-After a completed task, stage + commit + push **directly to `main`** — no
-feature branch, no asking first (user policy, 2026-06-29: "all dev auto-ships to
-`main`"). `main` auto-deploys to Render production, so **always verify first** —
-the relevant `pytest` / `typecheck` / `build` / assert harness must be green
-before you push. Never ship red. Stage only the files relevant to the task (the
-tree often carries unrelated dirty files).
+After a completed task, stage + commit + **push directly to `main`** — no feature
+branch, no asking first (user policy, 2026-06-29). `main` auto-deploys to Render prod,
+so **verify green first** (the relevant pytest / typecheck / build / assert harness
+must pass) — never ship red. Stage only the files for this task (the tree often carries
+unrelated dirty files).
 
-The one exception: a change that would break prod the moment its code lands but
-*before* out-of-band setup is done (a new required env var/secret, a DB
-migration, a fail-closed config guard). For those, still ship — but say so
-plainly and coordinate the setup so `main` never boots broken.
+**Exception:** a change that breaks prod the moment it lands but *before* out-of-band
+setup (a new required env var/secret, a DB migration, a fail-closed guard) — still
+ship, but say so plainly and coordinate the setup so `main` never boots broken.
 
-## Recurring-friction guardrails (session audit, 2026-07-04)
+## Guardrails (each encodes a real past failure → use the slash command)
 
-Each rule below encodes a failure that recurred across multiple sessions. The
-project slash commands (`.claude/commands/`) are the executable versions.
-
-- **Shell discipline.** PowerShell cmdlets go in the PowerShell tool; the Bash
-  tool is POSIX-only (32 sessions hit exit-127 mixing them). A PreToolUse hook
-  (`.claude/hooks/bash_guard.py`) blocks violations — don't fight it, switch tools.
-- **DB migrations → `/db-migrate`.** Never paste a file *path* into the Supabase
-  SQL editor, and never emit `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY IF
-  NOT EXISTS` (Postgres rejects both, error 42601). `tools/db/lint_migration.py`
-  gates this; applied migrations are ledgered in `tools/db/migrations/APPLIED.md`.
+- **Shell discipline.** PowerShell cmdlets go in the PowerShell tool; the Bash tool is
+  POSIX-only. The `.claude/hooks/bash_guard.py` PreToolUse hook blocks violations —
+  switch tools, don't fight it.
+- **DB migrations → `/db-migrate`.** Never paste a file *path* into the Supabase SQL
+  editor; never emit `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY IF NOT EXISTS`
+  (Postgres 42601). Applied migrations are ledgered in `tools/db/migrations/APPLIED.md`.
 - **Render preflight.** The live service builds the `Dockerfile` — never delete it
-  (broke prod 2026-06-26). Render blocks outbound SMTP (25/465/587): email goes via
-  HTTPS providers (Brevo), never `smtplib`. Code needing a new env var ships only
-  with the dashboard value coordinated (see Git exception above).
+  (broke prod 2026-06-26). Render blocks SMTP (25/465/587): email goes via HTTPS
+  (Brevo), never `smtplib`. New env var → ship only with the dashboard value coordinated.
 - **Fixes must stick → `/ship-check`.** Any user-facing *state* invariant
-  (show-once-per-day, streaks, idempotent submits) requires a regression test that
-  covers the repeat case (second login, same calendar day) AND a behavioral verify
-  on the running app — green unit tests alone repeatedly failed to keep the
-  check-in bug fixed (re-reported 5× over 10 days, June 2026).
-- **Design is locked → `/design-lock`.** Settled UI directions live in
-  `docs/design-locks.md`. Refine within a lock (name the acceptance criterion you're
-  changing); never silently rebuild a locked feature from scratch.
-- **Session scoping.** Commit after every completed sub-task, not just at the end.
-  Nearing context limits, run `/handoff` proactively (~70% budget) — the snapshot
-  is the only thing that survives an account switch.
+  (show-once-per-day, streaks, idempotent submits) needs a regression test covering the
+  repeat case AND a behavioral verify on the running app.
+- **Design is locked → `/design-lock`.** Settled UI lives in `docs/design-locks.md`;
+  refine within a lock (name the criterion you're changing), never silently rebuild it.
+- **Session scoping.** Commit after every completed sub-task; near context limits run
+  `/handoff` (~70% budget) — the snapshot is the only thing that survives an account switch.
 
-## File structure
+## File map
+
 ```
-tools/          Python tools (WAT execution layer) + the FastAPI app under tools/api/
-workflows/      Markdown SOPs
-frontend/       Next.js app (src/, public/, tests/)
-cases/          Virtual-patient case JSON
-tests/          pytest suite
-docs/           specs, plans, ARCHITECTURE.md, SECURITY.md, notes/
-.tmp/           Disposable scratch (regenerated; gitignored)
-.env            Secrets (gitignored) — see .env.template
+tools/       Python tools (WAT execution) + the FastAPI app under tools/api/
+workflows/   Markdown SOPs
+frontend/    Next.js app (src/, public/, tests/)
+cases/       Virtual-patient case JSON
+tests/       pytest suite
+docs/        specs, plans, ARCHITECTURE.md, SECURITY.md, notes/
+.tmp/        Disposable scratch (gitignored)
+.env         Secrets (gitignored) — see .env.template
 ```
 
 Stay pragmatic. Stay reliable. Keep improving the system.
