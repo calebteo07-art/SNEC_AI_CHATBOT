@@ -5,7 +5,7 @@
  * the new route. `handoff` skips the close — for cases where something else
  * already covered the screen (The Gaze's pupil expansion on login).
  *
- * Promise-based so call-sites (and the audio layer) can sequence against it.
+ * Promise-based so call-sites can sequence against it.
  * Reduced motion ⇒ instant cut, no overlay.
  *
  * App Router port: navigations commit asynchronously, so the cover is held
@@ -23,8 +23,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useFx } from "./MotionProvider";
-import { useAudio } from "./audio/useAudio";
+import { useReducedMotion } from "@/aurora/motion";
 
 export type WipePhase = "idle" | "closing" | "covered" | "opening";
 
@@ -66,8 +65,7 @@ const nextFrames = (n: number) =>
 export function TransitionProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { reducedMotion } = useFx();
-  const { play } = useAudio();
+  const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<WipePhase>("idle");
   const [instant, setInstant] = useState(false);
   const [cover, setCover] = useState<WipeCover>("paper");
@@ -113,7 +111,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         return;
       }
       busyRef.current = true;
-      play("whoosh");
       setCover("paper");
       setInstant(false);
       setPhase("closing");
@@ -128,7 +125,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       setPhase("idle");
       busyRef.current = false;
     },
-    [run, reducedMotion, play, waitForCommit],
+    [run, reducedMotion, waitForCommit],
   );
 
   const handoff = useCallback(
