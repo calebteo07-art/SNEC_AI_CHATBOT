@@ -108,45 +108,6 @@ def get_checklist_by_name(name: str) -> dict | None:
         return None
 
 
-def fetch_checklists(role: str = "") -> list[dict]:
-    """Fetch all checklists for the given role from Supabase.
-
-    Always includes logbook checklists (shared across all roles).
-    OT  → OT + logbook checklists.
-    PSA → PSA + logbook checklists.
-    OA  → all checklists (OT + PSA + logbook).
-    Returns list of {procedure_name, checklist_type, steps, total_steps} dicts.
-    """
-    if not _SUPABASE_ENABLED:
-        return []
-
-    from tools.kb.supabase_client import get_client
-    try:
-        client = get_client()
-        role_upper = (role or "").upper()
-
-        if role_upper == "OT":
-            # OT checklists + shared logbook checklists
-            result = client.table("checklists").select(
-                "procedure_name, checklist_type, steps, total_steps"
-            ).in_("checklist_type", ["OT", "logbook"]).execute()
-        elif role_upper == "PSA":
-            # PSA checklists + shared logbook checklists
-            result = client.table("checklists").select(
-                "procedure_name, checklist_type, steps, total_steps"
-            ).in_("checklist_type", ["PSA", "logbook"]).execute()
-        else:
-            # OA or unknown — return everything
-            result = client.table("checklists").select(
-                "procedure_name, checklist_type, steps, total_steps"
-            ).execute()
-
-        return result.data or []
-    except Exception as exc:
-        print(f"[fetch-checklists-error] {exc}", flush=True)
-        return []
-
-
 if __name__ == "__main__":
     query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "intraocular pressure measurement"
     print(f"Searching KB for: {query!r}\n")
