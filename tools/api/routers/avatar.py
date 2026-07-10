@@ -12,6 +12,7 @@ The instant SVG <Selena> is the always-available fallback, so every path degrade
 gracefully when the bucket/table or a live key is absent.
 """
 import asyncio
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
@@ -27,6 +28,11 @@ from tools.shared.db import get_avatar_image, upsert_avatar_image
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
+
+# Portrait renders happen in a background task whose only prior failure trace was the
+# file-based audit log — lost on Render's ephemeral disk, so prod render failures were
+# invisible. This logger writes to stdout (captured by Render) via the JSON root handler.
+_log = logging.getLogger("eyebot.avatar")
 
 # A pending render older than this is treated as lost (a crashed/evicted task) and re-enqueued.
 _PENDING_TTL_S = 180
@@ -105,7 +111,10 @@ async def _generate_portrait(config: dict, chash: str) -> None:
         url = await asyncio.to_thread(store_portrait, chash, image_bytes)
         await upsert_avatar_image(chash, "ready", url)
     except Exception as exc:
-        log("portrait_gen_failed", feature="avatar", detail=str(exc))
+        # stdout (Render-visible) with traceback so the prod render failure is diagnosable,
+        # plus the best-effort audit log. This is the ONLY place the real reason surfaces.
+        _log.exception("portrait render failed (hash=%s): %s", chash, exc)
+        log("portrait_gen_failed", feature="avatar", detail=f"{type(exc).__name__}: {exc}")
         try:
             await upsert_avatar_image(chash, "failed")
         except Exception:
