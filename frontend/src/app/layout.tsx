@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Outfit, Playfair_Display, Bricolage_Grotesque, Figtree } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Playfair_Display, Bricolage_Grotesque, Manrope } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -45,13 +45,13 @@ const homeDisplay = Bricolage_Grotesque({
   variable: "--font-bricolage-src",
   display: "swap",
 });
-/* Figtree — the Google-Sans / Gemini analog for the Tutor/Chat reading surface. Scoped
-   to `.aurora-chat` via --font-sans (see aurora.css); a within-lock "Mono + Electric"
-   type refinement. Loaded here so the CSS var is available app-wide. */
-const figtree = Figtree({
+/* Manrope — the reading sans for the Tutor/Chat surface. Scoped to `.aurora-chat`
+   via --font-sans (see aurora.css); the "Mono + Electric" accent labels (var(--font-mono))
+   stay JetBrains Mono. Loaded here so the CSS var is available app-wide. */
+const manrope = Manrope({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
-  variable: "--font-figtree-src",
+  variable: "--font-manrope-src",
   display: "swap",
 });
 
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable} ${homeDisplay.variable} ${figtree.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable} ${homeDisplay.variable} ${manrope.variable}`}
       data-motion=""
     >
       <body>
