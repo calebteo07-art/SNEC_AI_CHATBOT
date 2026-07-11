@@ -2557,6 +2557,13 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
   line-height: 1.26; letter-spacing: -.01em; color: #fff; margin: 9px 0 0; max-width: 34ch;
   text-shadow: 0 1px 3px rgba(0,0,0,.26); }
 
+/* Shared entry rise for the option karts (.flash-option: base opacity:0 → forwards) and
+   the setup step (.flash-step: both). This MUST exist — a referenced-but-undefined
+   keyframe is a no-op, so its elements stay pinned to their base state; the missing
+   definition stranded every MCQ answer at opacity:0 → invisible answers = blank card in
+   full motion (2026-07-11). Reduced motion overrides this to a static opacity:1 below. */
+@keyframes flash-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
 /* Option kart-buttons — glossy red racers; ✓ green / ✗ dark-red on lock. */
 .flash-options { display: flex; flex-direction: column; gap: 11px; list-style: none; padding: 20px 28px 4px; margin: 0; }
 .flash-option { display: flex; align-items: center; gap: 15px; width: 100%; text-align: left;
