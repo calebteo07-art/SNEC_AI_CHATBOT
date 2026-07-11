@@ -6,7 +6,7 @@
 
 ## Goal
 
-Five changes to the tutor feature:
+Six changes to the tutor feature — a sleeker, seamless surface:
 
 1. All reading/prose/UI text in the tutor feature uses **Manrope** (mono readout
    labels stay JetBrains Mono).
@@ -16,6 +16,8 @@ Five changes to the tutor feature:
 4. The greeting **name** is a **fast motion gradient**.
 5. **Remove the in-chat greeting** — the thread's first bubble is the user's own
    first message.
+6. The landing mascot becomes a **brand-new dancing Iris** Veo loop — cute, funny,
+   ridiculous, fast — replacing the reused static `iris.png`.
 
 ## Decisions (locked with the user, 2026-07-11)
 
@@ -25,6 +27,20 @@ Five changes to the tutor feature:
 - **Font scope = keep mono labels.** Manrope replaces the tutor's reading sans
   (currently Figtree); the small monospace readout labels (JetBrains Mono, electric
   indigo — the "Live Wire" accent) are preserved.
+- **Landing mascot = a brand-new, tutor-only dancing Iris Veo loop.** Distinct from
+  Home's calm gentle-bob loop: energetic, cute, funny, ridiculous, *fast* dance.
+  Same character (Iris/iris.png, image-to-video — honors the brand lock), same
+  ~216px slot. Paid Veo render, go-ahead given.
+- **Greeting sub-line stays** (the rotating learning-humour line under the name).
+
+## Workstreams
+
+- **A — Core refresh (free, ships first):** fonts, real localStorage sessions,
+  remove in-chat greeting, motion-gradient name, sizing. No paid calls; fully
+  testable keyless. Lands and verifies green on its own.
+- **B — Dancing Iris mascot (paid, reviewed follow-on):** scaffold the `<video>`
+  wiring + fallback (green), adapt the Veo tool, run the paid `--generate`, review,
+  `--install`. Sequenced after A so the free work isn't blocked on video gen.
 
 ## Current state (verified 2026-07-11)
 
@@ -152,6 +168,37 @@ export function recentSessions(sessions, n = 3): StoredSession[] // slice newest
   `minmax` + gap), `.tl-card` padding and type scale.
 - Exact values tuned against harness screenshots; the above are starting points.
 
+### 6. Dancing Iris mascot — Veo loop (Workstream B, paid)
+
+Replace the static `.tl-iris` `<img src="/brand/iris.png">` on the landing with a
+brand-new, tutor-only **dancing Iris** video loop — energetic, cute, funny,
+ridiculous, fast — distinct from Home's calm greeting loop.
+
+- **Generation tool:** reuse the proven Veo machinery in
+  `tools/media/generate_greeting_loop.py` (probe→estimate→generate→install;
+  `generate_videos` with `last_frame == first_frame` for a seamless loop; poll +
+  download + install; refuses in `MOCK_MODE`; go-ahead-gated). Add a **tutor
+  variant** — new config `tools/media/tutor_mascot.py` (`PROMPT`, `IMAGE_REF =
+  iris.png`, `CANDIDATE_MODELS` — same Veo ids, confirmed live via `--probe`) and a
+  `generate_tutor_mascot.py` (or a `--variant tutor` flag on the existing tool)
+  that builds a **square 1:1** conditioning frame with the mascot centered on a
+  subtle spotlight-disc background blended to the tutor surface (not Home's
+  landscape warm gradient), and installs to
+  `frontend/public/media/loops/tutor-mascot.mp4` + `.jpg` poster.
+- **Prompt intent:** one-eyed teal-and-cream Iris doing a goofy, bouncy,
+  squash-and-stretch, spinning, *fast* dance; exaggerated cartoon motion; final
+  frame identical to first for a perfect loop; no camera movement, no text, no
+  extra characters, stays in frame.
+- **Frontend:** `.tl-iris` becomes `<video autoplay loop muted playsInline
+  poster="/brand/iris.png">` inside a rounded stage (`.tl-iriswrap`), ~216px. If the
+  video is absent (keyless/harness) or `prefers-reduced-motion: reduce`, it shows
+  the `iris.png` poster (frozen) — the landing never depends on the video.
+- **Placeholder-first:** ship the wiring with `iris.png` as poster/fallback (green,
+  keyless) before any paid call; then run `--probe`/`--estimate`/`--generate`,
+  review the clip, `--install`.
+- **Perf:** short muted loop, square, compressed; ~216px display so keep the source
+  modest. Autoplay muted + `playsInline` for mobile.
+
 ## Data flow
 
 ```
@@ -191,6 +238,10 @@ purely client-side and additive.
   card reopens to the full thread. Pre-existing unrelated red at the flashcards D2
   back-face assert is out of scope — verify tutor assertions pass and nothing else
   regresses. Run against a warm standalone server per the harness recipe.
+- **Mascot (Workstream B):** the `<video>` must degrade to the `iris.png` poster
+  when the clip is absent (keyless harness) or under reduced motion — assert the
+  poster/fallback renders so the harness stays green without the paid asset. Verify
+  the installed loop plays + loops seamlessly by eye before shipping B.
 - **ship-check:** the "real recent sessions + reopen restores full thread" state
   invariant is covered by the reopen round-trip unit test plus the harness reopen
   check.
@@ -206,11 +257,20 @@ purely client-side and additive.
 | `frontend/src/aurora/screens/Tutor.tsx` | Remove `INITIAL_MESSAGES`; active session id; persist on send + stream-end; landing reads localStorage; reopen restores thread |
 | `frontend/src/aurora/components/TutorLanding.tsx` | `slice(0,3)`; real card data; remove `STARTERS` fallback |
 | `frontend/tests/aurora_assert.mjs` | Manrope gate; drop seeded-bubble/STARTERS asserts; empty-recent + reopen checks |
-| `docs/design-locks.md` | Refine tutor lock: reading font → Manrope, motion-gradient name, real-sessions behavior |
+| `docs/design-locks.md` | Refine tutor lock: reading font → Manrope, motion-gradient name, real-sessions behavior, dancing mascot |
+| **B** `frontend/src/aurora/components/TutorLanding.tsx` | `.tl-iris` `<img>` → `<video>` (poster iris.png) in a rounded stage |
+| **B** `frontend/src/aurora/aurora.css` | `.tl-iriswrap` rounded spotlight stage; `.tl-iris` video sizing; reduced-motion poster freeze |
+| **B** `tools/media/tutor_mascot.py` | **New** Veo config: dance prompt, iris.png ref, square frame |
+| **B** `tools/media/generate_tutor_mascot.py` (or `--variant tutor`) | **New/extended** square frame builder + generate/install to `media/loops/tutor-mascot.*` |
+| **B** `frontend/public/media/loops/tutor-mascot.{mp4,jpg}` | **New** installed clip + poster (after paid gen) |
 
 ## Out of scope
 
 - Cross-device / server-side session sync (localStorage per the decision).
 - Changes to `/api/chat`, `/api/progress`, `/api/end-session`, or `chat_sessions`.
 - The rotating landing-greeting humour engine (`tutorGreeting.ts`) — unchanged.
+- Home's greeting Veo loop / `GreetingHero` — untouched; the tutor gets its own
+  separate, more energetic loop.
+- A brand-new mascot *character* — the dance animates the existing Iris (iris.png)
+  per the brand lock; it is a new *loop*, not a new character.
 - The pre-existing unrelated flashcards D2 harness red.
