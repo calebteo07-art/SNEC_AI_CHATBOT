@@ -115,7 +115,7 @@ under a charging electric ring + blink, OCT trace, charging streaming-bubble bor
 scan-sweep (removed, ricoe A1). Reply-bubble avatar = the default Selena mascot, never a
 student's customised avatar (ricoe A3).
 - **Greeting landing (ricoe A2)**: `/chat` opens on `TutorLanding` (the empty state) —
-  time-of-day hello with a Gemini-gradient name, an ever-changing cheeky sub, a big
+  an ever-changing, learning-humour hello opener with a Gemini-gradient name and cheeky sub, a big
   centred prompt (reuses `Composer`), and the student's real recent sessions ("Pick up
   where you left off" cards from `progress.sessions`). Asking / resuming cross-fades
   (`phase: landing → leaving → chat`, ~460ms) into the thread; the shared constellation
