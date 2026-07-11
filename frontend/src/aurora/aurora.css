@@ -1419,9 +1419,15 @@ html[data-motion="reduce"] .aurora-grade { animation: none !important; }
   --chat-ink: var(--mono-ink);
   --chat-ink-dim: var(--mono-ink-2);
   --chat-line: var(--mono-line);
+  /* Reading sans on the Tutor/Chat surface = Figtree (Google-Sans / Gemini analog),
+     scoped here so the "Mono + Electric" accent labels (var(--font-mono)) are untouched.
+     .tl-hello inherits, .tl-sub / .aurora-chat-name set no family, .aurora-composer-field
+     uses var(--font-sans) — all resolve to Figtree under this override. */
+  --font-sans: var(--font-figtree-src), system-ui, sans-serif;
   position: relative;
   display: flex; flex-direction: column; height: 100%; min-height: 0;
   color: var(--mono-ink);
+  font-family: var(--font-sans);
   background: linear-gradient(180deg, #F2F0E8 0%, #EBE9E0 100%);
 }
 

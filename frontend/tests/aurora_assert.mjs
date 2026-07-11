@@ -211,6 +211,10 @@ const irisSrc = (await iris.getAttribute("src")) ?? "";
 if (!/\/brand\/iris\.png/.test(irisSrc)) { console.error(`FAIL: Tutor mascot is not the homepage iris.png (src=${irisSrc})`); process.exit(1); }
 const waveAnim = await iris.evaluate((el) => getComputedStyle(el).animationName).catch(() => "");
 if (waveAnim !== "tl-iris-wave") { console.error(`FAIL: Selena not waving (animationName=${waveAnim})`); process.exit(1); }
+// Tutor reading sans = Figtree (Google-Sans / Gemini analog), scoped to .aurora-chat.
+const tlFont = await np.locator('[data-testid="tutor-landing"] .tl-hello')
+  .evaluate((el) => getComputedStyle(el).fontFamily).catch(() => "");
+if (!/figtree/i.test(tlFont)) { console.error(`FAIL: Tutor hello not Figtree (fontFamily=${tlFont})`); process.exit(1); }
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
 console.log("PASS: Tutor greeting landing — cosmic wash, prompt, full EyeBot + SNEC lockup, waving Selena, one h1");
