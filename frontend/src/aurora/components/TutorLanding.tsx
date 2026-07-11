@@ -4,6 +4,7 @@
    the student's real recent tutor conversations (localStorage) to reopen. Submitting or
    reopening a session cross-fades into the live chat thread — the constellation canvas
    behind everything is shared, so the transition reads as one continuous surface. */
+import { useEffect, useRef } from "react";
 import { pickTutorGreeting } from "@/aurora/lib/tutorGreeting";
 import type { StoredSession } from "@/aurora/lib/tutorSessions";
 import Link from "next/link";
@@ -44,6 +45,16 @@ export function TutorLanding({
   const greeting = pickTutorGreeting(openerSeed, subSeed);
   const recent = sessions.slice(0, 3);
 
+  const vidRef = useRef<HTMLVideoElement>(null);
+  // Autoplay the dance only when motion is allowed; otherwise the poster (iris.png) shows.
+  useEffect(() => {
+    const v = vidRef.current;
+    if (!v) return;
+    const reduce = typeof window !== "undefined"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce) void v.play().catch(() => {});
+  }, []);
+
   return (
     <div className="tutor-landing" data-testid="tutor-landing" data-leaving={leaving || undefined}>
       <div className="tl-top">
@@ -56,12 +67,14 @@ export function TutorLanding({
       </div>
 
       <div className="tl-hero">
-        {/* Selena greets — the SAME iris.png mascot as Home (default look only; ricoe A3).
-            Workstream B swaps this <img> for the dancing Veo loop. */}
         <div className="tl-iriswrap" aria-hidden>
           <span className="tl-irisfloor" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="tl-iris" src="/brand/iris.png" alt="" width={216} height={216} />
+          {/* Brand-new dancing Iris (Veo loop). iris.png is the poster + fallback, so the
+              landing renders identically with no clip (keyless/harness) or reduced motion. */}
+          <video ref={vidRef} className="tl-iris" poster="/brand/iris.png"
+            loop muted playsInline preload="metadata" width={216} height={216}>
+            <source src="/media/loops/tutor-mascot.mp4" type="video/mp4" />
+          </video>
         </div>
         <h1 className="tl-hello">{greeting.before}<em>{firstName}</em>{greeting.after}</h1>
         <p className="tl-sub">{greeting.sub}</p>
