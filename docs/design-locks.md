@@ -38,42 +38,48 @@ Kept verbatim from the original app (explicit user preference). Do not restyle.
 mark** (refreshed with the rest of the app) — still mono ink on the light card, no colour
 or brand chrome added, so "verbatim/minimal" holds. The photoreal Living-Eye hero is unchanged.
 
-## Flashcards — LOCKED 2026-06-30 · re-themed "ivory & ink" 2026-07-06 (ricoe D2)
-**Theme (ricoe D2, refine 2026-07-06 — supersedes the rejected purple B6)**: the flashcards
-world is **"ivory & ink"** — a **warm greige/paper canvas** (`--flash-canvas` #ECE6DA,
-deepened toward the edges for contrast) carrying a **crisp bright-white study card**
-(`--flash-card` #FFFFFF) with deep-ink text and subtle elevation, so the card pops off the
-canvas. The **reveal flips the card to a deep-ink back face** (`--flash-ink` #141416, light
-text) — white while you read/answer, deep ink for the answer moment. **Topic intro** uses the
-white study-card language; **results** uses the deep-ink reveal language. The **accent is a
-*moving* Gemini gradient** (blue→indigo→magenta, animated via `aurora-flow` — not flat indigo)
-on the card hairline / progress / keylines. Canvas chrome (Exit pill, mute, empty/loading
-copy, fan controls, engravings, Brownian blooms) is warm-ink / gemini-toned for the greige
-surface; CoBrand uses its **light** variant. Surfaces consume the RICOE v2 semantic tokens
-(`--flash-canvas`/`--flash-card`/`--flash-ink` in `tokens.css`), not hardcoded colours.
-**Acceptance criteria when refining**: canvas = warm greige; study-card front = bright white
-with deep-ink legible text; reveal/results = deep ink with legible light text; accent = moving
-Gemini gradient; verdicts bright green `#16a34a` / red `#e22030`; WCAG-legible on every surface.
-- **Selection**: single-screen topic fan carousel, continuous "river" flow (single rAF
-  loop, seamless wrap, static under reduced motion), per-topic Nano Banana images, no
-  difficulty picker, fixed decks, no scroll (dvh-sized). Fan cards remain dark photo
-  tiles with white captions (they sit on their own images); controls are warm-ink on greige.
-- **Study**: "Console" instant-tap MCQ on the **bright-white** study card (front face —
-  deep-ink text, animated Gemini hairline), Brownian gemini-toned blooms on the greige
-  canvas background, engravings etched in the card perimeter. Reveal = **Charge → Flip →
-  Payoff** (LiquidLoading ChargeBeat, 3D flip to a **deep-ink** full-bleed explanation,
-  combo/XP payoff). Per-topic hue band tuned per face (darker on white, lighter on ink);
-  verdicts bright green `#16a34a` / intense red `#e22030`; Next button centered, solid indigo.
-- **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1
-  — "Up next", the gradient topic name, a one-line blurb (`TOPIC_BLURBS`), a
-  `N cards · mixed difficulty · instant scoring` meta and a Begin CTA — in the study
-  card's bright-white language (gemini-gradient topic name). The deck loads in the
-  background; tutor-handoff and `?mode=review` flows skip it.
-- **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-
-  phrased `ComboBurst` slam over the stage (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 /
-  GODLIKE 10+) with the ×N, a shockwave ring and the streak count; `pointer-events:none`,
-  self-dismissing, keeps rewarding every 2-in-a-row past the ×4 cap. Phrase + multiplier
-  come from `comboCallout`/`comboMultiplier` so they never disagree.
+## Flashcards — LOCKED 2026-06-30 · re-themed "Grand Prix" (Mario Kart) 2026-07-11
+**Theme (2026-07-11 — supersedes "ivory & ink" ricoe D2, user-directed)**: the flashcards
+world is **"Grand Prix"** — clinical active-recall reskinned as a Mario-Kart race on a
+**vibrant, high-saturation** palette (red `--mk-red` #ff2a22, star-blue #16b3f2, luigi-green
+#24d24d, coin-gold #ffc400, peach #ff6fb0; tokens scoped on `.flash-root` in `aurora.css`).
+**Selection** is a bright circuit-sky room; the topics are **kart "racer" cards** (the Nano
+Banana topic photo framed in the topic-hue kart body — race number, glossy windscreen, wheels)
+flying at you on a **3D COVERFLOW starting grid** that leans the camera in with speed (`--vel`
+→ perspective + speed-lines). **Activity** is an **on-track night** so the **dark graphite
+cockpit-dashboard card** pops: both faces are graphite (front #1b2029 = where you answer, back
+#14171d = the boost payoff + Findings), each with an animated neon topic-hue rim. Tap an answer
+→ the **boost meter** charges → the card **barrel-rolls on a boost** (banana-spins on a miss)
+and flips to the payoff. **Verdicts stay ✓ green `#16a34a` / ✗ red `#e22030` (icon + colour,
+colour-blind-safe)**; a correct reveal cycles a neon "Rainbow Road" rim.
+**Acceptance criteria when refining**: selection = coverflow kart grid on a bright sky; study
+card = dark graphite cockpit on BOTH faces; **carousel motion (topic select) + real 3D flip
+(activity) are mandatory and never regress**; verdicts icon+colour; everything **freezes hard
+under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip); WCAG-legible.
+- **Selection**: the coverflow starting grid (`CardFanCarousel`) — continuous auto-roll, drag/
+  flick to spin, arrows nudge, dots, speed-coupled FOV + speed-lines; **static, fully-clickable
+  parked grid under reduced motion** (so automated clicks land). Per-topic Nano Banana photos
+  (SG stock-photo look, plain solid-blue scrubs, no institutional branding — see the topic-art
+  contract below), kart-framed with race number + label plate. No difficulty picker, fixed
+  10-card decks, no scroll (dvh-sized).
+- **Study**: instant-tap MCQ on the dark cockpit dashboard (glossy red kart-button options,
+  ✓/✗ lock). Reveal = **Charge → Barrel-roll / Banana Flip → Payoff** (LiquidLoading ChargeBeat,
+  3D flip to the graphite back face, boost flash, BOOST!/SPIN OUT verdict + coins + combo). On
+  the first card of a deck, a full-motion **3·2·1·GO start-light** sequence (`GridLights`,
+  `pointer-events:none`, renders nothing under reduced motion). Per-topic hue rim; green/red verdicts.
+- **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the
+  grid", the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N laps · mixed difficulty ·
+  instant scoring` meta and a "Start your engines" CTA — in the dark dashboard language. Deck
+  loads in the background; tutor-handoff and `?mode=review` flows skip it.
+- **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-phrased
+  `ComboBurst` slam (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 / GODLIKE 10+) with the ×N, a
+  shockwave ring and the streak count; `pointer-events:none`, self-dismissing, keeps rewarding
+  every 2-in-a-row past the ×4 cap. Phrase + multiplier from `comboCallout`/`comboMultiplier`.
+- **Topic-art contract** (`tools/media/generate_flashcards_topics.py`, Nano Banana **flash**
+  `gemini-3.1-flash-image`, 3:4): bright professional **stock-photo** look; any people reflect
+  **Singapore's** multi-ethnic mix; any scrubs are **plain solid blue — no trim/piping/logo**;
+  **no institutional (SNEC/SingHealth) branding, badges or lanyards**; framed to keep faces
+  minimal (hands / over-the-shoulder / from behind). One image per `topic_key` + `mixed`.
 - **Out of scope for refinements**: scoring model (deterministic, no AI in study loop),
   two-pool role content model {OA=PSA}+{OT}, 50-cards-per-topic mandate.
 

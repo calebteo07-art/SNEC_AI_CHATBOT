@@ -20,6 +20,7 @@ import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
 import { TopicIntro } from "@/aurora/components/flashcards/TopicIntro";
 import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
+import { GridLights } from "@/aurora/components/flashcards/GridLights";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import LiquidLoading from "@/components/ui/liquid-loader";
@@ -246,7 +247,7 @@ export function Flashcards() {
     );
   }
 
-  const advanceLabel = idx < total - 1 ? "Next card →" : "See results →";
+  const advanceLabel = idx < total - 1 ? "Next lap →" : "To the podium →";
 
   return (
     <FlashShell onExit={exit} topicHue={stageHue} engraved>
@@ -256,6 +257,7 @@ export function Flashcards() {
         reasonNote={reasonNotesRef.current[card.id] ?? null} combo={combo}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
+      {idx === 0 && <GridLights key={`gl-${deckEpoch}`} />}
       {burst && <ComboBurst key={burst.key} combo={burst.combo} onDone={() => setBurst(null)} />}
     </FlashShell>
   );

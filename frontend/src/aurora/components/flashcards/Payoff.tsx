@@ -54,8 +54,11 @@ export function Payoff({ correct, combo, basePoints }: { correct: boolean; combo
     <div className={`flash-payoff ${correct ? "is-right" : "is-wrong"}`} data-testid="flash-payoff">
       <canvas ref={canvas} className="flash-payoff-fx" aria-hidden />
       <div className="flash-payoff-row">
-        <p className="flash-payoff-verdict">{correct ? "Correct" : "Review this"}</p>
-        {mult > 1 && <span className="flash-combo" data-testid="flash-combo">combo ×{mult} · {combo} streak</span>}
+        <p className="flash-payoff-verdict">
+          <span className="flash-payoff-badge" aria-hidden>{correct ? "✓" : "✕"}</span>
+          {correct ? "BOOST!" : "SPIN OUT"}
+        </p>
+        {mult > 1 && <span className="flash-combo" data-testid="flash-combo">×{mult} combo · {combo} in a row</span>}
         <span ref={ref} className="flash-payoff-points">{display}</span>
       </div>
     </div>
