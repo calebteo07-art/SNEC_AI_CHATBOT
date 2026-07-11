@@ -42,47 +42,40 @@ def run_probe() -> int:
 
 
 def _build_frame() -> Path:
-    """Center the transparent iris.png on a soft ivory spotlight (matches .aurora-chat),
-    16:9 with the mascot CENTERED and generous margin so a square center-crop always
-    contains the dance. This is the conditioning first/last frame (and the poster)."""
-    from PIL import Image, ImageFilter
+    """Center the transparent iris.png on a FLAT tutor-ivory background that matches the
+    .aurora-chat page gradient (#F2F0E8 -> #EBE9E0). No spotlight, no drop shadow — the
+    frontend feathers the video edges to transparent (radial mask) so the mascot melts
+    into the page with no visible rectangle. Mascot is CENTERED and small enough that a
+    square center-crop + the feather always contain the full dance. First/last frame."""
+    from PIL import Image
 
     W, H = 1280, 720
-    canvas = (0xF2, 0xF0, 0xE8)   # tutor ivory (.aurora-chat gradient top)
-    edge = (0xEB, 0xE9, 0xE0)     # tutor ivory (gradient bottom)
+    top = (0xF2, 0xF0, 0xE8)      # tutor ivory (.aurora-chat gradient top — behind the mascot)
+    bottom = (0xEB, 0xE9, 0xE0)   # tutor ivory (gradient bottom)
 
     def _mix(a, b, t):
         return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
-    GW, GH = 192, 108
-    cx, cy = 0.5 * GW, 0.42 * GH      # spotlight centred, a touch high
-    rx, ry = 0.62 * GW, 0.72 * GH
-    small = Image.new("RGB", (GW, GH))
+    # Flat, page-matching vertical wash (nearly uniform over this slice) — no spotlight.
+    small = Image.new("RGB", (2, H))
     sp = small.load()
-    for y in range(GH):
-        for x in range(GW):
-            d = (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2) ** 0.5
-            sp[x, y] = _mix(canvas, edge, min(1.0, d))
+    for y in range(H):
+        sp[0, y] = sp[1, y] = _mix(top, bottom, y / (H - 1))
     bg = small.resize((W, H), Image.LANCZOS).convert("RGBA")
 
     mascot = Image.open(IMAGE_REF).convert("RGBA")
-    target_h = int(H * 0.62)
+    target_h = int(H * 0.62)          # a touch bigger, anchored LOW to deny Veo room for legs
     scale = target_h / mascot.height
     m = mascot.resize((round(mascot.width * scale), target_h), Image.LANCZOS)
     mx = W // 2 - m.width // 2
-    my = int(H * 0.52) - m.height // 2
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    sd = Image.new("RGBA", (int(m.width * 0.8), 48), (70, 40, 22, 80))
-    shadow.paste(sd, (mx + (m.width - sd.width) // 2, my + m.height - 22), sd)
-    shadow = shadow.filter(ImageFilter.GaussianBlur(15))
-    bg.alpha_composite(shadow)
+    my = int(H * 0.86) - m.height     # round bottom near the frame floor, headroom for the bounce
     bg.alpha_composite(m, (mx, my))
 
     TMP.mkdir(parents=True, exist_ok=True)
     frame = TMP / "tutor-frame.jpg"
     bg.convert("RGB").save(frame, "JPEG", quality=92)
-    bg.convert("RGB").save(TMP / "tutor-mascot.jpg", "JPEG", quality=88)  # poster
-    print(f"  built conditioning frame {frame} ({W}x{H}, mascot centred)")
+    bg.convert("RGB").save(TMP / "tutor-mascot.jpg", "JPEG", quality=88)  # poster (review only)
+    print(f"  built conditioning frame {frame} ({W}x{H}, flat ivory, mascot centred)")
     return frame
 
 
@@ -98,7 +91,10 @@ def run_generate(model: str) -> int:
     cfg = dict(
         number_of_videos=1,
         aspect_ratio=ASPECT,
-        negative_prompt="text, letters, watermark, logo, extra characters, camera movement, "
+        negative_prompt="legs, feet, thin legs, spring legs, coiled legs, walking, running, "
+        "standing on legs, humanoid body, teal body, blue body, green body, recolored body, "
+        "color shift, two-tone body, extra limbs, long limbs, spinning around, back of body "
+        "facing camera, text, letters, watermark, logo, extra characters, camera movement, "
         "zoom, pan, morphing, distortion, flicker, mascot leaving frame",
     )
     print(f"submitting {model} (image-to-video, seamless first==last)…")
