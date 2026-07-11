@@ -319,30 +319,28 @@ if (await np.locator('[data-testid="flash-advance"]').isEnabled()) {
 }
 console.log("PASS: flashcards — plain tap flips to a full-bleed payoff; Next is settle-gated");
 
-// ── RICOE v2 D2: flashcards is "ivory & ink" (supersedes the rejected purple B6). The
-// study-card FRONT is bright white (--flash-card); the reveal BACK now flips to the SAME
-// bright white (2026-07-10 — the feedback face matches the question face); the canvas is
-// warm greige — never the old #EDE6F8 lavender.
+// ── Flashcards is "GRAND PRIX" (Mario Kart, 2026-07-11 — supersedes "ivory & ink").
+// The cockpit-dashboard card is a DARK graphite on BOTH faces (front = where you answer,
+// back = the boost payoff + Findings), so the neon topic rim + kart buttons pop. Assert
+// both faces are a genuinely dark surface (never the old bright-white study card).
 const d2 = await np.evaluate(() => {
+  const lum = (c) => { const m = /rgb\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ""); return m ? (+m[1] * 0.299 + +m[2] * 0.587 + +m[3] * 0.114) : null; };
   const front = document.querySelector(".flash-card .flash-face.is-front");
   const back = document.querySelector(".flash-card .flash-face.is-back");
-  const root = document.querySelector(".flash-root");
   return {
     front: front ? getComputedStyle(front).backgroundColor : "",
     back: back ? getComputedStyle(back).backgroundColor : "",
-    rootImg: root ? getComputedStyle(root).backgroundImage : "",
+    frontLum: front ? lum(getComputedStyle(front).backgroundColor) : null,
+    backLum: back ? lum(getComputedStyle(back).backgroundColor) : null,
   };
 });
-if (d2.front !== "rgb(255, 255, 255)") {
-  console.error(`FAIL: D2 study-card front face must be bright white (got '${d2.front}')`); process.exit(1);
+if (d2.frontLum === null || d2.frontLum > 90) {
+  console.error(`FAIL: Grand Prix dashboard front face must be a dark graphite (got '${d2.front}')`); process.exit(1);
 }
-if (d2.back !== "rgb(255, 255, 255)") {
-  console.error(`FAIL: reveal back face must be bright white to match the study face (got '${d2.back}')`); process.exit(1);
+if (d2.backLum === null || d2.backLum > 90) {
+  console.error(`FAIL: Grand Prix reveal back face must be a dark graphite (got '${d2.back}')`); process.exit(1);
 }
-if (/237,\s*230,\s*248/.test(d2.rootImg)) {
-  console.error("FAIL: D2 canvas is still the purple B6 lavender (#EDE6F8)"); process.exit(1);
-}
-console.log("PASS: flashcards — ivory & ink (white study card, white reveal matching the front, greige canvas)");
+console.log("PASS: flashcards — Grand Prix dark cockpit dashboard (front + reveal both graphite)");
 
 await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 

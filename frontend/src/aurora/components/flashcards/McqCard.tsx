@@ -154,6 +154,7 @@ export function McqCard(p: Props) {
   if (card.freeText) {
     return (
       <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+        <div className="flash-lift">
         <div className="flash-flip">
           <div className="flash-face is-front">
             <div className="flash-cardin">
@@ -167,6 +168,8 @@ export function McqCard(p: Props) {
           </div>
           {backFace}
         </div>
+        </div>
+        <span className="flash-boost" aria-hidden />
         {charging && <ChargeBeat onComplete={onCharged} />}
       </div>
     );
@@ -174,6 +177,7 @@ export function McqCard(p: Props) {
 
   return (
     <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+      <div className={`flash-lift${revealed ? (verdict ? " is-boost" : " is-spin") : ""}`}>
       <div className="flash-flip">
         <div className="flash-face is-front">
           <div className="flash-cardin">
@@ -241,6 +245,8 @@ export function McqCard(p: Props) {
         </div>
         {backFace}
       </div>
+      </div>
+      <span className={`flash-boost${revealed && verdict ? " is-pop" : ""}`} aria-hidden />
       {charging && <ChargeBeat onComplete={onCharged} />}
     </div>
   );

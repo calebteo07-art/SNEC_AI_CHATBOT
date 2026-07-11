@@ -40,18 +40,25 @@ from tools.media.optimize_topic_images import optimize_image_bytes  # noqa: E402
 OUT_DIR = PROJECT_ROOT / "frontend" / "public" / "media" / "flashcards" / "topics"
 
 STYLE = (
-    "Ultra-realistic, photorealistic clinical photograph for premium "
-    "medical education. Soft natural lighting, shallow depth of field, "
-    "tack-sharp focus on the subject, portrait orientation, gallery quality."
+    "Bright, appealing professional stock photograph. Clean natural lighting, "
+    "shallow depth of field, tack-sharp focus on the subject, vivid but "
+    "true-to-life colour, polished modern editorial stock-photography look, "
+    "portrait orientation."
 )
 NEG = (
     "Absolutely no text, no letters, no numbers, no labels, no arrows, no "
-    "measurement overlays, no on-screen readouts, no UI elements, no watermark, "
-    "no logos."
+    "measurement overlays, no on-screen readouts, no UI elements, no watermark. "
+    "No logos or brand marks of any kind. No hospital, clinic or company "
+    "branding. No name badges, no ID cards, no logo lanyards. Any scrubs must be "
+    "plain solid blue with no coloured trim, no piping and no contrast collar."
 )
 DRESS = (
-    "Authentic Singapore eye-clinic setting; any staff wear SingHealth blue "
-    "scrubs with orange trim."
+    "Set in Singapore, with people reflecting Singapore's multi-ethnic mix "
+    "(Chinese, Malay, Indian). Any clinical staff wear plain solid blue scrubs "
+    "-- one flat blue, with no trim, no piping, no contrast collar, no logo, no "
+    "name badge and no lanyard. Compose to keep faces minimal: favour hands, "
+    "instruments, and over-the-shoulder or from-behind angles; any visible face "
+    "stays incidental and softly out of focus."
 )
 
 # Subject phrase per topic_key. Concrete topics depict the eye/instrument; the
