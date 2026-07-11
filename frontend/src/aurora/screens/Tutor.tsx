@@ -25,9 +25,6 @@ interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
 type Message = AIMessage | UserMessage;
 
-const INITIAL_MESSAGES: Message[] = [
-  { type: "ai", id: "1", content: "I'm here whenever you're ready. What would you like to think through today?" },
-];
 const FALLBACK_CONTENT = "I'm having trouble reaching the service right now — please try again in a moment.";
 const SUGGESTIONS = [
   "Explain slit-lamp technique",
@@ -38,7 +35,7 @@ const SUGGESTIONS = [
 ];
 
 export function Tutor() {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
