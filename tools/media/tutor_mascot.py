@@ -14,13 +14,19 @@ ROOT = Path(__file__).resolve().parents[2]
 IMAGE_REF = ROOT / "frontend" / "public" / "brand" / "iris.png"
 
 PROMPT = (
-    "Seamless looping animation of this one-eyed teal-and-cream EyeBot mascot doing a "
-    "goofy, adorable, ridiculous FAST little dance, centered in frame: it bounces and "
-    "wiggles with springy squash-and-stretch, does a quick spin and a playful bop, its "
-    "single eye blinking cheekily — exaggerated bouncy cartoon energy, high tempo, always "
-    "staying centered and fully in frame. The final frame is identical to the first for a "
-    "perfect loop. Soft warm studio lighting on a calm ivory spotlight background. No "
-    "camera movement, no zoom, no pan, no text, no extra characters."
+    "Seamless looping animation of this one-eyed peachy-cream EyeBot mascot — a round, LEGLESS "
+    "jelly-ball character — bouncing and squishing in place with fast, springy, ridiculous "
+    "cartoon energy, staying centered and facing the camera the whole time: its whole round "
+    "body springs straight up and down, squashing flat when it lands and stretching tall when "
+    "it leaps, jiggling and wobbling side to side like a happy water balloon, while its two "
+    "tiny stubby arm-nubs wiggle and its single big blue eye blinks and darts around cheekily. "
+    "CRITICAL: it is a round ball-shaped blob with a smooth round bottom and absolutely NO "
+    "legs, NO feet, and NO thin limbs — it never grows legs, it bounces as one solid round "
+    "body. Its entire body stays the exact same soft peachy-cream color shown; never recolor "
+    "it, never turn it teal or blue. High tempo, exaggerated squash-and-stretch, adorable and "
+    "funny, always centered and fully in frame. The final frame is identical to the first for "
+    "a perfect loop. Soft warm studio lighting on a flat calm ivory background. No camera "
+    "movement, no zoom, no pan, no text, no extra characters."
 )
 
 # candidate model ids to probe, best-first (confirm live before spending)

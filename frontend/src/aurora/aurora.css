@@ -1609,14 +1609,16 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
   padding: clamp(14px, 5vh, 60px) 0 20px; }
 /* Iris greeter stage — holds the dancing-Iris <video> (see .tl-iris below); the iris.png
    poster shows under reduced motion / with no clip. */
-.tl-iriswrap { position: relative; display: flex; align-items: flex-end; justify-content: center;
+.tl-iriswrap { position: relative; display: flex; align-items: center; justify-content: center;
   width: 216px; height: 216px; margin-bottom: clamp(2px, 1.4vh, 12px); }
-/* Dancing Iris video sits in a soft rounded "stage" (the Veo clip bakes an ivory spotlight,
-   so this disc blends into the tutor surface). object-fit: cover center-crops whatever
-   aspect the clip ships at. iris.png poster shows with no clip / under reduced motion. */
-.tl-iris { position: relative; display: block; width: 216px; height: 216px;
-  border-radius: 32px; overflow: hidden; object-fit: cover; object-position: 50% 50%;
-  background: #F2F0E8; }
+/* The Veo clip bakes a FLAT tutor-ivory background matching the page, and we feather the
+   video's edges to transparent with a radial mask — so there's no rounded-box seam, just
+   the dancer with a soft ivory halo that dissolves into the tutor surface (reads as one
+   layer). object-fit: cover center-crops the 16:9 clip to the square; iris.png (transparent)
+   is the poster and shows with no clip / under reduced motion. */
+.tl-iris { display: block; width: 216px; height: 216px; object-fit: cover; object-position: 50% 48%;
+  -webkit-mask-image: radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%);
+  mask-image: radial-gradient(closest-side at 50% 50%, #000 72%, transparent 100%); }
 .tl-hello { font-family: inherit; font-size: clamp(40px, 6.2vw, 74px); font-weight: 700; letter-spacing: -0.03em;
   line-height: 1.04; margin: 0; color: var(--mono-ink); }
 .tl-hello em { font-style: normal;
