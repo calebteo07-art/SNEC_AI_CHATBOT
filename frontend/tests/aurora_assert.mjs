@@ -300,12 +300,30 @@ if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
 console.log("PASS: flashcards — FULL-MOTION topic tap opens the intro (stage-resolved pick; ricoe B5)");
+// Enter the study deck in FULL MOTION (the real user path) and assert the MCQ option
+// karts actually PAINT. Regression (2026-07-11 "blank card after a topic pick"): a
+// referenced-but-undefined @keyframes flash-rise left .flash-option stranded at its base
+// opacity:0 in full motion, so every answer was invisible — the card body read as blank.
+// Reduced motion HID the bug (it force-sets .flash-option opacity:1), and the harness only
+// ever .click()ed an option (which works even at opacity:0) under reduced motion — so it
+// never caught it. Assert real paint here, motion ON, BEFORE collapsing motion below.
+await np.locator('[data-testid="flash-intro-begin"]').click();
+await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
+try {
+  await np.waitForFunction(() => {
+    const els = [...document.querySelectorAll('[data-testid="flash-option"]')];
+    return els.length >= 2 && els.every((el) => parseFloat(getComputedStyle(el).opacity) > 0.9);
+  }, { timeout: 6000 });
+} catch {
+  const ops = await np.evaluate(() => [...document.querySelectorAll('[data-testid="flash-option"]')].map((el) => getComputedStyle(el).opacity));
+  console.error(`FAIL: flashcards MCQ option karts never painted in FULL motion (opacities ${JSON.stringify(ops)}) — invisible answers = blank card`); process.exit(1);
+}
+console.log("PASS: flashcards — MCQ option karts paint (opacity→1) in FULL motion, not invisible");
+
 // Now collapse motion for the deterministic study charge/flip path below: a single-answer
 // tap locks an INSTANT verdict on the FRONT face, a beat plays, then the card FLIPS to a
 // full-bleed back face carrying the model answer ("Findings") + a payoff.
 await np.emulateMedia({ reducedMotion: "reduce" });
-await np.locator('[data-testid="flash-intro-begin"]').click();
-await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
 // Card 1 (plain): tap an option → flip → back face shows "Findings" + payoff. There
 // is NO Check/submit button. Next is held for a short settle, then enables.

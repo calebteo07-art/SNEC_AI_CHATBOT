@@ -81,6 +81,15 @@ under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip
   boost flash, BOOST!/SPIN OUT verdict + coins + combo + overtake callout). On
   the first card of a deck, a full-motion **3·2·1·GO start-light** sequence (`GridLights`,
   `pointer-events:none`, renders nothing under reduced motion). Per-topic hue rim; green/red verdicts.
+  **Full-motion paint invariant (2026-07-11)**: any study-card element whose base state is
+  `opacity:0` MUST have its reveal `@keyframes` defined. The option karts (`.flash-option`) start
+  at `opacity:0` and depend on `@keyframes flash-rise`; that keyframe was referenced but never
+  defined, so a referenced-but-missing (no-op) animation stranded **every MCQ answer invisible in
+  FULL motion** — a "blank" card body. Reduced motion HID it (it force-sets `.flash-option`
+  `opacity:1`), and the harness only ever `.click()`ed an option (which succeeds at `opacity:0`),
+  so it went uncaught. The fix is to **define the keyframe** (never delete it). The harness now
+  enters study in **full motion** and asserts the options actually PAINT (computed `opacity → ~1`)
+  — a plain `.click()` must never be the only visibility check on an animated element.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the
   grid", the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N laps · mixed difficulty ·
   instant scoring` meta and a "Start your engines" CTA — in the dark dashboard language. Deck
