@@ -14,6 +14,7 @@ import { DAILY_XP_GOAL, XP_PER_LEVEL } from "@/lib/legacy/gamification";
 import { confetti } from "@/fx/confetti";
 import { pickGreeting, type GreetingCtx, type Track } from "@/aurora/lib/greeting";
 import { HomeIconSprite, Icon } from "@/aurora/components/home/HomeIcons";
+import { Logo } from "@/aurora/Logo";
 import { GreetingHero } from "@/aurora/components/home/GreetingHero";
 import { StreakTile } from "@/aurora/components/home/StreakTile";
 import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
@@ -89,7 +90,7 @@ export function Dashboard() {
 
       <div className="hm-top">
         <div className="hm-brand">
-          <span className="hm-logo"><Icon name="eye" gem /></span>
+          <span className="hm-logo"><Logo size={40} /></span>
           <span className="hm-wm">EyeBot</span>
         </div>
         <div className="hm-topr">
