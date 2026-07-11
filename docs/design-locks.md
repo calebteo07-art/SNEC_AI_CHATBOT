@@ -123,16 +123,25 @@ student's customised avatar (ricoe A3).
   A **waving Selena** greets above the hello — the **same `iris.png` mascot as the Home
   greeting card**, given a whole-image wave + bob (see the Branding lock; default mascot
   only, frozen under reduced motion).
-- **Reading type = Figtree (2026-07-11)**: the Tutor/Chat *reading sans* is **Figtree**
-  (a Google-Sans / Gemini analog), scoped to `.aurora-chat` via a local `--font-sans`
-  override — hello, sub, "eyebot" name, bubbles, composer. The monospace accent labels
-  (`--font-mono`, JetBrains Mono) and the electric-indigo `#5B5BFF` identity are unchanged
-  (this refines the *type* criterion only, not the "Mono + Electric" system).
+- **Reading type = Manrope (2026-07-11)**: the Tutor/Chat *reading sans* is **Manrope**,
+  scoped to `.aurora-chat` via a local `--font-sans` override — hello, sub, "eyebot" name,
+  bubbles, composer. The monospace accent labels (`--font-mono`, JetBrains Mono) and the
+  electric-indigo `#5B5BFF` identity are unchanged (this refines the *type* criterion only,
+  not the "Mono + Electric" system). (Superseded the brief Figtree reading-sans trial.)
 - **Ever-fresh greeting (2026-07-11)**: the hello **opener** and the cheeky **sub** both
   rotate from a **learning-humour** bank (`aurora/lib/tutorGreeting.ts`) with **no immediate
   repeats** (last indices in `localStorage.eyebot_tutor_greet`; 0/0 on first render). The
   name still renders as the Gemini-gradient `<em>`. Pure + unit-tested
   (`frontend/tests/tutor_greeting_assert.mjs`, wired into CI).
+- **Sleeker refresh (2026-07-11)**: recent sessions are now **real, reopenable
+  localStorage conversations** (`aurora/lib/tutorSessions.ts`, past 3; the card restores the
+  full thread and continues it under the same id) — replacing the `progress.sessions`
+  metadata cards. When a student has none, the recent block shows **nothing** (the hardcoded
+  STARTERS fallback was removed). The greeting **name** animates as a **fast motion gradient**
+  (frozen under reduced motion). No seeded in-chat AI greeting — the thread's **first bubble
+  is the user's** message. Greeting + chatbox enlarged; recent cards shrunk. *Pending
+  Workstream B*: the landing mascot becomes a brand-new **dancing-Iris Veo loop** (`iris.png`
+  stays the poster/fallback), superseding the waving-Selena treatment in the Branding lock.
 
 ## Virtual Patients / OSCE Station — LOCKED 2026-06-25
 Living Eye selection plate (photoreal cross-section + fundus inset, calibrated pins).
