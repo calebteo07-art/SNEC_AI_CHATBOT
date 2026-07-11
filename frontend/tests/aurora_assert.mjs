@@ -280,6 +280,13 @@ const fanCount = await np.locator('[data-testid="flash-pick"]').count();
 if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
 console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
+// Arcade redesign (2026-07-12): topic cards carry NO race numbers, the pagination DOTS
+// are gone (arrows only), and the selection is de-Mario'd (no "Grand Prix").
+if ((await np.locator('.fan-card-num').count()) !== 0) { console.error("FAIL: topic cards must not show race numbers"); process.exit(1); }
+if ((await np.locator('.fan-dot').count()) !== 0) { console.error("FAIL: topic selection must not show pagination dots"); process.exit(1); }
+const setupTitle = (await np.locator('.flash-setup-title').innerText()).toLowerCase();
+if (/grand prix|mario/.test(setupTitle)) { console.error(`FAIL: selection still uses racing/Mario copy (got '${setupTitle}')`); process.exit(1); }
+console.log("PASS: flashcards — selection de-Mario'd (no numbers, no dots, no 'Grand Prix')");
 // Topic pick under FULL MOTION — the real user path. The fan auto-rolls ("river") and
 // each card is a moving, 3D-projected target; a stationary tap must still start a deck.
 // Regression guard for the swallowed-click bug (2026-07-11): cards are pointer-events:
@@ -308,12 +315,21 @@ if (!introBox || introBox.y < -8 || introBox.y > vpH) {
   console.error(`FAIL: topic intro rendered OFF-SCREEN (top=${introBox?.y}, viewport=${vpH}) — content pushed out of view by in-flow background layers`); process.exit(1);
 }
 console.log("PASS: flashcards — topic intro renders ON-SCREEN (background layers stay out of flow)");
+// Arcade copy (2026-07-12): kicker is no longer "On the grid", the meta counts "questions"
+// not "laps", and the CTA is "Press start", not "Start your engines".
+const introKicker = (await np.locator('.flash-intro-kicker').innerText()).toLowerCase();
+if (/grid/.test(introKicker)) { console.error(`FAIL: intro kicker still racing copy (got '${introKicker}')`); process.exit(1); }
+const introMeta = (await np.locator('.flash-intro-meta').innerText()).toLowerCase();
+if (!/question/.test(introMeta) || /\blap/.test(introMeta)) { console.error(`FAIL: intro meta must count questions, not laps (got '${introMeta}')`); process.exit(1); }
+const introCta = (await np.locator('[data-testid="flash-intro-begin"]').innerText()).toLowerCase();
+if (/engine/.test(introCta)) { console.error(`FAIL: intro CTA still 'start your engines' (got '${introCta}')`); process.exit(1); }
+console.log("PASS: flashcards — arcade intro copy (no grid / laps / engines)");
 if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
 console.log("PASS: flashcards — FULL-MOTION topic tap opens the intro (stage-resolved pick; ricoe B5)");
-// Enter the study deck in FULL MOTION (the real user path) and assert the MCQ option
-// karts actually PAINT. Regression (2026-07-11 "blank card after a topic pick"): a
+// Enter the study deck in FULL MOTION (the real user path) and assert the MCQ options
+// actually PAINT. Regression (2026-07-11 "blank card after a topic pick"): a
 // referenced-but-undefined @keyframes flash-rise left .flash-option stranded at its base
 // opacity:0 in full motion, so every answer was invisible — the card body read as blank.
 // Reduced motion HID the bug (it force-sets .flash-option opacity:1), and the harness only
@@ -328,9 +344,41 @@ try {
   }, { timeout: 6000 });
 } catch {
   const ops = await np.evaluate(() => [...document.querySelectorAll('[data-testid="flash-option"]')].map((el) => getComputedStyle(el).opacity));
-  console.error(`FAIL: flashcards MCQ option karts never painted in FULL motion (opacities ${JSON.stringify(ops)}) — invisible answers = blank card`); process.exit(1);
+  console.error(`FAIL: flashcards MCQ options never painted in FULL motion (opacities ${JSON.stringify(ops)}) — invisible answers = blank card`); process.exit(1);
 }
-console.log("PASS: flashcards — MCQ option karts paint (opacity→1) in FULL motion, not invisible");
+console.log("PASS: flashcards — MCQ options paint (opacity→1) in FULL motion, not invisible");
+
+// Answer buttons are a dark NEUTRAL now (user, 2026-07-12) — never the old glossy red.
+// The base fill must carry no red-dominant colour; red survives only as the ✗ wrong lock.
+const optRed = await np.evaluate(() => {
+  const el = document.querySelector('[data-testid="flash-option"]');
+  if (!el) return { ok: false, rgbs: "no option" };
+  const cs = getComputedStyle(el);
+  const rgbs = [...(cs.backgroundColor + " " + cs.backgroundImage).matchAll(/rgba?\((\d+),\s*(\d+),\s*(\d+)/g)]
+    .map((m) => [+m[1], +m[2], +m[3]]);
+  const redDom = rgbs.some(([r, g, b]) => r > 150 && r > g * 1.6 && r > b * 1.6);
+  return { ok: !redDom, rgbs };
+});
+if (!optRed.ok) { console.error(`FAIL: unpicked answer buttons must not be red (got ${JSON.stringify(optRed.rgbs)})`); process.exit(1); }
+console.log("PASS: flashcards — answer buttons are neutral, not red");
+
+// Regression (2026-07-12): a WRONG-locked option must stay painted. `.flash-option.is-wrong`
+// sets its own `animation` (the shake), which REPLACES the entry `flash-rise` — without an
+// explicit opacity:1 the option reverts to its base opacity:0 and vanishes (a blank gap where
+// the red ✗ belongs; the shake itself never showed). Same failure class as the flash-rise bug.
+const wrongOpacity = await np.evaluate(() => {
+  const el = document.querySelector('[data-testid="flash-option"]');
+  if (!el) return null;
+  el.classList.add("is-wrong");
+  void el.offsetWidth; // force reflow so the swapped animation takes effect
+  const op = parseFloat(getComputedStyle(el).opacity);
+  el.classList.remove("is-wrong");
+  return op;
+});
+if (wrongOpacity === null || wrongOpacity < 0.9) {
+  console.error(`FAIL: a wrong-locked answer must stay visible in FULL motion (is-wrong opacity ${wrongOpacity})`); process.exit(1);
+}
+console.log("PASS: flashcards — wrong-locked answer stays painted (opacity→1), not a blank gap");
 
 // Now collapse motion for the deterministic study charge/flip path below: a single-answer
 // tap locks an INSTANT verdict on the FRONT face, a beat plays, then the card FLIPS to a
@@ -344,21 +392,31 @@ await np.waitForSelector('[data-testid="flash-reveal-back"]', { timeout: 8000 })
 if ((await np.locator('[data-testid="flash-check"]').count()) > 0) {
   console.error("FAIL: flashcards must not have a Check/submit button"); process.exit(1);
 }
-if ((await np.locator('.flash-compare-label:has-text("Findings")').count()) < 1) {
-  console.error("FAIL: flashcards model answer not revealed on the back face"); process.exit(1);
+if ((await np.locator('.flash-compare-label:has-text("Explanation")').count()) < 1) {
+  console.error("FAIL: flashcards model answer not revealed under an 'Explanation' label on the back face"); process.exit(1);
 }
 if ((await np.locator('[data-testid="flash-payoff"]').count()) < 1) {
   console.error("FAIL: flashcards reveal is missing the gamification payoff"); process.exit(1);
+}
+// Arcade payoff (2026-07-12): a correct reveal shouts "PERFECT!", never the racing "BOOST!".
+const payoffV = (await np.locator('[data-testid="flash-payoff"] .flash-payoff-verdict').innerText()).toLowerCase();
+if (/boost/.test(payoffV) || !/perfect/.test(payoffV)) {
+  console.error(`FAIL: correct reveal must read 'PERFECT', not 'BOOST' (got '${payoffV}')`); process.exit(1);
 }
 if (await np.locator('[data-testid="flash-advance"]').isEnabled()) {
   console.error("FAIL: Next should be settle-gated immediately after the flip"); process.exit(1);
 }
 console.log("PASS: flashcards — plain tap flips to a full-bleed payoff; Next is settle-gated");
+// Advance is "Next →" / "Finish →" now — never the racing "Next lap →".
+await np.waitForFunction(() => { const b = document.querySelector('[data-testid="flash-advance"]'); return b && !b.disabled; }, { timeout: 4000 });
+const advTxt = (await np.locator('[data-testid="flash-advance"]').innerText()).toLowerCase();
+if (/lap/.test(advTxt)) { console.error(`FAIL: advance button still races ('lap' in '${advTxt}')`); process.exit(1); }
+console.log("PASS: flashcards — advance label de-raced (no 'lap')");
 
-// ── Flashcards is "GRAND PRIX" (Mario Kart, 2026-07-11 — supersedes "ivory & ink").
-// The cockpit-dashboard card is a DARK graphite on BOTH faces (front = where you answer,
-// back = the boost payoff + Findings), so the neon topic rim + kart buttons pop. Assert
-// both faces are a genuinely dark surface (never the old bright-white study card).
+// ── Flashcards is a DARK ARCADE world (2026-07-12 — supersedes "Grand Prix"). The study
+// card is graphite on BOTH faces (front = where you answer, back = the payoff + Explanation),
+// so the glowing topic rim + neutral buttons pop. Assert both faces are a genuinely dark
+// surface (never a bright study card).
 const d2 = await np.evaluate(() => {
   const lum = (c) => { const m = /rgb\((\d+),\s*(\d+),\s*(\d+)/.exec(c || ""); return m ? (+m[1] * 0.299 + +m[2] * 0.587 + +m[3] * 0.114) : null; };
   const front = document.querySelector(".flash-card .flash-face.is-front");
@@ -371,12 +429,12 @@ const d2 = await np.evaluate(() => {
   };
 });
 if (d2.frontLum === null || d2.frontLum > 90) {
-  console.error(`FAIL: Grand Prix dashboard front face must be a dark graphite (got '${d2.front}')`); process.exit(1);
+  console.error(`FAIL: study card front face must be a dark graphite (got '${d2.front}')`); process.exit(1);
 }
 if (d2.backLum === null || d2.backLum > 90) {
-  console.error(`FAIL: Grand Prix reveal back face must be a dark graphite (got '${d2.back}')`); process.exit(1);
+  console.error(`FAIL: reveal back face must be a dark graphite (got '${d2.back}')`); process.exit(1);
 }
-console.log("PASS: flashcards — Grand Prix dark cockpit dashboard (front + reveal both graphite)");
+console.log("PASS: flashcards — dark arcade study card (front + reveal both graphite)");
 
 await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 
@@ -394,7 +452,7 @@ await np.waitForSelector('[data-testid="flash-reason"]', { timeout: 8000 });
 // Both faces live in the DOM for the 3D flip, so assert VISIBILITY, not presence:
 // before the flip the back face (model + Next) is display:none under reduced motion
 // (rotated away with backface-hidden in full motion).
-if (await np.locator('.flash-compare-label:has-text("Findings")').isVisible()) {
+if (await np.locator('.flash-compare-label:has-text("Explanation")').isVisible()) {
   console.error("FAIL: model answer shown before the learner's reasoning on a reason card"); process.exit(1);
 }
 if (await np.locator('[data-testid="flash-advance"]').isVisible()) {
@@ -402,7 +460,7 @@ if (await np.locator('[data-testid="flash-advance"]').isVisible()) {
 }
 await np.locator('[data-testid="flash-reason"]').fill("Immediate irrigation limits ongoing damage.");
 await np.locator('[data-testid="flash-reveal-model"]').click();
-await np.waitForSelector('.flash-compare-label:has-text("Findings")', { timeout: 8000 });
+await np.waitForSelector('.flash-compare-label:has-text("Explanation")', { timeout: 8000 });
 console.log("PASS: flashcards — reason card flips to the model AFTER the learner's explanation");
 await np.locator('[data-testid="flash-advance"]').click(); // auto-waits out the settle
 
