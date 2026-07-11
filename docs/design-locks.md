@@ -123,6 +123,16 @@ student's customised avatar (ricoe A3).
   A **waving Selena** greets above the hello — the **same `iris.png` mascot as the Home
   greeting card**, given a whole-image wave + bob (see the Branding lock; default mascot
   only, frozen under reduced motion).
+- **Reading type = Figtree (2026-07-11)**: the Tutor/Chat *reading sans* is **Figtree**
+  (a Google-Sans / Gemini analog), scoped to `.aurora-chat` via a local `--font-sans`
+  override — hello, sub, "eyebot" name, bubbles, composer. The monospace accent labels
+  (`--font-mono`, JetBrains Mono) and the electric-indigo `#5B5BFF` identity are unchanged
+  (this refines the *type* criterion only, not the "Mono + Electric" system).
+- **Ever-fresh greeting (2026-07-11)**: the hello **opener** and the cheeky **sub** both
+  rotate from a **learning-humour** bank (`aurora/lib/tutorGreeting.ts`) with **no immediate
+  repeats** (last indices in `localStorage.eyebot_tutor_greet`; 0/0 on first render). The
+  name still renders as the Gemini-gradient `<em>`. Pure + unit-tested
+  (`frontend/tests/tutor_greeting_assert.mjs`, wired into CI).
 
 ## Virtual Patients / OSCE Station — LOCKED 2026-06-25
 Living Eye selection plate (photoreal cross-section + fundus inset, calibrated pins).

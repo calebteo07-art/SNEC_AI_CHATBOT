@@ -52,6 +52,7 @@ jobs:
         # Pure-logic unit harnesses over greeting + leaderboard math; no server/browser.
         run: |
           node --experimental-strip-types tests/greeting_assert.mjs
+          node --experimental-strip-types tests/tutor_greeting_assert.mjs
           node --experimental-strip-types tests/leaderboard_logic.mjs
       - name: Production build
         run: npm run build
