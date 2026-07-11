@@ -1,10 +1,9 @@
 "use client";
-/* ChargeBeat — the suspense beat between locking an answer and the flip. Shows the
-   LiquidLoading animation over a dimmed front face, then flips after BEAT_MS (a short
-   REDUCED_MS under reduced motion). A tap anywhere skips straight to the reveal.
-   Replaces the old conic ChargeRing. */
+/* ChargeBeat — the suspense beat between locking an answer and the flip. It no longer
+   draws anything: the FRONT-face boost meter (McqCard) is the charge visual now, so this
+   is just a transparent full-card tap-catcher + timer that flips after BEAT_MS (a short
+   REDUCED_MS under reduced motion). A tap anywhere skips straight to the reveal. */
 import { useEffect, useRef } from "react";
-import LiquidLoading from "@/components/ui/liquid-loader";
 
 export const BEAT_MS = 1700;
 const REDUCED_MS = 250;
@@ -28,8 +27,6 @@ export function ChargeBeat({ onComplete }: { onComplete: () => void }) {
   }, []);
 
   return (
-    <div className="flash-beat" data-testid="flash-charge" onClick={finish} aria-hidden>
-      <div className="flash-beat-loader"><LiquidLoading /></div>
-    </div>
+    <div className="flash-beat" data-testid="flash-charge" onClick={finish} aria-hidden />
   );
 }
