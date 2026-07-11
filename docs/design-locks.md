@@ -63,11 +63,17 @@ card = dark graphite cockpit on BOTH faces; **carousel motion (topic select) + r
 (activity) are mandatory and never regress**; verdicts icon+colour; everything **freezes hard
 under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip); WCAG-legible.
 - **Selection**: the coverflow starting grid (`CardFanCarousel`) — continuous auto-roll, drag/
-  flick to spin, arrows nudge, dots, speed-coupled FOV + speed-lines; **static, fully-clickable
-  parked grid under reduced motion** (so automated clicks land). Per-topic Nano Banana photos
-  (SG stock-photo look, plain solid-blue scrubs, no institutional branding — see the topic-art
-  contract below), kart-framed with race number + label plate. No difficulty picker, fixed
-  10-card decks, no scroll (dvh-sized).
+  flick to spin, arrows nudge, dots, speed-coupled FOV + speed-lines; freezes to a static parked
+  grid under reduced motion. **Topic pick is resolved at the STAGE, not per-card**: cards are
+  `pointer-events:none` and a tap opens the topic whose live on-screen centre is nearest the
+  pointer. **Never regress to a per-card `<button>` onClick** — the drift + 3D projection make
+  each card a moving, mis-projected target, so taps fall through to `.fan-layout` and do nothing
+  (shipped broken 2026-07-11; identical to the failure the home FeatureCarousel already fixed).
+  Keyboard Enter still picks via the button. **The harness must click a topic in FULL motion** —
+  the pick was only ever tested after reduced motion froze the fan, which hid the bug. Per-topic
+  Nano Banana photos (SG stock-photo look, plain solid-blue scrubs, no institutional branding —
+  see the topic-art contract below), kart-framed with race number + label plate. No difficulty
+  picker, fixed 10-card decks, no scroll (dvh-sized).
 - **Study**: instant-tap MCQ on the dark cockpit dashboard — persistent HUD (coins + grid
   position) above the flip, sky-blue question banner, glossy red kart-button options (✓/✗ lock),
   boost meter at the base. Reveal = **Charge → Barrel-roll / Banana Flip → Payoff** (boost-meter
