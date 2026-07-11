@@ -90,6 +90,12 @@ under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip
   so it went uncaught. The fix is to **define the keyframe** (never delete it). The harness now
   enters study in **full motion** and asserts the options actually PAINT (computed `opacity → ~1`)
   — a plain `.click()` must never be the only visibility check on an animated element.
+  The dashboard's four **decorative** loops — `fan-in` (starting-grid entrance), `flash-seg`
+  (current-lap pip breathe), `flash-ignite` (option tap-spark), `flash-pulse` (armed
+  multi-select lock throb) — are likewise real `@keyframes` (defined 2026-07-11) and
+  **hard-frozen under both reduced-motion paths** (`html[data-motion="reduce"]` + the
+  `prefers-reduced-motion` media block); they are intentional Grand-Prix motion, not dead
+  code — refine within them, never strip them as "unused".
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the
   grid", the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N laps · mixed difficulty ·
   instant scoring` meta and a "Start your engines" CTA — in the dark dashboard language. Deck

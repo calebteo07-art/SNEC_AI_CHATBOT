@@ -2367,6 +2367,8 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
   animation: fan-in .7s ease both; }
 @media (max-width: 639px) { .fan-stage { height: clamp(280px, 46dvh, 360px); } }
 html[data-motion="reduce"] .fan-stage { animation: none; }
+/* the starting grid flies into place on mount (whole 3D scene as a group, then settles) */
+@keyframes fan-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
 /* asphalt track floor sweeping into the horizon */
 .fan-stage::after { content: ""; position: absolute; left: -25%; right: -25%; bottom: -8%; height: 56%;
   z-index: 0; transform: rotateX(62deg); transform-origin: bottom; border-radius: 50% 50% 0 0 / 34% 34% 0 0;
@@ -2541,6 +2543,10 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-segs i { width: 16px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); }
 .flash-segs i.is-done { background: var(--mk-green); }
 .flash-segs i.is-now { background: var(--mk-coin); animation: flash-seg 1.8s ease-in-out infinite; }
+/* the current-lap pip breathes with a coin-gold glow so the eye lands on where you are */
+@keyframes flash-seg {
+  0%, 100% { opacity: .6; box-shadow: 0 0 0 0 rgba(255,196,0,0); }
+  50% { opacity: 1; box-shadow: 0 0 8px 1px rgba(255,196,0,.7); } }
 .flash-count { font: 800 12px var(--font-sans); color: #aeb6c1; letter-spacing: .08em; white-space: nowrap; }
 .flash-rule { height: 3px; border-radius: 2px; margin: 0 0 16px;
   background: linear-gradient(90deg, var(--mk-coin), hsl(var(--flash-topic-hue) 88% 55%) 55%, transparent);
@@ -2592,6 +2598,11 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 @keyframes mk-screech { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 45% { transform: translateX(6px); } 70% { transform: translateX(-3px); } }
 .flash-ignite { position: absolute; inset: -2px; border-radius: 10px; border: 2px solid #fff;
   animation: flash-ignite .6s ease-out forwards; pointer-events: none; }
+/* engine-ignition spark: flares bright on tap, then expands outward and fades */
+@keyframes flash-ignite {
+  0% { opacity: 0; transform: scale(.8); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.4); } }
 
 /* Foot: hint + multi-select lock reticle */
 .flash-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px;
@@ -2603,6 +2614,10 @@ html[data-motion="reduce"] .fan-card, html[data-motion="reduce"] .fan-dot { tran
 .flash-lock.is-armed { color: #241900; background: linear-gradient(180deg, #ffe36b, var(--mk-coin));
   box-shadow: 0 5px 0 var(--mk-coin-d); cursor: pointer; animation: flash-pulse 1.5s ease-in-out infinite; }
 .flash-lock.is-armed:hover { filter: brightness(1.06); }
+/* armed lock throbs with a gold halo — "ready to submit, tap me" (keeps the chunky toy shadow) */
+@keyframes flash-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 5px 0 var(--mk-coin-d), 0 0 0 0 rgba(255,196,0,0); }
+  50% { transform: scale(1.05); box-shadow: 0 5px 0 var(--mk-coin-d), 0 0 16px 2px rgba(255,196,0,.55); } }
 
 /* Reflection card — reason first */
 .flash-reason { margin-top: 6px; padding: 8px 28px 4px; }
@@ -2804,6 +2819,8 @@ html[data-motion="reduce"] .flash-setup-title { animation: none; }
   .flash-face::before, .flash-face::after, .flash-results::before, .flash-intro::before { animation: none; }
   .flash-face::after { opacity: 0; }
   .flash-option, .flash-step { opacity: 1; transform: none; animation: none; }
+  .fan-stage, .flash-segs i.is-now, .flash-lock.is-armed { animation: none; }
+  .flash-ignite { display: none; }
 }
 html[data-motion="reduce"] .flash-flip { transition: none; }
 html[data-motion="reduce"] .flash-card.is-flipped .flash-flip { transform: none; }
@@ -2816,6 +2833,7 @@ html[data-motion="reduce"] .flash-boost { animation: none; display: none; }
 html[data-motion="reduce"] .flash-meter.is-charging .flash-meter-fill { transition: none; width: 100%; }
 html[data-motion="reduce"] .flash-option,
 html[data-motion="reduce"] .flash-step { opacity: 1; transform: none; animation: none; }
+html[data-motion="reduce"] .flash-ignite { display: none; }
 html[data-motion="reduce"] .flash-face::before,
 html[data-motion="reduce"] .flash-face::after,
 html[data-motion="reduce"] .flash-intro::before,
