@@ -96,6 +96,15 @@ under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip
   **hard-frozen under both reduced-motion paths** (`html[data-motion="reduce"]` + the
   `prefers-reduced-motion` media block); they are intentional Grand-Prix motion, not dead
   code — refine within them, never strip them as "unused".
+  **Shell layers stay out of flow (2026-07-11)**: FlashShell's engraved background layers —
+  `EngravingField` (`.flash-engravings` / `.flash-engraving`) + `BrownianField` (`.flash-bg` /
+  `.flash-spot`) — MUST be `position:absolute; inset:0` at z0, behind the z2 `.flash-content`.
+  The Grand Prix CSS rewrite dropped these rules but kept the components, so they rendered IN
+  FLOW; their unstyled, unsized glyph/spot SVGs ballooned the box to ~20000px and shoved the
+  whole intro/card ~20000px BELOW the viewport — it painted fine but off-screen = the "blank
+  screen after a topic pick." Like the paint bug, a `waitForSelector`/`innerText` check passes
+  on off-screen content, so the harness now asserts the intro's box sits WITHIN the viewport,
+  not merely that it is attached to the DOM.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the
   grid", the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N laps · mixed difficulty ·
   instant scoring` meta and a "Start your engines" CTA — in the dark dashboard language. Deck

@@ -296,6 +296,18 @@ await np.waitForSelector('[data-testid="flash-intro"]', { timeout: 15000 });
 if (((await np.locator('[data-testid="flash-intro"] .flash-intro-title').innerText()).trim().length) < 2) {
   console.error("FAIL: topic intro card is missing its title (ricoe B5)"); process.exit(1);
 }
+// The intro must be ON-SCREEN, not merely attached. Regression (2026-07-11 "blank after a
+// topic pick"): the FlashShell background layers (.flash-engravings / .flash-bg) lost their
+// `position:absolute` in the Grand Prix CSS rewrite, so they rendered IN FLOW, ballooned to
+// ~20000px, and shoved .flash-content ~20000px below the viewport — the intro painted fine
+// but entirely off-screen. waitForSelector/innerText pass on off-screen content, so the old
+// checks never caught it. Assert the intro box actually sits within the viewport.
+const introBox = await np.locator('[data-testid="flash-intro"]').boundingBox();
+const vpH = np.viewportSize().height;
+if (!introBox || introBox.y < -8 || introBox.y > vpH) {
+  console.error(`FAIL: topic intro rendered OFF-SCREEN (top=${introBox?.y}, viewport=${vpH}) — content pushed out of view by in-flow background layers`); process.exit(1);
+}
+console.log("PASS: flashcards — topic intro renders ON-SCREEN (background layers stay out of flow)");
 if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
