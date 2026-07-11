@@ -83,11 +83,20 @@ under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip
   `ComboBurst` slam (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 / GODLIKE 10+) with the ×N, a
   shockwave ring and the streak count; `pointer-events:none`, self-dismissing, keeps rewarding
   every 2-in-a-row past the ×4 cap. Phrase + multiplier from `comboCallout`/`comboMultiplier`.
-- **Topic-art contract** (`tools/media/generate_flashcards_topics.py`, Nano Banana **flash**
-  `gemini-3.1-flash-image`, 3:4): bright professional **stock-photo** look; any people reflect
-  **Singapore's** multi-ethnic mix; any scrubs are **plain solid blue — no trim/piping/logo**;
-  **no institutional (SNEC/SingHealth) branding, badges or lanyards**; framed to keep faces
-  minimal (hands / over-the-shoulder / from behind). One image per `topic_key` + `mixed`.
+- **Topic-art contract** (`tools/media/generate_flashcards_topics.py`; per-topic prompts in the
+  sibling data file `flashcard_topic_subjects.json`, 3:4). Every image must be: bright professional
+  **stock-photo** look; **clinically/anatomically accurate AND instantly recognizable** (an OA/OT/PSA
+  names the exact topic in one glance — the top priority); any people reflect **Singapore's**
+  multi-ethnic mix; any scrubs **plain solid blue — no trim/piping/collar/lanyard/badge/ID**;
+  **no text/letters/numbers/labels/UI/watermark** (a clinical scan *image* on a screen is fine, sans
+  readable text); **no logos or SNEC/SingHealth/institutional branding**. **Faces are welcome** (the
+  old "hands-only / faces minimal" rule is retired — recognition beats face-avoidance). **Model tier
+  is a flash/pro mix** (`model_for` / `PRO_TOPICS`): **pro** (`gemini-3-pro-image`) for fine clinical
+  detail — eye/fundus macros, pathology, plates, diagnostic scans, obscure instruments (PAM/HRT); **flash**
+  (`gemini-3.1-flash-image`) for clinic scenes/people. One image per `topic_key` + `mixed`. Regenerated
+  46/46 + **adversarially verified** (one strict ophthalmic reviewer per image) 2026-07-11. Gotcha:
+  never name a device brand in the prompt (the model prints it as on-device text/branding); describe
+  instruments functionally.
 - **Out of scope for refinements**: scoring model (deterministic, no AI in study loop),
   two-pool role content model {OA=PSA}+{OT}, 50-cards-per-topic mandate.
 
