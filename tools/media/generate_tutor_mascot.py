@@ -64,11 +64,11 @@ def _build_frame() -> Path:
     bg = small.resize((W, H), Image.LANCZOS).convert("RGBA")
 
     mascot = Image.open(IMAGE_REF).convert("RGBA")
-    target_h = int(H * 0.62)          # a touch bigger, anchored LOW to deny Veo room for legs
+    target_h = int(H * 0.58)          # a bit smaller → sway / arm-swing room inside the feather
     scale = target_h / mascot.height
     m = mascot.resize((round(mascot.width * scale), target_h), Image.LANCZOS)
     mx = W // 2 - m.width // 2
-    my = int(H * 0.86) - m.height     # round bottom near the frame floor, headroom for the bounce
+    my = int(H * 0.84) - m.height     # feet near the floor with headroom for the goofy dance
     bg.alpha_composite(m, (mx, my))
 
     TMP.mkdir(parents=True, exist_ok=True)
@@ -91,11 +91,12 @@ def run_generate(model: str) -> int:
     cfg = dict(
         number_of_videos=1,
         aspect_ratio=ASPECT,
-        negative_prompt="legs, feet, thin legs, spring legs, coiled legs, walking, running, "
-        "standing on legs, humanoid body, teal body, blue body, green body, recolored body, "
-        "color shift, two-tone body, extra limbs, long limbs, spinning around, back of body "
-        "facing camera, text, letters, watermark, logo, extra characters, camera movement, "
-        "zoom, pan, morphing, distortion, flicker, mascot leaving frame",
+        negative_prompt="distorted eye, squashed eye, stretched eye, warped eye, narrowed eye, "
+        "angry eye, scary face, creepy face, melting, deforming body, squashing flat, thin legs, "
+        "long legs, spring legs, coiled legs, long limbs, teal body, blue body, green body, "
+        "recolored body, color shift, two-tone body, extra limbs, spinning around, back of body "
+        "facing camera, text, letters, watermark, logo, extra characters, camera movement, zoom, "
+        "pan, morphing, distortion, flicker, mascot leaving frame",
     )
     print(f"submitting {model} (image-to-video, seamless first==last)…")
     try:
