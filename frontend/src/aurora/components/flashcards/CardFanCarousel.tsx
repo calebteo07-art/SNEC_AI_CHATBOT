@@ -4,11 +4,14 @@
    advances a fractional "flow" offset and writes each card's coverflow transform
    every frame (centre card largest + facing forward, side cards banked away into
    depth). The field's velocity leans the camera in (perspective narrows → speed) and
-   streaks the speed-lines. Drag/flick to spin the grid, arrows nudge by one, click a
-   card to take that topic to the line. Reactive to reduced motion (freezes to a
-   static, fully-clickable parked grid) — also so automated clicks land on a stable
-   card. The component API (cards / onPick / autoAdvanceMs) and every test hook
-   (flash-fan, flash-pick, data-card-id, flash-prev/next, fan-dot) are unchanged. */
+   streaks the speed-lines. Drag/flick to spin the grid, arrows nudge by one. A TAP
+   opens the topic whose live on-screen centre is nearest the tap — resolved at the
+   STAGE (cards are pointer-events:none), so the continuous drift + 3D projection can't
+   swallow the click the way a per-card <button> click did (same failure the home
+   FeatureCarousel fixed). Keyboard Enter still picks via the button. Reactive to reduced
+   motion (freezes to a static parked grid). The component API (cards / onPick /
+   autoAdvanceMs) and every test hook (flash-fan, flash-pick, data-card-id,
+   flash-prev/next, fan-dot) are unchanged. */
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface FanCard {
@@ -105,7 +108,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     const els = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
     const dots = Array.from(container.parentElement?.querySelectorAll<HTMLElement>(".fan-dot") ?? []);
     const zCache = new Array(els.length).fill(NaN);
-    const peCache = new Array(els.length).fill(-1);
     let cw = getCardWidth(window.innerWidth);
     const viewport = container.parentElement; // .fan-stage (owns perspective + --vel)
 
@@ -121,8 +123,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
           `translate3d(${t.x.toFixed(1)}px, ${bob.toFixed(1)}px, ${t.z.toFixed(1)}px) rotateY(${t.rot.toFixed(2)}deg) scale(${t.scale.toFixed(3)})`;
         els[i].style.opacity = t.opacity.toFixed(3);
         if (zCache[i] !== t.zIndex) { els[i].style.zIndex = String(t.zIndex); zCache[i] = t.zIndex; }
-        const pe = t.opacity > 0.05 ? 1 : 0;
-        if (peCache[i] !== pe) { els[i].style.pointerEvents = pe ? "auto" : "none"; peCache[i] = pe; }
       }
       if (viewport) {
         viewport.style.setProperty("--vel", sv.toFixed(3));
@@ -169,14 +169,19 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
   }, [total, reduced, autoAdvanceMs]);
 
-  // Drag / flick the grid (full motion only). A small movement threshold keeps a tap on
-  // a card a *click* (pick), not a drag.
-  const drag = useRef({ down: false, startX: 0, startFlow: 0, lastX: 0, lastT: 0, moved: false });
+  // Drag / flick the grid; a TAP (little travel, quick) is resolved to a topic pick at
+  // the STAGE, not per-card. The coverflow auto-rolls and each card is a moving, 3D-
+  // projected target, so relying on the card <button>'s own click let taps fall through
+  // to .fan-layout and do nothing (the exact failure the home FeatureCarousel fixed).
+  // Cards are pointer-events:none, so every gesture lands here; on a tap we open the card
+  // whose live on-screen centre is nearest the pointer. Works in both motion modes;
+  // keyboard Enter still picks via the button's onClick.
+  const TAP_SLOP = 8; // px of travel below which a pointer-up counts as a tap, not a drag
+  const drag = useRef({ down: false, startX: 0, startFlow: 0, lastX: 0, lastT: 0, startT: 0, moved: false });
   const onPointerDown = (e: React.PointerEvent) => {
-    if (reduced) return;
     const d = drag.current;
     d.down = true; d.moved = false; d.startX = e.clientX; d.startFlow = flowRef.current;
-    d.lastX = e.clientX; d.lastT = performance.now();
+    d.lastX = e.clientX; d.lastT = performance.now(); d.startT = d.lastT;
     draggingRef.current = true;
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -184,11 +189,12 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     if (!d.down) return;
     const cw = getCardWidth(window.innerWidth);
     const dx = e.clientX - d.startX;
-    if (Math.abs(dx) > 4) d.moved = true;
+    if (Math.abs(dx) > TAP_SLOP) d.moved = true;
     flowRef.current = d.startFlow - dx / (cw * 0.62);
     const now = performance.now();
     if (now - d.lastT > 0) velRef.current = (e.clientX - d.lastX) / (now - d.lastT);
     d.lastX = e.clientX; d.lastT = now;
+    if (reduced) paintRef.current();   // no rAF under reduced motion — reflect the drag
   };
   const endDrag = () => {
     const d = drag.current;
@@ -199,6 +205,27 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     targetRef.current = Math.round(flowRef.current + flick);
     velRef.current = 0;
   };
+  // Open the topic whose live on-screen centre is nearest the tap X — independent of the
+  // drift and 3D projection that made a per-card click unreliable.
+  const resolvePick = (clientX: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+    let best: HTMLElement | null = null, bestDx = Infinity;
+    for (const el of container.querySelectorAll<HTMLElement>(".fan-card")) {
+      const r = el.getBoundingClientRect();
+      const dx = Math.abs(r.left + r.width / 2 - clientX);
+      if (dx < bestDx) { bestDx = dx; best = el; }
+    }
+    const card = cards.find((c) => c.id === best?.getAttribute("data-card-id"));
+    if (card && card.startable !== false) onPick(card);
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    const wasTap = d.down && !d.moved && performance.now() - d.startT < 700;
+    const x = e.clientX;
+    endDrag();
+    if (wasTap) resolvePick(x);
+  };
 
   if (!total) return null;
 
@@ -208,14 +235,16 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
         <div className="fan-speedlines" aria-hidden />
         <div ref={containerRef} className="fan-layout" data-testid="flash-fan"
           onPointerDown={onPointerDown} onPointerMove={onPointerMove}
-          onPointerUp={endDrag} onPointerCancel={endDrag} onPointerLeave={endDrag}>
+          onPointerUp={onPointerUp} onPointerCancel={endDrag} onPointerLeave={endDrag}>
           {cards.map((card, i) => (
             <button key={card.id} type="button"
               className={`fan-card${card.startable === false ? " is-locked" : ""}`}
               data-testid="flash-pick" data-card-id={card.id}
               disabled={card.startable === false}
               aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}`}
-              onClick={() => { if (!drag.current.moved && card.startable !== false) onPick(card); }}>
+              // Cards are pointer-events:none, so this fires only for keyboard (Enter/Space)
+              // on a focused card; mouse/touch taps are resolved at the stage (onPointerUp).
+              onClick={() => { if (card.startable !== false) onPick(card); }}>
               <span className="fan-card-media" style={{ "--fan-hue": card.hue } as React.CSSProperties}>
                 <img src={card.imgUrl} alt="" loading="eager" decoding="async"
                   fetchPriority={i === 0 ? "high" : "low"}

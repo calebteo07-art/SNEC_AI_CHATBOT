@@ -2383,6 +2383,10 @@ html[data-motion="reduce"] .fan-speedlines { display: none; }
 .fan-layout { position: absolute; inset: 0; transform-style: preserve-3d; }
 .fan-card { position: absolute; left: 50%; top: 50%; width: 190px; height: 246px;
   margin: -123px 0 0 -95px; padding: 0; border: 0; background: transparent; cursor: pointer;
+  /* taps are resolved at the stage (.fan-layout) against live card rects — see
+     CardFanCarousel; keeping cards out of pointer hit-testing stops the drift + 3D
+     projection from swallowing the click. Keyboard focus/Enter is unaffected. */
+  pointer-events: none;
   will-change: transform, opacity; transform-style: preserve-3d; user-select: none; -webkit-tap-highlight-color: transparent; }
 @media (max-width: 639px) { .fan-card { width: 158px; height: 208px; margin: -104px 0 0 -79px; } }
 .fan-card:focus-visible { outline: 3px solid var(--mk-coin); outline-offset: 4px; border-radius: 20px; }

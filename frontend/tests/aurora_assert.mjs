@@ -280,14 +280,16 @@ const fanCount = await np.locator('[data-testid="flash-pick"]').count();
 if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
 console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
-// Emulate reduced motion BEFORE interacting: it freezes the continuously-flowing
-// ("river") topic fan so the pick-click lands on a STABLE card, and collapses the
-// study charge/flip to a fast, deterministic path. study: a single-answer tap locks
-// an INSTANT ✓/✗ verdict on the FRONT face, a suspense beat plays, then the card
-// FLIPS to a full-bleed back face carrying the model answer ("Findings") + a payoff.
-await np.emulateMedia({ reducedMotion: "reduce" });
-await np.waitForTimeout(450); // let the river freeze to a static fan before clicking
-await np.locator('[data-card-id="triage"]').click();
+// Topic pick under FULL MOTION — the real user path. The fan auto-rolls ("river") and
+// each card is a moving, 3D-projected target; a stationary tap must still start a deck.
+// Regression guard for the swallowed-click bug (2026-07-11): cards are pointer-events:
+// none and the pick is resolved at the STAGE against live card rects, so a tap on the
+// drifting coverflow opens the nearest topic. The old per-card onClick fell through to
+// .fan-layout and did nothing — and this went uncaught because the pick was previously
+// only ever exercised AFTER reduced motion froze the fan. Do NOT freeze it here.
+await np.waitForTimeout(700); // let the river reach a steady roll (motion stays ON)
+const fanBox = await np.locator(".fan-stage").boundingBox();
+await np.mouse.click(Math.round(fanBox.x + fanBox.width / 2), Math.round(fanBox.y + fanBox.height / 2));
 // ricoe B5: a topic pick shows an intro card (name + description) BEFORE Q1; Begin
 // drops into the deck. The intro names the topic, so the title must be non-empty.
 await np.waitForSelector('[data-testid="flash-intro"]', { timeout: 15000 });
@@ -297,7 +299,11 @@ if (((await np.locator('[data-testid="flash-intro"] .flash-intro-title').innerTe
 if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
-console.log("PASS: flashcards — topic intro card shows the topic name + description before Q1 (ricoe B5)");
+console.log("PASS: flashcards — FULL-MOTION topic tap opens the intro (stage-resolved pick; ricoe B5)");
+// Now collapse motion for the deterministic study charge/flip path below: a single-answer
+// tap locks an INSTANT verdict on the FRONT face, a beat plays, then the card FLIPS to a
+// full-bleed back face carrying the model answer ("Findings") + a payoff.
+await np.emulateMedia({ reducedMotion: "reduce" });
 await np.locator('[data-testid="flash-intro-begin"]').click();
 await np.waitForSelector('[data-testid="study-stage"]', { timeout: 15000 });
 
@@ -858,7 +864,10 @@ stp.on("pageerror", (e) => staleErrors.push(String(e)));
 await stp.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await stp.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
 await stp.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
-await stp.locator('[data-card-id="__mixed"]').click();
+// Cards are pointer-events:none; the pick is resolved at the stage. The frozen (reduced-
+// motion) fan is parked with Mixed centred, so a tap at the fan centre starts Mixed.
+const stFan = await stp.locator(".fan-stage").boundingBox();
+await stp.mouse.click(Math.round(stFan.x + stFan.width / 2), Math.round(stFan.y + stFan.height / 2));
 // through the pre-deck intro beat (ricoe B5) into the deck…
 await stp.locator('[data-testid="flash-intro-begin"]').click();
 // graceful empty state appears; the study stage and the error boundary never do.
