@@ -17,6 +17,7 @@ import { AchievementManager } from "@/screens/AchievementToast";
 import { addChatXp, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useGamificationSync } from "@/hooks/useGamification";
 import { TutorLanding, type RecentSession } from "@/aurora/components/TutorLanding";
+import { OPENERS, SUBS, nextIndex } from "@/aurora/lib/tutorGreeting";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
 
@@ -53,8 +54,22 @@ export function Tutor() {
   // cross-fades into the live thread once the student asks something. "leaving" keeps both
   // mounted for the ~460ms cross-fade; the shared constellation canvas bridges them.
   const [phase, setPhase] = useState<"landing" | "leaving" | "chat">("landing");
-  const [subSeed, setSubSeed] = useState(0); // 0 on SSR/first render; randomised after mount
-  useEffect(() => { setSubSeed(Math.floor(Math.random() * 997)); }, []);
+  // Opener + sub seeds: 0/0 on first render (stable), then fresh non-repeating indices
+  // after mount so the greeting differs every visit (last shown persisted in localStorage).
+  const [openerSeed, setOpenerSeed] = useState(0);
+  const [subSeed, setSubSeed] = useState(0);
+  useEffect(() => {
+    let last: { o: number; s: number } = { o: -1, s: -1 };
+    try {
+      const raw = localStorage.getItem("eyebot_tutor_greet");
+      if (raw) last = JSON.parse(raw);
+    } catch { /* ignore */ }
+    const o = nextIndex(OPENERS.length, last?.o ?? -1, Math.random());
+    const s = nextIndex(SUBS.length, last?.s ?? -1, Math.random());
+    setOpenerSeed(o);
+    setSubSeed(s);
+    try { localStorage.setItem("eyebot_tutor_greet", JSON.stringify({ o, s })); } catch { /* ignore */ }
+  }, []);
   const enterChat = () => { setPhase("leaving"); window.setTimeout(() => setPhase("chat"), 460); };
   const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
   const startWith = (text: string) => { if (!text.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(text); };
@@ -179,6 +194,7 @@ export function Tutor() {
           sessions={(progress?.sessions ?? []) as RecentSession[]}
           onResume={resumeSession}
           onStarter={startWith}
+          openerSeed={openerSeed}
           subSeed={subSeed}
           leaving={phase === "leaving"}
         />

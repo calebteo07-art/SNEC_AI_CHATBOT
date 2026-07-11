@@ -5,7 +5,7 @@
    resuming a session) cross-fades into the live chat thread — the constellation canvas
    behind everything is shared, so the transition reads as one continuous surface.
    Gemini-accented (gradient name + prompt ring) but on the tutor's ivory surface. */
-import { useEffect, useState } from "react";
+import { pickTutorGreeting } from "@/aurora/lib/tutorGreeting";
 import Link from "next/link";
 import { Icon } from "@/aurora/icons";
 import { Composer } from "@/aurora/components/Composer";
@@ -15,19 +15,6 @@ export interface RecentSession {
   session_id: string; timestamp: string; topic: string; summary: string; mode: string;
 }
 
-/* Ever-changing, light-hearted opener. Rotated by a per-visit seed. */
-const SUBS = [
-  "Bring me your trickiest question — I dare you.",
-  "What shall we untangle today?",
-  "Ask me anything. Yes, even the embarrassing ones.",
-  "Let's make the optic nerve proud.",
-  "Your questions, my circuits. Shall we?",
-  "Stuck on something? That's my favourite place to start.",
-  "No question too small, no cornea too curly.",
-  "Ready to outsmart an eyeball?",
-  "Think out loud with me — that's how it sticks.",
-  "What's puzzling you? Let's crack it together.",
-];
 const STARTERS = [
   "Explain slit-lamp technique",
   "Describe the normal OCT layers",
@@ -35,9 +22,6 @@ const STARTERS = [
   "What is the cup-to-disc ratio?",
 ];
 
-function timeHello(hour: number): string {
-  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-}
 function prettyTopic(t: string): string {
   return (t || "your last session").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
@@ -61,7 +45,7 @@ function modeMeta(mode: string): { label: string; cls: string } {
 }
 
 export function TutorLanding({
-  firstName, input, onChange, onSend, disabled, sessions, onResume, onStarter, subSeed, leaving = false,
+  firstName, input, onChange, onSend, disabled, sessions, onResume, onStarter, openerSeed, subSeed, leaving = false,
 }: {
   firstName: string;
   input: string;
@@ -71,14 +55,13 @@ export function TutorLanding({
   sessions: RecentSession[];
   onResume: (s: RecentSession) => void;
   onStarter: (text: string) => void;
+  openerSeed: number;
   subSeed: number;
   leaving?: boolean;
 }) {
-  // Default to "evening" for SSR + first client render (matches, no hydration flash),
-  // then settle to the real local hour after mount.
-  const [hour, setHour] = useState(18);
-  useEffect(() => { setHour(new Date().getHours()); }, []);
-  const sub = SUBS[((subSeed % SUBS.length) + SUBS.length) % SUBS.length];
+  // Hello opener + cheeky sub both come from the pure engine, chosen by seeds the parent
+  // (Tutor) rotates per visit with no immediate repeats. 0/0 on first render is stable.
+  const greeting = pickTutorGreeting(openerSeed, subSeed);
   const recent = sessions.slice(0, 5);
 
   return (
@@ -102,8 +85,8 @@ export function TutorLanding({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="tl-iris" src="/brand/iris.png" alt="" width={216} height={216} />
         </div>
-        <h1 className="tl-hello">{timeHello(hour)}, <em>{firstName}</em></h1>
-        <p className="tl-sub">{sub}</p>
+        <h1 className="tl-hello">{greeting.before}<em>{firstName}</em>{greeting.after}</h1>
+        <p className="tl-sub">{greeting.sub}</p>
         <div className="tl-prompt">
           <Composer value={input} onChange={onChange} onSend={onSend} disabled={disabled}
             placeholder="Ask EyeBot anything…" />
