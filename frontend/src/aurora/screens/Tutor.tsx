@@ -16,10 +16,13 @@ import { toast } from "sonner";
 import { AchievementManager } from "@/screens/AchievementToast";
 import { addChatXp, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useGamificationSync } from "@/hooks/useGamification";
-import { TutorLanding, type RecentSession } from "@/aurora/components/TutorLanding";
+import { TutorLanding } from "@/aurora/components/TutorLanding";
+import {
+  loadSessions, saveSessions, upsertSession, recentSessions,
+  deriveTopic, derivePreview, type StoredSession, type StoredMessage,
+} from "@/aurora/lib/tutorSessions";
 import { OPENERS, SUBS, nextIndex } from "@/aurora/lib/tutorGreeting";
 import { useAuth } from "@/screens/AuthContext";
-import { useProgress } from "@/hooks/useProgress";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -44,8 +47,34 @@ export function Tutor() {
   const chatCapNotified = useRef(false);
   const { mutate: syncGamification } = useGamificationSync();
   const { user } = useAuth();
-  const { data: progress } = useProgress();
   const firstName = (user?.fullName ?? "there").split(" ")[0];
+  const userId = user?.studentId || user?.email || "_";
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [recent, setRecent] = useState<StoredSession[]>([]);
+  // Load this student's recent conversations for the landing (client-only).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setRecent(recentSessions(loadSessions(userId, window.localStorage), 3));
+  }, [userId]);
+
+  // Persist the full thread (normalized) to localStorage under `sid`, upserting to the front.
+  const persistThread = (thread: Message[], sid: string) => {
+    if (typeof window === "undefined") return;
+    const stored: StoredMessage[] = thread.map((m) =>
+      m.type === "ai" ? { type: "ai", id: m.id, text: m.content } : { type: "user", id: m.id, text: m.text });
+    const now = Date.now();
+    const existing = loadSessions(userId, window.localStorage);
+    const prior = existing.find((s) => s.id === sid);
+    const session: StoredSession = {
+      id: sid,
+      startedAt: prior?.startedAt ?? now,
+      updatedAt: now,
+      topic: deriveTopic(stored),
+      preview: derivePreview(stored),
+      messages: stored,
+    };
+    saveSessions(userId, upsertSession(existing, session), window.localStorage);
+  };
 
   // Greeting landing (ricoe A2): /chat opens on a hello + prompt + recent sessions, then
   // cross-fades into the live thread once the student asks something. "leaving" keeps both
@@ -69,9 +98,13 @@ export function Tutor() {
   }, []);
   const enterChat = () => { setPhase("leaving"); window.setTimeout(() => setPhase("chat"), 460); };
   const startFromLanding = () => { if (!input.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(); };
-  const startWith = (text: string) => { if (!text.trim() || isTyping || streamingId) return; enterChat(); void sendMessage(text); };
-  const resumeSession = (s: RecentSession) =>
-    startWith(`Let's pick up where I left off on ${s.topic}.${s.summary ? ` Earlier: ${s.summary}` : ""} Can we go a bit deeper?`);
+  const resumeSession = (s: StoredSession) => {
+    const restored: Message[] = s.messages.map((m) =>
+      m.type === "ai" ? { type: "ai", id: m.id, content: m.text } : { type: "user", id: m.id, text: m.text });
+    setMessages(restored);
+    setActiveSessionId(s.id);
+    setPhase("chat");
+  };
 
   // F3 — "Explain this" from a flashcard pre-seeds the composer with the question.
   useEffect(() => {
@@ -96,10 +129,14 @@ export function Tutor() {
   const sendMessage = async (override?: string) => {
     const text = (override ?? input).trim();
     if (!text || isTyping || streamingId) return;
+    const sid = activeSessionId ?? `sess-${Date.now()}`;
+    if (!activeSessionId) setActiveSessionId(sid);
     const userMsg: UserMessage = { type: "user", id: Date.now().toString(), text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsTyping(true);
+    // Persist immediately so the session appears even if the user leaves before a reply.
+    persistThread(messages.concat(userMsg), sid);
 
     // Chat XP is capped per day so it can't be farmed by spamming messages.
     // Sync the grant to the backend (single source of truth) so it shows up in
@@ -119,6 +156,7 @@ export function Tutor() {
     );
 
     const aiMsgId = `ai-${Date.now() + 1}`;
+    let aiContent = "";
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -149,6 +187,7 @@ export function Tutor() {
           try {
             const parsed = JSON.parse(data) as { text: string };
             if (parsed.text) {
+              aiContent += parsed.text;
               setMessages((prev) => {
                 const last = prev[prev.length - 1];
                 if (last.type === "ai" && last.id === aiMsgId)
@@ -159,6 +198,7 @@ export function Tutor() {
           } catch { /* skip malformed SSE */ }
         }
       }
+      persistThread(messages.concat(userMsg, { type: "ai", id: aiMsgId, content: aiContent }), sid);
     } catch {
       setMessages((prev) => {
         const last = prev[prev.length - 1];
@@ -166,6 +206,7 @@ export function Tutor() {
           return [...prev.slice(0, -1), { ...last, content: FALLBACK_CONTENT }];
         return [...prev, { type: "ai", id: aiMsgId, content: FALLBACK_CONTENT }];
       });
+      persistThread(messages.concat(userMsg, { type: "ai", id: aiMsgId, content: FALLBACK_CONTENT }), sid);
     } finally {
       setIsTyping(false);
       setStreamingId(null);
@@ -188,9 +229,8 @@ export function Tutor() {
           onChange={setInput}
           onSend={startFromLanding}
           disabled={isTyping || streamingId !== null}
-          sessions={(progress?.sessions ?? []) as RecentSession[]}
+          sessions={recent}
           onResume={resumeSession}
-          onStarter={startWith}
           openerSeed={openerSeed}
           subSeed={subSeed}
           leaving={phase === "leaving"}
