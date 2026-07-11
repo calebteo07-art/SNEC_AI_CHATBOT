@@ -32,4 +32,20 @@ const seen = new Set();
 for (let i = 0; i < 1000; i++) seen.add(nextIndex(5, -1, i / 1000));
 assert.ok(seen.has(0) && seen.has(4), "nextIndex(len,-1) must reach the full range");
 
+// 5) clamp boundary (r >= 1) + invalid `last` still stay in range and honour no-repeat
+for (const len of [2, 5, OPENERS.length, SUBS.length]) {
+  for (const r of [1, 1.5, 2, -0.1]) {
+    for (const last of [0, len - 1]) {
+      const idx = nextIndex(len, last, r);
+      assert.ok(idx >= 0 && idx < len, `clamp out of range: ${idx} (len=${len}, r=${r})`);
+      assert.notStrictEqual(idx, last, `clamp repeated last=${last} (len=${len}, r=${r})`);
+    }
+  }
+  // non-integer / out-of-band `last` = "no constraint"; result must still be in range
+  for (const last of [1.5, len, -3]) {
+    const idx = nextIndex(len, last, 0.5);
+    assert.ok(idx >= 0 && idx < len, `invalid-last out of range: ${idx} (len=${len}, last=${last})`);
+  }
+}
+
 console.log("PASS: tutor greeting engine");
