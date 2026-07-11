@@ -38,77 +38,78 @@ Kept verbatim from the original app (explicit user preference). Do not restyle.
 mark** (refreshed with the rest of the app) — still mono ink on the light card, no colour
 or brand chrome added, so "verbatim/minimal" holds. The photoreal Living-Eye hero is unchanged.
 
-## Flashcards — LOCKED 2026-06-30 · re-themed "Grand Prix" (Mario Kart) 2026-07-11
-**Theme (2026-07-11 — supersedes "ivory & ink" ricoe D2, user-directed)**: the flashcards
-world is **"Grand Prix"** — clinical active-recall reskinned as a Mario-Kart race on a
-**vibrant, high-saturation** palette (red `--mk-red` #ff2a22, star-blue #16b3f2, luigi-green
-#24d24d, coin-gold #ffc400, peach #ff6fb0; tokens scoped on `.flash-root` in `aurora.css`).
-**Selection** is a bright circuit-sky room; the topics are **kart "racer" cards** (the Nano
-Banana topic photo framed in the topic-hue kart body — race number, glossy windscreen, wheels)
-flying at you on a **3D COVERFLOW starting grid** that leans the camera in with speed (`--vel`
-→ perspective + speed-lines). **Activity** is an **on-track night** so the **dark graphite
-cockpit-dashboard card** pops: both faces are graphite (front #1b2029 = where you answer, back
-#14171d = the boost payoff + Findings), each with an animated neon topic-hue rim. The card wears
-the **Mario-Kart cockpit chrome** (mockup-faithful, 2026-07-11): a **persistent race HUD** above
-the flip (`Card n / N` + segment pips · gold **grid-position ribbon** · **coin bank**) that rides
-over the barrel-roll and ticks the overtake (−1 place) + coins on each reveal; a **full-bleed
-sky-blue question banner** (`.flash-qhead`, `#12a5e0→#0d84b6`) carrying the topic tag + stem; and
-a **boost meter** pinned to the dashboard's lower edge. Tap an answer → the **boost meter** fills
-(the charge visual — `ChargeBeat` is now a transparent tap-through timer, no dark overlay) → the
-card **barrel-rolls on a boost** (banana-spins on a miss) and flips to the payoff (BOOST!/SPIN OUT
-+ coins + an **overtake callout**). **Verdicts stay ✓ green `#16a34a` / ✗ red `#e22030` (icon +
-colour, colour-blind-safe)**; a correct reveal cycles a neon "Rainbow Road" rim.
-**Acceptance criteria when refining**: selection = coverflow kart grid on a bright sky; study
-card = dark graphite cockpit on BOTH faces; **carousel motion (topic select) + real 3D flip
-(activity) are mandatory and never regress**; verdicts icon+colour; everything **freezes hard
-under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip); WCAG-legible.
-- **Selection**: the coverflow starting grid (`CardFanCarousel`) — continuous auto-roll, drag/
-  flick to spin, arrows nudge, dots, speed-coupled FOV + speed-lines; freezes to a static parked
-  grid under reduced motion. **Topic pick is resolved at the STAGE, not per-card**: cards are
-  `pointer-events:none` and a tap opens the topic whose live on-screen centre is nearest the
-  pointer. **Never regress to a per-card `<button>` onClick** — the drift + 3D projection make
-  each card a moving, mis-projected target, so taps fall through to `.fan-layout` and do nothing
-  (shipped broken 2026-07-11; identical to the failure the home FeatureCarousel already fixed).
+## Flashcards — LOCKED 2026-06-30 · re-themed "Dark Arcade" 2026-07-12 (supersedes "Grand Prix")
+**Theme (2026-07-12 — user-directed, supersedes "Grand Prix"/Mario-Kart)**: the flashcards world
+is **one dark ARCADE world** — clinical active-recall as an addictive game, in **classic/arcade
+language** (no Mario/Grand-Prix/racing terms anywhere — copy, class names, or `--fc-*` tokens).
+**Selection, intro, study and results all share ONE dark graphite ground** (`#1b2636→#0a0d12`)
+with a **slow moving colour-bloom** (`@keyframes flash-drift` on `.flash-root::before`, topic-hue
+driven — beautiful, never distracting) so pick → play is one seamless scene (no bright-sky→dark
+jump). **Vibrant, high-saturation neon palette** as `--fc-*` on `.flash-root` (red #ff3b30, blue
+#22bcff, green #2ee85a, coin #ffd21e, peach #ff7ab8, purple #9b6bff). **Selection** is a **large 3D
+COVERFLOW** of topic cards (`CardFanCarousel`) over the dark ground — **no race numbers, no
+pagination dots**, neutral glass arrows only, a topic-hue glow pool under the cards. **Study/intro**
+is the **dark graphite card** (front #1b2029, back #14171d) with an **animated glowing topic-hue
+rim**; the study card **matches the intro card** — same dark surface + rim and a **dark question
+header with a glowing topic eyebrow** (NOT a coloured banner). A **persistent HUD** above the flip
+carries `Q n / N` + segment pips (left) and **SCORE + STREAK ×N** (right); score ticks up on reveal,
+**no grid-position / overtake mechanic**. Tap an answer → the **power meter** fills (`ChargeBeat`
+transparent tap-through timer) → the card **rolls + flips** to the payoff (**PERFECT! / MISS** +
+score + combo + a streak callout) over the model answer (**"Explanation"**). **Answer buttons are
+dark NEUTRAL by default (never red)**; a correct lock is **✓ bright green**, a wrong lock is **✗
+bright red** — the only red in the flow (icon + colour, colour-blind-safe). A correct reveal cycles
+a bright celebratory rim. The **reveal back face is fully CENTRED** and the **Next button sinks to
+the card's bottom**.
+**Acceptance criteria when refining**: selection + activity share ONE dark moving-gradient ground;
+topic cards are LARGE with no numbers/dots; study card = dark graphite on BOTH faces matching the
+intro card; answer buttons neutral (green ✓ / red ✗ only on lock); reveal centred with Next at the
+bottom; **carousel motion (topic select) + real 3D flip (activity) are mandatory and never regress**;
+verdicts icon+colour; everything **freezes hard under reduced motion** (no drift, no roll, instant
+flip, spinner slows); WCAG-legible.
+- **Selection**: the coverflow (`CardFanCarousel`) — continuous auto-roll, drag/flick to spin,
+  neutral glass arrows nudge (**no dots**, **no race numbers**, **no wheels/speed-lines/asphalt**);
+  freezes to a static parked grid under reduced motion. **Topic pick is resolved at the STAGE, not
+  per-card**: cards are `pointer-events:none` and a tap opens the topic whose live on-screen centre
+  is nearest the pointer. **Never regress to a per-card `<button>` onClick** — the drift + 3D
+  projection make each card a moving, mis-projected target, so taps fall through to `.fan-layout`
+  and do nothing (shipped broken 2026-07-11; identical to the home FeatureCarousel failure).
   Keyboard Enter still picks via the button. **The harness must click a topic in FULL motion** —
   the pick was only ever tested after reduced motion froze the fan, which hid the bug. Per-topic
   Nano Banana photos (SG stock-photo look, plain solid-blue scrubs, no institutional branding —
-  see the topic-art contract below), kart-framed with race number + label plate. No difficulty
-  picker, fixed 10-card decks, no scroll (dvh-sized).
-- **Study**: instant-tap MCQ on the dark cockpit dashboard — persistent HUD (coins + grid
-  position) above the flip, sky-blue question banner, glossy red kart-button options (✓/✗ lock),
-  boost meter at the base. Reveal = **Charge → Barrel-roll / Banana Flip → Payoff** (boost-meter
-  fill is the charge, transparent tap-through `ChargeBeat`; 3D flip to the graphite back face,
-  boost flash, BOOST!/SPIN OUT verdict + coins + combo + overtake callout). On
-  the first card of a deck, a full-motion **3·2·1·GO start-light** sequence (`GridLights`,
-  `pointer-events:none`, renders nothing under reduced motion). Per-topic hue rim; green/red verdicts.
-  **Full-motion paint invariant (2026-07-11)**: any study-card element whose base state is
-  `opacity:0` MUST have its reveal `@keyframes` defined. The option karts (`.flash-option`) start
-  at `opacity:0` and depend on `@keyframes flash-rise`; that keyframe was referenced but never
-  defined, so a referenced-but-missing (no-op) animation stranded **every MCQ answer invisible in
-  FULL motion** — a "blank" card body. Reduced motion HID it (it force-sets `.flash-option`
-  `opacity:1`), and the harness only ever `.click()`ed an option (which succeeds at `opacity:0`),
-  so it went uncaught. The fix is to **define the keyframe** (never delete it). The harness now
-  enters study in **full motion** and asserts the options actually PAINT (computed `opacity → ~1`)
-  — a plain `.click()` must never be the only visibility check on an animated element.
-  The dashboard's four **decorative** loops — `fan-in` (starting-grid entrance), `flash-seg`
-  (current-lap pip breathe), `flash-ignite` (option tap-spark), `flash-pulse` (armed
-  multi-select lock throb) — are likewise real `@keyframes` (defined 2026-07-11) and
-  **hard-frozen under both reduced-motion paths** (`html[data-motion="reduce"]` + the
-  `prefers-reduced-motion` media block); they are intentional Grand-Prix motion, not dead
-  code — refine within them, never strip them as "unused".
+  see the topic-art contract below), in a premium image card with a topic-hue frame + halo. No
+  difficulty picker, fixed 10-card decks, no scroll (dvh-sized).
+- **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
+  a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
+  red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
+  fill is the charge, transparent tap-through `ChargeBeat`; 3D flip to the graphite back face, flash,
+  **PERFECT!/MISS** verdict + score + combo + streak callout, **centred**, Next at the bottom). The
+  deck-load wait shows a **classic ring spinner** (`.flash-spinner`); the old `3·2·1·GO` start-lights
+  (`GridLights`) are **removed**. Per-topic hue rim; green/red verdicts.
+  **Full-motion paint invariant (2026-07-11, still holds)**: any study-card element whose base state
+  is `opacity:0` MUST have its reveal `@keyframes` defined. The options (`.flash-option`) start at
+  `opacity:0` and depend on `@keyframes flash-rise`; a referenced-but-missing (no-op) animation once
+  stranded **every MCQ answer invisible in FULL motion** — a "blank" card body. Reduced motion HID it
+  (it force-sets `.flash-option opacity:1`) and a plain `.click()` succeeds at `opacity:0`, so it went
+  uncaught. **Define the keyframe (never delete it)**; the harness enters study in FULL motion and
+  asserts the options actually PAINT (computed `opacity → ~1`). The **decorative** loops — `fan-in`
+  (coverflow entrance), `flash-seg` (current-pip breathe), `flash-ignite` (option tap-spark),
+  `flash-pulse` (armed multi-select lock throb), `flash-drift` (background bloom), `flash-spin`
+  (loading ring) — are real `@keyframes` and **hard-frozen/slowed under both reduced-motion paths**
+  (`html[data-motion="reduce"]` + the `prefers-reduced-motion` media block); refine within them,
+  never strip them as "unused".
   **Shell layers stay out of flow (2026-07-11)**: FlashShell's engraved background layers —
   `EngravingField` (`.flash-engravings` / `.flash-engraving`) + `BrownianField` (`.flash-bg` /
   `.flash-spot`) — MUST be `position:absolute; inset:0` at z0, behind the z2 `.flash-content`.
-  The Grand Prix CSS rewrite dropped these rules but kept the components, so they rendered IN
+  A 2026-07-11 CSS rewrite dropped these rules but kept the components, so they rendered IN
   FLOW; their unstyled, unsized glyph/spot SVGs ballooned the box to ~20000px and shoved the
   whole intro/card ~20000px BELOW the viewport — it painted fine but off-screen = the "blank
   screen after a topic pick." Like the paint bug, a `waitForSelector`/`innerText` check passes
   on off-screen content, so the harness now asserts the intro's box sits WITHIN the viewport,
   not merely that it is attached to the DOM.
-- **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the
-  grid", the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N laps · mixed difficulty ·
-  instant scoring` meta and a "Start your engines" CTA — in the dark dashboard language. Deck
-  loads in the background; tutor-handoff and `?mode=review` flows skip it.
+- **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — a "Ready"
+  kicker, the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N questions · mixed difficulty ·
+  instant scoring` meta and a "Press start" CTA — in the same dark arcade card language. Deck loads
+  in the background; tutor-handoff and `?mode=review` flows skip it.
 - **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-phrased
   `ComboBurst` slam (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 / GODLIKE 10+) with the ×N, a
   shockwave ring and the streak count; `pointer-events:none`, self-dismissing, keeps rewarding

@@ -1,6 +1,6 @@
 "use client";
 /* ChargeBeat — the suspense beat between locking an answer and the flip. It no longer
-   draws anything: the FRONT-face boost meter (McqCard) is the charge visual now, so this
+   draws anything: the FRONT-face power meter (McqCard) is the charge visual now, so this
    is just a transparent full-card tap-catcher + timer that flips after BEAT_MS (a short
    REDUCED_MS under reduced motion). A tap anywhere skips straight to the reveal. */
 import { useEffect, useRef } from "react";

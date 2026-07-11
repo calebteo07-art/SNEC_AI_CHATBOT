@@ -49,8 +49,8 @@ export function StepTopic({ sets, onStart }: Props) {
   return (
     <div className="flash-step-body">
       <div className="flash-step-lede">
-        <h2 className="flash-setup-title">Grand Prix</h2>
-        <p className="flash-step-sub">Take the wheel — pick your grid and race the deck.</p>
+        <h2 className="flash-setup-title">Pick your challenge</h2>
+        <p className="flash-step-sub">Choose a deck — ten questions, instant scoring, beat your streak.</p>
       </div>
 
       <CardFanCarousel

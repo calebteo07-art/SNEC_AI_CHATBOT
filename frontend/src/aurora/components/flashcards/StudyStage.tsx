@@ -6,8 +6,8 @@ import { McqCard } from "./McqCard";
 
 interface Props {
   card: Flashcard; idx: number; total: number; topicLabel: string; combo: number;
-  /** Cosmetic race HUD — the running coin bank and grid position BEFORE this card. */
-  coins: number; position: number;
+  /** Running score BEFORE this card (the HUD tick-up target on reveal). */
+  score: number;
   reasonNote: string | null;
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
@@ -22,7 +22,7 @@ export function StudyStage(p: Props) {
           clears the verdict → the back-face Payoff briefly shows "Review this" (jars
           most after a correct answer). A fresh mount has no prior flipped state. */}
       <McqCard key={p.card.id} card={p.card} topicLabel={p.topicLabel} idx={p.idx} total={p.total}
-        combo={p.combo} coins={p.coins} position={p.position}
+        combo={p.combo} score={p.score}
         onCheck={p.onCheck} onReason={p.onReason} onAdvance={p.onAdvance}
         advanceLabel={p.advanceLabel} reasonNote={p.reasonNote} />
     </div>

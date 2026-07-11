@@ -1,17 +1,15 @@
 "use client";
-/* CardFanCarousel — the GRAND PRIX starting grid. A 3D COVERFLOW of topic "racer"
-   cards that flows CONTINUOUSLY like a race down the straight: a single rAF loop
-   advances a fractional "flow" offset and writes each card's coverflow transform
-   every frame (centre card largest + facing forward, side cards banked away into
-   depth). The field's velocity leans the camera in (perspective narrows → speed) and
-   streaks the speed-lines. Drag/flick to spin the grid, arrows nudge by one. A TAP
-   opens the topic whose live on-screen centre is nearest the tap — resolved at the
-   STAGE (cards are pointer-events:none), so the continuous drift + 3D projection can't
-   swallow the click the way a per-card <button> click did (same failure the home
-   FeatureCarousel fixed). Keyboard Enter still picks via the button. Reactive to reduced
-   motion (freezes to a static parked grid). The component API (cards / onPick /
-   autoAdvanceMs) and every test hook (flash-fan, flash-pick, data-card-id,
-   flash-prev/next, fan-dot) are unchanged. */
+/* CardFanCarousel — the topic picker: a 3D COVERFLOW of large topic cards that drifts
+   CONTINUOUSLY. A single rAF loop advances a fractional "flow" offset and writes each
+   card's coverflow transform every frame (centre card largest + facing forward, side
+   cards banked away into depth); its velocity gently narrows the perspective for depth.
+   Drag/flick to spin, arrows nudge by one. A TAP opens the topic whose live on-screen
+   centre is nearest the tap — resolved at the STAGE (cards are pointer-events:none), so
+   the continuous drift + 3D projection can't swallow the click the way a per-card
+   <button> click did (same failure the home FeatureCarousel fixed). Keyboard Enter still
+   picks via the button. Reactive to reduced motion (freezes to a static parked grid). The
+   component API (cards / onPick / autoAdvanceMs) and every test hook (flash-fan,
+   flash-pick, data-card-id, flash-prev/next) are unchanged. No race numbers, no dots. */
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface FanCard {
@@ -78,7 +76,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   const svRef = useRef(0);             // smoothed field velocity 0..1 → FOV + streaks
   const draggingRef = useRef(false);
   const paintRef = useRef<() => void>(() => {});
-  const activeDotRef = useRef(-1);
   const total = cards.length;
   const [reduced, setReduced] = useState(false);
 
@@ -106,7 +103,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     const container = containerRef.current;
     if (!container || !total) return;
     const els = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
-    const dots = Array.from(container.parentElement?.querySelectorAll<HTMLElement>(".fan-dot") ?? []);
     const zCache = new Array(els.length).fill(NaN);
     let cw = getCardWidth(window.innerWidth);
     const viewport = container.parentElement; // .fan-stage (owns perspective + --vel)
@@ -127,12 +123,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
       if (viewport) {
         viewport.style.setProperty("--vel", sv.toFixed(3));
         viewport.style.perspective = `${(1350 - sv * 470).toFixed(0)}px`;
-      }
-      const active = ((Math.round(flow) % total) + total) % total;
-      if (active !== activeDotRef.current) {
-        if (activeDotRef.current >= 0 && dots[activeDotRef.current]) dots[activeDotRef.current].classList.remove("is-on");
-        if (dots[active]) dots[active].classList.add("is-on");
-        activeDotRef.current = active;
       }
     };
     paintRef.current = paint;
@@ -232,7 +222,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   return (
     <section className="fan-section" aria-label="Topics">
       <div className="fan-stage">
-        <div className="fan-speedlines" aria-hidden />
         <div ref={containerRef} className="fan-layout" data-testid="flash-fan"
           onPointerDown={onPointerDown} onPointerMove={onPointerMove}
           onPointerUp={onPointerUp} onPointerCancel={endDrag} onPointerLeave={endDrag}>
@@ -251,13 +240,10 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
                   onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
                 <span className="fan-card-gloss" aria-hidden />
               </span>
-              <span className="fan-card-num" aria-hidden>{i + 1}</span>
               <span className="fan-card-cap">
                 <span className="fan-card-label">{card.label}</span>
                 {card.sub && <span className="fan-card-sub">{card.sub}</span>}
               </span>
-              <span className="fan-wheel fan-wheel-l" aria-hidden />
-              <span className="fan-wheel fan-wheel-r" aria-hidden />
             </button>
           ))}
         </div>
@@ -265,9 +251,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
       <div className="fan-controls">
         <button type="button" className="fan-arrow flash-press" data-testid="flash-prev"
           onClick={() => nudge(-1)} aria-label="Previous">{chevron("left")}</button>
-        <div className="fan-dots" aria-hidden="true">
-          {cards.map((c) => (<span key={c.id} className="fan-dot" />))}
-        </div>
         <button type="button" className="fan-arrow flash-press" data-testid="flash-next"
           onClick={() => nudge(1)} aria-label="Next">{chevron("right")}</button>
       </div>

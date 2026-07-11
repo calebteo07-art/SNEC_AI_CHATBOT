@@ -19,13 +19,13 @@ export function TopicIntro({ label, topicKey, count, onBegin }: Props) {
     <div className="flash-stage">
       <div className="flash-intro" data-testid="flash-intro">
         <div className="flash-intro-in">
-          <p className="flash-intro-kicker">On the grid</p>
+          <p className="flash-intro-kicker">Ready</p>
           <h2 className="flash-intro-title">{label}</h2>
           <p className="flash-intro-blurb">{topicBlurb(topicKey)}</p>
-          <p className="flash-intro-meta">{cards} laps · mixed difficulty · instant scoring</p>
+          <p className="flash-intro-meta">{cards} questions · mixed difficulty · instant scoring</p>
           <button type="button" className="flash-advance flash-intro-go"
             data-testid="flash-intro-begin" onClick={onBegin} autoFocus>
-            <span>Start your engines →</span>
+            <span>Press start →</span>
           </button>
         </div>
       </div>
