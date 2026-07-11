@@ -48,10 +48,16 @@ Banana topic photo framed in the topic-hue kart body — race number, glossy win
 flying at you on a **3D COVERFLOW starting grid** that leans the camera in with speed (`--vel`
 → perspective + speed-lines). **Activity** is an **on-track night** so the **dark graphite
 cockpit-dashboard card** pops: both faces are graphite (front #1b2029 = where you answer, back
-#14171d = the boost payoff + Findings), each with an animated neon topic-hue rim. Tap an answer
-→ the **boost meter** charges → the card **barrel-rolls on a boost** (banana-spins on a miss)
-and flips to the payoff. **Verdicts stay ✓ green `#16a34a` / ✗ red `#e22030` (icon + colour,
-colour-blind-safe)**; a correct reveal cycles a neon "Rainbow Road" rim.
+#14171d = the boost payoff + Findings), each with an animated neon topic-hue rim. The card wears
+the **Mario-Kart cockpit chrome** (mockup-faithful, 2026-07-11): a **persistent race HUD** above
+the flip (`Card n / N` + segment pips · gold **grid-position ribbon** · **coin bank**) that rides
+over the barrel-roll and ticks the overtake (−1 place) + coins on each reveal; a **full-bleed
+sky-blue question banner** (`.flash-qhead`, `#12a5e0→#0d84b6`) carrying the topic tag + stem; and
+a **boost meter** pinned to the dashboard's lower edge. Tap an answer → the **boost meter** fills
+(the charge visual — `ChargeBeat` is now a transparent tap-through timer, no dark overlay) → the
+card **barrel-rolls on a boost** (banana-spins on a miss) and flips to the payoff (BOOST!/SPIN OUT
++ coins + an **overtake callout**). **Verdicts stay ✓ green `#16a34a` / ✗ red `#e22030` (icon +
+colour, colour-blind-safe)**; a correct reveal cycles a neon "Rainbow Road" rim.
 **Acceptance criteria when refining**: selection = coverflow kart grid on a bright sky; study
 card = dark graphite cockpit on BOTH faces; **carousel motion (topic select) + real 3D flip
 (activity) are mandatory and never regress**; verdicts icon+colour; everything **freezes hard
@@ -62,9 +68,11 @@ under reduced motion** (no roll, no barrel/banana, no start-lights, instant flip
   (SG stock-photo look, plain solid-blue scrubs, no institutional branding — see the topic-art
   contract below), kart-framed with race number + label plate. No difficulty picker, fixed
   10-card decks, no scroll (dvh-sized).
-- **Study**: instant-tap MCQ on the dark cockpit dashboard (glossy red kart-button options,
-  ✓/✗ lock). Reveal = **Charge → Barrel-roll / Banana Flip → Payoff** (LiquidLoading ChargeBeat,
-  3D flip to the graphite back face, boost flash, BOOST!/SPIN OUT verdict + coins + combo). On
+- **Study**: instant-tap MCQ on the dark cockpit dashboard — persistent HUD (coins + grid
+  position) above the flip, sky-blue question banner, glossy red kart-button options (✓/✗ lock),
+  boost meter at the base. Reveal = **Charge → Barrel-roll / Banana Flip → Payoff** (boost-meter
+  fill is the charge, transparent tap-through `ChargeBeat`; 3D flip to the graphite back face,
+  boost flash, BOOST!/SPIN OUT verdict + coins + combo + overtake callout). On
   the first card of a deck, a full-motion **3·2·1·GO start-light** sequence (`GridLights`,
   `pointer-events:none`, renders nothing under reduced motion). Per-topic hue rim; green/red verdicts.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — "On the

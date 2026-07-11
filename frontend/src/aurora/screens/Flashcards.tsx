@@ -25,6 +25,9 @@ import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/R
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import LiquidLoading from "@/components/ui/liquid-loader";
 
+// Cosmetic race start: you line up mid-grid and overtake one place per correct card.
+const START_POS = 8;
+
 function toCard(c: FlashcardItem, i: number): Flashcard {
   return {
     id: i + 1, stem: c.stem, options: c.options, correct: c.correct, qtype: c.qtype,
@@ -81,6 +84,12 @@ export function Flashcards() {
   const xpRef = useRef(0);
   const comboRef = useRef(0);          // consecutive-correct streak (deck-level)
   const [combo, setCombo] = useState(0); // mirror for prop propagation to the card
+  // Cosmetic race telemetry (coins = XP so far · grid position, overtaking on a correct).
+  // Refs are the source of truth; the *Shown mirrors are the pre-card values handed to
+  // the HUD and only advance to the running total when we move to the next card.
+  const posRef = useRef(START_POS);
+  const [posShown, setPosShown] = useState(START_POS);
+  const [coinsShown, setCoinsShown] = useState(0);
   // ricoe B3: the loud combo popup. Keyed so each qualifying streak restarts it.
   const [burst, setBurst] = useState<{ key: number; combo: number } | null>(null);
 
@@ -127,6 +136,7 @@ export function Flashcards() {
     }
     const xp = correct ? XP_CORRECT * comboMultiplier(newCombo) : XP_ATTEMPT;
     xpRef.current += xp; addXP(xp); incrementTotalCards();
+    if (correct) posRef.current = Math.max(1, posRef.current - 1); // overtake one place
     const unlocked = checkAndUnlockAchievements();
     if (unlocked.length) toast.success("Achievement unlocked! 🏅");
   };
@@ -148,6 +158,8 @@ export function Flashcards() {
 
   const advance = () => {
     setChecked(false);
+    // Roll the HUD's pre-card baseline forward to the running totals for the next card.
+    setCoinsShown(xpRef.current); setPosShown(posRef.current);
     if (idx < total - 1) { setIdx((i) => i + 1); return; }
     finish();
   };
@@ -171,6 +183,7 @@ export function Flashcards() {
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
     reasonNotesRef.current = {}; xpRef.current = 0; comboRef.current = 0; setCombo(0);
     setBurst(null);
+    posRef.current = START_POS; setPosShown(START_POS); setCoinsShown(0);
     const next = missed.slice(); missedRef.current = [];
     setDrill(next.map((c, i) => ({ ...c, id: i + 1 })));
     setIdx(0); setChecked(false); setDone(false);
@@ -190,6 +203,7 @@ export function Flashcards() {
     resultsRef.current = []; byTopicRef.current = {}; reasonScoresRef.current = [];
     reasonNotesRef.current = {}; missedRef.current = [];
     xpRef.current = 0; comboRef.current = 0; setCombo(0); setBurst(null);
+    posRef.current = START_POS; setPosShown(START_POS); setCoinsShown(0);
     setDrill([]); setIdx(0); setChecked(false); setDone(false);
     setSetKey(null); setPickerDone(false); setIntro(false);
   };
@@ -255,6 +269,7 @@ export function Flashcards() {
         key={deckEpoch}
         card={card} idx={idx} total={total} topicLabel={labelForTag(card.tag)}
         reasonNote={reasonNotesRef.current[card.id] ?? null} combo={combo}
+        coins={coinsShown} position={posShown}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
       {idx === 0 && <GridLights key={`gl-${deckEpoch}`} />}

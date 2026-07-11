@@ -1,14 +1,18 @@
 "use client";
-/* McqCard — the two-faced study instrument. Tap = instant ✓/✗ lock on the FRONT
-   face. A ChargeBeat (liquid loader) suspense beat plays, then the card FLIPS (CSS, .is-flipped) to
-   a full-bleed BACK face: the Payoff (verdict + combo + points + particles) over the
-   model answer ("Findings"). Plain cards charge straight after the lock; reflection
-   cards (~1 in 5) take a one-line reason on the front first, then charge. Free-text
-   tutor cards "Show answer" → charge → flip → self-mark. After the flip the Next /
-   self-mark is held for a short SETTLE so the payoff plays before advancing. The
-   drifting colour lights live behind the whole canvas (FlashShell), not in the card. */
+/* McqCard — the two-faced cockpit dashboard (Grand Prix). The HUD (race position +
+   coin bank) rides ABOVE the flip so it persists across the barrel-roll, exactly like
+   the Mario-Kart mockup. Tap = instant ✓/✗ lock on the FRONT face (sky-blue question
+   band + glossy red option karts); the boost meter charges, then the card FLIPS (CSS,
+   .is-flipped) — barrel-roll on a boost, banana-spin on a miss — to the BACK face: the
+   Payoff (BOOST!/SPIN OUT + combo + coins + an OVERTAKE callout) over the model answer
+   ("Findings"). Plain cards charge straight after the lock; reflection cards (~1 in 5)
+   take a one-line reason on the front first; free-text tutor cards "Show answer" →
+   charge → flip → self-mark. Next is held for a short SETTLE after the flip. */
 import { useEffect, useState } from "react";
-import { type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT } from "./types";
+import {
+  type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT,
+  comboMultiplier, comboCallout,
+} from "./types";
 import { Icon } from "@/aurora/icons";
 import { ChargeBeat } from "./ChargeBeat";
 import { Payoff } from "./Payoff";
@@ -18,10 +22,25 @@ const SETTLE_MS = 850; // payoff dwell after the flip before Next/self-mark unlo
 
 interface Props {
   card: Flashcard; topicLabel: string; idx: number; total: number; combo: number;
+  /** Cosmetic race HUD — the running coin bank and grid position BEFORE this card. */
+  coins: number; position: number;
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
   onAdvance: () => void; advanceLabel: string; reasonNote: string | null;
 }
+
+/** 1 → "1st", 2 → "2nd" … for the position ribbon. */
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+const CoinIcon = () => (
+  <svg className="flash-coin-ico" viewBox="0 0 32 32" width="19" height="19" aria-hidden>
+    <circle cx="16" cy="16" r="14" fill="#ffc400" stroke="#c99a00" strokeWidth="2" />
+    <circle cx="16" cy="16" r="8.5" fill="none" stroke="#c99a00" strokeWidth="2" />
+  </svg>
+);
 
 export function McqCard(p: Props) {
   const { card } = p;
@@ -31,7 +50,7 @@ export function McqCard(p: Props) {
   const [sentReason, setSentReason] = useState(false);
   const [checked, setChecked] = useState(false);   // verdict computed, options locked
   const [verdict, setVerdict] = useState(false);
-  const [charging, setCharging] = useState(false);  // ChargeRing on the front
+  const [charging, setCharging] = useState(false);  // boost meter filling on the front
   const [revealed, setRevealed] = useState(false);  // flipped to the back face
   const [ready, setReady] = useState(false);        // settle elapsed → advance allowed
   const [marked, setMarked] = useState(false);      // free-text self-mark guard
@@ -111,14 +130,39 @@ export function McqCard(p: Props) {
     setMarked(true); p.onCheck(got, [], ""); p.onAdvance();
   };
 
-  const topBar = (
-    <div className="flash-top">
-      <span className="flash-tag"><span aria-hidden>&#9673;</span>{p.topicLabel}</span>
-      <span className="flash-track" aria-label={`Card ${p.idx + 1} of ${p.total}`}>
+  // Cosmetic race telemetry. A correct card earns base × combo multiplier and overtakes
+  // one grid place; a miss still banks the consolation coins and holds position.
+  const mult = comboMultiplier(p.combo);
+  const earned = card.freeText ? 0 : (verdict ? XP_CORRECT * mult : XP_ATTEMPT);
+  const newPos = verdict ? Math.max(1, p.position - 1) : p.position;
+  const shownCoins = revealed ? p.coins + earned : p.coins;
+  const shownPos = revealed ? newPos : p.position;
+  const cw = verdict ? comboCallout(p.combo) : null;
+
+  // The persistent race HUD — lives ABOVE the flip so it survives the barrel-roll.
+  const hud = (
+    <div className="flash-hud" aria-hidden>
+      <span className="flash-hud-l">
+        <span className="flash-deckcount">Card {p.idx + 1} / {p.total}</span>
         <span className="flash-segs">{Array.from({ length: p.total }).map((_, i) =>
           <i key={i} className={i < p.idx ? "is-done" : i === p.idx ? "is-now" : ""} />)}</span>
-        <span className="flash-count">{String(p.idx + 1).padStart(2, "0")} / {String(p.total).padStart(2, "0")}</span>
       </span>
+      <span className="flash-hud-r">
+        <span className="flash-ribbon"><b className="flash-ribbon-pos">{ordinal(shownPos)}</b> Position</span>
+        <span className="flash-coins"><CoinIcon /><b className="flash-coins-val">{shownCoins}</b></span>
+      </span>
+    </div>
+  );
+
+  // The boost meter — the charge suspense on the front dashboard. Fills as the card
+  // charges, then the card barrel-rolls into the flip.
+  const meter = (
+    <div className={`flash-meter${charging ? " is-charging" : ""}`} aria-hidden>
+      <div className="flash-meter-lab">
+        <span>Boost meter</span>
+        <span className="flash-meter-stat">{charging ? (verdict ? "BOOST!" : "HANG ON") : "READY"}</span>
+      </div>
+      <div className="flash-meter-track"><div className="flash-meter-fill" /></div>
     </div>
   );
 
@@ -129,13 +173,19 @@ export function McqCard(p: Props) {
     </button>
   );
 
-  // Back face: the model answer, owned by the whole card, under the Payoff.
+  // Back face: the boost payoff + the model answer, owned by the whole card.
   const basePoints = verdict ? XP_CORRECT : XP_ATTEMPT;
   const backFace = (
     <div className="flash-face is-back">
-      <div className="flash-cardin" data-testid="flash-reveal-back">
-        {topBar}<div className="flash-rule" />
+      <div className="flash-cardin flash-back" data-testid="flash-reveal-back">
         {!card.freeText && <Payoff correct={verdict} combo={p.combo} basePoints={basePoints} />}
+        {!card.freeText && (
+          <p className={`flash-callout ${verdict ? "is-right" : "is-wrong"}`}>
+            {verdict
+              ? <>{cw && <b>{cw.word}</b>}{cw ? " · " : ""}Overtake → {ordinal(newPos)} place</>
+              : "Banana slip — still +3 coins, shake it off!"}
+          </p>
+        )}
         <p className="flash-compare-label">Findings</p>
         <p className="flash-model flash-model-big">{card.explanation}</p>
         {needsReason && p.reasonNote && (
@@ -153,17 +203,23 @@ export function McqCard(p: Props) {
 
   if (card.freeText) {
     return (
-      <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+      <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}${charging ? " is-charging" : ""}`}>
+        {hud}
         <div className="flash-lift">
         <div className="flash-flip">
           <div className="flash-face is-front">
             <div className="flash-cardin">
-              {topBar}<div className="flash-rule" /><p className="flash-kicker">recall</p>
-              <p className="flash-q">{card.stem}</p>
+              <div className="flash-qhead">
+                <span className="flash-qtag"><span aria-hidden>&#9673;</span> {p.topicLabel} &middot; RECALL</span>
+                <p className="flash-q">{card.stem}</p>
+              </div>
               {!checked && (
-                <button type="button" className="flash-advance flash-reveal-btn"
-                  data-testid="flash-reveal" onClick={showAnswerFree}>Show answer</button>
+                <div className="flash-foot">
+                  <button type="button" className="flash-advance flash-reveal-btn"
+                    data-testid="flash-reveal" onClick={showAnswerFree}>Show answer</button>
+                </div>
               )}
+              {meter}
             </div>
           </div>
           {backFace}
@@ -176,21 +232,24 @@ export function McqCard(p: Props) {
   }
 
   return (
-    <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}`}>
+    <div className={`flash-card${revealed && verdict ? " is-right" : ""}${revealed ? " is-flipped" : ""}${charging ? " is-charging" : ""}`}>
+      {hud}
       <div className={`flash-lift${revealed ? (verdict ? " is-boost" : " is-spin") : ""}`}>
       <div className="flash-flip">
         <div className="flash-face is-front">
           <div className="flash-cardin">
-            {topBar}<div className="flash-rule" />
-            <p className="flash-kicker">
-              question {String(p.idx + 1).padStart(2, "0")}
-              {card.qtype === "multi" && (
-                <span className="flash-multi" data-testid="flash-multi">
-                  <span aria-hidden>&#10003;&#10003;</span> Select all that apply
-                </span>
-              )}
-            </p>
-            <p className="flash-q">{card.stem}</p>
+            <div className="flash-qhead">
+              <span className="flash-qtag">
+                <span aria-hidden>&#9873;</span> {p.topicLabel}
+                {card.qtype === "multi" && (
+                  <span className="flash-multi" data-testid="flash-multi">
+                    <span aria-hidden>&#10003;&#10003;</span> Select all
+                  </span>
+                )}
+              </span>
+              <p className="flash-q">{card.stem}</p>
+            </div>
+
             <ul className="flash-options" role={card.qtype === "single" ? "radiogroup" : "group"}>
               {card.options.map((opt, i) => {
                 const picked = selected.includes(i);
@@ -241,6 +300,8 @@ export function McqCard(p: Props) {
                 </button>
               </div>
             )}
+
+            {meter}
           </div>
         </div>
         {backFace}
