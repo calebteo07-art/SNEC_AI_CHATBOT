@@ -1,6 +1,6 @@
 "use client";
 /* TutorLanding — the tutor's greeting home (ricoe A2). Shown as the empty state of
-   /chat: a time-of-day hello + an ever-changing cheeky sub, a big centred prompt, and
+   /chat: an ever-changing hello opener + cheeky sub (learning humour), a big centred prompt, and
    the student's recent tutor/case/flashcard sessions to pick back up. Submitting (or
    resuming a session) cross-fades into the live chat thread — the constellation canvas
    behind everything is shared, so the transition reads as one continuous surface.
