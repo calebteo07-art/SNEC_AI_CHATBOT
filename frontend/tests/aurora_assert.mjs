@@ -215,6 +215,11 @@ if (waveAnim !== "tl-iris-wave") { console.error(`FAIL: Selena not waving (anima
 const tlFont = await np.locator('[data-testid="tutor-landing"] .tl-hello')
   .evaluate((el) => getComputedStyle(el).fontFamily).catch(() => "");
 if (!/manrope/i.test(tlFont)) { console.error(`FAIL: Tutor hello not Manrope (fontFamily=${tlFont})`); process.exit(1); }
+// Recent sessions are real localStorage conversations now — with none seeded (harness),
+// the landing shows NOTHING there (no hardcoded starter pills, no empty-state cards).
+if ((await np.locator('[data-testid="tutor-landing"] .tl-starter').count()) !== 0) {
+  console.error("FAIL: tutor landing still renders hardcoded STARTERS"); process.exit(1);
+}
 const chatH1 = await np.locator("main h1").count();
 if (chatH1 !== 1) { console.error(`FAIL: chat main h1 count = ${chatH1}`); process.exit(1); }
 console.log("PASS: Tutor greeting landing — cosmic wash, prompt, full EyeBot + SNEC lockup, waving Selena, one h1");
