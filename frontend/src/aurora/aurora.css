@@ -1632,8 +1632,14 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 html[data-motion="reduce"] .tl-iris { animation: none; }
 .tl-hello { font-family: inherit; font-size: clamp(34px, 5.2vw, 58px); font-weight: 700; letter-spacing: -0.03em;
   line-height: 1.05; margin: 0; color: var(--mono-ink); }
-.tl-hello em { font-style: normal; background: linear-gradient(100deg, #4285F4, #9B72F6 48%, #EC4899);
-  -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tl-hello em { font-style: normal;
+  background: linear-gradient(100deg, #4285F4, #9B72F6 28%, #EC4899 50%, #9B72F6 72%, #4285F4);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: tl-name-flow 1.2s linear infinite; }
+@keyframes tl-name-flow { to { background-position: -300% 0; } }
+/* Freeze the name gradient under reduced motion (app toggle + OS preference). */
+html[data-motion="reduce"] .tl-hello em { animation: none; background-position: 0 0; }
+@media (prefers-reduced-motion: reduce) { .tl-hello em { animation: none; background-position: 0 0; } }
 .tl-sub { margin: 14px 0 0; font-size: clamp(15px, 1.7vw, 19px); color: var(--mono-ink-2); font-weight: 500; }
 .tl-prompt { width: min(680px, 100%); margin: 26px auto 0; }
 .tl-prompt .aurora-composer { border-radius: 22px; padding: 10px 10px 10px 20px; min-height: 62px; align-items: center;
