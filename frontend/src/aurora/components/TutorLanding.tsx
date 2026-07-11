@@ -46,12 +46,14 @@ export function TutorLanding({
   const recent = sessions.slice(0, 3);
 
   const vidRef = useRef<HTMLVideoElement>(null);
-  // Autoplay the dance only when motion is allowed; otherwise the poster (iris.png) shows.
+  // Autoplay the dance only when motion is allowed — respecting BOTH the OS setting and the
+  // app's own "Reduce motion" toggle (html[data-motion="reduce"], same signal the name
+  // gradient freezes on); otherwise the poster (iris.png) shows.
   useEffect(() => {
     const v = vidRef.current;
-    if (!v) return;
-    const reduce = typeof window !== "undefined"
-      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!v || typeof window === "undefined") return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      || document.documentElement.dataset.motion === "reduce";
     if (!reduce) void v.play().catch(() => {});
   }, []);
 
@@ -68,7 +70,6 @@ export function TutorLanding({
 
       <div className="tl-hero">
         <div className="tl-iriswrap" aria-hidden>
-          <span className="tl-irisfloor" />
           {/* Brand-new dancing Iris (Veo loop). iris.png is the poster + fallback, so the
               landing renders identically with no clip (keyless/harness) or reduced motion. */}
           <video ref={vidRef} className="tl-iris" poster="/brand/iris.png"

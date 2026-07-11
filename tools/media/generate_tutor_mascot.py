@@ -138,10 +138,9 @@ def run_install() -> int:
         return 1
     DEST.mkdir(parents=True, exist_ok=True)
     (DEST / "tutor-mascot.mp4").write_bytes(src.read_bytes())
-    poster = TMP / "tutor-mascot.jpg"
-    if poster.exists():
-        (DEST / "tutor-mascot.jpg").write_bytes(poster.read_bytes())
-    print("installed tutor-mascot.mp4 (+ poster) to frontend/public/media/loops/")
+    # The frontend uses /brand/iris.png as the <video> poster, so we don't ship the baked
+    # tutor-mascot.jpg (it stays in .tmp for review only).
+    print("installed tutor-mascot.mp4 to frontend/public/media/loops/")
     return 0
 
 

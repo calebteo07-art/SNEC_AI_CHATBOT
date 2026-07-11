@@ -1607,13 +1607,10 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 
 .tl-hero { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: clamp(14px, 5vh, 60px) 0 20px; }
-/* Selena greeter — the same iris.png mascot as the Home greeting card, waving. Whole-image
-   wave (a tilt burst) + gentle bob, pivoting near its base so it reads as a hello; the floor
-   shadow stays put to ground it. Frozen under reduced motion. */
+/* Iris greeter stage — holds the dancing-Iris <video> (see .tl-iris below); the iris.png
+   poster shows under reduced motion / with no clip. */
 .tl-iriswrap { position: relative; display: flex; align-items: flex-end; justify-content: center;
-  width: 216px; height: 202px; margin-bottom: clamp(2px, 1.4vh, 12px); }
-.tl-irisfloor { position: absolute; left: 50%; bottom: 4px; width: 148px; height: 22px;
-  transform: translateX(-50%); background: radial-gradient(ellipse at center, rgba(120, 60, 30, 0.22), transparent 70%); filter: blur(2px); }
+  width: 216px; height: 216px; margin-bottom: clamp(2px, 1.4vh, 12px); }
 /* Dancing Iris video sits in a soft rounded "stage" (the Veo clip bakes an ivory spotlight,
    so this disc blends into the tutor surface). object-fit: cover center-crops whatever
    aspect the clip ships at. iris.png poster shows with no clip / under reduced motion. */
