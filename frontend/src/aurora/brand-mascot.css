@@ -54,8 +54,7 @@ html[data-motion="reduce"] .selena-logo .selena-logo-swap { opacity: 0 !importan
   .selena-logo .selena-logo-swap { opacity: 0 !important; }
 }
 
-/* BrandSplash — full-screen branded loader (grooving Selena + wordmark). */
+/* BrandSplash — full-screen branded loader (mono EyeBot mark + wordmark). */
 .brand-splash { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
   background: radial-gradient(120% 120% at 50% 30%, #fff, #eef1fb 70%, #e7ecfb); }
-.brand-splash .selena-logo { flex-direction: column; gap: 14px; }
 .brand-splash-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -1,4 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <path d="M4 24 Q24 7 44 24 Q24 41 4 24 Z" fill="none" stroke="#15161B" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M24 18.8c.3 2.5 1.9 4.1 4.4 4.4-2.5.3-4.1 1.9-4.4 4.4-.3-2.5-1.9-4.1-4.4-4.4 2.5-.3 4.1-1.9 4.4-4.4z" fill="#15161B"/>
+  <style>
+    :root { color: #141519; }
+    @media (prefers-color-scheme: dark) { :root { color: #FFFFFF; } }
+  </style>
+  <path d="M6 24 C6 24 13 13 24 13 C35 13 42 24 42 24 C42 24 35 35 24 35 C13 35 6 24 6 24 Z" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="24" cy="24" r="6.2" fill="currentColor"/>
 </svg>

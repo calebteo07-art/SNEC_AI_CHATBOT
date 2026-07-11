@@ -1,20 +1,18 @@
-import { SelenaLogo } from "./SelenaLogo";
+import { Logo } from "../Logo";
 
 /* CoBrand — the EyeBot + SNEC co-branding lockup (ricoe E2: "eyebot logo + snec logo
    on every page"). The shell rails already carry both; this is for the pages that run
    without a rail (immersive Tutor / Flashcards, the daily check-in). The EyeBot mark is
-   the Selena mascot (not the legacy mono Spark-Eye) so it reads warm + current. Pass
-   `dark` on dark surfaces so the (white-background) SNEC mark is inverted to read. */
+   the mono <Logo> glyph — solid black on light surfaces, solid white on dark (pass
+   `dark`). The SNEC mark keeps its official form (only inverted for legibility on dark). */
 
 export function CoBrand({ dark = false, className = "" }: { dark?: boolean; className?: string }) {
   return (
     <div className={`aurora-cobrand${dark ? " is-dark" : ""} ${className}`.trim()}
          title="EyeBot — a Singapore National Eye Centre initiative">
       <span className="aurora-cobrand-eb">
-        {/* The mascot mark is alive: a gentle breathe + a breathing Gemini halo (CSS-only,
-            frozen under reduced motion). The wrapper hosts the halo pseudo-element. */}
         <span className="aurora-cobrand-mark-wrap" aria-hidden>
-          <SelenaLogo motion="idle" size={26} circle />
+          <Logo size={26} tone={dark ? "white" : "ink"} />
         </span>
         <span className="aurora-cobrand-wm">EyeBot</span>
       </span>

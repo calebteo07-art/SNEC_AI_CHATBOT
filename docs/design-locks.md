@@ -8,12 +8,35 @@ days) for lack of a written spec to refine against.
 
 ## Global language — LOCKED 2026-06-13
 Light "AURORA" system: Gemini-gradient accents on light surfaces, Google Sans,
-mono Spark Eye logo, auto-collapsing Atlas Rail (72px → 248px on hover, pinnable).
+the **mono EyeBot logo** (one black/white eye glyph — see the Mono-logo lock),
+auto-collapsing Atlas Rail (72px → 248px on hover, pinnable).
 Student app motion is CSS-only (`motion.css` + Reveal/RouteReveal) — no GSAP fx
 wrappers (MotionProvider is not mounted).
 
+## Mono EyeBot logo — LOCKED 2026-07-11
+**Direction**: the EyeBot **brand logo mark** is ONE glyph, drawn once (`aurora/Logo.tsx`),
+painted with `currentColor` and rendered strictly **monochrome — solid black on light
+surfaces, solid white on dark** ("black or white depending on scenario", Caleb 2026-07-11).
+The glyph is a **rounded eye outline + iris ring + pupil** (refined from the legacy 4-point
+"Spark-Eye" sparkle — criterion changed: *glyph interior*). At ≤20px the ring collapses to a
+solid iris disc for legibility (favicon/rail). The **favicon** (`public/icon.svg`) flips
+black↔white via `@media (prefers-color-scheme: dark)`. The wordmark "EyeBot" is live mono
+text in the app font (not a gradient). This is the mark on: rails (`Wordmark`), favicon,
+login (`EyeLogo` → shared `<Logo>`), the CoBrand mark, and `BrandSplash`.
+- **Out of scope (stays as-is)**: the Iris/Selena **mascot character** (Home greeting,
+  dancing-Iris video, reply-bubble, Selena Studio, leaderboard headshots), the photoreal
+  "Living Eye" login hero (`login-eye.png`), and the **SNEC** institutional logo.
+- **Acceptance criteria when refining**: one source glyph (no second copy of the eye path
+  anywhere); every surface solid black-on-light / white-on-dark, no colour on the mark;
+  favicon flips with OS theme; mascot + Living-Eye hero + SNEC unchanged; WCAG-legible at
+  every size; `aurora` harness + `frontend/tests/logo_mark_assert.mjs` green.
+- Spec: `docs/superpowers/specs/2026-07-11-mono-eyebot-logo-design.md`.
+
 ## Login — LOCKED 2026-06-13
 Kept verbatim from the original app (explicit user preference). Do not restyle.
+**Amended 2026-07-11**: the login's eye glyph (`EyeLogo`) is the shared **mono `<Logo>`
+mark** (refreshed with the rest of the app) — still mono ink on the light card, no colour
+or brand chrome added, so "verbatim/minimal" holds. The photoreal Living-Eye hero is unchanged.
 
 ## Flashcards — LOCKED 2026-06-30 · re-themed "ivory & ink" 2026-07-06 (ricoe D2)
 **Theme (ricoe D2, refine 2026-07-06 — supersedes the rejected purple B6)**: the flashcards
@@ -151,6 +174,14 @@ checklist rows, allied-health handover framing (Findings & clinical impression /
 Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
+**Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
+`BrandSplash`) is now the **mono `<Logo>` glyph** — solid black on light / white on dark, no
+colour, no halo — NOT the mascot. `dark` now also flips the EyeBot mark to white. The living
+Iris **mascot** is unchanged wherever it's a *character* (Home greeting, the Tutor
+dancing-Iris video below, reply bubbles). Criterion changed: *what serves as the mark*
+(mascot → mono corporate mark); wordmark + divider + SNEC layout unchanged. The mascot-mark
+idle/halo below is retired for this lockup.
+
 **Direction**: the **EyeBot + SNEC co-brand lockup** appears on *every* page. The shell rails
 carry it; the rail-less / immersive surfaces (Tutor landing + conversation, Flashcards,
 daily Check-in) each render their own complete lockup — a **lone SNEC mark is never a
@@ -175,9 +206,10 @@ surfaces.
   `tl-iris-wave`). It's the **default** mascot, never a student's custom (matches ricoe A3 /
   the reply-avatar rule). CSS-only; **frozen** under reduced motion. (The layered-vector
   `<Selena>` engine stays the customisation/preview renderer — it is NOT the branding mascot.)
-- **Out of scope**: Login (LOCKED verbatim — no brand added). The **logo → animated
-  Selena hero raster** was delivered as its own brief (see the "Animated Selena hero
-  logo" lock, 2026-07-07); the mono Spark-Eye rail + favicon lock is preserved.
+- **Out of scope**: Login (mono `<Logo>` mark only — see the Login lock amendment). The
+  **logo → animated Selena hero raster** was delivered as its own brief (see the "Animated
+  Selena hero logo" lock, 2026-07-07); the mono rail + favicon logo (now the refined eye
+  glyph, see the Mono-logo lock) is preserved.
   Uniforms excluded (ricoe §2).
   No redesign of any locked surface; the convo-header eye avatar keeps its own charging-
   ring/blink life.

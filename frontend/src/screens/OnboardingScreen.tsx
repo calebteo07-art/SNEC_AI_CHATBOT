@@ -6,6 +6,7 @@ import { ChangePasswordModal } from "./ChangePasswordModal";
 import { useWipeNavigate } from "@/fx";
 import { EyeHero, type GazeHandle } from "./EyeHero";
 import { errorDetail } from "@/lib/errorDetail";
+import { Logo } from "@/aurora/Logo";
 
 /* ── Types (unchanged from original) ─────────────────────── */
 const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
@@ -30,13 +31,12 @@ interface LoginResult {
 const slide = { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -20 }, transition: { duration: 0.28 } };
 
 /* ── Eye logo ─────────────────────────────────────────────── */
+/* The shared mono mark (Logo.tsx). The login card is a light monochrome card,
+   so tone="ink" (black). Kept aria-hidden — the visible "EyeBot" brand text names it. */
 function EyeLogo() {
   return (
     <div className="login-logo" aria-hidden="true">
-      <svg width="46" height="46" viewBox="0 0 48 48">
-        <path d="M4 24 Q24 7 44 24 Q24 41 4 24 Z" fill="none" stroke="#15161B" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M24 18.4c.32 2.76 2.04 4.48 4.8 4.8-2.76.32-4.48 2.04-4.8 4.8-.32-2.76-2.04-4.48-4.8-4.8 2.76-.32 4.48-2.04 4.8-4.8z" fill="#15161B" />
-      </svg>
+      <Logo size={46} />
     </div>
   );
 }
