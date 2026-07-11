@@ -2332,6 +2332,20 @@ html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opaci
 .flash-root:not(:has(.flash-setup)) .flash-content { padding: 26px 22px; }
 .flash-root:has(.flash-setup) .flash-content { padding: 14px 20px; overflow: hidden; }
 
+/* Background layers (FlashShell → BrownianField `.flash-bg` + EngravingField
+   `.flash-engravings`). These MUST be absolutely positioned out of flow. The Grand Prix
+   CSS rewrite (5abe567) dropped these rules but kept the components, so the containers
+   rendered in normal flow; their unstyled, unsized glyph/spot SVGs ballooned the box to
+   ~20000px tall and shoved `.flash-content` far below the viewport — the "blank card
+   after a topic pick" (the intro/card paints fine, just off-screen). Keep them at z0,
+   behind the z2 content. (Restored + re-themed for the dark canvas: 2026-07-11.) */
+.flash-engravings { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.flash-engraving { position: absolute; left: 0; top: 0; color: #e7ebf1; display: block; }
+.flash-engraving svg { width: 100%; height: 100%; display: block; }
+.flash-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.flash-spot { position: absolute; left: 0; top: 0; border-radius: 50%;
+  mix-blend-mode: screen; filter: blur(16px); opacity: .9; will-change: transform; }
+
 .flash-root .flash-exit, .flash-root .flash-mute, .flash-cobrand {
   position: absolute; z-index: 12; }
 .flash-root .flash-exit { top: 18px; left: 18px; display: inline-flex; align-items: center; gap: 6px;
