@@ -70,17 +70,6 @@ export const XP_REWARDS = {
   streakBonus: 50,
 };
 
-export const ACHIEVEMENTS = [
-  { id: "first_session", name: "First Steps", description: "Review your first flashcard", icon: "🎯" },
-  { id: "streak_3", name: "Getting Consistent", description: "Maintain a 3-day streak", icon: "🔥" },
-  { id: "streak_7", name: "Week Warrior", description: "Maintain a 7-day streak", icon: "⚡" },
-  { id: "streak_30", name: "Monthly Master", description: "Maintain a 30-day streak", icon: "👑" },
-  { id: "cards_50", name: "Half Century", description: "Review 50 flashcards", icon: "📚" },
-  { id: "cards_100", name: "Century Club", description: "Review 100 flashcards", icon: "💯" },
-  { id: "level_5", name: "Rising Practitioner", description: "Reach level 5", icon: "⭐" },
-  { id: "level_10", name: "Seasoned Clinician", description: "Reach level 10", icon: "🌟" },
-];
-
 export function getUserProgress(): UserProgress {
   const stored = localStorage.getItem("eyebot_progress");
   if (stored) {
@@ -197,50 +186,3 @@ export function updateStreak(): { streak: number; isNewRecord: boolean } {
   return { streak: progress.streak, isNewRecord: true };
 }
 
-export function checkAndUnlockAchievements(): string[] {
-  const progress = getUserProgress();
-  const newAchievements: string[] = [];
-
-  if (!progress.achievements.includes("first_session") && progress.totalCards > 0) {
-    progress.achievements.push("first_session");
-    newAchievements.push("first_session");
-  }
-
-  if (!progress.achievements.includes("streak_3") && progress.streak >= 3) {
-    progress.achievements.push("streak_3");
-    newAchievements.push("streak_3");
-  }
-
-  if (!progress.achievements.includes("streak_7") && progress.streak >= 7) {
-    progress.achievements.push("streak_7");
-    newAchievements.push("streak_7");
-  }
-
-  if (!progress.achievements.includes("streak_30") && progress.streak >= 30) {
-    progress.achievements.push("streak_30");
-    newAchievements.push("streak_30");
-  }
-
-  if (!progress.achievements.includes("cards_50") && progress.totalCards >= 50) {
-    progress.achievements.push("cards_50");
-    newAchievements.push("cards_50");
-  }
-
-  if (!progress.achievements.includes("cards_100") && progress.totalCards >= 100) {
-    progress.achievements.push("cards_100");
-    newAchievements.push("cards_100");
-  }
-
-  if (!progress.achievements.includes("level_5") && progress.level >= 5) {
-    progress.achievements.push("level_5");
-    newAchievements.push("level_5");
-  }
-
-  if (!progress.achievements.includes("level_10") && progress.level >= 10) {
-    progress.achievements.push("level_10");
-    newAchievements.push("level_10");
-  }
-
-  saveUserProgress(progress);
-  return newAchievements;
-}

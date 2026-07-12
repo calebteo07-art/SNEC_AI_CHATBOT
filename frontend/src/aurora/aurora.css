@@ -3116,4 +3116,3 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
   background: linear-gradient(180deg, #5cf07a, #2ee85a); box-shadow: 0 4px 0 #16b83f;
 }
 .rw-cta:active { transform: translateY(2px); box-shadow: none; }
-@media (prefers-reduced-motion: reduce) { .rw-scrim, .rw-card { animation: none !important; } }

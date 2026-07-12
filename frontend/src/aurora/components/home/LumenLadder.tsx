@@ -14,6 +14,7 @@ export function LumenLadder({ current = 0 }: { current?: number }) {
         Lumens vault
         <span className="hm-c">{collected} of {LUMEN_BADGES.length} collected</span>
       </p>
+      <p className="hm-vault-note">Total Lumens ever earned — spending never costs you a badge.</p>
       <ol className="hm-badges">
         {LUMEN_BADGES.map((b) => {
           const state: BadgeState = current >= b.at ? "collected" : nextAt === b.at ? "next" : "locked";

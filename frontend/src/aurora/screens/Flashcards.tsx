@@ -167,7 +167,8 @@ export function Flashcards() {
     const earned = xpRef.current + XP_REWARDS.sessionComplete;
     addXP(XP_REWARDS.sessionComplete);
     const allCorrect = resultsRef.current.length > 0 && resultsRef.current.every((r) => r.correct);
-    const ids = ["first_deck", ...(allCorrect ? ["perfect_deck"] : [])];
+    const isDrill = drill.length > 0;
+    const ids = ["first_deck", ...(allCorrect && !isDrill ? ["perfect_deck"] : [])];
     grantAchievements(user?.studentId ?? "", ids).forEach(enqueue);
     complete({ results: resultsRef.current, xp_delta: earned });
   };
