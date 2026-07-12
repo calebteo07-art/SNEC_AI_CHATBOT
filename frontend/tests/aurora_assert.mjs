@@ -254,13 +254,24 @@ console.log("PASS: retired /progress and /summary no longer resolve");
 // (no Check/submit button), and on reason cards an OPTIONAL reflection box appears after
 // the reveal and never gates advance. Ends on an X/N results screen.
 await navCtx.route("**/api/flashcards/check", (r) => r.fulfill(JSON_OK({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
-// topics: 8 one-per-topic CLINICAL decks (difficulty collapsed; set_key == topic_key)
-// so the fan paginates (8 + Mixed = 9 > 7).
+// topics: the REAL OA/PSA syllabus at production scale — 12 Foundations + 14 Clinical = 26
+// one-per-topic decks (difficulty collapsed; set_key == topic_key), + Mixed = 27 cards. Mocking
+// the true size (not a toy 8) is deliberate: the coverflow must stay readable with one dominant
+// front card at 26+ topics — a small mock hid the prod "crushed slab" regression twice.
 await navCtx.route("**/api/flashcards/topics", (r) => r.fulfill(JSON_OK({ sets: [
-  ["ocular_emergencies", "Ocular Emergencies"], ["red_eye", "Red Eye Differential"],
-  ["triage", "Triage Categories"], ["history_taking", "History Taking"],
-  ["distance_va", "Distance Visual Acuity"], ["near_vision", "Near Vision"],
-  ["pinhole", "Pinhole Testing"], ["iop_nct", "IOP & Non-Contact Tonometry"],
+  ["anatomy_physiology", "Ocular Anatomy & Physiology"], ["microbiology_infection", "Microbiology & Infection Control"],
+  ["pharmacology", "Ocular Pharmacology"], ["ocular_emergencies", "Ocular Emergencies"],
+  ["professional_ethics", "Professional Practice & Ethics"], ["disorders_eyelid_lacrimal_orbit", "Eyelid, Lacrimal & Orbit Disorders"],
+  ["disorders_cornea_conjunctiva", "Cornea, Sclera & Conjunctiva Disorders"], ["disorders_lens_cataract", "Lens & Cataract Disorders"],
+  ["disorders_uvea_retina", "Uvea & Retina Disorders"], ["glaucoma", "Glaucoma"],
+  ["neuro_strabismus", "Neuro-ophthalmology & Strabismus"], ["systemic_disease", "Systemic Disease & the Eye"],
+  ["red_eye", "Red Eye Differential"], ["triage", "Triage Categories"],
+  ["history_taking", "History Taking"], ["distance_va", "Distance Visual Acuity"],
+  ["near_vision", "Near Vision"], ["pinhole", "Pinhole Testing"],
+  ["iop_nct", "IOP & Non-Contact Tonometry"], ["eye_drops", "Eye Drop Instillation"],
+  ["pupil_dilation", "Pupil Dilation"], ["colour_vision", "Colour Vision (Ishihara)"],
+  ["amsler_macula", "Amsler & Macula"], ["fall_risk", "Fall Risk"],
+  ["perioperative", "Pre & Post-Operative Care"], ["abbreviations", "Ophthalmic Abbreviations"],
 ].map(([topic_key, label]) => ({ set_key: topic_key, topic_key, label, difficulty: "mixed", total: 20, completed: 0 })) })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
@@ -271,14 +282,16 @@ if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); pro
 if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
 
 // single-step selection: no difficulty/length step — /flashcards lands straight on
-// the auto-rotating topic fan (Mixed + the 8 mocked topics) with pagination. One
+// the auto-rotating topic coverflow (Mixed + the 26 mocked topics) with arrows. One
 // click on any card starts that topic's deck (10 cards, all tiers mixed).
 await np.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
 if ((await np.locator('[data-testid="flash-continue"]').count()) > 0) {
   console.error("FAIL: the difficulty/length step still exists — selection should be topic-only"); process.exit(1);
 }
+// Every role topic is in the pool (nothing excluded): 26 OA/PSA topics + Mixed = 27 cards, all
+// present in the DOM (the coverflow windows which are VISIBLE, but never drops any from the pool).
 const fanCount = await np.locator('[data-testid="flash-pick"]').count();
-if (fanCount !== 9) { console.error(`FAIL: topic fan card count = ${fanCount} (want 9)`); process.exit(1); }
+if (fanCount !== 27) { console.error(`FAIL: topic coverflow card count = ${fanCount} (want 27: Mixed + 26 topics)`); process.exit(1); }
 if ((await np.locator('[data-testid="flash-prev"]').count()) < 1) { console.error("FAIL: topic fan pagination arrows missing"); process.exit(1); }
 console.log("PASS: Flashcards — single-step topic fan (Mixed + topics, no difficulty step)");
 // Arcade redesign (2026-07-12): topic cards carry NO race numbers, the pagination DOTS
