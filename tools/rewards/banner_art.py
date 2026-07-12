@@ -12,7 +12,9 @@ BANNERS: dict[str, dict] = {
 
 def prompt(b: dict) -> str:
     return (
-        f"A vibrant celebratory game-reward banner backdrop: {b['desc']}. Soft rounded modern "
-        "game-UI style, rich saturated color, dramatic but friendly and beautiful, wide landscape "
-        "composition, strong central focus. No text, no words, no watermark, no UI chrome."
+        f"A vibrant celebratory game-reward banner backdrop: {b['desc']}. Iris has exactly ONE big "
+        "round glossy eye on a smooth, rounded, perfectly HAIRLESS soft-3D blob body (glossy skin like "
+        "the reference image) — absolutely no fur, no feathers, no hair, and never a second eye. Soft "
+        "rounded modern game-UI style, rich saturated color, dramatic but friendly and beautiful, wide "
+        "landscape composition, strong central focus. No text, no words, no watermark, no UI chrome."
     )

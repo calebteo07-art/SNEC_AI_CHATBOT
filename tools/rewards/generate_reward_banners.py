@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate the reward banner backdrops via Nano-Banana flash — PAID, go-ahead-gated.
-reference=False, landscape-ish. Output lands in .tmp/reward-banners/ for review;
+reference=True (anchored to iris.png so the mascot stays smooth/hairless, not furry),
+landscape-ish. Output lands in .tmp/reward-banners/ for review;
 --install copies approved banners into frontend/public/brand/reward-banners/*.webp.
 
 Usage:
@@ -28,7 +29,7 @@ PUBLIC_DIR = ROOT / "frontend" / "public" / "brand" / "reward-banners"
 
 
 def run_estimate() -> None:
-    print(f"ESTIMATE — {len(BANNERS)} reward banner(s) via {MODEL} (reference=False, webp)")
+    print(f"ESTIMATE — {len(BANNERS)} reward banner(s) via {MODEL} (reference=True, webp)")
     for cid, b in BANNERS.items():
         print(f"— {cid}:\n    {prompt(b)}\n")
 
@@ -36,7 +37,7 @@ def run_estimate() -> None:
 def generate_one(cid: str) -> Path | None:
     if MOCK_MODE:
         raise RuntimeError("needs a live GEMINI_API_KEY; refusing to fabricate art in MOCK_MODE")
-    data = generate_sprites.generate_image_bytes(prompt(BANNERS[cid]), model=MODEL, reference=False)
+    data = generate_sprites.generate_image_bytes(prompt(BANNERS[cid]), model=MODEL, reference=True)
     if not data:
         print(f"  [{cid}] no image generated")
         return None
