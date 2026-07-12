@@ -2432,10 +2432,11 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
 
 /* .fan-layout is a flat, full-stage pointer catcher (it never transforms, so its hit-plane
    always fills the stage); preserve-3d only passes the stage perspective down to the ring.
-   .fan-ring is the actual carousel: the whole 3D scene turns as a group (rotateY written by
-   CardFanCarousel each frame), cards seated on it at fixed angles, fading as they face away. */
+   .fan-ring is the 3D context: CardFanCarousel writes each WINDOWED card its own ring transform
+   (rotateY(rel·STEP) translateZ(radius)) per frame and hides the rest — a fixed per-card angle,
+   never 360/N, so many topics don't crush into an unreadable cylinder. */
 .fan-layout { position: absolute; inset: 0; transform-style: preserve-3d; }
-.fan-ring { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.fan-ring { position: absolute; inset: 0; transform-style: preserve-3d; }
 .fan-card { position: absolute; left: 50%; top: 50%; width: 300px; height: 392px;
   margin: -196px 0 0 -150px; padding: 0; border: 0; background: transparent; cursor: pointer;
   /* taps are resolved at the stage (.fan-layout) against live card rects — see
