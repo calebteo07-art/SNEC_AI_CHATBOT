@@ -32,6 +32,7 @@ _DEFAULTS = {
     "checkin_done_today": False,
     "supervisor_note": "",
     "xp": 0,
+    "coins_earned": 0,
     "hearts": 5,
     "hearts_reset_date": None,
     # Streak rest-days + freeze (migration 005)

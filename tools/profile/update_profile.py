@@ -171,6 +171,18 @@ async def update_profile(
                 await db.update_profile(student_id, xp_today=new_xp_today, xp_today_date=today_iso)
             except Exception as exc:
                 log("xp_today_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+
+            # coins_earned (lifetime Lumens, monotonic) — drives the home Lumens
+            # badge tiers. Only ever increases (never on a forfeit/penalty), and a
+            # separate guarded call so a missing column (pre-migration 009) never
+            # breaks the xp write above.
+            earned_gain = max(0, xp_delta + streak_bonus)
+            if earned_gain > 0:
+                try:
+                    current_earned = int(profile.get("coins_earned") or 0)
+                    await db.update_profile(student_id, coins_earned=current_earned + earned_gain)
+                except Exception as exc:
+                    log("coins_earned_write_error", student_id=student_id, feature="gamification", detail=str(exc))
         except Exception as exc:
             log("gamification_write_error", student_id=student_id, feature="gamification", detail=str(exc))
     else:
