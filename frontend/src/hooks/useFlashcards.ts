@@ -121,16 +121,3 @@ export function useFlashcardComplete() {
     },
   });
 }
-
-/** Quit-mid-deck penalty: server deducts a flat 20 Lumens; refresh progress after. */
-export function useFlashcardForfeit() {
-  const qc = useQueryClient();
-  return useMutation<CompleteResponse, Error, void>({
-    mutationFn: async () => {
-      const res = await fetch("/api/flashcards/forfeit", { method: "POST", credentials: "include" });
-      if (!res.ok) throw new Error("Forfeit failed");
-      return res.json();
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["progress"] }); },
-  });
-}

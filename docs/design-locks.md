@@ -112,10 +112,18 @@ flip, spinner slows); WCAG-legible.
   way — same fixed **top-left** position as the retired Exit, distinguished by the pause-bars icon
   + "Pause" label, red permitted here as control-chrome (see the reworded verdict-red note above).
   Tapping it opens a dark-arcade `PauseMenu` (`data-testid="flash-pausemenu"`): **Resume** / **Switch
-  deck** / **Quit game**. **Switch deck** is penalty-free by design (just re-rolls the deck). **Quit**
-  asks for a confirm, then deducts a flat **20 Lumens** (`POST /api/flashcards/forfeit`, server-owned
-  amount) and routes home to `/dashboard` — the lifetime `coins_earned` counter (badges) is untouched,
-  only the spendable balance takes the hit.
+  deck** / **Quit game**. Both **Switch deck** and **Quit** forfeit the round: each asks for a confirm,
+  then deducts a flat **20 Lumens** (`POST /api/flashcards/forfeit`, server-owned amount). Quit routes
+  home to `/dashboard`; Switch deck re-rolls to the topic picker. The lifetime `coins_earned` counter
+  (badges) is untouched — only the spendable balance takes the hit.
+  - **Criterion changed 2026-07-12 (was "Switch deck is penalty-free"):** penalty-free Switch deck was
+    a Lumens quit loophole — pause → Switch deck → the free Home on selection let a student bail a
+    losing round for nothing. The forfeit is now bound to the **round-active** invariant (first study
+    card rendered → deck finished), not to one button, and fires **exactly once per round** on *every*
+    unfinished exit: Switch deck, Quit, browser Back, ⌘K→away, refresh/tab-close (`pagehide`+`sendBeacon`,
+    best-effort). Selection / Begin-intro / loading / empty / results are not active rounds ⇒ free to
+    leave. Guard: `forfeitGuard.ts::createRoundForfeit().spend()`. Spec:
+    `docs/superpowers/specs/2026-07-12-flashcards-quit-forfeit-loophole-design.md`.
 - **One coin glyph app-wide (Task 24)**: the HUD **Score** stat and the reveal **Payoff** points both
   render the single engraved-iris `<Lumen>` coin — the old flat, two-circle local `CoinIcon` in
   `McqCard.tsx` is retired. Every Lumens surface in the app (flashcards, home, leaderboard, tutor

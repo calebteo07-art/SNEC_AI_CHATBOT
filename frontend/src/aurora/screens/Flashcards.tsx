@@ -3,11 +3,12 @@
    client-side), background typed-reasoning grades (off the blocking path), result
    accumulation, the ResultsScreen, batched complete sync, and a missed-card drill.
    Presentation lives in components/flashcards/*. */
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { addXP, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete, useFlashcardForfeit,
+  useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete,
   type FlashcardItem, type CompleteCardResult,
 } from "@/hooks/useFlashcards";
 import {
@@ -21,6 +22,7 @@ import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
+import { createRoundForfeit } from "@/aurora/components/flashcards/forfeitGuard";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { useAuth } from "@/screens/AuthContext";
@@ -52,7 +54,11 @@ export function Flashcards() {
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
   const reasonCheck = useReasonCheck();
   const { mutate: complete } = useFlashcardComplete();
-  const { mutate: forfeit } = useFlashcardForfeit();
+  const qc = useQueryClient();
+  // One choke point for the quit penalty: charges −20 at most once per active round,
+  // and only while a round is active. Every exit route funnels through it so there's no
+  // loophole (Switch deck, Quit, browser Back, ⌘K→away, refresh/close all charge once).
+  const guard = useRef(createRoundForfeit()).current;
   const [paused, setPaused] = useState(false);
   const { enqueue } = useReward();
   const { user } = useAuth();
@@ -105,6 +111,27 @@ export function Flashcards() {
   const total = deck.length;
   const stageHue = topicHue(card?.tag ?? "__mixed");
   const generating = sessionCards.length === 0 && apiLoading;
+
+  // A round is "active" exactly when the study stage below renders a real card — past
+  // selection and the Begin/intro beat, deck loaded & non-empty, and not yet finished.
+  // Selection / intro / loading / empty / results are NOT active (free to leave). Paused
+  // is a sub-state of study, so it stays active. This is the invariant the forfeit binds to.
+  const inStudy =
+    (fromSession || pickerDone) &&
+    !(intro && !fromSession && !reviewMode) &&
+    !generating && deck.length > 0 && !!card && !done;
+  useEffect(() => { guard.setActive(inStudy); }, [guard, inStudy]);
+
+  // Uncontrolled exits can't route through our buttons, so charge on the way out: pagehide
+  // covers a real page unload (refresh / tab-close / hard nav — best-effort via sendBeacon,
+  // no response needed) and the effect cleanup covers any SPA navigation that unmounts this
+  // screen (browser Back, ⌘K command palette → another section). guard.spend() dedupes both
+  // against each other and against the controlled Quit/Switch charge, so it's once per round.
+  useEffect(() => {
+    const beacon = () => { if (guard.spend()) navigator.sendBeacon?.("/api/flashcards/forfeit"); };
+    window.addEventListener("pagehide", beacon);
+    return () => { window.removeEventListener("pagehide", beacon); beacon(); };
+  }, [guard]);
 
   const onCheck = (correct: boolean, _selected: number[], _reasoning: string) => {
     if (checked || !card) return;
@@ -206,8 +233,18 @@ export function Flashcards() {
     setSetKey(null); setPickerDone(false); setIntro(false);
   };
   const exit = () => router.push("/dashboard");
-  const quitForfeit = () => { forfeit(); router.push("/dashboard"); };
-  const switchDeck = () => { setPaused(false); newDeck(); };
+  // Controlled exits from an active round. sendBeacon (not fetch) so the −20 survives an
+  // immediate unload — Switch deck on a tutor/review deck hard-reloads the page, which would
+  // abort an in-flight fetch. guard.spend() keeps it to a single charge even if an
+  // uncontrolled handler also fires on the way out; then nudge [progress] so the balance
+  // reflects the hit on the next screen.
+  const chargeForfeit = () => {
+    if (!guard.spend()) return;
+    navigator.sendBeacon?.("/api/flashcards/forfeit");
+    qc.invalidateQueries({ queryKey: ["progress"] });
+  };
+  const quitForfeit = () => { chargeForfeit(); router.push("/dashboard"); };
+  const switchDeck = () => { chargeForfeit(); setPaused(false); newDeck(); };
 
   // ── Selection ──
   if (!fromSession && !pickerDone) {
