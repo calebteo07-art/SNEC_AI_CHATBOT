@@ -7,7 +7,7 @@
    straight after the lock; reflection cards (~1 in 5) take a one-line reason on the front
    first; free-text tutor cards "Show answer" → charge → flip → self-mark. Next is held for
    a short SETTLE after the flip. */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import {
   type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT,
   comboMultiplier, comboCallout,
@@ -128,7 +128,11 @@ export function McqCard(p: Props) {
   const mult = comboMultiplier(p.combo);
   const earned = card.freeText ? 0 : (verdict ? XP_CORRECT * mult : XP_ATTEMPT);
   const shownScore = revealed ? p.score + earned : p.score;
-  const shownStreak = p.combo;
+  // Streak: ALWAYS a number 0–10 (deck is 10 cards). The fire below grows hotter as the run
+  // climbs — cold → lit → blaze → inferno → max — so a long streak is loud and addictive.
+  const streakNum = Math.max(0, Math.min(10, p.combo));
+  const fireTier = streakNum >= 10 ? "is-max" : streakNum >= 6 ? "is-inferno"
+    : streakNum >= 3 ? "is-blaze" : streakNum >= 1 ? "is-lit" : "is-cold";
   const cw = verdict ? comboCallout(p.combo) : null;
 
   // The persistent HUD — lives ABOVE the flip so it survives the reveal.
@@ -140,9 +144,12 @@ export function McqCard(p: Props) {
           <i key={i} className={i < p.idx ? "is-done" : i === p.idx ? "is-now" : ""} />)}</span>
       </span>
       <span className="flash-hud-r">
-        <span className="flash-stat">
+        <span className="flash-stat flash-stat-fire">
           <span className="flash-stat-k">Streak</span>
-          <b className={`flash-stat-v flash-stat-streak${shownStreak > 1 ? " is-hot" : ""}`}>{shownStreak > 0 ? `×${shownStreak}` : "—"}</b>
+          <b className={`flash-stat-v flash-fire ${fireTier}`} style={{ "--fire": streakNum } as CSSProperties}>
+            <span className="flash-flames" aria-hidden><i /><i /><i /><i /><i /></span>
+            <span key={streakNum} className="flash-fire-num">{streakNum}</span>
+          </b>
         </span>
         <span className="flash-stat">
           <span className="flash-stat-k">Score</span>
@@ -152,13 +159,13 @@ export function McqCard(p: Props) {
     </div>
   );
 
-  // The power meter — the charge suspense on the front face. Fills as the card charges,
-  // then the card flips.
+  // The XP meter — the charge suspense on the front face. Fills as the card charges, then
+  // the card flips to the points payoff (classic-gamification framing: you're banking XP).
   const meter = (
     <div className={`flash-meter${charging ? " is-charging" : ""}`} aria-hidden>
       <div className="flash-meter-lab">
-        <span>Power</span>
-        <span className="flash-meter-stat">{charging ? "Charging…" : "Ready"}</span>
+        <span>XP</span>
+        <span className="flash-meter-stat">{charging ? "Banking…" : "Charge up"}</span>
       </div>
       <div className="flash-meter-track"><div className="flash-meter-fill" /></div>
     </div>
