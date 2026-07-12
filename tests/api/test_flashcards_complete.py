@@ -47,4 +47,4 @@ async def test_complete_clamps_oversized_xp(monkeypatch):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
         r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
     assert r.status_code == 200
-    assert xp_applied == [500]  # tampered payload clamped to the ceiling
+    assert xp_applied == [5000]  # tampered payload clamped to the per-request ceiling
