@@ -27,7 +27,7 @@ export function LeaderboardRow({ e, topXp }: { e: LeaderboardEntry; topXp: numbe
         </span>
       </span>
       <span className="lb-val">
-        <span className="lb-n" ref={ref}><Lumen size={14} /> {display}<small> Lumens</small></span>
+        <span className="lb-n" ref={ref}><Lumen size={14} decorative /> {display}<small> Lumens</small></span>
         <span className="lb-xpbar"><span style={{ width: `${pct}%` }} /></span>
       </span>
     </li>

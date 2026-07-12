@@ -56,7 +56,7 @@ export function GreetingHero({
         <div className="hm-lvl">
           <div className="hm-lr">
             <b>{rank} <span>· Level {level}</span></b>
-            <span className="hm-z"><Lumen size={14} /> {xpInLevel} / 500 Lumens · {xpToNext} to go</span>
+            <span className="hm-z"><Lumen size={14} decorative /> {xpInLevel} / 500 Lumens · {xpToNext} to go</span>
           </div>
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>

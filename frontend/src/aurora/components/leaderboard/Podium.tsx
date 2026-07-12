@@ -27,7 +27,7 @@ export function Podium({ podium }: { podium: LeaderboardEntry[] }) {
             </span>
             <div className="lb-ped-nm">{e.name}</div>
             <div className="lb-ped-role">{e.role}</div>
-            <div className="lb-ped-xp"><Lumen size={15} />{e.xp.toLocaleString()}<small> Lumens</small></div>
+            <div className="lb-ped-xp"><Lumen size={i === 0 ? 18 : 15} decorative />{e.xp.toLocaleString()}<small> Lumens</small></div>
             <span className="lb-ped-crest"><TierCrest tier={tier} size={15} /> {tier.name}</span>
           </div>
         );
