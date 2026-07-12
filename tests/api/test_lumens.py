@@ -22,3 +22,10 @@ async def test_forfeit_deducts_flat_penalty(monkeypatch):
     assert r.status_code == 200
     assert applied == [-20]           # server owns the penalty amount
     assert r.json()["xp"] == 80       # new balance echoed back
+
+
+def test_osce_lumens_scales_with_grade():
+    from tools.api.routers.cases import osce_lumens
+    assert osce_lumens(100) == 200
+    assert osce_lumens(60) == 120
+    assert osce_lumens(0) == 0
