@@ -58,24 +58,24 @@ export function RivalrySpotlight({
       <div className="lb-rivals">
         {above ? (
           <div className="lb-rival">
-            <div className="lb-rlbl"><span className="up">▲ {above.gap.toLocaleString()} XP</span> to overtake <b>{above.name} (#{above.rank})</b>{reachesPodium ? " — and reach the podium" : ""}</div>
+            <div className="lb-rlbl"><span className="up">▲ {above.gap.toLocaleString()} Lumens</span> to overtake <b>{above.name} (#{above.rank})</b>{reachesPodium ? " — and reach the podium" : ""}</div>
             <div className="lb-gapbar ahead"><span style={{ width: `${gapPct(above.gap)}%` }} /></div>
           </div>
         ) : (
           <div className="lb-rival">
-            <div className="lb-rlbl">👑 You&apos;re on top{below ? <> — <b>{below.gap.toLocaleString()} XP</b> clear of #{below.rank}</> : ""}</div>
+            <div className="lb-rlbl">👑 You&apos;re on top{below ? <> — <b>{below.gap.toLocaleString()} Lumens</b> clear of #{below.rank}</> : ""}</div>
           </div>
         )}
         {below && (
           <div className="lb-rival">
-            <div className="lb-rlbl"><b>{below.name} (#{below.rank})</b> is <span className="dn">{below.gap.toLocaleString()} XP</span> behind — keep climbing</div>
+            <div className="lb-rlbl"><b>{below.name} (#{below.rank})</b> is <span className="dn">{below.gap.toLocaleString()} Lumens</span> behind — keep climbing</div>
             <div className="lb-gapbar behind"><span style={{ width: `${gapPct(below.gap)}%` }} /></div>
           </div>
         )}
       </div>
 
       <div className="lb-spot-cta">
-        <a className="lb-btn primary" href="/flashcards">⚡ Earn XP</a>
+        <a className="lb-btn primary" href="/flashcards">⚡ Earn Lumens</a>
       </div>
     </section>
   );

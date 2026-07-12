@@ -46,7 +46,7 @@ export function Dashboard() {
       cardsReviewed = Number(s.cardsReviewed) || 0;
     } catch { /* no session detail — show a generic toast */ }
     toast.success(
-      earnedXp > 0 ? `Session complete · +${earnedXp} XP` : "Session complete",
+      earnedXp > 0 ? `Session complete · +${earnedXp} Lumens` : "Session complete",
       { description: cardsReviewed > 0 ? `${cardsReviewed} card${cardsReviewed === 1 ? "" : "s"} reviewed. Added to your running total.` : undefined },
     );
     const t = setTimeout(() => {

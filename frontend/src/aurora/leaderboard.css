@@ -64,7 +64,7 @@
 .lb-ped-face { position:relative; margin:0 auto 10px; box-shadow:0 12px 26px -10px rgba(0,0,0,.4), 0 0 0 4px rgba(255,255,255,.55); border-radius:50%; }
 .lb-ped-nm { position:relative; font-weight:800; font-size:17px; line-height:1.15; }
 .lb-ped-role { position:relative; font-weight:800; font-size:11px; letter-spacing:.06em; text-transform:uppercase; opacity:.9; margin-top:2px; }
-.lb-ped-xp { position:relative; font-weight:800; font-size:24px; margin-top:8px; }
+.lb-ped-xp { position:relative; font-weight:800; font-size:24px; margin-top:8px; display:inline-flex; align-items:center; gap:6px; }
 .lb-ped.p1 .lb-ped-xp { font-size:30px; }
 .lb-ped-xp small { font-size:12px; font-weight:800; opacity:.85; letter-spacing:.04em; }
 .lb-ped-crest { position:relative; margin-top:9px; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.9);
@@ -135,7 +135,7 @@
 .lb-streak { color:#C2410C; white-space:nowrap; }
 .lb-lvl { color:var(--hink3); white-space:nowrap; }
 .lb-val { text-align:right; min-width:120px; }
-.lb-n { font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; }
+.lb-n { font-weight:800; font-size:18px; font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; gap:5px; }
 .lb-n small { font-size:11px; font-weight:800; color:var(--hink3); letter-spacing:.04em; }
 .lb-xpbar { height:6px; width:120px; border-radius:999px; background:#F1E7D7; overflow:hidden; margin:6px 0 0 auto; }
 .lb-xpbar > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#12B5A0,#7C5CF6); }

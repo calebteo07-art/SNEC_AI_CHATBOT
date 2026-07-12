@@ -31,9 +31,9 @@ export function Leaderboard() {
 
   const hook = useMemo(() => {
     if (youHidden) return "You're hidden — show yourself to join the climb.";
-    if (you && rivals?.above && rivals.above.rank <= 3) return `Everyone in your cohort, ranked by total XP. You're ${rivals.above.gap.toLocaleString()} XP from the podium.`;
-    if (you && rivals?.above) return `Everyone in your cohort, ranked by total XP. ${rivals.above.gap.toLocaleString()} XP to your next rank.`;
-    return "Everyone in your cohort, ranked by total XP. Study daily to climb — your Selena rides along.";
+    if (you && rivals?.above && rivals.above.rank <= 3) return `Everyone in your cohort, ranked by total Lumens. You're ${rivals.above.gap.toLocaleString()} Lumens from the podium.`;
+    if (you && rivals?.above) return `Everyone in your cohort, ranked by total Lumens. ${rivals.above.gap.toLocaleString()} Lumens to your next rank.`;
+    return "Everyone in your cohort, ranked by total Lumens. Study daily to climb — your Selena rides along.";
   }, [you, rivals, youHidden]);
 
   // One-time celebration when the viewer is on the podium. Reduced-motion + once per
@@ -56,7 +56,7 @@ export function Leaderboard() {
         <p className="lb-empty">Loading the board…</p>
       ) : entries.length === 0 ? (
         <p className="lb-empty" data-testid="lb-empty">
-          The board&apos;s warming up — once your cohort starts earning XP, everyone shows up here.
+          The board&apos;s warming up — once your cohort starts earning Lumens, everyone shows up here.
         </p>
       ) : (
         <>

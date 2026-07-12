@@ -6,6 +6,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { tierForXp } from "@/aurora/leaderboard/tiers";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 import type { CSSProperties } from "react";
+import { Lumen } from "@/aurora/components/Lumen";
 
 export function LeaderboardRow({ e, topXp }: { e: LeaderboardEntry; topXp: number }) {
   const tier = tierForXp(e.xp);
@@ -26,7 +27,7 @@ export function LeaderboardRow({ e, topXp }: { e: LeaderboardEntry; topXp: numbe
         </span>
       </span>
       <span className="lb-val">
-        <span className="lb-n" ref={ref}>{display}<small> XP</small></span>
+        <span className="lb-n" ref={ref}><Lumen size={14} /> {display}<small> Lumens</small></span>
         <span className="lb-xpbar"><span style={{ width: `${pct}%` }} /></span>
       </span>
     </li>

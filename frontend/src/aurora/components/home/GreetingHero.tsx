@@ -9,6 +9,7 @@
 import type { Greeting } from "@/aurora/lib/greeting";
 import { SelenaLogo } from "@/aurora/components/SelenaLogo";
 import { SelenaGreetingLoop } from "./SelenaGreetingLoop";
+import { Lumen } from "@/aurora/components/Lumen";
 
 /* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
    The opaque baked-bg tile overlays the CSS-alive SelenaLogo, which stays beneath
@@ -55,7 +56,7 @@ export function GreetingHero({
         <div className="hm-lvl">
           <div className="hm-lr">
             <b>{rank} <span>· Level {level}</span></b>
-            <span className="hm-z">{xpInLevel} / 500 XP · {xpToNext} to go</span>
+            <span className="hm-z"><Lumen size={14} /> {xpInLevel} / 500 Lumens · {xpToNext} to go</span>
           </div>
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>

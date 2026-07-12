@@ -60,10 +60,10 @@ export const GREETING_BANK: Record<Bucket, (c: GreetingCtx) => Line[]> = {
       sub: "That's hotter than a slit-lamp bulb. Keep the fire going." },
   ],
   nearLevelUp: (c) => [
-    { title: `${c.xpToNext} XP from levelling up.`, emphasis: `${c.xpToNext} XP`,
+    { title: `${c.xpToNext} Lumens from levelling up.`, emphasis: `${c.xpToNext} Lumens`,
       sub: "That's three flashcards and a coffee. You've got this." },
     { title: `So close, ${c.firstName}.`, emphasis: "close",
-      sub: `Just ${c.xpToNext} XP stands between you and the next level.` },
+      sub: `Just ${c.xpToNext} Lumens stands between you and the next level.` },
   ],
   timeOfDay: (c) => {
     const t = c.hour < 12 ? "Morning" : c.hour < 18 ? "Afternoon" : "Evening";

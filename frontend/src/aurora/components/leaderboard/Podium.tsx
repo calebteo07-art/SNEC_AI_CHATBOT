@@ -4,6 +4,7 @@ import { Selena } from "@/aurora/avatar/Selena";
 import { tierForXp } from "@/aurora/leaderboard/tiers";
 import { TierCrest, ChampionCrown } from "./crests";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
+import { Lumen } from "@/aurora/components/Lumen";
 
 const PLACE = ["p1", "p2", "p3"];
 const LABEL = ["Champion", "2nd", "3rd"];
@@ -26,7 +27,7 @@ export function Podium({ podium }: { podium: LeaderboardEntry[] }) {
             </span>
             <div className="lb-ped-nm">{e.name}</div>
             <div className="lb-ped-role">{e.role}</div>
-            <div className="lb-ped-xp">{e.xp.toLocaleString()}<small> XP</small></div>
+            <div className="lb-ped-xp"><Lumen size={15} />{e.xp.toLocaleString()}<small> Lumens</small></div>
             <span className="lb-ped-crest"><TierCrest tier={tier} size={15} /> {tier.name}</span>
           </div>
         );
