@@ -52,6 +52,13 @@ _COACHING_SCHEMA = {
 
 router = APIRouter()
 
+OSCE_LUMEN_FACTOR = 2  # Lumens per point of the final station grade (0-100 -> 0-200).
+
+
+def osce_lumens(score_100: int) -> int:
+    """Lumens awarded for a completed OSCE station, scaled to the final grade."""
+    return round(max(0, min(100, int(score_100))) * OSCE_LUMEN_FACTOR)
+
 
 # ── Case simulation models ─────────────────────────────────────────────────
 
@@ -177,6 +184,7 @@ class CaseSubmitResponse(BaseModel):
     coaching: CoachingBlock = CoachingBlock()
     checklist_comparison: list[ChecklistStepResult] = []
     per_phase: list[PhaseSummary] = []
+    lumens_awarded: int = 0
 
 class ChecklistStepModel(BaseModel):
     step_number: int
@@ -831,6 +839,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
 
     cards: list = []
 
+    award = 0
     # Profile update: retention = score_100/100; missed-gap heuristic unchanged.
     try:
         from tools.profile.update_profile import update_profile
@@ -839,8 +848,10 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
             feedback = raw_result.get(domain, "")
             if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
                 missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
+        award = osce_lumens(score["score_100"])
         await update_profile(
-            student_id, topic=case["topic"], score=score["score_100"] / 100, new_missed_findings=missed,
+            student_id, topic=case["topic"], score=score["score_100"] / 100,
+            new_missed_findings=missed, xp_delta=award,
         )
     except Exception:
         pass
@@ -901,4 +912,5 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         coaching=coaching,
         checklist_comparison=checklist_comparison,
         per_phase=[PhaseSummary(**p) for p in per_phase],
+        lumens_awarded=award,
     )
