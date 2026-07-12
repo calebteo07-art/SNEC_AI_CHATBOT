@@ -37,33 +37,11 @@ export function addDailyXp(amount: number): number {
   }
 }
 
-/** Daily cap on XP earned from tutor chat — prevents farming XP by spamming
- *  messages. Resets each calendar day. */
-export const CHAT_XP_DAILY_CAP = 50;
-
-function chatXpKey(): string {
-  return "eyebot_chat_xp_" + new Date().toDateString();
-}
-
-/** XP already earned from tutor chat today. */
-export function getChatXpToday(): number {
-  try {
-    const v = localStorage.getItem(chatXpKey());
-    return v ? Math.max(0, parseInt(v, 10)) : 0;
-  } catch {
-    return 0;
-  }
-}
-
-/** Award chat XP up to the daily cap. Returns the XP actually granted (0 once the
- *  cap is reached). The message still sends — only the XP is capped. */
+/** Award chat XP (Lumens). No daily cap — friendly competition is unlimited. Kept as a
+ *  thin wrapper so existing callers stay unchanged; returns the amount granted. */
 export function addChatXp(amount: number): number {
-  const used = getChatXpToday();
-  const grant = Math.max(0, Math.min(Math.max(0, amount), CHAT_XP_DAILY_CAP - used));
-  if (grant > 0) {
-    try { localStorage.setItem(chatXpKey(), String(used + grant)); } catch { /* ignore */ }
-    addXP(grant);
-  }
+  const grant = Math.max(0, amount);
+  if (grant > 0) addXP(grant);
   return grant;
 }
 
