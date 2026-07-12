@@ -150,7 +150,7 @@ export function McqCard(p: Props) {
         </span>
         <span className="flash-stat">
           <span className="flash-stat-k">Score</span>
-          <b className="flash-stat-v flash-stat-score"><Lumen size={19} decorative />{shownScore}</b>
+          <b className="flash-stat-v flash-stat-score"><Lumen size={19} />{shownScore}</b>
         </span>
       </span>
     </div>

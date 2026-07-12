@@ -10,6 +10,7 @@
    toggle retained); the scored debrief opens in an overlay. Motion is CSS-only. */
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
@@ -47,6 +48,7 @@ export function CaseSession() {
   const router = useRouter();
   const { user } = useAuth();
   const { enqueue } = useReward();
+  const qc = useQueryClient();
 
   // Instant paint from the patient-selection handoff, confirmed by /station.
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(() => {
@@ -336,6 +338,7 @@ export function CaseSession() {
       setResult(data.result);
       setCoaching(data.coaching ?? null);
       setShowSubmit(false);
+      qc.invalidateQueries({ queryKey: ["progress"] });
       const sc = data.result.score_100 ?? 0;
       const ids = ["first_station",
         ...(sc >= 60 ? ["station_pass"] : []),
