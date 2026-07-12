@@ -427,9 +427,10 @@ async def flashcards_complete(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
-    # Clamp client-supplied XP — a deck can never legitimately earn this much, so a
-    # bound keeps a tampered payload from inflating the profile (identity is the JWT).
-    xp_delta = max(0, min(body.xp_delta, 500))
+    # Clamp client-supplied XP per request — a single deck can't legitimately earn
+    # this much, so a bound stops a tampered payload inflating the balance. This is a
+    # per-REQUEST anti-abuse ceiling, never a daily cap (there is no daily cap).
+    xp_delta = max(0, min(body.xp_delta, 5000))
     # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
     # Schedule all cards concurrently — a deck can be 20 cards, and sequential awaits
     # would hold the (single) worker for 20 Supabase round-trips at deck end.
