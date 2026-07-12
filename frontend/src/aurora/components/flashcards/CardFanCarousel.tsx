@@ -31,11 +31,11 @@ interface CardFanCarouselProps {
 const SPAN = 3.4; // visible half-width in slot units past which a card is parked off-screen
 
 function getCardWidth(width: number) {
-  if (width < 400) return 150;
-  if (width < 560) return 168;
-  if (width < 768) return 190;
-  if (width < 1024) return 210;
-  return 232;
+  if (width < 400) return 220;
+  if (width < 560) return 244;
+  if (width < 768) return 268;
+  if (width < 1024) return 288;
+  return 300;
 }
 
 function isReduced() {
@@ -55,9 +55,11 @@ function coverAt(rel: number, cw: number, sv: number, reduced: boolean) {
   const x = rel * step;
   const rot = reduced ? Math.max(-16, Math.min(16, -rel * 11))
     : Math.max(-52, Math.min(52, -rel * (28 + sv * 8)));
-  const z = reduced ? 0 : -Math.min(a, 3) * cw * (0.5 + sv * 0.18) - (a > 0.05 ? cw * 0.16 : 0);
-  const scale = Math.max(0.58, 1 - a * (reduced ? 0.12 : 0.19));
-  const opacity = a > SPAN ? 0 : Math.max(reduced ? 0.5 : 0.24, 1 - a * (reduced ? 0.12 : 0.3));
+  const z = reduced ? 0 : -Math.min(a, 3) * cw * (0.4 + sv * 0.16) - (a > 0.05 ? cw * 0.12 : 0);
+  // Bigger, solider cards (user, 2026-07-12): gentler scale falloff so neighbours stay large,
+  // and a high opacity floor so nothing reads translucent — side cards are ~0.6+ at the edge.
+  const scale = Math.max(0.64, 1 - a * (reduced ? 0.12 : 0.16));
+  const opacity = a > SPAN ? 0 : Math.max(reduced ? 0.66 : 0.58, 1 - a * (reduced ? 0.1 : 0.2));
   return { x, y: 0, z, rot, scale, opacity, zIndex: Math.round(100 - a * 10) };
 }
 
@@ -221,6 +223,12 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
 
   return (
     <section className="fan-section" aria-label="Topics">
+      {/* Arrows sit BESIDE the cards now (user, 2026-07-12): absolutely pinned to the left/right
+          edges of the stage and vertically centred, instead of a row underneath it. */}
+      <button type="button" className="fan-arrow fan-arrow-prev flash-press" data-testid="flash-prev"
+        onClick={() => nudge(-1)} aria-label="Previous">{chevron("left")}</button>
+      <button type="button" className="fan-arrow fan-arrow-next flash-press" data-testid="flash-next"
+        onClick={() => nudge(1)} aria-label="Next">{chevron("right")}</button>
       <div className="fan-stage">
         <div ref={containerRef} className="fan-layout" data-testid="flash-fan"
           onPointerDown={onPointerDown} onPointerMove={onPointerMove}
@@ -247,12 +255,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
             </button>
           ))}
         </div>
-      </div>
-      <div className="fan-controls">
-        <button type="button" className="fan-arrow flash-press" data-testid="flash-prev"
-          onClick={() => nudge(-1)} aria-label="Previous">{chevron("left")}</button>
-        <button type="button" className="fan-arrow flash-press" data-testid="flash-next"
-          onClick={() => nudge(1)} aria-label="Next">{chevron("right")}</button>
       </div>
     </section>
   );

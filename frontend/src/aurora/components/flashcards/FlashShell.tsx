@@ -30,7 +30,7 @@ export function FlashShell({
       <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
         <Icon.back size={16} /> Exit
       </button>
-      <CoBrand className="flash-cobrand" />
+      <CoBrand dark className="flash-cobrand" />
 
       {engraved && (
         <button type="button" className="flash-mute" data-testid="flash-mute"

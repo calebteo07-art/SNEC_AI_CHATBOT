@@ -4,8 +4,11 @@
    the moment a card is picked. There is no difficulty (each topic mixes all tiers)
    and the deck is a fixed 10 cards. Role access is enforced upstream by
    /api/flashcards/topics; this only renders what it is given. */
+import { useEffect, useState } from "react";
 import type { FlashcardSetInfo } from "@/hooks/useFlashcards";
 import { galleryHue } from "./types";
+import { nextIndex } from "@/aurora/lib/tutorGreeting";
+import { TAUNTS, type FlashTaunt } from "./flashTaunt";
 import { CardFanCarousel, type FanCard } from "./CardFanCarousel";
 
 const MIXED_HUE = 212;
@@ -33,6 +36,21 @@ interface Props {
 }
 
 export function StepTopic({ sets, onStart }: Props) {
+  // Rotating taunt: render a stable default for the first paint (SSR-safe), then swap to a
+  // fresh, non-repeating dare after mount so the screen never greets you the same way twice.
+  const [taunt, setTaunt] = useState<FlashTaunt>(TAUNTS[0]);
+  useEffect(() => {
+    try {
+      const key = "eyebot_flash_taunt";
+      const last = Number(localStorage.getItem(key));
+      const idx = nextIndex(TAUNTS.length, Number.isInteger(last) ? last : -1, Math.random());
+      localStorage.setItem(key, String(idx));
+      setTaunt(TAUNTS[idx]);
+    } catch {
+      setTaunt(TAUNTS[Math.floor(Math.random() * TAUNTS.length)]);
+    }
+  }, []);
+
   const cards: FanCard[] = [
     { id: "__mixed", label: "Mixed", sub: "every topic", hue: MIXED_HUE,
       imgUrl: topicImage("__mixed"), startable: true },
@@ -49,8 +67,8 @@ export function StepTopic({ sets, onStart }: Props) {
   return (
     <div className="flash-step-body">
       <div className="flash-step-lede">
-        <h2 className="flash-setup-title">Pick your challenge</h2>
-        <p className="flash-step-sub">Choose a deck — ten questions, instant scoring, beat your streak.</p>
+        <h2 className="flash-setup-title">{taunt.title}</h2>
+        <p className="flash-step-sub">{taunt.sub}</p>
       </div>
 
       <CardFanCarousel
