@@ -3086,3 +3086,34 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-overlay-scrim, .aurora-station-overlay-card { animation:none; }
 }
+
+/* RewardBanner — full-screen celebratory takeover. */
+.rw-scrim {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: radial-gradient(120% 120% at 50% 30%, rgba(20,26,38,.6), rgba(4,6,10,.86));
+  backdrop-filter: blur(8px); cursor: pointer;
+}
+.rw-card {
+  width: min(440px, 92vw); padding: 0 26px 26px; text-align: center; cursor: default;
+  background: linear-gradient(180deg, #1b2636, #0d121b);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 26px; overflow: hidden;
+  box-shadow: 0 40px 120px -30px rgba(0,0,0,.8), 0 0 0 1px rgba(255,210,30,.12);
+  color: #eff4fa;
+}
+.rw-art {
+  height: 190px; margin: 0 -26px 12px; background-size: cover; background-position: center;
+  display: flex; align-items: center; justify-content: center;
+}
+.rw-medal { filter: drop-shadow(0 12px 26px rgba(0,0,0,.5)); }
+.rw-eyebrow { font-size: .68rem; letter-spacing: .24em; text-transform: uppercase; font-weight: 800; color: #ffd21e; }
+.rw-title { font: 900 1.9rem/1.05 var(--font-display, inherit); letter-spacing: -.01em; margin: 6px 0 4px; }
+.rw-sub { font-size: .92rem; line-height: 1.5; color: rgba(239,244,250,.78); }
+.rw-lumens { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-weight: 900; color: #ffd21e; font-size: 1.15rem; }
+.rw-cta {
+  margin-top: 18px; padding: 12px 22px; border: none; border-radius: 14px; cursor: pointer;
+  font: 800 .9rem/1 var(--font-display, inherit); color: #06210f;
+  background: linear-gradient(180deg, #5cf07a, #2ee85a); box-shadow: 0 4px 0 #16b83f;
+}
+.rw-cta:active { transform: translateY(2px); box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .rw-scrim, .rw-card { animation: none !important; } }
