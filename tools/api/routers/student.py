@@ -457,6 +457,28 @@ async def flashcards_complete(
     return FlashcardCompleteResponse(xp=xp, level=(xp // 500) + 1)
 
 
+FORFEIT_PENALTY = 20  # Lumens deducted when a student quits a flashcard game mid-deck.
+
+
+@router.post("/api/flashcards/forfeit", response_model=FlashcardCompleteResponse)
+@limiter.limit("30/minute")
+async def flashcards_forfeit(request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    """Quit-mid-deck penalty. The server owns the flat Lumens deduction (the client is
+    never trusted for the amount). update_profile floors the balance at 0 and leaves the
+    lifetime coins_earned counter untouched, so an earned badge is never lost."""
+    student_id = current_user["sub"]
+    try:
+        await update_profile(student_id, xp_delta=-FORFEIT_PENALTY)
+    except Exception:
+        pass
+    try:
+        profile = await get_profile(student_id)
+        xp = int(profile.get("xp") or 0)
+    except Exception:
+        xp = 0
+    return FlashcardCompleteResponse(xp=xp, level=(xp // 500) + 1)
+
+
 # ── Cohort leaderboard (D7: everyone by default, opt-out, XP-ranked) ──────────
 # Ranking is the pure `rank_entries` core; this layer only wires DB reads to it and
 # reports the viewer's own visibility state back for the hide toggle / display-name form.
