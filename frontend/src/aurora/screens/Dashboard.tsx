@@ -19,7 +19,7 @@ import { GreetingHero } from "@/aurora/components/home/GreetingHero";
 import { StreakTile } from "@/aurora/components/home/StreakTile";
 import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
 import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
-import { WeekStats } from "@/aurora/components/home/WeekStats";
+import { LumenLadder } from "@/aurora/components/home/LumenLadder";
 
 function dayOfYear(): number {
   const now = new Date();
@@ -67,6 +67,7 @@ export function Dashboard() {
   const xpToday = progress?.xp_today ?? 0;
   const detail = progress?.streak_detail;
   const streak = detail?.current ?? 0;
+  const coinsEarned = progress?.coins_earned ?? 0;
 
   const todayIdx = detail?.week.findIndex((d) => d.state === "today") ?? -1;
   const missedYesterday = todayIdx > 0 && detail?.week[todayIdx - 1]?.state === "missed";
@@ -117,7 +118,7 @@ export function Dashboard() {
 
       <div className="hm-lower">
         <MilestoneLadder detail={detail} />
-        <WeekStats progress={progress} />
+        <LumenLadder current={coinsEarned} />
       </div>
     </div>
   );
