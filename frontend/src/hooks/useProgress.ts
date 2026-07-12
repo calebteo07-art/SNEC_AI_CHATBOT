@@ -21,6 +21,7 @@ export interface StreakDetail {
 
 export interface ProgressData {
   xp: number;
+  coins_earned: number;
   xp_today: number;
   daily_goal: number;
   hearts: number;
