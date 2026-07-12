@@ -117,6 +117,7 @@ export function useFlashcardComplete() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["flashcards"] });
       qc.invalidateQueries({ queryKey: ["flashcard-due-count"] });
+      qc.invalidateQueries({ queryKey: ["progress"] });
     },
   });
 }
