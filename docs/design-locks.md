@@ -57,7 +57,9 @@ carries `Q n / N` + segment pips (left) and **SCORE + STREAK ×N** (right); scor
 transparent tap-through timer) → the card **rolls + flips** to the payoff (**PERFECT! / MISS** +
 score + combo + a streak callout) over the model answer (**"Explanation"**). **Answer buttons are
 dark NEUTRAL by default (never red)**; a correct lock is **✓ bright green**, a wrong lock is **✗
-bright red** — the only red in the flow (icon + colour, colour-blind-safe). A correct reveal cycles
+bright red** — card-verdict red is reserved for wrong answers (icon + colour, colour-blind-safe); a
+second, permitted red lives on the fixed top-left **Pause** control (control-chrome, not a verdict —
+see the Pause/Quit bullet below), so the two reds never collide in one glance. A correct reveal cycles
 a bright celebratory rim. The **reveal back face is fully CENTRED** and the **Next button sinks to
 the card's bottom**.
 **Acceptance criteria when refining**: selection + activity share ONE dark moving-gradient ground;
@@ -106,6 +108,18 @@ flip, spinner slows); WCAG-legible.
   screen after a topic pick." Like the paint bug, a `waitForSelector`/`innerText` check passes
   on off-screen content, so the harness now asserts the intro's box sits WITHIN the viewport,
   not merely that it is attached to the DOM.
+- **Pause / Quit (Task 24)**: a **neon-red PAUSE control** replaces **Exit** once a game is under
+  way — same fixed **top-left** position as the retired Exit, distinguished by the pause-bars icon
+  + "Pause" label, red permitted here as control-chrome (see the reworded verdict-red note above).
+  Tapping it opens a dark-arcade `PauseMenu` (`data-testid="flash-pausemenu"`): **Resume** / **Switch
+  deck** / **Quit game**. **Switch deck** is penalty-free by design (just re-rolls the deck). **Quit**
+  asks for a confirm, then deducts a flat **20 Lumens** (`POST /api/flashcards/forfeit`, server-owned
+  amount) and routes home to `/dashboard` — the lifetime `coins_earned` counter (badges) is untouched,
+  only the spendable balance takes the hit.
+- **One coin glyph app-wide (Task 24)**: the HUD **Score** stat and the reveal **Payoff** points both
+  render the single engraved-iris `<Lumen>` coin — the old flat, two-circle local `CoinIcon` in
+  `McqCard.tsx` is retired. Every Lumens surface in the app (flashcards, home, leaderboard, tutor
+  rewards) now shares this one glyph; never reintroduce a bespoke coin icon.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — a "Ready"
   kicker, the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N questions · mixed difficulty ·
   instant scoring` meta and a "Press start" CTA — in the same dark arcade card language. Deck loads
@@ -134,8 +148,9 @@ flip, spinner slows); WCAG-legible.
 ## Home / Dashboard — LOCKED 2026-07-01 · refined "come alive" 2026-07-10
 Warm-premium bento `.aurora-home` (Bricolage Grotesque): GreetingHero with the
 ever-changing greeting engine + **Iris** mascot, StreakTile, FeatureCarousel (3D
-coverflow, back-card fade), MilestoneLadder, WeekStats (real data only — no invented
-stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not revive.
+coverflow, back-card fade), MilestoneLadder, LumenLadder (lifetime-Lumens vault —
+WeekStats retired, see the Task 24 amendment below). Old dark dashboard
+(StreakBand/GradientHero/GoalRing) is retired; do not revive.
 - **"Come alive" refine (2026-07-10, spec `2026-07-10-homepage-come-alive-design.md`)**:
   enlarged type scale on every card (bigger *and* clearer — darkened a few low-contrast
   grays); the streak flame is **enlarged + alive** (CSS flicker + ember, frozen under
@@ -176,8 +191,16 @@ stats). Old dark dashboard (StreakBand/GradientHero/GoalRing) is retired; do not
 - **PRESERVED / untouched (hard constraint of this refine)**: every generated asset — the **Veo
   greeting loop** (`media/loops/greeting-selena.mp4`), **iris.png + poses**, the **feature scenes**
   (`brand/features/{tutor,vp,flash}.webp`), the **badge medallions** (`brand/badges/*.jpg`); the
-  bento **layout + card set**; the FeatureCarousel **coverflow mechanics**; **WeekStats real-data-only**;
-  the **default Iris mascot**; the greeting-card simplification; and every prior Home acceptance.
+  bento **layout + card set**; the FeatureCarousel **coverflow mechanics**; ~~WeekStats
+  real-data-only~~ (superseded by the Task 24 Lumens-vault amendment directly below — WeekStats
+  itself is removed); the **default Iris mascot**; the greeting-card simplification; and every
+  prior Home acceptance not otherwise superseded.
+- **Lumens vault replaces WeekStats (Task 24, 2026-07-12)**: the `.hm-lower` right slot is now the
+  **Lumens vault badge card** (`LumenLadder`, `data-testid="lumen-ladder"`) — lifetime-Lumens
+  (`coins_earned`) tiers **Spark → Supernova**, a sibling vibe to the streak-badge card
+  (MilestoneLadder) at its left with distinct art. This **SUPERSEDES** the prior "WeekStats
+  preserved" hard constraint above; the dropped week stats (recall / topics / sessions) are an
+  accepted product tradeoff, not a regression to fix.
 - **Acceptance criteria when refining**: bold/saturated yet **WCAG-AA legible on every surface**
   (white-on-fill kept ≥3:1 for the large numerals/labels); **390px-safe** (no horizontal overflow);
   **all added motion** (XP shine, heat-glow, jewel pop, today-pulse, springs) **freezes** under
