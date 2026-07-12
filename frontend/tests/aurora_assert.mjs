@@ -114,10 +114,11 @@ const h1count = await np.locator("main h1").count();
 if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
 if ((await np.locator('[data-testid="streak-tile"]').count()) !== 1) { console.error("FAIL: streak tile missing"); process.exit(1); }
 if ((await np.locator('[data-testid="milestone-ladder"]').count()) !== 1) { console.error("FAIL: milestone ladder missing"); process.exit(1); }
+if ((await np.locator('[data-testid="lumen-ladder"]').count()) !== 1) { console.error("FAIL: Lumens vault ladder missing"); process.exit(1); }
 if ((await np.locator('[data-testid="feature-card"]').count()) !== 3) { console.error("FAIL: expected 3 feature cards"); process.exit(1); }
 const greetText = (await np.locator('[data-testid="greeting"]').innerText()).trim();
 if (!greetText) { console.error("FAIL: greeting h1 is empty"); process.exit(1); }
-console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, 3 feature cards)");
+console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, Lumens vault, 3 feature cards)");
 
 // Streak badge collection (Selena everywhere): the milestone ladder is a shelf of generated
 // collectible medallions. With streak=4, First Light is collected, Clear View is next, the
