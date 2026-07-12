@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { rankForLevel } from "@/lib/rank";
 import { addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
 import {
-  useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete,
+  useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete, useFlashcardForfeit,
   type FlashcardItem, type CompleteCardResult,
 } from "@/hooks/useFlashcards";
 import {
@@ -22,6 +22,7 @@ import { TopicIntro } from "@/aurora/components/flashcards/TopicIntro";
 import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
+import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
 
 function toCard(c: FlashcardItem, i: number): Flashcard {
   return {
@@ -50,6 +51,8 @@ export function Flashcards() {
   const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
   const reasonCheck = useReasonCheck();
   const { mutate: complete } = useFlashcardComplete();
+  const { mutate: forfeit } = useFlashcardForfeit();
+  const [paused, setPaused] = useState(false);
 
   const baseCards: Flashcard[] = useMemo(() => {
     if (sessionCards.length > 0) return sessionCards;
@@ -199,6 +202,8 @@ export function Flashcards() {
     setSetKey(null); setPickerDone(false); setIntro(false);
   };
   const exit = () => router.push("/dashboard");
+  const quitForfeit = () => { forfeit(); router.push("/dashboard"); };
+  const switchDeck = () => { setPaused(false); newDeck(); };
 
   // ── Selection ──
   if (!fromSession && !pickerDone) {
@@ -255,7 +260,7 @@ export function Flashcards() {
   const advanceLabel = idx < total - 1 ? "Next →" : "Finish →";
 
   return (
-    <FlashShell onExit={exit} topicHue={stageHue} engraved>
+    <FlashShell onExit={exit} onPause={() => setPaused(true)} topicHue={stageHue} engraved>
       <StudyStage
         key={deckEpoch}
         card={card} idx={idx} total={total} topicLabel={labelForTag(card.tag)}
@@ -264,6 +269,7 @@ export function Flashcards() {
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
       />
       {burst && <ComboBurst key={burst.key} combo={burst.combo} onDone={() => setBurst(null)} />}
+      <PauseMenu open={paused} onResume={() => setPaused(false)} onSwitch={switchDeck} onQuit={quitForfeit} />
     </FlashShell>
   );
 }
