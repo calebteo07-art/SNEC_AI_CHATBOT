@@ -1,25 +1,23 @@
 "use client";
-/* FlashShell — the immersive light root shared by the setup, loading, and study
+/* FlashShell — the immersive dark-arcade root shared by the setup, loading, and study
    states. Defined at module scope so the recall textarea never remounts on a parent
-   re-render. Carries the sr-only h1, the Exit affordance, and a subtle mute toggle. */
+   re-render. Carries the sr-only h1, the top-left control (neon Pause during a game,
+   quiet Home pill otherwise), and a subtle mute toggle. */
 import type { ReactNode, CSSProperties } from "react";
 import { Icon } from "@/aurora/icons";
-import { AchievementManager } from "@/screens/AchievementToast";
 import { EngravingField } from "./EngravingField";
 import { BrownianField } from "./BrownianField";
 import { useFlashMute } from "./useFlashFx";
 import { CoBrand } from "@/aurora/components/CoBrand";
 
 export function FlashShell({
-  newAchievements = [], onDismissAchievement = () => {}, onExit, topicHue, engraved = false, children,
+  onExit, onPause, topicHue, engraved = false, children,
 }: {
-  newAchievements?: string[];
-  onDismissAchievement?: (id: string) => void;
   onExit: () => void;
+  /** When set, the top-left control is a neon PAUSE button (active game). When
+   *  omitted, it's a quiet "Home" pill (selection / results — nothing to pause). */
+  onPause?: () => void;
   topicHue?: number;
-  /** Activity flow (loading / study / results) — drifts the colour-bloom lights
-   *  behind everything and etches the engraving rim around the card. Off for the
-   *  setup/fan screen, which keeps its own design. */
   engraved?: boolean;
   children: ReactNode;
 }) {
@@ -27,9 +25,15 @@ export function FlashShell({
   return (
     <div className="flash-root" style={topicHue != null ? ({ "--flash-topic-hue": topicHue } as CSSProperties) : undefined}>
       <h1 className="sr-only">Flashcards</h1>
-      <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
-        <Icon.back size={16} /> Exit
-      </button>
+      {onPause ? (
+        <button type="button" className="flash-pause flash-press" data-testid="flash-pause" aria-label="Pause game" onClick={onPause}>
+          <span className="flash-pause-bars" aria-hidden><i /><i /></span> Pause
+        </button>
+      ) : (
+        <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
+          <Icon.back size={16} /> Home
+        </button>
+      )}
       <CoBrand dark className="flash-cobrand" />
 
       {engraved && (
@@ -40,7 +44,6 @@ export function FlashShell({
       )}
       {engraved && <BrownianField />}
       {engraved && <EngravingField />}
-      <AchievementManager achievements={newAchievements} onDismiss={onDismissAchievement} />
       <div className="flash-content">{children}</div>
     </div>
   );
