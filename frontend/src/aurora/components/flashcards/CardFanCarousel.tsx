@@ -1,17 +1,20 @@
 "use client";
-/* CardFanCarousel — the topic picker: a 3D CIRCULAR-RING carousel of large topic cards that
-   drifts CONTINUOUSLY. Cards curve into depth on a ring arc, but only a WINDOW of them (the
-   front card ± a few) is ever shown — the rest are parked at opacity 0 behind. That windowing
-   is what keeps the picker looking the SAME whether a role has 9 topics or 40+: a fixed
-   angular step per card, never 360/N (spreading all N around a full ring crushes many topics
-   into an unreadable cylinder). A single rAF loop advances a fractional `flow` (front-card
-   index); each frame we write every visible card's ring transform + opacity. Drag/flick spins
-   it, arrows nudge by one topic (snap so a card faces front), idle auto-drift. A TAP opens the
-   FRONT-FACING windowed topic whose live on-screen centre is nearest the tap — resolved at the
-   STAGE (cards are pointer-events:none) so the drift + 3D projection can't swallow the click.
-   Keyboard Enter still picks via the button. Reduced motion freezes it, parked with the first
-   card (Mixed) facing front. The component API (cards / onPick / autoAdvanceMs) and every test
-   hook (flash-fan, flash-pick, data-card-id, flash-prev/next) are unchanged. No numbers/dots. */
+/* CardFanCarousel — the topic picker: a 3D COVERFLOW of large topic cards that drifts
+   CONTINUOUSLY. ONE front card is pushed FORWARD (bigger, upright, fully opaque, on top) and
+   its neighbours recede BACKWARD and bank steeply away, so the front card is unmistakably the
+   focus. Only a WINDOW of cards (the front ± two) is drawn; the rest park at opacity 0. That
+   windowing + real depth (front +z, sides −z) is what keeps the picker looking the SAME whether
+   a role has 9 topics or the real 26 (OA/PSA) / 31 (OT): the earlier flat RING pushed every
+   card to nearly the same depth, so under a weak perspective 5–7 same-size cards crushed into an
+   unreadable slab. A single rAF loop advances a fractional `flow` (front-card index); each frame
+   we write every visible card's coverflow transform (translateX/Z + rotateY) + opacity as a
+   smooth function of its signed distance from the front, so fractional drift never pops. Drag/
+   flick spins it, arrows nudge by one topic (snap so a card faces front), idle auto-drift. A TAP
+   opens the FRONT-FACING windowed topic whose live on-screen centre is nearest the tap — resolved
+   at the STAGE (cards are pointer-events:none) so the drift + 3D projection can't swallow the
+   click. Keyboard Enter still picks via the button. Reduced motion freezes it, parked with the
+   first card (Mixed) facing front. The component API (cards / onPick / autoAdvanceMs) and every
+   test hook (flash-fan, flash-pick, data-card-id, flash-prev/next) are unchanged. No numbers/dots. */
 import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface FanCard {
@@ -30,8 +33,8 @@ interface CardFanCarouselProps {
   autoAdvanceMs?: number;
 }
 
-const STEP_DEG = 40;  // fixed angle between adjacent cards on the ring arc (NOT 360/N)
-const WINDOW = 3;     // how many topics either side of the front card are shown; rest parked
+const WINDOW = 3;   // how many topics either side of the front are drawn; the rest park (opacity 0)
+const TILT = 54;    // degrees a fully-banked side card is rotated away from the viewer
 
 function getCardWidth(width: number) {
   if (width < 400) return 220;
@@ -41,16 +44,21 @@ function getCardWidth(width: number) {
   return 300;
 }
 
-// Ring radius (px a card is pushed out from centre). Larger ⇒ wider fan + a bigger front card
-// under the stage's fixed perspective(2500). Capped so the enlarged front card still fits the
-// shortest stage (its caption must stay visible, not crop), scaling down on small viewports.
-function getRadius(width: number) {
-  if (width < 400) return 170;
-  if (width < 560) return 200;
-  if (width < 768) return 230;
-  if (width < 1024) return 255;
-  return 270;
+// Coverflow spacing, derived from the card width so it scales proportionally on mobile.
+// gap1 = how far the FIRST neighbour sits off-centre (leaves the front card room); stepX = each
+// further step; frontZ pushes the centre card toward the viewer and backZ/stepZ push neighbours
+// away — that real depth (not just rotation) is what makes the front card clearly the biggest
+// under the stage's perspective, so many topics never crush into a same-size slab.
+function coverMetrics(width: number) {
+  const W = getCardWidth(width);
+  const k = W / 300;
+  return { gap1: W * 0.64, stepX: W * 0.44, frontZ: 70 * k, backZ: 150 * k, stepZ: 95 * k };
 }
+
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+// smoothstep: 0 at the front, easing to a flat 1 by one step out — gives the first neighbour its
+// full bank/offset while keeping fractional drift between cards perfectly smooth (no pop).
+const smooth = (x: number) => { const t = clamp01(x); return t * t * (3 - 2 * t); };
 
 function isReduced() {
   return (typeof document !== "undefined" &&
@@ -103,37 +111,44 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     return () => { mq.removeEventListener("change", apply); obs.disconnect(); };
   }, []);
 
-  // The ring. Each frame we place the windowed cards on the arc (rotateY + push-out) and fade
-  // them by how far they face away; cards outside the window are hidden (opacity 0) so a role
-  // with many topics never crushes into an unreadable cylinder.
+  // The coverflow. Each frame we place the windowed cards by their signed distance from the
+  // front: the centre card forward + upright, neighbours pushed back and banked away, fading
+  // out toward the window edge; cards outside the window are hidden (opacity 0) so a role with
+  // 26+ topics still shows one dominant, readable front card instead of an overlapping slab.
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !total) return;
     const els = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
     const zCache = new Array(els.length).fill(NaN);
-    let radius = getRadius(window.innerWidth);
+    let m = coverMetrics(window.innerWidth);
 
     const paint = () => {
       const flow = flowRef.current;
       for (let i = 0; i < els.length; i++) {
         const rel = relOf(i, flow);
-        if (Math.abs(rel) > WINDOW) {                 // parked off the front arc
+        const a = Math.abs(rel);
+        if (a > WINDOW) {                             // parked outside the front window
           if (els[i].style.opacity !== "0") els[i].style.opacity = "0";
           continue;
         }
-        const angle = rel * STEP_DEG;
-        const a = Math.abs(angle);
-        els[i].style.transform = `rotateY(${angle.toFixed(2)}deg) translateZ(${radius}px)`;
-        // Solid through the front, fading to nothing toward the edge of the window.
-        els[i].style.opacity = Math.max(0, Math.min(1, 1.15 - a / 95)).toFixed(3);
-        const zi = 200 + Math.round(Math.cos((a * Math.PI) / 180) * 100);
+        const s = rel < 0 ? -1 : 1;
+        const e = smooth(a);                          // 0 at the front → 1 by one step out
+        const over = a > 1 ? a - 1 : 0;               // extra steps past the first neighbour
+        const x = s * (m.gap1 * e + m.stepX * over);  // slide out to the side
+        const z = m.frontZ * (1 - e) - m.backZ * e - m.stepZ * over; // forward at front, back at sides
+        const rot = -s * TILT * e;                    // upright at front, banked away at the sides
+        els[i].style.transform =
+          `translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg)`;
+        // Solid through the front, fading to nothing by the second neighbour.
+        els[i].style.opacity = clamp01(1.16 - 0.42 * a).toFixed(3);
+        const zi = 1000 + Math.round(z);              // deeper card ⇒ lower stacking order
         if (zCache[i] !== zi) { els[i].style.zIndex = String(zi); zCache[i] = zi; }
       }
     };
     paintRef.current = paint;
     paint(); // place cards before first frame (no stacked-card flash)
 
-    const onResize = () => { radius = getRadius(window.innerWidth); paint(); };
+    const onResize = () => { m = coverMetrics(window.innerWidth); paint(); };
     window.addEventListener("resize", onResize);
 
     let raf = 0;
@@ -159,8 +174,8 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
   }, [total, reduced, autoAdvanceMs, relOf]);
 
-  // Drag / flick the ring; a TAP (little travel, quick) is resolved to a topic pick at the
-  // STAGE, not per-card. The ring auto-rolls and each card is a moving, 3D-projected target,
+  // Drag / flick the coverflow; a TAP (little travel, quick) is resolved to a topic pick at the
+  // STAGE, not per-card. The coverflow auto-rolls and each card is a moving, 3D-projected target,
   // so relying on the card <button>'s own click let taps fall through to .fan-layout and do
   // nothing (the exact failure the home FeatureCarousel fixed). Cards are pointer-events:none,
   // so every gesture lands here; on a tap we open the windowed, front-facing card whose live
@@ -196,8 +211,8 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     velRef.current = 0;
   };
   // Open the windowed, FRONT-FACING topic whose live on-screen centre is nearest the tap X —
-  // independent of the drift/projection, and ignoring parked cards (outside the window / far
-  // side of the ring), which project to the same centre X but are hidden.
+  // independent of the drift/projection, and ignoring parked cards (outside the window), which
+  // can project near the same centre X but are hidden.
   const resolvePick = (clientX: number) => {
     const container = containerRef.current;
     if (!container) return;
