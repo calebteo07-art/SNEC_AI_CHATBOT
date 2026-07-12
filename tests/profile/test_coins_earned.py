@@ -34,3 +34,19 @@ async def test_coins_earned_untouched_on_penalty(monkeypatch):
     await mod.update_profile("s1", xp_delta=-20)
     assert all("coins_earned" not in w for w in writes)
     assert any(w.get("xp") == 80 for w in writes)  # balance decremented + floored
+
+
+@pytest.mark.asyncio
+async def test_progress_returns_coins_earned_with_xp_fallback(monkeypatch):
+    from tools.progress import get_progress as mod
+
+    async def _get(_sid):
+        return {"xp": 340, "hearts": 5, "streak": 0}  # no coins_earned column yet
+    async def _sessions(_sid, limit=30):
+        return []
+
+    monkeypatch.setattr(mod, "get_profile", _get)
+    monkeypatch.setattr(mod.db, "get_sessions", _sessions)
+
+    data = await mod.get_progress("s1")
+    assert data["coins_earned"] == 340  # falls back to xp pre-migration
