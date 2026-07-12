@@ -2359,12 +2359,12 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
   position: absolute; top: 16px; left: 16px; z-index: 6;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 16px; border: none; border-radius: 999px;
-  font: 800 0.8rem/1 var(--font-display, inherit); letter-spacing: .06em; text-transform: uppercase;
+  font: 800 0.8rem/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase;
   color: #fff; cursor: pointer;
   background: linear-gradient(180deg, #ff6b62, var(--fc-red));
   box-shadow: 0 5px 0 var(--fc-red-d), 0 12px 26px -8px rgba(255,59,48,.55);
 }
-.flash-pause:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--fc-red-d), 0 6px 14px -8px rgba(255,59,48,.5); }
+.flash-pause:active { box-shadow: 0 2px 0 var(--fc-red-d), 0 6px 14px -8px rgba(255,59,48,.5); }
 .flash-pause-bars { display: inline-flex; gap: 3px; }
 .flash-pause-bars i { width: 3px; height: 12px; border-radius: 1px; background: #fff; display: block; }
 
@@ -2383,11 +2383,11 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
   box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
   color: var(--fc-ink, #eff4fa);
 }
-.flash-pause-h { font: 900 1.5rem/1 var(--font-display, inherit); letter-spacing: .04em; }
+.flash-pause-h { font: 900 1.5rem/1 var(--font-sans); letter-spacing: .04em; }
 .flash-pause-sub { font-size: .86rem; line-height: 1.5; color: rgba(239,244,250,.72); margin-bottom: 4px; }
 .flash-pausebtn {
   padding: 13px 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
-  font: 800 .92rem/1 var(--font-display, inherit); letter-spacing: .02em; cursor: pointer;
+  font: 800 .92rem/1 var(--font-sans); letter-spacing: .02em; cursor: pointer;
   color: var(--fc-ink, #eff4fa); background: rgba(255,255,255,.06);
 }
 .flash-pausebtn.is-go {
@@ -2916,7 +2916,7 @@ html[data-motion="reduce"] .flash-setup-title { animation: none; }
   .flash-face.is-back { transform: none; }
   .flash-card:not(.is-flipped) .flash-face.is-back { display: none; }
   .flash-card.is-flipped .flash-face.is-front { display: none; }
-  .flash-lift.is-boost, .flash-lift.is-spin, .flash-boost, .flash-beat, .flash-combo { animation: none; }
+  .flash-lift.is-boost, .flash-lift.is-spin, .flash-boost, .flash-beat, .flash-combo, .flash-pausewrap { animation: none; }
   .flash-boost { display: none; }
   .flash-meter.is-charging .flash-meter-fill { transition: none; width: 100%; }
   .flash-face::before, .flash-face::after, .flash-results::before, .flash-intro::before { animation: none; }
@@ -2936,6 +2936,7 @@ html[data-motion="reduce"] .flash-card.is-flipped .flash-face.is-front { display
 html[data-motion="reduce"] .flash-lift.is-boost,
 html[data-motion="reduce"] .flash-lift.is-spin { animation: none; }
 html[data-motion="reduce"] .flash-boost { animation: none; display: none; }
+html[data-motion="reduce"] .flash-pausewrap { animation: none; }
 html[data-motion="reduce"] .flash-meter.is-charging .flash-meter-fill { transition: none; width: 100%; }
 html[data-motion="reduce"] .flash-option,
 html[data-motion="reduce"] .flash-step { opacity: 1; transform: none; animation: none; }

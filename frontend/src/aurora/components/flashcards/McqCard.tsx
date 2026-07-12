@@ -26,6 +26,8 @@ interface Props {
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
   onAdvance: () => void; advanceLabel: string; reasonNote: string | null;
+  /** True while the pause overlay is up — freezes the keyboard advance shortcut. */
+  paused?: boolean;
 }
 
 const CoinIcon = () => (
@@ -62,15 +64,16 @@ export function McqCard(p: Props) {
   }, [revealed]);
 
   // Keyboard advance (Enter / →) — only once revealed AND settled, never on free-text
-  // cards where a Got it / Missed it choice is required first.
+  // cards where a Got it / Missed it choice is required first, and never while paused
+  // (the pause overlay's scrim blocks taps but not window-level key events).
   useEffect(() => {
-    if (!revealed || !ready || card.freeText) return;
+    if (!revealed || !ready || card.freeText || p.paused) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); p.onAdvance(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [revealed, ready, card.freeText, p.onAdvance]);
+  }, [revealed, ready, card.freeText, p.paused, p.onAdvance]);
 
   const needsReason = card.requiresExplanation && !card.freeText;
   const letters = ["a", "b", "c", "d", "e", "f"];
