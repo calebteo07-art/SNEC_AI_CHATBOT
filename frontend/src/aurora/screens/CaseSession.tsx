@@ -17,6 +17,9 @@ import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
+import { useAuth } from "@/screens/AuthContext";
+import { useReward } from "@/aurora/rewards/RewardProvider";
+import { grantAchievements } from "@/aurora/rewards/achieve";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -42,6 +45,8 @@ interface Coaching { highlights: string[]; watch_outs: string[]; focus: string }
 export function CaseSession() {
   const caseId = useParams().caseId as string;
   const router = useRouter();
+  const { user } = useAuth();
+  const { enqueue } = useReward();
 
   // Instant paint from the patient-selection handoff, confirmed by /station.
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(() => {
@@ -327,10 +332,15 @@ export function CaseSession() {
         body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked) }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
+      const data = (await res.json()) as { result: DomainResult; coaching?: Coaching; lumens_awarded?: number };
       setResult(data.result);
       setCoaching(data.coaching ?? null);
       setShowSubmit(false);
+      const sc = data.result.score_100 ?? 0;
+      const ids = ["first_station",
+        ...(sc >= 60 ? ["station_pass"] : []),
+        ...(sc >= 100 && data.result.safe && data.result.missed_critical.length === 0 ? ["flawless_station"] : [])];
+      grantAchievements(user?.studentId ?? "", ids, data.lumens_awarded ?? 0).forEach(enqueue);
     } catch { setSubmitError("Could not evaluate. Please try again."); }
     finally { setSubmitting(false); }
   };
