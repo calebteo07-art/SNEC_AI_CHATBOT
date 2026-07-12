@@ -267,6 +267,7 @@ export function Flashcards() {
         reasonNote={reasonNotesRef.current[card.id] ?? null} combo={combo}
         score={scoreShown}
         onCheck={onCheck} onReason={onReason} onAdvance={advance} advanceLabel={advanceLabel}
+        paused={paused}
       />
       {burst && <ComboBurst key={burst.key} combo={burst.combo} onDone={() => setBurst(null)} />}
       <PauseMenu open={paused} onResume={() => setPaused(false)} onSwitch={switchDeck} onQuit={quitForfeit} />

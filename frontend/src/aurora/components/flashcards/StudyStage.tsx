@@ -12,6 +12,8 @@ interface Props {
   onCheck: (correct: boolean, selected: number[], reasoning: string) => void;
   onReason: (cardId: number, stem: string, text: string, model: string) => void;
   onAdvance: () => void; advanceLabel: string;
+  /** True while the pause overlay is up — threaded to McqCard to freeze its keyboard advance. */
+  paused?: boolean;
 }
 
 export function StudyStage(p: Props) {
@@ -24,7 +26,7 @@ export function StudyStage(p: Props) {
       <McqCard key={p.card.id} card={p.card} topicLabel={p.topicLabel} idx={p.idx} total={p.total}
         combo={p.combo} score={p.score}
         onCheck={p.onCheck} onReason={p.onReason} onAdvance={p.onAdvance}
-        advanceLabel={p.advanceLabel} reasonNote={p.reasonNote} />
+        advanceLabel={p.advanceLabel} reasonNote={p.reasonNote} paused={p.paused} />
     </div>
   );
 }

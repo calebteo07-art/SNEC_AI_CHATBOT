@@ -31,7 +31,7 @@ export function PauseMenu({ open, onResume, onSwitch, onQuit }: {
           <>
             <p className="flash-pause-h">PAUSED</p>
             <p className="flash-pause-sub">Catch your breath — the deck will wait.</p>
-            <button type="button" className="flash-pausebtn is-go flash-press" onClick={onResume}>Resume</button>
+            <button type="button" className="flash-pausebtn is-go flash-press" autoFocus onClick={onResume}>Resume</button>
             <button type="button" className="flash-pausebtn flash-press" onClick={onSwitch}>Switch deck</button>
             <button type="button" className="flash-pausebtn is-quit flash-press"
               data-testid="flash-quit" onClick={() => setConfirmQuit(true)}>Quit game</button>
