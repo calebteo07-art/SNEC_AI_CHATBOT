@@ -58,8 +58,9 @@ STYLE = (
 # the one-glance anchor) -- what is banned is readable text/numbers, software UI
 # chrome, watermarks, branding, badges and any non-plain-blue scrubs.
 NEG = (
-    "Absolutely no readable text, letters, numbers, labels, arrows or measurement "
-    "numbers anywhere, including on any instrument or screen. A clinical scan or "
+    "Absolutely no text of any kind: no readable letters, numbers, labels, arrows "
+    "or measurement numbers anywhere, including on any instrument or screen. A "
+    "clinical scan or "
     "medical image may appear on an instrument display, but with no numeric "
     "readouts, no menus, buttons, toolbars or other software UI chrome, and no "
     "watermark. No logos or brand marks of any kind. No hospital, clinic or "
