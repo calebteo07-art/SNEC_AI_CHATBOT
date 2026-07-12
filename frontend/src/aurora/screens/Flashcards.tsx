@@ -5,9 +5,7 @@
    Presentation lives in components/flashcards/*. */
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { rankForLevel } from "@/lib/rank";
-import { addXP, checkAndUnlockAchievements, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
+import { addXP, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
 import {
   useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete, useFlashcardForfeit,
   type FlashcardItem, type CompleteCardResult,
@@ -23,6 +21,9 @@ import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
+import { useReward } from "@/aurora/rewards/RewardProvider";
+import { grantAchievements } from "@/aurora/rewards/achieve";
+import { useAuth } from "@/screens/AuthContext";
 
 function toCard(c: FlashcardItem, i: number): Flashcard {
   return {
@@ -53,6 +54,8 @@ export function Flashcards() {
   const { mutate: complete } = useFlashcardComplete();
   const { mutate: forfeit } = useFlashcardForfeit();
   const [paused, setPaused] = useState(false);
+  const { enqueue } = useReward();
+  const { user } = useAuth();
 
   const baseCards: Flashcard[] = useMemo(() => {
     if (sessionCards.length > 0) return sessionCards;
@@ -131,8 +134,9 @@ export function Flashcards() {
     }
     const xp = correct ? XP_CORRECT * comboMultiplier(newCombo) : XP_ATTEMPT;
     xpRef.current += xp; addXP(xp); incrementTotalCards();
-    const unlocked = checkAndUnlockAchievements();
-    if (unlocked.length) toast.success("Achievement unlocked! 🏅");
+    if (correct && comboMultiplier(newCombo) >= 4) {
+      grantAchievements(user?.studentId ?? "", ["combo_godlike"]).forEach(enqueue);
+    }
   };
 
   // Optional post-reveal reflection → background typed-reasoning grade. Fired from the
@@ -161,11 +165,10 @@ export function Flashcards() {
   const finish = () => {
     setDone(true);
     const earned = xpRef.current + XP_REWARDS.sessionComplete;
-    const res = addXP(XP_REWARDS.sessionComplete);
-    if (res.leveledUp) {
-      const rank = rankForLevel(res.newLevel);
-      toast.success(`Level up! You're now Level ${res.newLevel} · ${rank.title} 🎉`);
-    }
+    addXP(XP_REWARDS.sessionComplete);
+    const allCorrect = resultsRef.current.length > 0 && resultsRef.current.every((r) => r.correct);
+    const ids = ["first_deck", ...(allCorrect ? ["perfect_deck"] : [])];
+    grantAchievements(user?.studentId ?? "", ids).forEach(enqueue);
     complete({ results: resultsRef.current, xp_delta: earned });
   };
 

@@ -12,9 +12,7 @@ import { FollowupChip } from "@/aurora/components/FollowupChip";
 import { ChatField } from "@/aurora/components/ChatField";
 import Link from "next/link";
 import { Icon } from "@/aurora/icons";
-import { toast } from "sonner";
-import { AchievementManager } from "@/screens/AchievementToast";
-import { addChatXp, checkAndUnlockAchievements, XP_REWARDS } from "@/lib/legacy/gamification";
+import { addChatXp, XP_REWARDS } from "@/lib/legacy/gamification";
 import { useGamificationSync } from "@/hooks/useGamification";
 import { TutorLanding } from "@/aurora/components/TutorLanding";
 import {
@@ -23,6 +21,8 @@ import {
 } from "@/aurora/lib/tutorSessions";
 import { OPENERS, SUBS, nextIndex } from "@/aurora/lib/tutorGreeting";
 import { useAuth } from "@/screens/AuthContext";
+import { useReward } from "@/aurora/rewards/RewardProvider";
+import { grantAchievements } from "@/aurora/rewards/achieve";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -42,11 +42,10 @@ export function Tutor() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
-  const [newAchievements, setNewAchievements] = useState<string[]>([]);
   const threadRef = useRef<HTMLDivElement>(null);
-  const chatCapNotified = useRef(false);
   const { mutate: syncGamification } = useGamificationSync();
   const { user } = useAuth();
+  const { enqueue } = useReward();
   const firstName = (user?.fullName ?? "there").split(" ")[0];
   const userId = user?.studentId || user?.email || "_";
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -138,18 +137,14 @@ export function Tutor() {
     // Persist immediately so the session appears even if the user leaves before a reply.
     persistThread(messages.concat(userMsg), sid);
 
-    // Chat XP is capped per day so it can't be farmed by spamming messages.
-    // Sync the grant to the backend (single source of truth) so it shows up in
-    // the dashboard XP + daily-goal ring — both read from the synced total.
+    // Chat Lumens have no daily cap. Sync the grant to the backend (single source of
+    // truth) so it shows up in the dashboard Lumens + daily-goal ring — both read from
+    // the synced total.
     const granted = addChatXp(XP_REWARDS.chatMessage);
     if (granted > 0) {
       syncGamification({ xp_delta: granted, hearts_used: 0 });
-    } else if (!chatCapNotified.current) {
-      chatCapNotified.current = true;
-      toast("You've reached today's chat XP — keep asking questions to learn; chat XP resumes tomorrow 🙂");
     }
-    const unlocked = checkAndUnlockAchievements();
-    if (unlocked.length > 0) setNewAchievements((prev) => [...prev, ...unlocked]);
+    grantAchievements(user?.studentId ?? "", ["first_chat"]).forEach(enqueue);
 
     const apiMessages = messages.concat(userMsg).map((m) =>
       m.type === "user" ? { role: "user", content: m.text } : { role: "assistant", content: m.content },
@@ -216,11 +211,6 @@ export function Tutor() {
   return (
     <section className="aurora-chat">
       <ChatField />
-
-      <AchievementManager
-        achievements={newAchievements}
-        onDismiss={(id) => setNewAchievements((prev) => prev.filter((a) => a !== id))}
-      />
 
       {phase !== "chat" && (
         <TutorLanding
