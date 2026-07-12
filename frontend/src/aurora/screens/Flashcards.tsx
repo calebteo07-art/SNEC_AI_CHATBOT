@@ -233,6 +233,11 @@ export function Flashcards() {
     setSetKey(null); setPickerDone(false); setIntro(false);
   };
   const exit = () => router.push("/dashboard");
+  // From the pre-deck intro, the top-left control steps BACK to the topic fan (not Home) —
+  // the intro is a "which topic?" beat, so its natural back is the picker. No forfeit: the
+  // intro isn't an active round. In-place reset of the selection state (nothing answered yet,
+  // so no accumulators to clear).
+  const backToTopics = () => { setSetKey(null); setPickerDone(false); setIntro(false); };
   // Controlled exits from an active round. sendBeacon (not fetch) so the −20 survives an
   // immediate unload — Switch deck on a tutor/review deck hard-reloads the page, which would
   // abort an in-flight fetch. guard.spend() keeps it to a single charge even if an
@@ -264,7 +269,7 @@ export function Flashcards() {
     const introKey = setKey ?? "__mixed";
     const introLabel = setKey ? labelForTag(setKey) : "Mixed";
     return (
-      <FlashShell onExit={exit} topicHue={topicHue(introKey)} engraved>
+      <FlashShell onExit={backToTopics} exitLabel="Topics" topicHue={topicHue(introKey)} engraved>
         <TopicIntro label={introLabel} topicKey={introKey}
           count={baseCards.length} onBegin={() => setIntro(false)} />
       </FlashShell>
