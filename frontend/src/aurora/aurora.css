@@ -2418,7 +2418,7 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 
 .fan-section { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
 .fan-stage { position: relative; width: 100%; height: clamp(440px, 66dvh, 600px);
-  perspective: 1400px; perspective-origin: 50% 56%; overflow: hidden; isolation: isolate;
+  perspective: 2500px; perspective-origin: 50% 54%; overflow: hidden; isolation: isolate;
   animation: fan-in .7s ease both; }
 @media (max-width: 639px) { .fan-stage { height: clamp(360px, 56dvh, 470px); } }
 html[data-motion="reduce"] .fan-stage { animation: none; }
@@ -2430,7 +2430,12 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
   background: radial-gradient(ellipse at center, hsl(var(--flash-topic-hue) 82% 56% / .3), transparent 70%);
   filter: blur(26px); }
 
+/* .fan-layout is a flat, full-stage pointer catcher (it never transforms, so its hit-plane
+   always fills the stage); preserve-3d only passes the stage perspective down to the ring.
+   .fan-ring is the actual carousel: the whole 3D scene turns as a group (rotateY written by
+   CardFanCarousel each frame), cards seated on it at fixed angles, fading as they face away. */
 .fan-layout { position: absolute; inset: 0; transform-style: preserve-3d; }
+.fan-ring { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .fan-card { position: absolute; left: 50%; top: 50%; width: 300px; height: 392px;
   margin: -196px 0 0 -150px; padding: 0; border: 0; background: transparent; cursor: pointer;
   /* taps are resolved at the stage (.fan-layout) against live card rects — see
