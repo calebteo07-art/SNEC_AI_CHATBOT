@@ -164,7 +164,7 @@ export function McqCard(p: Props) {
   const meter = (
     <div className={`flash-meter${charging ? " is-charging" : ""}`} aria-hidden>
       <div className="flash-meter-lab">
-        <span>XP</span>
+        <span>Lumens</span>
         <span className="flash-meter-stat">{charging ? "Banking…" : "Charge up"}</span>
       </div>
       <div className="flash-meter-track"><div className="flash-meter-fill" /></div>

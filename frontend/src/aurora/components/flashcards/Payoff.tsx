@@ -6,6 +6,7 @@
 import { useEffect, useRef } from "react";
 import { useCountUp } from "@/hooks/useCountUp";
 import { comboMultiplier } from "./types";
+import { Lumen } from "@/aurora/components/Lumen";
 
 export function Payoff({ correct, combo, basePoints }: { correct: boolean; combo: number; basePoints: number }) {
   const mult = correct ? comboMultiplier(combo) : 1;
@@ -59,7 +60,7 @@ export function Payoff({ correct, combo, basePoints }: { correct: boolean; combo
           {correct ? "PERFECT!" : "MISS"}
         </p>
         {mult > 1 && <span className="flash-combo" data-testid="flash-combo">×{mult} combo · {combo} in a row</span>}
-        <span ref={ref} className="flash-payoff-points">{display}</span>
+        <span ref={ref} className="flash-payoff-points"><Lumen size={18} />{display}</span>
       </div>
     </div>
   );

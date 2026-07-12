@@ -38,7 +38,7 @@ export function StreakTile({
     <section className="hm-streak" data-testid="streak-tile" aria-label={`${detail.current}-day streak`}>
       <div className="hm-sh">
         <span className="hm-t"><Icon name="flame" /> Daily streak</span>
-        <span className="hm-goalring" role="img" aria-label={`Daily goal ${xpToday} of ${dailyGoal} XP`}>
+        <span className="hm-goalring" role="img" aria-label={`Daily goal ${xpToday} of ${dailyGoal} Lumens`}>
           <svg width="48" height="48" viewBox="0 0 48 48">
             <circle cx="24" cy="24" r={r} fill="none" stroke="#EFE7DA" strokeWidth="5" />
             <circle cx="24" cy="24" r={r} fill="none" stroke="#7C5CF6" strokeWidth="5" strokeLinecap="round"

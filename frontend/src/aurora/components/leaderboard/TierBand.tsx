@@ -8,7 +8,7 @@ export function TierBand({ tier, count }: { tier: Tier; count: number }) {
       <TierCrest tier={tier} size={18} />
       <span className="lb-bt" style={{ color: tier.ink }}>{tier.name}</span>
       <span className="lb-band-line" aria-hidden />
-      <span className="lb-band-cnt">{tier.min.toLocaleString()}+ XP · {count}</span>
+      <span className="lb-band-cnt">{tier.min.toLocaleString()}+ Lumens · {count}</span>
     </div>
   );
 }
