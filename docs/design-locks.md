@@ -155,6 +155,11 @@ flip, spinner slows); WCAG-legible.
   kicker, the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N questions · mixed difficulty ·
   instant scoring` meta and a "Press start" CTA — in the same dark arcade card language. Deck loads
   in the background; tutor-handoff and `?mode=review` flows skip it.
+  - **Criterion changed 2026-07-12 (was "intro top-left → Home/dashboard"):** the intro's top-left
+    control now reads **"Topics"** and steps **back to the topic fan** (in-place selection reset), not
+    the dashboard — the intro is a "which topic?" beat, so its natural back is the picker. Still a
+    free exit (the intro is not an active round → no forfeit). `Flashcards.tsx::backToTopics`;
+    `FlashShell` `exitLabel` prop. Selection/loading/empty/results keep the "Home" → dashboard control.
 - **Combo burst (ricoe B3)**: crossing into a new multiplier tier fires a loud, game-phrased
   `ComboBurst` slam (DOUBLE UP ×2 / ON FIRE ×3 / UNSTOPPABLE ×4 / GODLIKE 10+) with the ×N, a
   shockwave ring and the streak count; `pointer-events:none`, self-dismissing, keeps rewarding

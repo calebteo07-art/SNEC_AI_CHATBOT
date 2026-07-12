@@ -342,6 +342,23 @@ if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
 console.log("PASS: flashcards — FULL-MOTION topic tap opens the intro (stage-resolved pick; ricoe B5)");
+// The intro's top-left control steps BACK to the topic fan, not Home (2026-07-12): the intro
+// is a "which topic?" beat, so its natural back is the picker — routing to /dashboard from
+// here stranded a student who only wanted a different deck. Assert the label reads "Topics"
+// (not "Home"), clicking it re-shows the fan, and we never left /flashcards.
+const introExitLabel = (await np.locator('[data-testid="flash-exit"]').innerText()).trim().toLowerCase();
+if (introExitLabel === "home") { console.error("FAIL: intro back control still labelled 'Home' — it must return to Topics, not the dashboard"); process.exit(1); }
+if (!/topic/.test(introExitLabel)) { console.error(`FAIL: intro back control label = '${introExitLabel}', expected 'Topics'`); process.exit(1); }
+await np.locator('[data-testid="flash-exit"]').click();
+await np.waitForSelector('[data-testid="flash-fan"]', { timeout: 15000 });
+if ((await np.locator('[data-testid="flash-intro"]').count()) > 0) { console.error("FAIL: intro still shown after its back control — did not return to topic selection"); process.exit(1); }
+if (new URL(np.url()).pathname !== "/flashcards") { console.error(`FAIL: intro back navigated away (url=${np.url()}) — must return to the topic fan, not the dashboard`); process.exit(1); }
+console.log("PASS: flashcards — intro back control returns to the topic fan (not Home)");
+// Re-pick a topic to restore the intro for the downstream Begin → study assertions.
+await np.waitForTimeout(700);
+const fanBox2 = await np.locator(".fan-stage").boundingBox();
+await np.mouse.click(Math.round(fanBox2.x + fanBox2.width / 2), Math.round(fanBox2.y + fanBox2.height / 2));
+await np.waitForSelector('[data-testid="flash-intro"]', { timeout: 15000 });
 // Enter the study deck in FULL MOTION (the real user path) and assert the MCQ options
 // actually PAINT. Regression (2026-07-11 "blank card after a topic pick"): a
 // referenced-but-undefined @keyframes flash-rise left .flash-option stranded at its base

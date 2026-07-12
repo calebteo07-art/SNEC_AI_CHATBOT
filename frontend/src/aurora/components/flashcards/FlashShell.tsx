@@ -11,12 +11,15 @@ import { useFlashMute } from "./useFlashFx";
 import { CoBrand } from "@/aurora/components/CoBrand";
 
 export function FlashShell({
-  onExit, onPause, topicHue, engraved = false, children,
+  onExit, onPause, exitLabel = "Home", topicHue, engraved = false, children,
 }: {
   onExit: () => void;
   /** When set, the top-left control is a neon PAUSE button (active game). When
-   *  omitted, it's a quiet "Home" pill (selection / results — nothing to pause). */
+   *  omitted, it's a quiet back pill (selection / intro / results — nothing to pause). */
   onPause?: () => void;
+  /** Label for the quiet back pill. Defaults to "Home" (→ dashboard); the pre-deck
+   *  intro overrides it to "Topics" since its back steps to the topic fan, not Home. */
+  exitLabel?: string;
   topicHue?: number;
   engraved?: boolean;
   children: ReactNode;
@@ -31,7 +34,7 @@ export function FlashShell({
         </button>
       ) : (
         <button type="button" className="flash-exit flash-press" data-testid="flash-exit" onClick={onExit}>
-          <Icon.back size={16} /> Home
+          <Icon.back size={16} /> {exitLabel}
         </button>
       )}
       <CoBrand dark className="flash-cobrand" />
