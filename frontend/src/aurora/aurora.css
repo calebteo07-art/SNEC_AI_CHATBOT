@@ -2368,6 +2368,39 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 .flash-pause-bars { display: inline-flex; gap: 3px; }
 .flash-pause-bars i { width: 3px; height: 12px; border-radius: 1px; background: #fff; display: block; }
 
+/* PauseMenu — dark-arcade overlay (matches the CommandPalette dialog pattern, --fc- tokens). */
+.flash-pausewrap {
+  position: fixed; inset: 0; z-index: 240;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 9, 14, .72); backdrop-filter: blur(6px);
+  animation: rw-fade .18s ease-out;
+}
+.flash-pausecard {
+  width: min(360px, 88vw); padding: 26px 22px;
+  display: flex; flex-direction: column; gap: 12px; text-align: center;
+  background: linear-gradient(180deg, #1b2636, #0e131c);
+  border: 1px solid rgba(255,255,255,.10); border-radius: 22px;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,.7);
+  color: var(--fc-ink, #eff4fa);
+}
+.flash-pause-h { font: 900 1.5rem/1 var(--font-display, inherit); letter-spacing: .04em; }
+.flash-pause-sub { font-size: .86rem; line-height: 1.5; color: rgba(239,244,250,.72); margin-bottom: 4px; }
+.flash-pausebtn {
+  padding: 13px 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 14px;
+  font: 800 .92rem/1 var(--font-display, inherit); letter-spacing: .02em; cursor: pointer;
+  color: var(--fc-ink, #eff4fa); background: rgba(255,255,255,.06);
+}
+.flash-pausebtn.is-go {
+  color: #06210f; border: none;
+  background: linear-gradient(180deg, #5cf07a, var(--fc-green)); box-shadow: 0 4px 0 var(--fc-green-d);
+}
+.flash-pausebtn.is-quit {
+  color: #fff; border: none;
+  background: linear-gradient(180deg, #ff6b62, var(--fc-red)); box-shadow: 0 4px 0 var(--fc-red-d);
+}
+.flash-pausebtn.is-go:active, .flash-pausebtn.is-quit:active { transform: translateY(2px); box-shadow: none; }
+@keyframes rw-fade { from { opacity: 0 } to { opacity: 1 } }
+
 /* ===================================================================
    SELECTION — the topic coverflow
    =================================================================== */
