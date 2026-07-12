@@ -56,6 +56,7 @@
 .hm-lvl .hm-lr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
 .hm-lvl .hm-lr b { font-weight:700; font-size:17px; } .hm-lvl .hm-lr b span { color:var(--violet-d); }
 .hm-lvl .hm-lr .hm-z { font-size:14px; font-weight:600; color:#9b8fa8; }
+.hm-z svg { display: inline-block; vertical-align: middle; }
 .hm-lvbar { height:16px; border-radius:999px; background:rgba(255,255,255,.6); overflow:hidden; box-shadow:inset 0 2px 4px rgba(120,80,40,.15), inset 0 0 0 1px rgba(255,255,255,.5); }
 .hm-lvbar > span { position:relative; display:block; height:100%; border-radius:999px; overflow:hidden;
   background:linear-gradient(90deg,#8B5CF6,#EC4899 55%,#FB923C); box-shadow:0 0 12px -1px rgba(236,72,153,.6); }
