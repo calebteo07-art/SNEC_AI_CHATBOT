@@ -2353,6 +2353,21 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
   border-radius: 50%; border: 1.5px solid rgba(255,255,255,.24); background: rgba(10,14,20,.5); color: #fff; cursor: pointer; }
 .flash-cobrand { top: 16px; left: 50%; transform: translateX(-50%); opacity: .9; }
 
+/* Neon-red arcade PAUSE — chunky "toy button" tactility (mirrors .flash-advance):
+   hard drop shadow that collapses on press, plus a red glow. */
+.flash-pause {
+  position: absolute; top: 16px; left: 16px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border: none; border-radius: 999px;
+  font: 800 0.8rem/1 var(--font-display, inherit); letter-spacing: .06em; text-transform: uppercase;
+  color: #fff; cursor: pointer;
+  background: linear-gradient(180deg, #ff6b62, var(--fc-red));
+  box-shadow: 0 5px 0 var(--fc-red-d), 0 12px 26px -8px rgba(255,59,48,.55);
+}
+.flash-pause:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--fc-red-d), 0 6px 14px -8px rgba(255,59,48,.5); }
+.flash-pause-bars { display: inline-flex; gap: 3px; }
+.flash-pause-bars i { width: 3px; height: 12px; border-radius: 1px; background: #fff; display: block; }
+
 /* ===================================================================
    SELECTION — the topic coverflow
    =================================================================== */
