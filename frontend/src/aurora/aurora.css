@@ -2558,7 +2558,6 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-stat-v { font: 900 21px var(--font-sans); letter-spacing: -.01em; font-variant-numeric: tabular-nums;
   display: inline-flex; align-items: center; gap: 5px; }
 .flash-stat-score { color: var(--fc-coin); text-shadow: 0 2px 12px rgba(255,210,30,.4); }
-.flash-coin-ico { filter: drop-shadow(0 2px 4px rgba(255,210,30,.4)); }
 
 /* ── Streak FIRE (user, 2026-07-12) — the HUD streak is ALWAYS a number 0–10, wreathed in a
    living flame that grows hotter as the run climbs: cold → lit → blaze → inferno → max. The
