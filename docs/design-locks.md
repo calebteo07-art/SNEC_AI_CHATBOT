@@ -38,7 +38,7 @@ Kept verbatim from the original app (explicit user preference). Do not restyle.
 mark** (refreshed with the rest of the app) — still mono ink on the light card, no colour
 or brand chrome added, so "verbatim/minimal" holds. The photoreal Living-Eye hero is unchanged.
 
-## Flashcards — LOCKED 2026-06-30 · re-themed "Dark Arcade" 2026-07-12 (supersedes "Grand Prix")
+## Flashcards — LOCKED 2026-06-30 · re-themed "Dark Arcade" 2026-07-12 (supersedes "Grand Prix") · topic-picker motion → 3D circular ring 2026-07-12 (was a coverflow line)
 **Theme (2026-07-12 — user-directed, supersedes "Grand Prix"/Mario-Kart)**: the flashcards world
 is **one dark ARCADE world** — clinical active-recall as an addictive game, in **classic/arcade
 language** (no Mario/Grand-Prix/racing terms anywhere — copy, class names, or `--fc-*` tokens).
@@ -46,8 +46,8 @@ language** (no Mario/Grand-Prix/racing terms anywhere — copy, class names, or 
 with a **slow moving colour-bloom** (`@keyframes flash-drift` on `.flash-root::before`, topic-hue
 driven — beautiful, never distracting) so pick → play is one seamless scene (no bright-sky→dark
 jump). **Vibrant, high-saturation neon palette** as `--fc-*` on `.flash-root` (red #ff3b30, blue
-#22bcff, green #2ee85a, coin #ffd21e, peach #ff7ab8, purple #9b6bff). **Selection** is a **large 3D
-COVERFLOW** of topic cards (`CardFanCarousel`) over the dark ground — **no race numbers, no
+#22bcff, green #2ee85a, coin #ffd21e, peach #ff7ab8, purple #9b6bff). **Selection** is a **large 3D CIRCULAR RING** (a rotating carousel) of topic cards
+(`CardFanCarousel`) over the dark ground — **no race numbers, no
 pagination dots**, neutral glass arrows only, a topic-hue glow pool under the cards. **Study/intro**
 is the **dark graphite card** (front #1b2029, back #14171d) with an **animated glowing topic-hue
 rim**; the study card **matches the intro card** — same dark surface + rim and a **dark question
@@ -68,9 +68,10 @@ intro card; answer buttons neutral (green ✓ / red ✗ only on lock); reveal ce
 bottom; **carousel motion (topic select) + real 3D flip (activity) are mandatory and never regress**;
 verdicts icon+colour; everything **freezes hard under reduced motion** (no drift, no roll, instant
 flip, spinner slows); WCAG-legible.
-- **Selection**: the coverflow (`CardFanCarousel`) — continuous auto-roll, drag/flick to spin,
+- **Selection**: the circular ring (`CardFanCarousel`) — a 3D carousel spinning around the vertical
+  axis; continuous auto-drift, drag/flick to spin,
   neutral glass arrows nudge (**no dots**, **no race numbers**, **no wheels/speed-lines/asphalt**);
-  freezes to a static parked grid under reduced motion. **Topic pick is resolved at the STAGE, not
+  freezes to a static parked ring (Mixed facing front) under reduced motion. **Topic pick is resolved at the STAGE, not
   per-card**: cards are `pointer-events:none` and a tap opens the topic whose live on-screen centre
   is nearest the pointer. **Never regress to a per-card `<button>` onClick** — the drift + 3D
   projection make each card a moving, mis-projected target, so taps fall through to `.fan-layout`
@@ -80,6 +81,15 @@ flip, spinner slows); WCAG-legible.
   Nano Banana photos (SG stock-photo look, plain solid-blue scrubs, no institutional branding —
   see the topic-art contract below), in a premium image card with a topic-hue frame + halo. No
   difficulty picker, fixed 10-card decks, no scroll (dvh-sized).
+  **Motion geometry (amended 2026-07-12, user-directed)**: the picker is a **3D circular ring**, not
+  the earlier coverflow line — cards are seated at fixed angles on a ring (`rotateY(θ) translateZ(radius)`)
+  and the inner `.fan-ring` container spins while `.fan-layout` stays a **flat, full-stage pointer
+  catcher** (so a tap anywhere still lands there and resolves against live card rects). The **only**
+  thing that changed is the motion path; every selection invariant above is preserved — LARGE cards,
+  no numbers/dots, neutral glass arrows, drag/flick + one-topic arrow nudge, **stage-resolved pick**,
+  and a reduced-motion freeze **parked with Mixed facing front**. Cards fade solid→out toward the back
+  of the ring; `radius` + `perspective(2500px)` are tuned so the enlarged front card stays within the
+  shortest stage and its caption never crops.
 - **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
   a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
   red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
@@ -94,7 +104,7 @@ flip, spinner slows); WCAG-legible.
   (it force-sets `.flash-option opacity:1`) and a plain `.click()` succeeds at `opacity:0`, so it went
   uncaught. **Define the keyframe (never delete it)**; the harness enters study in FULL motion and
   asserts the options actually PAINT (computed `opacity → ~1`). The **decorative** loops — `fan-in`
-  (coverflow entrance), `flash-seg` (current-pip breathe), `flash-ignite` (option tap-spark),
+  (ring/stage entrance), `flash-seg` (current-pip breathe), `flash-ignite` (option tap-spark),
   `flash-pulse` (armed multi-select lock throb), `flash-drift` (background bloom), `flash-spin`
   (loading ring) — are real `@keyframes` and **hard-frozen/slowed under both reduced-motion paths**
   (`html[data-motion="reduce"]` + the `prefers-reduced-motion` media block); refine within them,
