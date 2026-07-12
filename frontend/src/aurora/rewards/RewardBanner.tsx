@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { confetti } from "@/fx/confetti";
 import { Lumen } from "@/aurora/components/Lumen";
+import { useReducedMotion } from "@/aurora/motion";
 import type { Reward } from "./types";
 
 const LABEL: Record<Reward["kind"], string> = {
@@ -17,6 +18,8 @@ const LABEL: Record<Reward["kind"], string> = {
 };
 
 export function RewardBanner({ reward, onDone }: { reward: Reward; onDone: () => void }) {
+  const reduce = useReducedMotion();
+
   useEffect(() => {
     confetti({ particleCount: 170, spread: 105, startVelocity: 48, origin: { y: 0.35 },
       colors: ["#ffd21e", "#22bcff", "#2ee85a", "#ff7ab8", "#9b6bff"] });
@@ -30,10 +33,11 @@ export function RewardBanner({ reward, onDone }: { reward: Reward; onDone: () =>
 
   return createPortal(
     <motion.div className="rw-scrim" data-testid="reward-banner" onClick={onDone}
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <motion.div className="rw-card" data-kind={reward.kind} onClick={(e) => e.stopPropagation()}
-        initial={{ scale: 0.7, y: 40, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }}
-        transition={{ type: "spring", damping: 15, stiffness: 240 }}>
+        initial={reduce ? { opacity: 0 } : { scale: 0.7, y: 40, opacity: 0 }}
+        animate={reduce ? { opacity: 1 } : { scale: 1, y: 0, opacity: 1 }}
+        transition={reduce ? { duration: 0.15 } : { type: "spring", damping: 15, stiffness: 240 }}>
         <div className="rw-art" style={{ backgroundImage: `url(${reward.art})` }}>
           {reward.medal && (
             /* eslint-disable-next-line @next/next/no-img-element -- static asset, standalone build */

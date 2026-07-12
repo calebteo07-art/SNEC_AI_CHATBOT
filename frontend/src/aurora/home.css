@@ -198,6 +198,7 @@
 .hm-ph { position:relative; font-family:var(--font-home); font-weight:700; font-size:20px; margin:0 0 18px; padding-bottom:12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
 .hm-ph::after { content:""; position:absolute; left:0; bottom:-1px; width:52px; height:2px; border-radius:2px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
+.hm-vault-note { margin:-10px 0 16px; font-size:12.5px; color:var(--hink3); line-height:1.4; }
 /* ── streak badge collection — generated collectible medallions (Nano Banana flash) ── */
 .hm-badges { position:relative; display:grid; grid-template-columns:repeat(3,1fr); gap:16px 12px; list-style:none; margin:0; padding:2px 0 0; }
 .hm-badges::after { content:""; position:absolute; left:6%; right:6%; bottom:-6px; height:10px; border-radius:50%; background:radial-gradient(ellipse at center, rgba(120,60,30,.10), transparent 72%); }

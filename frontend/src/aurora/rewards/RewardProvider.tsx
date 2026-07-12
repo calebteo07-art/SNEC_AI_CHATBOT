@@ -27,6 +27,7 @@ export function RewardProvider({ children }: { children: ReactNode }) {
   const enqueue = useCallback((r: Reward) => {
     setQueue((q) => (q.some((x) => x.id === r.id) ? q : [...q, r]));
   }, []);
+  const dismiss = useCallback(() => setCurrent(null), []);
 
   useEffect(() => {
     if (current || queue.length === 0) return;
@@ -38,7 +39,7 @@ export function RewardProvider({ children }: { children: ReactNode }) {
     <RewardCtx.Provider value={{ enqueue }}>
       {user && <RewardWatcher enqueue={enqueue} />}
       {children}
-      {current && <RewardBanner key={current.id} reward={current} onDone={() => setCurrent(null)} />}
+      {current && <RewardBanner key={current.id} reward={current} onDone={dismiss} />}
     </RewardCtx.Provider>
   );
 }
