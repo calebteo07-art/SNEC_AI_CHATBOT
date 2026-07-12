@@ -103,6 +103,11 @@ async def get_progress(student_id: str) -> dict:
     hearts = int(profile.get("hearts") or 5)
     level = (xp // 500) + 1
 
+    # Lifetime Lumens for the home vault badges. Falls back to the current balance
+    # (xp) when the column is absent (pre-migration 009) — before any forfeit,
+    # lifetime ≈ balance, so the badge card looks correct during the transition.
+    coins_earned = int(profile.get("coins_earned") or 0) or xp
+
     # Daily-goal XP tally (the dashboard ring source) — resets each SGT day, so a
     # stale xp_today_date reads as zero.
     today = app_today()
@@ -114,6 +119,7 @@ async def get_progress(student_id: str) -> dict:
         "session_count": session_count,
         "streak": streak_detail["current"],
         "xp": xp,
+        "coins_earned": coins_earned,
         "xp_today": xp_today,
         "daily_goal": DAILY_XP_GOAL,
         "hearts": hearts,
