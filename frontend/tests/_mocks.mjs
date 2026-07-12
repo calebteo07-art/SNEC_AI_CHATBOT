@@ -99,6 +99,7 @@ export async function mockApis(ctx, user) {
   ])));
   await ctx.route("**/api/flashcards/check", (r) => r.fulfill(J({ score: 88, feedback: "Good reasoning — immediate irrigation limits damage.", mock_mode: true })));
   await ctx.route("**/api/flashcards/complete", (r) => r.fulfill(J({ xp: 140, level: 1 })));
+  await ctx.route("**/api/flashcards/forfeit", (r) => r.fulfill(J({ xp: 120, level: 1 })));
   await ctx.route("**/api/flashcards/topics", (r) => r.fulfill(J({ sets: [
     { set_key: "triage__easy", topic_key: "triage", label: "Triage", difficulty: "easy", total: 12, completed: 2 },
     { set_key: "triage__hard", topic_key: "triage", label: "Triage", difficulty: "hard", total: 12, completed: 0 },
