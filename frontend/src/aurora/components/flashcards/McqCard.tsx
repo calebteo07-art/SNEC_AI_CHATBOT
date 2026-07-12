@@ -13,6 +13,7 @@ import {
   comboMultiplier, comboCallout,
 } from "./types";
 import { Icon } from "@/aurora/icons";
+import { Lumen } from "@/aurora/components/Lumen";
 import { ChargeBeat } from "./ChargeBeat";
 import { Payoff } from "./Payoff";
 import { useFlashFx } from "./useFlashFx";
@@ -29,13 +30,6 @@ interface Props {
   /** True while the pause overlay is up — freezes the keyboard advance shortcut. */
   paused?: boolean;
 }
-
-const CoinIcon = () => (
-  <svg className="flash-coin-ico" viewBox="0 0 32 32" width="19" height="19" aria-hidden>
-    <circle cx="16" cy="16" r="14" fill="#ffc400" stroke="#c99a00" strokeWidth="2" />
-    <circle cx="16" cy="16" r="8.5" fill="none" stroke="#c99a00" strokeWidth="2" />
-  </svg>
-);
 
 export function McqCard(p: Props) {
   const { card } = p;
@@ -156,7 +150,7 @@ export function McqCard(p: Props) {
         </span>
         <span className="flash-stat">
           <span className="flash-stat-k">Score</span>
-          <b className="flash-stat-v flash-stat-score"><CoinIcon />{shownScore}</b>
+          <b className="flash-stat-v flash-stat-score"><Lumen size={19} decorative />{shownScore}</b>
         </span>
       </span>
     </div>
