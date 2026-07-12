@@ -81,15 +81,18 @@ flip, spinner slows); WCAG-legible.
   Nano Banana photos (SG stock-photo look, plain solid-blue scrubs, no institutional branding —
   see the topic-art contract below), in a premium image card with a topic-hue frame + halo. No
   difficulty picker, fixed 10-card decks, no scroll (dvh-sized).
-  **Motion geometry (amended 2026-07-12, user-directed)**: the picker is a **3D circular ring**, not
-  the earlier coverflow line — cards are seated at fixed angles on a ring (`rotateY(θ) translateZ(radius)`)
-  and the inner `.fan-ring` container spins while `.fan-layout` stays a **flat, full-stage pointer
-  catcher** (so a tap anywhere still lands there and resolves against live card rects). The **only**
-  thing that changed is the motion path; every selection invariant above is preserved — LARGE cards,
-  no numbers/dots, neutral glass arrows, drag/flick + one-topic arrow nudge, **stage-resolved pick**,
-  and a reduced-motion freeze **parked with Mixed facing front**. Cards fade solid→out toward the back
-  of the ring; `radius` + `perspective(2500px)` are tuned so the enlarged front card stays within the
-  shortest stage and its caption never crops.
+  **Motion geometry (amended 2026-07-12, user-directed)**: the picker is a **3D circular-ring carousel**,
+  not the earlier coverflow line — cards curve into depth on a ring arc (`rotateY(rel·STEP) translateZ(radius)`,
+  written per card each frame) while `.fan-layout` stays a **flat, full-stage pointer catcher** (so a tap
+  anywhere still lands there and resolves against live card rects). **⚠ WINDOWING IS MANDATORY**: only the
+  front card ± `WINDOW` (currently 3) topics are shown, at a **FIXED per-card angle `STEP_DEG` (40°), never
+  `360/N`** — spreading all N cards evenly around a full ring crushed a 20-topic role into an unreadable
+  rainbow cylinder (shipped broken then fixed same day). The **only** thing that changed from the coverflow
+  is the motion path; every selection invariant above is preserved — LARGE cards, no numbers/dots, neutral
+  glass arrows, drag/flick + one-topic arrow nudge, **stage-resolved pick** (which also skips parked
+  out-of-window cards), and a reduced-motion freeze **parked with Mixed facing front**. Cards fade solid→out
+  toward the window edge; `radius` + `perspective(2500px)` are tuned so the enlarged front card stays within
+  the shortest stage and its caption never crops.
 - **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
   a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
   red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
