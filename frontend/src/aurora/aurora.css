@@ -2905,8 +2905,9 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
   background: linear-gradient(180deg, #ffe36b, var(--fc-coin)); box-shadow: 0 3px 0 var(--fc-coin-d);
   animation: flash-combo-pop .5s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes flash-combo-pop { from { opacity: 0; transform: scale(.7) translateY(6px); } to { opacity: 1; transform: none; } }
-.flash-model-big { font-size: clamp(16px, 2vw, 20px); line-height: 1.55; font-weight: 500;
-  font-family: var(--font-sans); color: var(--f-ink2); max-width: 46ch; margin: 0; }
+.flash-model-big { font-size: clamp(19px, 2.6vw, 26px); line-height: 1.5; font-weight: 600;
+  font-family: var(--font-sans); color: var(--f-ink); max-width: 46ch; margin: 0;
+  letter-spacing: -.005em; }
 
 /* Self-mark (free-text recall) */
 .flash-selfmark { display: flex; gap: 12px; margin-top: 16px; }
