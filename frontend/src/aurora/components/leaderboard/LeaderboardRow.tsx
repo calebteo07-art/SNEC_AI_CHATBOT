@@ -4,7 +4,7 @@
    viewer's own row glows. */
 "use client";
 import type { CSSProperties } from "react";
-import { Selena } from "@/aurora/avatar/Selena";
+import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { useCountUp } from "@/hooks/useCountUp";
 import { tierForXp } from "@/aurora/leaderboard/tiers";
 import { Lumen } from "@/aurora/components/Lumen";
@@ -23,7 +23,7 @@ export function LeaderboardRow({ e }: { e: LeaderboardEntry }) {
     >
       <span className="lb-rk">{e.rank}</span>
       <span className="lb-face">
-        <Selena portraitUrl={e.portrait_url} background={e.avatar_config?.background} size={46} />
+        <Eyecon portraitUrl={e.portrait_url} config={e.avatar_config} background={e.avatar_config?.background} size={46} />
       </span>
       <span className="lb-meta">
         <span className="lb-nm">

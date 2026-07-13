@@ -283,7 +283,7 @@ html[data-motion="reduce"] .studio-skel { animation: none; }
 }
 
 /* living idle — a slow breathe on the hero art while it's on-screen */
-.studio-hero[data-alive] .selena-img { animation: studio-breathe 4.6s ease-in-out infinite; transform-origin: 50% 88%; }
+.studio-hero[data-alive] .eyecon-img { animation: studio-breathe 4.6s ease-in-out infinite; transform-origin: 50% 88%; }
 @keyframes studio-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.015); } }
 
 /* loadout tray */
@@ -297,8 +297,8 @@ html[data-motion="reduce"] .studio-skel { animation: none; }
 .studio-tray-chip img { border-radius: 999px; }
 .studio-explain { font-size: 0.74rem; color: var(--ink-faint); margin: 0; text-align: center; }
 
-html[data-motion="reduce"] .studio-hero[data-alive] .selena-img,
+html[data-motion="reduce"] .studio-hero[data-alive] .eyecon-img,
 html[data-motion="reduce"] .studio-tray-chip { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .studio-hero[data-alive] .selena-img, .studio-tray-chip { animation: none; }
+  .studio-hero[data-alive] .eyecon-img, .studio-tray-chip { animation: none; }
 }

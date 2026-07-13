@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SELENA_ONBOARDED_KEY } from "@/screens/CheckInGuard";
-import { Selena } from "@/aurora/avatar/Selena";
+import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { tileSrc } from "@/aurora/avatar/tiles";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
@@ -176,7 +176,7 @@ export function SelenaStudio() {
 
       <section className="studio-stage" aria-live="polite">
         <div className="studio-hero" data-float data-alive>
-          <Selena
+          <Eyecon
             portraitUrl={heroStatus === "ready" ? heroUrl : null}
             background={draft.background}
             size={220}
@@ -311,7 +311,7 @@ export function SelenaStudio() {
       {celebrate && (
         <div className="studio-celebrate" role="status">
           <div className="studio-celebrate-card">
-            <Selena portraitUrl={data?.portrait_status === "ready" ? data?.portrait_url : null} size={140} />
+            <Eyecon portraitUrl={data?.portrait_status === "ready" ? data?.portrait_url : null} size={140} />
             <p>Selena saved!</p>
           </div>
         </div>
