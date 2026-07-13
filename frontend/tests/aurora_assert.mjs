@@ -15,7 +15,6 @@ await navCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
-  localStorage.setItem("eyebot_selena_onboarded", "1"); // returning, already-onboarded student ⇒ the welcome-Studio gate (CheckInGuard) must not redirect /profile etc. when a GET reports customized:false
 }, studentUser);
 await navCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 const JSON_OK = (body) => ({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
@@ -73,7 +72,7 @@ await navCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
 ])));
 await navCtx.route("**/api/flashcards/complete", (r) => r.fulfill(JSON_OK({ xp: 140, level: 1 })));
 const np = await navCtx.newPage();
-// The branded Selena splash shows while the app-shell chunk loads on first paint.
+// The branded Eyecon splash shows while the app-shell chunk loads on first paint.
 await np.goto(base + "/dashboard", { waitUntil: "commit" });
 const splash = np.locator('[data-testid="brand-splash"]');
 try {
@@ -120,7 +119,7 @@ const greetText = (await np.locator('[data-testid="greeting"]').innerText()).tri
 if (!greetText) { console.error("FAIL: greeting h1 is empty"); process.exit(1); }
 console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, Lumens vault, 3 feature cards)");
 
-// Streak badge collection (Selena everywhere): the milestone ladder is a shelf of generated
+// Streak badge collection (Eyecon everywhere): the milestone ladder is a shelf of generated
 // collectible medallions. With streak=4, First Light is collected, Clear View is next, the
 // other four are locked. Verifies the state mapping AND that the generated art asset is served.
 const ladder = '[data-testid="milestone-ladder"]';
@@ -132,7 +131,7 @@ const bLocked = await np.locator(`${ladder} .hm-badge[data-state="locked"]`).cou
 if (bCollected !== 1 || bNext !== 1 || bLocked !== 4) { console.error(`FAIL: badge states (collected=${bCollected} next=${bNext} locked=${bLocked})`); process.exit(1); }
 const badgeServed = await np.evaluate(async () => (await fetch("/brand/badges/first-light.jpg")).ok);
 if (!badgeServed) { console.error("FAIL: badge art /brand/badges/first-light.jpg not served"); process.exit(1); }
-console.log("PASS: Selena everywhere — streak badge collection (6 generated medallions; collected/next/locked; art served)");
+console.log("PASS: Eyecon everywhere — streak badge collection (6 generated medallions; collected/next/locked; art served)");
 
 // feature cards must NAVIGATE on tap (ricoe D3): the perpetual drift + 3D projection
 // used to swallow the click and leave the user stuck on the dashboard. A tap on the
@@ -156,15 +155,15 @@ const overflow = await np.evaluate(() => document.documentElement.scrollWidth - 
 if (overflow > 2) { console.error(`FAIL: horizontal overflow at 390px = ${overflow}px`); process.exit(1); }
 console.log("PASS: dashboard has no horizontal overflow at 390px");
 
-// Animated Selena logo greets on Home (logo→raster brief): the rest frame IS the
+// Animated Eyecon logo greets on Home (logo→raster brief): the rest frame IS the
 // homepage iris.png, running the calm "hello" motion.
-const homeLogo = np.locator('[data-testid="selena-logo"]').first();
-if ((await homeLogo.count()) < 1) { console.error("FAIL: SelenaLogo missing on the Home greeting"); process.exit(1); }
+const homeLogo = np.locator('[data-testid="eyecon-logo"]').first();
+if ((await homeLogo.count()) < 1) { console.error("FAIL: EyeconLogo missing on the Home greeting"); process.exit(1); }
 const homeMotion = await homeLogo.getAttribute("data-motion");
-if (homeMotion !== "hello") { console.error(`FAIL: Home SelenaLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
-const homeRestSrc = (await homeLogo.locator(".selena-logo-rest").getAttribute("src")) ?? "";
-if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home SelenaLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
-console.log("PASS: Home — animated SelenaLogo (hello) on the iris.png rest frame");
+if (homeMotion !== "hello") { console.error(`FAIL: Home EyeconLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
+const homeRestSrc = (await homeLogo.locator(".eyecon-logo-rest").getAttribute("src")) ?? "";
+if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home EyeconLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
+console.log("PASS: Home — animated EyeconLogo (hello) on the iris.png rest frame");
 
 // cases: the Atlas Map renders and a region pin filters the case list.
 await np.setViewportSize({ width: 1440, height: 900 });
@@ -234,11 +233,11 @@ await np.locator(".aurora-composer-field").fill("Tell me about the optic disc");
 await np.locator(".aurora-composer-send").click();
 await np.waitForFunction(() => document.body.innerText.includes("The optic disc is pale."), { timeout: 8000 });
 // asking from the landing cross-faded into the live thread (ricoe A2); the EyeBot reply
-// avatar is the default Selena mascot (ricoe A3).
+// avatar is the default Eyecon mascot (ricoe A3).
 if ((await np.locator('.aurora-msg.is-eyebot .aurora-msg-avatar img.aurora-msg-mascot').count()) < 1) {
-  console.error("FAIL: EyeBot reply avatar not using the default Selena mascot"); process.exit(1);
+  console.error("FAIL: EyeBot reply avatar not using the default Eyecon mascot"); process.exit(1);
 }
-console.log("PASS: Tutor landing→thread transition + SSE stream + Selena mascot reply avatar");
+console.log("PASS: Tutor landing→thread transition + SSE stream + Eyecon mascot reply avatar");
 
 // progress + summary were retired: /progress and /summary must 404 (no route).
 await np.setViewportSize({ width: 1440, height: 900 });
@@ -565,43 +564,19 @@ if ((await np.locator('.aurora-snec[alt="Singapore National Eye Centre"]').count
 }
 console.log("PASS: SNEC logo present in the Atlas Rail");
 
-// profile: one h1 + the reduced-motion toggle flips html[data-motion] both ways.
-await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-profile-card", { timeout: 15000 });
-const profH1 = await np.locator("main h1").count();
-if (profH1 !== 1) { console.error(`FAIL: profile h1 count = ${profH1}`); process.exit(1); }
-const motionToggle = np.locator('.aurora-profile-action[aria-pressed]').first();
-await motionToggle.click();
-let dm = await np.evaluate(() => document.documentElement.dataset.motion);
-if (dm !== "reduce") { console.error(`FAIL: reduced-motion toggle did not set data-motion (got '${dm}')`); process.exit(1); }
-// Under reduced motion the mascot swap frame is fully hidden (static rest only).
-// Sample the Home mascot specifically (.hm-iris) once it's mounted AND the persisted
-// reduced-motion pref has re-applied on this navigation — avoids grabbing the transient
-// BrandSplash mascot mid-unmount (getComputedStyle on a detaching node returns "").
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.hm-iris .selena-logo-swap', { state: "attached", timeout: 15000 });
-await np.waitForFunction(() => document.documentElement.dataset.motion === "reduce", null, { timeout: 5000 });
-const swapOpacity = await np.locator('.hm-iris .selena-logo-swap').first()
-  .evaluate((el) => getComputedStyle(el).opacity);
-if (swapOpacity !== "0") { console.error(`FAIL: SelenaLogo swap not hidden under reduced motion (opacity=${swapOpacity})`); process.exit(1); }
-console.log("PASS: reduced motion — SelenaLogo swap frozen (static rest)");
-await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
-await motionToggle.click();
-dm = await np.evaluate(() => document.documentElement.dataset.motion);
-if (dm === "reduce") { console.error("FAIL: reduced-motion toggle did not turn off"); process.exit(1); }
-console.log("PASS: Profile — one h1, reduced-motion toggle flips data-motion");
+// (Profile screen removed — its reduced-motion toggle is gone; reduced motion is covered
+//  by the prefers-reduced-motion emulation test below. The account controls moved to the
+//  home Eyecon popover, verified next.)
 
-// Selena Studio (RICOE v2, plan 2b Task 3): the one-per-page avatar builder. GET seeds
-// the draft; selecting an option marks the draft dirty (no client-side compositing —
-// the hero only ever shows the SAVED portrait or the default mascot); Save round-trips
-// the edit to PUT /api/avatar (the persist state-invariant).
+// Avatar (Eyecon) API mock for the main flow: GET seeds the config + reports portrait
+// state; PUT captures an edit; POST portrait "renders instantly". The one-time builder
+// itself is covered by the mandatory-creation context near the end of this file.
 let savedAvatar = null;
 let portraitState = { portrait_status: "none", portrait_url: null };
-// Flips true only for the one dashboard nav below that exercises the greeting-card
-// Selena swap; false everywhere else so the reduced-motion/onboarding sections
-// further down still see the untouched (uncustomized) brand-mascot path.
-let reportCustomized = false;
-// 1×1 transparent PNG — stands in for the generated 3D Selena so the swap is deterministic.
+// customized:true so the mandatory first-login gate lets the main flow browse every page
+// (the builder itself is exercised in its own customized:false context further down).
+let reportCustomized = true;
+// 1×1 transparent PNG — stands in for a rendered Eyecon portrait so the swap is deterministic.
 const PORTRAIT_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 const DEFAULT_CFG = { version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "natural", mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none", outfit: "none", background: "mist" };
 // GET seeds the draft (echoes the saved config once saved) + reports portrait state;
@@ -620,76 +595,35 @@ await navCtx.route("**/api/avatar/portrait", (r) => {
   portraitState = { portrait_status: "ready", portrait_url: PORTRAIT_PNG };
   return r.fulfill(JSON_OK({ portrait_status: "pending", portrait_url: null }));
 });
-await np.goto(base + "/studio", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".studio-hero img.selena-img", { timeout: 15000 });
-const studioH1 = await np.locator("main h1").count();
-if (studioH1 !== 1) { console.error(`FAIL: studio main h1 count = ${studioH1}`); process.exit(1); }
-await np.locator('.studio-swatch:has-text("Aqua")').click();
-await np.waitForSelector(".studio-chip", { timeout: 8000 });
-console.log("PASS: Selena Studio — selecting an option marks unsaved changes (no client compositing)");
-
-if ((await np.locator(".studio-tray-chip").count()) < 1) { console.error("FAIL: loadout tray did not dock the pending pick"); process.exit(1); }
-console.log("PASS: Selena Studio — loadout tray docks pending picks as tile chips");
-
-// shape steps render static option-tile art (not swatches). Jump to the last
-// step (Backdrop) via its progress dot and assert the tile grid renders.
-await np.locator(".studio-dots .studio-dot").last().click();
-await np.waitForSelector(".studio-tiles .studio-tile", { timeout: 8000 });
-console.log("PASS: Selena Studio — shape steps render option-tile art");
-
-// Save round-trips the edited config to PUT /api/avatar; the celebration confirms success.
-await np.locator(".studio-save").click();
-await np.waitForFunction(() => document.querySelector(".studio-celebrate") != null, { timeout: 8000 });
-if (!savedAvatar || savedAvatar.bodyColor !== "aqua") {
-  console.error(`FAIL: Save did not PUT the edited config (savedAvatar=${JSON.stringify(savedAvatar)})`); process.exit(1);
-}
-console.log("PASS: Selena Studio — Save round-trips the edited config to PUT /api/avatar (bodyColor=aqua)");
-
-// 3D portrait swap (part 3, Task 4): Save enqueues POST /api/avatar/portrait; once the
-// mock reports it ready, useAvatar's poll swaps the hero from the default iris.png
-// mascot to the transparent 3D PNG. Assert the hero now renders the generated portrait.
-await np.waitForFunction(() => {
-  const img = document.querySelector(".studio-hero img.selena-img");
-  return img && img.getAttribute("src")?.startsWith("data:");
-}, { timeout: 8000 });
-const heroPortraitSrc = await np.locator(".studio-hero img.selena-img").getAttribute("src");
-if (!heroPortraitSrc || !heroPortraitSrc.startsWith("data:")) {
-  console.error(`FAIL: studio hero did not swap to the generated 3D portrait (src=${heroPortraitSrc})`); process.exit(1);
-}
-console.log("PASS: Selena Studio — Save renders + swaps the hero to the 3D portrait PNG");
-
-await np.setViewportSize({ width: 390, height: 844 });
-await np.waitForTimeout(250);
-const studioOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-if (studioOverflow > 2) { console.error(`FAIL: /studio horizontal overflow at 390px = ${studioOverflow}px`); process.exit(1); }
-console.log("PASS: Selena Studio — no horizontal overflow at 390px");
-await np.setViewportSize({ width: 1440, height: 900 });
-
-// Selena everywhere — identity surfaces: the student's saved Selena replaces initials on the
-// Profile avatar and the Atlas Rail profile chip (the tutor + home keep the BASE mascot per the
-// ricoe A3 / home Iris locks). /api/avatar is mocked above, so a real config renders.
-await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
-await np.waitForSelector(".aurora-profile-avatar-lg[data-selena] img.selena-img", { timeout: 12000 });
-if ((await np.locator(".aurora-rail .aurora-avatar[data-selena] img.selena-img").count()) < 1) {
-  console.error("FAIL: rail profile chip did not render the student's saved Selena"); process.exit(1);
-}
-console.log("PASS: Selena everywhere — Profile avatar + rail chip render the student's saved Selena");
-
-// The greeting card is ALWAYS the default living mascot — even for a customized
-// student (Custom-Selena lock amended 2026-07-10; user directive "greeting Selena
-// default from now on"). The custom render lives on Studio + the leaderboard only,
-// so a customized student must still see the brand SelenaLogo here (no .hm-selena
-// custom render node).
-reportCustomized = true;
+// Home account control: the customized Eyecon button (top-right) opens a popover with
+// Change password + Log out (the Profile screen was removed — those live here now).
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.hm-iriswrap [data-testid="selena-logo"]', { timeout: 15000 });
-if ((await np.locator(".hm-selena img.hm-selena-img").count()) > 0) {
+await np.waitForSelector(".hm-eyeconbtn", { timeout: 15000 });
+await np.locator(".hm-eyeconbtn").click();
+await np.waitForSelector(".hm-eyeconpop", { timeout: 8000 });
+const popItems = (await np.locator(".hm-eyeconpop-item").allInnerTexts()).join(" | ");
+if (!/Change password/i.test(popItems) || !/Log out/i.test(popItems)) {
+  console.error(`FAIL: home Eyecon popover missing change-password / log-out (items='${popItems}')`); process.exit(1);
+}
+console.log("PASS: Home — the Eyecon button opens a Change password / Log out popover");
+
+// Eyecon identity surface: the nav-rail chip renders the student's Eyecon (display-only now).
+if ((await np.locator(".aurora-rail .aurora-avatar[data-eyecon] img.eyecon-img").count()) < 1) {
+  console.error("FAIL: nav-rail chip did not render the student's Eyecon"); process.exit(1);
+}
+console.log("PASS: Eyecon everywhere — the nav-rail chip renders the student's Eyecon");
+
+// The greeting card is ALWAYS the default living mascot — even for a customized student
+// (Custom-Eyecon lock). The custom render lives on the leaderboard + home button only, so
+// a customized student must still see the brand EyeconLogo here (no .hm-eyecon custom node).
+await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('.hm-iriswrap [data-testid="eyecon-logo"]', { timeout: 15000 });
+if ((await np.locator(".hm-eyecon img.hm-eyecon-img").count()) > 0) {
   console.error("FAIL: greeting shows a custom render for a customized student (should always be the default mascot)"); process.exit(1);
 }
-const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="selena-logo"] .selena-logo-rest').getAttribute("src")) ?? "";
+const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="eyecon-logo"] .eyecon-logo-rest').getAttribute("src")) ?? "";
 if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
-console.log("PASS: Home greeting — always the DEFAULT living Selena, even when customized (lock amended 2026-07-10)");
-reportCustomized = false;
+console.log("PASS: Home greeting — always the DEFAULT living Eyecon mascot, even when customized");
 
 // Leaderboard — vibrant & seamless (supersedes "The Climb"): podium (top 3) + one
 // color-graded ranked list + a personal chase hook + demoted settings. The GET mock
@@ -702,7 +636,7 @@ const LB_ROWS = [
   { name: "Priya N.",   role: "OT", xp: 7720,  level: 18, streak_days: 12, avatar_config: null, portrait_url: null, is_you: false },
   { name: "You",        role: "OA", xp: 7660,  level: 17, streak_days: 9,  avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
   { name: "Marcus L.",  role: "OT", xp: 7635,  level: 17, streak_days: 6,  avatar_config: null, portrait_url: PORTRAIT_PNG, is_you: false },
-  { name: "Siti N.",    role: "OA", xp: 6120,  level: 15, streak_days: 22, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "Siti N.",    role: "OA", xp: 6120,  level: 15, streak_days: 22, avatar_config: { topper: "crown" }, portrait_url: null, is_you: false },
   { name: "Daniel O.",  role: "OT", xp: 5540,  level: 14, streak_days: 0,  avatar_config: null, portrait_url: null, is_you: false },
 ];
 await navCtx.route("**/api/leaderboard**", (r) => {
@@ -722,7 +656,7 @@ const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator('[data-testid="podium-slot"]').count()) !== 3) { console.error("FAIL: leaderboard podium did not render 3 slots"); process.exit(1); }
 if ((await np.locator('[data-testid="lb-row"]').count()) !== 4) { console.error("FAIL: expected 4 ranked rows below the podium"); process.exit(1); }
-if ((await np.locator('[data-testid="leaderboard-root"] .selena-img[src^="data:"]').count()) < 1) {
+if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-img[src^="data:"]').count()) < 1) {
   console.error("FAIL: leaderboard did not render any student's real rendered portrait"); process.exit(1);
 }
 const youRow = np.locator('[data-testid="lb-row"][data-you]');
@@ -733,8 +667,14 @@ const lbSub = np.locator('[data-testid="leaderboard-root"] .lb-sub');
 if ((await lbSub.count()) !== 1 || !/#4|podium|overtake/i.test(await lbSub.innerText())) {
   console.error("FAIL: leaderboard header hook not showing the viewer's chase (rank/gap derived from the payload)"); process.exit(1);
 }
-if ((await np.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on the leaderboard (ricoe §7)"); process.exit(1); }
-console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, real portrait, Edit Selena");
+// Re-customization is locked → the "Edit Eyecon" entry must be GONE from the board.
+if ((await np.locator('[data-testid="edit-selena"], .lb-edit').count()) !== 0) { console.error("FAIL: leaderboard still shows an Edit-Eyecon entry (re-customization must be removed)"); process.exit(1); }
+// Representative-tile fallback: a ranked student with a topper but no ready portrait shows
+// their topper tile, so the Eyecon looks customized even without the AI render.
+if ((await np.locator('[data-testid="leaderboard-root"] img.eyecon-img[src*="/avatar/tiles/topper/crown.webp"]').count()) < 1) {
+  console.error("FAIL: leaderboard did not use the representative-tile fallback for a customized (no-portrait) student"); process.exit(1);
+}
+console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, real portrait + tile fallback, no Edit-Eyecon");
 
 // role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
@@ -767,7 +707,7 @@ console.log("PASS: Daily check-in renders the MCQ question with one h1");
 
 // a11y sweep: every shell route has one <main>, one <h1> in main, a <nav>, and
 // no horizontal overflow at 390px.
-const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/profile"];
+const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards"];
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
@@ -805,10 +745,10 @@ const rmAnim = await rmPage.locator(".hm-iris").first().evaluate((el) => getComp
 if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the mascot (animationName=${rmAnim})`); process.exit(1); }
 console.log("PASS: reduced motion freezes the home mascot animation");
 
-// first-run Selena onboarding gate (ricoe §7): a student who has NEVER customized their
-// Selena (GET /api/avatar → customized:false) is routed once into welcome-mode Studio.
-// Show-once is the historically-fragile invariant, so we also cover the repeat case: after
-// a skip (local flag) AND once customized, /dashboard must NOT re-gate.
+// First-login Eyecon creation gate (MANDATORY + unskippable): a never-customized student
+// (GET /api/avatar → customized:false) is FORCED into the builder and cannot reach any
+// feature until they create their Eyecon. There is NO Skip. Saving flips customized →
+// releases the gate, and re-customization is then LOCKED (/studio redirects home).
 const onbUser = { full_name: "New Student", email: "new@snec.com.sg", student_id: "S777", role: "student", student_role: "OA", must_change: false };
 const onbCtx = await b.newContext({ viewport: { width: 1280, height: 860 } });
 await onbCtx.addInitScript((u) => {
@@ -821,35 +761,67 @@ await onbCtx.addInitScript((u) => {
 }, onbUser);
 await onbCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 let onbCustomized = false;
+let onbSaved = null;
 await onbCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
 await onbCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(onbUser)));
 await onbCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 0 })));
 await onbCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({ xp: 0, xp_today: 0, daily_goal: 100, hearts: 3, level: 1, streak: 0, streak_detail: { current: 0, best: 0, week: [] }, weak_topics: [], topic_performance: [], sessions: [] })));
-await onbCtx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: onbCustomized })));
+await onbCtx.route("**/api/avatar", (r) => {
+  if (r.request().method() === "PUT") {
+    try { onbSaved = JSON.parse(r.request().postData() || "{}"); } catch { onbSaved = null; }
+    onbCustomized = true; // creating the Eyecon releases the first-login gate
+    return r.fulfill(JSON_OK({ config: onbSaved }));
+  }
+  const cfg = onbSaved ? { ...DEFAULT_CFG, ...onbSaved } : DEFAULT_CFG;
+  return r.fulfill(JSON_OK({ config: cfg, axes: {}, customized: onbCustomized }));
+});
+await onbCtx.route("**/api/avatar/portrait", (r) => r.fulfill(JSON_OK({ portrait_status: "pending", portrait_url: null })));
 const onbPage = await onbCtx.newPage();
 
-// A) never-customized → routed to welcome-mode Studio.
+// A) never-customized → forced into /studio?welcome=1, with NO Skip button.
 await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await onbPage.waitForURL(/\/studio\?welcome=1/, { timeout: 15000 });
-await onbPage.waitForSelector(".studio-skip", { timeout: 10000 });
-console.log("PASS: onboarding — never-customized student is routed to /studio?welcome=1 (welcome mode)");
+await onbPage.waitForSelector(".studio-swatches .studio-swatch", { timeout: 10000 });
+if ((await onbPage.locator(".studio-skip").count()) !== 0) { console.error("FAIL: welcome Studio still shows a Skip button (must be unskippable)"); process.exit(1); }
+console.log("PASS: first-login — never-customized student is forced into /studio?welcome=1 with no Skip");
 
-// B) show-once (repeat case): after a skip sets the local flag, /dashboard is NOT re-gated.
-await onbPage.evaluate(() => localStorage.setItem("eyebot_selena_onboarded", "1"));
+// mandatory: trying to leave to /dashboard bounces back to /studio (blocked until created).
+await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await onbPage.waitForURL(/\/studio/, { timeout: 15000 });
+console.log("PASS: first-login — cannot reach the app until the Eyecon is created (gate holds)");
+
+// instant preview: jump to the "On top" step and tap Crown → the hero image swaps to that tile.
+await onbPage.goto(base + "/studio?welcome=1", { waitUntil: "domcontentloaded" });
+await onbPage.waitForSelector(".studio-hero .eyecon-img", { timeout: 10000 });
+await onbPage.locator(".studio-dots .studio-dot").nth(7).click(); // step 8 = "On top" (topper)
+await onbPage.waitForSelector(".studio-tiles .studio-tile", { timeout: 8000 });
+await onbPage.locator('.studio-tile:has-text("Crown")').click();
+await onbPage.waitForFunction(() => {
+  const img = document.querySelector(".studio-hero .eyecon-img");
+  return img && /\/avatar\/tiles\/topper\/crown\.webp/.test(img.getAttribute("src") || "");
+}, { timeout: 8000 });
+console.log("PASS: Eyecon Studio — tapping a feature instantly swaps the hero preview");
+
+// create: Save PUTs the config and lands on /dashboard. (The lock releases the moment
+// customized flips true, so the brief celebrate is superseded by that redirect — assert the
+// robust outcome: the config was persisted and we reached Home.)
+await onbPage.locator(".studio-save").click();
+await onbPage.waitForURL(/\/dashboard/, { timeout: 12000 });
+if (!onbSaved || onbSaved.topper !== "crown") { console.error(`FAIL: Create did not PUT the config (onbSaved=${JSON.stringify(onbSaved)})`); process.exit(1); }
+console.log("PASS: Eyecon Studio — Create round-trips the config to PUT /api/avatar and lands on Home");
+
+// locked: now customized, visiting /studio redirects to /dashboard (no re-customization).
+await onbPage.goto(base + "/studio", { waitUntil: "domcontentloaded" });
+await onbPage.waitForURL(/\/dashboard/, { timeout: 10000 });
+if (/\/studio/.test(onbPage.url())) { console.error("FAIL: /studio was reachable after creation (re-customization not locked)"); process.exit(1); }
+console.log("PASS: Eyecon — re-customization locked (/studio redirects home once created)");
+
+// customized student is never gated on a normal page.
 await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 await onbPage.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
-if (/\/studio/.test(onbPage.url())) { console.error("FAIL: onboarding re-nagged a student who skipped (show-once broken)"); process.exit(1); }
-console.log("PASS: onboarding — a student who skipped is not re-gated (show-once)");
-
-// C) a customized student is never gated (even with no local flag).
-onbCustomized = true;
-await onbPage.evaluate(() => localStorage.removeItem("eyebot_selena_onboarded"));
-await onbPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await onbPage.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
-if (/\/studio/.test(onbPage.url())) { console.error("FAIL: a customized student was wrongly gated into onboarding"); process.exit(1); }
-// (The home greeting card no longer carries an Edit-Selena entry — stripped 2026-07-10;
-//  it now lives on the leaderboard + Profile only. The leaderboard entry is asserted above.)
-console.log("PASS: onboarding — customized student never gated");
+if (/\/studio/.test(onbPage.url())) { console.error("FAIL: a customized student was wrongly gated"); process.exit(1); }
+console.log("PASS: first-login — customized student is not gated");
+await onbCtx.close();
 
 // self-heal (once-per-session state invariant, /ship-check): a customized student whose
 // portrait is still "none" (pre-v2 salted look) fires ONE cache-gated render request when
@@ -866,7 +838,6 @@ await healCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1");
-  localStorage.setItem("eyebot_selena_onboarded", "1"); // already customized ⇒ don't gate into welcome Studio
 }, healUser);
 await healCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
 let healRenderCount = 0;
@@ -874,7 +845,7 @@ await healCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
 await healCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(healUser)));
 await healCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 0 })));
 await healCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({ xp: 0, xp_today: 0, daily_goal: 100, hearts: 3, level: 1, streak: 0, streak_detail: { current: 0, best: 0, week: [] }, weak_topics: [], topic_performance: [], sessions: [] })));
-// customized + portrait "none" ⇒ the greeting card shows the brand SelenaLogo (no ready
+// customized + portrait "none" ⇒ the greeting card shows the brand EyeconLogo (no ready
 // portrait) while useSelfHealPortrait fires the one-shot render request underneath.
 await healCtx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: true, portrait_status: "none", portrait_url: null })));
 // POST /api/avatar/portrait — count invocations; return a harmless keyless stub (MOCK-safe).

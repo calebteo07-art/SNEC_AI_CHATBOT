@@ -59,6 +59,11 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
   await ctx.route("**/api/gamification/sync", (r) => r.fulfill(J({ ok: true })));
   await ctx.route("**/api/progress", (r) => r.fulfill(J(progress)));
+  // customized:true so the mandatory first-login Eyecon gate never redirects seeded students.
+  await ctx.route("**/api/avatar", (r) => r.fulfill(J({
+    config: { version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "none", mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none", outfit: "none", background: "mist" },
+    axes: {}, customized: true, portrait_status: "none", portrait_url: null,
+  })));
   await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
   await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));
   await ctx.route("**/api/checkin/answer", (r) => r.fulfill(J({ correct: true, feedback: "The epithelium regenerates rapidly within 24-48 hours.", streak: 7 })));

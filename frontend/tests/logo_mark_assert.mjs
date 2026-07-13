@@ -41,12 +41,12 @@ has(onb, /\bLogo\b/, "OnboardingScreen: login reuses the shared <Logo> mark");
 
 // 4. CoBrand — the EyeBot mark is the mono <Logo>, not the mascot
 const cob = read("src/aurora/components/CoBrand.tsx");
-not(cob, /SelenaLogo/, "CoBrand: mascot SelenaLogo no longer used as the mark");
+not(cob, /EyeconLogo/, "CoBrand: mascot EyeconLogo no longer used as the mark");
 has(cob, /<Logo\b/, "CoBrand: renders the mono <Logo> mark");
 
 // 5. BrandSplash — mono mark + wordmark, not the grooving mascot
 const spl = read("src/aurora/components/BrandSplash.tsx");
-not(spl, /SelenaLogo/, "BrandSplash: grooving mascot removed");
+not(spl, /EyeconLogo/, "BrandSplash: grooving mascot removed");
 has(spl, /<Logo\b|<Wordmark\b/, "BrandSplash: renders the mono mark / wordmark");
 
 // 6. Home (Dashboard) header — the gem/gradient lockup becomes the mono mark
