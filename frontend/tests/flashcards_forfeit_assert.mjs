@@ -27,8 +27,6 @@ async function makeCtx() {
   const ctx = await seededContext(b, base, student);
   await ctx.addInitScript((s) => {
     sessionStorage.setItem("eyebot_session", JSON.stringify(s));
-    // returning, already-onboarded student ⇒ the welcome-Studio gate must not redirect off /flashcards
-    localStorage.setItem("eyebot_selena_onboarded", "1");
   }, SESSION);
   let count = 0;
   ctx.on("request", (req) => {
