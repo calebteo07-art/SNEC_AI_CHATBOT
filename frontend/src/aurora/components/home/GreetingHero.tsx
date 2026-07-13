@@ -1,18 +1,18 @@
 /* GreetingHero — the warm greeting tile. The card's BASE LAYER is the ALWAYS-DEFAULT
-   living Selena Veo loop, full-bleed behind a soft legibility veil; a big rotating
+   living Eyecon Veo loop, full-bleed behind a soft legibility veil; a big rotating
    teasing headline (accent word emphasised), the teasing sub, and the level-up XP bar
    layer on top (no eyebrow / CTA row — stripped 2026-07-10 for a cleaner, bigger card).
    Never a student's custom render — that lives in Studio + the leaderboard
-   (Custom-Selena lock amended 2026-07-10). The default <SelenaLogo> stays mounted
+   (Custom-Eyecon lock amended 2026-07-10). The default <EyeconLogo> stays mounted
    beneath as the reduced-motion / no-video fallback. Presentational; the Dashboard
    owns the greeting seed. */
 import type { Greeting } from "@/aurora/lib/greeting";
-import { SelenaLogo } from "@/aurora/components/SelenaLogo";
-import { SelenaGreetingLoop } from "./SelenaGreetingLoop";
+import { EyeconLogo } from "@/aurora/components/EyeconLogo";
+import { EyeconGreetingLoop } from "./EyeconGreetingLoop";
 import { Lumen } from "@/aurora/components/Lumen";
 
 /* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
-   The opaque baked-bg tile overlays the CSS-alive SelenaLogo, which stays beneath
+   The opaque baked-bg tile overlays the CSS-alive EyeconLogo, which stays beneath
    as the always-present fallback (null under reduced-motion / save-data / error). */
 const GREETING_LOOP = true;
 
@@ -38,13 +38,13 @@ export function GreetingHero({
   return (
     <section className="hm-greet">
       {/* base layer: full-bleed Veo loop + soft legibility veil. The default
-         <SelenaLogo> stays mounted (bottom-right, beneath the clip) as the
+         <EyeconLogo> stays mounted (bottom-right, beneath the clip) as the
          reduced-motion / no-video fallback — and to satisfy the greeting harness. */}
-      <SelenaGreetingLoop available={GREETING_LOOP} />
+      <EyeconGreetingLoop available={GREETING_LOOP} />
       <div className="hm-greet-veil" aria-hidden />
       <div className="hm-iriswrap" aria-hidden>
         <span className="hm-irisfloor" />
-        <SelenaLogo motion="hello" className="hm-iris" />
+        <EyeconLogo motion="hello" className="hm-iris" />
       </div>
 
       <div className="hm-greet-body">

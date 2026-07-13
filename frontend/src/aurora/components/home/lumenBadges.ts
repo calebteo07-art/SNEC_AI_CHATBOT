@@ -1,6 +1,6 @@
 /* Lumens vault — the six light/wealth tiers a student unlocks as their LIFETIME Lumens
    (coins_earned) climb. Sibling vibe to the streak badges (which are vision-acuity themed);
-   these are Selena/Iris getting progressively more radiant + rich in golden light.
+   these are Eyecon/Iris getting progressively more radiant + rich in golden light.
    Static generated medallions in /public/brand/lumen-badges (same six for everyone). */
 import type { BadgeRarity } from "./streakBadges";
 
@@ -13,7 +13,7 @@ export interface LumenBadge {
 }
 
 export const LUMEN_BADGES: LumenBadge[] = [
-  { at: 250,   name: "Spark",          rarity: "common",    tagline: "A tiny gleam. Selena approves.",   image: "/brand/lumen-badges/spark.jpg" },
+  { at: 250,   name: "Spark",          rarity: "common",    tagline: "A tiny gleam. Eyecon approves.",   image: "/brand/lumen-badges/spark.jpg" },
   { at: 1000,  name: "Glimmer",        rarity: "uncommon",  tagline: "Ooh, shiny. Keep 'em coming.",     image: "/brand/lumen-badges/glimmer.jpg" },
   { at: 2500,  name: "Glow-Up",        rarity: "rare",      tagline: "You're literally glowing now.",    image: "/brand/lumen-badges/glow-up.jpg" },
   { at: 6000,  name: "Floodlight",     rarity: "epic",      tagline: "Blindingly bright. Shades on.",    image: "/brand/lumen-badges/floodlight.jpg" },

@@ -2,7 +2,7 @@
    lifetime Lumens (coins_earned) climb: collected → next (glowing) → locked. */
 import { LUMEN_BADGES } from "./lumenBadges";
 import { LumenBadge } from "./LumenBadge";
-import type { BadgeState } from "./SelenaBadge";
+import type { BadgeState } from "./EyeconBadge";
 
 export function LumenLadder({ current = 0 }: { current?: number }) {
   const nextAt = LUMEN_BADGES.find((b) => current < b.at)?.at ?? null;
