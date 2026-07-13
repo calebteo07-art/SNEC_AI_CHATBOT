@@ -3,12 +3,7 @@ import { Navigate, useLocation } from "@/lib/nav";
 import { useAuth } from "./AuthContext";
 import { useAvatar } from "@/hooks/useAvatar";
 
-/** Set once a student has finished (or skipped) first-run Selena onboarding, so the gate
- *  never nags again on this device even before a save round-trips (ricoe §7). A save also
- *  flips `customized` server-side, which is the real source of truth. */
-export const SELENA_ONBOARDED_KEY = "eyebot_selena_onboarded";
-
-/** DEV: force the first-run Selena onboarding (the welcome Studio) to appear on EVERY page
+/** DEV: force the first-run Eyecon onboarding (the welcome Studio) to appear on EVERY page
  *  load — not just the genuine first login — so the customization screen is easy to iterate
  *  on. Automatically ON under `next dev`; on a production build (Render / the harness) it
  *  stays OFF (real students see the normal show-once flow) unless you opt in per-device with
@@ -67,16 +62,22 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/checkin" replace />;
   }
 
-  /* First-run Selena onboarding (ricoe §7): a student who has NEVER customized their
-     Selena is routed once into the Studio (welcome mode) to build it. Only fires once
-     the avatar has actually loaded as not-customized (undefined while loading ⇒ no
-     redirect, no flash-loop), never on /studio itself, and never after a save/skip.
-     In dev-always mode the gate ignores customized/onboarded and instead fires once per
-     hard load (studioShownThisLoad) so the welcome Studio keeps reappearing for iteration. */
-  const onboarded = typeof window !== "undefined" && localStorage.getItem(SELENA_ONBOARDED_KEY) === "1";
-  const wantStudio = devAlways ? !studioShownThisLoad : avatar?.customized === false && !onboarded;
+  /* Mandatory first-run Eyecon onboarding: a student who has NEVER customized their Eyecon
+     is routed into the welcome Studio and CANNOT leave until they Save. The gate keys off
+     SERVER TRUTH only (avatar.customized) — no local skip flag — so the one and only exit is
+     a Save (which flips customized server-side). Only fires once the avatar has loaded as
+     not-customized (undefined while loading ⇒ no redirect, no flash-loop), never on /studio
+     itself. In dev-always mode the gate ignores customized and fires once per hard load
+     (studioShownThisLoad) so the welcome Studio keeps reappearing for iteration. */
+  const wantStudio = devAlways ? !studioShownThisLoad : avatar?.customized === false;
   if (isStudent && isCheckInDone && wantStudio && location.pathname !== "/studio") {
     return <Navigate to="/studio?welcome=1" replace />;
+  }
+
+  /* Re-customization is LOCKED: once customized, /studio is unreachable (the welcome flow is
+     one-time only). Dev-always mode is exempt so the welcome Studio stays iterable. */
+  if (isStudent && !devAlways && avatar?.customized === true && location.pathname === "/studio") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
