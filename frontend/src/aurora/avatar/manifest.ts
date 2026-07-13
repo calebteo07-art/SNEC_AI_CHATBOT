@@ -1,4 +1,4 @@
-// Selena colour manifest — the swatch maps for the colour axes (body/iris/blush)
+// Eyecon colour manifest — the swatch maps for the colour axes (body/iris/blush)
 // plus the background base tints consumed by backdrops.ts. Typed Record<IdUnion,
 // string> derived from the generated registry, so `npm run typecheck` fails if an
 // id is unmapped. Shape/prop axes have NO client-side art: they render only inside

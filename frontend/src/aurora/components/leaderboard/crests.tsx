@@ -2,7 +2,7 @@
 /* Tier crest + champion crown emblems. Prefer the generated webp art
    (public/brand/tiers/*.webp — keyed Nano-Banana emblems); if an asset is
    missing, fall back to the inline SVG so the board always renders. Rendered
-   inside the client leaderboard tree (mirrors <Selena>). */
+   inside the client leaderboard tree (mirrors <Eyecon>). */
 import { useState } from "react";
 import type { Tier } from "@/aurora/leaderboard/tiers";
 

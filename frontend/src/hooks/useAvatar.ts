@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AVATAR_AXES, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 
-/** GET /api/avatar returns the saved Selena config (or the default), the
+/** GET /api/avatar returns the saved Eyecon config (or the default), the
  *  server-authoritative parts catalog, and the state of the cached 3D portrait
  *  (generated on save, keyed by config hash). `portrait_status` ∈
  *  none|pending|ready|failed|unavailable; `portrait_url` is set only when ready.
@@ -15,12 +15,12 @@ export interface AvatarResponse {
   portrait_status?: string;
   portrait_url?: string | null;
   /** True once the student has saved any config — false only for a never-customized
-   *  student. Drives the first-run "Create your Selena" onboarding gate (ricoe §7). */
+   *  student. Drives the first-run "Create your Eyecon" onboarding gate (ricoe §7). */
   customized?: boolean;
 }
 
-/** The student's saved Selena. Persisted by TanStack (small + stable) so the home
- *  greeting can paint Selena offline. While a portrait render is in flight
+/** The student's saved Eyecon. Persisted by TanStack (small + stable) so the home
+ *  greeting can paint Eyecon offline. While a portrait render is in flight
  *  (status "pending") we poll so the UI swaps to the real 3D PNG the moment it's
  *  ready; polling stops as soon as the status settles. */
 export function useAvatar(enabled = true) {
@@ -77,7 +77,7 @@ export function useRequestPortrait() {
   });
 }
 
-/** Persist a Selena config. The server validates it fail-closed against the parts
+/** Persist a Eyecon config. The server validates it fail-closed against the parts
  *  registry (422 on a bad id) before writing; on success we refresh the cached
  *  avatar so every surface repaints. Identity comes from the JWT, never the body. */
 export function useSaveAvatar() {
@@ -97,6 +97,6 @@ export function useSaveAvatar() {
   });
 }
 
-/** Total distinct Selena looks — product of every axis's option count. Shown as a
+/** Total distinct Eyecon looks — product of every axis's option count. Shown as a
  *  fun (and honest) "one of N looks" stat; derived from the registry so it can't drift. */
 export const AVATAR_COMBOS = Object.values(AVATAR_AXES).reduce((n, opts) => n * opts.length, 1);

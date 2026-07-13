@@ -25,7 +25,7 @@ export function MessageBubble({
 
   const avatar = (
     <span className="aurora-msg-avatar">
-      {/* Default Selena mascot as the tutor's reply avatar — always the base mascot,
+      {/* Default Eyecon mascot as the tutor's reply avatar — always the base mascot,
           never the student's customised avatar (ricoe A3). */}
       <span className="aurora-msg-ring">
         {/* eslint-disable-next-line @next/next/no-img-element */}

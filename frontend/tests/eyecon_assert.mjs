@@ -84,6 +84,45 @@ async function studentCtx(customized) {
   await ctx.close();
 }
 
+// ── F) HOME POPOVER: the customized Eyecon button opens change-password + log-out. ────
+{
+  const ctx = await studentCtx(true);
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
+  await p.waitForSelector(".hm-eyeconmenu-btn", { timeout: 12000 });
+  // the button renders the Eyecon avatar
+  if ((await p.locator(".hm-eyeconmenu-btn .eyecon-img").count()) >= 1) ok("home — top-right button renders the customized Eyecon");
+  else fail("home — Eyecon button missing its avatar");
+  await p.locator(".hm-eyeconmenu-btn").click();
+  await p.waitForSelector('[data-testid="eyecon-menu"]', { timeout: 6000 });
+  const pop = p.locator('[data-testid="eyecon-menu"]');
+  const hasPw = (await pop.locator("text=Change password").count()) >= 1;
+  const hasOut = (await pop.locator("text=Log out").count()) >= 1;
+  if (hasPw && hasOut) ok("home — Eyecon popover shows Change password + Log out");
+  else fail(`home — popover missing items (pw=${hasPw} logout=${hasOut})`);
+  await ctx.close();
+}
+
+// ── G) LEADERBOARD has no "Edit Eyecon/Selena" control (re-customization is gone). ─────
+{
+  const ctx = await studentCtx(true);
+  await ctx.route("**/api/leaderboard*", (r) => r.fulfill(J({
+    entries: [
+      { rank: 1, name: "Aisha R.", role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { topper: "crown", background: "galaxy" }, portrait_url: null, is_you: false },
+      { rank: 2, name: "You", role: "OA", xp: 7660, level: 17, streak_days: 9, avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
+    ],
+    you_hidden: false, display_name: null, roles: ["OA", "OT"],
+  })));
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/leaderboard`, { waitUntil: "networkidle" });
+  await p.waitForSelector('[data-testid="podium"], .lb-row', { timeout: 12000 }).catch(() => {});
+  if ((await p.locator('[data-testid="edit-selena"]').count()) === 0) ok("leaderboard — no legacy edit-selena control");
+  else fail("leaderboard — an edit-selena control still exists");
+  if ((await p.locator("text=Edit Selena").count()) === 0 && (await p.locator("text=Edit Eyecon").count()) === 0) ok("leaderboard — no 'Edit Eyecon/Selena' copy");
+  else fail("leaderboard — 'Edit' Eyecon/Selena copy still present");
+  await ctx.close();
+}
+
 await browser.close();
 if (process.exitCode) console.error("\neyecon_assert: FAILURES above");
-else console.log("\neyecon_assert: all gate/lock/preview assertions passed");
+else console.log("\neyecon_assert: all gate/lock/preview/surface assertions passed");
