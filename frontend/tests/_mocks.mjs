@@ -120,8 +120,8 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
 }
 
-export async function seededContext(browser, base, user, viewport) {
-  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 810 } });
+export async function seededContext(browser, base, user, viewport, extra = {}) {
+  const ctx = await browser.newContext({ viewport: viewport ?? { width: 1440, height: 810 }, ...extra });
   await ctx.addInitScript(([u]) => {
     if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
     try { indexedDB.deleteDatabase("eyebot"); } catch {}

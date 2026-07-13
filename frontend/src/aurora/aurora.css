@@ -1139,6 +1139,46 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
   background-size: 140% 140%, 140% 140%, 140% 140%, 140% 140%, 100% 100%;
   animation: station-mesh 18s ease-in-out infinite; }
 
+/* OSCE landscape gate — the triptych needs width, so a phone held in portrait gets a
+   full-screen "rotate to landscape" takeover. Hidden by default; shown ONLY on a touch
+   device in portrait (turning to landscape flips the query and reveals the station).
+   The `pointer: coarse` guard means a desktop with a narrow window is never nagged. */
+.rotate-gate { display: none; }
+@media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
+  .rotate-gate {
+    display: flex; position: fixed; inset: 0; z-index: 9990;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 32px 26px; color: var(--ink); overflow: hidden;
+  }
+}
+.rotate-gate-mesh { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(40% 50% at 12% 18%, rgba(66,133,244,.34), transparent 60%),
+    radial-gradient(45% 55% at 88% 12%, rgba(217,101,112,.30), transparent 60%),
+    radial-gradient(50% 60% at 70% 95%, rgba(155,114,203,.34), transparent 62%),
+    radial-gradient(45% 55% at 8% 92%, rgba(52,168,83,.22), transparent 60%),
+    linear-gradient(120deg, #EAF0FF, #F3ECFB 50%, #FDEEF1);
+  background-size: 140% 140%, 140% 140%, 140% 140%, 140% 140%, 100% 100%;
+  animation: station-mesh 18s ease-in-out infinite; }
+.rotate-gate-card { max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.rotate-gate-phone { position: relative; width: 58px; height: 100px; border: 3px solid var(--ink);
+  border-radius: 15px; background: rgba(255,255,255,.55); box-shadow: 0 12px 32px rgba(66,99,235,.18);
+  transform-origin: 50% 50%; animation: rotate-gate-turn 2.8s cubic-bezier(.7,0,.3,1) infinite; }
+.rotate-gate-phone::before { content: ""; position: absolute; inset: 7px; border-radius: 7px;
+  background: linear-gradient(135deg, rgba(66,133,244,.55), rgba(155,114,203,.55)); }
+.rotate-gate-phone::after { content: ""; position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+  width: 18px; height: 3px; border-radius: 3px; background: var(--ink); opacity: .45; }
+.rotate-gate-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 6px 0 0; color: var(--ink); }
+.rotate-gate-copy { font-size: 15px; line-height: 1.5; color: var(--ink-2); margin: 0; }
+.rotate-gate-hint { font-size: 12.6px; line-height: 1.45; color: var(--ink-3); margin: 2px 0 0; }
+@keyframes rotate-gate-turn { 0%, 18% { transform: rotate(0deg); } 58%, 100% { transform: rotate(-90deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .rotate-gate-phone { animation: none; transform: rotate(-90deg); }
+  .rotate-gate-mesh { animation: none; }
+}
+html[data-motion="reduce"] .rotate-gate-phone { animation: none; transform: rotate(-90deg); }
+html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
+
 .aurora-station-head { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
 .aurora-station-back { border: 1px solid var(--hairline); background: rgba(255,255,255,.7); backdrop-filter: blur(6px); border-radius: 999px; padding: 6px 14px; font-size: 14.6px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
 .aurora-station-back:hover { color: var(--ink); }
