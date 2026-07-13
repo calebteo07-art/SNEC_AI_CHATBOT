@@ -1795,161 +1795,172 @@ html[data-motion="reduce"] .aurora-coach-bubble, html[data-motion="reduce"] .aur
 .aurora-switch-knob { position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
 .aurora-switch[data-on="true"] .aurora-switch-knob { transform: translateX(17px); }
 
-/* ─────────────────── Daily check-in ─────────────────── */
-/* Check-in backdrop — a vivid-but-airy Gemini gem wash (blue → violet → amber →
-   teal) layered with soft tinted glows, so the white question card pops. The card
-   (.aurora-checkin-card) is intentionally left untouched. */
-.aurora-checkin { position: relative; min-height: 100vh; display: grid; place-items: center; padding: clamp(20px, 4vw, 48px); overflow: hidden;
+/* ─────────────────── Daily check-in · "The Forge" ─────────────────── */
+/* A committed dark, high-energy surface: the student's streak is a living fire
+   (full-size flame + white-hot count + drifting embers + a heat meter), and the
+   daily MCQ is the fuel. Landscape two-column so it fits one laptop tab with no
+   scroll; stacks + scrolls on phones. Fire palette is scoped here — it doesn't
+   leak into the rest of Aurora. */
+.aurora-checkin {
+  --cf-spark: #FFE9A8; --cf-gold: #FFB627; --cf-orange: #FF6B2C; --cf-hot: #F5320C; --cf-ember: #B01206;
+  --cf-white-hot: #FFF7E8; --cf-text: #FFEFE0; --cf-dim: #F0BE96; --cf-mute: #C58A61;
+  --cf-fire: linear-gradient(180deg, var(--cf-spark), var(--cf-gold) 30%, var(--cf-orange) 62%, var(--cf-hot) 86%, var(--cf-ember));
+  position: relative; height: 100dvh; width: 100%; overflow: hidden;
+  display: grid; place-items: center; padding: clamp(14px, 2.4vh, 26px) 22px; color: var(--cf-text);
   background:
-    radial-gradient(72% 58% at 14% 6%, rgba(66, 133, 244, 0.16), transparent 60%),
-    radial-gradient(64% 52% at 90% 14%, rgba(26, 168, 156, 0.15), transparent 60%),
-    radial-gradient(78% 62% at 86% 94%, rgba(155, 114, 203, 0.16), transparent 62%),
-    radial-gradient(70% 56% at 8% 96%, rgba(244, 167, 66, 0.12), transparent 62%),
-    linear-gradient(135deg, #eaf1ff 0%, #f3ecff 38%, #fff4ec 72%, #eafaf2 100%);
+    radial-gradient(120% 88% at 50% 120%, rgba(255, 80, 20, 0.42), transparent 55%),
+    radial-gradient(90% 55% at 50% -12%, rgba(255, 150, 40, 0.16), transparent 60%),
+    radial-gradient(70% 55% at 8% 10%, rgba(180, 20, 10, 0.30), transparent 60%),
+    radial-gradient(70% 55% at 92% 18%, rgba(120, 20, 60, 0.22), transparent 60%),
+    linear-gradient(180deg, #1a0d07 0%, #140a05 46%, #0c0603 100%);
 }
-.aurora-checkin-mesh { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.aurora-checkin-mesh span { position: absolute; border-radius: 50%; filter: blur(72px); opacity: 0.6; }
-.aurora-checkin-mesh span:nth-child(1) { width: 42vmax; height: 42vmax; top: -16vmax; right: -12vmax; background: radial-gradient(circle, rgba(66, 133, 244, 0.30), rgba(26, 168, 156, 0.18) 45%, transparent 70%); animation: aurora-drift-a 30s ease-in-out infinite; }
-.aurora-checkin-mesh span:nth-child(2) { width: 38vmax; height: 38vmax; bottom: -16vmax; left: -12vmax; background: radial-gradient(circle, rgba(155, 114, 203, 0.28), rgba(217, 101, 112, 0.16) 48%, transparent 70%); animation: aurora-drift-c 34s ease-in-out infinite; }
-html[data-motion="reduce"] .aurora-checkin-mesh span { animation: none; }
-@media (prefers-reduced-motion: reduce) { .aurora-checkin-mesh span { animation: none; } }
-.aurora-checkin-wrap { position: relative; z-index: 1; width: 100%; max-width: 480px; }
-.aurora-checkin-head { text-align: center; margin-bottom: 22px; }
-.aurora-checkin-h1 { font-size: clamp(1.904rem, 5vw, 2.464rem); font-weight: 600; letter-spacing: -0.03em; color: var(--ink); margin: 4px 0 0; }
-/* ── The card: a frosted "lit glass" artifact. Instead of a flat white panel it
-   floats on the gem wash as translucent frosted glass, ringed by a slow Gemini
-   gradient hairline, lifted on a layered colour-tinted shadow, topped by an inner
-   sheen, and lit by a one-shot diagonal light sweep on mount. */
+.aurora-checkin-embers { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.aurora-checkin-vignette { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  box-shadow: inset 0 -120px 150px -70px rgba(255, 70, 15, 0.30), inset 0 0 220px 50px rgba(0, 0, 0, 0.55); }
+
+.aurora-checkin-screen { position: relative; z-index: 2; width: 100%; max-width: 1010px;
+  display: grid; grid-template-columns: 0.92fr 1.08fr; grid-template-areas: "bar bar" "hero play";
+  column-gap: clamp(44px, 6vw, 96px); row-gap: clamp(8px, 2vh, 20px); align-items: center; }
+
+/* top bar — the real EyeBot + SNEC lockup, centered */
+.aurora-checkin-bar { grid-area: bar; display: flex; justify-content: center; align-items: center; min-height: 34px; }
+.aurora-cobrand.aurora-checkin-cobrand { margin: 0; }
+
+/* ── Hero: the living streak fire ── */
+.aurora-checkin-hero { grid-area: hero; display: flex; flex-direction: column; align-items: center; }
+.aurora-checkin-flamewrap { position: relative; width: clamp(150px, 17vw, 206px); height: clamp(158px, 27vh, 232px);
+  display: flex; align-items: center; justify-content: center; }
+.aurora-checkin-flame { position: absolute; bottom: 0; width: 100%; height: 100%; transform-origin: 50% 92%;
+  filter: drop-shadow(0 0 30px rgba(255, 90, 20, 0.75)) drop-shadow(0 0 64px rgba(255, 50, 10, 0.42));
+  animation: aurora-cf-flick 2.6s ease-in-out infinite; }
+.aurora-checkin-flame.is-inner { width: 66%; height: 76%; opacity: 0.9; mix-blend-mode: screen;
+  animation: aurora-cf-flick 1.7s ease-in-out infinite reverse; }
+.aurora-checkin-streaknum { position: relative; z-index: 3; font-weight: 900; font-size: clamp(74px, 11vh, 116px);
+  line-height: 1; letter-spacing: -0.05em; color: #fff; font-variant-numeric: tabular-nums; transform: translateY(5px);
+  text-shadow: 0 0 18px rgba(255, 235, 190, 0.95), 0 0 44px rgba(255, 150, 50, 0.8), 0 5px 2px rgba(120, 10, 0, 0.5); }
+.aurora-checkin-streaklbl { position: relative; z-index: 3; display: flex; align-items: center; gap: 11px; margin-top: -2px; }
+.aurora-checkin-streakt { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--cf-dim); }
+.aurora-checkin-blaze { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 9px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
+  color: #3a0d00; background: var(--cf-fire); white-space: nowrap;
+  box-shadow: 0 0 20px rgba(255, 120, 30, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: aurora-cf-pulse 1.9s ease-in-out infinite; }
+.aurora-checkin-blaze svg { width: 12px; height: 12px; fill: #3a0d00; }
+.aurora-checkin-meter { width: 100%; max-width: 300px; margin-top: clamp(14px, 2.4vh, 22px); }
+.aurora-checkin-meter-track { position: relative; height: 11px; border-radius: 999px;
+  background: rgba(255, 120, 50, 0.14); border: 1px solid rgba(255, 140, 70, 0.22); overflow: hidden; }
+.aurora-checkin-meter-fill { position: absolute; inset: 0; width: 70%; border-radius: 999px; background: var(--cf-fire);
+  box-shadow: 0 0 16px rgba(255, 110, 30, 0.8); transition: width 0.45s var(--mo-ease, ease); }
+.aurora-checkin-meter-fill::after { content: ""; position: absolute; top: 0; right: 0; width: 24px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 220, 0.9)); animation: aurora-cf-crest 1.8s ease-in-out infinite; }
+.aurora-checkin-meter-cap { display: flex; justify-content: space-between; margin-top: 7px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.03em; color: var(--cf-mute); }
+
+/* ── Play: quest header + question card ── */
+.aurora-checkin-play { grid-area: play; min-width: 0; }
+.aurora-checkin-qhead { margin-bottom: clamp(10px, 1.8vh, 16px); }
+.aurora-checkin-quest { display: inline-flex; align-items: center; gap: 7px; padding: 5px 13px 5px 10px; border-radius: 999px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--cf-spark); background: rgba(255, 110, 40, 0.14); border: 1px solid rgba(255, 150, 70, 0.35); }
+.aurora-checkin-quest svg { width: 12px; height: 12px; fill: var(--cf-spark); }
+.aurora-checkin-h1 { margin: 11px 0 0; font-weight: 900; font-size: clamp(26px, 3.5vh, 34px); line-height: 1.02; letter-spacing: -0.02em; color: #fff; }
+.aurora-checkin-h1-pop { background: var(--cf-fire); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.aurora-checkin-sub { margin: 7px 0 0; font-size: 14px; color: var(--cf-dim); }
+
 .aurora-checkin-card {
-  position: relative;
-  padding: 24px 24px 22px;
-  border: none;
-  border-radius: 22px;
-  background:
-    radial-gradient(130% 80% at 0% 0%, rgba(66, 133, 244, 0.07), transparent 58%),
-    radial-gradient(130% 90% at 100% 100%, rgba(217, 101, 112, 0.06), transparent 58%),
-    rgba(255, 255, 255, 0.84);
-  -webkit-backdrop-filter: blur(22px) saturate(1.35);
-  backdrop-filter: blur(22px) saturate(1.35);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 1px 2px rgba(20, 18, 60, 0.05),
-    0 18px 36px -22px rgba(217, 101, 112, 0.22),
-    0 34px 64px -30px rgba(56, 48, 120, 0.36);
-  overflow: hidden;
+  position: relative; border: none; border-radius: 20px; padding: clamp(15px, 2.2vh, 20px) 19px; color: var(--cf-text);
+  background: linear-gradient(180deg, rgba(52, 30, 20, 0.86), rgba(30, 16, 10, 0.92));
+  box-shadow: 0 0 0 1px rgba(255, 150, 80, 0.20), 0 26px 54px -30px rgba(255, 70, 15, 0.5), inset 0 1px 0 rgba(255, 220, 180, 0.12);
+  overflow: visible;
 }
-/* Animated Gemini gradient ring — masked so only the 1.5px border paints. Rides
-   the shared aurora-flow loop, so it freezes with everything else under reduce. */
-.aurora-checkin-card::before {
-  content: ""; position: absolute; inset: 0; box-sizing: border-box;
-  border-radius: inherit; padding: 1.5px;
-  background-image: var(--gemini-loop); background-size: 200% 100%;
-  animation: aurora-flow var(--aurora-anim) linear infinite;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
-  opacity: 0.55; pointer-events: none;
-}
-html[data-motion="reduce"] .aurora-checkin-card::before { animation: none; }
+.aurora-checkin-card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 200, 120, 0.5), transparent 40%, transparent 70%, rgba(255, 90, 30, 0.4));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
 
-/* One-shot diagonal light sweep across the glass on mount. */
-.aurora-checkin-sheen { position: absolute; inset: 0; z-index: 2; border-radius: inherit; overflow: hidden; pointer-events: none; }
-.aurora-checkin-sheen::after {
-  content: ""; position: absolute; top: -60%; left: -40%; width: 45%; height: 220%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  transform: translateX(-60%) rotate(9deg);
-  animation: aurora-checkin-sheen 1.15s var(--mo-ease) 0.28s both;
-}
-@keyframes aurora-checkin-sheen {
-  0% { transform: translateX(-60%) rotate(9deg); opacity: 0; }
-  24% { opacity: 0.95; }
-  100% { transform: translateX(640%) rotate(9deg); opacity: 0; }
-}
-html[data-motion="reduce"] .aurora-checkin-sheen::after { animation: none; opacity: 0; }
-@media (prefers-reduced-motion: reduce) { .aurora-checkin-sheen::after { animation: none; opacity: 0; } }
+.aurora-checkin-loading { text-align: center; padding: 30px 0; color: var(--cf-dim); }
+.aurora-checkin-err { text-align: center; padding: 8px 0; }
+.aurora-checkin-err p { color: var(--cf-dim); margin-bottom: 16px; }
 
-/* Top meta row — today's focus pill (left) + streak flame (right). */
-.aurora-checkin-meta { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.aurora-checkin-focus {
-  display: inline-flex; align-items: center; gap: 10px; min-width: 0;
-  padding: 7px 14px 7px 10px; border-radius: 999px;
-  background: linear-gradient(100deg, rgba(66, 133, 244, 0.10), rgba(155, 114, 203, 0.09));
-  border: 1px solid rgba(120, 110, 200, 0.18);
-}
-.aurora-checkin-focus-dot {
-  flex-shrink: 0; width: 12px; height: 12px; border-radius: 50%;
-  background: radial-gradient(circle at 32% 30%, #fff 0 10%, var(--g-blue) 26%, var(--g-purple) 68%, var(--g-rose) 100%);
-  box-shadow: 0 0 0 3px rgba(155, 114, 203, 0.14);
-}
-.aurora-checkin-focus-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.aurora-checkin-focus .aurora-side-label { margin: 0; font-size: 9.6px; letter-spacing: 0.14em; }
-.aurora-checkin-focus-topic { font-size: 13.6px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.aurora-checkin-flame {
-  flex-shrink: 0; margin-left: auto; display: inline-flex; align-items: baseline; gap: 5px;
-  padding: 6px 13px; border-radius: 999px; font-family: var(--font-mono);
-  background: linear-gradient(135deg, rgba(244, 167, 66, 0.16), rgba(217, 101, 112, 0.14));
-  border: 1px solid rgba(217, 101, 112, 0.24);
-}
-.aurora-checkin-flame-ico { font-size: 13px; transform: translateY(1px); }
-.aurora-checkin-flame-n { font-size: 15px; font-weight: 700; color: var(--on-rose); }
-.aurora-checkin-flame-u { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-rose); opacity: 0.8; }
+.aurora-checkin-q-topic { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; background: var(--cf-fire); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.aurora-checkin-q { position: relative; font-size: clamp(16px, 2.2vh, 18.5px); font-weight: 700; line-height: 1.32; color: #fff; margin: 8px 0 14px; }
 
-/* Topic — gradient-clipped micro-label. */
-.aurora-checkin-q-topic {
-  display: inline-block; font-family: var(--font-mono); font-size: 11.2px;
-  letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
-  background: var(--gemini); -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.aurora-checkin-q { position: relative; font-size: 20.5px; font-weight: 600; line-height: 1.4; letter-spacing: -0.015em; color: var(--ink); margin: 9px 0 20px; }
-
-/* Option tiles — keycap + label. Hover lifts the tile, fills the keycap with the
-   Gemini gradient, and slides in a trailing arrow. */
-.aurora-checkin-options { position: relative; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-.aurora-checkin-option {
-  position: relative; display: flex; align-items: center; gap: 13px; width: 100%; text-align: left;
-  padding: 12px 15px; border: 1.5px solid var(--hairline); border-radius: 14px;
-  background: rgba(255, 255, 255, 0.62); color: var(--ink);
-  font-family: var(--font-sans); font-size: 15.7px; font-weight: 500; line-height: 1.4;
-  cursor: pointer; transition: border-color 0.18s, background 0.18s, box-shadow 0.22s, transform 0.2s var(--mo-over);
-}
-.aurora-checkin-option:hover:not(:disabled):not(.is-static) {
-  border-color: transparent; background: #fff; transform: translateY(-2px);
-  box-shadow: 0 0 0 1.5px rgba(66, 133, 244, 0.4), 0 16px 30px -18px rgba(66, 133, 244, 0.55);
-}
+.aurora-checkin-options { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.aurora-checkin-option { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: clamp(9px, 1.4vh, 12px) 14px; border-radius: 13px; color: var(--cf-text);
+  font-family: var(--font-sans); font-size: 15px; font-weight: 600; line-height: 1.35;
+  background: rgba(255, 180, 120, 0.05); border: 1.5px solid rgba(255, 150, 90, 0.16); cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, box-shadow 0.22s, transform 0.2s var(--mo-over); }
+.aurora-checkin-option:hover:not(:disabled):not(.is-static) { border-color: transparent; background: rgba(255, 160, 90, 0.10); transform: translateY(-2px);
+  box-shadow: 0 0 0 1.5px var(--cf-orange), 0 16px 28px -16px rgba(255, 90, 20, 0.8); }
 .aurora-checkin-option:active:not(:disabled):not(.is-static) { transform: translateY(0) scale(0.99); }
 .aurora-checkin-option:disabled { cursor: default; }
 .aurora-checkin-option.is-static { cursor: default; }
-.aurora-checkin-key {
-  flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center;
-  border-radius: 9px; border: 1.5px solid var(--hairline); background: #fff;
-  font-family: var(--font-mono); font-size: 13px; font-weight: 700; line-height: 1; color: var(--ink-2);
-  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.2s var(--mo-over);
-}
-.aurora-checkin-option:hover:not(:disabled):not(.is-static) .aurora-checkin-key {
-  border-color: transparent; color: #fff; background-image: var(--gemini); transform: scale(1.06);
-}
+.aurora-checkin-key { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px;
+  border: 1.5px solid rgba(255, 150, 90, 0.22); background: rgba(255, 150, 80, 0.10);
+  font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; line-height: 1; color: var(--cf-dim);
+  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.2s var(--mo-over); }
+.aurora-checkin-option:hover:not(:disabled):not(.is-static) .aurora-checkin-key { border-color: transparent; color: #3a0d00; background: var(--cf-fire);
+  transform: scale(1.06); box-shadow: 0 0 14px rgba(255, 120, 40, 0.6); }
 .aurora-checkin-opt-text { min-width: 0; flex: 1; }
-.aurora-checkin-opt-go {
-  flex-shrink: 0; margin-left: 4px; color: var(--g-blue); opacity: 0; transform: translateX(-6px);
-  transition: opacity 0.18s, transform 0.2s var(--mo-over);
-}
+.aurora-checkin-opt-go { flex-shrink: 0; margin-left: 4px; color: var(--cf-gold); opacity: 0; transform: translateX(-6px);
+  transition: opacity 0.18s, transform 0.2s var(--mo-over); }
 .aurora-checkin-option:hover:not(:disabled):not(.is-static) .aurora-checkin-opt-go { opacity: 1; transform: none; }
-.aurora-checkin-option.is-correct { border-color: rgba(52, 168, 83, 0.55); background: rgba(52, 168, 83, 0.09); color: var(--on-green); font-weight: 600; }
-.aurora-checkin-option.is-correct .aurora-checkin-key { background: var(--g-green); background-image: none; border-color: transparent; color: #fff; }
-.aurora-checkin-option.is-wrong { border-color: rgba(217, 101, 112, 0.5); background: rgba(217, 101, 112, 0.08); color: var(--on-rose); font-weight: 600; }
-.aurora-checkin-option.is-wrong .aurora-checkin-key { background: var(--g-rose); background-image: none; border-color: transparent; color: #fff; }
+.aurora-checkin-option.is-correct { border-color: rgba(255, 182, 39, 0.6); background: rgba(255, 150, 40, 0.14); color: #FFE9A8; font-weight: 700; }
+.aurora-checkin-option.is-correct .aurora-checkin-key { background: var(--cf-fire); border-color: transparent; color: #3a0d00; }
+.aurora-checkin-option.is-wrong { border-color: rgba(176, 18, 6, 0.6); background: rgba(176, 18, 6, 0.16); color: #FFC2A8; font-weight: 700; }
+.aurora-checkin-option.is-wrong .aurora-checkin-key { background: var(--cf-ember); border-color: transparent; color: #fff; }
 
-.aurora-checkin-submit { position: relative; display: block; width: 100%; padding: 15px; border: none; border-radius: 14px; color: #fff; font-size: 15.7px; font-weight: 600; cursor: pointer; overflow: hidden; box-shadow: 0 14px 30px -14px rgba(66, 133, 244, 0.6); }
+.aurora-checkin-stake { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 14px;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--cf-dim); }
+.aurora-checkin-stake svg { width: 13px; height: 13px; fill: var(--cf-orange); }
+.aurora-checkin-stake b { color: var(--cf-gold); font-weight: 700; margin-left: 4px; }
+
+.aurora-checkin-verdict { position: relative; padding: 14px 16px; border-radius: 15px; margin-bottom: 15px; }
+.aurora-checkin-verdict.is-correct { background: linear-gradient(120deg, rgba(255, 150, 40, 0.16), rgba(255, 90, 20, 0.06)); border: 1px solid rgba(255, 170, 60, 0.4); }
+.aurora-checkin-verdict.is-wrong { background: linear-gradient(120deg, rgba(176, 18, 6, 0.18), rgba(120, 20, 60, 0.06)); border: 1px solid rgba(217, 80, 40, 0.4); }
+.aurora-checkin-verdict-head { font-size: 16px; font-weight: 800; }
+.aurora-checkin-verdict.is-correct .aurora-checkin-verdict-head { color: #FFD98A; }
+.aurora-checkin-verdict.is-wrong .aurora-checkin-verdict-head { color: #FFB59A; }
+.aurora-checkin-verdict p { font-size: 14px; line-height: 1.55; color: var(--cf-dim); margin: 6px 0 0; }
+
+.aurora-checkin-submit { position: relative; display: block; width: 100%; padding: 14px; border: none; border-radius: 14px;
+  color: #3a0d00; font-family: var(--font-sans); font-size: 15.5px; font-weight: 800; cursor: pointer; overflow: hidden;
+  background: var(--cf-fire); background-size: 160% 100%;
+  box-shadow: 0 14px 32px -14px rgba(255, 90, 20, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
 .aurora-checkin-submit span { position: relative; z-index: 1; }
-.aurora-checkin-submit:disabled { opacity: 0.45; cursor: not-allowed; }
-.aurora-checkin-skip { position: relative; display: block; width: 100%; margin-top: 12px; padding: 8px; background: none; border: none; font-size: 13.4px; color: var(--ink-3); cursor: pointer; }
-.aurora-checkin-skip:hover { color: var(--ink-2); }
-.aurora-checkin-verdict { position: relative; padding: 15px 17px; border-radius: 16px; margin-bottom: 16px; }
-.aurora-checkin-verdict.is-correct { background: linear-gradient(120deg, rgba(52, 168, 83, 0.12), rgba(66, 133, 244, 0.06)); border: 1px solid rgba(52, 168, 83, 0.34); }
-.aurora-checkin-verdict.is-wrong { background: linear-gradient(120deg, rgba(217, 101, 112, 0.12), rgba(155, 114, 203, 0.06)); border: 1px solid rgba(217, 101, 112, 0.32); }
-.aurora-checkin-verdict-head { font-size: 16.8px; font-weight: 700; color: var(--ink); }
-.aurora-checkin-verdict.is-correct .aurora-checkin-verdict-head { color: var(--on-green-2); }
-.aurora-checkin-verdict.is-wrong .aurora-checkin-verdict-head { color: var(--on-rose); }
-.aurora-checkin-verdict p { font-size: 14.6px; line-height: 1.6; color: var(--ink-2); margin: 6px 0 0; }
+.aurora-checkin-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.aurora-checkin-skip { display: block; width: 100%; margin-top: 12px; padding: 8px; background: none; border: none;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cf-mute); cursor: pointer; }
+.aurora-checkin-skip:hover { color: var(--cf-dim); }
+
+@keyframes aurora-cf-flick {
+  0%, 100% { transform: scaleY(1) scaleX(1) skewX(0); }
+  25% { transform: scaleY(1.05) scaleX(0.97) skewX(1.5deg); }
+  50% { transform: scaleY(0.97) scaleX(1.02) skewX(-1deg); }
+  75% { transform: scaleY(1.03) scaleX(0.99) skewX(1deg); }
+}
+@keyframes aurora-cf-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 120, 30, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(255, 150, 50, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.5); }
+}
+@keyframes aurora-cf-crest { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.9; } }
+html[data-motion="reduce"] .aurora-checkin-flame,
+html[data-motion="reduce"] .aurora-checkin-blaze,
+html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-checkin-flame, .aurora-checkin-blaze, .aurora-checkin-meter-fill::after { animation: none; }
+}
+
+/* Phones: stack the fire above the question and let the page scroll. */
+@media (max-width: 860px) {
+  .aurora-checkin { height: auto; min-height: 100dvh; overflow: visible; display: block; padding: 26px 18px 44px; }
+  .aurora-checkin-embers { position: fixed; }
+  .aurora-checkin-screen { grid-template-columns: 1fr; grid-template-areas: "bar" "hero" "play"; row-gap: 20px; max-width: 460px; margin: 0 auto; }
+  .aurora-checkin-flamewrap { width: 172px; height: 190px; }
+  .aurora-checkin-streaknum { font-size: 92px; }
+}
 
 /* ─────────────────── Admin + Supervisor ─────────────────── */
 .aurora-admin { max-width: none; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
