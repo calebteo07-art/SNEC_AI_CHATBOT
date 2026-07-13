@@ -1,16 +1,18 @@
-/* Header: eyebrow chip, the "Leaderboard" title, a short live hook line, and the role
-   filter tabs. The title glyph + hook keep it playful without a heavy banner. */
+/* Hero card: the "Leaderboard" title, a short live hook line, the role filter tabs, and —
+   folded in at the bottom — the board settings. One red gradient banner carries it all. */
+import type { ReactNode } from "react";
+
 export function LeaderboardHeader({
-  roles, role, onRole, hook,
+  roles, role, onRole, hook, settings,
 }: {
   roles: string[];
   role: string | null;
   onRole: (r: string | null) => void;
   hook: string;
+  settings?: ReactNode;
 }) {
   return (
     <header className="lb-head">
-      <span className="lb-eyebrow"><span className="lb-dot" aria-hidden /> Season 1 · Your cohort</span>
       <h1 className="lb-title"><span className="lb-title-ico" aria-hidden>🏆</span> Leaderboard</h1>
       <p className="lb-sub">{hook}</p>
       {roles.length > 1 && (
@@ -21,6 +23,7 @@ export function LeaderboardHeader({
           ))}
         </div>
       )}
+      {settings}
     </header>
   );
 }

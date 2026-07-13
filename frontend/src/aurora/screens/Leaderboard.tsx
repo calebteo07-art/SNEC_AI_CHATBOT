@@ -43,12 +43,23 @@ export function Leaderboard() {
     const reduce = document.documentElement.dataset.motion === "reduce" || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || sessionStorage.getItem("eyebot_lb_podium_celebrated") === "1") return;
     sessionStorage.setItem("eyebot_lb_podium_celebrated", "1");
-    confetti({ particleCount: 110, spread: 78, origin: { y: 0.32 }, colors: ["#7C5CF6", "#12B5A0", "#FB8C28", "#F4557A", "#FCD34D"] });
+    confetti({ particleCount: 110, spread: 78, origin: { y: 0.32 }, colors: ["#F59E0B", "#FCD34D", "#E11D48", "#FB7185", "#F0431F"] });
   }, [you]);
 
   return (
     <div className="lb-climb" data-testid="leaderboard-root">
-      <LeaderboardHeader roles={roles} role={role} onRole={setRole} hook={hook} />
+      <LeaderboardHeader
+        roles={roles} role={role} onRole={setRole} hook={hook}
+        settings={
+          <BoardSettings
+            youHidden={youHidden}
+            displayName={data?.display_name ?? null}
+            pending={prefs.isPending}
+            onToggle={(hidden) => prefs.mutate({ hidden })}
+            onSaveName={(name) => prefs.mutate({ display_name: name })}
+          />
+        }
+      />
 
       {isLoading && !data ? (
         <p className="lb-empty">Loading the board…</p>
@@ -66,14 +77,6 @@ export function Leaderboard() {
           )}
         </>
       )}
-
-      <BoardSettings
-        youHidden={youHidden}
-        displayName={data?.display_name ?? null}
-        pending={prefs.isPending}
-        onToggle={(hidden) => prefs.mutate({ hidden })}
-        onSaveName={(name) => prefs.mutate({ display_name: name })}
-      />
     </div>
   );
 }
