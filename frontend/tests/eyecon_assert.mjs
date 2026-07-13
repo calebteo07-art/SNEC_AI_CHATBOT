@@ -120,6 +120,17 @@ async function studentCtx(customized) {
   else fail("leaderboard — an edit-selena control still exists");
   if ((await p.locator("text=Edit Selena").count()) === 0 && (await p.locator("text=Edit Eyecon").count()) === 0) ok("leaderboard — no 'Edit Eyecon/Selena' copy");
   else fail("leaderboard — 'Edit' Eyecon/Selena copy still present");
+
+  // Task 6 end-to-end: the rank-1 entry has topper:"crown" + no portrait, so the <Eyecon>
+  // representative-tile fallback must render the crown tile (keyless-safe customized look).
+  const srcs = await p.locator(".lb-ped-face .eyecon-img, .lb-face .eyecon-img").evaluateAll(
+    (els) => els.map((e) => e.getAttribute("src")),
+  );
+  if (srcs.some((s) => (s ?? "").includes("/avatar/tiles/topper/crown.webp"))) {
+    ok("leaderboard — Eyecon fallback renders the customized tile from avatar_config (no portrait)");
+  } else {
+    fail(`leaderboard — fallback tile not rendered (srcs=${JSON.stringify(srcs)})`);
+  }
   await ctx.close();
 }
 
