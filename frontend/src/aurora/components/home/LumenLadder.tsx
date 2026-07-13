@@ -9,7 +9,7 @@ export function LumenLadder({ current = 0 }: { current?: number }) {
   const collected = LUMEN_BADGES.filter((b) => current >= b.at).length;
 
   return (
-    <section className="hm-panel" data-testid="lumen-ladder" aria-label="Lumens vault">
+    <section className="hm-panel hm-panel--lumen" data-testid="lumen-ladder" aria-label="Lumens vault">
       <p className="hm-ph disp">
         Lumens vault
         <span className="hm-c">{collected} of {LUMEN_BADGES.length} collected</span>
