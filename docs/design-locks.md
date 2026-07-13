@@ -398,6 +398,18 @@ Station: light two-pane CaseSession (checklist ‖ consult, independent scroll),
 in-order gating (stationGate.ts — only current step unlockable), Moderate-merged
 checklist rows, allied-health handover framing (Findings & clinical impression /
 Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
+- **Type-scale + density refine (2026-07-13, user-directed: "enlarge all words in osce
+  activity and osce selection, reduce white space significantly")** — CSS-only in
+  `aurora.css`, criterion changed: *type scale + spacing density* (structure/gating/
+  handover framing untouched). Both OSCE screens read **bigger and denser**: selection
+  (`.aurora-cases*`) enlarged page/journey/tier/patient-card type + atlas readout + pin
+  labels; activity (`.aurora-station*`) enlarged station title/HUD/patient header/
+  checklist phase+step rows/consult bubbles/pane titles/grade card/tray chips/handover
+  form/`.aurora-s100-*` debrief — with page/card/step/thread padding, gaps and margins
+  trimmed throughout. The shared `.aurora-eyebrow` bump is **scoped** under
+  `.aurora-cases`/`.aurora-station` so no other screen changes. **Acceptance when
+  refining**: visibly larger type on both screens, WCAG-legible, **390px no-overflow
+  preserved** (aurora + station harness assert it); no structural/behavioural change.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
