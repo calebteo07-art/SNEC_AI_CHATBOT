@@ -99,8 +99,14 @@ flip, spinner slows); WCAG-legible.
      windowing only bounds what's VISIBLE so many topics never crush.
   Every other selection invariant is preserved — LARGE cards, no numbers/dots, neutral glass arrows,
   drag/flick + one-topic arrow nudge, **stage-resolved pick** (which also skips parked out-of-window
-  cards), and a reduced-motion freeze **parked with Mixed facing front**. Cards fade solid→out toward the
-  window edge. **ALWAYS verify the picker at the real ~26-topic scale, not the toy harness mock — the
+  cards), and a reduced-motion freeze **parked with Mixed facing front**.
+  **Criterion changed 2026-07-13 (user-directed — topic cards 100% opaque):** every VISIBLE card is
+  now **fully opaque** — the front card AND both banked neighbours (`opacity: clamp01(WINDOW - a)` in
+  `CardFanCarousel`'s paint loop, so `a ≤ WINDOW-1` ⇒ 1). Depth + bank alone rank the cards; there is
+  no dimming of neighbours. The opacity fades **only across the final window step** (`a` = `WINDOW-1` →
+  `WINDOW`) so a card entering/leaving the window still eases 1→0 instead of popping. **Windowing is
+  untouched** — cards beyond `WINDOW` still park at `opacity 0`; that hard cap is what keeps 26–31
+  topics from crushing into a slab and must never be removed. **ALWAYS verify the picker at the real ~26-topic scale, not the toy harness mock — the
   harness `flashcards/topics` mock is now the full 26-topic OA syllabus (27 cards) so a crush-at-scale
   regression fails CI.**
 - **Flat card face + enlarged cards + gold-title lede (refine 2026-07-12, user-directed)**: the topic
@@ -125,6 +131,19 @@ flip, spinner slows); WCAG-legible.
   **PERFECT!/MISS** verdict + score + combo + streak callout, **centred**, Next at the bottom). The
   deck-load wait shows a **classic ring spinner** (`.flash-spinner`); the old `3·2·1·GO` start-lights
   (`GridLights`) are **removed**. Per-topic hue rim; green/red verdicts.
+  - **Criterion changed 2026-07-13 (user-directed — the streak reads as a real fire emoji + transforms
+    drastically):** the HUD streak flame is no longer the abstract CSS teardrop cluster (`.flash-flames`
+    5×`<i>`); it is now a proper **flame SILHOUETTE** — an inline SVG (Lucide-flame path) with an outer
+    gradient **body** + a hotter inner **core**, so it unmistakably reads as 🔥. It **escalates per tier**
+    on the SAME locked colour-ramp (cold → **lit** warm orange → **blaze** gold → **inferno** red-white →
+    **max** blue-white plasma): the whole glyph **grows** with `--fire`, the flame licks + the core
+    flickers faster, **embers** rise from blaze up, and max adds a pulsing heat **halo**. Kept: left-gutter
+    placement (flame LEFT of the number), baseline-alignment with Score (the flame is `position:absolute`
+    so it adds no row height), and a **hard freeze under reduced motion** (static coloured flame, no
+    licking/embers/halo). Selectors: `.flash-flame` / `.flash-flame-svg` / `.flash-flame-body` /
+    `.flash-flame-core` / `.flash-embers`; `@keyframes flame-lick` / `flame-core` / `ember-rise` /
+    `flame-halo`. The `.flash-fire.is-*` tier vars (`--flame-base/mid/hi/tip/core`, `--wild`,
+    `--flame-speed`) are unchanged — refine the ramp within them, never revert to the teardrop cluster.
   **Full-motion paint invariant (2026-07-11, still holds)**: any study-card element whose base state
   is `opacity:0` MUST have its reveal `@keyframes` defined. The options (`.flash-option`) start at
   `opacity:0` and depend on `@keyframes flash-rise`; a referenced-but-missing (no-op) animation once

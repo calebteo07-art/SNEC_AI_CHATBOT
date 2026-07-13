@@ -1,8 +1,9 @@
 "use client";
 /* CardFanCarousel — the topic picker: a 3D COVERFLOW of large topic cards that drifts
-   CONTINUOUSLY. ONE front card is pushed FORWARD (bigger, upright, fully opaque, on top) and
-   its neighbours recede BACKWARD and bank steeply away, so the front card is unmistakably the
-   focus. Only a WINDOW of cards (the front ± two) is drawn; the rest park at opacity 0. That
+   CONTINUOUSLY. ONE front card is pushed FORWARD (bigger, upright, on top) and its neighbours
+   recede BACKWARD and bank steeply away, so the front card is unmistakably the focus. Every
+   VISIBLE card is fully opaque (100%) — depth + bank alone rank them, no dimming (user, 2026-07-13).
+   Only a WINDOW of cards (the front ± two) is drawn; the rest park at opacity 0. That
    windowing + real depth (front +z, sides −z) is what keeps the picker looking the SAME whether
    a role has 9 topics or the real 26 (OA/PSA) / 31 (OT): the earlier flat RING pushed every
    card to nearly the same depth, so under a weak perspective 5–7 same-size cards crushed into an
@@ -139,8 +140,12 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
         const rot = -s * TILT * e;                    // upright at front, banked away at the sides
         els[i].style.transform =
           `translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${rot.toFixed(2)}deg)`;
-        // Solid through the front, fading to nothing by the second neighbour.
-        els[i].style.opacity = clamp01(1.16 - 0.42 * a).toFixed(3);
+        // FULLY OPAQUE through the front card and its two visible neighbours (user, 2026-07-13:
+        // topic cards at 100% opacity — depth/bank alone signals the front card, no dimming); the
+        // opacity fades only across the FINAL window step (a = WINDOW-1 → WINDOW) so a card
+        // entering/leaving the window still eases 1→0 instead of popping. Windowing (parked cards at
+        // opacity 0) is untouched — it's what keeps 26+ topics from crushing into a slab.
+        els[i].style.opacity = clamp01(WINDOW - a).toFixed(3);
         const zi = 1000 + Math.round(z);              // deeper card ⇒ lower stacking order
         if (zCache[i] !== zi) { els[i].style.zIndex = String(zi); zCache[i] = zi; }
       }

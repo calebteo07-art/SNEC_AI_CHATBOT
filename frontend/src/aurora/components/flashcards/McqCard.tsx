@@ -144,7 +144,33 @@ export function McqCard(p: Props) {
         <span className="flash-stat flash-stat-fire">
           <span className="flash-stat-k">Streak</span>
           <b className={`flash-stat-v flash-fire ${fireTier}`} style={{ "--fire": streakNum } as CSSProperties}>
-            <span className="flash-flames" aria-hidden><i /><i /><i /><i /><i /></span>
+            {/* A real flame SILHOUETTE (Lucide-flame path) — outer body gradient + a hotter inner
+                core, so it reads unmistakably as 🔥. The whole glyph grows with --fire and shifts
+                hue per tier (warm → gold → red-white → blue plasma); embers fly from the blaze up. */}
+            <span className="flash-flame" aria-hidden>
+              <svg className="flash-flame-svg" viewBox="0 0 24 24">
+                <defs>
+                  <linearGradient id="flashFlameBody" x1="0.5" y1="1" x2="0.5" y2="0">
+                    <stop offset="0%" stopColor="var(--flame-base)" />
+                    <stop offset="42%" stopColor="var(--flame-mid)" />
+                    <stop offset="78%" stopColor="var(--flame-hi)" />
+                    <stop offset="100%" stopColor="var(--flame-tip)" />
+                  </linearGradient>
+                  <radialGradient id="flashFlameCore" cx="0.5" cy="0.74" r="0.62">
+                    <stop offset="0%" stopColor="var(--flame-core)" />
+                    <stop offset="46%" stopColor="var(--flame-tip)" />
+                    <stop offset="100%" stopColor="var(--flame-hi)" />
+                  </radialGradient>
+                </defs>
+                <path className="flash-flame-body" fill="url(#flashFlameBody)"
+                  d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                <g transform="translate(5.8 10) scale(0.52)">
+                  <path className="flash-flame-core" fill="url(#flashFlameCore)"
+                    d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                </g>
+              </svg>
+              <span className="flash-embers" aria-hidden><i /><i /><i /><i /><i /></span>
+            </span>
             <span key={streakNum} className="flash-fire-num">{streakNum}</span>
           </b>
         </span>
