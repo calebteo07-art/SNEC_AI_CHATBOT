@@ -148,9 +148,22 @@ flip, spinner slows); WCAG-legible.
     leave. Guard: `forfeitGuard.ts::createRoundForfeit().spend()`. Spec:
     `docs/superpowers/specs/2026-07-12-flashcards-quit-forfeit-loophole-design.md`.
 - **One coin glyph app-wide (Task 24)**: the HUD **Score** stat and the reveal **Payoff** points both
-  render the single engraved-iris `<Lumen>` coin — the old flat, two-circle local `CoinIcon` in
+  render the single `<Lumen>` coin — the old flat, two-circle local `CoinIcon` in
   `McqCard.tsx` is retired. Every Lumens surface in the app (flashcards, home, leaderboard, tutor
   rewards) now shares this one glyph; never reintroduce a bespoke coin icon.
+  - **Criterion changed 2026-07-12 (was "engraved-iris" = a colored blue eye on the disc):** the coin
+    is now an eye **engraved INTO the gold** — a struck medallion whose eye motif (chiselled almond,
+    domed iris ring, iris striations, deep pupil recess, catch-light) is minted from the **same metal**,
+    read purely by **tonal-gold relief** (double-offset bevel: a dark wall up-left + a bright wall
+    down-right). NO colored eye — no blue iris / white sclera / black pupil pasted on top; the deepest
+    recess is warm dark (`#5a3d00`/`#2a1c00`), never blue/white/black-as-colour. Legible down to 14px
+    (the pupil anchors the read); verify at 14/18px, not just large. Refine the metal/relief within this
+    lock; never regress to a colour-filled eye. `frontend/src/aurora/components/Lumen.tsx`.
+  - **Optional `spark` prop (celebratory surfaces only):** adds a slow sheen sweep + a rim twinkle + an
+    occasional blink (the engraved eye squashes shut, ~5.2s cycle). Enabled ONLY on the reveal **Payoff**
+    (correct answers) and the **RewardBanner**; **off by default** so the many small inline coins
+    (leaderboard rows, home, HUD) stay calm and never distract. Freezes under reduced motion (OS pref +
+    the app `data-motion="reduce"` toggle). Keep motion opt-in and hero-only.
 - **Topic intro (ricoe B5)**: a fan pick shows a pre-deck `TopicIntro` beat before Q1 — a "Ready"
   kicker, the topic name, a one-line blurb (`TOPIC_BLURBS`), an `N questions · mixed difficulty ·
   instant scoring` meta and a "Press start" CTA — in the same dark arcade card language. Deck loads

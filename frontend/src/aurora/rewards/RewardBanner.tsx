@@ -48,7 +48,7 @@ export function RewardBanner({ reward, onDone }: { reward: Reward; onDone: () =>
         <h2 className="rw-title">{reward.title}</h2>
         <p className="rw-sub">{reward.subtitle}</p>
         {reward.lumens ? (
-          <p className="rw-lumens"><Lumen size={22} decorative /> +{reward.lumens.toLocaleString()} Lumens</p>
+          <p className="rw-lumens"><Lumen size={22} decorative spark /> +{reward.lumens.toLocaleString()} Lumens</p>
         ) : null}
         <button type="button" className="rw-cta" onClick={onDone}>Tap to continue</button>
       </motion.div>
