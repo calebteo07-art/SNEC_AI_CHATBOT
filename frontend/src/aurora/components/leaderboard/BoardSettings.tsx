@@ -1,7 +1,7 @@
-/* Demoted board controls: show/hide toggle, optional display name, Edit-Selena entry.
-   All D7 functionality, kept visually subordinate so the board is the hero. */
+/* Demoted board controls: show/hide toggle + optional display name. All D7 functionality,
+   kept visually subordinate so the board is the hero. (Re-customization is locked, so there
+   is no "Edit Eyecon" entry — the Eyecon is created once at first login.) */
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function BoardSettings({
@@ -35,7 +35,6 @@ export function BoardSettings({
         />
         <button type="button" className="lb-btn ghost" disabled={!dirty || pending} onClick={() => onSaveName(draft.trim())}>Save</button>
       </div>
-      <Link href="/studio" className="lb-btn ghost lb-edit" data-testid="edit-selena">Edit Selena</Link>
     </section>
   );
 }

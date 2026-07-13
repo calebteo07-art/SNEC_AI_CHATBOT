@@ -27,9 +27,9 @@ async function makeCtx() {
   const ctx = await seededContext(b, base, student);
   await ctx.addInitScript((s) => {
     sessionStorage.setItem("eyebot_session", JSON.stringify(s));
-    // returning, already-onboarded student ⇒ the welcome-Studio gate must not redirect off /flashcards
-    localStorage.setItem("eyebot_selena_onboarded", "1");
   }, SESSION);
+  // The shared mocks report the student as customized:true, so the mandatory first-login
+  // gate never redirects off /flashcards (no local onboarding flag exists any more).
   let count = 0;
   ctx.on("request", (req) => {
     if (req.method() === "POST" && req.url().includes("/api/flashcards/forfeit")) count += 1;

@@ -16,6 +16,14 @@ export const admin = {
   full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001",
   role: "admin", student_role: "", must_change: false,
 };
+/** A full default Eyecon config (every axis) — seeds the Studio draft + representative-tile
+ *  fallback. The default harness student is `customized:true` so the mandatory first-login
+ *  gate never fires during ordinary navigation tests (see mockApis). */
+export const avatarConfig = {
+  version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "none",
+  mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none",
+  outfit: "none", background: "mist",
+};
 export const streakDetail = {
   current: 6, best: 9, freezes: 1, done_today: false,
   tier: "Clear View", next_tier: "20/20 Vision", to_next: 4,
@@ -58,6 +66,12 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/**", (r) => r.fulfill(J({ error: "not mocked" }, 404)));
   await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
   await ctx.route("**/api/gamification/sync", (r) => r.fulfill(J({ ok: true })));
+  // Default: an already-customized student (gate stays quiet). Individual tests can
+  // re-route "**/api/avatar" to serve customized:false and exercise the first-login gate.
+  await ctx.route("**/api/avatar", (r) => r.request().method() === "PUT"
+    ? r.fulfill(J({ config: avatarConfig }))
+    : r.fulfill(J({ config: avatarConfig, axes: {}, portrait_status: "none", portrait_url: null, customized: true })));
+  await ctx.route("**/api/avatar/portrait", (r) => r.fulfill(J({ portrait_status: "none", portrait_url: null })));
   await ctx.route("**/api/progress", (r) => r.fulfill(J(progress)));
   await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
   await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));

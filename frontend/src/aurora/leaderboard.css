@@ -145,7 +145,6 @@
   border-radius:13px; border:none; cursor:pointer; text-decoration:none; font-family:inherit; white-space:nowrap; }
 .lb-btn.ghost { background:#F6EFE3; color:#6D5A78; border:1px solid var(--line); }
 .lb-btn:disabled { opacity:.55; cursor:default; box-shadow:none; }
-.lb-edit { text-decoration:none; }
 
 .lb-empty { color:var(--hink2); text-align:center; padding:2.5rem 1rem; font-size:16px; }
 
