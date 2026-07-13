@@ -665,10 +665,12 @@ function StationResult({ result, coaching, saved, onSave, onMore, onDash }: {
 
       <div className="aurora-station-save-row">
         <button type="button" className="aurora-station-save" data-testid="save-session" onClick={onSave} disabled={saved}>
-          {saved ? "✓ Session saved" : "⬇ Save session record"}
+          {saved ? "✓ Insights downloaded" : "🤓 Download session insights"}
         </button>
         <span className="aurora-station-save-note">
-          {saved ? "Downloaded — open it or print to PDF to keep." : "One-time save — you won't be able to save this session later."}
+          {saved
+            ? "Downloaded — open it or print to PDF to keep."
+            : "Your personalised breakdown — what you did well, done wrong or only partially, and missed or lacking — plus your score and full transcript. One-time download."}
         </span>
       </div>
 
