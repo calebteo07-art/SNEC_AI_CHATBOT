@@ -203,10 +203,61 @@
    and Lumens badge cards are the same size. ── */
 .hm-lower { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .hm-panel { position:relative; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
-/* themed tints (were boring white): streak-badge shelf = violet/collectible, Lumens
-   vault = gold/light — a cohesive family with the warm homepage palette. */
-.hm-panel--streakbadge { background:radial-gradient(125% 130% at 100% 0%, #ECE3FF 0%, #F9F5FF 58%); border-color:#E4D8FA; }
-.hm-panel--lumen { background:radial-gradient(125% 130% at 100% 0%, #FFEFBE 0%, #FFFBEC 58%); border-color:#F1E1B4; }
+/* dark collectible VAULTS (were light tints) — two glowing "display cases" that read as
+   addicting game cards, each a saturated glow over a dark base drawn from the homepage
+   palette: streak = molten ORANGE fire, Lumens = GOLD treasure over royal violet. Both
+   dark, distinct in hue, tied to the warm page by the shared radius/underline/seal. The
+   hot glow blooms from below (behind the opaque medallions) so the header band stays dark
+   and every label keeps WCAG-legible white; a slow inset glow breathes for game-feel. */
+.hm-panel--streakbadge {
+  background:
+    radial-gradient(122% 100% at 50% 118%, #FF7E1E 0%, #E23A0E 30%, rgba(226,58,14,0) 62%),
+    radial-gradient(80% 74% at 90% 4%, rgba(255,158,60,.20), transparent 60%),
+    linear-gradient(158deg, #35150A 0%, #230F08 55%, #180B06 100%);
+  border-color:#7C3216;
+  animation:hm-vault-fire 6.5s ease-in-out infinite;
+}
+.hm-panel--lumen {
+  background:
+    radial-gradient(122% 100% at 50% 118%, #FFC63A 0%, #C67A18 30%, rgba(198,122,24,0) 62%),
+    radial-gradient(96% 96% at 100% 0%, rgba(139,101,232,.40), transparent 58%),
+    linear-gradient(158deg, #251749 0%, #1A0F33 55%, #140B26 100%);
+  border-color:#3E2C6A;
+  animation:hm-vault-lumen 7s ease-in-out infinite;
+}
+@keyframes hm-vault-fire {
+  0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.07), inset 0 -46px 62px -36px rgba(255,90,18,.45), var(--sh-lg); }
+  50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.07), inset 0 -52px 76px -30px rgba(255,120,32,.78), var(--sh-lg); }
+}
+@keyframes hm-vault-lumen {
+  0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -44px 60px -36px rgba(251,191,36,.32), inset 0 42px 62px -40px rgba(139,101,232,.42), var(--sh-lg); }
+  50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -52px 74px -30px rgba(251,191,36,.55), inset 0 48px 70px -36px rgba(139,101,232,.62), var(--sh-lg); }
+}
+/* dark-vault legibility: lift every label to warm white + a soft shadow so it reads over
+   the glow (the small count / note / meta sit above the brightest patch, hence the shadow). */
+.hm-panel--streakbadge, .hm-panel--lumen { color:#F6EEE4; }
+.hm-panel--streakbadge .hm-ph, .hm-panel--lumen .hm-ph { color:#FFF6EC; border-bottom-color:rgba(255,255,255,.15); }
+.hm-panel--streakbadge .hm-ph .hm-c, .hm-panel--lumen .hm-ph .hm-c { color:rgba(255,246,236,.74); text-shadow:0 1px 4px rgba(0,0,0,.55); }
+.hm-panel--lumen .hm-vault-note { color:rgba(255,246,236,.66); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+.hm-panel--streakbadge .hm-badge-name, .hm-panel--lumen .hm-badge-name { color:#FCF5EC; text-shadow:0 1px 5px rgba(0,0,0,.55); }
+.hm-panel--streakbadge .hm-badge-meta, .hm-panel--lumen .hm-badge-meta { color:rgba(255,246,236,.7); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+.hm-panel--streakbadge .hm-badge[data-state="locked"] .hm-badge-name,
+.hm-panel--lumen .hm-badge[data-state="locked"] .hm-badge-name { color:rgba(255,246,236,.55); }
+/* next-tier meta + call-to-action ring: retint per vault (the global violet-d text is
+   unreadable on dark, and a violet ring clashes on the fire/gold cards). The tinted
+   pulse still freezes under reduced motion via the shared `.hm-badge-art` freeze. */
+.hm-panel--streakbadge .hm-badge[data-state="next"] .hm-badge-meta { color:#FFB878; }
+.hm-panel--lumen .hm-badge[data-state="next"] .hm-badge-meta { color:#D7B8FF; }
+.hm-panel--streakbadge .hm-badge[data-state="next"] .hm-badge-art { animation:badge-pulse-fire 1.9s ease-in-out infinite; }
+.hm-panel--lumen .hm-badge[data-state="next"] .hm-badge-art { animation:badge-pulse-gold 1.9s ease-in-out infinite; }
+@keyframes badge-pulse-fire {
+  0%,100% { box-shadow:0 0 0 3px rgba(255,140,40,.32),0 6px 16px -5px rgba(255,88,20,.55); }
+  50%     { box-shadow:0 0 0 6px rgba(255,150,50,.44),0 6px 20px -5px rgba(255,110,30,.7); }
+}
+@keyframes badge-pulse-gold {
+  0%,100% { box-shadow:0 0 0 3px rgba(251,191,36,.32),0 6px 16px -5px rgba(226,160,44,.55); }
+  50%     { box-shadow:0 0 0 6px rgba(253,206,66,.46),0 6px 20px -5px rgba(240,180,52,.7); }
+}
 .hm-ph { position:relative; font-family:var(--font-home); font-weight:700; font-size:20px; margin:0 0 18px; padding-bottom:12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
 .hm-ph::after { content:""; position:absolute; left:0; bottom:-1px; width:52px; height:2px; border-radius:2px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
@@ -305,6 +356,7 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
   .aurora-home .hm-iris, .aurora-home .hm-selena, .aurora-home .hm-selena-img, .aurora-home .hm-selena-halo,
   .aurora-home .hm-iriswrap::before, .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
   .aurora-home .hm-lvbar > span::after, .aurora-home .hm-big::before,
+  .aurora-home .hm-panel--streakbadge, .aurora-home .hm-panel--lumen,
   .aurora-home .hm-wdot, .aurora-home .hm-wd.today .hm-wdot { animation:none !important; }
 }
 html[data-motion="reduce"] .aurora-home .hm-iris,
@@ -317,5 +369,7 @@ html[data-motion="reduce"] .hm-flame .core,
 html[data-motion="reduce"] .hm-streak::before,
 html[data-motion="reduce"] .aurora-home .hm-lvbar > span::after,
 html[data-motion="reduce"] .aurora-home .hm-big::before,
+html[data-motion="reduce"] .aurora-home .hm-panel--streakbadge,
+html[data-motion="reduce"] .aurora-home .hm-panel--lumen,
 html[data-motion="reduce"] .aurora-home .hm-wdot,
 html[data-motion="reduce"] .aurora-home .hm-wd.today .hm-wdot { animation:none !important; }

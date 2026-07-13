@@ -1,4 +1,4 @@
-/* MilestoneLadder — the streak BADGE COLLECTION. Each eye-themed tier is a collectible
+/* MilestoneLadder — the DAILY STREAK VAULT. Each eye-themed tier is a collectible
    Selena badge that unlocks as the weekday streak climbs: collected → next (glowing, with
    progress) → locked (mystery silhouette). Reads progress.streak_detail (current streak);
    thresholds mirror the streak engine. Base-mascot badges (home Iris lock). */
@@ -12,9 +12,9 @@ export function MilestoneLadder({ detail }: { detail?: StreakDetail }) {
   const collected = STREAK_BADGES.filter((b) => current >= b.at).length;
 
   return (
-    <section className="hm-panel hm-panel--streakbadge" data-testid="milestone-ladder" aria-label="Streak badge collection">
+    <section className="hm-panel hm-panel--streakbadge" data-testid="milestone-ladder" aria-label="Daily streak vault">
       <p className="hm-ph disp">
-        Badge collection
+        Daily streak vault
         <span className="hm-c">{collected} of {STREAK_BADGES.length} collected</span>
       </p>
       <ol className="hm-badges">
