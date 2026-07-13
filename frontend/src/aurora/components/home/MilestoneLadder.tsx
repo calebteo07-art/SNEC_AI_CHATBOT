@@ -4,7 +4,7 @@
    thresholds mirror the streak engine. Base-mascot badges (home Iris lock). */
 import type { StreakDetail } from "@/hooks/useProgress";
 import { STREAK_BADGES } from "./streakBadges";
-import { SelenaBadge, type BadgeState } from "./SelenaBadge";
+import { EyeconBadge, type BadgeState } from "./EyeconBadge";
 
 export function MilestoneLadder({ detail }: { detail?: StreakDetail }) {
   const current = detail?.current ?? 0;
@@ -20,7 +20,7 @@ export function MilestoneLadder({ detail }: { detail?: StreakDetail }) {
       <ol className="hm-badges">
         {STREAK_BADGES.map((b) => {
           const state: BadgeState = current >= b.at ? "collected" : nextAt === b.at ? "next" : "locked";
-          return <SelenaBadge key={b.at} badge={b} state={state} toNext={b.at - current} />;
+          return <EyeconBadge key={b.at} badge={b} state={state} toNext={b.at - current} />;
         })}
       </ol>
     </section>

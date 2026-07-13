@@ -1,7 +1,7 @@
 /* LumenBadge — one collectible medallion in the Lumens vault shelf. Reuses the streak
    badge shelf CSS (hm-badge). Collected shines; next glows; locked is greyscale. */
 import type { LumenBadge as LumenBadgeT } from "./lumenBadges";
-import type { BadgeState } from "./SelenaBadge";
+import type { BadgeState } from "./EyeconBadge";
 
 export function LumenBadge({ badge, state, toNext = 0 }: {
   badge: LumenBadgeT;
