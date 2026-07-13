@@ -20,7 +20,6 @@ export function Podium({ podium }: { podium: LeaderboardEntry[] }) {
         const tier = tierForXp(e.xp);
         return (
           <div key={e.rank} className={`lb-ped ${PLACE[i]}`} data-testid="podium-slot">
-            <div className="lb-shine" aria-hidden />
             {i === 0 && <ChampionCrown />}
             <span className="lb-ped-rank">{LABEL[i]}</span>
             <span className="lb-ped-face">
