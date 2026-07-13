@@ -6,15 +6,15 @@ const CheckInGuard = dynamic(
   () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
   { ssr: false },
 );
-const SelenaStudio = dynamic(
-  () => import("@/aurora/screens/SelenaStudio").then((m) => m.SelenaStudio),
+const EyeconStudio = dynamic(
+  () => import("@/aurora/screens/EyeconStudio").then((m) => m.EyeconStudio),
   { ssr: false },
 );
 
 export default function Page() {
   return (
     <CheckInGuard>
-      <SelenaStudio />
+      <EyeconStudio />
     </CheckInGuard>
   );
 }
