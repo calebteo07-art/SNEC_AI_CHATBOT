@@ -1,5 +1,5 @@
 /* MilestoneLadder — the DAILY STREAK VAULT. Each eye-themed tier is a collectible
-   Selena badge that unlocks as the weekday streak climbs: collected → next (glowing, with
+   Eyecon badge that unlocks as the weekday streak climbs: collected → next (glowing, with
    progress) → locked (mystery silhouette). Reads progress.streak_detail (current streak);
    thresholds mirror the streak engine. Base-mascot badges (home Iris lock). */
 import type { StreakDetail } from "@/hooks/useProgress";

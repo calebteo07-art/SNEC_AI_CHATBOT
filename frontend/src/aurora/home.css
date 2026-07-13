@@ -38,7 +38,19 @@
 .hm-medal .ico { width:19px; height:19px; }
 .hm-chip b { font-family:var(--font-home); font-weight:700; font-size:15px; }
 .hm-chip small { color:var(--hink3); font-weight:600; font-size:12.5px; }
-.hm-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#34D399,#06B6D4); box-shadow:var(--sh); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:15px; }
+/* Home identity button — the customized Eyecon opens a change-password / log-out popover. */
+.hm-eyeconmenu { position:relative; }
+.hm-eyeconmenu-btn { width:44px; height:44px; padding:0; border:0; border-radius:50%; overflow:hidden; background:#F4F6FF; box-shadow:var(--sh); display:grid; place-items:center; cursor:pointer; transition:transform .15s cubic-bezier(0.34,1.56,0.64,1); }
+.hm-eyeconmenu-btn:hover { transform:translateY(-1px) scale(1.04); }
+.hm-eyeconmenu-btn:active { transform:scale(0.94); }
+.hm-eyeconmenu-btn .eyecon-wrap { border-radius:50%; }
+.hm-eyeconmenu-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:40; min-width:186px; display:flex; flex-direction:column; padding:6px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 18px 40px -18px rgba(31,31,31,.4), 0 2px 8px -4px rgba(31,31,31,.2); animation:hm-eyeconmenu-in .16s cubic-bezier(0.2,0.9,0.3,1.15); }
+@keyframes hm-eyeconmenu-in { from { opacity:0; transform:translateY(-6px) scale(.98); } to { opacity:1; transform:none; } }
+.hm-eyeconmenu-item { text-align:left; border:0; background:transparent; border-radius:10px; padding:10px 12px; font-family:var(--font-home); font-weight:600; font-size:14px; color:var(--hink); cursor:pointer; transition:background .12s; }
+.hm-eyeconmenu-item:hover { background:#F3F0FB; }
+.hm-eyeconmenu-item.is-danger { color:#D1435B; }
+.hm-eyeconmenu-item.is-danger:hover { background:#FDECEF; }
+html[data-motion="reduce"] .hm-eyeconmenu-pop { animation:none; }
 
 /* ── bento hero ── */
 /* D5: greeting + streak are shorter (tighter vertical rhythm) but wider (they inherit

@@ -7,7 +7,7 @@ import { BrandSplash } from "@/aurora/components/BrandSplash";
 /* The AURORA shell (Atlas Rail + command palette + drifting mesh) persists
  * across all authenticated routes — App Router layouts don't remount on child
  * navigations. While the shell chunk loads on first paint, show the branded
- * Selena splash (logo→raster brief). */
+ * Eyecon splash (logo→raster brief). */
 const AppShell = dynamic(
   () => import("@/aurora/AppShell").then((m) => m.AppShell),
   { ssr: false, loading: () => <BrandSplash /> },
