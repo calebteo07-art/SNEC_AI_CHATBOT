@@ -3056,20 +3056,20 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-s100-score { font-size:2.9rem; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink); }
 .aurora-s100-score small { font-size:1rem; font-weight:500; opacity:.5; margin-left:2px; }
 .aurora-station-result[data-tone="great"] .aurora-s100-score,
-.aurora-station-result[data-tone="great"] .aurora-s100-verdict { color:#3ad495; }
+.aurora-station-result[data-tone="great"] .aurora-s100-verdict { color:#12A36A; }
 .aurora-station-result[data-tone="good"] .aurora-s100-score,
-.aurora-station-result[data-tone="good"] .aurora-s100-verdict { color:#34cdda; }
+.aurora-station-result[data-tone="good"] .aurora-s100-verdict { color:#0E8C99; }
 .aurora-station-result[data-tone="ok"] .aurora-s100-score,
-.aurora-station-result[data-tone="ok"] .aurora-s100-verdict { color:#eab44a; }
+.aurora-station-result[data-tone="ok"] .aurora-s100-verdict { color:#B57A16; }
 .aurora-station-result[data-tone="low"] .aurora-s100-score,
-.aurora-station-result[data-tone="low"] .aurora-s100-verdict { color:#f0876c; }
+.aurora-station-result[data-tone="low"] .aurora-s100-verdict { color:#D4552F; }
 
-.aurora-s100-meter { position:relative; height:8px; border-radius:999px; background:rgba(255,255,255,.12); margin:14px 0 4px; overflow:hidden; }
-.aurora-s100-fill { height:100%; border-radius:999px; background:currentColor; color:#34cdda; transition:width .9s cubic-bezier(.2,.8,.2,1); }
-.aurora-station-result[data-tone="great"] .aurora-s100-fill { color:#3ad495; }
-.aurora-station-result[data-tone="ok"] .aurora-s100-fill { color:#eab44a; }
-.aurora-station-result[data-tone="low"] .aurora-s100-fill { color:#f0876c; }
-.aurora-s100-passline { position:absolute; top:-3px; left:60%; width:2px; height:14px; background:rgba(255,255,255,.5); }
+.aurora-s100-meter { position:relative; height:8px; border-radius:999px; background:rgba(31,31,31,.1); margin:14px 0 4px; overflow:hidden; }
+.aurora-s100-fill { height:100%; border-radius:999px; background:currentColor; color:#0E8C99; transition:width .9s cubic-bezier(.2,.8,.2,1); }
+.aurora-station-result[data-tone="great"] .aurora-s100-fill { color:#12A36A; }
+.aurora-station-result[data-tone="ok"] .aurora-s100-fill { color:#B57A16; }
+.aurora-station-result[data-tone="low"] .aurora-s100-fill { color:#D4552F; }
+.aurora-s100-passline { position:absolute; top:-3px; left:60%; width:2px; height:14px; background:rgba(31,31,31,.35); }
 .aurora-s100-meter-cap { font-size:.84rem; color:var(--ink-3); margin:0 0 13px; }
 
 .aurora-s100-safety { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; font-size:.96rem; margin-bottom:14px; }
@@ -3081,21 +3081,21 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-s100-comp-top { display:flex; justify-content:space-between; align-items:baseline; font-size:.9rem; color:var(--ink-2); }
 .aurora-s100-comp-top b { font-size:1.1rem; font-weight:650; color:var(--ink); }
 .aurora-s100-comp-top small { font-size:.8rem; color:var(--ink-3); font-weight:500; }
-.aurora-s100-bar { height:5px; border-radius:999px; background:rgba(255,255,255,.12); margin:7px 0 5px; overflow:hidden; }
-.aurora-s100-bar > div { height:100%; border-radius:999px; background:#9b8cff; transition:width .9s cubic-bezier(.2,.8,.2,1); }
+.aurora-s100-bar { height:5px; border-radius:999px; background:rgba(31,31,31,.1); margin:7px 0 5px; overflow:hidden; }
+.aurora-s100-bar > div { height:100%; border-radius:999px; background:#7C5CD6; transition:width .9s cubic-bezier(.2,.8,.2,1); }
 .aurora-s100-comp-sub { font-size:.82rem; color:var(--ink-3); }
 
 .aurora-s100-coach { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:14px; }
 .aurora-s100-col-h { font-size:.9rem; font-weight:600; margin:0 0 7px; }
 .aurora-s100-col.is-good .aurora-s100-col-h { color:var(--on-green); }
-.aurora-s100-col.is-watch .aurora-s100-col-h { color:#f2c879; }
+.aurora-s100-col.is-watch .aurora-s100-col-h { color:#B57A16; }
 .aurora-s100-col ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
 .aurora-s100-col li { font-size:.94rem; line-height:1.4; color:var(--ink-2); opacity:0; animation:s100rise .42s ease forwards; }
 @keyframes s100rise { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
-.aurora-s100-col.is-miss .aurora-s100-col-h { color:#7fb0ff; }
-.aurora-s100-focus { background:rgba(155,114,203,.18); color:var(--ink); border-radius:12px; padding:11px 14px; font-size:.94rem; margin-bottom:14px; }
-.aurora-s100-focus b { font-weight:650; color:#c8bcff; }
+.aurora-s100-col.is-miss .aurora-s100-col-h { color:#2F6FD0; }
+.aurora-s100-focus { background:rgba(155,114,203,.14); color:var(--ink); border-radius:12px; padding:11px 14px; font-size:.94rem; margin-bottom:14px; }
+.aurora-s100-focus b { font-weight:650; color:var(--on-purple); }
 
 /* One-time session save row on the debrief — download the whole session, then it's spent. */
 .aurora-station-save-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
@@ -3140,50 +3140,41 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-proc-input { border-color:rgba(66,133,244,.4) !important; }
 
 /* Station wrap-up overlay — the handover + debrief lift out of the chat thread and
-   spring in over the station. The card is a NIGHT surface: it carries the exact same
-   token remap + indigo-plum gradient as the consult pane, so the handover form and the
-   scored debrief render with their tuned night palette (they used to live inside that
-   pane). A dark card springing over the light station is the surprise reveal. CSS-only. */
+   spring in over the station. The card is a LIGHT surface matching the OSCE patient-
+   selection page: it inherits the default light tokens (no remap) over a bright, softly
+   aurora-tinted paper, so the handover form and scored debrief read light like the rest
+   of the station. CSS-only. */
 .aurora-station-overlay { position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:24px; }
 .aurora-station-overlay-scrim { position:absolute; inset:0; background:rgba(20,16,40,.46); backdrop-filter:blur(3px); animation:aurora-scrim-in .26s ease both; }
 .aurora-station-overlay-card {
   position:relative; z-index:1;
-  /* token remap — same night palette as .aurora-station-main */
-  --ink: #ECEAF8; --ink-2: #BEB7DA; --ink-3: #948DB6;
-  --paper: rgba(255, 255, 255, 0.055); --hairline: rgba(188, 168, 236, 0.18);
-  --on-purple: #CBB1EE; --on-purple-2: #C8ADEC;
-  --on-rose: #F2A2AF; --on-rose-2: #ED8496;
-  --on-green: #80E4A5; --on-green-2: #77DF9A;
   width:min(560px, calc(100vw - 36px)); max-height:88vh; overflow-y:auto;
   color:var(--ink);
-  border:1px solid rgba(188,168,236,.2); border-radius:var(--radius-xl);
+  border:1px solid rgba(31,31,31,.08); border-radius:var(--radius-xl);
   padding:20px;
   background:
-    radial-gradient(74% 58% at 90% 3%, rgba(155, 114, 203, 0.32), transparent 60%),
-    radial-gradient(64% 52% at 3% 99%, rgba(66, 133, 244, 0.26), transparent 62%),
-    radial-gradient(58% 46% at 103% 103%, rgba(217, 101, 112, 0.18), transparent 60%),
-    radial-gradient(50% 40% at 12% 4%, rgba(52, 168, 83, 0.12), transparent 62%),
-    linear-gradient(165deg, rgba(26, 22, 50, 0.97), rgba(33, 26, 60, 0.96) 52%, rgba(24, 20, 46, 0.98));
-  box-shadow:0 40px 90px -28px rgba(10,6,30,.7), 0 0 50px -22px rgba(155,114,203,.5);
+    radial-gradient(74% 58% at 90% 3%, rgba(155, 114, 203, 0.12), transparent 60%),
+    radial-gradient(64% 52% at 3% 99%, rgba(66, 133, 244, 0.10), transparent 62%),
+    radial-gradient(58% 46% at 103% 103%, rgba(217, 101, 112, 0.08), transparent 60%),
+    linear-gradient(165deg, #FFFFFF, #F7F8FC 52%, #FBFAFE);
+  box-shadow:0 40px 90px -28px rgba(40,30,80,.4), 0 0 50px -30px rgba(155,114,203,.35);
   animation:aurora-pop-in .42s cubic-bezier(.16,1,.3,1) both;
 }
 .aurora-station-overlay-x { position:absolute; top:12px; right:12px; border:none; background:none; color:var(--ink-3); font-size:1rem; cursor:pointer; line-height:1; padding:6px; border-radius:8px; z-index:2; }
-.aurora-station-overlay-x:hover { color:var(--ink); background:rgba(188,168,236,.14); }
-/* "More patients" — a quiet ghost button on the night debrief card (the result/handover
+.aurora-station-overlay-x:hover { color:var(--ink); background:rgba(31,31,31,.06); }
+/* "More patients" — a quiet ghost button on the light debrief card (the result/handover
    live in this overlay, NOT in .aurora-station-main, so it must be styled here). */
 .aurora-station-overlay-card .aurora-toggle {
   padding:11px 16px; border-radius:var(--radius);
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(188,168,236,.24);
+  background:var(--paper);
+  border:1px solid var(--hairline);
   color:var(--ink-2); font-size:14.6px; font-weight:600; cursor:pointer;
   transition:background .15s ease, color .15s ease;
 }
-.aurora-station-overlay-card .aurora-toggle:hover { background:rgba(255,255,255,.09); color:var(--ink); }
-/* handover form + inputs on the night card (mirrors the consult-pane overrides) */
-.aurora-station-overlay-card .aurora-station-form { margin-top:0; background:rgba(255,255,255,.04); border-color:rgba(188,168,236,.16); }
-.aurora-station-overlay-card .aurora-station-form-hint { background:rgba(155,114,203,.2); color:var(--on-purple-2); }
-.aurora-station-overlay-card .aurora-input { background:rgba(255,255,255,.05); border-color:rgba(188,168,236,.2); font-size:16.2px; }
-.aurora-station-overlay-card .aurora-input::placeholder { color:var(--ink-3); }
+.aurora-station-overlay-card .aurora-toggle:hover { background:rgba(155,114,203,.12); color:var(--ink); }
+/* handover form + inputs on the light card */
+.aurora-station-overlay-card .aurora-station-form { margin-top:0; }
+.aurora-station-overlay-card .aurora-input { font-size:16.2px; }
 .aurora-station-overlay-card .aurora-input:focus-visible { border-color:var(--g-purple); box-shadow:0 0 0 3px rgba(155,114,203,.22); }
 .aurora-station-overlay-card .aurora-station-result { margin-top:0; }
 @keyframes aurora-scrim-in { from { opacity:0; } to { opacity:1; } }
