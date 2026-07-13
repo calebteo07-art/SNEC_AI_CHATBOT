@@ -691,9 +691,10 @@ if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting ma
 console.log("PASS: Home greeting — always the DEFAULT living Selena, even when customized (lock amended 2026-07-10)");
 reportCustomized = false;
 
-// Leaderboard "The Climb" (ricoe D7 refresh): podium (top 3) + rivalry spotlight + XP
-// tiers + glowing tiered rows. The GET mock honours ?role= and reflects the hide state
-// so the filter + hide toggle are real behavioral verifies; prefs POST flips the flag.
+// Leaderboard — vibrant & seamless (supersedes "The Climb"): podium (top 3) + one
+// color-graded ranked list + a personal chase hook + demoted settings. The GET mock
+// honours ?role= and reflects the hide state so the filter + hide toggle are real
+// behavioral verifies; prefs POST flips the flag.
 let lbHidden = false;
 const LB_ROWS = [
   { name: "Aisha R.",   role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
@@ -728,11 +729,12 @@ const youRow = np.locator('[data-testid="lb-row"][data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
   console.error("FAIL: current user's row not highlighted on the leaderboard"); process.exit(1);
 }
-const spot = np.locator('[data-testid="rivalry-spotlight"]');
-if ((await spot.count()) !== 1) { console.error("FAIL: rivalry spotlight missing"); process.exit(1); }
-if (!(await spot.innerText()).toLowerCase().includes("overtake")) { console.error("FAIL: rivalry spotlight is not showing the overtake gap"); process.exit(1); }
+const lbSub = np.locator('[data-testid="leaderboard-root"] .lb-sub');
+if ((await lbSub.count()) !== 1 || !/#4|podium|overtake/i.test(await lbSub.innerText())) {
+  console.error("FAIL: leaderboard header hook not showing the viewer's chase (rank/gap derived from the payload)"); process.exit(1);
+}
 if ((await np.locator('[data-testid="edit-selena"]').count()) < 1) { console.error("FAIL: Edit Selena entry missing on the leaderboard (ricoe §7)"); process.exit(1); }
-console.log("PASS: Leaderboard 'The Climb' — podium, rivalry spotlight, tiered rows, you-row highlight, real portrait, Edit Selena");
+console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, real portrait, Edit Selena");
 
 // role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();
