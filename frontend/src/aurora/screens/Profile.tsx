@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useAvatar } from "@/hooks/useAvatar";
-import { Selena } from "@/aurora/avatar/Selena";
+import { Eyecon } from "@/aurora/avatar/Eyecon";
 
 function roleLabel(role: string, studentRole: string): string {
   if (role === "admin") return "Administrator";
@@ -46,7 +46,7 @@ export function Profile() {
       <section className="aurora-card aurora-profile-card">
         <div className="aurora-profile-id">
           <span className="aurora-profile-avatar-lg aurora-flow" data-selena={selenaConfig ? "" : undefined}>
-            {selenaConfig ? <Selena portraitUrl={selenaPortraitUrl} size={62} /> : initials}
+            {selenaConfig ? <Eyecon portraitUrl={selenaPortraitUrl} size={62} /> : initials}
           </span>
           <h1 className="aurora-profile-name">{user?.fullName ?? "—"}</h1>
           <p className="aurora-profile-email">{user?.email ?? "—"}</p>

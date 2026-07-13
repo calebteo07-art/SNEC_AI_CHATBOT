@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { useProgress } from "@/hooks/useProgress";
 import { useAvatar } from "@/hooks/useAvatar";
-import { Selena } from "@/aurora/avatar/Selena";
+import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Wordmark } from "@/aurora/Logo";
 
 type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS };
@@ -33,9 +33,9 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
   const { data: avatar } = useAvatar((user?.role ?? "student") === "student");
 
   const role = user?.role ?? "student";
-  // The nav chip is a student identity surface → their customised Selena (staff keep initials).
-  const selenaConfig = role === "student" ? avatar?.config : undefined;
-  const selenaPortraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
+  // The nav chip is a student identity surface → their customised Eyecon (staff keep initials).
+  const eyeconConfig = role === "student" ? avatar?.config : undefined;
+  const eyeconPortraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
   const showOversight = role === "admin" || role === "supervisor";
   const initials = (user?.fullName ?? "EyeBot")
     .split(" ")
@@ -100,8 +100,8 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
           <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
         </div>
         <Link href="/profile" className="aurora-profile" aria-label="Profile">
-          <span className="aurora-avatar" data-selena={selenaConfig ? "" : undefined}>
-            {selenaConfig ? <Selena portraitUrl={selenaPortraitUrl} size={30} /> : initials}
+          <span className="aurora-avatar" data-eyecon={eyeconConfig ? "" : undefined}>
+            {eyeconConfig ? <Eyecon portraitUrl={eyeconPortraitUrl} config={eyeconConfig} size={30} /> : initials}
           </span>
           <span className="aurora-profile-meta">
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
