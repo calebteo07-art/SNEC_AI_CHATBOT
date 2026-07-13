@@ -325,6 +325,22 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
     `overflow-x:hidden` clips the oversized coverflow; measured 0px), coverflow **mechanics
     unchanged** (drift / tap-to-nearest / arrows / keyboard), reduced-motion freezes + all home
     testids intact, aurora harness green on a prod build.
+- **Badge cards → dark "game vaults" (2026-07-13, user directive: "make the lumens and streak
+  badge cards a dark, addicting game gradient — still matching the homepage, both different;
+  the streak orange more vibrant; rename Badge collection → Daily streak vault")**: the two
+  `.hm-lower` shelves are no longer light tints. **SUPERSEDES** the "streak = violet tint / Lumens
+  = gold tint" criterion directly above.
+  - **`.hm-panel--streakbadge`** = molten-**ORANGE** fire (dark ember base + a saturated orange
+    glow blooming from below); **`.hm-panel--lumen`** = deep royal-**violet → GOLD** treasure —
+    two distinct dark vaults, both still from the homepage palette. The streak card is renamed
+    **"Daily streak vault"** (`MilestoneLadder` header + `aria-label`); Lumens keeps its name.
+  - **Legibility rule (keep when refining)**: the hot glow blooms from *below the opaque
+    medallions* so the header band stays dark; every label is lifted to warm-white + a soft
+    text-shadow (small count/note/meta rely on the shadow). The global violet "next" pulse ring
+    is retinted **per vault** (orange / gold). A slow inset-glow *breathes* and **freezes** under
+    `prefers-reduced-motion` / `data-motion=reduce`. CSS-only; medallions/badge-states/testids
+    untouched; 390-safe. Shipped isolated on `origin/main` (the local tree was a stale
+    re-derivation of already-pushed home work).
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
