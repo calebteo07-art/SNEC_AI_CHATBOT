@@ -44,10 +44,11 @@ _COACHING_SCHEMA = {
     "type": "object",
     "properties": {
         "highlights": {"type": "array", "items": {"type": "string"}},
-        "watch_outs": {"type": "array", "items": {"type": "string"}},
+        "did_wrong": {"type": "array", "items": {"type": "string"}},
+        "missed": {"type": "array", "items": {"type": "string"}},
         "focus": {"type": "string"},
     },
-    "required": ["highlights", "watch_outs", "focus"],
+    "required": ["highlights", "did_wrong", "missed", "focus"],
 }
 
 router = APIRouter()
@@ -138,24 +139,21 @@ class DomainScore(BaseModel):
     overall_feedback: str
     critical_hit: int = 0
     critical_total: int = 0
-    # Station-100 (the student-facing model)
+    # Two-scheme /100 (the student-facing model). The checklist is NOT part of the grade.
     score_100: int = 0
     verdict: str = ""
-    thoroughness: int = 0
-    technique: int = 0
-    judgment: int = 0
+    consult_technique: int = 0        # Consultation & Technique (0-50)
+    consult_technique_max: int = 50
+    judgement_safety: int = 0         # Clinical Judgement & Safety (0-50), safety-gated
+    judgement_safety_max: int = 50
     safe: bool = True
     missed_critical: list[str] = []
-    thoroughness_detail: str = ""
-    technique_applies: bool = True
-    thoroughness_max: int = 40
-    technique_max: int = 30
-    judgment_max: int = 30
 
 class CoachingBlock(BaseModel):
-    highlights: list[str] = []
-    watch_outs: list[str] = []
-    focus: str = ""
+    highlights: list[str] = []   # what the student genuinely did well
+    did_wrong: list[str] = []    # done wrongly or only partially
+    missed: list[str] = []       # missed out / lacking entirely
+    focus: str = ""              # the one thing to fix next time
 
 class ChecklistStepResult(BaseModel):
     step_number: int
@@ -575,7 +573,15 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
     case = _load_case_or_404(case_id)
     cl = _station_checklist(case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
-    newly = await asyncio.to_thread(observe, cl["steps"], messages, body.already_ticked)
+    # Hands-on procedures tick ONLY via the action panel — the conversational examiner must
+    # never auto-tick them, so exclude every manual step number from what it may satisfy.
+    manual_steps = {
+        n for a in build_actions(case.get("examination_findings", {}), cl["steps"])
+        if a.get("kind") == "manual" for n in a.get("satisfies_steps", [])
+    }
+    newly = await asyncio.to_thread(
+        observe, cl["steps"], messages, body.already_ticked, manual_steps
+    )
     return ObserveResponse(newly_satisfied=newly)
 
 
@@ -770,12 +776,15 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     coaching_system = (
         (_coach_ctx + "\n\n" if _coach_ctx else "")
         + "You are an ophthalmology clinical educator coaching an allied-health (OA/OT/PSA) "
-        "student after an OSCE station. Return ONLY JSON: {\"highlights\":[..],\"watch_outs\":[..],"
-        "\"focus\":\"..\"}. 2-3 highlights = concrete things they genuinely did well, drawn from the "
-        "conversation. 2-3 watch_outs = the most important things to sharpen, each tied to a specific "
-        "missed step and naming the clinical consequence in the same short phrase. focus = ONE sentence: "
-        "the single most important thing for next time. Every item is a short phrase (~6-12 words), warm "
-        "and specific. Reward triage/escalation within role; do not reward making a medical diagnosis."
+        "student after an OSCE station. Return ONLY JSON: {\"highlights\":[..],\"did_wrong\":[..],"
+        "\"missed\":[..],\"focus\":\"..\"}. highlights = 1-3 concrete things they genuinely did well, "
+        "drawn from the conversation. did_wrong = 1-3 things they did WRONGLY or only PARTIALLY (an "
+        "incorrect step, an unsafe or out-of-role action, or something done half-way). missed = 1-3 "
+        "things they MISSED OUT or were LACKING entirely (never attempted), each tied to a specific "
+        "step and naming the clinical consequence in the same short phrase. focus = ONE sentence: the "
+        "single most important thing for next time. Every item is a short phrase (~6-12 words), warm and "
+        "specific; leave an array empty ([]) if there is genuinely nothing to say. Reward triage/"
+        "escalation within role; do not reward making a medical diagnosis."
     )
     coaching_messages = [{
         "role": "user",
@@ -878,7 +887,8 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         data = json.loads(raw_coach)
         coaching = CoachingBlock(
             highlights=[str(x) for x in (data.get("highlights") or [])][:3],
-            watch_outs=[str(x) for x in (data.get("watch_outs") or [])][:3],
+            did_wrong=[str(x) for x in (data.get("did_wrong") or [])][:3],
+            missed=[str(x) for x in (data.get("missed") or [])][:3],
             focus=str(data.get("focus") or ""),
         )
     except Exception:
@@ -891,18 +901,14 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         "total_score": score["total_score"],
         "score_100": score["score_100"],
         "verdict": score["verdict"],
-        "thoroughness": score["thoroughness"],
-        "technique": score["technique"],
-        "judgment": score["judgment"],
+        "consult_technique": score["consult_technique"],
+        "consult_technique_max": score["consult_technique_max"],
+        "judgement_safety": score["judgement_safety"],
+        "judgement_safety_max": score["judgement_safety_max"],
         "safe": score["safe"],
         "missed_critical": score["missed_critical"],
-        "thoroughness_detail": score["thoroughness_detail"],
         "critical_hit": score["critical_hit"],
         "critical_total": score["critical_total"],
-        "technique_applies": score["technique_applies"],
-        "thoroughness_max": score["thoroughness_max"],
-        "technique_max": score["technique_max"],
-        "judgment_max": score["judgment_max"],
     })
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),

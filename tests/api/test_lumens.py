@@ -60,9 +60,9 @@ _OSCE_DOMAINS = {
 # Pinned station score so score_100 is deterministic (drives the Lumen award).
 _OSCE_SCORE = {
     "score_100": 80, "total_score": 32, "verdict": "Competent",
-    "thoroughness": 32, "technique": 24, "judgment": 24, "safe": True,
-    "missed_critical": [], "thoroughness_detail": "", "critical_hit": 0, "critical_total": 0,
-    "technique_applies": True, "thoroughness_max": 40, "technique_max": 30, "judgment_max": 30,
+    "consult_technique": 40, "consult_technique_max": 50,
+    "judgement_safety": 40, "judgement_safety_max": 50, "safe": True,
+    "missed_critical": [], "critical_hit": 0, "critical_total": 0,
 }
 
 

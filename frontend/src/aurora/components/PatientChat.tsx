@@ -15,6 +15,7 @@ export function PatientChat({
   sending,
   isStreaming,
   hasResult,
+  locked,
   endRef,
   onInputChange,
   onSend,
@@ -27,6 +28,9 @@ export function PatientChat({
   sending: boolean;
   isStreaming: boolean;
   hasResult: boolean;
+  /** The next checklist step is a hands-on procedure → the patient composer is locked so
+      the student performs it in the EyeBot action panel (not by chatting). */
+  locked: boolean;
   endRef: RefObject<HTMLDivElement | null>;
   onInputChange: (value: string) => void;
   onSend: () => void;
@@ -69,7 +73,13 @@ export function PatientChat({
         <div ref={endRef} />
       </div>
 
-      {!hasResult && (
+      {!hasResult && locked && (
+        <div className="aurora-station-locknote" data-testid="patient-lock">
+          🔒 Next step is a hands-on procedure — perform it in the EyeBot panel.
+        </div>
+      )}
+
+      {!hasResult && !locked && (
         <div className="aurora-station-composer">
           <textarea
             className="aurora-station-composer-input"

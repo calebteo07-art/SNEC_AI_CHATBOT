@@ -1,14 +1,15 @@
-"""Pure "Station 100" scoring for the OSCE station.
+"""Two-scheme scoring for the OSCE station.
 
-Builds one legible score out of 100 from three traceable components and projects
-it back to the legacy /40 used for difficulty progression and staff dashboards:
+The student-facing /100 is built from two AI-graded schemes, each out of 50 — the
+checklist is NOT part of the grade (coverage awards no points):
 
-    Thoroughness (0-40)  critical-weighted checklist coverage  (what you did)
-    Technique    (0-30)  history + investigations              (how well)
-    Judgment&safety(0-30) recognition + escalation, gated      (the clinical core)
+    Consultation & Technique (0-50)   history-taking, plus examination/procedure
+                                      technique on cases that have manual procedures
+    Clinical Judgement & Safety (0-50) recognition + escalation/handover, safety-gated
 
-A missed CRITICAL step caps Judgment & safety at SAFETY_CAP (real OSCE "critical
-fail", softened for a learning tool) and raises a safety flag. Pure + deterministic.
+A missed CRITICAL step still raises the safety flag and caps Judgement & Safety at
+SAFETY_CAP (real OSCE "critical fail", softened for a learning tool). Pure + deterministic.
+The legacy /40 (total_score) is kept for difficulty progression and staff dashboards.
 """
 
 SAFETY_CAP = 0.6
@@ -30,83 +31,61 @@ def _verdict(score_100: int) -> str:
 
 def compute_station_score(domain_scores: dict, steps: list[dict], performed,
                           has_manual: bool = True) -> dict:
-    """Return the Station-100 score dict from LLM domain scores + checklist coverage.
+    """Return the two-scheme score dict from LLM domain scores + critical-safety.
 
     Args:
         domain_scores: {"history","investigations","diagnosis","management"} each 0-10.
-        steps:         resolved checklist steps ({step_number, action, critical}).
+        steps:         resolved checklist steps ({step_number, action, critical}) — used
+                       ONLY for the critical-miss safety flag, never for coverage points.
         performed:     step numbers the student ticked.
-        has_manual:    True if the case has hands-on procedures. When False the
-                       Technique bucket is removed and its 30 points split 50/50
-                       across Steps-completed and Judgement & safety.
+        has_manual:    True if the case has hands-on procedures. When True, Consultation &
+                       Technique blends history + investigations (procedure execution);
+                       when False, there is no procedure to grade so it is history alone.
     """
     performed_set = {int(n) for n in (performed or [])}
 
-    earned = possible = 0
-    crit_total = crit_done = done_steps = 0
+    # Critical-miss safety flag only — no coverage scoring.
+    crit_total = crit_done = 0
     missed_critical: list[str] = []
     for s in steps:
-        n = int(s.get("step_number", 0))
-        crit = bool(s.get("critical"))
-        w = 2 if crit else 1
-        possible += w
-        if crit:
-            crit_total += 1
-        if n in performed_set:
-            done_steps += 1
-            earned += w
-            if crit:
-                crit_done += 1
-        elif crit:
+        if not bool(s.get("critical")):
+            continue
+        crit_total += 1
+        if int(s.get("step_number", 0)) in performed_set:
+            crit_done += 1
+        else:
             missed_critical.append(str(s.get("action", "")))
 
-    # Adaptive caps: Technique (procedure execution) only applies when the case
-    # has manual procedures; otherwise its 30 points split 50/50 across the other
-    # two buckets (Steps completed -> 50, Judgement & safety -> 50).
-    if has_manual:
-        thoroughness_max, technique_max, judgment_max = 40, 30, 30
-    else:
-        thoroughness_max, technique_max, judgment_max = 50, 0, 50
-
-    thoroughness = round(thoroughness_max * earned / possible) if possible else 0
-
-    # Technique = procedure-execution quality only (the investigations domain).
-    # History-taking quality lives in Steps-completed (the questions are ticked
-    # steps) + Judgement, so it is no longer blended into Technique here.
+    hist = int(domain_scores.get("history", 0))
     inv = int(domain_scores.get("investigations", 0))
-    technique = round(technique_max * inv / 10) if technique_max else 0
-
     dia = int(domain_scores.get("diagnosis", 0))
     mng = int(domain_scores.get("management", 0))
+
+    # Scheme 1 — Consultation & Technique (0-50). Procedure execution (investigations)
+    # only weighs in when the case actually has procedures; otherwise history alone.
+    if has_manual:
+        consult_technique = round(50 * (hist + inv) / 20)
+    else:
+        consult_technique = round(50 * hist / 10)
+    consult_technique = max(0, min(50, consult_technique))
+
+    # Scheme 2 — Clinical Judgement & Safety (0-50), gated by the critical-miss safety flag.
     safe = not missed_critical
     gate = 1.0 if safe else SAFETY_CAP
-    judgment = round(judgment_max * (dia + mng) / 20 * gate)
+    judgement_safety = max(0, min(50, round(50 * (dia + mng) / 20 * gate)))
 
-    score_100 = max(0, min(100, thoroughness + technique + judgment))
-
-    if crit_total == 0:
-        crit_detail = ""
-    elif crit_done == crit_total:
-        crit_detail = f"all {crit_total} critical done"
-    else:
-        crit_detail = f"{crit_total - crit_done} of {crit_total} critical missed"
-    total_steps = len([s for s in steps])
-    thoroughness_detail = f"{done_steps} of {total_steps} steps" + (f" · {crit_detail}" if crit_detail else "")
+    score_100 = max(0, min(100, consult_technique + judgement_safety))
 
     return {
         "score_100": score_100,
-        "thoroughness": thoroughness,
-        "technique": technique,
-        "judgment": judgment,
+        "consult_technique": consult_technique,
+        "consult_technique_max": 50,
+        "judgement_safety": judgement_safety,
+        "judgement_safety_max": 50,
         "verdict": _verdict(score_100),
         "safe": safe,
         "missed_critical": missed_critical,
-        "thoroughness_detail": thoroughness_detail,
         "total_score": round(score_100 * 0.4),
         "critical_hit": crit_done,
         "critical_total": crit_total,
-        "technique_applies": has_manual,
-        "thoroughness_max": thoroughness_max,
-        "technique_max": technique_max,
-        "judgment_max": judgment_max,
     }

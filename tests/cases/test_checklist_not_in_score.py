@@ -1,10 +1,14 @@
-# tests/cases/test_checklist_counts_in_score.py
-"""Phase 17 / ricoe C7 — the OSCE checklist counts toward the final session score /100.
+# tests/cases/test_checklist_not_in_score.py
+"""The OSCE checklist is NOT part of the final /100 (it was, under ricoe C7; the product
+now grades two AI schemes only). This is the /submit-boundary regression:
 
-This is the end-to-end ship-check regression: holding the AI-graded domains constant,
-submitting with every checklist step performed must score materially HIGHER than
-submitting with none. It locks the invariant at the /submit boundary (not just the
-pure station_score unit) so the checklist can never silently stop counting.
+- Holding the AI-graded domains constant and using NON-critical steps, submitting with
+  every step performed must score the SAME as submitting with none — checklist coverage
+  awards no points.
+- A missed CRITICAL step, however, still lowers the score (the safety gate) and flags it.
+
+It locks the invariant at the endpoint, not just the pure unit, so coverage can never
+silently start counting again.
 """
 from unittest.mock import AsyncMock, patch
 
@@ -25,17 +29,19 @@ CASE = {
     "examination_findings": {"iop": {"right": "18 mmHg", "left": "20 mmHg"}},
 }
 
-# All non-critical so the safety gate can't move Judgement — this isolates the
-# checklist's Thoroughness contribution as the ONLY difference between the two runs.
+# All non-critical → the safety gate can't move Judgement, isolating checklist coverage
+# as the ONLY difference between the two runs (it must make NO difference).
 STEPS = [
     {"step_number": 1, "action": "Introduce self and identify patient", "critical": False},
     {"step_number": 2, "action": "Measure IOP with the non-contact tonometer", "critical": False},
     {"step_number": 3, "action": "Record the readings in the patient record", "critical": False},
     {"step_number": 4, "action": "Advise the patient on their follow-up", "critical": False},
 ]
+# One critical step, for the safety-gate test.
+STEPS_CRIT = [{**s, "critical": (s["step_number"] == 2)} for s in STEPS]
 CL = {"procedure_name": "Non-Contact Tonometry", "steps": STEPS, "source": "checklist"}
+CL_CRIT = {"procedure_name": "Non-Contact Tonometry", "steps": STEPS_CRIT, "source": "checklist"}
 
-# Constant AI-graded domains so the ONLY thing that changes between runs is the checklist.
 DOMAINS = {
     "history_score": 5, "investigations_score": 5, "diagnosis_score": 5, "management_score": 5,
     "history_feedback": "", "investigations_feedback": "", "diagnosis_feedback": "",
@@ -48,12 +54,12 @@ def _cookie():
     return {"eyebot_token": create_access_token("stu_c7", "student", "OA")}
 
 
-def _submit(performed):
+def _submit(performed, checklist=CL):
     with patch.dict("tools.api.shared._case_cache", {"case_c7": CASE}, clear=False), \
          patch("tools.api.routers.cases.list_available_cases", return_value=["case_c7"]), \
          patch("tools.api.routers.cases.load_case", return_value=CASE), \
          patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
-         patch("tools.api.routers.cases._station_checklist", return_value=CL), \
+         patch("tools.api.routers.cases._station_checklist", return_value=checklist), \
          patch("tools.api.routers.cases.evaluate_case", return_value=DOMAINS), \
          patch("tools.api.routers.cases.log_session", new=AsyncMock(return_value=None)), \
          patch("tools.api.routers.cases.ask", return_value="{}"):
@@ -71,21 +77,19 @@ def _submit(performed):
     return r.json()["result"]
 
 
-def test_checklist_completion_raises_the_final_score_100():
+def test_checklist_coverage_does_not_change_the_final_score():
     none = _submit([])
     full = _submit([1, 2, 3, 4])
-
-    # The checklist is a real, visible component of the /100 …
-    assert none["thoroughness"] == 0
-    assert full["thoroughness"] == 40
-    # … and doing it raises the final session score (ricoe C7).
-    assert full["score_100"] > none["score_100"]
-    # With domains held constant and no criticals, the entire delta IS the checklist.
-    assert full["score_100"] - none["score_100"] == 40
+    # Two AI schemes, each /50 — visible components of the /100 …
+    assert none["consult_technique_max"] == 50
+    assert none["judgement_safety_max"] == 50
+    # … and checklist coverage makes NO difference to the score (domains constant, no criticals).
+    assert none["score_100"] == full["score_100"]
 
 
-def test_partial_checklist_scores_between_none_and_full():
-    none = _submit([])
-    half = _submit([1, 2])
-    full = _submit([1, 2, 3, 4])
-    assert none["score_100"] < half["score_100"] < full["score_100"]
+def test_missed_critical_step_still_lowers_the_score_and_flags_safety():
+    missed = _submit([1, 3, 4], checklist=CL_CRIT)   # critical step 2 not performed
+    done = _submit([1, 2, 3, 4], checklist=CL_CRIT)
+    assert missed["safe"] is False
+    assert done["safe"] is True
+    assert missed["score_100"] < done["score_100"]

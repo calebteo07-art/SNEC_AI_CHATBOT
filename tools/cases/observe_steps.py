@@ -9,18 +9,20 @@ import json
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL
 
 _EXAMINER_SYSTEM = (
-    "You are an OSCE examiner observing an ophthalmic student's consultation with a "
+    "You are a careful OSCE examiner observing an ophthalmic student's consultation with a "
     "patient. Given the remaining checklist steps and the consultation transcript, decide "
-    "which steps the student has now satisfied — performed, asked about, explained, "
-    "confirmed, mentioned, or covered in any way, even briefly, indirectly, or in passing.\n"
-    "IMPORTANT: the student usually covers a single step across SEVERAL separate messages, "
-    "not all at once. Read ALL of the student's turns together and combine them — a step "
-    "counts as satisfied if the student covered it at ANY point in the conversation, even "
-    "when it was split across multiple messages or asked a little at a time.\n"
-    "Be generous: if there is any reasonable evidence a step was attempted or touched on, "
-    "count it as done. Only leave a step out when there is genuinely no sign of it anywhere "
-    "in the transcript.\n"
-    "Return ONLY a JSON array of the satisfied step numbers, e.g. [2,5]. Return [] if none."
+    "which steps THE STUDENT has genuinely done — actually asked the question, explained the "
+    "thing, gave the instruction, obtained the consent, or confirmed the detail — in their "
+    "OWN words.\n"
+    "The student may build up a single step across SEVERAL separate messages, so read ALL of "
+    "the student's turns together and combine them; paraphrases and synonyms count, exact "
+    "wording is not required.\n"
+    "BE STRICT. Do NOT tick a step just because it was mentioned in passing, implied, hinted "
+    "at, only tangentially related, or something the student said they 'would' do without "
+    "doing it. NEVER tick a step because the PATIENT said it — only the student's own words "
+    "and actions count. When there is genuine doubt about whether the student really did the "
+    "step, leave it OUT.\n"
+    "Return ONLY a JSON array of the clearly-satisfied step numbers, e.g. [2,5]. Return [] if none."
 )
 
 # Window the examiner over the whole consult (not just the last few turns) so a step
@@ -34,13 +36,22 @@ def _schema() -> dict:
     return {"type": "array", "items": {"type": "integer"}}
 
 
-def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: list[int]) -> list[int]:
-    """Return newly-satisfied step numbers (excluding already-ticked)."""
+def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: list[int],
+            exclude_steps=None) -> list[int]:
+    """Return newly-satisfied step numbers (excluding already-ticked and excluded steps).
+
+    exclude_steps: step numbers the conversational examiner must never tick — the case's
+    hands-on (manual) procedures, which tick only via the action panel. They are hidden
+    from the model AND filtered from its output, so the consult can never auto-tick them.
+    """
     if MOCK_MODE:
         return []
 
     ticked = set(already_ticked or [])
-    remaining = [s for s in checklist_steps if int(s.get("step_number", 0)) not in ticked]
+    excluded = {int(n) for n in (exclude_steps or [])}
+    remaining = [s for s in checklist_steps
+                 if int(s.get("step_number", 0)) not in ticked
+                 and int(s.get("step_number", 0)) not in excluded]
     if not remaining:
         return []
 

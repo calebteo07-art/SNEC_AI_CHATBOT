@@ -66,6 +66,7 @@ def test_aggregates_evidence_across_multiple_student_messages(monkeypatch):
     convo = captured["messages"][0]["content"]
     assert "confirm your name" in convo and "NRIC" in convo and "eye drops" in convo
     # the examiner is explicitly told to combine evidence split across messages
-    assert "multiple messages" in captured["system_prompt"].lower()
+    sp = captured["system_prompt"].lower()
+    assert "combine" in sp and "messages" in sp
     # generous token headroom so the JSON array is never silently truncated
     assert captured["max_tokens"] >= 512
