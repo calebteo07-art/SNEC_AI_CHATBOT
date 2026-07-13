@@ -470,6 +470,38 @@ greeting-card entry was **removed 2026-07-10** — see the Home greeting-card si
 - **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
   paid 3D portrait (fires on save as today); staff.
 
+### AMENDMENT 2026-07-13 — Eyecon rename + MANDATORY first-login + instant preview + surface restriction
+Supersedes the criteria above (skip flow, `eyebot_selena_onboarded`, Profile Studio link,
+"Edit Selena" leaderboard entry) and the *Custom Selena surfaces* lock. Authored with the user.
+- **Rename**: the customizable avatar is **Eyecon** (not Selena) across the student-facing product —
+  component/file names (`<Eyecon>`, `EyeconStudio`, `EyeconLogo`, `EyeconBadge`,
+  `EyeconGreetingLoop`, `EyeconMenu`), CSS classes (`.eyecon-*`, `.hm-eyecon*`), test-ids
+  (`eyecon-logo`), and all user-visible copy. Intentionally kept as legacy (user-invisible): the
+  Supabase `selena-avatars` bucket, the `greeting-selena.*` loop binaries, `/api/avatar` + the
+  `avatar_config` column, and Python-side comments.
+- **Mandatory & unskippable**: the first-run gate now keys off **server truth only**
+  (`avatar.customized === false`) — the local skip flag is deleted. A student who hasn't created
+  their Eyecon is forced into `/studio?welcome=1` and **cannot reach any feature page** until they
+  **Save** (the only exit). There is **no "Skip for now"**.
+- **One-time / locked**: once `customized === true`, `/studio` redirects to `/dashboard` — the
+  Eyecon is created exactly once and can **never** be re-customized (dev-always mode exempt). **All
+  "Edit Eyecon/Selena" entry points are removed.**
+- **Instant preview + vibrant Studio**: every tap updates the hero live (last-touched feature tile
+  swaps in; colour axes light a ring + body/eye/blush hue echo), fixing "no response / shows
+  default". `<Eyecon>` gains a **representative-tile fallback** so a saved look shows customized even
+  without the paid render. Studio styling is a **vibrant warm "sunset arcade" character-select**
+  (scoped `--st-*` palette, conic hero frame, chunky tiles, springy pops) — explicitly **no
+  kart/racing/Mario motifs**; reduced-motion aware; 390px-safe.
+- **Surfaces (restricted)**: the customized Eyecon appears **only** in (a) the **home top-right
+  button** (opens a popover: Change password + Log out) and (b) the **leaderboard**, plus the
+  **nav-rail chip** as **display-only** (no navigation). The **Profile screen + `/profile` route are
+  removed**; staff change-password/sign-out live on the Console rail. The Home greeting stays the
+  **default brand mascot**, never the custom Eyecon.
+- **Acceptance when refining**: uncustomized → forced/unskippable welcome Studio, blocked from
+  dashboard/features; no Skip control; customized → `/studio` redirects home; a tile tap swaps the
+  hero `<img src>`; home button opens the popover; leaderboard renders the fallback tile from
+  `avatar_config` and carries no Edit control. Regression-tested in `frontend/tests/eyecon_assert.mjs`.
+
 ## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08
 **Superseded 2026-07-08** by *Custom Selena surfaces* (below): client-side raster compositing
 was removed (`renderSelena.ts` deleted, seamless-custom spec) — a student's look is now ONE
