@@ -107,13 +107,15 @@ export function ConsoleRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPale
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
           </div>
-          <Link href="/profile" className="aurora-profile" aria-label="Profile">
+          {/* Identity display only — Profile screen removed; change-password + sign-out
+              are the buttons below. */}
+          <div className="aurora-profile aurora-profile--static">
             <span className="aurora-avatar">{initials}</span>
             <span className="aurora-profile-meta">
               <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
               <span className="aurora-profile-role">{role}</span>
             </span>
-          </Link>
+          </div>
           <button type="button" className="aurora-admin-link" style={{ textAlign: "left", padding: "0 6px" }} onClick={() => setShowChangePassword(true)}>
             Change password
           </button>

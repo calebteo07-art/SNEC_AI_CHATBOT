@@ -99,7 +99,9 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
         </div>
-        <Link href="/profile" className="aurora-profile" aria-label="Profile">
+        {/* Identity display only — the Eyecon is created once at first login and is not
+            editable, so the chip no longer links anywhere (Profile screen removed). */}
+        <div className="aurora-profile aurora-profile--static">
           <span className="aurora-avatar" data-eyecon={eyeconConfig ? "" : undefined}>
             {eyeconConfig ? <Eyecon portraitUrl={eyeconPortraitUrl} config={eyeconConfig} size={30} /> : initials}
           </span>
@@ -107,7 +109,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
             <span className="aurora-profile-role">{role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>
           </span>
-        </Link>
+        </div>
         <button
           type="button"
           className="aurora-signout"
