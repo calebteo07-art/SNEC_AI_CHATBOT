@@ -19,7 +19,6 @@ export const config = {
     "/flashcards",
     "/supervisor",
     "/admin/:path*",
-    "/profile",
     "/checkin",
   ],
 };

@@ -38,7 +38,32 @@
 .hm-medal .ico { width:19px; height:19px; }
 .hm-chip b { font-family:var(--font-home); font-weight:700; font-size:15px; }
 .hm-chip small { color:var(--hink3); font-weight:600; font-size:12.5px; }
-.hm-avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#34D399,#06B6D4); box-shadow:var(--sh); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:15px; }
+/* home account control — the customized Eyecon button opens a change-password / log-out popover */
+.hm-eyeconmenu { position:relative; display:flex; }
+.hm-eyeconbtn { width:44px; height:44px; border-radius:50%; border:0; padding:0; background:#fff; box-shadow:var(--sh); display:grid; place-items:center; overflow:hidden; cursor:pointer; }
+.hm-eyeconbtn .eyecon-wrap { border-radius:50%; }
+.hm-eyeconpop {
+  position:absolute; top:calc(100% + 8px); right:0; z-index:40;
+  min-width:216px; padding:8px;
+  background:#fff; border:1px solid #F1DCB2; border-radius:16px;
+  box-shadow:0 18px 40px -18px rgba(60,40,10,.5);
+  display:flex; flex-direction:column; gap:2px; animation:hm-pop-in .16s ease;
+}
+@keyframes hm-pop-in { from { opacity:0; transform:translateY(-6px) scale(.97); } to { opacity:1; transform:none; } }
+.hm-eyeconpop-id { display:flex; align-items:center; gap:10px; padding:6px 8px 10px; border-bottom:1px solid #F3E7CF; margin-bottom:4px; }
+.hm-eyeconpop-id .eyecon-wrap { flex:none; border-radius:50%; }
+.hm-eyeconpop-idtext { display:flex; flex-direction:column; min-width:0; }
+.hm-eyeconpop-idtext b { font-family:var(--font-home); font-size:14px; color:var(--hink1, #2b2420); line-height:1.2; }
+.hm-eyeconpop-idtext small { font-size:12px; color:var(--hink3, #8a7d68); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hm-eyeconpop-item {
+  text-align:left; border:0; background:transparent; cursor:pointer;
+  padding:10px; border-radius:10px; font-size:14px; font-weight:600; color:var(--hink1, #2b2420);
+  transition:background .14s ease;
+}
+.hm-eyeconpop-item:hover { background:#FBF1DD; }
+.hm-eyeconpop-item.is-danger { color:#C0392B; }
+.hm-eyeconpop-item.is-danger:hover { background:#FCE9E6; }
+html[data-motion="reduce"] .hm-eyeconpop { animation:none; }
 
 /* ── bento hero ── */
 /* D5: greeting + streak are shorter (tighter vertical rhythm) but wider (they inherit

@@ -20,6 +20,7 @@ import { StreakTile } from "@/aurora/components/home/StreakTile";
 import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
 import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
+import { EyeconMenu } from "@/aurora/components/home/EyeconMenu";
 
 function dayOfYear(): number {
   const now = new Date();
@@ -99,7 +100,7 @@ export function Dashboard() {
             <span>Level <b>{level}</b> <small>· {rank}</small></span>
             <span className="hm-medal"><Icon name="medal" /></span>
           </div>
-          <div className="hm-avatar" aria-hidden>{firstName.slice(0, 1).toUpperCase()}</div>
+          <EyeconMenu />
         </div>
       </div>
 
