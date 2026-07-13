@@ -274,16 +274,16 @@ export function McqCard(p: Props) {
               })}
             </ul>
 
-            {!checked && (
+            {/* No hint / submit line: a single-select card locks INSTANTLY on tap. Only
+               multi-select needs a control — its lone lock reticle; the qhead "Select all"
+               badge already tells the learner to pick more than one. */}
+            {!checked && card.qtype === "multi" && (
               <div className="flash-foot">
-                <span className="flash-hint">{card.qtype === "multi" ? "tap all that apply, then lock" : "tap to lock — no submit"}</span>
-                {card.qtype === "multi" && (
-                  <button type="button" aria-label="Lock in your answer"
-                    className={`flash-lock${selected.length ? " is-armed" : ""}`}
-                    onClick={(e) => fireLock(e.currentTarget.closest(".flash-card") as HTMLElement)}>
-                    <Icon.lock size={18} />
-                  </button>
-                )}
+                <button type="button" aria-label="Lock in your answer"
+                  className={`flash-lock${selected.length ? " is-armed" : ""}`}
+                  onClick={(e) => fireLock(e.currentTarget.closest(".flash-card") as HTMLElement)}>
+                  <Icon.lock size={18} />
+                </button>
               </div>
             )}
 

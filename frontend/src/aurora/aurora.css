@@ -2694,9 +2694,13 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 @keyframes flash-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* Option buttons — dark NEUTRAL by default (never red); ✓ bright green / ✗ bright red on lock. */
-.flash-options { display: flex; flex-direction: column; gap: 11px; list-style: none; padding: 20px 28px 4px; margin: 0; }
-.flash-option { display: flex; align-items: center; gap: 15px; width: 100%; text-align: left;
-  padding: 15px 18px; border-radius: 15px; cursor: pointer; position: relative; overflow: hidden;
+/* The list GROWS to fill the space between the question header and the power meter, and
+   the options share that height equally (flex:1 per row) — big arcade answer tiles that
+   leave no dead white space inside the card (user, 2026-07-12). */
+.flash-options { display: flex; flex-direction: column; flex: 1; gap: 12px; list-style: none; padding: 18px 26px 8px; margin: 0; }
+.flash-options > li { display: flex; flex: 1 1 0; min-height: 60px; }
+.flash-option { display: flex; align-items: center; gap: 16px; width: 100%; flex: 1; text-align: left;
+  padding: 16px 22px; border-radius: 16px; cursor: pointer; position: relative; overflow: hidden;
   color: var(--fc-ink); background: #242c37; border: 1.5px solid rgba(255,255,255,.09);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 4px 0 #10141a, 0 8px 18px -8px rgba(0,0,0,.55);
   opacity: 0; transform: translateY(10px); animation: flash-rise .5s ease forwards;
@@ -2711,10 +2715,10 @@ html[data-motion="reduce"] .fan-card { transition: none; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 0 #10141a, 0 12px 22px -8px rgba(0,0,0,.6); }
 .flash-option:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 #10141a; }
 .flash-option:disabled { cursor: default; }
-.flash-lamp { position: relative; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 8px;
-  display: grid; place-items: center; font: 900 15px var(--font-sans); color: #eef3f9;
+.flash-lamp { position: relative; flex: 0 0 auto; width: 38px; height: 38px; border-radius: 10px;
+  display: grid; place-items: center; font: 900 18px var(--font-sans); color: #eef3f9;
   background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); transition: all .18s ease; }
-.flash-otext { font: 700 16px/1.35 var(--font-sans); color: var(--fc-ink); }
+.flash-otext { font: 700 clamp(17px, 1.9vw, 20px)/1.35 var(--font-sans); color: var(--fc-ink); }
 .flash-option.is-picked { transform: translateX(3px); border-color: hsl(var(--flash-topic-hue) 88% 62%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 0 #10141a, 0 0 0 3px hsl(var(--flash-topic-hue) 88% 60% / .5); }
 .flash-option.is-correct { color: #052611; background: linear-gradient(180deg, var(--fc-green), var(--fc-green-d)); border-color: transparent;
@@ -2742,7 +2746,7 @@ html[data-motion="reduce"] .fan-card { transition: none; }
 .flash-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px;
   padding: 10px 28px 4px; min-height: 44px; }
 .flash-hint { font: 800 11px var(--font-sans); letter-spacing: .1em; text-transform: uppercase; color: #8a93a0; }
-.flash-lock { display: grid; place-items: center; flex: 0 0 auto; width: 48px; height: 48px; border-radius: 12px;
+.flash-lock { display: grid; place-items: center; flex: 0 0 auto; margin-left: auto; width: 48px; height: 48px; border-radius: 12px;
   border: 0; color: #6b7480; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
   cursor: not-allowed; transition: all .18s ease; }
 .flash-lock.is-armed { color: #241900; background: linear-gradient(180deg, #ffe36b, var(--fc-coin));
