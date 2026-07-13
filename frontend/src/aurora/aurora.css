@@ -927,10 +927,12 @@ html[data-motion="reduce"] .aurora-streakband-cta { animation: none !important; 
 .aurora-sub { font-size: 14.6px; color: var(--ink-2); margin: 6px 0 0; max-width: 50ch; line-height: 1.5; }
 
 /* ─────────────────── Cases + Atlas Map ─────────────────── */
-.aurora-cases { max-width: none; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
-.aurora-cases-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
-.aurora-cases-head-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.aurora-cases-head .aurora-h1 { margin: 2px 0 0; }
+.aurora-cases { max-width: none; margin: 0 auto; padding: clamp(14px, 2vw, 26px); display: flex; flex-direction: column; gap: 13px; }
+.aurora-cases-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px 18px; flex-wrap: wrap; }
+.aurora-cases-head-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.aurora-cases-head .aurora-h1 { margin: 1px 0 0; font-size: clamp(2.16rem, 3.8vw, 3rem); }
+/* OSCE selection reads bigger + denser (type-scale/density refine 2026-07-13). */
+.aurora-cases .aurora-eyebrow { font-size: 14.2px; margin-bottom: 3px; }
 .aurora-cases-head .aurora-h1 em { font-family: var(--font-serif, "Playfair Display", Georgia, serif); font-style: italic; font-weight: 400; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
 
 /* Topics — folded into one quiet popover trigger (no chip wall) */
@@ -951,11 +953,11 @@ html[data-motion="reduce"] .aurora-topic-menu { animation: none; }
 .aurora-topic-opt-count { font-family: var(--font-mono); font-size: 11.2px; font-weight: 600; opacity: 0.7; }
 
 /* Layout: eye atlas (left) + patient journey (right) */
-.aurora-cases-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.aurora-cases-map { position: sticky; top: 8px; display: flex; flex-direction: column; gap: 14px; }
+.aurora-cases-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.aurora-cases-map { position: sticky; top: 8px; display: flex; flex-direction: column; gap: 10px; }
 
 /* The Eye Atlas — sagittal cross-section on a lit-specimen plate */
-.aurora-atlas { display: flex; flex-direction: column; gap: 14px; }
+.aurora-atlas { display: flex; flex-direction: column; gap: 10px; }
 .aurora-atlas-plate {
   position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: var(--radius-xl); overflow: hidden;
   background: radial-gradient(120% 100% at 30% 20%, #161B3C 0%, #0C1024 52%, #05060F 100%);
@@ -970,9 +972,9 @@ html[data-motion="reduce"] .aurora-atlas-photo { animation: none; opacity: 1; }
 .aurora-atlas-plate[data-photo="true"] .aurora-atlas-svg { opacity: 0; }
 /* Vignette so overlaid pins/labels always read on the plate (above image, below pins) */
 .aurora-atlas-plate::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(5, 6, 15, 0.55) 100%); }
-.aurora-atlas-tag { position: absolute; top: 14px; left: 16px; z-index: 3; font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.42); }
+.aurora-atlas-tag { position: absolute; top: 14px; left: 16px; z-index: 3; font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.2em; color: rgba(255, 255, 255, 0.42); }
 .aurora-atlas-tag b { color: rgba(255, 255, 255, 0.7); font-weight: 600; }
-.aurora-atlas-axis { position: absolute; bottom: 14px; right: 16px; z-index: 3; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.34); }
+.aurora-atlas-axis { position: absolute; bottom: 14px; right: 16px; z-index: 3; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.34); }
 
 /* Soft focus glow behind the active region */
 .aurora-atlas-focus { position: absolute; z-index: 2; width: 120px; height: 120px; transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(155, 114, 220, 0.5), rgba(120, 110, 220, 0) 70%); animation: aurora-focus-pulse 2.6s ease-in-out infinite; }
@@ -986,14 +988,14 @@ html[data-motion="reduce"] .aurora-atlas-focus { animation: none; }
 .aurora-pin-dot { width: 19px; height: 19px; border-radius: 50%; background: rgba(255, 255, 255, 0.42); border: 2.5px solid rgba(255, 255, 255, 0.96); box-shadow: 0 0 0 7px rgba(8, 7, 18, 0.3), 0 2px 10px rgba(0, 0, 0, 0.55); transition: transform 0.2s, box-shadow 0.3s, background 0.2s; flex-shrink: 0; }
 /* Labels are visible by default now (not hover-only) so every eye part is clearly
    named and its patient count is on show — the pins read as real buttons (ricoe C3). */
-.aurora-pin-label { position: absolute; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.03em; color: #fff; white-space: nowrap; background: rgba(8, 7, 18, 0.82); padding: 4px 10px; border-radius: 8px; opacity: 0.92; transform: scale(1); transform-origin: center; transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); pointer-events: none; box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.7); }
+.aurora-pin-label { position: absolute; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 13.4px; letter-spacing: 0.03em; color: #fff; white-space: nowrap; background: rgba(8, 7, 18, 0.82); padding: 4px 10px; border-radius: 8px; opacity: 0.92; transform: scale(1); transform-origin: center; transition: opacity 0.18s ease, transform 0.18s ease, background 0.2s; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); pointer-events: none; box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.7); }
 .aurora-pin[data-side="up"] .aurora-pin-label { bottom: 24px; }
 .aurora-pin[data-side="down"] .aurora-pin-label { top: 24px; }
 .aurora-pin[data-side="right"] .aurora-pin-label { left: 24px; }
 .aurora-pin[data-side="left"] .aurora-pin-label { right: 24px; }
 .aurora-pin:hover .aurora-pin-dot, .aurora-pin:focus-visible .aurora-pin-dot { transform: scale(1.22); background: rgba(255, 255, 255, 0.78); }
 .aurora-pin:hover .aurora-pin-label, .aurora-pin:focus-visible .aurora-pin-label, .aurora-pin[data-active="true"] .aurora-pin-label { opacity: 1; transform: scale(1.05); }
-.aurora-pin-count { font-style: normal; font-weight: 700; font-size: 11px; line-height: 1; padding: 2px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); }
+.aurora-pin-count { font-style: normal; font-weight: 700; font-size: 12px; line-height: 1; padding: 2px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.22); }
 .aurora-pin[data-empty="true"] .aurora-pin-dot { opacity: 0.45; }
 .aurora-pin[data-active="true"] .aurora-pin-dot { background: transparent; border-color: #fff; box-shadow: 0 0 0 4px rgba(155, 114, 200, 0.35), 0 0 18px 4px rgba(120, 110, 220, 0.6); animation: aurora-pin-pulse 2.4s ease-in-out infinite; }
 .aurora-pin[data-active="true"] .aurora-pin-label { background: linear-gradient(100deg, rgba(66, 133, 244, 0.95), rgba(155, 114, 203, 0.95)); }
@@ -1009,8 +1011,8 @@ html[data-motion="reduce"] .aurora-pin[data-active="true"] .aurora-pin-dot { ani
    against the light page. Text updates per region. */
 .aurora-atlas-readout {
   position: relative; isolation: isolate; overflow: hidden;
-  display: flex; align-items: center; gap: clamp(14px, 1.8vw, 18px);
-  padding: clamp(16px, 2.2vw, 22px) clamp(18px, 2.4vw, 24px);
+  display: flex; align-items: center; gap: clamp(12px, 1.5vw, 16px);
+  padding: clamp(12px, 1.7vw, 17px) clamp(14px, 2vw, 20px);
   border: none; border-radius: var(--radius-xl); background: transparent;
   box-shadow: 0 22px 56px -26px rgba(98, 84, 230, 0.6);
 }
@@ -1033,8 +1035,8 @@ html[data-motion="reduce"] .aurora-pin[data-active="true"] .aurora-pin-dot { ani
 .aurora-atlas-readout-scope { position: relative; width: clamp(48px, 6vw, 58px); height: clamp(48px, 6vw, 58px); border-radius: 50%; flex-shrink: 0; overflow: hidden; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.10), 0 0 0 4px rgba(124, 92, 246, 0.5), 0 10px 22px -8px rgba(124, 92, 246, 0.7); }
 .aurora-scope-svg { display: block; width: 100%; height: 100%; object-fit: cover; }
 .aurora-atlas-readout-body { min-width: 0; }
-.aurora-atlas-readout-k { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 11.8px; letter-spacing: 0.16em; text-transform: uppercase; color: #7FE6FF; font-weight: 600; }
-.aurora-atlas-readout-text { font-size: clamp(16.8px, 1.55vw, 19px); color: rgba(236, 238, 251, 0.88); font-weight: 500; line-height: 1.5; margin: 4px 0 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35); }
+.aurora-atlas-readout-k { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: #7FE6FF; font-weight: 600; }
+.aurora-atlas-readout-text { font-size: clamp(18.5px, 1.8vw, 22px); color: rgba(236, 238, 251, 0.88); font-weight: 500; line-height: 1.45; margin: 4px 0 0; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35); }
 .aurora-readout-arrow { display: inline-block; color: #7FE6FF; animation: aurora-readout-nudge 1.8s ease-in-out infinite; }
 @keyframes aurora-readout-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
 html[data-motion="reduce"] .aurora-atlas-readout::before, html[data-motion="reduce"] .aurora-readout-arrow { animation: none; }
@@ -1042,43 +1044,43 @@ html[data-motion="reduce"] .aurora-atlas-readout::before, html[data-motion="redu
 
 /* Patient journey */
 .aurora-cases-list { min-width: 0; }
-.aurora-journey-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
-.aurora-journey-title { font-size: 16.8px; font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
-.aurora-journey-sub { font-family: var(--font-mono); font-size: 12.3px; color: var(--ink-3); }
-.aurora-region-reset { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 13px; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); font-size: 13.4px; font-weight: 600; cursor: pointer; }
+.aurora-journey-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.aurora-journey-title { font-size: 19.5px; font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
+.aurora-journey-sub { font-family: var(--font-mono); font-size: 14px; color: var(--ink-3); }
+.aurora-region-reset { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 13px; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(100deg, rgba(66, 133, 244, 0.14), rgba(155, 114, 203, 0.14)); color: var(--on-purple-2); font-size: 15px; font-weight: 600; cursor: pointer; }
 .aurora-region-reset > span:last-child { opacity: 0.65; }
-.aurora-region-reset-n { font-family: var(--font-mono); font-size: 11.2px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.6); color: var(--on-purple-2); }
+.aurora-region-reset-n { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.6); color: var(--on-purple-2); }
 .aurora-region-reset:hover { background: linear-gradient(100deg, rgba(66, 133, 244, 0.22), rgba(155, 114, 203, 0.22)); }
 
 .aurora-journey { position: relative; padding-left: 30px; }
 .aurora-spine { position: absolute; left: 10px; top: 6px; bottom: 12px; width: 2px; border-radius: 2px; background: linear-gradient(180deg, rgba(66, 133, 244, 0.5), rgba(155, 114, 203, 0.5), rgba(217, 101, 112, 0.32)); }
 
-.aurora-tier-group { position: relative; margin-bottom: 8px; }
-.aurora-tier { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px -30px; }
+.aurora-tier-group { position: relative; margin-bottom: 5px; }
+.aurora-tier { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px -30px; }
 .aurora-tier-node { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; background: var(--canvas); border: 1.5px solid var(--hairline); position: relative; z-index: 1; }
 .aurora-tier-group:first-of-type .aurora-tier-node { border: none; background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); box-shadow: 0 0 0 4px rgba(155, 114, 203, 0.16); }
-.aurora-tier-label { font-family: var(--font-mono); font-size: 12.3px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
-.aurora-tier-hint { font-size: 12.9px; color: var(--ink-3); }
+.aurora-tier-label { font-family: var(--font-mono); font-size: 14px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); }
+.aurora-tier-hint { font-size: 14.5px; color: var(--ink-3); }
 
 /* Patient node — keeps the .aurora-case hook the case-list test relies on */
-.aurora-case { position: relative; display: flex; gap: 14px; align-items: flex-start; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 12px; cursor: pointer; transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s; }
-.aurora-case::before { content: ""; position: absolute; left: -25px; top: 22px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid rgba(31, 31, 31, 0.18); }
+.aurora-case { position: relative; display: flex; gap: 13px; align-items: flex-start; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 12px 15px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s; }
+.aurora-case::before { content: ""; position: absolute; left: -25px; top: 20px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid rgba(31, 31, 31, 0.18); }
 .aurora-case:not(.aurora-case--locked):hover { border-color: rgba(155, 114, 200, 0.42); transform: translateY(-2px); box-shadow: 0 16px 38px -20px rgba(31, 31, 31, 0.3); }
 .aurora-case:not(.aurora-case--locked):hover::before { border-color: transparent; background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); box-shadow: 0 0 0 3px rgba(155, 114, 203, 0.2); }
-.aurora-case-avatar { width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; font-weight: 700; font-size: 16.8px; letter-spacing: -0.02em; color: #fff; }
+.aurora-case-avatar { width: 46px; height: 46px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center; font-weight: 700; font-size: 18.5px; letter-spacing: -0.02em; color: #fff; }
 .aurora-case-avatar--live { background: var(--grad-aurora, linear-gradient(135deg, #4285f4, #9b72cb)); }
 .aurora-case--locked .aurora-case-avatar { background: rgba(31, 31, 31, 0.14); color: var(--ink-3); }
 .aurora-case-body { min-width: 0; flex: 1; }
-.aurora-case-name { font-size: 16.8px; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
+.aurora-case-name { font-size: 19px; font-weight: 600; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
 .aurora-case-name span { color: var(--ink-3); font-weight: 500; }
-.aurora-case-title { font-size: 16.2px; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.3; }
-.aurora-case-cc { font-size: 14px; color: var(--ink-2); font-style: italic; margin: 3px 0 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.aurora-case-note { font-size: 13.4px; color: var(--ink-3); margin: 3px 0 0; }
-.aurora-case-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-.aurora-case-chip { font-family: var(--font-mono); font-size: 10.1px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); background: rgba(155, 114, 203, 0.1); padding: 3px 8px; border-radius: 999px; }
-.aurora-case-time { font-family: var(--font-mono); font-size: 11.8px; color: var(--ink-3); }
-.aurora-case-start { margin-left: auto; font-size: 14px; font-weight: 600; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-.aurora-case-lock { margin-left: auto; font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-case-title { font-size: 18px; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.3; }
+.aurora-case-cc { font-size: 15.6px; color: var(--ink-2); font-style: italic; margin: 3px 0 0; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.aurora-case-note { font-size: 15px; color: var(--ink-3); margin: 3px 0 0; }
+.aurora-case-foot { display: flex; align-items: center; gap: 10px; margin-top: 7px; flex-wrap: wrap; }
+.aurora-case-chip { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); background: rgba(155, 114, 203, 0.1); padding: 3px 8px; border-radius: 999px; }
+.aurora-case-time { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); }
+.aurora-case-start { margin-left: auto; font-size: 15.6px; font-weight: 600; background: var(--grad-aurora, linear-gradient(100deg, #4285F4, #9B72CB, #D96570)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+.aurora-case-lock { margin-left: auto; font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
 .aurora-case--locked { cursor: default; border-style: dashed; opacity: 0.6; }
 .aurora-case--locked::before { border-style: dashed; }
 .aurora-case--skeleton { display: block; height: 76px; background: linear-gradient(100deg, rgba(31, 31, 31, 0.04), rgba(31, 31, 31, 0.07), rgba(31, 31, 31, 0.04)); border: none; margin-bottom: 12px; pointer-events: none; }
@@ -1123,7 +1125,9 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 @keyframes station-shimmer { 0% { transform: translateX(-120%); } 100% { transform: translateX(240%); } }
 @keyframes station-bargrow { from { width: 0; } }
 
-.aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(14px, 2.2vw, 32px); display: flex; flex-direction: column; gap: 16px; height: 100%; min-height: 0; overflow: hidden; }
+.aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(10px, 1.6vw, 20px); display: flex; flex-direction: column; gap: 11px; height: 100%; min-height: 0; overflow: hidden; }
+/* OSCE activity reads bigger + denser (type-scale/density refine 2026-07-13). */
+.aurora-station .aurora-eyebrow { font-size: 13.4px; margin-bottom: 3px; }
 /* RouteReveal wraps every page in .aurora-page-enter, which is height:auto by
    default and severs the station's height:100% chain — collapsing it to content
    height so the checklist + consult thread scroll as one. Give the wrapper a
@@ -1179,19 +1183,19 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 html[data-motion="reduce"] .rotate-gate-phone { animation: none; transform: rotate(-90deg); }
 html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 
-.aurora-station-head { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
-.aurora-station-back { border: 1px solid var(--hairline); background: rgba(255,255,255,.7); backdrop-filter: blur(6px); border-radius: 999px; padding: 6px 14px; font-size: 14.6px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.aurora-station-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.aurora-station-back { border: 1px solid var(--hairline); background: rgba(255,255,255,.7); backdrop-filter: blur(6px); border-radius: 999px; padding: 6px 14px; font-size: 15.4px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
 .aurora-station-back:hover { color: var(--ink); }
-.aurora-station-title { font-size: clamp(20.2px, 2.4vw, 26.9px); font-weight: 700; letter-spacing: -0.02em; margin: 6px 0 0; color: var(--ink); }
+.aurora-station-title { font-size: clamp(22.4px, 2.7vw, 30px); font-weight: 700; letter-spacing: -0.02em; margin: 4px 0 0; color: var(--ink); }
 .aurora-station-title em { font-style: normal; background: linear-gradient(100deg, #2C6BE0, #9B72CB, #D96570, #9B72CB, #2C6BE0); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: station-rail 5s linear infinite; }
-.aurora-station-hud { display: flex; align-items: center; gap: 8px; font-size: 13.4px; color: var(--ink-2); flex-wrap: wrap; margin-top: 4px; }
+.aurora-station-hud { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-2); flex-wrap: wrap; margin-top: 3px; }
 .aurora-station-hud-sep { color: var(--ink-3); }
-.aurora-station-tier { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-station-tier { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 
-.aurora-station-grid { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 16px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
+.aurora-station-grid { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 12px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
 .aurora-station-grid[data-eyebot="true"] { grid-template-columns: 320px minmax(0,1fr) minmax(0,1fr); }
 
-.aurora-station-card { position: relative; border-radius: 16px; padding: 16px; background: rgba(255,255,255,.62); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 18px 50px -28px rgba(40,30,80,.45); }
+.aurora-station-card { position: relative; border-radius: 16px; padding: 13px; background: rgba(255,255,255,.62); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 18px 50px -28px rgba(40,30,80,.45); }
 .aurora-station-card::before { content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1.4px;
   background: linear-gradient(135deg, rgba(66,133,244,.7), rgba(155,114,203,.6), rgba(217,101,112,.7));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
@@ -1199,55 +1203,55 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 /* Only the checklist scrolls; patient header + submit button stay pinned. */
 .aurora-station-clscroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px; }
 
-.aurora-station-pt { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.aurora-station-pt { display: flex; gap: 11px; align-items: center; margin-bottom: 10px; }
 /* Only the gradient ring rotates (a ::before behind the face); the patient photo itself
    stays perfectly still — a spinning face reads as broken (Caleb, 2026-07-07). */
 .aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; }
 .aurora-station-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
 .aurora-station-av { position: relative; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 30%; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
-.aurora-station-nm { font-size: 17.9px; font-weight: 700; color: var(--ink); }
-.aurora-station-mt { font-size: 12.3px; color: var(--ink-2); margin-top: 2px; }
-.aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: 11px; padding: 9px 12px; font-size: 13.4px; color: var(--on-purple); margin-bottom: 14px; line-height: 1.5; font-style: italic; }
-.aurora-station-cl-label { font-size: 11.2px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 10px; }
+.aurora-station-nm { font-size: 19.5px; font-weight: 700; color: var(--ink); }
+.aurora-station-mt { font-size: 13.6px; color: var(--ink-2); margin-top: 2px; }
+.aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: 11px; padding: 9px 12px; font-size: 15px; color: var(--on-purple); margin-bottom: 11px; line-height: 1.45; font-style: italic; }
+.aurora-station-cl-label { font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 7px; }
 
-.aurora-station-rail { display: flex; gap: 8px; margin-bottom: 14px; }
-.aurora-station-rl { flex: 1; text-align: center; font-size: 11.2px; padding: 9px 4px; border-radius: 12px; color: #fff; }
-.aurora-station-rl b { display: block; font-size: 12.3px; margin-bottom: 2px; }
+.aurora-station-rail { display: flex; gap: 8px; margin-bottom: 10px; }
+.aurora-station-rl { flex: 1; text-align: center; font-size: 12.5px; padding: 8px 4px; border-radius: 12px; color: #fff; }
+.aurora-station-rl b { display: block; font-size: 13.6px; margin-bottom: 2px; }
 .aurora-station-rl.is-done { background: linear-gradient(135deg, #34A853, #2A8C43); }
 .aurora-station-rl.is-now { background: linear-gradient(100deg, #4285F4, #9B72CB, #D96570, #9B72CB, #4285F4); background-size: 200% auto; animation: station-rail 4s linear infinite; box-shadow: 0 6px 18px rgba(123,86,180,.4); }
 .aurora-station-rl.is-todo { background: rgba(255,255,255,.55); color: #6E6385; border: 1px solid rgba(120,90,170,.25); }
 .aurora-station-rl.is-todo b { color: var(--on-purple); }
 
-.aurora-station-phase { border-radius: 13px; padding: 9px 11px; margin-bottom: 8px; }
+.aurora-station-phase { border-radius: 13px; padding: 8px 10px; margin-bottom: 6px; }
 .aurora-station-phase.p1 { background: linear-gradient(135deg, rgba(66,133,244,.16), rgba(66,133,244,.05)); border: 1px solid rgba(66,133,244,.28); }
 .aurora-station-phase.p2 { background: linear-gradient(135deg, rgba(155,114,203,.18), rgba(155,114,203,.05)); border: 1px solid rgba(155,114,203,.3); }
 .aurora-station-phase.p3 { background: linear-gradient(135deg, rgba(217,101,112,.15), rgba(217,101,112,.05)); border: 1px solid rgba(217,101,112,.28); }
-.aurora-station-phase-h { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.aurora-station-phase-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .aurora-station-node { width: 13px; height: 13px; border-radius: 50%; flex: none; background: #fff; }
 .aurora-station-phase.p1 .aurora-station-node { border: 2.5px solid #4285F4; }
 .aurora-station-phase.p2 .aurora-station-node { border: 2.5px solid #9B72CB; }
 .aurora-station-phase.p3 .aurora-station-node { border: 2.5px solid #D96570; }
 .aurora-station-phase.is-now .aurora-station-node { animation: station-node 1.8s ease-in-out infinite; }
 .aurora-station-phase.is-done .aurora-station-node { background: #34A853; border-color: #34A853; }
-.aurora-station-phase-t { font-size: 13.4px; font-weight: 700; }
+.aurora-station-phase-t { font-size: 15px; font-weight: 700; }
 .aurora-station-phase.p1 .aurora-station-phase-t { color: var(--on-blue-2); }
 .aurora-station-phase.p2 .aurora-station-phase-t { color: var(--on-purple-2); }
 .aurora-station-phase.p3 .aurora-station-phase-t { color: var(--on-rose); }
-.aurora-station-phase-n { margin-left: auto; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.aurora-station-phase-n { margin-left: auto; font-family: var(--font-mono); font-size: 12.6px; font-weight: 600; color: var(--ink-3); }
 .aurora-station-phase.p1 .aurora-station-phase-n { color: var(--on-blue-2); }
 .aurora-station-phase.p2 .aurora-station-phase-n { color: var(--on-purple-2); }
 .aurora-station-phase.p3 .aurora-station-phase-n { color: var(--on-rose); }
 
-.aurora-station-step { display: flex; gap: 9px; align-items: flex-start; text-align: left; width: 100%; background: none; border: none; cursor: pointer; font-size: 13.4px; padding: 6px 6px; border-radius: 9px; color: #3a3450; line-height: 1.42; transition: background .14s ease; }
+.aurora-station-step { display: flex; gap: 8px; align-items: flex-start; text-align: left; width: 100%; background: none; border: none; cursor: pointer; font-size: 15px; padding: 5px 6px; border-radius: 9px; color: #3a3450; line-height: 1.4; transition: background .14s ease; }
 .aurora-station-step:hover { background: rgba(255,255,255,.45); }
-.aurora-station-step .bx { width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid rgba(90,75,122,.4); flex: none; margin-top: 0; font-size: 12.6px; text-align: center; line-height: 16px; color: transparent; background: rgba(255,255,255,.6); }
+.aurora-station-step .bx { width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid rgba(90,75,122,.4); flex: none; margin-top: 1px; font-size: 13px; text-align: center; line-height: 17px; color: transparent; background: rgba(255,255,255,.6); }
 .aurora-station-step[data-ticked="true"] { color: var(--on-green-2); font-weight: 500; }
 .aurora-station-step[data-ticked="true"] .bx { background: linear-gradient(135deg, #34A853, #2A8C43); border-color: #2A8C43; color: #fff; animation: station-tickpop .45s ease both; }
 /* partial — a merged row where some (not all) of its actions are done */
 .aurora-station-step[data-ticked="partial"] { color: var(--on-purple-2); font-weight: 500; }
 .aurora-station-step[data-ticked="partial"] .bx { background: linear-gradient(135deg, rgba(155,114,203,.6), rgba(155,114,203,.32)); border-color: rgba(155,114,203,.65); color: #fff; }
-.aurora-station-step .crit { font-size: 9px; color: #fff; background: var(--on-rose-2); border-radius: 4px; padding: 1px 5px; margin-left: auto; flex: none; align-self: center; }
-.aurora-station-step .au { font-size: 9px; color: var(--on-green-2); margin-left: 6px; flex: none; align-self: center; white-space: nowrap; }
+.aurora-station-step .crit { font-size: 10px; color: #fff; background: var(--on-rose-2); border-radius: 4px; padding: 1px 5px; margin-left: auto; flex: none; align-self: center; }
+.aurora-station-step .au { font-size: 10.5px; color: var(--on-green-2); margin-left: 6px; flex: none; align-self: center; white-space: nowrap; }
 .aurora-station-step[data-current="true"] { background: rgba(91,91,255,.07); box-shadow: inset 0 0 0 1.5px rgba(91,91,255,.32); }
 .aurora-station-step[data-current="true"] .bx { border-color: var(--g-blue); animation: station-currentpulse 1.9s ease-in-out infinite; }
 .aurora-station-step[data-locked="true"] { color: var(--ink-3); opacity: .55; cursor: not-allowed; }
@@ -1255,44 +1259,44 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-step[data-locked="true"] .bx { border-style: dashed; background: rgba(255,255,255,.32); color: var(--ink-3); font-size: 10px; line-height: 15px; }
 .aurora-station-step[data-locked="true"] .crit { opacity: .5; }
 @keyframes station-currentpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(91,91,255,.30); } 50% { box-shadow: 0 0 0 4px rgba(91,91,255,0); } }
-.aurora-station-cl-help { margin: 1px 2px 9px; font-size: 11px; line-height: 1.5; color: var(--ink-3); }
+.aurora-station-cl-help { margin: 1px 2px 7px; font-size: 12.5px; line-height: 1.45; color: var(--ink-3); }
 /* Quiet helper line under the checklist — explains the auto-tick + manual tap. */
-.aurora-station-cl-legend { margin: 10px 2px 2px; font-size: 11px; line-height: 1.5; color: var(--ink-3); }
-.aurora-station-cl-legend .au { font-size: 10px; color: var(--on-green-2); font-weight: 700; }
+.aurora-station-cl-legend { margin: 8px 2px 2px; font-size: 12.5px; line-height: 1.45; color: var(--ink-3); }
+.aurora-station-cl-legend .au { font-size: 11.5px; color: var(--on-green-2); font-weight: 700; }
 
 .aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
 /* The consult thread is the only scrolling region on the right — the exam tray and
    composer stay pinned at the bottom so the chat box never drifts out of view. */
-.aurora-station-thread { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
-.aurora-station-hint { text-align: center; padding: 36px 0; color: var(--ink-2); font-size: 14.6px; }
-.aurora-station-bubble { border-radius: 13px; padding: 9px 13px; font-size: 14.6px; max-width: 86%; line-height: 1.5; animation: station-revealin .4s ease both; }
-.aurora-station-bubble .who { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 2px; }
+.aurora-station-thread { display: flex; flex-direction: column; gap: 7px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
+.aurora-station-hint { text-align: center; padding: 24px 0; color: var(--ink-2); font-size: 15.6px; line-height: 1.5; }
+.aurora-station-bubble { border-radius: 13px; padding: 10px 14px; font-size: 16px; max-width: 86%; line-height: 1.5; animation: station-revealin .4s ease both; }
+.aurora-station-bubble .who { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 2px; }
 .aurora-station-bubble.me { background: linear-gradient(135deg, #4285F4, #6A8EF0); color: #fff; align-self: flex-end; }
 .aurora-station-bubble.me .who { color: rgba(255,255,255,.82); }
 .aurora-station-bubble.pt { background: rgba(255,255,255,.78); border: 1px solid rgba(120,90,170,.18); color: var(--ink); align-self: flex-start; }
 .aurora-station-reveal { position: relative; overflow: hidden; border-radius: 13px; padding: 11px 14px; color: #fff; align-self: stretch;
   background: linear-gradient(120deg, #34A853, #2C8E76, #4285F4); background-size: 180% auto; animation: station-revealin .5s ease both; box-shadow: 0 8px 22px rgba(45,140,90,.32); }
 .aurora-station-reveal::after { content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); animation: station-shimmer 2.8s ease-in-out infinite; }
-.aurora-station-reveal .rl2 { font-size: 10.1px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.85); }
-.aurora-station-reveal .v { font-size: 17.9px; font-weight: 700; margin-top: 2px; }
+.aurora-station-reveal .rl2 { font-size: 11.4px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.85); }
+.aurora-station-reveal .v { font-size: 19px; font-weight: 700; margin-top: 2px; }
 
-.aurora-station-tray { border-top: 1px dashed rgba(120,90,170,.3); margin-top: 12px; padding-top: 10px; }
-.aurora-station-tray-label { font-size: 11.2px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 7px; }
-.aurora-station-act { display: inline-flex; align-items: center; gap: 5px; font-size: 12.3px; padding: 6px 13px; border-radius: 18px; margin: 0 6px 6px 0; color: #fff; font-weight: 600; border: none; cursor: pointer; background: linear-gradient(135deg, #4285F4, #9B72CB); box-shadow: 0 4px 12px rgba(123,86,180,.3); }
+.aurora-station-tray { border-top: 1px dashed rgba(120,90,170,.3); margin-top: 9px; padding-top: 8px; }
+.aurora-station-tray-label { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 6px; }
+.aurora-station-act { display: inline-flex; align-items: center; gap: 5px; font-size: 13.6px; padding: 6px 13px; border-radius: 18px; margin: 0 6px 6px 0; color: #fff; font-weight: 600; border: none; cursor: pointer; background: linear-gradient(135deg, #4285F4, #9B72CB); box-shadow: 0 4px 12px rgba(123,86,180,.3); }
 .aurora-station-act:nth-child(even) { background: linear-gradient(135deg, #9B72CB, #B98AE0); }
 .aurora-station-act.is-used { background: rgba(52,168,83,.16); color: var(--on-green-2); border: 1px solid rgba(52,168,83,.45); box-shadow: none; cursor: default; }
 
-.aurora-station-composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 12px; }
-.aurora-station-composer-input { flex: 1; border: 1px solid rgba(120,90,170,.25); border-radius: 14px; padding: 11px 15px; color: var(--ink); font-size: 15.7px; font-family: var(--font-sans); background: rgba(255,255,255,.7); resize: none; outline: none; line-height: 1.5; }
+.aurora-station-composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 9px; }
+.aurora-station-composer-input { flex: 1; border: 1px solid rgba(120,90,170,.25); border-radius: 14px; padding: 11px 15px; color: var(--ink); font-size: 16.5px; font-family: var(--font-sans); background: rgba(255,255,255,.7); resize: none; outline: none; line-height: 1.5; }
 .aurora-station-composer-input:focus-visible { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(66,133,244,.16); }
 .aurora-station-composer-send { width: 42px; height: 42px; flex: none; border: none; border-radius: 14px; display: grid; place-items: center; cursor: pointer; color: #fff; background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); }
 .aurora-station-composer-send:disabled { opacity: .45; cursor: not-allowed; }
 
 .aurora-station-form { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,.6); border: 1px solid rgba(120,90,170,.2); }
-.aurora-station-form-hint { font-size: 12.3px; line-height: 1.45; color: var(--on-purple-2); background: rgba(155,114,203,.1); border-radius: 9px; padding: 8px 10px; margin: 0; }
-.aurora-station-warn { font-size: 13.4px; color: var(--on-rose); }
-.aurora-station-submit-toggle { margin-top: 12px; width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 13.4px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
-.aurora-station-submit-go { margin-top: 4px; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 14.6px; font-weight: 700; cursor: pointer; }
+.aurora-station-form-hint { font-size: 14px; line-height: 1.45; color: var(--on-purple-2); background: rgba(155,114,203,.1); border-radius: 9px; padding: 8px 10px; margin: 0; }
+.aurora-station-warn { font-size: 15px; color: var(--on-rose); }
+.aurora-station-submit-toggle { margin-top: 10px; width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+.aurora-station-submit-go { margin-top: 4px; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15.6px; font-weight: 700; cursor: pointer; }
 .aurora-station-submit-go:disabled { opacity: .5; cursor: not-allowed; }
 
 .aurora-station-result { margin-top: 14px; }
@@ -1320,7 +1324,7 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-review-row[data-done="false"] .mk { color: var(--on-rose); }
 .aurora-station-review-note { display: block; font-size: 12.3px; color: var(--ink-3); margin-top: 2px; }
 .aurora-station-review-clear { margin-top: 14px; font-size: 13.8px; font-weight: 600; color: var(--on-green-2); }
-.aurora-station-result-actions { display: flex; gap: 10px; margin-top: 18px; }
+.aurora-station-result-actions { display: flex; gap: 10px; margin-top: 14px; }
 
 .aurora-station-error { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 50vh; color: var(--ink-2); }
 .aurora-station-error button { color: var(--on-blue-2); font-weight: 600; background: none; border: none; cursor: pointer; }
@@ -1362,13 +1366,13 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-station-main { min-width: 0; }
 
 /* shared slim pane header */
-.aurora-pane-head { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; padding-bottom: 9px; border-bottom: 1px solid rgba(120,90,170,.16); }
-.aurora-pane-dot { width: 30px; height: 30px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.aurora-pane-dot svg { width: 17px; height: 17px; }
+.aurora-pane-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(120,90,170,.16); }
+.aurora-pane-dot { width: 32px; height: 32px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.aurora-pane-dot svg { width: 18px; height: 18px; }
 .aurora-pane-face { overflow: hidden; }
 .aurora-pane-face img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; border-radius: 50%; display: block; }
-.aurora-pane-nm { font-size: 14.6px; font-weight: 700; color: var(--ink); }
-.aurora-pane-mt { font-size: 11px; color: var(--ink-2); margin-top: 1px; }
+.aurora-pane-nm { font-size: 16px; font-weight: 700; color: var(--ink); }
+.aurora-pane-mt { font-size: 12.5px; color: var(--ink-2); margin-top: 1px; }
 .aurora-station-bubble.bot { background: rgba(66,133,244,.08); border: 1px solid rgba(66,133,244,.22); color: var(--ink); align-self: flex-start; }
 .aurora-station-bubble.bot .who { color: #185FA5; }
 
@@ -1380,19 +1384,19 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-grade[data-tone="ok"] { border-left-color: #d98a00; background: rgba(217,138,0,.07); }
 .aurora-grade[data-tone="low"] { border-left-color: #e2603a; background: rgba(226,96,58,.07); }
 .aurora-grade-head { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
-.aurora-grade-badge { font-size: 10.4px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+.aurora-grade-badge { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
   padding: 3px 9px; border-radius: 999px; color: #fff; background: #185FA5; white-space: nowrap; }
 .aurora-grade[data-tone="great"] .aurora-grade-badge { background: #16a34a; }
 .aurora-grade[data-tone="ok"] .aurora-grade-badge { background: #d98a00; }
 .aurora-grade[data-tone="low"] .aurora-grade-badge { background: #e2603a; }
-.aurora-grade-tip { font-size: 12.6px; color: var(--ink); font-weight: 600; }
+.aurora-grade-tip { font-size: 14px; color: var(--ink); font-weight: 600; }
 .aurora-grade-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-.aurora-grade-list li { display: flex; gap: 7px; font-size: 12.2px; color: var(--ink-2); line-height: 1.35; }
+.aurora-grade-list li { display: flex; gap: 7px; font-size: 13.5px; color: var(--ink-2); line-height: 1.35; }
 .aurora-grade-list li span { font-weight: 800; flex: none; }
 .aurora-grade-list.is-covered li span { color: #16a34a; }
 .aurora-grade-list.is-missing li { color: var(--ink); }
 .aurora-grade-list.is-missing li span { color: #b06a00; }
-.aurora-grade-model { margin: 9px 0 0; font-size: 11.4px; color: var(--ink-2); line-height: 1.4;
+.aurora-grade-model { margin: 9px 0 0; font-size: 13px; color: var(--ink-2); line-height: 1.4;
   padding-top: 8px; border-top: 1px dashed rgba(66,133,244,.22); }
 .aurora-grade-model b { color: var(--ink); }
 html[data-motion="reduce"] .aurora-grade { animation: none !important; }
@@ -3056,7 +3060,7 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 
 /* ── Station-100 debrief (renders on the dark night consult pane) ── */
 .aurora-s100-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
-.aurora-s100-verdict { font-size:1.35rem; font-weight:650; letter-spacing:-.01em; color:var(--ink); }
+.aurora-s100-verdict { font-size:1.5rem; font-weight:650; letter-spacing:-.01em; color:var(--ink); }
 .aurora-s100-score { font-size:2.9rem; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink); }
 .aurora-s100-score small { font-size:1rem; font-weight:500; opacity:.5; margin-left:2px; }
 .aurora-station-result[data-tone="great"] .aurora-s100-score,
@@ -3074,31 +3078,31 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-result[data-tone="ok"] .aurora-s100-fill { color:#eab44a; }
 .aurora-station-result[data-tone="low"] .aurora-s100-fill { color:#f0876c; }
 .aurora-s100-passline { position:absolute; top:-3px; left:60%; width:2px; height:14px; background:rgba(255,255,255,.5); }
-.aurora-s100-meter-cap { font-size:.74rem; color:var(--ink-3); margin:0 0 16px; }
+.aurora-s100-meter-cap { font-size:.84rem; color:var(--ink-3); margin:0 0 13px; }
 
-.aurora-s100-safety { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; font-size:.86rem; margin-bottom:18px; }
+.aurora-s100-safety { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; font-size:.96rem; margin-bottom:14px; }
 .aurora-s100-safety.is-safe { background:rgba(52,168,83,.16); color:var(--on-green); }
 .aurora-s100-safety.is-flag { background:rgba(217,101,112,.18); color:var(--on-rose); }
 
-.aurora-s100-comps { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px; }
-.aurora-s100-comp { background:var(--paper); border:1px solid var(--hairline); border-radius:12px; padding:12px 14px; }
-.aurora-s100-comp-top { display:flex; justify-content:space-between; align-items:baseline; font-size:.82rem; color:var(--ink-2); }
-.aurora-s100-comp-top b { font-size:1rem; font-weight:650; color:var(--ink); }
-.aurora-s100-comp-top small { font-size:.72rem; color:var(--ink-3); font-weight:500; }
-.aurora-s100-bar { height:5px; border-radius:999px; background:rgba(255,255,255,.12); margin:8px 0 6px; overflow:hidden; }
+.aurora-s100-comps { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:14px; }
+.aurora-s100-comp { background:var(--paper); border:1px solid var(--hairline); border-radius:12px; padding:11px 13px; }
+.aurora-s100-comp-top { display:flex; justify-content:space-between; align-items:baseline; font-size:.9rem; color:var(--ink-2); }
+.aurora-s100-comp-top b { font-size:1.1rem; font-weight:650; color:var(--ink); }
+.aurora-s100-comp-top small { font-size:.8rem; color:var(--ink-3); font-weight:500; }
+.aurora-s100-bar { height:5px; border-radius:999px; background:rgba(255,255,255,.12); margin:7px 0 5px; overflow:hidden; }
 .aurora-s100-bar > div { height:100%; border-radius:999px; background:#9b8cff; transition:width .9s cubic-bezier(.2,.8,.2,1); }
-.aurora-s100-comp-sub { font-size:.72rem; color:var(--ink-3); }
+.aurora-s100-comp-sub { font-size:.82rem; color:var(--ink-3); }
 
-.aurora-s100-coach { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:18px; }
-.aurora-s100-col-h { font-size:.8rem; font-weight:600; margin:0 0 8px; }
+.aurora-s100-coach { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:14px; }
+.aurora-s100-col-h { font-size:.9rem; font-weight:600; margin:0 0 7px; }
 .aurora-s100-col.is-good .aurora-s100-col-h { color:var(--on-green); }
 .aurora-s100-col.is-watch .aurora-s100-col-h { color:#f2c879; }
-.aurora-s100-col ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
-.aurora-s100-col li { font-size:.84rem; line-height:1.4; color:var(--ink-2); opacity:0; animation:s100rise .42s ease forwards; }
+.aurora-s100-col ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.aurora-s100-col li { font-size:.94rem; line-height:1.4; color:var(--ink-2); opacity:0; animation:s100rise .42s ease forwards; }
 @keyframes s100rise { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
 
 .aurora-s100-col.is-miss .aurora-s100-col-h { color:#7fb0ff; }
-.aurora-s100-focus { background:rgba(155,114,203,.18); color:var(--ink); border-radius:12px; padding:12px 14px; font-size:.84rem; margin-bottom:18px; }
+.aurora-s100-focus { background:rgba(155,114,203,.18); color:var(--ink); border-radius:12px; padding:11px 14px; font-size:.94rem; margin-bottom:14px; }
 .aurora-s100-focus b { font-weight:650; color:#c8bcff; }
 
 /* One-time session save row on the debrief — download the whole session, then it's spent. */
@@ -3115,12 +3119,12 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 /* ── Manual-procedures tray ──────────────────────────────────────────
    A quiet strip that blends into the composer cluster. (Renamed off
    `.aurora-palette` so it no longer inherits the command-palette modal box.) */
-.aurora-protray { margin-top:10px; }
-.aurora-protray-cap { display:block; font-size:.72rem; color:var(--ink-3); margin:0 0 6px 2px; }
+.aurora-protray { margin-top:9px; }
+.aurora-protray-cap { display:block; font-size:.82rem; color:var(--ink-3); margin:0 0 5px 2px; }
 /* Only genuine hands-on procedures reach this tray now, so it rarely overflows; a
    roomier cap + bottom padding means a row is never sheared off halfway (ricoe C1). */
 .aurora-protray-chips { display:flex; flex-wrap:wrap; gap:6px; max-height:210px; overflow-y:auto; padding-bottom:2px; }
-.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.78rem; padding:5px 11px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:normal; text-align:left; transition:transform .12s, background .2s, border-color .2s; }
+.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.87rem; padding:5px 12px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:normal; text-align:left; transition:transform .12s, background .2s, border-color .2s; }
 .aurora-pchip:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(155,114,203,.55); color:var(--ink); }
 .aurora-pchip .ic { font-weight:700; opacity:.55; }
 .aurora-pchip[data-quick="true"] .ic { opacity:.9; }
@@ -3135,10 +3139,10 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 
 /* Procedure mode — the composer's "type your technique" state. Shares the composer
    row so nothing new "appears"; a soft caption sits above it. */
-.aurora-station-proc { margin-top:10px; }
-.aurora-station-proc-cap { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:.8rem; color:var(--ink-2); margin:0 0 6px 2px; }
+.aurora-station-proc { margin-top:9px; }
+.aurora-station-proc-cap { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:.9rem; color:var(--ink-2); margin:0 0 6px 2px; }
 .aurora-station-proc-cap b { color:var(--ink); }
-.aurora-station-proc-x { border:none; background:none; color:var(--ink-3); font-size:.78rem; cursor:pointer; padding:2px 6px; border-radius:8px; }
+.aurora-station-proc-x { border:none; background:none; color:var(--ink-3); font-size:.86rem; cursor:pointer; padding:2px 6px; border-radius:8px; }
 .aurora-station-proc-x:hover { color:var(--ink); background:rgba(120,90,170,.1); }
 .aurora-station-proc-go { background:linear-gradient(135deg, #34A853, #4285F4) !important; }
 .aurora-station-proc-input { border-color:rgba(66,133,244,.4) !important; }
@@ -3161,7 +3165,7 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
   width:min(560px, calc(100vw - 36px)); max-height:88vh; overflow-y:auto;
   color:var(--ink);
   border:1px solid rgba(188,168,236,.2); border-radius:var(--radius-xl);
-  padding:24px;
+  padding:20px;
   background:
     radial-gradient(74% 58% at 90% 3%, rgba(155, 114, 203, 0.32), transparent 60%),
     radial-gradient(64% 52% at 3% 99%, rgba(66, 133, 244, 0.26), transparent 62%),
@@ -3186,7 +3190,7 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 /* handover form + inputs on the night card (mirrors the consult-pane overrides) */
 .aurora-station-overlay-card .aurora-station-form { margin-top:0; background:rgba(255,255,255,.04); border-color:rgba(188,168,236,.16); }
 .aurora-station-overlay-card .aurora-station-form-hint { background:rgba(155,114,203,.2); color:var(--on-purple-2); }
-.aurora-station-overlay-card .aurora-input { background:rgba(255,255,255,.05); border-color:rgba(188,168,236,.2); }
+.aurora-station-overlay-card .aurora-input { background:rgba(255,255,255,.05); border-color:rgba(188,168,236,.2); font-size:16.2px; }
 .aurora-station-overlay-card .aurora-input::placeholder { color:var(--ink-3); }
 .aurora-station-overlay-card .aurora-input:focus-visible { border-color:var(--g-purple); box-shadow:0 0 0 3px rgba(155,114,203,.22); }
 .aurora-station-overlay-card .aurora-station-result { margin-top:0; }
