@@ -18,6 +18,7 @@ import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
+import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
@@ -37,11 +38,43 @@ interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
   total_score: number; overall_feedback: string; critical_hit: number; critical_total: number;
-  score_100: number; verdict: string; thoroughness: number; technique: number; judgment: number;
-  safe: boolean; missed_critical: string[]; thoroughness_detail: string;
-  technique_applies: boolean; thoroughness_max: number; technique_max: number; judgment_max: number;
+  score_100: number; verdict: string;
+  consult_technique: number; consult_technique_max: number;
+  judgement_safety: number; judgement_safety_max: number;
+  safe: boolean; missed_critical: string[];
 }
-interface Coaching { highlights: string[]; watch_outs: string[]; focus: string }
+interface Coaching { highlights: string[]; did_wrong: string[]; missed: string[]; focus: string }
+
+// Decode one action-channel message into a readable {who, text} row for the export —
+// mirrors EyeBotPanel's reveal/grade parsing so the saved transcript reads like the pane.
+function decodeActionMessage(m: { role: "user" | "assistant"; content: string }): { who: string; text: string } {
+  if (m.role === "user" && m.content.startsWith(EXAM_PREFIX)) {
+    const inner = m.content.slice(EXAM_PREFIX.length, -1);
+    const arrow = inner.indexOf(" → ");
+    const label = arrow >= 0 ? inner.slice(0, arrow) : inner;
+    const body = arrow >= 0 ? inner.slice(arrow + 3) : "";
+    const sep = " · Result: ";
+    const cut = body.indexOf(sep);
+    const technique = cut >= 0 ? body.slice(0, cut) : body;
+    const resultText = cut >= 0 ? body.slice(cut + sep.length) : "";
+    let text = `Examination performed · ${label}`;
+    if (technique) text += ` · Technique: ${technique}`;
+    if (resultText) text += ` · Result: ${resultText}`;
+    return { who: "You", text };
+  }
+  if (m.role === "assistant" && m.content.startsWith(GRADE_PREFIX)) {
+    try {
+      const g = JSON.parse(m.content.slice(GRADE_PREFIX.length)) as ActionGrade;
+      const parts = [`Grade: ${g.verdict}`];
+      if (g.covered?.length) parts.push(`Covered: ${g.covered.join("; ")}`);
+      if (g.missing?.length) parts.push(`Still to include: ${g.missing.join("; ")}`);
+      if (g.model_answer) parts.push(`Model answer: ${g.model_answer}`);
+      if (g.coaching) parts.push(`Tip: ${g.coaching}`);
+      return { who: "EyeBot", text: parts.join(" · ") };
+    } catch { /* fall through to a plain bubble */ }
+  }
+  return { who: m.role === "user" ? "You" : "EyeBot", text: m.content };
+}
 
 export function CaseSession() {
   const caseId = useParams().caseId as string;
@@ -86,6 +119,9 @@ export function CaseSession() {
   const [result, setResult] = useState<DomainResult | null>(null);
   const [coaching, setCoaching] = useState<Coaching | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // One-time session save: a download the student gets exactly once from the debrief.
+  // Once saved (or once they leave the debrief) the ephemeral session can't be saved again.
+  const [saved, setSaved] = useState(false);
 
   const endRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
@@ -194,6 +230,13 @@ export function CaseSession() {
   const sendMessage = async (textArg?: string) => {
     const content = (textArg ?? input).trim();
     if (!content || sending || isStreaming || !caseId) return;
+    // Defense-in-depth: the composer is hidden while the next step is a hands-on procedure,
+    // so also refuse to send then — manual steps are performed in the action panel, not by chat.
+    const order = orderRef.current;
+    const gi = gateIndex(order, tickedRef.current);
+    const gate = gi < order.length ? order[gi] : null;
+    if (gate !== null && (station?.examination_actions ?? [])
+      .some((a) => a.kind === "manual" && a.satisfies_steps.includes(gate))) return;
     const updated: ChatMessage[] = [...messages, { role: "user", content, channel: "patient" }];
     setMessages(updated);
     if (textArg === undefined) setInput("");
@@ -348,6 +391,48 @@ export function CaseSession() {
     finally { setSubmitting(false); }
   };
 
+  // One-time session save: assemble the whole session (grade, AI summary, checklist, both
+  // transcripts) into one printable HTML file and download it. Client-side + idempotent —
+  // saved once, then the button is spent and the ephemeral session can't be saved again.
+  const handleSave = () => {
+    if (saved || !result || !caseInfo || !station) return;
+    const checklist = station.checklist.phases.flatMap((p) =>
+      p.steps.map((s) => ({ phase: p.name, action: s.action, critical: s.critical, done: ticked.has(s.step_number) })),
+    );
+    const patientTranscript = messages
+      .filter((m) => m.channel === "patient")
+      .map((m) => ({ who: m.role === "user" ? "Student" : caseInfo.patient.name, text: m.content }));
+    const actionTranscript = messages.filter((m) => m.channel === "eyebot").map(decodeActionMessage);
+    const data: SessionExportData = {
+      meta: {
+        caseId, caseTitle: caseInfo.title, patientName: caseInfo.patient.name,
+        patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: caseInfo.difficulty,
+        studentName: user?.fullName ?? "Student", dateStr: new Date().toLocaleString(),
+      },
+      score: {
+        score100: result.score_100, verdict: result.verdict, safe: result.safe,
+        missedCritical: result.missed_critical,
+        consult: result.consult_technique, consultMax: result.consult_technique_max,
+        judgement: result.judgement_safety, judgementMax: result.judgement_safety_max,
+      },
+      summary: {
+        highlights: coaching?.highlights ?? [], didWrong: coaching?.did_wrong ?? [],
+        missed: coaching?.missed ?? [], focus: coaching?.focus ?? "",
+      },
+      checklist, patientTranscript, actionTranscript,
+    };
+    const blob = new Blob([buildSessionHtml(data)], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `EyeBot-OSCE-${caseId}-${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    setSaved(true);
+  };
+
   const phases = station?.checklist.phases ?? [];
   const allSteps: StationStep[] = phases.flatMap((p) => p.steps);
   const criticalSteps = allSteps.filter((s) => s.critical);
@@ -358,6 +443,11 @@ export function CaseSession() {
   const eyebotMessages = messages.filter((m) => m.channel === "eyebot").map(({ role, content }) => ({ role, content }));
   const manualActions = (station?.examination_actions ?? []).filter((a) => a.kind === "manual");
   const hasEyebot = manualActions.length > 0;
+  // The patient chat locks while the next checklist step is a hands-on procedure, so the
+  // student performs it in the action panel (not by talking). Conversation-only cases (no
+  // manual actions) never lock.
+  const manualStepNumbers = new Set(manualActions.flatMap((a) => a.satisfies_steps));
+  const patientLocked = gateStep !== null && manualStepNumbers.has(gateStep);
 
   if (loadError) {
     return (
@@ -436,6 +526,7 @@ export function CaseSession() {
           sending={sending}
           isStreaming={isStreaming}
           hasResult={!!result}
+          locked={patientLocked}
           endRef={endRef}
           onInputChange={setInput}
           onSend={() => sendMessage()}
@@ -484,7 +575,7 @@ export function CaseSession() {
                 </button>
               </div>
             ) : (
-              <StationResult result={result} coaching={coaching} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />
+              <StationResult result={result} coaching={coaching} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />
             )}
           </div>
         </div>
@@ -499,22 +590,18 @@ export function CaseSession() {
 const VERDICT_TONE: Record<string, string> = {
   "Exam-ready": "great", "Solid": "good", "Developing": "ok", "Keep practising": "low",
 };
-function StationResult({ result, coaching, onMore, onDash }: {
-  result: DomainResult; coaching: Coaching | null; onMore: () => void; onDash: () => void;
+function StationResult({ result, coaching, saved, onSave, onMore, onDash }: {
+  result: DomainResult; coaching: Coaching | null; saved: boolean;
+  onSave: () => void; onMore: () => void; onDash: () => void;
 }) {
   const { ref, display } = useCountUp<HTMLSpanElement>(result.score_100, { format: (n) => String(Math.round(n)) });
   const tone = VERDICT_TONE[result.verdict] ?? "ok";
   const missedOne = result.missed_critical[0];
 
-  // Data-driven cards: Technique appears only when the case has manual procedures,
-  // and each denominator comes from the score so the 40/30/30 (manual) vs
-  // 50/–/50 (conversation-only) split renders correctly.
+  // The grade is exactly two AI schemes, each /50 — the checklist is no longer scored.
   const comps: { label: string; pts: number; max: number; sub: string }[] = [
-    { label: "OSCE checklist", pts: result.thoroughness, max: result.thoroughness_max, sub: `${result.thoroughness_detail} · the checklist counts toward your /100` },
-    ...(result.technique_applies
-      ? [{ label: "Technique", pts: result.technique, max: result.technique_max, sub: "How well you performed the procedure(s)" }]
-      : []),
-    { label: "Clinical judgement & safety", pts: result.judgment, max: result.judgment_max, sub: "Spotting the problem, triage, escalation & handover" },
+    { label: "Consultation & Technique", pts: result.consult_technique, max: result.consult_technique_max, sub: "History-taking and how well you performed the examination(s)" },
+    { label: "Clinical Judgement & Safety", pts: result.judgement_safety, max: result.judgement_safety_max, sub: "Spotting the problem, triage, escalation & handover" },
   ];
   return (
     <div className="aurora-station-result" data-tone={tone}>
@@ -549,22 +636,41 @@ function StationResult({ result, coaching, onMore, onDash }: {
         ))}
       </div>
 
-      {coaching && (coaching.highlights.length > 0 || coaching.watch_outs.length > 0) && (
-        <div className="aurora-s100-coach">
-          <div className="aurora-s100-col is-good">
-            <p className="aurora-s100-col-h">✓ What you did well</p>
-            <ul>{coaching.highlights.map((h, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{h}</li>)}</ul>
-          </div>
-          <div className="aurora-s100-col is-watch">
-            <p className="aurora-s100-col-h">⚠ To sharpen next time</p>
-            <ul>{coaching.watch_outs.map((w, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{w}</li>)}</ul>
-          </div>
+      {coaching && (coaching.highlights.length > 0 || coaching.did_wrong.length > 0 || coaching.missed.length > 0) && (
+        <div className="aurora-s100-coach" data-testid="ai-summary">
+          {coaching.highlights.length > 0 && (
+            <div className="aurora-s100-col is-good">
+              <p className="aurora-s100-col-h">✓ What you did well</p>
+              <ul>{coaching.highlights.map((h, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{h}</li>)}</ul>
+            </div>
+          )}
+          {coaching.did_wrong.length > 0 && (
+            <div className="aurora-s100-col is-watch">
+              <p className="aurora-s100-col-h">✗ Done wrong or only partially</p>
+              <ul>{coaching.did_wrong.map((w, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{w}</li>)}</ul>
+            </div>
+          )}
+          {coaching.missed.length > 0 && (
+            <div className="aurora-s100-col is-miss">
+              <p className="aurora-s100-col-h">○ Missed or lacking</p>
+              <ul>{coaching.missed.map((m, i) => <li key={i} style={{ animationDelay: `${i * 70}ms` }}>{m}</li>)}</ul>
+            </div>
+          )}
         </div>
       )}
 
       {coaching?.focus && (
         <div className="aurora-s100-focus"><b>One thing for next time:</b> {coaching.focus}</div>
       )}
+
+      <div className="aurora-station-save-row">
+        <button type="button" className="aurora-station-save" data-testid="save-session" onClick={onSave} disabled={saved}>
+          {saved ? "✓ Session saved" : "⬇ Save session record"}
+        </button>
+        <span className="aurora-station-save-note">
+          {saved ? "Downloaded — open it or print to PDF to keep." : "One-time save — you won't be able to save this session later."}
+        </span>
+      </div>
 
       <div className="aurora-station-result-actions">
         <button type="button" className="aurora-toggle" onClick={onMore}>More patients</button>

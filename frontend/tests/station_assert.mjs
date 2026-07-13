@@ -10,7 +10,7 @@ await ctx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
 }, user);
 await ctx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
@@ -54,14 +54,16 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
     history_score: 8, investigations_score: 7, diagnosis_score: 9, management_score: 6,
     history_feedback: "Thorough.", investigations_feedback: "Good.", diagnosis_feedback: "Correct.", management_feedback: "Reasonable.",
     total_score: 31, overall_feedback: "Strong consult.", critical_hit: 2, critical_total: 2,
-    score_100: 78, verdict: "Solid", thoroughness: 31, technique: 24, judgment: 23,
-    safe: true, missed_critical: [], thoroughness_detail: "5 of 6 steps · all 2 critical done",
-    technique_applies: true, thoroughness_max: 40, technique_max: 30, judgment_max: 30,
+    score_100: 78, verdict: "Solid",
+    consult_technique: 38, consult_technique_max: 50,
+    judgement_safety: 40, judgement_safety_max: 50,
+    safe: true, missed_critical: [],
   },
   cards: [], mock_mode: false,
   coaching: {
     highlights: ["Confirmed identity & consent early", "Clean NCT technique"],
-    watch_outs: ["Document the follow-up interval", "Check VA before drops"],
+    did_wrong: ["Only took one IOP reading", "Skipped the allergy check"],
+    missed: ["Did not advise the follow-up interval"],
     focus: "Always record a baseline acuity first.",
   },
   checklist_comparison: [], per_phase: [],
@@ -190,6 +192,12 @@ if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Measu
 if (await p.locator('.aurora-pchip[data-locked="true"]:has-text("Measure IOP")').count()) die("Measure IOP must unlock once steps 1-2 are done");
 ok("gating: current-row tap advances the gate in order and unlocks the next chip");
 
+// 5m. The patient chat LOCKS while the next step is a hands-on procedure (gate is now the
+//     manual Measure IOP) — the student must use the action panel, not chat.
+if (!(await p.locator('[data-testid="patient-lock"]').count())) die("patient chat must lock when the next step is manual");
+if (await p.locator('[data-testid="patient-pane"] .aurora-station-composer-input').count()) die("patient composer must be hidden while a manual step is the gate");
+ok("patient chat locks on manual steps (composer hidden — action panel only)");
+
 // 5a. clicking a manual chip opens procedure mode → typing technique + confirm logs
 //     the technique, reveals the finding, ticks the step, and marks the chip done.
 await p.locator('.aurora-pchip:has-text("Measure IOP")').click();
@@ -242,11 +250,27 @@ await p.locator('.aurora-station-overlay-card .aurora-station-submit-go').click(
 await p.waitForSelector(".aurora-station-overlay-card .aurora-station-result", { timeout: 10000 });
 if (!(await p.locator('.aurora-s100-score:has-text("/100")').count())) die("result must show score out of 100");
 if (!(await p.locator('.aurora-s100-verdict:has-text("Solid")').count())) die("result must show the verdict");
-if ((await p.locator(".aurora-s100-comp").count()) !== 3) die("result must show 3 component cards");
+if ((await p.locator(".aurora-s100-comp").count()) !== 2) die("result must show 2 component cards (checklist dropped)");
+if (await p.locator('.aurora-s100-comp:has-text("OSCE checklist")').count()) die("checklist must NOT be a scored component card");
+if (!(await p.locator('.aurora-s100-comp:has-text("Consultation & Technique")').count())) die("missing the Consultation & Technique scheme card");
+if (!(await p.locator('.aurora-s100-comp:has-text("Clinical Judgement & Safety")').count())) die("missing the Clinical Judgement & Safety scheme card");
 if (!(await p.locator('.aurora-s100-safety.is-safe').count())) die("result must show the safety badge");
-if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list highlights");
-if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list watch-outs");
-ok("handover + Station-100 debrief pop up in the overlay (Findings / Next steps)");
+if (!(await p.locator('[data-testid="ai-summary"]').count())) die("result must show the point-form AI summary");
+if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must list what you did well");
+if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list what was done wrong/partially");
+if (!(await p.locator('.aurora-s100-col.is-miss li').count())) die("result must list what was missed/lacking");
+ok("debrief: 2 scheme cards /50, safety badge, point-form AI summary (wrong + missed)");
+
+// 7a. One-time session save: the button downloads the record, then is spent (disabled).
+const saveBtn = p.locator('[data-testid="save-session"]');
+if (!(await saveBtn.count())) die("result must show the one-time save button");
+if (await saveBtn.isDisabled()) die("save button must be enabled before the first save");
+const dl = p.waitForEvent("download", { timeout: 8000 }).catch(() => null);
+await saveBtn.click();
+await dl;
+if (!(await saveBtn.isDisabled())) die("save button must be disabled after saving (one-time only)");
+if (!(await p.locator('[data-testid="save-session"]:has-text("saved")').count())) die("save button must read 'saved' once spent");
+ok("one-time session save downloads once, then the button is spent");
 
 // 7b. a case with NO manual actions renders the patient chat only — no EyeBot pane.
 await p.goto(base + "/cases/C002", { waitUntil: "domcontentloaded" });
