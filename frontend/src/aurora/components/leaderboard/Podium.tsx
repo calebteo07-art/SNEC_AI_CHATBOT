@@ -1,7 +1,7 @@
 /* Top-3 podium. Visual order is 2nd · 1st · 3rd so the champion sits center + tallest.
    Each pedestal carries the student's <Selena> headshot, Lumens, their XP-tier crest,
    and a streak flame. */
-import { Selena } from "@/aurora/avatar/Selena";
+import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { tierForXp } from "@/aurora/leaderboard/tiers";
 import { TierCrest, ChampionCrown } from "./crests";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
@@ -24,7 +24,7 @@ export function Podium({ podium }: { podium: LeaderboardEntry[] }) {
             {i === 0 && <ChampionCrown />}
             <span className="lb-ped-rank">{LABEL[i]}</span>
             <span className="lb-ped-face">
-              <Selena portraitUrl={e.portrait_url} background={e.avatar_config?.background} size={i === 0 ? 104 : 76} />
+              <Eyecon portraitUrl={e.portrait_url} config={e.avatar_config} background={e.avatar_config?.background} size={i === 0 ? 104 : 76} />
             </span>
             <div className="lb-ped-nm">{e.name}</div>
             <div className="lb-ped-role">{e.role}</div>

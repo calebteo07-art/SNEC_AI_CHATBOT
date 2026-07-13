@@ -55,7 +55,7 @@
 
 /* ── shared mascot ring ── */
 .lb-face, .lb-ped-face { display:grid; place-items:center; border-radius:50%; }
-.lb-face .selena-wrap, .lb-ped-face .selena-wrap { border-radius:50%; overflow:hidden; }
+.lb-face .eyecon-wrap, .lb-ped-face .eyecon-wrap { border-radius:50%; overflow:hidden; }
 
 /* ── podium ── */
 .lb-podium { display:grid; grid-template-columns:1fr 1.18fr 1fr; align-items:end; gap:12px; margin-top:2px; }
