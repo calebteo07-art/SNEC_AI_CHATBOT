@@ -131,6 +131,15 @@ flip, spinner slows); WCAG-legible.
   screen after a topic pick." Like the paint bug, a `waitForSelector`/`innerText` check passes
   on off-screen content, so the harness now asserts the intro's box sits WITHIN the viewport,
   not merely that it is attached to the DOM.
+  - **Criterion changed 2026-07-12 (option tiles fill the card; no tap-to-lock hint line):** the
+    front face used to carry a `.flash-hint` foot line ("tap to lock — no submit" / "tap all that
+    apply, then lock") and short option boxes pinned near the top, leaving a dead gap above the
+    power meter. Now the hint line is **gone** — a single-select card locks instantly on tap (no
+    hint, no submit), and only multi-select keeps a control (its lone lock reticle, right-aligned;
+    the qhead "Select all" badge already signals multi). The option list `flex:1`-grows and the
+    tiles share that height (`.flash-options > li { flex:1 1 0 }`) so they **fill the space between
+    the question header and the meter** — bigger boxes, bigger text (`.flash-otext` ~17–20px, lamp
+    38px), no white space inside the card. Harness asserts `.flash-hint` is absent on the study card.
 - **Pause / Quit (Task 24)**: a **neon-red PAUSE control** replaces **Exit** once a game is under
   way — same fixed **top-left** position as the retired Exit, distinguished by the pause-bars icon
   + "Pause" label, red permitted here as control-chrome (see the reworded verdict-red note above).

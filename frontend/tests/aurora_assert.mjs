@@ -379,6 +379,13 @@ try {
 }
 console.log("PASS: flashcards — MCQ options paint (opacity→1) in FULL motion, not invisible");
 
+// Declutter (user, 2026-07-12): a single-select card locks INSTANTLY on tap — no "tap to
+// lock — no submit" hint line, no submit control. The choice tiles fill the card instead.
+if ((await np.locator('.flash-hint').count()) > 0) {
+  console.error("FAIL: study card must not render the tap-to-lock hint text"); process.exit(1);
+}
+console.log("PASS: flashcards — no tap-to-lock hint clutter on the study card");
+
 // Answer buttons are a dark NEUTRAL now (user, 2026-07-12) — never the old glossy red.
 // The base fill must carry no red-dominant colour; red survives only as the ✗ wrong lock.
 const optRed = await np.evaluate(() => {
