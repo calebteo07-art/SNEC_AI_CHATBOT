@@ -63,9 +63,11 @@ async def update_profile(
 
     # Streak — only recalculated when the student completes the daily check-in.
     # The engine treats weekends as rest days and bridges a single missed weekday
-    # with a banked freeze (see tools/gamification/streak.py). Keys off
-    # last_checkin_date (the last *completed* check-in), NOT last_active, which is
-    # rewritten on every activity and would inflate the streak.
+    # with a banked freeze (see tools/gamification/streak.py). checkin_history (the
+    # durable log of check-in dates) is the source of truth: the last check-in is the
+    # most recent date in it, and when the incremental `streak` column failed to
+    # persist (the old missing last_checkin_date column) the running count is healed
+    # from that log so an existing streak is never lost.
     current_streak = int(profile.get("streak") or 0)
     new_streak = current_streak
     new_freezes = int(profile.get("streak_freezes") or 0)
@@ -74,16 +76,19 @@ async def update_profile(
     streak_advanced = False
 
     if checkin_done:
+        recon = streak_engine.streak_state_from_history(history, today)
+        base_streak = current_streak if current_streak > 0 else recon["streak"]
+        base_freezes = new_freezes or recon["freezes"]
         result = streak_engine.advance_streak(
-            _parse_date(profile.get("last_checkin_date")), today, current_streak, new_freezes
+            recon["last_checkin"], today, base_streak, base_freezes
         )
         new_streak = result["streak"]
         new_freezes = result["freezes"]
-        streak_advanced = result["streak"] > current_streak
+        streak_advanced = result["changed"] and result["streak"] > base_streak
         if today_iso not in history:
             history.append(today_iso)
             history = history[-21:]
-        best_streak = max(best_streak, new_streak)
+        best_streak = max(best_streak, recon["best"], new_streak)
 
     # Retention scores — already a dict from Supabase JSONB
     retention = dict(profile.get("retention_scores") or {})
@@ -124,7 +129,6 @@ async def update_profile(
     if checkin_done:
         updates["streak"] = new_streak
         updates["checkin_done_today"] = True
-        updates["last_checkin_date"] = today_iso
     if role:
         updates["role"] = role
 

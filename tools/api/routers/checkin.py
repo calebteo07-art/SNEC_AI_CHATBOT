@@ -17,7 +17,6 @@ from tools.checkin.static_questions import CHECKIN_QUESTION_POOL
 from tools.gamification import streak as streak_engine
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
-from tools.shared import db
 from tools.shared.clock import app_today
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.shared.static_pools import pick_by_day_count
@@ -82,32 +81,16 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
     except Exception:
         return CheckinStatusResponse(checkin_done_today=False, streak=0, weak_topic=None)
 
-    done = bool(profile.get("checkin_done_today", False))
-    streak = int(profile.get("streak") or 0)
-    freezes = int(profile.get("streak_freezes") or 0)
     today = app_today()
-
-    last_checkin_raw = profile.get("last_checkin_date")
-    try:
-        last_checkin = _date.fromisoformat(str(last_checkin_raw)) if last_checkin_raw else None
-    except (ValueError, TypeError):
-        last_checkin = None
-
-    # The streak survives weekend rest days and one missed weekday (when a freeze
-    # is banked). If it's no longer continuable, zero it for display and persist.
-    if streak > 0 and not streak_engine.streak_alive(last_checkin, today, freezes):
-        streak = 0
-        done = False
-        try:
-            await db.update_profile(student_id, streak=0, checkin_done_today=False)
-        except Exception:
-            pass
-    elif last_checkin is None and streak > 0:
-        streak = 0
-        try:
-            await db.update_profile(student_id, streak=0)
-        except Exception:
-            pass
+    history = list(profile.get("checkin_history") or [])
+    # Streak resolved from the durable check-in log (survives weekend rest days and a
+    # freeze-bridged weekday; a lapsed streak reads as 0), and healed from history
+    # when the stored column never persisted. `done` is true once today is logged.
+    resolved = streak_engine.resolve_streak(
+        profile.get("streak"), profile.get("streak_freezes"), history, today
+    )
+    streak = resolved["current"]
+    done = resolved["done_today"] or bool(profile.get("checkin_done_today", False))
 
     try:
         weak = profile.get("weak_topics", []) or []

@@ -45,6 +45,13 @@ export function useProgress() {
   return useQuery<ProgressData>({
     queryKey: ["progress"],
     queryFn: fetchProgress,
+    // Gamification (streak / Lumens / level) must feel live: always refetch on mount
+    // and treat the value as immediately stale so returning to any screen — or a
+    // mutation invalidating ["progress"] — repaints fresh numbers. placeholderData
+    // keeps the last value on screen during the refetch (no flash to zero).
     placeholderData: (prev) => prev,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
