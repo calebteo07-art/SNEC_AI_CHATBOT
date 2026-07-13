@@ -1,6 +1,6 @@
 "use client";
-/* SelenaGreetingLoop — the baked Veo greeting loop, overlaid on top of the default
-   SelenaLogo mascot (which stays in the DOM as the always-present fallback). The clip
+/* EyeconGreetingLoop — the baked Veo greeting loop, overlaid on top of the default
+   EyeconLogo mascot (which stays in the DOM as the always-present fallback). The clip
    is opaque (Veo can't emit alpha) with a baked warm background matching the card, so
    it fully covers the logo beneath. Self-contained (NO MotionProvider/useFx — it is
    not mounted in the student app): reduced motion is read straight from matchMedia +
@@ -19,7 +19,7 @@ function saveData(): boolean {
   return !!conn?.saveData;
 }
 
-export function SelenaGreetingLoop({ available }: { available: boolean }) {
+export function EyeconGreetingLoop({ available }: { available: boolean }) {
   const [off, setOff] = useState(true); // default off until we confirm motion is allowed (SSR-safe)
   const [failed, setFailed] = useState(false);
   const vref = useRef<HTMLVideoElement>(null);
@@ -34,7 +34,7 @@ export function SelenaGreetingLoop({ available }: { available: boolean }) {
   if (!available || failed || off) return null;
 
   return (
-    <span className="hm-selenaloop" aria-hidden>
+    <span className="hm-eyeconloop" aria-hidden>
       <video
         ref={vref}
         src={SRC}
@@ -44,7 +44,7 @@ export function SelenaGreetingLoop({ available }: { available: boolean }) {
         playsInline
         autoPlay
         preload="metadata"
-        className="hm-selenaloop-v"
+        className="hm-eyeconloop-v"
         onError={() => setFailed(true)}
       />
     </span>

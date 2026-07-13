@@ -84,26 +84,26 @@
   border-radius:50%; z-index:0; background:radial-gradient(circle, rgba(255,220,180,.55), transparent 66%);
   filter:blur(10px); animation:hm-halo-breathe 4.8s ease-in-out infinite; }
 
-/* ── the student's OWN Selena on the greeting card (seamless-custom spec) ──
+/* ── the student's OWN Eyecon on the greeting card (seamless-custom spec) ──
    One transparent render, animated CSS-only: entrance rise, continuous
    breathe/bob, and a soft halo glow tinted by their chosen backdrop. */
-.hm-selena { position:relative; width:216px; height:216px; margin-bottom:6px; display:block;
-  animation: hm-selena-enter 0.9s cubic-bezier(0.2,0.9,0.3,1.15); }
-.hm-selena-img { position:relative; width:100%; height:100%; object-fit:contain; display:block;
+.hm-eyecon { position:relative; width:216px; height:216px; margin-bottom:6px; display:block;
+  animation: hm-eyecon-enter 0.9s cubic-bezier(0.2,0.9,0.3,1.15); }
+.hm-eyecon-img { position:relative; width:100%; height:100%; object-fit:contain; display:block;
   animation: hm-iris-bob 4.8s ease-in-out infinite; transform-origin:50% 90%; }
-.hm-selena-halo { position:absolute; inset:8%; border-radius:50%; z-index:-1;
+.hm-eyecon-halo { position:absolute; inset:8%; border-radius:50%; z-index:-1;
   background: radial-gradient(circle, var(--halo, #f2e2d0) 0%, transparent 68%);
   opacity:0.55; filter: blur(10px); animation: hm-halo-breathe 4.8s ease-in-out infinite; }
-@keyframes hm-selena-enter { from { opacity:0; transform: translateY(18px) scale(0.94); } to { opacity:1; transform: translateY(0) scale(1); } }
+@keyframes hm-eyecon-enter { from { opacity:0; transform: translateY(18px) scale(0.94); } to { opacity:1; transform: translateY(0) scale(1); } }
 @keyframes hm-halo-breathe { 0%,100% { opacity:0.42; } 50% { opacity:0.68; } }
 
 /* ── baked Veo greeting loop (when installed) — the card's FULL-BLEED base layer.
    The landscape clip carries a baked warm gradient matching the card and the mascot
    on the right, with calm space on the left for the copy. It's opaque (Veo can't emit
-   alpha) so it fully covers the fallback SelenaLogo beneath. A soft veil over it keeps
+   alpha) so it fully covers the fallback EyeconLogo beneath. A soft veil over it keeps
    the headline/CTAs legible; the greeting body layers on top. ── */
-.hm-selenaloop { position:absolute; inset:0; z-index:1; pointer-events:none; }
-.hm-selenaloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:78% 46%; transform:translateX(2.5%); }
+.hm-eyeconloop { position:absolute; inset:0; z-index:1; pointer-events:none; }
+.hm-eyeconloop-v { display:block; width:100%; height:100%; object-fit:cover; object-position:78% 46%; transform:translateX(2.5%); }
 .hm-greet-veil { position:absolute; inset:0; z-index:2; pointer-events:none;
   background:linear-gradient(96deg, rgba(255,246,236,.68) 0%, rgba(255,246,236,.44) 32%, rgba(255,246,236,.12) 55%, rgba(255,246,236,0) 72%); }
 .hm-greet-body { position:relative; z-index:3; }
@@ -317,10 +317,10 @@
   .hm-sub { font-size:20px; }
   .hm-iriswrap { width:170px; height:150px; right:-8px; }
   .hm-iris { width:158px; height:158px; }
-  .hm-selena { width:158px; height:158px; }
+  .hm-eyecon { width:158px; height:158px; }
   /* stacked (single-column) card is portrait-ish → bias the cover crop to the
      mascot side so she stays in frame. */
-  .hm-selenaloop-v { object-position:72% 45%; }
+  .hm-eyeconloop-v { object-position:72% 45%; }
   .hm-carousel { height:340px; }
 }
 @media (max-width:560px) {
@@ -336,7 +336,7 @@
   /* narrow card: bias the mascot further right so the copy + XP readout keep a clear
      left column, and stack the level readout left of the mascot instead of pushing
      the XP figures onto its face (space-between collided on 390px). */
-  .hm-selenaloop-v { object-position:88% 45%; }
+  .hm-eyeconloop-v { object-position:88% 45%; }
   /* on the narrow card the mascot's big eye is unavoidably behind the left copy, so the
      legibility veil carries a stronger cream wash across the left ~66% (she stays visible
      on the right) — keeps the headline/sub WCAG-legible where they meet her. */
@@ -357,16 +357,16 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
 
 /* ── reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .aurora-home .hm-iris, .aurora-home .hm-selena, .aurora-home .hm-selena-img, .aurora-home .hm-selena-halo,
+  .aurora-home .hm-iris, .aurora-home .hm-eyecon, .aurora-home .hm-eyecon-img, .aurora-home .hm-eyecon-halo,
   .aurora-home .hm-iriswrap::before, .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
   .aurora-home .hm-lvbar > span::after, .aurora-home .hm-big::before,
   .aurora-home .hm-panel--streakbadge, .aurora-home .hm-panel--lumen,
   .aurora-home .hm-wdot, .aurora-home .hm-wd.today .hm-wdot { animation:none !important; }
 }
 html[data-motion="reduce"] .aurora-home .hm-iris,
-html[data-motion="reduce"] .aurora-home .hm-selena,
-html[data-motion="reduce"] .aurora-home .hm-selena-img,
-html[data-motion="reduce"] .aurora-home .hm-selena-halo,
+html[data-motion="reduce"] .aurora-home .hm-eyecon,
+html[data-motion="reduce"] .aurora-home .hm-eyecon-img,
+html[data-motion="reduce"] .aurora-home .hm-eyecon-halo,
 html[data-motion="reduce"] .aurora-home .hm-iriswrap::before,
 html[data-motion="reduce"] .aurora-home .hm-flame,
 html[data-motion="reduce"] .hm-flame .core,
