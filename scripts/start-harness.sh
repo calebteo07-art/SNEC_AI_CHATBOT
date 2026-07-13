@@ -70,8 +70,8 @@ done
 run() { echo "── $1"; node "$FE/tests/$1" "$BASE"; }
 case "$MODE" in
   aurora)  run aurora_assert.mjs ;;
-  station) run station_assert.mjs ;;
-  all)     run aurora_assert.mjs; run station_assert.mjs ;;
+  station) run station_assert.mjs; run rotate_gate_assert.mjs ;;
+  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs ;;
   serve)   echo "server ready at $BASE — stop with: scripts/start-harness.sh stop" ;;
   *)       echo "usage: start-harness.sh [aurora|station|all|serve|stop]" >&2; exit 2 ;;
 esac
