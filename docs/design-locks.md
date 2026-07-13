@@ -103,6 +103,21 @@ flip, spinner slows); WCAG-legible.
   window edge. **ALWAYS verify the picker at the real ~26-topic scale, not the toy harness mock — the
   harness `flashcards/topics` mock is now the full 26-topic OA syllabus (27 cards) so a crush-at-scale
   regression fails CI.**
+- **Flat card face + enlarged cards + gold-title lede (refine 2026-07-12, user-directed)**: the topic
+  card interior is now **completely flat** — the glassy inner treatment is gone (the `.fan-card-gloss`
+  white-gloss overlay + the inner `inset` highlight/vignette box-shadows on `.fan-card-media`), leaving
+  just the image inside the **kept** colourful outline (4px hue frame + crisp ring + wide hue halo) and
+  the outer depth shadow. Cards are **enlarged** (desktop 300×392 → **348×452**, mobile 220×288 →
+  **252×328**; `getCardWidth`, the `.fan-card` centering margins and both `.fan-stage` height clamps move
+  together so the bigger forward front card never clips). The lede's **top line** (`.flash-setup-title`,
+  the rotating `flashTaunt` dare) is the addictive arcade **coin-gold** (`--fc-coin`) — enlarged to
+  `clamp(46,9.2vw,88)`, 900, with a topic-hue glow so it harmonizes with the moving bloom — so it
+  **dominates**; the **sub** (`.flash-step-sub`) is **enlarged** to `clamp(16,3.2vw,23)` but keeps its
+  original **neutral gray `#b9c2ce`** (user reverted the sub colour back 2026-07-12), so the gold title
+  overpowers by colour + scale. **Criteria changed**: *card-face material* (glass → flat), *card size*
+  (larger), *lede type/colour* (title white→gold, both lines enlarged; sub stays gray). Every other
+  Selection invariant is preserved (coverflow depth/windowing, stage-resolved pick, no numbers/dots,
+  neutral glass arrows, reduced-motion freeze).
 - **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
   a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
   red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
