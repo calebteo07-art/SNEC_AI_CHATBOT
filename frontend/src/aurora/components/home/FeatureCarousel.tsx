@@ -17,9 +17,9 @@ import { useEffect, useRef } from "react";
 import { Icon } from "./HomeIcons";
 
 const FEATURES = [
-  { tone: "tutor", href: "/chat", title: "Tutor", sub: "Ask anything — your Socratic guide", cta: "Open chat", mascot: "/brand/features/tutor.webp" },
-  { tone: "vp", href: "/cases", title: "Virtual Patients", sub: "Examine a real virtual patient", cta: "Start a case", mascot: "/brand/features/vp.webp" },
-  { tone: "flash", href: "/flashcards", title: "Flashcards", sub: "Adaptive drills that stick", cta: "Study now", mascot: "/brand/features/flash.webp" },
+  { tone: "tutor", href: "/chat", title: "Tutor", sub: "Ask anything — your Socratic guide", cta: "Open chat", art: "/brand/features/tutor.webp" },
+  { tone: "vp", href: "/cases", title: "Virtual Patients", sub: "Examine a real virtual patient", cta: "Start a case", art: "/brand/features/vp.webp" },
+  { tone: "flash", href: "/flashcards", title: "Flashcards", sub: "Adaptive drills that stick", cta: "Study now", art: "/brand/features/flash.webp" },
 ] as const;
 
 export function FeatureCarousel() {
@@ -155,8 +155,8 @@ export function FeatureCarousel() {
             data-testid="feature-card"
             ref={(el) => { cardsRef.current[idx] = el; }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- transparent mascot cut-out, no next/image on standalone */}
-            <img className="hm-fcard-mascot" src={f.mascot} alt="" aria-hidden width={300} height={300} loading="lazy" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- baked full-card art, no next/image on standalone */}
+            <img className="hm-fcard-art" src={f.art} alt="" aria-hidden width={466} height={300} loading="lazy" />
             <span className="hm-fcard-body">
               <h3 className="disp">{f.title}</h3>
               <p>{f.sub}</p>

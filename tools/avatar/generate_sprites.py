@@ -89,13 +89,16 @@ def _prompt(look_desc: str) -> str:
     return f"{STYLE}\n\nThis specific look: {look_desc}"
 
 
-def generate_image_bytes(prompt: str, model: str = MODEL_IMAGE, attempts: int = 3, reference: bool = True) -> bytes | None:
+def generate_image_bytes(prompt: str, model: str = MODEL_IMAGE, attempts: int = 3, reference: bool = True,
+                         aspect_ratio: str | None = None) -> bytes | None:
     """Generate one image from a fully-formed prompt; return PNG bytes (or None).
 
     The lower-level core shared by `generate_one` (pilot, writes to disk) and the
     portrait path (`portrait.render_portrait`, keeps bytes). Retries on a transient
     504/503/deadline (image gen is slow and occasionally 504s server-side even within
     the client deadline). Anchored to the Iris reference image when `reference=True`.
+    `aspect_ratio` (e.g. "3:2", "16:9") requests a non-square canvas via ImageConfig;
+    default None keeps the model's native aspect (square, biased by the square reference).
     """
     from google.genai import types
 
@@ -103,13 +106,17 @@ def generate_image_bytes(prompt: str, model: str = MODEL_IMAGE, attempts: int = 
     contents: list = [prompt]
     if reference:
         contents.append(_load_reference())
+    cfg = types.GenerateContentConfig(
+        response_modalities=["TEXT", "IMAGE"],
+        image_config=types.ImageConfig(aspect_ratio=aspect_ratio) if aspect_ratio else None,
+    )
     last = ""
     for attempt in range(attempts):
         try:
             resp = client.models.generate_content(
                 model=model,
                 contents=contents,
-                config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
+                config=cfg,
             )
         except Exception as e:  # transient 504/503 → retry
             last = f"{type(e).__name__}: {str(e)[:200]}"
