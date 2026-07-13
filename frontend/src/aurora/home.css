@@ -178,16 +178,17 @@
 .hm-fcard.tutor { background:linear-gradient(105deg,#5B21B6 0%,#7C3AED 46%,#9D6BFF 100%); }
 .hm-fcard.vp    { background:linear-gradient(105deg,#0B6E62 0%,#0EA894 48%,#26D3B8 100%); }
 .hm-fcard.flash { background:linear-gradient(105deg,#C81E5B 0%,#F4557A 46%,#FF9F43 100%); }
-/* soft top-light sheen + a bloom top-right — depth on the single gradient layer, no
-   extra content layers stacked over the art. */
-.hm-fcard::before { content:""; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(120% 90% at 88% 6%, rgba(255,255,255,.34), transparent 55%),
-             linear-gradient(180deg, rgba(255,255,255,.20), transparent 34%); }
-/* the transparent mascot, bleeding off the right edge (layer 2) */
-.hm-fcard-mascot { position:absolute; right:-16px; bottom:-8px; height:296px; width:auto; z-index:1;
-  object-fit:contain; pointer-events:none; filter:drop-shadow(0 16px 26px rgba(18,8,36,.32)); }
-/* text column, held to the calm left half so no word runs under the mascot */
-.hm-fcard-body { position:relative; z-index:2; display:flex; flex-direction:column; max-width:60%; }
+/* the baked full card art (themed background + mascot hero in one image), full-bleed under the
+   text; the .hm-fcard.<tone> gradient above stays as a fallback if the webp is missing. */
+.hm-fcard-art { position:absolute; inset:0; width:100%; height:100%; z-index:0;
+  object-fit:cover; object-position:center; pointer-events:none; }
+/* left + bottom scrim so the white title/CTA stays WCAG-legible over the art's calmer left third. */
+.hm-fcard::after { content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(96deg, rgba(12,7,26,.60) 0%, rgba(12,7,26,.28) 34%, rgba(12,7,26,0) 60%),
+             linear-gradient(0deg, rgba(12,7,26,.32), transparent 44%); }
+/* text column, held to the empty left ~half so no word runs under the hero (mascot art is
+   confined to the right 45% of the baked card; measured left extent ≥50%, text ends ~48%). */
+.hm-fcard-body { position:relative; z-index:2; display:flex; flex-direction:column; max-width:48%; }
 .hm-fcard h3 { font-family:var(--font-home); font-weight:800; font-size:35px; line-height:1.02; letter-spacing:-.02em; margin:0;
   text-shadow:0 2px 14px rgba(16,6,32,.28); }
 .hm-fcard p { font-size:16.5px; font-weight:500; opacity:.97; margin:9px 0 0; line-height:1.35; text-shadow:0 1px 9px rgba(16,6,32,.24); }
@@ -327,7 +328,7 @@
   .hm-fcard { width:min(88vw,392px); height:272px; margin-left:calc(min(88vw,392px) / -2); margin-top:-136px; padding:26px 26px 24px; }
   .hm-fcard h3 { font-size:29px; }
   .hm-fcard p { font-size:15.5px; }
-  .hm-fcard-mascot { height:240px; right:-12px; }
+  /* .hm-fcard-art is inset:0 cover — responsive with no per-breakpoint sizing needed */
   .hm-carousel { height:300px; }
   /* narrow card: bias the mascot further right so the copy + XP readout keep a clear
      left column, and stack the level readout left of the mascot instead of pushing
