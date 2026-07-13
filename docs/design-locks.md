@@ -341,6 +341,20 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
     `prefers-reduced-motion` / `data-motion=reduce`. CSS-only; medallions/badge-states/testids
     untouched; 390-safe. Shipped isolated on `origin/main` (the local tree was a stale
     re-derivation of already-pushed home work).
+- **Daily-streak CARD -> bold orange+yellow, all-white text (2026-07-13, user directive: "streak
+  card base orange & yellow gradient, white-outline flame, no dark text — only white/light")**:
+  the `.hm-streak` card (the StreakTile hero, NOT the `.hm-panel--streakbadge` vault above) drops
+  the **warm amber/peach wash** criterion for a **bold deep-orange gradient** (`#F1600C->#CE440A`)
+  with the **yellow** delivered as a heat-glow *behind the flame* (a text-free zone, so white labels
+  stay legible). **Every** label/number/dot is now **white/light** (were ink/violet/burnt-orange):
+  `.hm-t`, `.hm-rc`, `.hm-snum` (solid white, was orange->red clip), `.hm-slbl`, week `.hm-wl`,
+  `.hm-nl`; done week-dots = white chip w/ orange check; today = white ring; the goal-ring SVG
+  strokes (`StreakTile.tsx`) are white/translucent; the "days to go" tag is a frosted-white pill.
+  The **flame is a clean white outline** (`.hm-flame` + `.core` + header `.ico` -> `#fff`; flicker
+  drop-shadows retinted warm-brown so they don't tint the white flame). **Criterion changed**: base
+  hue and text colour (mixed dark -> white only). **Acceptance preserved**: white large text >=3:1 on
+  the deep-orange fill; 390-safe; structure/testids (`streak-tile`) unchanged; reduced-motion still
+  freezes flame/ember/heat/dot animations; aurora harness green on a prod build.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout

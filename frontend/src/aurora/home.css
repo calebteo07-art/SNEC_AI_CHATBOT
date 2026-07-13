@@ -109,56 +109,59 @@
 .hm-greet-body { position:relative; z-index:3; }
 
 /* ── streak tile ── */
-/* daily-streak card — a warm amber/peach wash (was near-white) that reads as the
-   flame's own colour family, drawn from the homepage candy palette. */
-.hm-streak { position:relative; overflow:hidden; border-radius:var(--hr);
-  background:radial-gradient(135% 125% at 12% -8%, #FFD9A6 0%, #FFE9CE 44%, #FFF5E7 100%);
-  border:1px solid #F6D9AE; box-shadow:var(--sh-lg); padding:22px 28px;
+/* daily-streak card — a BOLD orange→deep-orange gradient with a yellow heat-glow
+   behind the flame (the flame's own colours). Every label/number is white/light for
+   contrast on the warm fill (white large text stays >=3:1 on this deep orange), and
+   the flame is a clean white outline. */
+.hm-streak { position:relative; overflow:hidden; border-radius:var(--hr); color:#fff;
+  background:radial-gradient(72% 64% at 13% 46%, rgba(255,201,74,.62) 0%, rgba(255,165,45,.18) 44%, transparent 70%),
+    linear-gradient(150deg, #F1600C 0%, #E4530B 52%, #C9420A 100%);
+  border:1px solid rgba(255,255,255,.30); box-shadow:var(--sh-lg); padding:22px 28px;
   display:flex; flex-direction:column; justify-content:space-between; }
 .hm-streak::before { content:""; position:absolute; left:44px; top:112px; width:7px; height:7px; border-radius:50%;
-  background:radial-gradient(circle,#FDBA74,#F43F5E); opacity:0; pointer-events:none; z-index:1;
+  background:radial-gradient(circle,#FFE08A,#FF9E2C); opacity:0; pointer-events:none; z-index:1;
   animation:hm-ember 3.4s ease-in-out infinite; }
 @keyframes hm-ember { 0% { opacity:0; transform:translate(0,0) scale(.6); } 20% { opacity:.85; } 100% { opacity:0; transform:translate(9px,-46px) scale(.2); } }
 .hm-sh { display:flex; align-items:center; justify-content:space-between; }
-.hm-sh .hm-t { font-family:var(--font-home); font-weight:700; font-size:16.5px; color:var(--hink2); display:flex; align-items:center; gap:8px; }
-.hm-sh .hm-t .ico { width:18px; height:18px; color:var(--flame2); }
+.hm-sh .hm-t { font-family:var(--font-home); font-weight:700; font-size:16.5px; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.28); display:flex; align-items:center; gap:8px; }
+.hm-sh .hm-t .ico { width:18px; height:18px; color:#fff; }
 .hm-sh .hm-goalring { position:relative; width:48px; height:48px; }
-.hm-sh .hm-goalring .hm-rc { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--violet-d); }
+.hm-sh .hm-goalring .hm-rc { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.4); }
 .hm-big { position:relative; display:flex; align-items:center; gap:15px; margin:14px 0 4px; }
 /* pulsing heat-glow behind the flame — Mario-Kart warmth, never menace */
 .hm-big::before { content:""; position:absolute; left:4px; top:50%; width:104px; height:104px; transform:translateY(-50%); border-radius:50%; z-index:0; pointer-events:none;
-  background:radial-gradient(circle, rgba(255,158,44,.55), rgba(240,67,31,.14) 46%, transparent 70%); filter:blur(6px); animation:hm-heat 2.4s ease-in-out infinite; }
+  background:radial-gradient(circle, rgba(255,214,80,.9), rgba(255,150,30,.32) 45%, transparent 72%); filter:blur(6px); animation:hm-heat 2.4s ease-in-out infinite; }
 @keyframes hm-heat { 0%,100% { opacity:.7; transform:translateY(-50%) scale(1); } 50% { opacity:1; transform:translateY(-50%) scale(1.09); } }
-.aurora-home .hm-flame { position:relative; z-index:1; width:84px; height:84px; color:var(--flame1); flex-shrink:0;
+.aurora-home .hm-flame { position:relative; z-index:1; width:84px; height:84px; color:#fff; flex-shrink:0;
   transform-origin:50% 92%; animation:hm-flame-flicker 2.3s ease-in-out infinite;
-  filter:drop-shadow(0 8px 15px rgba(240,67,31,.38)); }
-.hm-flame .core { color:var(--flame2); animation:hm-flame-core 1.5s ease-in-out infinite; }
+  filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
+.hm-flame .core { color:#fff; animation:hm-flame-core 1.5s ease-in-out infinite; }
 @keyframes hm-flame-flicker {
-  0%,100% { transform:scale(1) skewX(0deg) rotate(0deg); filter:drop-shadow(0 8px 15px rgba(240,67,31,.38)); }
-  25% { transform:scale(1.05,1.09) skewX(-2.4deg) rotate(-1.2deg); filter:drop-shadow(0 10px 20px rgba(240,67,31,.55)); }
-  55% { transform:scale(.98,1.03) skewX(2deg) rotate(1deg); filter:drop-shadow(0 7px 13px rgba(240,67,31,.42)); }
-  78% { transform:scale(1.03,1.06) skewX(-1.2deg) rotate(.6deg); filter:drop-shadow(0 11px 22px rgba(240,67,31,.6)); }
+  0%,100% { transform:scale(1) skewX(0deg) rotate(0deg); filter:drop-shadow(0 6px 14px rgba(120,40,0,.42)); }
+  25% { transform:scale(1.05,1.09) skewX(-2.4deg) rotate(-1.2deg); filter:drop-shadow(0 9px 18px rgba(120,40,0,.5)); }
+  55% { transform:scale(.98,1.03) skewX(2deg) rotate(1deg); filter:drop-shadow(0 6px 12px rgba(120,40,0,.44)); }
+  78% { transform:scale(1.03,1.06) skewX(-1.2deg) rotate(.6deg); filter:drop-shadow(0 10px 20px rgba(120,40,0,.55)); }
 }
 @keyframes hm-flame-core { 0%,100% { opacity:.9; transform:translateY(0) scaleY(1); } 50% { opacity:1; transform:translateY(-1px) scaleY(1.08); } }
-.hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; background:linear-gradient(180deg,#FFA23A,#EF4444); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:#C2410C; text-transform:uppercase; margin-top:3px; }
+.hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; color:#fff; text-shadow:0 2px 8px rgba(120,40,0,.38); }
+.hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:rgba(255,255,255,.92); text-transform:uppercase; margin-top:3px; }
 .hm-week { display:flex; gap:8px; margin-top:16px; list-style:none; padding:0; }
 .hm-wd { flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; }
 .hm-wdot { position:relative; overflow:hidden; width:100%; aspect-ratio:1; max-width:38px; border-radius:13px; display:flex; align-items:center; justify-content:center;
-  background:#F4EDE1; color:#C9B79E; border:1px solid var(--line); box-shadow:inset 0 -2px 4px rgba(150,110,60,.12); animation:hm-dot-pop .5s var(--spring) backwards; }
+  background:rgba(255,255,255,.16); color:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.30); box-shadow:inset 0 -2px 4px rgba(120,40,0,.12); animation:hm-dot-pop .5s var(--spring) backwards; }
 .hm-wdot::before { content:""; position:absolute; inset:0; background:var(--sheen); opacity:.6; pointer-events:none; }
 .hm-wdot .ico { position:relative; width:17px; height:17px; stroke-width:2.6; }
 @keyframes hm-dot-pop { from { transform:scale(0) rotate(-12deg); opacity:0; } }
-.hm-wd.on .hm-wdot { background:linear-gradient(150deg,#FF9E2C,#F43F5E); color:#fff; border:none; box-shadow:inset 0 1px 1px rgba(255,255,255,.6), 0 6px 13px -3px rgba(244,63,94,.6); }
-.hm-wd.today .hm-wdot { background:#fff; color:var(--violet); border:2px solid var(--violet); box-shadow:0 0 0 4px rgba(124,92,246,.16);
+.hm-wd.on .hm-wdot { background:#fff; color:#E4530B; border:none; box-shadow:inset 0 1px 1px rgba(255,255,255,.7), 0 6px 13px -3px rgba(120,40,0,.4); }
+.hm-wd.today .hm-wdot { background:rgba(255,255,255,.20); color:#fff; border:2px solid #fff; box-shadow:0 0 0 4px rgba(255,255,255,.22);
   animation:hm-dot-pop .5s var(--spring) backwards, hm-today-pulse 1.9s ease-in-out infinite; }
-@keyframes hm-today-pulse { 0%,100% { box-shadow:0 0 0 4px rgba(124,92,246,.16); } 50% { box-shadow:0 0 0 7px rgba(124,92,246,.26); } }
-.hm-wd .hm-wl { font-size:11px; font-weight:700; color:var(--hink3); letter-spacing:.05em; }
-.hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed var(--line); display:flex; align-items:center; justify-content:space-between; }
-.hm-nexttier .hm-nl { font-size:15px; color:var(--hink2); } .hm-nexttier .hm-nl b { color:var(--hink); font-weight:700; }
+@keyframes hm-today-pulse { 0%,100% { box-shadow:0 0 0 4px rgba(255,255,255,.22); } 50% { box-shadow:0 0 0 7px rgba(255,255,255,.34); } }
+.hm-wd .hm-wl { font-size:11px; font-weight:700; color:rgba(255,255,255,.82); letter-spacing:.05em; }
+.hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,.30); display:flex; align-items:center; justify-content:space-between; }
+.hm-nexttier .hm-nl { font-size:15px; color:rgba(255,255,255,.9); } .hm-nexttier .hm-nl b { color:#fff; font-weight:700; }
 .hm-nexttier .hm-tag { position:relative; overflow:hidden; font-size:12px; font-weight:800; color:#fff; border-radius:999px; padding:6px 13px; letter-spacing:.01em;
-  background:linear-gradient(180deg,#9B7BFF,#7C3AED); box-shadow:0 6px 13px -4px rgba(124,58,237,.55); }
-.hm-nexttier .hm-tag::before { content:""; position:absolute; inset:0; background:var(--sheen); pointer-events:none; }
+  background:rgba(255,255,255,.20); border:1px solid rgba(255,255,255,.42); box-shadow:0 4px 10px -4px rgba(120,40,0,.4); text-shadow:0 1px 2px rgba(120,40,0,.35); }
+.hm-nexttier .hm-tag::before { content:""; position:absolute; inset:0; background:var(--sheen); opacity:.4; pointer-events:none; }
 
 /* ── feature carousel (3D coverflow) — SPLIT-HERO cards ──
    Two layers only: a bold candy gradient (vibrancy from CSS, WCAG-controllable) and a

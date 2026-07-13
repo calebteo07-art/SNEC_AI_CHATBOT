@@ -531,7 +531,9 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
         portraits = {sid: by_hash[h] for sid, h in hashes.items() if h in by_hash}
     except Exception:
         portraits = {}
-    entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None, portraits=portraits)
+    from tools.shared.clock import app_today
+    entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
+                           portraits=portraits, today=app_today())
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
     roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
     return LbResponse(

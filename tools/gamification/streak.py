@@ -86,6 +86,56 @@ def advance_streak(
     return {"streak": new_streak, "freezes": freezes, "froze": froze, "reset": reset, "changed": True}
 
 
+def _parse_iso(value) -> date | None:
+    """Best-effort ISO-date parse; None for junk so a bad history entry can't crash
+    a reconstruction."""
+    if isinstance(value, date):
+        return value
+    try:
+        return date.fromisoformat(str(value))
+    except (ValueError, TypeError):
+        return None
+
+
+def streak_state_from_history(history, today: date | None = None) -> dict:
+    """Reconstruct the streak by replaying `advance_streak` over the sorted, unique
+    check-in dates in `history` (the durable log written on every check-in). Returns
+    {streak, freezes, best, last_checkin, done_today} — the state AS OF the last
+    recorded check-in (NOT display-zeroed for lapsing; `resolve_streak` applies that).
+    `checkin_history` is the streak's real source of truth: the incremental `streak`
+    column is only a cache, and when it failed to persist (the missing
+    last_checkin_date column) this recovers the count from the log. `today` only
+    decides `done_today`. Pure — no I/O."""
+    dates = sorted({d for d in (_parse_iso(x) for x in (history or [])) if d is not None})
+    streak = freezes = best = 0
+    last: date | None = None
+    for d in dates:
+        r = advance_streak(last, d, streak, freezes)
+        streak, freezes = r["streak"], r["freezes"]
+        best = max(best, streak)
+        last = d
+    done_today = today is not None and today in dates
+    return {"streak": streak, "freezes": freezes, "best": best,
+            "last_checkin": last, "done_today": done_today}
+
+
+def resolve_streak(stored_streak, stored_freezes, history, today: date) -> dict:
+    """The streak to DISPLAY. Trust the stored `streak` column when it persisted
+    (>0, and it grows past the capped history); otherwise heal the count from
+    `checkin_history` — the last_checkin_date bug meant the column never saved, so a
+    real streak read back as 0. A lapsed streak is shown as zero. Returns
+    {current, freezes, done_today, last_checkin}. Pure — no I/O."""
+    recon = streak_state_from_history(history, today)
+    stored = max(0, int(stored_streak or 0))
+    freezes = max(0, int(stored_freezes or 0)) or recon["freezes"]
+    current = stored if stored > 0 else recon["streak"]
+    last = recon["last_checkin"]
+    if current > 0 and last is not None and not streak_alive(last, today, freezes):
+        current = 0
+    return {"current": current, "freezes": freezes,
+            "done_today": recon["done_today"], "last_checkin": last}
+
+
 def streak_alive(last_checkin: date | None, today: date, freezes: int) -> bool:
     """Whether the running streak is still continuable as of `today`, *before*
     today's check-in. Used at read time to decide whether to show or zero it."""

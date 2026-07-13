@@ -23,6 +23,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/* The daily check-in is gated once per *calendar day* (device-local), not per session:
+   a student completes it once each day and it never re-shows that day — across reloads,
+   new tabs, or re-logins. The stored value is the ISO date it was last completed; it's
+   "done" only while that equals today. The server (`checkin_done_today`) is the ultimate
+   source of truth and short-circuits the check-in screen if another device already did it. */
+const CHECKIN_DATE_KEY = "eyebot_checkin_date";
+function todayKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function readCheckInDone(): boolean {
+  return typeof window !== "undefined" && localStorage.getItem(CHECKIN_DATE_KEY) === todayKey();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   /* Initializers must survive server prerendering — storage only exists in the browser. */
   const [user, setUser] = useState<User | null>(() => {
@@ -32,13 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return c ? JSON.parse(c) : null;
     } catch { return null; }
   });
-  /* Check-in is gated per *session*, not per day: students complete it every time
-     they start a new session. The flag lives in sessionStorage so it survives page
-     reloads within the same session but is cleared when the tab/window closes. */
-  const [isCheckInDone, setIsCheckInDone] = useState(
-    () => typeof window !== "undefined" &&
-      sessionStorage.getItem("eyebot_checkin_session") === "1"
-  );
+  /* Once-per-day check-in gate (see CHECKIN_DATE_KEY above). */
+  const [isCheckInDone, setIsCheckInDone] = useState(readCheckInDone);
   const [loading, setLoading] = useState(
     () => typeof window === "undefined" || !localStorage.getItem("eyebot_user_v1")
   );
@@ -74,9 +83,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(restoredUser);
         localStorage.setItem("eyebot_user_v1", JSON.stringify(restoredUser));
-        // Restoring an existing session (e.g. a page reload) keeps the check-in status
-        // for that session; a brand-new browser session has no flag and is sent to check-in.
-        setIsCheckInDone(sessionStorage.getItem("eyebot_checkin_session") === "1");
+        // Check-in is per-day: it stays done for the rest of today (across reloads and
+        // new sessions), and a new calendar day re-requires it.
+        setIsCheckInDone(readCheckInDone());
         setLoading(false);
       } catch {
         if (cancelled) return;
@@ -97,9 +106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (userData: User) => {
     setUser(userData);
     localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
-    // A fresh login starts a new session — always require the check-in again.
-    sessionStorage.removeItem("eyebot_checkin_session");
-    setIsCheckInDone(false);
+    // Check-in is per-day, not per-login: re-logging in the same day keeps it done;
+    // a new day (or first-ever login) still requires it.
+    setIsCheckInDone(readCheckInDone());
     sessionStorage.setItem("eyebot_user", JSON.stringify({
       fullName: userData.fullName,
       email: userData.email,
@@ -130,6 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     sessionStorage.clear();
     localStorage.removeItem("eyebot_user_v1");
+    // Clear the per-day check-in flag so the next login re-checks against the server
+    // (the true once-per-day authority) — important when a device is shared.
+    localStorage.removeItem(CHECKIN_DATE_KEY);
     setUser(null);
     setIsCheckInDone(false);
   };
@@ -137,9 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setCheckInDone = (done: boolean) => {
     setIsCheckInDone(done);
     if (done) {
-      sessionStorage.setItem("eyebot_checkin_session", "1");
+      localStorage.setItem(CHECKIN_DATE_KEY, todayKey());
     } else {
-      sessionStorage.removeItem("eyebot_checkin_session");
+      localStorage.removeItem(CHECKIN_DATE_KEY);
     }
   };
 

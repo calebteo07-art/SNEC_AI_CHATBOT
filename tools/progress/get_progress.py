@@ -24,19 +24,18 @@ def _parse_date(value):
 
 def _streak_detail(profile: dict) -> dict:
     """The data the dashboard streak band renders: current/best/freezes, whether
-    today is done, and the Mon..Sun week with weekend rest days."""
+    today is done, and the Mon..Sun week with weekend rest days. The streak is
+    resolved from checkin_history (the durable source of truth) so a stored column
+    that never persisted still reads back the real streak."""
     today = app_today()
-    current = int(profile.get("streak") or 0)
-    freezes = int(profile.get("streak_freezes") or 0)
-    best = max(int(profile.get("best_streak") or 0), current)
-    last_checkin = _parse_date(profile.get("last_checkin_date"))
     history = list(profile.get("checkin_history") or [])
-
-    # If the streak is no longer continuable, show it as zero (matches checkin.py).
-    if current > 0 and not streak_engine.streak_alive(last_checkin, today, freezes):
-        current = 0
-
-    done_today = today.isoformat() in history
+    resolved = streak_engine.resolve_streak(
+        profile.get("streak"), profile.get("streak_freezes"), history, today
+    )
+    current = resolved["current"]
+    freezes = resolved["freezes"]
+    best = max(int(profile.get("best_streak") or 0), current)
+    done_today = resolved["done_today"]
     tier = streak_engine.tier_for(current)
     return {
         "current": current,

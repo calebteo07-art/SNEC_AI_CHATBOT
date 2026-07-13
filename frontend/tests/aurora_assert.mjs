@@ -12,7 +12,7 @@ await navCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
   localStorage.setItem("eyebot_selena_onboarded", "1"); // returning, already-onboarded student ⇒ the welcome-Studio gate (CheckInGuard) must not redirect /profile etc. when a GET reports customized:false
@@ -815,7 +815,7 @@ await onbCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1");
 }, onbUser);
@@ -863,7 +863,7 @@ await healCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1");
   localStorage.setItem("eyebot_selena_onboarded", "1"); // already customized ⇒ don't gate into welcome Studio
@@ -908,7 +908,7 @@ await adminCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, adminUser);
@@ -946,7 +946,7 @@ await supCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
 }, supUser);
@@ -974,7 +974,7 @@ await staleCtx.addInitScript((u) => {
   if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
   try { indexedDB.deleteDatabase("eyebot"); } catch {}
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  sessionStorage.setItem("eyebot_checkin_session", "1");
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
   localStorage.setItem("eyebot_rail_pinned", "1");
 }, studentUser);

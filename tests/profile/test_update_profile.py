@@ -73,16 +73,40 @@ async def test_update_profile_increments_session_count():
 
 @pytest.mark.asyncio
 async def test_update_profile_increments_streak_from_yesterday():
-    profile = _profile(last_checkin_date="2026-05-04", last_active="2026-05-01", streak=4)
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-01", streak=4)
     mock_update = await _run(profile, TUE, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 5
+
+
+@pytest.mark.asyncio
+async def test_update_profile_never_writes_phantom_last_checkin_date():
+    # Regression for the streak-persistence bug: last_checkin_date is not a real
+    # column — writing it in the main batch failed the whole PATCH so the streak
+    # never saved. No db write may ever include that key.
+    mock_update = await _run(_profile(checkin_history=["2026-05-04"], streak=4), TUE, checkin_done=True)
+    for call in mock_update.call_args_list:
+        assert "last_checkin_date" not in call.kwargs
+    # ...and the streak IS persisted in the same batch as checkin_done_today.
+    main = _main_update_kwargs(mock_update)
+    assert main["streak"] == 5 and main["checkin_done_today"] is True
+
+
+@pytest.mark.asyncio
+async def test_update_profile_recovers_streak_from_history_when_column_zero():
+    # The stored streak column read back as 0 (the persistence bug), but the check-in
+    # log kept accruing. Checking in must continue the *recovered* streak, not restart
+    # at 1. History = Mon-Fri; today is the next Monday (weekend bridges) -> 6.
+    hist = ["2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08"]
+    profile = _profile(checkin_history=hist, streak=0, best_streak=0)
+    mock_update = await _run(profile, NEXT_MON, checkin_done=True)
+    assert _main_update_kwargs(mock_update)["streak"] == 6
 
 
 @pytest.mark.asyncio
 async def test_update_profile_keeps_streak_over_weekend():
     # Checked in Friday, checking in Monday — the weekend is a rest period, so the
     # streak continues (no freeze needed).
-    profile = _profile(last_checkin_date="2026-05-08", last_active="2026-05-08", streak=6)
+    profile = _profile(checkin_history=["2026-05-08"], last_active="2026-05-08", streak=6)
     mock_update = await _run(profile, NEXT_MON, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 7
 
@@ -90,7 +114,7 @@ async def test_update_profile_keeps_streak_over_weekend():
 @pytest.mark.asyncio
 async def test_update_profile_freeze_bridges_one_missed_weekday():
     # Missed Tuesday but a freeze is banked -> streak survives and the freeze is spent.
-    profile = _profile(last_checkin_date="2026-05-04", streak=6, streak_freezes=1)
+    profile = _profile(checkin_history=["2026-05-04"], streak=6, streak_freezes=1)
     mock_update = await _run(profile, WED, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 7
     assert _streak_cols_kwargs(mock_update)["streak_freezes"] == 0
@@ -99,21 +123,21 @@ async def test_update_profile_freeze_bridges_one_missed_weekday():
 @pytest.mark.asyncio
 async def test_update_profile_resets_streak_after_two_missed_weekdays():
     # Mon -> Thu: Tue and Wed missed, no freeze can bridge two -> reset to 1 (today counts).
-    profile = _profile(last_checkin_date="2026-05-04", last_active="2026-05-06", streak=10)
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-06", streak=10)
     mock_update = await _run(profile, THU, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 1
 
 
 @pytest.mark.asyncio
 async def test_update_profile_starts_streak_on_first_checkin():
-    profile = _profile(last_checkin_date=None, last_active="2026-05-01", streak=0)
+    profile = _profile(checkin_history=[], last_active="2026-05-01", streak=0)
     mock_update = await _run(profile, MON, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 1
 
 
 @pytest.mark.asyncio
 async def test_update_profile_records_best_streak_and_history():
-    profile = _profile(last_checkin_date="2026-05-04", streak=6, best_streak=6, checkin_history=["2026-05-04"])
+    profile = _profile(streak=6, best_streak=6, checkin_history=["2026-05-04"])
     mock_update = await _run(profile, TUE, checkin_done=True)
     cols = _streak_cols_kwargs(mock_update)
     assert cols["best_streak"] == 7
@@ -122,7 +146,7 @@ async def test_update_profile_records_best_streak_and_history():
 
 @pytest.mark.asyncio
 async def test_update_profile_does_not_double_increment_same_day():
-    profile = _profile(last_checkin_date="2026-05-04", last_active="2026-05-04", streak=4)
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4)
     mock_update = await _run(profile, MON, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 4
 

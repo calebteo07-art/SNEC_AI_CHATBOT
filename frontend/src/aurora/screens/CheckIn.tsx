@@ -4,6 +4,7 @@
    deterministic on the server (no AI). The /api/checkin/* flow is preserved. */
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
@@ -15,6 +16,7 @@ interface QuestionData { question: string; topic: string; options: string[]; que
 
 export function CheckIn() {
   const router = useRouter();
+  const qc = useQueryClient();
   const { setCheckInDone } = useAuth();
 
   const [streak, setStreak] = useState(0);
@@ -29,7 +31,12 @@ export function CheckIn() {
   const [loadError, setLoadError] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
-  const goDashboard = () => { setCheckInDone(true); router.push("/dashboard"); };
+  const goDashboard = () => {
+    setCheckInDone(true);
+    // Pull the freshest streak/Lumens/level onto the dashboard we're about to show.
+    qc.invalidateQueries({ queryKey: ["progress"] });
+    router.push("/dashboard");
+  };
   const handleRetry = () => { setLoadError(false); setPhase("loading"); setLoadAttempt((a) => a + 1); };
 
   useEffect(() => {
@@ -40,6 +47,13 @@ export function CheckIn() {
         if (!statusRes.ok) throw new Error("status_failed");
         const status = await statusRes.json();
         if (cancelled) return;
+        // Once per day: if today's check-in is already recorded (server truth, e.g.
+        // done earlier on another device), don't show it again — go straight in.
+        if (status.checkin_done_today) {
+          setCheckInDone(true);
+          router.replace("/dashboard");
+          return;
+        }
         setStreak(status.streak ?? 0);
         setWeakTopic(status.weak_topic ?? null);
         syncStreakFromBackend(status.streak ?? 0);
@@ -87,6 +101,9 @@ export function CheckIn() {
       setCorrectAnswer(data.correct_answer ?? "");
       setFeedback(data.feedback ?? "");
       setCheckInDone(true);
+      // The check-in advanced the streak server-side — refresh so every surface
+      // (dashboard streak card, sidebar) shows the new count in real time.
+      qc.invalidateQueries({ queryKey: ["progress"] });
       setPhase("result");
     } catch {
       toast.error("Couldn't submit answer — please try again.");

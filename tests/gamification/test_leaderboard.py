@@ -5,6 +5,8 @@ Ranked by XP only; ties broken stably by resolved name. A role filter ranks with
 that role. The viewer's own row is flagged. Name = display_name if set, else
 first-name + last-initial from the consent roster.
 """
+from datetime import date
+
 from tools.gamification.leaderboard import rank_entries, short_name
 
 
@@ -96,6 +98,21 @@ def test_missing_streak_and_avatar_default_safely():
     out = rank_entries(profiles, names, viewer_id="a")
     assert out[0]["streak_days"] == 0
     assert out[0]["avatar_config"] is None
+
+
+def test_level_derived_from_xp_not_the_stored_column():
+    # There is no `level` column in the DB (reading it returned always-1). Level must
+    # be computed from xp; a stale column value is ignored.
+    profiles = [{"student_id": "a", "xp": 1250, "level": 1}]
+    out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a")
+    assert out[0]["level"] == 3   # 1250 // 500 + 1
+
+
+def test_streak_days_healed_from_history_when_today_supplied():
+    hist = ["2026-05-04", "2026-05-05", "2026-05-06"]
+    profiles = [{"student_id": "a", "xp": 300, "streak": 0, "checkin_history": hist}]
+    out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a", today=date(2026, 5, 6))
+    assert out[0]["streak_days"] == 3   # recovered from the check-in log, not the 0 column
 
 
 def test_rank_entries_carries_portrait_urls():

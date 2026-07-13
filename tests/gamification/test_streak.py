@@ -11,7 +11,9 @@ from tools.gamification.streak import (
     current_week_states,
     is_weekday,
     missed_weekdays,
+    resolve_streak,
     streak_alive,
+    streak_state_from_history,
     tier_for,
 )
 
@@ -194,3 +196,66 @@ def test_tier_top():
     assert top["tier"] == "Visionary"
     assert top["next"] is None
     assert top["to_next"] == 0
+
+
+# ── streak_state_from_history (reconstruction from the durable check-in log) ──
+
+def test_history_empty_is_zero():
+    s = streak_state_from_history([], WED)
+    assert s["streak"] == 0
+    assert s["last_checkin"] is None
+    assert s["done_today"] is False
+
+
+def test_history_single_day():
+    s = streak_state_from_history([MON.isoformat()], MON)
+    assert s["streak"] == 1
+    assert s["last_checkin"] == MON
+    assert s["done_today"] is True
+
+
+def test_history_consecutive_weekdays_reconstructs_full_streak():
+    hist = [d.isoformat() for d in (MON, TUE, WED, THU, FRI)]
+    s = streak_state_from_history(hist, FRI)
+    assert s["streak"] == 5
+    assert s["freezes"] == 1        # banked at the 5th weekday
+    assert s["best"] == 5
+
+
+def test_history_bridges_weekend():
+    hist = [THU.isoformat(), FRI.isoformat(), NEXT_MON.isoformat()]
+    s = streak_state_from_history(hist, NEXT_MON)
+    assert s["streak"] == 3
+
+
+def test_history_unsorted_and_deduped():
+    hist = [TUE.isoformat(), MON.isoformat(), TUE.isoformat()]
+    s = streak_state_from_history(hist, TUE)
+    assert s["streak"] == 2
+    assert s["done_today"] is True
+
+
+# ── resolve_streak (what the app DISPLAYS: stored column, healed from history) ──
+
+def test_resolve_prefers_stored_column_when_set():
+    # The stored streak (25) has grown past the capped history — trust it.
+    r = resolve_streak(25, 1, [MON.isoformat()], TUE)
+    assert r["current"] == 25
+
+
+def test_resolve_heals_from_history_when_column_never_persisted():
+    # The last_checkin_date bug left the streak column at 0 while the check-in log
+    # kept accruing — recover the real streak from history.
+    hist = [MON.isoformat(), TUE.isoformat(), WED.isoformat()]
+    r = resolve_streak(0, 0, hist, WED)
+    assert r["current"] == 3
+
+
+def test_resolve_zeroes_a_lapsed_streak():
+    r = resolve_streak(0, 0, [MON.isoformat()], date(2026, 5, 20))
+    assert r["current"] == 0
+
+
+def test_resolve_reports_done_today_from_history():
+    assert resolve_streak(0, 0, [WED.isoformat()], WED)["done_today"] is True
+    assert resolve_streak(3, 0, [TUE.isoformat()], WED)["done_today"] is False

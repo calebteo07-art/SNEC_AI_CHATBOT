@@ -40,8 +40,8 @@ export function StreakTile({
         <span className="hm-t"><Icon name="flame" /> Daily streak</span>
         <span className="hm-goalring" role="img" aria-label={`Daily goal ${xpToday} of ${dailyGoal} Lumens`}>
           <svg width="48" height="48" viewBox="0 0 48 48">
-            <circle cx="24" cy="24" r={r} fill="none" stroke="#EFE7DA" strokeWidth="5" />
-            <circle cx="24" cy="24" r={r} fill="none" stroke="#7C5CF6" strokeWidth="5" strokeLinecap="round"
+            <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,.32)" strokeWidth="5" />
+            <circle cx="24" cy="24" r={r} fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round"
               strokeDasharray={circ} strokeDashoffset={off} transform="rotate(-90 24 24)" />
           </svg>
           <span className="hm-rc">{Math.round(pct * 100)}%</span>

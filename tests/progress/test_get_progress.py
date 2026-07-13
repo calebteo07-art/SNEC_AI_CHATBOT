@@ -17,7 +17,6 @@ def _profile(**kwargs):
         "streak_freezes": 1,
         "best_streak": 9,
         "checkin_history": ["2026-05-04", "2026-05-05"],
-        "last_checkin_date": "2026-05-05",
         "xp_today": 60,
         "xp_today_date": "2026-05-05",
     }
