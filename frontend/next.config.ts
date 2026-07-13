@@ -16,6 +16,11 @@ const CSP = [
   "img-src 'self' data: blob:",
   "media-src 'self'",
   "connect-src 'self'",
+  /* canvas-confetti offloads its animation to a Worker created from a blob: URL
+   * (the celebratory reward banner). Without an explicit worker-src, workers
+   * fall back to script-src (no blob:) and the browser blocks the worker. 'self'
+   * keeps the same-origin /sw.js service worker registerable. */
+  "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
