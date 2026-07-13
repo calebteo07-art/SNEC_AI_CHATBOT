@@ -109,9 +109,11 @@
 .hm-greet-body { position:relative; z-index:3; }
 
 /* ── streak tile ── */
+/* daily-streak card — a warm amber/peach wash (was near-white) that reads as the
+   flame's own colour family, drawn from the homepage candy palette. */
 .hm-streak { position:relative; overflow:hidden; border-radius:var(--hr);
-  background:radial-gradient(120% 90% at 18% 0%, #FFF3E4 0%, var(--card) 46%);
-  border:1px solid var(--line); box-shadow:var(--sh-lg); padding:22px 28px;
+  background:radial-gradient(135% 125% at 12% -8%, #FFD9A6 0%, #FFE9CE 44%, #FFF5E7 100%);
+  border:1px solid #F6D9AE; box-shadow:var(--sh-lg); padding:22px 28px;
   display:flex; flex-direction:column; justify-content:space-between; }
 .hm-streak::before { content:""; position:absolute; left:44px; top:112px; width:7px; height:7px; border-radius:50%;
   background:radial-gradient(circle,#FDBA74,#F43F5E); opacity:0; pointer-events:none; z-index:1;
@@ -158,62 +160,74 @@
   background:linear-gradient(180deg,#9B7BFF,#7C3AED); box-shadow:0 6px 13px -4px rgba(124,58,237,.55); }
 .hm-nexttier .hm-tag::before { content:""; position:absolute; inset:0; background:var(--sheen); pointer-events:none; }
 
-/* ── feature carousel (3D coverflow) ── */
-.hm-carousel { position:relative; height:306px; perspective:1500px; }
+/* ── feature carousel (3D coverflow) — SPLIT-HERO cards ──
+   Two layers only: a bold candy gradient (vibrancy from CSS, WCAG-controllable) and a
+   transparent mascot cut-out bleeding off the right. Title / sub / CTA sit on the flat
+   colour at the left — never on the art — so the text stays crisp and the mascot blends
+   seamlessly (no photo box to clash with the words). Enlarged from the old 384×220. */
+.hm-carousel { position:relative; height:360px; perspective:1600px; }
 .hm-ring3d { position:absolute; inset:0; transform-style:preserve-3d; cursor:pointer; }
 /* Cards are pointer-events:none so every tap lands on the stage, which resolves it
    to the nearest card (see FeatureCarousel.tsx). Keeps clicks from being swallowed
    by the drift / 3D projection. Keyboard Enter still navigates via the <a href>. */
-.hm-fcard { position:absolute; left:50%; top:50%; width:384px; height:220px; margin-left:-192px; margin-top:-110px;
-  border-radius:var(--hr); padding:24px 26px 24px; color:#fff; display:flex; flex-direction:column; overflow:hidden;
+.hm-fcard { position:absolute; left:50%; top:50%; width:466px; height:300px; margin-left:-233px; margin-top:-150px;
+  border-radius:26px; padding:34px 34px 30px; color:#fff; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
   box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
-/* full-bleed Selena scene: bottom-up scrim over the scene image over the tone
-   gradient (the tone gradient is the graceful fallback if the .webp is missing).
-   Scrim keeps kicker/title/sub/CTA WCAG-legible; text nodes are position:relative. */
-.hm-fcard { background-size:cover; background-position:center top; background-repeat:no-repeat; }
-.hm-fcard.tutor { background-image:linear-gradient(180deg,rgba(48,14,92,.36) 0%,rgba(48,14,92,.05) 30%,rgba(48,14,92,.76) 82%), url("/brand/features/tutor.webp"), linear-gradient(155deg,#B79CFF 0%,#6D28D9 100%); }
-.hm-fcard.vp    { background-image:linear-gradient(180deg,rgba(4,58,52,.34) 0%,rgba(4,58,52,.05) 30%,rgba(4,58,52,.76) 82%), url("/brand/features/vp.webp"), linear-gradient(155deg,#3AE3CC 0%,#0B8A79 100%); }
-.hm-fcard.flash { background-image:linear-gradient(180deg,rgba(120,18,44,.34) 0%,rgba(120,18,44,.05) 30%,rgba(120,18,44,.76) 82%), url("/brand/features/flash.webp"), linear-gradient(155deg,#FFC178 0%,#F5325F 100%); }
-.hm-fcard::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 36%); }
-.hm-fcard .hm-deco { position:absolute; right:-22px; bottom:-28px; width:158px; height:158px; opacity:.16; color:#fff; }
-/* decorative light bloom, top-right — gives each card depth instead of a flat panel */
-.hm-fcard .hm-fcard-orb { position:absolute; right:-46px; top:-56px; width:186px; height:186px; border-radius:50%;
-  background:radial-gradient(circle at 42% 42%,rgba(255,255,255,.44),transparent 62%); pointer-events:none; }
-.hm-fcard-top { position:relative; display:flex; align-items:center; gap:13px; }
-.hm-fcard .hm-tile { position:relative; width:54px; height:54px; border-radius:16px; background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,.16)); display:flex; align-items:center; justify-content:center; box-shadow:inset 0 1px 0 rgba(255,255,255,.5), inset 0 0 0 1px rgba(255,255,255,.28), 0 8px 18px -8px rgba(0,0,0,.38); }
-.hm-fcard .hm-tile .ico { width:28px; height:28px; }
-.hm-kicker { font-weight:700; font-size:12.5px; letter-spacing:.09em; text-transform:uppercase; color:#fff;
-  background:rgba(18,10,28,.36); border:1px solid rgba(255,255,255,.32); padding:6px 12px; border-radius:999px; backdrop-filter:blur(2px); }
-.hm-fcard h3 { position:relative; font-family:var(--font-home); font-weight:700; font-size:29px; margin:auto 0 0; letter-spacing:-.01em; }
-.hm-fcard p { position:relative; font-size:16px; font-weight:500; opacity:.96; margin:3px 0 0; }
-.hm-fcard .hm-open { position:relative; margin-top:15px; display:inline-flex; align-items:center; gap:8px; align-self:flex-start; background:linear-gradient(180deg,#FFFFFF,#FBEFE0); color:#2B2431; font-weight:800; font-size:15px; padding:10px 17px; border-radius:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 8px 17px -6px rgba(0,0,0,.34); }
-.hm-fcard .hm-open .ico { width:16px; height:16px; stroke-width:2.1; }
+/* bold candy tone gradients — dark enough on the LEFT (where the text lives) for white
+   to stay WCAG-legible, brighter on the right where the mascot bleeds in. */
+.hm-fcard.tutor { background:linear-gradient(105deg,#5B21B6 0%,#7C3AED 46%,#9D6BFF 100%); }
+.hm-fcard.vp    { background:linear-gradient(105deg,#0B6E62 0%,#0EA894 48%,#26D3B8 100%); }
+.hm-fcard.flash { background:linear-gradient(105deg,#C81E5B 0%,#F4557A 46%,#FF9F43 100%); }
+/* soft top-light sheen + a bloom top-right — depth on the single gradient layer, no
+   extra content layers stacked over the art. */
+.hm-fcard::before { content:""; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(120% 90% at 88% 6%, rgba(255,255,255,.34), transparent 55%),
+             linear-gradient(180deg, rgba(255,255,255,.20), transparent 34%); }
+/* the transparent mascot, bleeding off the right edge (layer 2) */
+.hm-fcard-mascot { position:absolute; right:-16px; bottom:-8px; height:296px; width:auto; z-index:1;
+  object-fit:contain; pointer-events:none; filter:drop-shadow(0 16px 26px rgba(18,8,36,.32)); }
+/* text column, held to the calm left half so no word runs under the mascot */
+.hm-fcard-body { position:relative; z-index:2; display:flex; flex-direction:column; max-width:60%; }
+.hm-fcard h3 { font-family:var(--font-home); font-weight:800; font-size:35px; line-height:1.02; letter-spacing:-.02em; margin:0;
+  text-shadow:0 2px 14px rgba(16,6,32,.28); }
+.hm-fcard p { font-size:16.5px; font-weight:500; opacity:.97; margin:9px 0 0; line-height:1.35; text-shadow:0 1px 9px rgba(16,6,32,.24); }
+.hm-fcard .hm-open { margin-top:19px; display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+  background:linear-gradient(180deg,#FFFFFF,#FBEFE0); color:#2B2431; font-weight:800; font-size:15px; padding:11px 18px; border-radius:13px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 10px 20px -7px rgba(0,0,0,.36); }
+.hm-fcard .hm-open .ico { width:16px; height:16px; stroke-width:2.2; }
 .hm-carnav { position:absolute; inset:0; display:flex; align-items:center; justify-content:space-between; padding:0 6px; pointer-events:none; z-index:60; }
 .hm-carbtn { pointer-events:auto; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--hink); font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--sh); cursor:pointer; padding-bottom:3px; transition:transform .15s, background .15s; }
 .hm-carbtn:hover { background:#fff; transform:scale(1.06); }
 
-/* ── lower bento (milestones + stats) ── */
-.hm-lower { display:grid; grid-template-columns:1.55fr 1fr; gap:14px; }
-.hm-panel { position:relative; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:24px 26px; }
+/* ── lower bento (the two badge shelves) — EQUAL width (was 1.55fr / 1fr) so the streak
+   and Lumens badge cards are the same size. ── */
+.hm-lower { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.hm-panel { position:relative; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
+/* themed tints (were boring white): streak-badge shelf = violet/collectible, Lumens
+   vault = gold/light — a cohesive family with the warm homepage palette. */
+.hm-panel--streakbadge { background:radial-gradient(125% 130% at 100% 0%, #ECE3FF 0%, #F9F5FF 58%); border-color:#E4D8FA; }
+.hm-panel--lumen { background:radial-gradient(125% 130% at 100% 0%, #FFEFBE 0%, #FFFBEC 58%); border-color:#F1E1B4; }
 .hm-ph { position:relative; font-family:var(--font-home); font-weight:700; font-size:20px; margin:0 0 18px; padding-bottom:12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
 .hm-ph::after { content:""; position:absolute; left:0; bottom:-1px; width:52px; height:2px; border-radius:2px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
 .hm-vault-note { margin:-10px 0 16px; font-size:12.5px; color:var(--hink3); line-height:1.4; }
 /* ── streak badge collection — generated collectible medallions (Nano Banana flash) ── */
-.hm-badges { position:relative; display:grid; grid-template-columns:repeat(3,1fr); gap:16px 12px; list-style:none; margin:0; padding:2px 0 0; }
+/* enlarged medallions + text (was 76px / 13.5px) now the shelves are equal-width and
+   there's room — kills the excessive white space the small badges left behind. */
+.hm-badges { position:relative; display:grid; grid-template-columns:repeat(3,1fr); gap:18px 12px; list-style:none; margin:0; padding:2px 0 0; }
 .hm-badges::after { content:""; position:absolute; left:6%; right:6%; bottom:-6px; height:10px; border-radius:50%; background:radial-gradient(ellipse at center, rgba(120,60,30,.10), transparent 72%); }
-.hm-badge { display:flex; flex-direction:column; align-items:center; text-align:center; gap:7px; }
-.hm-badge-medal { position:relative; width:76px; height:76px; }
-.hm-badge-art { width:76px; height:76px; object-fit:cover; border-radius:20px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
-.hm-badge-name { font-weight:700; font-size:13.5px; color:var(--hink); line-height:1.15; }
-.hm-badge-meta { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--hink3); }
-.hm-badge-seal { position:absolute; top:-5px; right:-5px; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; color:#fff; background:linear-gradient(150deg,#FBBF24,#FB7185); box-shadow:0 3px 8px -2px rgba(251,113,133,.7); border:2px solid var(--card); }
-.hm-badge-lock { position:absolute; inset:0; display:grid; place-items:center; font-size:23px; }
+.hm-badge { display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
+.hm-badge-medal { position:relative; width:98px; height:98px; }
+.hm-badge-art { width:98px; height:98px; object-fit:cover; border-radius:22px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
+.hm-badge-name { font-weight:700; font-size:15.5px; color:var(--hink); line-height:1.15; }
+.hm-badge-meta { font-size:12.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--hink3); }
+.hm-badge-seal { position:absolute; top:-6px; right:-6px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:14px; color:#fff; background:linear-gradient(150deg,#FBBF24,#FB7185); box-shadow:0 3px 8px -2px rgba(251,113,133,.7); border:2px solid var(--card); }
+.hm-badge-lock { position:absolute; inset:0; display:grid; place-items:center; font-size:29px; }
 
 /* collected: vivid, gentle float + a diagonal shine sweep clipped to the medallion */
 .hm-badge[data-state="collected"] .hm-badge-medal { animation:badge-float 4.6s ease-in-out infinite; }
 .hm-badge[data-state="collected"] .hm-badge-medal::after {
-  content:""; position:absolute; inset:0; border-radius:20px; pointer-events:none; mix-blend-mode:screen;
+  content:""; position:absolute; inset:0; border-radius:22px; pointer-events:none; mix-blend-mode:screen;
   background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.6) 48%,transparent 56%);
   background-size:250% 100%; background-position:150% 0; animation:badge-shine 4.2s ease-in-out infinite;
 }
@@ -252,12 +266,18 @@
   /* stacked (single-column) card is portrait-ish → bias the cover crop to the
      mascot side so she stays in frame. */
   .hm-selenaloop-v { object-position:72% 45%; }
-  .hm-carousel { height:270px; }
+  .hm-carousel { height:340px; }
 }
 @media (max-width:560px) {
   .hm-greet h1 { font-size:37px; max-width:76%; }
   .hm-sub { font-size:18px; max-width:63%; }
   .hm-iriswrap { display:none; }
+  /* shrink the split-hero feature card so the front card fits the narrow viewport */
+  .hm-fcard { width:min(88vw,392px); height:272px; margin-left:calc(min(88vw,392px) / -2); margin-top:-136px; padding:26px 26px 24px; }
+  .hm-fcard h3 { font-size:29px; }
+  .hm-fcard p { font-size:15.5px; }
+  .hm-fcard-mascot { height:240px; right:-12px; }
+  .hm-carousel { height:300px; }
   /* narrow card: bias the mascot further right so the copy + XP readout keep a clear
      left column, and stack the level readout left of the mascot instead of pushing
      the XP figures onto its face (space-between collided on 390px). */
@@ -269,7 +289,7 @@
   .hm-lvl { max-width:62%; margin-top:20px; }
   .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
   .hm-badges { gap:14px 10px; }
-  .hm-badge-medal, .hm-badge-art { width:66px; height:66px; }
+  .hm-badge-medal, .hm-badge-art { width:80px; height:80px; }
 }
 
 /* reduced motion — freeze the badge float / shine / pulse / legendary glow */

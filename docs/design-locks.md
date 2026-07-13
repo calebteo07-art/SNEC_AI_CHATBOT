@@ -298,6 +298,33 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
   **all added motion** (XP shine, heat-glow, jewel pop, today-pulse, springs) **freezes** under
   `prefers-reduced-motion` / `data-motion=reduce`; the aurora harness stays green (structure,
   testids, badge states, mascot reduced-motion freeze all intact); **no generated asset replaced.**
+- **Split-hero feature cards + coloured stat/badge cards (2026-07-13, user directive: "cards too
+  small / dull / too layered — not seamless; regenerate all 3 with nano banana; the boring-white
+  stat cards should be beautifully coloured; the two badge cards same size + bigger badges")**:
+  - **FeatureCarousel is now SPLIT-HERO** (`FeatureCarousel.tsx` + `.hm-fcard*` in `home.css`): each
+    card is **two layers** — a bold candy CSS gradient (dark-enough on the LEFT for WCAG white text,
+    brighter right) + a **transparent Nano-Banana mascot cut-out** bleeding off the right — with only
+    **title + sub + CTA** on the solid left. The kicker pill, the big deco icon, the tile-icon, the
+    orb and the scrim are **removed** (`FEATURES` lost `icon`/`kicker`); cards **enlarged** 384×220→
+    **466×300** (carousel 306→360px; SX/DZ retuned). Each mascot now **DOES its feature action**
+    (tutor → points at a glowing lightbulb; vp → examines with a handheld **ophthalmoscope**; flash →
+    fans glowing recall cards). This **SUPERSEDES** the come-alive "full-bleed default-Selena scenes"
+    + the "**feature scenes preserved / no generated asset replaced**" hard constraints — the three
+    `brand/features/{tutor,vp,flash}.webp` are **replaced with transparent alpha cut-outs**.
+  - **Stat/badge cards coloured** (were boring white): daily-streak = warm **amber/peach** wash
+    (`.hm-streak`); streak-badge shelf = **violet** tint (`.hm-panel--streakbadge`); Lumens vault =
+    **gold** tint (`.hm-panel--lumen`) — one cohesive family from the homepage candy palette, CSS-only.
+  - **Badge shelves equal-size + bigger**: `.hm-lower` `1.55fr/1fr` → **`1fr/1fr`**; medallions
+    76→**98px**, name 13.5→15.5px, meta 11.5→12.5px, tighter padding (kills the white space).
+  - **Pipeline gotcha (recorded so nobody re-fights it)**: Nano-Banana **flash ignores "transparent
+    background"** and paints the transparency **checkerboard** (fully opaque). `tools/brand/
+    generate_feature_art.py::key_background` flood-fills the desaturated bg (chroma ≤46, connected
+    from the border) to **real alpha**, erodes 2px + feathers to kill the grey fringe; `--key`
+    re-keys existing `.tmp` PNGs without a paid regen; install saves **RGBA→webp** (alpha kept).
+  - **Acceptance preserved**: WCAG-AA white-on-gradient, **390-safe** (`.aurora-main-scroll`
+    `overflow-x:hidden` clips the oversized coverflow; measured 0px), coverflow **mechanics
+    unchanged** (drift / tap-to-nearest / arrows / keyboard), reduced-motion freezes + all home
+    testids intact, aurora harness green on a prod build.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout

@@ -12,7 +12,7 @@ export function MilestoneLadder({ detail }: { detail?: StreakDetail }) {
   const collected = STREAK_BADGES.filter((b) => current >= b.at).length;
 
   return (
-    <section className="hm-panel" data-testid="milestone-ladder" aria-label="Streak badge collection">
+    <section className="hm-panel hm-panel--streakbadge" data-testid="milestone-ladder" aria-label="Streak badge collection">
       <p className="hm-ph disp">
         Badge collection
         <span className="hm-c">{collected} of {STREAK_BADGES.length} collected</span>
