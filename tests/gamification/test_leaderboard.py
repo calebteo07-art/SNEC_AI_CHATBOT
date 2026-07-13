@@ -92,6 +92,18 @@ def test_streak_and_avatar_passthrough():
     assert out[0]["avatar_config"] == cfg
 
 
+def test_avatar_config_carries_character_axes_for_eyecon_fallback():
+    # The <Eyecon> representative-tile fallback (frontend) needs the tile-bearing axes
+    # (topper/outfit/glasses/…), not just `background`, to show a customized look on the
+    # board when the paid AI portrait hasn't rendered. Lock in that the FULL config — not a
+    # background-only subset — reaches each entry.
+    cfg = {"bodyColor": "aqua", "topper": "crown", "outfit": "labcoat", "background": "galaxy"}
+    profiles = [_p("a", 300, avatar_config=cfg)]
+    out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a")
+    assert out[0]["avatar_config"] == cfg
+    assert out[0]["avatar_config"]["topper"] == "crown"
+
+
 def test_missing_streak_and_avatar_default_safely():
     profiles = [_p("a", 300)]
     names = {"a": "Ann Aa"}
