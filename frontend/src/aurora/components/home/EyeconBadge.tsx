@@ -1,4 +1,4 @@
-/* SelenaBadge — one collectible medallion in the streak badge shelf. The generated tier
+/* EyeconBadge — one collectible medallion in the streak badge shelf. The generated tier
    badge (base Iris in costume) sits in the shelf; collected badges shine + float with a
    rarity glow + a ★ seal, the next tier glows with its progress, and locked tiers are a
    greyscale mystery (earn it to reveal the art in colour). CSS-only motion. */
@@ -6,7 +6,7 @@ import type { StreakBadge } from "./streakBadges";
 
 export type BadgeState = "collected" | "next" | "locked";
 
-export function SelenaBadge({ badge, state, toNext = 0 }: {
+export function EyeconBadge({ badge, state, toNext = 0 }: {
   badge: StreakBadge;
   state: BadgeState;
   toNext?: number;

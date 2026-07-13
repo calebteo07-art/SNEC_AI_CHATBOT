@@ -158,13 +158,13 @@ console.log("PASS: dashboard has no horizontal overflow at 390px");
 
 // Animated Selena logo greets on Home (logo→raster brief): the rest frame IS the
 // homepage iris.png, running the calm "hello" motion.
-const homeLogo = np.locator('[data-testid="selena-logo"]').first();
-if ((await homeLogo.count()) < 1) { console.error("FAIL: SelenaLogo missing on the Home greeting"); process.exit(1); }
+const homeLogo = np.locator('[data-testid="eyecon-logo"]').first();
+if ((await homeLogo.count()) < 1) { console.error("FAIL: EyeconLogo missing on the Home greeting"); process.exit(1); }
 const homeMotion = await homeLogo.getAttribute("data-motion");
-if (homeMotion !== "hello") { console.error(`FAIL: Home SelenaLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
-const homeRestSrc = (await homeLogo.locator(".selena-logo-rest").getAttribute("src")) ?? "";
-if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home SelenaLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
-console.log("PASS: Home — animated SelenaLogo (hello) on the iris.png rest frame");
+if (homeMotion !== "hello") { console.error(`FAIL: Home EyeconLogo motion is '${homeMotion}', expected 'hello'`); process.exit(1); }
+const homeRestSrc = (await homeLogo.locator(".eyecon-logo-rest").getAttribute("src")) ?? "";
+if (!/\/brand\/iris\.png/.test(homeRestSrc)) { console.error(`FAIL: Home EyeconLogo rest frame is not iris.png (src=${homeRestSrc})`); process.exit(1); }
+console.log("PASS: Home — animated EyeconLogo (hello) on the iris.png rest frame");
 
 // cases: the Atlas Map renders and a region pin filters the case list.
 await np.setViewportSize({ width: 1440, height: 900 });
@@ -579,12 +579,12 @@ if (dm !== "reduce") { console.error(`FAIL: reduced-motion toggle did not set da
 // reduced-motion pref has re-applied on this navigation — avoids grabbing the transient
 // BrandSplash mascot mid-unmount (getComputedStyle on a detaching node returns "").
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.hm-iris .selena-logo-swap', { state: "attached", timeout: 15000 });
+await np.waitForSelector('.hm-iris .eyecon-logo-swap', { state: "attached", timeout: 15000 });
 await np.waitForFunction(() => document.documentElement.dataset.motion === "reduce", null, { timeout: 5000 });
-const swapOpacity = await np.locator('.hm-iris .selena-logo-swap').first()
+const swapOpacity = await np.locator('.hm-iris .eyecon-logo-swap').first()
   .evaluate((el) => getComputedStyle(el).opacity);
-if (swapOpacity !== "0") { console.error(`FAIL: SelenaLogo swap not hidden under reduced motion (opacity=${swapOpacity})`); process.exit(1); }
-console.log("PASS: reduced motion — SelenaLogo swap frozen (static rest)");
+if (swapOpacity !== "0") { console.error(`FAIL: EyeconLogo swap not hidden under reduced motion (opacity=${swapOpacity})`); process.exit(1); }
+console.log("PASS: reduced motion — EyeconLogo swap frozen (static rest)");
 await np.goto(base + "/profile", { waitUntil: "domcontentloaded" });
 await motionToggle.click();
 dm = await np.evaluate(() => document.documentElement.dataset.motion);
@@ -678,15 +678,15 @@ console.log("PASS: Selena everywhere — Profile avatar + rail chip render the s
 // The greeting card is ALWAYS the default living mascot — even for a customized
 // student (Custom-Selena lock amended 2026-07-10; user directive "greeting Selena
 // default from now on"). The custom render lives on Studio + the leaderboard only,
-// so a customized student must still see the brand SelenaLogo here (no .hm-selena
+// so a customized student must still see the brand EyeconLogo here (no .hm-eyecon
 // custom render node).
 reportCustomized = true;
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.hm-iriswrap [data-testid="selena-logo"]', { timeout: 15000 });
-if ((await np.locator(".hm-selena img.hm-selena-img").count()) > 0) {
+await np.waitForSelector('.hm-iriswrap [data-testid="eyecon-logo"]', { timeout: 15000 });
+if ((await np.locator(".hm-eyecon img.hm-eyecon-img").count()) > 0) {
   console.error("FAIL: greeting shows a custom render for a customized student (should always be the default mascot)"); process.exit(1);
 }
-const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="selena-logo"] .selena-logo-rest').getAttribute("src")) ?? "";
+const greetRestSrc = (await np.locator('.hm-iriswrap [data-testid="eyecon-logo"] .eyecon-logo-rest').getAttribute("src")) ?? "";
 if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting mascot is not the default iris.png (src=${greetRestSrc})`); process.exit(1); }
 console.log("PASS: Home greeting — always the DEFAULT living Selena, even when customized (lock amended 2026-07-10)");
 reportCustomized = false;
@@ -874,7 +874,7 @@ await healCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
 await healCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(healUser)));
 await healCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 0 })));
 await healCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({ xp: 0, xp_today: 0, daily_goal: 100, hearts: 3, level: 1, streak: 0, streak_detail: { current: 0, best: 0, week: [] }, weak_topics: [], topic_performance: [], sessions: [] })));
-// customized + portrait "none" ⇒ the greeting card shows the brand SelenaLogo (no ready
+// customized + portrait "none" ⇒ the greeting card shows the brand EyeconLogo (no ready
 // portrait) while useSelfHealPortrait fires the one-shot render request underneath.
 await healCtx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: true, portrait_status: "none", portrait_url: null })));
 // POST /api/avatar/portrait — count invocations; return a harmless keyless stub (MOCK-safe).
