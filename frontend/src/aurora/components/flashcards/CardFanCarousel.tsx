@@ -37,11 +37,11 @@ const WINDOW = 3;   // how many topics either side of the front are drawn; the r
 const TILT = 54;    // degrees a fully-banked side card is rotated away from the viewer
 
 function getCardWidth(width: number) {
-  if (width < 400) return 220;
-  if (width < 560) return 244;
-  if (width < 768) return 268;
-  if (width < 1024) return 288;
-  return 300;
+  if (width < 400) return 252;
+  if (width < 560) return 278;
+  if (width < 768) return 302;
+  if (width < 1024) return 326;
+  return 348;
 }
 
 // Coverflow spacing, derived from the card width so it scales proportionally on mobile.
@@ -267,7 +267,6 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
                 <img src={card.imgUrl} alt="" loading="eager" decoding="async"
                   fetchPriority={i === 0 ? "high" : "low"}
                   onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
-                <span className="fan-card-gloss" aria-hidden />
               </span>
               <span className="fan-card-cap">
                 <span className="fan-card-label">{card.label}</span>

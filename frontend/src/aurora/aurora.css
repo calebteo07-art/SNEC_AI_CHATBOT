@@ -2409,21 +2409,26 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
 .flash-step { width: 100%; animation: flash-rise .4s ease both; }
 .flash-step-body { display: flex; flex-direction: column; gap: 10px; }
 .flash-step-lede { position: relative; text-align: center; }
+/* The top line is the addictive arcade coin-gold (--fc-coin) — vivid, in-your-face on the graphite
+   ground, huge + glowing (a topic-hue glow harmonizes it with the live moving bloom) so it clearly
+   overpowers. The sub keeps its original neutral gray, just enlarged, so the gold title dominates
+   even harder by colour + scale (user, 2026-07-12). */
 .flash-setup-title { font-family: var(--font-sans); font-weight: 900; font-style: italic;
-  font-size: clamp(34px, 7vw, 62px); line-height: .96; letter-spacing: -.02em; margin: 0;
-  transform: skewX(-7deg); color: #fff;
-  text-shadow: 0 2px 26px hsl(var(--flash-topic-hue) 88% 55% / .4); }
-.flash-step-sub { text-align: center; margin: 10px 0 0; font: 700 clamp(13px,2.4vw,15.5px) var(--font-sans);
-  color: #b9c2ce; }
+  font-size: clamp(46px, 9.2vw, 88px); line-height: .92; letter-spacing: -.02em; margin: 0;
+  transform: skewX(-7deg); color: var(--fc-coin);
+  text-shadow: 0 3px 0 rgba(0,0,0,.34), 0 0 34px hsl(var(--flash-topic-hue) 92% 58% / .55),
+    0 0 15px rgba(255,210,30,.55); }
+.flash-step-sub { text-align: center; margin: 12px 0 0;
+  font: 700 clamp(16px,3.2vw,23px) var(--font-sans); color: #b9c2ce; }
 
 .fan-section { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
-.fan-stage { position: relative; width: 100%; height: clamp(440px, 66dvh, 600px);
+.fan-stage { position: relative; width: 100%; height: clamp(496px, 68dvh, 640px);
   /* Strong perspective (was a near-flat 2500) so the coverflow's forward centre card is clearly
      the biggest/upright one and the pushed-back neighbours read as receding — the flat ring made
      every card ~the same size, which is what crushed 5–7 windowed cards into one slab. */
   perspective: 1200px; perspective-origin: 50% 50%; overflow: hidden; isolation: isolate;
   animation: fan-in .7s ease both; }
-@media (max-width: 639px) { .fan-stage { height: clamp(360px, 56dvh, 470px); } }
+@media (max-width: 639px) { .fan-stage { height: clamp(384px, 58dvh, 486px); } }
 html[data-motion="reduce"] .fan-stage { animation: none; }
 /* the grid rises into place on mount (whole 3D scene as a group, then settles) */
 @keyframes fan-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
@@ -2440,23 +2445,23 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
    forward and neighbours back + banked, so many topics don't crush into a same-size slab. */
 .fan-layout { position: absolute; inset: 0; transform-style: preserve-3d; }
 .fan-ring { position: absolute; inset: 0; transform-style: preserve-3d; }
-.fan-card { position: absolute; left: 50%; top: 50%; width: 300px; height: 392px;
-  margin: -196px 0 0 -150px; padding: 0; border: 0; background: transparent; cursor: pointer;
+.fan-card { position: absolute; left: 50%; top: 50%; width: 348px; height: 452px;
+  margin: -226px 0 0 -174px; padding: 0; border: 0; background: transparent; cursor: pointer;
   /* taps are resolved at the stage (.fan-layout) against live card rects — see
      CardFanCarousel; keeping cards out of pointer hit-testing stops the drift + 3D
      projection from swallowing the click. Keyboard focus/Enter is unaffected. */
   pointer-events: none;
   will-change: transform, opacity; transform-style: preserve-3d; user-select: none; -webkit-tap-highlight-color: transparent; }
-@media (max-width: 639px) { .fan-card { width: 220px; height: 288px; margin: -144px 0 0 -110px; } }
+@media (max-width: 639px) { .fan-card { width: 252px; height: 328px; margin: -164px 0 0 -126px; } }
 .fan-card:focus-visible { outline: 3px solid var(--fc-coin); outline-offset: 4px; border-radius: 22px; }
 .fan-card.is-locked { cursor: not-allowed; }
 /* premium image card — subtle hue frame + a topic-hue halo (strongest on the centred card) */
 .fan-card-media { position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
   background: hsl(var(--fan-hue, 210) 42% 24%);
-  /* thick, vivid, fully-opaque hue frame + a crisp outer ring + a wide hue halo (user, 2026-07-12) */
+  /* FLAT, simple interior (user, 2026-07-12): no inner gloss or vignette — just the image inside a
+     thick, vivid, fully-opaque hue frame, a crisp outer ring + a wide hue halo. */
   border: 4px solid hsl(var(--fan-hue, 210) 95% 64%);
   box-shadow:
-    inset 0 2px 0 rgba(255,255,255,.3), inset 0 -34px 56px rgba(0,0,0,.42),
     0 26px 50px -14px rgba(0,0,0,.62),
     0 0 0 1.5px hsl(var(--fan-hue, 210) 96% 72% / .55),
     0 0 46px -4px hsl(var(--fan-hue, 210) 94% 58% / .8); }
@@ -2464,8 +2469,6 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
 .fan-card.is-placeholder .fan-card-media img { display: none; }
 .fan-card.is-placeholder .fan-card-media {
   background: linear-gradient(160deg, hsl(var(--fan-hue,210) 62% 52%), hsl(var(--fan-hue,210) 62% 34%)); }
-.fan-card-gloss { position: absolute; left: 8px; right: 8px; top: 8px; height: 32%; border-radius: 16px 16px 40% 40%;
-  background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0)); pointer-events: none; }
 .fan-card-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 30px 14px 14px;
   display: flex; flex-direction: column; gap: 2px;
   background: linear-gradient(180deg, transparent, rgba(6,10,16,.88) 62%); }
