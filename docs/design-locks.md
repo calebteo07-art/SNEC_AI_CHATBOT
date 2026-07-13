@@ -540,26 +540,37 @@ staff wear SingHealth blue scrubs with orange trim (pure-orange collar, no gap, 
 sleeves); user confirms before any paid generation; approved prompts get recorded in
 the feature's brief here.
 
-## Leaderboard "The Climb" — LOCKED 2026-07-10 (ricoe D7 refresh)
-Warm-premium gamified board scoped under `.lb-climb` (home palette + Bricolage, soft
-shadows, gradient banner, self-hosted `:has(.lb-climb)` warm canvas in leaderboard.css).
-Four layers, all derived client-side from the existing `/api/leaderboard` payload (no
-backend/DB change): **podium** (top 3, gold/silver/bronze, crown + champion glow on #1,
-tier crests), **rivalry spotlight** (`computeRivals`: exact XP to overtake the person
-above — flagged when it reaches the podium — plus the chaser below; handles #1 / last /
-hidden), **XP tiers** Bronze<2000 · Silver 2000 · Gold 4500 · Platinum 7000 · Diamond
-10000 (`tiers.ts`, banded rows + crests), and **glowing tiered rows** (count-up XP +
-leader-relative bar, violet you-row). Settings (hide toggle, display name, Edit Selena)
-demoted to one slim bar. Tier crests + champion crown are generated Nano-Banana-flash webp
-with committed SVG fallbacks (`crests.tsx`). CSS-only motion, frozen under reduced motion;
-390px-safe; one-time podium confetti (session + reduced-motion gated, via `@/fx/confetti`).
-- **Preserved D7 behavior**: everyone-by-default, XP-only rank, opt-out hide, optional
+## Leaderboard "vibrant & seamless" — LOCKED 2026-07-13 (supersedes "The Climb" D7)
+User de-cluttered "The Climb": the old board stacked **five** individually-styled floating
+panels (header card · podium · rivalry-spotlight card · tier-band headers · rows · settings
+card) and read "messy". Rebuilt as **one continuous board** on a richer warm candy canvas,
+scoped under `.lb-climb` (home palette + Bricolage), all derived client-side from the
+existing `/api/leaderboard` payload (**zero backend/DB change**). Direction approved via
+mockup; brief: *vibrant, seamless, gamified, addicting — "don't hold back"*.
+Top→bottom: **header** (one gradient-text `Leaderboard` h1 + trophy glyph, `Season 1`
+eyebrow, a short personal **chase hook** in `.lb-sub` computed from `computeRivals`
+(rank + Lumens to podium/next), role-filter chips) · **podium** (top 3, glossy
+gold/silver/bronze, crown + champion glow/float on #1, tier-ringed `<Selena>`, Lumens with
+the `<Lumen>` coin, tier crest **+ streak flame**) · **one color-graded ranked list** (rank
+4+: chunky glossy pill rows, tinted + left-accented + avatar-ringed by XP **tier** via inline
+`--rc`/`--rc1` — tiers survive as a per-row accent, NOT separate band headers; each row
+carries a `data-you` violet-glow state and a right cluster with **BOTH** a gold Lumens badge
+(count-up) **and** a 🔥 streak badge, stacked so they always fit at 390px; `Lv` chip hides
+≤420px) · **demoted settings** strip (hide toggle, display name, Edit Selena). Tier crests +
+champion crown are generated webp with committed SVG fallbacks (`crests.tsx`). CSS-only motion
+(header/podium shine, podium float, row entrance stagger, count-up, pulsing you-row),
+**fully frozen under reduced motion**; 390px-safe; one-time podium confetti (session +
+reduced-motion gated, via `@/fx/confetti`).
+- **Preserved behavior**: everyone-by-default, Lumens-only rank, opt-out hide, optional
   display name, role filter, real `<Selena>` headshots (default-mascot fallback), the
-  "Edit Selena" entry.
-- **Acceptance criteria when refining**: reads as the `.aurora-home` family; podium +
-  spotlight + tiers + glowing you-row all present; every D7 behavior intact; zero
-  backend/DB change; motion fully frozen under reduced motion; 390px-safe; WCAG-legible;
-  crests degrade to committed SVG if a webp is missing. Spec:
-  docs/superpowers/specs/2026-07-10-leaderboard-the-climb-design.md.
+  "Edit Selena" entry, `tiers.ts` math (`tierForXp`/`splitPodium`/`computeRivals`; `bandRows`
+  now test-only). **Deleted**: `RivalrySpotlight.tsx`, `TierBand.tsx`.
+- **Acceptance criteria when refining** (name the criterion you're changing): one seamless
+  board (header → podium → single list → settings), NOT a multi-panel stack; unmistakably
+  more vibrant/gamified than "The Climb" yet still the warm Aurora family; every ranked row
+  shows BOTH a Lumens and a streak badge, fitting at 390px; podium (3 slots) + glowing you-row
+  + real Selena portrait + role filter + hide toggle + Edit Selena all present; zero
+  backend/DB change; motion fully frozen under reduced motion; WCAG-legible; crests degrade to
+  committed SVG. Spec: docs/superpowers/specs/2026-07-13-leaderboard-redesign-design.md.
 - **Out of scope**: real weekly leagues (promotion/relegation/reset — needs backend),
   rank-movement arrows (needs history).

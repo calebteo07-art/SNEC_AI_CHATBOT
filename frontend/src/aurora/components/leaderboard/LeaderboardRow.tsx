@@ -1,34 +1,47 @@
-/* One ranked row (rank 4+): rank chip, tier-ringed Selena, meta, and an XP count-up
-   with a bar drawn relative to the cohort leader. Highlights the viewer's own row. */
+/* One ranked pill (rank 4+): rank, tier-ringed Selena, name + role/level, and a right
+   cluster carrying BOTH a Lumens badge (count-up) and a streak flame — stacked so they
+   always fit, even at 390px. Row is tinted + ringed by the student's XP tier; the
+   viewer's own row glows. */
 "use client";
+import type { CSSProperties } from "react";
 import { Selena } from "@/aurora/avatar/Selena";
 import { useCountUp } from "@/hooks/useCountUp";
 import { tierForXp } from "@/aurora/leaderboard/tiers";
-import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
-import type { CSSProperties } from "react";
 import { Lumen } from "@/aurora/components/Lumen";
+import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
-export function LeaderboardRow({ e, topXp }: { e: LeaderboardEntry; topXp: number }) {
+export function LeaderboardRow({ e }: { e: LeaderboardEntry }) {
   const tier = tierForXp(e.xp);
   const { ref, display } = useCountUp<HTMLSpanElement>(e.xp);
-  const pct = topXp > 0 ? Math.max(4, Math.round((e.xp / topXp) * 100)) : 0;
   return (
-    <li className="lb-row" data-testid="lb-row" data-you={e.is_you || undefined}>
+    <li
+      className="lb-row"
+      data-testid="lb-row"
+      data-you={e.is_you || undefined}
+      data-tier={tier.id}
+      style={{ "--rc": tier.c2, "--rc1": tier.c1 } as CSSProperties}
+    >
       <span className="lb-rk">{e.rank}</span>
-      <span className="lb-face" style={{ "--rc": tier.c2 } as CSSProperties}>
-        <Selena portraitUrl={e.portrait_url} background={e.avatar_config?.background} size={52} />
+      <span className="lb-face">
+        <Selena portraitUrl={e.portrait_url} background={e.avatar_config?.background} size={46} />
       </span>
       <span className="lb-meta">
-        <span className="lb-nm">{e.name}{e.is_you && <span className="lb-youtag">You</span>}</span>
+        <span className="lb-nm">
+          {e.name}
+          {e.is_you && <span className="lb-youtag">You</span>}
+        </span>
         <span className="lb-sub2">
           {e.role && <span className="lb-rolechip">{e.role}</span>}
-          {e.streak_days > 0 && <span className="lb-streak">🔥 {e.streak_days}d</span>}
           <span className="lb-lvl">Lv {e.level}</span>
         </span>
       </span>
-      <span className="lb-val">
-        <span className="lb-n" ref={ref}><Lumen size={14} decorative /> {display}<small> Lumens</small></span>
-        <span className="lb-xpbar"><span style={{ width: `${pct}%` }} /></span>
+      <span className="lb-badges">
+        <span className="lb-lum" ref={ref}>
+          <Lumen size={15} decorative /> {display}
+        </span>
+        <span className="lb-streak" data-cold={e.streak_days === 0 || undefined}>
+          <span aria-hidden>🔥</span> {e.streak_days}d
+        </span>
       </span>
     </li>
   );

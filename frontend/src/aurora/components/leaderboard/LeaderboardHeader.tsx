@@ -1,4 +1,5 @@
-/* Header banner: eyebrow, "The Climb" title, a live hook line, and the role filter tabs. */
+/* Header: eyebrow chip, the "Leaderboard" title, a short live hook line, and the role
+   filter tabs. The title glyph + hook keep it playful without a heavy banner. */
 export function LeaderboardHeader({
   roles, role, onRole, hook,
 }: {
@@ -9,8 +10,8 @@ export function LeaderboardHeader({
 }) {
   return (
     <header className="lb-head">
-      <span className="lb-eyebrow"><span className="lb-dot" aria-hidden /> Cohort leaderboard · Season 1</span>
-      <h1>The <em>Climb</em></h1>
+      <span className="lb-eyebrow"><span className="lb-dot" aria-hidden /> Season 1 · Your cohort</span>
+      <h1 className="lb-title"><span className="lb-title-ico" aria-hidden>🏆</span> Leaderboard</h1>
       <p className="lb-sub">{hook}</p>
       {roles.length > 1 && (
         <div className="lb-filter" role="tablist" aria-label="Filter by role">
