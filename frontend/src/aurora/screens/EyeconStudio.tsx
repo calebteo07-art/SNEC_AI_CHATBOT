@@ -1,19 +1,19 @@
 "use client";
-/* Selena Studio — the Bitmoji-inspired, gamified avatar builder (RICOE v2, plan 2b
-   Task 3). ONE customization per page (user's "1 customization to 1 page"): a big
-   <Selena> hero pinned on top, then a step per axis with either a colour-swatch grid
-   (colour axes) or a grid of static option-tile art that previews the choice.
-   Wired to GET/PUT /api/avatar. The hero and tiles are real rendered art (seamless-
-   custom spec, 2026-07-07) — the client-side sticker compositor is gone; the custom
-   look is ONE transparent AI portrait rendered server-side from the saved config. */
+/* Eyecon Studio — the one-time, unskippable first-login avatar builder. A big live
+   preview stays pinned on top; a step per axis lets you pick colours (swatch grid) or
+   features (tile-art grid). The hero updates INSTANTLY on every tap: the just-picked
+   feature swaps in as its full-avatar tile, and colour picks light up the colour ring +
+   pips (the exact body/eye recolour bakes into the saved Eyecon's AI portrait). There is
+   no Skip and no exit — the only way out is to create your Eyecon, which flips
+   `customized` server-side and releases the first-login gate (CheckInGuard). */
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { SELENA_ONBOARDED_KEY } from "@/screens/CheckInGuard";
+import type { CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { tileSrc } from "@/aurora/avatar/tiles";
-import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
+import { AVATAR_AXES, DEFAULT_AVATAR, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
 import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
-import { useAvatar, useSaveAvatar, useRequestPortrait, useSelfHealPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
+import { useAvatar, useSaveAvatar, useRequestPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
 
 interface Step {
   axis: AvatarAxis;
@@ -26,10 +26,10 @@ interface Step {
  *  swatches; the rest render as static option-tile art. */
 const STEPS: Step[] = [
   { axis: "bodyColor", label: "Body colour", help: "Pick your shade — go natural, or go totally out there.", emoji: "🎨" },
-  { axis: "irisColor", label: "Eye colour", help: "Selena has one big eye. Make it pop.", emoji: "👁️" },
+  { axis: "irisColor", label: "Eye colour", help: "Eyecon has one big eye. Make it pop.", emoji: "👁️" },
   { axis: "eyeShape", label: "Eye shape", help: "Round, sleepy, sparkly, starry…", emoji: "✨" },
   { axis: "lashes", label: "Lashes", help: "A little flutter — or keep it clean.", emoji: "🌀" },
-  { axis: "mouth", label: "Expression", help: "How's Selena feeling today?", emoji: "😊" },
+  { axis: "mouth", label: "Expression", help: "How's Eyecon feeling today?", emoji: "😊" },
   { axis: "blush", label: "Blush", help: "Add a glow — or stars and freckles.", emoji: "🌸" },
   { axis: "glasses", label: "Glasses", help: "Specs, goggles, or heart-shades.", emoji: "🤓" },
   { axis: "topper", label: "On top", help: "Crown, halo, sprout, horns — your call.", emoji: "👑" },
@@ -45,6 +45,7 @@ const COLOR_MAP: Partial<Record<AvatarAxis, Record<string, string | null>>> = {
   irisColor: IRIS_COLORS,
   blush: BLUSH_COLORS,
 };
+const isColorAxis = (a: AvatarAxis) => a in COLOR_MAP;
 
 /** "darkBrown" → "Dark brown", "catEye" → "Cat eye", "none" → "None". */
 function humanize(id: string): string {
@@ -54,54 +55,42 @@ function humanize(id: string): string {
 
 const randOf = (arr: readonly string[]): string => arr[Math.floor(Math.random() * arr.length)] as string;
 
-export function SelenaStudio() {
+export function EyeconStudio() {
   const router = useRouter();
-  // First-run onboarding routes here as /studio?welcome=1 (ricoe §7) — a warmer framing
-  // and a Skip/Save that both return home and settle the onboarding gate.
-  const welcome = useSearchParams().get("welcome") === "1";
-  const mode: "welcome" | "edit" = welcome ? "welcome" : "edit";
   const { data, isPending, isError } = useAvatar();
-  useSelfHealPortrait(data);
   const saveMut = useSaveAvatar();
   const portraitMut = useRequestPortrait();
 
   const [draft, setDraft] = useState<AvatarConfig | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
+  const [lastAxis, setLastAxis] = useState<AvatarAxis>("bodyColor");
   const [celebrate, setCelebrate] = useState(false);
 
-  // Seed the editable draft from the server once, then leave it alone so a
-  // background refetch can't clobber in-progress edits.
+  // Seed the editable draft from the server default once.
   useEffect(() => {
     if (data?.config && !draft) setDraft(data.config);
   }, [data, draft]);
 
-  const dirty = useMemo(
-    () => !!draft && !!data?.config && JSON.stringify(draft) !== JSON.stringify(data.config),
-    [draft, data],
-  );
-
-  // The loadout: picks that differ from the SAVED look. Each docks under the hero
-  // as a tile chip — the honest pending-changes state (the hero itself only ever
-  // shows real rendered art; picks fuse into a new render on Save).
-  const pending = useMemo(() => {
-    if (!draft || !data?.config) return [];
-    return STEPS.filter((s) => draft[s.axis] !== data.config[s.axis]);
-  }, [draft, data]);
+  // Everything the student has changed away from the default — their Eyecon so far.
+  const picks = useMemo(() => {
+    if (!draft) return [];
+    return STEPS.filter((s) => draft[s.axis] !== DEFAULT_AVATAR[s.axis]);
+  }, [draft]);
 
   if (isError) {
     return (
-      <div className="studio-wrap">
-        <p className="studio-error">Couldn't load Selena. Please refresh and try again.</p>
+      <div className="studio-wrap eyecon-studio">
+        <p className="studio-error">Couldn't load Eyecon. Please refresh and try again.</p>
       </div>
     );
   }
   if (isPending || !draft) {
     return (
-      <div className="studio-wrap">
+      <div className="studio-wrap eyecon-studio">
         <div className="studio-stage">
           <div className="studio-hero studio-skel" aria-hidden />
         </div>
-        <p className="studio-loading">Waking up Selena…</p>
+        <p className="studio-loading">Waking up Eyecon…</p>
       </div>
     );
   }
@@ -110,8 +99,10 @@ export function SelenaStudio() {
   const options = AVATAR_AXES[step.axis];
   const colorMap = COLOR_MAP[step.axis];
 
-  const setOption = (axis: AvatarAxis, id: string) =>
+  const setOption = (axis: AvatarAxis, id: string) => {
+    setLastAxis(axis);
     setDraft((d) => (d ? ({ ...d, [axis]: id } as AvatarConfig) : d));
+  };
 
   const surprise = () =>
     setDraft((d) => {
@@ -121,79 +112,66 @@ export function SelenaStudio() {
       return next;
     });
 
-  // Settle the first-run onboarding gate (local flag; a save also flips `customized`
-  // server-side) and return home. Used by Skip and by welcome-mode Save.
-  const finishOnboarding = () => {
-    try { localStorage.setItem(SELENA_ONBOARDED_KEY, "1"); } catch { /* no storage */ }
-    router.push("/dashboard");
-  };
-
   const save = () => {
     if (!draft) return;
     saveMut.mutate(draft, {
       onSuccess: () => {
         setCelebrate(true);
-        // Kick the transparent-portrait render of the just-saved look; the hero swaps
-        // the default iris.png mascot → the portrait cutout PNG once it's ready
-        // (useAvatar polls while pending). Cache-gated server-side.
+        // Best-effort: kick the fused AI portrait render of the saved look (prod only; a
+        // no-op/failure just leaves the representative-tile look showing). Cache-gated.
         portraitMut.mutate();
-        if (mode === "welcome") {
-          // First-run: celebrate briefly, mark onboarded, then land on home.
-          try { localStorage.setItem(SELENA_ONBOARDED_KEY, "1"); } catch { /* no storage */ }
-          window.setTimeout(() => router.push("/dashboard"), 1500);
-        } else {
-          window.setTimeout(() => setCelebrate(false), 1800);
-        }
+        // Saving flips `customized` true server-side, releasing the first-login gate.
+        window.setTimeout(() => router.push("/dashboard"), 1600);
       },
     });
   };
 
-  // The transparent portrait only reflects the SAVED look; while the draft has
-  // unsaved edits the hero falls back to the default mascot. Once saved (draft ===
-  // server config), show whatever portrait state the server reports (fusing beat →
-  // ready cutout).
-  const heroStatus = dirty ? "none" : data?.portrait_status;
-  const heroUrl = dirty ? null : data?.portrait_url;
+  // Live hero: the just-picked FEATURE shows as its full-avatar tile; a colour pick (or a
+  // "none" feature) falls back to the most prominent chosen tile, so tapping always changes
+  // something on screen while colours also light the ring + pips below.
+  const heroTile = !isColorAxis(lastAxis) && draft[lastAxis] !== "none"
+    ? tileSrc(lastAxis, draft[lastAxis])
+    : null;
+
+  // Config values are server-validated ids, so indexing the colour maps is safe.
+  const bodyHex = BODY_COLORS[draft.bodyColor as keyof typeof BODY_COLORS] ?? "transparent";
+  const irisHex = IRIS_COLORS[draft.irisColor as keyof typeof IRIS_COLORS] ?? "transparent";
+  const blushHex = BLUSH_COLORS[draft.blush as keyof typeof BLUSH_COLORS];
+  const heroVars = {
+    "--ey-body": bodyHex,
+    "--ey-iris": irisHex,
+    "--ey-blush": blushHex ?? "transparent",
+  } as CSSProperties;
 
   return (
-    <div className="studio-wrap">
+    <div className="studio-wrap eyecon-studio">
       <header className="studio-top">
-        {mode === "welcome" ? (
-          <button className="studio-skip aurora-press" onClick={finishOnboarding}>Skip for now</button>
-        ) : (
-          <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>
-            ✕
-          </button>
-        )}
         <div className="studio-title">
-          <h1>{mode === "welcome" ? "Meet Selena" : "Selena Studio"}</h1>
-          <p>{mode === "welcome" ? "Your study buddy — let's make her yours." : "Your one-eyed study buddy, your way."}</p>
+          <h1>Meet your Eyecon</h1>
+          <p>Your one-eyed study buddy — make it yours to begin.</p>
         </div>
-        <button className="studio-save aurora-press" onClick={save} disabled={saveMut.isPending || !dirty}>
-          {saveMut.isPending ? "Saving…" : dirty ? "Save" : "Saved ✓"}
+        <button className="studio-save aurora-press" onClick={save} disabled={saveMut.isPending}>
+          {saveMut.isPending ? "Creating…" : "Create ✓"}
         </button>
       </header>
 
       <section className="studio-stage" aria-live="polite">
-        <div className="studio-hero" data-float data-alive>
-          <Eyecon
-            portraitUrl={heroStatus === "ready" ? heroUrl : null}
-            background={draft.background}
-            size={220}
-          />
-          {heroStatus === "pending" && (
-            <span className="studio-fusing" role="status">✨ Fusing your look…</span>
-          )}
+        <div className="studio-hero" data-float data-alive data-color={isColorAxis(step.axis) || undefined} style={heroVars}>
+          <Eyecon portraitUrl={heroTile} config={draft} background={draft.background} size={220} />
+          <span className="studio-colorpips" aria-hidden>
+            <i data-k="body" style={{ background: "var(--ey-body)" }} title="Body colour" />
+            <i data-k="iris" style={{ background: "var(--ey-iris)" }} title="Eye colour" />
+            <i data-k="blush" data-empty={!blushHex || undefined} style={{ background: "var(--ey-blush)" }} title="Blush" />
+          </span>
         </div>
         <div className="studio-stage-meta">
-          {dirty && <span className="studio-chip">Unsaved changes</span>}
           <p className="studio-combos">
             One of <b>{AVATAR_COMBOS.toLocaleString()}</b> possible looks
           </p>
         </div>
-        {pending.length > 0 && (
-          <ul className="studio-tray" aria-label="Your unsaved picks">
-            {pending.map((s) => (
+        {picks.length > 0 && (
+          <ul className="studio-tray" aria-label="Your Eyecon so far">
+            {picks.map((s) => (
               <li key={s.axis} className="studio-tray-chip">
                 {!COLOR_MAP[s.axis] && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -205,7 +183,7 @@ export function SelenaStudio() {
             ))}
           </ul>
         )}
-        <p className="studio-explain">Your picks bake into one hand-crafted render when you save.</p>
+        <p className="studio-explain">Body &amp; eye colour show on your saved Eyecon.</p>
       </section>
 
       <nav className="studio-dots" aria-label="Customization steps">
@@ -288,7 +266,7 @@ export function SelenaStudio() {
         )}
       </section>
 
-      {saveMut.isError && <p className="studio-error-inline">Couldn't save — check your connection and try again.</p>}
+      {saveMut.isError && <p className="studio-error-inline">Couldn't create — check your connection and try again.</p>}
 
       <footer className="studio-foot">
         <button className="studio-nav aurora-press" onClick={() => setStepIdx((i) => Math.max(0, i - 1))} disabled={stepIdx === 0}>
@@ -303,7 +281,7 @@ export function SelenaStudio() {
           </button>
         ) : (
           <button className="studio-nav is-primary aurora-press" onClick={save} disabled={saveMut.isPending}>
-            Finish ✓
+            Create my Eyecon ✓
           </button>
         )}
       </footer>
@@ -311,8 +289,8 @@ export function SelenaStudio() {
       {celebrate && (
         <div className="studio-celebrate" role="status">
           <div className="studio-celebrate-card">
-            <Eyecon portraitUrl={data?.portrait_status === "ready" ? data?.portrait_url : null} size={140} />
-            <p>Selena saved!</p>
+            <Eyecon config={draft} background={draft.background} size={140} />
+            <p>Eyecon created!</p>
           </div>
         </div>
       )}
