@@ -26,12 +26,10 @@ const ADMIN_DEST: Destination[] = [
   { href: "/admin/students", label: "Students" },
   { href: "/admin/accounts", label: "Accounts" },
   { href: "/admin/activity", label: "Activity" },
-  { href: "/profile", label: "Profile" },
 ];
 const SUPERVISOR_DEST: Destination[] = [
   { href: "/supervisor", label: "Supervisor" },
   { href: "/admin", label: "Admin" },
-  { href: "/profile", label: "Profile" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
