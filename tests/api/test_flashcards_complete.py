@@ -48,3 +48,37 @@ async def test_complete_clamps_oversized_xp(monkeypatch):
         r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
     assert r.status_code == 200
     assert xp_applied == [5000]  # tampered payload clamped to the per-request ceiling
+
+
+@pytest.mark.asyncio
+async def test_complete_persists_attempts_and_feeds_retention(monkeypatch):
+    from tools.api.routers import student as mod
+    attempts = []
+    profile_updates = []
+
+    async def _sm2(cid, interval, ease, reps, due): pass
+    async def _profile(_sid): return {"xp": 50}
+    async def _update_profile(_sid, **k): profile_updates.append(k)
+    async def _attempt(**k): attempts.append(k)
+
+    monkeypatch.setattr(mod, "update_card_sm2", _sm2)
+    monkeypatch.setattr(mod, "get_profile", _profile)
+    monkeypatch.setattr(mod, "update_profile", _update_profile)
+    monkeypatch.setattr(mod.db, "insert_flashcard_attempt", _attempt)
+
+    body = {"xp_delta": 40, "results": [
+        {"card_id": "c1", "correct": True,  "topic_tag": "glaucoma", "score": 20},
+        {"card_id": "c2", "correct": False, "topic_tag": "glaucoma", "score": 0},
+    ]}
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
+        r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
+    assert r.status_code == 200
+    # Both graded cards persisted as attempts with topic + correctness.
+    assert len(attempts) == 2
+    assert attempts[0] == {"student_id": "stud-test", "card_id": "c1",
+                           "topic_tag": "glaucoma", "correct": True, "score": 20}
+    # One retention write for the single-topic deck: accuracy 1/2 = 0.5, xp rides along.
+    assert len(profile_updates) == 1
+    assert profile_updates[0]["topic"] == "glaucoma"
+    assert profile_updates[0]["score"] == 0.5
+    assert profile_updates[0]["xp_delta"] == 40

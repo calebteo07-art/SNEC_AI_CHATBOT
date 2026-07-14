@@ -409,6 +409,8 @@ class CompleteCardResult(BaseModel):
     repetitions: int = 0
     easiness: float = 2.5
     interval_days: int = 0
+    topic_tag: str | None = None        # deck topic — feeds attempts + retention
+    score: int = 0                      # per-card points (analytics only)
 
 class FlashcardCompleteRequest(BaseModel):
     results: list[CompleteCardResult] = []
@@ -445,7 +447,39 @@ async def flashcards_complete(
     if sm2_tasks:
         # return_exceptions: scheduling is non-critical; one failure never fails the response.
         await asyncio.gather(*sm2_tasks, return_exceptions=True)
-    if xp_delta:
+    # ── Persist per-card attempts (best-effort) so Analytics can compute true per-topic
+    #    accuracy — the platform's highest-volume learning signal, discarded before this
+    #    change. A missing table (pre-migration 010) is swallowed per task, so the study
+    #    loop is never blocked.
+    attempt_tasks = [
+        db.insert_flashcard_attempt(
+            student_id=student_id, card_id=r.card_id, topic_tag=r.topic_tag,
+            correct=bool(r.correct), score=int(r.score),
+        )
+        for r in body.results if r.topic_tag
+    ]
+    if attempt_tasks:
+        await asyncio.gather(*attempt_tasks, return_exceptions=True)
+
+    # ── Feed per-topic flashcard accuracy into retention_scores (the mastery signal).
+    #    A study deck is normally one topic, so this is a single write; the XP delta rides
+    #    the first retention write to avoid an extra update_profile call (and an extra
+    #    session-count increment). No topic present → keep the legacy XP-only update.
+    by_topic: dict[str, list[bool]] = {}
+    for r in body.results:
+        if r.topic_tag:
+            by_topic.setdefault(r.topic_tag, []).append(bool(r.correct))
+    if by_topic:
+        for i, (topic, hits) in enumerate(by_topic.items()):
+            accuracy = sum(hits) / len(hits)
+            try:
+                await update_profile(
+                    student_id, topic=topic, score=accuracy,
+                    xp_delta=xp_delta if i == 0 else 0,
+                )
+            except Exception:
+                pass
+    elif xp_delta:
         try:
             await update_profile(student_id, xp_delta=xp_delta)
         except Exception:
