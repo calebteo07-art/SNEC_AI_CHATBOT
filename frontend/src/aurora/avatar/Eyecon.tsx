@@ -1,12 +1,13 @@
 "use client";
-/* <Eyecon> — a student's customizable avatar, raster-only. Resolution order:
-   1) the ready AI portrait (fused look, prod), 2) the representative tile of the config
-   (so it looks customized even without the paid render), 3) the default iris.png. An
-   optional CSS backdrop from the `background` axis sits behind it. Presentational +
-   hook-free, renders on server or client. */
+/* <Eyecon> — the student's avatar, composited client-side from config. Renders a
+   back→front stack of isolated overlays + CSS-multiply colour tints (see layers.ts),
+   over the CSS backdrop from the `background` axis. An explicit `portraitUrl` still
+   renders as a single image (legacy/escape hatch). Presentational, hook-free, SSR-safe;
+   a dead layer src hides itself so a missing asset never shows broken art. */
+import type { CSSProperties } from "react";
 import type { AvatarConfig } from "./axes.generated";
 import { backdropCss } from "./backdrops";
-import { representativeTileSrc } from "./representativeTile";
+import { eyeconLayers } from "./layers";
 
 const IRIS_SRC = "/brand/iris.png";
 
@@ -24,26 +25,32 @@ export function Eyecon({
   className?: string;
 }) {
   const bg = background ?? config?.background;
-  const src = portraitUrl || representativeTileSrc(config) || IRIS_SRC;
+  const frame: CSSProperties = { width: size, height: size, background: backdropCss(bg) };
+  const wrap = `eyecon-wrap${className ? " " + className : ""}`;
+
+  if (portraitUrl) {
+    return (
+      <span role="img" aria-label="Eyecon, your avatar" className={wrap} style={frame}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="eyecon-layer" src={portraitUrl} alt="" width={size} height={size}
+             onError={(e) => { if (e.currentTarget.src !== location.origin + IRIS_SRC) e.currentTarget.src = IRIS_SRC; }} />
+      </span>
+    );
+  }
+
   return (
-    <span
-      role="img"
-      aria-label="Eyecon, your avatar"
-      className={`eyecon-wrap${className ? " " + className : ""}`}
-      style={{ width: size, height: size, background: backdropCss(bg) }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element -- generated raster; no next/image on standalone */}
-      <img
-        className="eyecon-img"
-        src={src}
-        alt=""
-        width={size}
-        height={size}
-        onError={(e) => {
-          // A dead portrait/tile URL degrades to the default mascot — never broken art.
-          if (e.currentTarget.getAttribute("src") !== IRIS_SRC) e.currentTarget.src = IRIS_SRC;
-        }}
-      />
+    <span role="img" aria-label="Eyecon, your avatar" className={wrap} style={frame}>
+      {eyeconLayers(config).map((l) =>
+        l.kind === "image" ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={l.key} className="eyecon-layer" src={l.src} alt="" style={{ zIndex: l.z }}
+               onError={(e) => { e.currentTarget.style.display = "none"; }} />
+        ) : (
+          <span key={l.key} className="eyecon-tint" aria-hidden
+                style={{ zIndex: l.z, background: l.color,
+                         WebkitMaskImage: `url(${l.maskSrc})`, maskImage: `url(${l.maskSrc})` }} />
+        ),
+      )}
     </span>
   );
 }
