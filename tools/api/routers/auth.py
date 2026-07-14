@@ -17,6 +17,16 @@ from tools.shared.otp_store import set_otp, verify_and_consume_otp
 router = APIRouter()
 
 
+def _normalise_staff_role(raw: str) -> str:
+    """Map a stored supervisors.role to a top-level staff role.
+
+    Legacy 'supervisor' rows normalise to 'trainer' (safe demotion: keeps
+    analytics, loses provisioning); 'admin' passes through; anything else falls
+    back to 'trainer'. 'supervisor' is removed as a top-level role everywhere.
+    """
+    return "admin" if (raw or "").strip().lower() == "admin" else "trainer"
+
+
 class OnboardRequest(BaseModel):
     full_name: str
     email: str
@@ -25,7 +35,7 @@ class OnboardRequest(BaseModel):
 class OnboardResponse(BaseModel):
     student_id: str
     mock_mode: bool
-    role: str = "student"  # "student" or "supervisor"
+    role: str = "student"  # "student" | "trainer" | "admin"
     student_role: str = ""  # OA | OT | PSA
 
 class LoginRequest(BaseModel):
@@ -76,7 +86,10 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         sup_row = await db.get_supervisor(email)
         if email != SUPER_ADMIN_EMAIL and not sup_row:
             raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
-        approved_role = "admin" if (email == SUPER_ADMIN_EMAIL or (sup_row and sup_row.get("role") == "admin")) else "supervisor"
+        if email == SUPER_ADMIN_EMAIL:
+            approved_role = "admin"
+        else:
+            approved_role = _normalise_staff_role(sup_row.get("role") if sup_row else "")
         approved_student_role = ""
     else:
         approved_role = "student"
@@ -108,7 +121,7 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     if approved_role == "student":
         sup_row = await db.get_supervisor(email)
         if sup_row:
-            final_role = sup_row.get("role") or "supervisor"
+            final_role = _normalise_staff_role(sup_row.get("role"))
             approved_student_role = ""
 
     token = create_access_token(student_id, final_role, approved_student_role)
@@ -135,10 +148,14 @@ async def auth_me(request: Request, current_user: CurrentUser = Depends(get_curr
     full_name = consent_row["student_name"] if consent_row else ""
     auth_row = await db.get_auth(email) if email else None
     must_change = bool(auth_row.get("must_change", False)) if auth_row else False
+    # student_role = the effective content pool from student_profiles.role (the
+    # homepage toggle writes it for staff); fall back to the JWT claim.
+    profile = await db.get_profile(student_id)
+    student_role = (profile.get("role") if profile else "") or current_user["student_role"]
     return MeResponse(
         student_id=student_id,
         role=current_user["role"],
-        student_role=current_user["student_role"],
+        student_role=student_role,
         full_name=full_name,
         email=email,
         must_change=must_change,
@@ -241,7 +258,7 @@ async def onboard(body: OnboardRequest):
         try:
             sup_row = await db.get_supervisor(email)
             if sup_row:
-                role = "admin" if sup_row.get("role", "").lower() == "admin" else "supervisor"
+                role = _normalise_staff_role(sup_row.get("role"))
         except Exception:
             pass
 
