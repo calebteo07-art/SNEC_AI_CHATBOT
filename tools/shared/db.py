@@ -277,10 +277,11 @@ async def get_active_profiles() -> list[dict]:
 
 async def get_active_leaderboard_profiles() -> list[dict]:
     """Profiles eligible for the cohort leaderboard: every active student (exactly as
-    get_active_profiles) PLUS staff — trainers and admins, matched by a supervisors row
-    via their student_consent email. Kept separate from get_active_profiles so cohort /
-    analytics / at-risk roll-ups keep excluding staff. Staff augmentation is best-effort:
-    if the supervisors/consent/profile reads fail, the board is just the students."""
+    get_active_profiles) PLUS staff — trainers and admins (a supervisors row, or the
+    SUPER_ADMIN_EMAIL, which is staff without a supervisors row) — matched via their
+    student_consent email. Kept separate from get_active_profiles so cohort / analytics
+    / at-risk roll-ups keep excluding staff. Staff augmentation is best-effort: if the
+    supervisors/consent/profile reads fail, the board is just the students."""
     students = await get_active_profiles()
     try:
         supervisors = await get_all_supervisors()
@@ -293,6 +294,9 @@ async def get_active_leaderboard_profiles() -> list[dict]:
         for s in supervisors
         if (s.get("email") or "").strip()
     }
+    super_admin = os.getenv("SUPER_ADMIN_EMAIL", "").strip().lower()
+    if super_admin:
+        staff_emails.add(super_admin)
     if not staff_emails:
         return students
     staff_ids = {
