@@ -3248,11 +3248,18 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
   --on-rose: #F4969F;   --on-rose-2: #F4969F;
   --on-green: #6FD89A;  --on-green-2: #6FD89A;
   color-scheme: dark;
+  flex: 1;
   min-height: 100%;
   background: var(--canvas);
   color: var(--ink);
   padding: clamp(16px, 2.5vw, 30px);
 }
+/* RouteReveal wraps every page in .aurora-page-enter (height:auto), which severs
+   .aurora-analytics's min-height:100% chain — collapsing the dark surface to content
+   height and leaving the light shell showing below (same failure the station route
+   documents). Make the wrapper a full-height flex column for this route so the dark
+   board fills the viewport and still grows to scroll with the long roster. */
+.aurora-page-enter:has(.aurora-analytics) { display: flex; flex-direction: column; min-height: 100%; }
 /* Re-apply the light-hardcoded patches that .console-dark scoped to itself. */
 .aurora-analytics .aurora-statcard-value { color: var(--ink); }
 .aurora-analytics .aurora-badge { background: rgba(255,255,255,0.07); }
