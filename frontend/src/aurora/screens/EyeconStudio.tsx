@@ -141,7 +141,7 @@ export function EyeconStudio() {
         <p className="studio-pitch">
           {mode === "welcome"
             ? "Meet your one-eyed study buddy — pick a look and make learning way more fun."
-            : "Your one-eyed study buddy, your look — remix it anytime, it's free."}
+            : "Your one-eyed study buddy, your look — remix it anytime."}
         </p>
       </div>
 
