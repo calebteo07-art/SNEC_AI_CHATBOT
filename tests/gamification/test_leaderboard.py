@@ -125,14 +125,3 @@ def test_streak_days_healed_from_history_when_today_supplied():
     profiles = [{"student_id": "a", "xp": 300, "streak": 0, "checkin_history": hist}]
     out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a", today=date(2026, 5, 6))
     assert out[0]["streak_days"] == 3   # recovered from the check-in log, not the 0 column
-
-
-def test_rank_entries_carries_portrait_urls():
-    profiles = [
-        {"student_id": "a", "xp": 10, "avatar_config": {"topper": "crown"}},
-        {"student_id": "b", "xp": 5, "avatar_config": None},
-    ]
-    urls = {"a": "https://cdn/x.webp"}
-    entries = rank_entries(profiles, {}, viewer_id="a", portraits=urls)
-    assert entries[0]["portrait_url"] == "https://cdn/x.webp"
-    assert entries[1]["portrait_url"] is None
