@@ -58,10 +58,10 @@
 .lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:16px 20px; box-shadow:var(--sh-lg); text-align:center;
   container-type:inline-size;
   background:linear-gradient(135deg,#33210f 0%,#20150a 48%,#100a05 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
-/* title is sized in cqw so the wordmark fills ~94% of the card width at EVERY breakpoint
+/* title is sized in cqw so the wordmark fills ~88% of the card width at EVERY breakpoint
    (one coefficient, no per-viewport clamp) — .lb-head is the query container above. */
 .lb-title { position:relative; margin:0; font-family:var(--arcade); font-weight:400; text-transform:uppercase; letter-spacing:.005em;
-  font-size:10.5cqw; line-height:1.02; display:flex; align-items:center; justify-content:center; gap:.12em; color:#fff; white-space:nowrap;
+  font-size:9.8cqw; line-height:1.02; display:flex; align-items:center; justify-content:center; gap:.12em; color:#fff; white-space:nowrap;
   text-shadow:0 2px 0 rgba(0,0,0,.35), 0 10px 26px rgba(245,158,11,.28); }
 .lb-title-ico { font-size:.62em; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
 .lb-sub { position:relative; margin:10px auto 0; font-size:16px; font-weight:600; color:rgba(255,255,255,.94); line-height:1.45; text-wrap:balance; }
