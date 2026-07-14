@@ -252,3 +252,42 @@ async def test_delete_supervisor_calls_delete_on_supervisors_table():
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
         await db.delete_supervisor("sup@snec.com")
     client.table.assert_called_with("supervisors")
+
+
+# ── flashcard_attempts (migration 010) ─────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_insert_flashcard_attempt_writes_to_table():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_flashcard_attempt("stu-001", "c1", "glaucoma", True, 20)
+    client.table.assert_called_with("flashcard_attempts")
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload == {"student_id": "stu-001", "card_id": "c1",
+                       "topic_tag": "glaucoma", "correct": True, "score": 20}
+
+
+@pytest.mark.asyncio
+async def test_get_flashcard_attempts_returns_list():
+    rows = [{"topic_tag": "glaucoma", "correct": True}]
+    client = _make_client(rows)
+    # get_flashcard_attempts uses select().eq().order().execute() (no limit) — wire it.
+    resp = MagicMock(); resp.data = rows
+    client.table.return_value.select.return_value.eq.return_value.order.return_value.execute = \
+        AsyncMock(return_value=resp)
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.get_flashcard_attempts("stu-001")
+    assert result == rows
+
+
+@pytest.mark.asyncio
+async def test_get_topic_accuracy_aggregates_per_topic():
+    attempts = [
+        {"topic_tag": "glaucoma", "correct": True},
+        {"topic_tag": "glaucoma", "correct": False},
+        {"topic_tag": "amd", "correct": True},
+    ]
+    with patch("tools.shared.db.get_flashcard_attempts", new=AsyncMock(return_value=attempts)):
+        acc = await db.get_topic_accuracy("stu-001")
+    assert acc["glaucoma"] == {"correct": 1, "total": 2, "pct": 50.0}
+    assert acc["amd"] == {"correct": 1, "total": 1, "pct": 100.0}
