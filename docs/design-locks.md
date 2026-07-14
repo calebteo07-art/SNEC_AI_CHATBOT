@@ -538,6 +538,32 @@ already generated in past sessions, do not regenerate").
   card swaps the hero to that baked image and arms Save; Save persists `portrait` and the pick shows
   on the home button + leaderboard. Regression-tested in `frontend/tests/eyecon_assert.mjs` (C).
 
+### REFINE 2026-07-14 — "Eyecon Studio" arcade restyle + edit-anytime + merged roster + save→home
+Authored with the user. Refines the presentation and the re-editing rule of the preset library above;
+the storage model, fail-closed validation, and mandatory first-run welcome gate are **unchanged**.
+- **Criterion changed — "Library" → "Studio" wordmark**: the header/copy is renamed **Eyecon Studio**
+  (no longer "Eyecon Library"), set as a beautifully-designed **Bricolage** wordmark (hot sunset
+  gradient + gold 3D underprint + shimmer + twinkle) with a fun, high-energy pitch that emphasises
+  *having fun while learning*.
+- **Criterion changed — one merged section, no category headers**: the per-category `.lib-head`
+  headers are **removed**; every character (Classic + all ~103 tiles) lives in **one** `.lib-grid`,
+  headed by a big in-your-face **"Choose your fighter"** rally line (`.lib-rally`) + a short kicker.
+- **Criterion changed — fill the width**: `.studio-wrap` widens to `min(1360px, 100%)` and the body
+  is a desktop two-column **character-select** (sticky `<Eyecon>` preview `|` full-width roster), so
+  the roster fills the side whitespace; single-column and 390px-safe on phones.
+- **Criterion changed — edit ANYTIME (supersedes the one-time lock)**: re-editing is now **unlimited
+  and free** (client-composited tile, **no paid render**). The `CheckInGuard` student re-customization
+  bounce is **deleted** — any authenticated user (students included) may re-open `/studio` anytime; the
+  **only** gate left is the first-run welcome force. Every user gets an **"Edit Eyecon"** entry in the
+  home popover (`EyeconMenu`). *(This reverses the "created exactly once / all edit entries removed"
+  clause of the AMENDMENT 2026-07-13.)*
+- **Criterion changed — save → home**: **every** save (first-run or a later remix) briefly celebrates
+  then routes straight to `/dashboard` (was: only welcome-mode returned home).
+- **Acceptance when refining**: header reads "Eyecon Studio"; a single `.lib-grid` with **no**
+  `.lib-head`; a customized student can open `/studio` and is **not** bounced; the home popover shows
+  "Edit Eyecon" → `/studio`; save routes to `/dashboard`; the first-run welcome gate + no-skip still
+  hold; WCAG-legible, 390px-safe. Regression-tested in `frontend/tests/eyecon_assert.mjs` (A/B/C/D/F).
+
 ## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08
 **Superseded 2026-07-08** by *Custom Selena surfaces* (below): client-side raster compositing
 was removed (`renderSelena.ts` deleted, seamless-custom spec) — a student's look is now ONE

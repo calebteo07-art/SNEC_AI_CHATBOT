@@ -1,9 +1,12 @@
 "use client";
-/* Eyecon Studio — a fixed PRESET LIBRARY (no layered customization). The student scrolls a
-   gallery of every pre-rendered Eyecon character, grouped by category, and taps ONE. That look
-   becomes their Eyecon: saved as avatar_config.portrait = "<category>/<id>" and rendered as a
-   single baked image by <Eyecon> on every surface. First-run is welcome-mode: unskippable, Save
-   is the only exit, shown once (the gate locks /studio after the first save). */
+/* Eyecon Studio — a fixed PRESET LIBRARY, restyled 2026-07-14 as a high-energy arcade
+   "character select". ONE merged gallery of every pre-rendered Eyecon (no per-category
+   headers) headed by a big "Choose your fighter" rally line, a beautifully-set "Eyecon
+   Studio" wordmark, and a fun pitch. The student taps ONE tile; that look becomes their
+   Eyecon — saved as avatar_config.portrait = "<category>/<id>" and rendered as a single
+   baked image by <Eyecon> everywhere. Re-editing is now UNLIMITED and free (client-side
+   composite, no paid render), so every save routes straight home. First-run is welcome-mode:
+   unskippable, Save is the only exit (the gate forces it once for a never-customized student). */
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
@@ -12,25 +15,14 @@ import { useAvatar, useSaveAvatar } from "@/hooks/useAvatar";
 
 type PortraitCat = keyof typeof PORTRAIT_TILES;
 
-/** Category display order + friendly names. Any PORTRAIT_TILES category not listed here is
- *  still shown (appended, humanized) so newly-added art never silently disappears. */
-const CATEGORY_META: { key: PortraitCat; label: string; emoji: string }[] = [
-  { key: "outfit", label: "Outfits", emoji: "🧥" },
-  { key: "topper", label: "Hats & toppers", emoji: "👑" },
-  { key: "glasses", label: "Glasses", emoji: "🕶️" },
-  { key: "mouth", label: "Expressions", emoji: "😄" },
-  { key: "eyeShape", label: "Eyes", emoji: "👁️" },
-  { key: "lashes", label: "Lashes", emoji: "✨" },
-  { key: "accessory", label: "Extras", emoji: "🎒" },
-];
-
-/** All portrait categories in display order (meta order first, then any not-yet-labelled). */
-const CATEGORIES = (() => {
-  const known = new Set(CATEGORY_META.map((c) => c.key));
-  const extras = (Object.keys(PORTRAIT_TILES) as PortraitCat[])
-    .filter((k) => !known.has(k))
-    .map((k) => ({ key: k, label: k.charAt(0).toUpperCase() + k.slice(1), emoji: "🎨" }));
-  return [...CATEGORY_META.filter((c) => c.key in PORTRAIT_TILES), ...extras];
+/** Preferred display order for the merged roster (there are NO visible category headers now —
+ *  this only groups nicely as you scroll). Any PORTRAIT_TILES category not listed is appended
+ *  so newly-added art never silently disappears. */
+const CATEGORY_ORDER: PortraitCat[] = ["outfit", "topper", "glasses", "mouth", "eyeShape", "lashes", "accessory"];
+const CATEGORIES: PortraitCat[] = (() => {
+  const known = new Set(CATEGORY_ORDER);
+  const extras = (Object.keys(PORTRAIT_TILES) as PortraitCat[]).filter((k) => !known.has(k));
+  return [...CATEGORY_ORDER.filter((k) => k in PORTRAIT_TILES), ...extras];
 })();
 
 const TILE_COUNT = Object.values(PORTRAIT_TILES).reduce((n, ids) => n + ids.length, 0);
@@ -40,7 +32,7 @@ const tileImg = (ref: string) => `/avatar/tiles/${ref}.webp`;
 /** Flat list of every pickable ref (null = the classic default), for Surprise me. */
 const ALL_REFS: (string | null)[] = [
   null,
-  ...CATEGORIES.flatMap((c) => PORTRAIT_TILES[c.key].map((id) => `${c.key}/${id}`)),
+  ...CATEGORIES.flatMap((c) => PORTRAIT_TILES[c].map((id) => `${c}/${id}`)),
 ];
 const randOf = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)] as T;
 
@@ -53,7 +45,8 @@ function humanize(id: string): string {
 export function EyeconStudio() {
   const router = useRouter();
   // First-run onboarding routes here as /studio?welcome=1 — a warmer framing whose ONLY exit
-  // is Save (the CheckInGuard gate blocks every other page until customized flips).
+  // is Save (the CheckInGuard gate blocks every other page until customized flips). In edit
+  // mode any student can drop in anytime to remix (re-editing is free — no paid render).
   const welcome = useSearchParams().get("welcome") === "1";
   const mode: "welcome" | "edit" = welcome ? "welcome" : "edit";
   const { data, isPending, isError } = useAvatar();
@@ -77,7 +70,7 @@ export function EyeconStudio() {
   );
 
   // Save enables once the student has actively chosen (welcome forces a deliberate pick) or the
-  // selection differs from what's saved (staff re-editing their look).
+  // selection differs from what's saved (anyone re-editing their look).
   const canSave = picked || selected !== savedRef;
 
   if (isError) {
@@ -91,7 +84,7 @@ export function EyeconStudio() {
     return (
       <div className="studio-wrap">
         <div className="studio-stage"><div className="studio-hero studio-skel" aria-hidden /></div>
-        <p className="studio-loading">Opening the Eyecon library…</p>
+        <p className="studio-loading">Opening the Studio…</p>
       </div>
     );
   }
@@ -102,13 +95,14 @@ export function EyeconStudio() {
     saveMut.mutate(selectedConfig, {
       onSuccess: () => {
         setCelebrate(true);
-        // First-run: the Save flipped `customized` server-side (gate clears on ["avatar"]
-        // refetch). Celebrate briefly, then land on home.
-        if (mode === "welcome") window.setTimeout(() => router.push("/dashboard"), 1500);
-        else window.setTimeout(() => setCelebrate(false), 1800);
+        // Re-editing is free now (no paid render), so EVERY save — first-run or a later remix —
+        // celebrates briefly, then drops the student straight back home.
+        window.setTimeout(() => router.push("/dashboard"), 1000);
       },
     });
   };
+
+  const currentName = selected ? humanize(selected.split("/")[1]) : "Classic";
 
   const renderCard = (ref: string | null, src: string, label: string) => (
     <button
@@ -136,38 +130,52 @@ export function EyeconStudio() {
         ) : (
           <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>✕</button>
         )}
-        <div className="studio-title">
-          <h1>{mode === "welcome" ? "Pick your Eyecon" : "Eyecon Library"}</h1>
-          <p>{mode === "welcome" ? "Choose the one that's you — it's yours to keep." : "Your one-eyed study buddy."}</p>
-        </div>
+        <p className="studio-top-brand" aria-hidden>Eyecon<b>Studio</b></p>
         <button className="studio-save aurora-press" onClick={save} disabled={saveMut.isPending || !canSave}>
           {saveMut.isPending ? "Saving…" : canSave ? "Save" : "Saved ✓"}
         </button>
       </header>
 
-      <section className="studio-stage" aria-live="polite">
-        <div className="studio-hero" data-float data-alive>
-          <Eyecon config={selectedConfig} size={188} />
-        </div>
-        <p className="studio-explain">
-          <b>{selected ? humanize(selected.split("/")[1]) : "Classic"}</b> · one of {TILE_COUNT + 1} looks.
-          Pick one — it&apos;s fixed, no mixing.
+      <div className="studio-banner">
+        <h1 className="studio-wordmark">
+          <span className="sw-eye">Eyecon</span>
+          <span className="sw-studio">Studio</span>
+          <span className="sw-spark" aria-hidden>✦</span>
+        </h1>
+        <p className="studio-pitch">
+          {mode === "welcome"
+            ? "Meet your one-eyed study buddy — pick a look and make learning way more fun."
+            : "Your one-eyed study buddy, your look — remix it anytime, it's free."}
         </p>
-      </section>
+      </div>
 
-      <div className="lib-grid" role="radiogroup" aria-label="Eyecon library">
-        <h2 className="lib-head"><span aria-hidden>✨</span> The original</h2>
-        {renderCard(null, CLASSIC_SRC, "Classic")}
+      <div className="studio-body">
+        <aside className="studio-stage" aria-live="polite">
+          <div className="studio-hero" data-float data-alive>
+            <Eyecon config={selectedConfig} size={200} />
+          </div>
+          <p className="studio-pick">
+            <b>{currentName}</b>
+            <span>1 of {TILE_COUNT + 1} looks · swap anytime</span>
+          </p>
+        </aside>
 
-        {CATEGORIES.map((cat) => (
-          <Fragment key={cat.key}>
-            <h2 className="lib-head"><span aria-hidden>{cat.emoji}</span> {cat.label}</h2>
-            {PORTRAIT_TILES[cat.key].map((id) => {
-              const ref = `${cat.key}/${id}`;
-              return renderCard(ref, tileImg(ref), humanize(id));
-            })}
-          </Fragment>
-        ))}
+        <section className="studio-roster">
+          <h2 className="lib-rally">Choose<br />your fighter</h2>
+          <p className="lib-rally-sub">{TILE_COUNT + 1} characters, zero rules — tap one and it&apos;s yours.</p>
+
+          <div className="lib-grid" role="radiogroup" aria-label="Eyecon characters">
+            {renderCard(null, CLASSIC_SRC, "Classic")}
+            {CATEGORIES.map((cat) => (
+              <Fragment key={cat}>
+                {PORTRAIT_TILES[cat].map((id) => {
+                  const ref = `${cat}/${id}`;
+                  return renderCard(ref, tileImg(ref), humanize(id));
+                })}
+              </Fragment>
+            ))}
+          </div>
+        </section>
       </div>
 
       {saveMut.isError && <p className="studio-error-inline">Couldn't save — check your connection and try again.</p>}

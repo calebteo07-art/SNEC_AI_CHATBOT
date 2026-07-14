@@ -1,8 +1,9 @@
-/* Eyecon Studio — a fixed PRESET LIBRARY (character-select gallery). VIBRANT warm arcade
-   energy (sunset tangerine → coral → gold → magenta), zero kart/racing/Mario motifs. The warm
-   palette is SCOPED to .studio-wrap (--st-*) so it never leaks into the global design system.
-   Mobile-first; a pinned <Eyecon> hero shows the current pick above a scrollable tile grid.
-   All motion is CSS-only, springy, and reduced-motion aware (matches motion.css policy). */
+/* Eyecon Studio — a fixed PRESET LIBRARY, restyled as a full-width arcade "character select".
+   VIBRANT warm arcade energy (sunset tangerine → coral → gold → magenta), zero kart/racing/Mario
+   motifs. The warm palette is SCOPED to .studio-wrap (--st-*) so it never leaks into the global
+   design system. A beautifully-set "Eyecon Studio" wordmark + fun pitch sit above a sticky
+   <Eyecon> preview and ONE merged, edge-to-edge roster of every character (no category headers)
+   headed by a big "Choose your fighter" rally line. CSS-only motion, springy, reduced-motion aware. */
 
 .studio-wrap {
   /* scoped sunset-arcade palette */
@@ -17,20 +18,25 @@
   --st-frame: conic-gradient(from 210deg, var(--st-gold), var(--st-tangerine) 30%, var(--st-coral) 58%, var(--st-magenta) 78%, var(--st-gold));
   --st-hot: linear-gradient(135deg, var(--st-tangerine), var(--st-coral) 60%, var(--st-magenta));
   --st-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* display face for the wordmark + rally line — chunky characterful Bricolage, loaded app-wide */
+  --st-display: var(--font-bricolage-src), var(--font-outfit), "Outfit", system-ui, sans-serif;
 
   position: relative;
   min-height: 100%;
-  max-width: 880px;
+  max-width: min(1360px, 100%);
   margin: 0 auto;
-  padding: clamp(0.75rem, 2vw, 1.5rem) clamp(0.75rem, 3vw, 1.5rem) 6rem;
+  padding: clamp(0.5rem, 1.4vw, 1rem) clamp(0.85rem, 2.4vw, 2rem) 6.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: clamp(0.75rem, 1.6vw, 1.4rem);
   color: var(--st-ink);
+  /* the app's default body font var is drifted (resolves to Times here), so pin a clean, friendly
+     sans for all studio body text; the wordmark + rally use --st-display (Bricolage) instead. */
+  font-family: var(--font-manrope-src), var(--font-outfit), system-ui, sans-serif;
   isolation: isolate;
 }
-/* full-bleed warm atmosphere behind the whole studio (mobile fills the screen; desktop
-   warms the centered column + its surroundings). Sits under the content, never intercepts taps. */
+/* full-bleed warm atmosphere behind the whole studio (mobile fills the screen; desktop warms
+   the wide column + surroundings). Sits under the content, never intercepts taps. */
 .studio-wrap::before {
   content: "";
   position: fixed;
@@ -38,9 +44,9 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1000px 460px at 12% -6%, rgba(255, 122, 24, 0.22), transparent 60%),
-    radial-gradient(900px 440px at 96% 2%, rgba(255, 46, 147, 0.18), transparent 58%),
-    radial-gradient(700px 500px at 50% 108%, rgba(255, 197, 61, 0.20), transparent 60%),
+    radial-gradient(1100px 500px at 10% -8%, rgba(255, 122, 24, 0.24), transparent 60%),
+    radial-gradient(1000px 480px at 98% 0%, rgba(255, 46, 147, 0.20), transparent 58%),
+    radial-gradient(820px 560px at 50% 110%, rgba(255, 197, 61, 0.22), transparent 60%),
     linear-gradient(180deg, #FFF7EE, #FFEAD8 42%, #FFF3E6);
 }
 
@@ -52,10 +58,10 @@
   gap: 0.75rem;
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 6;
   padding: 0.5rem 0;
-  background: linear-gradient(color-mix(in srgb, var(--st-cream) 88%, transparent) 74%, transparent);
-  backdrop-filter: blur(8px);
+  background: linear-gradient(color-mix(in srgb, var(--st-cream) 90%, transparent) 72%, transparent);
+  backdrop-filter: blur(9px);
 }
 .studio-top-spacer { width: 2.25rem; height: 2.25rem; }
 .studio-x {
@@ -69,18 +75,27 @@
   font-weight: 800;
   box-shadow: 0 6px 16px -8px rgba(255, 61, 110, 0.6);
 }
-.studio-title { text-align: center; line-height: 1.12; }
-.studio-title h1 {
-  font-size: clamp(1.35rem, 5vw, 1.7rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+/* a compact wordmark that persists once the big banner scrolls away */
+.studio-top-brand {
   margin: 0;
+  text-align: center;
+  font-family: var(--st-display);
+  font-weight: 800;
+  font-size: clamp(0.95rem, 2.1vw, 1.2rem);
+  letter-spacing: -0.01em;
+  color: var(--st-ink);
+  display: flex;
+  gap: 0.4ch;
+  justify-content: center;
+  white-space: nowrap;
+}
+.studio-top-brand b {
+  font-weight: 800;
   background: var(--st-hot);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.studio-title p { font-size: var(--step--1); color: var(--st-ink-soft); margin: 0.15rem 0 0; font-weight: 600; }
 .studio-save {
   border: 0;
   border-radius: 999px;
@@ -96,12 +111,82 @@
 .studio-save:not(:disabled):active { transform: scale(0.95); }
 .studio-save:disabled { background: var(--st-peach); color: color-mix(in srgb, var(--st-ink) 45%, white); box-shadow: none; }
 
-/* ── pinned preview ──────────────────────────────────────── */
+/* ── banner: the beautifully-set wordmark + fun pitch ────── */
+.studio-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding-top: clamp(0.25rem, 1.5vw, 1rem);
+}
+.studio-wordmark {
+  position: relative;
+  margin: 0;
+  font-family: var(--st-display);
+  font-weight: 800;
+  font-size: clamp(2.7rem, 8.5vw, 5.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.24em;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.studio-wordmark .sw-eye,
+.studio-wordmark .sw-studio {
+  background: linear-gradient(112deg, var(--st-tangerine), var(--st-coral) 44%, var(--st-magenta) 82%, var(--st-tangerine));
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* 3D arcade "sticker" edge: a gold underprint + a soft coral glow (drop-shadow works with
+     background-clip:text where text-shadow does not) */
+  filter:
+    drop-shadow(0 2px 0 color-mix(in srgb, var(--st-gold) 88%, white))
+    drop-shadow(0 4px 0 color-mix(in srgb, var(--st-tangerine) 60%, var(--st-gold)))
+    drop-shadow(0 14px 20px rgba(255, 61, 110, 0.32));
+  animation: sw-shimmer 7s linear infinite;
+}
+.studio-wordmark .sw-studio { animation-delay: -1.4s; }
+.studio-wordmark .sw-spark {
+  align-self: flex-start;
+  margin-left: -0.15em;
+  font-size: 0.34em;
+  color: var(--st-gold);
+  -webkit-text-fill-color: var(--st-gold);
+  filter: drop-shadow(0 2px 5px rgba(255, 197, 61, 0.7));
+  animation: sw-twinkle 2.6s ease-in-out infinite;
+}
+.studio-pitch {
+  margin: 0.1rem auto 0;
+  max-width: 62ch;
+  font-size: clamp(0.95rem, 1.1vw + 0.7rem, 1.15rem);
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--st-ink-soft);
+  text-wrap: balance;
+}
+
+/* ── body: sticky preview  +  merged roster ──────────────── */
+.studio-body {
+  display: grid;
+  gap: clamp(1rem, 2.2vw, 1.8rem);
+  align-items: start;
+}
+@media (min-width: 880px) {
+  .studio-body { grid-template-columns: minmax(220px, 300px) 1fr; }
+  /* the character preview trails you down the long roster */
+  .studio-stage { position: sticky; top: 5.25rem; }
+}
+
 .studio-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.7rem;
 }
 /* the hero is a chunky conic gradient FRAME; the avatar tile nests inside it */
 .studio-hero {
@@ -119,36 +204,62 @@
   overflow: hidden;
   box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.55);
 }
-.studio-skel { width: 202px; height: 202px; background: var(--st-peach) !important; animation: studio-pulse 1.4s ease-in-out infinite; }
+.studio-skel { width: 214px; height: 214px; background: var(--st-peach) !important; animation: studio-pulse 1.4s ease-in-out infinite; }
 
-.studio-explain { font-size: var(--step--1); color: var(--st-ink-soft); margin: 0; text-align: center; font-weight: 500; max-width: 46ch; }
-.studio-explain b { color: var(--st-coral); font-weight: 800; }
+.studio-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  text-align: center;
+}
+.studio-pick b { font-family: var(--st-display); font-size: clamp(1.15rem, 2vw, 1.4rem); font-weight: 800; color: var(--st-coral); letter-spacing: -0.01em; }
+.studio-pick span { font-size: var(--step--1); color: var(--st-ink-soft); font-weight: 600; }
 
-/* ── the library grid ────────────────────────────────────── */
+/* ── the merged roster ───────────────────────────────────── */
+.studio-roster { min-width: 0; }
+.lib-rally {
+  margin: 0 0 0.1rem;
+  font-family: var(--st-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 6.2vw, 4.4rem);
+  line-height: 0.86;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  background: linear-gradient(100deg, var(--st-magenta), var(--st-coral) 42%, var(--st-tangerine));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter:
+    drop-shadow(0 2px 0 color-mix(in srgb, var(--st-gold) 82%, white))
+    drop-shadow(0 12px 16px rgba(255, 46, 147, 0.26));
+  animation: sw-shimmer 8s linear infinite;
+}
+.lib-rally-sub {
+  margin: 0.5rem 0 1rem;
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--st-ink-soft);
+}
+.lib-rally-sub::before {
+  content: "";
+  display: inline-block;
+  width: 1.6rem;
+  height: 3px;
+  margin-right: 0.55rem;
+  vertical-align: middle;
+  border-radius: 3px;
+  background: var(--st-hot);
+}
+
 .lib-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
-  gap: 0.65rem 0.55rem;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(92px, 12vw, 120px), 1fr));
+  gap: clamp(0.5rem, 1vw, 0.85rem);
   align-content: start;
-}
-.lib-head {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.85rem 0 0.05rem;
-  font-size: var(--step-0);
-  font-weight: 800;
-  color: var(--st-ink);
-  letter-spacing: -0.01em;
-}
-.lib-head span { font-size: 1.05em; }
-.lib-head::after {
-  content: "";
-  flex: 1;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--st-tangerine) 45%, transparent), transparent);
 }
 
 .lib-card {
@@ -160,14 +271,14 @@
   border: 2px solid color-mix(in srgb, var(--st-tangerine) 16%, white);
   background: linear-gradient(180deg, #FFFFFF, var(--st-cream));
   border-radius: 20px;
-  padding: 0.5rem 0.35rem 0.45rem;
+  padding: 0.55rem 0.4rem 0.5rem;
   cursor: pointer;
   transition: transform 0.18s var(--st-spring), box-shadow 0.18s ease, border-color 0.18s ease;
 }
-.lib-card:not([data-sel="true"]):hover { transform: translateY(-2px); box-shadow: 0 12px 22px -14px rgba(255, 122, 24, 0.6); }
+.lib-card:not([data-sel="true"]):hover { transform: translateY(-3px); box-shadow: 0 14px 24px -14px rgba(255, 122, 24, 0.6); border-color: color-mix(in srgb, var(--st-coral) 40%, white); }
 .lib-card:active { transform: scale(0.96); }
-.lib-card-art { display: block; width: 92px; height: 92px; max-width: 100%; object-fit: contain; border-radius: 12px; }
-.lib-card-label { font-size: 0.72rem; font-weight: 600; color: var(--st-ink-soft); text-align: center; line-height: 1.15; }
+.lib-card-art { display: block; width: 100%; max-width: 104px; aspect-ratio: 1; height: auto; object-fit: contain; border-radius: 12px; }
+.lib-card-label { font-size: 0.74rem; font-weight: 600; color: var(--st-ink-soft); text-align: center; line-height: 1.15; }
 .lib-card[data-sel="true"] {
   border-color: transparent;
   background: linear-gradient(180deg, color-mix(in srgb, var(--st-gold) 22%, white), color-mix(in srgb, var(--st-coral) 16%, white));
@@ -192,12 +303,13 @@
 .studio-foot {
   position: sticky;
   bottom: 0;
+  z-index: 6;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 0.6rem;
   padding: 0.75rem 0;
-  background: linear-gradient(transparent, color-mix(in srgb, var(--st-cream) 90%, transparent) 34%);
+  background: linear-gradient(transparent, color-mix(in srgb, var(--st-cream) 92%, transparent) 34%);
 }
 .lib-foot { grid-template-columns: 1fr auto; }
 .studio-nav {
@@ -256,13 +368,15 @@
   animation: studio-pop 0.46s var(--st-spring);
 }
 .studio-celebrate-card .eyecon-wrap { border-radius: 22px; box-shadow: 0 0 0 6px color-mix(in srgb, var(--st-gold) 40%, white); }
-.studio-celebrate-card p { margin: 0.6rem 0 0; font-weight: 900; font-size: var(--step-1); background: var(--st-hot); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.studio-celebrate-card p { margin: 0.6rem 0 0; font-family: var(--st-display); font-weight: 800; font-size: var(--step-1); background: var(--st-hot); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 @keyframes studio-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes studio-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 @keyframes studio-pop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 @keyframes studio-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes st-pop { 0% { transform: scale(0.9); } 55% { transform: scale(1.09); } 100% { transform: scale(1); } }
+@keyframes sw-shimmer { to { background-position: 220% 0; } }
+@keyframes sw-twinkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.55; transform: scale(1.25) rotate(18deg); } }
 
 /* living idle — a slow breathe on the hero art while it's on-screen */
 .studio-hero[data-alive] .eyecon-wrap { animation: studio-breathe 4.6s ease-in-out infinite; transform-origin: 50% 88%; }
@@ -274,6 +388,10 @@ html[data-motion="reduce"] .studio-celebrate,
 html[data-motion="reduce"] .studio-celebrate-card,
 html[data-motion="reduce"] .studio-skel,
 html[data-motion="reduce"] .studio-hero[data-alive] .eyecon-wrap,
+html[data-motion="reduce"] .studio-wordmark .sw-eye,
+html[data-motion="reduce"] .studio-wordmark .sw-studio,
+html[data-motion="reduce"] .studio-wordmark .sw-spark,
+html[data-motion="reduce"] .lib-rally,
 html[data-motion="reduce"] .lib-card[data-sel="true"] { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .studio-hero[data-float],
@@ -281,5 +399,9 @@ html[data-motion="reduce"] .lib-card[data-sel="true"] { animation: none; }
   .studio-celebrate-card,
   .studio-skel,
   .studio-hero[data-alive] .eyecon-wrap,
+  .studio-wordmark .sw-eye,
+  .studio-wordmark .sw-studio,
+  .studio-wordmark .sw-spark,
+  .lib-rally,
   .lib-card[data-sel="true"] { animation: none; }
 }

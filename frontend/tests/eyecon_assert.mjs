@@ -1,5 +1,5 @@
-/* Eyecon feature harness — the mandatory unskippable first-login gate, re-customization
-   lock, instant Studio preview, and surface restriction. Serve the standalone build on
+/* Eyecon feature harness — the mandatory unskippable first-login gate, unlimited edit-anytime
+   re-editing, instant Studio preview, and surface restriction. Serve the standalone build on
    :3000 first (scripts/start-harness.sh serve), then:
      node frontend/tests/eyecon_assert.mjs http://127.0.0.1:3000
    Uses the shared Playwright mocks; overrides the avatar route per test to drive customized. */
@@ -69,20 +69,21 @@ async function studentCtx(customized) {
   await ctx.close();
 }
 
-// ── D) RE-CUSTOMIZATION LOCK: a customized student cannot re-enter the Studio. ─────────
+// ── D) EDIT ANYTIME: a customized student CAN re-open the Studio and remix (no lock). ──
 {
   const ctx = await studentCtx(true);
   const p = await ctx.newPage();
   await p.goto(`${BASE}/studio`, { waitUntil: "networkidle" });
-  await p.waitForURL(/\/dashboard/, { timeout: 12000 }).catch(() => {});
-  if (/\/dashboard/.test(p.url())) ok("lock — customized student visiting /studio is redirected to /dashboard");
-  else fail(`lock — customized student was NOT bounced off /studio (url=${p.url()})`);
+  await p.waitForSelector(".lib-grid .lib-card", { timeout: 12000 }).catch(() => {});
+  const cards = await p.locator(".lib-card").count();
+  if (/\/studio/.test(p.url()) && cards > 50) ok(`edit-anytime — customized student re-opens /studio (library renders ${cards} cards, no bounce)`);
+  else fail(`edit-anytime — customized student could NOT re-open /studio (url=${p.url()} cards=${cards})`);
 
   // E) …and a customized student navigates the app normally (not gated).
   await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
   await p.waitForTimeout(400);
-  if (/\/dashboard/.test(p.url())) ok("lock — customized student reaches /dashboard normally (not gated)");
-  else fail(`lock — customized student wrongly redirected off /dashboard (url=${p.url()})`);
+  if (/\/dashboard/.test(p.url())) ok("edit-anytime — customized student reaches /dashboard normally (not gated)");
+  else fail(`edit-anytime — customized student wrongly redirected off /dashboard (url=${p.url()})`);
   await ctx.close();
 }
 
@@ -102,6 +103,15 @@ async function studentCtx(customized) {
   const hasOut = (await pop.locator("text=Log out").count()) >= 1;
   if (hasPw && hasOut) ok("home — Eyecon popover shows Change password + Log out");
   else fail(`home — popover missing items (pw=${hasPw} logout=${hasOut})`);
+
+  // edit-anytime: the popover offers an "Edit Eyecon" entry (students included) that opens the Studio.
+  const hasEdit = (await pop.locator("text=Edit Eyecon").count()) >= 1;
+  if (hasEdit) ok("home — Eyecon popover offers 'Edit Eyecon' for the student (edit anytime)");
+  else fail("home — 'Edit Eyecon' entry missing for the student");
+  await pop.locator("text=Edit Eyecon").click();
+  await p.waitForURL(/\/studio/, { timeout: 12000 }).catch(() => {});
+  if (/\/studio/.test(p.url())) ok("home — 'Edit Eyecon' routes the student into /studio (no lock)");
+  else fail(`home — 'Edit Eyecon' did not open /studio (url=${p.url()})`);
   await ctx.close();
 }
 
