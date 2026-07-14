@@ -22,11 +22,11 @@ function devAlwaysStudio(): boolean {
 let studioShownThisLoad = false;
 
 export function CheckInGuard({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, isCheckInDone, loading } = useAuth();
+  const { isAuthenticated, isCheckInDone, loading } = useAuth();
   const location = useLocation();
-  const isStudent = user?.role === "student";
-  // Only students fetch this; the query is shared/deduped with the rest of the app.
-  const { data: avatar } = useAvatar(isAuthenticated && isStudent);
+  // Trainers/admins are learners too (D7): every authenticated role runs the same
+  // check-in + Eyecon gates. The avatar query is shared/deduped with the rest of the app.
+  const { data: avatar } = useAvatar(isAuthenticated);
 
   // Landing on /studio (however you got there) counts as "shown" this load, so leaving it
   // in dev-always mode doesn't immediately redirect you back.
@@ -47,18 +47,8 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  /* Admin users may only access the admin panel (they log out via the Atlas Rail). */
-  if (user?.role === "admin") {
-    return <Navigate to="/admin" replace />;
-  }
-
-  /* Supervisor users may only access the supervisor panel (log out via the Atlas Rail). */
-  if (user?.role === "supervisor" && location.pathname !== "/supervisor") {
-    return <Navigate to="/supervisor" replace />;
-  }
-
-  /* Students must complete check-in before accessing any page */
-  if (isStudent && !isCheckInDone && location.pathname !== "/checkin") {
+  /* All authenticated users must complete the daily check-in before any page */
+  if (!isCheckInDone && location.pathname !== "/checkin") {
     return <Navigate to="/checkin" replace />;
   }
 
@@ -70,13 +60,13 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
      itself. In dev-always mode the gate ignores customized and fires once per hard load
      (studioShownThisLoad) so the welcome Studio keeps reappearing for iteration. */
   const wantStudio = devAlways ? !studioShownThisLoad : avatar?.customized === false;
-  if (isStudent && isCheckInDone && wantStudio && location.pathname !== "/studio") {
+  if (isCheckInDone && wantStudio && location.pathname !== "/studio") {
     return <Navigate to="/studio?welcome=1" replace />;
   }
 
   /* Re-customization is LOCKED: once customized, /studio is unreachable (the welcome flow is
      one-time only). Dev-always mode is exempt so the welcome Studio stays iterable. */
-  if (isStudent && !devAlways && avatar?.customized === true && location.pathname === "/studio") {
+  if (!devAlways && avatar?.customized === true && location.pathname === "/studio") {
     return <Navigate to="/dashboard" replace />;
   }
 
