@@ -26,14 +26,11 @@ const CATEGORIES: PortraitCat[] = (() => {
 })();
 
 const TILE_COUNT = Object.values(PORTRAIT_TILES).reduce((n, ids) => n + ids.length, 0);
-const CLASSIC_SRC = "/brand/iris.png";
 const tileImg = (ref: string) => `/avatar/tiles/${ref}.webp`;
 
-/** Flat list of every pickable ref (null = the classic default), for Surprise me. */
-const ALL_REFS: (string | null)[] = [
-  null,
-  ...CATEGORIES.flatMap((c) => PORTRAIT_TILES[c].map((id) => `${c}/${id}`)),
-];
+/** Flat list of every pickable character ref, for Surprise me. (The plain "Classic" default is
+ *  no longer an option — everyone picks a real character.) */
+const ALL_REFS: string[] = CATEGORIES.flatMap((c) => PORTRAIT_TILES[c].map((id) => `${c}/${id}`));
 const randOf = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)] as T;
 
 /** "catEye" → "Cat eye", "dealWithIt" → "Deal with it". */
@@ -102,17 +99,17 @@ export function EyeconStudio() {
     });
   };
 
-  const currentName = selected ? humanize(selected.split("/")[1]) : "Classic";
+  const currentName = selected ? humanize(selected.split("/")[1]) : "Pick a character";
 
-  const renderCard = (ref: string | null, src: string, label: string) => (
+  const renderCard = (ref: string, src: string, label: string) => (
     <button
-      key={ref ?? "classic"}
+      key={ref}
       type="button"
       className="lib-card aurora-press"
       role="radio"
       aria-checked={selected === ref}
       data-sel={selected === ref}
-      data-ref={ref ?? "classic"}
+      data-ref={ref}
       onClick={() => pick(ref)}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- file-convention tile art, no next/image on standalone */}
@@ -155,13 +152,12 @@ export function EyeconStudio() {
           </div>
           <p className="studio-pick">
             <b>{currentName}</b>
-            <span>1 of {TILE_COUNT + 1} looks · swap anytime</span>
+            <span>{TILE_COUNT} looks · swap anytime</span>
           </p>
         </aside>
 
         <section className="studio-roster">
           <div className="lib-grid" role="radiogroup" aria-label="Eyecon characters">
-            {renderCard(null, CLASSIC_SRC, "Classic")}
             {CATEGORIES.map((cat) => (
               <Fragment key={cat}>
                 {PORTRAIT_TILES[cat].map((id) => {
