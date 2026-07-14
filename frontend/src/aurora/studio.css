@@ -343,7 +343,7 @@
 @keyframes st-pop { 0% { transform: scale(0.9); } 55% { transform: scale(1.09); } 100% { transform: scale(1); } }
 
 /* living idle — a slow breathe on the hero art while it's on-screen */
-.studio-hero[data-alive] .eyecon-img { animation: studio-breathe 4.6s ease-in-out infinite; transform-origin: 50% 88%; }
+.studio-hero[data-alive] .eyecon-wrap { animation: studio-breathe 4.6s ease-in-out infinite; transform-origin: 50% 88%; }
 @keyframes studio-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-2px) scale(1.015); } }
 
 /* loadout tray */
@@ -363,7 +363,7 @@ html[data-motion="reduce"] .studio-hero[data-float],
 html[data-motion="reduce"] .studio-celebrate,
 html[data-motion="reduce"] .studio-celebrate-card,
 html[data-motion="reduce"] .studio-skel,
-html[data-motion="reduce"] .studio-hero[data-alive] .eyecon-img,
+html[data-motion="reduce"] .studio-hero[data-alive] .eyecon-wrap,
 html[data-motion="reduce"] .studio-tray-chip,
 html[data-motion="reduce"] .studio-tile[data-sel="true"],
 html[data-motion="reduce"] .studio-swatch[data-sel="true"] .studio-swatch-dot { animation: none; }
@@ -372,7 +372,7 @@ html[data-motion="reduce"] .studio-swatch[data-sel="true"] .studio-swatch-dot { 
   .studio-celebrate,
   .studio-celebrate-card,
   .studio-skel,
-  .studio-hero[data-alive] .eyecon-img,
+  .studio-hero[data-alive] .eyecon-wrap,
   .studio-tray-chip,
   .studio-tile[data-sel="true"],
   .studio-swatch[data-sel="true"] .studio-swatch-dot { animation: none; }
