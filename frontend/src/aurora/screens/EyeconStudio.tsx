@@ -28,9 +28,7 @@ interface Step {
 const STEPS: Step[] = [
   { axis: "bodyColor", label: "Body colour", help: "Pick your shade — go natural, or go totally out there.", emoji: "🎨" },
   { axis: "irisColor", label: "Eye colour", help: "Eyecon has one big eye. Make it pop.", emoji: "👁️" },
-  { axis: "eyeShape", label: "Eye shape", help: "Round, sleepy, sparkly, starry…", emoji: "✨" },
   { axis: "topper", label: "On top", help: "Crown, halo, sprout, horns — your call.", emoji: "👑" },
-  { axis: "accessory", label: "Extras", help: "Headphones, stickers, a little sparkle.", emoji: "🎧" },
   { axis: "outfit", label: "Outfit", help: "From lab coat to full-on cape.", emoji: "🧥" },
   { axis: "background", label: "Backdrop", help: "Set the scene behind you.", emoji: "🌅" },
 ];
