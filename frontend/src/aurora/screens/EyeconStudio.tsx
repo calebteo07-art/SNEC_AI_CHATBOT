@@ -8,13 +8,13 @@
    is ONE AI portrait rendered server-side from the saved config; a representative tile
    stands in until (or instead of) that render. First-run is welcome-mode: unskippable,
    Save is the only exit, and it's shown once (the gate locks /studio after the first save). */
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { tileSrc } from "@/aurora/avatar/tiles";
 import { AVATAR_AXES, type AvatarAxis, type AvatarConfig } from "@/aurora/avatar/axes.generated";
-import { BODY_COLORS, IRIS_COLORS, BLUSH_COLORS } from "@/aurora/avatar/manifest";
-import { useAvatar, useSaveAvatar, useRequestPortrait, useSelfHealPortrait, AVATAR_COMBOS } from "@/hooks/useAvatar";
+import { BODY_COLORS, IRIS_COLORS } from "@/aurora/avatar/manifest";
+import { useAvatar, useSaveAvatar, AVATAR_COMBOS } from "@/hooks/useAvatar";
 
 interface Step {
   axis: AvatarAxis;
@@ -29,10 +29,6 @@ const STEPS: Step[] = [
   { axis: "bodyColor", label: "Body colour", help: "Pick your shade — go natural, or go totally out there.", emoji: "🎨" },
   { axis: "irisColor", label: "Eye colour", help: "Eyecon has one big eye. Make it pop.", emoji: "👁️" },
   { axis: "eyeShape", label: "Eye shape", help: "Round, sleepy, sparkly, starry…", emoji: "✨" },
-  { axis: "lashes", label: "Lashes", help: "A little flutter — or keep it clean.", emoji: "🌀" },
-  { axis: "mouth", label: "Expression", help: "How's Eyecon feeling today?", emoji: "😊" },
-  { axis: "blush", label: "Blush", help: "Add a glow — or stars and freckles.", emoji: "🌸" },
-  { axis: "glasses", label: "Glasses", help: "Specs, goggles, or heart-shades.", emoji: "🤓" },
   { axis: "topper", label: "On top", help: "Crown, halo, sprout, horns — your call.", emoji: "👑" },
   { axis: "accessory", label: "Extras", help: "Headphones, stickers, a little sparkle.", emoji: "🎧" },
   { axis: "outfit", label: "Outfit", help: "From lab coat to full-on cape.", emoji: "🧥" },
@@ -44,12 +40,7 @@ const STEPS: Step[] = [
 const COLOR_MAP: Partial<Record<AvatarAxis, Record<string, string | null>>> = {
   bodyColor: BODY_COLORS,
   irisColor: IRIS_COLORS,
-  blush: BLUSH_COLORS,
 };
-
-/** Axes with real per-option tile art, so the last-touched one can drive the hero
- *  live. Colour axes + `background` (a CSS backdrop) have no tile. */
-const TILE_AXES = new Set<AvatarAxis>(["topper", "outfit", "glasses", "accessory", "lashes", "eyeShape", "mouth"]);
 
 /** "darkBrown" → "Dark brown", "catEye" → "Cat eye", "none" → "None". */
 function humanize(id: string): string {
@@ -66,15 +57,11 @@ export function EyeconStudio() {
   const welcome = useSearchParams().get("welcome") === "1";
   const mode: "welcome" | "edit" = welcome ? "welcome" : "edit";
   const { data, isPending, isError } = useAvatar();
-  useSelfHealPortrait(data);
   const saveMut = useSaveAvatar();
-  const portraitMut = useRequestPortrait();
 
   const [draft, setDraft] = useState<AvatarConfig | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [celebrate, setCelebrate] = useState(false);
-  // The most-recently-touched axis drives the live hero preview so every tap reacts.
-  const [lastAxis, setLastAxis] = useState<AvatarAxis>("topper");
 
   // Seed the editable draft from the server once, then leave it alone so a
   // background refetch can't clobber in-progress edits.
@@ -117,7 +104,6 @@ export function EyeconStudio() {
   const colorMap = COLOR_MAP[step.axis];
 
   const setOption = (axis: AvatarAxis, id: string) => {
-    setLastAxis(axis);
     setDraft((d) => (d ? ({ ...d, [axis]: id } as AvatarConfig) : d));
   };
 
@@ -134,9 +120,6 @@ export function EyeconStudio() {
     saveMut.mutate(draft, {
       onSuccess: () => {
         setCelebrate(true);
-        // Kick the AI portrait render of the just-saved look (cache-gated + rate-limited
-        // server-side; a no-op in keyless envs — the representative-tile fallback covers it).
-        portraitMut.mutate();
         if (mode === "welcome") {
           // First-run: the Save flipped `customized` server-side (gate clears on ["avatar"]
           // refetch). Celebrate briefly, then land on home. No local onboarding flag.
@@ -147,20 +130,6 @@ export function EyeconStudio() {
       },
     });
   };
-
-  // Hero resolution: a ready AI portrait of the SAVED look (only when clean) wins; else
-  // the just-tapped feature tile swaps in live; else <Eyecon>'s representative-tile/iris
-  // fallback (driven by config) shows, with colour accents for the colour axes.
-  const heroPortrait = !dirty && data?.portrait_status === "ready" ? data?.portrait_url ?? null : null;
-  const heroTile = TILE_AXES.has(lastAxis) && draft[lastAxis] !== "none" ? tileSrc(lastAxis, draft[lastAxis]) : null;
-  const heroFusing = !dirty && data?.portrait_status === "pending";
-  // Live colour feedback (baked raster can't be re-tinted client-side → these light up a
-  // ring + swatch echo; the true recolour only lands on the saved AI portrait).
-  const heroAccent = {
-    "--ey-body": COLOR_MAP.bodyColor?.[draft.bodyColor] ?? "transparent",
-    "--ey-iris": COLOR_MAP.irisColor?.[draft.irisColor] ?? "transparent",
-    "--ey-blush": COLOR_MAP.blush?.[draft.blush] ?? "transparent",
-  } as CSSProperties;
 
   return (
     <div className="studio-wrap">
@@ -181,22 +150,9 @@ export function EyeconStudio() {
         </button>
       </header>
 
-      <section className="studio-stage" aria-live="polite" style={heroAccent}>
+      <section className="studio-stage" aria-live="polite">
         <div className="studio-hero" data-float data-alive>
-          <Eyecon
-            portraitUrl={heroPortrait ?? heroTile}
-            config={draft}
-            background={draft.background}
-            size={220}
-          />
-          {heroFusing && (
-            <span className="studio-fusing" role="status">✨ Fusing your look…</span>
-          )}
-        </div>
-        <div className="studio-hue" aria-hidden>
-          <span className="studio-hue-dot" data-k="body" />
-          <span className="studio-hue-dot" data-k="iris" />
-          <span className="studio-hue-dot" data-k="blush" />
+          <Eyecon config={draft} background={draft.background} size={220} />
         </div>
         <div className="studio-stage-meta">
           {dirty && <span className="studio-chip">Unsaved changes</span>}
@@ -324,7 +280,7 @@ export function EyeconStudio() {
       {celebrate && (
         <div className="studio-celebrate" role="status">
           <div className="studio-celebrate-card">
-            <Eyecon portraitUrl={data?.portrait_status === "ready" ? data?.portrait_url : null} config={draft} size={140} />
+            <Eyecon config={draft} size={140} />
             <p>Eyecon saved!</p>
           </div>
         </div>
