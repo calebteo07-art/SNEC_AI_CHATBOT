@@ -22,7 +22,7 @@ function devAlwaysStudio(): boolean {
 let studioShownThisLoad = false;
 
 export function CheckInGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isCheckInDone, loading, user } = useAuth();
+  const { isAuthenticated, isCheckInDone, loading } = useAuth();
   const location = useLocation();
   // Trainers/admins are learners too (D7): every authenticated role runs the same
   // check-in + Eyecon gates. The avatar query is shared/deduped with the rest of the app.
@@ -64,14 +64,10 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/studio?welcome=1" replace />;
   }
 
-  /* Re-customization: STUDENTS are locked to the one-time welcome flow — once customized,
-     /studio bounces to the dashboard. STAFF (admin/trainer) may re-open the Studio anytime to
-     edit their Eyecon (they build/demo/QA looks). Dev-always mode is exempt so the welcome
-     Studio stays iterable. */
-  if (!devAlways && avatar?.customized === true && location.pathname === "/studio"
-      && user?.role === "student") {
-    return <Navigate to="/dashboard" replace />;
-  }
+  /* Re-editing is UNLIMITED and free now (the Eyecon is a client-composited tile, no paid
+     render) — so EVERY authenticated user (students included) can re-open /studio anytime to
+     remix their look. The only gate is the first-run one above; once customized, /studio is
+     just a normal editable page. */
 
   return <>{children}</>;
 }
