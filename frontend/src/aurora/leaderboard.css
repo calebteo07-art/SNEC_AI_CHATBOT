@@ -1,19 +1,19 @@
-/* Leaderboard — "ember arena". A PURE-CSS warm competitive hall (golden champion spotlight
-   pouring into a deep burgundy-black arena, rising CSS embers), a hot warm-gradient hero card
+/* Leaderboard — "warm arena". A PURE-CSS warm competitive hall (golden champion spotlight
+   pouring over a light warm-sand arena, drifting warm motes), an obsidian hero card
    that also carries the board settings, and three Nano-Banana metal podium cards
    (gold/silver/bronze) with the portrait dropped onto the drawn plinth and the name on a solid
-   dark nameplate chip. Ivory ranked rows float on the dark arena. Scoped under `.lb-climb`,
-   mobile-first, 390px-safe. Motion is entrance + hover + a slow ember drift (frozen). */
+   dark nameplate chip. Bright ranked cards float on the light arena. Scoped under `.lb-climb`,
+   mobile-first, 390px-safe. Motion is entrance + hover + a slow mote drift (frozen). */
 
 /* Full-bleed game background — PURE CSS (no image), viewport-locked so rows scroll over it.
    Hosted here (globally loaded via src/styles/index.css so :has() reaches .aurora-main).
-   Dark burgundy base keeps the metal podium cards popping; centre stays calm for UI. */
+   Light warm-sand base (not stark white) with a soft gold crown glow up top: keeps the arena
+   warm and competitive while the metal podium + bright rows read cleanly. */
 .aurora-main:has(.lb-climb) {
   background:
-    radial-gradient(132% 80% at 50% -12%, rgba(255,226,152,.62) 0%, rgba(255,158,64,.30) 22%, rgba(255,118,42,.10) 44%, transparent 64%),
-    radial-gradient(100% 60% at 50% 30%, rgba(214,104,32,.34) 0%, transparent 66%),
-    radial-gradient(150% 130% at 50% 44%, transparent 36%, rgba(0,0,0,.44) 82%, rgba(0,0,0,.62) 100%),
-    linear-gradient(180deg, #2b0e0a 0%, #1c0a0b 46%, #140709 74%, #0f0609 100%);
+    radial-gradient(122% 74% at 50% -12%, rgba(255,206,138,.60) 0%, rgba(255,176,104,.30) 26%, rgba(255,150,80,.10) 46%, transparent 62%),
+    radial-gradient(100% 60% at 50% 34%, rgba(255,220,170,.34) 0%, transparent 68%),
+    linear-gradient(180deg, #FBEAD3 0%, #F3DEC3 52%, #E9D2B4 100%);
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
@@ -37,25 +37,23 @@
 
 /* rising embers over the arena — a seamlessly tiled spark field (loops on one tile height) */
 .lb-climb::before {
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.7;
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.5;
   background-image:
-    radial-gradient(1.6px 1.6px at 20% 32%, rgba(255,208,134,.95), transparent 60%),
-    radial-gradient(1.2px 1.2px at 70% 62%, rgba(255,176,96,.85), transparent 60%),
-    radial-gradient(2px 2px at 46% 86%, rgba(255,222,162,.9), transparent 60%),
-    radial-gradient(1px 1px at 88% 22%, rgba(255,192,122,.8), transparent 60%),
-    radial-gradient(1.4px 1.4px at 12% 72%, rgba(255,202,132,.8), transparent 60%);
+    radial-gradient(1.6px 1.6px at 20% 32%, rgba(214,120,44,.5), transparent 60%),
+    radial-gradient(1.2px 1.2px at 70% 62%, rgba(224,140,64,.44), transparent 60%),
+    radial-gradient(2px 2px at 46% 86%, rgba(206,110,38,.46), transparent 60%),
+    radial-gradient(1px 1px at 88% 22%, rgba(230,150,72,.42), transparent 60%),
+    radial-gradient(1.4px 1.4px at 12% 72%, rgba(214,120,44,.44), transparent 60%);
   background-size:240px 260px; background-repeat:repeat;
   animation:lb-embers 14s linear infinite;
 }
 
-/* ── hero: obsidian banner with a warm gold accent, carries title + hook + filter + settings ──
-   Near-black warm-charcoal gradient + a gold hairline + gold corner bloom: premium, competitive
-   and clearly DISTINCT from both the amber/gold arena behind it and the ivory ranked rows.
+/* ── hero: deep-brown banner with a warm gold accent, carries title + hook + filter + settings ──
+   Dark espresso-brown (near-black) gradient + a thin gold hairline: premium, competitive and
+   clearly DISTINCT from both the light warm arena behind it and the bright ranked rows.
    Kept short — one tight band. */
 .lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:13px 20px 13px; box-shadow:var(--sh-lg);
-  background:linear-gradient(135deg,#241a10 0%,#161310 46%,#0c0a09 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
-.lb-head::after { content:""; position:absolute; right:-48px; top:-64px; width:190px; height:190px; border-radius:50%;
-  pointer-events:none; background:radial-gradient(circle at 40% 40%, rgba(245,158,11,.38), transparent 64%); }
+  background:linear-gradient(135deg,#33210f 0%,#20150a 48%,#100a05 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
 .lb-title { position:relative; margin:0; font-weight:800; font-size:clamp(24px,5.2vw,32px); line-height:1; display:flex; align-items:center; gap:9px; color:#fff; }
 .lb-title-ico { font-size:.9em; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
 .lb-sub { position:relative; margin:6px 0 0; font-size:13.5px; font-weight:600; color:rgba(255,255,255,.94); max-width:52ch; line-height:1.4; }
@@ -137,7 +135,7 @@
 /* ── ranked rows: ivory cards floating on the arena. Tier = left bar + avatar ring. ── */
 .lb-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
 .lb-row { position:relative; overflow:hidden; display:grid; grid-template-columns:26px 46px minmax(0,1fr) auto; align-items:center; gap:12px;
-  border:1px solid rgba(255,255,255,.5); border-radius:var(--rr); padding:12px 15px 12px 12px; box-shadow:var(--sh);
+  border:1px solid rgba(120,84,40,.16); border-radius:var(--rr); padding:12px 15px 12px 12px; box-shadow:var(--sh);
   background:linear-gradient(180deg,#FFFFFF, var(--card));
   transition:transform .16s ease, box-shadow .16s ease; animation:lb-rise .5s cubic-bezier(.2,.9,.3,1.1) both; }
 .lb-row::after { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--rc,var(--teal)); }
@@ -171,7 +169,7 @@
 .lb-row[data-you]::after { background:linear-gradient(180deg,#FB5C74,var(--accent)); }
 .lb-row[data-you] .lb-face { box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--accent); }
 
-.lb-empty { color:rgba(255,255,255,.9); text-align:center; padding:2.5rem 1rem; font-size:16px; text-shadow:0 1px 8px rgba(0,0,0,.5); }
+.lb-empty { color:var(--hink2); text-align:center; padding:2.5rem 1rem; font-size:16px; }
 
 /* ── keyframes: entrance + slow ember drift ── */
 @keyframes lb-pop { from { opacity:0; transform:translateY(14px) scale(.97); } }
