@@ -14,7 +14,6 @@ from tools.flashcards.static_cards import (
     get_topic_cards, topic_card_counts, shuffle_card_options,
 )
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
-from tools.avatar.portrait import config_hash
 from tools.gamification.leaderboard import rank_entries
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -526,7 +525,6 @@ class LbEntry(BaseModel):
     level: int
     streak_days: int
     avatar_config: dict | None = None
-    portrait_url: str | None = None
     is_you: bool
 
 
@@ -559,18 +557,9 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
         return LbResponse(entries=[], you_hidden=False, display_name=None, roles=[])
 
     names = {r["student_id"]: (r.get("student_name") or "") for r in consent}
-    # One bulk portrait lookup for the whole board (transparent v2 renders); the
-    # portrait cache being missing/stale just means default-mascot headshots.
-    portraits: dict[str, str] = {}
-    try:
-        hashes = {p.get("student_id"): config_hash(p.get("avatar_config") or {}) for p in profiles}
-        by_hash = await db.get_avatar_images_bulk(list(hashes.values()))
-        portraits = {sid: by_hash[h] for sid, h in hashes.items() if h in by_hash}
-    except Exception:
-        portraits = {}
     from tools.shared.clock import app_today
     entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
-                           portraits=portraits, today=app_today())
+                           today=app_today())
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
     roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
     return LbResponse(

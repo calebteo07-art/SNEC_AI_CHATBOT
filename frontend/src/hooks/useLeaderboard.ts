@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AvatarConfig } from "@/aurora/avatar/axes.generated";
 
-/** One ranked row. `portrait_url` is the student's real rendered Eyecon headshot (bulk
- *  portrait lookup, Task 8) — null/missing degrades to the default mascot. `avatar_config`
- *  is kept for completeness. `name` is the student's display name or first-name + last-initial. */
+/** One ranked row. `avatar_config` drives the client-side composited <Eyecon>. `name`
+ *  is the student's display name or first-name + last-initial. */
 export interface LeaderboardEntry {
   rank: number;
   name: string;
@@ -12,7 +11,6 @@ export interface LeaderboardEntry {
   level: number;
   streak_days: number;
   avatar_config: Partial<AvatarConfig> | null;
-  portrait_url: string | null;
   is_you: boolean;
 }
 
