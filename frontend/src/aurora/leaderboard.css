@@ -1,67 +1,90 @@
-/* Leaderboard — "ember arena". A Nano-Banana game background (crimson arena + gold embers),
-   a red gradient hero card that also carries the board settings, and three Nano-Banana metal
-   podium cards (gold/silver/bronze) with the portrait dropped onto the drawn plinth. Ivory
-   ranked rows float on the dark arena. Scoped under `.lb-climb`, mobile-first, 390px-safe.
-   Motion is entrance + hover only. */
+/* Leaderboard — "ember arena". A PURE-CSS warm competitive hall (golden champion spotlight
+   pouring into a deep burgundy-black arena, rising CSS embers), a hot warm-gradient hero card
+   that also carries the board settings, and three Nano-Banana metal podium cards
+   (gold/silver/bronze) with the portrait dropped onto the drawn plinth and the name on a solid
+   dark nameplate chip. Ivory ranked rows float on the dark arena. Scoped under `.lb-climb`,
+   mobile-first, 390px-safe. Motion is entrance + hover + a slow ember drift (frozen). */
 
-/* Full-bleed game background — the generated arena, viewport-locked so rows scroll over it.
-   Hosted here (globally loaded via src/styles/index.css so :has() reaches .aurora-main). */
+/* Full-bleed game background — PURE CSS (no image), viewport-locked so rows scroll over it.
+   Hosted here (globally loaded via src/styles/index.css so :has() reaches .aurora-main).
+   Dark burgundy base keeps the metal podium cards popping; centre stays calm for UI. */
 .aurora-main:has(.lb-climb) {
-  background:#2a0810 url(/brand/leaderboard/bg.webp) top center / cover no-repeat fixed;
+  background:
+    radial-gradient(132% 80% at 50% -12%, rgba(255,226,152,.62) 0%, rgba(255,158,64,.30) 22%, rgba(255,118,42,.10) 44%, transparent 64%),
+    radial-gradient(100% 60% at 50% 30%, rgba(214,104,32,.34) 0%, transparent 66%),
+    radial-gradient(150% 130% at 50% 44%, transparent 36%, rgba(0,0,0,.44) 82%, rgba(0,0,0,.62) 100%),
+    linear-gradient(180deg, #2b0e0a 0%, #1c0a0b 46%, #140709 74%, #0f0609 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 .aurora-main:has(.lb-climb) .aurora-mesh { display: none; }
 
 .lb-climb {
   --card:#FFFDF9; --line:#F0E7D6;
   --hink:#241D2B; --hink2:#655C6E; --hink3:#A99FAB;
-  --accent:#E11D48; --accent-d:#BE123C; --teal:#12B5A0;
+  --accent:#E11D48; --accent-d:#A0143C; --teal:#12B5A0;
   --gold:#F59E0B;
   --sh:0 1px 2px rgba(0,0,0,.14), 0 14px 30px -16px rgba(0,0,0,.55);
   --sh-lg:0 2px 10px rgba(0,0,0,.2), 0 36px 66px -26px rgba(0,0,0,.7);
-  --hr:24px; --rr:16px;
+  --hr:20px; --rr:16px;
   --disp:var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
-  max-width:760px; margin:0 auto; padding:24px 18px 72px; color:var(--hink);
-  display:flex; flex-direction:column; gap:18px;
+  position:relative;
+  max-width:960px; margin:0 auto; padding:22px 20px 72px; color:var(--hink);
+  display:flex; flex-direction:column; gap:14px;
 }
 .lb-climb h1, .lb-climb .lb-ped-nm, .lb-climb .lb-ped-xp, .lb-climb .lb-rk,
 .lb-climb .lb-nm, .lb-climb .lb-lum { font-family:var(--disp); letter-spacing:-.01em; }
 
-/* ── hero: red gradient card, carries title + hook + filter + settings ── */
-/* royal blue → indigo: the complementary of the warm arena, echoes the blue hall behind the
-   gold podium card, so the hero reads as "another jewel" rather than more red. */
-.lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:26px 28px 22px; box-shadow:var(--sh-lg);
-  background:linear-gradient(135deg,#4F7CF6 0%,#4338CA 46%,#312E81 100%); color:#fff; border:1px solid rgba(255,255,255,.16); }
-.lb-head::after { content:""; position:absolute; right:-70px; top:-90px; width:260px; height:260px; border-radius:50%;
-  pointer-events:none; background:radial-gradient(circle at 40% 40%, rgba(255,255,255,.34), transparent 62%); }
-.lb-title { position:relative; margin:0; font-weight:800; font-size:clamp(30px,6.4vw,42px); line-height:1; display:flex; align-items:center; gap:12px; color:#fff; }
+/* rising embers over the arena — a seamlessly tiled spark field (loops on one tile height) */
+.lb-climb::before {
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.7;
+  background-image:
+    radial-gradient(1.6px 1.6px at 20% 32%, rgba(255,208,134,.95), transparent 60%),
+    radial-gradient(1.2px 1.2px at 70% 62%, rgba(255,176,96,.85), transparent 60%),
+    radial-gradient(2px 2px at 46% 86%, rgba(255,222,162,.9), transparent 60%),
+    radial-gradient(1px 1px at 88% 22%, rgba(255,192,122,.8), transparent 60%),
+    radial-gradient(1.4px 1.4px at 12% 72%, rgba(255,202,132,.8), transparent 60%);
+  background-size:240px 260px; background-repeat:repeat;
+  animation:lb-embers 14s linear infinite;
+}
+
+/* ── hero: obsidian banner with a warm gold accent, carries title + hook + filter + settings ──
+   Near-black warm-charcoal gradient + a gold hairline + gold corner bloom: premium, competitive
+   and clearly DISTINCT from both the amber/gold arena behind it and the ivory ranked rows.
+   Kept short — one tight band. */
+.lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:13px 20px 13px; box-shadow:var(--sh-lg);
+  background:linear-gradient(135deg,#241a10 0%,#161310 46%,#0c0a09 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
+.lb-head::after { content:""; position:absolute; right:-48px; top:-64px; width:190px; height:190px; border-radius:50%;
+  pointer-events:none; background:radial-gradient(circle at 40% 40%, rgba(245,158,11,.38), transparent 64%); }
+.lb-title { position:relative; margin:0; font-weight:800; font-size:clamp(24px,5.2vw,32px); line-height:1; display:flex; align-items:center; gap:9px; color:#fff; }
 .lb-title-ico { font-size:.9em; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
-.lb-sub { position:relative; margin:11px 0 0; font-size:15px; font-weight:600; color:rgba(255,255,255,.92); max-width:52ch; line-height:1.5; }
-.lb-filter { position:relative; margin-top:18px; display:flex; gap:8px; flex-wrap:wrap; }
-.lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff; font-weight:800; font-size:13px;
-  border-radius:999px; padding:8px 16px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
+.lb-sub { position:relative; margin:6px 0 0; font-size:13.5px; font-weight:600; color:rgba(255,255,255,.94); max-width:52ch; line-height:1.4; }
+.lb-filter { position:relative; margin-top:11px; display:flex; gap:7px; flex-wrap:wrap; }
+.lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff; font-weight:800; font-size:12.5px;
+  border-radius:999px; padding:6px 13px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
 .lb-chip:hover { transform:translateY(-1px); background:rgba(255,255,255,.26); }
-.lb-chip[data-on="true"] { background:#fff; color:#3730A3; border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.5); }
+.lb-chip[data-on="true"] { background:linear-gradient(180deg,#FCD34D,#F59E0B); color:#3a2600; border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.6); }
 
 /* board settings, demoted into the hero card */
-.lb-settings { position:relative; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,.22); }
-.lb-sh { font-family:var(--disp); font-weight:800; font-size:13.5px; color:#fff; }
-.lb-set-lbl { font-size:12.5px; color:rgba(255,255,255,.85); font-weight:700; }
+.lb-settings { position:relative; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:9px; padding-top:9px; border-top:1px solid rgba(255,255,255,.16); }
+.lb-sh { font-family:var(--disp); font-weight:800; font-size:13px; color:#fff; }
+.lb-set-lbl { font-size:12px; color:rgba(255,255,255,.86); font-weight:700; }
 .lb-grow { flex:1; }
-.lb-switch { flex:0 0 auto; width:48px; height:27px; border-radius:999px; border:0; padding:3px; background:rgba(255,255,255,.24);
+.lb-switch { flex:0 0 auto; width:44px; height:25px; border-radius:999px; border:0; padding:3px; background:rgba(255,255,255,.24);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.34); cursor:pointer; transition:background .18s ease; }
 .lb-switch[data-on="true"] { background:#fff; }
 .lb-switch:disabled { opacity:.55; cursor:default; }
-.lb-switch-knob { display:block; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.35);
+.lb-switch-knob { display:block; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.35);
   transition:transform .2s cubic-bezier(.2,.9,.3,1.3); }
-.lb-switch[data-on="true"] .lb-switch-knob { transform:translateX(21px); background:var(--accent); }
+.lb-switch[data-on="true"] .lb-switch-knob { transform:translateX(19px); background:var(--accent); }
 .lb-field { display:flex; gap:6px; }
-.lb-name-input { border:1px solid rgba(255,255,255,.32); border-radius:12px; background:rgba(255,255,255,.16); padding:9px 12px; font-size:14px; font-family:inherit; color:#fff; min-width:150px; }
+.lb-name-input { border:1px solid rgba(255,255,255,.32); border-radius:11px; background:rgba(255,255,255,.16); padding:7px 11px; font-size:13.5px; font-family:inherit; color:#fff; min-width:120px; }
 .lb-name-input::placeholder { color:rgba(255,255,255,.72); }
 .lb-name-input:focus-visible { outline:2px solid #fff; outline-offset:1px; }
-.lb-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; font-size:14px; padding:10px 16px;
-  border-radius:13px; border:none; cursor:pointer; text-decoration:none; font-family:inherit; white-space:nowrap; }
-.lb-btn.ghost { background:rgba(255,255,255,.92); color:#3730A3; border:0; }
+.lb-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; font-size:13.5px; padding:8px 13px;
+  border-radius:11px; border:none; cursor:pointer; text-decoration:none; font-family:inherit; white-space:nowrap; }
+.lb-btn.ghost { background:linear-gradient(180deg,#FCD34D,#F59E0B); color:#3a2600; border:0; }
 .lb-btn:disabled { opacity:.5; cursor:default; box-shadow:none; }
 
 /* ── shared mascot ring ── */
@@ -70,9 +93,10 @@
 
 /* ── podium: Nano-Banana metal cards; overlay sits on the baked zones ──
    Each card is short (4:5) with a drawn circular plinth (upper), a mid panel and a nameplate
-   plaque (lower third). Portrait → plinth · Lumens → score-chip on the panel · name → plaque.
+   plaque (lower third). Portrait → plinth · Lumens → score-chip on the panel · name → a solid
+   dark nameplate chip (below), so the name is high-contrast and legible on every metal.
    The three cards are generated with an identical layout so one set of offsets aligns all. */
-.lb-podium { display:grid; grid-template-columns:1fr 1.14fr 1fr; align-items:end; gap:12px; margin-top:4px; }
+.lb-podium { display:grid; grid-template-columns:1fr 1.14fr 1fr; align-items:end; gap:14px; margin-top:16px; }
 .lb-ped { position:relative; aspect-ratio:4/5; border-radius:18px; overflow:hidden; text-align:center;
   background:#241206 center/cover no-repeat; box-shadow:var(--sh-lg);
   animation:lb-pop .5s cubic-bezier(.2,.9,.3,1.1) both; }
@@ -80,24 +104,32 @@
 .lb-ped.p2 { background-image:url(/brand/leaderboard/ped-silver.webp); animation-delay:.06s; }
 .lb-ped.p3 { background-image:url(/brand/leaderboard/ped-bronze.webp); animation-delay:.12s; }
 
-/* portrait drops into the drawn glowing plinth (upper-centre) */
-.lb-ped-face { position:absolute; left:50%; top:31%; transform:translate(-50%,-50%); z-index:1;
+/* portrait drops into the drawn glowing plinth (upper-centre). Sized as a % of the card so it
+   fills + centres the plinth ring at any card width; the inner Eyecon raster is forced to fill. */
+.lb-ped-face { position:absolute; left:50%; top:30.5%; width:35%; transform:translate(-50%,-50%); z-index:1;
   box-shadow:0 6px 16px -6px rgba(0,0,0,.5); }
+.lb-ped-face .eyecon-wrap { width:100% !important; height:auto !important; aspect-ratio:1 !important; }
+.lb-ped-face .eyecon-img { width:100% !important; height:100% !important; object-fit:cover; }
+.lb-ped.p1 .lb-ped-face { top:29.5%; width:39%; }
 
 /* Lumens = a dark game score-chip resting in the mid panel / on the plinth ledge */
 .lb-ped-xp { position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); z-index:2; white-space:nowrap;
-  display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:17px; color:#fff;
-  background:rgba(22,11,3,.5); border:1px solid rgba(255,255,255,.26); border-radius:999px;
-  padding:4px 12px 4px 7px; box-shadow:0 6px 14px -6px rgba(0,0,0,.55); backdrop-filter:blur(3px); }
-.lb-ped.p1 .lb-ped-xp { font-size:20px; }
+  display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:18px; color:#fff;
+  background:rgba(18,9,3,.62); border:1px solid rgba(255,255,255,.3); border-radius:999px;
+  padding:4px 12px 4px 7px; box-shadow:0 6px 14px -6px rgba(0,0,0,.6); backdrop-filter:blur(3px); }
+.lb-ped.p1 .lb-ped-xp { font-size:21px; }
 
-/* name = engraved on the drawn nameplate plaque (lower third) */
-.lb-ped-nm { position:absolute; left:9%; right:9%; top:80%; transform:translateY(-50%); z-index:2;
-  font-weight:800; font-size:14.5px; line-height:1.1; letter-spacing:.005em;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.lb-ped.p1 .lb-ped-nm { color:#4a2f06; text-shadow:0 1px 0 rgba(255,255,255,.45); }
-.lb-ped.p2 .lb-ped-nm { color:#333d49; text-shadow:0 1px 0 rgba(255,255,255,.55); }
-.lb-ped.p3 .lb-ped-nm { color:#ffe7d1; text-shadow:0 1px 2px rgba(58,24,0,.75); }
+/* name = a solid dark nameplate chip on the lower band — white text, guaranteed high contrast,
+   enlarged so it fills its box; per-place border tint hints the metal. */
+.lb-ped-nm { position:absolute; left:7%; right:7%; top:82%; transform:translateY(-50%); z-index:2;
+  display:block; font-weight:800; font-size:16.5px; line-height:1.12; letter-spacing:.005em; color:#fff;
+  background:linear-gradient(180deg, rgba(26,12,5,.86), rgba(15,7,3,.94));
+  border:1px solid rgba(255,255,255,.24); border-radius:10px; padding:5px 9px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  box-shadow:0 7px 16px -9px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.12); }
+.lb-ped.p1 .lb-ped-nm { font-size:18.5px; top:82.5%; border-color:rgba(255,214,140,.5); }
+.lb-ped.p2 .lb-ped-nm { border-color:rgba(220,230,240,.42); }
+.lb-ped.p3 .lb-ped-nm { border-color:rgba(255,192,140,.44); }
 
 .lb-crown { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:56px; height:56px;
   object-fit:contain; z-index:3; filter:drop-shadow(0 5px 9px rgba(0,0,0,.5)); }
@@ -141,31 +173,34 @@
 
 .lb-empty { color:rgba(255,255,255,.9); text-align:center; padding:2.5rem 1rem; font-size:16px; text-shadow:0 1px 8px rgba(0,0,0,.5); }
 
-/* ── keyframes: entrance only ── */
+/* ── keyframes: entrance + slow ember drift ── */
 @keyframes lb-pop { from { opacity:0; transform:translateY(14px) scale(.97); } }
 .lb-ped.p1 { animation-name:lb-pop-hi; }
 @keyframes lb-pop-hi { from { opacity:0; transform:translateY(2px) scale(.97); } to { opacity:1; transform:translateY(-12px) scale(1); } }
 @keyframes lb-rise { from { opacity:0; transform:translateY(10px); } }
+@keyframes lb-embers { to { background-position:0 -260px; } }
 
 /* ── responsive (390px-safe) ── */
 @media (max-width:720px) {
-  .lb-climb { gap:15px; }
+  .lb-climb { gap:12px; }
   .lb-podium { gap:8px; }
-  .lb-ped-nm { font-size:12.5px; }
-  .lb-ped-xp { font-size:15px; padding:3px 10px 3px 6px; } .lb-ped.p1 .lb-ped-xp { font-size:17px; }
+  .lb-ped-nm { font-size:13.5px; } .lb-ped.p1 .lb-ped-nm { font-size:15px; }
+  .lb-ped-xp { font-size:15.5px; padding:3px 10px 3px 6px; } .lb-ped.p1 .lb-ped-xp { font-size:18px; }
 }
 @media (max-width:420px) {
-  .lb-climb { padding:18px 12px 60px; }
-  .lb-head { padding:22px 18px 20px; }
+  .lb-climb { padding:16px 12px 60px; }
+  .lb-head { padding:14px 16px 13px; }
+  .lb-ped-nm { font-size:12.5px; padding:4px 6px; } .lb-ped.p1 .lb-ped-nm { font-size:13.5px; }
   .lb-row { grid-template-columns:22px 44px minmax(0,1fr) auto; gap:10px; padding:11px 12px 11px 10px; }
   .lb-lvl { display:none; }
 }
 
-/* ── reduced motion: freeze entrance ── */
+/* ── reduced motion: freeze entrance + embers ── */
 @media (prefers-reduced-motion:reduce) {
-  .lb-ped, .lb-row { animation:none !important; }
+  .lb-ped, .lb-row, .lb-climb::before { animation:none !important; }
   .lb-ped.p1 { transform:translateY(-12px) !important; }
 }
 html[data-motion="reduce"] .lb-ped,
-html[data-motion="reduce"] .lb-row { animation:none !important; }
+html[data-motion="reduce"] .lb-row,
+html[data-motion="reduce"] .lb-climb::before { animation:none !important; }
 html[data-motion="reduce"] .lb-ped.p1 { transform:translateY(-12px) !important; }
