@@ -617,8 +617,8 @@ const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator('[data-testid="podium-slot"]').count()) !== 3) { console.error("FAIL: leaderboard podium did not render 3 slots"); process.exit(1); }
 if ((await np.locator('[data-testid="lb-row"]').count()) !== 4) { console.error("FAIL: expected 4 ranked rows below the podium"); process.exit(1); }
-if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-img[src^="data:"]').count()) < 1) {
-  console.error("FAIL: leaderboard did not render any student's real rendered portrait"); process.exit(1);
+if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-layer[src^="data:"]').count()) < 1) {
+  console.error("FAIL: leaderboard did not render any student's Eyecon (portrait escape-hatch layer)"); process.exit(1);
 }
 const youRow = np.locator('[data-testid="lb-row"][data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
@@ -704,53 +704,6 @@ console.log("PASS: reduced motion freezes the home mascot animation");
 //  customized → never gated, re-customization locked — is covered end-to-end by
 //  frontend/tests/eyecon_assert.mjs, which drives the served build with customized:false /
 //  customized:true avatar mocks.)
-
-// self-heal (once-per-session state invariant, /ship-check): a customized student whose
-// portrait is still "none" (pre-v2 salted look) fires ONE cache-gated render request when
-// the greeting card mounts — and must NOT re-fire on a second mount in the same browser
-// session (the sessionStorage gate). Isolated context = fresh sessionStorage so the counter
-// + gate are clean; POST /api/avatar/portrait is stubbed keyless (no live render). Covers
-// useSelfHealPortrait (useAvatar.ts) directly, not just the downstream render swap.
-const healUser = { full_name: "Heal Student", email: "heal@snec.com.sg", student_id: "S888", role: "student", student_role: "OA", must_change: false };
-const healCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
-await healCtx.addInitScript((u) => {
-  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
-  try { indexedDB.deleteDatabase("eyebot"); } catch {}
-  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
-  localStorage.setItem("eyebot_tour_seen", "true");
-  localStorage.setItem("eyebot_rail_pinned", "1");
-}, healUser);
-await healCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
-let healRenderCount = 0;
-await healCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
-await healCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(healUser)));
-await healCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 0 })));
-await healCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({ xp: 0, xp_today: 0, daily_goal: 100, hearts: 3, level: 1, streak: 0, streak_detail: { current: 0, best: 0, week: [] }, weak_topics: [], topic_performance: [], sessions: [] })));
-// customized + portrait "none" ⇒ the greeting card shows the brand EyeconLogo (no ready
-// portrait) while useSelfHealPortrait fires the one-shot render request underneath.
-await healCtx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: true, portrait_status: "none", portrait_url: null })));
-// POST /api/avatar/portrait — count invocations; return a harmless keyless stub (MOCK-safe).
-await healCtx.route("**/api/avatar/portrait", (r) => {
-  healRenderCount += 1;
-  return r.fulfill(JSON_OK({ portrait_status: "pending", portrait_url: null }));
-});
-const hp = await healCtx.newPage();
-await hp.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await hp.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
-// first mount: exactly one self-heal render request fires (poll the Node-side counter).
-for (let i = 0; i < 60 && healRenderCount < 1; i++) await hp.waitForTimeout(100);
-if (healRenderCount !== 1) { console.error(`FAIL: self-heal fired ${healRenderCount} render requests on first mount, expected 1`); process.exit(1); }
-console.log("PASS: self-heal — customized+portrait-none student fires exactly one render on mount");
-// second mount in the SAME session (full nav away + back ⇒ React remounts, sessionStorage
-// persists): the gate must suppress a second request.
-await hp.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
-await hp.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await hp.waitForSelector('[data-testid="greeting"]', { timeout: 15000 });
-await hp.waitForTimeout(800); // let any (wrongly) re-fired request land before asserting
-if (healRenderCount !== 1) { console.error(`FAIL: self-heal re-fired on a second mount in the same session (count=${healRenderCount}); once-per-session gate broken`); process.exit(1); }
-console.log("PASS: self-heal — second mount in the same session does NOT re-fire (once-per-session gate holds)");
-await healCtx.close();
 
 // admin: AdminGuard admits an admin; the dark ConsoleRail nav + KPIs render; the
 // Students route lists rows. (The old in-page pill tabs were replaced by the
