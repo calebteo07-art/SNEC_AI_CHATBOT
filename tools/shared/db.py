@@ -157,6 +157,58 @@ async def get_case_results(student_id: str) -> list[dict]:
     return result.data or []
 
 
+# ── flashcard_attempts (migration 010 — per-card grading log) ──────────────────
+
+async def insert_flashcard_attempt(
+    student_id: str, card_id: str | None, topic_tag: str, correct: bool, score: int
+) -> None:
+    """Append a per-card flashcard attempt. Raises if the table is missing
+    (pre-migration 010) — callers best-effort-catch so the study loop still works."""
+    client = await _get_client()
+    await client.table("flashcard_attempts").insert(
+        {
+            "student_id": student_id,
+            "card_id": card_id,
+            "topic_tag": topic_tag,
+            "correct": correct,
+            "score": score,
+        }
+    ).execute()
+
+
+async def get_flashcard_attempts(student_id: str) -> list[dict]:
+    """Return all flashcard attempts for a student, newest first. Raises on a missing
+    table (pre-migration 010) — callers catch and treat as no data."""
+    client = await _get_client()
+    result = (
+        await client.table("flashcard_attempts")
+        .select("*")
+        .eq("student_id", student_id)
+        .order("ts", desc=True)
+        .execute()
+    )
+    return result.data or []
+
+
+async def get_topic_accuracy(student_id: str) -> dict[str, dict]:
+    """Per-topic flashcard accuracy for a student:
+    {topic_tag: {"correct": int, "total": int, "pct": float}}. Built from the raw
+    attempts, so it propagates the pre-migration missing-table error to the caller."""
+    attempts = await get_flashcard_attempts(student_id)
+    agg: dict[str, dict] = {}
+    for a in attempts:
+        topic = a.get("topic_tag") or "general"
+        bucket = agg.setdefault(topic, {"correct": 0, "total": 0, "pct": 0.0})
+        bucket["total"] += 1
+        if a.get("correct"):
+            bucket["correct"] += 1
+    for bucket in agg.values():
+        bucket["pct"] = (
+            round(100 * bucket["correct"] / bucket["total"], 1) if bucket["total"] else 0.0
+        )
+    return agg
+
+
 # ── Admin helpers (bulk reads) ────────────────────────────────────────────────
 
 async def get_all_profiles() -> list[dict]:
