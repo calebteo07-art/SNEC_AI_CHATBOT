@@ -86,7 +86,7 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
 <p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
-<p>Please log in and change your password when prompted.</p>
+<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
 <p>EyeBot · SNEC</p>""",
         )
         email_sent = True
@@ -335,7 +335,7 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
 <p>Your EyeBot account has been created.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {plain_pw}</p>
-<p>Please log in and change your password when prompted.</p>
+<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
 <p>EyeBot · SNEC</p>""",
             )
             email_sent = True
