@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { Icon } from "@/aurora/icons";
 import { EngagementBlock } from "@/aurora/components/EngagementBlock";
+import { buildStudentReportHtml, type StudentReportData } from "@/aurora/lib/studentReportExport";
 
 interface Session { session_id: string; timestamp: string; topic: string; token_count: number; model: string; }
 interface CaseRow {
@@ -19,6 +20,7 @@ interface DetailData {
   supervisor_note: string; sessions: Session[]; cases: CaseRow[]; total_tokens: number;
   // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
   flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
+  cohort_retention?: Record<string, number>;  // per-topic cohort avg (0–1), graceful until provided
 }
 type SubTab = "sessions" | "cases" | "topics";
 
@@ -56,6 +58,52 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
       setTimeout(() => setNoteSaved(false), 2000);
     } catch { /* non-fatal */ }
     setSavingNote(false);
+  };
+
+  // Map the already-loaded per-student data (no fetch) into the report model and download it
+  // as one self-contained, print-to-PDF HTML file. Re-runnable (unlike the one-time OSCE save)
+  // — filename EyeBot-Student-<id8>-<yyyy-mm-dd>.html.
+  const handleDownloadReport = () => {
+    if (!data) return;
+    const report: StudentReportData = {
+      meta: {
+        studentId: data.student_id, fullName: data.full_name, email: data.email,
+        role: data.role, dateStr: new Date().toLocaleString(),
+      },
+      vitals: {
+        sessions: data.session_count, streak: data.streak,
+        lastActive: data.last_active?.slice(0, 10) || "", velocity: data.learning_velocity,
+        cases: data.cases.length, tokens: fmtTokens(data.total_tokens),
+      },
+      topics: Object.entries(data.retention_scores).map(([topic, score]) => {
+        const fc = data.flashcard_accuracy?.[topic];   // {correct,total,pct}; pct already 0–100
+        const co = data.cohort_retention?.[topic];      // 0–1 fraction, like retention_scores
+        return {
+          topic,
+          retentionPct: Math.round(score * 100),
+          flashcardPct: fc ? Math.round(fc.pct) : null,
+          cohortPct: co != null ? Math.round(co * 100) : null,
+        };
+      }),
+      osce: data.cases.map((c) => ({
+        caseId: c.case_id, totalScore: c.total_score, scoreMax: 40, passed: c.passed,
+        score100: c.score_100 ?? null, safe: c.safe ?? null,
+        missedCritical: c.missed_critical ?? [], dateStr: c.completed_at?.slice(0, 10) || "",
+      })),
+      weakTopics: data.weak_topics,
+      missedFindings: data.missed_findings,
+      note,
+      activity: data.sessions.slice(0, 12).map((s) => ({ dateStr: s.timestamp?.slice(0, 10) || "", topic: s.topic })),
+    };
+    const blob = new Blob([buildStudentReportHtml(report)], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `EyeBot-Student-${data.student_id.slice(0, 8)}-${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
   return (
@@ -208,9 +256,14 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                   rows={3}
                   placeholder="Add a note about this student…"
                 />
-                <button type="button" className="aurora-btn-ghost" onClick={saveNote} disabled={savingNote}>
-                  {noteSaved ? "Saved" : savingNote ? "Saving…" : "Save note"}
-                </button>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button type="button" className="aurora-btn-ghost" onClick={saveNote} disabled={savingNote}>
+                    {noteSaved ? "Saved" : savingNote ? "Saving…" : "Save note"}
+                  </button>
+                  <button type="button" className="aurora-btn-ghost" onClick={handleDownloadReport}>
+                    Download report (HTML)
+                  </button>
+                </div>
               </div>
             </>
           )}
