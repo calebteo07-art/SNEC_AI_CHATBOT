@@ -137,7 +137,7 @@ export function OnboardingScreen() {
       setLoginResult(data);
 
       if (data.must_change) {
-        login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "supervisor" | "admin", studentRole: (data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: true });
+        login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "admin" | "trainer", studentRole: (data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: true });
         setStep("change_password");
         return;
       }
@@ -155,10 +155,9 @@ export function OnboardingScreen() {
     /* Auth state flips under the cover so the user≠null redirect on this
        screen never flashes. */
     const apply = () => {
-      login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "supervisor" | "admin", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
-      if (data.role === "admin")      navigate("/admin");
-      else if (data.role === "supervisor") navigate("/supervisor");
-      else navigate("/checkin");
+      login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "admin" | "trainer", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
+      // Every role is a learner now (D7) — no admin/supervisor console detour.
+      navigate("/checkin");
     };
     if (data.role === "student") {
       /* The signature exit: the pupil engulfs the screen, then the route
