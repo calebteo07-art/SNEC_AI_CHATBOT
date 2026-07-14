@@ -19,7 +19,7 @@ from tools.gamification.leaderboard import rank_entries
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
-from tools.shared.jwt_utils import get_current_user, require_supervisor, CurrentUser
+from tools.shared.jwt_utils import get_current_user, require_staff, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
 from tools.shared import db
 
@@ -129,7 +129,7 @@ async def sync_gamification(
 # ── Profile role update ────────────────────────────────────────────────────
 
 @router.patch("/api/profile/role")
-async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(require_supervisor)):
+async def update_role(body: RoleUpdateRequest, current_user: CurrentUser = Depends(require_staff)):
     student_id = current_user["sub"]  # identity from JWT
     role = body.role.strip().upper()
     if role not in ("OA", "OT", "PSA"):

@@ -18,7 +18,7 @@ _EXPIRE_HOURS = int(os.getenv("JWT_EXPIRE_HOURS", "720"))
 
 class CurrentUser(TypedDict):
     sub: str           # student_id (UUID)
-    role: str          # "student" | "supervisor" | "admin"
+    role: str          # "student" | "trainer" | "admin"
     student_role: str  # "OA" | "OT" | "PSA" | ""
 
 
@@ -66,10 +66,14 @@ def get_current_user(eyebot_token: str | None = Cookie(None)) -> CurrentUser:
     return decode_token(eyebot_token)
 
 
-def require_supervisor(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
-    """FastAPI dependency: requires supervisor or admin role."""
-    if current_user["role"] not in ("supervisor", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Supervisor access required")
+def require_staff(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    """FastAPI dependency: requires staff (trainer or admin) role.
+
+    Gates every /api/supervisor/* route and the read-only /api/admin/* analytics
+    endpoints. Provisioning stays admin-only via require_admin.
+    """
+    if current_user["role"] not in ("admin", "trainer"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Staff access required")
     return current_user
 
 

@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from tools.api.shared import limiter
 from tools.shared import db
-from tools.shared.jwt_utils import require_supervisor, CurrentUser
+from tools.shared.jwt_utils import require_staff, CurrentUser
 from tools.supervisor.at_risk import get_at_risk as _get_at_risk
 from tools.supervisor.cohort_benchmarks import get_cohort_benchmarks as _get_benchmarks
 from tools.supervisor.cohort_summary import cohort_summary as _cohort_summary
@@ -64,7 +64,7 @@ class SupervisorInsightsResponse(BaseModel):
 # ── Supervisor endpoints ───────────────────────────────────────────────────
 
 @router.get("/api/supervisor/cohort", response_model=CohortSummaryResponse)
-async def supervisor_cohort(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_cohort(current_user: CurrentUser = Depends(require_staff)):
     try:
         result = await _cohort_summary()
     except Exception:
@@ -73,7 +73,7 @@ async def supervisor_cohort(current_user: CurrentUser = Depends(require_supervis
 
 
 @router.get("/api/supervisor/at-risk", response_model=AtRiskResponse)
-async def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_at_risk(current_user: CurrentUser = Depends(require_staff)):
     try:
         students = await _get_at_risk()
     except Exception:
@@ -82,7 +82,7 @@ async def supervisor_at_risk(current_user: CurrentUser = Depends(require_supervi
 
 
 @router.get("/api/supervisor/student/{student_id}", response_model=StudentProfileResponse)
-async def supervisor_student(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_student(student_id: str, current_user: CurrentUser = Depends(require_staff)):
     try:
         from tools.profile.get_profile import get_profile
         profile = await get_profile(student_id)
@@ -119,7 +119,7 @@ async def supervisor_student(student_id: str, current_user: CurrentUser = Depend
 async def supervisor_save_note(
     student_id: str,
     body: SaveNoteRequest,
-    current_user: CurrentUser = Depends(require_supervisor),
+    current_user: CurrentUser = Depends(require_staff),
 ):
     try:
         await db.update_profile(student_id, supervisor_note=body.note)
@@ -138,7 +138,7 @@ class LeaderboardSettingRequest(BaseModel):
 
 
 @router.get("/api/supervisor/leaderboard", response_model=LeaderboardSettingResponse)
-async def supervisor_get_leaderboard(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_get_leaderboard(current_user: CurrentUser = Depends(require_staff)):
     try:
         enabled = await db.get_leaderboard_enabled()
     except Exception:
@@ -149,7 +149,7 @@ async def supervisor_get_leaderboard(current_user: CurrentUser = Depends(require
 @router.post("/api/supervisor/leaderboard", response_model=LeaderboardSettingResponse)
 async def supervisor_set_leaderboard(
     body: LeaderboardSettingRequest,
-    current_user: CurrentUser = Depends(require_supervisor),
+    current_user: CurrentUser = Depends(require_staff),
 ):
     try:
         await db.set_leaderboard_enabled("SNEC", body.enabled)
@@ -159,7 +159,7 @@ async def supervisor_set_leaderboard(
 
 
 @router.get("/api/supervisor/student/{student_id}/report")
-async def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_student_report(student_id: str, current_user: CurrentUser = Depends(require_staff)):
     try:
         pdf_bytes = await _generate_report(student_id)
     except Exception:
@@ -173,7 +173,7 @@ async def supervisor_student_report(student_id: str, current_user: CurrentUser =
 
 
 @router.get("/api/supervisor/benchmarks", response_model=BenchmarkResponse)
-async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_staff)):
     try:
         topics = await _get_benchmarks()
     except Exception:
@@ -182,7 +182,7 @@ async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_supe
 
 
 @router.post("/api/supervisor/send-digest")
-async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_staff)):
     try:
         await _send_digest(body.recipient)
     except RuntimeError:
@@ -194,7 +194,7 @@ async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser 
 
 @router.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
 @limiter.limit("10/minute")
-async def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_supervisor)):
+async def supervisor_insights(request: Request, current_user: CurrentUser = Depends(require_staff)):
     try:
         cohort = await _cohort_summary()
         at_risk = await _get_at_risk()

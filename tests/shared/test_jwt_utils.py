@@ -31,11 +31,11 @@ def test_decode_tampered_token_raises_401():
     assert exc_info.value.status_code == 401
 
 
-def test_supervisor_role_in_token():
+def test_trainer_role_in_token():
     from tools.shared.jwt_utils import create_access_token, decode_token
-    token = create_access_token("supervisor-uuid", "supervisor", "")
+    token = create_access_token("trainer-uuid", "trainer", "")
     payload = decode_token(token)
-    assert payload["role"] == "supervisor"
+    assert payload["role"] == "trainer"
     assert payload["student_role"] == ""
 
 
@@ -78,27 +78,35 @@ def test_get_current_user_valid_cookie():
     assert result["role"] == "student"
 
 
-def test_require_supervisor_with_student_token_raises_403():
-    from tools.shared.jwt_utils import create_access_token, decode_token, require_supervisor
+def test_require_staff_with_student_token_raises_403():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_staff
     token = create_access_token("student-id", "student", "OA")
     user = decode_token(token)
     with pytest.raises(HTTPException) as exc_info:
-        require_supervisor(current_user=user)
+        require_staff(current_user=user)
     assert exc_info.value.status_code == 403
 
 
-def test_require_admin_with_supervisor_token_raises_403():
+def test_require_admin_with_trainer_token_raises_403():
     from tools.shared.jwt_utils import create_access_token, decode_token, require_admin
-    token = create_access_token("sup-id", "supervisor", "")
+    token = create_access_token("trainer-id", "trainer", "")
     user = decode_token(token)
     with pytest.raises(HTTPException) as exc_info:
         require_admin(current_user=user)
     assert exc_info.value.status_code == 403
 
 
-def test_require_supervisor_passes_for_admin_role():
-    from tools.shared.jwt_utils import create_access_token, decode_token, require_supervisor
+def test_require_staff_passes_for_admin_role():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_staff
     token = create_access_token("admin-id", "admin", "")
     user = decode_token(token)
-    result = require_supervisor(current_user=user)
+    result = require_staff(current_user=user)
     assert result["role"] == "admin"
+
+
+def test_require_staff_passes_for_trainer_role():
+    from tools.shared.jwt_utils import create_access_token, decode_token, require_staff
+    token = create_access_token("trainer-id", "trainer", "")
+    user = decode_token(token)
+    result = require_staff(current_user=user)
+    assert result["role"] == "trainer"
