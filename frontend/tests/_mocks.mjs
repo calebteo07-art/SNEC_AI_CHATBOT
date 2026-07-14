@@ -70,8 +70,7 @@ export async function mockApis(ctx, user) {
   // re-route "**/api/avatar" to serve customized:false and exercise the first-login gate.
   await ctx.route("**/api/avatar", (r) => r.request().method() === "PUT"
     ? r.fulfill(J({ config: avatarConfig }))
-    : r.fulfill(J({ config: avatarConfig, axes: {}, portrait_status: "none", portrait_url: null, customized: true })));
-  await ctx.route("**/api/avatar/portrait", (r) => r.fulfill(J({ portrait_status: "none", portrait_url: null })));
+    : r.fulfill(J({ config: avatarConfig, axes: {}, customized: true })));
   await ctx.route("**/api/progress", (r) => r.fulfill(J(progress)));
   await ctx.route("**/api/checkin/status", (r) => r.fulfill(J({ done: false, streak: 6, weak_topic: "Glaucoma staging" })));
   await ctx.route("**/api/checkin/question", (r) => r.fulfill(J({ question: "Which corneal layer regenerates after abrasion?", topic: "Cornea" })));

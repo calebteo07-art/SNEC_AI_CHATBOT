@@ -17,7 +17,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 TILES_ROOT = PROJECT_ROOT / "frontend" / "public" / "avatar" / "tiles"
 
 # The prop/shape axes — everything that isn't a colour swatch or the CSS backdrop.
-TILE_AXES: list[str] = ["eyeShape", "lashes", "mouth", "glasses", "topper", "accessory", "outfit"]
+TILE_AXES: list[str] = ["eyeShape", "topper", "accessory", "outfit"]
 
 
 def tile_ids(axis: str) -> list[str]:

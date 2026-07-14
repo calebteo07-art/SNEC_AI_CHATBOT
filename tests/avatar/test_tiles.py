@@ -6,7 +6,7 @@ from tools.avatar.tiles import TILE_AXES, TILES_ROOT, tile_ids, tile_path
 
 
 def test_tile_axes_are_the_prop_axes():
-    assert TILE_AXES == ["eyeShape", "lashes", "mouth", "glasses", "topper", "accessory", "outfit"]
+    assert TILE_AXES == ["eyeShape", "topper", "accessory", "outfit"]
 
 
 def test_tile_ids_skip_none():

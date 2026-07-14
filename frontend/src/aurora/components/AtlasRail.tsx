@@ -34,7 +34,6 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
   const role = user?.role ?? "student";
   // The nav chip is a student identity surface → their customised Eyecon (staff keep initials).
   const eyeconConfig = role === "student" ? avatar?.config : undefined;
-  const eyeconPortraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
   const showAnalytics = role === "admin" || role === "trainer";
   const initials = (user?.fullName ?? "EyeBot")
     .split(" ")
@@ -102,7 +101,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
             (re-customization is locked; the Profile screen is gone). Sign out is separate. */}
         <div className="aurora-profile">
           <span className="aurora-avatar" data-eyecon={eyeconConfig ? "" : undefined}>
-            {eyeconConfig ? <Eyecon portraitUrl={eyeconPortraitUrl} config={eyeconConfig} size={30} /> : initials}
+            {eyeconConfig ? <Eyecon config={eyeconConfig} size={30} /> : initials}
           </span>
           <span className="aurora-profile-meta">
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>

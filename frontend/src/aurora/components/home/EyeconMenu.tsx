@@ -29,8 +29,6 @@ export function EyeconMenu() {
     return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
   }, [open]);
 
-  const portraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
-
   return (
     <div className="hm-eyeconmenu" ref={wrapRef}>
       <button
@@ -41,7 +39,7 @@ export function EyeconMenu() {
         aria-label="Account menu"
         onClick={() => setOpen((v) => !v)}
       >
-        <Eyecon portraitUrl={portraitUrl} config={avatar?.config} size={40} />
+        <Eyecon config={avatar?.config} size={40} />
       </button>
 
       {open && (
