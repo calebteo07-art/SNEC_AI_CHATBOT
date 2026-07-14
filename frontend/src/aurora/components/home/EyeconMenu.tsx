@@ -12,8 +12,12 @@ import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 
 export function EyeconMenu() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { data: avatar } = useAvatar();
+  // Staff (admin/trainer) can re-open the Studio to edit their Eyecon; students are
+  // locked to the one-time welcome flow (mirrors the CheckInGuard rule), so only staff
+  // see the entry point.
+  const isStaff = user?.role === "admin" || user?.role === "trainer";
   const [open, setOpen] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -44,6 +48,11 @@ export function EyeconMenu() {
 
       {open && (
         <div className="hm-eyeconmenu-pop" role="menu" data-testid="eyecon-menu">
+          {isStaff && (
+            <button type="button" role="menuitem" className="hm-eyeconmenu-item" onClick={() => { setOpen(false); router.push("/studio"); }}>
+              Edit Eyecon
+            </button>
+          )}
           <button type="button" role="menuitem" className="hm-eyeconmenu-item" onClick={() => { setOpen(false); setShowPw(true); }}>
             Change password
           </button>
