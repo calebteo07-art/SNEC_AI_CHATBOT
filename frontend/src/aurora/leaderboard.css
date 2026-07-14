@@ -27,8 +27,10 @@
 .lb-climb .lb-nm, .lb-climb .lb-lum { font-family:var(--disp); letter-spacing:-.01em; }
 
 /* ── hero: red gradient card, carries title + hook + filter + settings ── */
+/* royal blue → indigo: the complementary of the warm arena, echoes the blue hall behind the
+   gold podium card, so the hero reads as "another jewel" rather than more red. */
 .lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:26px 28px 22px; box-shadow:var(--sh-lg);
-  background:linear-gradient(135deg,#FB3E5B 0%,#E11D48 40%,#9F1239 100%); color:#fff; border:1px solid rgba(255,255,255,.14); }
+  background:linear-gradient(135deg,#4F7CF6 0%,#4338CA 46%,#312E81 100%); color:#fff; border:1px solid rgba(255,255,255,.16); }
 .lb-head::after { content:""; position:absolute; right:-70px; top:-90px; width:260px; height:260px; border-radius:50%;
   pointer-events:none; background:radial-gradient(circle at 40% 40%, rgba(255,255,255,.34), transparent 62%); }
 .lb-title { position:relative; margin:0; font-weight:800; font-size:clamp(30px,6.4vw,42px); line-height:1; display:flex; align-items:center; gap:12px; color:#fff; }
@@ -38,7 +40,7 @@
 .lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff; font-weight:800; font-size:13px;
   border-radius:999px; padding:8px 16px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
 .lb-chip:hover { transform:translateY(-1px); background:rgba(255,255,255,.26); }
-.lb-chip[data-on="true"] { background:#fff; color:var(--accent-d); border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.5); }
+.lb-chip[data-on="true"] { background:#fff; color:#3730A3; border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.5); }
 
 /* board settings, demoted into the hero card */
 .lb-settings { position:relative; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
@@ -59,30 +61,44 @@
 .lb-name-input:focus-visible { outline:2px solid #fff; outline-offset:1px; }
 .lb-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:800; font-size:14px; padding:10px 16px;
   border-radius:13px; border:none; cursor:pointer; text-decoration:none; font-family:inherit; white-space:nowrap; }
-.lb-btn.ghost { background:rgba(255,255,255,.92); color:var(--accent-d); border:0; }
+.lb-btn.ghost { background:rgba(255,255,255,.92); color:#3730A3; border:0; }
 .lb-btn:disabled { opacity:.5; cursor:default; box-shadow:none; }
 
 /* ── shared mascot ring ── */
 .lb-face, .lb-ped-face { display:grid; place-items:center; border-radius:50%; }
 .lb-face .eyecon-wrap, .lb-ped-face .eyecon-wrap { border-radius:50%; overflow:hidden; }
 
-/* ── podium: Nano-Banana metal cards, portrait on the drawn plinth ── */
+/* ── podium: Nano-Banana metal cards; overlay sits on the baked zones ──
+   Each card is short (4:5) with a drawn circular plinth (upper), a mid panel and a nameplate
+   plaque (lower third). Portrait → plinth · Lumens → score-chip on the panel · name → plaque.
+   The three cards are generated with an identical layout so one set of offsets aligns all. */
 .lb-podium { display:grid; grid-template-columns:1fr 1.14fr 1fr; align-items:end; gap:12px; margin-top:4px; }
-.lb-ped { position:relative; aspect-ratio:3/4; border-radius:20px; overflow:hidden; text-align:center; color:#fff;
-  background:#3a0e12 center/cover no-repeat; box-shadow:var(--sh-lg);
-  display:flex; flex-direction:column; align-items:center; padding:13% 9% 8%;
+.lb-ped { position:relative; aspect-ratio:4/5; border-radius:18px; overflow:hidden; text-align:center;
+  background:#241206 center/cover no-repeat; box-shadow:var(--sh-lg);
   animation:lb-pop .5s cubic-bezier(.2,.9,.3,1.1) both; }
-.lb-ped::after { content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(180deg, transparent 50%, rgba(28,4,6,.52) 100%); }
 .lb-ped.p1 { background-image:url(/brand/leaderboard/ped-gold.webp); transform:translateY(-12px); }
 .lb-ped.p2 { background-image:url(/brand/leaderboard/ped-silver.webp); animation-delay:.06s; }
 .lb-ped.p3 { background-image:url(/brand/leaderboard/ped-bronze.webp); animation-delay:.12s; }
-.lb-ped-face { position:relative; z-index:1; box-shadow:0 8px 20px -8px rgba(0,0,0,.6), 0 0 0 3px rgba(255,255,255,.72); }
-.lb-ped-body { position:relative; z-index:1; margin-top:auto; width:100%; }
-.lb-ped-nm { font-weight:800; font-size:15px; line-height:1.14; text-shadow:0 1px 6px rgba(0,0,0,.55);
+
+/* portrait drops into the drawn glowing plinth (upper-centre) */
+.lb-ped-face { position:absolute; left:50%; top:31%; transform:translate(-50%,-50%); z-index:1;
+  box-shadow:0 6px 16px -6px rgba(0,0,0,.5); }
+
+/* Lumens = a dark game score-chip resting in the mid panel / on the plinth ledge */
+.lb-ped-xp { position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); z-index:2; white-space:nowrap;
+  display:inline-flex; align-items:center; gap:5px; font-weight:800; font-size:17px; color:#fff;
+  background:rgba(22,11,3,.5); border:1px solid rgba(255,255,255,.26); border-radius:999px;
+  padding:4px 12px 4px 7px; box-shadow:0 6px 14px -6px rgba(0,0,0,.55); backdrop-filter:blur(3px); }
+.lb-ped.p1 .lb-ped-xp { font-size:20px; }
+
+/* name = engraved on the drawn nameplate plaque (lower third) */
+.lb-ped-nm { position:absolute; left:9%; right:9%; top:80%; transform:translateY(-50%); z-index:2;
+  font-weight:800; font-size:14.5px; line-height:1.1; letter-spacing:.005em;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.lb-ped-xp { font-weight:800; font-size:20px; margin-top:3px; display:inline-flex; align-items:center; gap:5px; text-shadow:0 1px 6px rgba(0,0,0,.55); }
-.lb-ped.p1 .lb-ped-xp { font-size:25px; }
+.lb-ped.p1 .lb-ped-nm { color:#4a2f06; text-shadow:0 1px 0 rgba(255,255,255,.45); }
+.lb-ped.p2 .lb-ped-nm { color:#333d49; text-shadow:0 1px 0 rgba(255,255,255,.55); }
+.lb-ped.p3 .lb-ped-nm { color:#ffe7d1; text-shadow:0 1px 2px rgba(58,24,0,.75); }
+
 .lb-crown { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:56px; height:56px;
   object-fit:contain; z-index:3; filter:drop-shadow(0 5px 9px rgba(0,0,0,.5)); }
 
@@ -135,9 +151,8 @@
 @media (max-width:720px) {
   .lb-climb { gap:15px; }
   .lb-podium { gap:8px; }
-  .lb-ped { padding:12% 6% 7%; }
-  .lb-ped-nm { font-size:13px; }
-  .lb-ped-xp { font-size:16px; } .lb-ped.p1 .lb-ped-xp { font-size:20px; }
+  .lb-ped-nm { font-size:12.5px; }
+  .lb-ped-xp { font-size:15px; padding:3px 10px 3px 6px; } .lb-ped.p1 .lb-ped-xp { font-size:17px; }
 }
 @media (max-width:420px) {
   .lb-climb { padding:18px 12px 60px; }
