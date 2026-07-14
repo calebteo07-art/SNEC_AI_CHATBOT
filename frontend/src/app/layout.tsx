@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Outfit, Playfair_Display, Bricolage_Grotesque, Manrope } from "next/font/google";
+import { Inter, JetBrains_Mono, Outfit, Playfair_Display, Bricolage_Grotesque, Manrope, Bungee } from "next/font/google";
 import "@/styles/index.css";
 import { Providers } from "./providers";
 
@@ -54,6 +54,14 @@ const manrope = Manrope({
   variable: "--font-manrope-src",
   display: "swap",
 });
+/* Bungee — loud arcade signage face for the Leaderboard hero (title + filter chips), the
+   "game scoreboard" aesthetic. Single-weight (400) display font; scoped via --font-arcade. */
+const arcade = Bungee({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-arcade",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "EyeBot — SNEC Clinical Education",
@@ -84,7 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable} ${homeDisplay.variable} ${manrope.variable}`}
+      className={`${sans.variable} ${mono.variable} ${display.variable} ${flourish.variable} ${homeDisplay.variable} ${manrope.variable} ${arcade.variable}`}
       data-motion=""
     >
       <body>
