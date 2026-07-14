@@ -21,6 +21,7 @@ import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
 import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
 import { EyeconMenu } from "@/aurora/components/home/EyeconMenu";
+import { PoolToggle } from "@/aurora/components/home/PoolToggleSwitch";
 
 function dayOfYear(): number {
   const now = new Date();
@@ -96,6 +97,7 @@ export function Dashboard() {
           <span className="hm-wm">EyeBot</span>
         </div>
         <div className="hm-topr">
+          {(user?.role === "trainer" || user?.role === "admin") && <PoolToggle />}
           <div className="hm-chip">
             <span>Level <b>{level}</b> <small>· {rank}</small></span>
             <span className="hm-medal"><Icon name="medal" /></span>
