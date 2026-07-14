@@ -37,11 +37,14 @@ PED_LAYOUT = (
 JOBS: dict[str, tuple[str, str]] = {
     "bg": ("3:4",
         "A premium AAA mobile-game 'hall of champions' leaderboard background, vertical and "
-        "cinematic. A radiant warm golden spotlight blooms from the top-centre and pours down "
-        "through deep glowing amber into a rich dark burgundy-black base. Luminous golden embers, "
-        "sparks and light particles drift and float upward; soft volumetric god-rays; dreamy warm "
-        "bokeh orbs; a gentle dark vignette hugs the edges while the centre stays smooth and calm "
-        "for UI to sit on. Energetic, luxurious, joyful and addictive with real depth. " + CLEAN),
+        "cinematic, in a WARM GOLDEN palette — bright and luxurious, never dark. A radiant warm "
+        "golden spotlight blooms from the top-centre and pours down through luminous honey-amber "
+        "into a soft warm champagne-sand base at the bottom. A grand temple-of-champions arena, "
+        "softly and dreamily blurred, rises in the far background. Luminous golden embers, sparks "
+        "and light particles drift and float upward; soft volumetric golden god-rays; dreamy warm "
+        "amber bokeh orbs; a gentle warm honey vignette hugs the edges while the centre stays "
+        "smooth, luminous and calm for UI to sit on. Energetic, luxurious, joyful and addictive "
+        "with real cinematic depth. " + CLEAN),
     "ped-gold": ("4:5",
         PED_LAYOUT + "CHAMPION card in radiant polished GOLD and warm amber with a celebratory "
         "glow, subtle laurel accents and floating gold sparkles. " + CLEAN),
