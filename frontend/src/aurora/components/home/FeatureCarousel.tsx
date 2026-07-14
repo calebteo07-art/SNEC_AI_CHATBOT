@@ -45,7 +45,7 @@ export function FeatureCarousel() {
     const n = cards.length;
     if (!n || !stage) return;
 
-    const SX = 346, RY = 46, DZ = 176, SC = 0.14, HALF = n / 2;
+    const SX = 346, RY = 46, DZ = 176, SC = 0.14, HALF = n / 2, FADE = HALF - 0.5;
     const BASE = 0.005; // constant ever-flowing drift (~0.3 cards/sec); never stops
     const TAP_SLOP = 8;  // px of travel below which a pointer-up counts as a tap, not a drag
     const motionOff =
@@ -63,9 +63,12 @@ export function FeatureCarousel() {
         const d = dist(i), ad = Math.abs(d);
         c.style.transform =
           `translateX(${d * SX}px) translateZ(${-ad * DZ}px) rotateY(${-d * RY}deg) scale(${1 - ad * SC})`;
-        // Quadratic fade that reaches 0 exactly at the back (ad = HALF), so the
-        // wrap-around happens while the card is invisible — no pop.
-        c.style.opacity = String(Math.max(0, 1 - (ad / HALF) ** 2));
+        // Cards stay fully opaque out to the side positions and only fade in the
+        // deep-back zone (ad > FADE), reaching 0 exactly at the back (ad = HALF) so
+        // the wrap-around still happens while the card is invisible — no pop, no
+        // washed-out sides.
+        c.style.opacity =
+          ad <= FADE ? "1" : String(Math.max(0, 1 - ((ad - FADE) / (HALF - FADE)) ** 2));
         c.style.zIndex = String(Math.round(1000 - ad * 100));
         // pointer-events stay off (CSS) on every card — taps are resolved at the
         // stage, so drift/3D-projection can never swallow a click.
