@@ -86,6 +86,37 @@ def test_leaderboard_hides_accounts_whose_access_was_revoked(mock_p, mock_appr, 
     assert [e["name"] for e in r.json()["entries"]] == ["Ann A."]  # Bob dropped despite 900 XP
 
 
+@patch("tools.shared.db.get_all_supervisors", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_consent", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_approved", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock)
+def test_leaderboard_includes_trainers_and_admins(mock_p, mock_appr, mock_cons, mock_sup):
+    """Trainers and admins (supervisors rows, NOT approved_students) now rank on the
+    board alongside active students; a revoked student still drops off. Runs the real
+    get_active_leaderboard_profiles end-to-end over mocked base reads."""
+    mock_p.return_value = [
+        {"student_id": "stu_1", "xp": 300, "role": "OA"},
+        {"student_id": "trn_1", "xp": 800, "role": ""},      # trainer
+        {"student_id": "adm_1", "xp": 600, "role": ""},      # admin
+        {"student_id": "gone_1", "xp": 999, "role": "OT"},   # revoked student
+    ]
+    mock_appr.return_value = [{"email": "stu@test.com"}]      # only stu_1 still approved
+    mock_sup.return_value = [
+        {"email": "trainer@test.com", "role": "trainer"},
+        {"email": "admin@test.com", "role": "admin"},
+    ]
+    mock_cons.return_value = [
+        {"student_id": "stu_1", "student_name": "Sam Student", "email": "stu@test.com"},
+        {"student_id": "trn_1", "student_name": "Terry Trainer", "email": "trainer@test.com"},
+        {"student_id": "adm_1", "student_name": "Adam Admin", "email": "admin@test.com"},
+        {"student_id": "gone_1", "student_name": "Rick Revoked", "email": "gone@test.com"},
+    ]
+    r = client.get("/api/leaderboard", cookies=_cookies("stu_1"))
+    assert r.status_code == 200
+    names = [e["name"] for e in r.json()["entries"]]
+    assert names == ["Terry T.", "Adam A.", "Sam S."]  # XP desc; revoked gone_1 excluded
+
+
 @patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, side_effect=Exception("no table"))
 def test_leaderboard_degrades_when_unavailable(mock_p):
     r = client.get("/api/leaderboard", cookies=_cookies())

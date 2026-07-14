@@ -251,11 +251,13 @@ async def get_all_profiles() -> list[dict]:
 
 async def get_active_profiles() -> list[dict]:
     """Student profiles whose account still has access — i.e. whose consent email is
-    still present in approved_students. Cohort/leaderboard/analytics roll-ups use THIS
-    (not get_all_profiles) so revoking access — deleting a student's approved_students
-    row — drops them from the leaderboard, cohort counts and at-risk lists immediately,
-    matching the admin roster (which already filters this way). A profile whose email
-    can't be matched to an approved row is excluded (fail closed)."""
+    still present in approved_students. Cohort/analytics roll-ups use THIS (not
+    get_all_profiles) so revoking access — deleting a student's approved_students
+    row — drops them from cohort counts and at-risk lists immediately, matching the
+    admin roster (which already filters this way). A profile whose email can't be
+    matched to an approved row is excluded (fail closed). NOTE: staff (trainers/admins,
+    who live in supervisors not approved_students) are intentionally NOT here — the
+    leaderboard uses get_active_leaderboard_profiles to add them back in."""
     profiles = await get_all_profiles()
     approved = await get_all_approved()
     consent = await get_all_consent()
@@ -271,6 +273,40 @@ async def get_active_profiles() -> list[dict]:
         and (c.get("email") or "").strip().lower() in approved_emails
     }
     return [p for p in profiles if str(p.get("student_id")) in active_ids]
+
+
+async def get_active_leaderboard_profiles() -> list[dict]:
+    """Profiles eligible for the cohort leaderboard: every active student (exactly as
+    get_active_profiles) PLUS staff — trainers and admins, matched by a supervisors row
+    via their student_consent email. Kept separate from get_active_profiles so cohort /
+    analytics / at-risk roll-ups keep excluding staff. Staff augmentation is best-effort:
+    if the supervisors/consent/profile reads fail, the board is just the students."""
+    students = await get_active_profiles()
+    try:
+        supervisors = await get_all_supervisors()
+        consent = await get_all_consent()
+        profiles = await get_all_profiles()
+    except Exception:
+        return students
+    staff_emails = {
+        (s.get("email") or "").strip().lower()
+        for s in supervisors
+        if (s.get("email") or "").strip()
+    }
+    if not staff_emails:
+        return students
+    staff_ids = {
+        str(c.get("student_id"))
+        for c in consent
+        if c.get("student_id") is not None
+        and (c.get("email") or "").strip().lower() in staff_emails
+    }
+    seen = {str(p.get("student_id")) for p in students}
+    staff_profiles = [
+        p for p in profiles
+        if str(p.get("student_id")) in staff_ids and str(p.get("student_id")) not in seen
+    ]
+    return students + staff_profiles
 
 
 async def get_all_sessions(limit: int = 500) -> list[dict]:
