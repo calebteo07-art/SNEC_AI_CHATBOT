@@ -1,25 +1,22 @@
 "use client";
 /* Leaderboard — vibrant & seamless (supersedes "The Climb" D7). One continuous board:
-   header → podium (top 3) → one color-graded ranked list → a quiet settings strip.
+   header → podium (top 3) → one color-graded ranked list.
    Everyone-by-default, ranked by total Lumens. All gamification derives client-side from
    the existing /api/leaderboard payload — no backend change. */
 import { useEffect, useMemo, useState } from "react";
 import { confetti } from "@/fx/confetti";
-import { useLeaderboard, useSetLeaderboardPrefs } from "@/hooks/useLeaderboard";
+import { useLeaderboard } from "@/hooks/useLeaderboard";
 import { computeRivals, splitPodium } from "@/aurora/leaderboard/tiers";
 import { LeaderboardHeader } from "@/aurora/components/leaderboard/LeaderboardHeader";
 import { Podium } from "@/aurora/components/leaderboard/Podium";
 import { LeaderboardRow } from "@/aurora/components/leaderboard/LeaderboardRow";
-import { BoardSettings } from "@/aurora/components/leaderboard/BoardSettings";
 
 export function Leaderboard() {
   const [role, setRole] = useState<string | null>(null);
   const { data, isLoading } = useLeaderboard(role);
-  const prefs = useSetLeaderboardPrefs();
 
   const entries = data?.entries ?? [];
   const roles = data?.roles ?? [];
-  const youHidden = data?.you_hidden ?? false;
   const you = entries.find((e) => e.is_you);
 
   const rivals = useMemo(() => computeRivals(entries, you), [entries, you]);
@@ -28,12 +25,11 @@ export function Leaderboard() {
   // A short, personal, addictive one-liner — the chase, folded into the header instead of a
   // separate spotlight card.
   const hook = useMemo(() => {
-    if (youHidden) return "You're hidden — show yourself to join the climb.";
     if (you && you.rank === 1) return "You're #1 — everyone's chasing you. Hold the crown.";
     if (you && rivals?.above && rivals.above.rank <= 3) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens from the podium.`;
     if (you && rivals?.above) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens to overtake #${rivals.above.rank}.`;
     return "Everyone in your cohort, ranked by total Lumens. Study daily to climb.";
-  }, [you, rivals, youHidden]);
+  }, [you, rivals]);
 
   // One-time celebration when the viewer is on the podium. Reduced-motion + once per browser
   // session; never fires for the (common) off-podium case. We check data-motion ourselves
@@ -48,18 +44,7 @@ export function Leaderboard() {
 
   return (
     <div className="lb-climb" data-testid="leaderboard-root">
-      <LeaderboardHeader
-        roles={roles} role={role} onRole={setRole} hook={hook}
-        settings={
-          <BoardSettings
-            youHidden={youHidden}
-            displayName={data?.display_name ?? null}
-            pending={prefs.isPending}
-            onToggle={(hidden) => prefs.mutate({ hidden })}
-            onSaveName={(name) => prefs.mutate({ display_name: name })}
-          />
-        }
-      />
+      <LeaderboardHeader roles={roles} role={role} onRole={setRole} hook={hook} />
 
       {isLoading && !data ? (
         <p className="lb-empty">Loading the board…</p>
