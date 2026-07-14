@@ -91,8 +91,9 @@ def test_login_empty_password_hash_rejected():
     assert "eyebot_token" not in r.cookies
 
 
-def test_login_student_promoted_to_supervisor():
-    """Student in both approved_students and supervisors gets supervisor role."""
+def test_login_student_promoted_to_trainer():
+    """Student also in supervisors resolves the staff role; a legacy 'supervisor'
+    row normalises to 'trainer' so the account is never locked out."""
     auth_row = _make_auth_row("promo@test.com", "pass123")
     approved_row = _make_approved_row("promo@test.com", role="OA")
     sup_row = {"email": "promo@test.com", "role": "supervisor"}
@@ -105,8 +106,51 @@ def test_login_student_promoted_to_supervisor():
         r = client.post("/api/auth/login", json={"email": "promo@test.com", "password": "pass123"})
     assert r.status_code == 200
     data = r.json()
-    assert data["role"] == "supervisor"
+    assert data["role"] == "trainer"
     assert data["must_change"] is False
+
+
+def test_login_trainer_from_supervisors_only():
+    """An email present ONLY in supervisors (not approved students) with role
+    'trainer' logs in as trainer."""
+    auth_row = _make_auth_row("coach@test.com", "pass123")
+    sup_row = {"email": "coach@test.com", "role": "trainer"}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_005"), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "coach@test.com", "password": "pass123"})
+    assert r.status_code == 200
+    assert r.json()["role"] == "trainer"
+
+
+def test_me_student_role_from_profile():
+    """/api/auth/me sources student_role from student_profiles.role (the effective
+    content pool a staff toggle writes), not the stale JWT claim."""
+    consent_row = {"email": "coach@test.com", "student_id": "stu_006", "student_name": "Coach"}
+
+    with patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_profile", new=AsyncMock(return_value={"role": "OT"})):
+        r = client.get("/api/auth/me", cookies=_auth_cookie("stu_006", "trainer", "OA"))
+    assert r.status_code == 200
+    assert r.json()["student_role"] == "OT"
+
+
+def test_onboard_preserves_trainer_role():
+    """Onboarding an email in supervisors preserves the staff role (legacy
+    'supervisor' → 'trainer'); it no longer collapses to 'supervisor'."""
+    sup_row = {"email": "coach@test.com", "role": "supervisor"}
+
+    with patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_007"), \
+         patch("tools.api.routers.auth.has_consented", return_value=False), \
+         patch("tools.api.routers.auth.record_consent"):
+        r = client.post("/api/onboard", json={"full_name": "Coach", "email": "coach@test.com", "student_role": ""})
+    assert r.status_code == 200
+    assert r.json()["role"] == "trainer"
 
 
 def test_change_password_success():
