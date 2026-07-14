@@ -1,0 +1,46 @@
+/* Pure-logic tests for the first-run tour model. No test runner / deps — plain Node asserts.
+   Run: node frontend/tests/tour_engine_test.mjs
+   (Node 24 runs the imported .ts via native type-stripping; on Node < 23.6 add
+    --experimental-strip-types.) */
+import assert from "node:assert/strict";
+import { activeSteps, shouldStartTour, TOUR_STEPS, TOUR_KEY } from "../src/aurora/tour/tourSteps.ts";
+
+let passed = 0;
+const it = (name, fn) => { fn(); passed++; console.log("  ✓", name); };
+
+// --- activeSteps(role) ---
+it("students get every stop except analytics, ending on the finale", () => {
+  const ids = activeSteps("student").map((s) => s.id);
+  assert.ok(!ids.includes("analytics"), "no analytics for students");
+  assert.equal(ids[0], "welcome");
+  assert.equal(ids.at(-1), "finish");
+  assert.equal(ids.length, TOUR_STEPS.length - 1);
+});
+it("trainers and admins get the analytics stop", () => {
+  assert.ok(activeSteps("trainer").some((s) => s.id === "analytics"));
+  assert.ok(activeSteps("admin").some((s) => s.id === "analytics"));
+  assert.equal(activeSteps("trainer").length, TOUR_STEPS.length);
+});
+it("undefined role is treated as non-staff", () => {
+  assert.ok(!activeSteps(undefined).some((s) => s.id === "analytics"));
+});
+it("every step has a route and non-empty copy", () => {
+  for (const s of TOUR_STEPS) {
+    assert.ok(s.route.startsWith("/"), `${s.id} route`);
+    assert.ok(s.title.length > 0 && s.body.length > 0, `${s.id} copy`);
+  }
+});
+
+// --- shouldStartTour(...) — the show-once gate ---
+const base = { isAuthenticated: true, isCheckInDone: true, customized: true, seen: false, pathname: "/dashboard" };
+it("fires when all gates clear on the dashboard", () => assert.equal(shouldStartTour(base), true));
+it("never re-fires once seen (show-once invariant)", () => assert.equal(shouldStartTour({ ...base, seen: true }), false));
+it("waits while the avatar is still loading (customized undefined)", () => assert.equal(shouldStartTour({ ...base, customized: undefined }), false));
+it("does not fire before the Eyecon gate is passed (customized false)", () => assert.equal(shouldStartTour({ ...base, customized: false }), false));
+it("does not fire off the dashboard hub", () => assert.equal(shouldStartTour({ ...base, pathname: "/chat" }), false));
+it("does not fire before daily check-in", () => assert.equal(shouldStartTour({ ...base, isCheckInDone: false }), false));
+it("does not fire when unauthenticated", () => assert.equal(shouldStartTour({ ...base, isAuthenticated: false }), false));
+
+it("persistence key is the harness-seeded one", () => assert.equal(TOUR_KEY, "eyebot_tour_seen"));
+
+console.log(`\n${passed} tour-engine checks passed.`);
