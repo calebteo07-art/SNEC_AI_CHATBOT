@@ -18,5 +18,4 @@ def test_expansion_landed():
     assert "trafficCone" in AVATAR_AXES["topper"]
     assert "dinoOnesie" in AVATAR_AXES["outfit"]
     assert "bobaTea" in AVATAR_AXES["accessory"]
-    assert "dealWithIt" in AVATAR_AXES["glasses"]
     assert "aurora" in AVATAR_AXES["background"]

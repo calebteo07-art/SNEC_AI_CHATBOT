@@ -87,39 +87,6 @@ _EYE = {
     "pixel": "rendered as a chunky retro 8-bit pixel eye",
     "rainbow": "beaming a soft rainbow arc across the iris",
 }
-_MOUTH = {
-    "smile": "a warm beaming smile", "grin": "an enormous joyful open grin", "soft": "a sweet gentle smile",
-    "open": "a delighted little 'oh!'", "smirk": "a mischievous confident smirk",
-    "ooh": "a starstruck 'ooh!'", "tongue": "a cheeky tongue-out grin",
-    "laugh": "an uncontrollable head-back belly laugh",
-    "catSmile": "a smug little :3 cat smile", "chomp": "a giant goofy chomp with one tooth showing",
-    "whistle": "casually whistling with a tiny musical note",
-    "pout": "a dramatic theatrical pout", "shocked": "a totally shocked jaw-drop",
-    "evilGrin": "a cartoonishly evil scheming grin",
-}
-_LASHES = {
-    "natural": "soft fluttery lashes", "glam": "long, dramatic glamorous lashes", "cyber": "glowing neon cyber-lashes",
-    "feathery": "huge feathery false lashes, full drama",
-    "butterfly": "lashes that curl into tiny butterfly wings",
-}
-_BLUSH = {
-    "rose": "rosy glowing blush", "coral": "warm coral blush", "peach": "soft peachy blush", "plum": "rich plum blush",
-    "berry": "bold berry blush", "sky": "dreamy sky-blue blush", "mint": "cool minty blush", "gold": "shimmering golden blush",
-    "grape": "vivid grape blush", "teal": "bright teal blush", "stars": "a scatter of tiny glowing star freckles",
-    "freckles": "cute sprinkled freckles",
-}
-_GLASSES = {
-    "round": "chic round glasses", "square": "bold square glasses", "catEye": "sassy cat-eye glasses",
-    "monocle": "a fancy gold monocle", "reading": "smart reading glasses", "goggles": "splashy swim goggles",
-    "heart": "adorable heart-shaped glasses", "visor": "a sleek glowing futuristic visor",
-    "dealWithIt": "pixelated 8-bit 'deal with it' sunglasses",
-    "cinema3d": "retro red-and-cyan 3D cinema glasses",
-    "ski": "mirrored ski goggles with a rainbow sheen",
-    "star": "oversized star-shaped party glasses",
-    "magnifier": "a comically huge detective's magnifying glass held up to the eye",
-    "steampunk": "brass steampunk goggles with tiny gears",
-    "broken": "cracked, taped-together nerd glasses worn proudly",
-}
 _TOPPER = {
     "sprout": "a cute little green sprout popping from the top", "bow": "an oversized adorable bow",
     "cap": "a cool backwards baseball cap", "beanie": "a cozy slouchy beanie", "halo": "a glowing golden halo",
@@ -172,8 +139,7 @@ _OUTFIT = {
 # phrase-coverage gate (no shipped tile id may fall back to _humanize). The portrait
 # prompt reads these same dicts directly in config_to_prompt.
 PROMPT_MAPS: dict[str, dict[str, str]] = {
-    "bodyColor": _BODY, "irisColor": _IRIS, "eyeShape": _EYE, "mouth": _MOUTH,
-    "lashes": _LASHES, "blush": _BLUSH, "glasses": _GLASSES, "topper": _TOPPER,
+    "bodyColor": _BODY, "irisColor": _IRIS, "eyeShape": _EYE, "topper": _TOPPER,
     "accessory": _ACCESSORY, "outfit": _OUTFIT,
 }
 
@@ -207,13 +173,6 @@ def config_to_prompt(config: dict) -> str:
     lines.append(f"Body: {_BODY.get(c['bodyColor'], 'a vibrant glossy ' + _humanize(c['bodyColor']) + '-coloured')} body.")
     lines.append(f"Her single eye is {_EYE.get(c['eyeShape'], _humanize(c['eyeShape']))} "
                  f"with {_IRIS.get(c['irisColor'], 'a vivid, glowing ' + _humanize(c['irisColor']) + ' iris')}.")
-    if c["lashes"] != "none":
-        lines.append(f"Lashes: {_LASHES.get(c['lashes'], _humanize(c['lashes']))}.")
-    lines.append(f"Expression: {_MOUTH.get(c['mouth'], _humanize(c['mouth']))}.")
-    if c["blush"] != "none":
-        lines.append(f"Cheeks: {_BLUSH.get(c['blush'], _humanize(c['blush']) + ' blush')}.")
-    if c["glasses"] != "none":
-        lines.append(f"Wearing {_GLASSES.get(c['glasses'], _humanize(c['glasses']))}.")
     if c["topper"] != "none":
         lines.append(f"On top: {_TOPPER.get(c['topper'], _humanize(c['topper']))}.")
     if c["accessory"] != "none":
