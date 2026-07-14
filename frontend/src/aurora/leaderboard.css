@@ -5,15 +5,17 @@
    dark nameplate chip. Bright ranked cards float on the light arena. Scoped under `.lb-climb`,
    mobile-first, 390px-safe. Motion is entrance + hover + a slow mote drift (frozen). */
 
-/* Full-bleed game background — PURE CSS (no image), viewport-locked so rows scroll over it.
-   Hosted here (globally loaded via src/styles/index.css so :has() reaches .aurora-main).
-   Light warm-sand base (not stark white) with a soft gold crown glow up top: keeps the arena
-   warm and competitive while the metal podium + bright rows read cleanly. */
+/* Full-bleed game background — a Nano-Banana "hall of champions" webp, viewport-locked so rows
+   scroll over it. Hosted here (globally loaded via src/styles/index.css so :has() reaches
+   .aurora-main). Warm-golden cinematic arena (top spotlight → honey-amber → champagne-sand floor)
+   in the same warm palette as before, but with real depth so the board reads premium, not flat.
+   A faint warm wash unifies it with the UI; a warm-sand solid backs it while the image loads.
+   Everything textual sits on opaque cards, so the busy centre never fights legibility. */
 .aurora-main:has(.lb-climb) {
   background:
-    radial-gradient(122% 74% at 50% -12%, rgba(255,206,138,.60) 0%, rgba(255,176,104,.30) 26%, rgba(255,150,80,.10) 46%, transparent 62%),
-    radial-gradient(100% 60% at 50% 34%, rgba(255,220,170,.34) 0%, transparent 68%),
-    linear-gradient(180deg, #FBEAD3 0%, #F3DEC3 52%, #E9D2B4 100%);
+    linear-gradient(180deg, rgba(251,234,211,.10) 0%, rgba(233,210,180,.24) 100%),
+    url(/brand/leaderboard/bg.webp) 50% 0% / cover,
+    #ECD9BC;
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
