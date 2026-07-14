@@ -43,6 +43,7 @@ const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
   PSA:        { bg: "rgba(52,211,153,0.15)",  color: "#34d399" },
   admin:      { bg: "rgba(31,31,31,0.10)", color: "#1F1F1F" },
   supervisor: { bg: "rgba(96,165,250,0.15)",  color: "#60a5fa" },
+  trainer:    { bg: "rgba(99,102,241,0.15)",  color: "#818cf8" },
 };
 
 export function RoleBadge({ role }: { role: string }) {
@@ -64,6 +65,7 @@ export function roleBadgeClass(role: string): string {
   if (r === "psa") return "role-badge psa";
   if (r === "admin") return "role-badge admin";
   if (r === "supervisor") return "role-badge supervisor";
+  if (r === "trainer") return "role-badge trainer";
   return "role-badge";
 }
 

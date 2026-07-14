@@ -286,6 +286,7 @@
 .role-badge.psa        { background: rgba(66,133,244,.12) !important; color: #1A73E8 !important; border-color: rgba(66,133,244,.25) !important; }
 .role-badge.admin      { background: rgba(217,101,112,.12) !important; color: #C2414E !important; border-color: rgba(217,101,112,.25) !important; }
 .role-badge.supervisor { background: rgba(26,115,232,.12) !important; color: #1A73E8 !important; border-color: rgba(66,133,244,.25) !important; }
+.role-badge.trainer    { background: rgba(99,102,241,.12) !important; color: #6366F1 !important; border-color: rgba(99,102,241,.25) !important; }
 
 /* Curriculum active tab */
 .curriculum-tab.active {
