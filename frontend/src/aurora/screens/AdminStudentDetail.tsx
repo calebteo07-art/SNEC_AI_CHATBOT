@@ -7,12 +7,18 @@ import { Icon } from "@/aurora/icons";
 import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 
 interface Session { session_id: string; timestamp: string; topic: string; token_count: number; model: string; }
-interface CaseRow { case_id: string; total_score: number; passed: boolean; completed_at: string; }
+interface CaseRow {
+  case_id: string; total_score: number; passed: boolean; completed_at: string;
+  // Tier-2 OSCE grade (Phase-2 migration) — optional so this renders before it lands.
+  score_100?: number; safe?: boolean; consult_technique?: number; judgement_safety?: number; missed_critical?: string[];
+}
 interface DetailData {
   student_id: string; full_name: string; email: string; role: string;
   session_count: number; streak: number; last_active: string; learning_velocity: string;
   weak_topics: string[]; missed_findings: string[]; retention_scores: Record<string, number>;
   supervisor_note: string; sessions: Session[]; cases: CaseRow[]; total_tokens: number;
+  // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
+  flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
 }
 type SubTab = "sessions" | "cases" | "topics";
 
@@ -122,18 +128,29 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
 
               {subTab === "cases" && (
                 <div className="aurora-table-wrap">
-                  <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "1fr 80px 70px 100px" }}>
-                    <span>Case</span><span>Score</span><span>Result</span><span>Date</span>
+                  <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: "1fr 80px 88px 66px 96px" }}>
+                    <span>Case</span><span>Score</span><span>Sub-scores</span><span>Safety</span><span>Date</span>
                   </div>
                   {data.cases.length === 0 && <p className="aurora-tempty">No case attempts yet.</p>}
-                  {data.cases.map((c, i) => (
-                    <div key={i} className="aurora-trow" style={{ gridTemplateColumns: "1fr 80px 70px 100px" }}>
-                      <span className="aurora-tcell">{c.case_id}</span>
-                      <span className="aurora-tcell is-mono">{c.total_score}/40</span>
-                      <span className="aurora-tcell"><span className="aurora-badge" data-tone={c.passed ? "ok" : "rose"}>{c.passed ? "Pass" : "Fail"}</span></span>
-                      <span className="aurora-tcell is-muted">{c.completed_at?.slice(0, 10) || "—"}</span>
-                    </div>
-                  ))}
+                  {data.cases.map((c, i) => {
+                    const scored = c.score_100 !== undefined;
+                    return (
+                      <div key={i} className="aurora-trow" style={{ gridTemplateColumns: "1fr 80px 88px 66px 96px" }}>
+                        <span className="aurora-tcell">{c.case_id}</span>
+                        <span className="aurora-tcell is-mono">{scored ? `${c.score_100}/100` : `${c.total_score}/40`}</span>
+                        <span className="aurora-tcell is-muted">
+                          {c.consult_technique !== undefined && c.judgement_safety !== undefined
+                            ? `${c.consult_technique}·${c.judgement_safety}` : "—"}
+                        </span>
+                        <span className="aurora-tcell">
+                          {c.safe === undefined
+                            ? <span className="aurora-badge" data-tone={c.passed ? "ok" : "rose"}>{c.passed ? "Pass" : "Fail"}</span>
+                            : <span className="aurora-badge" data-tone={c.safe ? "ok" : "rose"}>{c.safe ? "Safe" : "Unsafe"}</span>}
+                        </span>
+                        <span className="aurora-tcell is-muted">{c.completed_at?.slice(0, 10) || "—"}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
@@ -154,6 +171,20 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+                  {data.flashcard_accuracy && Object.keys(data.flashcard_accuracy).length > 0 && (
+                    <div>
+                      <p className="aurora-activity-head">Flashcard accuracy (per topic)</p>
+                      <div className="aurora-bars">
+                        {Object.entries(data.flashcard_accuracy).map(([topic, a]) => (
+                          <div key={topic} className="aurora-bar-row">
+                            <span className="aurora-bar-label">{topic.replace(/_/g, " ")}</span>
+                            <span className="aurora-bar-track"><span className="aurora-bar-fill" data-weak={a.pct < 65} style={{ width: `${Math.max(0, Math.min(100, a.pct))}%` }} /></span>
+                            <span className="aurora-bar-pct">{a.correct}/{a.total}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                   {data.missed_findings.length > 0 && (
