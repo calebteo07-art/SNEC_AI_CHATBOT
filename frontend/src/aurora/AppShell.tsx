@@ -10,7 +10,6 @@ import { useProgress } from "@/hooks/useProgress";
 import { useReducedMotion } from "@/aurora/motion";
 import { syncStreakFromBackend } from "@/lib/legacy/gamification";
 import { AtlasRail } from "./components/AtlasRail";
-import { ConsoleRail } from "./components/ConsoleRail";
 import { CommandPalette, type Destination } from "./components/CommandPalette";
 import { RouteReveal } from "@/fx/Reveal";
 
@@ -20,17 +19,8 @@ const STUDY: Destination[] = [
   { href: "/cases", label: "Virtual Patients" },
   { href: "/flashcards", label: "Flashcards" },
 ];
-/* Staff palettes mirror the ConsoleRail nav — no student surfaces. */
-const ADMIN_DEST: Destination[] = [
-  { href: "/admin", label: "Overview" },
-  { href: "/admin/students", label: "Students" },
-  { href: "/admin/accounts", label: "Accounts" },
-  { href: "/admin/activity", label: "Activity" },
-];
-const SUPERVISOR_DEST: Destination[] = [
-  { href: "/supervisor", label: "Supervisor" },
-  { href: "/admin", label: "Admin" },
-];
+/* Trainers/admins get one extra palette destination — the Analytics page. */
+const ANALYTICS_DEST: Destination = { href: "/analytics", label: "Analytics" };
 
 export function AppShell({ children }: { children: ReactNode }) {
   useReducedMotion(); // AURORA owns html[data-motion] now that the legacy MotionProvider is gone
@@ -75,34 +65,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const role = user?.role ?? "student";
-  const isStaff = role === "admin" || role === "supervisor";
   const destinations = useMemo<Destination[]>(() => {
-    if (role === "admin") return ADMIN_DEST;
-    if (role === "supervisor") return SUPERVISOR_DEST;
+    if (role === "admin" || role === "trainer") return [...STUDY, ANALYTICS_DEST];
     return STUDY;
   }, [role]);
-
-  /* Staff get the dark "control console": a dedicated oversight-only rail on the
-     same mesh/scroll markup, re-themed by the .console-dark scope. Students keep
-     the light AURORA shell untouched. */
-  if (isStaff) {
-    return (
-      <div className="aurora-shell console-dark" data-rail={railState}>
-        {!pinned && <RailHandle onReveal={togglePin} />}
-        <ConsoleRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
-        <main id="main" className="aurora-main">
-          <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
-          <div className="aurora-main-scroll">{children}</div>
-        </main>
-        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
-      </div>
-    );
-  }
 
   /* Immersive routes — on /chat and /flashcards the rail + mesh fall away and the
      screen fills the whole viewport. The Tutor is IG-DM full screen; Flashcards is
      "The Aperture", a self-themed Twilight world. ⌘K still works; each screen owns
-     its own labelled back/exit affordance. Reached only for non-staff (staff above). */
+     its own labelled back/exit affordance. */
   if (pathname === "/chat" || pathname === "/flashcards") {
     return (
       <div className="aurora-shell aurora-shell-immersive">
