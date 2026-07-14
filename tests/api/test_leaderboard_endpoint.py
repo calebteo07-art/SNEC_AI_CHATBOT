@@ -4,6 +4,7 @@ Replaces the v1 opt-in/supervisor-gated model. The endpoint composes DB reads wi
 pure `rank_entries` core; these tests patch the DB layer and assert the wiring + the
 viewer-visibility reporting + the prefs (hide toggle / display name) endpoint.
 """
+import os
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -115,6 +116,29 @@ def test_leaderboard_includes_trainers_and_admins(mock_p, mock_appr, mock_cons, 
     assert r.status_code == 200
     names = [e["name"] for e in r.json()["entries"]]
     assert names == ["Terry T.", "Adam A.", "Sam S."]  # XP desc; revoked gone_1 excluded
+
+
+@patch.dict(os.environ, {"SUPER_ADMIN_EMAIL": "boss@snec.com"})
+@patch("tools.shared.db.get_all_supervisors", new_callable=AsyncMock, return_value=[])
+@patch("tools.shared.db.get_all_consent", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_approved", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock)
+def test_leaderboard_includes_super_admin_without_supervisor_row(mock_p, mock_appr, mock_cons, mock_sup):
+    """The super admin is staff-by-email (SUPER_ADMIN_EMAIL), not a supervisors row, so it
+    is matched separately — else the top account (usually the highest XP) is missing."""
+    mock_p.return_value = [
+        {"student_id": "stu_1", "xp": 300, "role": "OA"},
+        {"student_id": "boss_1", "xp": 1699, "role": "OA"},  # super admin, no supervisors row
+    ]
+    mock_appr.return_value = [{"email": "stu@test.com"}]      # only stu_1 approved
+    mock_cons.return_value = [
+        {"student_id": "stu_1", "student_name": "Sam Student", "email": "stu@test.com"},
+        {"student_id": "boss_1", "student_name": "Boss Admin", "email": "boss@snec.com"},
+    ]
+    r = client.get("/api/leaderboard", cookies=_cookies("stu_1"))
+    assert r.status_code == 200
+    names = [e["name"] for e in r.json()["entries"]]
+    assert names == ["Boss A.", "Sam S."]  # super admin ranks #1 despite no supervisors row
 
 
 @patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, side_effect=Exception("no table"))
