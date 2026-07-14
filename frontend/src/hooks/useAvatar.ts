@@ -48,6 +48,14 @@ export function useSaveAvatar() {
   });
 }
 
-/** Total distinct Eyecon looks — product of every axis's option count. Shown as a
- *  fun (and honest) "one of N looks" stat; derived from the registry so it can't drift. */
-export const AVATAR_COMBOS = Object.values(AVATAR_AXES).reduce((n, opts) => n * opts.length, 1);
+/** Axes fixed at their default (no longer customized in the Studio) — excluded from the
+ *  looks count so the "one of N" stat stays honest. eyeShape is structurally required by
+ *  the composite (the eye layer); accessory just defaults to "none". */
+const FIXED_AXES = new Set(["eyeShape", "accessory"]);
+
+/** Total distinct Eyecon looks — product of every *customizable* axis's option count.
+ *  Shown as a fun (and honest) "one of N looks" stat; derived from the registry so it
+ *  can't drift. */
+export const AVATAR_COMBOS = Object.entries(AVATAR_AXES)
+  .filter(([axis]) => !FIXED_AXES.has(axis))
+  .reduce((n, [, opts]) => n * opts.length, 1);
