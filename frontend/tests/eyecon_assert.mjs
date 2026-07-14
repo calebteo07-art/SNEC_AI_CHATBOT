@@ -47,23 +47,24 @@ async function studentCtx(customized) {
   await ctx.close();
 }
 
-// ── C) INSTANT PREVIEW: tapping a feature tile adds/updates that overlay layer on the
-//        hero composite, live (no portrait render needed). ────────────────────────────
+// ── C) LIBRARY PICK: the Studio is a fixed preset gallery — tapping a tile makes it the
+//        hero (one pre-baked image) and arms Save. ──────────────────────────────────────
 {
   const ctx = await studentCtx(false);
   const p = await ctx.newPage();
   await p.goto(`${BASE}/studio?welcome=1`, { waitUntil: "networkidle" });
   await p.waitForSelector(".studio-hero .eyecon-layer", { timeout: 12000 });
-  const before = await p.locator('.studio-hero .eyecon-layer[src^="/avatar/overlay/topper/"]').count();
-  await p.locator('.studio-dot[aria-label*="On top"]').click();
-  await p.waitForTimeout(250);
-  await p.locator('.studio-tile:has(.studio-tile-label:text-is("Crown"))').click();
-  await p.waitForTimeout(400);
-  const after = await p.locator('.studio-hero .eyecon-layer[src="/avatar/overlay/topper/crown.webp"]').count();
-  if (before === 0 && after >= 1) {
-    ok("instant preview — hero grew a crown topper layer on tile tap");
+  const cards = await p.locator(".lib-card").count();
+  if (cards > 50) ok(`library — gallery renders the full pre-generated tile set (${cards} cards)`);
+  else fail(`library — gallery too small (${cards} cards)`);
+  await p.locator('.lib-card[data-ref="outfit/cape"]').click();
+  await p.waitForTimeout(300);
+  const heroCape = await p.locator('.studio-hero .eyecon-layer[src="/avatar/tiles/outfit/cape.webp"]').count();
+  const saveArmed = await p.locator(".studio-save:not([disabled])").count();
+  if (heroCape >= 1 && saveArmed >= 1) {
+    ok("library — picking a tile swaps the hero to that baked look and arms Save");
   } else {
-    fail(`instant preview — hero did not add the crown overlay layer (before=${before} after=${after})`);
+    fail(`library — pick did not update the hero/Save (hero=${heroCape} saveArmed=${saveArmed})`);
   }
   await ctx.close();
 }

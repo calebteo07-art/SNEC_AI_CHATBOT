@@ -58,6 +58,47 @@ DEFAULT_AVATAR: dict[str, object] = {
     "background": "mist",
 }
 
+# Pre-rendered full-Eyecon "portrait" tiles — one baked character webp per id under
+# frontend/public/avatar/tiles/<category>/<id>.webp (generated in past sessions by
+# tools/avatar/generate_tiles.py). The Eyecon Studio is a fixed LIBRARY: a student picks
+# ONE finished look and it becomes their avatar, stored as avatar_config["portrait"] =
+# "<category>/<id>" and rendered as a single image by <Eyecon>. Unlike the compositor axes,
+# categories here may be prop-only (glasses / lashes / mouth) with no layer art. Kept in
+# lockstep with the committed files by tests/avatar/test_portrait_tiles.py (fails on drift).
+PORTRAIT_TILES: dict[str, list[str]] = {
+    "outfit":    ["astronaut", "bananaSuit", "bowtie", "bubbleWrap", "cape", "chefApron",
+                  "collar", "dinoOnesie", "hawaiian", "hoodie", "knightArmor", "labcoat",
+                  "lanyard", "overalls", "pufferJacket", "scarf", "superSuit", "turtleneck", "tuxedo"],
+    "topper":    ["antenna", "beanie", "bow", "cap", "catEars", "chefToque", "clip",
+                  "cowboyHat", "croissant", "crown", "discoBall", "flame", "flower", "halo",
+                  "horns", "mushroom", "pirateHat", "propeller", "rubberDuck", "sprout",
+                  "trafficCone", "vikingHelm", "wizardHat"],
+    "glasses":   ["broken", "catEye", "cinema3d", "dealWithIt", "goggles", "heart",
+                  "magnifier", "monocle", "reading", "round", "ski", "square", "star",
+                  "steampunk", "visor"],
+    "mouth":     ["catSmile", "chomp", "evilGrin", "grin", "laugh", "ooh", "open", "pout",
+                  "shocked", "smile", "smirk", "soft", "tongue", "whistle"],
+    "eyeShape":  ["almond", "dizzy", "heart", "laser", "pixel", "rainbow", "round", "sleepy",
+                  "sparkle", "starry", "upturned", "wide"],
+    "lashes":    ["butterfly", "cyber", "feathery", "glam", "natural"],
+    "accessory": ["balloon", "bandage", "bobaTea", "earmuffs", "fannyPack", "goldChain",
+                  "headphones", "jetpack", "magicWand", "mustache", "petSnail", "snorkel",
+                  "sparkles", "sticker", "umbrella"],
+}
+
+
+def is_valid_portrait(ref: object) -> bool:
+    """True iff ``ref`` is a ``"<category>/<id>"`` string naming a known portrait tile.
+
+    Fail-closed: rejects non-strings, missing/extra slashes, unknown categories, and any
+    id not in the committed catalog — so a tampered body can't smuggle a path (``../``)
+    or arbitrary URL into an <img src>.
+    """
+    if not isinstance(ref, str) or ref.count("/") != 1:
+        return False
+    category, tile_id = ref.split("/", 1)
+    return tile_id in PORTRAIT_TILES.get(category, ())
+
 
 class InvalidAvatarConfig(ValueError):
     """Raised when a submitted avatar config contains an unknown option id."""
@@ -70,6 +111,9 @@ def validate_config(cfg: dict | None) -> dict:
     - Unknown axes are ignored.
     - Any provided axis whose value is not a valid option id raises
       InvalidAvatarConfig (fail closed).
+    - An optional ``portrait`` ("<category>/<id>") picks a pre-rendered library tile; it is
+      kept only if it names a known tile, else it fails closed. Absent ⇒ omitted (the avatar
+      is composited from the axes as before).
     Always stamps the current CONFIG_VERSION.
     """
     cfg = cfg or {}
@@ -82,4 +126,9 @@ def validate_config(cfg: dict | None) -> dict:
             clean[axis] = value
         else:
             clean[axis] = DEFAULT_AVATAR[axis]
+    portrait = cfg.get("portrait")
+    if portrait is not None:
+        if not is_valid_portrait(portrait):
+            raise InvalidAvatarConfig(f"portrait={portrait!r} is not a valid tile")
+        clean["portrait"] = portrait
     return clean
