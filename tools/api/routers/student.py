@@ -550,7 +550,10 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
     Degrades to an empty board (never 500) until migration 008 lands."""
     student_id = current_user["sub"]
     try:
-        profiles = await db.get_all_profiles()
+        # get_active_profiles excludes accounts whose access was revoked (approved
+        # row deleted) so they drop off the board immediately — same filter the admin
+        # roster uses. consent is still needed for the display-name map.
+        profiles = await db.get_active_profiles()
         consent = await db.get_all_consent()
     except Exception:
         return LbResponse(entries=[], you_hidden=False, display_name=None, roles=[])

@@ -37,7 +37,7 @@ def test_leaderboard_requires_auth():
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
     r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
     assert r.status_code == 200
@@ -51,7 +51,7 @@ def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
 
 @patch("tools.shared.db.get_avatar_images_bulk", new_callable=AsyncMock)
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_portrait_urls_from_bulk_lookup(mock_p, mock_c, mock_bulk):
     # Only user_001's config_hash resolves to a ready portrait; user_002 has no
     # avatar_config (a different hash) so its entry falls back to no portrait_url.
@@ -65,7 +65,7 @@ def test_leaderboard_portrait_urls_from_bulk_lookup(mock_p, mock_c, mock_bulk):
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_role_filter(mock_p, mock_c):
     r = client.get("/api/leaderboard?role=OA", cookies=_cookies("user_001"))
     body = r.json()
@@ -74,12 +74,32 @@ def test_leaderboard_role_filter(mock_p, mock_c):
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_reports_viewer_hidden_and_roles(mock_p, mock_c):
     r = client.get("/api/leaderboard", cookies=_cookies("user_003"))
     body = r.json()
     assert body["you_hidden"] is True
     assert set(body["roles"]) == {"OA", "OT"}
+
+
+@patch("tools.shared.db.get_all_consent", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_approved", new_callable=AsyncMock)
+@patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock)
+def test_leaderboard_hides_accounts_whose_access_was_revoked(mock_p, mock_appr, mock_cons):
+    """End-to-end regression: a student whose approved_students row was deleted no longer
+    appears on the board, even with a higher XP — the real get_active_profiles filter runs."""
+    mock_p.return_value = [
+        {"student_id": "user_001", "xp": 300, "role": "OA"},
+        {"student_id": "user_002", "xp": 900, "role": "OT"},   # access removed → must be gone
+    ]
+    mock_appr.return_value = [{"email": "ann@test.com"}]        # only user_001 still approved
+    mock_cons.return_value = [
+        {"student_id": "user_001", "student_name": "Ann Aa", "email": "ann@test.com"},
+        {"student_id": "user_002", "student_name": "Bob Bb", "email": "bob@test.com"},
+    ]
+    r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
+    assert r.status_code == 200
+    assert [e["name"] for e in r.json()["entries"]] == ["Ann A."]  # Bob dropped despite 900 XP
 
 
 @patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, side_effect=Exception("no table"))

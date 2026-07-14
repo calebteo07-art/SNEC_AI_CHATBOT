@@ -22,7 +22,7 @@ async def get_at_risk() -> list[dict]:
         {student_id, last_active, days_inactive, weak_topics, weak_count}
     """
     try:
-        profiles = await db.get_all_profiles()
+        profiles = await db.get_active_profiles()
     except Exception as exc:
         log("at_risk_error", feature="supervisor", detail=str(exc))
         return []

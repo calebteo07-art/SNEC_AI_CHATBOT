@@ -24,7 +24,7 @@ async def test_cohort_summary_active_count():
         _profile("s2", ["retina"], "2026-05-03"),
         _profile("s3", [], "2026-05-10"),
     ]
-    with patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=profiles)), \
+    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=profiles)), \
          patch("tools.supervisor.cohort_summary.date") as mock_date:
         mock_date.today.return_value = real_date(2026, 5, 10)
         mock_date.fromisoformat = real_date.fromisoformat
@@ -41,7 +41,7 @@ async def test_cohort_summary_weakest_topics():
         _profile("s2", ["glaucoma"], "2026-05-10"),
         _profile("s3", ["cornea"], "2026-05-10"),
     ]
-    with patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=profiles)), \
+    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=profiles)), \
          patch("tools.supervisor.cohort_summary.date") as mock_date:
         mock_date.today.return_value = real_date(2026, 5, 10)
         mock_date.fromisoformat = real_date.fromisoformat
