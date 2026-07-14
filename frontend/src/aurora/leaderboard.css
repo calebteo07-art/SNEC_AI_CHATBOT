@@ -30,11 +30,12 @@
   --sh-lg:0 2px 10px rgba(0,0,0,.2), 0 36px 66px -26px rgba(0,0,0,.7);
   --hr:20px; --rr:16px;
   --disp:var(--font-bricolage-src), "Bricolage Grotesque", var(--font-sans), sans-serif;
+  --arcade:var(--font-arcade), "Bungee", var(--disp);
   position:relative;
   max-width:960px; margin:0 auto; padding:22px 20px 72px; color:var(--hink);
   display:flex; flex-direction:column; gap:14px;
 }
-.lb-climb h1, .lb-climb .lb-ped-nm, .lb-climb .lb-ped-xp, .lb-climb .lb-rk,
+.lb-climb .lb-ped-nm, .lb-climb .lb-ped-xp, .lb-climb .lb-rk,
 .lb-climb .lb-nm, .lb-climb .lb-lum { font-family:var(--disp); letter-spacing:-.01em; }
 
 /* rising embers over the arena — a seamlessly tiled spark field (loops on one tile height) */
@@ -54,14 +55,17 @@
    Dark espresso-brown (near-black) gradient + a thin gold hairline: premium, competitive and
    clearly DISTINCT from both the light warm arena behind it and the bright ranked rows.
    Kept short — one tight band. */
-.lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:13px 20px 13px; box-shadow:var(--sh-lg);
+.lb-head { position:relative; overflow:hidden; border-radius:var(--hr); padding:16px 20px; box-shadow:var(--sh-lg); text-align:center;
   background:linear-gradient(135deg,#33210f 0%,#20150a 48%,#100a05 100%); color:#fff; border:1px solid rgba(245,158,11,.30); }
-.lb-title { position:relative; margin:0; font-weight:800; font-size:clamp(24px,5.2vw,32px); line-height:1; display:flex; align-items:center; gap:9px; color:#fff; }
+.lb-title { position:relative; margin:0; font-family:var(--arcade); font-weight:400; text-transform:uppercase; letter-spacing:.01em;
+  font-size:clamp(26px,5.6vw,38px); line-height:1.04; display:flex; align-items:center; justify-content:center; gap:11px; color:#fff;
+  text-shadow:0 2px 0 rgba(0,0,0,.35), 0 10px 26px rgba(245,158,11,.28); }
 .lb-title-ico { font-size:.9em; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
-.lb-sub { position:relative; margin:6px 0 0; font-size:13.5px; font-weight:600; color:rgba(255,255,255,.94); max-width:52ch; line-height:1.4; }
-.lb-filter { position:relative; margin-top:11px; display:flex; gap:7px; flex-wrap:wrap; }
-.lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff; font-weight:800; font-size:12.5px;
-  border-radius:999px; padding:6px 13px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
+.lb-sub { position:relative; margin:9px auto 0; font-size:16px; font-weight:600; color:rgba(255,255,255,.94); max-width:52ch; line-height:1.45; }
+.lb-filter { position:relative; margin-top:13px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.lb-chip { border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.15); color:#fff;
+  font-family:var(--arcade); font-weight:400; text-transform:uppercase; letter-spacing:.02em; font-size:12.5px;
+  border-radius:999px; padding:8px 15px; cursor:pointer; transition:transform .14s ease, background .14s ease; backdrop-filter:blur(4px); }
 .lb-chip:hover { transform:translateY(-1px); background:rgba(255,255,255,.26); }
 .lb-chip[data-on="true"] { background:linear-gradient(180deg,#FCD34D,#F59E0B); color:#3a2600; border-color:transparent; box-shadow:0 8px 18px -10px rgba(0,0,0,.6); }
 
