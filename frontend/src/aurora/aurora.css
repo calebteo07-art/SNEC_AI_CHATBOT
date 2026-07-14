@@ -1705,6 +1705,22 @@ html[data-motion="reduce"] .aurora-chat-convo[data-entering] { animation: none !
 .aurora-heatcell { position: relative; aspect-ratio: 1; border-radius: 4px; background: rgba(31, 31, 31, 0.05); }
 .aurora-heatcell::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); opacity: var(--v, 0); }
 
+/* Engagement calendar (staff drill-down) — weekday-aligned, real dates, dark surface.
+   Empty cells stay visible (white overlay + inset hairline) so the grid reads as a
+   calendar; active days ride the gradient by session count; today gets a ring. */
+.aurora-cal { display: flex; flex-direction: column; gap: 6px; }
+.aurora-cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.aurora-cal-dow span { text-align: center; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; color: var(--ink-3); }
+.aurora-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.aurora-cal-cell { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: rgba(255, 255, 255, 0.05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07); }
+.aurora-cal-cell::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, var(--g-blue), var(--g-purple), var(--g-rose)); opacity: var(--v, 0); }
+.aurora-cal-date { position: absolute; top: 5px; right: 7px; z-index: 1; font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+.aurora-cal-mo { position: absolute; top: 5px; left: 7px; z-index: 1; font-style: normal; font-family: var(--font-mono); font-size: 8.8px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-cal-cell.is-active .aurora-cal-date { color: #fff; font-weight: 700; }
+.aurora-cal-cell.is-active .aurora-cal-mo { color: rgba(255, 255, 255, 0.9); }
+.aurora-cal-cell.is-future { opacity: 0.4; }
+.aurora-cal-cell.is-today { box-shadow: inset 0 0 0 1.6px var(--g-blue); }
+
 /* ─────────────────── Flashcards ─────────────────── */
 .aurora-deck { max-width: none; margin: 0 auto; padding: clamp(16px, 2.6vw, 36px); display: flex; flex-direction: column; gap: 16px; }
 .aurora-deck-empty { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
