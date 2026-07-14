@@ -3226,3 +3226,65 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
   background: linear-gradient(180deg, #5cf07a, #2ee85a); box-shadow: 0 4px 0 #16b83f;
 }
 .rw-cta:active { transform: translateY(2px); box-shadow: none; }
+
+/* ═══════════════ Analytics — dark PowerBI-style surface ═══════════════
+   Rendered INSIDE the light student shell (the .aurora-chat self-theming
+   pattern). Re-declares the retired .console-dark slate tokens on the scope so
+   trainers/admins read charts + tables on dark while the rail stays light. The
+   global token-driven .console-* classes (segment/card-accent/disclosure/
+   focus/split/risk-dot) inherit these tokens automatically. Students never
+   mount this scope. */
+.aurora-analytics {
+  --paper:   #14161F;
+  --canvas:  #0E1016;
+  --surface: #181B26;
+  --hairline: rgba(255, 255, 255, 0.15);
+  --ink:   #F4F5F9;
+  --ink-2: #C9CED9;
+  --ink-3: #9CA2B2;
+  --g-blue: #5B9DFF; --g-purple: #B68BE6; --g-rose: #F07A86; --g-green: #43C76B;
+  --on-blue: #8FBEFF;   --on-blue-2: #8FBEFF;
+  --on-purple: #CBA6F0; --on-purple-2: #CBA6F0;
+  --on-rose: #F4969F;   --on-rose-2: #F4969F;
+  --on-green: #6FD89A;  --on-green-2: #6FD89A;
+  color-scheme: dark;
+  min-height: 100%;
+  background: var(--canvas);
+  color: var(--ink);
+  padding: clamp(16px, 2.5vw, 30px);
+}
+/* Re-apply the light-hardcoded patches that .console-dark scoped to itself. */
+.aurora-analytics .aurora-statcard-value { color: var(--ink); }
+.aurora-analytics .aurora-badge { background: rgba(255,255,255,0.07); }
+.aurora-analytics .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
+.aurora-analytics .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
+.aurora-analytics .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
+.aurora-analytics .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
+.aurora-analytics .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
+.aurora-analytics .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
+.aurora-analytics .aurora-bar-track, .aurora-analytics .aurora-progress { background: rgba(255,255,255,0.09); }
+.aurora-analytics .aurora-trow.is-clickable:hover { background: rgba(255,255,255,0.04); }
+.aurora-analytics .aurora-select { color-scheme: dark; }
+.aurora-analytics .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
+.aurora-analytics .aurora-insight { background: rgba(182,139,230,0.12); border-left-color: var(--g-purple); }
+.aurora-analytics .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
+.aurora-analytics .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(182,139,230,.22), rgba(240,122,134,.10), rgba(182,139,230,.22)); border-color: rgba(182,139,230,.32); }
+.aurora-analytics .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
+.aurora-analytics .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
+.aurora-analytics .aurora-modal-backdrop { background: rgba(0,0,0,0.55); }
+.aurora-analytics .aurora-modal-close:hover { background: rgba(255,255,255,0.06); }
+
+/* Analytics-specific chrome */
+.aurora-analytics-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.aurora-analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.aurora-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 16px 18px; }
+.aurora-panel-head { font-family: var(--font-mono); font-size: 12.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin: 0 0 12px; }
+.aurora-refresh { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s; }
+.aurora-refresh:hover:not(:disabled) { color: var(--ink); border-color: rgba(255,255,255,0.28); }
+.aurora-refresh:disabled { opacity: .6; cursor: default; }
+.aurora-unavail { color: var(--ink-3); font-size: 13px; line-height: 1.6; margin: 0; }
+.aurora-trend { display: block; width: 100%; height: auto; }
+.aurora-gauge { display: grid; place-items: center; }
+.aurora-gauge-num { fill: var(--ink); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+.aurora-analytics .aurora-bar-seg { height: 100%; display: block; }
