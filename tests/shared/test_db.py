@@ -166,6 +166,28 @@ async def test_delete_approved_returns_false_when_not_found():
     assert result is False
 
 
+@pytest.mark.asyncio
+async def test_get_active_profiles_excludes_revoked_and_unmatched():
+    """A profile only counts as active if its consent email is still in
+    approved_students. Revoking access (deleting the approved row) or a profile with
+    no matching consent email drops it — so cohort/leaderboard roll-ups shed it at once."""
+    profiles = [
+        {"student_id": "s1", "xp": 100},
+        {"student_id": "s2", "xp": 200},   # access revoked (email not in approved)
+        {"student_id": "s3", "xp": 50},    # no consent row at all
+    ]
+    approved = [{"email": "a@test.com"}]   # only s1's email remains approved
+    consent = [
+        {"student_id": "s1", "email": " A@test.com ", "student_name": "Ann"},  # case/space-insensitive match
+        {"student_id": "s2", "email": "b@test.com", "student_name": "Bob"},
+    ]
+    with patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=profiles)), \
+         patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=approved)), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)):
+        result = await db.get_active_profiles()
+    assert {p["student_id"] for p in result} == {"s1"}
+
+
 # ── student_consent ────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio

@@ -24,7 +24,7 @@ async def cohort_summary() -> dict:
         }
     """
     try:
-        profiles = await db.get_all_profiles()
+        profiles = await db.get_active_profiles()
     except Exception as exc:
         log("cohort_summary_error", feature="supervisor", detail=str(exc))
         return {

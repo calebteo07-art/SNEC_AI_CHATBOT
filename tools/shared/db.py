@@ -249,6 +249,30 @@ async def get_all_profiles() -> list[dict]:
     return result.data or []
 
 
+async def get_active_profiles() -> list[dict]:
+    """Student profiles whose account still has access — i.e. whose consent email is
+    still present in approved_students. Cohort/leaderboard/analytics roll-ups use THIS
+    (not get_all_profiles) so revoking access — deleting a student's approved_students
+    row — drops them from the leaderboard, cohort counts and at-risk lists immediately,
+    matching the admin roster (which already filters this way). A profile whose email
+    can't be matched to an approved row is excluded (fail closed)."""
+    profiles = await get_all_profiles()
+    approved = await get_all_approved()
+    consent = await get_all_consent()
+    approved_emails = {
+        (r.get("email") or "").strip().lower()
+        for r in approved
+        if (r.get("email") or "").strip()
+    }
+    active_ids = {
+        str(c.get("student_id"))
+        for c in consent
+        if c.get("student_id") is not None
+        and (c.get("email") or "").strip().lower() in approved_emails
+    }
+    return [p for p in profiles if str(p.get("student_id")) in active_ids]
+
+
 async def get_all_sessions(limit: int = 500) -> list[dict]:
     """Return recent sessions across all students. Used by admin dashboard."""
     client = await _get_client()

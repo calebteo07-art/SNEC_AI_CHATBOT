@@ -18,7 +18,7 @@ async def get_cohort_benchmarks() -> list[dict]:
         list of {"topic": str, "avg_score": float, "student_count": int}
     """
     try:
-        profiles = await db.get_all_profiles()
+        profiles = await db.get_active_profiles()
     except Exception:
         return []
 
