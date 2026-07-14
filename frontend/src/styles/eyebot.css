@@ -1305,6 +1305,7 @@ a { color: inherit; text-decoration: none; }
 .role-badge.psa   { background: var(--emerald-bg); color: var(--emerald); border-color: var(--emerald-muted); }
 .role-badge.admin { background: rgba(251,191,36,.1); color: var(--gold); border-color: rgba(251,191,36,.2); }
 .role-badge.supervisor { background: rgba(99,102,241,.1); color: #818cf8; border-color: rgba(99,102,241,.2); }
+.role-badge.trainer { background: rgba(99,102,241,.1); color: #818cf8; border-color: rgba(99,102,241,.2); }
 
 /* ── 29. Muted text alias (used by ProgressScreen) ────────── */
 .text-muted { color: var(--muted-text); }
