@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "./AuthContext";
@@ -55,7 +56,7 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
     { label: "Confirm new password",       val: confirm, set: setConfirm, show: showNext,    toggle: () => {} },
   ];
 
-  return (
+  const overlay = (
     <AnimatePresence>
       <motion.div
         style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(255,255,255,.85)", backdropFilter: "blur(8px)" }}
@@ -138,4 +139,8 @@ export function ChangePasswordModal({ forced = false, onClose, onSuccess }: Prop
       </motion.div>
     </AnimatePresence>
   );
+
+  // Portal to <body> so a transformed ancestor on the page can't trap the
+  // position:fixed overlay and let it scroll with the content.
+  return typeof document !== "undefined" ? createPortal(overlay, document.body) : null;
 }
