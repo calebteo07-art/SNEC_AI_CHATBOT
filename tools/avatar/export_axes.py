@@ -20,7 +20,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, CONFIG_VERSION
+from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, CONFIG_VERSION, PORTRAIT_TILES
 
 TARGET = PROJECT_ROOT / "frontend" / "src" / "aurora" / "avatar" / "axes.generated.ts"
 
@@ -48,7 +48,16 @@ def render_ts() -> str:
         lines.append(f"  {key}: {rendered},")
     lines.append("} as const;")
     lines.append("")
-    lines.append("export type AvatarConfig = { version: number } & Record<AvatarAxis, string>;")
+    lines.append("// Pre-rendered full-Eyecon library tiles (category -> option ids). A saved")
+    lines.append("// config may carry portrait: \"<category>/<id>\", rendered as one baked image.")
+    lines.append("export const PORTRAIT_TILES = {")
+    for category, ids in PORTRAIT_TILES.items():
+        lines.append(f"  {category}: {json.dumps(ids)},")
+    lines.append("} as const;")
+    lines.append("")
+    lines.append("export type PortraitCategory = keyof typeof PORTRAIT_TILES;")
+    lines.append("")
+    lines.append("export type AvatarConfig = { version: number; portrait?: string } & Record<AvatarAxis, string>;")
     lines.append("")
     return "\n".join(lines)
 

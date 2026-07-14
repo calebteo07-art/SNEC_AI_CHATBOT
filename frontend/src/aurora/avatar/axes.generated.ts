@@ -27,4 +27,18 @@ export const DEFAULT_AVATAR = {
   background: "mist",
 } as const;
 
-export type AvatarConfig = { version: number } & Record<AvatarAxis, string>;
+// Pre-rendered full-Eyecon library tiles (category -> option ids). A saved
+// config may carry portrait: "<category>/<id>", rendered as one baked image.
+export const PORTRAIT_TILES = {
+  outfit: ["astronaut", "bananaSuit", "bowtie", "bubbleWrap", "cape", "chefApron", "collar", "dinoOnesie", "hawaiian", "hoodie", "knightArmor", "labcoat", "lanyard", "overalls", "pufferJacket", "scarf", "superSuit", "turtleneck", "tuxedo"],
+  topper: ["antenna", "beanie", "bow", "cap", "catEars", "chefToque", "clip", "cowboyHat", "croissant", "crown", "discoBall", "flame", "flower", "halo", "horns", "mushroom", "pirateHat", "propeller", "rubberDuck", "sprout", "trafficCone", "vikingHelm", "wizardHat"],
+  glasses: ["broken", "catEye", "cinema3d", "dealWithIt", "goggles", "heart", "magnifier", "monocle", "reading", "round", "ski", "square", "star", "steampunk", "visor"],
+  mouth: ["catSmile", "chomp", "evilGrin", "grin", "laugh", "ooh", "open", "pout", "shocked", "smile", "smirk", "soft", "tongue", "whistle"],
+  eyeShape: ["almond", "dizzy", "heart", "laser", "pixel", "rainbow", "round", "sleepy", "sparkle", "starry", "upturned", "wide"],
+  lashes: ["butterfly", "cyber", "feathery", "glam", "natural"],
+  accessory: ["balloon", "bandage", "bobaTea", "earmuffs", "fannyPack", "goldChain", "headphones", "jetpack", "magicWand", "mustache", "petSnail", "snorkel", "sparkles", "sticker", "umbrella"],
+} as const;
+
+export type PortraitCategory = keyof typeof PORTRAIT_TILES;
+
+export type AvatarConfig = { version: number; portrait?: string } & Record<AvatarAxis, string>;

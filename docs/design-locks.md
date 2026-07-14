@@ -512,6 +512,32 @@ Supersedes the criteria above (skip flow, `eyebot_selena_onboarded`, Profile Stu
   hero `<img src>`; home button opens the popover; leaderboard renders the fallback tile from
   `avatar_config` and carries no Edit control. Regression-tested in `frontend/tests/eyecon_assert.mjs`.
 
+### AMENDMENT 2026-07-14 — Eyecon Studio is a fixed PRESET LIBRARY (no layered customization)
+Supersedes the *builder* interaction above (per-axis steps, colour swatches, layered compositing,
+"one of N combos"). Authored with the user ("create a long, expanded library of preset Eyecons…
+they click the one they want and that is their Eyecon, fixed, no customisation… use what you
+already generated in past sessions, do not regenerate").
+- **Library, not builder**: `/studio` is now a single scrollable gallery of **every pre-rendered
+  character tile already committed** under `frontend/public/avatar/tiles/<category>/<id>.webp`
+  (~103 across outfit · topper · glasses · mouth · eyeShape · lashes · accessory), grouped by
+  category, plus a leading **Classic** (the default mascot). The student taps **one**; that is their
+  Eyecon. **No mixing, no colour/shape/axis pickers, no regeneration** — the tiles are the ~105 paid
+  renders from past sessions, reused as-is.
+- **Storage = a portrait ref**: a pick saves `avatar_config.portrait = "<category>/<id>"` (JSONB,
+  **no migration**), validated **fail-closed** against the `PORTRAIT_TILES` catalog in
+  `tools/avatar/parts.py` (rejects unknown ids, path traversal, non-strings). Categories may be
+  prop-only (`glasses`/`lashes`/`mouth`) with no compositor layer art — the ref carries them anyway.
+- **Render**: `<Eyecon>` renders `config.portrait` as one baked `/avatar/tiles/<ref>.webp` image;
+  absent ⇒ it composites the axes as before (backward-compatible — old composite configs still work
+  on the home button + leaderboard, which pass the full `avatar_config` through unchanged).
+- **Kept from the prior lock**: the mandatory unskippable first-run welcome gate (Save is the only
+  exit), the one-time re-customization lock for students (staff may re-open), and the restricted
+  surfaces (home button + leaderboard). `PORTRAIT_TILES` is kept in lockstep with the committed
+  files by `tests/avatar/test_portrait_tiles.py`.
+- **Acceptance when refining**: `/studio?welcome=1` shows the gallery (>50 tile cards); tapping a
+  card swaps the hero to that baked image and arms Save; Save persists `portrait` and the pick shows
+  on the home button + leaderboard. Regression-tested in `frontend/tests/eyecon_assert.mjs` (C).
+
 ## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08
 **Superseded 2026-07-08** by *Custom Selena surfaces* (below): client-side raster compositing
 was removed (`renderSelena.ts` deleted, seamless-custom spec) — a student's look is now ONE
