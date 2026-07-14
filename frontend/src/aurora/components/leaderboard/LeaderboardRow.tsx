@@ -23,7 +23,7 @@ export function LeaderboardRow({ e }: { e: LeaderboardEntry }) {
     >
       <span className="lb-rk">{e.rank}</span>
       <span className="lb-face">
-        <Eyecon portraitUrl={e.portrait_url} config={e.avatar_config} background={e.avatar_config?.background} size={46} />
+        <Eyecon config={e.avatar_config} background={e.avatar_config?.background} size={46} />
       </span>
       <span className="lb-meta">
         <span className="lb-nm">

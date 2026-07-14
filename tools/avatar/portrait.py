@@ -90,7 +90,8 @@ _EYE = {
 _TOPPER = {
     "sprout": "a cute little green sprout popping from the top", "bow": "an oversized adorable bow",
     "cap": "a cool backwards baseball cap", "beanie": "a cozy slouchy beanie", "halo": "a glowing golden halo",
-    "clip": "a sparkly hair clip", "flower": "a bright blooming flower", "antenna": "wiggly little antennae",
+    "clip": "a sparkly hair clip", "flower": "a bright blooming flower",
+    "antenna": "a pair of thin springy bug antennae, each a slender stalk topped with a small glossy round ball",
     "crown": "a dazzling jewel-encrusted gold crown", "horns": "tiny cheeky devil horns", "flame": "a dramatic dancing flame",
     "wizardHat": "a giant starry wizard hat, slightly too big",
     "propeller": "a classic propeller beanie, propeller mid-spin",

@@ -44,7 +44,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter  # noqa: E402
 from tools.avatar.parts import AVATAR_AXES  # noqa: E402
 from tools.avatar.portrait import phrase_for  # noqa: E402
 from tools.shared.gemini_client import MOCK_MODE, _API_KEYS  # noqa: E402
-from tools.shared.keying import BG_KEY, despill_green, key_out, normalize_512  # noqa: E402
+from tools.shared.keying import BG_KEY, despill_green, key_out, kill_green_residue, normalize_512  # noqa: E402
 
 OUT_DIR = PROJECT_ROOT / ".tmp" / "eyecon-layers"
 IRIS_REF = PROJECT_ROOT / "frontend" / "public" / "brand" / "iris.png"
@@ -207,33 +207,37 @@ def strip_magenta_body(registered: Image.Image) -> Image.Image:
     return img
 
 
-def _detect_eye(comp: Image.Image, search=EYE_DISC) -> tuple[int, int, int]:
-    """Locate the eye centre + radius from its dark iris/pupil/outline blob within the
-    search window, so the disc fits an off-centre or undersized eye instead of a fixed box.
-    Falls back to `search` when too little dark signal is found."""
+def _eye_bbox(comp: Image.Image, base: Image.Image | None = None,
+             search=EYE_DISC) -> tuple[int, int, int]:
+    """Locate the WHOLE eyeball (not just its dark pupil) so the disc keeps the full
+    glossy eye — light iris and pale sclera included. With `base`, the eye is where the
+    render DIFFERS from the eyeless body (robust even when the iris is light gray); with
+    no base (unit tests) the opaque region inside the search window stands in. The signal
+    is denoised (erode 1px, then close) so render wobble can't inflate the box. Falls back
+    to the default `search` disc when too little signal is found."""
     cx, cy, r = search
-    px = comp.convert("L").load()
-    ax = comp.getchannel("A").load()
-    xs = ys = n = 0
-    minx = miny = 10 ** 9
-    maxx = maxy = -1
-    for y in range(max(0, cy - r), min(CANVAS, cy + r), 2):
-        for x in range(max(0, cx - r), min(CANVAS, cx + r), 2):
-            if ax[x, y] > 60 and px[x, y] < 110:
-                xs += x; ys += y; n += 1
-                minx = min(minx, x); maxx = max(maxx, x)
-                miny = min(miny, y); maxy = max(maxy, y)
-    if n < 20:
-        return search
-    rad = int(0.60 * max(maxx - minx, maxy - miny)) + 26
-    return (xs // n, ys // n, max(74, min(rad, 150)))
-
-
-def isolate_eye(comp: Image.Image, disc=None) -> Image.Image:
-    """Region-disc fill fitted to the actual eye: keep the whole eye (incl. white sclera)
-    so a body-colour tint can't show through it. Feathered disc edge blends into the face."""
     comp = comp.convert("RGBA")
-    cx, cy, r = disc or _detect_eye(comp)
+    win = _disc_mask(cx, cy, r, feather=0)
+    if base is not None:
+        sig = maxchan_diff(base, comp).point(lambda v: 255 if v > 40 else 0)
+        sig = ImageChops.multiply(sig, comp.getchannel("A").point(lambda v: 255 if v > 40 else 0))
+    else:
+        sig = comp.getchannel("A").point(lambda v: 255 if v > 40 else 0)
+    sig = ImageChops.multiply(sig, win).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFilter(9))
+    bb = sig.getbbox()
+    if not bb:
+        return search
+    ecx, ecy = (bb[0] + bb[2]) // 2, (bb[1] + bb[3]) // 2
+    rad = int(0.5 * max(bb[2] - bb[0], bb[3] - bb[1]) * 1.04)
+    return (ecx, ecy, max(78, min(rad, 150)))
+
+
+def isolate_eye(comp: Image.Image, base: Image.Image | None = None, disc=None) -> Image.Image:
+    """Region-disc fill fitted to the whole eyeball: keep the entire eye (incl. light iris
+    + white sclera) so a body-colour tint can't show through it, and so a light iris isn't
+    clipped down to its pupil. Feathered disc edge blends into the face."""
+    comp = comp.convert("RGBA")
+    cx, cy, r = disc or _eye_bbox(comp, base)
     m = _disc_mask(cx, cy, r)
     out = comp.copy()
     out.putalpha(ImageChops.multiply(comp.getchannel("A"), m))
@@ -337,7 +341,7 @@ def get_or_make_base(rebase: bool = False) -> tuple[Image.Image, bytes]:
     data = _render(base_prompt(), reference=IRIS_REF.read_bytes())
     if not data:
         raise SystemExit("base render failed")
-    base = normalize_512(_kill_chroma(_keyed(data)))  # drop any enclosed chroma residue
+    base = normalize_512(kill_green_residue(_kill_chroma(_keyed(data))))  # drop chroma residue + shadow-green smudge
     bp.parent.mkdir(parents=True, exist_ok=True)
     base.save(bp, "WEBP", quality=92)
     # reference = base on white, square, for the editing anchor
@@ -348,6 +352,13 @@ def get_or_make_base(rebase: bool = False) -> tuple[Image.Image, bytes]:
     return base, ref_path.read_bytes()
 
 
+# Props with ZERO legitimate green: a global colour threshold can't tell chroma residue
+# from a genuinely-green prop (dino, sprout, crown gems all carry low-red green), but for
+# these specific ids ANY green-dominant pixel is keying residue, so we strip it whole-frame
+# (specks/arcs/slivers the conservative bottom-band pass can't reach). Verified no-green art.
+_GREEN_IS_RESIDUE = {"sparkles", "magicWand", "petSnail", "tuxedo", "knightArmor", "scarf"}
+
+
 def _isolate_and_save(axis: str, option_id: str, comp: Image.Image, base: Image.Image) -> None:
     """Run the axis-appropriate isolation on a green-keyed, registered full render `comp`,
     and write overlay/<axis>/<id>.webp (+ .iris.webp for eyeShape) + a QA preview. Shared by
@@ -355,14 +366,21 @@ def _isolate_and_save(axis: str, option_id: str, comp: Image.Image, base: Image.
     axis_dir = OUT_DIR / "overlay" / axis
     axis_dir.mkdir(parents=True, exist_ok=True)
     if axis == "eyeShape":
-        overlay = isolate_eye(comp)
+        overlay = isolate_eye(comp, base)
         overlay.save(axis_dir / f"{option_id}.webp", "WEBP", quality=92)
         iris_mask_from_eye(overlay).save(axis_dir / f"{option_id}.iris.webp", "WEBP", quality=92)
     elif axis == "outfit":
         overlay = strip_magenta_body(comp)  # comp = magenta-bodied character; strip the body
+        if option_id in _GREEN_IS_RESIDUE:
+            overlay = kill_green_residue(overlay, r_max=256)  # no-green outfit → any green is residue
         overlay.save(axis_dir / f"{option_id}.webp", "WEBP", quality=92)
     else:
         overlay = isolate_prop(base, comp, _axis_region(axis))
+        # No-green props: strip every green-dominant pixel (residue specks/arcs anywhere).
+        # Otherwise strip only the bottom contact-shadow band, so a prop's legit green
+        # feature higher up (wand sparkle, crown gem) survives untouched.
+        overlay = (kill_green_residue(overlay, r_max=256) if option_id in _GREEN_IS_RESIDUE
+                   else kill_green_residue(overlay, y_from=430))
         overlay.save(axis_dir / f"{option_id}.webp", "WEBP", quality=92)
     prev = Image.new("RGBA", (CANVAS, CANVAS), (234, 236, 239, 255))
     prev.alpha_composite(base)

@@ -570,7 +570,8 @@ console.log("PASS: SNEC logo present in the Atlas Rail");
 // Avatar mock for the greeting + leaderboard sections below: an already-customized student
 // (so the mandatory first-login gate stays quiet) whose portrait hasn't rendered. The Eyecon
 // Studio + gate behaviour is covered end-to-end by eyecon_assert.mjs. PORTRAIT_PNG is a 1×1
-// transparent PNG standing in for a real rendered portrait where LB_ROWS supply one.
+// transparent PNG standing in for a RETIRED portrait_url — the board now renders the
+// config-driven composite and IGNORES portrait_url, so rows that still carry one verify that.
 const PORTRAIT_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
 const DEFAULT_CFG = { version: 2, bodyColor: "peach", irisColor: "blue", eyeShape: "round", lashes: "natural", mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none", outfit: "none", background: "mist" };
 await navCtx.route("**/api/avatar", (r) =>
@@ -617,8 +618,11 @@ const lbH1 = await np.locator("main h1").count();
 if (lbH1 !== 1) { console.error(`FAIL: leaderboard main h1 count = ${lbH1}`); process.exit(1); }
 if ((await np.locator('[data-testid="podium-slot"]').count()) !== 3) { console.error("FAIL: leaderboard podium did not render 3 slots"); process.exit(1); }
 if ((await np.locator('[data-testid="lb-row"]').count()) !== 4) { console.error("FAIL: expected 4 ranked rows below the podium"); process.exit(1); }
-if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-layer[src^="data:"]').count()) < 1) {
-  console.error("FAIL: leaderboard did not render any student's Eyecon (portrait escape-hatch layer)"); process.exit(1);
+if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-layer[src^="/avatar/"]').count()) < 1) {
+  console.error("FAIL: leaderboard did not render any student's composited Eyecon (config-driven /avatar layer)"); process.exit(1);
+}
+if ((await np.locator('[data-testid="leaderboard-root"] .eyecon-layer[src^="data:"]').count()) !== 0) {
+  console.error("FAIL: leaderboard still renders a retired portrait_url instead of the composite"); process.exit(1);
 }
 const youRow = np.locator('[data-testid="lb-row"][data-you]');
 if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You")) {
@@ -629,7 +633,7 @@ if ((await lbSub.count()) !== 1 || !/#4|podium|overtake/i.test(await lbSub.inner
   console.error("FAIL: leaderboard header hook not showing the viewer's chase (rank/gap derived from the payload)"); process.exit(1);
 }
 if ((await np.locator('[data-testid="edit-selena"]').count()) !== 0) { console.error("FAIL: a legacy Edit-Eyecon control still exists on the leaderboard"); process.exit(1); }
-console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, real portrait, no edit-eyecon");
+console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, composited Eyecon (portrait_url ignored), no edit-eyecon");
 
 // role filter narrows the WHOLE board (podium + rows) and drops the other role.
 await np.locator('.lb-filter .lb-chip:has-text("OT")').click();

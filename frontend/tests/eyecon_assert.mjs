@@ -107,9 +107,13 @@ async function studentCtx(customized) {
 // ── G) LEADERBOARD has no "Edit Eyecon/Selena" control (re-customization is gone). ─────
 {
   const ctx = await studentCtx(true);
+  // rank-1 carries a STALE portrait_url (the retired 3D-portrait cache) alongside a real
+  // avatar_config: the composited Eyecon is canonical now, so the board must render the
+  // config-driven composite and IGNORE the stale portrait (regression: it used to win).
+  const STALE_PORTRAIT = "https://cdn.example/stale-retired-portrait.webp";
   await ctx.route("**/api/leaderboard*", (r) => r.fulfill(J({
     entries: [
-      { rank: 1, name: "Aisha R.", role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { topper: "crown", background: "galaxy" }, portrait_url: null, is_you: false },
+      { rank: 1, name: "Aisha R.", role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { topper: "crown", background: "galaxy" }, portrait_url: STALE_PORTRAIT, is_you: false },
       { rank: 2, name: "You", role: "OA", xp: 7660, level: 17, streak_days: 9, avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
     ],
     you_hidden: false, display_name: null, roles: ["OA", "OT"],
@@ -122,16 +126,21 @@ async function studentCtx(customized) {
   if ((await p.locator("text=Edit Selena").count()) === 0 && (await p.locator("text=Edit Eyecon").count()) === 0) ok("leaderboard — no 'Edit Eyecon/Selena' copy");
   else fail("leaderboard — 'Edit' Eyecon/Selena copy still present");
 
-  // Task 6 end-to-end: the rank-1 entry has topper:"crown" + no portrait, so the <Eyecon>
-  // composite must render a crown topper overlay layer (keyless-safe customized look, no
-  // AI portrait needed).
+  // Task 6 + regression: rank-1 has topper:"crown" AND a stale portrait_url. The <Eyecon>
+  // composite must render the crown topper overlay layer from avatar_config, and must NOT
+  // fall back to the stale retired portrait image.
   const srcs = await p.locator(".lb-ped-face .eyecon-layer, .lb-face .eyecon-layer").evaluateAll(
     (els) => els.map((e) => e.getAttribute("src")),
   );
   if (srcs.some((s) => (s ?? "").includes("/avatar/overlay/topper/crown.webp"))) {
-    ok("leaderboard — Eyecon composite renders the customized topper layer from avatar_config (no portrait)");
+    ok("leaderboard — Eyecon composite renders the customized topper layer from avatar_config");
   } else {
     fail(`leaderboard — composite topper layer not rendered (srcs=${JSON.stringify(srcs)})`);
+  }
+  if (!srcs.some((s) => (s ?? "") === STALE_PORTRAIT)) {
+    ok("leaderboard — stale retired portrait_url is ignored (composite wins)");
+  } else {
+    fail("leaderboard — a stale portrait_url is still rendered instead of the composite");
   }
   await ctx.close();
 }
