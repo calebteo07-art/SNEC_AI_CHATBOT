@@ -1,8 +1,8 @@
 "use client";
-/* Eyecon Studio — a fixed PRESET LIBRARY, restyled 2026-07-14 as a high-energy arcade
-   "character select". ONE merged gallery of every pre-rendered Eyecon (no per-category
-   headers) headed by a big "Choose your fighter" rally line, a beautifully-set "Eyecon
-   Studio" wordmark, and a fun pitch. The student taps ONE tile; that look becomes their
+/* Eyecon Studio — a fixed PRESET LIBRARY, restyled 2026-07-14 as a clean, high-energy arcade
+   "character select". A beautifully-set "Eyecon Studio" wordmark + one fun line, then ONE merged
+   gallery of every pre-rendered Eyecon (no per-category headers, no extra copy — the tiles carry
+   it). The student taps ONE tile; that look becomes their
    Eyecon — saved as avatar_config.portrait = "<category>/<id>" and rendered as a single
    baked image by <Eyecon> everywhere. Re-editing is now UNLIMITED and free (client-side
    composite, no paid render), so every save routes straight home. First-run is welcome-mode:
@@ -130,7 +130,6 @@ export function EyeconStudio() {
         ) : (
           <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>✕</button>
         )}
-        <p className="studio-top-brand" aria-hidden>Eyecon<b>Studio</b></p>
         <button className="studio-save aurora-press" onClick={save} disabled={saveMut.isPending || !canSave}>
           {saveMut.isPending ? "Saving…" : canSave ? "Save" : "Saved ✓"}
         </button>
@@ -161,9 +160,6 @@ export function EyeconStudio() {
         </aside>
 
         <section className="studio-roster">
-          <h2 className="lib-rally">Choose<br />your fighter</h2>
-          <p className="lib-rally-sub">{TILE_COUNT + 1} characters, zero rules — tap one and it&apos;s yours.</p>
-
           <div className="lib-grid" role="radiogroup" aria-label="Eyecon characters">
             {renderCard(null, CLASSIC_SRC, "Classic")}
             {CATEGORIES.map((cat) => (

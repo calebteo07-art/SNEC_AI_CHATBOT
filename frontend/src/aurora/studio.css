@@ -1,9 +1,9 @@
 /* Eyecon Studio — a fixed PRESET LIBRARY, restyled as a full-width arcade "character select".
    VIBRANT warm arcade energy (sunset tangerine → coral → gold → magenta), zero kart/racing/Mario
    motifs. The warm palette is SCOPED to .studio-wrap (--st-*) so it never leaks into the global
-   design system. A beautifully-set "Eyecon Studio" wordmark + fun pitch sit above a sticky
-   <Eyecon> preview and ONE merged, edge-to-edge roster of every character (no category headers)
-   headed by a big "Choose your fighter" rally line. CSS-only motion, springy, reduced-motion aware. */
+   design system. A beautifully-set "Eyecon Studio" wordmark + one fun line sit above a sticky
+   <Eyecon> preview and ONE merged, edge-to-edge roster of every character (no category headers,
+   no extra copy — the gallery IS the interface). CSS-only motion, springy, reduced-motion aware. */
 
 .studio-wrap {
   /* scoped sunset-arcade palette */
@@ -52,9 +52,9 @@
 
 /* ── top bar ─────────────────────────────────────────────── */
 .studio-top {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   position: sticky;
   top: 0;
@@ -74,27 +74,6 @@
   font-size: 0.9rem;
   font-weight: 800;
   box-shadow: 0 6px 16px -8px rgba(255, 61, 110, 0.6);
-}
-/* a compact wordmark that persists once the big banner scrolls away */
-.studio-top-brand {
-  margin: 0;
-  text-align: center;
-  font-family: var(--st-display);
-  font-weight: 800;
-  font-size: clamp(0.95rem, 2.1vw, 1.2rem);
-  letter-spacing: -0.01em;
-  color: var(--st-ink);
-  display: flex;
-  gap: 0.4ch;
-  justify-content: center;
-  white-space: nowrap;
-}
-.studio-top-brand b {
-  font-weight: 800;
-  background: var(--st-hot);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 .studio-save {
   border: 0;
@@ -142,12 +121,11 @@
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  /* 3D arcade "sticker" edge: a gold underprint + a soft coral glow (drop-shadow works with
-     background-clip:text where text-shadow does not) */
+  /* a refined arcade edge: one soft gold underprint + a gentle coral glow (drop-shadow works
+     with background-clip:text where text-shadow does not) */
   filter:
-    drop-shadow(0 2px 0 color-mix(in srgb, var(--st-gold) 88%, white))
-    drop-shadow(0 4px 0 color-mix(in srgb, var(--st-tangerine) 60%, var(--st-gold)))
-    drop-shadow(0 14px 20px rgba(255, 61, 110, 0.32));
+    drop-shadow(0 2px 0 color-mix(in srgb, var(--st-gold) 78%, white))
+    drop-shadow(0 10px 18px rgba(255, 61, 110, 0.26));
   animation: sw-shimmer 7s linear infinite;
 }
 .studio-wordmark .sw-studio { animation-delay: -1.4s; }
@@ -219,41 +197,6 @@
 
 /* ── the merged roster ───────────────────────────────────── */
 .studio-roster { min-width: 0; }
-.lib-rally {
-  margin: 0 0 0.1rem;
-  font-family: var(--st-display);
-  font-weight: 800;
-  font-size: clamp(2.4rem, 6.2vw, 4.4rem);
-  line-height: 0.86;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  background: linear-gradient(100deg, var(--st-magenta), var(--st-coral) 42%, var(--st-tangerine));
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter:
-    drop-shadow(0 2px 0 color-mix(in srgb, var(--st-gold) 82%, white))
-    drop-shadow(0 12px 16px rgba(255, 46, 147, 0.26));
-  animation: sw-shimmer 8s linear infinite;
-}
-.lib-rally-sub {
-  margin: 0.5rem 0 1rem;
-  font-size: var(--step--1);
-  font-weight: 700;
-  color: var(--st-ink-soft);
-}
-.lib-rally-sub::before {
-  content: "";
-  display: inline-block;
-  width: 1.6rem;
-  height: 3px;
-  margin-right: 0.55rem;
-  vertical-align: middle;
-  border-radius: 3px;
-  background: var(--st-hot);
-}
 
 .lib-grid {
   display: grid;
@@ -391,7 +334,6 @@ html[data-motion="reduce"] .studio-hero[data-alive] .eyecon-wrap,
 html[data-motion="reduce"] .studio-wordmark .sw-eye,
 html[data-motion="reduce"] .studio-wordmark .sw-studio,
 html[data-motion="reduce"] .studio-wordmark .sw-spark,
-html[data-motion="reduce"] .lib-rally,
 html[data-motion="reduce"] .lib-card[data-sel="true"] { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   .studio-hero[data-float],
@@ -402,6 +344,5 @@ html[data-motion="reduce"] .lib-card[data-sel="true"] { animation: none; }
   .studio-wordmark .sw-eye,
   .studio-wordmark .sw-studio,
   .studio-wordmark .sw-spark,
-  .lib-rally,
   .lib-card[data-sel="true"] { animation: none; }
 }
