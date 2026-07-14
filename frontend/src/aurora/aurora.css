@@ -1610,6 +1610,16 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 .aurora-shell-immersive .aurora-main-scroll { padding: 0; height: 100dvh; }
 .aurora-shell-immersive .aurora-chat { height: 100dvh; }
 
+/* ─── Analytics (dark PowerBI-style surface inside the light shell) ────────────
+   A self-themed dark scope like .aurora-chat — a coherent dark analytics surface
+   that keeps the light rail (NOT added to the immersive list). Phase 3 ships the
+   base scope + routed stub; Phase 5 fills the tiles, charts, roster + drill-down. */
+.aurora-analytics { min-height: 100%; padding: clamp(20px, 3vw, 40px); background: #0e1117; color: #e6e8ee; }
+.aurora-analytics .aurora-eyebrow { color: #7b8494; }
+.aurora-analytics .aurora-h1 { color: #f3f5f9; }
+.aurora-analytics .aa-head { margin-bottom: 18px; }
+.aurora-analytics .aa-placeholder { color: #98a2b3; font-size: 14px; }
+
 /* ─── Tutor greeting landing (ricoe A2) ───────────────────────────────────────
    The empty state of /chat: a hello + prompt + recent sessions, which cross-fades
    into the live thread. The constellation canvas is shared, so the swap reads as one
