@@ -6,9 +6,11 @@
    (Custom-Eyecon lock amended 2026-07-10). The default <EyeconLogo> stays mounted
    beneath as the reduced-motion / no-video fallback. Presentational; the Dashboard
    owns the greeting seed. */
+import Link from "next/link";
 import type { Greeting } from "@/aurora/lib/greeting";
 import { EyeconLogo } from "@/aurora/components/EyeconLogo";
 import { EyeconGreetingLoop } from "./EyeconGreetingLoop";
+import { Icon } from "@/aurora/components/home/HomeIcons";
 import { Lumen } from "@/aurora/components/Lumen";
 
 /* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
@@ -60,6 +62,15 @@ export function GreetingHero({
           </div>
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>
+
+        {/* Subtle leaderboard tease — a quiet pill held to the left column (under the
+           XP bar) so it never runs under the right-side mascot. It's a hint, not a CTA
+           button row (the row was stripped 2026-07-10). */}
+        <Link href="/leaderboard" className="hm-lb" data-testid="greeting-leaderboard">
+          <Icon name="medal" />
+          <span>See where you stand</span>
+          <Icon name="arrow" />
+        </Link>
       </div>
     </section>
   );
