@@ -1,0 +1,51 @@
+/* First-run grand tour overlay. Portal to <body>; z stays in the documented
+   GuidedTour 100–103 band (see fx.css). Light PHOTOPIC surface + gem-gradient accent. */
+:root { --tour-accent: linear-gradient(105deg, #3C90FF 0%, #AD72FF 48%, #F96BD6 100%); }
+
+/* Full-viewport layer that eats page clicks so the app is inert behind the tour. For
+   anchored steps the dim comes from the spotlight's box-shadow, so this stays transparent;
+   for centered steps it carries the dim itself. */
+.tour-scrim { position: fixed; inset: 0; z-index: 101; }
+.tour-scrim--center { background: rgba(14, 16, 26, 0.62); }
+
+/* The spotlight: a hole punched in a huge box-shadow dim; purely visual (no pointer capture). */
+.tour-spot {
+  position: fixed; z-index: 101; border-radius: 18px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(14, 16, 26, 0.62);
+  transition: top .28s cubic-bezier(.22,1,.36,1), left .28s cubic-bezier(.22,1,.36,1),
+              width .28s cubic-bezier(.22,1,.36,1), height .28s cubic-bezier(.22,1,.36,1);
+}
+.tour-spot::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 21px; padding: 2px;
+  background: var(--tour-accent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  filter: drop-shadow(0 0 10px rgba(120, 110, 255, .5));
+}
+
+.tour-card {
+  position: fixed; z-index: 103; width: 300px; max-width: calc(100vw - 32px);
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--border); border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(20, 20, 50, .28);
+  padding: 15px 16px 14px; outline: none;
+}
+.tour-card:focus-visible { box-shadow: 0 24px 60px rgba(20,20,50,.28), 0 0 0 3px var(--ring); }
+.tour-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.tour-head .eyecon-wrap { border-radius: 50%; flex: none; box-shadow: 0 3px 10px rgba(60,60,120,.28); }
+.tour-name { font-size: 11px; font-weight: 800; color: var(--ink); line-height: 1.1; }
+.tour-role { font-size: 9.5px; color: var(--ink-muted); }
+.tour-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.tour-body { margin: 5px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-muted); }
+.tour-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.tour-dots { display: flex; gap: 5px; }
+.tour-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--border); display: block;
+  transition: width .25s, background .25s; }
+.tour-dots i.on { width: 18px; border-radius: 3px; background: var(--tour-accent); }
+.tour-next {
+  border: 0; cursor: pointer; font-weight: 700; font-size: 12.5px; color: #fff;
+  padding: 8px 18px; border-radius: 999px; background: var(--tour-accent);
+  box-shadow: 0 6px 16px rgba(120, 90, 255, .35); font-family: var(--font-sans);
+}
+html[data-motion="reduce"] .tour-spot { transition: none; }
+@media (prefers-reduced-motion: reduce) { .tour-spot { transition: none; } }
