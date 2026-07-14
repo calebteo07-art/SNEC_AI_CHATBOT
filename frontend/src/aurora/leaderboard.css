@@ -134,6 +134,16 @@
 .lb-crown { position:absolute; top:-14px; left:50%; transform:translateX(-50%); width:56px; height:56px;
   object-fit:contain; z-index:3; filter:drop-shadow(0 5px 9px rgba(0,0,0,.5)); }
 
+/* ── open (unclaimed) podium slot — the metal card still shows, muted, with a dashed placeholder
+   plinth + "Open spot" plaque, so all three places are present even for a cohort of one. ── */
+.lb-ped-open { filter:grayscale(.28) opacity(.9); }
+.lb-ped-open .lb-ped-xp { background:rgba(18,9,3,.5); color:rgba(255,255,255,.72); }
+.lb-ped-open .lb-ped-nm { color:rgba(255,255,255,.82); }
+.lb-ped-ph { display:grid; place-items:center; width:100%; aspect-ratio:1; border-radius:50%;
+  background:rgba(18,9,3,.34); border:2px dashed rgba(255,255,255,.5); color:rgba(255,255,255,.78);
+  font-family:var(--disp); font-weight:800; font-size:24px; line-height:1; }
+.lb-ped.p1 .lb-ped-ph { font-size:28px; }
+
 /* ── ranked rows: ivory cards floating on the arena. Tier = left bar + avatar ring. ── */
 .lb-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
 .lb-row { position:relative; overflow:hidden; display:grid; grid-template-columns:26px 46px minmax(0,1fr) auto; align-items:center; gap:12px;
@@ -172,6 +182,12 @@
 .lb-row[data-you] .lb-face { box-shadow:0 0 0 2px var(--card), 0 0 0 4px var(--accent); }
 
 .lb-empty { color:var(--hink2); text-align:center; padding:2.5rem 1rem; font-size:16px; }
+
+/* empty ranked-list state — a single quiet dashed pill so the list is always present, even
+   when no one has landed below the podium yet. */
+.lb-open-row { list-style:none; text-align:center; color:var(--hink2); font-weight:700; font-size:13.5px;
+  border:1px dashed rgba(120,84,40,.34); border-radius:var(--rr); padding:18px 16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,253,249,.6)); }
 
 /* ── keyframes: entrance + slow ember drift ── */
 @keyframes lb-pop { from { opacity:0; transform:translateY(14px) scale(.97); } }

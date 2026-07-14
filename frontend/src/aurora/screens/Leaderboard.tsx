@@ -48,18 +48,20 @@ export function Leaderboard() {
 
       {isLoading && !data ? (
         <p className="lb-empty">Loading the board…</p>
-      ) : entries.length === 0 ? (
-        <p className="lb-empty" data-testid="lb-empty">
-          The board&apos;s warming up — once your cohort starts earning Lumens, everyone shows up here.
-        </p>
       ) : (
         <>
           <Podium podium={podium} />
-          {rest.length > 0 && (
-            <ol className="lb-list">
-              {rest.map((e) => <LeaderboardRow key={`${e.rank}-${e.name}`} e={e} />)}
-            </ol>
-          )}
+          <ol className="lb-list">
+            {rest.length > 0 ? (
+              rest.map((e) => <LeaderboardRow key={`${e.rank}-${e.name}`} e={e} />)
+            ) : (
+              <li className="lb-open-row" data-testid="lb-open-row">
+                {entries.length === 0
+                  ? "No one's on the board yet — earn Lumens to claim the first spot."
+                  : "These ranks are open — keep studying to climb into them."}
+              </li>
+            )}
+          </ol>
         </>
       )}
     </div>
