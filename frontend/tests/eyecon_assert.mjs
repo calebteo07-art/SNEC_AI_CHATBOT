@@ -39,7 +39,7 @@ async function studentCtx(customized) {
 
   // B) the welcome Studio has NO skip/escape — Save is the only way out.
   await p.goto(`${BASE}/studio?welcome=1`, { waitUntil: "networkidle" });
-  await p.waitForSelector(".studio-hero .eyecon-img", { timeout: 12000 });
+  await p.waitForSelector(".studio-hero .eyecon-layer", { timeout: 12000 });
   if ((await p.locator(".studio-skip").count()) === 0) ok("gate — welcome Studio has no 'Skip for now' escape");
   else fail("gate — a Skip button still exists in the welcome Studio");
   if ((await p.locator("text=Skip for now").count()) === 0) ok("gate — no 'Skip for now' copy anywhere");
@@ -47,22 +47,23 @@ async function studentCtx(customized) {
   await ctx.close();
 }
 
-// ── C) INSTANT PREVIEW: tapping a feature tile swaps the hero image live. ──────────────
+// ── C) INSTANT PREVIEW: tapping a feature tile adds/updates that overlay layer on the
+//        hero composite, live (no portrait render needed). ────────────────────────────
 {
   const ctx = await studentCtx(false);
   const p = await ctx.newPage();
   await p.goto(`${BASE}/studio?welcome=1`, { waitUntil: "networkidle" });
-  await p.waitForSelector(".studio-hero .eyecon-img", { timeout: 12000 });
-  const before = await p.locator(".studio-hero .eyecon-img").first().getAttribute("src");
+  await p.waitForSelector(".studio-hero .eyecon-layer", { timeout: 12000 });
+  const before = await p.locator('.studio-hero .eyecon-layer[src^="/avatar/overlay/topper/"]').count();
   await p.locator('.studio-dot[aria-label*="On top"]').click();
   await p.waitForTimeout(250);
   await p.locator('.studio-tile:has(.studio-tile-label:text-is("Crown"))').click();
   await p.waitForTimeout(400);
-  const after = await p.locator(".studio-hero .eyecon-img").first().getAttribute("src");
-  if (before !== after && /\/avatar\/tiles\/topper\/crown\.webp/.test(after ?? "")) {
-    ok(`instant preview — hero swapped ${before} → ${after} on tile tap`);
+  const after = await p.locator('.studio-hero .eyecon-layer[src="/avatar/overlay/topper/crown.webp"]').count();
+  if (before === 0 && after >= 1) {
+    ok("instant preview — hero grew a crown topper layer on tile tap");
   } else {
-    fail(`instant preview — hero did not swap (before=${before} after=${after})`);
+    fail(`instant preview — hero did not add the crown overlay layer (before=${before} after=${after})`);
   }
   await ctx.close();
 }
@@ -90,8 +91,8 @@ async function studentCtx(customized) {
   const p = await ctx.newPage();
   await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
   await p.waitForSelector(".hm-eyeconmenu-btn", { timeout: 12000 });
-  // the button renders the Eyecon avatar
-  if ((await p.locator(".hm-eyeconmenu-btn .eyecon-img").count()) >= 1) ok("home — top-right button renders the customized Eyecon");
+  // the button renders the Eyecon composite (at least the body layer)
+  if ((await p.locator(".hm-eyeconmenu-btn .eyecon-layer").count()) >= 1) ok("home — top-right button renders the customized Eyecon");
   else fail("home — Eyecon button missing its avatar");
   await p.locator(".hm-eyeconmenu-btn").click();
   await p.waitForSelector('[data-testid="eyecon-menu"]', { timeout: 6000 });
@@ -122,14 +123,15 @@ async function studentCtx(customized) {
   else fail("leaderboard — 'Edit' Eyecon/Selena copy still present");
 
   // Task 6 end-to-end: the rank-1 entry has topper:"crown" + no portrait, so the <Eyecon>
-  // representative-tile fallback must render the crown tile (keyless-safe customized look).
-  const srcs = await p.locator(".lb-ped-face .eyecon-img, .lb-face .eyecon-img").evaluateAll(
+  // composite must render a crown topper overlay layer (keyless-safe customized look, no
+  // AI portrait needed).
+  const srcs = await p.locator(".lb-ped-face .eyecon-layer, .lb-face .eyecon-layer").evaluateAll(
     (els) => els.map((e) => e.getAttribute("src")),
   );
-  if (srcs.some((s) => (s ?? "").includes("/avatar/tiles/topper/crown.webp"))) {
-    ok("leaderboard — Eyecon fallback renders the customized tile from avatar_config (no portrait)");
+  if (srcs.some((s) => (s ?? "").includes("/avatar/overlay/topper/crown.webp"))) {
+    ok("leaderboard — Eyecon composite renders the customized topper layer from avatar_config (no portrait)");
   } else {
-    fail(`leaderboard — fallback tile not rendered (srcs=${JSON.stringify(srcs)})`);
+    fail(`leaderboard — composite topper layer not rendered (srcs=${JSON.stringify(srcs)})`);
   }
   await ctx.close();
 }
