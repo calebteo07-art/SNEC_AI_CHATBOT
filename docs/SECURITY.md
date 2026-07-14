@@ -12,7 +12,8 @@ configuration, and how to report issues.
   close). JavaScript cannot read it, which blocks token theft via XSS.
 - **Identity is server-derived.** Every authenticated route takes the user from
   `current_user["sub"]` (the JWT), never from the request body. Role guards
-  (`require_admin`, `require_supervisor`) protect privileged routes.
+  (`require_admin`, `require_staff`) protect privileged routes (see **Roles &
+  authorization** below).
 - **First password is provisioned, not guessable.** Admin onboarding generates a
   random temporary password (bcrypt-hashed, `must_change=True`) and emails it.
   An account with **no password hash cannot log in** — it is routed to the reset
@@ -22,6 +23,29 @@ configuration, and how to report issues.
   15-minute TTL (`tools/shared/otp_store.py`), single-use, constant-time
   comparison. `request-reset` always returns `ok` so it cannot enumerate
   accounts.
+
+## Roles & authorization
+
+Three top-level roles live in the JWT (`current_user["role"]`): **`student`**,
+**`trainer`**, and **`admin`**. Two dependency guards in
+`tools/shared/jwt_utils.py` gate privileged routes:
+
+- **`require_staff`** (`{admin, trainer}`) — read-only cohort/per-student
+  **analytics** (`/api/supervisor/*` and the `/api/admin/*` read endpoints) plus
+  the caller's own content-pool toggle (`PATCH /api/profile/role`, which edits the
+  caller's own profile only).
+- **`require_admin`** (`{admin}`) — **provisioning** only: add/remove approved
+  accounts, CSV import, and promote/demote. This is the single capability a
+  trainer does **not** have — a trainer is *admin analytics minus provisioning*.
+
+The legacy **`supervisor`** role is removed. Any lingering
+`supervisors.role == "supervisor"` row is normalised to **`trainer`** at the auth
+layer (login and onboard) — a safe demotion that keeps the account logged in with
+analytics but drops provisioning. No data migration is required: the `supervisors`
+table has no CHECK constraint on `role`, so storing `"trainer"` needs no DDL. The
+effective content pool (`student_role`, OA·PSA vs OT) is derived server-side from
+`student_profiles.role` and returned by `GET /api/auth/me`, never trusted from the
+request body.
 
 ## Rate limiting
 
