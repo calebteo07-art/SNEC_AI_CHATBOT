@@ -85,12 +85,22 @@ tools/kb/              RAG ingestion, chunking, embeddings, search
 | POST | `/api/cases/{id}/chat` · `/observe` · `/action` · `/submit` | student |
 | GET/POST | `/api/checkin/*` · `/api/flashcards/*` · `/api/gamification/sync` | student |
 | GET  | `/api/progress` · `/api/leaderboard` · `/api/study-suggestion` | student |
-| GET/POST | `/api/admin/*` (roster, promote, CSV, tokens) | **admin** |
-| GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **supervisor/admin** |
+| GET | `/api/admin/*` reads (roster, students, activity, student detail, token-summary) | **staff** |
+| POST/DELETE | `/api/admin/approved` · `/upload-csv` · `/promote` (add/remove/provision) | **admin** |
+| GET/POST | `/api/supervisor/*` (cohort, at-risk, reports, digest) | **staff** |
+| PATCH | `/api/profile/role` (content-pool toggle) | **staff** |
 | GET | `/health` (liveness) · `/health/ready` (readiness, 503 on dep down) | public |
 
-Role enforcement is via the `require_admin` / `require_supervisor` dependencies
-in `jwt_utils.py`; every admin/supervisor route depends on them.
+Top-level roles are **`student` · `trainer` · `admin`** — the old `supervisor`
+role is removed (a lingering `supervisors.role == "supervisor"` is normalised to
+`trainer` at login). Enforcement uses two dependencies in `jwt_utils.py`:
+`require_staff` (`{admin, trainer}`) gates the read-only analytics routes
+(`/api/supervisor/*` and the `/api/admin/*` reads); `require_admin` (`{admin}`)
+keeps add/remove/CSV/promote admin-only. Trainers and admins run the **same light
+student app** plus a content-pool toggle and the dark `/analytics` page (a Next
+route backed by the `require_staff` endpoints); the old dark admin/supervisor
+console is retired. The effective content pool is `current_user["student_role"]`
+(OA·PSA vs OT), derived server-side from `student_profiles.role`.
 
 ## Data & async
 
