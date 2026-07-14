@@ -13,7 +13,7 @@ from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.gemini_client import MOCK_MODE, MODEL
-from tools.shared.jwt_utils import CurrentUser, require_admin
+from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 
 router = APIRouter()
 
@@ -22,17 +22,17 @@ router = APIRouter()
 class ApproveStudentRequest(BaseModel):
     email: str
     full_name: str = ""
-    role: str = ""  # OA | OT | PSA
+    role: str = ""  # OA | OT | PSA | trainer | admin
 
 class PromoteRequest(BaseModel):
     email: str
-    new_role: str  # "supervisor" | "admin"
+    new_role: str  # "trainer" | "admin"
 
 
 # ── Admin endpoints ────────────────────────────────────────────────────────
 
 @router.get("/api/admin/approved")
-async def admin_list_approved(current_user: CurrentUser = Depends(require_admin)):
+async def admin_list_approved(current_user: CurrentUser = Depends(require_staff)):
     try:
         rows = await db.get_all_approved()
     except Exception:
@@ -44,18 +44,26 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
     email = body.email.strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="email is required")
+    role = body.role.strip().upper()
+    is_staff = role in ("TRAINER", "ADMIN")
     existing = await db.get_approved(email)
     if existing:
         raise HTTPException(status_code=409, detail="Email already approved")
     _consent = await db.get_consent_by_student_id(current_user["sub"])
     admin_email = _consent.get("email", "") if _consent else ""
-    await db.upsert_approved(
-        email,
-        full_name=body.full_name.strip(),
-        role=body.role.strip().upper(),
-        added_by=admin_email,
-        added_at=datetime.now(timezone.utc).isoformat(),
-    )
+    if is_staff:
+        # Staff live in the supervisors table, not the approved-students whitelist.
+        # Create the credential + supervisors row so a brand-new trainer/admin can
+        # log in (identity/profile are created on first login as usual).
+        await db.upsert_supervisor(email, role=role.lower())
+    else:
+        await db.upsert_approved(
+            email,
+            full_name=body.full_name.strip(),
+            role=role,
+            added_by=admin_email,
+            added_at=datetime.now(timezone.utc).isoformat(),
+        )
     plain_pw = generate_password()
     pw_hash = await asyncio.to_thread(hash_password, plain_pw)
     try:
@@ -95,7 +103,7 @@ async def admin_unapprove_student(email: str, current_user: CurrentUser = Depend
     return {"ok": True}
 
 @router.get("/api/admin/students")
-async def admin_all_students(current_user: CurrentUser = Depends(require_admin)):
+async def admin_all_students(current_user: CurrentUser = Depends(require_staff)):
     try:
         profiles = await db.get_all_profiles()
         consent = await db.get_all_consent()
@@ -126,7 +134,7 @@ async def admin_all_students(current_user: CurrentUser = Depends(require_admin))
     return {"students": result}
 
 @router.get("/api/admin/activity")
-async def admin_activity(current_user: CurrentUser = Depends(require_admin)):
+async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
     try:
         sessions = await db.get_all_sessions(limit=50)
         cases = await db.get_all_case_progress()
@@ -162,8 +170,8 @@ async def admin_activity(current_user: CurrentUser = Depends(require_admin)):
 async def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     new_role = body.new_role.strip().lower()
-    if new_role not in ("supervisor", "admin"):
-        raise HTTPException(status_code=400, detail="new_role must be 'supervisor' or 'admin'")
+    if new_role not in ("trainer", "admin"):
+        raise HTTPException(status_code=400, detail="new_role must be 'trainer' or 'admin'")
     await db.upsert_supervisor(email, role=new_role)
     return {"ok": True}
 
@@ -174,13 +182,17 @@ async def admin_demote(email: str, current_user: CurrentUser = Depends(require_a
 
 
 @router.get("/api/admin/student/{student_id}/detail")
-async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_admin)):
+async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_staff)):
     import json as _json
 
-    profile = await get_profile(student_id)
+    try:
+        profile = await get_profile(student_id) or {}
+        # Sessions: last 30, newest first (db.get_sessions already orders newest-first)
+        all_sessions = await db.get_sessions(student_id, limit=30)
+        case_rows = await db.get_case_results(student_id)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
 
-    # Sessions: last 30, newest first (db.get_sessions already orders newest-first)
-    all_sessions = await db.get_sessions(student_id, limit=30)
     sessions = [
         {
             "session_id": str(s.get("session_id", "")),
@@ -194,7 +206,6 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
     ]
 
     # Cases: all attempts
-    case_rows = await db.get_case_results(student_id)
     cases = [
         {
             "case_id": c.get("case_id", ""),
@@ -230,8 +241,11 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 
 
 @router.get("/api/admin/token-summary")
-async def admin_token_summary(current_user: CurrentUser = Depends(require_admin)):
-    all_sessions = await db.get_all_sessions()
+async def admin_token_summary(current_user: CurrentUser = Depends(require_staff)):
+    try:
+        all_sessions = await db.get_all_sessions()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     total = 0
     by_student: dict[str, int] = {}
     for s in all_sessions:

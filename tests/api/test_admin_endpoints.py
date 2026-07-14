@@ -1,8 +1,9 @@
 # tests/api/test_admin_endpoints.py
 """Security and functional tests for admin endpoints.
 
-Critical security invariant: every admin endpoint must enforce JWT auth AND
-require the 'admin' role — a student or supervisor JWT must be rejected.
+Two guard tiers:
+  • require_staff  → read-only analytics: admin + trainer allowed, student 403.
+  • require_admin  → add/remove/CSV/promote: admin only, trainer + student 403.
 """
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
@@ -13,16 +14,25 @@ from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
 
-ADMIN_ENDPOINTS = [
-    ("GET",    "/api/admin/approved"),
+# Read-only analytics endpoints — require_staff (admin + trainer)
+STAFF_READ_ENDPOINTS = [
+    ("GET", "/api/admin/approved"),
+    ("GET", "/api/admin/students"),
+    ("GET", "/api/admin/activity"),
+    ("GET", "/api/admin/student/stu_x/detail"),
+    ("GET", "/api/admin/token-summary"),
+]
+
+# Mutating endpoints — require_admin (admin only)
+ADMIN_ONLY_ENDPOINTS = [
     ("POST",   "/api/admin/approved"),
     ("DELETE", "/api/admin/approved/test@x.com"),
-    ("GET",    "/api/admin/students"),
     ("POST",   "/api/admin/promote"),
-    ("GET",    "/api/admin/activity"),
+    ("DELETE", "/api/admin/promote/test@x.com"),
     ("POST",   "/api/admin/upload-csv"),
-    ("GET",    "/api/admin/token-summary"),
 ]
+
+ALL_ENDPOINTS = STAFF_READ_ENDPOINTS + ADMIN_ONLY_ENDPOINTS
 
 
 def _cookies(role: str, student_role: str = "OA") -> dict:
@@ -34,41 +44,54 @@ def _admin_headers() -> dict:
     return _cookies("admin")
 
 
+def _trainer_headers() -> dict:
+    return _cookies("trainer")
+
+
 def _student_headers() -> dict:
     return _cookies("student")
-
-
-def _supervisor_headers() -> dict:
-    return _cookies("supervisor")
 
 
 # ---------------------------------------------------------------------------
 # Auth enforcement — no token
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
+@pytest.mark.parametrize("method,path", ALL_ENDPOINTS)
 def test_admin_endpoint_rejects_unauthenticated(method, path):
-    """Every admin endpoint returns 401/403 with no token."""
     r = client.request(method, path)
     assert r.status_code in (401, 403), f"{method} {path} → {r.status_code}"
 
 
 # ---------------------------------------------------------------------------
-# Auth enforcement — wrong role
+# Auth enforcement — student rejected everywhere
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
+@pytest.mark.parametrize("method,path", ALL_ENDPOINTS)
 def test_admin_endpoint_rejects_student_token(method, path):
-    """Every admin endpoint returns 403 when called with a student JWT."""
     r = client.request(method, path, cookies=_student_headers())
     assert r.status_code == 403, f"{method} {path} → {r.status_code}"
 
 
-@pytest.mark.parametrize("method,path", ADMIN_ENDPOINTS)
-def test_admin_endpoint_rejects_supervisor_token(method, path):
-    """Every admin endpoint returns 403 when called with a supervisor JWT."""
-    r = client.request(method, path, cookies=_supervisor_headers())
+# ---------------------------------------------------------------------------
+# Auth enforcement — trainer: allowed on reads, 403 on mutations
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("method,path", ADMIN_ONLY_ENDPOINTS)
+def test_admin_only_endpoint_rejects_trainer_token(method, path):
+    """The single trainer exception: add/remove/CSV/promote stay admin-only."""
+    r = client.request(method, path, cookies=_trainer_headers())
     assert r.status_code == 403, f"{method} {path} → {r.status_code}"
+
+
+@pytest.mark.parametrize("method,path", STAFF_READ_ENDPOINTS)
+def test_staff_read_endpoint_allows_trainer_token(method, path):
+    """Trainer must pass the require_staff guard on read-only analytics endpoints.
+
+    The DB reads aren't mocked here, so a 500 is acceptable — the point is the
+    guard let the trainer through rather than returning 401/403.
+    """
+    r = client.request(method, path, cookies=_trainer_headers())
+    assert r.status_code not in (401, 403), f"{method} {path} → {r.status_code}"
 
 
 # ---------------------------------------------------------------------------
@@ -118,11 +141,29 @@ def test_admin_approve_student_success():
         )
     assert r.status_code == 200
     assert r.json()["ok"] is True
-    # The temp password is returned to the authenticated admin as an email-delivery
-    # fallback (mirrors the CSV import). Admin-role auth is enforced by the
-    # rejects_unauthenticated/student/supervisor tests above.
     assert r.json()["password"] == "TmpPass1!"
     assert r.json()["email_sent"] is True
+
+
+def test_admin_approve_trainer_provisions_supervisor():
+    """A staff role (Trainer/Admin) creates a supervisors row + auth credential,
+    NOT an approved-students row, so a brand-new trainer can log in."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_supervisor", new=AsyncMock()) as mock_sup, \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()) as mock_appr, \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.gmail_sender.send_email", return_value=None), \
+         patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "coach@test.com", "full_name": "Coach", "role": "trainer"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 200
+    assert r.json()["ok"] is True
+    mock_sup.assert_called_once_with("coach@test.com", role="trainer")
+    mock_appr.assert_not_called()
 
 
 def test_admin_approve_student_409_duplicate():
@@ -147,10 +188,6 @@ def test_admin_approve_student_400_empty_email():
 
 
 def test_admin_approve_student_returns_temp_password_when_email_fails():
-    """When email delivery fails, the account is still created and the temp
-    password is returned so an authenticated admin can share it manually —
-    otherwise a broken SMTP setup would block all onboarding. Admin-role auth is
-    enforced by the rejects_unauthenticated/student/supervisor tests above."""
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
          patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
@@ -186,17 +223,18 @@ def test_admin_remove_student_404_not_found():
 
 
 # ---------------------------------------------------------------------------
-# Functional: promote staff
+# Functional: promote staff (widened to trainer/admin)
 # ---------------------------------------------------------------------------
 
-def test_admin_promote_success():
-    with patch("tools.shared.db.upsert_supervisor", new=AsyncMock()):
+def test_admin_promote_trainer_success():
+    with patch("tools.shared.db.upsert_supervisor", new=AsyncMock()) as mock_sup:
         r = client.post(
             "/api/admin/promote",
-            json={"email": "staff@test.com", "new_role": "supervisor"},
+            json={"email": "staff@test.com", "new_role": "trainer"},
             cookies=_admin_headers(),
         )
     assert r.status_code == 200
+    mock_sup.assert_called_once_with("staff@test.com", role="trainer")
 
 
 def test_admin_promote_invalid_role():
