@@ -15,6 +15,7 @@ import { AuthProvider } from "@/screens/AuthContext";
 import { ErrorBoundary } from "@/screens/ErrorBoundary";
 import { OfflineBanner } from "@/screens/OfflineBanner";
 import { RewardProvider } from "@/aurora/rewards/RewardProvider";
+import { TourProvider } from "@/aurora/tour/TourProvider";
 
 export function Providers({ children }: { children: ReactNode }) {
   /* Register the service worker on load (unchanged from PHOTOPIC). */
@@ -32,6 +33,7 @@ export function Providers({ children }: { children: ReactNode }) {
           <RewardProvider>
             <div style={{ position: "relative", minHeight: "100%" }}>{children}</div>
           </RewardProvider>
+          <TourProvider />
           <Toaster position="bottom-right" />
         </AuthProvider>
       </ErrorBoundary>
