@@ -18,8 +18,6 @@ export const config = {
     "/cases/:path*",
     "/flashcards",
     "/analytics",
-    "/supervisor",
-    "/admin/:path*",
     "/checkin",
   ],
 };
