@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 interface User {
   fullName: string;
   email: string;
-  role: "student" | "supervisor" | "admin" | "trainer";
+  role: "student" | "admin" | "trainer";
   studentId: string;
   studentRole: "OA" | "OT" | "PSA" | "";
   mustChangePassword: boolean;
