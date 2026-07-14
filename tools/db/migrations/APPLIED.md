@@ -8,3 +8,4 @@ SQL editor (see the `/db-migrate` command); this file records that it's done.
 - [x] 007_avatar_images.sql — applied 2026-07-06 (Selena 3D-portrait cache; public bucket `selena-avatars` also created)
 - [x] 008_leaderboard_visibility.sql — applied 2026-07-07 (D7 leaderboard live: `leaderboard_hidden` + `display_name`)
 - [ ] 009_lumens.sql — **PENDING APPLICATION** (lifetime `coins_earned` counter for the Lumens rework; coordinate Supabase SQL editor apply with deploy)
+- [ ] 010_flashcard_attempts.sql — **PENDING APPLICATION** (per-card flashcard grading log for Analytics per-topic accuracy; app degrades gracefully — the study loop swallows a missing table until this is applied)
