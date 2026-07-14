@@ -658,3 +658,45 @@ reduced-motion gated, via `@/fx/confetti`).
   committed SVG. Spec: docs/superpowers/specs/2026-07-13-leaderboard-redesign-design.md.
 - **Out of scope**: real weekly leagues (promotion/relegation/reset — needs backend),
   rank-movement arrows (needs history).
+
+## Trainer/Admin Analytics + homepage pool toggle — LOCKED 2026-07-13
+**Direction** (approved via the trainer-role spec): trainers and admins run the
+**exact light student app** (daily check-in + mandatory first-login Eyecon gate
+included) plus **two** additions — a homepage content-pool toggle and a dedicated
+dark Analytics page. The `supervisor` role and the old dark admin/supervisor
+console (Overview/Students/Accounts/Activity) are **retired**, their reusable
+pieces repurposed inside Analytics.
+- **Pool toggle** (`PoolToggleSwitch.tsx`, exports `<PoolToggle>`, rendered in
+  `Dashboard.tsx` `.hm-topr` beside the Level chip, only for `role ∈ {trainer, admin}`):
+  a **loud segmented switch `OA · PSA | OT`** with in-UI helper text (explains it flips
+  which discipline's content they see, per the standing "explain to users" rule). A flip
+  optimistically calls `setStudentRole` + `PATCH /api/profile/role` and invalidates
+  the progress / flashcard / cases / leaderboard queries; the whole pool (flashcards,
+  OSCE, check-in question, greeting track, leaderboard membership) follows. Students
+  **never** see it; their pool stays fixed.
+- **Analytics page** (`/analytics`, `AnalyticsGuard` → `role ∈ {admin, trainer}`
+  else `Navigate('/')`; screen `aurora/screens/Analytics.tsx`): keeps the light rail
+  but **self-themes dark** via a scoped **`.aurora-analytics`** wrapper (the
+  `.aurora-chat` pattern — a coherent dark surface inside the light shell, palette
+  mirroring the retired `.console-dark` tokens); it is **not** added to the immersive
+  list and **not** wrapped in `CheckInGuard`. PowerBI-style: cohort KPI band, AI
+  insight banner, engagement trend, weak-topic/benchmark bars, mastery heatmap, OSCE
+  safety/most-missed; searchable roster → per-student drill-down with a one-click
+  **downloadable self-contained HTML report** (`studentReportExport.ts`, cloning
+  `sessionExport.ts`). Charts are **bespoke dependency-free dark SVG** primitives
+  (`TrendChart` / `DonutGauge` / `BarSeries` + reused `Heatmap`/`EngagementBlock`) —
+  **no new npm dependency** (keeps the supply-chain audit + bundle clean).
+- **Admin-only provisioning block**: rendered only when `role === 'admin'` **and**
+  backend-enforced (`require_admin`) — add account (role dropdown OA/OT/PSA/Trainer/
+  Admin), CSV import, remove, promote existing email. Trainers never see it.
+- **Acceptance criteria when refining** (name the criterion you change): trainer/admin
+  get the light student shell + the toggle + the Analytics link and **nothing else
+  role-conditional**; the toggle is a loud `OA · PSA | OT` segment beside the Level
+  chip with helper text and persists the flipped pool across reload; `/analytics`
+  renders **dark** via `.aurora-analytics` (not immersive), guarded to `{admin,
+  trainer}`; charts stay dependency-free SVG (no chart-library import); the report is
+  fully self-contained (starts `<!doctype html>`, no external `src/href/link`, every
+  value HTML-escaped, `@media print`); provisioning UI is admin-only and
+  backend-enforced; students see zero change; WCAG-legible, 390px-safe, motion frozen
+  under `prefers-reduced-motion` / `data-motion=reduce`.
+- Spec: `docs/superpowers/specs/2026-07-13-trainer-role-analytics-design.md`.
