@@ -23,30 +23,34 @@ OUT = Path(__file__).resolve().parents[2] / "frontend" / "public" / "brand" / "l
 CLEAN = ("Absolutely NO text, NO numbers, NO letters, NO words, NO characters, NO faces, "
          "NO logos, NO UI buttons. Soft premium 3D game art, elegant, high quality, smooth.")
 
+# Shared podium composition so all three cards align pixel-for-pixel under the HTML overlay:
+# a COMPACT portrait card (short, not tall), plinth in the upper half, and a clean nameplate
+# plate in the lower third where the frontend paints the name + Lumens on top.
+PED_LAYOUT = (
+    "A compact ornate collectible trophy card for a premium game leaderboard, portrait format but "
+    "SHORT and stout (not tall or elongated), richly framed right to the edges with an elegant "
+    "decorative border and tiny gem accents. In the UPPER HALF a bright soft circular halo "
+    "spotlight forms a clean glowing plinth ready for a portrait. In the LOWER THIRD a smooth "
+    "elegant horizontal nameplate plaque, calm and empty, ready for a name and number to rest on "
+    "it. Compact and full — almost no dead space in the middle. ")
+
 JOBS: dict[str, tuple[str, str]] = {
     "bg": ("3:4",
-        "A premium AAA mobile-game leaderboard background, vertical. A rich vertical gradient "
-        "from vivid scarlet red at the top through crimson to a deep warm maroon at the bottom. "
-        "A soft warm golden spotlight glows from the top-centre; gentle golden light particles, "
-        "embers and sparks drift upward; faint god-rays; subtle bokeh; a soft dark vignette hugs "
-        "the edges while the centre stays smooth and calm for UI to sit on. Luxurious, energetic, "
-        "addictive arena feeling. " + CLEAN),
-    "ped-gold": ("3:4",
-        "A luxurious CHAMPION podium card for a game leaderboard — a tall vertical UI panel of "
-        "radiant polished GOLD and warm amber. An ornate elegant frame with subtle laurel and "
-        "tiny gem accents, a bright soft halo spotlight at the TOP-CENTRE forming a clean glowing "
-        "circular plinth ready for a portrait, and a smooth calmer band lower down. Floating gold "
-        "sparkles and a celebratory glow. Rich but not cluttered in the centre. " + CLEAN),
-    "ped-silver": ("3:4",
-        "A sleek 2nd-place podium card for a game leaderboard — a tall vertical UI panel of cool "
-        "polished SILVER and platinum with icy white-blue highlights. An elegant frame, a soft "
-        "halo spotlight at the TOP-CENTRE forming a clean circular plinth for a portrait, a calm "
-        "band lower down, gentle sparkles and a refined glow. Uncluttered centre. " + CLEAN),
-    "ped-bronze": ("3:4",
-        "A warm 3rd-place podium card for a game leaderboard — a tall vertical UI panel of rich "
-        "BRONZE and copper with deep brown-orange metallic tones. An elegant frame, a soft halo "
-        "spotlight at the TOP-CENTRE forming a clean circular plinth for a portrait, a calm band "
-        "lower down, gentle warm sparkles. Uncluttered centre. " + CLEAN),
+        "A premium AAA mobile-game 'hall of champions' leaderboard background, vertical and "
+        "cinematic. A radiant warm golden spotlight blooms from the top-centre and pours down "
+        "through deep glowing amber into a rich dark burgundy-black base. Luminous golden embers, "
+        "sparks and light particles drift and float upward; soft volumetric god-rays; dreamy warm "
+        "bokeh orbs; a gentle dark vignette hugs the edges while the centre stays smooth and calm "
+        "for UI to sit on. Energetic, luxurious, joyful and addictive with real depth. " + CLEAN),
+    "ped-gold": ("4:5",
+        PED_LAYOUT + "CHAMPION card in radiant polished GOLD and warm amber with a celebratory "
+        "glow, subtle laurel accents and floating gold sparkles. " + CLEAN),
+    "ped-silver": ("4:5",
+        PED_LAYOUT + "2nd-place card in cool polished SILVER and platinum with icy white-blue "
+        "highlights, a refined glow and gentle sparkles. " + CLEAN),
+    "ped-bronze": ("4:5",
+        PED_LAYOUT + "3rd-place card in rich BRONZE and copper with deep warm brown-orange "
+        "metallic tones, a warm glow and gentle sparkles. " + CLEAN),
 }
 
 
