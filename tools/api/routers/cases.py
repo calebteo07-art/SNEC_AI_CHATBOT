@@ -867,10 +867,6 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
 
     # Difficulty progression: pass at 60/100 (== 24/40).
     passed = score["score_100"] >= 60
-    try:
-        await log_case_completion(student_id, case_id, score["total_score"], passed)
-    except Exception:
-        pass
 
     audit_log("case_evaluated", student_id=student_id, feature="cases",
               detail=f"case_id={case['case_id']} score={score['score_100']}/100 "
@@ -893,6 +889,28 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         )
     except Exception:
         coaching = CoachingBlock()
+
+    # Persist the RICH grade now that coaching is parsed — the score sub-domains, safety
+    # verdict, missed-critical steps and the coaching block feed the Analytics dashboard.
+    # Every value is already computed; they were dropped before this change. The additive
+    # DB columns degrade gracefully until migration 011 (see db.insert_case_result).
+    try:
+        await log_case_completion(
+            student_id, case_id, score["total_score"], passed,
+            score_100=int(score["score_100"]),
+            safe=bool(score["safe"]),
+            consult_technique=int(score["consult_technique"]),
+            judgement_safety=int(score["judgement_safety"]),
+            missed_critical=list(score["missed_critical"]),
+            coaching={
+                "highlights": coaching.highlights,
+                "did_wrong": coaching.did_wrong,
+                "missed": coaching.missed,
+                "focus": coaching.focus,
+            },
+        )
+    except Exception:
+        pass
 
     per_phase = _per_phase_summary(_cl_compare.get("steps", []), body.performed_steps)
 
