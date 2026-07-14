@@ -20,9 +20,8 @@ const STUDY: NavItem[] = [
   { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
   { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
 ];
-const OVERSIGHT: NavItem[] = [
-  { href: "/supervisor", label: "Supervisor", icon: "supervisor" },
-  { href: "/admin", label: "Admin", icon: "admin" },
+const ANALYTICS_NAV: NavItem[] = [
+  { href: "/analytics", label: "Analytics", icon: "analytics" },
 ];
 
 export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalette: () => void; pinned?: boolean; onTogglePin?: () => void }) {
@@ -36,7 +35,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
   // The nav chip is a student identity surface → their customised Eyecon (staff keep initials).
   const eyeconConfig = role === "student" ? avatar?.config : undefined;
   const eyeconPortraitUrl = avatar?.portrait_status === "ready" ? avatar?.portrait_url : null;
-  const showOversight = role === "admin" || role === "supervisor";
+  const showAnalytics = role === "admin" || role === "trainer";
   const initials = (user?.fullName ?? "EyeBot")
     .split(" ")
     .map((s) => s[0])
@@ -86,10 +85,10 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
           <p className="aurora-rail-label">Study</p>
           {STUDY.map((i) => <Item key={i.href} {...i} />)}
         </section>
-        {showOversight && (
+        {showAnalytics && (
           <section className="aurora-rail-section">
-            <p className="aurora-rail-label">Oversight</p>
-            {OVERSIGHT.map((i) => <Item key={i.href} {...i} />)}
+            <p className="aurora-rail-label">Insights</p>
+            {ANALYTICS_NAV.map((i) => <Item key={i.href} {...i} />)}
           </section>
         )}
       </div>
@@ -107,7 +106,7 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
           </span>
           <span className="aurora-profile-meta">
             <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
-            <span className="aurora-profile-role">{role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>
+            <span className="aurora-profile-role">{role === "trainer" ? "Trainer" : role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>
           </span>
         </div>
         <button
@@ -130,6 +129,5 @@ const NAV_ICONS = {
   cases: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
   flashcards: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14a0 0 0 0 1 0 0v12" /></svg>),
   leaderboard: (<svg {...ico}><path d="M3 20h18" /><path d="M5 20v-6h4v6" /><path d="M10 20V8h4v12" /><path d="M15 20v-9h4v9" /></svg>),
-  supervisor: (<svg {...ico}><circle cx="9" cy="8" r="3" /><path d="M4 19a5 5 0 0 1 10 0" /><path d="M16 6.5a3 3 0 0 1 0 5.5" /><path d="M16.5 19a5 5 0 0 0-2-4" /></svg>),
-  admin: (<svg {...ico}><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2 4-4" /></svg>),
+  analytics: (<svg {...ico}><path d="M3 3v18h18" /><rect x="7" y="12" width="3" height="6" /><rect x="12" y="8" width="3" height="10" /><rect x="17" y="4" width="3" height="14" /></svg>),
 } as const;
