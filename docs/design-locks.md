@@ -270,12 +270,15 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
   390px-safe; no word overlaps the mascot illegibly; Selena sits toward the right; Edit-Selena
   is reachable elsewhere (leaderboard + Profile — see the onboarding lock).
 - **Leaderboard tease (refine 2026-07-14, user directive)**: the simplification acceptance
-  ("only headline + sub + XP bar") is amended to also allow **one subtle leaderboard tease** —
-  a quiet accent-violet pill (`.hm-lb`, medal + "See where you stand" + arrow) linking to
-  `/leaderboard`, placed **under the XP bar in the capped left column** so it never overlaps
-  the right-side mascot. It stays a *hint*, not a revived CTA-button row (the row is still gone):
-  one link only, translucent until hover. **Acceptance**: single pill, left-column only, no mascot
-  overlap at 900/560/390px, hover-nudge freezes under reduced motion, WCAG-AA legible.
+  ("only headline + sub + XP bar") is amended to also allow **one leaderboard tease** — a
+  pill (`.hm-lb`, gold medal + "See where you stand" + arrow) linking to `/leaderboard`, placed
+  **under the XP bar in the capped left column** so it never overlaps the right-side mascot.
+  Amended same day (user: *"too subtle, make it in your face"*) from a quiet translucent chip to
+  a **BOLD candy CTA** — saturated violet→magenta→burnt-orange gradient, gloss + travelling shine
+  sweep + an attention pulse, white text. Still **one** control (not a revived CTA-button *row*).
+  **Acceptance**: single pill, left-column only, no mascot overlap at 900/560/390px, all motion
+  (pulse/shine/hover-lift) freezes under reduced motion, white text stays WCAG-AA on every
+  gradient stop.
 - **"Toybox vibrancy" refine (2026-07-11, user directive: "colors more bold and vibrant
   like all the games in RODTANG, don't hold back")**: a **colour + material + juice** pass on
   every card, applying RODTANG's cozy-premium grammar — *saturate the actors, calm the stage;
