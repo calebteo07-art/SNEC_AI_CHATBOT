@@ -291,3 +291,38 @@ async def test_get_topic_accuracy_aggregates_per_topic():
         acc = await db.get_topic_accuracy("stu-001")
     assert acc["glaucoma"] == {"correct": 1, "total": 2, "pct": 50.0}
     assert acc["amd"] == {"correct": 1, "total": 1, "pct": 100.0}
+
+
+# ── case_progress rich grade (migration 011) ───────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_insert_case_result_persists_rich_grade():
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result(
+            "stu-001", "case_x", 32, True,
+            score_100=80, safe=True, consult_technique=40, judgement_safety=40,
+            missed_critical=["Measure IOP"], coaching={"focus": "escalate sooner"},
+        )
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload["score_100"] == 80
+    assert payload["safe"] is True
+    assert payload["consult_technique"] == 40
+    assert payload["missed_critical"] == ["Measure IOP"]
+    assert payload["coaching"] == {"focus": "escalate sooner"}
+
+
+@pytest.mark.asyncio
+async def test_insert_case_result_falls_back_to_base_when_columns_absent():
+    client = _make_client([])
+    resp = MagicMock(); resp.data = []
+    # First (rich) insert raises as if score_100 is missing; the base insert succeeds.
+    client.table.return_value.insert.return_value.execute = AsyncMock(
+        side_effect=[Exception('column "score_100" does not exist'), resp]
+    )
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_case_result("stu-001", "case_x", 32, True, score_100=80, safe=True)
+    calls = client.table.return_value.insert.call_args_list
+    assert len(calls) == 2
+    assert calls[1][0][0] == {"student_id": "stu-001", "case_id": "case_x",
+                              "total_score": 32, "passed": True}

@@ -131,22 +131,53 @@ async def get_sessions(student_id: str, limit: int = 20) -> list[dict]:
 # ── case_progress ─────────────────────────────────────────────────────────────
 
 async def insert_case_result(
-    student_id: str, case_id: str, total_score: int, passed: bool
+    student_id: str,
+    case_id: str,
+    total_score: int,
+    passed: bool,
+    score_100: int | None = None,
+    safe: bool | None = None,
+    consult_technique: int | None = None,
+    judgement_safety: int | None = None,
+    missed_critical: list | None = None,
+    coaching: dict | None = None,
 ) -> None:
-    """Append a case completion record."""
+    """Append a case completion record. The rich OSCE-grade columns are additive and
+    nullable (migration 011); when any are supplied we try the full insert first and,
+    if those columns are absent (pre-migration), fall back to the base four columns so
+    the submit path stays green until the migration is applied."""
     client = await _get_client()
-    await client.table("case_progress").insert(
-        {
-            "student_id": student_id,
-            "case_id": case_id,
-            "total_score": total_score,
-            "passed": passed,
-        }
-    ).execute()
+    base: dict = {
+        "student_id": student_id,
+        "case_id": case_id,
+        "total_score": total_score,
+        "passed": passed,
+    }
+    rich = dict(base)
+    if score_100 is not None:
+        rich["score_100"] = score_100
+    if safe is not None:
+        rich["safe"] = safe
+    if consult_technique is not None:
+        rich["consult_technique"] = consult_technique
+    if judgement_safety is not None:
+        rich["judgement_safety"] = judgement_safety
+    if missed_critical is not None:
+        rich["missed_critical"] = missed_critical
+    if coaching is not None:
+        rich["coaching"] = coaching
+    try:
+        await client.table("case_progress").insert(rich).execute()
+    except Exception:
+        if len(rich) == len(base):  # nothing extra to shed → the error is real
+            raise
+        await client.table("case_progress").insert(base).execute()
 
 
 async def get_case_results(student_id: str) -> list[dict]:
-    """Return all case completion records for a student."""
+    """Return all case completion records for a student. `select("*")` surfaces the
+    additive rich-grade columns (score_100, safe, consult_technique, judgement_safety,
+    missed_critical, coaching) automatically once migration 011 is applied."""
     client = await _get_client()
     result = (
         await client.table("case_progress")
