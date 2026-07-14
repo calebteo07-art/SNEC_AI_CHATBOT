@@ -82,6 +82,21 @@ def test_isolate_eye_fills_the_disc_including_pale_sclera():
     assert out.getchannel("A").getpixel((10, 10)) == 0, "far outside the disc dropped"
 
 
+def test_isolate_eye_keeps_full_eyeball_when_iris_is_light():
+    """Regression: a big glossy eye whose iris is LIGHT (only the small pupil is dark)
+    must survive whole. The old dark-pixel detector fitted the disc to the pupil and
+    clipped the light iris/sclera down to a tiny dot (the 'round' eye bug)."""
+    comp = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))
+    cx, cy, _ = EYE_DISC
+    ImageDraw.Draw(comp).ellipse([cx - 100, cy - 100, cx + 100, cy + 100], fill=(195, 195, 195, 255))
+    ImageDraw.Draw(comp).ellipse([cx - 22, cy - 22, cx + 22, cy + 22], fill=(20, 20, 20, 255))  # small dark pupil
+    out = isolate_eye(comp)
+    a = out.getchannel("A")
+    assert a.getpixel((cx, cy)) > 120, "pupil centre kept"
+    assert a.getpixel((cx + 88, cy)) > 120, "light iris/sclera near the eyeball edge kept"
+    assert a.getpixel((cx + 130, cy)) < 40, "outside the eyeball dropped"
+
+
 def test_iris_mask_centres_on_the_dark_pupil():
     """The iris mask disc should follow the dark iris blob, not just the disc centre."""
     comp = Image.new("RGBA", (CANVAS, CANVAS), (0, 0, 0, 0))

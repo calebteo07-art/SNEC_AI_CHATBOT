@@ -78,6 +78,27 @@ def despill_green(img: Image.Image) -> Image.Image:
     return img
 
 
+def kill_green_residue(img: Image.Image, r_max: int = 60, y_from: int = 0) -> Image.Image:
+    """Drop darkened chroma-green keying residue that key_out/despill miss.
+
+    Where the flat chroma backdrop (#00B140, red=0) blends into a subject's soft contact
+    shadow it becomes muddy dark-green that is neither pure-chroma nor a 2px edge rim, so
+    the earlier passes leave it — a faint green smudge under the subject. Such residue keeps
+    a LOW red channel (chroma red is 0); genuine prop greens (leaf, mint, sprout) and cool
+    body shading sit at a higher red, so gating on `red < r_max` AND green-dominance spares
+    them. `y_from` limits the sweep to a bottom band (rows y >= y_from) — the base has no
+    real green so it sweeps whole, but on a prop overlay we clean only the bottom contact-
+    shadow band so a legit green feature higher up (a wand sparkle, gem) survives."""
+    img = img.convert("RGBA")
+    px = img.load()
+    for y in range(max(0, y_from), img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if a and r < r_max and (g - r) > 25 and (g - b) > 8:
+                px[x, y] = (r, g, b, 0)
+    return img
+
+
 def normalize_512(img: Image.Image, canvas: int = 512, margin: float = 0.06) -> Image.Image:
     """Trim to the opaque subject, centre it, and letterbox onto a transparent
     square canvas so every pose shares the iris.png framing/scale."""
