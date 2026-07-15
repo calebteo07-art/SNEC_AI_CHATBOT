@@ -13,10 +13,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.gamification import streak as streak_engine
+from tools.gamification.leaderboard import weekly_tally
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.audit_log import log
-from tools.shared.clock import app_today
+from tools.shared.clock import app_today, app_week_start
 
 WEAK_THRESHOLD = 0.65
 
@@ -175,6 +176,18 @@ async def update_profile(
                 await db.update_profile(student_id, xp_today=new_xp_today, xp_today_date=today_iso)
             except Exception as exc:
                 log("xp_today_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+
+            # xp_week (the weekly-leaderboard tally) — resets each SGT week (Monday).
+            # The lazy-reset twin of xp_today: separate guarded call so the xp/hearts
+            # write above survives a missing column (pre-migration 012).
+            try:
+                week_start = app_week_start()
+                new_xp_week = weekly_tally(profile.get("xp_week"), profile.get("xp_week_start"),
+                                           week_start, xp_delta + streak_bonus)
+                await db.update_profile(student_id, xp_week=new_xp_week,
+                                        xp_week_start=week_start.isoformat())
+            except Exception as exc:
+                log("xp_week_write_error", student_id=student_id, feature="gamification", detail=str(exc))
 
             # coins_earned (lifetime Lumens, monotonic) — drives the home Lumens
             # badge tiers. Only ever increases (never on a forfeit/penalty), and a

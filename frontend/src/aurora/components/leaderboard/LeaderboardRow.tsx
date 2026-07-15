@@ -11,7 +11,8 @@ import { Lumen } from "@/aurora/components/Lumen";
 import type { LeaderboardEntry } from "@/hooks/useLeaderboard";
 
 export function LeaderboardRow({ e }: { e: LeaderboardEntry }) {
-  const tier = tierForXp(e.xp);
+  // Ring is the student's LIFETIME tier (prestige); the count-up is their weekly score.
+  const tier = tierForXp(e.xp_total ?? e.xp);
   const { ref, display } = useCountUp<HTMLSpanElement>(e.xp);
   return (
     <li

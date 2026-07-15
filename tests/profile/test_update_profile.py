@@ -1,5 +1,5 @@
 import pytest
-from datetime import date
+from datetime import date, timedelta
 from unittest.mock import AsyncMock, patch
 
 
@@ -47,13 +47,24 @@ def _streak_cols_kwargs(mock_update):
 
 async def _run(profile, today, **kwargs):
     """Invoke update_profile with get_profile + db.update_profile mocked and the
-    app clock pinned to `today`. Returns the db.update_profile mock."""
+    app clock pinned to `today` (and the weekly boundary to that week's Monday).
+    Returns the db.update_profile mock."""
+    week_start = today - timedelta(days=today.weekday())  # Monday of `today`'s week
     with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
          patch("tools.shared.db.update_profile", new=AsyncMock()) as mock_update, \
-         patch("tools.profile.update_profile.app_today", return_value=today):
+         patch("tools.profile.update_profile.app_today", return_value=today), \
+         patch("tools.profile.update_profile.app_week_start", return_value=week_start):
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001", **kwargs)
     return mock_update
+
+
+def _xp_week_kwargs(mock_update):
+    """Return the kwargs of the separate xp_week (weekly-leaderboard tally) db call."""
+    for call in mock_update.call_args_list:
+        if "xp_week" in call.kwargs:
+            return call.kwargs
+    raise AssertionError("db.update_profile was never called with xp_week")
 
 
 # Reference weekdays: 2026-05-04 Mon ... 08 Fri, 09 Sat, 10 Sun, 11 Mon
@@ -176,6 +187,24 @@ async def test_update_profile_appends_missed_findings():
     findings = _main_update_kwargs(mock_update)["missed_findings"]
     assert "disc haemorrhage" in findings
     assert "RNFL thinning" in findings
+
+
+@pytest.mark.asyncio
+async def test_xp_week_accumulates_within_the_week():
+    # Already earned 120 this week (start = Monday 05-04); +30 on Wed of the same week -> 150.
+    profile = _profile(xp=200, xp_week=120, xp_week_start="2026-05-04", hearts=5)
+    kw = _xp_week_kwargs(await _run(profile, WED, xp_delta=30))
+    assert kw["xp_week"] == 150
+    assert kw["xp_week_start"] == "2026-05-04"
+
+
+@pytest.mark.asyncio
+async def test_xp_week_resets_on_a_new_week():
+    # Last week's tally (start 04-27) is stale; the first earn of the new week starts fresh.
+    profile = _profile(xp=999, xp_week=800, xp_week_start="2026-04-27", hearts=5)
+    kw = _xp_week_kwargs(await _run(profile, NEXT_MON, xp_delta=40))  # NEXT_MON = 2026-05-11 (Mon)
+    assert kw["xp_week"] == 40
+    assert kw["xp_week_start"] == "2026-05-11"
 
 
 @pytest.mark.asyncio

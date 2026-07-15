@@ -5,6 +5,7 @@ pure `rank_entries` core; these tests patch the DB layer and assert the wiring +
 viewer-visibility reporting + the prefs (hide toggle / display name) endpoint.
 """
 import os
+from datetime import date
 from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
@@ -139,6 +140,34 @@ def test_leaderboard_includes_super_admin_without_supervisor_row(mock_p, mock_ap
     assert r.status_code == 200
     names = [e["name"] for e in r.json()["entries"]]
     assert names == ["Boss A.", "Sam S."]  # super admin ranks #1 despite no supervisors row
+
+
+WEEK = date(2026, 5, 4)  # a Monday
+WEEKLY_PROFILES = [
+    # Lifetime: user_001 (1000) > user_002 (500). THIS WEEK user_002 earned more.
+    {"student_id": "user_001", "xp": 1000, "xp_week": 20, "xp_week_start": "2026-05-04", "role": "OA"},
+    {"student_id": "user_002", "xp": 500, "xp_week": 300, "xp_week_start": "2026-05-04", "role": "OT"},
+]
+WEEKLY_CONSENT = [
+    {"student_id": "user_001", "student_name": "Ann Aa"},
+    {"student_id": "user_002", "student_name": "Bob Bb"},
+]
+
+
+@patch("tools.shared.clock.app_week_start", return_value=WEEK)
+@patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=WEEKLY_CONSENT)
+@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=WEEKLY_PROFILES)
+def test_leaderboard_ranks_by_weekly_xp_when_columns_present(mock_p, mock_c, mock_wk):
+    """Once the xp_week columns exist, the board ranks by XP earned THIS week (not
+    lifetime): the displayed score is weekly, but lifetime xp_total rides along for the
+    tier ring, and level stays lifetime-derived."""
+    r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
+    assert r.status_code == 200
+    entries = r.json()["entries"]
+    assert [e["name"] for e in entries] == ["Bob B.", "Ann A."]  # weekly order flips lifetime
+    assert [e["xp"] for e in entries] == [300, 20]               # score = weekly
+    ann = next(e for e in entries if e["name"] == "Ann A.")
+    assert ann["xp_total"] == 1000 and ann["level"] == 3         # lifetime rides along
 
 
 @patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock, side_effect=Exception("no table"))
