@@ -8,18 +8,9 @@ import { EyeHero, type GazeHandle } from "./EyeHero";
 import { errorDetail } from "@/lib/errorDetail";
 import { Logo } from "@/aurora/Logo";
 
-/* ── Types (unchanged from original) ─────────────────────── */
-const PDPA_TEXT = `Personal Data Protection Act (PDPA) Consent
-
-EyeBot collects your full name and email address solely to provide personalised medical education. Your data is encrypted at rest and never sold or shared with third parties. You may request deletion at any time by writing to the practitioner.`;
-
-const ROLES = [
-  { id: "OA" as const, label: "OA", title: "Ophthalmic Assistant",       desc: "Patient flow, history taking, IOP measurement, dilation, pre/post-operative care." },
-  { id: "OT" as const, label: "OT", title: "Ophthalmic Technician",      desc: "A-scan biometry, HVF, OCT imaging, corneal topography, endothelial cell count." },
-  { id: "PSA"as const, label: "PSA",title: "Patient Service Associate",  desc: "NCT, LogMAR visual acuity, eye drop instillation, PFAER and fall risk assessment." },
-];
-
-type Step = "login" | "pdpa" | "role" | "change_password" | "forgot" | "reset_code";
+/* A new student's role is assigned by the admin (the approved-students roster) — students no
+   longer pick it, and there's no in-app PDPA consent step — so first login goes straight in. */
+type Step = "login" | "change_password" | "forgot" | "reset_code";
 
 interface LoginResult {
   student_id: string; role: string; student_role: string;
@@ -92,10 +83,8 @@ export function OnboardingScreen() {
   const [email, setEmail]           = useState("");
   const [password, setPassword]     = useState("");
   const [showPw, setShowPw]         = useState(false);
-  const [pdpaConsent, setPdpaConsent] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<"OA" | "OT" | "PSA" | null>(null);
   const [loginResult, setLoginResult] = useState<LoginResult | null>(null);
-  const [errors, setErrors]         = useState<{ email?: string; password?: string; pdpa?: string; api?: string; blocked?: string }>({});
+  const [errors, setErrors]         = useState<{ email?: string; password?: string; api?: string; blocked?: string }>({});
   const [submitting, setSubmitting] = useState(false);
 
   const [resetEmail, setResetEmail]     = useState("");
@@ -141,7 +130,7 @@ export function OnboardingScreen() {
         setStep("change_password");
         return;
       }
-      if (data.is_new && data.role === "student") { setStep("pdpa"); return; }
+      if (data.is_new && data.role === "student") { void onboardNewStudent(data); return; }
       completeLogin(data);
     } catch {
       setErrors({ api: "Could not reach the service. Please try again." });
@@ -173,26 +162,18 @@ export function OnboardingScreen() {
     }
   };
 
-  const handlePdpa = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pdpaConsent) { setErrors({ pdpa: "Consent required to continue" }); return; }
-    setErrors({});
-    setStep("role");
-  };
-
-  const handleRoleSelect = async (role: "OA" | "OT" | "PSA") => {
-    if (!loginResult) return;
-    setSelectedRole(role);
-    setSubmitting(true);
+  /* First login for a new student: silently record consent + link them to the admin's roster
+     row (POST /api/onboard with no role → the server keeps the admin-assigned approved role),
+     then continue straight into the app. No PDPA screen, no student-picked role. */
+  const onboardNewStudent = async (data: LoginResult) => {
     try {
       await fetch("/api/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ full_name: loginResult.full_name ?? email, email: email.trim().toLowerCase(), student_role: role }),
+        body: JSON.stringify({ full_name: data.full_name ?? email, email: email.trim().toLowerCase() }),
       });
     } catch { /* non-fatal */ }
-    completeLogin(loginResult, role);
-    setSubmitting(false);
+    completeLogin(data);
   };
 
   /* ── Render ───────────────────────────────────────────── */
@@ -209,7 +190,7 @@ export function OnboardingScreen() {
           forced
           onSuccess={() => {
             setMustChangePassword(false);
-            if (loginResult.is_new && loginResult.role === "student") { setStep("pdpa"); return; }
+            if (loginResult.is_new && loginResult.role === "student") { void onboardNewStudent(loginResult); return; }
             completeLogin(loginResult);
           }}
         />
@@ -297,54 +278,6 @@ export function OnboardingScreen() {
                   {submitting ? <Spinner /> : <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Sign in <ArrowRight /></span>}
                 </button>
               </form>
-            </motion.div>
-          )}
-
-          {/* ── Step: pdpa ──────────────────────────────── */}
-          {step === "pdpa" && (
-            <motion.div key="pdpa" {...slide}>
-              <p className="login-step-label">Data consent</p>
-              <form onSubmit={handlePdpa}>
-                <div className="login-pdpa-text">{PDPA_TEXT}</div>
-                <label className="login-checkbox-row" style={{ marginBottom: 20 }}>
-                  <input type="checkbox" checked={pdpaConsent} onChange={e => setPdpaConsent(e.target.checked)} />
-                  <span className="login-checkbox-label">I consent to the collection and use of my data as described above.</span>
-                </label>
-                {errors.pdpa && <div className="login-error" role="alert">{errors.pdpa}</div>}
-                <button type="submit" className="login-btn">
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Continue <ArrowRight /></span>
-                </button>
-              </form>
-            </motion.div>
-          )}
-
-          {/* ── Step: role ──────────────────────────────── */}
-          {step === "role" && (
-            <motion.div key="role" {...slide}>
-              <p className="login-step-label">Your training track</p>
-              <p style={{ fontSize: 13.5, color: "rgba(31,31,31,0.58)", marginBottom: 18, lineHeight: 1.5 }}>
-                Select your role — this scopes your virtual patients, flashcards, and daily check-ins.
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {ROLES.map(r => (
-                  <button
-                    key={r.id}
-                    className="login-role-btn"
-                    onClick={() => !submitting && handleRoleSelect(r.id)}
-                    disabled={submitting}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div className="login-role-tag">{r.label}</div>
-                      <div className="login-role-title">{r.title}</div>
-                      <div className="login-role-desc">{r.desc}</div>
-                    </div>
-                    {submitting && selectedRole === r.id
-                      ? <Spinner />
-                      : <ArrowRight size={14} />
-                    }
-                  </button>
-                ))}
-              </div>
             </motion.div>
           )}
 
