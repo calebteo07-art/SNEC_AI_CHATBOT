@@ -28,6 +28,11 @@ const CATEGORIES: PortraitCat[] = (() => {
 const TILE_COUNT = Object.values(PORTRAIT_TILES).reduce((n, ids) => n + ids.length, 0);
 const tileImg = (ref: string) => `/avatar/tiles/${ref}.webp`;
 
+/** Placeholder hero shown before the student picks anything — a clean, polished pre-baked tile
+ *  (no costume/props) so the "Pick a character" preview greets with a friendly default Eyecon
+ *  instead of the raw client-composite. Cosmetic only: it's never saved unless actually chosen. */
+const DEFAULT_HERO = "mouth/soft";
+
 /** Flat list of every pickable character ref, for Surprise me. (The plain "Classic" default is
  *  no longer an option — everyone picks a real character.) */
 const ALL_REFS: string[] = CATEGORIES.flatMap((c) => PORTRAIT_TILES[c].map((id) => `${c}/${id}`));
@@ -62,7 +67,7 @@ export function EyeconStudio() {
   }, [data, seeded, savedRef]);
 
   const selectedConfig = useMemo<AvatarConfig>(
-    () => (selected ? { ...DEFAULT_AVATAR, portrait: selected } : { ...DEFAULT_AVATAR }),
+    () => ({ ...DEFAULT_AVATAR, portrait: selected ?? DEFAULT_HERO }),
     [selected],
   );
 
