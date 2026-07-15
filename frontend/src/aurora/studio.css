@@ -5,8 +5,9 @@
    <Eyecon> preview and ONE merged, edge-to-edge roster of every character (no category headers,
    no extra copy — the gallery IS the interface). CSS-only motion, springy, reduced-motion aware. */
 
-.studio-wrap {
-  /* scoped sunset-arcade palette */
+/* scoped sunset-arcade palette — shared with .studio-celebrate, which portals to
+   <body> (outside .studio-wrap) so its "Eyecon saved!" card still resolves these vars. */
+.studio-wrap, .studio-celebrate {
   --st-tangerine: #FF7A18;
   --st-coral: #FF3D6E;
   --st-gold: #FFC53D;
@@ -20,7 +21,8 @@
   --st-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   /* display face for the wordmark + rally line — chunky characterful Bricolage, loaded app-wide */
   --st-display: var(--font-bricolage-src), var(--font-outfit), "Outfit", system-ui, sans-serif;
-
+}
+.studio-wrap {
   position: relative;
   min-height: 100%;
   max-width: min(1360px, 100%);
