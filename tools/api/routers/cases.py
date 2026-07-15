@@ -724,6 +724,91 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
     })
 
 
+# Markers the station UI embeds in the action-panel transcript (mirror ActionPalette.tsx).
+_EXAM_PREFIX = "[Examination performed: "
+_GRADE_PREFIX = "[[GRADE]]"
+
+
+def _readable_action_line(content: str) -> str:
+    """Turn one embedded action-panel marker into a plain, examiner-readable line so the
+    debrief coach can comment on HOW procedures were performed (not raw markers)."""
+    if content.startswith(_EXAM_PREFIX):
+        inner = content[len(_EXAM_PREFIX):]
+        if inner.endswith("]"):
+            inner = inner[:-1]
+        label, _, body = inner.partition(" → ")
+        technique, _, result = body.partition(" · Result: ")
+        line = f"Performed: {label.strip()}"
+        if technique.strip() and technique.strip() != "performed":
+            line += f" — technique described: {technique.strip()}"
+        if result.strip():
+            line += f" (result: {result.strip()})"
+        return line
+    if content.startswith(_GRADE_PREFIX):
+        try:
+            g = json.loads(content[len(_GRADE_PREFIX):])
+        except Exception:
+            return ""
+        parts = [f"Examiner grade: {g.get('verdict', '')}"]
+        if g.get("missing"):
+            parts.append("still to include: " + "; ".join(str(x) for x in g["missing"]))
+        return " — ".join(parts)
+    return ""
+
+
+def _split_consult(messages: list[dict]) -> tuple[list[str], list[str]]:
+    """Split a flat transcript into (patient-consultation lines, action-panel lines)."""
+    patient: list[str] = []
+    actions: list[str] = []
+    for m in messages:
+        c = str(m.get("content", ""))
+        if c.startswith(_EXAM_PREFIX) or c.startswith(_GRADE_PREFIX):
+            line = _readable_action_line(c)
+            if line:
+                actions.append(line)
+        else:
+            who = "Student" if m.get("role") == "user" else "Patient"
+            patient.append(f"{who}: {c}")
+    return patient, actions
+
+
+def _fallback_coaching(score: dict, raw_result: dict,
+                       checklist_comparison: list["ChecklistStepResult"],
+                       action_lines: list[str]) -> "CoachingBlock":
+    """A grounded, deterministic debrief built from the graded result — so the coach
+    summary is NEVER empty (ricoe: "coach summary shows nothing — must show real comments
+    and feedback based on the student's performance")."""
+    performed = [c.action for c in checklist_comparison if c.performed]
+    missed = [c.action for c in checklist_comparison if not c.performed]
+    highlights: list[str] = []
+    did_wrong: list[str] = []
+
+    if score.get("safe") and any(c.critical and c.performed for c in checklist_comparison):
+        highlights.append("Completed the safety-critical steps for this station.")
+    if int(raw_result.get("history_score", 0)) >= 7:
+        highlights.append("Took a clear, relevant history from the patient.")
+    if action_lines:
+        highlights.append(f"Performed {len(action_lines)} hands-on procedure(s) in the action panel.")
+    if not highlights and performed:
+        highlights.append(f"Worked through {len(performed)} of {len(checklist_comparison)} checklist steps.")
+
+    if not score.get("safe") and score.get("missed_critical"):
+        did_wrong.append(f"Missed a critical safety step: {score['missed_critical'][0]}.")
+    if int(raw_result.get("management_score", 0)) <= 4:
+        did_wrong.append("Escalation / handover was unclear — state the urgency and who to refer to.")
+
+    if score.get("missed_critical"):
+        focus = f"Always complete the safety-critical step: {score['missed_critical'][0]}."
+    elif missed:
+        focus = f"Next time, don't skip: {missed[0]}."
+    else:
+        focus = "Keep consolidating a smooth, in-order routine for this station."
+
+    return CoachingBlock(
+        highlights=highlights[:3], did_wrong=did_wrong[:3], missed=missed[:3], focus=focus,
+    )
+
+
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
 async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
@@ -773,18 +858,25 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     except Exception:
         _coach_ctx = ""
     missed_actions = [c.action for c in checklist_comparison if not c.performed]
+    # Feed BOTH the patient consultation AND the action-panel procedures (decoded from the
+    # embedded markers) so the coach can comment on what was actually said and done — the
+    # source of real, specific feedback (ricoe C7).
+    consult_patient, consult_actions = _split_consult(messages[:-1])
     coaching_system = (
         (_coach_ctx + "\n\n" if _coach_ctx else "")
         + "You are an ophthalmology clinical educator coaching an allied-health (OA/OT/PSA) "
-        "student after an OSCE station. Return ONLY JSON: {\"highlights\":[..],\"did_wrong\":[..],"
+        "student after an OSCE station. Base every point on the ACTUAL patient consultation and "
+        "the procedures they performed in the action panel below — quote or paraphrase what they "
+        "really said or did. Return ONLY JSON: {\"highlights\":[..],\"did_wrong\":[..],"
         "\"missed\":[..],\"focus\":\"..\"}. highlights = 1-3 concrete things they genuinely did well, "
-        "drawn from the conversation. did_wrong = 1-3 things they did WRONGLY or only PARTIALLY (an "
-        "incorrect step, an unsafe or out-of-role action, or something done half-way). missed = 1-3 "
-        "things they MISSED OUT or were LACKING entirely (never attempted), each tied to a specific "
-        "step and naming the clinical consequence in the same short phrase. focus = ONE sentence: the "
-        "single most important thing for next time. Every item is a short phrase (~6-12 words), warm and "
-        "specific; leave an array empty ([]) if there is genuinely nothing to say. Reward triage/"
-        "escalation within role; do not reward making a medical diagnosis."
+        "drawn from the consultation or their technique. did_wrong = 1-3 things they did WRONGLY or "
+        "only PARTIALLY (an incorrect step, unsafe or out-of-role action, weak technique, or something "
+        "done half-way). missed = 1-3 things they MISSED OUT or were LACKING entirely (never "
+        "attempted), each tied to a specific step and naming the clinical consequence in the same short "
+        "phrase. focus = ONE sentence: the single most important thing for next time. Every item is a "
+        "short phrase (~6-12 words), warm and specific; leave an array empty ([]) only if there is "
+        "genuinely nothing to say. Reward triage/escalation within role; do not reward making a "
+        "medical diagnosis."
     )
     coaching_messages = [{
         "role": "user",
@@ -792,10 +884,10 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
             f"Case: {case['title']}\n"
             f"Findings submitted: {body.findings}\n"
             f"Recommendation submitted: {body.recommendation}\n"
-            f"Steps the student missed: {', '.join(missed_actions) or 'none'}\n\n"
-            "Conversation:\n" + "\n".join(
-                f"{'Student' if m['role'] == 'user' else 'Patient'}: {m['content']}" for m in messages
-            )
+            f"Checklist steps NOT performed: {', '.join(missed_actions) or 'none'}\n\n"
+            "PATIENT CONSULTATION:\n" + ("\n".join(consult_patient) or "(no conversation)") + "\n\n"
+            "ACTION PANEL — procedures performed and examiner grades:\n"
+            + ("\n".join(consult_actions) or "(no manual procedures performed)")
         ),
     }]
 
@@ -889,6 +981,12 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         )
     except Exception:
         coaching = CoachingBlock()
+
+    # Never leave the debrief empty (MOCK_MODE, a quota blip, or unparseable JSON): synthesise
+    # a grounded summary from the graded result so the student always gets real, specific
+    # feedback tied to their performance (ricoe: "coach summary shows nothing").
+    if not (coaching.highlights or coaching.did_wrong or coaching.missed or coaching.focus):
+        coaching = _fallback_coaching(score, raw_result, checklist_comparison, consult_actions)
 
     # Persist the RICH grade now that coaching is parsed — the score sub-domains, safety
     # verdict, missed-critical steps and the coaching block feed the Analytics dashboard.

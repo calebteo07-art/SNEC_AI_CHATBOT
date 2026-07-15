@@ -1276,9 +1276,13 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-bubble.pt { background: rgba(255,255,255,.78); border: 1px solid rgba(120,90,170,.18); color: var(--ink); align-self: flex-start; }
 .aurora-station-reveal { position: relative; overflow: hidden; border-radius: 13px; padding: 11px 14px; color: #fff; align-self: stretch;
   background: linear-gradient(120deg, #34A853, #2C8E76, #4285F4); background-size: 180% auto; animation: station-revealin .5s ease both; box-shadow: 0 8px 22px rgba(45,140,90,.32); }
-.aurora-station-reveal::after { content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); animation: station-shimmer 2.8s ease-in-out infinite; }
+.aurora-station-reveal::after { content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%; z-index: 0; background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); animation: station-shimmer 2.8s ease-in-out infinite; }
+/* Keep the words ABOVE the sweeping shimmer and let them wrap, so a completed action
+   never reads as washed-out or cut off (the shimmer used to paint over the label). */
+.aurora-station-reveal .rl2, .aurora-station-reveal .v, .aurora-station-reveal .rs { position: relative; z-index: 1; overflow-wrap: anywhere; word-break: break-word; }
 .aurora-station-reveal .rl2 { font-size: 11.4px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.85); }
 .aurora-station-reveal .v { font-size: 19px; font-weight: 700; margin-top: 2px; }
+.aurora-station-reveal .rs { font-size: 14px; font-weight: 600; margin-top: 3px; color: #fff; }
 
 .aurora-station-tray { border-top: 1px dashed rgba(120,90,170,.3); margin-top: 9px; padding-top: 8px; }
 .aurora-station-tray-label { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 6px; }

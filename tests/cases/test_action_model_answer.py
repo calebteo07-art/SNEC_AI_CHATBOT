@@ -59,6 +59,21 @@ def test_model_answer_falls_back_to_checklist_step_when_no_rubric_match():
     assert any("hand" in p.lower() for p in points)
 
 
+def test_hand_hygiene_model_answer_is_the_moh_seven_steps():
+    # Regression (ricoe: "hand hygiene answer is wrong — should be the MOH 7 steps"). The
+    # checklist rows only say WHEN to clean (the 5 moments); the graded TECHNIQUE is the
+    # 7-step handrub, independent of the case's checklist text.
+    points = craft_model_answer(
+        {"rubric": {}}, "Hand hygiene", [3, 4, 5],
+        [{"step_number": 3, "action": "Performing 5 moments of hand hygiene", "critical": True}],
+    )
+    assert len(points) == 7
+    joined = " ".join(points).lower()
+    assert "palm to palm" in joined
+    assert "interlaced" in joined
+    assert "thumb" in joined
+
+
 def test_model_answer_is_never_empty():
     points = craft_model_answer({}, "Some Novel Procedure", [99], [])
     assert points, "must always return a non-empty reference so there is something to grade against"

@@ -28,6 +28,12 @@ const data = {
   missedFindings: ["Allergy status not confirmed"],
   note: "Good progress overall.",
   activity: [{ dateStr: "2026-07-12", topic: "Glaucoma" }],
+  findings: [
+    { feature: "AI Tutor", text: "5 tutor conversation(s); recent focus: glaucoma." },
+    { feature: "Flashcards", text: "74% accuracy over 40 card(s); weakest: refraction." },
+    { feature: "Virtual Patients", text: "2 station(s), 1 passed, avg 62/100; 1 unsafe run(s)." },
+  ],
+  narrative: "Reinforce refraction fundamentals and safety-critical IOP checks.",
 };
 
 const html = buildStudentReportHtml(data);
@@ -51,6 +57,13 @@ for (const bit of ["Test Student", "test@snec.edu", "glaucoma", "refraction", "8
 // 4) The @media print rules are present (print → Save as PDF).
 assert.ok(/@media\s+print/i.test(html), "missing @media print block");
 assert.ok(html.includes("break-inside"), "missing break-inside print rule");
+
+// 4b) Cross-feature findings + AI narrative + the OSCE→Virtual-patient rename all render.
+for (const bit of ["Findings &amp; insights", "AI Tutor", "Flashcards", "Virtual Patients",
+                   "Reinforce refraction fundamentals", "Virtual-patient results"]) {
+  assert.ok(html.includes(bit), `insights content missing: ${bit}`);
+}
+assert.ok(!html.includes("OSCE results"), "must rename OSCE → Virtual-patient results");
 
 // 5) HTML-escaping: injected markup in the free-text note must be neutralised.
 const hostile = buildStudentReportHtml({ ...data, note: "<script>alert(1)</script> & <b>x</b>" });

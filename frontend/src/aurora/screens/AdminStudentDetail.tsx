@@ -21,8 +21,13 @@ interface DetailData {
   // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
   flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
   cohort_retention?: Record<string, number>;  // per-topic cohort avg (0–1), graceful until provided
+  // Cross-feature findings (tutor + flashcards + virtual patients); narrative filled on demand.
+  insights?: { findings: { feature: string; text: string }[]; narrative: string };
 }
 type SubTab = "sessions" | "cases" | "topics";
+const SUBTAB_LABEL: Record<SubTab, string> = {
+  sessions: "Sessions", cases: "Virtual patients", topics: "Topics & gaps",
+};
 
 export function AdminStudentDetail({ studentId, onClose }: { studentId: string; onClose: () => void }) {
   const [data, setData] = useState<DetailData | null>(null);
@@ -32,6 +37,19 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
   const [note, setNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
+  // AI teaching narrative — fetched on demand (a paid call) so it never runs unasked.
+  const [narrative, setNarrative] = useState("");
+  const [narrLoading, setNarrLoading] = useState(false);
+
+  const loadNarrative = async () => {
+    setNarrLoading(true);
+    try {
+      const r = await fetch(`/api/admin/student/${studentId}/insights`, { credentials: "include" });
+      const d = await r.json();
+      setNarrative((d.narrative ?? "").trim() || "No AI narrative available right now — the findings above still summarise this student.");
+    } catch { setNarrative("Could not generate the narrative just now. Please try again."); }
+    setNarrLoading(false);
+  };
 
   useEffect(() => {
     fetch(`/api/admin/student/${studentId}/detail`, { credentials: "include" })
@@ -94,6 +112,8 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
       missedFindings: data.missed_findings,
       note,
       activity: data.sessions.slice(0, 12).map((s) => ({ dateStr: s.timestamp?.slice(0, 10) || "", topic: s.topic })),
+      findings: data.insights?.findings ?? [],
+      narrative: narrative || data.insights?.narrative || "",
     };
     const blob = new Blob([buildStudentReportHtml(report)], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -149,10 +169,33 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
 
               <EngagementBlock sessions={data.sessions} />
 
+              {data.insights && data.insights.findings.length > 0 && (
+                <div className="aurora-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+                  <p className="aurora-activity-head" style={{ margin: 0 }}>Findings &amp; insights · all three features</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {data.insights.findings.map((f, i) => (
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 13.5, lineHeight: 1.45 }}>
+                        <span className="aurora-badge" data-tone="purple" style={{ flex: "none", minWidth: 96, textAlign: "center" }}>{f.feature}</span>
+                        <span>{f.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {narrative ? (
+                    <p style={{ margin: "4px 0 0", padding: "10px 12px", borderRadius: 8, background: "rgba(123,86,180,.08)", fontSize: 13.5, lineHeight: 1.5 }}>
+                      <b>AI teaching insight:</b> {narrative}
+                    </p>
+                  ) : (
+                    <button type="button" className="aurora-btn-ghost" style={{ alignSelf: "flex-start" }} onClick={loadNarrative} disabled={narrLoading}>
+                      {narrLoading ? "Generating…" : "✨ Generate AI teaching narrative"}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="aurora-tabs" style={{ alignSelf: "flex-start" }}>
                 {(["sessions", "cases", "topics"] as SubTab[]).map((t) => (
                   <button key={t} type="button" className={`aurora-tab${subTab === t ? " aurora-flow" : ""}`} data-active={subTab === t} onClick={() => setSubTab(t)}>
-                    <span style={{ textTransform: "capitalize" }}>{t === "topics" ? "Topics & gaps" : t}</span>
+                    <span>{SUBTAB_LABEL[t]}</span>
                   </button>
                 ))}
               </div>

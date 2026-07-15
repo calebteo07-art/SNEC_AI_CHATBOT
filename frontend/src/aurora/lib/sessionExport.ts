@@ -72,39 +72,48 @@ export function buildSessionHtml(data: SessionExportData): string {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EyeBot OSCE Session — ${esc(meta.caseTitle)}</title>
 <style>
-  :root { color-scheme: light; }
+  :root { color-scheme: light; --ink: #1a1a2e; --line: #e7e4f0; --accent: #6d3bd6; }
   * { box-sizing: border-box; }
-  body { font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #1a1a1a; background: #fff; margin: 0; padding: 32px; max-width: 900px; }
-  h1 { font-size: 22px; margin: 0 0 2px; }
-  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #555; border-bottom: 1px solid #e2e2e2; padding-bottom: 6px; margin: 28px 0 12px; }
-  .meta { color: #555; font-size: 13px; margin-bottom: 4px; }
-  .grade { display: flex; align-items: baseline; gap: 12px; margin: 8px 0; }
-  .score { font-size: 40px; font-weight: 700; }
-  .score small { font-size: 18px; font-weight: 400; color: #888; }
-  .verdict { font-size: 16px; font-weight: 600; }
-  .schemes { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0; }
-  .scheme { border: 1px solid #e2e2e2; border-radius: 8px; padding: 10px 14px; min-width: 220px; }
-  .scheme b { font-size: 18px; }
-  .safety { padding: 8px 12px; border-radius: 6px; margin: 10px 0; background: ${score.safe ? "#e9f7ef" : "#fdecec"}; }
+  body { font: 14px/1.55 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); background: #fff; margin: 0; padding: 0 32px 40px; max-width: 900px; }
+  .band { margin: 0 -32px 4px; padding: 26px 32px 20px; background: linear-gradient(120deg, #f3efff, #eaf1ff); border-bottom: 3px solid var(--accent); }
+  h1 { font-size: 23px; margin: 0 0 4px; letter-spacing: -.01em; }
+  h1 small { font-weight: 600; color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 4px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 6px; margin: 30px 0 12px; }
+  .meta { color: #5a5a72; font-size: 13px; }
+  .grade { display: flex; align-items: baseline; gap: 14px; margin: 14px 0 0; }
+  .score { font-size: 44px; font-weight: 800; line-height: 1; }
+  .score small { font-size: 18px; font-weight: 500; color: #8a86a0; }
+  .verdict { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .schemes { display: flex; gap: 12px; flex-wrap: wrap; margin: 14px 0 0; }
+  .scheme { border: 1px solid var(--line); border-radius: 10px; padding: 10px 15px; min-width: 220px; background: #faf9fe; }
+  .scheme b { font-size: 19px; display: block; margin-top: 3px; }
+  .safety { padding: 10px 13px; border-radius: 8px; margin: 12px 0 0; font-weight: 600; background: ${score.safe ? "#e9f7ef" : "#fdecec"}; color: ${score.safe ? "#1a8f4c" : "#c0392b"}; }
   table { border-collapse: collapse; width: 100%; }
-  td { border-bottom: 1px solid #eee; padding: 5px 8px; vertical-align: top; }
-  .mark { width: 24px; text-align: center; font-weight: 700; }
+  td { border-bottom: 1px solid #efedf6; padding: 6px 9px; vertical-align: top; }
+  tr:nth-child(even) td { background: #fbfaff; }
+  .mark { width: 26px; text-align: center; font-weight: 800; }
   .mark.ok { color: #1a8f4c; } .mark.no { color: #c0392b; }
-  .crit { color: #c0392b; font-size: 11px; font-weight: 700; }
-  .ph { color: #888; font-size: 12px; white-space: nowrap; }
+  .crit { color: #c0392b; font-size: 10.5px; font-weight: 800; }
+  .ph { color: #8a86a0; font-size: 12px; white-space: nowrap; }
   ul { margin: 4px 0 4px 18px; padding: 0; } li { margin: 2px 0; }
   .muted { color: #999; font-style: italic; }
-  .focus { background: #f4f0ff; padding: 8px 12px; border-radius: 6px; }
-  .msg { padding: 4px 0; border-bottom: 1px solid #f2f2f2; }
-  .who { display: inline-block; min-width: 120px; font-weight: 600; color: #444; vertical-align: top; }
-  .txt { display: inline-block; max-width: 720px; white-space: pre-wrap; }
-  @media print { body { padding: 0; } h2 { break-after: avoid; } .msg, tr { break-inside: avoid; } }
+  .coach { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .coach .col { border: 1px solid var(--line); border-radius: 10px; padding: 10px 13px; background: #faf9fe; }
+  .coach .col h3 { margin: 0 0 5px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .col.good h3 { color: #1a8f4c; } .col.wrong h3 { color: #c77700; } .col.miss h3 { color: #c0392b; }
+  .focus { background: #f4f0ff; padding: 11px 13px; border-radius: 8px; margin-top: 12px; }
+  .msg { padding: 5px 0; border-bottom: 1px solid #f3f1fa; }
+  .who { display: inline-block; min-width: 120px; font-weight: 700; color: var(--accent); vertical-align: top; }
+  .txt { display: inline-block; max-width: 700px; white-space: pre-wrap; }
+  @media print { body { padding: 0 20px 20px; } .band { margin: 0 -20px 4px; } h2 { break-after: avoid; } .msg, tr, .coach .col { break-inside: avoid; } }
 </style>
 </head>
 <body>
-  <h1>EyeBot — OSCE Session Record</h1>
-  <div class="meta">${esc(meta.caseTitle)} · <b>${esc(meta.patientName)}</b>, ${esc(meta.patientAge)} · ${esc(meta.topic)} · ${esc(meta.difficulty)}</div>
-  <div class="meta">Student: ${esc(meta.studentName)} · ${esc(meta.dateStr)} · Case ${esc(meta.caseId)}</div>
+  <div class="band">
+    <h1><small>EyeBot · Virtual-patient session</small>${esc(meta.caseTitle)}</h1>
+    <div class="meta"><b>${esc(meta.patientName)}</b>, ${esc(meta.patientAge)} · ${esc(meta.topic)} · ${esc(meta.difficulty)}</div>
+    <div class="meta">Student: ${esc(meta.studentName)} · ${esc(meta.dateStr)} · Case ${esc(meta.caseId)}</div>
+  </div>
 
   <h2>Final grade</h2>
   <div class="grade">
@@ -113,18 +122,17 @@ export function buildSessionHtml(data: SessionExportData): string {
     <span class="meta">${Number(score.score100) >= 60 ? "Passed (pass line 60)" : "Below pass line 60"}</span>
   </div>
   <div class="schemes">
-    <div class="scheme">Consultation &amp; Technique<br /><b>${esc(score.consult)} / ${esc(score.consultMax)}</b></div>
-    <div class="scheme">Clinical Judgement &amp; Safety<br /><b>${esc(score.judgement)} / ${esc(score.judgementMax)}</b></div>
+    <div class="scheme">Consultation &amp; Technique<b>${esc(score.consult)} / ${esc(score.consultMax)}</b></div>
+    <div class="scheme">Clinical Judgement &amp; Safety<b>${esc(score.judgement)} / ${esc(score.judgementMax)}</b></div>
   </div>
   <div class="safety">${score.safe ? "🛡 " : "⚠ "}${safetyLine}</div>
 
   <h2>Coach's summary</h2>
-  <p><b>What you did well</b></p>
-  ${bulletList(summary.highlights)}
-  <p><b>Done wrong or only partially</b></p>
-  ${bulletList(summary.didWrong)}
-  <p><b>Missed or lacking</b></p>
-  ${bulletList(summary.missed)}
+  <div class="coach">
+    <div class="col good"><h3>✓ What you did well</h3>${bulletList(summary.highlights)}</div>
+    <div class="col wrong"><h3>✗ Done wrong or only partially</h3>${bulletList(summary.didWrong)}</div>
+    <div class="col miss"><h3>○ Missed or lacking</h3>${bulletList(summary.missed)}</div>
+  </div>
   ${summary.focus ? `<p class="focus"><b>One thing for next time:</b> ${esc(summary.focus)}</p>` : ""}
 
   <h2>Checklist (${done} of ${checklist.length} performed · not scored)</h2>

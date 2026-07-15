@@ -12,7 +12,7 @@ from tools.api.shared import limiter
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
-from tools.shared.gemini_client import MOCK_MODE, MODEL
+from tools.shared.gemini_client import MOCK_MODE, MODEL, ask
 from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 
 router = APIRouter()
@@ -181,6 +181,119 @@ async def admin_demote(email: str, current_user: CurrentUser = Depends(require_a
     return {"ok": True}
 
 
+def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dict],
+                            flashcard_acc: dict) -> list[dict]:
+    """Deterministic, per-feature findings across ALL THREE learning features — real
+    insight, not a plain history list (ricoe: "give actual findings so lecturers can
+    improve teaching"). Free + always available; the AI narrative refines these."""
+    from collections import Counter
+
+    findings: list[dict] = []
+
+    tutor = [s for s in sessions if not str(s.get("topic", "")).startswith("Case:")]
+    if tutor:
+        topics = [str(s.get("topic") or "").strip() for s in tutor if s.get("topic")]
+        common = ", ".join(t for t, _ in Counter(topics).most_common(3)) or "general topics"
+        findings.append({"feature": "AI Tutor",
+                         "text": f"{len(tutor)} tutor conversation(s); recent focus: {common}."})
+    else:
+        findings.append({"feature": "AI Tutor",
+                         "text": "No AI-tutor use yet — encourage Socratic questioning to build reasoning."})
+
+    if flashcard_acc:
+        total = sum(int(a.get("total", 0)) for a in flashcard_acc.values())
+        correct = sum(int(a.get("correct", 0)) for a in flashcard_acc.values())
+        pct = round(100 * correct / total) if total else 0
+        weak = sorted(t for t, a in flashcard_acc.items() if float(a.get("pct", 100)) < 65)
+        weak_txt = ", ".join(w.replace("_", " ") for w in weak[:3]) or "none standing out"
+        findings.append({"feature": "Flashcards",
+                         "text": f"{pct}% accuracy over {total} card(s); weakest: {weak_txt}."})
+    else:
+        findings.append({"feature": "Flashcards",
+                         "text": "No flashcard attempts logged — assign spaced-repetition decks to surface gaps."})
+
+    if cases:
+        attempts = len(cases)
+        passed = sum(1 for c in cases if c.get("passed"))
+        unsafe = [c for c in cases if c.get("safe") is False]
+        scores = [int(c["score_100"]) for c in cases if c.get("score_100") is not None]
+        avg = f", avg {round(sum(scores) / len(scores))}/100" if scores else ""
+        missed: list[str] = []
+        for c in unsafe:
+            missed += [str(m) for m in (c.get("missed_critical") or [])]
+        extra = ""
+        if unsafe:
+            extra = f"; {len(unsafe)} unsafe run(s)" + (f" (e.g. missed: {missed[0]})" if missed else "")
+        findings.append({"feature": "Virtual Patients",
+                         "text": f"{attempts} station(s), {passed} passed{avg}{extra}."})
+    else:
+        findings.append({"feature": "Virtual Patients",
+                         "text": "No virtual-patient stations attempted yet — start them on beginner cases."})
+
+    weak_topics = [str(t).replace("_", " ") for t in (profile.get("weak_topics") or [])][:3]
+    missed_findings = [str(m) for m in (profile.get("missed_findings") or [])][:3]
+    bits = [f"Learning velocity: {profile.get('learning_velocity', 'stable')}."]
+    if weak_topics:
+        bits.append("Recurring weak topics: " + ", ".join(weak_topics) + ".")
+    if missed_findings:
+        bits.append("Consistently missed: " + ", ".join(missed_findings) + ".")
+    findings.append({"feature": "Overall", "text": " ".join(bits)})
+    return findings
+
+
+_INSIGHT_SYSTEM = (
+    "You advise clinical lecturers training allied-health ophthalmic students (OA/OT/PSA). "
+    "Given per-feature findings about ONE student across the AI tutor, flashcards and "
+    "virtual-patient OSCE stations, write 2-3 sentences of specific, ACTIONABLE teaching "
+    "insight: what this student most needs and what the lecturer should reinforce in class. "
+    "Ground every claim in the findings given; be constructive and concrete; plain prose, "
+    "no preamble, no bullet points."
+)
+
+
+async def _ai_insight_narrative(name: str, findings: list[dict]) -> str:
+    """Best-effort AI synthesis of the findings into a teaching narrative. Returns "" in
+    MOCK_MODE or on any failure — the deterministic findings still stand on their own."""
+    if MOCK_MODE:
+        return ""
+    lines = "\n".join(f"- {f['feature']}: {f['text']}" for f in findings)
+    try:
+        out = await asyncio.wait_for(
+            asyncio.to_thread(
+                ask,
+                system_prompt=_INSIGHT_SYSTEM,
+                messages=[{"role": "user", "content": f"Student: {name}\nFindings:\n{lines}"}],
+                max_tokens=400,
+                feature="admin_insight",
+                model=MODEL,
+                thinking_level="MINIMAL",
+            ),
+            timeout=14.0,
+        )
+        return (out or "").strip()
+    except Exception:
+        return ""
+
+
+@router.get("/api/admin/student/{student_id}/insights")
+async def admin_student_insights(student_id: str, current_user: CurrentUser = Depends(require_staff)):
+    """On-demand teaching insights for one student across all three features. Kept SEPARATE
+    from /detail so the (paid) AI narrative only runs when a lecturer explicitly asks."""
+    try:
+        profile = await get_profile(student_id) or {}
+        sessions = await db.get_sessions(student_id, limit=30)
+        case_rows = await db.get_case_results(student_id)
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+    try:
+        flashcard_acc = await db.get_topic_accuracy(student_id)
+    except Exception:
+        flashcard_acc = {}
+    findings = _build_student_findings(profile, sessions, case_rows, flashcard_acc)
+    narrative = await _ai_insight_narrative(profile.get("full_name", "the student"), findings)
+    return {"findings": findings, "narrative": narrative}
+
+
 @router.get("/api/admin/student/{student_id}/detail")
 async def admin_student_detail(student_id: str, current_user: CurrentUser = Depends(require_staff)):
     import json as _json
@@ -192,6 +305,10 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         case_rows = await db.get_case_results(student_id)
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+    try:
+        flashcard_acc = await db.get_topic_accuracy(student_id)
+    except Exception:
+        flashcard_acc = {}
 
     sessions = [
         {
@@ -205,21 +322,35 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         for s in all_sessions
     ]
 
-    # Cases: all attempts
-    cases = [
-        {
+    # Cases: all attempts, including the additive rich-grade columns when present.
+    def _case_row(c: dict) -> dict:
+        row = {
             "case_id": c.get("case_id", ""),
             "total_score": int(c.get("total_score") or 0),
             "passed": bool(c.get("passed", False)),
             "completed_at": str(c.get("completed_at", "")),
         }
-        for c in case_rows
-    ]
+        if c.get("score_100") is not None:
+            row["score_100"] = int(c["score_100"])
+        if c.get("safe") is not None:
+            row["safe"] = bool(c["safe"])
+        if c.get("consult_technique") is not None:
+            row["consult_technique"] = int(c["consult_technique"])
+        if c.get("judgement_safety") is not None:
+            row["judgement_safety"] = int(c["judgement_safety"])
+        if c.get("missed_critical") is not None:
+            row["missed_critical"] = [str(m) for m in (c.get("missed_critical") or [])]
+        return row
+
+    cases = [_case_row(c) for c in case_rows]
 
     retention_scores = profile.get("retention_scores") or {}
     missed_findings = profile.get("missed_findings") or []
 
     total_tokens = sum(s["token_count"] for s in sessions)
+
+    # Cross-feature findings (deterministic, free) — the AI narrative is fetched separately.
+    findings = _build_student_findings(profile, all_sessions, case_rows, flashcard_acc)
 
     return {
         "student_id": student_id,
@@ -233,10 +364,12 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
         "weak_topics": profile.get("weak_topics") or [],
         "missed_findings": missed_findings,
         "retention_scores": retention_scores,
+        "flashcard_accuracy": flashcard_acc,
         "supervisor_note": profile.get("supervisor_note", ""),
         "sessions": sessions,
         "cases": cases,
         "total_tokens": total_tokens,
+        "insights": {"findings": findings, "narrative": ""},
     }
 
 
