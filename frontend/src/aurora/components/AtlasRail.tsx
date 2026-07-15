@@ -24,7 +24,7 @@ const ANALYTICS_NAV: NavItem[] = [
   { href: "/analytics", label: "Analytics", icon: "analytics" },
 ];
 
-export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalette: () => void; pinned?: boolean; onTogglePin?: () => void }) {
+export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onTogglePin?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
@@ -74,9 +74,6 @@ export function AtlasRail({ onOpenPalette, pinned, onTogglePin }: { onOpenPalett
         <span className="aurora-streak" title="Day streak">
           <span aria-hidden>◆</span><b>{progress?.streak ?? 0}</b> day
         </span>
-        <button type="button" className="aurora-cmdk" onClick={onOpenPalette} aria-label="Open command palette">
-          <span>Search</span><kbd>⌘K</kbd>
-        </button>
       </div>
 
       <div className="aurora-rail-scroll">
