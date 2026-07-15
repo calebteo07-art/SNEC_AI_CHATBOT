@@ -93,3 +93,39 @@ def test_missed_critical_step_still_lowers_the_score_and_flags_safety():
     assert missed["safe"] is False
     assert done["safe"] is True
     assert missed["score_100"] < done["score_100"]
+
+
+def _submit_full(performed, checklist=CL):
+    """Same as _submit but returns the whole response (for the coaching block). `ask` returns
+    '{}' → the AI coaching is empty, exercising the deterministic fallback."""
+    with patch.dict("tools.api.shared._case_cache", {"case_c7": CASE}, clear=False), \
+         patch("tools.api.routers.cases.list_available_cases", return_value=["case_c7"]), \
+         patch("tools.api.routers.cases.load_case", return_value=CASE), \
+         patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
+         patch("tools.api.routers.cases._station_checklist", return_value=checklist), \
+         patch("tools.api.routers.cases.evaluate_case", return_value=DOMAINS), \
+         patch("tools.api.routers.cases.log_session", new=AsyncMock(return_value=None)), \
+         patch("tools.api.routers.cases.ask", return_value="{}"):
+        r = client.post(
+            "/api/cases/case_c7/submit",
+            json={
+                "messages": [{"role": "user", "content": "Good morning, can I confirm your name and NRIC?"}],
+                "findings": "IOP within range on repeat readings; no red flags.",
+                "recommendation": "Document and hand over to the doctor for review.",
+                "performed_steps": performed,
+            },
+            cookies=_cookie(),
+        )
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def test_coach_summary_is_never_empty_even_without_ai():
+    # Regression (ricoe: "coach summary shows nothing"): when the AI returns nothing usable,
+    # the debrief must still carry real, grounded feedback derived from the performance —
+    # here a missed critical step surfaces as a concrete focus.
+    data = _submit_full([1, 3, 4], checklist=CL_CRIT)   # critical step 2 not performed
+    coaching = data["coaching"]
+    assert coaching["focus"], "there must always be a focus line"
+    assert coaching["missed"], "the missed steps must be listed"
+    assert coaching["did_wrong"], "an unsafe (missed-critical) run must flag what went wrong"

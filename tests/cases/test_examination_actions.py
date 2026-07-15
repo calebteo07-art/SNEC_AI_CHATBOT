@@ -123,6 +123,41 @@ def test_skill_procedure_still_requires_explanation():
     assert iop["quick"] is False
 
 
+def test_machine_operation_steps_become_manual_chips():
+    # Regression (ricoe: "some manual actions not listed in biometry, cirrus OCT"): the
+    # machine-handling steps of biometry/OCT/NCT must surface as manual chips, not fall
+    # through to verbal (no chip).
+    steps = [
+        {"step_number": 1, "action": "Hold the control lever and pull the machine body towards the operator", "category": "clinical_assessment", "critical": False},
+        {"step_number": 2, "action": "Ensure the sharpest image is captured", "category": "clinical_assessment", "critical": False},
+        {"step_number": 3, "action": "Take around three readings to obtain the average reading", "category": "clinical_assessment", "critical": False},
+        {"step_number": 4, "action": "Choose the correct lens and refractive status of the eye", "category": "clinical_assessment", "critical": True},
+    ]
+    by_label = {a["label"]: a for a in build_actions({}, steps)}
+    assert by_label["Operate joystick"]["kind"] == "manual"
+    assert by_label["Capture image"]["kind"] == "manual"
+    assert by_label["Take readings"]["kind"] == "manual"
+    assert by_label["Select settings"]["kind"] == "manual"
+
+
+def test_operational_machine_steps_are_quick_tick():
+    # Regression (ricoe: "marking not consistent — I did the checklist task but got
+    # partial"): operational machine steps tick on one click with no technique grade, so
+    # doing exactly the task can't be marked partial for an un-tasked extra.
+    steps = [
+        {"step_number": 1, "action": "Ensures proper positioning of patient's head", "category": "patient_education", "critical": False},
+        {"step_number": 2, "action": "Align the instrument table to the correct height", "category": "equipment", "critical": False},
+        {"step_number": 3, "action": "Ensure the sharpest image is captured", "category": "clinical_assessment", "critical": False},
+    ]
+    by_label = {a["label"]: a for a in build_actions({}, steps)}
+    assert by_label["Position patient"]["quick"] is True
+    assert by_label["Align & focus"]["quick"] is True
+    assert by_label["Capture image"]["quick"] is True
+    # A real skill procedure still requires a typed technique.
+    iop = build_actions({}, [{"step_number": 9, "action": "Measure IOP with the non-contact tonometer", "category": "clinical_assessment", "critical": True}])[0]
+    assert iop["quick"] is False
+
+
 def test_verbal_action_is_never_quick():
     intro = next(a for a in build_actions({}, STEPS) if a["label"] == "Introduce self")
     assert intro["kind"] == "verbal"

@@ -42,8 +42,9 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     (("hand hygiene", "hand wash", "5 moments", "five moments", "moments of hand",
       "before touching", "after touching", "before clean procedure", "after body fluid",
       "patient surroundings"), "Hand hygiene"),
-    (("wipe occluder", "occluder with alcohol"), "Wipe occluder"),
-    (("disinfect", "wipe the essential parts", "disinfection of equipment"), "Disinfect equipment"),
+    (("wipe occluder", "wipe the occluder", "occluder with alcohol", "occluder with an alcohol"), "Wipe occluder"),
+    (("disinfect", "wipe the essential parts", "wipe the parts", "parts of the machine",
+      "disinfection of equipment"), "Disinfect equipment"),
     (("discard", "waste bag"), "Discard waste"),
     (("not allergic", "allerg"), "Check allergy"),
     (("doctor’s order", "doctor's order", "written order", "electronic order", "medication order", "doctor"), "Check doctor's order"),
@@ -66,6 +67,14 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     (("amsler",), "Amsler grid"),
     (("position", "chin and forehead", "chin rest"), "Position patient"),
     (("align", "focus the target", "acquisition"), "Align & focus"),
+    (("control lever", "control knob", "joystick", "machine body", "move the machine", "pull the machine"), "Operate joystick"),
+    (("sharpest image", "image is captured", "capture the image", "acquire the image",
+      "image acquisition", "take the image", "take the scan"), "Capture image"),
+    (("measurement switch", "three readings", "average reading", "readings accuracy",
+      "obtain the average", "measurement value"), "Take readings"),
+    (("choose the correct lens", "correct lens and refractive", "refractive status",
+      "correct formula", "area of scanning", "macular cut", "rnfl", "trial lens",
+      "reading mode", "measurement mode", "auto start mode"), "Select settings"),
     (("validate the measurement", "validate the reading"), "Validate reading"),
     (("print",), "Print results"),
     (("record the date", "document the reading", "captured into", "record the"), "Document results"),
@@ -92,17 +101,23 @@ _MANUAL_LABELS = {
     "Remove glasses / CL", "Prepare eye drops", "Instill drops", "Pinhole test",
     "Test near VA", "Test distance VA", "Measure IOP", "Anterior segment",
     "Fundus exam", "Colour vision", "Amsler grid", "Position patient",
-    "Align & focus", "Validate reading", "Print results", "Document results",
+    "Align & focus", "Operate joystick", "Capture image", "Take readings",
+    "Select settings", "Validate reading", "Print results", "Document results",
     "Safety check",
 }
 
-# Manual chips that are a single mechanical confirmation — no assessable technique to
-# describe — tick on ONE click with no typed explanation (ricoe C5, "some actions no need
-# to type explanation"). Skill procedures (VA, IOP, slit-lamp, drops instillation, hand
-# hygiene's WHO moments…) are the assessment itself and stay non-quick.
+# Manual chips that are a single mechanical confirmation — a machine-handling / equipment
+# step with no assessable typed technique — tick on ONE click with no typed explanation
+# (ricoe C5). Marking every operational step quick also keeps grading CONSISTENT: doing
+# exactly what the checklist step says can never be scored "partial" for an un-tasked extra
+# (e.g. positioning the head correctly is complete on its own). Only the genuine skill
+# procedures below (VA, IOP, drops, colour vision, Amsler, hand-hygiene technique…) stay
+# non-quick, because performing them well IS the assessment.
 _QUICK_LABELS = {
     "Wipe occluder", "Disinfect equipment", "Discard waste",
     "Print results", "Document results", "Remove glasses / CL",
+    "Position patient", "Align & focus", "Operate joystick", "Capture image",
+    "Take readings", "Select settings", "Validate reading", "Safety check",
 }
 
 

@@ -22,10 +22,34 @@ _PREP_CATS = {"patient_identification", "consent", "patient_education",
               "documentation", "infection_control", "equipment", "safety_check"}
 _POST_CATS = {"post_procedure", "documentation", "patient_education", "infection_control"}
 
+# Some checklists miscategorise genuine PREP steps as "clinical_assessment" — e.g.
+# "Check for patient's needs (wheelchair)", "Introduce self", "Obtain requisites" — which
+# would fire the phase-2 anchor far too early and drag greeting / identification / hand
+# hygiene into the "Clinical Assessment" phase (sequence bug). A step whose wording is
+# clearly preparation is never treated as the procedure anchor, so those steps stay in
+# Phase 1 "Preparation & Identification" where they belong.
+_PREP_OVERRIDE = (
+    "introduce", "identify", "identity", "at least 2 identifiers", "at least two identifiers",
+    "patient name", "date of birth", "medical record", "consent",
+    "hand hygiene", "hand wash", "5 moments", "five moments",
+    "doctor", "written order", "electronic order", "medication order",
+    "explain the procedure", "explain the purpose", "purpose and procedure",
+    "purpose & procedure", "explain to the patient",
+    "patient's needs", "patient’s needs", "patients needs", "wheelchair",
+    "received the patient", "obtain appropriate requisites", "obtain the appropriate",
+    "demonstrates knowledge",
+)
+
+
+def _is_prep_override(action) -> bool:
+    a = str(action or "").lower()
+    return any(k in a for k in _PREP_OVERRIDE)
+
 
 def assign_phases(steps: list[dict]) -> list[int]:
     """Return a list of phase ints (1/2/3), one per step, same order as input."""
-    proc_idx = [i for i, s in enumerate(steps) if s.get("category") in _PROC_CATS]
+    proc_idx = [i for i, s in enumerate(steps)
+                if s.get("category") in _PROC_CATS and not _is_prep_override(s.get("action", ""))]
     n = len(steps)
     if proc_idx:
         lo, hi = proc_idx[0], proc_idx[-1]

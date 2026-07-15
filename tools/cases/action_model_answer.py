@@ -38,6 +38,23 @@ _GENERIC_FALLBACK = [
     "Record or validate the result accurately",
 ]
 
+# Curated model answers that are a fixed, examinable standard rather than something to
+# read off a case's checklist text. The checklist rows only say WHEN to clean hands (the
+# WHO "5 moments"); the assessed TECHNIQUE is the MOH/WHO 7-step handrub, so grade the
+# student's hand-hygiene technique against those 7 steps (ricoe: "hand hygiene answer is
+# wrong — should be the MOH 7 steps"). Keyed by the canonical action label.
+_CURATED_MODEL_ANSWERS: dict[str, list[str]] = {
+    "Hand hygiene": [
+        "Step 1: Rub palm to palm.",
+        "Step 2: Right palm over the back of the left hand with fingers interlaced, then swap hands.",
+        "Step 3: Palm to palm with fingers interlaced.",
+        "Step 4: Backs of the fingers to the opposing palms with the fingers interlocked.",
+        "Step 5: Rotational rubbing of each thumb clasped in the opposite palm.",
+        "Step 6: Rotational rubbing, backwards and forwards, with clasped fingertips in the opposite palm.",
+        "Step 7: Rub hands for at least 20–30 seconds until dry (observing the 5 moments for when to clean).",
+    ],
+}
+
 
 def _label_keywords(action_label: str) -> tuple[str, ...]:
     """Keywords that identify this procedure's family. Curated family first, then the
@@ -73,9 +90,13 @@ def craft_model_answer(case: dict, action_label: str, satisfies_steps,
                        checklist_steps=None) -> list[str]:
     """Return the ordered model-answer points for one manual procedure.
 
-    Priority: authored investigations rubric points matching this procedure →
-    the checklist step text the action satisfies → a generic safe reference.
+    Priority: a curated fixed-standard answer (e.g. hand hygiene → MOH 7 steps) →
+    authored investigations rubric points matching this procedure → the checklist step
+    text the action satisfies → a generic safe reference.
     Never empty, so there is always something concrete to grade against."""
+    curated = _CURATED_MODEL_ANSWERS.get(action_label.strip())
+    if curated:
+        return list(curated)
     keywords = _label_keywords(action_label)
     matched = [
         p for p in _rubric_points(case)
