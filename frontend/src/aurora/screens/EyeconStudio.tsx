@@ -127,17 +127,6 @@ export function EyeconStudio() {
 
   return (
     <div className="studio-wrap">
-      <header className="studio-top">
-        {mode === "welcome" ? (
-          <span className="studio-top-spacer" aria-hidden />
-        ) : (
-          <button className="studio-x aurora-press" aria-label="Back to home" onClick={() => router.push("/dashboard")}>✕</button>
-        )}
-        <button className="studio-save aurora-press" onClick={save} disabled={saveMut.isPending || !canSave}>
-          {saveMut.isPending ? "Saving…" : canSave ? "Save" : "Saved ✓"}
-        </button>
-      </header>
-
       <div className="studio-banner">
         <h1 className="studio-wordmark">
           <span className="sw-eye">Eyecon</span>
