@@ -126,6 +126,9 @@ async function studentCtx(customized) {
     entries: [
       { rank: 1, name: "Aisha R.", role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { topper: "crown", background: "galaxy" }, portrait_url: STALE_PORTRAIT, is_you: false },
       { rank: 2, name: "You", role: "OA", xp: 7660, level: 17, streak_days: 9, avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
+      // A brand-new, never-customized account (null avatar_config) — must render the polished
+      // default mascot, NOT the misregistered axis composite that looked distorted on the board.
+      { rank: 3, name: "New Grad", role: "OA", xp: 0, level: 1, streak_days: 0, avatar_config: null, portrait_url: null, is_you: false },
     ],
     you_hidden: false, display_name: null, roles: ["OA", "OT"],
   })));
@@ -153,6 +156,33 @@ async function studentCtx(customized) {
   } else {
     fail("leaderboard — a stale portrait_url is still rendered instead of the composite");
   }
+  // Regression (the reported bug): a never-customized entry renders the polished iris.png
+  // mascot, not the distorted axis composite (a small misregistered eye on a blank body).
+  if (srcs.some((s) => (s ?? "").endsWith("/brand/iris.png"))) {
+    ok("leaderboard — a never-customized entry renders the iris.png default mascot");
+  } else {
+    fail(`leaderboard — un-customized entry did not render iris.png (srcs=${JSON.stringify(srcs)})`);
+  }
+  await ctx.close();
+}
+
+// ── H) ACCOUNT RESET: logging out purges the per-account onboarding flag (and, with it, the
+//        persisted query cache) so the NEXT account on this browser gets a genuine first run —
+//        the mandatory Studio gate + tour, not the previous student's leaked customized flag. ──
+{
+  const ctx = await studentCtx(true);
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
+  await p.waitForSelector(".hm-eyeconmenu-btn", { timeout: 12000 });
+  await p.evaluate(() => localStorage.setItem("eyebot_tour_seen", "true"));
+  await p.locator(".hm-eyeconmenu-btn").click();
+  await p.waitForSelector('[data-testid="eyecon-menu"]', { timeout: 6000 });
+  await p.locator('[data-testid="eyecon-menu"]').locator("text=Log out").click();
+  const cleared = await p
+    .waitForFunction(() => localStorage.getItem("eyebot_tour_seen") === null, { timeout: 8000 })
+    .then(() => true).catch(() => false);
+  if (cleared) ok("account-reset — logout clears eyebot_tour_seen (next account gets a genuine first run)");
+  else fail("account-reset — eyebot_tour_seen survived logout (per-account onboarding would leak)");
   await ctx.close();
 }
 
