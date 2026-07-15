@@ -17,3 +17,10 @@ def app_now() -> datetime:
 def app_today():
     """Today's date in SGT — the canonical day for streaks and check-ins."""
     return app_now().date()
+
+
+def app_week_start():
+    """Monday (SGT) of the current week — the weekly-leaderboard reset boundary.
+    The board ranks by XP earned since this date, so it refreshes every Monday."""
+    today = app_today()
+    return today - timedelta(days=today.weekday())  # weekday(): Mon=0 … Sun=6

@@ -592,14 +592,15 @@ console.log("PASS: Home greeting — always the DEFAULT living mascot, even when
 // honours ?role= and reflects the hide state so the filter + hide toggle are real
 // behavioral verifies; prefs POST flips the flag.
 let lbHidden = false;
+// `xp` is now the WEEKLY score (ranking key); `xp_total` is lifetime XP (tier ring).
 const LB_ROWS = [
-  { name: "Aisha R.",   role: "OT", xp: 12480, level: 24, streak_days: 31, avatar_config: { background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
-  { name: "Wei Jie T.", role: "OA", xp: 10240, level: 22, streak_days: 18, avatar_config: { background: "mist" }, portrait_url: null, is_you: false },
-  { name: "Priya N.",   role: "OT", xp: 7720,  level: 18, streak_days: 12, avatar_config: null, portrait_url: null, is_you: false },
-  { name: "You",        role: "OA", xp: 7660,  level: 17, streak_days: 9,  avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
-  { name: "Marcus L.",  role: "OT", xp: 7635,  level: 17, streak_days: 6,  avatar_config: null, portrait_url: PORTRAIT_PNG, is_you: false },
-  { name: "Siti N.",    role: "OA", xp: 6120,  level: 15, streak_days: 22, avatar_config: null, portrait_url: null, is_you: false },
-  { name: "Daniel O.",  role: "OT", xp: 5540,  level: 14, streak_days: 0,  avatar_config: null, portrait_url: null, is_you: false },
+  { name: "Aisha R.",   role: "OT", xp: 12480, xp_total: 12480, level: 24, streak_days: 31, avatar_config: { background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "Wei Jie T.", role: "OA", xp: 10240, xp_total: 10240, level: 22, streak_days: 18, avatar_config: { background: "mist" }, portrait_url: null, is_you: false },
+  { name: "Priya N.",   role: "OT", xp: 7720,  xp_total: 7720,  level: 18, streak_days: 12, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "You",        role: "OA", xp: 7660,  xp_total: 7660,  level: 17, streak_days: 9,  avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
+  { name: "Marcus L.",  role: "OT", xp: 7635,  xp_total: 7635,  level: 17, streak_days: 6,  avatar_config: null, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "Siti N.",    role: "OA", xp: 6120,  xp_total: 6120,  level: 15, streak_days: 22, avatar_config: null, portrait_url: null, is_you: false },
+  { name: "Daniel O.",  role: "OT", xp: 5540,  xp_total: 5540,  level: 14, streak_days: 0,  avatar_config: null, portrait_url: null, is_you: false },
 ];
 await navCtx.route("**/api/leaderboard**", (r) => {
   if (r.request().method() === "POST") { // /prefs — flip the hide flag from the body
@@ -631,6 +632,11 @@ if ((await youRow.count()) !== 1 || !(await youRow.innerText()).includes("You"))
 const lbSub = np.locator('[data-testid="leaderboard-root"] .lb-sub');
 if ((await lbSub.count()) !== 1 || !/#4|podium|overtake/i.test(await lbSub.innerText())) {
   console.error("FAIL: leaderboard header hook not showing the viewer's chase (rank/gap derived from the payload)"); process.exit(1);
+}
+// Weekly board: the reset cue tells students the race refreshes every Monday.
+const lbReset = np.locator('[data-testid="lb-reset"]');
+if ((await lbReset.count()) !== 1 || !/resets/i.test(await lbReset.innerText())) {
+  console.error("FAIL: leaderboard weekly-reset cue (.lb-reset) missing"); process.exit(1);
 }
 if ((await np.locator('[data-testid="edit-selena"]').count()) !== 0) { console.error("FAIL: a legacy Edit-Eyecon control still exists on the leaderboard"); process.exit(1); }
 console.log("PASS: Leaderboard — podium, ranked list, chase hook, you-row highlight, composited Eyecon (portrait_url ignored), no edit-eyecon");

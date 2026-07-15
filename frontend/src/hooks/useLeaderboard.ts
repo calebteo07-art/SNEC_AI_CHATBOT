@@ -7,7 +7,8 @@ export interface LeaderboardEntry {
   rank: number;
   name: string;
   role: string;
-  xp: number;
+  xp: number;        // XP earned THIS week — the weekly-board score + ranking key
+  xp_total: number;  // lifetime XP — drives the tier ring
   level: number;
   streak_days: number;
   avatar_config: Partial<AvatarConfig> | null;

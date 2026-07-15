@@ -708,7 +708,17 @@ reduced-motion gated, via `@/fx/confetti`).
   + real Selena portrait + role filter + hide toggle + Edit Selena all present; zero
   backend/DB change; motion fully frozen under reduced motion; WCAG-legible; crests degrade to
   committed SVG. Spec: docs/superpowers/specs/2026-07-13-leaderboard-redesign-design.md.
-- **Out of scope**: real weekly leagues (promotion/relegation/reset — needs backend),
+- **Weekly reset (refine 2026-07-15, user directive "make the leaderboard refresh weekly")**:
+  the criterion changed is **"Lumens-only rank"** — it was *lifetime* Lumens, now it's **Lumens
+  earned in the current week**; the board refreshes every Monday (SGT). Backend: new `xp_week` /
+  `xp_week_start` columns (migration 012), the lazy-reset twin of `xp_today` — a stale/absent
+  stamp reads as 0, so the reset needs no cron. `rank_entries(week_start=…)` ranks by weekly XP;
+  each entry's `xp` is now the *weekly* score while `xp_total` (lifetime) still drives the **tier
+  ring** and `level` (so the per-row tier accents and prestige are unchanged). Header gains a quiet
+  `.lb-reset` "Resets Monday · N days left" pill under the hook; chase copy reframed to "this week".
+  Everything else in this lock is preserved (one seamless board, podium, both badges, you-row,
+  role filter, hide). Pre-migration the board falls back to lifetime ranking (graceful).
+- **Out of scope (still)**: promotion/relegation leagues, weekly *history*/standings archive,
   rank-movement arrows (needs history).
 
 ## Trainer/Admin Analytics + homepage pool toggle — LOCKED 2026-07-13

@@ -7,7 +7,9 @@ first-name + last-initial from the consent roster.
 """
 from datetime import date
 
-from tools.gamification.leaderboard import rank_entries, short_name
+from tools.gamification.leaderboard import rank_entries, short_name, weekly_tally
+
+WEEK = date(2026, 5, 4)  # a Monday — the weekly-leaderboard boundary (SGT)
 
 
 def _p(sid, xp, **extra):
@@ -125,3 +127,73 @@ def test_streak_days_healed_from_history_when_today_supplied():
     profiles = [{"student_id": "a", "xp": 300, "streak": 0, "checkin_history": hist}]
     out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a", today=date(2026, 5, 6))
     assert out[0]["streak_days"] == 3   # recovered from the check-in log, not the 0 column
+
+
+# ── Weekly leaderboard (resets each SGT week; ranks by XP earned THIS week) ──────
+
+def test_ranks_by_weekly_xp_when_week_start_supplied():
+    # Lifetime order is a(1000) > b(500); but THIS WEEK b earned far more, so the
+    # weekly board flips them. The displayed score becomes the weekly value.
+    profiles = [
+        {"student_id": "a", "xp": 1000, "xp_week": 20, "xp_week_start": "2026-05-04"},
+        {"student_id": "b", "xp": 500, "xp_week": 300, "xp_week_start": "2026-05-04"},
+    ]
+    out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
+    assert [e["name"] for e in out] == ["Bob B.", "Ann A."]   # weekly order, not lifetime
+    assert [e["xp"] for e in out] == [300, 20]                # score shown = weekly
+    assert out[1]["xp_total"] == 1000                         # lifetime preserved for tier ring
+    assert out[1]["level"] == 3                               # level from LIFETIME (1000//500+1)
+
+
+def test_stale_week_start_counts_as_zero_this_week():
+    # b's big xp_week is from LAST week (start 04-27) — it counts 0 now and ranks last.
+    profiles = [
+        {"student_id": "a", "xp": 100, "xp_week": 50, "xp_week_start": "2026-05-04"},
+        {"student_id": "b", "xp": 999, "xp_week": 900, "xp_week_start": "2026-04-27"},
+    ]
+    out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
+    assert [e["name"] for e in out] == ["Ann A.", "Bob B."]
+    assert [e["xp"] for e in out] == [50, 0]
+
+
+def test_missing_weekly_columns_count_as_zero_this_week():
+    profiles = [
+        {"student_id": "a", "xp": 300, "xp_week": 40, "xp_week_start": "2026-05-04"},
+        {"student_id": "b", "xp": 700},  # no weekly columns at all -> 0 this week
+    ]
+    out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
+    assert [e["name"] for e in out] == ["Ann A.", "Bob B."]
+    assert [e["xp"] for e in out] == [40, 0]
+
+
+def test_week_start_none_ranks_by_lifetime_xp_backward_compat():
+    # Pre-migration / pure path: no week boundary -> rank by lifetime xp (unchanged).
+    profiles = [
+        {"student_id": "a", "xp": 100, "xp_week": 999, "xp_week_start": "2026-05-04"},
+        {"student_id": "b", "xp": 500},
+    ]
+    out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a")
+    assert [e["name"] for e in out] == ["Bob B.", "Ann A."]   # lifetime order
+    assert [e["xp"] for e in out] == [500, 100]
+
+
+def test_entry_always_carries_lifetime_xp_total():
+    profiles = [{"student_id": "a", "xp": 1250, "xp_week": 10, "xp_week_start": "2026-05-04"}]
+    out = rank_entries(profiles, {"a": "Ann Aa"}, viewer_id="a", week_start=WEEK)
+    assert out[0]["xp_total"] == 1250 and out[0]["level"] == 3 and out[0]["xp"] == 10
+
+
+def test_weekly_tally_accumulates_within_the_same_week():
+    assert weekly_tally(120, "2026-05-04", WEEK, 30) == 150
+
+
+def test_weekly_tally_resets_when_week_start_is_stale():
+    assert weekly_tally(500, "2026-04-27", WEEK, 30) == 30
+
+
+def test_weekly_tally_resets_when_week_start_missing():
+    assert weekly_tally(500, None, WEEK, 30) == 30
+
+
+def test_weekly_tally_floors_at_zero():
+    assert weekly_tally(10, "2026-05-04", WEEK, -50) == 0

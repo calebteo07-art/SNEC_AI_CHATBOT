@@ -23,13 +23,20 @@ export function Leaderboard() {
   const { podium, rest } = useMemo(() => splitPodium(entries), [entries]);
 
   // A short, personal, addictive one-liner — the chase, folded into the header instead of a
-  // separate spotlight card.
+  // separate spotlight card. Framed for the *weekly* race (the board resets every Monday).
   const hook = useMemo(() => {
-    if (you && you.rank === 1) return "You're #1 — everyone's chasing you. Hold the crown.";
-    if (you && rivals?.above && rivals.above.rank <= 3) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens from the podium.`;
+    if (you && you.rank === 1) return "You're #1 this week — everyone's chasing you. Hold the crown.";
+    if (you && rivals?.above && rivals.above.rank <= 3) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens from this week's podium.`;
     if (you && rivals?.above) return `You're #${you.rank} — ${rivals.above.gap.toLocaleString()} Lumens to overtake #${rivals.above.rank}.`;
-    return "Everyone in your cohort, ranked by total Lumens. Study daily to climb.";
+    return "This week's cohort race, ranked by Lumens earned. Study daily to climb.";
   }, [you, rivals]);
+
+  // Countdown to the Monday reset (approx, viewer-local — a friendly cue, not the hard
+  // SGT boundary). getDay(): Sun=0 … Sat=6; days until the next Monday (7 on Monday itself).
+  const resetHint = useMemo(() => {
+    const d = ((1 - new Date().getDay() + 7) % 7) || 7;
+    return d === 1 ? "🗓️ Resets tomorrow — last push!" : `🗓️ Resets Monday · ${d} days left`;
+  }, []);
 
   // One-time celebration when the viewer is on the podium. Reduced-motion + once per browser
   // session; never fires for the (common) off-podium case. We check data-motion ourselves
@@ -44,7 +51,7 @@ export function Leaderboard() {
 
   return (
     <div className="lb-climb" data-testid="leaderboard-root">
-      <LeaderboardHeader roles={roles} role={role} onRole={setRole} hook={hook} />
+      <LeaderboardHeader roles={roles} role={role} onRole={setRole} hook={hook} reset={resetHint} />
 
       {isLoading && !data ? (
         <p className="lb-empty">Loading the board…</p>

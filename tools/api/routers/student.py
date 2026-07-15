@@ -521,7 +521,8 @@ class LbEntry(BaseModel):
     rank: int
     name: str
     role: str
-    xp: int
+    xp: int          # XP earned THIS week — the weekly-board score + ranking key
+    xp_total: int    # lifetime XP — drives the tier ring on the frontend
     level: int
     streak_days: int
     avatar_config: dict | None = None
@@ -557,9 +558,14 @@ async def leaderboard(role: str | None = None, current_user: CurrentUser = Depen
         return LbResponse(entries=[], you_hidden=False, display_name=None, roles=[])
 
     names = {r["student_id"]: (r.get("student_name") or "") for r in consent}
-    from tools.shared.clock import app_today
+    from tools.shared.clock import app_today, app_week_start
+    # Rank by XP earned this week once the xp_week columns exist; until migration 012
+    # lands (no such key on any row) fall back to lifetime ranking so the board never
+    # shows an all-zero week. Auto-cuts over to weekly the moment the columns are added.
+    weekly_ready = any("xp_week_start" in p for p in profiles)
+    week_start = app_week_start() if weekly_ready else None
     entries = rank_entries(profiles, names, viewer_id=student_id, role=role or None,
-                           today=app_today())
+                           today=app_today(), week_start=week_start)
     me = next((p for p in profiles if p.get("student_id") == student_id), {})
     roles = sorted({(p.get("role") or "").strip() for p in profiles if (p.get("role") or "").strip()})
     return LbResponse(
