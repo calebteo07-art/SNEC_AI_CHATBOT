@@ -8,6 +8,7 @@
    composite, no paid render), so every save routes straight home. First-run is welcome-mode:
    unskippable, Save is the only exit (the gate forces it once for a never-customized student). */
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { DEFAULT_AVATAR, PORTRAIT_TILES, type AvatarConfig } from "@/aurora/avatar/axes.generated";
@@ -184,14 +185,21 @@ export function EyeconStudio() {
         </button>
       </footer>
 
-      {celebrate && (
-        <div className="studio-celebrate" role="status">
-          <div className="studio-celebrate-card">
-            <Eyecon config={selectedConfig} size={140} />
-            <p>Eyecon saved!</p>
-          </div>
-        </div>
-      )}
+      {/* Portal the celebration to <body>: RouteReveal's .aurora-page-enter has a
+          filling transform animation, which establishes a containing block that
+          would confine position:fixed to the tall page box (popup lands mid-scroll).
+          At <body> level it pins to the true viewport. Palette vars come along via
+          the shared .studio-celebrate selector in studio.css. */}
+      {celebrate && typeof document !== "undefined" &&
+        createPortal(
+          <div className="studio-celebrate" role="status">
+            <div className="studio-celebrate-card">
+              <Eyecon config={selectedConfig} size={140} />
+              <p>Eyecon saved!</p>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
