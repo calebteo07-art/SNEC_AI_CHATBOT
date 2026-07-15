@@ -116,11 +116,11 @@
 
 /* portrait drops into the drawn glowing plinth (upper-centre). Sized as a % of the card so it
    fills + centres the plinth ring at any card width; the inner Eyecon raster is forced to fill. */
-.lb-ped-face { position:absolute; left:50%; top:30.5%; width:35%; transform:translate(-50%,-50%); z-index:1;
+.lb-ped-face { position:absolute; left:50%; top:33%; width:35%; transform:translate(-50%,-50%); z-index:1;
   box-shadow:0 6px 16px -6px rgba(0,0,0,.5); }
 .lb-ped-face .eyecon-wrap { width:100% !important; height:auto !important; aspect-ratio:1 !important; }
 .lb-ped-face .eyecon-img { width:100% !important; height:100% !important; object-fit:cover; }
-.lb-ped.p1 .lb-ped-face { top:29.5%; width:39%; }
+.lb-ped.p1 .lb-ped-face { top:32%; width:39%; }
 
 /* Lumens = a dark game score-chip resting in the mid panel / on the plinth ledge */
 .lb-ped-xp { position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); z-index:2; white-space:nowrap;
