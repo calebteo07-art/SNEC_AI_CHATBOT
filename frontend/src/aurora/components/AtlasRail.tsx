@@ -15,9 +15,9 @@ type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS };
 
 const STUDY: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
   { href: "/chat", label: "Tutor", icon: "tutor" },
   { href: "/cases", label: "Virtual Patients", icon: "cases" },
-  { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
   { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
 ];
 const ANALYTICS_NAV: NavItem[] = [

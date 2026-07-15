@@ -15,9 +15,9 @@ import { RouteReveal } from "@/fx/Reveal";
 
 const STUDY: Destination[] = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/flashcards", label: "Flashcards" },
   { href: "/chat", label: "Tutor" },
   { href: "/cases", label: "Virtual Patients" },
-  { href: "/flashcards", label: "Flashcards" },
 ];
 /* Trainers/admins get one extra palette destination — the Analytics page. */
 const ANALYTICS_DEST: Destination = { href: "/analytics", label: "Analytics" };
@@ -70,28 +70,20 @@ export function AppShell({ children }: { children: ReactNode }) {
     return STUDY;
   }, [role]);
 
-  /* Immersive routes — on /chat and /flashcards the rail + mesh fall away and the
-     screen fills the whole viewport. The Tutor is IG-DM full screen; Flashcards is
-     "The Aperture", a self-themed Twilight world. ⌘K still works; each screen owns
-     its own labelled back/exit affordance. */
-  if (pathname === "/chat" || pathname === "/flashcards") {
-    return (
-      <div className="aurora-shell aurora-shell-immersive">
-        <main id="main" className="aurora-main">
-          <div className="aurora-main-scroll">{children}</div>
-        </main>
-        <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
-      </div>
-    );
-  }
+  /* Immersive routes — on /chat and /flashcards the mesh falls away and the screen
+     fills the whole viewport. The Tutor is IG-DM full screen; Flashcards is "The
+     Aperture", a self-themed Twilight world. The rail stays a hover-reveal overlay
+     here too (handle + AtlasRail) so navigation is one gesture away on every page;
+     it never reflows the immersive canvas (CSS pins --rail-w at 0). ⌘K still works. */
+  const immersive = pathname === "/chat" || pathname === "/flashcards";
 
   return (
-    <div className="aurora-shell" data-rail={railState}>
+    <div className={`aurora-shell${immersive ? " aurora-shell-immersive" : ""}`} data-rail={railState}>
       {!pinned && <RailHandle onReveal={togglePin} />}
       <AtlasRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
       <main id="main" className="aurora-main">
-        <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>
-        <div className="aurora-main-scroll"><RouteReveal>{children}</RouteReveal></div>
+        {!immersive && <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>}
+        <div className="aurora-main-scroll">{immersive ? children : <RouteReveal>{children}</RouteReveal>}</div>
       </main>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} destinations={destinations} />
     </div>

@@ -1605,10 +1605,19 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
   .aurora-followup[data-active="true"]::before, .aurora-composer-send::after { animation: none !important; }
 }
 
-/* Immersive /chat — full-bleed; rail + mesh are not rendered (AppShell) */
+/* Immersive /chat + /flashcards — full-bleed; the mesh is not rendered, but the
+   rail stays a hover-reveal overlay (handle + AtlasRail). It never reserves width,
+   so the canvas is full-bleed even when the rail is pinned open (--rail-w → 0). */
 .aurora-shell-immersive .aurora-main { width: 100%; }
 .aurora-shell-immersive .aurora-main-scroll { padding: 0; height: 100dvh; }
 .aurora-shell-immersive .aurora-chat { height: 100dvh; }
+.aurora-shell-immersive[data-rail="pinned"] { --rail-w: 0px; }
+/* Mobile keeps the immersive canvas edge-to-edge — no bottom bar; each screen owns
+   its own back/exit affordance (the desktop hover handle is already hidden ≤860px). */
+@media (max-width: 860px) {
+  .aurora-shell-immersive .aurora-rail { display: none; }
+  .aurora-shell-immersive .aurora-main-scroll { padding-bottom: 0; }
+}
 
 /* ─── Analytics (dark PowerBI-style surface inside the light shell) ────────────
    A self-themed dark scope like .aurora-chat — a coherent dark analytics surface
