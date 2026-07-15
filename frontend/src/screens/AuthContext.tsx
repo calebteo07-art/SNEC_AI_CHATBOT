@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface User {
   fullName: string;
@@ -51,6 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(
     () => typeof window === "undefined" || !localStorage.getItem("eyebot_user_v1")
   );
+  const queryClient = useQueryClient();
+
+  /* Drop every per-user cache + device onboarding flag. Called on logout and on an account
+     SWITCH. The ["avatar"], progress, etc. queries are persisted to IndexedDB, so without this
+     a new account on a shared browser rehydrates the PREVIOUS student's cache — including their
+     customized=true flag — which silently skips the mandatory Eyecon Studio gate AND the
+     first-run tour (both key off server truth read through that cache). Clearing forces a fresh
+     per-account fetch, and resetting eyebot_tour_seen makes the tour first-run for the new account. */
+  const resetUserScopedState = () => {
+    queryClient.clear();
+    try {
+      localStorage.removeItem("eyebot_tour_seen"); // first-run tour is per-account, not per-device
+    } catch { /* storage unavailable — non-fatal */ }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -104,6 +119,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (userData: User) => {
+    // Account switch on a shared browser: purge the prior student's cached data + onboarding
+    // flags first, so the new account reads its true (server) customized flag instead of the
+    // leaked customized=true that would skip the mandatory Studio gate and the first-run tour.
+    let prevId: string | null = null;
+    try { prevId = (JSON.parse(localStorage.getItem("eyebot_user_v1") || "null") || {}).studentId ?? null; }
+    catch { /* ignore malformed cache */ }
+    if (prevId && prevId !== userData.studentId) resetUserScopedState();
     setUser(userData);
     localStorage.setItem("eyebot_user_v1", JSON.stringify(userData));
     // Check-in is per-day, not per-login: re-logging in the same day keeps it done;
@@ -142,6 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Clear the per-day check-in flag so the next login re-checks against the server
     // (the true once-per-day authority) — important when a device is shared.
     localStorage.removeItem(CHECKIN_DATE_KEY);
+    // Drop the prior student's per-user query cache + onboarding flags so the next account to
+    // sign in on this browser starts clean (fresh customized flag → Studio gate + tour).
+    resetUserScopedState();
     setUser(null);
     setIsCheckInDone(false);
   };
