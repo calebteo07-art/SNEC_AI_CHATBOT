@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className={`aurora-shell${immersive ? " aurora-shell-immersive" : ""}`} data-rail={railState}>
       {!pinned && <RailHandle onReveal={togglePin} />}
-      <AtlasRail onOpenPalette={() => setPaletteOpen(true)} pinned={pinned} onTogglePin={togglePin} />
+      <AtlasRail pinned={pinned} onTogglePin={togglePin} />
       <main id="main" className="aurora-main">
         {!immersive && <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>}
         <div className="aurora-main-scroll">{immersive ? children : <RouteReveal>{children}</RouteReveal>}</div>
