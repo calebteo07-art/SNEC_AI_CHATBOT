@@ -98,6 +98,11 @@ export function EyeconStudio() {
     saveMut.mutate(selectedConfig, {
       onSuccess: () => {
         setCelebrate(true);
+        // The first-run (welcome) save is the moment onboarding completes — clear the per-device
+        // tour flag so the grand tour fires on the /dashboard landing for THIS new account. The
+        // flag can linger "true" from a previous account on a shared browser, which is exactly
+        // why a fresh account was landing on the dashboard with no tour.
+        if (welcome) { try { localStorage.removeItem("eyebot_tour_seen"); } catch { /* storage off */ } }
         // Re-editing is free now (no paid render), so EVERY save — first-run or a later remix —
         // celebrates briefly, then drops the student straight back home.
         window.setTimeout(() => router.push("/dashboard"), 1000);
