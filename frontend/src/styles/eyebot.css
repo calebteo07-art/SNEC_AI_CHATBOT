@@ -391,22 +391,15 @@ a { color: inherit; text-decoration: none; }
   user-select: none;
   -webkit-user-drag: none;
 }
-/* The signature exit: charcoal floods from the pupil to cover the route swap. */
-.login-eye-engulf {
+/* The exit: a quick dark veil fades over the light login and hands off to the
+   (dark) check-in screen. Opacity is driven by Motion in OnboardingScreen;
+   this only defines the cover. */
+.login-exit-veil {
   position: fixed;
   inset: 0;
-  /* Light bloom (not charcoal) — the iris opens to white during the route swap,
-     matching the white login + light app instead of flashing a black square. */
-  background: #FFFFFF;
+  z-index: 50;            /* above the login card (z-index 2) and the iris (z-index 0) */
+  background: #140a05;    /* matches the check-in "Forge" base, so the swap is seamless */
   pointer-events: none;
-  z-index: 40;
-  clip-path: circle(0% at 72% 50%);
-  -webkit-clip-path: circle(0% at 72% 50%);
-  transition: clip-path .56s cubic-bezier(0.7, 0, 0.84, 0), -webkit-clip-path .56s cubic-bezier(0.7, 0, 0.84, 0);
-}
-.login-eye-engulf.is-on {
-  clip-path: circle(150% at 72% 50%);
-  -webkit-clip-path: circle(150% at 72% 50%);
 }
 @media (max-width: 720px) {
   /* On phones the card nearly fills the width, so centre the iris faintly behind it. */
@@ -417,9 +410,6 @@ a { color: inherit; text-decoration: none; }
     height: min(82vw, 440px);
     opacity: .3;
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .login-eye-engulf { transition: none; }
 }
 
 .login-card {

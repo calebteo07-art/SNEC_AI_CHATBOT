@@ -10,18 +10,15 @@
  *   - a slow breathing zoom
  *   - focus lean: the eye leans in slightly while a form input holds focus
  *   - saccade: a tiny darting nudge per keystroke
- *   - engulf: on login success a charcoal flood expands from the pupil to cover
- *     the screen, handing off seamlessly to the route transition
  *
- * The GazeHandle interface is unchanged, so OnboardingScreen's existing wiring
- * (onFocus/onBlur/onChange/completeLogin) keeps working verbatim.
+ * The eye owns only the gaze now; OnboardingScreen owns the login exit
+ * (a quick fade), so the onFocus/onBlur/onChange wiring keeps working verbatim.
  */
 import {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useRef,
-  useState,
 } from "react";
 
 export interface GazeHandle {
@@ -29,8 +26,6 @@ export interface GazeHandle {
   setFocus(focused: boolean): void;
   /** Darting micro-movement — call per keystroke. */
   saccade(): void;
-  /** Charcoal floods the viewport from the pupil; resolves when covered. */
-  expandPupil(): Promise<void>;
 }
 
 const SRC = "/brand/login-eye.png";
@@ -49,7 +44,6 @@ function prefersReduced(): boolean {
 export const EyeHero = forwardRef<GazeHandle>(function EyeHero(_props, ref) {
   const imgRef = useRef<HTMLImageElement>(null);
   const reduced = useRef(false);
-  const [engulfing, setEngulfing] = useState(false);
 
   /* Motion state, mutated in the RAF loop (kept out of React state). */
   const s = useRef({
@@ -66,16 +60,6 @@ export const EyeHero = forwardRef<GazeHandle>(function EyeHero(_props, ref) {
     saccade: () => {
       s.current.jx = (Math.random() - 0.5) * 0.5;
       s.current.jy = (Math.random() - 0.5) * 0.32;
-    },
-    expandPupil: () => {
-      if (reduced.current) return Promise.resolve();
-      setEngulfing(true);
-      return new Promise<void>((resolve) => {
-        // Matches the .login-eye-engulf transition (~560ms) + a safety timeout
-        // so a stalled paint never strands the login.
-        const t = setTimeout(resolve, 620);
-        return () => clearTimeout(t);
-      });
     },
   }), []);
 
@@ -136,7 +120,6 @@ export const EyeHero = forwardRef<GazeHandle>(function EyeHero(_props, ref) {
     <div className="login-eye" aria-hidden="true">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img ref={imgRef} src={SRC} alt="" draggable={false} />
-      <div className={`login-eye-engulf${engulfing ? " is-on" : ""}`} />
     </div>
   );
 });
