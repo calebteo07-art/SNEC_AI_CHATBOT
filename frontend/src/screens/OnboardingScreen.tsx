@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "@/lib/nav";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "./AuthContext";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { useWipeNavigate } from "@/fx";
+import { useReducedMotion } from "@/aurora/motion";
 import { EyeHero, type GazeHandle } from "./EyeHero";
 import { errorDetail } from "@/lib/errorDetail";
 import { Logo } from "@/aurora/Logo";
@@ -20,6 +20,11 @@ interface LoginResult {
 
 /* ── Slide transition shared config ──────────────────────── */
 const slide = { initial: { opacity: 0, x: 20 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -20 }, transition: { duration: 0.28 } };
+
+/* Login → check-in exit: a quick fade to a dark veil (the colour of the check-in
+   "Forge" we land on), then navigate once fully covered. */
+const EXIT_FADE_MS = 220;
+const EXIT_MS = 260;
 
 /* ── Eye logo ─────────────────────────────────────────────── */
 /* The shared mono mark (Logo.tsx). The login card is a light monochrome card,
@@ -71,7 +76,7 @@ function ArrowRight({ size = 14 }: { size?: number }) {
 /* ── OnboardingScreen ─────────────────────────────────────── */
 export function OnboardingScreen() {
   const navigate = useNavigate();
-  const { wipe, handoff } = useWipeNavigate();
+  const reducedMotion = useReducedMotion();
   const { login, setMustChangePassword, user } = useAuth();
   const gazeRef = useRef<GazeHandle>(null);
   /* App Router navigations are async: login() re-renders this screen with a
@@ -86,6 +91,7 @@ export function OnboardingScreen() {
   const [loginResult, setLoginResult] = useState<LoginResult | null>(null);
   const [errors, setErrors]         = useState<{ email?: string; password?: string; api?: string; blocked?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [exiting, setExiting]       = useState(false);
 
   const [resetEmail, setResetEmail]     = useState("");
   const [resetOtp, setResetOtp]         = useState("");
@@ -141,25 +147,17 @@ export function OnboardingScreen() {
 
   const completeLogin = (data: LoginResult, studentRole?: "OA" | "OT" | "PSA") => {
     loggingInRef.current = true;
-    /* Auth state flips under the cover so the user≠null redirect on this
-       screen never flashes. */
+    /* Auth flips under the veil so the user≠null redirect on this screen never
+       flashes; every role is a learner now (D7) → straight to the check-in. */
     const apply = () => {
       login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "admin" | "trainer", studentRole: (studentRole ?? data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: false });
-      // Every role is a learner now (D7) — no admin/supervisor console detour.
       navigate("/checkin");
     };
-    if (data.role === "student") {
-      /* The signature exit: the pupil engulfs the screen, then the route
-         swaps beneath the cover. Timeout race so a stalled GPU never
-         blocks login. */
-      void (async () => {
-        const engulf = gazeRef.current?.expandPupil() ?? Promise.resolve();
-        await Promise.race([engulf, new Promise<void>((r) => setTimeout(r, 1100))]);
-        void handoff(apply);
-      })();
-    } else {
-      void wipe(apply);
-    }
+    if (reducedMotion) { apply(); return; }
+    /* Simplest clean exit: fade a dark veil over the light login, then swap the
+       route beneath it once fully covered — no bloom, no white→dark snap. */
+    setExiting(true);
+    window.setTimeout(apply, EXIT_MS);
   };
 
   /* First login for a new student: silently record consent + link them to the admin's roster
@@ -183,6 +181,17 @@ export function OnboardingScreen() {
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "#FFFFFF" }} />
       {/* The Gaze, made real — a living macro photograph that watches you */}
       <EyeHero ref={gazeRef} />
+
+      {/* Login exit: a quick dark cross-fade into the (dark) check-in screen. */}
+      {exiting && (
+        <motion.div
+          className="login-exit-veil"
+          aria-hidden
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: EXIT_FADE_MS / 1000, ease: "easeOut" }}
+        />
+      )}
 
       {/* Forced password change modal (floats on top) */}
       {step === "change_password" && loginResult && (
