@@ -1271,14 +1271,26 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 /* OSCE landscape gate — the triptych needs width, so a phone held in portrait gets a
    full-screen "rotate to landscape" takeover. Hidden by default; shown ONLY on a touch
    device in portrait (turning to landscape flips the query and reveals the station).
-   The `pointer: coarse` guard means a desktop with a narrow window is never nagged. */
+   The `pointer: coarse` guard means a desktop with a narrow window is never nagged.
+   The query is live, so turning the phone reveals the station instantly and turning
+   back re-shows the gate — no JS orientation listener. */
 .rotate-gate { display: none; }
 @media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) {
   .rotate-gate {
     display: flex; position: fixed; inset: 0; z-index: 9990;
+    /* 100dvh, NOT vh: vh is the LARGE viewport on mobile, so browser chrome would push
+       the card under the fold — which is what the takeover exists to prevent. */
+    width: 100vw; height: 100dvh;
     flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 32px 26px; color: var(--ink); overflow: hidden;
+    /* Don't let a drag on the takeover chain into the station's scroller behind it,
+       and don't let the gate itself pan/zoom — it is a wall, not a document. */
+    overscroll-behavior: contain; touch-action: none;
   }
+  /* The station must not scroll behind the takeover. `body:has(.rotate-gate)` is
+     LOAD-BEARING, not decoration: the gate only mounts on the station route, so an
+     unscoped rule would freeze scrolling on every portrait-phone route under 600px. */
+  body:has(.rotate-gate) .aurora-main-scroll { overflow: hidden; }
 }
 .rotate-gate-mesh { position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
@@ -1458,7 +1470,12 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-error { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 50vh; color: var(--ink-2); }
 .aurora-station-error button { color: var(--on-blue-2); font-weight: 600; background: none; border: none; cursor: pointer; }
 
-@media (max-width: 880px) {
+/* Stack the triptych only when the viewport is genuinely NARROW — not merely under
+   880px. A landscape phone is 844-932px WIDE, so the old width-only query stacked the
+   exact layout the rotate gate forces the student into landscape to REACH: rotate, and
+   receive the single column you rotated to escape. `min-height: 481px` excludes short
+   landscape viewports, which fall through to the base (triptych) rules below. */
+@media (max-width: 880px) and (min-height: 481px) {
   /* Single column → revert to natural page scroll (no nested scroll panes). */
   .aurora-page-enter:has(.aurora-station) { height: auto; }
   .aurora-station { height: auto; min-height: 100%; overflow: visible; }
@@ -1470,6 +1487,19 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
   .aurora-station-grid[data-eyebot="true"] { grid-template-columns: 1fr; }
   .aurora-eyebot { height: auto; overflow: visible; }
   .aurora-eyebot-thread { overflow: visible; flex: none; min-height: 220px; }
+}
+
+/* Landscape phone — the orientation the rotate gate INSISTS on. Width is abundant
+   (844-932px), height is not (390-430px). The base rules already give three panes with
+   independent per-pane scroll, so this tier only rebalances the columns off the short
+   axis: the desktop track is a fixed 320px checklist, which at 844px leaves the consult
+   and EyeBot panes ~237px each. Proportional tracks give the consult (where the student
+   actually works) the room instead. Height comes back from trimming the head band. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .aurora-station-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr); }
+  .aurora-station-grid[data-eyebot="true"] { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 1fr); }
+  .aurora-station { padding: 8px 10px; gap: 7px; }
+  .aurora-station-card { padding: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-mesh, .aurora-station-ring::before, .aurora-station-title em, .aurora-station-rl.is-now,
@@ -1695,6 +1725,16 @@ html[data-motion="reduce"] .aurora-grade { animation: none !important; }
 .aurora-chat-foot { position: relative; z-index: 2; padding: 8px clamp(14px, 2.5vw, 32px) 12px; border-top: 1px solid var(--mono-line); background: rgba(251, 251, 249, 0.66); -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
 .aurora-chat-foot-inner { max-width: none; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 .aurora-chat-followups { display: flex; gap: 8px; flex-wrap: wrap; }
+/* The 5 suggestion chips wrap to 3-4 rows above the composer on a 390px screen and
+   crowd out the thread — the student's own question is what matters, and the chips are
+   a desktop convenience. Removed on phones; DESKTOP KEEPS THEM (user-directed,
+   2026-07-17: "i want to remove the shortcut questions in tutor for mobile").
+   Deliberately CSS and not a JS `isMobile` branch: this component server-renders, so a
+   hydration branch would have to guess the viewport on the server and would flash the
+   wrong markup before correcting itself. A media query has no such window. */
+@media (max-width: 640px) and (pointer: coarse), (max-height: 480px) and (pointer: coarse) {
+  .aurora-chat-followups { display: none; }
+}
 .aurora-followup { position: relative; border: 1px solid var(--mono-line); background: var(--mono-card); border-radius: 999px; padding: 8px 16px; font-size: 16.8px; font-weight: 500; color: var(--mono-ink-2); cursor: pointer; overflow: visible; transition: color .2s var(--mo-ease), border-color .2s var(--mo-ease), transform .2s var(--mo-ease), box-shadow .2s var(--mo-ease); }
 .aurora-followup span { position: relative; z-index: 1; }
 .aurora-followup:hover { color: var(--mono-ink); border-color: rgba(91, 91, 255, 0.4); transform: translateY(-2px); box-shadow: 0 8px 18px -10px rgba(91, 91, 255, 0.5); }
@@ -2196,28 +2236,39 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 .aurora-chip:hover { color: var(--ink); border-color: var(--ink-3); }
 .aurora-chip[data-active="true"] { color: #fff; border-color: transparent; }
 
-/* Phone: let the roster table scroll horizontally instead of clipping columns.
-   The wrap clips by default (overflow:hidden); give rows a min-width so every
-   column stays readable and the wrap scrolls on the x-axis. */
-@media (max-width: 700px) {
+/* Touch: let wide tables scroll horizontally inside their own container instead of
+   clipping columns. The wrap clips by default (overflow:hidden); give rows a min-width
+   so every column stays readable and the wrap scrolls on the x-axis.
+   Gated on `pointer: coarse`, not width — see below. */
+@media (pointer: coarse) {
   .aurora-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .aurora-table-wrap .aurora-trow { min-width: 720px; }
 }
 
-/* Phone: enlarge small touch targets to a comfortable hit area. Desktop is left
-   alone (mouse is precise); touch needs ~44px. Visuals are unchanged — only the
-   clickable box grows. */
-@media (max-width: 700px) {
+/* Touch: enlarge small tap targets to a comfortable hit area. A mouse is precise; a
+   fingertip needs ~44px. Visuals are unchanged — only the clickable box grows.
+   ── Why `pointer: coarse` and NOT `max-width: 700px` ──
+   This block was width-gated, and width cannot identify a phone: in LANDSCAPE an
+   iPhone 15 Pro Max is 932px wide and a 14 Pro is 844px. Both sail past 700px and got
+   the DESKTOP hit boxes — measured .aurora-pin at 19x19 and .aurora-chat-back at 32x32
+   at 844x390 and 932x430, while portrait (360/390) correctly got 44. So the targets
+   were fixed in exactly the orientation OSCE does not use and broken in the one it
+   forces. `pointer: coarse` is the real test, and it keeps a narrow desktop WINDOW on
+   desktop hit boxes. See breakpoints.css. */
+@media (pointer: coarse) {
   /* Eye Atlas pins — pad the button so the tappable area grows while the
      calibrated dot stays centred (the dot is centred on its point via
-     translate, so symmetric padding keeps it on-point). */
-  .aurora-pin { padding: 11px; }
+     translate, so symmetric padding keeps it on-point). 19px dot + 2x12.5 = 44. */
+  .aurora-pin { padding: 12.5px; }
   /* Chat back arrow → full touch square. */
   .aurora-chat-back { width: 44px; height: 44px; }
-  /* Account remove (×) → larger hit area. */
+  /* Account remove (×) → larger hit area (base is 28px). */
   .aurora-acct-remove { width: 40px; height: 40px; }
   /* Clickable feed name → comfortable tap height. */
   .aurora-feed-name { display: inline-flex; align-items: center; min-height: 44px; }
+  /* Analytics view switcher + Refresh — measured 75x34 and 92x36 at every phone
+     viewport. Both are pills, so growing the box keeps the shape and the type. */
+  .console-segment button, .aurora-refresh { min-height: 44px; }
 }
 
 /* buttons */
@@ -2267,7 +2318,10 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
 
 /* modal (student detail / drill-down) */
 .aurora-modal-backdrop { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: clamp(12px, 4vw, 32px); background: rgba(31, 31, 31, 0.32); backdrop-filter: blur(3px); }
-.aurora-modal { width: min(680px, 100%); max-height: 88vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-xl); box-shadow: 0 30px 80px -24px rgba(31, 31, 31, 0.4); overflow: hidden; }
+/* 88dvh, not 88vh: vh is the LARGE viewport on mobile, so a modal capped at 88vh can
+   still exceed the visible area once the browser toolbar is showing — the bottom of a
+   dialog (where its buttons live) ends up under the chrome with no way to reach it. */
+.aurora-modal { width: min(680px, 100%); max-height: 88dvh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-xl); box-shadow: 0 30px 80px -24px rgba(31, 31, 31, 0.4); overflow: hidden; }
 .aurora-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--hairline); flex-shrink: 0; }
 .aurora-modal-title { font-size: 17.9px; font-weight: 600; color: var(--ink); margin: 0; }
 .aurora-modal-eyebrow { font-family: var(--font-mono); font-size: 11.2px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 2px; }
@@ -2552,6 +2606,9 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
   border: 1.5px solid rgba(255,255,255,.28); border-radius: 999px; padding: 9px 15px; cursor: pointer;
   backdrop-filter: blur(6px); transition: background .2s, transform .12s; }
 .flash-root .flash-exit:hover { transform: translateY(-1px); background: var(--fc-red); color: #fff; border-color: transparent; }
+/* Measured 91x36 at every phone viewport — a 36px-tall pill is under the fingertip
+   guideline. Grow the BOX only: same pill, same border, same 13px type. */
+@media (pointer: coarse) { .flash-root .flash-exit { min-height: 44px; } }
 .flash-mute { top: 18px; right: 18px; width: 40px; height: 40px; display: grid; place-items: center;
   border-radius: 50%; border: 1.5px solid rgba(255,255,255,.24); background: rgba(10,14,20,.5); color: #fff; cursor: pointer; }
 .flash-cobrand { top: 16px; left: 50%; transform: translateX(-50%); opacity: .9; }
@@ -3328,7 +3385,10 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-overlay-scrim { position:absolute; inset:0; background:rgba(20,16,40,.46); backdrop-filter:blur(3px); animation:aurora-scrim-in .26s ease both; }
 .aurora-station-overlay-card {
   position:relative; z-index:1;
-  width:min(560px, calc(100vw - 36px)); max-height:88vh; overflow-y:auto;
+  /* 88dvh, not 88vh — vh is the LARGE viewport, so the card's bottom (the Save/Close
+     controls) can sit under the browser chrome on a phone. This is the station report,
+     which the student reaches in LANDSCAPE, where vertical room is scarcest. */
+  width:min(560px, calc(100vw - 36px)); max-height:88dvh; overflow-y:auto;
   color:var(--ink);
   border:1px solid rgba(31,31,31,.08); border-radius:var(--radius-xl);
   padding:20px;

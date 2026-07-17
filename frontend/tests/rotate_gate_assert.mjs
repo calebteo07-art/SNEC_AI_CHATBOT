@@ -48,6 +48,14 @@ const after = (await p.locator(".rotate-gate").boundingBox()).y;
 if (Math.abs(after - before) > 1) die(`gate scrolled with content (${before} -> ${after}) — it is not viewport-fixed`);
 ok("gate does not move when the page scrolls");
 
+// 2b. The station must not SCROLL behind the takeover. The gate is a wall; a wall you
+//     can scroll the page behind is a curtain. (aurora.css: the portrait-phone gate
+//     block sets `body:has(.rotate-gate) .aurora-main-scroll { overflow: hidden }`.)
+const lockedOverflow = await p.evaluate(() =>
+  getComputedStyle(document.querySelector(".aurora-main-scroll")).overflowY);
+if (lockedOverflow !== "hidden") die(`station scroller is not locked behind the gate (overflow-y=${lockedOverflow})`);
+ok("station scroll is locked behind the gate");
+
 // 3. Landscape hides it, station usable.
 await p.setViewportSize({ width: 844, height: 390 });
 await p.waitForTimeout(400);
@@ -106,6 +114,29 @@ await d.waitForTimeout(300);
 if (await d.locator(".rotate-gate").isVisible()) die("no gate on a fine-pointer desktop");
 ok("desktop narrow portrait -> no gate");
 await desk.close();
+
+// 7. The scroll-lock must NOT leak to routes without a gate.
+//    The lock lives in a portrait-phone media query, so its `body:has(.rotate-gate)`
+//    scoping is the ONLY thing stopping it freezing every portrait-phone route under
+//    600px. The gate mounts on the station route alone, so `:has` is load-bearing, not
+//    decoration -- drop it and the whole app becomes unscrollable on a phone while
+//    every gate assertion above still passes. This is the assertion that catches that.
+const other = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
+for (const route of ["/dashboard", "/flashcards", "/leaderboard"]) {
+  const o = await other.newPage();
+  await o.goto(base + route, { waitUntil: "domcontentloaded" });
+  await o.waitForSelector(".aurora-shell, .flash-root", { timeout: 20000 });
+  await o.waitForTimeout(800);
+  const leaked = await o.evaluate(() => {
+    const s = document.querySelector(".aurora-main-scroll");
+    if (!s) return null; // immersive route with no shell scroller — nothing to freeze
+    return getComputedStyle(s).overflowY === "hidden" && !document.querySelector(".rotate-gate");
+  });
+  if (leaked) die(`${route}: the gate's scroll-lock leaked to a route with NO gate — body:has() scoping is broken; a phone user cannot scroll this page`);
+  ok(`${route}: gateless portrait-phone route still scrolls`);
+  await o.close();
+}
+await other.close();
 
 console.log("ALL ROTATE-GATE ASSERTIONS PASSED");
 await b.close();
