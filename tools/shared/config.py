@@ -32,6 +32,19 @@ def is_production(env: Mapping[str, str] | None = None) -> bool:
     return env.get("ENVIRONMENT", "development").strip().lower() == "production"
 
 
+def super_admin_email(env: Mapping[str, str] | None = None) -> str:
+    """The configured super-admin address, folded the same way login folds the
+    submitted email (``body.email.strip().lower()``).
+
+    The one source of truth for reading this var: the API's ``SUPER_ADMIN_EMAIL``
+    constant and the leaderboard's staff lookup both go through here, so a dashboard
+    value with stray case or whitespace can't make the two disagree about who the
+    super-admin is. Blank when unset — callers depend on that to fail closed.
+    """
+    env = os.environ if env is None else env
+    return env.get("SUPER_ADMIN_EMAIL", "").strip().lower()
+
+
 def production_config_problems(env: Mapping[str, str] | None = None) -> list[str]:
     """Return human-readable problems that must block a production boot.
 
