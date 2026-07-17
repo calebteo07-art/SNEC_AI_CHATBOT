@@ -49,11 +49,16 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Logic harnesses (type-stripped unit tests)
-        # Pure-logic unit harnesses over greeting + leaderboard math; no server/browser.
+        # Pure-logic unit harnesses over greeting + leaderboard math + the first-login
+        # order; no server/browser. The onboarding/tour pair pins the order a new student
+        # meets the gates in — without them here, a reorder regresses silently (neither
+        # suite was reachable from CI or scripts/start-harness.sh before).
         run: |
           node --experimental-strip-types tests/greeting_assert.mjs
           node --experimental-strip-types tests/tutor_greeting_assert.mjs
           node --experimental-strip-types tests/leaderboard_logic.mjs
+          node --experimental-strip-types tests/onboarding_order_test.mjs
+          node --experimental-strip-types tests/tour_engine_test.mjs
       - name: Production build
         run: npm run build
 
