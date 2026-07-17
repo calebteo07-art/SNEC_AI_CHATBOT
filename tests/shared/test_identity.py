@@ -8,8 +8,21 @@ async def test_get_or_create_student_returns_existing_id():
     existing = {"student_id": "stu-abc", "email": "a@test.com", "student_name": "Alice"}
     with patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=existing)):
         from tools.shared.identity import get_or_create_student
-        result = await get_or_create_student("Alice", "a@test.com")
-    assert result == "stu-abc"
+        student_id, name = await get_or_create_student("Alice", "a@test.com")
+    assert student_id == "stu-abc"
+    assert name == "Alice"
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_student_stored_name_beats_caller_seed():
+    """The stored consent name is the identity of record and must win over whatever
+    the caller guessed — login passes the raw email for staff, who have no roster row."""
+    existing = {"student_id": "stu-abc", "email": "coach@test.com", "student_name": "Coach Lim"}
+    with patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=existing)):
+        from tools.shared.identity import get_or_create_student
+        student_id, name = await get_or_create_student("coach@test.com", "coach@test.com")
+    assert student_id == "stu-abc"
+    assert name == "Coach Lim"
 
 
 @pytest.mark.asyncio
@@ -17,8 +30,9 @@ async def test_get_or_create_student_creates_new_row_when_missing():
     with patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.upsert_consent", new=AsyncMock()) as mock_upsert:
         from tools.shared.identity import get_or_create_student
-        result = await get_or_create_student("Bob", "b@test.com")
-    assert len(result) == 36  # UUID format
+        student_id, name = await get_or_create_student("Bob", "b@test.com")
+    assert len(student_id) == 36  # UUID format
+    assert name == "Bob"
     mock_upsert.assert_called_once()
     call_kwargs = mock_upsert.call_args
     assert call_kwargs[1]["student_name"] == "Bob"

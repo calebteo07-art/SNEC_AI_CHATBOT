@@ -34,7 +34,7 @@ def test_login_success():
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_001"), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_001", "Test User")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
     assert r.status_code == 200
@@ -101,7 +101,7 @@ def test_login_student_promoted_to_trainer():
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_004"), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_004", "Promo")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "promo@test.com", "password": "pass123"})
     assert r.status_code == 200
@@ -119,11 +119,64 @@ def test_login_trainer_from_supervisors_only():
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_005"), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_005", "Coach")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "coach@test.com", "password": "pass123"})
     assert r.status_code == 200
     assert r.json()["role"] == "trainer"
+
+
+def test_login_staff_without_roster_row_returns_stored_name():
+    """Staff — the super-admin and promoted supervisors — have no approved_students
+    row, so login fell through to `full_name = email` and the home greeting said
+    "Good evening, snec.tne.edu@gmail.com". student_consent.student_name is the
+    identity of record (it is what /api/auth/me returns), so login must agree with it."""
+    auth_row = _make_auth_row("coach@test.com", "pass123")
+    sup_row = {"email": "coach@test.com", "role": "trainer"}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_005", "Coach Lim")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "coach@test.com", "password": "pass123"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Coach Lim"
+
+
+def test_login_prefers_resolved_identity_name_over_roster_name():
+    """The resolved identity name wins over a stale approved_students.full_name, so
+    login and /api/auth/me never disagree about what to call someone."""
+    auth_row = _make_auth_row("alice@test.com", "password1")
+    approved_row = _make_approved_row("alice@test.com")  # full_name = "Test User"
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_001", "Alice Tan")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Alice Tan"
+
+
+def test_login_seeds_new_identity_with_roster_name_not_email():
+    """First ever login → the roster name seeds the identity, so a new student is
+    never created with their email address stored as their name."""
+    auth_row = _make_auth_row("fresh@test.com", "password1")
+    approved_row = _make_approved_row("fresh@test.com")  # full_name = "Test User"
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student",
+               return_value=("stu_new", "Test User")) as mock_create, \
+         patch("tools.api.routers.auth.has_consented", return_value=False):
+        r = client.post("/api/auth/login", json={"email": "fresh@test.com", "password": "password1"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Test User"
+    # The name the identity row is seeded with must be the roster name, not the email.
+    assert mock_create.await_args[0][0] == "Test User"
 
 
 def test_me_student_role_from_profile():
@@ -145,7 +198,7 @@ def test_onboard_preserves_trainer_role():
     sup_row = {"email": "coach@test.com", "role": "supervisor"}
 
     with patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value="stu_007"), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_007", "Coach")), \
          patch("tools.api.routers.auth.has_consented", return_value=False), \
          patch("tools.api.routers.auth.record_consent"):
         r = client.post("/api/onboard", json={"full_name": "Coach", "email": "coach@test.com", "student_role": ""})

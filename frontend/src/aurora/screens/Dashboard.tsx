@@ -20,6 +20,7 @@ import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
 import { EyeconMenu } from "@/aurora/components/home/EyeconMenu";
 import { PoolToggle } from "@/aurora/components/home/PoolToggleSwitch";
+import { firstNameOf } from "@/aurora/lib/displayName";
 
 function dayOfYear(): number {
   const now = new Date();
@@ -54,7 +55,7 @@ export function Dashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  const firstName = (user?.fullName ?? "there").split(" ")[0];
+  const firstName = firstNameOf(user?.fullName);
   const track = ((user?.studentRole as Track) || "OA");
   const level = progress?.level ?? 1;
   const rank = rankForLevel(level).title;

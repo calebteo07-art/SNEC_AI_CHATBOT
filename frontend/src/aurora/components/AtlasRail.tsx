@@ -10,6 +10,7 @@ import { useProgress } from "@/hooks/useProgress";
 import { useAvatar } from "@/hooks/useAvatar";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Wordmark } from "@/aurora/Logo";
+import { displayName } from "@/aurora/lib/displayName";
 
 type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS };
 
@@ -35,7 +36,8 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
   // The nav chip is a student identity surface → their customised Eyecon (staff keep initials).
   const eyeconConfig = role === "student" ? avatar?.config : undefined;
   const showAnalytics = role === "admin" || role === "trainer";
-  const initials = (user?.fullName ?? "EyeBot")
+  const name = displayName(user?.fullName, "EyeBot");
+  const initials = name
     .split(" ")
     .map((s) => s[0])
     .slice(0, 2)
@@ -101,7 +103,7 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
             {eyeconConfig ? <Eyecon config={eyeconConfig} size={30} /> : initials}
           </span>
           <span className="aurora-profile-meta">
-            <span className="aurora-profile-name">{user?.fullName ?? "EyeBot"}</span>
+            <span className="aurora-profile-name">{name}</span>
             <span className="aurora-profile-role">{role === "trainer" ? "Trainer" : role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>
           </span>
         </div>

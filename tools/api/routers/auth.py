@@ -111,9 +111,13 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         raise HTTPException(status_code=401, detail="Incorrect password.")
     must_change = bool(auth_row.get("must_change", True))
 
-    # Create/fetch student identity
-    full_name = approved_row.get("full_name", email) if approved_row else email
-    student_id = await get_or_create_student(full_name, email)
+    # Create/fetch student identity. The stored consent name is the identity of record —
+    # it is what /api/auth/me returns — so login resolves the same name or the two
+    # disagree and the greeting changes on reload. Staff (the super-admin and promoted
+    # supervisors) have no approved_students row at all; without this they fall through
+    # to the raw email and get greeted by their address.
+    roster_name = (approved_row.get("full_name") or "").strip() if approved_row else ""
+    student_id, full_name = await get_or_create_student(roster_name or email, email)
     is_new = not await has_consented(student_id)
 
     # Determine role from supervisors table if not a plain student
@@ -277,7 +281,7 @@ async def onboard(body: OnboardRequest):
             if not student_role and approved_row.get("role", "").upper() in ("OA", "OT", "PSA"):
                 student_role = approved_row["role"].upper()
 
-    student_id = await get_or_create_student(body.full_name.strip(), email)
+    student_id, _ = await get_or_create_student(body.full_name.strip(), email)
     if not await has_consented(student_id):
         await record_consent(student_id)
 
