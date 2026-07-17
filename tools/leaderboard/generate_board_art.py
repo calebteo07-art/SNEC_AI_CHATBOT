@@ -1,9 +1,13 @@
-"""Generate the leaderboard's Nano-Banana art — a game-like ember background and three
+"""Generate the leaderboard's Nano-Banana art — a subtle abstract arena background and three
 metallic podium cards (gold/silver/bronze) — into frontend/public/brand/leaderboard/.
 
-Decorative art only (no mascot reference), tuned to leave a clean top-centre plinth for the
-portrait and a calm lower band for text. Saved as webp (light for prod) with a PNG fallback if
-Pillow is missing. Reuses the shared image core so there's one place that talks to Gemini.
+The background is deliberately NOT a scene (the earlier literal 'hall of champions' render read
+tacky under the flat vector UI): it is a tone-on-tone antique-gold/espresso surface with a very
+subtle debossed laurel-wreath + sunburst motif, back-sitting and in the exact component palette,
+so the board reads as one system. Decorative art only (no mascot reference), tuned to leave a
+clean top-centre plinth for the portrait and a calm lower band for text. Saved as webp (light for
+prod) with a PNG fallback if Pillow is missing. Reuses the shared image core so there's one place
+that talks to Gemini.
 
     python tools/leaderboard/generate_board_art.py            # all four
     python tools/leaderboard/generate_board_art.py --only bg  # one
@@ -35,16 +39,18 @@ PED_LAYOUT = (
     "it. Compact and full — almost no dead space in the middle. ")
 
 JOBS: dict[str, tuple[str, str]] = {
-    "bg": ("3:4",
-        "A premium AAA mobile-game 'hall of champions' leaderboard background, vertical and "
-        "cinematic, in a WARM GOLDEN palette — bright and luxurious, never dark. A radiant warm "
-        "golden spotlight blooms from the top-centre and pours down through luminous honey-amber "
-        "into a soft warm champagne-sand base at the bottom. A grand temple-of-champions arena, "
-        "softly and dreamily blurred, rises in the far background. Luminous golden embers, sparks "
-        "and light particles drift and float upward; soft volumetric golden god-rays; dreamy warm "
-        "amber bokeh orbs; a gentle warm honey vignette hugs the edges while the centre stays "
-        "smooth, luminous and calm for UI to sit on. Energetic, luxurious, joyful and addictive "
-        "with real cinematic depth. " + CLEAN),
+    # Abstract, back-sitting, in-palette — NOT a scene (see module docstring). 16:9 so it is not
+    # stretched on the viewport-locked landscape canvas; centred by CSS so the wreath lands in the
+    # side-gutters. CLEAN forbids text/objects/architecture; the rest keeps it tone-on-tone.
+    "bg": ("16:9",
+        "A refined ABSTRACT tone-on-tone background — warm antique gold and deep espresso brown — "
+        "with a VERY SUBTLE debossed radiating sunburst-and-laurel motif pressed into a matte "
+        "premium surface like aged leather or brushed bronze: extremely low relief, low contrast, "
+        "almost flat and quiet. A soft warm champagne glow sits in the upper-centre and fades to a "
+        "brown vignette at the edges. Elegant, luxurious, understated, tactile. It is pure abstract "
+        "atmosphere — very soft focus, gently desaturated and muted so bright UI cards sit on top "
+        "and pop; the middle stays calm and even. Warm palette ONLY — champagne cream (#ECD9BC), "
+        "warm honey gold (#F59E0B), deep espresso brown (#33210f). " + CLEAN),
     "ped-gold": ("4:5",
         PED_LAYOUT + "CHAMPION card in radiant polished GOLD and warm amber with a celebratory "
         "glow, subtle laurel accents and floating gold sparkles. " + CLEAN),

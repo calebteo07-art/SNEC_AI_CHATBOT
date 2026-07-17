@@ -718,6 +718,18 @@ reduced-motion gated, via `@/fx/confetti`).
   `.lb-reset` "Resets Monday · N days left" pill under the hook; chase copy reframed to "this week".
   Everything else in this lock is preserved (one seamless board, podium, both badges, you-row,
   role filter, hide). Pre-migration the board falls back to lifetime ranking (graceful).
+- **Background canvas (refine 2026-07-18, user directive "the current background looks tacky …
+  nano-generated but not tacky and matches all app components")**: the criterion changed is the
+  **full-bleed arena raster**. The literal gold "hall of champions" scene (regenerated 3×, still
+  tacky — it was brighter/busier than the flat board on top of it) is retired for a Nano-Banana
+  **abstract** canvas: a tone-on-tone antique-gold/espresso surface with a very subtle *debossed
+  laurel-wreath + sunburst* motif (echoes the podium frames + hero trophy) and a soft champagne
+  glow, in the exact component palette (--gold `#F59E0B`, hero `#33210f`, floor `#ECD9BC`).
+  Centred (`50% 50%`) so the symmetric motif reads in the desktop side-gutters (the only place the
+  canvas shows past the board); a faint warm wash + espresso floor-tint seat the ivory rows; the
+  warm-sand solid backs it while it loads. Rule for the next refine: the canvas is **abstract,
+  back-sitting and in-palette — never a literal scene** (that is what read tacky). Reproduced by
+  `tools/leaderboard/generate_board_art.py --only bg`. Everything else in this lock is preserved.
 - **Out of scope (still)**: promotion/relegation leagues, weekly *history*/standings archive,
   rank-movement arrows (needs history).
 
