@@ -21,8 +21,10 @@ async function studentCtx(customized) {
   return ctx;
 }
 
-// ── A) MANDATORY GATE: a never-customized student is forced into the welcome Studio and
-//        cannot reach any feature page until they save. ────────────────────────────────
+// ── A) MANDATORY GATE: a never-customized student who has already taken the tour is forced
+//        into the welcome Studio and cannot reach any feature page until they save.
+//        (seededContext seeds eyebot_tour_seen="true", so this student is past the tour —
+//        see A2 for the stage before it.) ──────────────────────────────────────────────
 {
   const ctx = await studentCtx(false);
   const p = await ctx.newPage();
@@ -47,6 +49,23 @@ async function studentCtx(customized) {
   await ctx.close();
 }
 
+// ── A2) ORDER: the tour comes BEFORE the Studio. A never-customized student who has not yet
+//        seen the tour is left on /dashboard to take it; the Studio gate waits its turn. ───
+{
+  const ctx = await studentCtx(false);
+  // seededContext seeds eyebot_tour_seen="true"; drop it so this student is genuinely
+  // pre-tour. Init scripts run in the order they were added, so this lands after the seed.
+  await ctx.addInitScript(() => { try { localStorage.removeItem("eyebot_tour_seen"); } catch {} });
+  const p = await ctx.newPage();
+  await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
+  await p.waitForTimeout(2500);
+  if (new URL(p.url()).pathname === "/dashboard") ok("order — uncustomized, untoured student stays on /dashboard for the tour");
+  else fail(`order — uncustomized, untoured student was yanked off the tour hub (url=${p.url()})`);
+  if ((await p.locator('[data-testid="tour"]').count()) === 1) ok("order — the first-run tour fires before the Studio gate");
+  else fail("order — the first-run tour did not fire before the Studio gate");
+  await ctx.close();
+}
+
 // ── C) LIBRARY PICK: the Studio is a fixed preset gallery — tapping a tile makes it the
 //        hero (one pre-baked image) and arms Save. ──────────────────────────────────────
 {
@@ -60,7 +79,10 @@ async function studentCtx(customized) {
   await p.locator('.lib-card[data-ref="outfit/cape"]').click();
   await p.waitForTimeout(300);
   const heroCape = await p.locator('.studio-hero .eyecon-layer[src="/avatar/tiles/outfit/cape.webp"]').count();
-  const saveArmed = await p.locator(".studio-save:not([disabled])").count();
+  // NB: the Save button is `.studio-nav.is-primary` — the `.studio-save` class went away with
+  // the top action bar (48ea87f) and only lingers in studio.css, so the old selector here
+  // matched nothing and this check could never pass.
+  const saveArmed = await p.locator(".studio-nav.is-primary:not([disabled])").count();
   if (heroCape >= 1 && saveArmed >= 1) {
     ok("library — picking a tile swaps the hero to that baked look and arms Save");
   } else {

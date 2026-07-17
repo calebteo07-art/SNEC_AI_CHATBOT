@@ -19,6 +19,16 @@ export interface StageInput {
   isCheckInDone: boolean;
 }
 
+/** Map the avatar query's state onto `StageInput.customized`. In flight ⇒ undefined (wait).
+    Settled ⇒ the flag — but a MISSING field or a failed fetch defaults to `true`, failing
+    OPEN to the returning-student path. Absence is not evidence of a first run, and treating
+    it as "still loading" would strand the student on a spinner forever: `data.customized`
+    reads undefined both while pending AND when the response simply has no such field. */
+export function resolveCustomized(isPending: boolean, customized: boolean | undefined): boolean | undefined {
+  if (isPending) return undefined;
+  return customized ?? true;
+}
+
 /** The one gate the student is standing at right now. */
 export function onboardingStage(i: StageInput): Stage {
   if (i.mustChangePassword) return "password";
