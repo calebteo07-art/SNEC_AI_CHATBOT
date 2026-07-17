@@ -223,6 +223,49 @@ def test_admin_remove_student_404_not_found():
 
 
 # ---------------------------------------------------------------------------
+# Functional: student detail
+# ---------------------------------------------------------------------------
+
+def _detail_profile() -> dict:
+    """A student_profiles row as Supabase actually returns it — no name, no email."""
+    return {"student_id": "stu_x", "role": "OA", "session_count": 3, "streak": 2}
+
+
+def _detail_patches(consent):
+    return (
+        patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value=_detail_profile())),
+        patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent)),
+        patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])),
+        patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])),
+        patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})),
+    )
+
+
+def test_admin_student_detail_carries_name_and_email():
+    """Identity lives in student_consent, not student_profiles — the latter has no
+    full_name/email column, so reading them off the profile always yielded "" and
+    titled the downloadable student report with a blank name."""
+    consent = {"student_id": "stu_x", "student_name": "Alice Tan", "email": "alice@test.com"}
+    p1, p2, p3, p4, p5 = _detail_patches(consent)
+    with p1, p2, p3, p4, p5:
+        r = client.get("/api/admin/student/stu_x/detail", cookies=_admin_headers())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["full_name"] == "Alice Tan"
+    assert body["email"] == "alice@test.com"
+
+
+def test_admin_student_detail_survives_missing_consent_row():
+    """No consent row → blank identity, but still a 200 rather than a 500."""
+    p1, p2, p3, p4, p5 = _detail_patches(None)
+    with p1, p2, p3, p4, p5:
+        r = client.get("/api/admin/student/stu_x/detail", cookies=_admin_headers())
+    assert r.status_code == 200
+    assert r.json()["full_name"] == ""
+    assert r.json()["email"] == ""
+
+
+# ---------------------------------------------------------------------------
 # Functional: promote staff (widened to trainer/admin)
 # ---------------------------------------------------------------------------
 

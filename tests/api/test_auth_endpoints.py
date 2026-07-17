@@ -291,14 +291,18 @@ def test_student_detail_requires_admin():
 
 
 def test_student_detail_returns_shape():
+    # No full_name/email here: student_profiles has neither column. Identity comes
+    # from the student_consent row patched below.
     profile_data = {
-        "student_id": "stu_001", "full_name": "Alice", "email": "alice@test.com",
+        "student_id": "stu_001",
         "role": "OA", "session_count": 3, "streak": 2, "last_active": "2026-05-27",
         "learning_velocity": "improving", "weak_topics": [], "missed_findings": [],
         "retention_scores": {}, "supervisor_note": "",
     }
+    consent_row = {"student_id": "stu_001", "student_name": "Alice", "email": "alice@test.com"}
 
     with patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value=profile_data)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
          patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
          patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])):
         r = client.get("/api/admin/student/stu_001/detail",

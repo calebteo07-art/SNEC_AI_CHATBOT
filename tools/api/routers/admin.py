@@ -300,6 +300,9 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 
     try:
         profile = await get_profile(student_id) or {}
+        # Identity is student_consent's, not student_profiles' — the latter has no
+        # name/email column. Same source /api/auth/me reads.
+        consent = await db.get_consent_by_student_id(student_id) or {}
         # Sessions: last 30, newest first (db.get_sessions already orders newest-first)
         all_sessions = await db.get_sessions(student_id, limit=30)
         case_rows = await db.get_case_results(student_id)
@@ -354,8 +357,8 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 
     return {
         "student_id": student_id,
-        "full_name": profile.get("full_name", ""),
-        "email": profile.get("email", ""),
+        "full_name": (consent.get("student_name") or "").strip(),
+        "email": (consent.get("email") or "").strip(),
         "role": profile.get("role", ""),
         "session_count": int(profile.get("session_count") or 0),
         "streak": int(profile.get("streak") or 0),
