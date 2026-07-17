@@ -39,6 +39,17 @@ const nextConfig: NextConfig = {
    * (and sharp's memory footprint on the 512MB Render runtime). */
   images: { unoptimized: true },
 
+  /* The student home moved from /dashboard to /homepage. Keep old bookmarks and any
+   * cached links working — a non-permanent redirect (browsers don't hard-cache it, so
+   * the path stays reclaimable). Config redirects run before the proxy middleware, so a
+   * signed-out hit lands on /homepage first, then the cookie guard bounces it to login. */
+  async redirects() {
+    return [
+      { source: "/dashboard", destination: "/homepage", permanent: false },
+      { source: "/dashboard/:path*", destination: "/homepage/:path*", permanent: false },
+    ];
+  },
+
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${API_ORIGIN}/api/:path*` },

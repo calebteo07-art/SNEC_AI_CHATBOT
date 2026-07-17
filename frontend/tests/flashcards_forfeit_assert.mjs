@@ -105,7 +105,7 @@ await scenario("Complete the deck → Home charges zero forfeits", async (ctx, c
 await scenario("Hard nav away mid-round charges one forfeit (pagehide beacon)", async (ctx, count) => {
   const page = await enterRound(ctx);
   const seen = waitForfeit(page);
-  await page.goto(base + "/dashboard");                          // full navigation ⇒ pagehide on /flashcards
+  await page.goto(base + "/homepage");                          // full navigation ⇒ pagehide on /flashcards
   await seen;
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
@@ -113,12 +113,12 @@ await scenario("Hard nav away mid-round charges one forfeit (pagehide beacon)", 
 
 // 5) Uncontrolled SPA exit: the ⌘K command palette is still mounted on the immersive
 //    flashcards shell, so it can route away mid-round. The screen unmounts ⇒ cleanup beacon.
-await scenario("⌘K → Dashboard mid-round charges one forfeit (SPA unmount beacon)", async (ctx, count) => {
+await scenario("⌘K → Homepage mid-round charges one forfeit (SPA unmount beacon)", async (ctx, count) => {
   const page = await enterRound(ctx);
   const seen = waitForfeit(page);
   await page.keyboard.press("Control+k");
   await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
-  await page.click("button.aurora-palette-item:has-text('Dashboard')");
+  await page.click("button.aurora-palette-item:has-text('Homepage')");
   await seen;
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit on ⌘K→away, saw ${count()}`);

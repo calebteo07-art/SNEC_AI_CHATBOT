@@ -180,7 +180,7 @@ flip, spinner slows); WCAG-legible.
   Tapping it opens a dark-arcade `PauseMenu` (`data-testid="flash-pausemenu"`): **Resume** / **Switch
   deck** / **Quit game**. Both **Switch deck** and **Quit** forfeit the round: each asks for a confirm,
   then deducts a flat **20 Lumens** (`POST /api/flashcards/forfeit`, server-owned amount). Quit routes
-  home to `/dashboard`; Switch deck re-rolls to the topic picker. The lifetime `coins_earned` counter
+  home to `/homepage`; Switch deck re-rolls to the topic picker. The lifetime `coins_earned` counter
   (badges) is untouched — only the spendable balance takes the hit.
   - **Criterion changed 2026-07-12 (was "Switch deck is penalty-free"):** penalty-free Switch deck was
     a Lumens quit loophole — pause → Switch deck → the free Home on selection let a student bail a
@@ -475,7 +475,7 @@ greeting-card entry was **removed 2026-07-10** — see the Home greeting-card si
 - **Acceptance criteria when refining**: null-avatar student is redirected to `/studio?welcome=1`
   once; a customized student (or one who skipped) is **never** redirected (show-once invariant —
   regression-tested for the repeat case); the gate never loops on `/studio` and never blocks staff
-  or the check-in flow; Save/Skip in welcome mode return to `/dashboard`; the Edit-Selena entry
+  or the check-in flow; Save/Skip in welcome mode return to `/homepage`; the Edit-Selena entry
   (leaderboard) routes to `/studio`; WCAG-legible, 390px-safe.
 - **Out of scope**: the Studio builder itself (locked, gamified one-per-page — reused as-is); the
   paid 3D portrait (fires on save as today); staff.
@@ -493,7 +493,7 @@ Supersedes the criteria above (skip flow, `eyebot_selena_onboarded`, Profile Stu
   (`avatar.customized === false`) — the local skip flag is deleted. A student who hasn't created
   their Eyecon is forced into `/studio?welcome=1` and **cannot reach any feature page** until they
   **Save** (the only exit). There is **no "Skip for now"**.
-- **One-time / locked**: once `customized === true`, `/studio` redirects to `/dashboard` — the
+- **One-time / locked**: once `customized === true`, `/studio` redirects to `/homepage` — the
   Eyecon is created exactly once and can **never** be re-customized (dev-always mode exempt). **All
   "Edit Eyecon/Selena" entry points are removed.**
 - **Instant preview + vibrant Studio**: every tap updates the hero live (last-touched feature tile
@@ -558,10 +558,10 @@ the storage model, fail-closed validation, and mandatory first-run welcome gate 
   home popover (`EyeconMenu`). *(This reverses the "created exactly once / all edit entries removed"
   clause of the AMENDMENT 2026-07-13.)*
 - **Criterion changed — save → home**: **every** save (first-run or a later remix) briefly celebrates
-  then routes straight to `/dashboard` (was: only welcome-mode returned home).
+  then routes straight to `/homepage` (was: only welcome-mode returned home).
 - **Acceptance when refining**: header reads "Eyecon Studio"; a single `.lib-grid` with **no**
   `.lib-head`; a customized student can open `/studio` and is **not** bounced; the home popover shows
-  "Edit Eyecon" → `/studio`; save routes to `/dashboard`; the first-run welcome gate + no-skip still
+  "Edit Eyecon" → `/studio`; save routes to `/homepage`; the first-run welcome gate + no-skip still
   hold; WCAG-legible, 390px-safe. Regression-tested in `frontend/tests/eyecon_assert.mjs` (A/B/C/D/F).
 
 ## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08

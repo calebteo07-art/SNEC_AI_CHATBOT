@@ -232,7 +232,7 @@ export function Flashcards() {
     setDrill([]); setIdx(0); setChecked(false); setDone(false);
     setSetKey(null); setPickerDone(false); setIntro(false);
   };
-  const exit = () => router.push("/dashboard");
+  const exit = () => router.push("/homepage");
   // From the pre-deck intro, the top-left control steps BACK to the topic fan (not Home) —
   // the intro is a "which topic?" beat, so its natural back is the picker. No forfeit: the
   // intro isn't an active round. In-place reset of the selection state (nothing answered yet,
@@ -248,7 +248,7 @@ export function Flashcards() {
     navigator.sendBeacon?.("/api/flashcards/forfeit");
     qc.invalidateQueries({ queryKey: ["progress"] });
   };
-  const quitForfeit = () => { chargeForfeit(); router.push("/dashboard"); };
+  const quitForfeit = () => { chargeForfeit(); router.push("/homepage"); };
   const switchDeck = () => { chargeForfeit(); setPaused(false); newDeck(); };
 
   // ── Selection ──

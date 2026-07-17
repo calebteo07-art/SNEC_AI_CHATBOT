@@ -36,7 +36,7 @@ const wantShots = process.argv.includes("--shots");
 const OUT = "../.tmp/mobile-audit";
 
 const ROUTES = [
-  { path: "/dashboard", name: "home", who: student },
+  { path: "/homepage", name: "home", who: student },
   { path: "/chat", name: "tutor", who: student },
   { path: "/cases", name: "osce-list", who: student },
   { path: "/flashcards", name: "flashcards", who: student },

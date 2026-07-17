@@ -59,7 +59,7 @@ async function studentCtx(customized) {
   const p = await ctx.newPage();
   await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
   await p.waitForTimeout(2500);
-  if (new URL(p.url()).pathname === "/dashboard") ok("order — uncustomized, untoured student stays on /dashboard for the tour");
+  if (new URL(p.url()).pathname === "/homepage") ok("order — uncustomized, untoured student stays on /dashboard for the tour");
   else fail(`order — uncustomized, untoured student was yanked off the tour hub (url=${p.url()})`);
   if ((await p.locator('[data-testid="tour"]').count()) === 1) ok("order — the first-run tour fires before the Studio gate");
   else fail("order — the first-run tour did not fire before the Studio gate");

@@ -51,7 +51,7 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
   for (const v of VIEWPORTS) {
     const ctx = await seededContext(b, base, who.u, { width: v.width, height: v.height }, { hasTouch: true, isMobile: true });
     const p = await ctx.newPage();
-    await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+    await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
     await p.waitForTimeout(1200);
     const r = await p.evaluate(probe);
 
@@ -84,7 +84,7 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
 {
   const ctx = await seededContext(b, base, student, { width: DESKTOP.width, height: DESKTOP.height });
   const p = await ctx.newPage();
-  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1200);
   const parked = await p.evaluate(() => document.querySelector(".aurora-rail").getBoundingClientRect().x);
   if (parked > -100) die(`desktop: rail is NOT parked off-screen (x=${parked}) — the hover rail regressed`);
@@ -95,7 +95,7 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
   const handle = await p.evaluate(() => getComputedStyle(document.querySelector(".aurora-rail-handle")).display);
   if (handle === "none") die("desktop: edge handle is hidden — desktop navigation regressed");
   /* Exactly ONE label may be visible. Both spans are always in the DOM, so forgetting to
-     hide the phone one at desktop renders "Dashboard Home" on every item. */
+     hide the phone one at desktop renders "Homepage Home" on every item. */
   const labels = await p.evaluate(() =>
     [...document.querySelectorAll(".aurora-navitem")].map((el) => {
       const shown = [...el.querySelectorAll("span")].filter((s) => getComputedStyle(s).display !== "none");
@@ -124,7 +124,7 @@ for (const c of [
 ]) {
   const ctx = await seededContext(b, base, student, { width: c.w, height: c.h }, c.touch ? { hasTouch: true } : {});
   const p = await ctx.newPage();
-  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1000);
   const r = await p.evaluate(() => {
     const q = document.querySelector(".aurora-rail").getBoundingClientRect();

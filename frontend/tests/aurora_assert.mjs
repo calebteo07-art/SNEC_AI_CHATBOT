@@ -85,7 +85,7 @@ const chunkDelay = async (r) => {
   try { await r.continue(); } catch { /* unrouted mid-flight */ }
 };
 await np.route("**/_next/static/chunks/**", chunkDelay);
-await np.goto(base + "/dashboard", { waitUntil: "commit" });
+await np.goto(base + "/homepage", { waitUntil: "commit" });
 const splash = np.locator('[data-testid="brand-splash"]');
 try {
   await splash.waitFor({ state: "attached", timeout: 8000 });
@@ -98,12 +98,12 @@ try {
   process.exit(1);
 }
 await np.unroute("**/_next/static/chunks/**", chunkDelay);
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
-await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
+await np.waitForSelector('.aurora-navitem:has-text("Homepage")', { timeout: 15000 });
 if ((await np.locator('[data-testid="aurora-logo"]').count()) < 1) { console.error("FAIL: EyeBot logo not rendered in the rail"); process.exit(1); }
 console.log("PASS: EyeBot mono logo renders in the Atlas Rail");
-for (const label of ["Dashboard", "Tutor", "Virtual Patients", "Flashcards"]) {
+for (const label of ["Homepage", "Tutor", "Virtual Patients", "Flashcards"]) {
   const count = await np.locator(`.aurora-navitem:has-text("${label}")`).count();
   if (count < 1) { console.error(`FAIL: Atlas Rail missing "${label}"`); process.exit(1); }
 }
@@ -120,7 +120,7 @@ console.log("PASS: Atlas Rail renders nav and routes to /cases");
 // home structure: the warm bento renders (one non-empty h1 greeting, streak tile,
 // milestone ladder, three feature cards). The greeting card is deliberately chrome-
 // light (no eyebrow / CTA row — stripped 2026-07-10), so only the h1 is asserted.
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
 const h1count = await np.locator("main h1").count();
 if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
@@ -158,7 +158,7 @@ if (!["/chat", "/cases", "/flashcards"].includes(featPath)) {
   console.error(`FAIL: tapping a feature card did not route (still ${featPath})`); process.exit(1);
 }
 console.log(`PASS: feature card tap routes to a feature (${featPath})`);
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
 
 // mobile: no horizontal overflow at 390x844.
@@ -591,8 +591,8 @@ console.log("PASS: flashcards — 'New deck' returns to the topic fan");
 
 // SNEC co-brand: the rail carries the SNEC logo on authenticated screens. Flashcards
 // is immersive (no rail), so return to a rail route before asserting the logo.
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
-await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('.aurora-navitem:has-text("Homepage")', { timeout: 15000 });
 if ((await np.locator('.aurora-snec[alt="Singapore National Eye Centre"]').count()) < 1) {
   console.error("FAIL: SNEC logo missing from the Atlas Rail"); process.exit(1);
 }
@@ -612,7 +612,7 @@ await navCtx.route("**/api/avatar", (r) =>
   r.fulfill(JSON_OK({ config: DEFAULT_CFG, axes: {}, customized: true, portrait_status: "none", portrait_url: null })));
 // The greeting card is ALWAYS the default living mascot (brand EyeconLogo), even for a
 // customized student — the custom Eyecon lives only on the home popover + leaderboard.
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('.hm-iriswrap [data-testid="eyecon-logo"]', { timeout: 15000 });
 if ((await np.locator(".hm-eyecon img.hm-eyecon-img").count()) > 0) {
   console.error("FAIL: greeting shows a custom render for a customized student (should always be the default mascot)"); process.exit(1);
@@ -705,7 +705,7 @@ console.log("PASS: Daily check-in renders the MCQ question with one h1");
 // /profile was retired with the Eyecon rename and now 404s → the app bounces it to
 // /dashboard, so this sweep was silently measuring /dashboard TWICE and calling it coverage.
 // /leaderboard is a real shell route (rail + one h1), which is what this slot meant to be.
-const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/leaderboard"];
+const A11Y_ROUTES = ["/homepage", "/chat", "/cases", "/flashcards", "/leaderboard"];
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
@@ -743,7 +743,7 @@ await np.setViewportSize({ width: 1440, height: 900 });
 // reduced motion: emulate prefers-reduced-motion; a .aurora-flow surface freezes.
 const rmPage = await navCtx.newPage();
 await rmPage.emulateMedia({ reducedMotion: "reduce" });
-await rmPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await rmPage.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await rmPage.waitForSelector('[data-testid="streak-tile"]', { timeout: 15000 });
 const rmAnim = await rmPage.locator(".hm-iris").first().evaluate((el) => getComputedStyle(el).animationName);
 if (rmAnim !== "none") { console.error(`FAIL: reduced motion did not freeze the mascot (animationName=${rmAnim})`); process.exit(1); }
@@ -881,7 +881,7 @@ if (staleErrors.some((e) => /reading 'map'|reading "map"|\.map/.test(e))) {
 console.log("PASS: flashcards — stale/old-shaped cards degrade gracefully (no white-screen)");
 
 // ── RICOE v2 Foundation 1: semantic token contract ────────────────
-await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await np.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 const rv2Tokens = await np.evaluate(() => {
   const cs = getComputedStyle(document.documentElement);
   return {

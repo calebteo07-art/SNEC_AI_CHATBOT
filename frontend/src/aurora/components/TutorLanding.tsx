@@ -60,7 +60,7 @@ export function TutorLanding({
   return (
     <div className="tutor-landing" data-testid="tutor-landing" data-leaving={leaving || undefined}>
       <div className="tl-top">
-        <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
+        <Link href="/homepage" className="aurora-chat-back" aria-label="Back to homepage">
           <Icon.back size={24} />
         </Link>
         {/* Complete the EyeBot + SNEC lockup on the immersive Tutor's landing — the rail

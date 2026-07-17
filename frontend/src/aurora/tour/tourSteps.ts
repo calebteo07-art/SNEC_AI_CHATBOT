@@ -21,19 +21,19 @@ export interface TourStep {
 }
 
 export const TOUR_STEPS: TourStep[] = [
-  { id: "welcome", route: "/dashboard", target: null,
+  { id: "welcome", route: "/homepage", target: null,
     title: "Welcome to EyeBot! \u{1F441}️",
     body: "I'm your Eyecon, your guide. Give me 60 seconds to show you around — then you'll get to make me your own." },
-  { id: "modes", route: "/dashboard", target: '[data-testid="feature-carousel"]',
+  { id: "modes", route: "/homepage", target: '[data-testid="feature-carousel"]',
     title: "Your 3 ways to train \u{1F4AA}",
     body: "Tutor, Virtual Patients & Flashcards all live here — tap any card to dive straight in." },
-  { id: "streak", route: "/dashboard", target: '[data-testid="streak-tile"]',
+  { id: "streak", route: "/homepage", target: '[data-testid="streak-tile"]',
     title: "Keep the flame alive \u{1F525}",
     body: "Show up daily to grow your streak and hit your Lumens goal — miss a day and it cools. You'll light yours the moment this tour ends." },
-  { id: "badges", route: "/dashboard", target: '[data-testid="milestone-ladder"]',
+  { id: "badges", route: "/homepage", target: '[data-testid="milestone-ladder"]',
     title: "Collect every badge",
     body: "Each streak milestone drops a shiny Eyecon badge — watch the locked ones light up as you climb." },
-  { id: "account", route: "/dashboard", target: ".hm-eyeconmenu-btn",
+  { id: "account", route: "/homepage", target: ".hm-eyeconmenu-btn",
     title: "That's you, up top",
     body: "Your Eyecon will live here once you've built it — along with your account, password, and logout." },
   { id: "tutor", route: "/chat", target: ".aurora-composer", fallback: '[data-testid="tutor-landing"]',
@@ -51,7 +51,7 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "analytics", route: "/analytics", target: ".aurora-analytics",
     title: "Your cohort insights \u{1F4CA}",
     body: "As a trainer you also get analytics here — track how your students are progressing." },
-  { id: "finish", route: "/dashboard", target: null, confetti: true,
+  { id: "finish", route: "/homepage", target: null, confetti: true,
     title: "Tour complete! \u{1F389}",
     body: "Two quick things and you're in: build your Eyecon, then light your first streak." },
 ];
@@ -82,6 +82,6 @@ export function shouldStartTour(i: TourGateInput): boolean {
     i.isAuthenticated === true &&
     i.customized === false &&
     i.seen === false &&
-    i.pathname === "/dashboard"
+    i.pathname === "/homepage"
   );
 }

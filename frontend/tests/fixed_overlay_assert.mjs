@@ -25,7 +25,7 @@ const ok = (m) => console.log("PASS:", m);
 const die = (m) => { console.error("FAIL:", m); process.exit(1); };
 const b = await chromium.launch();
 
-const ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/leaderboard"];
+const ROUTES = ["/homepage", "/chat", "/cases", "/flashcards", "/leaderboard"];
 const ctx = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
 
 /* This test's premise is a SETTLED page, so wait for settlement itself rather than

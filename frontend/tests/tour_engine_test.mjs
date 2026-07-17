@@ -35,7 +35,7 @@ it("every step has a route and non-empty copy", () => {
 // The tour is the first stop AFTER the password step, so it fires while the Eyecon is still
 // uncustomized (customized === false is the per-account first-run signal) and BEFORE the
 // daily check-in — which is why isCheckInDone is no longer part of the gate.
-const base = { isAuthenticated: true, customized: false, seen: false, pathname: "/dashboard" };
+const base = { isAuthenticated: true, customized: false, seen: false, pathname: "/homepage" };
 it("fires for a first-run student on the dashboard", () => assert.equal(shouldStartTour(base), true));
 it("never re-fires once seen (show-once invariant)", () => assert.equal(shouldStartTour({ ...base, seen: true }), false));
 it("waits while the avatar is still loading (customized undefined)", () => assert.equal(shouldStartTour({ ...base, customized: undefined }), false));

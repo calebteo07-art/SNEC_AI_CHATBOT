@@ -35,7 +35,7 @@ const fails = [];
 const b = await chromium.launch();
 
 const ROUTES = [
-  ["/dashboard", student], ["/chat", student], ["/cases", student],
+  ["/homepage", student], ["/chat", student], ["/cases", student],
   ["/cases/C001", student], ["/flashcards", student], ["/leaderboard", student],
   ["/analytics", admin],
 ];

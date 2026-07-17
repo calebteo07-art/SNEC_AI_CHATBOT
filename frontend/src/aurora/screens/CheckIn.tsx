@@ -63,7 +63,7 @@ export function CheckIn() {
     setCheckInDone(true);
     // Pull the freshest streak/Lumens/level onto the dashboard we're about to show.
     qc.invalidateQueries({ queryKey: ["progress"] });
-    router.push("/dashboard");
+    router.push("/homepage");
   };
   const handleRetry = () => { setLoadError(false); setPhase("loading"); setLoadAttempt((a) => a + 1); };
 
@@ -79,7 +79,7 @@ export function CheckIn() {
         // done earlier on another device), don't show it again — go straight in.
         if (status.checkin_done_today) {
           setCheckInDone(true);
-          router.replace("/dashboard");
+          router.replace("/homepage");
           return;
         }
         setStreak(status.streak ?? 0);
