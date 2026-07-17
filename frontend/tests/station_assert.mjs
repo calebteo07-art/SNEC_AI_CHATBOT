@@ -261,15 +261,25 @@ if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must
 if (!(await p.locator('.aurora-s100-col.is-miss li').count())) die("result must list what was missed/lacking");
 ok("debrief: 2 scheme cards /50, safety badge, point-form AI summary (wrong + missed)");
 
-// 7a. One-time session save: the button downloads the record, then is spent (disabled).
+// 7a. One-time session save: the button downloads the record, then is spent (disabled, and
+//     visibly says so). The spent LABEL is asserted as "it changed", not as exact copy —
+//     pinning the literal word "saved" rotted the moment the CTA became "⬇ Download session
+//     insights" / "✓ Insights downloaded" (54831c7) while the behaviour stayed correct. The
+//     download itself is now asserted: the old `.catch(() => null)` + bare `await` swallowed
+//     a timeout, so a save that silently stopped downloading would still have passed.
 const saveBtn = p.locator('[data-testid="save-session"]');
 if (!(await saveBtn.count())) die("result must show the one-time save button");
 if (await saveBtn.isDisabled()) die("save button must be enabled before the first save");
-const dl = p.waitForEvent("download", { timeout: 8000 }).catch(() => null);
+const labelBefore = (await saveBtn.innerText()).trim();
+// 20s, not 8s: the blob download is sub-second in isolation but measured ~9.2s this late in a
+// long browser session, so 8s made a REAL download look absent. A timeout that can expire on a
+// working feature is why this was written to swallow its result in the first place.
+const dl = p.waitForEvent("download", { timeout: 20000 }).catch(() => null);
 await saveBtn.click();
-await dl;
+if (!(await dl)) die("save button must actually download the session record");
 if (!(await saveBtn.isDisabled())) die("save button must be disabled after saving (one-time only)");
-if (!(await p.locator('[data-testid="save-session"]:has-text("saved")').count())) die("save button must read 'saved' once spent");
+const labelAfter = (await saveBtn.innerText()).trim();
+if (labelAfter === labelBefore) die(`save button must show a spent state once used — label still reads "${labelAfter}"`);
 ok("one-time session save downloads once, then the button is spent");
 
 // 7b. a case with NO manual actions renders the patient chat only — no EyeBot pane.
