@@ -109,5 +109,33 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
   await ctx.close();
 }
 
+/* The tier truth table — the two rows the matrix above cannot express, because the matrix
+   varies SIZE while the whole point of the re-gate is that POINTER decides.
+
+   Row 1: a narrow DESKTOP window (fine pointer, <=860px) must keep the bar it always had —
+   the width arm of the tier. Dropping it in favour of `pointer: coarse` alone would hand a
+   narrow desktop window the hover rail and silently change desktop behaviour.
+   Row 2: a touch TABLET wider than 860px must get the bar, not a rail whose only affordance
+   is a hover it cannot produce. */
+for (const c of [
+  { tag: "narrow desktop window", w: 560, h: 900, touch: false, want: "bar" },
+  { tag: "touch tablet >860px", w: 1024, h: 768, touch: true, want: "bar" },
+  { tag: "desktop", w: 1440, h: 900, touch: false, want: "rail" },
+]) {
+  const ctx = await seededContext(b, base, student, { width: c.w, height: c.h }, c.touch ? { hasTouch: true } : {});
+  const p = await ctx.newPage();
+  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.waitForTimeout(1000);
+  const r = await p.evaluate(() => {
+    const q = document.querySelector(".aurora-rail").getBoundingClientRect();
+    return { x: q.x, y: q.y, w: q.width, h: q.height, vw: window.innerWidth };
+  });
+  const got = r.x < -50 ? "rail" : r.h < 120 && Math.abs(r.w - r.vw) < 2 ? "bar" : "other";
+  if (got !== c.want)
+    die(`${c.tag} ${c.w}x${c.h} (pointer:${c.touch ? "coarse" : "fine"}): got the ${got}, expected the ${c.want} — rail@(${r.x},${r.y}) ${r.w}x${r.h}`);
+  ok(`${c.tag} ${c.w}x${c.h} pointer:${c.touch ? "coarse" : "fine"} -> ${got} (rail@(${r.x.toFixed(0)},${r.y.toFixed(0)}) ${r.w.toFixed(0)}x${r.h.toFixed(0)})`);
+  await ctx.close();
+}
+
 console.log("ALL MOBILE-NAV ASSERTIONS PASSED");
 await b.close();
