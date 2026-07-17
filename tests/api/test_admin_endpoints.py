@@ -9,6 +9,7 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 
+from tools.api.routers.admin import _account_ready_html
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
@@ -143,6 +144,32 @@ def test_admin_approve_student_success():
     assert r.json()["ok"] is True
     assert r.json()["password"] == "TmpPass1!"
     assert r.json()["email_sent"] is True
+
+
+def test_account_ready_email_tells_students_to_use_a_personal_ipad_or_laptop():
+    """EyeBot isn't released on SNEC corporate devices yet, so the credentials
+    email has to say to bring a personal device, and that iPad/laptop is best."""
+    html = _account_ready_html("New User", "new@test.com", "TmpPass1!")
+    assert "personal device" in html
+    assert "corporate device" in html
+    assert "iPad" in html and "laptop" in html
+
+
+def test_admin_approve_student_email_carries_device_guidance():
+    """Guards the call site: approve must send the shared template, not its own."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.gmail_sender.send_email", return_value=None) as mock_send, \
+         patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "new@test.com", "full_name": "New User", "role": "OA"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 200
+    assert mock_send.call_args.kwargs["html"] == _account_ready_html("New User", "new@test.com", "TmpPass1!")
 
 
 def test_admin_approve_trainer_provisions_supervisor():
