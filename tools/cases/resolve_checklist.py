@@ -8,6 +8,22 @@ canonical name to Supabase via get_checklist_by_name and uses build_rubric_check
 when name is None or the lookup misses.
 """
 
+# Marker for the supervisor LOGBOOK TALLY SHEETS that also live in the `checklists`
+# table ("Dayward and OT Skills Observation", "Orthoptics Skills Observation", …).
+# Each row is a roster entry repeated per observed patient ("Record patient's Date,
+# Age, Sex, Race; … Obtain preceptor's Name and Signature"), not a step to perform, so
+# a station must never resolve to one.
+#
+# The NAME is the discriminator — `checklist_type` is NOT: Ishihara, Amsler and I-Care
+# are real procedures that are also tagged 'logbook'.
+_TALLY_SHEET_MARKER = "skills observation"
+
+
+def is_tally_sheet(name: str | None) -> bool:
+    """True if `name` is a preceptor logbook tally sheet rather than a procedure."""
+    return _TALLY_SHEET_MARKER in (name or "").lower()
+
+
 # Ordered keyword rules — FIRST match wins, so list the more specific rules first.
 KEYWORD_RULES: list[tuple[tuple[str, ...], str]] = [
     # Ophthalmic investigations with a hand-authored checklist (see
