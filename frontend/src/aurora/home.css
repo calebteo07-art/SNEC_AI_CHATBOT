@@ -233,12 +233,23 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
    transparent mascot cut-out bleeding off the right. Title / sub / CTA sit on the flat
    colour at the left — never on the art — so the text stays crisp and the mascot blends
    seamlessly (no photo box to clash with the words). Enlarged from the old 384×220. */
-.hm-carousel { position:relative; height:360px; perspective:1600px; }
+/* `touch-action: pan-y` gives the browser sole ownership of vertical scrolling here, so
+   the stage only ever sees horizontal intent. Without it the native scroll and our drag
+   ran simultaneously on a phone: the page scrolled AND the carousel spun AND (because
+   travel was measured on X only) the flick registered as a tap and navigated away. The
+   carousel sits directly in the path of the primary scroll gesture, so this is the
+   difference between a scrollable page and an unusable one. */
+.hm-carousel { position:relative; height:360px; perspective:1600px; touch-action:pan-y; }
 .hm-ring3d { position:absolute; inset:0; transform-style:preserve-3d; cursor:pointer; }
 /* Cards are pointer-events:none so every tap lands on the stage, which resolves it
    to the nearest card (see FeatureCarousel.tsx). Keeps clicks from being swallowed
    by the drift / 3D projection. Keyboard Enter still navigates via the <a href>. */
-.hm-fcard { position:absolute; left:50%; top:50%; width:466px; height:300px; margin-left:-233px; margin-top:-150px;
+/* Card size lives in --fcw/--fch so a tier changes ONE pair of values and the centering
+   margins follow; FeatureCarousel reads the laid-out width back via offsetWidth and
+   derives the coverflow spacing from it, so the two never drift apart. The defaults are
+   the desktop 466x300 / -233 / -150 verbatim. */
+.hm-fcard { position:absolute; left:50%; top:50%; width:var(--fcw,466px); height:var(--fch,300px);
+  margin-left:calc(var(--fcw,466px) / -2); margin-top:calc(var(--fch,300px) / -2);
   border-radius:26px; padding:34px 34px 30px; color:#fff; display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
   box-shadow:var(--sh-lg); transition:opacity .25s linear; backface-visibility:hidden; pointer-events:none; text-decoration:none; }
 /* bold candy tone gradients — dark enough on the LEFT (where the text lives) for white
@@ -393,7 +404,8 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-sub { font-size:18px; max-width:63%; }
   .hm-iriswrap { display:none; }
   /* shrink the split-hero feature card so the front card fits the narrow viewport */
-  .hm-fcard { width:min(88vw,392px); height:272px; margin-left:calc(min(88vw,392px) / -2); margin-top:-136px; padding:26px 26px 24px; }
+  .aurora-home { --fcw:min(88vw,392px); --fch:272px; }
+  .hm-fcard { padding:26px 26px 24px; }
   .hm-fcard h3 { font-size:29px; }
   .hm-fcard p { font-size:15.5px; }
   /* .hm-fcard-art is inset:0 cover — responsive with no per-breakpoint sizing needed */
@@ -411,6 +423,132 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lb { margin-top:16px; font-size:15px; padding:11px 17px 11px 13px; }
   .hm-badges { gap:14px 10px; }
   .hm-badge-medal, .hm-badge-art { width:80px; height:80px; }
+}
+
+/* ══════════════════ PHONE TIERS (see aurora/breakpoints.css) ══════════════════
+   Both are gated on `pointer: coarse`, never width alone: 861px is not a phone/desktop
+   boundary (a 15 Pro Max is 932 wide in landscape) and a narrow desktop window must keep
+   the desktop layout. These sit AFTER the width-only blocks above so they win on phones,
+   while a narrow desktop window still gets the 900/560 rules exactly as before.
+   Desktop (fine pointer) matches NEITHER block — nothing below can reach it. */
+
+/* ── phone portrait ── the primary design.
+   The greeting art moves from a full-bleed base layer BEHIND the copy to a contained
+   band ABOVE it, so the copy gets clear space and the headline can use the full card
+   width. That is what kills the 6-line headline: it was 37px held to `max-width:76%` of
+   a 358px card — a ~270px measure — purely to keep words off the mascot's face. With the
+   art in its own band the legibility veil has no job either (it existed only to make text
+   readable over the cropped video), so it goes. The Veo clip itself is untouched. */
+@media (max-width:640px) and (pointer:coarse) {
+  .aurora-home { padding:14px 16px 26px; gap:14px; --fcw:min(88vw,392px); --fch:272px; }
+
+  /* top bar: the level pill overlapped the wordmark because its text wrapped inside a
+     999px pill (measured 64px tall — two 25px lines). Rank titles run to "Senior
+     Practitioner", so the pill is held to one line and truncates from the right; "Level N"
+     — the part that matters — always survives. `wrap` is the escape valve for the
+     trainer/admin row, which also carries the pool toggle. */
+  .hm-top { flex-wrap:wrap; gap:10px 12px; }
+  .hm-topr { min-width:0; flex-wrap:wrap; justify-content:flex-end; gap:10px; }
+  .hm-brand { font-size:20px; gap:8px; }
+  .hm-logo { width:32px; height:32px; }
+  .hm-chip { min-width:0; padding:5px 6px 5px 13px; gap:7px; }
+  .hm-chip > span:first-child { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hm-chip b { font-size:14px; }
+  .hm-chip small { font-size:12px; }
+  .hm-medal { width:28px; height:28px; }
+  .hm-medal .ico { width:17px; height:17px; }
+  /* trainer/admin pool switch — compact so the row still fits beside the pill */
+  .hm-pool { gap:6px; }
+  .hm-pool-seg button { padding:6px 11px; font-size:12.5px; }
+  .hm-pool-tip { width:min(240px,72vw); }
+
+  /* the greeting card becomes a column: contained art band, then copy in clear space */
+  .hm-greet { padding:0; display:flex; flex-direction:column; }
+  /* The no-video fallback mascot is absolutely positioned bottom-right, i.e. over the
+     copy once the card is a column. The ≤560px block already hides it, but this tier
+     reaches 640px — without this, a 561-640px coarse device would overlap the two.
+     (Under reduced motion EyeconGreetingLoop renders null, so the card is simply copy on
+     the gradient — same as the ≤560px behaviour today.) */
+  .hm-iriswrap { display:none; }
+  .hm-eyeconloop { position:relative; inset:auto; z-index:1; height:clamp(122px,34vw,164px); flex:none; }
+  .hm-eyeconloop-v { object-position:76% 38%; transform:none; }
+  .hm-greet-veil { display:none; }
+  .hm-greet-body { padding:18px 18px 22px; }
+  .hm-greet h1 { font-size:clamp(27px,7.4vw,33px); max-width:none; }
+  .hm-sub { font-size:16.5px; margin-top:11px; max-width:none; line-height:1.4; }
+  .hm-lvl { margin-top:18px; max-width:none; }
+  .hm-lvl .hm-lr { flex-direction:row; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:9px; }
+  .hm-lvl .hm-lr b { font-size:15.5px; }
+  .hm-lvl .hm-lr .hm-z { font-size:13px; }
+  .hm-lvbar { height:13px; }
+  /* min-height, not padding maths: the pill must clear the 44px touch-target floor at
+     whatever the type ramp resolves to (it measured 39px tall on the landscape ramp). */
+  .hm-lb { margin-top:16px; font-size:15px; padding:12px 17px 12px 13px; max-width:100%; min-height:44px; }
+
+  /* streak tile + vaults: trim the padding that made every card read oversized */
+  .hm-streak { padding:18px 20px; }
+  .hm-snum { font-size:58px; }
+  .aurora-home .hm-flame { width:68px; height:68px; }
+  .hm-panel { padding:18px 16px; }
+  .hm-ph { font-size:18px; margin-bottom:14px; }
+  .hm-fcard { padding:22px 22px 20px; }
+  .hm-fcard h3 { font-size:27px; }
+  .hm-fcard p { font-size:14.5px; margin-top:7px; }
+  .hm-fcard .hm-open { margin-top:14px; font-size:14px; padding:10px 15px; }
+  .hm-carousel { height:296px; }
+}
+
+/* ── phone landscape ── keyed on HEIGHT, never width (a 932x430 phone must match).
+   No bespoke layout: the desktop bento is kept and only the type/padding come down, so
+   the hero stops being taller than the screen (measured 483px in a 430px viewport) and
+   the headline stops eating 44% of it. The two-column hero is restored over the 900px
+   stack — side-by-side is what keeps a 430px-tall page short. */
+@media (max-height:480px) and (pointer:coarse) {
+  .aurora-home { padding:12px 16px 20px; gap:12px; --fcw:min(46vw,340px); --fch:219px; }
+  .hm-hero { grid-template-columns:1.7fr 1fr; gap:12px; }
+  .hm-lower { grid-template-columns:1fr 1fr; gap:12px; }
+
+  .hm-top { flex-wrap:wrap; gap:8px 10px; }
+  .hm-topr { min-width:0; gap:10px; }
+  .hm-brand { font-size:19px; }
+  .hm-logo { width:30px; height:30px; }
+  .hm-chip { min-width:0; padding:4px 6px 4px 12px; }
+  .hm-chip > span:first-child { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hm-chip b { font-size:13.5px; } .hm-chip small { font-size:11.5px; }
+  .hm-medal { width:26px; height:26px; } .hm-medal .ico { width:16px; height:16px; }
+  .hm-pool-seg button { padding:5px 10px; font-size:12px; }
+
+  .hm-greet { padding:16px 20px 14px; }
+  .hm-greet h1 { font-size:clamp(22px,2.9vw,27px); max-width:62%; }
+  .hm-sub { font-size:14.5px; margin-top:7px; max-width:56%; line-height:1.35; }
+  .hm-lvl { margin-top:11px; max-width:min(62%,330px); }
+  .hm-lvl .hm-lr { flex-direction:row; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:7px; }
+  .hm-lvl .hm-lr b { font-size:14px; } .hm-lvl .hm-lr .hm-z { font-size:12px; }
+  .hm-lvbar { height:11px; }
+  .hm-lb { margin-top:11px; font-size:13.5px; padding:9px 14px 9px 11px; min-height:44px; }
+  .hm-eyeconloop-v { object-position:82% 42%; }
+
+  .hm-streak { padding:14px 16px; }
+  .hm-snum { font-size:44px; }
+  .aurora-home .hm-flame { width:54px; height:54px; }
+  .hm-big { margin:10px 0 2px; gap:11px; }
+  .hm-week { gap:6px; margin-top:11px; }
+  .hm-nexttier { margin-top:11px; padding-top:10px; }
+
+  .hm-carousel { height:242px; }
+  .hm-fcard { padding:18px 18px 16px; border-radius:20px; }
+  .hm-fcard h3 { font-size:22px; }
+  .hm-fcard p { font-size:13px; margin-top:5px; }
+  .hm-fcard .hm-open { margin-top:10px; font-size:12.5px; padding:8px 12px; }
+  /* the arrows stay at the 44px touch-target floor — they are the only non-gestural
+     way to reach the side cards, so they must not shrink with the rest of the ramp. */
+  .hm-carbtn { width:44px; height:44px; font-size:22px; }
+
+  .hm-panel { padding:14px 14px; }
+  .hm-ph { font-size:16.5px; margin-bottom:12px; padding-bottom:9px; }
+  .hm-badges { gap:12px 8px; }
+  .hm-badge-medal, .hm-badge-art { width:72px; height:72px; }
+  .hm-badge-name { font-size:13.5px; } .hm-badge-meta { font-size:11.5px; }
 }
 
 /* reduced motion — freeze the badge float / shine / pulse / legendary glow */
