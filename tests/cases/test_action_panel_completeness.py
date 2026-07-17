@@ -34,12 +34,35 @@ STEPS = [
     if str(s.get("action") or "").strip()
 ]
 
+# Authored checklists are checked straight from the CODE, not the fixture, so a newly
+# authored procedure is classified before it is ever seeded to Supabase — the fixture
+# can only be refreshed from the DB, which would be too late.
+from tools.kb.seed_authored_checklists import AUTHORED_CHECKLISTS
+
+AUTHORED_STEPS = [
+    (c["procedure_name"], s)
+    for c in AUTHORED_CHECKLISTS
+    for s in c["steps"]
+    if str(s.get("action") or "").strip()
+]
+
 
 def test_fixture_covers_the_real_procedure_checklists():
     # Guards against an empty/half-written fixture silently passing everything below.
-    assert len(CHECKLISTS) == 17
-    assert len(STEPS) > 300
+    assert len(CHECKLISTS) >= 22
+    assert len(STEPS) > 400
     assert not any("Skills Observation" in c["procedure_name"] for c in CHECKLISTS)
+
+
+def test_authored_checklists_are_seeded_and_snapshotted():
+    """Every hand-authored checklist must actually be in the DB snapshot — otherwise it
+    was authored in code but never seeded, and the station still resolves to nothing."""
+    fixture_names = {c["procedure_name"] for c in CHECKLISTS}
+    missing = [c["procedure_name"] for c in AUTHORED_CHECKLISTS if c["procedure_name"] not in fixture_names]
+    assert not missing, (
+        f"authored but absent from the fixture — run `python tools/kb/seed_authored_checklists.py` "
+        f"then `python tools/kb/snapshot_checklists.py`: {missing}"
+    )
 
 
 def test_every_procedure_step_is_explicitly_classified():
@@ -59,6 +82,29 @@ def test_every_procedure_step_is_explicitly_classified():
         f"vanish from the action panel. Add a rule to _LABEL_RULES (and to "
         f"_MANUAL_LABELS if hands-on):\n  " + "\n  ".join(unmatched)
     )
+
+
+def test_every_authored_step_is_explicitly_classified():
+    """Same guarantee for hand-authored checklists, enforced from the code so a new
+    procedure can't be seeded with steps that silently vanish from the panel."""
+    unmatched = [
+        f"{proc} step {s['step_number']}: {s['action'][:90]}"
+        for proc, s in AUTHORED_STEPS
+        if not _is_say(s["action"]) and match_label(s["action"]) is None
+    ]
+    assert not unmatched, (
+        f"{len(unmatched)} authored step(s) match no label rule:\n  " + "\n  ".join(unmatched)
+    )
+
+
+def test_every_authored_checklist_yields_manual_chips():
+    """An authored procedure exists to give a broken station a real action panel — if it
+    produces no chips it hasn't fixed anything."""
+    thin = {
+        c["procedure_name"]: [a["label"] for a in build_actions({}, c["steps"]) if a["kind"] == "manual"]
+        for c in AUTHORED_CHECKLISTS
+    }
+    assert all(len(v) >= 3 for v in thin.values()), f"authored checklist with <3 manual chips: {thin}"
 
 
 @pytest.mark.parametrize(
@@ -149,6 +195,30 @@ def test_near_vision_test_is_never_labelled_distance():
     labels = {a["label"] for a in build_actions({}, near["steps"])}
     assert "Test near VA" in labels
     assert "Test distance VA" not in labels
+
+
+def test_keyword_never_matches_inside_an_unrelated_word():
+    """Keywords match at a word START, not anywhere. "iop" sat inside "d-IOP-ter knob",
+    which labelled the Lens Meter's lens-power step "Measure IOP" — a lensmeter measures
+    spectacles, not intraocular pressure."""
+    assert match_label(
+        "Set the spherical and cylinder marking to 0/180 degrees by adjusting the diopter "
+        "knob and the axis by adjusting the wheel turner."
+    ) == "Select settings"
+    assert match_label(
+        "Check the spherical, cylinder and axis power by adjusting the diopter marking knob."
+    ) == "Take readings"
+    # A real IOP step must still match, and prefix keywords must keep working.
+    assert match_label("Measure IOP with the non-contact tonometer") == "Measure IOP"
+    assert match_label("Check that the patient is not allergic to the selected eye drops") == "Check allergy"
+    assert match_label("Perform disinfection of equipment between patients") == "Disinfect equipment"
+
+
+def test_lens_meter_panel_has_no_iop_chip():
+    lm = next(c for c in AUTHORED_CHECKLISTS if c["procedure_name"] == "Lens Meter Investigation")
+    labels = {a["label"] for a in build_actions({}, lm["steps"])}
+    assert "Measure IOP" not in labels
+    assert {"Select settings", "Take readings"} <= labels
 
 
 def test_documentation_step_never_merges_into_the_procedure_chip():

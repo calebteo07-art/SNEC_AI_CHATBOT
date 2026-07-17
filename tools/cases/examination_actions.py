@@ -17,6 +17,8 @@ Consecutive chips that share the same (label, mode) merge, so split runs (e.g. t
 Pure + deterministic.
 """
 
+import re
+
 FINDING_LABELS: dict[str, str] = {
     "va": "Test distance VA", "va_distance": "Test distance VA",
     "near_va": "Test near VA", "va_near": "Test near VA",
@@ -54,24 +56,33 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
       "patient surroundings"), "Hand hygiene"),
     (("wipe occluder", "wipe the occluder", "occluder with alcohol", "occluder with an alcohol"), "Wipe occluder"),
     (("disinfect", "wipe the essential parts", "wipe the parts", "parts of the machine",
-      "disinfection of equipment"), "Disinfect equipment"),
+      "disinfection of equipment", "clean the surface of the machine", "optical surfaces",
+      "air blower", "micro fibre", "clean the lens holder"), "Disinfect equipment"),
     # NOT a bare "discard": the drop-preparation step lists "Date of discard" among the
     # label checks, and a bare match hijacked that CRITICAL medication check into
     # "Discard waste" — which deleted "Prepare eye drops" from both drop checklists.
     (("discard all waste", "discard sharps", "waste bag", "dispose of"), "Discard waste"),
-    (("care and maintenance", "care & maintenance", "maintenance of the"), "Care & maintenance"),
+    # End-of-session teardown. "PLACE the dust cover"/"switch OFF" — the mirror-image
+    # start-of-session step ("REMOVE the dust cover"/"switch ON") is Prepare equipment.
+    (("care and maintenance", "care & maintenance", "maintenance of the",
+      "place the dust cover", "switch off the", "end of each session"), "Care & maintenance"),
 
     # ── Chart / order checks. "Doctor to examine" first: it merely MENTIONS a doctor and
     #    must not be mistaken for checking an order.
     (("doctor to examine",), "Doctor to examine"),
     (("not allergic", "allerg"), "Check allergy"),
+    # "CONSULTING doctor's request", not a bare "doctor's request" — the endothelial
+    # count step reads "…more than 100, or as per the doctor's request", which is a
+    # validity threshold, not an order check.
     (("doctor’s order", "doctor's order", "written order", "electronic order",
-      "medication order", "ordered by the doctor", "order to perform"), "Check doctor's order"),
+      "medication order", "ordered by the doctor", "order to perform",
+      "consulting doctor"), "Check doctor's order"),
 
     # ── Documentation. ABOVE the procedure rules — see the ORDER note above. The
     #    record/document VERB forms are matched by prefix in match_label, not here.
-    (("print",), "Print results"),
-    (("captured into", "activity is recorded"), "Document results"),
+    (("print out", "print and paste", "print or record", "save and print"), "Print results"),
+    (("captured into", "activity is recorded", "paste and file", "file the results",
+      "file the data", "verify the patient's data", "verify the patient’s data"), "Document results"),
 
     # ── Identification / conversation (verbal — no chip, but must classify explicitly).
     (("at least 2 identifiers", "2 identifiers", "identity against", "identify the correct patient",
@@ -94,7 +105,11 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     (("falls precaution education", "provide falls precaution"), "Falls education"),
 
     # ── Preparation / equipment.
-    (("obtain appropriate requisites", "obtain the requisites", "requisites"), "Prepare equipment"),
+    (("obtain appropriate requisites", "obtain the requisites", "requisites",
+      "remove the dust cover", "remove dust cover", "switch on the",
+      "auto-calibration"), "Prepare equipment"),
+    (("enter the patient's data", "enter patient's data", "enter the patient’s data",
+      "patient’s data and other required", "patient's data and other required"), "Enter patient data"),
     (("correct occluder", "general occluder", "occluder with orange"), "Select occluder"),
     (("information sheet",), "Give info sheet"),
     (("remove glasses", "contact lenses if worn"), "Remove glasses / CL"),
@@ -104,7 +119,13 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     (("usual near/reading correction", "appropriate correction is worn", "normally wears",
       "wears their usual"), "Check correction worn"),
     (("daylight-equivalent", "good natural daylight", "adequately illuminated",
-      "illumination"), "Check lighting"),
+      "illumination", "dim the room"), "Check lighting"),
+    # ABOVE the fundus rule, which owns "dilated": confirming the pupil IS already dilated
+    # before a PAM scan is a pre-check, not a fundus examination.
+    (("eye is dilated", "patient is dilated", "pupil is dilated"), "Check dilation"),
+    # ABOVE the near-VA rule, which owns "near vision": setting the machine's built-in
+    # lens to the patient's near correction is a machine setting, not a near-VA test.
+    (("built-in corrective lens", "corrective lens according"), "Select settings"),
     (("prepare the appropriate eye drops", "prepare the eye drop"), "Prepare eye drops"),
     (("instil", "pull the lower lid"), "Instill drops"),
 
@@ -122,22 +143,29 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
       "plates correctly"), "Colour vision"),
     (("amsler", "central dot"), "Amsler grid"),
     (("test the right eye", "test each eye", "test one eye", "repeat the test for",
-      "occluding the left eye", "other eye occluded"), "Test each eye"),
+      "repeat the procedure for", "occluding the left eye", "other eye occluded"), "Test each eye"),
     (("verbal or non-verbal cue", "without giving any cue"), "Avoid cueing"),
+    # The PAM measurement itself — ABOVE "Instruct patient", which owns "request patient to".
+    (("alphabet chart", "orange light"), "Read PAM chart"),
+    (("analysis (manual)", "select cells", "counting of the cells"), "Analyse cells"),
+    (("cells counted",), "Validate reading"),
 
     # ── Machine handling.
-    (("position", "chin and forehead", "chin rest"), "Position patient"),
-    (("align", "focus the target", "acquisition"), "Align & focus"),
+    (("position", "chin and forehead", "chin rest", "table height"), "Position patient"),
+    (("align", "focus the target", "acquisition", "centre the pupil", "center the pupil",
+      "measurement site", "measuring window"), "Align & focus"),
     (("control lever", "control knob", "joystick", "machine body", "move the machine", "pull the machine"), "Operate joystick"),
     (("sharpest image", "image is captured", "capture the image", "acquire the image",
       "image acquisition", "take the image", "take the scan"), "Capture image"),
     (("measurement switch", "three readings", "average reading", "readings accuracy",
-      "obtain the average", "measurement value"), "Take readings"),
+      "obtain the average", "measurement value", "'store' button", "store the measurements",
+      "spherical, cylinder and axis"), "Take readings"),
     (("choose the correct lens", "correct lens and refractive", "refractive status",
       "correct formula", "area of scanning", "macular cut", "rnfl", "trial lens",
       "reading mode", "measurement mode", "auto start mode", "test pattern",
       "threshold parameters", "phakic", "aphakic", "post refractive surgery",
-      "select appropriate legend", "appropriate legend"), "Select settings"),
+      "select appropriate legend", "appropriate legend", "appropriate test as indicated",
+      "diopter knob", "cylinder marking"), "Select settings"),
     (("validate the measurement", "validate the reading"), "Validate reading"),
     (("perform the auto kerato", "perform the airpuff", "perform the icare"), "Operate machine"),
     (("monitor patient", "fixation loss", "monitor patient’s progress"), "Monitor patient"),
@@ -145,8 +173,10 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
     # ── Safety / closing.
     (("mental status", "transfer score", "mobility score", "weighted risk score",
       "total weighted"), "Score fall risk"),
-    (("correct eye", "coloured sticker", "fall risk", "red flag", "recognise that new"), "Safety check"),
-    (("ensure patient is comfortable", "patient is comfortable"), "Patient comfortable"),
+    (("correct eye", "coloured sticker", "fall risk", "red flag", "recognise that new",
+      "wires and cables"), "Safety check"),
+    (("ensure patient is comfortable", "patient is comfortable", "patient’s comfort",
+      "patient's comfort"), "Patient comfortable"),
     (("look upwards", "do not blink", "gaze at", "open both eyes", "look at the",
       "inform patient of the", "clear and proper instruction", "request patient to"), "Instruct patient"),
     (("listens attentively", "opening statement"), "Listen actively"),
@@ -188,6 +218,8 @@ _MANUAL_LABELS = {
     "Test each eye", "Avoid cueing", "Operate machine", "Monitor patient",
     # Scoring the fall-risk scale is form work the student does, not a question they ask.
     "Score fall risk",
+    # Ophthalmic-investigation procedures (SNEC Procedure Manual, Module 2).
+    "Check dilation", "Enter patient data", "Read PAM chart", "Analyse cells",
 }
 
 # Manual chips that are a single mechanical confirmation — a machine-handling / equipment
@@ -208,6 +240,10 @@ _QUICK_LABELS = {
     "Check doctor's order", "Check allergy", "Check correction worn", "Check lighting",
     "Prepare equipment", "Select occluder", "Give info sheet", "Care & maintenance",
     "Monitor patient", "Score fall risk",
+    # Machine setup / teardown confirmations — nothing to grade.
+    "Check dilation", "Enter patient data",
+    # NOT quick: reading the PAM chart and selecting endothelial cells are the assessed
+    # techniques (spiral, continuous, consistent cell selection is the skill).
 }
 
 
@@ -256,6 +292,21 @@ def _say_label(prompt: str) -> str:
     return _clip_words(short, 30) or "Ask"
 
 
+def _kw_hit(low: str, kw: str) -> bool:
+    """Does `kw` occur in `low` at the START of a word?
+
+    A plain substring test matches inside unrelated words: "iop" hits the middle of
+    "d-IOP-ter knob", which labelled the Lens Meter's lens-power step "Measure IOP".
+    A word-START boundary is the right test — it still allows prefix keywords
+    ("allerg" -> "allergic", "disinfect" -> "disinfection"), which a full \\b...\\b
+    match would break. Keywords not starting with an alphanumeric ("'store' button")
+    fall back to a plain substring, since \\b is meaningless before punctuation.
+    """
+    if not kw[:1].isalnum():
+        return kw in low
+    return re.search(r"(?<![a-z0-9])" + re.escape(kw), low) is not None
+
+
 def match_label(action: str) -> str | None:
     """The canonical label for a "do" step, or None if NO rule recognises it.
 
@@ -269,7 +320,7 @@ def match_label(action: str) -> str | None:
     if low.startswith(_DOC_PREFIXES):
         return "Document results"
     for keywords, label in _LABEL_RULES:
-        if any(kw in low for kw in keywords):
+        if any(_kw_hit(low, kw) for kw in keywords):
             return label
     return None
 

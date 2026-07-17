@@ -10,6 +10,18 @@ when name is None or the lookup misses.
 
 # Ordered keyword rules — FIRST match wins, so list the more specific rules first.
 KEYWORD_RULES: list[tuple[tuple[str, ...], str]] = [
+    # Ophthalmic investigations with a hand-authored checklist (see
+    # tools/kb/seed_authored_checklists.py). These MUST outrank the generic rules below:
+    # "pam_dense_cataract" also contains "cataract", and "flare"/"endothelial" used to
+    # fall through to the "Ophthalmic Investigations Skills Observation" LOGBOOK TALLY
+    # SHEET, which left those stations with an empty action panel.
+    (("pam", "potential_acuity", "macula_potential", "potential acuity"),
+     "Macula Potential (Acuity Test) Investigation"),
+    (("endothelial", "specular", "ecc"), "Endothelial Cell Count Investigation"),
+    (("flare_test", "flare"), "Flare Cell Measurement Investigation"),
+    (("aberrometry", "wavefront"), "Aberrometry Investigation"),
+    (("focimetry", "lens_meter", "lensmeter", "focimeter"), "Lens Meter Investigation"),
+
     (("ishihara", "colour_vision", "color_vision"), "Ishihara Colour Vision Testing"),
     (("amsler", "metamorphopsia"), "Amsler Grid Testing"),
     (("dilation", "mydriasis"), "Eye Drop Instillation and Dilation"),
@@ -28,7 +40,11 @@ KEYWORD_RULES: list[tuple[tuple[str, ...], str]] = [
       "postoperative", "day_ward"), "Dayward and OT Skills Observation"),
     (("orthoptic", "hirschberg", "krimsky", "cover_uncover", "versions", "ductions",
       "npc", "convergence", "strabismus", "esotropia", "squint"), "Orthoptics Skills Observation"),
-    (("endothelial", "specular", "flare_test", "flare", "ecc"), "Ophthalmic Investigations Skills Observation"),
+    # NOTE: endothelial / flare / PAM / aberrometry / focimetry are handled by the
+    # authored-checklist rules at the top. What remains pointed at this LOGBOOK TALLY
+    # SHEET (AS-OCT, fundus photography, DR grading) has no authored checklist yet — see
+    # the "* Skills Observation" caveat in the module docstring.
+    (("asoct", "as_oct", "anterior_segment_oct"), "Ophthalmic Investigations Skills Observation"),
     (("history", "triage", "pain_assessment", "red_eye", "uveitis", "keratitis", "floaters",
       "flashes", "retinal_detachment", "conjunctivitis", "subconjunctival", "foreign_body",
       "chemical_injury", "penetrating", "hyphaema", "glaucoma_triage", "crao", "flash_burn",
