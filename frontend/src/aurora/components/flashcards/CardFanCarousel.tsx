@@ -186,10 +186,10 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   // so every gesture lands here; on a tap we open the windowed, front-facing card whose live
   // on-screen centre is nearest the pointer. Keyboard Enter still picks via the button onClick.
   const TAP_SLOP = 8; // px of travel below which a pointer-up counts as a tap, not a drag
-  const drag = useRef({ down: false, startX: 0, startFlow: 0, lastX: 0, lastT: 0, startT: 0, moved: false });
+  const drag = useRef({ down: false, startX: 0, startY: 0, startFlow: 0, lastX: 0, lastT: 0, startT: 0, moved: false });
   const onPointerDown = (e: React.PointerEvent) => {
     const d = drag.current;
-    d.down = true; d.moved = false; d.startX = e.clientX; d.startFlow = flowRef.current;
+    d.down = true; d.moved = false; d.startX = e.clientX; d.startY = e.clientY; d.startFlow = flowRef.current;
     d.lastX = e.clientX; d.lastT = performance.now(); d.startT = d.lastT;
     draggingRef.current = true;
   };
@@ -198,7 +198,11 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     if (!d.down) return;
     const cw = getCardWidth(window.innerWidth);
     const dx = e.clientX - d.startX;
-    if (Math.abs(dx) > TAP_SLOP) d.moved = true;
+    // Measure travel on BOTH axes. Horizontal-only slop means a vertical scroll flick is
+    // still a "tap", so on a touch device a flick to scroll the page opens a deck instead
+    // (the same defect the home carousel shipped — see FeatureCarousel, commit ee41cf3).
+    // Latent while this picker is dvh-sized and unscrollable; one layout change from real.
+    if (Math.abs(dx) > TAP_SLOP || Math.abs(e.clientY - d.startY) > TAP_SLOP) d.moved = true;
     flowRef.current = d.startFlow - dx / (cw * 0.62); // dragging one card-width ≈ one topic
     const now = performance.now();
     if (now - d.lastT > 0) velRef.current = (e.clientX - d.lastX) / (now - d.lastT);
