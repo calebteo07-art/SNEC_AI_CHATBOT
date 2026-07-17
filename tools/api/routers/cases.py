@@ -501,7 +501,7 @@ def _per_phase_summary(steps: list[dict], performed: list[int]) -> list[dict]:
 
 def _station_checklist(case: dict) -> dict:
     """Resolve the case's checklist (real or rubric fallback) as a flat dict with steps."""
-    name, _how = resolve_procedure_name(case)
+    name, how = resolve_procedure_name(case)
     if name:
         cl = get_checklist_by_name(name)
         if cl:
@@ -512,6 +512,17 @@ def _station_checklist(case: dict) -> dict:
                 "steps": steps,
                 "source": "checklist",
             }
+    # Reaching here is a DEGRADED station, never the intent: rubric.key_points are
+    # marking descriptors ("Asks about fasting status"), not steps to perform, so the
+    # action panel comes out near-empty. Three different faults land here — no rule
+    # matched, the name isn't in Supabase (typo'd, or authored but never seeded), or
+    # get_checklist_by_name swallowed an exception into None — and none of them raise.
+    # Without this line they are indistinguishable from a healthy station.
+    print(
+        f"[station-rubric-fallback] case={case.get('case_id')!r} "
+        f"resolved={name!r} how={how} — no database checklist; serving the case's rubric",
+        flush=True,
+    )
     return build_rubric_checklist(case)
 
 
