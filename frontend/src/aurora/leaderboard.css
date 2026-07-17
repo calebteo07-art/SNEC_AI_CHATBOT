@@ -5,16 +5,19 @@
    dark nameplate chip. Bright ranked cards float on the light arena. Scoped under `.lb-climb`,
    mobile-first, 390px-safe. Motion is entrance + hover + a slow mote drift (frozen). */
 
-/* Full-bleed game background — a Nano-Banana "hall of champions" webp, viewport-locked so rows
-   scroll over it. Hosted here (globally loaded via src/styles/index.css so :has() reaches
-   .aurora-main). Warm-golden cinematic arena (top spotlight → honey-amber → champagne-sand floor)
-   in the same warm palette as before, but with real depth so the board reads premium, not flat.
-   A faint warm wash unifies it with the UI; a warm-sand solid backs it while the image loads.
-   Everything textual sits on opaque cards, so the busy centre never fights legibility. */
+/* Full-bleed arena canvas — a Nano-Banana webp, viewport-locked so rows scroll over it. Hosted
+   here (globally loaded via src/styles/index.css so :has() reaches .aurora-main). The art is
+   deliberately NOT a scene: a tone-on-tone antique-gold + espresso surface with a very subtle
+   DEBOSSED laurel-wreath + sunburst motif (echoing the podium frames + hero trophy) and a soft
+   champagne glow in the centre, in the exact component palette (gold --gold #F59E0B, vignette =
+   the hero's #33210f, floor #ECD9BC). Centred (50% 50%) so the symmetric wreath lands in the
+   desktop side-gutters where the canvas is actually visible. A faint warm wash + slight espresso
+   floor-tint seat the light ranked rows and unify image → UI; the warm-sand solid backs it while
+   the image loads. Everything textual sits on opaque cards. */
 .aurora-main:has(.lb-climb) {
   background:
-    linear-gradient(180deg, rgba(251,234,211,.10) 0%, rgba(233,210,180,.24) 100%),
-    url(/brand/leaderboard/bg.webp) 50% 0% / cover,
+    linear-gradient(180deg, rgba(255,246,224,.05) 0%, rgba(51,33,15,.14) 100%),
+    url(/brand/leaderboard/bg.webp) 50% 50% / cover,
     #ECD9BC;
   background-attachment: fixed;
   background-repeat: no-repeat;
