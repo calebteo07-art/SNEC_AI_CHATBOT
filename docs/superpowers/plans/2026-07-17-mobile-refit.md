@@ -1295,7 +1295,25 @@ landscape phone misses them; wide tables clip (row label to `right: 959`).
 
 ### Task 12: The full sweep + desktop-unchanged proof
 
-**Files:** Modify `frontend/tests/mobile_audit.mjs`
+**Files:** Modify `frontend/tests/mobile_audit.mjs`, `frontend/tests/fixed_overlay_assert.mjs`
+
+> **Carried over from Task 1's review — close these two gaps here.**
+>
+> 1. **`fixed_overlay_assert` is narrower than it claims.** It sweeps 5 routes in mock
+>    state, which never render the OSCE station, an in-progress flashcards study
+>    session, or a populated chat thread. Several elements still carry the same trap on
+>    exactly those unswept surfaces: `.aurora-msg`, `.aurora-chat-head`,
+>    `.aurora-chat-foot`, `.aurora-composer-send` (motion.css:79-85), `.lb-row`
+>    (leaderboard.css:167), and the station report overlay card (aurora.css:3208) —
+>    which spec §1 explicitly names as "the next one queued". The assert is green
+>    *without covering them*. Extend coverage to those states, then apply the same
+>    per-property criterion to whatever it flags.
+> 2. **Screenshot diffing is not a valid instrument on these routes.** Measured
+>    same-build noise ranged 0.004%–60% on the same route (rAF coverflow drift, ember
+>    animation phase). Spec §5.5's "desktop unchanged" proof must therefore use the
+>    runtime A/B method Task 1 established — freeze the page, toggle the single
+>    variable, compare geometry — not a naive before/after pixel diff. A pixel diff not
+>    backed by a frozen single-variable comparison proves nothing here.
 
 - [ ] **Step 1: Rewrite `mobile_audit.mjs` to sweep the whole matrix**
 

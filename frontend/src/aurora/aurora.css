@@ -2507,9 +2507,12 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
      the biggest/upright one and the pushed-back neighbours read as receding — the flat ring made
      every card ~the same size, which is what crushed 5–7 windowed cards into one slab. */
   perspective: 1200px; perspective-origin: 50% 50%; overflow: hidden; isolation: isolate;
-  /* `backwards`, not `both`: a retained transform would make the stage a containing block for
-     any position:fixed descendant. fan-in's 100% (opacity:1; transform:none) is the natural
-     style, so the settled coverflow is unchanged. */
+  /* `backwards`, not `both` — consistency with the rest of the entrance animations (see
+     motion.css .aurora-page-enter), not a fix: the `perspective` above already makes this
+     a containing block for fixed descendants regardless of fill-mode, so dropping the
+     retained transform changes nothing here. Safe because fan-in's 100% (opacity:1;
+     transform:none) is this element's natural style, so the settled coverflow is unchanged.
+     Anything position:fixed inside the stage must be portalled out — CSS cannot free it. */
   animation: fan-in .7s ease backwards; }
 @media (max-width: 639px) { .fan-stage { height: clamp(384px, 58dvh, 486px); } }
 html[data-motion="reduce"] .fan-stage { animation: none; }
@@ -2800,7 +2803,9 @@ html[data-motion="reduce"] .fan-card { transition: none; }
   line-height: 1.26; letter-spacing: -.01em; color: #fff; margin: 10px 0 0; max-width: 34ch; }
 
 /* Shared entry rise for the option buttons (.flash-option: base opacity:0 → forwards) and
-   the setup step (.flash-step: both). This MUST exist — a referenced-but-undefined
+   the setup step (.flash-step: backwards — no base opacity, so it needs no fill).
+   The two fill-modes differ on purpose; see the note above .flash-step.
+   This MUST exist — a referenced-but-undefined
    keyframe is a no-op, so its elements stay pinned to their base state; the missing
    definition stranded every MCQ answer at opacity:0 → invisible answers = blank card in
    full motion (2026-07-11). Reduced motion overrides this to a static opacity:1 below. */
