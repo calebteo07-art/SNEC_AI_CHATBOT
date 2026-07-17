@@ -354,63 +354,129 @@ viewport-sized box, no movement under scroll, and return-on-rotate-back."
 
 ### Task 2: Harden the gate
 
+> **Re-scoped 2026-07-17, after Task 1 landed.** The original Step 1 portalled the gate
+> to `<body>`. Dropped — see spec §2. Short version: Task 1's
+> `fixed_overlay_assert.mjs` guards the containing-block invariant at the *root*,
+> app-wide, across five overlays; a portal would protect only this one element **and
+> blind that assert on the one surface the user complained about**. It is also the same
+> one-element symptomatic patch as commit `8df25a1`, which is exactly why the root
+> cause survived to break this gate. With Task 1 in, `rotate_gate_assert.mjs` is
+> already 7/7 green — including the scroll-immunity and rotate-back assertions the
+> portal was supposed to protect. The freed budget goes to a real bug found while
+> re-scoping: the gate is `ssr: false`-dynamic and can paint *after* the station.
+
 **Files:**
-- Modify: `frontend/src/aurora/components/RotateGate.tsx`
+- Modify: `frontend/src/app/(shell)/cases/[caseId]/page.tsx:13-16`
 - Modify: `frontend/src/aurora/aurora.css:1150-1157`
 
-**Why:** Task 1 makes the gate correct. This makes it *stay* correct: a portal means
-no future wrapper can re-trap it, and scroll-lock stops the station moving behind it.
+**Why:** Task 1 makes the gate correct. This makes it *stay* correct, and closes the
+second, independent "flashes then disappears" contributor: `RotateGate` is loaded with
+`dynamic(..., { ssr: false })` in a **chunk separate from `CaseSession`**, so the two
+resolve independently and the station can paint first on a portrait phone. The
+component is pure markup — no browser APIs, no heavy deps, ~30 lines — so the dynamic
+import buys nothing and costs a chunk round-trip in which the gate is absent. A static
+import puts the gate in the page chunk: it renders in the same commit as the station's
+placeholder, so the gate is up **before** the station can appear behind it.
 
-- [ ] **Step 1: Portal the gate to `<body>`**
+- [ ] **Step 1: Write the failing "never exposed unguarded" assertion**
 
-Replace the component body in `frontend/src/aurora/components/RotateGate.tsx`:
+Task 1's rewrite of `rotate_gate_assert.mjs` asserts the gate is correct *once it
+exists*. It cannot see the chunk race, because it opens with
+`waitForSelector(".rotate-gate")` — it waits for the gate, so by construction it never
+observes the window where the station is up and the gate is not. That window is the
+bug. Append this as assertion 6, **before** touching any source:
+
+```js
+// 6. The station must NEVER be exposed unguarded while the phone is portrait.
+//    RotateGate was a separate ssr:false chunk from CaseSession, so the two resolved
+//    independently and the station could paint first -- the user briefly sees the
+//    station they are being told to rotate away from. Sampling every animation frame
+//    from before the first page script runs is what makes this observable; assertion 1
+//    cannot see it because it waits for the gate before it looks at anything.
+const race = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
+const r = await race.newPage();
+await r.addInitScript(() => {
+  window.__unguarded = 0;
+  const tick = () => {
+    const station = document.querySelector('[data-testid="station"]');
+    const gate = document.querySelector(".rotate-gate");
+    const gateShown = gate && getComputedStyle(gate).display !== "none";
+    if (station && !gateShown) window.__unguarded++;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+// Throttle the CPU so the race window is wide enough to observe reliably rather than
+// depending on chunk-resolution luck on a fast dev box.
+const cdp = await race.newCDPSession(r);
+await cdp.send("Emulation.setCPUThrottlingRate", { rate: 6 });
+await r.goto(base + "/cases/C001", { waitUntil: "domcontentloaded" });
+await r.waitForSelector('[data-testid="station"]', { timeout: 25000 });
+await r.waitForTimeout(600);
+const unguarded = await r.evaluate(() => window.__unguarded);
+if (unguarded > 0) die(`station rendered WITHOUT the gate for ${unguarded} frames on a portrait phone`);
+ok("station is never exposed unguarded during load");
+await race.close();
+```
+
+- [ ] **Step 2: Run it against the current build — watch it FAIL**
+
+```bash
+cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt/frontend/tests && node rotate_gate_assert.mjs http://127.0.0.1:3100
+```
+
+Expected: assertions 1-5 pass, then
+`FAIL: station rendered WITHOUT the gate for N frames on a portrait phone`.
+
+**If it passes**, do not "fix" anything — the race did not reproduce. Raise the
+throttle rate to 10 and retry; if it still passes, the chunk ordering is already
+benign on this build. Report that, drop Step 3, and keep only the CSS work. Do not
+ship a fix for a bug you could not first observe.
+
+- [ ] **Step 3: Static-import the gate so it cannot paint after the station**
+
+In `frontend/src/app/(shell)/cases/[caseId]/page.tsx`, delete the `RotateGate`
+`dynamic()` wrapper (lines 13-16) and import it directly. Leave `CheckInGuard` and
+`CaseSession` dynamic — they are heavy and genuinely client-only.
 
 ```tsx
 "use client";
 
-/* Landscape gate for the OSCE station on phones. The triptych (checklist ‖ patient
-   consult ‖ EyeBot) needs horizontal room, so a portrait phone gets a full-screen
-   "rotate to landscape" takeover. Visibility is pure CSS (aurora.css) — a live media
-   query, so the gate persists for exactly as long as the phone is portrait and returns
-   the instant it is rotated back. No JS orientation listener: screen.orientation.lock
-   only works fullscreen and is unsupported on iOS.
+import dynamic from "next/dynamic";
+import { RotateGate } from "@/aurora/components/RotateGate";
 
-   Portalled to <body> deliberately. Any ancestor with a transform becomes the
-   containing block for position:fixed, which would pin this to the tall page box
-   instead of the viewport — the exact bug that made it scroll away (see
-   motion.css:23 and commit 8df25a1). Task 1 removed today's offender; the portal
-   makes the gate immune to the next one. */
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+const CheckInGuard = dynamic(
+  () => import("@/screens/CheckInGuard").then((m) => m.CheckInGuard),
+  { ssr: false },
+);
+const CaseSession = dynamic(
+  () => import("@/aurora/screens/CaseSession").then((m) => m.CaseSession),
+  { ssr: false },
+);
 
-export function RotateGate() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-
-  return createPortal(
-    <div className="rotate-gate" role="alertdialog" aria-modal="true" aria-label="Rotate your phone to landscape">
-      <div className="rotate-gate-mesh" aria-hidden />
-      <div className="rotate-gate-card">
-        <span className="rotate-gate-phone" aria-hidden />
-        <h2 className="rotate-gate-title">Rotate your phone</h2>
-        <p className="rotate-gate-copy">
-          The OSCE virtual-patient station needs landscape room for the checklist,
-          patient consult, and EyeBot panel. Turn your phone sideways to begin.
-        </p>
-        <p className="rotate-gate-hint">
-          Not turning? Switch off Portrait Orientation Lock in your phone&rsquo;s control centre.
-        </p>
-      </div>
-    </div>,
-    document.body,
+export default function Page() {
+  return (
+    <CheckInGuard>
+      <CaseSession />
+      {/* Phones in portrait can't fit the triptych — force a rotate to landscape.
+          Statically imported on purpose: as a separate ssr:false chunk it could
+          resolve after CaseSession and let the station paint first. It is pure
+          CSS-driven markup, so there is nothing to defer. */}
+      <RotateGate />
+    </CheckInGuard>
   );
 }
 ```
 
-- [ ] **Step 2: Lock scroll behind the gate, and use dvh**
+`RotateGate.tsx` itself is **not modified** — it is already correct: pure markup, no
+JS, visibility driven entirely by a live CSS media query.
 
-In `frontend/src/aurora/aurora.css`, replace the block at 1150-1157:
+- [ ] **Step 4: Lock scroll behind the gate, and use dvh**
+
+In `frontend/src/aurora/aurora.css`, replace the block at 1150-1157. The
+`body:has(.rotate-gate)` scoping on the scroll-lock is **load-bearing, not decoration**:
+the gate only mounts on the station route, so without `:has` the lock would apply to
+every portrait-phone route under 600px and freeze scrolling app-wide. Keep it.
 
 ```css
 .rotate-gate { display: none; }
@@ -431,7 +497,7 @@ In `frontend/src/aurora/aurora.css`, replace the block at 1150-1157:
 }
 ```
 
-- [ ] **Step 3: Rebuild, run the gate test**
+- [ ] **Step 5: Rebuild, run the gate test**
 
 ```bash
 cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt/frontend && npx next build --webpack \
@@ -442,15 +508,38 @@ cd tests && node rotate_gate_assert.mjs http://127.0.0.1:3100
 ```
 Expected: **ALL ROTATE-GATE ASSERTIONS PASSED**.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
+
+Write the message to a file — a backtick in a heredoc gets shell-interpolated and
+silently eats words (this bit us on the Task 1 commit).
 
 ```bash
-git add frontend/src/aurora/components/RotateGate.tsx frontend/src/aurora/aurora.css
-git commit -m "fix(osce): pin the rotate gate to the viewport and lock scroll behind it
+cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt
+git add frontend/src/app/\(shell\)/cases/\[caseId\]/page.tsx frontend/src/aurora/aurora.css frontend/tests/rotate_gate_assert.mjs
+cat > .tmp/msg.txt <<'EOF'
+fix(osce): stop the rotate gate painting after the station, and lock scroll behind it
 
-Portal to <body> so no future transformed ancestor can re-trap position:fixed (the
-Task 1 bug), size with 100dvh so browser chrome cannot push the card under the fold,
-and stop the station scrolling behind the takeover."
+Task 1 made the gate genuinely viewport-fixed. Two things left:
+
+1. The gate was loaded with dynamic(..., {ssr:false}) in a chunk separate from
+   CaseSession, so the two resolved independently and the station could paint first
+   on a portrait phone -- a second, independent contributor to "the warning flashes
+   for a split second". It is pure CSS-driven markup with no browser APIs and no
+   heavy deps, so the dynamic import bought nothing. Static-import it: the gate now
+   renders in the same commit as the station's placeholder.
+
+2. Size with 100dvh (not vh) so mobile browser chrome cannot push the card under the
+   fold, and stop the station scrolling behind the takeover. The body:has() scoping is
+   load-bearing: the gate only mounts on the station route, and without it the media
+   query would freeze scrolling on every portrait-phone route under 600px.
+
+NOT portalling the gate to <body>, which the spec originally called for. Task 1's
+fixed_overlay_assert guards the containing-block invariant at the root across five
+overlays; a portal would protect only this element while blinding that assert on the
+one surface the user complained about. It is also the same one-element symptomatic
+patch as 8df25a1 -- which is why the root cause survived to break this gate.
+EOF
+git commit -F .tmp/msg.txt
 ```
 
 ---

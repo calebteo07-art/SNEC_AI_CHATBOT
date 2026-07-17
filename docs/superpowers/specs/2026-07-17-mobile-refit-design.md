@@ -154,7 +154,28 @@ encoded the wrong invariant.
   and returns on rotate-back **automatically** — the media query is live, no JS
   orientation listener needed. Pure CSS remains the right call (`screen.orientation.lock`
   is fullscreen-only and unsupported on iOS).
-- Portal to `<body>` as belt-and-braces so no future wrapper can re-trap it.
+- ~~Portal to `<body>` as belt-and-braces so no future wrapper can re-trap it.~~
+  **Dropped — amended 2026-07-17 after Task 1.** Two reasons, both learned by building
+  Task 1 rather than known when this was written:
+  1. Task 1 shipped `frontend/tests/fixed_overlay_assert.mjs`, which asserts the
+     containing-block invariant **at the root, app-wide, across five overlays**. That
+     is a strictly better guard than portalling one component: it fails on the *cause*
+     and covers overlays the portal cannot.
+  2. A portal would make the gate permanently immune, so the assert could never again
+     catch a re-introduced trap *through the gate* — it would mask its own best
+     detector on the one surface the user actually complained about. It is also
+     precisely the one-element symptomatic patch commit `8df25a1` applied, which is
+     why the root cause survived to break this gate.
+
+  Verified inert to drop: with Task 1 in, `rotate_gate_assert.mjs` is **7/7 green**
+  including the scroll-immunity and rotate-back assertions the portal was meant to
+  protect.
+- **Static-import the gate** (replaces the portal). `RotateGate` is loaded via
+  `dynamic(..., { ssr: false })` in a chunk separate from `CaseSession`
+  (`app/(shell)/cases/[caseId]/page.tsx:13-16`). It is pure markup — no browser APIs,
+  no heavy deps — so the dynamic import buys nothing and only opens a window where the
+  station can paint before the gate mounts. A second, independent "flashes then
+  disappears" contributor.
 - Lock scroll behind it while shown.
 - Keep the `pointer: coarse` guard so a narrow desktop window is never nagged.
 
