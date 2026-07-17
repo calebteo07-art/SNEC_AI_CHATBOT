@@ -425,13 +425,28 @@ await race.close();
 cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt/frontend/tests && node rotate_gate_assert.mjs http://127.0.0.1:3100
 ```
 
-Expected: assertions 1-5 pass, then
-`FAIL: station rendered WITHOUT the gate for N frames on a portrait phone`.
-
-**If it passes**, do not "fix" anything — the race did not reproduce. Raise the
-throttle rate to 10 and retry; if it still passes, the chunk ordering is already
-benign on this build. Report that, drop Step 3, and keep only the CSS work. Do not
-ship a fix for a bug you could not first observe.
+> **RESULT (2026-07-17): it did NOT fail. The race does not reproduce — I was wrong.**
+>
+> Run against a verified pre-fix bundle (build 15:24 vs the source edit at 16:07; the
+> gate confirmed still emitted as its own chunk, `9923.a09c715c37583dfb.js`), at 6×
+> CPU throttle: **0 unguarded frames**. The gate won every time.
+>
+> The mechanism is obvious in hindsight: Next preloads both chunks in the same tick,
+> and the gate's chunk is ~1KB of pure markup while `CaseSession`'s is the whole
+> station. The tiny chunk always beats the big one. Network throttling would widen the
+> gap in the gate's *favour*, not against it. So the ordering isn't luck — it's
+> load-bearing asymmetry.
+>
+> **Consequence:** Step 3 is NOT a bugfix, and must not be described as one. It stands
+> only as a simplification — deleting a `dynamic({ssr:false})` wrapper that defers a
+> ~30-line component with no browser APIs and no heavy deps buys nothing and is
+> strictly less code. Keep it on those grounds or drop it; do not claim it addresses
+> the user's "flashes for a split second" report. **Task 1 fixed that.**
+>
+> **Keep assertion 6 anyway.** It passes today, so it is an invariant guard rather than
+> a regression test — that distinction is worth being honest about, but the invariant
+> ("the station is never exposed unguarded on a portrait phone") is real, the test is
+> cheap, and it would catch a future refactor that makes the gate genuinely late.
 
 - [ ] **Step 3: Static-import the gate so it cannot paint after the station**
 

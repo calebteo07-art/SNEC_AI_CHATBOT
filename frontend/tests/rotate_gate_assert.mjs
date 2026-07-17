@@ -65,7 +65,39 @@ if (card2.y < 0 || card2.y + card2.height > vp2.h) die(`gate card off-screen aft
 ok("rotate back to portrait -> gate returns, card fully visible");
 await phone.close();
 
-// 5. Desktop (fine pointer), narrow window -> never nagged.
+// 5. The station must NEVER be exposed unguarded while the phone is portrait.
+//    RotateGate was a separate ssr:false chunk from CaseSession, so the two resolved
+//    independently and the station could paint first -- the user gets a flash of the
+//    very screen the gate exists to withhold. Assertions 1-4 are structurally blind to
+//    this: they open with waitForSelector(".rotate-gate"), so by construction they never
+//    observe the window where the station is up and the gate is not. Sampling every
+//    animation frame from before the first page script runs is what makes it visible.
+const race = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
+const r = await race.newPage();
+await r.addInitScript(() => {
+  window.__unguarded = 0;
+  const tick = () => {
+    const station = document.querySelector('[data-testid="station"]');
+    const gate = document.querySelector(".rotate-gate");
+    const gateShown = gate && getComputedStyle(gate).display !== "none";
+    if (station && !gateShown) window.__unguarded++;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+// Throttle the CPU so the race window is wide enough to observe reliably, rather than
+// depending on chunk-resolution luck on a fast dev box.
+const cdp = await race.newCDPSession(r);
+await cdp.send("Emulation.setCPUThrottlingRate", { rate: 6 });
+await r.goto(base + "/cases/C001", { waitUntil: "domcontentloaded" });
+await r.waitForSelector('[data-testid="station"]', { timeout: 25000 });
+await r.waitForTimeout(600);
+const unguarded = await r.evaluate(() => window.__unguarded);
+if (unguarded > 0) die(`station rendered WITHOUT the gate for ${unguarded} frames on a portrait phone`);
+ok("station is never exposed unguarded during load");
+await race.close();
+
+// 6. Desktop (fine pointer), narrow window -> never nagged.
 const desk = await seededContext(b, base, student, { width: 560, height: 900 });
 const d = await desk.newPage();
 await d.goto(base + "/cases/C001", { waitUntil: "domcontentloaded" });
