@@ -26,8 +26,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 FIXTURE = PROJECT_ROOT / "tests" / "fixtures" / "procedure_checklists.json"
 
-# Logbook tally sheets — not station procedures. See module docstring.
-LOGBOOK_MARKER = "Skills Observation"
+# Logbook tally sheets — not station procedures. See module docstring. The predicate
+# is shared with the resolver so the snapshot and the station can never disagree
+# about what a tally sheet is.
+from tools.cases.resolve_checklist import is_tally_sheet
 
 
 def _steps_of(row: dict) -> list[dict]:
@@ -48,7 +50,7 @@ def fetch() -> list[dict]:
     ).execute().data
     out = []
     for r in sorted(rows, key=lambda x: x["procedure_name"]):
-        if LOGBOOK_MARKER in r["procedure_name"]:
+        if is_tally_sheet(r["procedure_name"]):
             continue
         out.append({
             "procedure_name": r["procedure_name"],
