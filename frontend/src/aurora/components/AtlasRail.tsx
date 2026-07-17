@@ -2,7 +2,10 @@
 /* Atlas Rail — the persistent navigation spine. Groups STUDY / INSIGHT and a
    role-gated OVERSIGHT. Top strip carries the wordmark, the day streak and the
    ⌘K trigger; the profile + sign-out sit at the base. Collapses to a bottom bar
-   on mobile (see aurora.css @media). */
+   on mobile (see aurora.css @media), where the base becomes a sheet raised by the
+   trailing account button — the bar has no room for it inline, and hiding it (as
+   this rail used to) left phone users with no way to sign out at all. */
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
@@ -12,17 +15,22 @@ import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Wordmark } from "@/aurora/Logo";
 import { displayName } from "@/aurora/lib/displayName";
 
-type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS };
+/* `short` is the phone label. The full label wants ~83px ("Virtual Patients") in a cell
+   that is ~48px wide once six destinations share a 360px bar, so it would ellipsise to
+   mush. The accessible name is always the FULL label (aria-label on the link), so the
+   short form costs a screen-reader user nothing — and it is what keeps the landscape
+   icon-only bar named. */
+type NavItem = { href: string; label: string; short: string; icon: keyof typeof NAV_ICONS };
 
 const STUDY: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/flashcards", label: "Flashcards", icon: "flashcards" },
-  { href: "/chat", label: "Tutor", icon: "tutor" },
-  { href: "/cases", label: "Virtual Patients", icon: "cases" },
-  { href: "/leaderboard", label: "Leaderboard", icon: "leaderboard" },
+  { href: "/dashboard", label: "Dashboard", short: "Home", icon: "dashboard" },
+  { href: "/flashcards", label: "Flashcards", short: "Cards", icon: "flashcards" },
+  { href: "/chat", label: "Tutor", short: "Tutor", icon: "tutor" },
+  { href: "/cases", label: "Virtual Patients", short: "Patients", icon: "cases" },
+  { href: "/leaderboard", label: "Leaderboard", short: "Ranks", icon: "leaderboard" },
 ];
 const ANALYTICS_NAV: NavItem[] = [
-  { href: "/analytics", label: "Analytics", icon: "analytics" },
+  { href: "/analytics", label: "Analytics", short: "Stats", icon: "analytics" },
 ];
 
 export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onTogglePin?: () => void }) {
@@ -46,10 +54,33 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
-  const Item = ({ href, label, icon }: NavItem) => (
-    <Link href={href} className="aurora-navitem" data-active={isActive(href)} aria-current={isActive(href) ? "page" : undefined}>
+  /* The account sheet — the mobile presentation of .aurora-rail-foot. Closed by an
+     outside press or Esc, matching EyeconMenu's convention. `pointerdown` rather than
+     `mousedown`: this surface is touch-first and pointer events cover both. */
+  const [acctOpen, setAcctOpen] = useState(false);
+  useEffect(() => { setAcctOpen(false); }, [pathname]); // never survive a navigation
+  useEffect(() => {
+    if (!acctOpen) return;
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Element | null;
+      if (!t?.closest(".aurora-rail-foot") && !t?.closest(".aurora-rail-account")) setAcctOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setAcctOpen(false); };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onDown); document.removeEventListener("keydown", onKey); };
+  }, [acctOpen]);
+
+  const signOut = useCallback(() => { void logout(); router.push("/"); }, [logout, router]);
+
+  /* The visible text is the short form on phones and the full label on desktop (CSS picks
+     one); both are aria-hidden so the accessible name comes solely from aria-label —
+     always the full label, and it survives the landscape bar hiding the text entirely. */
+  const Item = ({ href, label, short, icon }: NavItem) => (
+    <Link href={href} className="aurora-navitem" aria-label={label} data-active={isActive(href)} aria-current={isActive(href) ? "page" : undefined}>
       {NAV_ICONS[icon]}
-      <span>{label}</span>
+      <span className="aurora-navitem-full" aria-hidden>{label}</span>
+      <span className="aurora-navitem-short" aria-hidden>{short}</span>
     </Link>
   );
 
@@ -91,7 +122,28 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
         )}
       </div>
 
-      <div className="aurora-rail-foot">
+      {/* Phone-only: raises .aurora-rail-foot as a sheet. The bar cannot hold the foot
+          inline, and hiding it removed the ONLY sign-out on every route but /dashboard. */}
+      <button
+        type="button"
+        className="aurora-rail-account"
+        aria-label="Account and sign out"
+        aria-haspopup="menu"
+        aria-expanded={acctOpen}
+        onClick={() => setAcctOpen((v) => !v)}
+      >
+        <span className="aurora-avatar" data-eyecon={eyeconConfig ? "" : undefined}>
+          {eyeconConfig ? <Eyecon config={eyeconConfig} size={30} /> : initials}
+        </span>
+      </button>
+
+      <div className="aurora-rail-foot" data-open={acctOpen} role={acctOpen ? "menu" : undefined}>
+        {/* Desktop's EyeBot mark lives in .aurora-rail-top, which the bar hides — so on a
+            phone this sheet would carry a lone SNEC mark, and the branding lock is explicit
+            that that is never a lockup. Phone-only (CSS), so desktop gains no second mark. */}
+        <div className="aurora-rail-lockup">
+          <Wordmark size={15} tone="white" />
+        </div>
         <div className="aurora-snec-wrap" title="A Singapore National Eye Centre initiative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="aurora-snec" src="/brand/snec-logo.jpg" alt="Singapore National Eye Centre" />
@@ -107,11 +159,7 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
             <span className="aurora-profile-role">{role === "trainer" ? "Trainer" : role}{user?.studentRole ? ` · ${user.studentRole}` : ""}</span>
           </span>
         </div>
-        <button
-          type="button"
-          className="aurora-signout"
-          onClick={() => { void logout(); router.push("/"); }}
-        >
+        <button type="button" className="aurora-signout" role={acctOpen ? "menuitem" : undefined} onClick={signOut}>
           Sign out
         </button>
       </div>

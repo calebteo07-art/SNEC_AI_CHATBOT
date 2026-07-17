@@ -181,6 +181,10 @@ html[data-motion="reduce"] .aurora-mesh span { animation: none; }
 html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animation: none; }
 
 .aurora-rail-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--hairline); }
+/* Phone-only furniture: the account button, the sheet's EyeBot mark, and the short nav
+   label. Desktop keeps the foot inline and shows the full label — without hiding the short
+   one here, every desktop nav item renders BOTH ("Dashboard Home"). */
+.aurora-rail-account, .aurora-rail-lockup, .aurora-navitem-short { display: none; }
 .aurora-snec-wrap { padding: 0 6px 8px; }
 .aurora-snec { width: 124px; height: auto; display: block; opacity: 0.82; mix-blend-mode: multiply; }
 
@@ -258,11 +262,19 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
    at the left margin; hovering it — or the rail, or tabbing into the nav — glides
    the rail back as a floating overlay that never reflows the page. A pin (the
    handle click, or the in-rail pin) locks it open, and content then reserves its
-   width. Mobile keeps the bottom bar below. */
-@media (min-width: 861px) {
+   width. Mobile keeps the bottom bar below.
+
+   `pointer: fine` is load-bearing, not decoration. 861px is NOT a phone/desktop
+   boundary — in landscape the 15 Pro Max is 932px, the 15 Plus 926, the 16 Pro 874,
+   the Pixel 8 Pro ~892. On width alone every one of them landed HERE and got a rail
+   parked at translateX(-100% - 28px) that only a HOVER brings back. Touch has no
+   hover, so their entire navigation was a 26px edge handle (measured: railX=-276 at
+   932x430). Width can never identify a phone; pointer can. See breakpoints.css. */
+@media (min-width: 861px) and (pointer: fine) {
   .aurora-shell[data-rail] { position: relative; }
   .aurora-shell[data-rail] .aurora-rail {
-    position: fixed; top: 0; left: 0; bottom: 0; height: 100vh;
+    /* dvh, not vh — vh resolves to the LARGE viewport and overshoots the real one. */
+    position: fixed; top: 0; left: 0; bottom: 0; height: 100dvh;
     z-index: 60; overflow: hidden; width: 248px;
     border-radius: 0 22px 22px 0;
     transform: translateX(calc(-100% - 28px));
@@ -329,28 +341,136 @@ html[data-motion="reduce"] .aurora-navitem[data-active="true"]::before { animati
 }
 html[data-motion="reduce"] .aurora-rail-handle::after { animation: none; }
 @media (prefers-reduced-motion: reduce) { .aurora-rail-handle::after { animation: none; } }
-@media (max-width: 860px) { .aurora-rail-handle { display: none; } }
+/* Coarse pointer, not width: a landscape phone can be 932px wide and must never be
+   offered a hover-only handle it physically cannot use. */
+@media (max-width: 860px), (pointer: coarse) { .aurora-rail-handle { display: none; } }
 
-/* ─────────────────────── Mobile bottom bar ─────────────────────── */
-@media (max-width: 860px) {
-  .aurora-shell { flex-direction: column; --rail-w: 0px; }
+/* ─────────────────────── Mobile bottom bar ───────────────────────
+   Tier = "any touch device, plus any narrow window" (breakpoints.css). The coarse arm
+   is what rescues the 861-932px landscape phones from the hover rail above; the width
+   arm keeps the legacy narrow-window behaviour. */
+@media (max-width: 860px), (pointer: coarse) {
+  .aurora-shell {
+    flex-direction: column;
+    --rail-w: 0px;
+    /* THE single source of truth for the bar's height. It lives on the shell, not the
+       rail, because .aurora-main-scroll is not a rail descendant and must resolve it.
+       The old reserve was a magic `76px` against a bar that measures 65.4px here but
+       ~99px on a notched device (env(safe-area-inset-bottom) ~= 34px) — so on real
+       hardware the last ~23px of every page sat behind the bar. One token, consumed by
+       both the bar and the reserve, cannot drift. */
+    --bar-h: calc(56px + env(safe-area-inset-bottom));
+  }
   .aurora-main { order: 0; height: 0; flex: 1; }
-  .aurora-main-scroll { padding-bottom: 76px; }
+  .aurora-main-scroll { padding-bottom: var(--bar-h); }
   .aurora-rail {
     order: 1;
     position: fixed; bottom: 0; left: 0; right: 0;
-    width: 100%; height: auto;
-    flex-direction: row; gap: 2px;
-    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    width: 100%; height: var(--bar-h);
+    flex-direction: row; gap: 4px; align-items: stretch;
+    /* viewportFit:"cover" means the notch occupies a full vertical edge in landscape —
+       inset left/right or it physically occludes the end items. */
+    padding: 5px calc(8px + env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
     border-right: none;
     border-top: 1px solid var(--hairline);
     box-shadow: 0 -6px 24px rgba(31, 31, 31, 0.06);
   }
-  .aurora-rail-top, .aurora-rail-label, .aurora-rail-foot { display: none; }
-  .aurora-rail-scroll { flex-direction: row; gap: 2px; overflow-x: auto; overflow-y: hidden; padding: 0; }
-  .aurora-rail-section { flex-direction: row; gap: 2px; }
-  .aurora-navitem { flex-direction: column; gap: 3px; padding: 6px 12px; font-size: 11.2px; font-weight: 600; white-space: nowrap; }
-  .aurora-navitem svg { width: 20px; height: 20px; }
+  .aurora-rail-top, .aurora-rail-label { display: none; }
+  /* Flex evenly to FIT. The old `overflow-x: auto` let the section keep its intrinsic
+     398.8px inside a 360px bar, so Leaderboard rendered at x=320..407 — 47px past the
+     edge — in a scroll strip with no iOS scrollbar and no affordance. Nobody scrolls a
+     nav bar they cannot see. */
+  /* `display: contents` dissolves the scroll box AND the STUDY/INSIGHTS grouping so every
+     destination becomes a direct flex child of the bar and they all share one `flex: 1 1 0`
+     track. Flexing the SECTIONS instead splits the bar per-section: a trainer's 5 STUDY
+     items got half the bar (25.9px each — measured) while the lone INSIGHTS item got the
+     other half. The groups are a desktop affordance; on a bar they are just arithmetic. */
+  .aurora-rail-scroll, .aurora-rail-section { display: contents; }
+  .aurora-navitem {
+    flex: 1 1 0; min-width: 0;
+    flex-direction: column; justify-content: center; gap: 2px;
+    padding: 4px 2px;
+    font-size: 10px; font-weight: 600; line-height: 1.15;
+    white-space: nowrap; overflow: hidden;
+  }
+  .aurora-navitem svg { width: 20px; height: 20px; flex: none; }
+  /* The full label ellipsises to mush at these widths ("Virtual Patients" wants ~83px
+     in a 48px cell). The short form is the visible text on phones; the accessible name
+     is always the full label via aria-label, so nothing is lost to a screen reader. */
+  .aurora-navitem-full { display: none; }
+  .aurora-navitem-short { display: block; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* ─── Phone landscape: keyed on HEIGHT, never width (a 932x430 phone is not a tablet) ───
+   The bar was eating 65.4px of a 390px-tall viewport (16.8%) and covering the home CTA.
+   Icon-only reclaims the label row; targets stay >=44px, so no touch exception is needed. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .aurora-shell { --bar-h: calc(52px + env(safe-area-inset-bottom)); }
+  .aurora-rail { padding-top: 3px; padding-bottom: calc(3px + env(safe-area-inset-bottom)); }
+  .aurora-navitem { gap: 0; padding: 2px; }
+  .aurora-navitem-short { display: none; }
+  .aurora-navitem svg { width: 22px; height: 22px; }
+}
+
+/* ─────────────── The account sheet (phones) ───────────────
+   `.aurora-rail-foot { display: none }` at <=860px hid the SNEC co-brand, the identity
+   chip AND Sign out. The only other logout is EyeconMenu, rendered solely by
+   Dashboard.tsx — so on /chat, /cases, /flashcards, /leaderboard and /analytics a phone
+   user had NO way to end their session. On a shared institutional device that is a real
+   problem, not a cosmetic one.
+
+   The fix is not a second sign-out: it is the SAME .aurora-rail-foot, re-presented. The
+   bar cannot hold it inline, so a trailing account button raises it as a sheet. Identical
+   markup, identical logout path, zero duplication — the rail carries brand + identity +
+   sign-out again, as it does on desktop.
+
+   The sheet must be `position: fixed`: .aurora-rail-night sets `overflow: hidden` (it
+   clips the drifting orb), which would clip an absolutely-positioned child. A fixed
+   descendant escapes that clip because its containing block is the viewport — the rail
+   itself is fixed but establishes no containing block (no transform on this tier; the
+   desktop tier's translateX would, which is another reason this is phone-only). */
+@media (max-width: 860px), (pointer: coarse) {
+  .aurora-rail-account {
+    display: grid; place-items: center;
+    flex: none; width: 44px; padding: 0;
+    background: none; border: none; cursor: pointer;
+    border-radius: var(--radius-sm);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .aurora-rail-account[aria-expanded="true"] { background: rgba(255, 255, 255, 0.1); }
+
+  .aurora-rail-foot {
+    position: fixed;
+    left: calc(8px + env(safe-area-inset-left));
+    right: calc(8px + env(safe-area-inset-right));
+    bottom: calc(var(--bar-h) + 6px);
+    z-index: 2;
+    display: none;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    background: linear-gradient(176deg, #191D3A 0%, #0C0F20 100%);
+    box-shadow: 0 -18px 50px -18px rgba(0, 0, 0, 0.72);
+  }
+  .aurora-rail-foot[data-open="true"] { display: flex; }
+  /* Desktop's EyeBot mark lives in .aurora-rail-top, which the bar hides — so a sheet
+     carrying only .aurora-snec would be a LONE SNEC mark, and the branding lock is
+     explicit that that is never a lockup (design-locks.md:433-447). The mark rejoins the
+     SNEC mark here, reproducing exactly the pair the desktop rail carries. */
+  .aurora-rail-lockup { display: flex; align-items: center; padding: 0 6px; }
+  /* The night rail already flips the SNEC mark for a dark surface further down the
+     sheet; only its size changes here. */
+  .aurora-snec-wrap { padding: 0 6px; }
+  .aurora-snec { width: 96px; }
+  .aurora-profile { padding: 2px 6px; }
+  .aurora-signout {
+    min-height: 44px;
+    padding: 10px 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    font-size: 14.6px;
+  }
 }
 
 /* ─────────────── Atlas Rail · Night spine (student) ───────────────
@@ -446,8 +566,10 @@ html[data-motion="reduce"] .aurora-rail-night::before { animation: none; }
 .aurora-rail-night .aurora-signout { color: rgba(223, 226, 246, 0.5); }
 .aurora-rail-night .aurora-signout:hover { color: #fff; background: rgba(255, 255, 255, 0.055); }
 
-/* Mobile bottom bar inherits the indigo spine; just flip its top edge + lift. */
-@media (max-width: 860px) {
+/* Mobile bottom bar inherits the indigo spine; just flip its top edge + lift.
+   Coarse-inclusive to match the bar's own tier — a 932x430 landscape phone gets the bar,
+   so it must get the bar's edge treatment too. */
+@media (max-width: 860px), (pointer: coarse) {
   .aurora-rail-night { border-top: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.4); }
 }
 
@@ -1620,8 +1742,11 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
 .aurora-shell-immersive .aurora-main-scroll { padding: 0; height: 100dvh; }
 .aurora-shell-immersive .aurora-chat { height: 100dvh; }
 /* Mobile keeps the immersive canvas edge-to-edge — no bottom bar; each screen owns
-   its own back/exit affordance (the desktop hover handle is already hidden ≤860px). */
-@media (max-width: 860px) {
+   its own back/exit affordance, and its own complete EyeBot+SNEC lockup (the rail-less
+   branch of the branding lock). Coarse-inclusive: on width alone a 932x430 landscape
+   phone missed this tier and grew a bottom bar that the same phone in portrait does not
+   have — the immersive canvas must be the same canvas in both orientations. */
+@media (max-width: 860px), (pointer: coarse) {
   .aurora-shell-immersive .aurora-rail { display: none; }
   .aurora-shell-immersive .aurora-main-scroll { padding-bottom: 0; }
 }
