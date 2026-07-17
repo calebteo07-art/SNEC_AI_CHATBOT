@@ -1,0 +1,45 @@
+/* ═══════════════════════ THE TIER SYSTEM — canonical reference ═══════════════════════
+
+   Before this file the app had ONE breakpoint (max-width: 860px) and no height or
+   orientation queries at all outside the rotate gate. So a 390px-TALL landscape phone
+   was styled exactly like a tablet: a 76px bottom bar ate 20% of the screen and covered
+   the home CTA.
+
+   ── Why every phone tier is gated on `pointer: coarse` ──
+
+   861px is NOT a phone/desktop boundary. In landscape:
+       iPhone 16 Pro    874 x 402      iPhone 15 Plus   926 x 430
+       iPhone 15 ProMax 932 x 430      Pixel 8 Pro     ~892 x 412
+   All are WIDER than 861 and all are phones. Width alone cannot identify a phone, so
+   width alone must never gate a phone rule. `pointer: coarse` is the real test — it is
+   true for touch, false for a mouse. It also means a narrow DESKTOP window keeps its
+   desktop layout instead of being handed a phone UI, which is what we want.
+
+   ── The tiers ──
+
+   Copy these verbatim. They are repeated rather than tokenised on purpose (see below).
+
+     phone portrait     @media (max-width: 640px) and (pointer: coarse)
+     phone landscape    @media (max-height: 480px) and (pointer: coarse)
+     any phone          @media (max-width: 640px) and (pointer: coarse),
+                               (max-height: 480px) and (pointer: coarse)
+     any touch device   @media (pointer: coarse)
+     tablet / narrow    @media (max-width: 860px)          <- the legacy tier, retained
+
+   Phone landscape keys on HEIGHT, never width — that is the whole point. A 932x430
+   phone matches `max-height: 480px`; it does not match `max-width: 640px`.
+
+   ── Why this file has no code ──
+
+   CSS media queries cannot use custom properties: `@media (max-width: var(--phone))`
+   is invalid by spec. The draft `@custom-media` at-rule would solve it, but this
+   pipeline is `@tailwindcss/postcss` alone (see postcss.config.mjs) with no
+   postcss-custom-media. An untransformed `@custom-media` does not error — it is simply
+   dropped, and every `@media (--phone-portrait)` then matches NOTHING. That fails
+   silently and would make every mobile rule in the app dead code, which is a far worse
+   outcome than repeating a query string. Adding a plugin to a production build for
+   syntax sugar is not worth it.
+
+   So the tiers live here as the single documented contract, and are written out raw at
+   each use site. If you change a tier, change it here first, then grep for the old
+   query string — `aurora.css`, `home.css`, and `leaderboard.css` all use them. */

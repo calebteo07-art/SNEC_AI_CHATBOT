@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "../aurora/tokens.css";
+/* Documentation only — the tier contract shared by aurora/home/leaderboard. Imported so
+   it is discoverable from the style entrypoint rather than being an orphan file. */
+@import "../aurora/breakpoints.css";
 @import "../aurora/aurora.css";
 @import "../aurora/home.css";
 @import "../aurora/studio.css";

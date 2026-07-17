@@ -5,7 +5,10 @@
 /* ───────────────────────── Shell ───────────────────────── */
 .aurora-shell {
   display: flex;
-  height: 100vh;
+  /* dvh, not vh: on mobile `vh` resolves to the LARGE viewport (toolbar retracted), so
+     with `overflow: hidden` below, ~60-90px of the shell sits permanently under the
+     browser chrome with no way to scroll to it. `dvh` tracks the real viewport. */
+  height: 100dvh;
   overflow: hidden;
   background: var(--canvas);
   color: var(--ink);
@@ -16,7 +19,7 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .aurora-main-scroll {
@@ -96,7 +99,7 @@ html[data-motion="reduce"] .aurora-mesh span { animation: none; }
   z-index: 30;
   width: var(--rail-w);
   flex-shrink: 0;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -581,7 +584,7 @@ html[data-motion="reduce"] .aurora-ring-arc { transition: none; }
 /* ─────────────────── Dashboard layout ─────────────────── */
 /* Fills the viewport: hero + NBA keep their natural height and the colour stat
    row grows to absorb the remaining space, so there's no empty area below. */
-.aurora-dash { max-width: none; min-height: 100vh; box-sizing: border-box; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
+.aurora-dash { max-width: none; min-height: 100dvh; box-sizing: border-box; margin: 0 auto; padding: clamp(20px, 3vw, 40px); display: flex; flex-direction: column; gap: 20px; }
 .aurora-dash > * { flex-shrink: 0; }
 .aurora-card {
   background: var(--surface);
