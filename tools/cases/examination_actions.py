@@ -38,33 +38,94 @@ _STEP_KEYWORDS: dict[str, tuple[str, ...]] = {
 _ALIASES = {"va_distance": "va", "iop_nct": "iop", "va_near": "near_va"}
 
 # Canonical short chip labels for "do" steps (first keyword match wins).
+#
+# ORDER IS LOAD-BEARING. A step names the procedure it documents ("Record the date /
+# time / DISTANCE VISION readings onto EMR"), so the documentation rules MUST sit above
+# the procedure rules — otherwise that step labels as "Test distance VA", collides with
+# the real VA step, and merge_by_label silently swallows it. Same reason "Check doctor's
+# order to perform NON-CONTACT TONOMETRY" must outrank the IOP rule. Keep specific
+# rules above general ones; the completeness test
+# (tests/cases/test_action_panel_completeness.py) pins the resulting labels.
 _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
-    (("hand hygiene", "hand wash", "5 moments", "five moments", "moments of hand",
+    # ── Infection control / housekeeping (most specific — an "otherwise X" step whose
+    #    primary action is hand hygiene is a hand-hygiene step).
+    (("hand hygiene", "hand wash", "hand rub", "5 moments", "five moments", "moments of hand",
       "before touching", "after touching", "before clean procedure", "after body fluid",
       "patient surroundings"), "Hand hygiene"),
     (("wipe occluder", "wipe the occluder", "occluder with alcohol", "occluder with an alcohol"), "Wipe occluder"),
     (("disinfect", "wipe the essential parts", "wipe the parts", "parts of the machine",
       "disinfection of equipment"), "Disinfect equipment"),
-    (("discard", "waste bag"), "Discard waste"),
+    # NOT a bare "discard": the drop-preparation step lists "Date of discard" among the
+    # label checks, and a bare match hijacked that CRITICAL medication check into
+    # "Discard waste" — which deleted "Prepare eye drops" from both drop checklists.
+    (("discard all waste", "discard sharps", "waste bag", "dispose of"), "Discard waste"),
+    (("care and maintenance", "care & maintenance", "maintenance of the"), "Care & maintenance"),
+
+    # ── Chart / order checks. "Doctor to examine" first: it merely MENTIONS a doctor and
+    #    must not be mistaken for checking an order.
+    (("doctor to examine",), "Doctor to examine"),
     (("not allergic", "allerg"), "Check allergy"),
-    (("doctor’s order", "doctor's order", "written order", "electronic order", "medication order", "doctor"), "Check doctor's order"),
-    (("at least 2 identifiers", "identity against", "identify the correct patient", "identify patient"), "Identify patient"),
+    (("doctor’s order", "doctor's order", "written order", "electronic order",
+      "medication order", "ordered by the doctor", "order to perform"), "Check doctor's order"),
+
+    # ── Documentation. ABOVE the procedure rules — see the ORDER note above. The
+    #    record/document VERB forms are matched by prefix in match_label, not here.
+    (("print",), "Print results"),
+    (("captured into", "activity is recorded"), "Document results"),
+
+    # ── Identification / conversation (verbal — no chip, but must classify explicitly).
+    (("at least 2 identifiers", "2 identifiers", "identity against", "identify the correct patient",
+      "identify patient"), "Identify patient"),
     (("patient name",), "Confirm name"),
     (("identification number", "date of birth", "address"), "Confirm NRIC / DOB"),
     (("introduce",), "Introduce self"),
-    (("explain the procedure", "explain the purpose", "purpose and procedure", "purpose & procedure", "explain to the patient"), "Explain procedure"),
+    (("explain the procedure", "explain the purpose", "purpose and procedure",
+      "purpose & procedure", "explain to the patient", "explain purpose",
+      "give clear explanation", "clear explanation to patient"), "Explain procedure"),
     (("consent",), "Take consent"),
+    (("received the patient", "patient with respect", "patient’s needs", "patient's needs",
+      "directed to waiting room", "wheelchair"), "Patient care"),
+    (("demonstrates knowledge", "demonstrate knowledge"), "Demonstrate knowledge"),
+    (("focused history", "take a history", "history of any"), "Take history"),
+    # PFAER screens are questions put to the patient, so they stay verbal (answered in
+    # the live consult); only SCORING the scale below is form work.
+    (("screen for", "screen if"), "Screen patient"),
+    (("learning barrier",), "Learning barriers"),
+    (("falls precaution education", "provide falls precaution"), "Falls education"),
+
+    # ── Preparation / equipment.
+    (("obtain appropriate requisites", "obtain the requisites", "requisites"), "Prepare equipment"),
+    (("correct occluder", "general occluder", "occluder with orange"), "Select occluder"),
+    (("information sheet",), "Give info sheet"),
     (("remove glasses", "contact lenses if worn"), "Remove glasses / CL"),
+    # Only steps whose PURPOSE is confirming the correction. Not "corrective lenses" —
+    # the VA steps say "Check patient's distant vision WITH corrective lenses…", and that
+    # step is the vision test itself.
+    (("usual near/reading correction", "appropriate correction is worn", "normally wears",
+      "wears their usual"), "Check correction worn"),
+    (("daylight-equivalent", "good natural daylight", "adequately illuminated",
+      "illumination"), "Check lighting"),
     (("prepare the appropriate eye drops", "prepare the eye drop"), "Prepare eye drops"),
     (("instil", "pull the lower lid"), "Instill drops"),
+
+    # ── Procedures.
     (("pinhole",), "Pinhole test"),
     (("near vision", "near va"), "Test near VA"),
-    (("distance vision", "distance va", "visual acuity", "logmar", "snellen"), "Test distance VA"),
+    # NOT "largest character": the NEAR test also reads "from the largest characters".
+    (("distance vision", "distant vision", "distance va", "visual acuity", "logmar",
+      "snellen", "read all 5 letters", "read all the 5 letters",
+      "stop the test when"), "Test distance VA"),
     (("iop", "tonometry", "intraocular pressure"), "Measure IOP"),
     (("anterior segment", "slit lamp", "slit-lamp"), "Anterior segment"),
     (("fundus", "optic disc"), "Fundus exam"),
-    (("ishihara", "colour vision", "color vision"), "Colour vision"),
-    (("amsler",), "Amsler grid"),
+    (("ishihara", "colour vision", "color vision", "each plate", "demonstration plate",
+      "plates correctly"), "Colour vision"),
+    (("amsler", "central dot"), "Amsler grid"),
+    (("test the right eye", "test each eye", "test one eye", "repeat the test for",
+      "occluding the left eye", "other eye occluded"), "Test each eye"),
+    (("verbal or non-verbal cue", "without giving any cue"), "Avoid cueing"),
+
+    # ── Machine handling.
     (("position", "chin and forehead", "chin rest"), "Position patient"),
     (("align", "focus the target", "acquisition"), "Align & focus"),
     (("control lever", "control knob", "joystick", "machine body", "move the machine", "pull the machine"), "Operate joystick"),
@@ -74,19 +135,30 @@ _LABEL_RULES: list[tuple[tuple[str, ...], str]] = [
       "obtain the average", "measurement value"), "Take readings"),
     (("choose the correct lens", "correct lens and refractive", "refractive status",
       "correct formula", "area of scanning", "macular cut", "rnfl", "trial lens",
-      "reading mode", "measurement mode", "auto start mode"), "Select settings"),
+      "reading mode", "measurement mode", "auto start mode", "test pattern",
+      "threshold parameters", "phakic", "aphakic", "post refractive surgery",
+      "select appropriate legend", "appropriate legend"), "Select settings"),
     (("validate the measurement", "validate the reading"), "Validate reading"),
-    (("print",), "Print results"),
-    (("record the date", "document the reading", "captured into", "record the"), "Document results"),
-    (("monitor patient", "fixation loss"), "Monitor patient"),
-    (("correct eye", "coloured sticker", "fall risk"), "Safety check"),
+    (("perform the auto kerato", "perform the airpuff", "perform the icare"), "Operate machine"),
+    (("monitor patient", "fixation loss", "monitor patient’s progress"), "Monitor patient"),
+
+    # ── Safety / closing.
+    (("mental status", "transfer score", "mobility score", "weighted risk score",
+      "total weighted"), "Score fall risk"),
+    (("correct eye", "coloured sticker", "fall risk", "red flag", "recognise that new"), "Safety check"),
     (("ensure patient is comfortable", "patient is comfortable"), "Patient comfortable"),
-    (("doctor to examine",), "Doctor to examine"),
-    (("look upwards", "do not blink", "gaze at", "open both eyes", "look at the"), "Instruct patient"),
+    (("look upwards", "do not blink", "gaze at", "open both eyes", "look at the",
+      "inform patient of the", "clear and proper instruction", "request patient to"), "Instruct patient"),
     (("listens attentively", "opening statement"), "Listen actively"),
 ]
 
 _ASK_PREFIXES = ("ask", "asks", "enquire", "enquires")
+
+# A documentation step is recognised by its LEADING VERB, never by a substring: the
+# phrase "medical record notes" sits inside every identification step, so a bare
+# "record" substring would hijack them. Checked before _LABEL_RULES — a step that
+# STARTS with record/document is documenting, whatever else it names.
+_DOC_PREFIXES = ("record ", "document ", "tally and record")
 
 # The action panel lists ONLY genuine hands-on procedures (ricoe C1). This is an
 # ALLOW-list of the recognised manual procedures — every "do" step whose canonical
@@ -104,6 +176,18 @@ _MANUAL_LABELS = {
     "Align & focus", "Operate joystick", "Capture image", "Take readings",
     "Select settings", "Validate reading", "Print results", "Document results",
     "Safety check",
+    # Chart-side procedures. Reading the EMR before you act is a hands-on step the
+    # student DOES at the screen — not something they say to the patient — so it needs a
+    # chip. "Check doctor's order" was missing here, which silently dropped a CRITICAL
+    # step from 109 of 155 cases (the reported bug).
+    "Check doctor's order", "Check allergy",
+    # Equipment / setup procedures.
+    "Prepare equipment", "Select occluder", "Give info sheet", "Care & maintenance",
+    "Check correction worn", "Check lighting",
+    # Technique procedures.
+    "Test each eye", "Avoid cueing", "Operate machine", "Monitor patient",
+    # Scoring the fall-risk scale is form work the student does, not a question they ask.
+    "Score fall risk",
 }
 
 # Manual chips that are a single mechanical confirmation — a machine-handling / equipment
@@ -118,6 +202,12 @@ _QUICK_LABELS = {
     "Print results", "Document results", "Remove glasses / CL",
     "Position patient", "Align & focus", "Operate joystick", "Capture image",
     "Take readings", "Select settings", "Validate reading", "Safety check",
+    # Chart / setup confirmations — you either checked the order, the allergy, the
+    # lighting and the correction, or you didn't. There's no technique to grade, so
+    # these tick on one click (same consistency rule as the machine steps above).
+    "Check doctor's order", "Check allergy", "Check correction worn", "Check lighting",
+    "Prepare equipment", "Select occluder", "Give info sheet", "Care & maintenance",
+    "Monitor patient", "Score fall risk",
 }
 
 
@@ -166,11 +256,28 @@ def _say_label(prompt: str) -> str:
     return _clip_words(short, 30) or "Ask"
 
 
-def _do_label(action: str, category: str) -> str:
-    low = action.lower()
+def match_label(action: str) -> str | None:
+    """The canonical label for a "do" step, or None if NO rule recognises it.
+
+    The None case is the one that matters: an unrecognised step gets a generically-clipped
+    label and defaults to verbal, so it silently vanishes from the action panel — nobody
+    ever DECIDED it should be absent. tests/cases/test_action_panel_completeness.py asserts
+    this returns non-None for every step of every real procedure checklist, so a new or
+    re-ingested step can't quietly disappear.
+    """
+    low = action.strip().lower()
+    if low.startswith(_DOC_PREFIXES):
+        return "Document results"
     for keywords, label in _LABEL_RULES:
         if any(kw in low for kw in keywords):
             return label
+    return None
+
+
+def _do_label(action: str, category: str) -> str:
+    label = match_label(action)
+    if label is not None:
+        return label
     head = action.split(":")[0].strip()
     short = _clip_words(" ".join(head.split()[:4]).rstrip(".,;:"), 34)
     return short or (category.replace("_", " ").title() if category else "Step")

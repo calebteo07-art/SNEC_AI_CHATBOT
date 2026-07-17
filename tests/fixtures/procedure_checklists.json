@@ -1,0 +1,1994 @@
+[
+  {
+    "procedure_name": "Amsler Grid Testing",
+    "checklist_type": "logbook",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Perform hand hygiene and confirm the patient's identity (name and NRIC/date of birth) and the indication for Amsler testing (e.g. macular/AMD monitoring)."
+      },
+      {
+        "step_number": 2,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Take a focused history of any new central visual symptoms (distortion, wavy/bent lines, blurred or missing areas), including onset and which eye."
+      },
+      {
+        "step_number": 3,
+        "category": "equipment",
+        "critical": false,
+        "action": "Ensure the Amsler grid chart is clean and adequately illuminated."
+      },
+      {
+        "step_number": 4,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ensure the patient wears their usual near/reading correction for the test."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure: hold the grid at normal reading distance (~30 cm), cover one eye, and look steadily at the central dot."
+      },
+      {
+        "step_number": 6,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Test one eye at a time (occlude the other), with the patient fixating on the central dot throughout."
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask whether all corners and sides are visible and whether any lines appear wavy, bent, blurred or missing, or any area looks grey/dark."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Record the specific location and nature of any distortion or scotoma on the grid, for each eye."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Compare today's findings with the patient's previously recorded Amsler results."
+      },
+      {
+        "step_number": 10,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Recognise that NEW distortion or scotoma (especially with reduced VA) in an at-risk patient is a red flag and escalate promptly to the doctor rather than filing as routine."
+      },
+      {
+        "step_number": 11,
+        "category": "documentation",
+        "critical": false,
+        "action": "Document the Amsler grid findings clearly for each eye for handover and comparison."
+      },
+      {
+        "step_number": 12,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Teach the patient home Amsler monitoring (each eye separately) and to return urgently if distortion worsens or new blank areas appear."
+      },
+      {
+        "step_number": 13,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Perform hand hygiene and hand the findings to the doctor, including the comparison with baseline."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Auto Kerato-Refractometry (SOP)",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Obtain appropriate requisites: Auto Kerato-Refractometer machine, Thermal Paper, Alcohol wipes"
+      },
+      {
+        "step_number": 2,
+        "category": "equipment",
+        "critical": false,
+        "action": "Set ‘RK’ reading mode and select the auto start mode."
+      },
+      {
+        "step_number": 3,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s order to perform Auto Kerato-Refratometry in patient’s medical records / EMR."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record notes using at least 2 identifiers to ensure correctness: Patient Name, Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to patient."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 8,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the essential parts of the machine that comes in contact with the patient with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 9,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ask patient to remove glasses or contact lenses if worn."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in front of the machine with chin and forehead resting firmly on the frame. Adjust the table height and patient’s height in the chin rest so that the outer canthus is aligned with the black mark."
+      },
+      {
+        "step_number": 11,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Inform patient of the following: Open both eyes widely and look at the fixation target. Test the right eye first (by convention), followed by the left eye."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Align and focus the target on the monitor, depress the joystick button and a reading will be displayed on the screen. Take around three readings to verify the readings accuracy and obtain the average reading."
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the essential parts of the machine that comes in contact with the patient with alcohol wipes after the procedure."
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 15,
+        "category": "documentation",
+        "critical": false,
+        "action": "Results will be captured into OEI. Press Save and Quit tab after the three readings are taken. Alternatively, print and paste the results on patient’s medical record notes."
+      },
+      {
+        "step_number": 16,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Doctor to examine patient’s eyes after the procedure."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Basic Biometry",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Demonstrates knowledge in identifying the various components & functions of the IOL Master 700"
+      },
+      {
+        "step_number": 2,
+        "category": "documentation",
+        "critical": true,
+        "action": "Check doctor’s written order on the Biometry request form"
+      },
+      {
+        "step_number": 3,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Received the patient with respect"
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Check for patient’s needs (wheelchair, require assistance etc)"
+      },
+      {
+        "step_number": 5,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for Basic Optical Biometry and check the patient’s identity against medical record/EMR using at least 2 identifiers:"
+      },
+      {
+        "step_number": 7,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Patient Name"
+      },
+      {
+        "step_number": 8,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 9,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Performing 5 moments of hand hygiene"
+      },
+      {
+        "step_number": 10,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Before touching a patient"
+      },
+      {
+        "step_number": 11,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Before clean procedure"
+      },
+      {
+        "step_number": 12,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After body fluid or exposure risk"
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After touching a patient"
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After touching patient surroundings"
+      },
+      {
+        "step_number": 15,
+        "category": "patient_education",
+        "critical": true,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 16,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Give clear explanation to patient on performing the test."
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Choose the correct lens and refractive status of the eye"
+      },
+      {
+        "step_number": 18,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Phakic, pseudophakic or aphakic"
+      },
+      {
+        "step_number": 19,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Post refractive surgery or normal eye"
+      },
+      {
+        "step_number": 20,
+        "category": "equipment",
+        "critical": false,
+        "action": "Align the instrument table to the correct patient’s height"
+      },
+      {
+        "step_number": 21,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ensures proper positioning of patient’s head"
+      },
+      {
+        "step_number": 22,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Validate the measurement."
+      },
+      {
+        "step_number": 23,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Determine the correct formula to be used"
+      },
+      {
+        "step_number": 24,
+        "category": "documentation",
+        "critical": true,
+        "action": "Print out biometry results for operating eye."
+      },
+      {
+        "step_number": 25,
+        "category": "equipment",
+        "critical": false,
+        "action": "Proper care and maintenance of the IOL Master 700."
+      },
+      {
+        "step_number": 26,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect after use."
+      },
+      {
+        "step_number": 27,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 28,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Cirrus OCT",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s written order for Cirrus OCT testing in patient’s medical record / OCT order form"
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Received the patient with respect"
+      },
+      {
+        "step_number": 3,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check for patient’s needs (wheelchair, require assistance etc.)"
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for Cirrus-OCT testing and check the patient’s identity against medical record/EMR using at least 2 identifiers:"
+      },
+      {
+        "step_number": 6,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Patient Name"
+      },
+      {
+        "step_number": 7,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 8,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect equipment before test."
+      },
+      {
+        "step_number": 9,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Performing 5 moments of hand hygiene"
+      },
+      {
+        "step_number": 10,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Before touching a patient"
+      },
+      {
+        "step_number": 11,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Before clean procedure"
+      },
+      {
+        "step_number": 12,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After body fluid or exposure risk"
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After touching a patient"
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "After touching patient surroundings"
+      },
+      {
+        "step_number": 15,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 16,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Give clear explanation to patient on performing the Test and inform patient to focus on the fixation star."
+      },
+      {
+        "step_number": 17,
+        "category": "equipment",
+        "critical": false,
+        "action": "Align the instrument table to the correct patient’s height."
+      },
+      {
+        "step_number": 18,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Proper positioning of patient’s head."
+      },
+      {
+        "step_number": 19,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ensure the sharpest image is captured."
+      },
+      {
+        "step_number": 20,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Validate the measurement."
+      },
+      {
+        "step_number": 21,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Determine the correct area of scanning (macular cut/RNFL)."
+      },
+      {
+        "step_number": 22,
+        "category": "documentation",
+        "critical": false,
+        "action": "Print out OCT results for both eyes."
+      },
+      {
+        "step_number": 23,
+        "category": "equipment",
+        "critical": false,
+        "action": "Proper care and maintenance of the equipment."
+      },
+      {
+        "step_number": 24,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect after use."
+      },
+      {
+        "step_number": 25,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 26,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Cornea Topography",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s written order for Cornea Topography in patient’s medical record / EMR/ Visual field order form"
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for Cornea Topography and check the patient’s identity against medical record/EMR using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 5,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Performing 5 moments of hand hygiene: Before touching a patient, Before clean procedure, After body fluid or exposure risk, After touching a patient, After touching patient surroundings"
+      },
+      {
+        "step_number": 6,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Acquisition"
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Validate the measurement."
+      },
+      {
+        "step_number": 8,
+        "category": "documentation",
+        "critical": false,
+        "action": "Print out 4 Maps Cornea Topography."
+      },
+      {
+        "step_number": 9,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Proper disinfection of equipment before and after test"
+      },
+      {
+        "step_number": 10,
+        "category": "equipment",
+        "critical": true,
+        "action": "Proper care and maintenance of the Cornea Topography, including disinfecting after use."
+      },
+      {
+        "step_number": 11,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 12,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 13,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / distance vision readings onto the patient’s medical record/ EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Distance Vision Testing LogMAR",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s order for Visual Acuity - Distance Vision testing using LogMAR (Modified) in patient’s medical record/EMR."
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for the test. Check the patient’s identity against medical record/EMR using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 5,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 6,
+        "category": "equipment",
+        "critical": false,
+        "action": "Use the correct occluder: Use general occluder (for non-infected case), use occluder with orange sticker (infected case)."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe occluder with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in a sitting position."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check patient’s distant vision with corrective lenses or contact lenses (if worn) using the LogMAR M&S Smart system. The system is calibrated according to room length. Test the right eye first (by convention) by occluding the left eye. Ask patient to read ALL 5 letters or numbers from left to right (largest characters) starting from the top line. Patient must read ALL the 5 letters from the current line correctly before proceeding to read ALL the letters from the successive lines (E.g Lines 6/48, 6/38, 6/30, etc). Stop the test when patient is unable to read all 5 letters in a line (eg. 6/15). Count the number of letters that patient is able to read from that line (eg. 2 correct letters from 6/15 line). Document the reading as follows: The last line where patient is able to read all 5 letters correctly, both in Snellen & LogMAR (eg. 6/19 (0.5)); The number of correct letters read from the last attempted line (6/15) (eg. +2); Eg. VR 6/19 +2 (0.5) with glasses, if worn."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "When the vision is noted to be 6/12 and above, a pinhole should be used to attempt to improve vision. Ask patient to read the last attempted line (eg. 6/15). If patient is able to read all the 5 letters on that line, continue downwards. Stop the test when patient is unable to read all 5 letters in a line (eg. 6/12). Count the number of letters that patient is able to read from that line (eg. 3 correct letters from 6/12 line). Any visual improvement with pinhole would be recorded as follows: Eg. VR 6/19 +2 (0.5); 6/15 +3 (0.4) with PH (with glasses, if worn)."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient can read partial 6/60 (1.0) line (E.g. 2 correct letters from 6/60 line), use a pinhole to attempt to improve vision. If patient is able read ALL the letters from that line, continue downwards. If patient is still unable to read ALL 5 letters (E.g. 4 correct letters), stop the test and record as follows: E.g. VR 6/60 (read 2 only); => 6/60 (read 4 only) with PH (with glasses, if worn)."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient is unable to read any letter from the LogMAR 6/60 (1.0) line, use pinhole to attempt to improve vision. If patient is able to read ALL the letters from that line, continue downwards. Stop the test when patient is unable to read ALL 5 letters from that line. Record as follows: E.g VR 6/60 (read none); VR 6/48+2 with PH (with glasses, if worn)."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient is unable to read any letter or number from 6/60 line with pinhole, proceed to 6/120 with no pinhole. If patient is unable to read from 6/120 line, use pinhole to attempt to improve vision and record as follows: VR: 6/120 (can’t read); 6/120 with PH."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient is unable to read from 6/120 (1.3) line with pinhole, proceed to test vision in the order stated below and record the results accordingly: Count Fingers, Hand Movements, Light Perception, No Light Perception."
+      },
+      {
+        "step_number": 15,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the occluder with alcohol wipes after the procedure."
+      },
+      {
+        "step_number": 16,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 17,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 18,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / distance vision readings onto the patient’s medical record / EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Distance Vision Testing LogMAR (SOP)",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Obtain appropriate requisites: LogMAR M&S Smart System, Occluder with Pinholes, Alcohol Wipes, Good Lighting."
+      },
+      {
+        "step_number": 2,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s written order for Visual Acuity – Distance Vision Testing using LogMAR (Modified) method in patient’s medical notes."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record notes using at least 2 identifiers (Patient Name, Patient Identification Number / Address / Date of Birth)."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to patient."
+      },
+      {
+        "step_number": 6,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe occluder with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in a sitting position."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check patient’s distance vision with corrective lenses or contact lenses (if worn) using the LogMAR M&S Smart system, ensuring the testing distance is 4m."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Test the right eye first (by convention) by occluding the left eye and ask patient to read all 5 letters or numbers across the top line (largest characters) from right to left."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Patient must read all the 5 letters correctly before proceeding to read all the letters on the successive lines downwards (Lines 6/48, 6/38, 6/30, etc)."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Stop the test when patient is unable to read all 5 letters in a line (e.g., 6/15). Count the number of letters that patient is able to read from that line (e.g., 2 correct letters from 6/15 line)."
+      },
+      {
+        "step_number": 13,
+        "category": "documentation",
+        "critical": false,
+        "action": "Document the reading as follows: The last line where patient is able to read all 5 letters correctly, both in snellen & LogMAR (e.g., 6/19 (0.5)); The number of correct letters read from the last attempted line (e.g., 6/15) (e.g., +2). Example: VR 6/19 +2 (0.5) with gls."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "When patient’s vision is 6/12 & above, use a pinhole to attempt to improve vision. Ask patient to read the last attempted line (e.g., 6/15). If patient can read all letters on that line, continue downwards. Stop when patient cannot read all 5 letters in a line (e.g., 6/12). Count correct letters (e.g., 3 correct letters from 6/12 line). Record any visual improvement with pinhole (e.g., VR 6/19 +2 (0.5), 6/15 +3 (0.4) with PH with gls)."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient cannot read all 5 letters from the LogMAR 6/60 (1.0) line (e.g., 2 correct letters), use a pinhole to attempt to improve vision. If patient can read all letters on that line, proceed as per step 4.2.9. If patient still cannot read all 5 letters on that line (e.g., 4 correct letters), stop the test and record (e.g., VR 6/60 (read 2 only), 6/60 (read 4 only) with PH)."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient cannot read any letters from the LogMAR 6/60 (1.0) line, ask patient to read the largest character on the Snellen chart (6/120) and record the results accordingly."
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If patient cannot read the largest character on the Snellen chart (6/120), perform as per Snellen VA and record: Count Fingers, Hand Movements, Light Perception, No Light Perception."
+      },
+      {
+        "step_number": 18,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Repeat the test for the Left eye with the right eye occluded (steps 4.2.5 to 4.2.12)."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Eye Drop Instillation and Dilation",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": true,
+        "action": "Check doctor’s medication order for dilatation in patient’s medical record/EMR."
+      },
+      {
+        "step_number": 2,
+        "category": "patient_identification",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for eye drop instillation and check the patient’s identity against medical record/EMR using 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth."
+      },
+      {
+        "step_number": 4,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Check patient’s EMR to ensure correct eye to be dilated and place the appropriate coloured stickers on the side of patient’s clothing to indicate correct eye for dilatation."
+      },
+      {
+        "step_number": 5,
+        "category": "medication",
+        "critical": true,
+        "action": "Prepare the appropriate eye drops and observe the Guidelines on Administration of Medication. Check the eye drop: Name, Strength, Manufacturer’s expiry date, Date of opening, Date of discard, Clarity of medication - If clear bottle."
+      },
+      {
+        "step_number": 6,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Check that the patient is not allergic to the selected eye drops by verifying with the patient’s medical record/EMR and by asking the patient."
+      },
+      {
+        "step_number": 7,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain to the patient the purpose and procedure of the dilatation and the effects of the eye drops using the Patient Information Sheet."
+      },
+      {
+        "step_number": 8,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Give patient the “Patient Information Sheet”."
+      },
+      {
+        "step_number": 9,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Observe infection control practices: Perform hand hygiene before instillation of eye drop to minimize risk of cross infection; Minimize contamination of the eye drop bottle and cap by holding the cap or placing it in a container."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Demonstrate knowledge and skill in instillation of eye drop: Position the patient comfortably in a sitting position with head slightly tilted backward. Recumbent position."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Give clear and proper instruction to patient: Request patient to look upwards and do not blink eye."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Instill the eye drop in a proper manner: Gently pull the lower lid downwards with tissue or lint square to expose the lower fornix. With the other hand, hold the eye drop bottle about 2.5cm from the eye. Instill 1 or 2 drops into the centre of the lower fornix. The tip of the eye drop bottle should not touch the eyelashes or lid during instillation."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Request patient to close the eye gently to prevent squeezing out the eye medication. Keep eye closed for 30 sec (or till patient is comfortable) after the instillation of eye drop. Wipe off excess fluid from the eye with the tissue paper."
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 15,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 16,
+        "category": "documentation",
+        "critical": true,
+        "action": "Record the date and time of the procedure performed onto the patient’s medical record/EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "History Taking",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for History taking and check the patient’s identity against medical record notes using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth."
+      },
+      {
+        "step_number": 2,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Introduces himself/herself (full name), uses the patient’s name."
+      },
+      {
+        "step_number": 3,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Listens attentively to opening statement without interruption."
+      },
+      {
+        "step_number": 4,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Explain to the patient that he/she would like to know more about the present day’s purpose of visit to eye hospital."
+      },
+      {
+        "step_number": 5,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about patient complaints of red eye: How long was the eye been red?"
+      },
+      {
+        "step_number": 6,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about patient complaints of red eye: Any trauma to the eye?"
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about patient complaints of red eye: Any foreign substance in the eye (shampoo or dirt)?"
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about patient complaints of red eye: Any allergies?"
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Did the symptom start all of a sudden or gradually?"
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any pain and how long is the pain?"
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any itching?"
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any sensitivity to light?"
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any discharge present or absent?"
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: If there was discharge, what was the color?"
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any decrease in vision?"
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any treatment taken?"
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any associated headache or vomiting?"
+      },
+      {
+        "step_number": 18,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask more about the symptom: Any medicine applied?"
+      },
+      {
+        "step_number": 19,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past Ocular history: Any previous injuries?"
+      },
+      {
+        "step_number": 20,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past Ocular history: Any previous surgeries?"
+      },
+      {
+        "step_number": 21,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past Ocular history: Any contact lens use?"
+      },
+      {
+        "step_number": 22,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past Ocular history: Any other eye issues in the past?"
+      },
+      {
+        "step_number": 23,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past medical history: Any history of Diabetes, High blood pressure, heart disease or Asthma?"
+      },
+      {
+        "step_number": 24,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about Past medical history: Any medications intake?"
+      },
+      {
+        "step_number": 25,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about any Family History?"
+      },
+      {
+        "step_number": 26,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about family history of diabetes, High BP or Strabismus?"
+      },
+      {
+        "step_number": 27,
+        "category": "infection_control",
+        "critical": false,
+        "action": "Perform hand wash if touched patient."
+      },
+      {
+        "step_number": 28,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is directed to waiting room."
+      },
+      {
+        "step_number": 29,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / of the history taking summary and relevant information in the patient’s medical record."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Humphrey Visual Field",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s written order for visual field testing in patient’s medical record / Visual field order form"
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for Visual field testing and check the patient’s identity against medical record/ EMR using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": true,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 5,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Performing 5 moments of hand hygiene: Before touching a patient, Before clean procedure, After body fluid or exposure risk, After touching a patient, After touching patient surroundings"
+      },
+      {
+        "step_number": 6,
+        "category": "equipment",
+        "critical": true,
+        "action": "Selecting test pattern and test eye"
+      },
+      {
+        "step_number": 7,
+        "category": "equipment",
+        "critical": true,
+        "action": "Selecting threshold parameters setup"
+      },
+      {
+        "step_number": 8,
+        "category": "equipment",
+        "critical": true,
+        "action": "Using trial lenses"
+      },
+      {
+        "step_number": 9,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Proper positioning of patient’s head"
+      },
+      {
+        "step_number": 10,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Monitor patient’s progress throughout the test (fixation loss, false positives, and false negatives) settings."
+      },
+      {
+        "step_number": 11,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Proper disinfection of equipment before and after test"
+      },
+      {
+        "step_number": 12,
+        "category": "equipment",
+        "critical": false,
+        "action": "Proper care and maintenance of the Automated Perimetry Field Analyzer."
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect after use."
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 15,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 16,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / distance vision readings onto the patient’s medical record/EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "I-Care Competency",
+    "checklist_type": "logbook",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Demonstrates knowledge on the features of the ICARE Tonometer."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Demonstrates knowledge on the safety aspects in the usage of ICARE Tonometer."
+      },
+      {
+        "step_number": 3,
+        "category": "equipment",
+        "critical": false,
+        "action": "Demonstrates knowledge and skills in the preparation of the Icare Tonometer."
+      },
+      {
+        "step_number": 4,
+        "category": "equipment",
+        "critical": false,
+        "action": "Demonstrates knowledge & skills in performing basic trouble shooting of the Icare Tonometer."
+      },
+      {
+        "step_number": 5,
+        "category": "equipment",
+        "critical": false,
+        "action": "Demonstrates knowledge & skills in the care and maintenance the Icare Tonometer."
+      },
+      {
+        "step_number": 6,
+        "category": "documentation",
+        "critical": true,
+        "action": "Check patient’s medical record / EMR for doctor’s order to perform ICARE Tonometry"
+      },
+      {
+        "step_number": 7,
+        "category": "patient_identification",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 8,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record / EMR using 2 identifiers: Patient’s Name, Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 9,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain purpose and procedure to patient."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in a sitting /supine position for the procedure."
+      },
+      {
+        "step_number": 11,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the following steps: Press the power button ON, Load the probe, Adjust the measurement distance between the tip of the probe and patient’s cornea, Press measurement button, Read IOP result, Press power button OFF, Remove the used probe & discard into the waste bag"
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 14,
+        "category": "documentation",
+        "critical": false,
+        "action": "Document IOP reading(s) onto patient’s medical record/ EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Instillation of Eye Drops",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check the ophthalmic investigation ordered by the doctor in patient’s medical record/EMR. Instill the eye drop as per standing order for the investigation."
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient for eye drop instillation and check the patient’s identity against medical record/EMR using 2 identifiers: Patient Name Patient Identification Number / Address / Date of Birth."
+      },
+      {
+        "step_number": 4,
+        "category": "medication",
+        "critical": true,
+        "action": "Prepare the appropriate eye drops and observe the Guidelines on Administration of Medication. Check the eye drop: Name, Strength, Manufacturer’s expiry date, Date of opening, Date of discard, Clarity of medication - If clear bottle."
+      },
+      {
+        "step_number": 5,
+        "category": "medication",
+        "critical": true,
+        "action": "Check that the patient is not allergic to the selected eye drops by verifying with the patient’s medical record/EMR and by asking the patient."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene before instillation of eye drop to minimize risk of cross infection; Minimize contamination of the eye drop bottle and cap by holding the cap or placing it in a container."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position the patient comfortably in a sitting position with head slightly tilted backward or in a recumbent position."
+      },
+      {
+        "step_number": 9,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Request patient to look upwards and do not blink eye."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Gently pull the lower lid downwards with tissue or lint square to expose the lower fornix. With the other hand, hold the eye drop bottle about 2.5cm from the eye. Instill 1 or 2 drops into the centre of the lower fornix. The tip of the eye drop bottle should not touch the eyelashes or lid during instillation."
+      },
+      {
+        "step_number": 11,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Request patient to close the eye gently to prevent squeezing out the eye medication. Keep eye closed for 30 seconds (or till patient is comfortable) after the instillation of eye drop. Wipe off excess fluid from the eye with the tissue paper."
+      },
+      {
+        "step_number": 12,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 13,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 14,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date and time of the procedure performed onto the patient’s medical record/EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Ishihara Colour Vision Testing",
+    "checklist_type": "logbook",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Perform hand hygiene and confirm the patient's identity (name and NRIC/date of birth) and the purpose of the test."
+      },
+      {
+        "step_number": 2,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check whether the patient normally wears distance/near spectacles and ensure the appropriate correction is worn for the test."
+      },
+      {
+        "step_number": 3,
+        "category": "equipment",
+        "critical": false,
+        "action": "Confirm the Ishihara plate set is complete and the plates are clean and undamaged."
+      },
+      {
+        "step_number": 4,
+        "category": "infection_control",
+        "critical": false,
+        "action": "Wipe the occluder with an alcohol wipe before use."
+      },
+      {
+        "step_number": 5,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Conduct the test in good natural daylight-equivalent illumination; avoid dim or strongly tinted lighting."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure: ask the patient to read the number seen on each plate (or trace the path), responding within about 3 seconds per plate."
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Show the demonstration plate first to confirm the patient understands the task."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Hold each plate at the recommended distance (~75 cm), perpendicular to the line of sight, showing each plate for about 3 seconds."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Test each eye separately (occlude the other eye) with correction worn, following the standard plate sequence."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Avoid giving any verbal or non-verbal cue or reaction to the patient's responses during the test."
+      },
+      {
+        "step_number": 11,
+        "category": "documentation",
+        "critical": false,
+        "action": "Tally and record the number of plates correctly identified out of the total, for each eye."
+      },
+      {
+        "step_number": 12,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the result objectively without interpreting or certifying colour vision status (the doctor's/medical examiner's role)."
+      },
+      {
+        "step_number": 13,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Perform hand hygiene and hand the recorded result to the doctor, noting the testing purpose."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Near Vision Testing (SOP)",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Obtain appropriate requisites: For Literate Children and Adults - The Moorfields Reading Book – Letter Type and Number Type, Curpax Reading Book, Maclure Reading Type; For Illiterate Children and Adults - Reduced Snellen (with matching card), Kay’s Screening Near Card (with matching card); Occluder with Pinholes; Alcohol Wipes; Good Lighting."
+      },
+      {
+        "step_number": 2,
+        "category": "documentation",
+        "critical": true,
+        "action": "Check doctor’s electronic order for Visual Acuity – Near Vision Testing in patient’s EMR."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record notes using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to patient."
+      },
+      {
+        "step_number": 6,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe occluder with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in a sitting position."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Check patient’s near vision with corrective lenses or contact lenses (if worn) using the Moorfields Reading Book and hold the reading card 40 cm away from the patient."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Test the right eye first (by convention) by occluding the left eye and ask patient to read with the right eye from the largest characters to the line of the smallest characters until patient is unable to read any further."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Repeat the test for the left eye with the other eye occluded."
+      },
+      {
+        "step_number": 12,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe occluder with alcohol wipes after the procedure."
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 14,
+        "category": "documentation",
+        "critical": true,
+        "action": "Record the date / time / near vision readings onto the patient’s medical record / EMR notes, e.g. Near Vision – “N5 or J2” with / without glasses."
+      },
+      {
+        "step_number": 15,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Doctor to examine patient’s eyes after the procedure."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Non-Contact Tonometry",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "documentation",
+        "critical": false,
+        "action": "Check doctor’s order to perform Non-Contact Tonometry in patient’s medical record/EMR."
+      },
+      {
+        "step_number": 2,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record/EMR using at least 2 identifiers: Patient Name Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 4,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to patient."
+      },
+      {
+        "step_number": 5,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 6,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the essential parts of the machine that comes in contact with the patient with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 7,
+        "category": "equipment",
+        "critical": false,
+        "action": "Ask patient to remove glasses or contact lenses if worn."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in front of the machine with chin and forehead resting firmly on the frame."
+      },
+      {
+        "step_number": 9,
+        "category": "equipment",
+        "critical": false,
+        "action": "Adjust the table height and patient’s height in the chin rest so that the outer canthus is aligned with the black mark."
+      },
+      {
+        "step_number": 10,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Inform patient of the following: Open both eyes widely and look at the yellow / green light. Will feel a puff of air blown into the eye, do not squeeze the eyelids. Test the right eye first (by convention), followed by the left eye."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Hold the control lever and pull the machine body towards the operator."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Move the control lever in directions as needed in order to bring the patient’s eye to the centre of the monitor screen."
+      },
+      {
+        "step_number": 13,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Tell patient to gaze at the yellow / green light."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Move the machine body towards the patient and focus the target eye. A vague alignment dot becomes seen reflected in the cornea."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Move the machine body in directions as needed in order to get alignment dot within the inner alignment mark on the monitor."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "After the alignment is adjusted, press the “measurement switch”. Air is ejected for the measurement and the measurement value is displayed."
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Take around three readings to verify the readings accuracy and obtain the average reading."
+      },
+      {
+        "step_number": 18,
+        "category": "equipment",
+        "critical": false,
+        "action": "For TRK-2P Autorefractor Keratometer Touch the screen softly to select the measurement mode button."
+      },
+      {
+        "step_number": 19,
+        "category": "equipment",
+        "critical": false,
+        "action": "Tap on the screen to align and focus the target on the monitor."
+      },
+      {
+        "step_number": 20,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "If the initial IOP reading is ≥ 24mmHg, take three readings to verify the reading accuracy."
+      },
+      {
+        "step_number": 21,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the parts of the machine that comes into contact with the patient with alcohol wipes after the procedure."
+      },
+      {
+        "step_number": 22,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 23,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Ensure patient is comfortable after the procedure."
+      },
+      {
+        "step_number": 24,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / readings(s) onto the patient’s medical record / EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Non-Contact Tonometry (SOP)",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Obtain appropriate requisites."
+      },
+      {
+        "step_number": 2,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Check doctor’s electronic order to perform Non-Contact Tonometry in patient’s EMR. Assess if patient is 1st day post-pterygium surgery or suspected to have foreign body in the eye as it is not advisable to perform air-puff tonometry on such patients."
+      },
+      {
+        "step_number": 3,
+        "category": "patient_identification",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify patient against medical record notes using at least 2 identifiers."
+      },
+      {
+        "step_number": 5,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to patient."
+      },
+      {
+        "step_number": 6,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Perform hand hygiene."
+      },
+      {
+        "step_number": 7,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the essential parts of the machine that comes in contact with the patient with alcohol wipes before start of procedure."
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask patient to remove glasses or contact lenses if worn."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position patient comfortably in front of the machine with chin and forehead resting firmly on the frame."
+      },
+      {
+        "step_number": 10,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Inform patient of the following."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the Non-Contact Tonometry."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the Auto Kerato-refracto tonometer."
+      },
+      {
+        "step_number": 13,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Wipe the essential parts of the machine that comes in contact with the patient with alcohol wipes after the procedure."
+      },
+      {
+        "step_number": 14,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Discard all wastes into the waste bag and perform hand hygiene."
+      },
+      {
+        "step_number": 15,
+        "category": "documentation",
+        "critical": false,
+        "action": "Print and paste the airpuff results onto the patient’s medical record notes. For Auto Kerato-refracto tonometer Machine, airpuff results will be captured into OEI. Press Save and Quit tab after the three readings are taken."
+      },
+      {
+        "step_number": 16,
+        "category": "documentation",
+        "critical": false,
+        "action": "Record the date / time / air puff readings onto the patient’s medical record / EMR notes e.g. RE 18 mmHg / LE 15 mmHg."
+      },
+      {
+        "step_number": 17,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Doctor to examine patient’s eyes after the procedure."
+      }
+    ]
+  },
+  {
+    "procedure_name": "PFAER and Fall Risk Assessment",
+    "checklist_type": "PSA",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Introduce self to patient."
+      },
+      {
+        "step_number": 2,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Identify the correct patient. Check the patient’s identity against medical record/EMR using at least 2 identifiers: Patient Name, Patient Identification Number / Address / Date of Birth"
+      },
+      {
+        "step_number": 3,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the procedure and its purpose to the patient."
+      },
+      {
+        "step_number": 4,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Observe infection control practices: Perform hand rub"
+      },
+      {
+        "step_number": 5,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Screen for poor appetite or poor intake of diet for >5days and/or unplanned weight loss of 2kg per month"
+      },
+      {
+        "step_number": 6,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Screen for current special diet"
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Screen if emotions are abnormal"
+      },
+      {
+        "step_number": 8,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Screen if have financial concerns"
+      },
+      {
+        "step_number": 9,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Identify learning barriers."
+      },
+      {
+        "step_number": 10,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Select appropriate intervention to learning barrier present"
+      },
+      {
+        "step_number": 11,
+        "category": "documentation",
+        "critical": false,
+        "action": "Select appropriate legend for Education needs"
+      },
+      {
+        "step_number": 12,
+        "category": "documentation",
+        "critical": false,
+        "action": "Select appropriate legend for Person taught"
+      },
+      {
+        "step_number": 13,
+        "category": "documentation",
+        "critical": false,
+        "action": "Select appropriate legend for Preferred Mode & Teaching Tools Used"
+      },
+      {
+        "step_number": 14,
+        "category": "documentation",
+        "critical": false,
+        "action": "Select appropriate legend for Response"
+      },
+      {
+        "step_number": 15,
+        "category": "documentation",
+        "critical": false,
+        "action": "Ensure education and teaching activity is recorded, including: Date, Designation & Name of Staff, Person Taught, Education Needs, Information Given, Preferred Mode/Tools Used, Response, Comments if any"
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask for History of Falls"
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Assess for mental status"
+      },
+      {
+        "step_number": 18,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask about vision"
+      },
+      {
+        "step_number": 19,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Ask for Toileting pattern"
+      },
+      {
+        "step_number": 20,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Assess for Transfer score"
+      },
+      {
+        "step_number": 21,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Assess for Mobility score"
+      },
+      {
+        "step_number": 22,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Give the total weighted risk score accurately"
+      },
+      {
+        "step_number": 23,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Identify the fall risk category accurately."
+      },
+      {
+        "step_number": 24,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Provide Falls Precaution Education"
+      },
+      {
+        "step_number": 25,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Place Fall Risk Sticker on top of appointment slip and patient’s shoulder area."
+      }
+    ]
+  }
+]

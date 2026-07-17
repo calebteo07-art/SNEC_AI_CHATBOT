@@ -64,11 +64,23 @@ def test_unknown_do_step_defaults_to_verbal():
     assert actions[0]["kind"] == "verbal"
 
 
-def test_documentation_do_step_is_verbal_not_a_chip():
-    # A "record/document" style step that isn't a recognised hands-on procedure must NOT
-    # become a manual chip (ricoe C1: "talking / non-manual actions removed from the panel").
+def test_documentation_step_is_a_quick_manual_chip():
+    # Writing findings into the EMR is something the student DOES at the screen, not
+    # something they say to the patient — so it gets a chip (supersedes the earlier
+    # "documentation is verbal" rule). It's quick: there's no technique to grade.
     actions = build_actions({}, [{"step_number": 3, "action": "Record readings in EMR", "category": "post_procedure", "critical": False}])
-    assert actions[0]["kind"] == "verbal"
+    assert actions[0]["label"] == "Document results"
+    assert actions[0]["kind"] == "manual"
+    assert actions[0]["quick"] is True
+
+
+def test_medical_record_phrase_does_not_hijack_identification():
+    # "medical record notes" sits inside every identification step. Documentation is
+    # matched on the LEADING VERB, so identification must stay verbal.
+    action = "Identify patient against medical record notes using at least 2 identifiers"
+    label = build_actions({}, [{"step_number": 1, "action": action, "category": "patient_identification", "critical": True}])[0]
+    assert label["label"] == "Identify patient"
+    assert label["kind"] == "verbal"
 
 
 def test_blank_action_is_skipped():
