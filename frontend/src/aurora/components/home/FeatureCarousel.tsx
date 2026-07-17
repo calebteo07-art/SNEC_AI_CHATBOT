@@ -37,6 +37,7 @@ export function FeatureCarousel() {
   const moved = useRef(false);
   const lastX = useRef(0);
   const downX = useRef(0);
+  const downY = useRef(0);
   const downT = useRef(0);
 
   useEffect(() => {
@@ -45,7 +46,19 @@ export function FeatureCarousel() {
     const n = cards.length;
     if (!n || !stage) return;
 
-    const SX = 346, RY = 46, DZ = 176, SC = 0.14, HALF = n / 2, FADE = HALF - 0.5;
+    /* Spacing/depth are derived from the card's LAID-OUT width (offsetWidth — layout
+       width, immune to the transforms we write here), so the coverflow scales with the
+       viewport instead of assuming the 466px desktop card. The old hardcoded SX=346
+       spread a 390px phone's neighbours to centres ~-117 and ~507 — fully off-screen,
+       yet still the nearest card to any tap near the edge. The ratios below reproduce
+       the desktop geometry exactly at cw=466 (346/466, 176/466), so desktop is unchanged. */
+    let SX = 346, DZ = 176;
+    const metrics = () => {
+      const cw = cards[0].offsetWidth || 466;
+      SX = cw * (346 / 466);
+      DZ = cw * (176 / 466);
+    };
+    const RY = 46, SC = 0.14, HALF = n / 2, FADE = HALF - 0.5;
     const BASE = 0.005; // constant ever-flowing drift (~0.3 cards/sec); never stops
     const TAP_SLOP = 8;  // px of travel below which a pointer-up counts as a tap, not a drag
     const motionOff =
@@ -97,25 +110,37 @@ export function FeatureCarousel() {
     const onNext = () => nudge(1);
 
     // Open the card whose live centre is nearest the tap X — independent of which
-    // card happens to be pointer-events-hot and of the 3D projection.
+    // card happens to be pointer-events-hot and of the 3D projection. Candidates whose
+    // live centre projects OUTSIDE the stage are skipped: they are off-screen, so
+    // resolving a tap to one opens a feature the user never saw (the same reason the
+    // flashcards coverflow skips its parked cards). The nearest card is always within
+    // half a step of the stage centre, so this never leaves a tap dead.
     const openNearest = (clientX: number) => {
-      let best = 0, bestDist = Infinity;
+      const s = stage.getBoundingClientRect();
+      let best = -1, bestDist = Infinity;
       cards.forEach((c, i) => {
         const r = c.getBoundingClientRect();
-        const dx = Math.abs(r.left + r.width / 2 - clientX);
+        const centre = r.left + r.width / 2;
+        if (centre < s.left || centre > s.right) return;
+        const dx = Math.abs(centre - clientX);
         if (dx < bestDist) { bestDist = dx; best = i; }
       });
-      routerRef.current.push(FEATURES[best].href);
+      if (best >= 0) routerRef.current.push(FEATURES[best].href);
     };
 
     const onDown = (e: PointerEvent) => {
       dragging.current = true; moved.current = false;
-      lastX.current = e.clientX; downX.current = e.clientX; downT.current = performance.now();
+      lastX.current = e.clientX; downX.current = e.clientX; downY.current = e.clientY;
+      downT.current = performance.now();
     };
     const onMove = (e: PointerEvent) => {
       if (!dragging.current) return;
       const dx = e.clientX - lastX.current;
-      if (Math.abs(e.clientX - downX.current) > TAP_SLOP) moved.current = true;
+      // Travel is measured on BOTH axes. Measuring only |dx| meant a vertical scroll
+      // flick (|dx|<8, <700ms) still satisfied the tap test, so scrolling the page from
+      // anywhere on the carousel navigated the user away at random.
+      if (Math.abs(e.clientX - downX.current) > TAP_SLOP ||
+          Math.abs(e.clientY - downY.current) > TAP_SLOP) moved.current = true;
       focus.current -= dx / 260;
       lastX.current = e.clientX;
       vel.current = -dx / 260; // carry the drag speed into momentum on release
@@ -128,7 +153,13 @@ export function FeatureCarousel() {
       // A tap (little travel, quick) opens the nearest card; a real drag just settles.
       if (!moved.current && performance.now() - downT.current < 700) openNearest(e.clientX);
     };
+    // `touch-action: pan-y` (home.css) hands vertical scroll to the browser, which then
+    // cancels our pointer stream. Without this the drag would never end: `dragging` would
+    // stay true and the drift — gated on it — would stop dead after the first scroll.
+    const onCancel = () => { dragging.current = false; moved.current = true; vel.current = 0; };
+    const onResize = () => { metrics(); layout(); };
 
+    metrics();
     layout();
     if (!motionOff) raf = requestAnimationFrame(tick);
     prevRef.current?.addEventListener("click", onPrev);
@@ -136,6 +167,8 @@ export function FeatureCarousel() {
     stage.addEventListener("pointerdown", onDown);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onCancel);
+    window.addEventListener("resize", onResize);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -144,6 +177,8 @@ export function FeatureCarousel() {
       stage.removeEventListener("pointerdown", onDown);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onCancel);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
