@@ -20,14 +20,56 @@
 
 ```bash
 cd C:/Users/caleb/AppData/Local/Temp/claude/mobile-wt/frontend
+# 1. KILL THE SERVER FIRST — see (a) below. pkill is NOT enough on Windows.
+powershell -Command "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" | Where-Object { \$_.CommandLine -like '*server.js*' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force }"
 npx next build --webpack          # --webpack: Turbopack rejects the node_modules junction
 rm -rf .next/standalone/.next/static .next/standalone/public
 cp -r .next/static .next/standalone/.next/static
 cp -r public .next/standalone/public
-PORT=3100 HOSTNAME=127.0.0.1 node .next/standalone/server.js &
+PORT=3100 HOSTNAME=127.0.0.1 node --unhandled-rejections=warn .next/standalone/server.js &
 ```
 
 Port 3100, not 3000 — concurrent Claude sessions use 3000 and wipe `.next/standalone` static.
+
+### Four harness traps, each of which cost real time today
+
+**(a) Kill the server BEFORE `next build`, not after.** A running standalone server holds
+`.next/standalone` open, so the build dies `EBUSY: rmdir` and leaves `.next` **half-wiped
+with an empty `BUILD_ID`**. Every "the server silently died" report traces to this. Worse,
+tests then run against a broken bundle and fail for invented reasons — this produced a
+phantom `aurora_assert.mjs:90` failure that vanished on a clean build.
+
+**(b) `pkill -f "standalone/server.js"` does NOT kill it.** A server started from inside
+the standalone directory has the command line `node server.js` — the pattern never
+matches, so the real holder survives and (a) happens anyway. Match on `*server.js*` via
+`Get-CimInstance Win32_Process` and `Stop-Process -Force`.
+
+**(c) `--unhandled-rejections=warn` is mandatory.** Next's proxy reaches for FastAPI on
+:8000, which is absent under the harness (Playwright mocks `/api/**` at the browser).
+The resulting `ECONNREFUSED` surfaces as an unhandled rejection, and **Node 24 exits on
+those**. This is the "exit 127" ghost. With the flag: 5/5 runs survive; without: 2/5.
+
+**(d) Concurrent agents share one `.next`.** Parallel builds wipe each other mid-flight.
+Serialise behind the atomic `mkdir` lock at `frontend/.buildlock` (gitignored); release
+it before measuring, since measuring is read-only.
+
+### `aurora_assert.mjs` is RED on production `main` — do not chase it
+
+`aurora_assert.mjs:351` (`.locator('[data-testid="flash-exit"]').click()`) fails with
+`locator.click: Timeout 30000ms exceeded` on **unmodified `origin/main`** (verified at
+`42bcf0a` by building a clean detached worktree and running the identical file — the test
+is byte-identical to origin/main on this branch). It is **not** a regression from this
+work. CI never runs the visual harnesses, so it has been red silently. Tracked separately;
+do not let it block this branch, and do not "fix" it with `{ force: true }` — `force`
+bypasses precisely the actionability check that is failing.
+
+### The `origin/main` control at :3200 — use it for spec §5.5
+
+A detached `origin/main` worktree lives at `C:/Users/caleb/AppData/Local/Temp/claude/om-check`
+with `node_modules` junctioned from the main worktree, built and served on **:3200**. Diffing
+**:3100 (branch) against :3200 (origin/main)** at 1440×900 is a far sounder "desktop
+unchanged" instrument than any before/after screenshot, because both are live at once and
+geometry can be compared directly rather than across builds separated by time and noise.
 
 ### The device matrix (use this everywhere; do not shorten it)
 
