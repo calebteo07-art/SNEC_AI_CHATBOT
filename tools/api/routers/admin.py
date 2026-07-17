@@ -29,6 +29,18 @@ class PromoteRequest(BaseModel):
     new_role: str  # "trainer" | "admin"
 
 
+def _account_ready_html(full_name: str, email: str, password: str) -> str:
+    """New-account credentials email. Shared by the single-approve and CSV-import
+    paths so the two can't drift apart."""
+    return f"""<p>Hi {full_name},</p>
+<p>Your EyeBot account has been created.</p>
+<p><strong>Email:</strong> {email}<br>
+<strong>Temporary password:</strong> {password}</p>
+<p><strong>Before you log in:</strong> EyeBot isn't released on SNEC corporate devices yet, so please use your own personal device. It's best experienced on an iPad or laptop.</p>
+<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
+<p>EyeBot · SNEC</p>"""
+
+
 # ── Admin endpoints ────────────────────────────────────────────────────────
 
 @router.get("/api/admin/approved")
@@ -82,12 +94,7 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
             _send_email,
             to=email,
             subject="Your EyeBot account is ready",
-            html=f"""<p>Hi {body.full_name},</p>
-<p>Your EyeBot account has been created.</p>
-<p><strong>Email:</strong> {email}<br>
-<strong>Temporary password:</strong> {plain_pw}</p>
-<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
-<p>EyeBot · SNEC</p>""",
+            html=_account_ready_html(body.full_name, email, plain_pw),
         )
         email_sent = True
     except Exception as exc:
@@ -467,12 +474,7 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
                 _send_email,
                 to=email,
                 subject="Your EyeBot account is ready",
-                html=f"""<p>Hi {full_name},</p>
-<p>Your EyeBot account has been created.</p>
-<p><strong>Email:</strong> {email}<br>
-<strong>Temporary password:</strong> {plain_pw}</p>
-<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
-<p>EyeBot · SNEC</p>""",
+                html=_account_ready_html(full_name, email, plain_pw),
             )
             email_sent = True
         except Exception as exc:
