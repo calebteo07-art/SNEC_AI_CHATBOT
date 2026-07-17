@@ -1,40 +1,66 @@
 "use client";
-/* First-run grand tour controller. Watches the onboarding gates and, once they've all
-   cleared on the dashboard, runs the cross-route walkthrough exactly once (localStorage
-   eyebot_tour_seen). Mounted globally inside AuthProvider so it survives route changes.
-   Renders nothing but the overlay. */
-import { useCallback, useEffect, useState } from "react";
+/* First-run grand tour controller. Runs the cross-route walkthrough exactly once
+   (localStorage eyebot_tour_seen) and publishes its state to CheckInGuard via TourContext:
+   the guard suppresses its own redirects while `active` (the tour walks /chat, /cases,
+   /flashcards, /leaderboard under its own steam), and re-renders off `seen` to hand the
+   student on to the Studio the moment the tour ends. Wraps children inside AuthProvider so
+   it survives route changes and never remounts. */
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/screens/AuthContext";
 import { useAvatar } from "@/hooks/useAvatar";
 import { TourOverlay } from "./TourOverlay";
 import { activeSteps, shouldStartTour, TOUR_KEY, type TourStep } from "./tourSteps";
 
-/* Module scope: guards against a double-start across re-renders within one page load. */
+/* Module scope: guards against a double-start across re-renders within one page load.
+   A hard reload resets it, so reloading mid-tour restarts the walk from step 0. */
 let startedThisLoad = false;
 
-export function TourProvider() {
-  const { isAuthenticated, isCheckInDone, user } = useAuth();
+function readSeen(): boolean {
+  if (typeof window === "undefined") return false;
+  try { return localStorage.getItem(TOUR_KEY) === "true"; } catch { return false; }
+}
+
+export interface TourState {
+  /** The tour is on screen and driving navigation — the guard must not redirect. */
+  active: boolean;
+  /** The tour has run to completion on this device. */
+  seen: boolean;
+}
+
+const TourContext = createContext<TourState>({ active: false, seen: false });
+
+/** Read by CheckInGuard. The default is safe: a guard rendered outside the provider
+    behaves as though the tour never ran. */
+export function useTour(): TourState {
+  return useContext(TourContext);
+}
+
+export function TourProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated, user } = useAuth();
   const { data: avatar } = useAvatar(isAuthenticated);
   const pathname = usePathname();
   const router = useRouter();
 
   const [steps, setSteps] = useState<TourStep[] | null>(null);
   const [index, setIndex] = useState(0);
+  /* Mirrored into React state because a bare localStorage read is not reactive: the guard
+     needs to re-render the instant end() writes the flag. */
+  const [seen, setSeen] = useState(readSeen);
 
-  /* Start gate — fire once when all onboarding gates clear on the dashboard hub. */
+  /* Start gate — fire once, on the dashboard hub, while the Eyecon is uncustomized. */
   useEffect(() => {
     if (steps || startedThisLoad) return;
-    const seen = typeof window !== "undefined" && localStorage.getItem(TOUR_KEY) === "true";
-    if (shouldStartTour({ isAuthenticated, isCheckInDone, customized: avatar?.customized, seen, pathname })) {
+    if (shouldStartTour({ isAuthenticated, customized: avatar?.customized, seen, pathname })) {
       startedThisLoad = true;
       setSteps(activeSteps(user?.role));
       setIndex(0);
     }
-  }, [steps, isAuthenticated, isCheckInDone, avatar?.customized, pathname, user?.role]);
+  }, [steps, seen, isAuthenticated, avatar?.customized, pathname, user?.role]);
 
   const end = useCallback(() => {
     try { localStorage.setItem(TOUR_KEY, "true"); } catch { /* storage disabled — session-only */ }
+    setSeen(true);
     setSteps(null);
     setIndex(0);
   }, []);
@@ -48,6 +74,10 @@ export function TourProvider() {
     setIndex(ni);
   }, [steps, index, pathname, router, end]);
 
-  if (!steps) return null;
-  return <TourOverlay steps={steps} index={index} onNext={next} onEnd={end} />;
+  return (
+    <TourContext.Provider value={{ active: steps !== null, seen }}>
+      {children}
+      {steps && <TourOverlay steps={steps} index={index} onNext={next} onEnd={end} />}
+    </TourContext.Provider>
+  );
 }

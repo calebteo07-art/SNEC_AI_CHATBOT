@@ -31,9 +31,12 @@ export function Providers({ children }: { children: ReactNode }) {
         <OfflineBanner />
         <AuthProvider>
           <RewardProvider>
-            <div style={{ position: "relative", minHeight: "100%" }}>{children}</div>
+            {/* Wraps children (not a sibling) so CheckInGuard can read tour state and
+                suppress its redirects while the tour drives its own cross-route walk. */}
+            <TourProvider>
+              <div style={{ position: "relative", minHeight: "100%" }}>{children}</div>
+            </TourProvider>
           </RewardProvider>
-          <TourProvider />
           <Toaster position="bottom-right" />
         </AuthProvider>
       </ErrorBoundary>
