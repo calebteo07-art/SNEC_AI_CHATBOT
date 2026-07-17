@@ -2,6 +2,9 @@ import React from "react";
 import { Navigate, useLocation } from "@/lib/nav";
 import { useAuth } from "./AuthContext";
 import { useAvatar } from "@/hooks/useAvatar";
+import { useTour } from "@/aurora/tour/TourProvider";
+import { ChangePasswordModal } from "./ChangePasswordModal";
+import { onboardingStage } from "./onboarding";
 
 /** DEV: force the first-run Eyecon onboarding (the welcome Studio) to appear on EVERY page
  *  load — not just the genuine first login — so the customization screen is easy to iterate
@@ -17,16 +20,28 @@ function devAlwaysStudio(): boolean {
 }
 
 /** Resets on every hard reload (module scope), so in dev-always mode the welcome Studio
- *  shows once per load and Skip/Save can still navigate away without the guard bouncing you
+ *  shows once per load and Save can still navigate away without the guard bouncing you
  *  straight back into it. */
 let studioShownThisLoad = false;
 
+function Spinner() {
+  return (
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--page)" }}>
+      <span className="spinner spinner--teal" aria-label="Loading" />
+    </div>
+  );
+}
+
+/** Holds every authenticated route to the first-login order — password → tour → Eyecon
+ *  Studio → daily check-in → app. The order itself lives in ./onboarding.ts; this component
+ *  only renders or redirects to whichever stage that returns. Trainers/admins are learners
+ *  too (D7): every authenticated role runs the same gates. */
 export function CheckInGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isCheckInDone, loading } = useAuth();
+  const { isAuthenticated, isCheckInDone, loading, user, setMustChangePassword } = useAuth();
   const location = useLocation();
-  // Trainers/admins are learners too (D7): every authenticated role runs the same
-  // check-in + Eyecon gates. The avatar query is shared/deduped with the rest of the app.
-  const { data: avatar } = useAvatar(isAuthenticated);
+  // The avatar query is shared/deduped with the rest of the app.
+  const { data: avatar, isError: avatarError } = useAvatar(isAuthenticated);
+  const { active: tourActive, seen: tourSeen } = useTour();
 
   // Landing on /studio (however you got there) counts as "shown" this load, so leaving it
   // in dev-always mode doesn't immediately redirect you back.
@@ -35,39 +50,58 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     if (devAlways && location.pathname === "/studio") studioShownThisLoad = true;
   }, [devAlways, location.pathname]);
 
-  if (loading) {
-    return (
-      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--page)" }}>
-        <span className="spinner spinner--teal" aria-label="Loading" />
-      </div>
-    );
-  }
+  if (loading) return <Spinner />;
 
   if (!isAuthenticated) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  /* All authenticated users must complete the daily check-in before any page */
-  if (!isCheckInDone && location.pathname !== "/checkin") {
-    return <Navigate to="/checkin" replace />;
-  }
-
-  /* Mandatory first-run Eyecon onboarding: a student who has NEVER customized their Eyecon
-     is routed into the welcome Studio and CANNOT leave until they Save. The gate keys off
-     SERVER TRUTH only (avatar.customized) — no local skip flag — so the one and only exit is
-     a Save (which flips customized server-side). Only fires once the avatar has loaded as
-     not-customized (undefined while loading ⇒ no redirect, no flash-loop), never on /studio
-     itself. In dev-always mode the gate ignores customized and fires once per hard load
-     (studioShownThisLoad) so the welcome Studio keeps reappearing for iteration. */
-  const wantStudio = devAlways ? !studioShownThisLoad : avatar?.customized === false;
-  if (isCheckInDone && wantStudio && location.pathname !== "/studio") {
+  /* DEV-only: jump straight to the welcome Studio once per hard load, ahead of the real
+     sequence, so it stays easy to iterate on. */
+  if (devAlways && !studioShownThisLoad && location.pathname !== "/studio") {
     return <Navigate to="/studio?welcome=1" replace />;
   }
 
-  /* Re-editing is UNLIMITED and free now (the Eyecon is a client-composited tile, no paid
-     render) — so EVERY authenticated user (students included) can re-open /studio anytime to
-     remix their look. The only gate is the first-run one above; once customized, /studio is
-     just a normal editable page. */
+  /* An unreachable avatar API fails OPEN to the returning-student path rather than stranding
+     anyone on a spinner; a genuine first-run student retries next load. queryClient bounds
+     the wait (networkMode offlineFirst, retry < 2). */
+  const stage = onboardingStage({
+    mustChangePassword: user?.mustChangePassword === true,
+    customized: avatarError ? true : avatar?.customized,
+    tourSeen,
+    isCheckInDone,
+  });
+
+  if (stage === "loading") return <Spinner />;
+
+  /* A real gate now: it sits above every other stage on EVERY route, so a student can't
+     navigate out of it (it used to render only on /dashboard, i.e. dead last). */
+  if (stage === "password") {
+    return <>{children}<ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} /></>;
+  }
+
+  /* The tour drives its own cross-route walk — never redirect while it's on screen, only
+     steer the student to the hub it starts from. */
+  if (stage === "tour") {
+    return tourActive || location.pathname === "/dashboard"
+      ? <>{children}</>
+      : <Navigate to="/dashboard" replace />;
+  }
+
+  /* Mandatory first-run Eyecon onboarding: a student who has never customized their Eyecon
+     is routed into the welcome Studio and CANNOT leave until they Save — which flips
+     `customized` server-side, the one and only exit. */
+  if (stage === "studio") {
+    return location.pathname === "/studio"
+      ? <>{children}</>
+      : <Navigate to="/studio?welcome=1" replace />;
+  }
+
+  if (stage === "checkin") {
+    return location.pathname === "/checkin"
+      ? <>{children}</>
+      : <Navigate to="/checkin" replace />;
+  }
 
   return <>{children}</>;
 }
