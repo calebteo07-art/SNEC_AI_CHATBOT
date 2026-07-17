@@ -740,10 +740,24 @@ notch occupies a full vertical edge in landscape."
 `Dashboard.tsx:102`), so on `/flashcards`, `/chat`, `/cases`, `/leaderboard`,
 `/analytics` and `/studio` a phone user **has no sign-out at all** — on a shared
 institutional device a trainee cannot end their session without first navigating to
-`/dashboard`. The same rule hides `.aurora-rail-top` (Wordmark) and the `.aurora-snec`
-mark, so several phone routes render **zero brand marks** — an already-shipped
-violation of the Branding lock (`docs/design-locks.md:433-447`: "every rail-less
-surface renders BOTH an EyeBot mark and a SNEC mark").
+`/dashboard`.
+
+The same rule hides `.aurora-rail-top` (Wordmark) and the `.aurora-snec` mark. The
+Branding lock (`docs/design-locks.md:433-447`) models this as *"the shell rails carry
+it; the rail-less / immersive surfaces … each render their own complete lockup"* — but
+on a phone the rail **exists and carries nothing**, satisfying neither branch. The lock
+never anticipated a stripped rail.
+
+Verify per-route before fixing; it is not uniform (confirmed by screenshot at 390×844):
+- `/chat` and `/flashcards` are immersive and **do** render their own lockup — leave them.
+- `/leaderboard` renders **neither** mark — a real violation.
+- `/dashboard` has `.hm-top` with the EyeBot wordmark; confirm whether a SNEC mark is
+  present (a lone EyeBot mark is not a lockup — and the lock is explicit that a lone
+  SNEC mark is not one either).
+- `/cases`, `/analytics`: check.
+
+Fix only the routes that are actually bare. Do not add a second lockup to a surface that
+already has one.
 
 - [ ] **Step 1: Decide the placement, then implement**
 
