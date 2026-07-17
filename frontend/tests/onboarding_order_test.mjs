@@ -2,7 +2,7 @@
    Run: node --experimental-strip-types frontend/tests/onboarding_order_test.mjs
    (Node 24 runs the imported .ts via native type-stripping.) */
 import assert from "node:assert/strict";
-import { onboardingStage } from "../src/screens/onboarding.ts";
+import { onboardingStage, resolveCustomized } from "../src/screens/onboarding.ts";
 
 let passed = 0;
 const it = (name, fn) => { fn(); passed++; console.log("  ✓", name); };
@@ -59,5 +59,22 @@ it("a first-run student who somehow checked in still owes the tour", () =>
   // isCheckInDone is device-local: another account on this device may have checked in
   // today. It must never let a new student skip the tour or the Studio.
   assert.equal(onboardingStage({ mustChangePassword: false, customized: false, tourSeen: false, isCheckInDone: true }), "tour"));
+
+// --- resolveCustomized(...) — query state ⇒ the first-run signal ---
+it("in flight ⇒ undefined, so the ladder waits", () =>
+  assert.equal(resolveCustomized(true, undefined), undefined));
+it("settled false ⇒ first-run", () =>
+  assert.equal(resolveCustomized(false, false), false));
+it("settled true ⇒ returning", () =>
+  assert.equal(resolveCustomized(false, true), true));
+it("settled but the field is MISSING ⇒ fails open to returning, never a forever-spinner", () =>
+  // A /api/avatar that answers without `customized` (or a failed fetch: settled, no data)
+  // reads exactly like a pending query. Blocking on it strands every student on a spinner.
+  assert.equal(resolveCustomized(false, undefined), true));
+it("a missing field cannot strand the student at the loading stage", () =>
+  assert.equal(
+    onboardingStage({ mustChangePassword: false, customized: resolveCustomized(false, undefined), tourSeen: true, isCheckInDone: true }),
+    "app",
+  ));
 
 console.log(`\n${passed} onboarding-order checks passed.`);

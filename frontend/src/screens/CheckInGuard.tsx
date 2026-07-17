@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 import { useAvatar } from "@/hooks/useAvatar";
 import { useTour } from "@/aurora/tour/TourProvider";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { onboardingStage } from "./onboarding";
+import { onboardingStage, resolveCustomized } from "./onboarding";
 
 /** DEV: force the first-run Eyecon onboarding (the welcome Studio) to appear on EVERY page
  *  load — not just the genuine first login — so the customization screen is easy to iterate
@@ -40,7 +40,7 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isCheckInDone, loading, user, setMustChangePassword } = useAuth();
   const location = useLocation();
   // The avatar query is shared/deduped with the rest of the app.
-  const { data: avatar, isError: avatarError } = useAvatar(isAuthenticated);
+  const { data: avatar, isPending: avatarPending } = useAvatar(isAuthenticated);
   const { active: tourActive, seen: tourSeen } = useTour();
 
   // Landing on /studio (however you got there) counts as "shown" this load, so leaving it
@@ -62,12 +62,14 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/studio?welcome=1" replace />;
   }
 
-  /* An unreachable avatar API fails OPEN to the returning-student path rather than stranding
-     anyone on a spinner; a genuine first-run student retries next load. queryClient bounds
-     the wait (networkMode offlineFirst, retry < 2). */
+  /* Decide on the QUERY's state, not the field's absence — `avatar?.customized` reads
+     undefined both while pending and when the response carries no such field, and blocking on
+     the latter strands every student on a spinner. An errored or field-less response fails
+     OPEN to the returning path; a genuine first-run student retries next load. queryClient
+     bounds the wait (networkMode offlineFirst, retry < 2). */
   const stage = onboardingStage({
     mustChangePassword: user?.mustChangePassword === true,
-    customized: avatarError ? true : avatar?.customized,
+    customized: resolveCustomized(avatarPending, avatar?.customized),
     tourSeen,
     isCheckInDone,
   });
