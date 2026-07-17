@@ -89,19 +89,22 @@ function probe({ allow, touch }) {
     return `${el.tagName.toLowerCase()}${cls ? "." + cls : ""}`;
   };
 
-  // An element wholly outside the viewport is PARKED, not clipped. The Atlas Rail
-  // auto-collapses via `transform: translateX(calc(-100% - 28px))`, so on desktop the
-  // whole rail and its subtree legitimately sit at left≈-262. That is the design, not
-  // a defect. What actually harms a user is content PARTIALLY on screen with the rest
-  // cut off — e.g. the 399px-wide .aurora-rail-section in a 390px viewport.
-  const onScreen = (r) => r.right > 0 && r.left < vw && r.bottom > 0 && r.top < vh;
+  // An element parked wholly off-canvas HORIZONTALLY is hidden by design, not clipped:
+  // the Atlas Rail auto-collapses via `transform: translateX(calc(-100% - 28px))`, so on
+  // desktop its whole subtree legitimately sits at left≈-262.
+  //
+  // The test is horizontal ONLY, deliberately. An earlier both-axes version also skipped
+  // everything below the fold, which is a false NEGATIVE in both checks below: a 20x20
+  // button or a 407px-wide card is exactly as broken whether or not you have scrolled to
+  // it yet. Vertical position is irrelevant to "is this too wide" and "is this too small".
+  const notParked = (r) => r.right > 0 && r.left < vw;
 
   // ── 1. Overflow that a USER can perceive ──────────────────────────────────────
   const overflow = [];
   for (const el of document.querySelectorAll("body *")) {
     if (!visible(el) || isDecorative(el)) continue;
     const r = el.getBoundingClientRect();
-    if (!onScreen(r)) continue;                     // parked off-canvas, by design
+    if (!notParked(r)) continue;                    // parked off-canvas, by design
     if (r.right <= vw + 1 && r.left >= -1) continue; // fully inside
     const text = ownText(el);
     const interactive = el.matches(INTERACTIVE);
@@ -120,7 +123,7 @@ function probe({ allow, touch }) {
     for (const el of document.querySelectorAll(INTERACTIVE)) {
       if (!visible(el)) continue;
       const r = el.getBoundingClientRect();
-      if (!onScreen(r)) continue;
+      if (!notParked(r)) continue;
       const s = sel(el);
       if (allow.some((a) => s.includes(a))) continue;
       if (r.height >= 44 && r.width >= 44) continue;
@@ -136,14 +139,25 @@ function probe({ allow, touch }) {
   // (which dispatches regardless of occlusion), but physically un-tappable because the
   // nav sits on top of it.
   //
-  // Sample FIVE points, not just the centre, and flag only if EVERY one is occluded.
-  // Centre-only is too strict for deliberately layered UI: the flashcards coverflow
-  // overlaps its cards by design and parks an arrow button over the middle one, so a
-  // centre-only test calls a perfectly tappable card "covered". If all five points are
-  // blocked, there is nowhere left to press and it is genuinely broken.
+  // Two deliberate narrowings, each fixing a real false positive:
+  //
+  //  (a) Sample FIVE points and flag only if EVERY one is blocked. Centre-only is too
+  //      strict for deliberately layered UI: the flashcards coverflow overlaps its cards
+  //      by design and parks an arrow over the middle one, so centre-only called a
+  //      perfectly tappable card "covered".
+  //  (b) SCROLL the element into view first. Content merely sitting under the bottom bar
+  //      at the current scroll offset is not unreachable — you scroll and tap it. Only
+  //      something still blocked once scrolled to the middle of its own scroll container
+  //      is genuinely broken. Without this, every below-fold card read as COVERED, which
+  //      is noise that would train people to ignore this check.
+  //
+  // The real invariant for "content hidden behind the bar" is scroll RESERVE (does the
+  // last item clear the bar after scrolling to the end), which is a different assertion
+  // and belongs to the nav task, not here.
   const covered = [];
   for (const el of document.querySelectorAll(INTERACTIVE)) {
     if (!visible(el)) continue;
+    el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
     const r = el.getBoundingClientRect();
     const pts = [
       [r.left + r.width / 2, r.top + r.height / 2],
@@ -152,7 +166,7 @@ function probe({ allow, touch }) {
       [r.left + r.width * 0.25, r.top + r.height * 0.75],
       [r.left + r.width * 0.75, r.top + r.height * 0.75],
     ].filter(([x, y]) => x >= 0 && x <= vw && y >= 0 && y <= vh);
-    if (!pts.length) continue; // wholly off-screen — the overflow check's job, not this one
+    if (!pts.length) continue; // cannot be brought on-screen at all — the overflow check's job
 
     let blockedBy = null;
     for (const [x, y] of pts) {
