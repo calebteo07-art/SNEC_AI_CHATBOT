@@ -126,6 +126,48 @@ def test_login_trainer_from_supervisors_only():
     assert r.json()["role"] == "trainer"
 
 
+def test_login_super_admin_without_roster_row_is_admin():
+    """The baseline the roster case must match: authorised by env var alone, with no
+    approved_students row and no supervisors row to derive a role from."""
+    auth_row = _make_auth_row("boss@snec.com", "pass123")
+
+    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@snec.com"), \
+         patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_boss", "Boss")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "boss@snec.com", "password": "pass123"})
+    assert r.status_code == 200
+    assert r.json()["role"] == "admin"
+
+
+def test_login_super_admin_with_roster_row_stays_admin():
+    """SUPER_ADMIN_EMAIL is the authority on who the super-admin is, so it must win
+    over an approved_students row. Adding your own address to the roster — the natural
+    way to give the account a name — used to silently demote the super-admin to a
+    student and lock them out of the admin console: the super-admin check only ran in
+    the 'no roster row' branch, and the promotion pass can't rescue them because they
+    are authorised by env var and have no supervisors row. /api/onboard already gets
+    this precedence right; login was the outlier."""
+    auth_row = _make_auth_row("boss@snec.com", "pass123")
+    approved_row = _make_approved_row("boss@snec.com", role="OA")
+
+    with patch("tools.api.routers.auth.SUPER_ADMIN_EMAIL", "boss@snec.com"), \
+         patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_boss", "Test User")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "boss@snec.com", "password": "pass123"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["role"] == "admin"
+    # Resolved as staff, so the roster's content pool is dropped — same as a
+    # student promoted via supervisors.
+    assert data["student_role"] == ""
+
+
 def test_login_staff_without_roster_row_returns_stored_name():
     """Staff — the super-admin and promoted supervisors — have no approved_students
     row, so login fell through to `full_name = email` and the home greeting said

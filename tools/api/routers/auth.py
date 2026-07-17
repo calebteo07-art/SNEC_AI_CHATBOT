@@ -79,17 +79,18 @@ class MeResponse(BaseModel):
 async def auth_login(request: Request, body: LoginRequest, response: Response):
     email = body.email.strip().lower()
 
+    # The super-admin is authorised by SUPER_ADMIN_EMAIL alone, independently of any
+    # table — so an unset (blank) env var must never match a blank email.
+    is_super_admin = bool(SUPER_ADMIN_EMAIL) and email == SUPER_ADMIN_EMAIL
+
     # Must be in approved list
     approved_row = await db.get_approved(email)
     if not approved_row:
         # Also allow super admin and promoted supervisors/admins
         sup_row = await db.get_supervisor(email)
-        if email != SUPER_ADMIN_EMAIL and not sup_row:
+        if not is_super_admin and not sup_row:
             raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
-        if email == SUPER_ADMIN_EMAIL:
-            approved_role = "admin"
-        else:
-            approved_role = _normalise_staff_role(sup_row.get("role") if sup_row else "")
+        approved_role = _normalise_staff_role(sup_row.get("role") if sup_row else "")
         approved_student_role = ""
     else:
         approved_role = "student"
@@ -120,9 +121,17 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     full_name = await sync_roster_name(student_id, stored_name, roster_name) or email
     is_new = not await has_consented(student_id)
 
-    # Determine role from supervisors table if not a plain student
+    # Settle the role. SUPER_ADMIN_EMAIL outranks an approved_students row: adding the
+    # super-admin's own address to the roster — the natural way to give the account a
+    # name — used to demote them to a student, and the promotion pass below cannot undo
+    # it because they have no supervisors row to be promoted from. /api/onboard already
+    # gives the env var this priority; login was the outlier.
     final_role = approved_role
-    if approved_role == "student":
+    if is_super_admin:
+        final_role = "admin"
+        approved_student_role = ""
+    # Determine role from supervisors table if not a plain student
+    elif approved_role == "student":
         sup_row = await db.get_supervisor(email)
         if sup_row:
             final_role = _normalise_staff_role(sup_row.get("role"))
