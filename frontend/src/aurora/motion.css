@@ -19,8 +19,16 @@
 @keyframes aurora-drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 @keyframes aurora-dot-bounce { 0%, 80%, 100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-4px); opacity: 1; } }
 
-/* Page-enter — RouteReveal wraps each route, keyed by pathname. */
-.aurora-page-enter { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; }
+/* Page-enter — RouteReveal wraps each route, keyed by pathname.
+   fill-mode is `backwards`, NOT `both`: `both` retains the final keyframe forever,
+   and a filling transform (even the identity matrix that `transform: none` computes
+   to) keeps this element a containing block for every position:fixed descendant —
+   which silently pins overlays to the page box instead of the viewport (rotate gate,
+   station report, Studio popup / commit 8df25a1). `backwards` still applies the 0%
+   keyframe before the run (preserving the entrance and any animation-delay), and the
+   settled state is identical because 100% IS the natural style. Never revert to `both`;
+   frontend/tests/fixed_overlay_assert.mjs guards this. */
+.aurora-page-enter { animation: aurora-rise-over var(--mo-dur) var(--mo-over) backwards; }
 
 /* Reveal-on-scroll. */
 .aurora-reveal { opacity: 0; transform: translateY(22px); transition: opacity .62s var(--mo-ease), transform .62s var(--mo-over); transition-delay: var(--reveal-delay, 0ms); }
@@ -29,7 +37,7 @@
 /* Stagger container — each direct child delayed by its --i index. Children are
    auto-indexed by position (1..12) so any container cascades just by adding the
    class; an inline `--i` still overrides for bespoke sequencing. */
-.aurora-stagger > * { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; animation-delay: calc(var(--i, 0) * 78ms); }
+.aurora-stagger > * { animation: aurora-rise-over var(--mo-dur) var(--mo-over) backwards; animation-delay: calc(var(--i, 0) * 78ms); }
 .aurora-stagger > *:nth-child(1) { --i: 0; }
 .aurora-stagger > *:nth-child(2) { --i: 1; }
 .aurora-stagger > *:nth-child(3) { --i: 2; }
@@ -48,10 +56,10 @@
 
 /* One-shot entrance utilities — apply to any element, sequence with inline
    animationDelay. */
-.aurora-rise-in { animation: aurora-rise-over var(--mo-dur) var(--mo-over) both; }
-.aurora-pop-in { animation: aurora-pop .5s var(--mo-over) both; }
-.aurora-shake-in { animation: aurora-shake .42s ease-in-out both; }
-.aurora-flip-in { animation: aurora-flip-in .56s var(--mo-over) both; }
+.aurora-rise-in { animation: aurora-rise-over var(--mo-dur) var(--mo-over) backwards; }
+.aurora-pop-in { animation: aurora-pop .5s var(--mo-over) backwards; }
+.aurora-shake-in { animation: aurora-shake .42s ease-in-out backwards; }
+.aurora-flip-in { animation: aurora-flip-in .56s var(--mo-over) backwards; }
 
 /* Micro-interactions. */
 .aurora-press { transition: transform .12s var(--mo-ease); }
