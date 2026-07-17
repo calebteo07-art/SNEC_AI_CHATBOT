@@ -2700,6 +2700,26 @@ html[data-motion="reduce"] .flash-root::before { animation: none; transform: non
      Anything position:fixed inside the stage must be portalled out — CSS cannot free it. */
   animation: fan-in .7s ease backwards; }
 @media (max-width: 639px) { .fan-stage { height: clamp(384px, 58dvh, 486px); } }
+/* Phone LANDSCAPE. Both clamps above have a floor (496px / 384px) taller than a landscape
+   phone's whole viewport, and a floor beats the dvh term — so the stage was 496px inside a
+   390px screen and `.flash-content { overflow: hidden }` silently ate ~52% of every card.
+   No scrollbar, no overflow past the right edge: invisible to the mobile audit, which
+   measures horizontally against the viewport. Size off the SHORT axis here, with a floor
+   small enough to actually fit. */
+@media (max-height: 480px) and (pointer: coarse) {
+  /* Floor is 260, NOT lower: the card below is 252px tall and is positioned from the
+     stage's centre, so a stage shorter than the card clips it at both ends — which is the
+     very bug this tier exists to fix, just smaller. Any floor here must stay >= the card. */
+  .fan-stage { height: clamp(260px, 62dvh, 300px); }
+  /* The header has to shrink too, or the stage alone cannot save the layout. The title is
+     `clamp(46px, 9.2vw, 88px)` — a WIDTH ramp — so a landscape phone (844-932px wide but
+     only 390-430px tall) rendered it at 78-86px and the title+sub ate 139px before the
+     stage even started. Same defect the leaderboard had: on this axis the viewport is
+     wide and short, so anything sized off width resolves at desktop scale. Size off the
+     SHORT axis here. */
+  .flash-setup-title { font-size: clamp(24px, 6.4dvh, 34px); }
+  .flash-step-sub { font-size: clamp(12px, 3.4dvh, 15px); margin-top: 4px; }
+}
 html[data-motion="reduce"] .fan-stage { animation: none; }
 /* the grid rises into place on mount (whole 3D scene as a group, then settles) */
 @keyframes fan-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
@@ -2724,6 +2744,15 @@ html[data-motion="reduce"] .fan-stage { animation: none; }
   pointer-events: none;
   will-change: transform, opacity; transform-style: preserve-3d; user-select: none; -webkit-tap-highlight-color: transparent; }
 @media (max-width: 639px) { .fan-card { width: 252px; height: 328px; margin: -164px 0 0 -126px; } }
+/* Phone landscape: card sized off the SHORT axis so it fits the stage above. The 0.77
+   width:height ratio of every other tier is preserved (194/252 = 348/452 = 252/328), which
+   is what keeps the locked coverflow honest — CardFanCarousel MEASURES this width and scales
+   the whole depth projection by k = W/300, so the front-biggest/neighbours-receding
+   relationship holds at any size. Change the ratio and you restyle the lock; change the
+   size and you only refit it. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .fan-card { width: 194px; height: 252px; margin: -126px 0 0 -97px; }
+}
 .fan-card:focus-visible { outline: 3px solid var(--fc-coin); outline-offset: 4px; border-radius: 22px; }
 .fan-card.is-locked { cursor: not-allowed; }
 /* premium image card — subtle hue frame + a topic-hue halo (strongest on the centred card) */
