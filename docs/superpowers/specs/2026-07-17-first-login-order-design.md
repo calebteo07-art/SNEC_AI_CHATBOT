@@ -145,7 +145,9 @@ before the Studio is the **default** look — `GET /api/avatar` returns the save
 - `streak` (`:30-32`) — reworded; the streak tile reads empty until the check-in that
   now *follows* the tour.
 - `finish` (`:54-56`) — stops claiming "You're all set! 🎉 / That's the tour"; hands off
-  to the Studio. `confetti: true` moves off this step to the true end of onboarding.
+  to the Studio and the check-in. `confetti: true` **stays** — reframed, it celebrates
+  finishing the tour, which is honest. Moving it elsewhere would orphan the confetti
+  machinery in `TourOverlay.tsx` (nothing else sets the flag) for no user-visible gain.
 
 Tour stays **unskippable** (approved) — unchanged behaviour, only position.
 
