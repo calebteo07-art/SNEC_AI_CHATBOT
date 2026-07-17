@@ -37,14 +37,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     try { setPinned(localStorage.getItem("eyebot_rail_pinned") === "1"); } catch { /* no storage */ }
   }, []);
-  const togglePin = useCallback(() => {
-    setPinned((p) => {
-      const next = !p;
-      try { localStorage.setItem("eyebot_rail_pinned", next ? "1" : "0"); } catch { /* no storage */ }
-      return next;
-    });
+  const setPin = useCallback((next: boolean) => {
+    setPinned(next);
+    try { localStorage.setItem("eyebot_rail_pinned", next ? "1" : "0"); } catch { /* no storage */ }
   }, []);
-  const railState = pinned ? "pinned" : "hidden";
 
   /* Mirror the backend streak into the local cache, as the legacy shell did. */
   useEffect(() => {
@@ -74,13 +70,21 @@ export function AppShell({ children }: { children: ReactNode }) {
      fills the whole viewport. The Tutor is IG-DM full screen; Flashcards is "The
      Aperture", a self-themed Twilight world. The rail stays a hover-reveal overlay
      here too (handle + AtlasRail) so navigation is one gesture away on every page;
-     it never reflows the immersive canvas (CSS pins --rail-w at 0). ⌘K still works. */
+     it never reflows the immersive canvas. ⌘K still works. */
   const immersive = pathname === "/chat" || pathname === "/flashcards";
+
+  /* The pin is a preference, suspended — not cleared — on immersive routes. These are
+     rail-less surfaces (docs/design-locks.md): they run edge-to-edge and draw their own
+     top-left exit control, which a parked 248px rail would sit on top of and swallow the
+     clicks for. Suspending only the pin keeps the rail one hover away, and the student's
+     choice is honoured again on the next rail route. */
+  const railPinned = pinned && !immersive;
+  const railState = railPinned ? "pinned" : "hidden";
 
   return (
     <div className={`aurora-shell${immersive ? " aurora-shell-immersive" : ""}`} data-rail={railState}>
-      {!pinned && <RailHandle onReveal={togglePin} />}
-      <AtlasRail pinned={pinned} onTogglePin={togglePin} />
+      {!railPinned && <RailHandle onReveal={() => setPin(true)} />}
+      <AtlasRail pinned={railPinned} onTogglePin={immersive ? undefined : () => setPin(!railPinned)} />
       <main id="main" className="aurora-main">
         {!immersive && <div className="aurora-mesh" aria-hidden><span /><span /><span /></div>}
         <div className="aurora-main-scroll">{immersive ? children : <RouteReveal>{children}</RouteReveal>}</div>

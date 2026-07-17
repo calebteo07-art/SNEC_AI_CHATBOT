@@ -72,11 +72,23 @@ await navCtx.route("**/api/flashcards/generate**", (r) => r.fulfill(JSON_OK([
 ])));
 await navCtx.route("**/api/flashcards/complete", (r) => r.fulfill(JSON_OK({ xp: 140, level: 1 })));
 const np = await navCtx.newPage();
-// The branded Eyecon splash shows while the app-shell chunk loads on first paint.
+// The branded Eyecon splash shows while the app-shell chunk loads on first paint. It is the
+// `loading:` fallback of a dynamic({ssr:false}) import, i.e. a WINDOW, not a state — racing it
+// flaked both ways: "never appeared" when a warm server delivered the chunk before first
+// paint, and "has no EyeBot mark" when the shell mounted and tore the splash down between the
+// waitFor and the assert. Hold the window open by delaying the chunk fetches for this one
+// navigation, so the boundary is deterministic; unroute immediately after.
+const chunkDelay = async (r) => {
+  await new Promise((s) => setTimeout(s, 600));
+  // a chunk still sleeping when we unroute below is already handled by then — continuing it
+  // again throws "Route is already handled!" as an unhandled rejection and kills the run.
+  try { await r.continue(); } catch { /* unrouted mid-flight */ }
+};
+await np.route("**/_next/static/chunks/**", chunkDelay);
 await np.goto(base + "/dashboard", { waitUntil: "commit" });
 const splash = np.locator('[data-testid="brand-splash"]');
 try {
-  await splash.waitFor({ state: "attached", timeout: 5000 });
+  await splash.waitFor({ state: "attached", timeout: 8000 });
   const role = await splash.getAttribute("role");
   if (role !== "status") { console.error(`FAIL: BrandSplash missing role=status (got ${role})`); process.exit(1); }
   if ((await splash.locator('[data-testid="aurora-logo"]').count()) < 1) { console.error("FAIL: BrandSplash has no EyeBot mark"); process.exit(1); }
@@ -85,6 +97,7 @@ try {
   console.error("FAIL: BrandSplash loading boundary never appeared on first paint");
   process.exit(1);
 }
+await np.unroute("**/_next/static/chunks/**", chunkDelay);
 await np.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
 // wait for the rail to actually populate (first dev compile can be slow)
 await np.waitForSelector('.aurora-navitem:has-text("Dashboard")', { timeout: 15000 });
@@ -279,6 +292,27 @@ const fcH1 = await np.locator("main h1").count();
 if (fcH1 !== 1) { console.error(`FAIL: flashcards main h1 count = ${fcH1}`); process.exit(1); }
 // immersive: the rail falls away on /flashcards (like the Tutor); exit affordance present.
 if ((await np.locator('[data-testid="flash-exit"]').count()) < 1) { console.error("FAIL: flashcards exit affordance missing"); process.exit(1); }
+// …and "falls away" must mean UNREACHABLE, not merely un-reflowed. This context seeds
+// eyebot_rail_pinned=1 — a real persisted student choice, one click on the edge handle,
+// and the rail's own nav is how you get to /flashcards in the first place. A pinned rail
+// parks at x=0, 248px wide, z-60, opaque; the rail-less canvas draws its own exit control
+// at left:18px — underneath it. `--rail-w → 0` makes the canvas full-bleed but does NOT
+// unpark the rail, so presence-only checks (count/innerText pass on covered elements)
+// never caught this; the click 70 lines below just timed out for 30s instead.
+await np.waitForTimeout(700); // the rail's 0.46s glide must settle before hit-testing
+const exitHit = await np.evaluate(() => {
+  const exit = document.querySelector('[data-testid="flash-exit"]');
+  const r = exit.getBoundingClientRect();
+  const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+  const name = (el) => !el ? "nothing" : el.tagName.toLowerCase() + (el.closest(".aurora-rail") ? " (inside .aurora-rail)" : "");
+  const rail = document.querySelector(".aurora-rail")?.getBoundingClientRect();
+  return { hit: exit === top || exit.contains(top), by: name(top), railX: rail ? Math.round(rail.x) : null, railW: rail ? Math.round(rail.width) : null };
+});
+if (!exitHit.hit) {
+  console.error(`FAIL: flashcards exit control is COVERED — topmost element at its centre is ${exitHit.by}; the rail sits at x=${exitHit.railX} w=${exitHit.railW}. /flashcards is a rail-less surface (docs/design-locks.md): a pinned rail must not park over its canvas.`);
+  process.exit(1);
+}
+console.log("PASS: flashcards — rail-less: a pinned rail never covers the exit control");
 
 // single-step selection: no difficulty/length step — /flashcards lands straight on
 // the auto-rotating topic coverflow (Mixed + the 26 mocked topics) with arrows. One
@@ -588,14 +622,20 @@ if (!/\/brand\/iris\.png/.test(greetRestSrc)) { console.error(`FAIL: greeting ma
 console.log("PASS: Home greeting — always the DEFAULT living mascot, even when customized");
 
 // Leaderboard — vibrant & seamless (supersedes "The Climb"): podium (top 3) + one
-// color-graded ranked list + a personal chase hook + demoted settings. The GET mock
-// honours ?role= and reflects the hide state so the filter + hide toggle are real
-// behavioral verifies; prefs POST flips the flag.
-let lbHidden = false;
+// color-graded ranked list + a personal chase hook. Everyone-by-default: the show/hide-self
+// switch and nickname field were deliberately dropped with the BoardSettings strip (214ab7f),
+// so there is no opt-out UI left to verify. The GET mock honours ?role= so the filter stays a
+// real behavioral verify.
 // `xp` is now the WEEKLY score (ranking key); `xp_total` is lifetime XP (tier ring).
+// `avatar_config` must carry REAL customization to exercise the config-driven Eyecon: since
+// 15c853b a config whose look axes are all default renders the iris.png mascot, and
+// `background` is only the backdrop — not a look axis — so the old `{ background: … }`-only
+// rows silently became never-customized accounts and stopped producing any /avatar/ layer.
+// Aisha takes the LIBRARY path (config.portrait → one baked tile), Wei Jie the COMPOSITOR
+// path (a non-default look axis → /avatar/base + overlays); the rest stay un-customized.
 const LB_ROWS = [
-  { name: "Aisha R.",   role: "OT", xp: 12480, xp_total: 12480, level: 24, streak_days: 31, avatar_config: { background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
-  { name: "Wei Jie T.", role: "OA", xp: 10240, xp_total: 10240, level: 22, streak_days: 18, avatar_config: { background: "mist" }, portrait_url: null, is_you: false },
+  { name: "Aisha R.",   role: "OT", xp: 12480, xp_total: 12480, level: 24, streak_days: 31, avatar_config: { portrait: "outfit/astronaut", background: "galaxy" }, portrait_url: PORTRAIT_PNG, is_you: false },
+  { name: "Wei Jie T.", role: "OA", xp: 10240, xp_total: 10240, level: 22, streak_days: 18, avatar_config: { bodyColor: "mint", topper: "crown", background: "mist" }, portrait_url: null, is_you: false },
   { name: "Priya N.",   role: "OT", xp: 7720,  xp_total: 7720,  level: 18, streak_days: 12, avatar_config: null, portrait_url: null, is_you: false },
   { name: "You",        role: "OA", xp: 7660,  xp_total: 7660,  level: 17, streak_days: 9,  avatar_config: { background: "peach" }, portrait_url: null, is_you: true },
   { name: "Marcus L.",  role: "OT", xp: 7635,  xp_total: 7635,  level: 17, streak_days: 6,  avatar_config: null, portrait_url: PORTRAIT_PNG, is_you: false },
@@ -603,15 +643,10 @@ const LB_ROWS = [
   { name: "Daniel O.",  role: "OT", xp: 5540,  xp_total: 5540,  level: 14, streak_days: 0,  avatar_config: null, portrait_url: null, is_you: false },
 ];
 await navCtx.route("**/api/leaderboard**", (r) => {
-  if (r.request().method() === "POST") { // /prefs — flip the hide flag from the body
-    try { const b = JSON.parse(r.request().postData() || "{}"); if (typeof b.hidden === "boolean") lbHidden = b.hidden; } catch { /* noop */ }
-    return r.fulfill(JSON_OK({ ok: true }));
-  }
   const role = new URL(r.request().url()).searchParams.get("role");
-  let rows = LB_ROWS.filter((e) => !(lbHidden && e.is_you));
-  if (role) rows = rows.filter((e) => e.role === role);
+  const rows = role ? LB_ROWS.filter((e) => e.role === role) : LB_ROWS;
   const entries = rows.map((e, i) => ({ ...e, rank: i + 1 }));
-  return r.fulfill(JSON_OK({ entries, you_hidden: lbHidden, display_name: null, roles: ["OA", "OT"] }));
+  return r.fulfill(JSON_OK({ entries, you_hidden: false, display_name: null, roles: ["OA", "OT"] }));
 });
 await np.goto(base + "/leaderboard", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="podium-slot"]', { timeout: 15000 });
@@ -648,11 +683,6 @@ console.log("PASS: Leaderboard — role filter narrows the board");
 await np.locator('.lb-filter .lb-chip:has-text("All")').click();
 await np.waitForFunction(() => document.querySelectorAll('[data-testid="podium-slot"], [data-testid="lb-row"]').length === 7, { timeout: 8000 });
 
-// hide toggle (D7 opt-out): flipping it off removes the viewer's own row from the board.
-await np.locator('[data-testid="lb-hide-switch"]').click();
-await np.waitForFunction(() => document.querySelectorAll('[data-testid="lb-row"][data-you]').length === 0, { timeout: 8000 });
-console.log("PASS: Leaderboard — hide toggle removes you from the board");
-
 await np.setViewportSize({ width: 390, height: 844 });
 await np.waitForTimeout(250);
 const lbOverflow = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -672,7 +702,10 @@ console.log("PASS: Daily check-in renders the MCQ question with one h1");
 
 // a11y sweep: every shell route has one <main>, one <h1> in main, a <nav>, and
 // no horizontal overflow at 390px.
-const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/profile"];
+// /profile was retired with the Eyecon rename and now 404s → the app bounces it to
+// /dashboard, so this sweep was silently measuring /dashboard TWICE and calling it coverage.
+// /leaderboard is a real shell route (rail + one h1), which is what this slot meant to be.
+const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/leaderboard"];
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
@@ -715,9 +748,53 @@ console.log("PASS: reduced motion freezes the home mascot animation");
 //  frontend/tests/eyecon_assert.mjs, which drives the served build with customized:false /
 //  customized:true avatar mocks.)
 
-// admin: AdminGuard admits an admin; the dark ConsoleRail nav + KPIs render; the
-// Students route lists rows. (The old in-page pill tabs were replaced by the
-// ConsoleRail's .aurora-navitem links across /admin, /admin/students, …)
+// staff analytics: /admin + /supervisor and the `supervisor` role no longer exist — the
+// console was deleted and replaced by ONE dark /analytics surface for trainer+admin, so the
+// two blocks that used to live here tested routes that 404 and roles the app never issues.
+// Retargeted at the surface that exists: AnalyticsGuard admits staff, the cohort tab renders
+// KPIs off the (still-live) /api/supervisor/* endpoints, and the admin-only Accounts tab
+// stays hidden from a trainer. The student-rejection check is the one that matters most —
+// this surface exposes the whole cohort's data.
+const staffMocks = async (c) => {
+  await c.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+  await c.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
+  await c.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
+  await c.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
+  await c.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
+  await c.route("**/api/admin/token-summary", (r) => r.fulfill(JSON_OK({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
+  await c.route("**/api/admin/students", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
+  await c.route("**/api/admin/activity", (r) => r.fulfill(JSON_OK({ feed: [{ type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 }] })));
+};
+const trainerUser = { full_name: "Cohort Trainer", email: "trainer@snec.com.sg", student_id: "T001", role: "trainer", student_role: "", must_change: false };
+const trainerCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await trainerCtx.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
+  localStorage.setItem("eyebot_tour_seen", "true");
+  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
+}, trainerUser);
+await trainerCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+await staffMocks(trainerCtx);
+await trainerCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(trainerUser)));
+const tp = await trainerCtx.newPage();
+await tp.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+await tp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
+if (new URL(tp.url()).pathname !== "/analytics") { console.error(`FAIL: AnalyticsGuard bounced a trainer off /analytics (url=${tp.url()})`); process.exit(1); }
+const anH1 = await tp.locator("main h1").count();
+if (anH1 !== 1) { console.error(`FAIL: analytics main h1 count = ${anH1}`); process.exit(1); }
+// the KPIs read the payload rather than rendering placeholders: at_risk_count 3 → "At risk".
+const atRiskCard = tp.locator('[data-testid="stat-card"]:has(.aurora-statcard-label:text-is("At risk"))');
+if ((await atRiskCard.count()) !== 1) { console.error("FAIL: cohort tab missing the 'At risk' KPI card"); process.exit(1); }
+const atRiskVal = (await atRiskCard.locator(".aurora-statcard-value").innerText()).trim();
+if (atRiskVal !== "3") { console.error(`FAIL: 'At risk' KPI = '${atRiskVal}', expected the payload's 3`); process.exit(1); }
+if ((await tp.locator('[role="tab"]:has-text("Accounts")').count()) !== 0) {
+  console.error("FAIL: the admin-only Accounts tab is exposed to a trainer"); process.exit(1);
+}
+console.log("PASS: Analytics — guard admits a trainer, cohort KPIs read the payload, no admin-only Accounts tab");
+
+// an admin gets the same board PLUS the Accounts tab.
 const adminUser = { full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001", role: "admin", student_role: "", must_change: false };
 const adminCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
 await adminCtx.addInitScript((u) => {
@@ -726,60 +803,29 @@ await adminCtx.addInitScript((u) => {
   localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
   localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
   localStorage.setItem("eyebot_tour_seen", "true");
-  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
+  localStorage.setItem("eyebot_rail_pinned", "1");
 }, adminUser);
 await adminCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
-await adminCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await staffMocks(adminCtx);
 await adminCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(adminUser)));
-await adminCtx.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
-await adminCtx.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
-await adminCtx.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
-await adminCtx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
-await adminCtx.route("**/api/admin/token-summary", (r) => r.fulfill(JSON_OK({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
-await adminCtx.route("**/api/admin/students", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
-await adminCtx.route("**/api/admin/approved", (r) => r.fulfill(JSON_OK({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
-await adminCtx.route("**/api/admin/activity", (r) => r.fulfill(JSON_OK({ feed: [{ type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 }] })));
 const ap = await adminCtx.newPage();
-await ap.goto(base + "/admin", { waitUntil: "domcontentloaded" });
-await ap.waitForSelector('.aurora-navitem:has-text("Overview")', { timeout: 15000 });
-await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 8000 });
-const adminH1 = await ap.locator("main h1").count();
-if (adminH1 !== 1) { console.error(`FAIL: admin main h1 count = ${adminH1}`); process.exit(1); }
-// The cohort engagement card (relocated from the retired student Progress page) renders.
-if ((await ap.locator('[aria-label="Cohort engagement"]').count()) < 1) {
-  console.error("FAIL: admin overview missing the Cohort engagement card"); process.exit(1);
+await ap.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
+if ((await ap.locator('[role="tab"]:has-text("Accounts")').count()) !== 1) {
+  console.error("FAIL: admin is missing the Accounts tab on /analytics"); process.exit(1);
 }
-console.log("PASS: Admin overview shows the relocated Cohort engagement card");
-await ap.locator('.aurora-navitem:has-text("Students")').click();
-await ap.waitForSelector('[data-testid="admin-student-table"] .aurora-trow.is-clickable', { timeout: 8000 });
-console.log("PASS: Admin — guard admits admin, ConsoleRail nav + KPIs render, students table lists rows");
+await ap.locator('[role="tab"]:has-text("Students")').click();
+await ap.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
+console.log("PASS: Analytics — admin also gets the Accounts tab; the Students roster lists rows");
 
-// supervisor: a supervisor-role user is admitted on /supervisor (CheckInGuard sends
-// admins to /admin, supervisors to /supervisor); KPIs + the at-risk table render.
-const supUser = { full_name: "Cohort Supervisor", email: "sup@snec.com.sg", student_id: "V001", role: "supervisor", student_role: "", must_change: false };
-const supCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
-await supCtx.addInitScript((u) => {
-  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
-  try { indexedDB.deleteDatabase("eyebot"); } catch {}
-  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
-  localStorage.setItem("eyebot_checkin_date", new Date().toLocaleDateString("en-CA"));
-  localStorage.setItem("eyebot_tour_seen", "true");
-  localStorage.setItem("eyebot_rail_pinned", "1"); // pin the auto-collapsing rail open so nav items are clickable
-}, supUser);
-await supCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
-await supCtx.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
-await supCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(supUser)));
-await supCtx.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total: 24, total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
-await supCtx.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
-await supCtx.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
-await supCtx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }] })));
-const sp = await supCtx.newPage();
-await sp.goto(base + "/supervisor", { waitUntil: "domcontentloaded" });
-await sp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
-const supH1 = await sp.locator("main h1").count();
-if (supH1 !== 1) { console.error(`FAIL: supervisor main h1 count = ${supH1}`); process.exit(1); }
-await sp.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
-console.log("PASS: Supervisor — KPIs + at-risk table render");
+// a student must never reach the cohort-wide staff surface.
+const spg = await navCtx.newPage();
+await spg.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+await spg.waitForFunction(() => location.pathname !== "/analytics", null, { timeout: 8000 }).catch(() => null);
+if (new URL(spg.url()).pathname === "/analytics") { console.error("FAIL: AnalyticsGuard let a student onto /analytics (cohort data leak)"); process.exit(1); }
+if ((await spg.locator('[data-testid="stat-card"]').count()) > 0) { console.error("FAIL: student saw cohort stat cards on /analytics"); process.exit(1); }
+console.log("PASS: Analytics — a student is bounced off the staff surface");
+await spg.close();
 
 // regression (prod incident 2026-06-27): a pre-MCQ deck ({front,back}, NO `options`)
 // rehydrated from the offline cache must NOT reach McqCard — its options.map() would

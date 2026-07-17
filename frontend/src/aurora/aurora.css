@@ -1609,13 +1609,13 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
   .aurora-followup[data-active="true"]::before, .aurora-composer-send::after { animation: none !important; }
 }
 
-/* Immersive /chat + /flashcards — full-bleed; the mesh is not rendered, but the
-   rail stays a hover-reveal overlay (handle + AtlasRail). It never reserves width,
-   so the canvas is full-bleed even when the rail is pinned open (--rail-w → 0). */
+/* Immersive /chat + /flashcards — full-bleed; the mesh is not rendered, and the rail is
+   hover-reveal only: AppShell suspends the pin on these routes, so the shell is always
+   data-rail="hidden" here (--rail-w → 0, no reserved width) and no parked rail can cover
+   the canvas or the screen's own top-left exit control. */
 .aurora-shell-immersive .aurora-main { width: 100%; }
 .aurora-shell-immersive .aurora-main-scroll { padding: 0; height: 100dvh; }
 .aurora-shell-immersive .aurora-chat { height: 100dvh; }
-.aurora-shell-immersive[data-rail="pinned"] { --rail-w: 0px; }
 /* Mobile keeps the immersive canvas edge-to-edge — no bottom bar; each screen owns
    its own back/exit affordance (the desktop hover handle is already hidden ≤860px). */
 @media (max-width: 860px) {

@@ -62,8 +62,12 @@ else
   echo "── server up"
 fi
 
+# Warm every route the harnesses actually visit — a cold first hit can exceed the 15s
+# waitForSelector budget. /profile, /admin and /supervisor were dropped (those routes no
+# longer exist, so warming them only warmed the 404); /leaderboard, /analytics and the
+# no-manual-actions case /cases/C002 are asserted but were never warmed.
 echo "── warming routes (authed curl; cold-compile guard)…"
-for route in / /checkin /dashboard /chat /flashcards /cases /cases/C001 /profile /studio /admin /supervisor; do
+for route in / /checkin /dashboard /chat /flashcards /leaderboard /studio /analytics /cases /cases/C001 /cases/C002; do
   curl -s -o /dev/null --max-time 45 -H "Cookie: eyebot_token=pw-harness" "$BASE$route" || true
 done
 
