@@ -985,31 +985,126 @@ orientation, `max-height`, or `dvh`. Specifically:
   the art crops under the copy (the collision).
 - `:31-36` `.hm-top` / `.hm-chip` — **zero** overrides in either block → the level pill
   overlaps the wordmark.
-- `FeatureCarousel.tsx:48` `const SX = 346` is a hardcoded step with `[]` deps at `:148`
-  → **it never recomputes on resize or orientation change**.
-- `FeatureCarousel.tsx:129` `onUp` with `moved` set only at `:118`, and **no
-  `touch-action`** anywhere on `.hm-carousel`/`.hm-ring3d` → drag/tap conflict on touch.
+**Two of these are functional bugs, not layout — fix them first, they are the worst
+thing on this surface:**
+
+- **BLOCKER — scrolling the home page randomly navigates you away.**
+  `FeatureCarousel.tsx:129` `onUp` calls `openNearest()` when
+  `!moved.current && performance.now() - downT.current < 700`. `moved` is set true
+  **only by horizontal travel** (`Math.abs(e.clientX - downX.current) > TAP_SLOP`,
+  `:118`) — **vertical travel is never measured**. A normal upward scroll flick started
+  anywhere on the 300px-tall carousel has `|dx| < 8` and lasts <700ms, so it satisfies
+  the tap test and `router.push()`es the user into Tutor/Cases/Flashcards. The carousel
+  sits mid-page between the hero and the vaults, directly in the path of the primary
+  scroll gesture, so the page cannot be scrolled past without random navigation. There
+  is **no `touch-action`** on `.hm-carousel`/`.hm-ring3d` (the only `touch-action` in
+  `src/` is `aurora.css:2894` `.flash-beat`), so the native scroll runs too — the page
+  scrolls *and* navigates simultaneously.
+  **Fix:** measure vertical travel into `moved` as well (`Math.abs(e.clientY - downY.current) > TAP_SLOP`),
+  and set `touch-action: pan-y` so the browser owns vertical scroll and the component
+  only ever sees horizontal intent.
+
+- **BLOCKER — a tap opens a card that is not on screen.**
+  `FeatureCarousel.tsx:48` `const SX = 346` is hardcoded desktop spacing, never derived
+  from the viewport and never recomputed (`[]` deps at `:148`, no resize/orientation
+  listener). At 390px the stage centre is ~x=195; with `perspective: 1600` (home.css:236)
+  and `translateZ(-176)` the ±1 neighbours project to centres ~x=−117 and ~x=507.
+  `openNearest` picks the card whose live rect centre is nearest the tap X, so **every
+  tap at x<39 resolves to the fully off-screen left card** and navigates to a feature the
+  user never saw. The perpetual drift (`BASE = 0.005`, `:49`) slides those centres
+  continuously, so the mis-resolving band moves under the user's finger.
+  **Fix:** derive `SX` from the measured card width and recompute on
+  `resize`/`orientationchange`. Additionally ignore any candidate whose live rect centre
+  falls outside the stage.
+
+**Do not "fix" either of these by reverting to per-card `onClick`.** `docs/design-locks.md`
+records this exact component shipping broken that way — the drift + 3D projection make
+each card a moving, mis-projected target and taps fall through. Stage-resolved pick stays.
+
+> **Note on the lock's "390-safe … measured 0px" evidence:** that measurement was taken
+> against `document.scrollWidth`, which `.aurora-main-scroll { overflow-x: hidden }`
+> (aurora.css:22-28) suppresses. The clipping is real and the metric was blind to it.
+> Measure element rects against the viewport (Task 12 Step 1).
 
 **Decision (user-confirmed):** keep the video; give it a contained band in portrait with
 the copy in clear space. No new/paid asset.
 
-- [ ] **Step 1:** Write `frontend/tests/home_mobile_assert.mjs` asserting, at every
-  `VIEWPORTS` entry: no element extends past the viewport; `.hm-greet h1` occupies
-  ≤40% of viewport height; the primary CTA (`.hm-cta`, verify the real selector) is
-  fully visible and **not** covered by `.aurora-rail`; `.hm-fcard` width ≤ viewport
-  width − 32.
-- [ ] **Step 2:** Run it — expect FAIL (CTA covered at 844×390; `.hm-fcard` 466 > 358).
-- [ ] **Step 3:** Refit `home.css`: phone type ramp for `.hm-greet h1`; `.hm-fcard`
-  sized from the viewport; `.hm-top` wrapping; the greeting art in a contained band in
-  portrait.
-- [ ] **Step 4:** Fix `FeatureCarousel.tsx`: derive `SX` from the measured card width and
-  recompute on `resize`/`orientationchange` (the `[]` deps at `:148` are the bug); add
-  `touch-action: pan-y` to the carousel. **Do not regress the stage-resolved pick** —
-  `docs/design-locks.md` records this exact component shipping broken when taps were
-  resolved per-card.
-- [ ] **Step 5:** Re-run until green; run `greeting_assert.mjs` and confirm desktop
-  1440×900 is pixel-identical.
-- [ ] **Step 6:** Commit.
+- [ ] **Step 1: Write the failing scroll-hijack test FIRST** (this is the worst bug on
+  the surface and it is behavioural, so it needs a behavioural test).
+
+Create `frontend/tests/home_carousel_assert.mjs`:
+
+```js
+/* Scrolling the home page must NEVER navigate. FeatureCarousel treated a vertical
+   scroll flick as a tap (`moved` was set by horizontal travel only), so a flick
+   started on the carousel router.push()ed the user into another route. */
+import { chromium } from "playwright";
+import { student, seededContext } from "./_mocks.mjs";
+import { VIEWPORTS } from "./_viewports.mjs";
+
+const base = process.argv[2] ?? "http://127.0.0.1:3100";
+const ok = (m) => console.log("PASS:", m);
+const die = (m) => { console.error("FAIL:", m); process.exit(1); };
+const b = await chromium.launch();
+
+for (const v of VIEWPORTS) {
+  const ctx = await seededContext(b, base, student, { width: v.width, height: v.height }, { hasTouch: true, isMobile: true });
+  const p = await ctx.newPage();
+  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.waitForSelector(".hm-carousel", { timeout: 15000 });
+  await p.waitForTimeout(1500);
+
+  const box = await p.locator(".hm-carousel").boundingBox();
+  const cx = Math.round(box.x + box.width / 2);
+  const cy = Math.round(box.y + box.height / 2);
+
+  // A vertical scroll flick STARTED ON THE CAROUSEL — the exact gesture that navigated.
+  await p.mouse.move(cx, cy);
+  await p.mouse.down();
+  for (let i = 1; i <= 6; i++) await p.mouse.move(cx + 2, cy - i * 22); // |dx|<8, fast
+  await p.mouse.up();
+  await p.waitForTimeout(900);
+
+  const url = p.url();
+  if (!url.endsWith("/dashboard")) die(`${v.tag}: a vertical scroll flick navigated to ${url} — scroll hijack`);
+  ok(`${v.tag}: vertical flick over the carousel does not navigate`);
+
+  // And a real horizontal tap on the FRONT card must still open its route (the locked
+  // stage-resolved pick must not be broken by the fix).
+  await p.mouse.click(cx, cy);
+  await p.waitForTimeout(900);
+  if (p.url().endsWith("/dashboard")) die(`${v.tag}: tapping the front card no longer opens it — stage-resolved pick regressed`);
+  ok(`${v.tag}: tap on the front card still opens it`);
+  await ctx.close();
+}
+console.log("ALL HOME-CAROUSEL ASSERTIONS PASSED");
+await b.close();
+```
+
+- [ ] **Step 2:** Run it — expect **FAIL**: `a vertical scroll flick navigated to …/chat`.
+- [ ] **Step 3:** Fix `FeatureCarousel.tsx`: measure vertical travel into `moved`
+  (`:118`); derive `SX` from the measured card width and recompute on
+  `resize`/`orientationchange` (`:48`, `:148`); reject candidates whose live rect centre
+  is outside the stage (`:101-109`); add `touch-action: pan-y` to `.hm-carousel`.
+  Re-run until green. **Do not regress the stage-resolved pick.**
+- [ ] **Step 4:** Write `frontend/tests/home_mobile_assert.mjs` asserting, at every
+  `VIEWPORTS` entry: no element extends past the viewport; `.hm-greet h1` occupies ≤40%
+  of viewport height; the primary CTA (verify the real selector against `GreetingHero.tsx`
+  — do not guess) is fully visible and **not** covered by `.aurora-rail`; `.hm-fcard`
+  width ≤ viewport width − 32; `.hm-chip` renders on a **single line** (its text wraps
+  inside a `border-radius:999px` pill today — assert `clientHeight` ≈ one line-height).
+  Run it — expect FAIL.
+- [ ] **Step 5:** Refit `home.css`: phone type ramp for `.hm-greet h1` (37px/`max-width:76%`
+  in a 270px box is the 6-line headline); `.hm-greet` padding (44px sides eat 88px of a
+  358px card); `.hm-fcard` sized from the viewport (466px → fits); `.hm-top` wraps and
+  `.hm-chip` gets `white-space: nowrap` + truncation (ranks run to "Senior Practitioner");
+  `.hm-pool` collapses for trainer/admin (~572px of content in a 358px row today); the
+  greeting art in a **contained band** with copy in clear space — which also removes the
+  need for the 92%/82%/42% cream veil at `home.css:408` that exists only to keep text
+  legible over the cropped video.
+- [ ] **Step 6:** Re-run until green; run `greeting_assert.mjs`, `pool_toggle_logic.mjs`;
+  confirm desktop 1440×900 is pixel-identical.
+- [ ] **Step 7:** Commit.
 
 ### Task 8: Tutor
 
