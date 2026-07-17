@@ -109,7 +109,12 @@
 .lb-podium { display:grid; grid-template-columns:1fr 1.14fr 1fr; align-items:end; gap:14px; margin-top:16px; }
 .lb-ped { position:relative; aspect-ratio:4/5; border-radius:18px; overflow:hidden; text-align:center;
   background:#241206 center/cover no-repeat; box-shadow:var(--sh-lg);
-  animation:lb-pop .5s cubic-bezier(.2,.9,.3,1.1) both; }
+  /* `backwards`, not `both` — a retained final keyframe leaves a transform on the pedestal
+     forever, making it a containing block that traps position:fixed descendants (see
+     motion.css .aurora-page-enter). Inert for all three: lb-pop's implicit 100% is the
+     natural style, and p1's lb-pop-hi ends at translateY(-12px) — exactly p1's own base
+     transform below, which it keeps either way. */
+  animation:lb-pop .5s cubic-bezier(.2,.9,.3,1.1) backwards; }
 .lb-ped.p1 { background-image:url(/brand/leaderboard/ped-gold.webp); transform:translateY(-12px); }
 .lb-ped.p2 { background-image:url(/brand/leaderboard/ped-silver.webp); animation-delay:.06s; }
 .lb-ped.p3 { background-image:url(/brand/leaderboard/ped-bronze.webp); animation-delay:.12s; }
