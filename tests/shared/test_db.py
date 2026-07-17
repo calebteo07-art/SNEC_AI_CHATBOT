@@ -1,4 +1,6 @@
 """Unit tests for tools/shared/db.py — async Supabase PostgreSQL client."""
+import os
+
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -186,6 +188,53 @@ async def test_get_active_profiles_excludes_revoked_and_unmatched():
          patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)):
         result = await db.get_active_profiles()
     assert {p["student_id"] for p in result} == {"s1"}
+
+
+@pytest.mark.asyncio
+async def test_get_staff_roster_joins_profiles_and_flags_pending():
+    """The analytics Staff section: every supervisors row (+ SUPER_ADMIN_EMAIL) with
+    profile stats where they've logged in, else status='pending' (email + role only).
+    Students are excluded; a legacy 'supervisor' row normalises to 'trainer'."""
+    supervisors = [
+        {"email": "coach@test.com", "role": "trainer"},   # activated trainer
+        {"email": "boss@test.com", "role": "admin"},       # activated admin
+        {"email": "new@test.com", "role": "supervisor"},   # legacy role, never logged in
+    ]
+    consent = [
+        {"student_id": "sup1", "email": "Coach@test.com", "student_name": "Coach Lee"},  # case-insensitive
+        {"student_id": "sup2", "email": "boss@test.com", "student_name": "Boss Tan"},
+        {"student_id": "stu9", "email": "student@test.com", "student_name": "A Student"},
+    ]
+    profiles = [
+        {"student_id": "sup1", "session_count": 7, "streak": 3, "last_active": "2026-07-10"},
+        {"student_id": "sup2", "session_count": 0, "streak": 0, "last_active": ""},
+        {"student_id": "stu9", "session_count": 20, "streak": 5, "last_active": "2026-07-16"},
+    ]
+    with patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=supervisors)), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)), \
+         patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=profiles)), \
+         patch.dict(os.environ, {"SUPER_ADMIN_EMAIL": "super@test.com"}):
+        result = await db.get_staff_roster()
+    by_email = {r["email"]: r for r in result}
+    # A student (not in supervisors, not super-admin) never appears here.
+    assert "student@test.com" not in by_email
+    # Activated trainer carries profile stats + the identity-of-record name.
+    assert by_email["coach@test.com"]["role"] == "trainer"
+    assert by_email["coach@test.com"]["status"] == "active"
+    assert by_email["coach@test.com"]["session_count"] == 7
+    assert by_email["coach@test.com"]["full_name"] == "Coach Lee"
+    assert by_email["coach@test.com"]["student_id"] == "sup1"
+    # 'admin' role passes through.
+    assert by_email["boss@test.com"]["role"] == "admin"
+    # Legacy 'supervisor' with no consent/profile → pending trainer, email only.
+    assert by_email["new@test.com"]["role"] == "trainer"
+    assert by_email["new@test.com"]["status"] == "pending"
+    assert by_email["new@test.com"]["full_name"] == ""
+    assert by_email["new@test.com"]["session_count"] == 0
+    assert by_email["new@test.com"]["student_id"] == ""
+    # SUPER_ADMIN_EMAIL is always present as an admin, even without a supervisors row.
+    assert by_email["super@test.com"]["role"] == "admin"
+    assert by_email["super@test.com"]["status"] == "pending"
 
 
 # ── student_consent ────────────────────────────────────────────────────────────

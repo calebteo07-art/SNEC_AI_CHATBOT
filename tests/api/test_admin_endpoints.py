@@ -19,6 +19,7 @@ client = TestClient(app)
 STAFF_READ_ENDPOINTS = [
     ("GET", "/api/admin/approved"),
     ("GET", "/api/admin/students"),
+    ("GET", "/api/admin/staff"),
     ("GET", "/api/admin/activity"),
     ("GET", "/api/admin/student/stu_x/detail"),
     ("GET", "/api/admin/token-summary"),
@@ -120,6 +121,35 @@ def test_admin_list_approved_returns_empty_list():
 def test_admin_list_approved_500_on_sheets_failure():
     with patch("tools.shared.db.get_all_approved", new=AsyncMock(side_effect=Exception("db down"))):
         r = client.get("/api/admin/approved", cookies=_admin_headers())
+    assert r.status_code == 500
+    assert "db down" not in r.json()["detail"]
+
+
+# ---------------------------------------------------------------------------
+# Functional: list staff (trainers + admins)
+# ---------------------------------------------------------------------------
+
+def test_admin_list_staff_returns_staff_with_pending():
+    """The Staff section lists trainers/admins; a trainer with a profile is Active,
+    a supervisors row with no profile yet is Pending (email + role only)."""
+    staff = [
+        {"student_id": "sup1", "full_name": "Coach Lee", "email": "coach@test.com",
+         "role": "trainer", "status": "active", "session_count": 7, "streak": 3, "last_active": "2026-07-10"},
+        {"student_id": "", "full_name": "", "email": "new@test.com",
+         "role": "admin", "status": "pending", "session_count": 0, "streak": 0, "last_active": ""},
+    ]
+    with patch("tools.shared.db.get_staff_roster", new=AsyncMock(return_value=staff)):
+        r = client.get("/api/admin/staff", cookies=_trainer_headers())
+    assert r.status_code == 200
+    body = r.json()["staff"]
+    assert len(body) == 2
+    assert body[0]["status"] == "active" and body[0]["role"] == "trainer"
+    assert body[1]["status"] == "pending" and body[1]["email"] == "new@test.com"
+
+
+def test_admin_list_staff_500_on_db_failure():
+    with patch("tools.shared.db.get_staff_roster", new=AsyncMock(side_effect=Exception("db down"))):
+        r = client.get("/api/admin/staff", cookies=_admin_headers())
     assert r.status_code == 500
     assert "db down" not in r.json()["detail"]
 

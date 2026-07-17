@@ -5,10 +5,12 @@
 import { useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { AdminStudentDetail } from "@/aurora/screens/AdminStudentDetail";
-import { useRoster, useAtRisk, useTokenSummary } from "@/hooks/useAnalytics";
+import { displayName } from "@/aurora/lib/displayName";
+import { useRoster, useAtRisk, useTokenSummary, useStaff } from "@/hooks/useAnalytics";
 
 const PAGE_SIZE = 20;
 const COLS = "2.2fr 2.4fr 84px 92px 78px 92px 112px";
+const STAFF_COLS = "2fr 2.4fr 92px 96px 84px 72px 112px";
 type Filter = "all" | "OA" | "OT" | "PSA" | "at-risk";
 
 function roleTone(role: string): "blue" | "purple" | "rose" | undefined {
@@ -22,12 +24,14 @@ export function AnalyticsRoster() {
   const roster = useRoster();
   const atRiskQ = useAtRisk();
   const tokensQ = useTokenSummary();
+  const staffQ = useStaff();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(0);
   const [openId, setOpenId] = useState<string | null>(null);
 
   const students = roster.data ?? [];
+  const staff = staffQ.data ?? [];
   const atRisk = (atRiskQ.data ?? []).map((r) => r.student_id);
   const tokensByStudent: Record<string, number> = {};
   for (const t of tokensQ.data?.by_student ?? []) tokensByStudent[t.student_id] = t.tokens;
@@ -91,6 +95,48 @@ export function AnalyticsRoster() {
           </div>
         </div>
       )}
+
+      {/* Staff — trainers & admins. A separate section so student cohort/at-risk/
+          benchmark numbers stay student-only. "Pending" = account created but not
+          yet activated (first login mints the profile), listed from email + role. */}
+      <section className="aurora-panel" style={{ padding: 0, marginTop: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "14px 16px", borderBottom: "1px solid var(--hairline)" }}>
+          <p className="aurora-activity-head" style={{ margin: 0 }}>Staff · trainers &amp; admins ({staff.length})</p>
+        </div>
+        <p className="aurora-unavail" style={{ padding: "10px 16px 2px" }}>
+          Staff don’t count toward cohort or at-risk numbers. “Pending” means the account exists but hasn’t been activated yet — the first login creates their profile.
+        </p>
+        {staffQ.isLoading ? (
+          <p className="aurora-tempty">Loading staff…</p>
+        ) : staff.length === 0 ? (
+          <p className="aurora-tempty">No staff accounts yet.</p>
+        ) : (
+          <div className="aurora-table-wrap" data-testid="analytics-staff">
+            <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: STAFF_COLS }}>
+              <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Sessions</span><span>Streak</span><span>Last active</span>
+            </div>
+            {staff.map((s) => {
+              const activated = s.status === "active" && !!s.student_id;
+              return (
+                <div
+                  key={s.email}
+                  className={`aurora-trow${activated ? " is-clickable" : ""}`}
+                  style={{ gridTemplateColumns: STAFF_COLS }}
+                  onClick={activated ? () => setOpenId(s.student_id) : undefined}
+                >
+                  <span className="aurora-tcell" style={{ fontWeight: 500 }}>{displayName(s.full_name || s.email)}</span>
+                  <span className="aurora-tcell is-muted">{s.email}</span>
+                  <span><span className="aurora-badge" data-tone={s.role === "admin" ? "purple" : "blue"}>{s.role === "admin" ? "Admin" : "Trainer"}</span></span>
+                  <span><span className="aurora-badge" data-tone={activated ? "green" : "amber"}>{activated ? "Active" : "Pending"}</span></span>
+                  <span className="aurora-tcell is-mono">{activated ? s.session_count : "—"}</span>
+                  <span className="aurora-tcell is-mono">{activated ? s.streak : "—"}</span>
+                  <span className="aurora-tcell is-mono">{activated ? (s.last_active?.slice(0, 10) || "—") : "—"}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {openId && <AdminStudentDetail studentId={openId} onClose={() => setOpenId(null)} />}
     </div>

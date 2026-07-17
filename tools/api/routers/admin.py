@@ -142,6 +142,17 @@ async def admin_all_students(current_user: CurrentUser = Depends(require_staff))
         })
     return {"students": result}
 
+@router.get("/api/admin/staff")
+async def admin_all_staff(current_user: CurrentUser = Depends(require_staff)):
+    """Trainers and admins for the analytics Staff section. Separate from
+    /api/admin/students so student cohort/at-risk/benchmark roll-ups stay
+    student-only; staff who haven't logged in yet come back as status='pending'."""
+    try:
+        staff = await db.get_staff_roster()
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+    return {"staff": staff}
+
 @router.get("/api/admin/activity")
 async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
     try:
