@@ -30,6 +30,9 @@ async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     best-guess seed from the caller — for staff, who have no approved_students row, it
     degrades to their email address. Returning it keeps every caller agreeing on what
     the person is called instead of greeting them by their email.
+
+    Callers that hold an *authoritative* name (the one an admin typed into the roster)
+    should pass the result through sync_roster_name() to correct a stale stored one.
     """
     existing = await db.get_consent_by_email(email)
     if existing:
@@ -41,6 +44,29 @@ async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     await db.upsert_consent(student_id, student_name=name, email=email)
     log("student_created", student_id=student_id, feature="identity", detail="new student registered")
     return student_id, name
+
+
+async def sync_roster_name(student_id: str, stored_name: str, roster_name: str) -> str:
+    """Reconcile the stored identity with the admin-entered roster name; return the
+    name to use.
+
+    approved_students.full_name is authoritative: an admin types it when creating the
+    account and can correct it afterwards, and students cannot rename themselves. The
+    consent row is only the snapshot taken at first login, so a correction would other-
+    wise never reach the greeting. Healing the row (rather than just preferring the
+    roster name in the response) keeps /api/auth/me — which reads student_consent —
+    and every downstream feature agreeing on one name.
+
+    Writes only on a real mismatch. Staff have no roster row, so roster_name is empty
+    for them and their stored name is left exactly as it is.
+    """
+    if not roster_name or roster_name == stored_name:
+        return stored_name or roster_name
+
+    await db.update_consent(student_id, student_name=roster_name)
+    log("student_name_synced", student_id=student_id, feature="identity",
+        detail=f"roster name replaced stored name {stored_name!r}")
+    return roster_name
 
 
 async def has_consented(student_id: str) -> bool:

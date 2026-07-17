@@ -10,7 +10,7 @@ from tools.api.shared import limiter, SUPER_ADMIN_EMAIL
 from tools.shared import db
 from tools.shared.auth import hash_password, verify_password, generate_password
 from tools.shared.gemini_client import MOCK_MODE
-from tools.shared.identity import get_or_create_student, has_consented, record_consent
+from tools.shared.identity import get_or_create_student, has_consented, record_consent, sync_roster_name
 from tools.shared.jwt_utils import create_access_token, get_current_user, CurrentUser, set_auth_cookie, clear_auth_cookie
 from tools.shared.otp_store import set_otp, verify_and_consume_otp
 
@@ -111,13 +111,13 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         raise HTTPException(status_code=401, detail="Incorrect password.")
     must_change = bool(auth_row.get("must_change", True))
 
-    # Create/fetch student identity. The stored consent name is the identity of record —
-    # it is what /api/auth/me returns — so login resolves the same name or the two
-    # disagree and the greeting changes on reload. Staff (the super-admin and promoted
-    # supervisors) have no approved_students row at all; without this they fall through
-    # to the raw email and get greeted by their address.
+    # Create/fetch student identity, then settle on what to call them. The admin-entered
+    # roster name wins and heals a stale stored one; staff (the super-admin and promoted
+    # supervisors) have no approved_students row at all, so for them the stored consent
+    # name is the only name there is — and without it they'd be greeted by their address.
     roster_name = (approved_row.get("full_name") or "").strip() if approved_row else ""
-    student_id, full_name = await get_or_create_student(roster_name or email, email)
+    student_id, stored_name = await get_or_create_student(roster_name or email, email)
+    full_name = await sync_roster_name(student_id, stored_name, roster_name) or email
     is_new = not await has_consented(student_id)
 
     # Determine role from supervisors table if not a plain student

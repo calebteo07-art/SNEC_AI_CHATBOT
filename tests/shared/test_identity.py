@@ -40,6 +40,39 @@ async def test_get_or_create_student_creates_new_row_when_missing():
 
 
 @pytest.mark.asyncio
+async def test_sync_roster_name_heals_a_stale_stored_name():
+    """The admin owns the name — a correction in the roster must overwrite the snapshot
+    taken at first login, or /api/auth/me keeps serving the old one forever."""
+    with patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update:
+        from tools.shared.identity import sync_roster_name
+        name = await sync_roster_name("stu-abc", "Jhon Tan", "John Tan")
+    assert name == "John Tan"
+    mock_update.assert_awaited_once()
+    assert mock_update.await_args[1]["student_name"] == "John Tan"
+
+
+@pytest.mark.asyncio
+async def test_sync_roster_name_no_write_when_already_equal():
+    """Login runs this every time — it must not write on every login."""
+    with patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update:
+        from tools.shared.identity import sync_roster_name
+        name = await sync_roster_name("stu-abc", "John Tan", "John Tan")
+    assert name == "John Tan"
+    mock_update.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_sync_roster_name_keeps_stored_name_when_no_roster_row():
+    """Staff have no approved_students row. With no authoritative name there is nothing
+    to heal with — their stored name must survive untouched, not be blanked."""
+    with patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update:
+        from tools.shared.identity import sync_roster_name
+        name = await sync_roster_name("stu-abc", "Coach Lim", "")
+    assert name == "Coach Lim"
+    mock_update.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_has_consented_returns_false_when_no_row():
     with patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=None)):
         from tools.shared.identity import has_consented
