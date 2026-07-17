@@ -470,7 +470,14 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
      (Under reduced motion EyeconGreetingLoop renders null, so the card is simply copy on
      the gradient — same as the ≤560px behaviour today.) */
   .hm-iriswrap { display:none; }
-  .hm-eyeconloop { position:relative; inset:auto; z-index:1; height:clamp(122px,34vw,164px); flex:none; }
+  /* The art sits in a contained band above the copy. Its baked warm background is a
+     different sampling of the same gradient as the card, so a hard bottom edge reads as
+     a seam ("two cards glued"), and object-fit:cover guillotines the mascot's chin along
+     that line. Feather the band's bottom into transparency so the card's own gradient
+     takes over with no boundary — the seam dissolves and the mascot softly emerges. */
+  .hm-eyeconloop { position:relative; inset:auto; z-index:1; height:clamp(122px,34vw,164px); flex:none;
+    -webkit-mask-image:linear-gradient(to bottom, #000 68%, transparent 100%);
+    mask-image:linear-gradient(to bottom, #000 68%, transparent 100%); }
   .hm-eyeconloop-v { object-position:76% 38%; transform:none; }
   .hm-greet-veil { display:none; }
   .hm-greet-body { padding:18px 18px 22px; }
