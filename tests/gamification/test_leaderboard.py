@@ -2,12 +2,12 @@
 
 Everyone is visible by default; a student can hide (opt-out) and never appears.
 Ranked by XP only; ties broken stably by resolved name. A role filter ranks within
-that role. The viewer's own row is flagged. Name = display_name if set, else
-first-name + last-initial from the consent roster.
+that role. The viewer's own row is flagged. Name = the full roster name; a self-chosen
+display_name only fills in for identities with no roster row (staff).
 """
 from datetime import date
 
-from tools.gamification.leaderboard import rank_entries, short_name, weekly_tally
+from tools.gamification.leaderboard import rank_entries, full_name, weekly_tally
 
 WEEK = date(2026, 5, 4)  # a Monday — the weekly-leaderboard boundary (SGT)
 
@@ -23,17 +23,17 @@ def _p(sid, xp, **extra):
     }
 
 
-def test_short_name_first_and_last_initial():
-    assert short_name("Caleb Teo") == "Caleb T."
-    assert short_name("Madonna") == "Madonna"
-    assert short_name("") == "Student"
+def test_full_name_normalises_whitespace():
+    assert full_name("  Caleb   Teo ") == "Caleb Teo"
+    assert full_name("Madonna") == "Madonna"
+    assert full_name("") == ""          # blank stays blank so callers can fall back
 
 
 def test_ranks_by_xp_descending():
     profiles = [_p("a", 100), _p("b", 300), _p("c", 200)]
     names = {"a": "Ann Aa", "b": "Bob Bb", "c": "Cy Cc"}
     out = rank_entries(profiles, names, viewer_id="a")
-    assert [e["name"] for e in out] == ["Bob B.", "Cy C.", "Ann A."]
+    assert [e["name"] for e in out] == ["Bob Bb", "Cy Cc", "Ann Aa"]
     assert [e["rank"] for e in out] == [1, 2, 3]
     assert [e["xp"] for e in out] == [300, 200, 100]
 
@@ -42,7 +42,7 @@ def test_ties_broken_stably_by_name():
     profiles = [_p("z", 200), _p("a", 200), _p("m", 200)]
     names = {"z": "Zoe Zz", "a": "Ada Aa", "m": "Mia Mm"}
     out = rank_entries(profiles, names, viewer_id="x")
-    assert [e["name"] for e in out] == ["Ada A.", "Mia M.", "Zoe Z."]
+    assert [e["name"] for e in out] == ["Ada Aa", "Mia Mm", "Zoe Zz"]
     assert [e["rank"] for e in out] == [1, 2, 3]
 
 
@@ -50,7 +50,7 @@ def test_excludes_hidden_and_recomputes_ranks():
     profiles = [_p("a", 300), _p("b", 200, leaderboard_hidden=True), _p("c", 100)]
     names = {"a": "Ann Aa", "b": "Bob Bb", "c": "Cy Cc"}
     out = rank_entries(profiles, names, viewer_id="a")
-    assert [e["name"] for e in out] == ["Ann A.", "Cy C."]
+    assert [e["name"] for e in out] == ["Ann Aa", "Cy Cc"]
     assert [e["rank"] for e in out] == [1, 2]
 
 
@@ -58,7 +58,7 @@ def test_role_filter_ranks_within_role():
     profiles = [_p("a", 300, role="OA"), _p("b", 500, role="OT"), _p("c", 100, role="OA")]
     names = {"a": "Ann Aa", "b": "Bob Bb", "c": "Cy Cc"}
     out = rank_entries(profiles, names, viewer_id="a", role="OA")
-    assert [e["name"] for e in out] == ["Ann A.", "Cy C."]
+    assert [e["name"] for e in out] == ["Ann Aa", "Cy Cc"]
     assert all(e["role"] == "OA" for e in out)
     assert [e["rank"] for e in out] == [1, 2]
 
@@ -68,21 +68,26 @@ def test_flags_viewer_row():
     names = {"a": "Ann Aa", "b": "Bob Bb"}
     out = rank_entries(profiles, names, viewer_id="b")
     you = [e for e in out if e["is_you"]]
-    assert len(you) == 1 and you[0]["name"] == "Bob B."
+    assert len(you) == 1 and you[0]["name"] == "Bob Bb"
 
 
-def test_display_name_overrides_short_name():
+def test_full_name_overrides_custom_display_name():
+    # Full names are the mandate: the roster name wins even over a self-chosen display_name.
     profiles = [_p("a", 300, display_name="Iris Champ")]
     names = {"a": "Ann Aa"}
     out = rank_entries(profiles, names, viewer_id="a")
-    assert out[0]["name"] == "Iris Champ"
+    assert out[0]["name"] == "Ann Aa"
 
 
-def test_blank_display_name_falls_back_to_short_name():
-    profiles = [_p("a", 300, display_name="   ")]
-    names = {"a": "Ann Aa"}
-    out = rank_entries(profiles, names, viewer_id="a")
-    assert out[0]["name"] == "Ann A."
+def test_display_name_only_used_when_no_roster_name():
+    # Staff have no consent/roster row, so there is no full name to show — their
+    # self-chosen display_name fills in, and a neutral 'Student' is the last resort.
+    profiles = [_p("staff", 300, display_name="Coordinator Lee"), _p("ghost", 100)]
+    names = {}  # neither identity is on the roster
+    out = rank_entries(profiles, names, viewer_id="staff")
+    by_you = {e["is_you"]: e for e in out}
+    assert by_you[True]["name"] == "Coordinator Lee"     # staff -> their display_name
+    assert by_you[False]["name"] == "Student"            # nothing at all -> neutral fallback
 
 
 def test_streak_and_avatar_passthrough():
@@ -139,7 +144,7 @@ def test_ranks_by_weekly_xp_when_week_start_supplied():
         {"student_id": "b", "xp": 500, "xp_week": 300, "xp_week_start": "2026-05-04"},
     ]
     out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
-    assert [e["name"] for e in out] == ["Bob B.", "Ann A."]   # weekly order, not lifetime
+    assert [e["name"] for e in out] == ["Bob Bb", "Ann Aa"]   # weekly order, not lifetime
     assert [e["xp"] for e in out] == [300, 20]                # score shown = weekly
     assert out[1]["xp_total"] == 1000                         # lifetime preserved for tier ring
     assert out[1]["level"] == 3                               # level from LIFETIME (1000//500+1)
@@ -152,7 +157,7 @@ def test_stale_week_start_counts_as_zero_this_week():
         {"student_id": "b", "xp": 999, "xp_week": 900, "xp_week_start": "2026-04-27"},
     ]
     out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
-    assert [e["name"] for e in out] == ["Ann A.", "Bob B."]
+    assert [e["name"] for e in out] == ["Ann Aa", "Bob Bb"]
     assert [e["xp"] for e in out] == [50, 0]
 
 
@@ -162,7 +167,7 @@ def test_missing_weekly_columns_count_as_zero_this_week():
         {"student_id": "b", "xp": 700},  # no weekly columns at all -> 0 this week
     ]
     out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a", week_start=WEEK)
-    assert [e["name"] for e in out] == ["Ann A.", "Bob B."]
+    assert [e["name"] for e in out] == ["Ann Aa", "Bob Bb"]
     assert [e["xp"] for e in out] == [40, 0]
 
 
@@ -173,7 +178,7 @@ def test_week_start_none_ranks_by_lifetime_xp_backward_compat():
         {"student_id": "b", "xp": 500},
     ]
     out = rank_entries(profiles, {"a": "Ann Aa", "b": "Bob Bb"}, viewer_id="a")
-    assert [e["name"] for e in out] == ["Bob B.", "Ann A."]   # lifetime order
+    assert [e["name"] for e in out] == ["Bob Bb", "Ann Aa"]   # lifetime order
     assert [e["xp"] for e in out] == [500, 100]
 
 
