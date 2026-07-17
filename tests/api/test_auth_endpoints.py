@@ -101,7 +101,7 @@ def test_login_student_promoted_to_trainer():
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_004", "Promo")), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_004", "Test User")), \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "promo@test.com", "password": "pass123"})
     assert r.status_code == 200
@@ -144,20 +144,62 @@ def test_login_staff_without_roster_row_returns_stored_name():
     assert r.json()["full_name"] == "Coach Lim"
 
 
-def test_login_prefers_resolved_identity_name_over_roster_name():
-    """The resolved identity name wins over a stale approved_students.full_name, so
-    login and /api/auth/me never disagree about what to call someone."""
+def test_login_admin_entered_roster_name_wins_and_heals_stored_name():
+    """The admin types the name when creating the account, and can correct it later —
+    so approved_students.full_name is authoritative and beats a stale stored name.
+    It must also HEAL the stored identity: /api/auth/me reads student_consent, so
+    without the write the two would disagree and the greeting would change on reload."""
     auth_row = _make_auth_row("alice@test.com", "password1")
-    approved_row = _make_approved_row("alice@test.com")  # full_name = "Test User"
+    approved_row = _make_approved_row("alice@test.com")  # admin typed "Test User"
 
     with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
          patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
-         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_001", "Alice Tan")), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_001", "Stale Typo")), \
+         patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update, \
          patch("tools.api.routers.auth.has_consented", return_value=True):
         r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
     assert r.status_code == 200
-    assert r.json()["full_name"] == "Alice Tan"
+    assert r.json()["full_name"] == "Test User"
+    mock_update.assert_awaited_once()
+    assert mock_update.await_args[0][0] == "stu_001"
+    assert mock_update.await_args[1]["student_name"] == "Test User"
+
+
+def test_login_does_not_write_when_roster_and_stored_name_agree():
+    """The heal is a write on the login path — it must fire only on a real mismatch,
+    never on every login."""
+    auth_row = _make_auth_row("alice@test.com", "password1")
+    approved_row = _make_approved_row("alice@test.com")  # "Test User"
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_001", "Test User")), \
+         patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update, \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "alice@test.com", "password": "password1"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Test User"
+    mock_update.assert_not_awaited()
+
+
+def test_login_staff_stored_name_survives_empty_roster():
+    """Staff have no roster row, so there is no authoritative name to heal with —
+    their stored name must NOT be clobbered back to their email address."""
+    auth_row = _make_auth_row("coach@test.com", "pass123")
+    sup_row = {"email": "coach@test.com", "role": "trainer"}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=sup_row)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_005", "Coach Lim")), \
+         patch("tools.shared.db.update_consent", new=AsyncMock()) as mock_update, \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "coach@test.com", "password": "pass123"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Coach Lim"
+    mock_update.assert_not_awaited()
 
 
 def test_login_seeds_new_identity_with_roster_name_not_email():
