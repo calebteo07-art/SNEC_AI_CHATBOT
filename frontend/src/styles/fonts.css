@@ -1,20 +1,45 @@
-/* EyeBot Typography Stack — PHOTOPIC
- * Primary: DM Sans (UI/body — chinita/Gemini tone)
- * Mono:    JetBrains Mono (clinical readouts/data)
- * Serif:   Instrument Serif 400 + italic (editorial display accents only)
- * All three self-hosted via next/font in app/layout.tsx — the --font-*
- * variables below resolve to next/font's generated families.
+/* Compatibility shim for the retired PHOTOPIC type stack.
+ *
+ * This file used to declare the whole typography system in terms of --font-dm-sans,
+ * --font-jetbrains and --font-instrument. AURORA replaced those fonts, and layout.tsx
+ * now ships Inter / Outfit / Manrope / Bricolage / JetBrains / Playfair / Bungee under
+ * entirely different variable names — but the declarations here were never updated.
+ *
+ * That is not a harmless dangling reference. A custom property whose value contains an
+ * unresolvable var() is GUARANTEED-INVALID at computed-value time: the whole declaration
+ * is void, and the rest of the list is never consulted. So
+ *
+ *     --font-body: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+ *     body { font-family: var(--font-body); }
+ *
+ * did not fall back to DM Sans or system-ui — it made `font-family` invalid, reverting
+ * body to the browser's initial value: a serif. And because this file is imported AFTER
+ * tokens.css, it overrode tokens' correct `body { font-family: var(--font-sans) }` on
+ * cascade order alone. Its equally void --font-mono clobbered tokens' valid one for all
+ * five consumers too.
+ *
+ * Measured on production before this fix: 184 of 222 visible text elements on a phone —
+ * 83%, including the entire OSCE rotate gate and the EyeBot wordmark — computed to
+ * literally "Times New Roman", on desktop as well as mobile. It read as "the look is a
+ * bit off" rather than as breakage, which is exactly why it survived so long.
+ *
+ * The real tokens live in aurora/tokens.css (--font-sans, --font-mono) and resolve from
+ * layout.tsx's next/font variables. This file now only aliases the two legacy names that
+ * still have consumers, and must never redefine body's font-family or --font-mono again.
+ * frontend/tests/font_fallback_assert.mjs guards this.
  */
 :root {
-  --font-display: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
-  --font-body:    var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
-  --font-mono:    var(--font-jetbrains), 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
-  --font-serif:   var(--font-instrument), 'Instrument Serif', Georgia, serif;
-  --font-ui: var(--font-body);
+  /* Legacy aliases — still referenced by styles/eyebot.css and the login surface.
+     Point at the token that actually resolves; do NOT reintroduce a var() to a font
+     that layout.tsx does not provide. */
+  --font-display: var(--font-sans);
+  --font-body: var(--font-sans);
 }
 
 body {
-  font-family: var(--font-body);
+  /* font-family is deliberately NOT set here — aurora/tokens.css owns it
+     (`body { font-family: var(--font-sans) }`) and this file is imported after it, so
+     any font-family here silently wins on cascade order. That is the bug above. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
