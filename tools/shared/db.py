@@ -315,6 +315,58 @@ async def get_active_leaderboard_profiles() -> list[dict]:
     return students + staff_profiles
 
 
+async def get_staff_roster() -> list[dict]:
+    """Trainers and admins for the analytics Staff section — every supervisors row
+    (+ SUPER_ADMIN_EMAIL, which is staff without a supervisors row), joined to their
+    student_consent name and student_profiles stats via email. Staff, like students,
+    only get a consent/profile row on first login, so one who has never logged in has
+    neither: they appear as status='pending' with email + role only. Kept separate
+    from get_active_profiles so cohort / at-risk / benchmark roll-ups keep excluding
+    staff. Role mirrors auth._normalise_staff_role: 'admin' stays admin, everything
+    else (including the legacy 'supervisor' row) is a trainer."""
+    supervisors = await get_all_supervisors()
+    consent = await get_all_consent()
+    profiles = await get_all_profiles()
+
+    roles: dict[str, str] = {}  # email -> 'admin' | 'trainer'
+    for s in supervisors:
+        email = (s.get("email") or "").strip().lower()
+        if not email:
+            continue
+        roles[email] = "admin" if (s.get("role") or "").strip().lower() == "admin" else "trainer"
+    super_admin = os.getenv("SUPER_ADMIN_EMAIL", "").strip().lower()
+    if super_admin:
+        roles[super_admin] = "admin"  # the super-admin is always an admin
+    if not roles:
+        return []
+
+    consent_by_email = {
+        (c.get("email") or "").strip().lower(): c
+        for c in consent
+        if (c.get("email") or "").strip()
+    }
+    profile_by_id = {str(p.get("student_id")): p for p in profiles}
+
+    result = []
+    for email, role in roles.items():
+        c = consent_by_email.get(email)
+        sid = str(c["student_id"]) if c and c.get("student_id") is not None else ""
+        p = profile_by_id.get(sid) if sid else None
+        result.append({
+            "student_id": sid,
+            "full_name": (c.get("student_name") or "").strip() if c else "",
+            "email": email,
+            "role": role,
+            "status": "active" if p else "pending",
+            "session_count": int(p.get("session_count") or 0) if p else 0,
+            "streak": int(p.get("streak") or 0) if p else 0,
+            "last_active": str(p.get("last_active") or "") if p else "",
+        })
+    # Activated staff first, then pending; each alphabetical by name (falling back to email).
+    result.sort(key=lambda r: (r["status"] != "active", (r["full_name"] or r["email"]).lower()))
+    return result
+
+
 async def get_all_sessions(limit: int = 500) -> list[dict]:
     """Return recent sessions across all students. Used by admin dashboard."""
     client = await _get_client()

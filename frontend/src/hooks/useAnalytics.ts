@@ -58,6 +58,22 @@ export function useRoster() {
   });
 }
 
+export interface StaffRow {
+  student_id: string; full_name: string; email: string;
+  role: "trainer" | "admin"; status: "active" | "pending";
+  session_count: number; streak: number; last_active: string;
+}
+/** Trainers + admins for the Staff section. Separate from useRoster so student
+    cohort/at-risk/benchmark numbers stay student-only. Includes not-yet-activated
+    staff (status "pending") — email + role only until their first login. */
+export function useStaff() {
+  return useQuery<StaffRow[]>({
+    queryKey: ["analytics", "staff"],
+    queryFn: async () => (await getJSON<{ staff?: StaffRow[] }>("/api/admin/staff", {})).staff ?? [],
+    ...LIVE,
+  });
+}
+
 export interface CaseResult {
   case_id: string; total_score: number; passed: boolean; completed_at: string;
   // Tier-2 OSCE grade (Phase-2 migration) — optional so the drill-down renders before it lands.
