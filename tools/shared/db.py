@@ -14,6 +14,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from supabase import AsyncClient, acreate_client
 
+from tools.shared.config import super_admin_email
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
@@ -294,7 +296,7 @@ async def get_active_leaderboard_profiles() -> list[dict]:
         for s in supervisors
         if (s.get("email") or "").strip()
     }
-    super_admin = os.getenv("SUPER_ADMIN_EMAIL", "").strip().lower()
+    super_admin = super_admin_email()
     if super_admin:
         staff_emails.add(super_admin)
     if not staff_emails:

@@ -3,7 +3,7 @@ import os
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 
-from tools.shared.config import is_production
+from tools.shared.config import is_production, super_admin_email
 
 
 def _client_ip(request) -> str:
@@ -59,7 +59,7 @@ limiter = (
     else Limiter(key_func=rate_limit_key)
 )
 
-SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
+SUPER_ADMIN_EMAIL = super_admin_email()
 
 # In-memory case cache shared across cases router endpoints
 _case_cache: dict[str, dict] = {}

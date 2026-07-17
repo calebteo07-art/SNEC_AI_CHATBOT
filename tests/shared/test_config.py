@@ -9,6 +9,7 @@ from tools.shared.config import (
     production_config_problems,
     assert_production_ready,
     is_production,
+    super_admin_email,
 )
 
 # A fully valid production environment used as the baseline for each test.
@@ -91,3 +92,17 @@ def test_is_production_detection():
 def test_non_production_env_never_blocks_boot():
     # In dev we tolerate insecure defaults; only production is fail-closed.
     assert_production_ready({"ENVIRONMENT": "development"})
+
+
+def test_super_admin_email_is_normalised():
+    """Login compares against `body.email.strip().lower()`, so the configured address
+    must be folded the same way. A dashboard value carrying stray case or whitespace
+    would otherwise never match and would lock the super-admin out of the console."""
+    assert super_admin_email({"SUPER_ADMIN_EMAIL": "  Boss@SNEC.com "}) == "boss@snec.com"
+
+
+def test_super_admin_email_blank_when_unset_or_whitespace():
+    """Fail closed: an unset (or whitespace-only) var must stay falsy so the
+    `bool(SUPER_ADMIN_EMAIL) and ...` guard can never authorise a blank email."""
+    assert super_admin_email({}) == ""
+    assert super_admin_email({"SUPER_ADMIN_EMAIL": "   "}) == ""

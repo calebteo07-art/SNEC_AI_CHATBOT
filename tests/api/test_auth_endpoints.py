@@ -1,4 +1,6 @@
 # tests/api/test_auth_endpoints.py
+import importlib.util
+import os
 import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
@@ -166,6 +168,47 @@ def test_login_super_admin_with_roster_row_stays_admin():
     # Resolved as staff, so the roster's content pool is dropped — same as a
     # student promoted via supervisors.
     assert data["student_role"] == ""
+
+
+def _load_shared_with_env(**env):
+    """Execute tools/api/shared.py in a throwaway module under the given environment
+    and return it.
+
+    Deliberately not importlib.reload(): routers bind shared's singletons by reference
+    (`from tools.api.shared import limiter, _case_cache`), so reloading it in place
+    swaps those objects out from under them and the station endpoints start 404ing on
+    a cache the router no longer points at. This leaves sys.modules untouched.
+    """
+    import tools.api.shared as real
+
+    spec = importlib.util.spec_from_file_location("_shared_env_probe", real.__file__)
+    mod = importlib.util.module_from_spec(spec)
+    with patch.dict(os.environ, env, clear=True):
+        spec.loader.exec_module(mod)
+    return mod
+
+
+def test_super_admin_email_constant_is_normalised_from_env():
+    """The two tests above patch the constant, so they prove the *comparison* works
+    given a normalised value. This proves the value IS normalised — the bug lives in
+    how the constant is derived, which patching it can never catch.
+
+    SUPER_ADMIN_EMAIL is read at import and compared against
+    `body.email.strip().lower()`. A Render dashboard value with any uppercase or
+    surrounding whitespace used to be carried through verbatim, so login/onboard's
+    super-admin checks silently never matched — the account kept working as a student
+    and lost the admin console, with no error anywhere. Same class of silent demotion
+    as the roster-row bug above."""
+    mod = _load_shared_with_env(SUPER_ADMIN_EMAIL="  Boss@SNEC.com ")
+    assert mod.SUPER_ADMIN_EMAIL == "boss@snec.com"
+
+
+def test_super_admin_email_constant_blank_when_env_unset():
+    """Fail closed: with the var unset the constant must stay falsy, so login's
+    `bool(SUPER_ADMIN_EMAIL) and email == SUPER_ADMIN_EMAIL` can never hand admin to
+    a blank email."""
+    mod = _load_shared_with_env()
+    assert mod.SUPER_ADMIN_EMAIL == ""
 
 
 def test_login_staff_without_roster_row_returns_stored_name():
