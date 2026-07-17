@@ -35,7 +35,7 @@ async function sweep(ctx, routes, label) {
   await page.close();
 }
 
-const STUDENT_ROUTES = ["/", "/checkin", "/dashboard", "/cases", "/cases/C001", "/flashcards", "/summary", "/progress", "/profile", "/chat"];
+const STUDENT_ROUTES = ["/", "/checkin", "/homepage", "/cases", "/cases/C001", "/flashcards", "/summary", "/progress", "/profile", "/chat"];
 const ADMIN_ROUTES = ["/admin", "/admin/students", "/admin/accounts", "/admin/activity"];
 const SUPERVISOR_ROUTES = ["/supervisor"];
 

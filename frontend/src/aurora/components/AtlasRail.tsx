@@ -23,7 +23,7 @@ import { displayName } from "@/aurora/lib/displayName";
 type NavItem = { href: string; label: string; short: string; icon: keyof typeof NAV_ICONS };
 
 const STUDY: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", short: "Home", icon: "dashboard" },
+  { href: "/homepage", label: "Homepage", short: "Home", icon: "dashboard" },
   { href: "/flashcards", label: "Flashcards", short: "Cards", icon: "flashcards" },
   { href: "/chat", label: "Tutor", short: "Tutor", icon: "tutor" },
   { href: "/cases", label: "Virtual Patients", short: "Patients", icon: "cases" },

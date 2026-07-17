@@ -14,7 +14,7 @@ import { CommandPalette, type Destination } from "./components/CommandPalette";
 import { RouteReveal } from "@/fx/Reveal";
 
 const STUDY: Destination[] = [
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/homepage", label: "Homepage" },
   { href: "/flashcards", label: "Flashcards" },
   { href: "/chat", label: "Tutor" },
   { href: "/cases", label: "Virtual Patients" },

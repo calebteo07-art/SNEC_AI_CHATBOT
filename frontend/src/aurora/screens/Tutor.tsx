@@ -231,7 +231,7 @@ export function Tutor() {
       {phase !== "landing" && (
         <div className="aurora-chat-convo" data-entering={phase === "leaving" || undefined}>
           <header className="aurora-chat-head">
-            <Link href="/dashboard" className="aurora-chat-back" aria-label="Back to dashboard">
+            <Link href="/homepage" className="aurora-chat-back" aria-label="Back to homepage">
               <Icon.back size={24} />
             </Link>
             <span className="aurora-chat-avatar">

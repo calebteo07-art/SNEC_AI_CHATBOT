@@ -20,7 +20,7 @@ const base = process.argv[2] ?? "http://127.0.0.1:3100";
 const ok = (m) => console.log("PASS:", m);
 const die = (m) => { console.error("FAIL:", m); process.exit(1); };
 const b = await chromium.launch();
-const ROUTES = ["/dashboard", "/cases", "/leaderboard"];
+const ROUTES = ["/homepage", "/cases", "/leaderboard"];
 const IMMERSIVE = ["/chat", "/flashcards"];
 
 /* 1. The account button exists and is a real target on every route, at every phone size. */
@@ -162,7 +162,7 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
 {
   const ctx = await seededContext(b, base, student, { width: 1440, height: 900 });
   const p = await ctx.newPage();
-  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1200);
   const r = await p.evaluate(() => ({
     foot: getComputedStyle(document.querySelector(".aurora-rail-foot")).display,

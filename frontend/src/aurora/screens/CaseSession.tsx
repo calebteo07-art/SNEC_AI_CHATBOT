@@ -576,7 +576,7 @@ export function CaseSession() {
                 </button>
               </div>
             ) : (
-              <StationResult result={result} coaching={coaching} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/dashboard")} />
+              <StationResult result={result} coaching={coaching} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/homepage")} />
             )}
           </div>
         </div>

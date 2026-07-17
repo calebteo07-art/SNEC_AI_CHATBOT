@@ -85,9 +85,9 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
   /* The tour drives its own cross-route walk — never redirect while it's on screen, only
      steer the student to the hub it starts from. */
   if (stage === "tour") {
-    return tourActive || location.pathname === "/dashboard"
+    return tourActive || location.pathname === "/homepage"
       ? <>{children}</>
-      : <Navigate to="/dashboard" replace />;
+      : <Navigate to="/homepage" replace />;
   }
 
   /* Mandatory first-run Eyecon onboarding: a student who has never customized their Eyecon

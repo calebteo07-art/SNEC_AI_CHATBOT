@@ -103,7 +103,7 @@ export function EyeconStudio() {
         // tour AFTER onboarding; that would now wipe the flag the tour just set. The stale-flag
         // leak it worked around is fixed at its source in AuthContext.) Re-editing is free (no
         // paid render), so a later remix just celebrates and drops the student back home.
-        window.setTimeout(() => router.push(welcome ? "/checkin" : "/dashboard"), 1000);
+        window.setTimeout(() => router.push(welcome ? "/checkin" : "/homepage"), 1000);
       },
     });
   };

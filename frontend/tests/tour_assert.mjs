@@ -48,7 +48,7 @@ const page = await ctx.newPage();
 const tour = page.locator('[data-testid="tour"]');
 const stepAttr = () => tour.getAttribute("data-step");
 
-await page.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await page.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 
 // 1) It fires on the first dashboard landing, on the welcome step, with the Eyecon narrator.
 await tour.waitFor({ state: "visible", timeout: 20000 }).catch(() => {});
@@ -60,7 +60,7 @@ check((await page.locator('[data-testid="tour-next"]').textContent()) === "Next 
 
 // 2) Walk the whole student walkthrough (no analytics stop for a student).
 const steps = ["welcome", "modes", "streak", "badges", "account", "tutor", "cases", "flashcards", "leaderboard", "finish"];
-const routeOf = { tutor: "/chat", cases: "/cases", flashcards: "/flashcards", leaderboard: "/leaderboard", finish: "/dashboard" };
+const routeOf = { tutor: "/chat", cases: "/cases", flashcards: "/flashcards", leaderboard: "/leaderboard", finish: "/homepage" };
 for (let i = 1; i < steps.length; i++) {
   await page.locator('[data-testid="tour-next"]').click();
   // For cross-route steps, wait for the client navigation to settle before asserting the URL
@@ -90,7 +90,7 @@ check(new URL(page.url()).pathname === "/studio", "finishing the tour hands off 
 
 // 4) Show-once AND resume-at-the-right-rung: a reload must not replay the tour, and must
 //    resume at the Studio — NOT the check-in. This is the hole the "loading" stage closes.
-await page.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+await page.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
 await page.waitForTimeout(2500);
 check(await tour.count() === 0, "tour does NOT reappear after completion (show-once invariant)");
 check(new URL(page.url()).pathname === "/studio", "a reload after the tour resumes at the Studio, not the check-in");

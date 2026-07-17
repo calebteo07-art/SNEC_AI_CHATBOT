@@ -67,7 +67,7 @@ fi
 # longer exist, so warming them only warmed the 404); /leaderboard, /analytics and the
 # no-manual-actions case /cases/C002 are asserted but were never warmed.
 echo "── warming routes (authed curl; cold-compile guard)…"
-for route in / /checkin /dashboard /chat /flashcards /leaderboard /studio /analytics /cases /cases/C001 /cases/C002; do
+for route in / /checkin /homepage /chat /flashcards /leaderboard /studio /analytics /cases /cases/C001 /cases/C002; do
   curl -s -o /dev/null --max-time 45 -H "Cookie: eyebot_token=pw-harness" "$BASE$route" || true
 done
 

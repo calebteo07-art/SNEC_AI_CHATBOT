@@ -27,7 +27,7 @@ for (const v of [...VIEWPORTS, DESKTOP]) {
   const ctx = await seededContext(b, base, student, { width: v.width, height: v.height },
     v.touch ? { hasTouch: true, isMobile: true } : {});
   const p = await ctx.newPage();
-  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".hm-greet", { timeout: 15000 });
   await p.waitForTimeout(1200);
   console.log(`\n══ ${v.tag}  ${v.width}x${v.height} ══`);

@@ -100,7 +100,7 @@ export function OnboardingScreen() {
   const [resetError, setResetError]     = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
 
-  if (user && !loggingInRef.current) return <Navigate to="/dashboard" replace />;
+  if (user && !loggingInRef.current) return <Navigate to="/homepage" replace />;
 
   /* ── Login ────────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {

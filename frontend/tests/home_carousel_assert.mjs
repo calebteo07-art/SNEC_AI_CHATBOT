@@ -79,7 +79,7 @@ const armTapProbe = (probeSrc) => {
 
 async function openHome(ctx, viewport) {
   const p = await ctx.newPage();
-  await p.goto(base + "/dashboard", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".hm-carousel", { timeout: 15000 });
   await p.waitForTimeout(1200);
   // The carousel sits well below the fold on a phone. boundingBox() is in VIEWPORT
@@ -112,7 +112,7 @@ for (const v of VIEWPORTS) {
   await p.waitForTimeout(900);
   if (!(await p.evaluate(() => window.__stageHit)))
     die(`${v.tag}: the flick never reached the carousel stage — the test is not exercising the bug`);
-  if (!p.url().endsWith("/dashboard"))
+  if (!p.url().endsWith("/homepage"))
     die(`${v.tag}: a vertical scroll flick navigated to ${p.url()} — scroll hijack`);
   ok(`${v.tag}: vertical flick over the carousel does not navigate`);
 
@@ -148,7 +148,7 @@ for (const v of VIEWPORTS) {
   await p.mouse.click(cx, Math.round(box2.y + box2.height / 2));
   await p.waitForTimeout(900);
   const tapC = await p.evaluate(() => window.__tap);
-  if (p.url().endsWith("/dashboard"))
+  if (p.url().endsWith("/homepage"))
     die(`${v.tag}: tapping the front card no longer opens it — stage-resolved pick regressed`);
   if (new URL(p.url()).pathname !== tapC.front.href)
     die(`${v.tag}: a centre tap opened ${new URL(p.url()).pathname}, but the front card at tap time was ${tapC.front.href}`);

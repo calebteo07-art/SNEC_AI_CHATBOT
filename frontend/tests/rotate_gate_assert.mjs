@@ -122,7 +122,7 @@ await desk.close();
 //    decoration -- drop it and the whole app becomes unscrollable on a phone while
 //    every gate assertion above still passes. This is the assertion that catches that.
 const other = await seededContext(b, base, student, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
-for (const route of ["/dashboard", "/flashcards", "/leaderboard"]) {
+for (const route of ["/homepage", "/flashcards", "/leaderboard"]) {
   const o = await other.newPage();
   await o.goto(base + route, { waitUntil: "domcontentloaded" });
   await o.waitForSelector(".aurora-shell, .flash-root", { timeout: 20000 });
