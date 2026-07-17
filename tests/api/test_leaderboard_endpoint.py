@@ -43,7 +43,7 @@ def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
     r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
     assert r.status_code == 200
     body = r.json()
-    assert [e["name"] for e in body["entries"]] == ["Bob B.", "Ann A."]  # hidden user_003 dropped
+    assert [e["name"] for e in body["entries"]] == ["Bob Bb", "Ann Aa"]  # hidden user_003 dropped
     assert body["entries"][1]["is_you"] is True                          # Ann == viewer
     assert body["entries"][1]["avatar_config"] == {"bodyColor": "aqua"}
     assert body["entries"][0]["avatar_config"] is None                   # Bob has none
@@ -55,7 +55,7 @@ def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
 def test_leaderboard_role_filter(mock_p, mock_c):
     r = client.get("/api/leaderboard?role=OA", cookies=_cookies("user_001"))
     body = r.json()
-    assert [e["name"] for e in body["entries"]] == ["Ann A."]  # only visible OA
+    assert [e["name"] for e in body["entries"]] == ["Ann Aa"]  # only visible OA
     assert all(e["role"] == "OA" for e in body["entries"])
 
 
@@ -85,7 +85,7 @@ def test_leaderboard_hides_accounts_whose_access_was_revoked(mock_p, mock_appr, 
     ]
     r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
     assert r.status_code == 200
-    assert [e["name"] for e in r.json()["entries"]] == ["Ann A."]  # Bob dropped despite 900 XP
+    assert [e["name"] for e in r.json()["entries"]] == ["Ann Aa"]  # Bob dropped despite 900 XP
 
 
 @patch("tools.shared.db.get_all_supervisors", new_callable=AsyncMock)
@@ -116,7 +116,7 @@ def test_leaderboard_includes_trainers_and_admins(mock_p, mock_appr, mock_cons, 
     r = client.get("/api/leaderboard", cookies=_cookies("stu_1"))
     assert r.status_code == 200
     names = [e["name"] for e in r.json()["entries"]]
-    assert names == ["Terry T.", "Adam A.", "Sam S."]  # XP desc; revoked gone_1 excluded
+    assert names == ["Terry Trainer", "Adam Admin", "Sam Student"]  # XP desc; revoked gone_1 excluded
 
 
 @patch.dict(os.environ, {"SUPER_ADMIN_EMAIL": "boss@snec.com"})
@@ -139,7 +139,7 @@ def test_leaderboard_includes_super_admin_without_supervisor_row(mock_p, mock_ap
     r = client.get("/api/leaderboard", cookies=_cookies("stu_1"))
     assert r.status_code == 200
     names = [e["name"] for e in r.json()["entries"]]
-    assert names == ["Boss A.", "Sam S."]  # super admin ranks #1 despite no supervisors row
+    assert names == ["Boss Admin", "Sam Student"]  # super admin ranks #1 despite no supervisors row
 
 
 WEEK = date(2026, 5, 4)  # a Monday
@@ -164,9 +164,9 @@ def test_leaderboard_ranks_by_weekly_xp_when_columns_present(mock_p, mock_c, moc
     r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
     assert r.status_code == 200
     entries = r.json()["entries"]
-    assert [e["name"] for e in entries] == ["Bob B.", "Ann A."]  # weekly order flips lifetime
+    assert [e["name"] for e in entries] == ["Bob Bb", "Ann Aa"]  # weekly order flips lifetime
     assert [e["xp"] for e in entries] == [300, 20]               # score = weekly
-    ann = next(e for e in entries if e["name"] == "Ann A.")
+    ann = next(e for e in entries if e["name"] == "Ann Aa")
     assert ann["xp_total"] == 1000 and ann["level"] == 3         # lifetime rides along
 
 

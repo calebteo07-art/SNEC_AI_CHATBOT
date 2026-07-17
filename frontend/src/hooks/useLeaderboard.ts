@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AvatarConfig } from "@/aurora/avatar/axes.generated";
 
 /** One ranked row. `avatar_config` drives the client-side composited <Eyecon>. `name`
- *  is the student's display name or first-name + last-initial. */
+ *  is the student's full roster name (a self-chosen display name only fills in for staff,
+ *  who have no roster row). */
 export interface LeaderboardEntry {
   rank: number;
   name: string;
