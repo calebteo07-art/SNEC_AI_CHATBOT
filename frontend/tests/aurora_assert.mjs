@@ -709,7 +709,13 @@ const A11Y_ROUTES = ["/dashboard", "/chat", "/cases", "/flashcards", "/leaderboa
 await np.setViewportSize({ width: 1440, height: 900 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
-  await np.waitForSelector("main h1", { timeout: 15000 }); // wait for the screen body, not just the shell
+  // Poll the DOM for the condition this loop actually asserts, rather than holding an element
+  // handle: waitForSelector resolves a HANDLE, and a screen that re-renders while settling
+  // (the Tutor landing does) can swap the h1 out from under it — the wait then never
+  // satisfies even though the page is fine. That flaked ~50% of Linux CI runs with
+  // "locator resolved to visible <h1 class=tl-hello> … Timeout". Polling is immune to the
+  // swap and still fails honestly if the h1 never arrives or never settles at exactly one.
+  await np.waitForFunction(() => document.querySelectorAll("main h1").length === 1, null, { timeout: 15000, polling: 100 });
   const mains = await np.locator("main").count();
   const h1s = await np.locator("main h1").count();
   if (r === "/chat" || r === "/flashcards") {
@@ -726,7 +732,7 @@ console.log("PASS: a11y — every route has one main + one h1; rail nav off-chat
 await np.setViewportSize({ width: 390, height: 844 });
 for (const r of A11Y_ROUTES) {
   await np.goto(base + r, { waitUntil: "domcontentloaded" });
-  await np.waitForSelector("main h1", { timeout: 15000 });
+  await np.waitForFunction(() => document.querySelectorAll("main h1").length === 1, null, { timeout: 15000, polling: 100 });
   await np.waitForTimeout(250);
   const o = await np.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   if (o > 2) { console.error(`FAIL: 390px overflow on ${r} = ${o}px`); process.exit(1); }
