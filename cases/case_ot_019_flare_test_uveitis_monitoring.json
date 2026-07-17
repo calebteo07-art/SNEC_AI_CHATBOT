@@ -5,7 +5,7 @@
   "topic": "flare_test_uveitis_monitoring",
   "role": "OT",
   "estimated_minutes": 15,
-  "checklist_procedure": "Ophthalmic Investigations Skills Observation",
+  "checklist_procedure": "Flare Cell Measurement Investigation",
   "patient": {
     "name": "Mr Benjamin Oh Wei Liang",
     "age": 35,

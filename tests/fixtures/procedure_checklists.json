@@ -1,5 +1,137 @@
 [
   {
+    "procedure_name": "Aberrometry Investigation",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": true,
+        "action": "Remove the dust cover from the acquisition unit and switch on the machine. Allow the machine to warm up and wait for it to finish auto-calibration."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Ensure safety by checking that machine wires and cables are tucked safely away from the patient."
+      },
+      {
+        "step_number": 3,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Clean the surface of the machine with alcohol wipes to minimise the risk of cross infection."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Introduce self to patient and verify the patient's identity to ensure correctness."
+      },
+      {
+        "step_number": 5,
+        "category": "documentation",
+        "critical": true,
+        "action": "Confirm the consulting doctor's request on the test required."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to the patient so as to allay fear and anxiety."
+      },
+      {
+        "step_number": 7,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ensure the patient's comfort and seek the patient's co-operation."
+      },
+      {
+        "step_number": 8,
+        "category": "equipment",
+        "critical": true,
+        "action": "Dim the room light before the procedure."
+      },
+      {
+        "step_number": 9,
+        "category": "documentation",
+        "critical": false,
+        "action": "Enter the patient's data and other required information into the machine."
+      },
+      {
+        "step_number": 10,
+        "category": "equipment",
+        "critical": true,
+        "action": "Select the appropriate test as indicated by the doctor."
+      },
+      {
+        "step_number": 11,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain to the patient what they need to do and see, using the demo 'Mount Fuji' image, and inform the patient to relax and look at the centre of the target screen."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Advise the patient to place the chin on the chin rest and the forehead against the forehead strap, then adjust the chin rest until the canthus marker is aligned at eye level."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the procedure on the Right eye first: move the acquisition head with the joystick until the right eye is centred on the monitor."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Centre the pupil between the circle and the intersection of the two crosses, ensuring a sharp contour between the pupil and the iris."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Press the joystick to capture the reading and continue with a second measurement, then click the 'Result Screen' to compute the final reading."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "View and verify the results, then proceed to save and print the data."
+      },
+      {
+        "step_number": 17,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Repeat the procedure for the Left eye."
+      },
+      {
+        "step_number": 18,
+        "category": "documentation",
+        "critical": true,
+        "action": "File the data into the patient's medical record folder."
+      },
+      {
+        "step_number": 19,
+        "category": "documentation",
+        "critical": true,
+        "action": "Verify the patient's data on the printed results, then initial and indicate the date beside the patient's particulars as a record of the check performed."
+      },
+      {
+        "step_number": 20,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect the machine with alcohol wipes after each patient's use."
+      },
+      {
+        "step_number": 21,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Switch off the machine and place the dust cover over it at the end of each session."
+      }
+    ]
+  },
+  {
     "procedure_name": "Amsler Grid Testing",
     "checklist_type": "logbook",
     "steps": [
@@ -834,6 +966,132 @@
     ]
   },
   {
+    "procedure_name": "Endothelial Cell Count Investigation",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Remove the dust cover and switch on the specular microscope."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Ensure safety by checking that machine wires and cables are tucked safely away from the patient."
+      },
+      {
+        "step_number": 3,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Clean the surface of the machine with alcohol wipes to minimise the risk of cross infection."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Introduce self to patient and verify the patient's identity to ensure correctness."
+      },
+      {
+        "step_number": 5,
+        "category": "documentation",
+        "critical": true,
+        "action": "Confirm the consulting doctor's request on the test required."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to the patient so as to allay fear and anxiety."
+      },
+      {
+        "step_number": 7,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ensure the patient's comfort and seek the patient's co-operation."
+      },
+      {
+        "step_number": 8,
+        "category": "documentation",
+        "critical": false,
+        "action": "Enter the patient's data and other required information into the machine."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position the patient comfortably on the chair facing the machine."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Adjust the table height accordingly and advise the patient to place the chin on the chin rest and the forehead against the headrest."
+      },
+      {
+        "step_number": 11,
+        "category": "safety_check",
+        "critical": true,
+        "action": "Place the chin on the LEFT chin rest to capture the image for the RIGHT eye, and on the RIGHT chin rest to capture the image for the LEFT eye."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the procedure on the Right eye first: align the patient's head to position the centre of the pupil in the centre of the computer monitor and advise the patient to fixate on the green light inside."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Click 'RECORD' to capture the image, then click 'PATTERN' to select the cell size."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Click 'ANALYSIS (MANUAL)' and select cells in a circular or centre-analysis pattern, identifying the true centre of the cells with a spiral, continuous and consistent selection technique."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Ensure the cells counted after analysis are more than 100, or as per the doctor's request."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Repeat the procedure for the Left eye."
+      },
+      {
+        "step_number": 17,
+        "category": "documentation",
+        "critical": false,
+        "action": "Print out the analysed results; the test will be saved automatically."
+      },
+      {
+        "step_number": 18,
+        "category": "documentation",
+        "critical": true,
+        "action": "Paste and file the results into the patient's medical record folder."
+      },
+      {
+        "step_number": 19,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect the machine with alcohol wipes after each patient's use."
+      },
+      {
+        "step_number": 20,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Switch off the machine and place the dust cover over it at the end of each session."
+      }
+    ]
+  },
+  {
     "procedure_name": "Eye Drop Instillation and Dilation",
     "checklist_type": "PSA",
     "steps": [
@@ -932,6 +1190,114 @@
         "category": "documentation",
         "critical": true,
         "action": "Record the date and time of the procedure performed onto the patient’s medical record/EMR."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Flare Cell Measurement Investigation",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": true,
+        "action": "Remove the dust cover and switch on the machine. Allow the machine to warm up and wait for it to finish auto-calibration."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Ensure safety by checking that machine wires and cables are tucked safely away from the patient."
+      },
+      {
+        "step_number": 3,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Clean the surface of the machine with alcohol wipes to minimise the risk of cross infection."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Introduce self to patient and verify the patient's identity to ensure correctness."
+      },
+      {
+        "step_number": 5,
+        "category": "documentation",
+        "critical": true,
+        "action": "Confirm the consulting doctor's request on the test required."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to the patient so as to allay fear and anxiety."
+      },
+      {
+        "step_number": 7,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ensure the patient's comfort and seek the patient's co-operation."
+      },
+      {
+        "step_number": 8,
+        "category": "equipment",
+        "critical": true,
+        "action": "Select the appropriate test as indicated by the doctor."
+      },
+      {
+        "step_number": 9,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position the patient comfortably on the chair facing the machine."
+      },
+      {
+        "step_number": 10,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Adjust the table height according to the patient's sitting height so the patient rests chin and forehead comfortably without straining forward."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Advise the patient to place the chin on the chin rest and the forehead against the forehead strap, then adjust the chin rest until the patient's eye level is aligned with the eye level mark on the headrest pole."
+      },
+      {
+        "step_number": 12,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Advise the patient to look at the external green fixation light and blink normally."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Perform the procedure on the Right eye first: position the microscope and light source 90 degrees apart so that the laser slit light connects the focal points at the cornea."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Press the 'MEASURE' button on the joystick to begin the laser beam scan and search for the patient's measurement site."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Locate the measurement site by moving the measuring window slightly below the centre of the optical axis, near the centre of the anterior chamber; the window blinks more rapidly as alignment nears, and alignment is correct when blinking becomes rapid or stops."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Press the 'STORE' button on the mobile stand to store the measurements once the flare measurement is displayed."
+      },
+      {
+        "step_number": 17,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect the machine with alcohol wipes after each patient's use."
       }
     ]
   },
@@ -1478,6 +1844,192 @@
         "category": "post_procedure",
         "critical": false,
         "action": "Perform hand hygiene and hand the recorded result to the doctor, noting the testing purpose."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Lens Meter Investigation",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Remove the dust cover and switch on the Lensmeter."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Ensure safety by checking that machine wires and cables are tucked safely away from the patient."
+      },
+      {
+        "step_number": 3,
+        "category": "equipment",
+        "critical": false,
+        "action": "Clean the optical surfaces using the air blower (AP Jet Cleaner) to remove dust and dirt."
+      },
+      {
+        "step_number": 4,
+        "category": "equipment",
+        "critical": false,
+        "action": "Clean the optical surfaces using a micro fibre cloth to ensure the optical surfaces are not scratched."
+      },
+      {
+        "step_number": 5,
+        "category": "equipment",
+        "critical": true,
+        "action": "Set the spherical and cylinder marking to 0/180 degrees by adjusting the diopter knob and the axis by adjusting the wheel turner."
+      },
+      {
+        "step_number": 6,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Align the spectacle / lens by centering the target so that the optical centre coincides with the inside marking."
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Check the spherical, cylinder and axis power by adjusting the diopter marking knob and the target rotation wheel."
+      },
+      {
+        "step_number": 8,
+        "category": "documentation",
+        "critical": true,
+        "action": "Print or record the reading into the patient's medical record folder."
+      },
+      {
+        "step_number": 9,
+        "category": "equipment",
+        "critical": false,
+        "action": "Remove dust from the optical surfaces using the air blower and clean the lens holder using a micro fibre cloth."
+      },
+      {
+        "step_number": 10,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Switch off the equipment and place the dust cover over it at the end of each session."
+      }
+    ]
+  },
+  {
+    "procedure_name": "Macula Potential (Acuity Test) Investigation",
+    "checklist_type": "OT",
+    "steps": [
+      {
+        "step_number": 1,
+        "category": "equipment",
+        "critical": false,
+        "action": "Remove the dust cover from the acquisition unit and switch on the Potential Acuity Meter."
+      },
+      {
+        "step_number": 2,
+        "category": "safety_check",
+        "critical": false,
+        "action": "Ensure safety by checking that machine wires and cables are tucked safely away from the patient."
+      },
+      {
+        "step_number": 3,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Clean the surface of the machine with alcohol wipes to minimise the risk of cross infection."
+      },
+      {
+        "step_number": 4,
+        "category": "patient_identification",
+        "critical": true,
+        "action": "Introduce self to patient and verify the patient's identity to ensure correctness."
+      },
+      {
+        "step_number": 5,
+        "category": "documentation",
+        "critical": true,
+        "action": "Confirm the consulting doctor's request on the test required."
+      },
+      {
+        "step_number": 6,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Explain the purpose and procedure to the patient so as to allay fear and anxiety."
+      },
+      {
+        "step_number": 7,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Ensure the patient's eye is dilated before proceeding."
+      },
+      {
+        "step_number": 8,
+        "category": "patient_education",
+        "critical": false,
+        "action": "Ensure the patient's comfort and seek the patient's co-operation."
+      },
+      {
+        "step_number": 9,
+        "category": "equipment",
+        "critical": true,
+        "action": "Dim the room light before the procedure."
+      },
+      {
+        "step_number": 10,
+        "category": "equipment",
+        "critical": true,
+        "action": "Adjust the built-in corrective lens according to the patient's latest refraction records, corrected for near vision."
+      },
+      {
+        "step_number": 11,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Position the patient comfortably on the chair facing the acquisition unit."
+      },
+      {
+        "step_number": 12,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Adjust the table height according to the patient's sitting height so the patient rests chin and forehead comfortably without straining forward."
+      },
+      {
+        "step_number": 13,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Advise the patient to place the chin on the chin rest and the forehead against the forehead strap."
+      },
+      {
+        "step_number": 14,
+        "category": "clinical_assessment",
+        "critical": false,
+        "action": "Perform the test one eye at a time."
+      },
+      {
+        "step_number": 15,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Align the aiming beam to the visual axis of the patient's eye so that the patient is focusing into the chart."
+      },
+      {
+        "step_number": 16,
+        "category": "clinical_assessment",
+        "critical": true,
+        "action": "Request the patient to read out the number / alphabet chart inside the orange light."
+      },
+      {
+        "step_number": 17,
+        "category": "documentation",
+        "critical": true,
+        "action": "Record the results into the patient's medical record folder."
+      },
+      {
+        "step_number": 18,
+        "category": "infection_control",
+        "critical": true,
+        "action": "Disinfect the machine with alcohol wipes after each patient's use."
+      },
+      {
+        "step_number": 19,
+        "category": "post_procedure",
+        "critical": false,
+        "action": "Switch off the machine and place the dust cover over it at the end of each session."
       }
     ]
   },
