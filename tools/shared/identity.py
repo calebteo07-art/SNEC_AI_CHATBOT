@@ -5,7 +5,7 @@ All functions are async and use the Supabase student_consent table.
 
 Usage:
     from tools.shared.identity import get_or_create_student, has_consented, record_consent
-    student_id = await get_or_create_student(full_name, email)
+    student_id, student_name = await get_or_create_student(full_name, email)
 """
 import sys
 import uuid
@@ -21,20 +21,26 @@ from tools.shared.audit_log import log
 PDPA_VERSION = "1.0"
 
 
-async def get_or_create_student(name: str, email: str) -> str:
+async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     """Look up a student by email; create a new consent row if not found.
-    Returns the student_id UUID string.
+    Returns (student_id, student_name).
+
+    The stored name wins for a returning student: student_consent.student_name is the
+    identity of record (it is what /api/auth/me reads), and `name` here is only ever a
+    best-guess seed from the caller — for staff, who have no approved_students row, it
+    degrades to their email address. Returning it keeps every caller agreeing on what
+    the person is called instead of greeting them by their email.
     """
     existing = await db.get_consent_by_email(email)
     if existing:
         student_id = existing["student_id"]
         log("student_lookup", student_id=student_id, feature="identity", detail="returning student")
-        return student_id
+        return student_id, (existing.get("student_name") or "").strip() or name
 
     student_id = str(uuid.uuid4())
     await db.upsert_consent(student_id, student_name=name, email=email)
     log("student_created", student_id=student_id, feature="identity", detail="new student registered")
-    return student_id
+    return student_id, name
 
 
 async def has_consented(student_id: str) -> bool:

@@ -22,6 +22,7 @@ import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionEx
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
+import { displayName } from "@/aurora/lib/displayName";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -407,7 +408,7 @@ export function CaseSession() {
       meta: {
         caseId, caseTitle: caseInfo.title, patientName: caseInfo.patient.name,
         patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: caseInfo.difficulty,
-        studentName: user?.fullName ?? "Student", dateStr: new Date().toLocaleString(),
+        studentName: displayName(user?.fullName, "Student"), dateStr: new Date().toLocaleString(),
       },
       score: {
         score100: result.score_100, verdict: result.verdict, safe: result.safe,

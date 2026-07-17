@@ -23,6 +23,7 @@ import { OPENERS, SUBS, nextIndex } from "@/aurora/lib/tutorGreeting";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
+import { firstNameOf } from "@/aurora/lib/displayName";
 
 interface AIMessage { type: "ai"; id: string; content: string; }
 interface UserMessage { type: "user"; id: string; text: string; }
@@ -46,7 +47,7 @@ export function Tutor() {
   const { mutate: syncGamification } = useGamificationSync();
   const { user } = useAuth();
   const { enqueue } = useReward();
-  const firstName = (user?.fullName ?? "there").split(" ")[0];
+  const firstName = firstNameOf(user?.fullName);
   const userId = user?.studentId || user?.email || "_";
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [recent, setRecent] = useState<StoredSession[]>([]);
