@@ -132,6 +132,10 @@ export function OnboardingScreen() {
       setLoginResult(data);
 
       if (data.must_change) {
+        /* Claim the screen BEFORE login() makes `user` non-null, or the :103 bounce fires on
+           the next render and the forced modal below never gets to mount — which is how the
+           password step ended up dead last, on /dashboard, colliding with the tour. */
+        loggingInRef.current = true;
         login({ fullName: data.full_name ?? email, email: email.trim().toLowerCase(), studentId: data.student_id, role: data.role as "student" | "admin" | "trainer", studentRole: (data.student_role ?? "") as "OA" | "OT" | "PSA" | "", mustChangePassword: true });
         setStep("change_password");
         return;

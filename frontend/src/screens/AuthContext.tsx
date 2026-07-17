@@ -110,6 +110,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         sessionStorage.clear();
         localStorage.removeItem("eyebot_user_v1");
+        /* Drop this account's cached data + onboarding flags too. Without it, an expired
+           session leaves eyebot_user_v1 gone, so the NEXT login reads prevId = null, the
+           account-switch purge below short-circuits, and the previous student's persisted
+           ["avatar"] cache (customized: true) + eyebot_tour_seen leak into a brand-new
+           account — skipping their Studio gate and their first-run tour. */
+        resetUserScopedState();
         setLoading(false);
       }
     };

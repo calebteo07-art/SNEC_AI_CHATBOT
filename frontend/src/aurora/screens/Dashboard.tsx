@@ -6,7 +6,6 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
-import { ChangePasswordModal } from "@/screens/ChangePasswordModal";
 import { useProgress } from "@/hooks/useProgress";
 import { rankForLevel } from "@/lib/rank";
 import { DAILY_XP_GOAL, XP_PER_LEVEL } from "@/lib/legacy/gamification";
@@ -29,7 +28,7 @@ function dayOfYear(): number {
 }
 
 export function Dashboard() {
-  const { user, setMustChangePassword } = useAuth();
+  const { user } = useAuth();
   const { data: progress } = useProgress();
 
   /* Post-session debrief, inlined here (the Summary page is gone): a finished
@@ -84,10 +83,6 @@ export function Dashboard() {
   return (
     <div className="aurora-home" data-testid="home-root">
       <HomeIconSprite />
-      {user?.mustChangePassword && (
-        <ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} />
-      )}
-
       <div className="hm-top">
         <div className="hm-brand">
           <span className="hm-logo"><Logo size={40} /></span>
