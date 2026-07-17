@@ -32,13 +32,15 @@ class PromoteRequest(BaseModel):
 def _account_ready_html(full_name: str, email: str, password: str) -> str:
     """New-account credentials email. Shared by the single-approve and CSV-import
     paths so the two can't drift apart."""
-    return f"""<p>Hi {full_name},</p>
-<p>Your EyeBot account has been created.</p>
+    return f"""<p>Dear {full_name},</p>
+<p>Welcome to EyeBot — we are delighted to have you on board.</p>
+<p>EyeBot is your personal training companion, here to help you learn at your own pace and grow in confidence in your clinical practice. Your account is now ready, and your sign-in details are below.</p>
 <p><strong>Email:</strong> {email}<br>
 <strong>Temporary password:</strong> {password}</p>
-<p><strong>Before you log in:</strong> EyeBot isn't released on SNEC corporate devices yet, so please use your own personal device. It's best experienced on an iPad or laptop.</p>
-<p>Log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a> and change your password when prompted.</p>
-<p>EyeBot · SNEC</p>"""
+<p><strong>Before you log in:</strong> EyeBot has not been released on SNEC corporate devices yet, so please use your own personal device. It is best experienced on an iPad or laptop.</p>
+<p>Please log in at <a href="https://snec-ai-chatbot.onrender.com">https://snec-ai-chatbot.onrender.com</a>, where you will be prompted to choose a password of your own.</p>
+<p>We hope you enjoy learning with EyeBot, and we wish you every success in your training.</p>
+<p>Warm regards,<br>The EyeBot Team · SNEC</p>"""
 
 
 # ── Admin endpoints ────────────────────────────────────────────────────────
