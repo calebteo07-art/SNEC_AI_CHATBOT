@@ -37,7 +37,15 @@ interface CardFanCarouselProps {
 const WINDOW = 3;   // how many topics either side of the front are drawn; the rest park (opacity 0)
 const TILT = 54;    // degrees a fully-banked side card is rotated away from the viewer
 
-function getCardWidth(width: number) {
+/* The card width the spacing maths must use is whatever CSS ACTUALLY laid out — measure it,
+   never re-derive it. This used to guess from `window.innerWidth` with breakpoints at
+   400/560/768/1024 while aurora.css switched size at a single 639px, so the two disagreed
+   across 640-1023px: CSS drew a 348px card while the maths placed neighbours for a 326px
+   one. Because the locked depth projection is *proportional* to W (k = W/300 below), a wrong
+   W silently mis-scales the whole coverflow — the exact failure the lock exists to prevent.
+   Measuring means a CSS size change can never desync it again. The literals survive only as
+   a pre-layout fallback for the first paint. */
+function fallbackCardWidth(width: number) {
   if (width < 400) return 252;
   if (width < 560) return 278;
   if (width < 768) return 302;
@@ -45,13 +53,19 @@ function getCardWidth(width: number) {
   return 348;
 }
 
+function measureCardWidth(container: HTMLElement | null) {
+  const card = container?.querySelector<HTMLElement>(".fan-card");
+  const w = card?.offsetWidth ?? 0;
+  return w > 0 ? w : fallbackCardWidth(typeof window === "undefined" ? 1440 : window.innerWidth);
+}
+
 // Coverflow spacing, derived from the card width so it scales proportionally on mobile.
 // gap1 = how far the FIRST neighbour sits off-centre (leaves the front card room); stepX = each
 // further step; frontZ pushes the centre card toward the viewer and backZ/stepZ push neighbours
 // away — that real depth (not just rotation) is what makes the front card clearly the biggest
 // under the stage's perspective, so many topics never crush into a same-size slab.
-function coverMetrics(width: number) {
-  const W = getCardWidth(width);
+function coverMetrics(container: HTMLElement | null) {
+  const W = measureCardWidth(container);
   const k = W / 300;
   return { gap1: W * 0.64, stepX: W * 0.44, frontZ: 70 * k, backZ: 150 * k, stepZ: 95 * k };
 }
@@ -121,7 +135,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     if (!container || !total) return;
     const els = Array.from(container.querySelectorAll<HTMLElement>(".fan-card"));
     const zCache = new Array(els.length).fill(NaN);
-    let m = coverMetrics(window.innerWidth);
+    let m = coverMetrics(container);
 
     const paint = () => {
       const flow = flowRef.current;
@@ -153,7 +167,10 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     paintRef.current = paint;
     paint(); // place cards before first frame (no stacked-card flash)
 
-    const onResize = () => { m = coverMetrics(window.innerWidth); paint(); };
+    // Re-measure on resize: a rotate crosses the CSS size tier, so the card's laid-out
+    // width changes and the projection must follow it or the spacing is left scaled for
+    // the previous orientation.
+    const onResize = () => { m = coverMetrics(container); paint(); };
     window.addEventListener("resize", onResize);
 
     let raf = 0;
@@ -196,7 +213,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   const onPointerMove = (e: React.PointerEvent) => {
     const d = drag.current;
     if (!d.down) return;
-    const cw = getCardWidth(window.innerWidth);
+    const cw = measureCardWidth(containerRef.current);
     const dx = e.clientX - d.startX;
     // Measure travel on BOTH axes. Horizontal-only slop means a vertical scroll flick is
     // still a "tap", so on a touch device a flick to scroll the page opens a deck instead
@@ -213,7 +230,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     const d = drag.current;
     if (!d.down) return;
     d.down = false; draggingRef.current = false;
-    const cw = getCardWidth(window.innerWidth);
+    const cw = measureCardWidth(containerRef.current);
     const flick = -velRef.current * 150 / (cw * 0.62);           // momentum → snap to a card
     targetRef.current = Math.round(flowRef.current + flick);
     if (reduced) { flowRef.current = targetRef.current; paintRef.current(); }
