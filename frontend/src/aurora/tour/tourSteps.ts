@@ -23,19 +23,19 @@ export interface TourStep {
 export const TOUR_STEPS: TourStep[] = [
   { id: "welcome", route: "/dashboard", target: null,
     title: "Welcome to EyeBot! \u{1F441}️",
-    body: "I'm your Eyecon — give me 60 seconds and I'll show you around." },
+    body: "I'm your Eyecon, your guide. Give me 60 seconds to show you around — then you'll get to make me your own." },
   { id: "modes", route: "/dashboard", target: '[data-testid="feature-carousel"]',
     title: "Your 3 ways to train \u{1F4AA}",
     body: "Tutor, Virtual Patients & Flashcards all live here — tap any card to dive straight in." },
   { id: "streak", route: "/dashboard", target: '[data-testid="streak-tile"]',
     title: "Keep the flame alive \u{1F525}",
-    body: "Show up daily to grow your streak and hit your Lumens goal. Miss a day and it cools." },
+    body: "Show up daily to grow your streak and hit your Lumens goal — miss a day and it cools. You'll light yours the moment this tour ends." },
   { id: "badges", route: "/dashboard", target: '[data-testid="milestone-ladder"]',
     title: "Collect every badge",
     body: "Each streak milestone drops a shiny Eyecon badge — watch the locked ones light up as you climb." },
   { id: "account", route: "/dashboard", target: ".hm-eyeconmenu-btn",
     title: "That's you, up top",
-    body: "Your Eyecon lives here — account, password, and logout whenever you need them." },
+    body: "Your Eyecon will live here once you've built it — along with your account, password, and logout." },
   { id: "tutor", route: "/chat", target: ".aurora-composer", fallback: '[data-testid="tutor-landing"]',
     title: "Meet your tutor \u{1F9E0}",
     body: "Ask any clinical question — answers stream in live and earn you Lumens. It coaches Socratically, never just hands over the answer." },
@@ -52,8 +52,8 @@ export const TOUR_STEPS: TourStep[] = [
     title: "Your cohort insights \u{1F4CA}",
     body: "As a trainer you also get analytics here — track how your students are progressing." },
   { id: "finish", route: "/dashboard", target: null, confetti: true,
-    title: "You're all set! \u{1F389}",
-    body: "That's the tour. Come back daily to feed your streak — let's go!" },
+    title: "Tour complete! \u{1F389}",
+    body: "Two quick things and you're in: build your Eyecon, then light your first streak." },
 ];
 
 /** The steps shown for a given role. Students don't see the trainer/admin-only analytics
