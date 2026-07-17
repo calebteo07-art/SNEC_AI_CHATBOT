@@ -211,8 +211,12 @@
 @keyframes lb-rise { from { opacity:0; transform:translateY(10px); } }
 @keyframes lb-embers { to { background-position:0 -260px; } }
 
-/* ── responsive (390px-safe) ── */
-@media (max-width:720px) {
+/* ── responsive (390px-safe) ──
+   Phone-landscape joins this list because these are the PHONE sizes and a landscape phone is a
+   phone: at 844x390 / 932x430 the width tier missed it and the plinth type went desktop-scale.
+   Width cannot identify a phone (breakpoints.css). Contents unchanged. */
+@media (max-width:720px),
+       (max-height:480px) and (pointer:coarse) {
   .lb-climb { gap:12px; }
   .lb-podium { gap:8px; }
   .lb-ped-nm { font-size:13.5px; } .lb-ped.p1 .lb-ped-nm { font-size:15px; }
@@ -224,6 +228,21 @@
   .lb-ped-nm { font-size:12.5px; padding:4px 6px; } .lb-ped.p1 .lb-ped-nm { font-size:13.5px; }
   .lb-row { grid-template-columns:22px 44px minmax(0,1fr) auto; gap:10px; padding:11px 12px 11px 10px; }
   .lb-lvl { display:none; }
+}
+
+/* ── phone landscape: the board sizes itself off its own WIDTH (9.8cqw title, 4:5 plinths in a
+   3-col grid), so a landscape phone — 844-932 wide but only 390-430 tall — resolved all of it
+   at desktop scale: a measured 83px wordmark and a 392px podium on a 430px-tall screen. Cap the
+   COLUMN rather than re-size the parts, and every authored proportion (the cqw fill, the 4:5 the
+   metal art is baked to, the % face/score/plaque offsets registered to that art) lands at phone
+   scale untouched — landscape just gets the portrait board, centred on the arena. ── */
+@media (max-height:480px) and (pointer:coarse) {
+  .lb-climb { max-width:440px; padding:14px 14px 60px; }
+}
+
+/* ── touch: the filter chips are the board's only tap targets; 37px is under the 44 minimum. ── */
+@media (pointer:coarse) {
+  .lb-chip { min-height:44px; }
 }
 
 /* ── reduced motion: freeze entrance + embers ── */
