@@ -32,13 +32,16 @@ it("every step has a route and non-empty copy", () => {
 });
 
 // --- shouldStartTour(...) — the show-once gate ---
-const base = { isAuthenticated: true, isCheckInDone: true, customized: true, seen: false, pathname: "/dashboard" };
-it("fires when all gates clear on the dashboard", () => assert.equal(shouldStartTour(base), true));
+// The tour is the first stop AFTER the password step, so it fires while the Eyecon is still
+// uncustomized (customized === false is the per-account first-run signal) and BEFORE the
+// daily check-in — which is why isCheckInDone is no longer part of the gate.
+const base = { isAuthenticated: true, customized: false, seen: false, pathname: "/dashboard" };
+it("fires for a first-run student on the dashboard", () => assert.equal(shouldStartTour(base), true));
 it("never re-fires once seen (show-once invariant)", () => assert.equal(shouldStartTour({ ...base, seen: true }), false));
 it("waits while the avatar is still loading (customized undefined)", () => assert.equal(shouldStartTour({ ...base, customized: undefined }), false));
-it("does not fire before the Eyecon gate is passed (customized false)", () => assert.equal(shouldStartTour({ ...base, customized: false }), false));
+it("does not fire once the Eyecon is customized (onboarding already done)", () => assert.equal(shouldStartTour({ ...base, customized: true }), false));
+it("does not replay for a returning student on a fresh device (seen false, customized true)", () => assert.equal(shouldStartTour({ ...base, customized: true, seen: false }), false));
 it("does not fire off the dashboard hub", () => assert.equal(shouldStartTour({ ...base, pathname: "/chat" }), false));
-it("does not fire before daily check-in", () => assert.equal(shouldStartTour({ ...base, isCheckInDone: false }), false));
 it("does not fire when unauthenticated", () => assert.equal(shouldStartTour({ ...base, isAuthenticated: false }), false));
 
 it("persistence key is the harness-seeded one", () => assert.equal(TOUR_KEY, "eyebot_tour_seen"));

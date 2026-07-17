@@ -65,21 +65,22 @@ export function activeSteps(role: string | undefined): TourStep[] {
 
 export interface TourGateInput {
   isAuthenticated: boolean;
-  isCheckInDone: boolean;
   customized: boolean | undefined;
   seen: boolean;
   pathname: string;
 }
 
-/** Whether the first-run tour should start right now. Fires only after all three onboarding
-    gates clear (auth → daily check-in → Eyecon customized) and only on the dashboard
-    hub. `customized` must be strictly true (undefined = still loading ⇒ don't fire,
-    mirroring CheckInGuard's flash-loop guard). */
+/** Whether the first-run tour should start right now. The tour is the first stop after the
+    password step, so it runs while the Eyecon is still uncustomized — `customized === false`
+    is SERVER truth and the per-account first-run signal
+    (docs/superpowers/specs/2026-07-17-first-login-order-design.md). Strictly false:
+    undefined = still loading ⇒ don't fire, mirroring CheckInGuard's flash-loop guard.
+    Keying off the server flag rather than device-local `seen` alone also stops a returning
+    student on a new device replaying the tour. */
 export function shouldStartTour(i: TourGateInput): boolean {
   return (
     i.isAuthenticated === true &&
-    i.isCheckInDone === true &&
-    i.customized === true &&
+    i.customized === false &&
     i.seen === false &&
     i.pathname === "/dashboard"
   );
