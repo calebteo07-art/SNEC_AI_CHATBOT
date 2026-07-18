@@ -116,12 +116,19 @@ async def sync_gamification(
     except (ValueError, TypeError):
         xtd = None
     xp_today = int(profile.get("xp_today") or 0) if xtd == app_today() else 0
+    # Return the RESOLVED streak (healed from checkin_history, lapsed → 0), matching
+    # checkin_status/get_progress/leaderboard — the raw column briefly shows a stale value.
+    from tools.gamification.streak import resolve_streak
+    resolved_streak = resolve_streak(
+        profile.get("streak"), profile.get("streak_freezes"),
+        list(profile.get("checkin_history") or []), app_today(),
+    )["current"]
     return {
         "xp": xp,
         "xp_today": xp_today,
         "hearts": hearts,
         "level": (xp // 500) + 1,
-        "streak": int(profile.get("streak") or 0),
+        "streak": resolved_streak,
     }
 
 
