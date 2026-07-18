@@ -57,6 +57,31 @@ from tools.api.routers.avatar import router as avatar_router
 MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "2000000"))
 
 
+async def _warmup() -> None:
+    """Pre-touch the lazy Supabase + Gemini clients so the FIRST request after a
+    cold boot doesn't pay their init on its critical path.
+
+    Render free spins the container down when idle; otherwise the first request
+    afterwards constructs the Supabase async client (+ httpx pool) and imports
+    google-genai inline. This builds them ahead of time. It makes NO live model
+    call (zero quota/cost — client construction only) and is fully best-effort:
+    any failure is logged and swallowed so a slow/missing dependency can never
+    wedge startup.
+    """
+    try:
+        from tools.shared import db
+        await db._get_client()
+    except Exception as exc:  # dependency not ready — warm lazily on first use
+        _startup_log.info("warmup: supabase client not ready (%s)", exc)
+
+    if not MOCK_MODE:
+        try:
+            from tools.shared.gemini_client import _ensure_sdk_clients
+            await asyncio.to_thread(_ensure_sdk_clients)  # import + build, no generate
+        except Exception as exc:
+            _startup_log.info("warmup: gemini client not ready (%s)", exc)
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     # Fail closed: refuse to start in production on an insecure/incomplete env
@@ -77,6 +102,15 @@ async def lifespan(_app: FastAPI):
         _startup_log.info("thread-pool tokens set to %d", tokens)
     except Exception as exc:  # never block startup on this
         _startup_log.warning("could not set thread-pool tokens: %s", exc)
+
+    # Warm the lazy Supabase + Gemini clients OFF the critical path so the first
+    # real request after a cold boot doesn't pay their init. Fire-and-forget:
+    # create_task (not await) keeps readiness instant; _warmup is fail-open. Hold a
+    # reference on app.state so the task isn't garbage-collected mid-flight.
+    try:
+        _app.state.warmup_task = asyncio.create_task(_warmup())
+    except Exception as exc:  # never block startup on this
+        _startup_log.warning("could not schedule warmup: %s", exc)
 
     yield
 

@@ -2,7 +2,7 @@
 import asyncio
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -827,8 +827,61 @@ def _fallback_coaching(score: dict, raw_result: dict,
     )
 
 
+async def _persist_submit(
+    *,
+    student_id: str,
+    case: dict,
+    case_id: str,
+    messages: list,
+    score: dict,
+    award: int,
+    missed: list,
+    passed: bool,
+    coaching: dict,
+) -> None:
+    """Best-effort persistence for a submitted station, run as a BackgroundTask so
+    the ~7 Supabase round-trips (session log + profile/XP + rich case grade) stay OFF
+    the response critical path. Each write is isolated: one failing (e.g. an additive
+    column still pending its migration) must never sink the others — the response has
+    already gone out regardless."""
+    try:
+        await log_session(
+            student_id=student_id,
+            topic=f"Case: {case['title']}",
+            messages=messages,
+            token_count=0,
+            model="mock" if MOCK_MODE else MODEL,
+        )
+    except Exception:
+        pass
+
+    try:
+        from tools.profile.update_profile import update_profile
+        await update_profile(
+            student_id, topic=case["topic"], score=score["score_100"] / 100,
+            new_missed_findings=missed, xp_delta=award,
+        )
+    except Exception:
+        pass
+
+    # The additive DB columns (score sub-domains, safety verdict, missed-critical,
+    # coaching block) degrade gracefully until migration 011 (see db.insert_case_result).
+    try:
+        await log_case_completion(
+            student_id, case_id, score["total_score"], passed,
+            score_100=int(score["score_100"]),
+            safe=bool(score["safe"]),
+            consult_technique=int(score["consult_technique"]),
+            judgement_safety=int(score["judgement_safety"]),
+            missed_critical=list(score["missed_critical"]),
+            coaching=coaching,
+        )
+    except Exception:
+        pass
+
+
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
-async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: BackgroundTasks, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
     case = _case_cache.get(case_id)
     if case is None:
@@ -948,32 +1001,18 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
         has_manual,
     )
 
-    await log_session(
-        student_id=student_id,
-        topic=f"Case: {case['title']}",
-        messages=messages,
-        token_count=0,
-        model="mock" if MOCK_MODE else MODEL,
-    )
-
     cards: list = []
 
-    award = 0
-    # Profile update: retention = score_100/100; missed-gap heuristic unchanged.
-    try:
-        from tools.profile.update_profile import update_profile
-        missed = []
-        for domain in ("history_feedback", "investigations_feedback", "diagnosis_feedback", "management_feedback"):
-            feedback = raw_result.get(domain, "")
-            if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
-                missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
-        award = osce_lumens(score["score_100"])
-        await update_profile(
-            student_id, topic=case["topic"], score=score["score_100"] / 100,
-            new_missed_findings=missed, xp_delta=award,
-        )
-    except Exception:
-        pass
+    # Retention/missed-gap heuristic + Lumens award — computed INLINE because they feed
+    # the response (lumens_awarded) and the backgrounded profile write. Pure CPU, no I/O:
+    # the actual DB writes are deferred to a BackgroundTask at the end of the handler so
+    # the student isn't kept waiting on them after the station is already graded.
+    missed: list[str] = []
+    for domain in ("history_feedback", "investigations_feedback", "diagnosis_feedback", "management_feedback"):
+        feedback = raw_result.get(domain, "")
+        if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
+            missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
+    award = osce_lumens(score["score_100"])
 
     # Difficulty progression: pass at 60/100 (== 24/40).
     passed = score["score_100"] >= 60
@@ -1006,27 +1045,29 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     if not (coaching.highlights or coaching.did_wrong or coaching.missed or coaching.focus):
         coaching = _fallback_coaching(score, raw_result, checklist_comparison, consult_actions)
 
-    # Persist the RICH grade now that coaching is parsed — the score sub-domains, safety
-    # verdict, missed-critical steps and the coaching block feed the Analytics dashboard.
-    # Every value is already computed; they were dropped before this change. The additive
-    # DB columns degrade gracefully until migration 011 (see db.insert_case_result).
-    try:
-        await log_case_completion(
-            student_id, case_id, score["total_score"], passed,
-            score_100=int(score["score_100"]),
-            safe=bool(score["safe"]),
-            consult_technique=int(score["consult_technique"]),
-            judgement_safety=int(score["judgement_safety"]),
-            missed_critical=list(score["missed_critical"]),
-            coaching={
-                "highlights": coaching.highlights,
-                "did_wrong": coaching.did_wrong,
-                "missed": coaching.missed,
-                "focus": coaching.focus,
-            },
-        )
-    except Exception:
-        pass
+    # ── Persist everything OFF the response critical path. None of these writes feed the
+    #    response (lumens + coaching are already computed), and all are best-effort, so
+    #    schedule them as ONE BackgroundTask: the student gets their result immediately and
+    #    the session log + profile/XP update + rich case grade run after the response is
+    #    flushed. The rich grade's sub-domain/safety/coaching fields feed the Analytics
+    #    dashboard; they were dropped before RICOE and degrade gracefully pre-migration 011.
+    background_tasks.add_task(
+        _persist_submit,
+        student_id=student_id,
+        case=case,
+        case_id=case_id,
+        messages=messages,
+        score=score,
+        award=award,
+        missed=missed,
+        passed=passed,
+        coaching={
+            "highlights": coaching.highlights,
+            "did_wrong": coaching.did_wrong,
+            "missed": coaching.missed,
+            "focus": coaching.focus,
+        },
+    )
 
     per_phase = _per_phase_summary(_cl_compare.get("steps", []), body.performed_steps)
 
