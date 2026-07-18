@@ -415,7 +415,7 @@ async def _check_case_access(student_id: str, case: dict) -> None:
 
 
 @router.get("/api/cases/{case_id}", response_model=CaseInfo)
-def get_case(case_id: str):
+def get_case(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return a single case stub from the in-memory cache or pre-stored files."""
     case = _case_cache.get(case_id)
     if case is None:
@@ -435,7 +435,7 @@ def get_case(case_id: str):
 
 
 @router.get("/api/cases/{case_id}/checklist", response_model=ChecklistResponse)
-def get_case_checklist(case_id: str):
+def get_case_checklist(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Return the procedure checklist for a given case."""
     from tools.kb.search import get_checklist_by_name as _get_cl
     case = _case_cache.get(case_id)
@@ -582,7 +582,8 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
                        current_user: CurrentUser = Depends(get_current_user)):
     """Live examiner: return checklist steps the transcript now satisfies."""
     case = _load_case_or_404(case_id)
-    cl = _station_checklist(case)
+    # _station_checklist hits the sync Supabase client; keep it off the event loop.
+    cl = await asyncio.to_thread(_station_checklist, case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     # Hands-on procedures tick ONLY via the action panel — the conversational examiner must
     # never auto-tick them, so exclude every manual step number from what it may satisfy.
@@ -610,7 +611,7 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
     # Resolve the same checklist the station showed so the model answer can fall back to
     # the exact step text when the rubric has no matching investigations point.
     try:
-        steps = _station_checklist(case).get("steps", [])
+        steps = (await asyncio.to_thread(_station_checklist, case)).get("steps", [])
     except Exception:
         steps = []
     grade = grade_action(case, body.action_label, body.satisfies_steps, steps, body.technique)
@@ -845,7 +846,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, current_user: Curre
     checklist_comparison: list[ChecklistStepResult] = []
     _cl_compare: dict = {}
     try:
-        _cl_compare = _station_checklist(case)
+        _cl_compare = await asyncio.to_thread(_station_checklist, case)
         performed_set = set(body.performed_steps)
         for s in (_cl_compare.get("steps") or []):
             step_num = int(s.get("step_number", 0))

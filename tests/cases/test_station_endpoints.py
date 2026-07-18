@@ -32,6 +32,19 @@ def _cookie():
     return {"eyebot_token": create_access_token("stu_test", "student", "OA")}
 
 
+def test_get_case_requires_auth():
+    """rank 11: /api/cases/{id} must not serve case content to an unauthenticated
+    caller — every sibling case route requires a JWT."""
+    r = client.get("/api/cases/case_test_station")
+    assert r.status_code == 401
+
+
+def test_get_case_checklist_requires_auth():
+    """rank 11: the procedure checklist (steps + critical flags) must require auth."""
+    r = client.get("/api/cases/case_test_station/checklist")
+    assert r.status_code == 401
+
+
 def test_station_returns_phases_and_actions():
     with patch.dict("tools.api.shared._case_cache", {"case_test_station": CASE}, clear=False), \
          patch("tools.api.routers.cases.get_checklist_by_name", return_value=CHECKLIST):
