@@ -121,7 +121,18 @@ ship, but say so plainly and coordinate the setup so `main` never boots broken.
 
 - **Shell discipline.** PowerShell cmdlets go in the PowerShell tool; the Bash tool is
   POSIX-only. The `.claude/hooks/bash_guard.py` PreToolUse hook blocks violations —
-  switch tools, don't fight it.
+  switch tools, don't fight it (its `settings.json` path is `${CLAUDE_PROJECT_DIR}`-anchored;
+  keep it absolute — a relative path bricked the Bash tool in subdirs, 130 crashes).
+  **Use absolute paths, never `cd <relative>`** — the Bash tool resets cwd each call, so
+  `cd frontend && …` churned 131 failures in the 07-18 audit.
+- **Read before edit.** Never `Edit`/`Write` a file you haven't `Read` this session (53
+  bounced edits in the 07-18 audit); after any resume/compaction, **re-Read before
+  editing** — the summary is not a Read. A `PreCompact` hook (`session_snapshot.py`) drops
+  a mechanical `.session-handoff-auto.md` breadcrumb so a context-death resume isn't a total
+  black box — it is not a substitute for `/handoff`.
+- **Check in before long autonomous sweeps.** State the plan and surface a checkpoint
+  before running many tools deep; unattended multi-step Read/Bash sweeps were the top
+  interrupt trigger (236 aborts, most mid Read/Bash).
 - **DB migrations → `/db-migrate`.** Never paste a file *path* into the Supabase SQL
   editor; never emit `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY IF NOT EXISTS`
   (Postgres 42601). Applied migrations are ledgered in `tools/db/migrations/APPLIED.md`.

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:safe": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
