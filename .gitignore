@@ -76,7 +76,9 @@ frontend/*.png
 /*.jpg
 /*.png
 # Session / scratch artifacts.
-/.session-handoff.md
+# NOTE: .session-handoff.md is intentionally git-TRACKED — /handoff commits+pushes it for
+# cross-account resume. Do NOT ignore it (an ignore rule silently breaks handoff if it's
+# ever untracked). Only the mechanical auto-breadcrumb below stays local-only.
 /.session-handoff-auto.md
 /.awwwards_state.md
 /.tmpuvicorn.log
