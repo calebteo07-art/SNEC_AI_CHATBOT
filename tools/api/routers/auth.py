@@ -74,8 +74,8 @@ class MeResponse(BaseModel):
     must_change: bool
 
 
-@limiter.limit("5/minute")
 @router.post("/api/auth/login", response_model=LoginResponse)
+@limiter.limit("5/minute")
 async def auth_login(request: Request, body: LoginRequest, response: Response):
     email = body.email.strip().lower()
 
@@ -207,8 +207,8 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
     return {"ok": True}
 
 
-@limiter.limit("3/minute")
 @router.post("/api/auth/request-reset")
+@limiter.limit("3/minute")
 async def auth_request_reset(request: Request, body: RequestResetRequest):
     email = body.email.strip().lower()
     # Always return ok so we don't reveal whether the email exists
@@ -218,7 +218,7 @@ async def auth_request_reset(request: Request, body: RequestResetRequest):
         return {"ok": True}
 
     otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
-    set_otp(email, otp)
+    await asyncio.to_thread(set_otp, email, otp)
 
     try:
         from tools.shared.gmail_sender import send_email as _send_email
@@ -238,11 +238,12 @@ async def auth_request_reset(request: Request, body: RequestResetRequest):
 
 
 @router.post("/api/auth/reset-password")
-async def auth_reset_password(body: ResetPasswordRequest):
+@limiter.limit("5/minute")
+async def auth_reset_password(request: Request, body: ResetPasswordRequest):
     email = body.email.strip().lower()
     otp = body.otp.strip()
 
-    if not verify_and_consume_otp(email, otp):
+    if not await asyncio.to_thread(verify_and_consume_otp, email, otp):
         raise HTTPException(status_code=400, detail="Incorrect or expired reset code.")
 
     if len(body.new_password) < 8:
