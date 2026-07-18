@@ -123,6 +123,10 @@ export function CheckIn() {
         credentials: "include",
         body: JSON.stringify({ question_id: question.question_id, answer: option }),
       });
+      // A JSON-bodied non-2xx (401 cookie expiry, 400, 429) parses fine — without this
+      // guard it would fall through and stamp the day done (setCheckInDone) even though
+      // the streak never advanced server-side, silently breaking the streak next day.
+      if (!res.ok) throw new Error("answer_failed");
       const data = await res.json();
       setCorrect(data.correct);
       setCorrectAnswer(data.correct_answer ?? "");
