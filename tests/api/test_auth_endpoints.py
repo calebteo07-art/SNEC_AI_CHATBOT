@@ -513,3 +513,93 @@ def test_security_headers_present():
     assert r.headers.get("X-Content-Type-Options") == "nosniff"
     assert r.headers.get("X-Frame-Options") == "DENY"
     assert r.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
+
+
+# ---------------------------------------------------------------------------
+# Rate limiting on the pre-auth endpoints (bug hunt ranks 1, 3, 4)
+#
+# The @limiter.limit decorator only enforces when it wraps the function the
+# router registers, i.e. it must sit BELOW @router.post. On login and
+# request-reset it was inverted (above @router.post), so slowapi wrapped a copy
+# the router never called and the limit was a silent no-op. reset-password had
+# no limiter at all — combined with an unbounded OTP guess it is an account
+# takeover path. conftest resets limiter._storage between tests.
+# ---------------------------------------------------------------------------
+
+def test_login_is_rate_limited():
+    """The 6th login inside a minute must be throttled (limit is 5/minute)."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)):
+        codes = [
+            client.post("/api/auth/login", json={"email": "x@t.com", "password": "p"}).status_code
+            for _ in range(6)
+        ]
+    assert codes[-1] == 429, codes
+    assert codes[:5] == [403] * 5, codes
+
+
+def test_request_reset_is_rate_limited():
+    """The 4th request-reset inside a minute must be throttled (limit is 3/minute)."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)):
+        codes = [
+            client.post("/api/auth/request-reset", json={"email": "x@t.com"}).status_code
+            for _ in range(4)
+        ]
+    assert codes[-1] == 429, codes
+
+
+def test_reset_password_is_rate_limited():
+    """Unbounded OTP guessing is the account-takeover path: reset-password must
+    throttle. The 6th attempt inside a minute must be 429 (limit is 5/minute)."""
+    with patch("tools.api.routers.auth.verify_and_consume_otp", return_value=False):
+        codes = [
+            client.post(
+                "/api/auth/reset-password",
+                json={"email": "x@t.com", "otp": "000000", "new_password": "newpassword1"},
+            ).status_code
+            for _ in range(6)
+        ]
+    assert codes[-1] == 429, codes
+
+
+# ---------------------------------------------------------------------------
+# The OTP store uses the SYNC Supabase client; its calls must run off the event
+# loop (bug hunt rank 7). A function offloaded via asyncio.to_thread runs in a
+# worker thread with no running loop, so asyncio.get_running_loop() raises there.
+# ---------------------------------------------------------------------------
+
+def _loop_probe(store, return_value=None):
+    """Return a fake that records whether it ran on the event loop thread."""
+    import asyncio as _a
+
+    def _fake(*_a_, **_k_):
+        try:
+            _a.get_running_loop()
+            store["on_loop"] = True
+        except RuntimeError:
+            store["on_loop"] = False
+        return return_value
+    return _fake
+
+
+def test_reset_password_offloads_otp_verify():
+    seen: dict = {}
+    with patch("tools.api.routers.auth.verify_and_consume_otp",
+               side_effect=_loop_probe(seen, return_value=False)):
+        client.post(
+            "/api/auth/reset-password",
+            json={"email": "x@t.com", "otp": "000000", "new_password": "newpassword1"},
+        )
+    assert seen.get("on_loop") is False, "verify_and_consume_otp must run off the event loop"
+
+
+def test_request_reset_offloads_set_otp():
+    seen: dict = {}
+    approved_row = {"email": "x@t.com", "full_name": "X", "role": "OA"}
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.api.routers.auth.set_otp", side_effect=_loop_probe(seen)), \
+         patch("tools.shared.gmail_sender.send_email", side_effect=Exception("email disabled")):
+        client.post("/api/auth/request-reset", json={"email": "x@t.com"})
+    assert seen.get("on_loop") is False, "set_otp must run off the event loop"
