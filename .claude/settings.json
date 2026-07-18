@@ -12,9 +12,22 @@
           {
             "type": "command",
             "command": "python",
-            "args": [".claude/hooks/bash_guard.py"],
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/bash_guard.py"],
             "timeout": 10,
             "statusMessage": "Checking for PowerShell cmdlets in Bash"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session_snapshot.py"],
+            "timeout": 15,
+            "statusMessage": "Writing auto session snapshot before compaction"
           }
         ]
       }

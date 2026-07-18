@@ -77,5 +77,6 @@ frontend/*.png
 /*.png
 # Session / scratch artifacts.
 /.session-handoff.md
+/.session-handoff-auto.md
 /.awwwards_state.md
 /.tmpuvicorn.log
