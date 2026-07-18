@@ -80,14 +80,29 @@ def format_context(chunks: list[dict]) -> str:
     return "\n\n---\n\n".join(sections)
 
 
+# Per-worker read cache for the small, static set of OSCE checklists (~22 rows).
+# get_checklist_by_name backs every station/observe/action/submit; the lookup is a
+# sync Supabase round-trip, so memoise it per worker — a warm hit does ZERO I/O.
+# Checklists are static seed data (workers restart on deploy), so a per-worker cache
+# never goes stale within a deploy. Keyed by the caller's `name`. Only successful
+# lookups are cached; a miss stays cheap and re-queries (rare — rubric-fallback path).
+# Mirrors the blessed tools.api.shared._case_cache pattern.
+_CHECKLIST_CACHE: dict[str, dict] = {}
+
+
 def get_checklist_by_name(name: str) -> dict | None:
     """Fetch a single checklist from Supabase by procedure name.
 
     Tries exact match first, then falls back to a case-insensitive partial match.
-    Returns {procedure_name, steps, total_steps} or None if not found.
+    Returns {procedure_name, steps, total_steps} or None if not found. Successful
+    lookups are cached per worker (see _CHECKLIST_CACHE).
     """
     if not _SUPABASE_ENABLED or not name:
         return None
+
+    cached = _CHECKLIST_CACHE.get(name)
+    if cached is not None:
+        return cached
 
     from tools.kb.supabase_client import get_client
     try:
@@ -97,12 +112,16 @@ def get_checklist_by_name(name: str) -> dict | None:
             "procedure_name, steps, total_steps"
         ).eq("procedure_name", name).limit(1).execute()
         if result.data:
+            _CHECKLIST_CACHE[name] = result.data[0]
             return result.data[0]
         # Fuzzy fallback — match if name is a substring of procedure_name
         result = client.table("checklists").select(
             "procedure_name, steps, total_steps"
         ).ilike("procedure_name", f"%{name}%").limit(1).execute()
-        return result.data[0] if result.data else None
+        if result.data:
+            _CHECKLIST_CACHE[name] = result.data[0]
+            return result.data[0]
+        return None
     except Exception as exc:
         print(f"[get-checklist-error] {exc}", flush=True)
         return None
