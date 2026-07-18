@@ -7,7 +7,6 @@ position. Grading is fully deterministic (selected option text == correct option
 text) — no AI marks the check-in.
 """
 import random as _random
-from datetime import date as _date
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -105,7 +104,7 @@ async def checkin_status(current_user: CurrentUser = Depends(get_current_user)):
 @limiter.limit("10/minute")
 async def checkin_question(request: Request, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
-    today = _date.today().isoformat()
+    today = app_today().isoformat()
 
     cached = _question_cache.get(student_id)
     if cached and cached[0] == today:
@@ -119,7 +118,7 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
         role = "OA"
 
     pool = CHECKIN_QUESTION_POOL.get(role) or CHECKIN_QUESTION_POOL["OA"]
-    idx = pick_by_day_count(student_id, len(pool), "checkin")
+    idx = pick_by_day_count(student_id, len(pool), "checkin", today=app_today())
     entry = pool[idx]
     question_id = f"{role}-{idx}"
     options = _shuffle_options(entry["options"], f"{student_id}:{question_id}:{today}")

@@ -46,10 +46,16 @@ def _resolved_name(profile: dict, names: dict[str, str]) -> str:
     """The full roster name always wins (that is the mandate — abbreviation was dropped
     2026-07-17). A self-chosen display_name only fills in for identities with no roster
     row (staff have no consent row); 'Student' is the last resort."""
+    # An "@" means the value is an email, not a name — staff have no roster row so
+    # identity seeds their student_name to their address. The board is public to the
+    # cohort, so never surface it (the app-wide "@ is never a name" convention).
     roster = full_name(names.get(profile.get("student_id"), ""))
-    if roster:
+    if roster and "@" not in roster:
         return roster
-    return (profile.get("display_name") or "").strip() or "Student"
+    chosen = (profile.get("display_name") or "").strip()
+    if chosen and "@" not in chosen:
+        return chosen
+    return "Student"
 
 
 def _entry_streak(p: dict, today: date | None) -> int:

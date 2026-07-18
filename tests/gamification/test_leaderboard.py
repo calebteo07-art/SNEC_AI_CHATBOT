@@ -7,7 +7,7 @@ display_name only fills in for identities with no roster row (staff).
 """
 from datetime import date
 
-from tools.gamification.leaderboard import rank_entries, full_name, weekly_tally
+from tools.gamification.leaderboard import rank_entries, full_name, weekly_tally, _resolved_name
 
 WEEK = date(2026, 5, 4)  # a Monday — the weekly-leaderboard boundary (SGT)
 
@@ -202,3 +202,27 @@ def test_weekly_tally_resets_when_week_start_missing():
 
 def test_weekly_tally_floors_at_zero():
     assert weekly_tally(10, "2026-05-04", WEEK, -50) == 0
+
+
+# --- Email addresses must never render as a leaderboard name (bug hunt rank 10) ---
+# Staff have no roster row, so identity seeds their student_name to their raw email.
+# The board is shown to every student — an email is a PII/identity leak and violates
+# the app-wide "@ is never a name" convention.
+
+def test_resolved_name_never_renders_an_email():
+    # roster name is an email (the staff case) → fall through, never surface the address
+    assert "@" not in _resolved_name({"student_id": "s1"}, {"s1": "coach@snec.com.sg"})
+    # display_name is an email too → still masked, lands on the neutral default
+    assert _resolved_name({"student_id": "s1", "display_name": "boss@x.com"}, {"s1": ""}) == "Student"
+
+
+def test_resolved_name_keeps_a_real_name():
+    assert _resolved_name({"student_id": "s1"}, {"s1": "Alice Tan"}) == "Alice Tan"
+    # a self-chosen non-email display name still fills in when there is no roster name
+    assert _resolved_name({"student_id": "s1", "display_name": "Ace"}, {"s1": ""}) == "Ace"
+
+
+def test_rank_entries_masks_email_names():
+    profiles = [_p("s1", 300, checkin_history=[])]
+    entries = rank_entries(profiles, {"s1": "coach@snec.com.sg"}, viewer_id="s1")
+    assert "@" not in entries[0]["name"]
