@@ -116,6 +116,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
            ["avatar"] cache (customized: true) + eyebot_tour_seen leak into a brand-new
            account — skipping their Studio gate and their first-run tour. */
         resetUserScopedState();
+        /* The session is gone, so drop the in-memory identity restored from localStorage at
+           init — otherwise isAuthenticated stays true and the app renders an authenticated-
+           but-broken shell (every API call 401s) until a second manual reload. Mirror logout(). */
+        setUser(null);
+        setIsCheckInDone(false);
         setLoading(false);
       }
     };

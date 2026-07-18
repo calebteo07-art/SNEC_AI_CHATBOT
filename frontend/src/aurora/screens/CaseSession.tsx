@@ -130,6 +130,7 @@ export function CaseSession() {
   const orderRef = useRef<number[]>([]);
   const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observeAbort = useRef<AbortController | null>(null);
+  const chatAbort = useRef<AbortController | null>(null);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { tickedRef.current = ticked; }, [ticked]);
   useEffect(() => {
@@ -150,7 +151,7 @@ export function CaseSession() {
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.filter((m) => m.channel === "patient").length, sending]);
 
   // Cleanup pending observe work on unmount.
-  useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); }, []);
+  useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); chatAbort.current?.abort(); }, []);
 
   // Apply any examiner / exam-tray completions through the gate: only the longest
   // in-order run starting at the current step is ticked. Newly-ticked steps are
@@ -245,11 +246,17 @@ export function CaseSession() {
     try {
       // Only the patient conversation is sent as context — EyeBot exam chatter is excluded.
       const patientHistory = toApi(updated.filter((m) => m.channel === "patient"));
+      // Abort the SSE stream on unmount (navigating away mid-reply) so it doesn't hold a
+      // scarce worker concurrency slot to completion — mirrors the observe path.
+      chatAbort.current?.abort();
+      const ctrl = new AbortController();
+      chatAbort.current = ctrl;
       const res = await fetch(`/api/cases/${caseId}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ messages: patientHistory }),
+        signal: ctrl.signal,
       });
       if (!res.ok || !res.body) throw new Error("Stream unavailable");
       setMessages((prev) => [...prev, { role: "assistant", content: "", channel: "patient" }]);
@@ -293,7 +300,9 @@ export function CaseSession() {
     } finally {
       setSending(false);
       setIsStreaming(false);
-      scheduleObserve(); // run the examiner after the patient reply completes
+      // Skip the follow-up examiner pass when the stream was aborted (component unmounted),
+      // otherwise we'd schedule an observe fetch after unmount.
+      if (!chatAbort.current?.signal.aborted) scheduleObserve(); // run the examiner after the reply completes
     }
   };
 
