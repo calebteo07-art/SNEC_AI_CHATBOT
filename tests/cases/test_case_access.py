@@ -214,3 +214,57 @@ def test_chat_locked_case_returns_403():
 
     assert r.status_code == 403
     assert "intermediate" in r.json()["detail"].lower()
+
+
+# The difficulty lock must ALSO fail closed on the station/observe/action handlers
+# (bug hunt rank 16). They served the full checklist + examination reveal_text for a
+# locked advanced case, defeating the progression gate that chat/submit enforce.
+
+def _locked_ctx():
+    """Patch context: a single locked advanced case, no passing prerequisites."""
+    case = _locked_advanced_case()
+    return case, [
+        patch.dict("tools.api.shared._case_cache", {"adv_locked": case}, clear=False),
+        patch("tools.api.routers.cases.list_available_cases", return_value=["adv_locked"]),
+        patch("tools.api.routers.cases.load_case", return_value=case),
+        patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})),
+    ]
+
+
+def test_station_locked_case_returns_403():
+    from contextlib import ExitStack
+    _case, patches = _locked_ctx()
+    with ExitStack() as stack:
+        for p in patches:
+            stack.enter_context(p)
+        r = client.get("/api/cases/adv_locked/station", cookies=_auth_cookie("stu_test"))
+    assert r.status_code == 403
+    assert "intermediate" in r.json()["detail"].lower()
+
+
+def test_observe_locked_case_returns_403():
+    from contextlib import ExitStack
+    _case, patches = _locked_ctx()
+    with ExitStack() as stack:
+        for p in patches:
+            stack.enter_context(p)
+        r = client.post(
+            "/api/cases/adv_locked/observe",
+            json={"messages": [{"role": "user", "content": "hi"}], "already_ticked": []},
+            cookies=_auth_cookie("stu_test"),
+        )
+    assert r.status_code == 403
+
+
+def test_action_locked_case_returns_403():
+    from contextlib import ExitStack
+    _case, patches = _locked_ctx()
+    with ExitStack() as stack:
+        for p in patches:
+            stack.enter_context(p)
+        r = client.post(
+            "/api/cases/adv_locked/action",
+            json={"action_label": "Measure IOP", "technique": "x" * 12, "finding": "", "satisfies_steps": [2]},
+            cookies=_auth_cookie("stu_test"),
+        )
+    assert r.status_code == 403

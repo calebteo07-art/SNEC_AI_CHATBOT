@@ -527,10 +527,14 @@ def _station_checklist(case: dict) -> dict:
 
 
 @router.get("/api/cases/{case_id}/station", response_model=StationResponse)
-def get_case_station(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
+async def get_case_station(case_id: str, current_user: CurrentUser = Depends(get_current_user)):
     """Everything the OSCE station UI needs: case, phased checklist, exam actions."""
     case = _load_case_or_404(case_id)
-    cl = _station_checklist(case)
+    # Fail closed on a locked difficulty tier, matching chat/submit — the station serves
+    # the full checklist + examination reveal_text, so it must honour the progression gate.
+    await _check_case_access(current_user["sub"], case)
+    # async handler now, so keep the sync Supabase checklist fetch off the event loop.
+    cl = await asyncio.to_thread(_station_checklist, case)
     steps = cl["steps"]
 
     parsed_steps = [
@@ -582,6 +586,7 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
                        current_user: CurrentUser = Depends(get_current_user)):
     """Live examiner: return checklist steps the transcript now satisfies."""
     case = _load_case_or_404(case_id)
+    await _check_case_access(current_user["sub"], case)  # fail closed on a locked case
     # _station_checklist hits the sync Supabase client; keep it off the event loop.
     cl = await asyncio.to_thread(_station_checklist, case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
@@ -607,6 +612,7 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
     'good job'. A grounded AI tip may refine the coaching line; any AI failure keeps the
     deterministic line. Never blocks the tick — the step already ticked client-side."""
     case = _load_case_or_404(case_id)
+    await _check_case_access(current_user["sub"], case)  # fail closed on a locked case
 
     # Resolve the same checklist the station showed so the model answer can fall back to
     # the exact step text when the rubric has no matching investigations point.
