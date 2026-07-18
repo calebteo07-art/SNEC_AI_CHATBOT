@@ -1,4 +1,5 @@
 """Chat and session endpoints."""
+import asyncio
 import json
 from pathlib import Path
 from typing import Optional
@@ -111,7 +112,7 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
     # becky §3: cache the large STATIC prefix (persona + KB, ~6.1k tokens) once and reuse it
     # so it isn't re-prefilled on every message. SECURITY: the per-user student block is NOT
     # cached (the cache is shared across users) — on the cached path it rides in the user turn.
-    cache_name = get_or_create_context_cache(static_system, key=f"tutor:{role or 'default'}")
+    cache_name = await asyncio.to_thread(get_or_create_context_cache, static_system, key=f"tutor:{role or 'default'}")
     cached_messages = messages
     if cache_name and ctx_block:
         cached_messages = [dict(m) for m in messages]

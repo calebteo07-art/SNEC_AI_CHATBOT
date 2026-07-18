@@ -191,7 +191,10 @@ async def build_digest_html(supervisor_email: str) -> str:
 async def send_weekly_digest(supervisor_email: str) -> None:
     html = await build_digest_html(supervisor_email)
     date_str = datetime.now(timezone.utc).strftime("%d %b %Y")
-    send_email(
+    # send_email is blocking network I/O with a 15s timeout — keep it off the
+    # single worker's event loop, matching every other send_email call site.
+    await asyncio.to_thread(
+        send_email,
         to=supervisor_email,
         subject="EyeBot Weekly Digest — " + date_str,
         html=html,
