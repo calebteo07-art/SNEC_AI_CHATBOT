@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 from datetime import date, timedelta
 from unittest.mock import AsyncMock, patch
@@ -212,3 +213,37 @@ async def test_update_profile_noop_on_sheet_error():
     with patch("tools.profile.update_profile.get_profile", new=AsyncMock(side_effect=RuntimeError("db error"))):
         from tools.profile.update_profile import update_profile
         await update_profile("stu-001")  # must not raise
+
+
+@pytest.mark.asyncio
+async def test_update_profile_dispatches_writes_concurrently():
+    """Latency: the independent profile writes touch DISJOINT columns (session /
+    xp+hearts / xp_today / xp_week / coins), so they must be gathered — not awaited
+    one-after-another. Hot callers (flashcard XP, check-in) otherwise pay N sequential
+    Supabase round-trips on the single Render worker. Proven by peak in-flight > 1."""
+    profile = _profile(xp=200, xp_week=120, xp_week_start="2026-05-04", hearts=5, coins_earned=0)
+    inflight = 0
+    peak = 0
+    calls: list[dict] = []
+
+    async def _upd(_sid, **k):
+        nonlocal inflight, peak
+        inflight += 1
+        peak = max(peak, inflight)
+        calls.append(k)
+        await asyncio.sleep(0)  # yield so concurrently-dispatched writes overlap
+        inflight -= 1
+
+    week_start = WED - timedelta(days=WED.weekday())
+    with patch("tools.profile.update_profile.get_profile", new=AsyncMock(return_value=profile)), \
+         patch("tools.shared.db.update_profile", new=_upd), \
+         patch("tools.profile.update_profile.app_today", return_value=WED), \
+         patch("tools.profile.update_profile.app_week_start", return_value=week_start):
+        from tools.profile.update_profile import update_profile
+        await update_profile("stu-001", xp_delta=30)
+
+    # xp_delta=30 → main + xp/hearts + xp_today + xp_week + coins = 5 writes.
+    assert peak >= 2, f"writes ran sequentially (peak in-flight={peak}); expected them gathered"
+    # ...and none were dropped by the refactor.
+    cols = set().union(*(set(c) for c in calls))
+    assert {"session_count", "xp", "xp_today", "xp_week", "coins_earned"} <= cols

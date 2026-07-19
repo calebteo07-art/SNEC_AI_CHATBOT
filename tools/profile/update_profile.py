@@ -5,6 +5,7 @@ Usage:
     from tools.profile.update_profile import update_profile
     await update_profile(student_id, topic="glaucoma", score=0.75)
 """
+import asyncio
 import sys
 from datetime import date
 from pathlib import Path
@@ -133,80 +134,86 @@ async def update_profile(
     if role:
         updates["role"] = role
 
-    try:
-        await db.update_profile(student_id, **updates)
-    except Exception as exc:
-        log("profile_write_error", student_id=student_id, feature="profile", detail=str(exc))
+    # ── Persist. The writes below touch DISJOINT column groups (session / streak /
+    #    xp+hearts / xp_today / xp_week / coins) and are all computed from the single
+    #    profile read above, so dispatch them CONCURRENTLY (asyncio.gather) instead of
+    #    one-after-another: a hot caller (flashcard XP, check-in) otherwise pays N
+    #    sequential Supabase round-trips on the single worker. Each write stays
+    #    individually guarded — a column still pending its migration must never sink the
+    #    others (same fault isolation as the previous sequential calls). _write swallows
+    #    per-write errors, so the gather always completes cleanly.
+    async def _write(label: str, feature: str, **fields) -> None:
+        try:
+            await db.update_profile(student_id, **fields)
+        except Exception as exc:
+            log(label, student_id=student_id, feature=feature, detail=str(exc))
+
+    writes = [_write("profile_write_error", "profile", **updates)]
 
     # New gamification columns (streak_freezes / best_streak / checkin_history) —
-    # written in a separate call so a missing column (pre-migration) never breaks
-    # the main update above.
+    # a missing column (pre-migration) never breaks the others.
     if checkin_done:
-        try:
-            await db.update_profile(
-                student_id,
-                streak_freezes=new_freezes,
-                best_streak=best_streak,
-                checkin_history=history,
-            )
-        except Exception as exc:
-            log("streak_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+        writes.append(_write(
+            "streak_write_error", "gamification",
+            streak_freezes=new_freezes, best_streak=best_streak, checkin_history=history,
+        ))
 
-    # XP and hearts — separate call so a missing column (pre-migration) never
-    # breaks the main profile update above.
+    # XP / hearts / daily + weekly tallies / lifetime Lumens. Values are pure functions
+    # of the profile read above; each lands in its own guarded write. Guard the
+    # computation too so update_profile keeps its never-raises contract.
     if xp_delta != 0 or hearts_used != 0:
         try:
-            current_xp = int(profile.get("xp") or 0)
             streak_bonus = 50 if (checkin_done and streak_advanced) else 0
-            new_xp = max(0, current_xp + xp_delta + streak_bonus)
 
+            current_xp = int(profile.get("xp") or 0)
+            new_xp = max(0, current_xp + xp_delta + streak_bonus)
             last_reset = _parse_date(profile.get("hearts_reset_date"))
             current_hearts = 5 if last_reset != today else int(profile.get("hearts") or 5)
             new_hearts = max(0, current_hearts - hearts_used)
+            writes.append(_write(
+                "xp_write_error", "gamification",
+                xp=new_xp, hearts=new_hearts, hearts_reset_date=today_iso,
+            ))
 
-            await db.update_profile(student_id, xp=new_xp, hearts=new_hearts,
-                                    hearts_reset_date=today_iso)
-
-            # xp_today (the daily-goal ring source) — resets each SGT day. Separate
-            # guarded call so the xp/hearts write above survives a missing column.
-            try:
-                xtd = _parse_date(profile.get("xp_today_date"))
-                base_today = int(profile.get("xp_today") or 0) if xtd == today else 0
-                new_xp_today = max(0, base_today + xp_delta + streak_bonus)
-                await db.update_profile(student_id, xp_today=new_xp_today, xp_today_date=today_iso)
-            except Exception as exc:
-                log("xp_today_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+            # xp_today (the daily-goal ring source) — resets each SGT day.
+            xtd = _parse_date(profile.get("xp_today_date"))
+            base_today = int(profile.get("xp_today") or 0) if xtd == today else 0
+            new_xp_today = max(0, base_today + xp_delta + streak_bonus)
+            writes.append(_write(
+                "xp_today_write_error", "gamification",
+                xp_today=new_xp_today, xp_today_date=today_iso,
+            ))
 
             # xp_week (the weekly-leaderboard tally) — resets each SGT week (Monday).
-            # The lazy-reset twin of xp_today: separate guarded call so the xp/hearts
-            # write above survives a missing column (pre-migration 012).
-            try:
-                week_start = app_week_start()
-                new_xp_week = weekly_tally(profile.get("xp_week"), profile.get("xp_week_start"),
-                                           week_start, xp_delta + streak_bonus)
-                await db.update_profile(student_id, xp_week=new_xp_week,
-                                        xp_week_start=week_start.isoformat())
-            except Exception as exc:
-                log("xp_week_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+            week_start = app_week_start()
+            new_xp_week = weekly_tally(profile.get("xp_week"), profile.get("xp_week_start"),
+                                       week_start, xp_delta + streak_bonus)
+            writes.append(_write(
+                "xp_week_write_error", "gamification",
+                xp_week=new_xp_week, xp_week_start=week_start.isoformat(),
+            ))
 
-            # coins_earned (lifetime Lumens, monotonic) — drives the home Lumens
-            # badge tiers. Only ever increases (never on a forfeit/penalty), and a
-            # separate guarded call so a missing column (pre-migration 009) never
-            # breaks the xp write above.
+            # coins_earned (lifetime Lumens, monotonic) — only ever increases (never on a
+            # forfeit/penalty), drives the home Lumens badge tiers.
             earned_gain = max(0, xp_delta + streak_bonus)
             if earned_gain > 0:
-                try:
-                    current_earned = int(profile.get("coins_earned") or 0)
-                    await db.update_profile(student_id, coins_earned=current_earned + earned_gain)
-                except Exception as exc:
-                    log("coins_earned_write_error", student_id=student_id, feature="gamification", detail=str(exc))
+                current_earned = int(profile.get("coins_earned") or 0)
+                writes.append(_write(
+                    "coins_earned_write_error", "gamification",
+                    coins_earned=current_earned + earned_gain,
+                ))
         except Exception as exc:
             log("gamification_write_error", student_id=student_id, feature="gamification", detail=str(exc))
     else:
-        # Still reset hearts daily even when xp_delta/hearts_used are both 0
+        # Still reset hearts daily even when xp_delta/hearts_used are both 0.
         try:
             last_reset = _parse_date(profile.get("hearts_reset_date"))
             if last_reset != today:
-                await db.update_profile(student_id, hearts=5, hearts_reset_date=today_iso)
+                writes.append(_write(
+                    "hearts_reset_error", "gamification",
+                    hearts=5, hearts_reset_date=today_iso,
+                ))
         except Exception:
             pass
+
+    await asyncio.gather(*writes)
