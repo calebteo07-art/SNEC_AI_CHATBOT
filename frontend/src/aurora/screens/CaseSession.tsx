@@ -17,7 +17,7 @@ import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
-import { advance, gateIndex, currentStep } from "@/aurora/lib/stationGate";
+import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
@@ -128,13 +128,24 @@ export function CaseSession() {
   const messagesRef = useRef<ChatMessage[]>([]);
   const tickedRef = useRef<Set<number>>(new Set());
   const orderRef = useRef<number[]>([]);
+  // step_numbers the conversational examiner (/observe) can tick = all steps minus the
+  // manual (action-panel-only) ones. Kept as a ref so runObserve can skip a pointless
+  // examiner round-trip once they are all ticked.
+  const observableStepsRef = useRef<number[]>([]);
   const observeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const observeAbort = useRef<AbortController | null>(null);
   const chatAbort = useRef<AbortController | null>(null);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { tickedRef.current = ticked; }, [ticked]);
   useEffect(() => {
-    orderRef.current = (station?.checklist.phases ?? []).flatMap((p) => p.steps).map((s) => s.step_number);
+    const order = (station?.checklist.phases ?? []).flatMap((p) => p.steps).map((s) => s.step_number);
+    orderRef.current = order;
+    const manual = new Set(
+      (station?.examination_actions ?? [])
+        .filter((a) => a.kind === "manual")
+        .flatMap((a) => a.satisfies_steps),
+    );
+    observableStepsRef.current = order.filter((n) => !manual.has(n));
   }, [station]);
 
   // Fetch the full station payload (case + phased checklist + exam actions).
@@ -178,6 +189,10 @@ export function CaseSession() {
   // built up across SEVERAL messages keeps accruing evidence and ticks once recognised.
   const runObserve = useCallback(async (attempt = 0) => {
     if (!caseId) return;
+    // Once every conversationally-observable step is ticked, /observe returns [] anyway
+    // (manual steps tick via the action panel; /submit re-grades the full transcript), so
+    // skip the round-trip — and, for gated cases, its access-check DB read — in the tail.
+    if (!observeCanTick(observableStepsRef.current, tickedRef.current)) return;
     observeAbort.current?.abort();
     const ctrl = new AbortController();
     observeAbort.current = ctrl;

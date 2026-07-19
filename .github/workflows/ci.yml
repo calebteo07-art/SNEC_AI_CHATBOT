@@ -60,6 +60,7 @@ jobs:
           node --experimental-strip-types tests/onboarding_order_test.mjs
           node --experimental-strip-types tests/tour_engine_test.mjs
           node --experimental-strip-types tests/display_name_assert.mjs
+          node --experimental-strip-types tests/station_gate_logic.mjs
       - name: Production build
         run: npm run build
 
