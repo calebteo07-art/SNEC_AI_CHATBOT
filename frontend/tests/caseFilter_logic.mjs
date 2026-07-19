@@ -1,0 +1,91 @@
+/* Pure unit test for the Virtual-Patients topic filter logic (spec 2026-07-19 + /ship-check).
+   caseFilter.ts is dependency-free (region matcher injected, so no React pulled in). Run under
+   Node type stripping:
+     node --experimental-strip-types frontend/tests/caseFilter_logic.mjs
+
+   Covers the state invariant (ONE lens at a time: topic and eye-region are mutually exclusive),
+   the list filter's two branches, and the topic-chip list (hide-zero, done flag, graceful
+   fallback when /api/cases/topics is unavailable). */
+import assert from "node:assert";
+import {
+  ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips,
+} from "../src/aurora/lib/caseFilter.ts";
+
+// ── ONE lens at a time (the state invariant /ship-check guards) ───────────────
+// Picking a topic clears any active eye-region.
+assert.deepStrictEqual(
+  toggleTopic({ region: "cornea", topic: null }, "visual_fields"),
+  { region: "all", topic: "visual_fields" },
+  "topic pick clears the eye-region",
+);
+// Picking an eye-region clears any active topic.
+assert.deepStrictEqual(
+  toggleRegion({ region: "all", topic: "visual_fields" }, "cornea"),
+  { region: "cornea", topic: null },
+  "region pick clears the topic",
+);
+// Re-tapping the active topic toggles back to the whole library.
+assert.deepStrictEqual(
+  toggleTopic({ region: "all", topic: "visual_fields" }, "visual_fields"),
+  ALL_LENS,
+  "re-tap active topic → whole library",
+);
+// Re-tapping the active region toggles back (matches the existing pin toggle).
+assert.deepStrictEqual(
+  toggleRegion({ region: "cornea", topic: null }, "cornea"),
+  ALL_LENS,
+  "re-tap active region → whole library",
+);
+// From ANY start, the two never end up engaged together.
+for (const start of [ALL_LENS, { region: "macula", topic: null }, { region: "all", topic: "oct_imaging" }]) {
+  const t = toggleTopic(start, "oct_imaging");
+  assert.ok(!(t.region !== "all" && t.topic), "topic action never leaves region+topic both set");
+  const r = toggleRegion(start, "macula");
+  assert.ok(!(r.region !== "all" && r.topic), "region action never leaves region+topic both set");
+}
+
+// ── filterCases — the two branches (region matcher injected) ─────────────────
+const CASES = [
+  { case_id: "a", topic: "humphrey_visual_field", title: "HVF", set_key: "visual_fields", set_label: "Visual Field Testing" },
+  { case_id: "b", topic: "cirrus_oct_macular", title: "OCT", set_key: "oct_imaging", set_label: "OCT Imaging" },
+  { case_id: "c", topic: "history_taking", title: "History", set_key: "history_taking", set_label: "History Taking" },
+];
+const fakeRegion = (text, region) => region === "all" || text.includes(region);
+// Topic lens filters strictly by set_key and ignores the region matcher.
+assert.deepStrictEqual(
+  filterCases(CASES, { region: "all", topic: "oct_imaging" }, fakeRegion).map((c) => c.case_id),
+  ["b"],
+  "topic lens filters by set_key",
+);
+// Whole-library lens returns everything.
+assert.strictEqual(filterCases(CASES, ALL_LENS, fakeRegion).length, 3, "all lens → whole list");
+// Region lens delegates to the injected matcher.
+assert.deepStrictEqual(
+  filterCases(CASES, { region: "humphrey", topic: null }, fakeRegion).map((c) => c.case_id),
+  ["a"],
+  "region lens delegates to regionMatch",
+);
+
+// ── topicChips — canonical path: hide zero-count, mark fully-completed ────────
+const api = [
+  { set_key: "oct_imaging", label: "OCT Imaging", total: 4, completed: 4 },
+  { set_key: "visual_fields", label: "Visual Field Testing", total: 5, completed: 2 },
+  { set_key: "empty", label: "Empty Set", total: 0, completed: 0 },
+];
+const chips = topicChips(api, CASES);
+assert.deepStrictEqual(chips.map((c) => c.key), ["oct_imaging", "visual_fields"], "hides zero-total sets, keeps canonical order");
+assert.deepStrictEqual([chips[0].total, chips[1].total], [4, 5], "carries per-set totals");
+assert.strictEqual(chips[0].done, true, "fully-completed set → done");
+assert.strictEqual(chips[1].done, false, "partially-complete set → not done");
+
+// ── topicChips — graceful fallback when the topics fetch failed ──────────────
+const fb = topicChips(null, CASES);
+assert.deepStrictEqual(fb.map((c) => c.key), ["visual_fields", "oct_imaging", "history_taking"], "fallback: unique sets from loaded cases, first-seen order");
+assert.deepStrictEqual(fb.map((c) => c.label), ["Visual Field Testing", "OCT Imaging", "History Taking"], "fallback uses set_label");
+assert.strictEqual(fb[0].total, undefined, "fallback chips carry no counts");
+// Empty topics array is treated the same as a failed fetch.
+assert.strictEqual(topicChips([], CASES).length, 3, "empty api array → fallback to cases");
+// Label defaults to the key when set_label is missing.
+assert.deepStrictEqual(topicChips(null, [{ set_key: "screening" }]).map((c) => c.label), ["screening"], "fallback label defaults to key");
+
+console.log("caseFilter_logic: all assertions passed");
