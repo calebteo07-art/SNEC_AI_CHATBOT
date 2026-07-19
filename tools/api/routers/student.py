@@ -6,7 +6,7 @@ import random
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from tools.api.shared import limiter, _case_cache
+from tools.api.shared import limiter, _case_cache, FORFEIT_PENALTY
 from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
 from tools.flashcards.sm2 import next_review, due_date
 from tools.flashcards.static_cards import (
@@ -496,9 +496,6 @@ async def flashcards_complete(
     except Exception:
         xp = 0
     return FlashcardCompleteResponse(xp=xp, level=(xp // 500) + 1)
-
-
-FORFEIT_PENALTY = 20  # Lumens deducted when a student quits a flashcard game mid-deck.
 
 
 @router.post("/api/flashcards/forfeit", response_model=FlashcardCompleteResponse)

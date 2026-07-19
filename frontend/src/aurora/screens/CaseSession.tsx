@@ -23,6 +23,7 @@ import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { displayName } from "@/aurora/lib/displayName";
+import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -83,6 +84,11 @@ export function CaseSession() {
   const { user } = useAuth();
   const { enqueue } = useReward();
   const qc = useQueryClient();
+
+  // Leave-forfeit guard: leaving a virtual patient before the handover is graded costs
+  // Lumens (see the effect block below). Created once per mount.
+  const guard = useRef(createRoundForfeit()).current;
+  const [leaveConfirm, setLeaveConfirm] = useState(false);
 
   // Instant paint from the patient-selection handoff, confirmed by /station.
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(() => {
@@ -163,6 +169,39 @@ export function CaseSession() {
 
   // Cleanup pending observe work on unmount.
   useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); chatAbort.current?.abort(); }, []);
+
+  // ── Leave-forfeit ────────────────────────────────────────────────────────────
+  // Leaving a virtual patient before the handover is graded forfeits Lumens (the server
+  // owns the amount). The station is a forfeitable "round" from the moment it loads until a
+  // result lands; the guard funnels every exit route through spend() so the hit is charged
+  // exactly once and never once the station is complete. Mirrors the flashcards quit penalty.
+  const stationActive = !!station && !result;
+  useEffect(() => { guard.setActive(stationActive); }, [guard, stationActive]);
+
+  // Uncontrolled exits can't route through the confirm dialog, so charge on the way out:
+  // pagehide covers a real unload (refresh / tab-close / hard nav — best-effort sendBeacon)
+  // and the effect cleanup covers SPA navigation that unmounts the screen (browser Back,
+  // ⌘K → elsewhere, the sidebar). guard.spend() dedupes both against each other and the
+  // controlled confirm charge, so it stays one charge per station.
+  useEffect(() => {
+    const beacon = () => { if (guard.spend()) navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`); };
+    window.addEventListener("pagehide", beacon);
+    return () => { window.removeEventListener("pagehide", beacon); beacon(); };
+  }, [guard, caseId]);
+
+  // Controlled exit via the ← Patients button. sendBeacon (not fetch) so the −Lumens hit
+  // survives the immediate navigation; spend() keeps it to a single charge; then nudge
+  // [progress] so the balance reflects the hit on the next screen.
+  const chargeForfeit = () => {
+    if (!guard.spend()) return;
+    navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`);
+    qc.invalidateQueries({ queryKey: ["progress"] });
+  };
+  const attemptLeave = () => {
+    if (guard.active) { setLeaveConfirm(true); return; } // in-progress → confirm first
+    router.push("/cases");                               // completed / not-yet-loaded → free
+  };
+  const confirmLeave = () => { chargeForfeit(); router.push("/cases"); };
 
   // Apply any examiner / exam-tray completions through the gate: only the longest
   // in-order run starting at the current step is ticked. Newly-ticked steps are
@@ -488,7 +527,7 @@ export function CaseSession() {
       <div className="aurora-station-mesh" aria-hidden />
 
       <header className="aurora-station-head">
-        <button type="button" className="aurora-station-back" onClick={() => router.push("/cases")}>← Patients</button>
+        <button type="button" className="aurora-station-back" data-testid="station-leave" onClick={attemptLeave}>← Patients</button>
         <div>
           <p className="aurora-eyebrow">Virtual patient · OSCE station</p>
           <h1 className="aurora-station-title">
@@ -536,9 +575,12 @@ export function CaseSession() {
             </div>
           )}
           {station && !result && (
-            <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit(true)}>
-              Submit handover →
-            </button>
+            <>
+              <button type="button" className="aurora-station-submit-toggle" onClick={() => setShowSubmit(true)}>
+                Submit handover →
+              </button>
+              <p className="aurora-station-stakes">Leaving before you submit forfeits {FORFEIT_LUMENS} Lumens.</p>
+            </>
           )}
         </aside>
 
@@ -602,6 +644,22 @@ export function CaseSession() {
             ) : (
               <StationResult result={result} coaching={coaching} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/homepage")} />
             )}
+          </div>
+        </div>
+      )}
+
+      {leaveConfirm && (
+        <div className="aurora-station-overlay" role="dialog" aria-modal="true" data-testid="station-leave-overlay">
+          <div className="aurora-station-overlay-scrim" onClick={() => setLeaveConfirm(false)} aria-hidden />
+          <div className="aurora-station-overlay-card aurora-station-leave">
+            <p className="aurora-eyebrow">Leave the station?</p>
+            <p className="aurora-station-form-hint">
+              You haven't submitted your handover yet. Leaving now forfeits <b>{FORFEIT_LUMENS} Lumens</b> and the station counts as incomplete. No take-backs.
+            </p>
+            <div className="aurora-station-result-actions">
+              <button type="button" className="aurora-station-leave-go" data-testid="station-leave-confirm" onClick={confirmLeave}>Leave &amp; forfeit {FORFEIT_LUMENS}</button>
+              <button type="button" className="aurora-station-submit-go" data-testid="station-leave-cancel" autoFocus onClick={() => setLeaveConfirm(false)}>Stay in the station</button>
+            </div>
           </div>
         </div>
       )}

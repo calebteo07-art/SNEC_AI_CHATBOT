@@ -1437,6 +1437,7 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-form-hint { font-size: 14px; line-height: 1.45; color: var(--on-purple-2); background: rgba(155,114,203,.1); border-radius: 9px; padding: 8px 10px; margin: 0; }
 .aurora-station-warn { font-size: 15px; color: var(--on-rose); }
 .aurora-station-submit-toggle { margin-top: 10px; width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+.aurora-station-stakes { margin-top: 8px; font-size: .8rem; color: var(--ink-3); text-align: center; line-height: 1.4; }
 .aurora-station-submit-go { margin-top: 4px; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15.6px; font-weight: 700; cursor: pointer; }
 .aurora-station-submit-go:disabled { opacity: .5; cursor: not-allowed; }
 
@@ -3446,6 +3447,13 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-overlay-card .aurora-input { font-size:16.2px; }
 .aurora-station-overlay-card .aurora-input:focus-visible { border-color:var(--g-purple); box-shadow:0 0 0 3px rgba(155,114,203,.22); }
 .aurora-station-overlay-card .aurora-station-result { margin-top:0; }
+/* Leave-the-station confirm — reuses the station overlay card; a tighter, centered card
+   with a distinct destructive "leave & forfeit" button vs the prominent "stay". */
+.aurora-station-overlay-card.aurora-station-leave { width:min(430px, calc(100vw - 36px)); text-align:center; }
+.aurora-station-leave .aurora-station-result-actions { margin-top:18px; }
+.aurora-station-leave .aurora-station-result-actions button { flex:1; }
+.aurora-station-leave-go { padding:11px 16px; border:none; border-radius:var(--radius); background:linear-gradient(135deg,#E0788A,#C0455A); color:#fff; font-size:14.6px; font-weight:700; cursor:pointer; }
+.aurora-station-leave-go:hover { filter:brightness(1.05); }
 @keyframes aurora-scrim-in { from { opacity:0; } to { opacity:1; } }
 @keyframes aurora-pop-in { from { opacity:0; transform:scale(.9) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
 /* <Eyecon> — raster cutout/tile (or the default iris.png) over an optional CSS backdrop. */

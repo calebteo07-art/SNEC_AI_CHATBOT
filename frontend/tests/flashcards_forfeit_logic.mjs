@@ -6,7 +6,7 @@
    ONLY while a round is active. Every exit route (Switch deck, Quit, browser Back,
    ⌘K→away, refresh/close) funnels its decision through spend(). */
 import assert from "node:assert";
-import { createRoundForfeit } from "../src/aurora/components/flashcards/forfeitGuard.ts";
+import { createRoundForfeit } from "../src/aurora/lib/forfeitGuard.ts";
 
 // 1) Nothing active yet ⇒ never charge (selection / intro / loading / results).
 {

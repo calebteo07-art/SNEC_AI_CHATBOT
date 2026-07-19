@@ -1,10 +1,11 @@
 "use client";
 /* PauseMenu — the dark-arcade pause overlay. Three beats: the menu (Resume / Switch deck /
    Quit) and a confirm for each exit that abandons the round (Switch deck and Quit both
-   forfeit 20 Lumens — leaving an in-progress deck is a forfeit no matter which button you
+   forfeit Lumens — leaving an in-progress deck is a forfeit no matter which button you
    press). The full-cover scrim blocks taps to the study card, freezing the (tap-driven)
    loop while open. */
 import { useEffect, useState } from "react";
+import { FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
 
 export function PauseMenu({ open, onResume, onSwitch, onQuit }: {
   open: boolean;
@@ -44,7 +45,7 @@ export function PauseMenu({ open, onResume, onSwitch, onQuit }: {
           <>
             <p className="flash-pause-h">Switch decks?</p>
             <p className="flash-pause-sub">
-              Leaving this deck forfeits the round — you&rsquo;ll lose 20 Lumens from your stash. A fresh topic is waiting.
+              Leaving this deck forfeits the round — you&rsquo;ll lose {FORFEIT_LUMENS} Lumens from your stash. A fresh topic is waiting.
             </p>
             <button type="button" className="flash-pausebtn is-quit flash-press"
               data-testid="flash-switch-confirm" onClick={onSwitch}>Switch &amp; take the hit</button>
@@ -55,7 +56,7 @@ export function PauseMenu({ open, onResume, onSwitch, onQuit }: {
           <>
             <p className="flash-pause-h">Quit for real?</p>
             <p className="flash-pause-sub">
-              You&rsquo;ll forfeit this round&rsquo;s Lumens and lose 20 from your stash — and your rank feels it. No take-backs.
+              You&rsquo;ll forfeit this round&rsquo;s Lumens and lose {FORFEIT_LUMENS} from your stash — and your rank feels it. No take-backs.
             </p>
             <button type="button" className="flash-pausebtn is-quit flash-press"
               data-testid="flash-quit-confirm" onClick={onQuit}>Quit &amp; take the hit</button>

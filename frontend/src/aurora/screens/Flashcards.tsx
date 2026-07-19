@@ -22,7 +22,7 @@ import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
-import { createRoundForfeit } from "@/aurora/components/flashcards/forfeitGuard";
+import { createRoundForfeit } from "@/aurora/lib/forfeitGuard";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { useAuth } from "@/screens/AuthContext";
