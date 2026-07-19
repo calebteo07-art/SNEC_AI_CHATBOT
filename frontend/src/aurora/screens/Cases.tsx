@@ -15,12 +15,7 @@ import {
   type Lens, type ApiTopic,
 } from "@/aurora/lib/caseFilter";
 import { PLATE } from "@/aurora/media";
-
-const TIERS: { key: string; label: string; hint: string }[] = [
-  { key: "beginner", label: "Foundational", hint: "Build the basics" },
-  { key: "intermediate", label: "Developing", hint: "Sharpen your reasoning" },
-  { key: "advanced", label: "Advanced", hint: "Complex, high-stakes cases" },
-];
+import { TIERS } from "@/aurora/lib/tiers";
 
 export function Cases() {
   const router = useRouter();
