@@ -24,8 +24,31 @@ async def test_forfeit_deducts_flat_penalty(monkeypatch):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
         r = await ac.post("/api/flashcards/forfeit", headers=auth_headers(role="OA"))
     assert r.status_code == 200
-    assert applied == [-20]           # server owns the penalty amount
+    assert applied == [-60]           # server owns the penalty amount (unified 60)
     assert r.json()["xp"] == 80       # new balance echoed back
+
+
+def test_station_forfeit_deducts_flat_penalty():
+    """Leaving a virtual-patient station before submitting the handover deducts the flat,
+    server-owned penalty — the same 60 Lumens as the flashcards forfeit. The client never
+    sends an amount, so it can't be gamed; update_profile floors the balance at 0 and
+    leaves lifetime coins_earned untouched (so an earned badge is never lost)."""
+    from tools.api.routers.cases import FORFEIT_PENALTY
+    applied = []
+
+    async def _update_profile(_sid, **k):
+        applied.append(k.get("xp_delta"))
+
+    client = TestClient(app)
+    with patch("tools.profile.update_profile.update_profile", new=_update_profile):
+        r = client.post(
+            "/api/cases/case_abandoned/forfeit",
+            cookies={"eyebot_token": create_access_token("stu_forfeit", "student", "OA")},
+        )
+    assert r.status_code == 200, r.text
+    assert FORFEIT_PENALTY == 60           # unified flashcards + station penalty
+    assert applied == [-FORFEIT_PENALTY]   # server owns the amount
+    assert r.json()["penalty"] == FORFEIT_PENALTY
 
 
 def test_osce_lumens_scales_with_grade():

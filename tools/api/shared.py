@@ -61,6 +61,12 @@ limiter = (
 
 SUPER_ADMIN_EMAIL = super_admin_email()
 
+# Flat, server-owned Lumen penalty for abandoning an in-progress activity — quitting a
+# flashcards deck mid-round, or leaving a virtual-patient station before the handover.
+# Unified across both features. The client never sends the amount, so it can't be gamed;
+# update_profile floors the balance at 0 and leaves lifetime coins_earned untouched.
+FORFEIT_PENALTY = 60
+
 # In-memory case cache shared across cases router endpoints
 _case_cache: dict[str, dict] = {}
 

@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from tools.ai.guardrails.input_filter import filter_input
-from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM
+from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENALTY
 from tools.cases.evaluate_response import evaluate_case
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
@@ -1102,3 +1102,26 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: B
         per_phase=[PhaseSummary(**p) for p in per_phase],
         lumens_awarded=award,
     )
+
+
+class ForfeitResponse(BaseModel):
+    penalty: int
+
+
+@router.post("/api/cases/{case_id}/forfeit", response_model=ForfeitResponse)
+@limiter.limit("30/minute")
+async def forfeit_station(case_id: str, request: Request, current_user: CurrentUser = Depends(get_current_user)):
+    """Quit-mid-station penalty. Deducts a flat, server-owned Lumen amount (the client never
+    sends it, so it can't be gamed) when a student leaves a virtual-patient station before
+    submitting the handover. update_profile floors the balance at 0 and leaves the lifetime
+    coins_earned counter untouched, so an earned badge is never lost. Called fire-and-forget
+    from the client (sendBeacon on the way out), so it echoes only the penalty amount."""
+    student_id = current_user["sub"]
+    try:
+        from tools.profile.update_profile import update_profile
+        await update_profile(student_id, xp_delta=-FORFEIT_PENALTY)
+    except Exception:
+        pass
+    audit_log("station_forfeit", student_id=student_id, feature="cases",
+              detail=f"case_id={case_id} penalty={FORFEIT_PENALTY}")
+    return ForfeitResponse(penalty=FORFEIT_PENALTY)
