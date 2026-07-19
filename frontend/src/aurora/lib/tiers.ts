@@ -25,3 +25,15 @@ export function tierLabel(difficulty: string | null | undefined): string {
   if (LABEL[key]) return LABEL[key];
   return difficulty ? difficulty.charAt(0).toUpperCase() + difficulty.slice(1) : "";
 }
+
+/** Actionable note for a LOCKED case. Cases unlock account-wide (per role): a tier opens
+    once the student has passed 2 cases of the tier immediately below it — mirroring the
+    difficulty gate in tools/api/routers/cases.py, which counts passes across the whole
+    role, not per topic. So the hint names the tier to clear and stresses it counts in ANY
+    topic (several of the advanced OT topic-sets have no Foundational case of their own).
+    Returns "" for Foundational / unknown tiers, which are never gated. */
+export function unlockHint(difficulty: string | null | undefined): string {
+  const i = TIERS.findIndex((t) => t.key === (difficulty || "").toLowerCase());
+  if (i <= 0) return "";
+  return `Clear 2 ${TIERS[i - 1].label} cases in any topic to unlock.`;
+}
