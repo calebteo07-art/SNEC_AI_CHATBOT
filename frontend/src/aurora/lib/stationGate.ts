@@ -34,3 +34,14 @@ export function advance(order: number[], ticked: ReadonlySet<number>, satisfied:
   }
   return next;
 }
+
+/** Whether firing /observe can still tick anything. The conversational examiner only ticks
+    NON-MANUAL steps, and the backend returns [] once none of those remain — so the round-trip
+    (which, for intermediate/advanced cases, also costs an access-check DB read) is worth making
+    only while at least one observable step is still un-ticked. `observable` is the list of
+    non-manual step_numbers; an empty list — station not yet loaded, or an all-manual station —
+    returns true so a needed pass is never suppressed (the backend still no-ops correctly). */
+export function observeCanTick(observable: number[], ticked: ReadonlySet<number>): boolean {
+  if (observable.length === 0) return true;
+  return observable.some((n) => !ticked.has(n));
+}
