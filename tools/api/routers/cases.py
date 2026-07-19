@@ -269,8 +269,12 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
     raw_cases = []
     for case_id in list_available_cases():
         try:
-            c = load_case(case_id)
-            _case_cache[c["case_id"]] = c
+            # Serve from the per-worker cache; only touch disk on a miss. Cases are
+            # static, so a warm worker builds this list with zero file I/O.
+            c = _case_cache.get(case_id)
+            if c is None:
+                c = load_case(case_id)
+                _case_cache[c["case_id"]] = c
             case_role = c.get("role", "any") or "any"
             if not case_visible(role, case_role):
                 continue
@@ -353,7 +357,10 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
     done: dict[str, int] = {}
     for case_id in list_available_cases():
         try:
-            c = load_case(case_id)
+            c = _case_cache.get(case_id)
+            if c is None:
+                c = load_case(case_id)
+                _case_cache[c["case_id"]] = c
         except Exception:
             continue
         case_role = c.get("role", "any") or "any"
