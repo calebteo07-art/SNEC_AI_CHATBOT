@@ -148,7 +148,7 @@ export function AtlasMap({
   plateSrc,
   counts,
 }: {
-  activeRegion: RegionId;
+  activeRegion: string;
   onRegion: (region: RegionId) => void;
   /** Generated combined plate (cross-section + fundus). Falls back to SVG if absent. */
   plateSrc?: string;
@@ -196,7 +196,7 @@ export function AtlasMap({
               data-empty={n === 0}
               aria-pressed={active}
               style={{ top: r.pos.top, left: r.pos.left }}
-              onClick={() => onRegion(active ? "all" : r.id)}
+              onClick={() => onRegion(r.id)}
             >
               <span className="aurora-pin-dot" />
               <span className="aurora-pin-label">
@@ -225,8 +225,9 @@ export function AtlasMap({
   );
 }
 
-/** Does a case (by topic + title text) belong to a region? */
-export function caseInRegion(text: string, region: RegionId): boolean {
+/** Does a case (by topic + title text) belong to a region? Accepts any string (an unknown
+    region or "all" matches everything) so callers can pass a free-form lens region. */
+export function caseInRegion(text: string, region: string): boolean {
   if (region === "all") return true;
   const def = REGIONS.find((r) => r.id === region);
   if (!def) return true;

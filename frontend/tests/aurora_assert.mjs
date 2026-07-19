@@ -47,12 +47,23 @@ await navCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
     { session_id: "s2", timestamp: new Date(Date.now() - 90000e3).toISOString(), topic: "retina", summary: "OCT layers.", mode: "chat" },
   ],
 })));
+// set_key/set_label ride along on every case (the backend buckets each topic into a role-aware
+// set) — they drive both the card chip and the topic chip-row. tonometry_iop has 2 cases (C001,
+// C004); the others 1 each.
 await navCtx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
-  { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12, patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
-  { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
-  { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
+  { case_id: "C001", title: "Sudden painful red eye", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12, set_key: "tonometry_iop", set_label: "Intraocular Pressure", patient: { name: "Mdm Tan", age: 64, presenting_complaint: "Acute pain with halos" } },
+  { case_id: "C002", title: "Gradual vision loss", difficulty: "beginner", topic: "Cataract", estimated_minutes: 10, set_key: "perioperative", set_label: "Pre & Post-Operative Care", patient: { name: "Mr Lim", age: 71, presenting_complaint: "Blurred near vision" } },
+  { case_id: "C003", title: "Flashes and floaters", difficulty: "advanced", topic: "Retina", estimated_minutes: 14, set_key: "triage_referral", set_label: "Triage & Referral", patient: { name: "Ms Wong", age: 55, presenting_complaint: "New floaters since yesterday" } },
   // ricoe C2: a LOCKED case is still returned so it shows (as a locked card) attached to its eye part.
-  { case_id: "C004", title: "Advanced disc assessment", difficulty: "advanced", topic: "Glaucoma optic disc", estimated_minutes: 15, locked: true, patient: { name: "Mr Ng", age: 68, presenting_complaint: "Progressive field loss" } },
+  { case_id: "C004", title: "Advanced disc assessment", difficulty: "advanced", topic: "Glaucoma optic disc", estimated_minutes: 15, locked: true, set_key: "tonometry_iop", set_label: "Intraocular Pressure", patient: { name: "Mr Ng", age: 68, presenting_complaint: "Progressive field loss" } },
+] })));
+// Topic-sets for the chip-row picker: canonical order + counts. eye_drops (total 0) must be
+// hidden; triage_referral (completed==total) must show the done tick.
+await navCtx.route("**/api/cases/topics", (r) => r.fulfill(JSON_OK({ topics: [
+  { set_key: "tonometry_iop", label: "Intraocular Pressure", total: 2, completed: 0 },
+  { set_key: "perioperative", label: "Pre & Post-Operative Care", total: 1, completed: 0 },
+  { set_key: "triage_referral", label: "Triage & Referral", total: 1, completed: 1 },
+  { set_key: "eye_drops", label: "Eye Drop Instillation", total: 0, completed: 0 },
 ] })));
 await navCtx.route("**/api/checkin/status", (r) => r.fulfill(JSON_OK({ streak: 4, weak_topic: "Glaucoma staging" })));
 await navCtx.route("**/api/checkin/question", (r) => r.fulfill(JSON_OK({ question_id: "OA-0", question: "What is a normal cup-to-disc ratio?", topic: "Glaucoma", options: ["About 0.3", "About 0.7", "Exactly 1.0", "About 0.9"] })));
@@ -198,6 +209,37 @@ if ((await np.locator('[data-testid="case-list"] .aurora-case--locked').count())
   console.error("FAIL: locked case must still show (as a locked card) in its eye region"); process.exit(1);
 }
 console.log("PASS: locked cases still show attached to their part of the eye (ricoe C2)");
+
+// topic filter (spec 2026-07-19): a chip-row filters the SAME list by topic-set and is
+// MUTUALLY EXCLUSIVE with the eye-region lens (one active lens at a time). Zero-count sets are
+// hidden; a fully-completed set shows a done tick.
+await np.goto(base + "/cases", { waitUntil: "domcontentloaded" });
+await np.waitForSelector('[data-testid="topic-filter"] .aurora-topic-chip', { timeout: 15000 });
+// "All patients" + 3 non-empty sets = 4 chips (the total:0 eye_drops set is hidden).
+const chipN = await np.locator('[data-testid="topic-filter"] .aurora-topic-chip').count();
+if (chipN !== 4) { console.error(`FAIL: topic chip row = ${chipN} chips (want 4: All + 3 non-empty sets; empty set hidden)`); process.exit(1); }
+if ((await np.locator('.aurora-topic-chip[data-done]').count()) !== 1) { console.error("FAIL: the fully-completed topic set should show a done state"); process.exit(1); }
+const allN = await np.locator('[data-testid="case-list"] .aurora-case').count();
+// picking the 2-case IOP set narrows the list to those 2.
+await np.locator('.aurora-topic-chip:has-text("Intraocular Pressure")').click();
+await np.waitForTimeout(300);
+const topicN = await np.locator('[data-testid="case-list"] .aurora-case').count();
+if (topicN !== 2) { console.error(`FAIL: topic filter should show the 2 IOP cases, got ${topicN}`); process.exit(1); }
+console.log("PASS: topic chip-row filters the case list by set (empty set hidden, completed set ticked)");
+// mutual exclusion: tapping an eye-region pin clears the active topic (chip row → "All patients").
+await np.locator('.aurora-pin:has-text("Optic disc")').click();
+await np.waitForTimeout(300);
+const activeChipTxt = (await np.locator('.aurora-topic-chip[data-active="true"]').first().innerText()).trim();
+if (!/all patients/i.test(activeChipTxt)) { console.error(`FAIL: picking a region did not reset the topic chip-row (active chip='${activeChipTxt}')`); process.exit(1); }
+const regionN = await np.locator('[data-testid="case-list"] .aurora-case').count();
+if (!(regionN >= 1 && regionN < allN)) { console.error(`FAIL: eye-region lens not applied after topic reset (got ${regionN}/${allN})`); process.exit(1); }
+console.log("PASS: topic + eye-region are mutually exclusive (one active lens)");
+// "All patients" clears the lens and restores the whole library.
+await np.locator('.aurora-topic-chip:has-text("All patients")').click();
+await np.waitForTimeout(300);
+const restoredN = await np.locator('[data-testid="case-list"] .aurora-case').count();
+if (restoredN !== allN) { console.error(`FAIL: 'All patients' did not restore the full list (${restoredN}/${allN})`); process.exit(1); }
+console.log("PASS: 'All patients' clears the lens and restores the full patient list");
 
 // tutor greeting landing (ricoe A2): /chat OPENS on the greeting landing (hello h1 +
 // prompt + recent sessions), not the thread. cosmic wash, composer, SNEC co-brand, one h1.

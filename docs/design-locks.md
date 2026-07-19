@@ -420,6 +420,17 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   `.aurora-cases`/`.aurora-station` so no other screen changes. **Acceptance when
   refining**: visibly larger type on both screens, WCAG-legible, **390px no-overflow
   preserved** (aurora + station harness assert it); no structural/behavioural change.
+- **Filter by topic (2026-07-19, user-directed: "add a filter by topic in virtual patients,
+  blends and matches seamlessly")** — criterion changed: *the eye plate is no longer the ONLY
+  filter (ricoe C4)*. A quiet horizontal **topic chip-row** (`.aurora-topics` /
+  `.aurora-topic-chip` in `aurora.css`, wired in `Cases.tsx`) sits under the journey head as a
+  second entry point, driven by the existing role-aware topic-set taxonomy (`set_key`/
+  `set_label` + `/api/cases/topics`) — no backend change, no new categories. The plate and the
+  chip-row are **mutually exclusive — one active lens at a time** (`caseFilter.ts`, unit-tested):
+  picking a topic clears the eye-region and vice-versa. Structure otherwise untouched (difficulty
+  tiers, plate/pins, card layout); replaced dead CSS from a prior reverted topic-dropdown attempt.
+  **Acceptance when refining**: chips reuse the card-chip/reset-pill tokens, single scrolling row
+  (never a wall), 390px no-overflow preserved, mutual exclusion holds (aurora harness asserts).
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
