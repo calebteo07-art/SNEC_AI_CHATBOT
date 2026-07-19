@@ -3,6 +3,7 @@
    patients carry a gradient avatar + Start cue; locked patients are dashed and
    muted with a prerequisite note. The spine dot is the .aurora-case::before drawn
    by the journey column. Keeps the .aurora-case hook the case-list test relies on. */
+import { unlockHint } from "@/aurora/lib/tiers";
 
 export interface CaseInfo {
   case_id: string;
@@ -57,7 +58,7 @@ export function CaseCard({ data, onOpen }: { data: CaseInfo; onOpen: (c: CaseInf
         </span>
         <div className="aurora-case-body">
           <p className="aurora-case-title">{data.title}</p>
-          <p className="aurora-case-note">Clear an earlier patient to unlock.</p>
+          <p className="aurora-case-note">{unlockHint(data.difficulty) || "Clear an earlier patient to unlock."}</p>
           <div className="aurora-case-foot">
             {chip && <span className="aurora-case-chip">{chip}</span>}
             <span className="aurora-case-lock">Locked</span>
