@@ -1,7 +1,7 @@
 {
   "case_id": "case_psa_037_triage_postop_red_eye_urgent_flag",
   "title": "Sore Eye After Recent Surgery",
-  "difficulty": "intermediate",
+  "difficulty": "advanced",
   "topic": "triage_recent_surgery_red_flag_referral",
   "topic_set": "triage_referral",
   "role": "PSA",

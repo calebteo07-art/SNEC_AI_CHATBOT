@@ -1,7 +1,7 @@
 {
   "case_id": "case_oa_008_red_eye_differential_triage",
   "title": "Three Red Eyes, One Triage Desk",
-  "difficulty": "beginner",
+  "difficulty": "intermediate",
   "topic": "red_eye_differential_triage",
   "role": "OA",
   "estimated_minutes": 15,

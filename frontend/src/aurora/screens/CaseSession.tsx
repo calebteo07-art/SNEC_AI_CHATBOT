@@ -19,6 +19,7 @@ import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
+import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
@@ -470,7 +471,7 @@ export function CaseSession() {
     const data: SessionExportData = {
       meta: {
         caseId, caseTitle: caseInfo.title, patientName: caseInfo.patient.name,
-        patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: caseInfo.difficulty,
+        patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: tierLabel(caseInfo.difficulty),
         studentName: displayName(user?.fullName, "Student"), dateStr: new Date().toLocaleString(),
       },
       score: {
@@ -540,7 +541,7 @@ export function CaseSession() {
               <span className="aurora-station-hud-sep">·</span>
               <span>{caseInfo.topic}</span>
               <span className="aurora-station-hud-sep">·</span>
-              <span className="aurora-station-tier">{caseInfo.difficulty}</span>
+              <span className="aurora-station-tier">{tierLabel(caseInfo.difficulty)}</span>
             </div>
           )}
         </div>
