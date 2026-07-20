@@ -26,16 +26,6 @@ export function tierLabel(difficulty: string | null | undefined): string {
   return difficulty ? difficulty.charAt(0).toUpperCase() + difficulty.slice(1) : "";
 }
 
-/** Actionable note for a LOCKED case. Cases unlock account-wide (per role): a tier opens
-    once the student has passed 2 cases of the tier immediately below it — mirroring the
-    difficulty gate in tools/api/routers/cases.py, which counts passes across the whole
-    role, not per topic. So the hint names the tier to clear and stresses it counts in ANY
-    topic — several topic-sets have no Foundational case of their own: OT (Visual Fields,
-    Corneal Topography, Anterior Segment, Potential Acuity/PAM) and OA/PSA (Ocular
-    Emergencies, Triage & Referral), where the on-ramp is always in a different topic.
-    Returns "" for Foundational / unknown tiers, which are never gated. */
-export function unlockHint(difficulty: string | null | undefined): string {
-  const i = TIERS.findIndex((t) => t.key === (difficulty || "").toLowerCase());
-  if (i <= 0) return "";
-  return `Clear 2 ${TIERS[i - 1].label} cases in any topic to unlock.`;
-}
+/* The locked-case unlock note is now computed on the backend (per-topic gate,
+   tools/cases/tier_gate.py) and delivered as CaseInfo.unlock_hint — the rule depends on a
+   topic's own tier make-up, which the client doesn't have. See CaseCard.tsx. */

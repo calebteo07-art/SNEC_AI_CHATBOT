@@ -18,6 +18,7 @@ from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 from tools.cases.topic_sets import resolve_set, sets_for, label_for, case_visible
+from tools.cases.tier_gate import build_census, evaluate
 from tools.cases.resolve_checklist import resolve_procedure_name, build_rubric_checklist
 from tools.cases.phase_split import group_by_phase
 from tools.cases.examination_actions import build_actions, has_manual_actions
@@ -93,6 +94,7 @@ class CaseInfo(BaseModel):
     estimated_minutes: int
     patient: CasePatientInfo
     locked: bool = False
+    unlock_hint: str = ""   # student-facing "how to unlock" note when locked (per-topic gate)
     set_key: str = ""
     set_label: str = ""
 
@@ -290,29 +292,18 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
         except Exception:
             pass
 
-    passing_beginner = sum(
-        1 for c in raw_cases
-        if c.get("difficulty") == "beginner"
-        and case_progress.get(c["case_id"], {}).get("passed")
+    # Per-topic difficulty gate (tools/cases/tier_gate.py): a case's Developing/Advanced tier
+    # unlocks from progress in its OWN topic-set (or, for a topic with no case of the tier
+    # below, from any 3 completions in any topic). "Completed" = an attempt exists.
+    tagged = [(c, c.get("topic_set") or resolve_set(role, c.get("topic", ""))) for c in raw_cases]
+    census = build_census(
+        (sk, c.get("difficulty", "beginner"), c["case_id"] in case_progress) for c, sk in tagged
     )
-    passing_intermediate = sum(
-        1 for c in raw_cases
-        if c.get("difficulty") == "intermediate"
-        and case_progress.get(c["case_id"], {}).get("passed")
-    )
-    intermediate_unlocked = passing_beginner >= 2
-    advanced_unlocked = passing_intermediate >= 2
 
     cases = []
-    for c in raw_cases:
+    for c, sk in tagged:
         diff = c.get("difficulty", "beginner")
-        if diff == "intermediate":
-            locked = not intermediate_unlocked
-        elif diff == "advanced":
-            locked = not advanced_unlocked
-        else:
-            locked = False
-        sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
+        locked, hint = evaluate(diff, sk, census)
         cases.append(CaseInfo(
             case_id=c["case_id"],
             title=c["title"],
@@ -321,6 +312,7 @@ async def get_cases(topic_set: str | None = None, current_user: CurrentUser = De
             estimated_minutes=c["estimated_minutes"],
             patient=_patient_info(c["patient"]),
             locked=locked,
+            unlock_hint=hint,
             set_key=sk,
             set_label=label_for(role, sk),
         ))
@@ -378,29 +370,25 @@ async def get_case_topics(current_user: CurrentUser = Depends(get_current_user))
     return CaseTopicsResponse(topics=topics)
 
 
-async def _check_case_access(student_id: str, case: dict) -> None:
-    """Raise HTTP 403 if the student has not unlocked this case's difficulty tier.
+async def _check_case_access(student_id: str, case: dict, role: str = "OA") -> None:
+    """Raise HTTP 403 if the student has not unlocked this case under the per-topic gate.
 
-    Rules:
-    - beginner      → always accessible
-    - intermediate  → requires >= 2 passing beginner cases
-    - advanced      → requires >= 2 passing intermediate cases
-    - unknown tier  → treated as beginner (allowed)
+    Fail-closed mirror of `get_cases`' lock flags: Foundational (beginner) and unknown tiers
+    are always accessible; Developing/Advanced are gated per topic-set by tier_gate.evaluate
+    (see tools/cases/tier_gate.py). The 403 detail is the same actionable hint shown on the
+    locked card. `role` is the student's OA/OT/PSA role (from the JWT) — it buckets cases
+    into topic-sets exactly like the case list.
     """
     difficulty = case.get("difficulty", "beginner")
-    if difficulty == "beginner":
-        return
     if difficulty not in ("intermediate", "advanced"):
         return
-
-    prerequisite = "beginner" if difficulty == "intermediate" else "intermediate"
 
     try:
         progress = await get_case_progress(student_id)
     except Exception:
         progress = {}
 
-    passing = 0
+    items = []
     for cid in list_available_cases():
         c = _case_cache.get(cid)
         if c is None:
@@ -409,16 +397,16 @@ async def _check_case_access(student_id: str, case: dict) -> None:
                 _case_cache[c["case_id"]] = c
             except Exception:
                 continue
-        if c.get("difficulty") == prerequisite:
-            if progress.get(c["case_id"], {}).get("passed"):
-                passing += 1
+        if not case_visible(role, c.get("role", "any") or "any"):
+            continue
+        sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
+        items.append((sk, c.get("difficulty", "beginner"), c["case_id"] in progress))
 
-    if passing < 2:
-        tier_label = "beginner" if difficulty == "intermediate" else "intermediate"
-        raise HTTPException(
-            status_code=403,
-            detail=f"Complete at least 2 {tier_label} cases before accessing {difficulty} cases.",
-        )
+    census = build_census(items)
+    target_set = case.get("topic_set") or resolve_set(role, case.get("topic", ""))
+    locked, hint = evaluate(difficulty, target_set, census)
+    if locked:
+        raise HTTPException(status_code=403, detail=hint)
 
 
 @router.get("/api/cases/{case_id}", response_model=CaseInfo)
@@ -539,7 +527,7 @@ async def get_case_station(case_id: str, current_user: CurrentUser = Depends(get
     case = _load_case_or_404(case_id)
     # Fail closed on a locked difficulty tier, matching chat/submit — the station serves
     # the full checklist + examination reveal_text, so it must honour the progression gate.
-    await _check_case_access(current_user["sub"], case)
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")
     # async handler now, so keep the sync Supabase checklist fetch off the event loop.
     cl = await asyncio.to_thread(_station_checklist, case)
     steps = cl["steps"]
@@ -593,7 +581,7 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
                        current_user: CurrentUser = Depends(get_current_user)):
     """Live examiner: return checklist steps the transcript now satisfies."""
     case = _load_case_or_404(case_id)
-    await _check_case_access(current_user["sub"], case)  # fail closed on a locked case
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")  # fail closed on a locked case
     # _station_checklist hits the sync Supabase client; keep it off the event loop.
     cl = await asyncio.to_thread(_station_checklist, case)
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
@@ -619,7 +607,7 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
     'good job'. A grounded AI tip may refine the coaching line; any AI failure keeps the
     deterministic line. Never blocks the tick — the step already ticked client-side."""
     case = _load_case_or_404(case_id)
-    await _check_case_access(current_user["sub"], case)  # fail closed on a locked case
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")  # fail closed on a locked case
 
     # Resolve the same checklist the station showed so the model answer can fall back to
     # the exact step text when the rubric has no matching investigations point.
@@ -690,7 +678,7 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    await _check_case_access(current_user["sub"], case)
+    await _check_case_access(current_user["sub"], case, current_user["student_role"] or "OA")
     # becky §4: the patient only needs what it must answer from. Drop `rubric` (~40% of
     # the file, pure grading meta) and `management` (answer-key) — the grader still sees
     # the full case on submit. `diagnosis` is KEPT so the model knows what NOT to reveal
@@ -899,7 +887,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: B
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail=f"Case '{case_id}' not found")
 
-    await _check_case_access(student_id, case)
+    await _check_case_access(student_id, case, current_user["student_role"] or "OA")
     messages = [{"role": m.role, "content": m.content} for m in body.messages]
     messages.append({
         "role": "user",
