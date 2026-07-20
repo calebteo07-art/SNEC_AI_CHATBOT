@@ -2,7 +2,7 @@
    stripping (forfeitGuard.ts is dependency-free, mirrors leaderboard_logic.mjs):
      node --experimental-strip-types frontend/tests/flashcards_forfeit_logic.mjs
 
-   The guard owns one invariant: a round's −20 forfeit is charged AT MOST ONCE, and
+   The guard owns one invariant: a round's flat forfeit is charged AT MOST ONCE, and
    ONLY while a round is active. Every exit route (Switch deck, Quit, browser Back,
    ⌘K→away, refresh/close) funnels its decision through spend(). */
 import assert from "node:assert";

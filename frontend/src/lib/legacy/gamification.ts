@@ -60,14 +60,14 @@ export function getXPProgress(currentXP: number): number {
   return (xpIntoLevel / XP_PER_LEVEL) * 100;
 }
 
+// Lumens for a tutor chat message. Kept small — chat is a learning tool, not a graded
+// task, so it trickles rather than rivalling flashcards/OSCE. The server also clamps the
+// sync endpoint per request, so this can't be inflated. (Per-card flashcard scoring lives
+// in flashcards/types.ts::cardPoints; the deck bonus in sessionBonus; the daily check-in
+// bonus and OSCE award are server-owned. Those old per-difficulty/sessionComplete/streak
+// constants were dead and have been removed.)
 export const XP_REWARDS = {
-  chatMessage: 10,
-  flashcardAgain: 5,
-  flashcardHard: 15,
-  flashcardGood: 25,
-  flashcardEasy: 35,
-  sessionComplete: 100,
-  streakBonus: 50,
+  chatMessage: 5,
 };
 
 export function getUserProgress(): UserProgress {

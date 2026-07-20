@@ -24,13 +24,13 @@ async def test_forfeit_deducts_flat_penalty(monkeypatch):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
         r = await ac.post("/api/flashcards/forfeit", headers=auth_headers(role="OA"))
     assert r.status_code == 200
-    assert applied == [-60]           # server owns the penalty amount (unified 60)
+    assert applied == [-30]           # server owns the penalty amount (unified 30)
     assert r.json()["xp"] == 80       # new balance echoed back
 
 
 def test_station_forfeit_deducts_flat_penalty():
     """Leaving a virtual-patient station before submitting the handover deducts the flat,
-    server-owned penalty — the same 60 Lumens as the flashcards forfeit. The client never
+    server-owned penalty — the same 30 Lumens as the flashcards forfeit. The client never
     sends an amount, so it can't be gamed; update_profile floors the balance at 0 and
     leaves lifetime coins_earned untouched (so an earned badge is never lost)."""
     from tools.api.routers.cases import FORFEIT_PENALTY
@@ -46,16 +46,27 @@ def test_station_forfeit_deducts_flat_penalty():
             cookies={"eyebot_token": create_access_token("stu_forfeit", "student", "OA")},
         )
     assert r.status_code == 200, r.text
-    assert FORFEIT_PENALTY == 60           # unified flashcards + station penalty
+    assert FORFEIT_PENALTY == 30           # unified flashcards + station penalty (gentler stake)
     assert applied == [-FORFEIT_PENALTY]   # server owns the amount
     assert r.json()["penalty"] == FORFEIT_PENALTY
 
 
-def test_osce_lumens_scales_with_grade():
-    from tools.api.routers.cases import osce_lumens
-    assert osce_lumens(100) == 200
-    assert osce_lumens(60) == 120
-    assert osce_lumens(0) == 0
+def test_osce_reward_scales_with_grade_and_difficulty():
+    from tools.api.routers.cases import osce_reward
+    # A pass (>=60) pays the tier base scaled by the grade; harder tiers pay more.
+    assert osce_reward(100, "beginner") == 150
+    assert osce_reward(60, "beginner") == 90        # round(150 * 0.6)
+    assert osce_reward(100, "intermediate") == 220
+    assert osce_reward(60, "intermediate") == 132   # round(220 * 0.6)
+    assert osce_reward(100, "advanced") == 300
+    assert osce_reward(60, "advanced") == 180        # round(300 * 0.6)
+    # A sub-pass attempt pays only a flat consolation (not a linear payout); 0 pays 0.
+    assert osce_reward(59, "beginner") == 20
+    assert osce_reward(30, "advanced") == 20
+    assert osce_reward(0, "beginner") == 0
+    # Unknown / missing difficulty falls back to the beginner scale (never crashes).
+    assert osce_reward(100) == 150
+    assert osce_reward(100, "bogus") == 150
 
 
 # End-to-end: /submit must actually pass the scaled award into update_profile AND echo
@@ -89,8 +100,10 @@ _OSCE_SCORE = {
 }
 
 
-def test_osce_submit_awards_lumens_and_updates_profile():
-    from tools.api.routers.cases import osce_lumens
+def _submit_case(prior_results):
+    """Drive a full /submit for the pinned beginner case (score_100=80), with the
+    student's prior case rows controlled via db.get_case_results. Returns
+    (applied_xp_deltas, response_json)."""
     applied = []
 
     async def _update_profile(_sid, **k):
@@ -101,6 +114,7 @@ def test_osce_submit_awards_lumens_and_updates_profile():
          patch("tools.api.routers.cases.list_available_cases", return_value=["case_lumen"]), \
          patch("tools.api.routers.cases.load_case", return_value=_OSCE_CASE), \
          patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
+         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=prior_results)), \
          patch("tools.api.routers.cases._station_checklist",
                return_value={"procedure_name": "Non-Contact Tonometry", "steps": [], "source": "checklist"}), \
          patch("tools.api.routers.cases.evaluate_case", return_value=_OSCE_DOMAINS), \
@@ -119,8 +133,57 @@ def test_osce_submit_awards_lumens_and_updates_profile():
             },
             cookies={"eyebot_token": create_access_token("stu_lumen", "student", "OA")},
         )
-
     assert r.status_code == 200, r.text
-    expected = osce_lumens(80)          # round(80 * 2) == 160
-    assert applied == [expected]        # scaled award reaches update_profile as xp_delta
-    assert r.json()["lumens_awarded"] == expected  # …and is echoed back
+    return applied, r.json()
+
+
+def test_osce_submit_awards_first_pass_reward():
+    from tools.api.routers.cases import osce_reward
+    applied, body = _submit_case(prior_results=[])   # never attempted before
+    expected = osce_reward(80, "beginner")           # round(150 * 0.8) == 120
+    assert expected == 120
+    assert applied == [expected]                     # scaled award reaches update_profile
+    assert body["lumens_awarded"] == expected        # …and is echoed back
+
+
+def test_osce_retry_of_aced_case_pays_nothing():
+    # High-water mark: a re-run at the same (or lower) grade re-pays 0 — no farming.
+    prior = [{"case_id": "case_lumen", "score_100": 80, "passed": True, "total_score": 48}]
+    applied, body = _submit_case(prior_results=prior)
+    assert applied == [0]
+    assert body["lumens_awarded"] == 0
+
+
+def test_osce_retry_pays_only_the_improvement():
+    # Failed before (40 -> consolation 20), now passes at 80 -> earns the delta only.
+    from tools.api.routers.cases import osce_reward
+    prior = [{"case_id": "case_lumen", "score_100": 40, "passed": False, "total_score": 16}]
+    applied, body = _submit_case(prior_results=prior)
+    expected = osce_reward(80, "beginner") - osce_reward(40, "beginner")   # 120 - 20 == 100
+    assert expected == 100
+    assert applied == [expected]
+    assert body["lumens_awarded"] == expected
+
+
+def test_sync_clamps_oversized_xp(monkeypatch):
+    # The chat/gamification sync endpoint must clamp a tampered xp_delta (it was fully
+    # unclamped — the one endpoint a client could inject arbitrary Lumens through).
+    from tools.api.routers import student as mod
+    applied = []
+
+    async def _update_profile(_sid, **k):
+        applied.append(k.get("xp_delta"))
+    async def _profile(_sid):
+        return {"xp": 0, "hearts": 5}
+
+    monkeypatch.setattr(mod, "update_profile", _update_profile)
+    monkeypatch.setattr(mod, "get_profile", _profile)
+
+    client = TestClient(app)
+    r = client.post(
+        "/api/gamification/sync",
+        json={"xp_delta": 999999, "hearts_used": 0},
+        cookies={"eyebot_token": create_access_token("stu_sync", "student", "OA")},
+    )
+    assert r.status_code == 200, r.text
+    assert applied == [100]   # clamped to the per-request ceiling

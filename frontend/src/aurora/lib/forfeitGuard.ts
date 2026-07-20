@@ -8,7 +8,7 @@
 
 // Display-only Lumen amount shown in the forfeit copy. The SERVER owns the real deduction
 // (tools/api/shared.py :: FORFEIT_PENALTY); keep these two values in sync by hand.
-export const FORFEIT_LUMENS = 60;
+export const FORFEIT_LUMENS = 30;
 
 export interface RoundForfeit {
   /** Mark whether a session is in progress. A false→true transition re-arms the charge

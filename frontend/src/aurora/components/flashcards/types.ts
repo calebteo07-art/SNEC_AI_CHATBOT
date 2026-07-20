@@ -6,19 +6,40 @@ export type QType = "single" | "multi";
 /** Hard cap on a typed reasoning answer — keeps it concise and bounds grader tokens. */
 export const MAX_REASON_CHARS = 300;
 
-/** Fixed, encouraging XP: full marks for a correct card, a consolation for an honest miss. */
-export const XP_CORRECT = 10;
-export const XP_ATTEMPT = 3;
+/** Per-card base points, scaled by difficulty — harder cards are worth more (the deck's
+ *  tier is chosen at setup; a mixed deck scores each card by its own difficulty). Tuned so
+ *  a perfect deck lands BELOW a same-tier OSCE station's reward: OSCE (a long, graded
+ *  clinical encounter) stays the premium earner. Blank/free-text falls back to the medium base. */
+export const CARD_BASE: Record<Difficulty, number> = { easy: 4, medium: 6, hard: 8 };
+export function cardBase(difficulty: Difficulty | ""): number {
+  return CARD_BASE[difficulty as Difficulty] ?? CARD_BASE.medium;
+}
+
+/** Consolation for an honest miss — small and encouraging; a wrong answer NEVER deducts. */
+export const XP_ATTEMPT = 2;
 
 /** Consecutive-correct streak → points multiplier. The multiplier applies to the
- *  card that ACHIEVES the streak (your 2nd-in-a-row correct earns x2 on itself).
- *  Tiers: x1 (0–1), x2 (2–3), x3 (4–5), x4 (6+, capped). One source for the
- *  orchestrator's XP award and the card's points display so they never disagree. */
+ *  card that ACHIEVES the streak (your 2nd-in-a-row correct earns ×2 on itself).
+ *  Tiers: ×1 (0–1), ×2 (2–4), ×3 (5+, capped) — one source for the orchestrator's
+ *  award and the card's points display so they never disagree. */
 export function comboMultiplier(combo: number): number {
-  if (combo >= 6) return 4;
-  if (combo >= 4) return 3;
+  if (combo >= 5) return 3;
   if (combo >= 2) return 2;
   return 1;
+}
+
+/** Points a graded card is worth: base (by difficulty) × combo when correct, a flat
+ *  consolation on a miss. THE one source of truth for both the awarded XP (orchestrator)
+ *  and the card's HUD/Payoff display, so the number shown always equals the number banked. */
+export function cardPoints(difficulty: Difficulty | "", correct: boolean, combo: number): number {
+  return correct ? cardBase(difficulty) * comboMultiplier(combo) : XP_ATTEMPT;
+}
+
+/** Deck-completion bonus, scaled by accuracy (0..1). A strong finish is rewarded; a poor
+ *  one earns little — finishing a deck is no longer a flat, unconditional payout. */
+export const SESSION_BONUS_MAX = 40;
+export function sessionBonus(accuracy: number): number {
+  return Math.round(SESSION_BONUS_MAX * Math.max(0, Math.min(1, accuracy)));
 }
 
 /** Game-phrased combo callout for the loud gamification popup (ricoe B3). Returns

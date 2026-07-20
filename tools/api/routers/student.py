@@ -98,11 +98,16 @@ async def sync_gamification(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     student_id = current_user["sub"]
+    # Clamp the client-supplied gain per request. This is the chat/tutor XP path (a few
+    # Lumens per message); a single sync can't legitimately carry more, so a bound stops a
+    # tampered payload injecting arbitrary Lumens through the one previously-unclamped
+    # earning endpoint. Per-REQUEST anti-abuse ceiling, never a daily cap.
+    xp_delta = max(0, min(body.xp_delta, 100))
     await update_profile(
         student_id,
         topic=body.topic,
         score=body.score,
-        xp_delta=body.xp_delta,
+        xp_delta=xp_delta,
         hearts_used=body.hearts_used,
     )
     profile = await get_profile(student_id)
@@ -436,9 +441,10 @@ async def flashcards_complete(
 ):
     student_id = current_user["sub"]
     # Clamp client-supplied XP per request — a single deck can't legitimately earn
-    # this much, so a bound stops a tampered payload inflating the balance. This is a
-    # per-REQUEST anti-abuse ceiling, never a daily cap (there is no daily cap).
-    xp_delta = max(0, min(body.xp_delta, 5000))
+    # this much (a perfect ~20-card hard deck tops out well under 500), so a bound stops a
+    # tampered payload inflating the balance. This is a per-REQUEST anti-abuse ceiling,
+    # never a daily cap (there is no daily cap).
+    xp_delta = max(0, min(body.xp_delta, 1000))
     # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
     # Schedule all cards concurrently — a deck can be 20 cards, and sequential awaits
     # would hold the (single) worker for 20 Supabase round-trips at deck end.

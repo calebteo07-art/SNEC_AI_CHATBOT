@@ -5,15 +5,15 @@
    Presentation lives in components/flashcards/*. */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addXP, incrementTotalCards, XP_REWARDS } from "@/lib/legacy/gamification";
+import { addXP, incrementTotalCards } from "@/lib/legacy/gamification";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useFlashcards, useFlashcardTopics, useReasonCheck, useFlashcardComplete,
   type FlashcardItem, type CompleteCardResult,
 } from "@/hooks/useFlashcards";
 import {
-  type Flashcard, type Difficulty, XP_CORRECT, XP_ATTEMPT, loadSessionCards, topicHue,
-  isRenderableCard, comboMultiplier,
+  type Flashcard, type Difficulty, XP_ATTEMPT, cardBase, cardPoints, sessionBonus,
+  loadSessionCards, topicHue, isRenderableCard, comboMultiplier,
 } from "@/aurora/components/flashcards/types";
 import { SessionSetup } from "@/aurora/components/flashcards/SessionSetup";
 import { StudyStage } from "@/aurora/components/flashcards/StudyStage";
@@ -55,9 +55,10 @@ export function Flashcards() {
   const reasonCheck = useReasonCheck();
   const { mutate: complete } = useFlashcardComplete();
   const qc = useQueryClient();
-  // One choke point for the quit penalty: charges −20 at most once per active round,
-  // and only while a round is active. Every exit route funnels through it so there's no
-  // loophole (Switch deck, Quit, browser Back, ⌘K→away, refresh/close all charge once).
+  // One choke point for the quit penalty: charges the flat forfeit (server-owned
+  // FORFEIT_PENALTY) at most once per active round, and only while a round is active. Every
+  // exit route funnels through it so there's no loophole (Switch deck, Quit, browser Back,
+  // ⌘K→away, refresh/close all charge once).
   const guard = useRef(createRoundForfeit()).current;
   const [paused, setPaused] = useState(false);
   const { enqueue } = useReward();
@@ -153,15 +154,19 @@ export function Flashcards() {
     const newCombo = correct ? oldCombo + 1 : 0;
     comboRef.current = newCombo; setCombo(newCombo);
     // ricoe B3: fire the loud popup when the streak crosses into a new multiplier tier
-    // (×2 at 2, ×3 at 4, ×4 at 6), then keep rewarding every 2-in-a-row past the cap.
+    // (×2 at 2, ×3 at 5), then keep rewarding every 2-in-a-row past the cap.
     if (correct) {
       const tierUp = comboMultiplier(newCombo) > comboMultiplier(oldCombo);
       const pastCap = newCombo >= 6 && newCombo % 2 === 0;
       if (tierUp || pastCap) setBurst({ key: Date.now(), combo: newCombo });
     }
-    const xp = correct ? XP_CORRECT * comboMultiplier(newCombo) : XP_ATTEMPT;
+    // Difficulty-scaled base × combo, banked as real XP (the same cardPoints the HUD shows).
+    // Free-text tutor cards are self-graded → base only, no combo inflation.
+    const xp = card.freeText
+      ? (correct ? cardBase(card.difficulty) : XP_ATTEMPT)
+      : cardPoints(card.difficulty, correct, newCombo);
     xpRef.current += xp; addXP(xp); incrementTotalCards();
-    if (correct && comboMultiplier(newCombo) >= 4) {
+    if (correct && comboMultiplier(newCombo) >= 3) {
       grantAchievements(user?.studentId ?? "", ["combo_godlike"]).forEach(enqueue);
     }
   };
@@ -191,9 +196,14 @@ export function Flashcards() {
 
   const finish = () => {
     setDone(true);
-    const earned = xpRef.current + XP_REWARDS.sessionComplete;
-    addXP(XP_REWARDS.sessionComplete);
-    const allCorrect = resultsRef.current.length > 0 && resultsRef.current.every((r) => r.correct);
+    // Deck-completion bonus scales with accuracy — a strong finish is rewarded, a poor one
+    // isn't (finishing a deck is no longer a flat, unconditional payout).
+    const total = resultsRef.current.length;
+    const correctCount = resultsRef.current.filter((r) => r.correct).length;
+    const bonus = sessionBonus(total > 0 ? correctCount / total : 0);
+    const earned = xpRef.current + bonus;
+    addXP(bonus);
+    const allCorrect = total > 0 && correctCount === total;
     const isDrill = drill.length > 0;
     const ids = ["first_deck", ...(allCorrect && !isDrill ? ["perfect_deck"] : [])];
     grantAchievements(user?.studentId ?? "", ids).forEach(enqueue);
@@ -238,7 +248,7 @@ export function Flashcards() {
   // intro isn't an active round. In-place reset of the selection state (nothing answered yet,
   // so no accumulators to clear).
   const backToTopics = () => { setSetKey(null); setPickerDone(false); setIntro(false); };
-  // Controlled exits from an active round. sendBeacon (not fetch) so the −20 survives an
+  // Controlled exits from an active round. sendBeacon (not fetch) so the forfeit survives an
   // immediate unload — Switch deck on a tutor/review deck hard-reloads the page, which would
   // abort an in-flight fetch. guard.spend() keeps it to a single charge even if an
   // uncontrolled handler also fires on the way out; then nudge [progress] so the balance

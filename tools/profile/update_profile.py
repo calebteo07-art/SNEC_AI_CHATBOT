@@ -22,6 +22,11 @@ from tools.shared.clock import app_today, app_week_start
 
 WEAK_THRESHOLD = 0.65
 
+# Lumens awarded for completing the daily check-in (the core daily ritual), granted once
+# per day when the check-in advances the streak. Kept modest so the check-in is a reliable
+# daily anchor without dwarfing graded work (a passing OSCE station pays far more).
+CHECKIN_BONUS = 50
+
 
 def _calc_velocity(old_scores: dict, new_scores: dict) -> str:
     if not old_scores or not new_scores:
@@ -158,13 +163,16 @@ async def update_profile(
             streak_freezes=new_freezes, best_streak=best_streak, checkin_history=history,
         ))
 
+    # Streak bonus for completing the daily check-in — computed up-front so it applies even
+    # when the check-in carries no xp_delta of its own. (The bug this replaces left the bonus
+    # inside the `xp_delta or hearts_used` guard below, so a plain check-in awarded nothing.)
+    streak_bonus = CHECKIN_BONUS if (checkin_done and streak_advanced) else 0
+
     # XP / hearts / daily + weekly tallies / lifetime Lumens. Values are pure functions
     # of the profile read above; each lands in its own guarded write. Guard the
     # computation too so update_profile keeps its never-raises contract.
-    if xp_delta != 0 or hearts_used != 0:
+    if xp_delta != 0 or hearts_used != 0 or streak_bonus > 0:
         try:
-            streak_bonus = 50 if (checkin_done and streak_advanced) else 0
-
             current_xp = int(profile.get("xp") or 0)
             new_xp = max(0, current_xp + xp_delta + streak_bonus)
             last_reset = _parse_date(profile.get("hearts_reset_date"))
