@@ -318,7 +318,7 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-panel--streakbadge, .hm-panel--lumen { color:#F6EEE4; }
 .hm-panel--streakbadge .hm-ph, .hm-panel--lumen .hm-ph { color:#FFF6EC; border-bottom-color:rgba(255,255,255,.15); }
 .hm-panel--streakbadge .hm-ph .hm-c, .hm-panel--lumen .hm-ph .hm-c { color:rgba(255,246,236,.74); text-shadow:0 1px 4px rgba(0,0,0,.55); }
-.hm-panel--lumen .hm-vault-note { color:rgba(255,246,236,.66); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+.hm-panel--streakbadge .hm-vault-note, .hm-panel--lumen .hm-vault-note { color:rgba(255,246,236,.66); text-shadow:0 1px 4px rgba(0,0,0,.5); }
 .hm-panel--streakbadge .hm-badge-name, .hm-panel--lumen .hm-badge-name { color:#FCF5EC; text-shadow:0 1px 5px rgba(0,0,0,.55); }
 .hm-panel--streakbadge .hm-badge-meta, .hm-panel--lumen .hm-badge-meta { color:rgba(255,246,236,.7); text-shadow:0 1px 4px rgba(0,0,0,.5); }
 .hm-panel--streakbadge .hm-badge[data-state="locked"] .hm-badge-name,
