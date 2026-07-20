@@ -8,10 +8,9 @@ Cases are split into three tiers stored under `difficulty`:
 
 Before the rebalance the library was badly skewed (38 / 114 / 3), so 74% of cases sat
 in the middle and each role had exactly ONE advanced case. These tests lock in that the
-split stays a real three-tier ladder AND that the difficulty-unlock gate in
-`tools/api/routers/cases.py` stays satisfiable *per role* (a student only sees their own
-role's cases): intermediate needs >=2 passing beginner, advanced needs >=2 passing
-intermediate. If a future edit collapses the tiers again, these fail.
+split stays a real three-tier ladder AND that the per-topic difficulty-unlock gate
+(`tools/cases/tier_gate.py`) leaves every case reachable — no dead-end topics. If a future
+edit collapses the tiers or strands a topic, these fail.
 """
 import collections
 
@@ -19,6 +18,7 @@ import pytest
 
 from tools.cases.load_case import list_available_cases, load_case
 from tools.cases.topic_sets import resolve_set, case_visible
+from tools.cases.tier_gate import build_census, evaluate
 
 VALID = {"beginner", "intermediate", "advanced"}
 
@@ -61,9 +61,10 @@ def test_role_ladder_is_populated_and_gate_satisfiable(role):
     # No empty tier for the role.
     assert f and d and a, f"{role} has an empty tier: Foundational={f} Developing={d} Advanced={a}"
 
-    # Gate must stay satisfiable: a student can reach every tier by clearing the one below.
-    assert f >= 2, f"{role} needs >=2 Foundational to unlock Developing (has {f})"
-    assert d >= 2, f"{role} needs >=2 Developing to unlock Advanced (has {d})"
+    # Healthy ladder floors (per-topic reachability itself is proven by the fixpoint test
+    # below; these keep each role's Foundational/Developing bands from thinning out).
+    assert f >= 2, f"{role} Foundational too thin: {f}"
+    assert d >= 2, f"{role} Developing too thin: {d}"
 
     # Real three-tier ladder — not a single-tier dumping ground.
     assert f >= MIN_FOUNDATIONAL, f"{role} Foundational too thin: {f} < {MIN_FOUNDATIONAL}"
@@ -86,60 +87,48 @@ def test_no_single_tier_dominates_a_role():
         )
 
 
-def _sets_by_pool():
-    """pool -> {set_key: Counter(difficulty)}, bucketed exactly like GET /api/cases
+def _pool_cases():
+    """pool -> list of (case_id, set_key, difficulty), bucketed exactly like GET /api/cases
     (explicit `topic_set` field else resolve_set) over the cases visible to that pool."""
     _, cases = _counts_by_role()
-    out = {p: collections.defaultdict(collections.Counter) for p in POOL_ROLE}
+    out = {p: [] for p in POOL_ROLE}
     for pool, role in POOL_ROLE.items():
         for c in cases:
-            crole = c.get("role") or "any"
-            if not case_visible(role, crole):
+            if not case_visible(role, c.get("role") or "any"):
                 continue
             sk = c.get("topic_set") or resolve_set(role, c.get("topic", ""))
-            out[pool][sk][c.get("difficulty")] += 1
+            out[pool].append((c["case_id"], sk, (c.get("difficulty") or "").lower()))
     return out
 
 
-def test_foundational_less_topic_sets_stay_unlockable():
-    """Some topic-sets legitimately have NO Foundational case: by the risk rubric an
-    'Ocular Emergency' or a sight-threatening 'Triage & Referral' patient (OA/PSA) — and an
-    HVF / corneal-topography / anterior-segment / PAM station (OT) — is never routine. The
-    Virtual-Patients screen must not look broken there. Unlocking is account-wide per role
-    (the gate in cases.py counts passes across the whole role, not per topic) and every
-    locked card names the tier to clear "in any topic" via unlockHint() (tiers.ts). This
-    guards that promise for EVERY foundational-less set, in both pools:
-      1. it is fully gated-tier (Developing/Advanced only) → the actionable hint renders,
-         never the vague "Clear an earlier patient to unlock." fallback; and
-      2. its on-ramp genuinely exists elsewhere in the pool — >=2 Foundational cases (to
-         open its Developing tier) and, if it has Advanced cases, >=2 Developing cases (to
-         open its Advanced tier).
-    So a foundational-less chapter is always reachable, and if a future edit strands one
-    (e.g. deletes the pool's last Foundational cases) this fails instead of shipping a
-    dead-end topic. No re-tiering — matches the OT treatment (cfa0d8d), extended to OA/PSA."""
-    by_pool = _sets_by_pool()
-    # Structural sanity so the invariant below can never pass vacuously on broken bucketing.
+def test_every_case_is_reachable_under_the_pertopic_gate():
+    """No dead-end topics. Some topic-sets legitimately have NO Foundational case — by the
+    risk rubric an 'Ocular Emergency' or sight-threatening 'Triage & Referral' patient
+    (OA/PSA), or an HVF / corneal-topography / anterior-segment / PAM station (OT), is never
+    routine — and some topics carry only a single prerequisite case. The per-topic gate
+    (tools/cases/tier_gate.py) keeps them ALL reachable: min(2, available) completions in
+    the same topic, or any 3 completions in any topic when the tier below is absent.
+
+    This proves it by simulating the unlock cascade over the REAL library with the SAME gate
+    the app uses: start with nothing done, greedily "complete" whatever is currently
+    unlocked, and repeat to a fixpoint. Every case must eventually become reachable. A future
+    data edit that strands a tier (e.g. an all-Advanced topic, or deleting a pool's last
+    Foundational cases) makes some case never unlock and fails here."""
+    by_pool = _pool_cases()
     assert set(by_pool) == set(POOL_ROLE)
-    for pool, sets in by_pool.items():
-        assert len(sets) >= 8, f"{pool}: only {len(sets)} topic-sets bucketed — resolve_set broke?"
-        pool_beg = sum(cnt["beginner"] for cnt in sets.values())
-        pool_int = sum(cnt["intermediate"] for cnt in sets.values())
-        foundationless = {
-            sk: cnt for sk, cnt in sets.items()
-            if sum(cnt.values()) > 0 and cnt["beginner"] == 0
-        }
-        for sk, cnt in sorted(foundationless.items()):
-            n = sum(cnt.values())
-            assert cnt["intermediate"] + cnt["advanced"] == n, (
-                f"{pool}/{sk}: foundational-less set must be gated tiers only so the "
-                f"actionable unlock hint renders, got {dict(cnt)}"
-            )
-            assert pool_beg >= 2, (
-                f"{pool}/{sk} has no Foundational case and the pool offers only {pool_beg} "
-                f"Foundational elsewhere — its Developing tier can never unlock (need >=2)."
-            )
-            if cnt["advanced"]:
-                assert pool_int >= 2, (
-                    f"{pool}/{sk} has Advanced cases but the pool offers only {pool_int} "
-                    f"Developing elsewhere — its Advanced tier can never unlock (need >=2)."
-                )
+    for pool, cases in by_pool.items():
+        assert len(cases) >= 30, f"{pool}: only {len(cases)} cases bucketed — resolve_set broke?"
+        completed: set[str] = set()
+        changed = True
+        while changed:
+            changed = False
+            census = build_census((sk, diff, cid in completed) for cid, sk, diff in cases)
+            for cid, sk, diff in cases:
+                if cid in completed:
+                    continue
+                locked, _ = evaluate(diff, sk, census)
+                if not locked:
+                    completed.add(cid)
+                    changed = True
+        unreachable = sorted(cid for cid, _, _ in cases if cid not in completed)
+        assert not unreachable, f"{pool}: cases never unlockable under the per-topic gate: {unreachable}"
