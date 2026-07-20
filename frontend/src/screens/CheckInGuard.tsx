@@ -4,19 +4,15 @@ import { useAuth } from "./AuthContext";
 import { useAvatar } from "@/hooks/useAvatar";
 import { useTour } from "@/aurora/tour/TourProvider";
 import { ChangePasswordModal } from "./ChangePasswordModal";
-import { onboardingStage, resolveCustomized } from "./onboarding";
+import { onboardingStage, resolveCustomized, wantsAlwaysStudio } from "./onboarding";
 
-/** DEV: force the first-run Eyecon onboarding (the welcome Studio) to appear on EVERY page
- *  load — not just the genuine first login — so the customization screen is easy to iterate
- *  on. Automatically ON under `next dev`; on a production build (Render / the harness) it
- *  stays OFF (real students see the normal show-once flow) unless you opt in per-device with
- *  `localStorage.eyebot_always_studio = "1"`. Set it to "0" (or delete it) to turn back off. */
+/** DEV convenience: force the welcome Studio to reappear on every load for iteration. STRICTLY
+ *  opt-in (see wantsAlwaysStudio) — it no longer auto-enables under `next dev`, so a genuinely
+ *  new student sees the Studio exactly once (gated on server truth `customized`), the same in
+ *  dev as in production. Opt in per-device with `localStorage.eyebot_always_studio = "1"`. */
 function devAlwaysStudio(): boolean {
   if (typeof window === "undefined") return false;
-  const flag = localStorage.getItem("eyebot_always_studio");
-  if (flag === "1") return true;
-  if (flag === "0") return false;
-  return process.env.NODE_ENV !== "production";
+  return wantsAlwaysStudio(localStorage.getItem("eyebot_always_studio"));
 }
 
 /** Resets on every hard reload (module scope), so in dev-always mode the welcome Studio
@@ -82,10 +78,15 @@ export function CheckInGuard({ children }: { children: React.ReactNode }) {
     return <>{children}<ChangePasswordModal forced onSuccess={() => setMustChangePassword(false)} /></>;
   }
 
-  /* The tour drives its own cross-route walk — never redirect while it's on screen, only
-     steer the student to the hub it starts from. */
+  /* The tour drives its own cross-route walk — and it now marks itself seen the moment it
+     starts (see TourProvider), so an interrupted first run can't re-loop it. Never redirect out
+     from under an active tour; only when it ends does the stage machine hand the student on. */
+  if (tourActive) return <>{children}</>;
+
+  /* Tour not on screen (not yet started, or already finished) — steer a first-run student to
+     the hub the tour starts from. Once it has ended, `tourSeen` moves the stage to the Studio. */
   if (stage === "tour") {
-    return tourActive || location.pathname === "/homepage"
+    return location.pathname === "/homepage"
       ? <>{children}</>
       : <Navigate to="/homepage" replace />;
   }

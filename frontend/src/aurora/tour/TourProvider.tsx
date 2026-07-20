@@ -12,8 +12,9 @@ import { useAvatar } from "@/hooks/useAvatar";
 import { TourOverlay } from "./TourOverlay";
 import { activeSteps, shouldStartTour, TOUR_KEY, type TourStep } from "./tourSteps";
 
-/* Module scope: guards against a double-start across re-renders within one page load.
-   A hard reload resets it, so reloading mid-tour restarts the walk from step 0. */
+/* Module scope: guards against a double-start across re-renders within one page load. The tour
+   marks itself seen the moment it starts (see markSeen), so a hard reload mid-tour does NOT
+   restart it — the student is handed straight on to the Studio instead. */
 let startedThisLoad = false;
 
 function readSeen(): boolean {
@@ -48,22 +49,31 @@ export function TourProvider({ children }: { children: ReactNode }) {
      needs to re-render the instant end() writes the flag. */
   const [seen, setSeen] = useState(readSeen);
 
+  /* Persist the show-once flag (localStorage + reactive state). Written both when the tour
+     STARTS and when it ends, so an interrupted first run (a reload mid-tour, a closed tab) can
+     never re-loop it — the tour is strictly show-once per device. Flipping `seen` at start also
+     lets the guard hand an interrupted student on to the Studio (the next onboarding rung). */
+  const markSeen = useCallback(() => {
+    try { localStorage.setItem(TOUR_KEY, "true"); } catch { /* storage disabled — session-only */ }
+    setSeen(true);
+  }, []);
+
   /* Start gate — fire once, on the dashboard hub, while the Eyecon is uncustomized. */
   useEffect(() => {
     if (steps || startedThisLoad) return;
     if (shouldStartTour({ isAuthenticated, customized: avatar?.customized, seen, pathname })) {
       startedThisLoad = true;
+      markSeen();   // persist at START — an interrupted first run must not restart the tour
       setSteps(activeSteps(user?.role));
       setIndex(0);
     }
-  }, [steps, seen, isAuthenticated, avatar?.customized, pathname, user?.role]);
+  }, [steps, seen, isAuthenticated, avatar?.customized, pathname, user?.role, markSeen]);
 
   const end = useCallback(() => {
-    try { localStorage.setItem(TOUR_KEY, "true"); } catch { /* storage disabled — session-only */ }
-    setSeen(true);
+    markSeen();
     setSteps(null);
     setIndex(0);
-  }, []);
+  }, [markSeen]);
 
   const next = useCallback(() => {
     if (!steps) return;

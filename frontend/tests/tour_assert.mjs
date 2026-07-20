@@ -95,6 +95,40 @@ await page.waitForTimeout(2500);
 check(await tour.count() === 0, "tour does NOT reappear after completion (show-once invariant)");
 check(new URL(page.url()).pathname === "/studio", "a reload after the tour resumes at the Studio, not the check-in");
 
+// 5) Interrupted first run: the tour marks itself seen the moment it STARTS, so a reload BEFORE
+//    finishing it must not replay it — the student is handed straight on to the Studio (its next
+//    onboarding rung). Regression: it used to persist "seen" only on finish, so any interruption
+//    (F5 mid-tour, a closed tab) restarted the whole walk on every subsequent load.
+const ctx2 = await b.newContext({ viewport: { width: 1440, height: 900 } });
+await ctx2.addInitScript((u) => {
+  if (navigator.serviceWorker) navigator.serviceWorker.register = () => Promise.resolve({ scope: "/" });
+  try { indexedDB.deleteDatabase("eyebot"); } catch {}
+  localStorage.setItem("eyebot_user_v1", JSON.stringify(u));
+  localStorage.setItem("eyebot_rail_pinned", "1");
+}, studentUser);
+await ctx2.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: new URL(base).hostname, path: "/" }]);
+await ctx2.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
+await ctx2.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
+await ctx2.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: {}, axes: {}, customized: false })));
+await ctx2.route("**/api/progress", (r) => r.fulfill(JSON_OK({
+  xp: 1240, level: 7, streak: 4, daily_goal: 100, xp_today: 60,
+  streak_detail: { current: 4, best: 9, tier: "First Light", next_tier: "Clear View", to_next: 1, done_today: false, week: [] },
+})));
+
+const page2 = await ctx2.newPage();
+const tour2 = page2.locator('[data-testid="tour"]');
+await page2.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
+await tour2.waitFor({ state: "visible", timeout: 20000 }).catch(() => {});
+check(await tour2.count() === 1, "interrupt case: tour fires on the first landing");
+check(await page2.evaluate(() => localStorage.getItem("eyebot_tour_seen")) === "true",
+  "eyebot_tour_seen persisted true as soon as the tour STARTS (not only on finish)");
+// Reload WITHOUT ever finishing the tour.
+await page2.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
+await page2.waitForTimeout(2500);
+check(await tour2.count() === 0, "tour does NOT replay after an interrupted (unfinished) first run");
+await page2.waitForURL((u) => new URL(u).pathname === "/studio", { timeout: 20000 }).catch(() => {});
+check(new URL(page2.url()).pathname === "/studio", "an interrupted tour hands the student on to the Studio");
+
 await b.close();
 if (failed) { console.error("\nTOUR ASSERT: FAILURES ABOVE"); process.exit(1); }
 console.log("\nTOUR ASSERT: all checks passed.");

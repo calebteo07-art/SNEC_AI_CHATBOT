@@ -40,3 +40,14 @@ export function onboardingStage(i: StageInput): Stage {
   if (!i.isCheckInDone) return "checkin";
   return "app";
 }
+
+/** The welcome-Studio "always re-show" dev override — STRICTLY opt-in. It fires only when a
+    device sets localStorage.eyebot_always_studio = "1". It no longer auto-enables outside
+    production, so `next dev` (and any non-prod build) matches production's show-once flow: a
+    genuinely new student sees the welcome Studio once, gated on server truth (customized), and
+    never again after they Save. Set the flag to "1" to iterate on the welcome screen; "0" or
+    absent = off. (Was: on by default whenever NODE_ENV !== "production", which re-forced the
+    Studio on every reload in dev.) */
+export function wantsAlwaysStudio(flag: string | null | undefined): boolean {
+  return flag === "1";
+}

@@ -2,7 +2,7 @@
    Run: node --experimental-strip-types frontend/tests/onboarding_order_test.mjs
    (Node 24 runs the imported .ts via native type-stripping.) */
 import assert from "node:assert/strict";
-import { onboardingStage, resolveCustomized } from "../src/screens/onboarding.ts";
+import { onboardingStage, resolveCustomized, wantsAlwaysStudio } from "../src/screens/onboarding.ts";
 
 let passed = 0;
 const it = (name, fn) => { fn(); passed++; console.log("  ✓", name); };
@@ -76,5 +76,19 @@ it("a missing field cannot strand the student at the loading stage", () =>
     onboardingStage({ mustChangePassword: false, customized: resolveCustomized(false, undefined), tourSeen: true, isCheckInDone: true }),
     "app",
   ));
+
+// --- wantsAlwaysStudio(flag): the dev "always re-show welcome Studio" override is STRICTLY
+//     opt-in. Regression: it used to auto-enable outside production (NODE_ENV !== "production"),
+//     re-forcing the welcome Studio on every reload in `next dev`. ---
+it("dev-always Studio is OFF by default (flag absent) — the reported re-show bug", () => {
+  assert.equal(wantsAlwaysStudio(null), false);
+  assert.equal(wantsAlwaysStudio(undefined), false);
+});
+it("dev-always Studio turns on only for the explicit \"1\" opt-in", () =>
+  assert.equal(wantsAlwaysStudio("1"), true));
+it("dev-always Studio stays off for \"0\" or anything else", () => {
+  assert.equal(wantsAlwaysStudio("0"), false);
+  assert.equal(wantsAlwaysStudio("true"), false);
+});
 
 console.log(`\n${passed} onboarding-order checks passed.`);
