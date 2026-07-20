@@ -470,15 +470,13 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
      (Under reduced motion EyeconGreetingLoop renders null, so the card is simply copy on
      the gradient — same as the ≤560px behaviour today.) */
   .hm-iriswrap { display:none; }
-  /* The art sits in a contained band above the copy. Its baked warm background is a
-     different sampling of the same gradient as the card, so a hard bottom edge reads as
-     a seam ("two cards glued"), and object-fit:cover guillotines the mascot's chin along
-     that line. Feather the band's bottom into transparency so the card's own gradient
-     takes over with no boundary — the seam dissolves and the mascot softly emerges. */
-  .hm-eyeconloop { position:relative; inset:auto; z-index:1; height:clamp(122px,34vw,164px); flex:none;
-    -webkit-mask-image:linear-gradient(to bottom, #000 68%, transparent 100%);
-    mask-image:linear-gradient(to bottom, #000 68%, transparent 100%); }
-  .hm-eyeconloop-v { object-position:76% 38%; transform:none; }
+  /* phone: NO living mascot on the greeting card — the Veo greeting loop is dropped
+     entirely (it used to sit as a contained band above the copy), leaving the card as
+     headline + sub + XP + leaderboard CTA on the warm gradient (user directive
+     2026-07-20, "remove the waving eyecon on phone"). The fallback logo is already hidden
+     above; the veil goes too — with no art there is nothing to keep text legible over.
+     The Veo asset itself is untouched — desktop still plays it. */
+  .hm-eyeconloop { display:none; }
   .hm-greet-veil { display:none; }
   .hm-greet-body { padding:18px 18px 22px; }
   .hm-greet h1 { font-size:clamp(27px,7.4vw,33px); max-width:none; }
@@ -533,7 +531,10 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lvl .hm-lr b { font-size:14px; } .hm-lvl .hm-lr .hm-z { font-size:12px; }
   .hm-lvbar { height:11px; }
   .hm-lb { margin-top:11px; font-size:13.5px; padding:9px 14px 9px 11px; min-height:44px; }
-  .hm-eyeconloop-v { object-position:82% 42%; }
+  /* phone landscape: same as portrait — no living mascot on the greeting card. This tier
+     keeps the desktop-style card, so hide BOTH the full-bleed Veo loop and the fallback
+     logo that would otherwise show bottom-right (user directive 2026-07-20). */
+  .hm-eyeconloop, .hm-iriswrap { display:none; }
 
   .hm-streak { padding:14px 16px; }
   .hm-snum { font-size:44px; }
