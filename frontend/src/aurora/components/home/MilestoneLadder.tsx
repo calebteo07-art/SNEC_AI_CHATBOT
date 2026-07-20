@@ -17,6 +17,7 @@ export function MilestoneLadder({ detail }: { detail?: StreakDetail }) {
         Daily streak vault
         <span className="hm-c">{collected} of {STREAK_BADGES.length} collected</span>
       </p>
+      <p className="hm-vault-note">Your daily streak - keep the flame alive to earn your badges!</p>
       <ol className="hm-badges">
         {STREAK_BADGES.map((b) => {
           const state: BadgeState = current >= b.at ? "collected" : nextAt === b.at ? "next" : "locked";
