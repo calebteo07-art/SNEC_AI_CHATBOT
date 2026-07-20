@@ -365,6 +365,18 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
   hue and text colour (mixed dark -> white only). **Acceptance preserved**: white large text >=3:1 on
   the deep-orange fill; 390-safe; structure/testids (`streak-tile`) unchanged; reduced-motion still
   freezes flame/ember/heat/dot animations; aurora harness green on a prod build.
+- **Phone: greeting mascot removed + faster coverflow (2026-07-20, user directive: "for phone
+  view of the app only, make the spinning cards spin faster, and remove the waving eyecon in the
+  greeting card")**: on phones — **both** `(pointer:coarse)` tiers (portrait `max-width:640px`,
+  landscape `max-height:480px`) — the greeting card now carries **no living mascot**:
+  `.hm-eyeconloop` (the Veo greeting loop) and `.hm-iriswrap` (the fallback logo) are
+  `display:none`, leaving just headline + sub + XP + leaderboard CTA on the warm gradient (portrait
+  already dropped the veil; nothing to keep text legible over now). The **FeatureCarousel** drift
+  `BASE` steps **0.005 → 0.011** on those same tiers, gated in JS by the identical `matchMedia`
+  queries. **Criterion changed**: phone greeting-mascot presence (shown → hidden) + phone coverflow
+  drift speed. **Desktop/tablet (fine pointer) untouched**; the Veo asset is **preserved** (still
+  played on desktop); the aurora harness runs at 1440px fine-pointer, so `.hm-iriswrap` /
+  `eyecon-logo` stay visible and the greeting assertions are unaffected.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout

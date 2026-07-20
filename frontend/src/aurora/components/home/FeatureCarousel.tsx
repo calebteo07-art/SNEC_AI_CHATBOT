@@ -59,7 +59,13 @@ export function FeatureCarousel() {
       DZ = cw * (176 / 466);
     };
     const RY = 46, SC = 0.14, HALF = n / 2, FADE = HALF - 0.5;
-    const BASE = 0.005; // constant ever-flowing drift (~0.3 cards/sec); never stops
+    // Phones spin livelier than the calm desktop flow (user directive 2026-07-20). Gate on
+    // the app's phone tiers exactly — coarse pointer + phone-sized viewport, either
+    // orientation — so tablets/desktop keep 0.005. Read once on mount, like motionOff below.
+    const phone =
+      window.matchMedia("(max-width: 640px) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-height: 480px) and (pointer: coarse)").matches;
+    const BASE = phone ? 0.011 : 0.005; // constant ever-flowing drift; never stops
     const TAP_SLOP = 8;  // px of travel below which a pointer-up counts as a tap, not a drag
     const motionOff =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
