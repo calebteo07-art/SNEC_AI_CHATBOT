@@ -68,6 +68,22 @@ def _xp_week_kwargs(mock_update):
     raise AssertionError("db.update_profile was never called with xp_week")
 
 
+def _xp_kwargs(mock_update):
+    """Return the kwargs of the xp/hearts db call (the currency write)."""
+    for call in mock_update.call_args_list:
+        if "xp" in call.kwargs:
+            return call.kwargs
+    raise AssertionError("db.update_profile was never called with the xp field")
+
+
+def _coins_kwargs(mock_update):
+    """Return the kwargs of the lifetime coins_earned db call."""
+    for call in mock_update.call_args_list:
+        if "coins_earned" in call.kwargs:
+            return call.kwargs
+    raise AssertionError("db.update_profile was never called with coins_earned")
+
+
 # Reference weekdays: 2026-05-04 Mon ... 08 Fri, 09 Sat, 10 Sun, 11 Mon
 MON = date(2026, 5, 4)
 TUE = date(2026, 5, 5)
@@ -161,6 +177,40 @@ async def test_update_profile_does_not_double_increment_same_day():
     profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4)
     mock_update = await _run(profile, MON, checkin_done=True)
     assert _main_update_kwargs(mock_update)["streak"] == 4
+
+
+# ── Check-in streak bonus (the daily ritual pays out) ───────────────────────
+# Regression for the dead-code bug: the +50 sat behind `if xp_delta or hearts_used`,
+# so a plain check-in (xp_delta=0) silently awarded nothing.
+
+@pytest.mark.asyncio
+async def test_checkin_that_advances_streak_awards_bonus_xp():
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4, xp=100)
+    mock_update = await _run(profile, TUE, checkin_done=True)
+    assert _xp_kwargs(mock_update)["xp"] == 150          # 100 + 50 check-in bonus
+
+
+@pytest.mark.asyncio
+async def test_checkin_bonus_counts_toward_lifetime_lumens():
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4, xp=100)
+    mock_update = await _run(profile, TUE, checkin_done=True)
+    assert _coins_kwargs(mock_update)["coins_earned"] == 50   # lifetime rises by the bonus
+
+
+@pytest.mark.asyncio
+async def test_checkin_same_day_awards_no_bonus():
+    # Already checked in today -> streak does not advance -> no bonus, no currency write.
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4, xp=100)
+    mock_update = await _run(profile, MON, checkin_done=True)
+    assert not any("xp" in c.kwargs for c in mock_update.call_args_list)
+
+
+@pytest.mark.asyncio
+async def test_checkin_bonus_stacks_on_an_explicit_xp_delta():
+    # A rare path where a check-in also carries xp: bonus adds on top of the delta.
+    profile = _profile(checkin_history=["2026-05-04"], last_active="2026-05-04", streak=4, xp=100)
+    mock_update = await _run(profile, TUE, checkin_done=True, xp_delta=10)
+    assert _xp_kwargs(mock_update)["xp"] == 160          # 100 + 10 + 50
 
 
 @pytest.mark.asyncio

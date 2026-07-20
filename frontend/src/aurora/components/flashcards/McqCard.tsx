@@ -9,8 +9,8 @@
    a short SETTLE after the flip. */
 import { useEffect, useState, type CSSProperties } from "react";
 import {
-  type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_CORRECT, XP_ATTEMPT,
-  comboMultiplier, comboCallout,
+  type Flashcard, MAX_REASON_CHARS, gradeSelection, XP_ATTEMPT,
+  cardBase, cardPoints, comboCallout,
 } from "./types";
 import { Icon } from "@/aurora/icons";
 import { Lumen } from "@/aurora/components/Lumen";
@@ -120,10 +120,12 @@ export function McqCard(p: Props) {
     setMarked(true); p.onCheck(got, [], ""); p.onAdvance();
   };
 
-  // Score telemetry: a correct card earns base × combo multiplier; a miss banks the
-  // consolation. The HUD tick-up shows the new running total once the reveal lands.
-  const mult = comboMultiplier(p.combo);
-  const earned = card.freeText ? 0 : (verdict ? XP_CORRECT * mult : XP_ATTEMPT);
+  // Score telemetry: a correct card earns base (by difficulty) × combo multiplier; a miss
+  // banks the consolation. THE same cardPoints() the orchestrator banks, so the HUD tick-up
+  // never over- or under-promises. Free-text tutor cards are self-graded → no combo inflation.
+  const earned = card.freeText
+    ? (verdict ? cardBase(card.difficulty) : XP_ATTEMPT)
+    : cardPoints(card.difficulty, verdict, p.combo);
   const shownScore = revealed ? p.score + earned : p.score;
   // Streak: ALWAYS a number 0–10 (deck is 10 cards). The fire below grows hotter as the run
   // climbs — cold → lit → blaze → inferno → max — so a long streak is loud and addictive.
@@ -202,7 +204,7 @@ export function McqCard(p: Props) {
   );
 
   // Back face: the boost payoff + the model answer, owned by the whole card.
-  const basePoints = verdict ? XP_CORRECT : XP_ATTEMPT;
+  const basePoints = verdict ? cardBase(card.difficulty) : XP_ATTEMPT;
   const backFace = (
     <div className="flash-face is-back">
       <div className="flash-cardin flash-back" data-testid="flash-reveal-back">

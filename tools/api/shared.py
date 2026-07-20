@@ -65,7 +65,10 @@ SUPER_ADMIN_EMAIL = super_admin_email()
 # flashcards deck mid-round, or leaving a virtual-patient station before the handover.
 # Unified across both features. The client never sends the amount, so it can't be gamed;
 # update_profile floors the balance at 0 and leaves lifetime coins_earned untouched.
-FORFEIT_PENALTY = 60
+# Kept a gentle stake: the real cost of quitting is the round's unbanked Lumens; this is
+# the extra sting, sized well below a typical deck/station payout so it deters bailing
+# without punishing an honest change of mind.
+FORFEIT_PENALTY = 30
 
 # In-memory case cache shared across cases router endpoints
 _case_cache: dict[str, dict] = {}

@@ -14,6 +14,7 @@ from tools.cases.load_case import load_case, list_available_cases
 from tools.cases.log_case_completion import log_case_completion
 from tools.chatbot.log_session import log_session
 from tools.profile.get_profile import get_profile
+from tools.shared import db
 from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import ask, stream_ask, MOCK_MODE, MODEL
 from tools.shared.jwt_utils import get_current_user, CurrentUser
@@ -54,12 +55,40 @@ _COACHING_SCHEMA = {
 
 router = APIRouter()
 
-OSCE_LUMEN_FACTOR = 2  # Lumens per point of the final station grade (0-100 -> 0-200).
+# OSCE is the app's premium earner (a long, AI-graded clinical encounter), so its reward
+# is scaled by difficulty tier AND by the grade. A pass (>=60) pays the tier base scaled by
+# the score; a sub-pass attempt pays only a flat consolation (an honest attempt earns a
+# little, but failing doesn't pay like passing). The award actually granted is the
+# improvement over the student's best prior attempt at that case (high-water mark, applied
+# in case_submit) — so re-running an aced case, or repeatedly failing, both re-pay nothing.
+OSCE_PASS_MARK = 60
+OSCE_FAIL_CONSOLATION = 20
+OSCE_TIER_BASE = {"beginner": 150, "intermediate": 220, "advanced": 300}
 
 
-def osce_lumens(score_100: int) -> int:
-    """Lumens awarded for a completed OSCE station, scaled to the final grade."""
-    return round(max(0, min(100, int(score_100))) * OSCE_LUMEN_FACTOR)
+def osce_reward(score_100: int, difficulty: str = "beginner") -> int:
+    """Gross Lumens an OSCE attempt at this grade + difficulty is worth (before the
+    per-case high-water mark). Unknown/blank difficulty falls back to the beginner base."""
+    s = max(0, min(100, int(score_100)))
+    base = OSCE_TIER_BASE.get(str(difficulty or "beginner").lower(), OSCE_TIER_BASE["beginner"])
+    if s >= OSCE_PASS_MARK:
+        return round(base * s / 100)
+    return OSCE_FAIL_CONSOLATION if s > 0 else 0
+
+
+def _row_score_100(row: dict) -> int:
+    """Best-effort score_100 for a stored case row. Uses the rich column when present
+    (migration 011); otherwise derives it from the always-persisted /40 total_score."""
+    val = row.get("score_100")
+    if val is not None:
+        try:
+            return int(val)
+        except (TypeError, ValueError):
+            return 0
+    try:
+        return max(0, min(100, round(float(row.get("total_score", 0)) / 0.4)))
+    except (TypeError, ValueError):
+        return 0
 
 
 # ── Case simulation models ─────────────────────────────────────────────────
@@ -1007,7 +1036,24 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: B
         feedback = raw_result.get(domain, "")
         if feedback and any(w in feedback.lower() for w in ("miss", "forgot", "lack", "no mention")):
             missed.append(f"{domain.replace('_feedback', '')} gap in {case['topic']}")
-    award = osce_lumens(score["score_100"])
+    # Difficulty-scaled, grade-scaled gross reward, then the per-case high-water mark: award
+    # only the improvement over the student's best prior attempt at this case, so retries
+    # never re-pay (an aced case re-run pays 0; repeated fails pay 0). One indexed read — the
+    # profile WRITE stays deferred to the BackgroundTask; a lookup failure defaults prior_best
+    # to 0 (the student's favour → full award), never blocking the grant.
+    difficulty = str(case.get("difficulty") or "beginner")
+    gross = osce_reward(score["score_100"], difficulty)
+    prior_best = 0
+    try:
+        prior_rows = await db.get_case_results(student_id)
+        prior_best = max(
+            (osce_reward(_row_score_100(r), difficulty)
+             for r in prior_rows if r.get("case_id") == case_id),
+            default=0,
+        )
+    except Exception:
+        prior_best = 0
+    award = max(0, gross - prior_best)
 
     # Difficulty progression: pass at 60/100 (== 24/40).
     passed = score["score_100"] >= 60

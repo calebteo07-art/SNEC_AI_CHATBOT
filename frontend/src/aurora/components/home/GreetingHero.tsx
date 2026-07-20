@@ -12,6 +12,7 @@ import { EyeconLogo } from "@/aurora/components/EyeconLogo";
 import { EyeconGreetingLoop } from "./EyeconGreetingLoop";
 import { Icon } from "@/aurora/components/home/HomeIcons";
 import { Lumen } from "@/aurora/components/Lumen";
+import { XP_PER_LEVEL } from "@/lib/legacy/gamification";
 
 /* Reviewed Veo loop installed at /media/loops/greeting-selena.mp4 (plan Task 9).
    The opaque baked-bg tile overlays the CSS-alive EyeconLogo, which stays beneath
@@ -35,7 +36,7 @@ export function GreetingHero({
   const i = greeting.title.indexOf(greeting.emphasis);
   const pre = i >= 0 ? greeting.title.slice(0, i) : greeting.title;
   const post = i >= 0 ? greeting.title.slice(i + greeting.emphasis.length) : "";
-  const pct = Math.max(0, Math.min(100, Math.round((xpInLevel / 500) * 100)));
+  const pct = Math.max(0, Math.min(100, Math.round((xpInLevel / XP_PER_LEVEL) * 100)));
 
   return (
     <section className="hm-greet">
@@ -58,7 +59,7 @@ export function GreetingHero({
         <div className="hm-lvl">
           <div className="hm-lr">
             <b>{rank} <span>· Level {level}</span></b>
-            <span className="hm-z"><Lumen size={14} decorative /> {xpInLevel} / 500 Lumens · {xpToNext} to go</span>
+            <span className="hm-z"><Lumen size={14} decorative /> {xpInLevel} / {XP_PER_LEVEL} Lumens · {xpToNext} to go</span>
           </div>
           <div className="hm-lvbar"><span style={{ width: `${pct}%` }} /></div>
         </div>
