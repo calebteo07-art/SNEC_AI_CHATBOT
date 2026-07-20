@@ -65,7 +65,7 @@ export function FeatureCarousel() {
     const phone =
       window.matchMedia("(max-width: 640px) and (pointer: coarse)").matches ||
       window.matchMedia("(max-height: 480px) and (pointer: coarse)").matches;
-    const BASE = phone ? 0.011 : 0.005; // constant ever-flowing drift; never stops
+    const BASE = phone ? 0.02 : 0.005; // phone spins ~4x the calm desktop drift; never stops
     const TAP_SLOP = 8;  // px of travel below which a pointer-up counts as a tap, not a drag
     const motionOff =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
