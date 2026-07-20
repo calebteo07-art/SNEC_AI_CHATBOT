@@ -12,8 +12,8 @@ import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { waitForElement, useAnchorRect } from "./useTourAnchor";
 import type { TourStep } from "./tourSteps";
 
-const CARD_W = 300;
-const CARD_H = 168;
+const CARD_W = 360;
+const CARD_H = 200;
 const PAD = 10;   // spotlight padding around the anchor
 const GAP = 16;   // gap between spotlight and card / viewport edges
 
@@ -107,7 +107,7 @@ export function TourOverlay({
         transition={reduce ? { duration: 0.15 } : { type: "spring", damping: 18, stiffness: 260 }}
       >
         <div className="tour-head">
-          <Eyecon config={avatar?.config} size={34} />
+          <Eyecon config={avatar?.config} size={40} />
           <div>
             <div className="tour-name">Eyecon</div>
             <div className="tour-role">your guide</div>
