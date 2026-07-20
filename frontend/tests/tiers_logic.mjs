@@ -3,9 +3,11 @@
 
    Stored keys (beginner/intermediate/advanced) map to the student-facing
    Foundational/Developing/Advanced names, and a LOCKED case must tell the student which
-   tier to clear — account-wide, "in any topic" — because several advanced OT topic-sets
-   (visual fields, corneal topography, anterior segment, PAM) have no Foundational case of
-   their own, so the on-ramp is always in a different topic. */
+   tier to clear — account-wide, "in any topic" — because several topic-sets have no
+   Foundational case of their own: OT (visual fields, corneal topography, anterior segment,
+   PAM) and OA/PSA (Ocular Emergencies, Triage & Referral), so the on-ramp is always in a
+   different topic. (The data-side guard that these stay unlockable lives in
+   tests/cases/test_case_tiers.py.) */
 import assert from "node:assert";
 import { tierLabel, unlockHint } from "../src/aurora/lib/tiers.ts";
 

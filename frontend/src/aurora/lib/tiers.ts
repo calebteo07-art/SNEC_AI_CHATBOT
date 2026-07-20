@@ -30,7 +30,9 @@ export function tierLabel(difficulty: string | null | undefined): string {
     once the student has passed 2 cases of the tier immediately below it — mirroring the
     difficulty gate in tools/api/routers/cases.py, which counts passes across the whole
     role, not per topic. So the hint names the tier to clear and stresses it counts in ANY
-    topic (several of the advanced OT topic-sets have no Foundational case of their own).
+    topic — several topic-sets have no Foundational case of their own: OT (Visual Fields,
+    Corneal Topography, Anterior Segment, Potential Acuity/PAM) and OA/PSA (Ocular
+    Emergencies, Triage & Referral), where the on-ramp is always in a different topic.
     Returns "" for Foundational / unknown tiers, which are never gated. */
 export function unlockHint(difficulty: string | null | undefined): string {
   const i = TIERS.findIndex((t) => t.key === (difficulty || "").toLowerCase());
