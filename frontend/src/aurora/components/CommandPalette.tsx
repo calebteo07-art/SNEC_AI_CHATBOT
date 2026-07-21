@@ -3,6 +3,7 @@
    on select. Esc closes, ↑/↓ move, Enter navigates. No external dependency. */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { leaveGuard } from "@/aurora/lib/leaveGuard";
 
 export type Destination = { href: string; label: string };
 
@@ -40,7 +41,13 @@ export function CommandPalette({
 
   if (!open) return null;
 
-  const go = (href: string) => { onClose(); router.push(href); };
+  // An active session arms leaveGuard: intercept routes the jump through the screen's
+  // forfeit confirm (which navigates on confirm) instead of leaving the round for free.
+  const go = (href: string) => {
+    onClose();
+    if (leaveGuard.intercept(href)) return;
+    router.push(href);
+  };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") { e.preventDefault(); onClose(); }
