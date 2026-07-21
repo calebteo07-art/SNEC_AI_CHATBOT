@@ -14,6 +14,7 @@ import { useAvatar } from "@/hooks/useAvatar";
 import { Eyecon } from "@/aurora/avatar/Eyecon";
 import { Wordmark } from "@/aurora/Logo";
 import { displayName } from "@/aurora/lib/displayName";
+import { leaveGuard } from "@/aurora/lib/leaveGuard";
 
 /* `short` is the phone label. The full label wants ~83px ("Virtual Patients") in a cell
    that is ~48px wide once six destinations share a 360px bar, so it would ellipsise to
@@ -77,7 +78,17 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
      one); both are aria-hidden so the accessible name comes solely from aria-label —
      always the full label, and it survives the landscape bar hiding the text entirely. */
   const Item = ({ href, label, short, icon }: NavItem) => (
-    <Link href={href} className="aurora-navitem" aria-label={label} data-active={isActive(href)} aria-current={isActive(href) ? "page" : undefined}>
+    <Link
+      href={href}
+      className="aurora-navitem"
+      aria-label={label}
+      data-active={isActive(href)}
+      aria-current={isActive(href) ? "page" : undefined}
+      // An active session (flashcards deck / virtual-patient station) arms leaveGuard so
+      // this link opens the forfeit confirm instead of silently escaping the penalty. We
+      // never intercept a click on the page you're already on.
+      onClick={(e) => { if (!isActive(href) && leaveGuard.intercept(href)) e.preventDefault(); }}
+    >
       {NAV_ICONS[icon]}
       <span className="aurora-navitem-full" aria-hidden>{label}</span>
       <span className="aurora-navitem-short" aria-hidden>{short}</span>

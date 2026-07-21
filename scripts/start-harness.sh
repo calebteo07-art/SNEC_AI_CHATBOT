@@ -75,7 +75,10 @@ run() { echo "── $1"; node "$FE/tests/$1" "$BASE"; }
 case "$MODE" in
   aurora)  run aurora_assert.mjs ;;
   station) run station_assert.mjs; run rotate_gate_assert.mjs ;;
-  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs ;;
+  # Leave-forfeit behavioural gate: every exit route from an active deck / station charges
+  # the flat forfeit exactly once (incl. the Atlas Rail + ⌘K palette, the reported loophole).
+  forfeit) run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs ;;
+  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs; run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs ;;
   serve)   echo "server ready at $BASE — stop with: scripts/start-harness.sh stop" ;;
-  *)       echo "usage: start-harness.sh [aurora|station|all|serve|stop]" >&2; exit 2 ;;
+  *)       echo "usage: start-harness.sh [aurora|station|forfeit|all|serve|stop]" >&2; exit 2 ;;
 esac

@@ -11,6 +11,9 @@
      2. ← Patients → Stay in the station        ⇒ 0 forfeits  (cancel is free)
      3. Hard-nav away mid-station (pagehide)     ⇒ 1 forfeit   (uncontrolled exit → beacon)
      4. Submit the handover → leave              ⇒ 0 forfeits  (a graded station is free)
+     5. Atlas Rail link mid-station → confirm    ⇒ 1 forfeit   (the reported loophole, sealed)
+     6. Atlas Rail link mid-station → Stay       ⇒ 0 forfeits  (cancel is free)
+     7. ⌘K palette mid-station → confirm         ⇒ 1 forfeit   (palette routes to the confirm too)
 */
 import assert from "node:assert";
 import { chromium } from "playwright";
@@ -157,6 +160,49 @@ await scenario("Submit handover → leave charges zero forfeits", async (ctx, co
   await page.goto(base + "/homepage"); // uncontrolled exit AFTER completion ⇒ still free
   await page.waitForTimeout(500);
   assert.strictEqual(count(), 0, `expected 0 forfeits after completing, saw ${count()}`);
+});
+
+// 5) THE REPORTED LOOPHOLE: the Atlas Rail sits on top of the station. Clicking a rail
+//    destination mid-station must open the SAME forfeit confirm — not slip out for free.
+//    The station isn't an immersive route, so the handle pins the rail fully open.
+await scenario("Atlas Rail nav mid-station → confirm charges exactly one forfeit", async (ctx, count) => {
+  const page = await enterStation(ctx);
+  await page.click(".aurora-rail-handle");                        // pin the rail open
+  await page.click('.aurora-navitem[aria-label="Homepage"]');     // try to leave via the sidebar
+  await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
+  assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
+  const seen = waitForfeit(page);
+  await page.click('[data-testid="station-leave-confirm"]');
+  await seen;
+  await page.waitForFunction(() => !location.pathname.startsWith("/cases/"), { timeout: 5000 });
+  await page.waitForTimeout(300);
+  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming rail leave, saw ${count()}`);
+});
+
+// 6) Cancelling a rail-triggered leave is free and keeps you on the station.
+await scenario("Atlas Rail nav mid-station → Stay charges zero forfeits", async (ctx, count) => {
+  const page = await enterStation(ctx);
+  await page.click(".aurora-rail-handle");
+  await page.click('.aurora-navitem[aria-label="Homepage"]');
+  await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
+  await page.click('[data-testid="station-leave-cancel"]');
+  await page.waitForTimeout(500);
+  assert.strictEqual(count(), 0, `expected 0 forfeits on cancel, saw ${count()}`);
+  assert.ok(await page.locator('[data-testid="station"]').count(), "must still be on the station after cancel");
+});
+
+// 7) The ⌘K palette also sits on top of the station — a jump from it must confirm too.
+await scenario("⌘K palette nav mid-station → confirm charges exactly one forfeit", async (ctx, count) => {
+  const page = await enterStation(ctx);
+  await page.keyboard.press("Control+k");
+  await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
+  await page.click("button.aurora-palette-item:has-text('Homepage')");
+  await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
+  const seen = waitForfeit(page);
+  await page.click('[data-testid="station-leave-confirm"]');
+  await seen;
+  await page.waitForTimeout(300);
+  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming palette leave, saw ${count()}`);
 });
 
 await b.close();

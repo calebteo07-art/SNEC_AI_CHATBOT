@@ -25,6 +25,7 @@ import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { displayName } from "@/aurora/lib/displayName";
 import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
+import { leaveGuard } from "@/aurora/lib/leaveGuard";
 
 interface CaseInfo {
   case_id: string; title: string; difficulty: string; topic: string; estimated_minutes: number;
@@ -90,6 +91,9 @@ export function CaseSession() {
   // Lumens (see the effect block below). Created once per mount.
   const guard = useRef(createRoundForfeit()).current;
   const [leaveConfirm, setLeaveConfirm] = useState(false);
+  // Where a confirmed leave goes. "/cases" for the ← Patients button; an intercepted rail /
+  // ⌘K destination when the student tries to navigate away mid-station.
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   // Instant paint from the patient-selection handoff, confirmed by /station.
   const [caseInfo, setCaseInfo] = useState<CaseInfo | null>(() => {
@@ -179,11 +183,22 @@ export function CaseSession() {
   const stationActive = !!station && !result;
   useEffect(() => { guard.setActive(stationActive); }, [guard, stationActive]);
 
-  // Uncontrolled exits can't route through the confirm dialog, so charge on the way out:
-  // pagehide covers a real unload (refresh / tab-close / hard nav — best-effort sendBeacon)
-  // and the effect cleanup covers SPA navigation that unmounts the screen (browser Back,
-  // ⌘K → elsewhere, the sidebar). guard.spend() dedupes both against each other and the
-  // controlled confirm charge, so it stays one charge per station.
+  // While the station is active, the persistent Atlas Rail and ⌘K palette (rendered by the
+  // shell on top of the station) route through the leave confirm instead of silently
+  // dropping the round — the loophole this closes. Disarms when the station is graded or the
+  // screen unmounts, so navigation is free again. The forfeit is still charged once via
+  // guard.spend(), so this never double-charges with the pagehide/unmount beacon below.
+  useEffect(() => {
+    if (!stationActive) return;
+    leaveGuard.arm((href) => { setPendingHref(href); setLeaveConfirm(true); });
+    return () => leaveGuard.disarm();
+  }, [stationActive]);
+
+  // Backstop for exits that can't route through the confirm dialog — a real unload (refresh /
+  // tab-close, via pagehide) and browser Back (SPA unmount, via the effect cleanup). In-app
+  // nav (the rail / ⌘K palette) is now intercepted above and charges through the confirm, so
+  // by the time this fires for those routes guard.spend() has already been spent; spend()
+  // dedupes every route against the others, so it stays one charge per station.
   useEffect(() => {
     const beacon = () => { if (guard.spend()) navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`); };
     window.addEventListener("pagehide", beacon);
@@ -198,11 +213,16 @@ export function CaseSession() {
     navigator.sendBeacon?.(`/api/cases/${caseId}/forfeit`);
     qc.invalidateQueries({ queryKey: ["progress"] });
   };
-  const attemptLeave = () => {
-    if (guard.active) { setLeaveConfirm(true); return; } // in-progress → confirm first
-    router.push("/cases");                               // completed / not-yet-loaded → free
+  // Every leave request funnels here — the ← Patients button (→ /cases) and an intercepted
+  // rail / ⌘K destination. In-progress ⇒ confirm first (pointed at `href`); a graded or
+  // not-yet-loaded station leaves for free.
+  const requestLeave = (href: string) => {
+    if (guard.active) { setPendingHref(href); setLeaveConfirm(true); return; }
+    router.push(href);
   };
-  const confirmLeave = () => { chargeForfeit(); router.push("/cases"); };
+  const attemptLeave = () => requestLeave("/cases");
+  const confirmLeave = () => { chargeForfeit(); router.push(pendingHref ?? "/cases"); };
+  const cancelLeave = () => { setLeaveConfirm(false); setPendingHref(null); };
 
   // Apply any examiner / exam-tray completions through the gate: only the longest
   // in-order run starting at the current step is ticked. Newly-ticked steps are
@@ -651,7 +671,7 @@ export function CaseSession() {
 
       {leaveConfirm && (
         <div className="aurora-station-overlay" role="dialog" aria-modal="true" data-testid="station-leave-overlay">
-          <div className="aurora-station-overlay-scrim" onClick={() => setLeaveConfirm(false)} aria-hidden />
+          <div className="aurora-station-overlay-scrim" onClick={cancelLeave} aria-hidden />
           <div className="aurora-station-overlay-card aurora-station-leave">
             <p className="aurora-eyebrow">Leave the station?</p>
             <p className="aurora-station-form-hint">
@@ -659,7 +679,7 @@ export function CaseSession() {
             </p>
             <div className="aurora-station-result-actions">
               <button type="button" className="aurora-station-leave-go" data-testid="station-leave-confirm" onClick={confirmLeave}>Leave &amp; forfeit {FORFEIT_LUMENS}</button>
-              <button type="button" className="aurora-station-submit-go" data-testid="station-leave-cancel" autoFocus onClick={() => setLeaveConfirm(false)}>Stay in the station</button>
+              <button type="button" className="aurora-station-submit-go" data-testid="station-leave-cancel" autoFocus onClick={cancelLeave}>Stay in the station</button>
             </div>
           </div>
         </div>

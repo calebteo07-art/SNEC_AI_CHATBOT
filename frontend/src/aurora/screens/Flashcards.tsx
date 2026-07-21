@@ -22,7 +22,8 @@ import { ComboBurst } from "@/aurora/components/flashcards/ComboBurst";
 import { ResultsScreen, type DeckResult } from "@/aurora/components/flashcards/ResultsScreen";
 import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
-import { createRoundForfeit } from "@/aurora/lib/forfeitGuard";
+import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
+import { leaveGuard } from "@/aurora/lib/leaveGuard";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { useAuth } from "@/screens/AuthContext";
@@ -61,6 +62,8 @@ export function Flashcards() {
   // ⌘K→away, refresh/close all charge once).
   const guard = useRef(createRoundForfeit()).current;
   const [paused, setPaused] = useState(false);
+  // Destination of an intercepted rail / ⌘K jump made mid-round — drives the leave confirm.
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
   const { enqueue } = useReward();
   const { user } = useAuth();
 
@@ -123,11 +126,22 @@ export function Flashcards() {
     !generating && deck.length > 0 && !!card && !done;
   useEffect(() => { guard.setActive(inStudy); }, [guard, inStudy]);
 
-  // Uncontrolled exits can't route through our buttons, so charge on the way out: pagehide
-  // covers a real page unload (refresh / tab-close / hard nav — best-effort via sendBeacon,
-  // no response needed) and the effect cleanup covers any SPA navigation that unmounts this
-  // screen (browser Back, ⌘K command palette → another section). guard.spend() dedupes both
-  // against each other and against the controlled Quit/Switch charge, so it's once per round.
+  // While a round is active, the persistent Atlas Rail and ⌘K palette (rendered by the shell
+  // on top of the immersive deck) route through the leave confirm below instead of silently
+  // dropping the round — the loophole this closes. The forfeit is still charged once via
+  // guard.spend(), so it never double-charges with the pagehide/unmount beacon. Disarms when
+  // the round ends or the screen unmounts.
+  useEffect(() => {
+    if (!inStudy) return;
+    leaveGuard.arm((href) => setPendingHref(href));
+    return () => leaveGuard.disarm();
+  }, [inStudy]);
+
+  // Backstop for exits that can't route through our confirms: pagehide covers a real unload
+  // (refresh / tab-close, best-effort sendBeacon) and the effect cleanup covers browser Back
+  // (SPA unmount). In-app nav (the rail / ⌘K palette) is now intercepted above and charges
+  // through the leave confirm, so for those routes spend() is already spent by the time this
+  // fires. guard.spend() dedupes every route against the Quit/Switch charge — once per round.
   useEffect(() => {
     const beacon = () => { if (guard.spend()) navigator.sendBeacon?.("/api/flashcards/forfeit"); };
     window.addEventListener("pagehide", beacon);
@@ -260,6 +274,13 @@ export function Flashcards() {
   };
   const quitForfeit = () => { chargeForfeit(); router.push("/homepage"); };
   const switchDeck = () => { chargeForfeit(); setPaused(false); newDeck(); };
+  // An intercepted rail / ⌘K jump: same forfeit as Quit, then continue to where they aimed.
+  const confirmNavLeave = () => {
+    const href = pendingHref;
+    chargeForfeit();
+    setPendingHref(null);
+    if (href) router.push(href);
+  };
 
   // ── Selection ──
   if (!fromSession && !pickerDone) {
@@ -327,6 +348,24 @@ export function Flashcards() {
       />
       {burst && <ComboBurst key={burst.key} combo={burst.combo} onDone={() => setBurst(null)} />}
       <PauseMenu open={paused} onResume={() => setPaused(false)} onSwitch={switchDeck} onQuit={quitForfeit} />
+      {/* Leaving via the rail / ⌘K mid-round forfeits like Quit — same confirm, then it
+          continues to where the student aimed. Reuses the pause overlay's arcade styling. */}
+      {pendingHref && (
+        <div className="flash-pausewrap" role="dialog" aria-modal="true" aria-label="Leave the round?"
+          data-testid="flash-leave-overlay"
+          onClick={(e) => { if (e.target === e.currentTarget) setPendingHref(null); }}>
+          <div className="flash-pausecard">
+            <p className="flash-pause-h">Leave the round?</p>
+            <p className="flash-pause-sub">
+              You&rsquo;ll forfeit this round and lose {FORFEIT_LUMENS} Lumens from your stash. No take-backs.
+            </p>
+            <button type="button" className="flash-pausebtn is-quit flash-press"
+              data-testid="flash-leave-confirm" onClick={confirmNavLeave}>Leave &amp; take the hit</button>
+            <button type="button" className="flash-pausebtn is-go flash-press" autoFocus
+              data-testid="flash-leave-cancel" onClick={() => setPendingHref(null)}>Keep playing</button>
+          </div>
+        </div>
+      )}
     </FlashShell>
   );
 }

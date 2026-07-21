@@ -11,6 +11,8 @@
      2. Pause → Quit → confirm                   ⇒ 1 forfeit   (existing path, still once)
      3. Answer the deck to completion → Home     ⇒ 0 forfeits  (finished round is free)
      4. Hard-navigate away mid-round (pagehide)  ⇒ 1 forfeit   (uncontrolled exit → beacon)
+     5. ⌘K palette → Homepage → confirm          ⇒ 1 forfeit   (in-app nav now routes to the confirm)
+     6. ⌘K palette → Homepage → Keep playing      ⇒ 0 forfeits  (cancel is free, stays in the round)
 */
 import assert from "node:assert";
 import { chromium } from "playwright";
@@ -111,17 +113,36 @@ await scenario("Hard nav away mid-round charges one forfeit (pagehide beacon)", 
   assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
 });
 
-// 5) Uncontrolled SPA exit: the ⌘K command palette is still mounted on the immersive
-//    flashcards shell, so it can route away mid-round. The screen unmounts ⇒ cleanup beacon.
-await scenario("⌘K → Homepage mid-round charges one forfeit (SPA unmount beacon)", async (ctx, count) => {
+// 5) THE LOOPHOLE (in-app nav): the ⌘K palette sits on top of the immersive deck, so a
+//    student could jump away mid-round. It must now open the leave confirm — NOT charge or
+//    navigate on its own — and only the confirm charges. (Same choke point the rail links
+//    use; see the station suite for the literal sidebar <Link> click.)
+await scenario("⌘K → Homepage mid-round → confirm charges exactly one forfeit", async (ctx, count) => {
   const page = await enterRound(ctx);
-  const seen = waitForfeit(page);
   await page.keyboard.press("Control+k");
   await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
   await page.click("button.aurora-palette-item:has-text('Homepage')");
+  await page.waitForSelector("[data-testid=flash-leave-overlay]", { timeout: 5000 });
+  assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
+  const seen = waitForfeit(page);
+  await page.click("[data-testid=flash-leave-confirm]");
   await seen;
+  await page.waitForFunction(() => !location.pathname.startsWith("/flashcards"), { timeout: 5000 });
   await page.waitForTimeout(300);
-  assert.strictEqual(count(), 1, `expected 1 forfeit on ⌘K→away, saw ${count()}`);
+  assert.strictEqual(count(), 1, `expected 1 forfeit after confirming, saw ${count()}`);
+});
+
+// 6) Cancelling that leave is free and keeps the student in the round — no silent charge.
+await scenario("⌘K → Homepage mid-round → Keep playing charges zero forfeits", async (ctx, count) => {
+  const page = await enterRound(ctx);
+  await page.keyboard.press("Control+k");
+  await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
+  await page.click("button.aurora-palette-item:has-text('Homepage')");
+  await page.waitForSelector("[data-testid=flash-leave-overlay]", { timeout: 5000 });
+  await page.click("[data-testid=flash-leave-cancel]");
+  await page.waitForTimeout(500);
+  assert.strictEqual(count(), 0, `expected 0 forfeits on cancel, saw ${count()}`);
+  assert.ok(await page.locator("[data-testid=study-stage]").count(), "must still be studying after cancel");
 });
 
 await b.close();

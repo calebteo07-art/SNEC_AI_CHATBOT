@@ -61,13 +61,15 @@ jobs:
           node --experimental-strip-types tests/tour_engine_test.mjs
           node --experimental-strip-types tests/display_name_assert.mjs
           node --experimental-strip-types tests/station_gate_logic.mjs
+          node --experimental-strip-types tests/flashcards_forfeit_logic.mjs
+          node --experimental-strip-types tests/leave_guard_logic.mjs
       - name: Production build
         run: npm run build
 
       - name: Install Chromium for the browser harnesses
         run: npx playwright install --with-deps chromium
 
-      - name: Visual assert harnesses (aurora + station + rotate gate)
+      - name: Visual assert harnesses (aurora + station + rotate gate + leave-forfeit)
         # The only gate that drives the real built app in a browser. Hand-run only until now,
         # so they rotted unnoticed for weeks: a pinned rail silently covered the flashcards
         # exit, and asserts stayed pinned to changed copy and to /admin + /supervisor routes
