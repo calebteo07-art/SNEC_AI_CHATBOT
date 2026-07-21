@@ -137,8 +137,9 @@ ship, but say so plainly and coordinate the setup so `main` never boots broken.
   editor; never emit `ADD CONSTRAINT IF NOT EXISTS` / `CREATE POLICY IF NOT EXISTS`
   (Postgres 42601). Applied migrations are ledgered in `tools/db/migrations/APPLIED.md`.
 - **Render preflight.** The live service builds the `Dockerfile` — never delete it
-  (broke prod 2026-06-26). Render blocks SMTP (25/465/587): email goes via HTTPS
-  (Brevo), never `smtplib`. New env var → ship only with the dashboard value coordinated.
+  (broke prod 2026-06-26). Render blocks SMTP (25/465/587): email goes via the
+  **Gmail API** over HTTPS (`tools/shared/gmail_sender.py`; OAuth refresh token,
+  never `smtplib`). New env var → ship only with the dashboard value coordinated.
 - **Fixes must stick → `/ship-check`.** Any user-facing *state* invariant
   (show-once-per-day, streaks, idempotent submits) needs a regression test covering the
   repeat case AND a behavioral verify on the running app.
