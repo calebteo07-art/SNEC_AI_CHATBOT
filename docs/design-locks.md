@@ -443,6 +443,25 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   tiers, plate/pins, card layout); replaced dead CSS from a prior reverted topic-dropdown attempt.
   **Acceptance when refining**: chips reuse the card-chip/reset-pill tokens, single scrolling row
   (never a wall), 390px no-overflow preserved, mutual exclusion holds (aurora harness asserts).
+- **Premium finish, "refine in place" (2026-07-22, user-directed: "make the entire virtual
+  patients activity page more sleek and seamless and premium … can be improved way more")** —
+  criterion changed: *material finish & craft only* (elevation, radius scale, spacing rhythm,
+  motion easing, pane-header alignment, hairline/scrollbar/type finish). The colourful
+  warm-patient / cool-examiner identity and **every existing animation are KEPT** — this is the
+  chosen "Refine in place" option, NOT calming or reducing the vibrance. CSS-only in
+  `aurora.css` (`.aurora-station*`): scoped `--st-*` tokens give all three `.aurora-station-card`s
+  ONE glass recipe (concentric radii, layered ambient+contact shadow + a lit top highlight, the
+  gradient border retained but thinned to 1px / lower-opacity), the aside patient block gains a
+  divider so the three pane-heads align on one baseline, one `--st-ease` drives every transition,
+  empty consult/EyeBot panes centre their hint, scroll panes get thin scrollbars, counters use
+  tabular numerals. **Acceptance when refining**: (1) one shadow+border+radius recipe across the
+  three cards; (2) pane-heads aligned (triptych tops not ragged); (3) 4/8 spacing at ≈today's
+  density, **390px no-overflow preserved**; (4) all signature animations still run (mesh, ring
+  spin, title flow, reveal shimmer, tick pop, current pulse); (5) tabular numerals + thin
+  scrollbars; (6) WCAG-legible, no structural/behavioural change, all test hooks intact, station
+  + rotate-gate + aurora asserts green. **Out of scope**: checklist gating/order, the two-pane
+  structure, the handover form / debrief flow & copy, the warm/cool colour split, adding/removing
+  any animation, backend/API.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in

@@ -1244,7 +1244,13 @@ html[data-motion="reduce"] .aurora-caret { animation: none; }
 @keyframes station-shimmer { 0% { transform: translateX(-120%); } 100% { transform: translateX(240%); } }
 @keyframes station-bargrow { from { width: 0; } }
 
-.aurora-station { position: relative; max-width: none; margin: 0 auto; padding: clamp(10px, 1.6vw, 20px); display: flex; flex-direction: column; gap: 11px; height: 100%; min-height: 0; overflow: hidden; }
+.aurora-station {
+  /* Premium-finish scoped tokens (2026-07-22 lock amendment): ONE radius scale, ONE
+     easing, ONE structural hairline. The colourful identity + every animation are unchanged. */
+  --st-r-card: 18px; --st-r: 12px; --st-r-sm: 9px;
+  --st-ease: cubic-bezier(.22, .61, .36, 1);
+  --st-hair: rgba(60, 48, 110, .12);
+  position: relative; max-width: none; margin: 0 auto; padding: clamp(10px, 1.6vw, 20px); display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; overflow: hidden; }
 /* OSCE activity reads bigger + denser (type-scale/density refine 2026-07-13). */
 .aurora-station .aurora-eyebrow { font-size: 13.4px; margin-bottom: 3px; }
 /* RouteReveal wraps every page in .aurora-page-enter, which is height:auto by
@@ -1315,45 +1321,54 @@ html[data-motion="reduce"] .rotate-gate-phone { animation: none; transform: rota
 html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 
 .aurora-station-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-.aurora-station-back { border: 1px solid var(--hairline); background: rgba(255,255,255,.7); backdrop-filter: blur(6px); border-radius: 999px; padding: 6px 14px; font-size: 15.4px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
-.aurora-station-back:hover { color: var(--ink); }
+.aurora-station-back { border: 1px solid var(--hairline); background: rgba(255,255,255,.7); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: 999px; padding: 7px 15px; font-size: 15.4px; font-weight: 600; color: var(--ink-2); cursor: pointer; box-shadow: 0 2px 8px -4px rgba(45,35,85,.3); transition: color .18s var(--st-ease), background .18s var(--st-ease), box-shadow .18s var(--st-ease), transform .18s var(--st-ease); }
+.aurora-station-back:hover { color: var(--ink); background: rgba(255,255,255,.92); box-shadow: 0 7px 18px -7px rgba(45,35,85,.42); transform: translateY(-1px); }
 .aurora-station-title { font-size: clamp(22.4px, 2.7vw, 30px); font-weight: 700; letter-spacing: -0.02em; margin: 4px 0 0; color: var(--ink); }
 .aurora-station-title em { font-style: normal; background: linear-gradient(100deg, #2C6BE0, #9B72CB, #D96570, #9B72CB, #2C6BE0); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: station-rail 5s linear infinite; }
-.aurora-station-hud { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-2); flex-wrap: wrap; margin-top: 3px; }
+.aurora-station-hud { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--ink-2); flex-wrap: wrap; margin-top: 3px; font-variant-numeric: tabular-nums; }
 .aurora-station-hud-sep { color: var(--ink-3); }
 .aurora-station-tier { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 
 .aurora-station-grid { display: grid; grid-template-columns: 360px minmax(0,1fr); gap: 12px; align-items: stretch; flex: 1; min-height: 0; overflow: hidden; }
 .aurora-station-grid[data-eyebot="true"] { grid-template-columns: 320px minmax(0,1fr) minmax(0,1fr); }
 
-.aurora-station-card { position: relative; border-radius: 16px; padding: 13px; background: rgba(255,255,255,.62); backdrop-filter: blur(10px) saturate(1.3); box-shadow: 0 18px 50px -28px rgba(40,30,80,.45); }
-.aurora-station-card::before { content: ""; position: absolute; inset: 0; border-radius: 16px; padding: 1.4px;
-  background: linear-gradient(135deg, rgba(66,133,244,.7), rgba(155,114,203,.6), rgba(217,101,112,.7));
+/* One glass material for all three cards: a lit vertical glass gradient, a layered
+   ambient+contact shadow, and an inset top highlight so the card catches light like real
+   glass rather than reading as a flat sticker. The gradient border is kept (identity) but
+   thinned to 1px and softened so it's a lit edge, not a rainbow outline. */
+.aurora-station-card { position: relative; border-radius: var(--st-r-card); padding: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.58));
+  backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 4px 10px -4px rgba(45,35,85,.10), 0 20px 40px -22px rgba(45,35,85,.32), inset 0 1px 0 rgba(255,255,255,.72); }
+.aurora-station-card::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: linear-gradient(155deg, rgba(66,133,244,.40), rgba(155,114,203,.26) 48%, rgba(217,101,112,.38));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
 .aurora-station-aside { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
 /* Only the checklist scrolls; patient header + submit button stay pinned. */
-.aurora-station-clscroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px; }
+.aurora-station-clscroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; margin: 0 -4px; padding: 0 4px; scrollbar-width: thin; scrollbar-color: rgba(120,90,170,.32) transparent; }
 
-.aurora-station-pt { display: flex; gap: 11px; align-items: center; margin-bottom: 10px; }
+/* Patient identity block doubles as the aside's pane-header: shares the same height +
+   divider as the middle/right pane-heads so the three column tops align (seamless). */
+.aurora-station-pt { display: flex; gap: 12px; align-items: center; min-height: 56px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--st-hair); }
 /* Only the gradient ring rotates (a ::before behind the face); the patient photo itself
    stays perfectly still — a spinning face reads as broken (Caleb, 2026-07-07). */
-.aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; }
+.aurora-station-ring { position: relative; width: 56px; height: 56px; flex: none; border-radius: 50%; padding: 2.5px; filter: drop-shadow(0 5px 12px rgba(80,60,150,.28)); }
 .aurora-station-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#4285F4, #9B72CB, #D96570, #34A853, #4285F4); animation: station-spin 7s linear infinite; }
 .aurora-station-av { position: relative; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: center 30%; background: linear-gradient(135deg, #4285F4, #9B72CB); display: block; }
 .aurora-station-nm { font-size: 19.5px; font-weight: 700; color: var(--ink); }
 .aurora-station-mt { font-size: 13.6px; color: var(--ink-2); margin-top: 2px; }
-.aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: 11px; padding: 9px 12px; font-size: 15px; color: var(--on-purple); margin-bottom: 11px; line-height: 1.45; font-style: italic; }
-.aurora-station-cl-label { font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 7px; }
+.aurora-station-cc { background: linear-gradient(135deg, rgba(155,114,203,.16), rgba(217,101,112,.12)); border: 1px solid rgba(155,114,203,.28); border-radius: var(--st-r); padding: 10px 13px; font-size: 15px; color: var(--on-purple); margin-bottom: 12px; line-height: 1.45; font-style: italic; }
+.aurora-station-cl-label { font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-purple-2); font-weight: 700; margin: 0 0 7px; font-variant-numeric: tabular-nums; }
 
 .aurora-station-rail { display: flex; gap: 8px; margin-bottom: 10px; }
-.aurora-station-rl { flex: 1; text-align: center; font-size: 12.5px; padding: 8px 4px; border-radius: 12px; color: #fff; }
+.aurora-station-rl { flex: 1; text-align: center; font-size: 12.5px; padding: 8px 4px; border-radius: var(--st-r); color: #fff; font-variant-numeric: tabular-nums; }
 .aurora-station-rl b { display: block; font-size: 13.6px; margin-bottom: 2px; }
 .aurora-station-rl.is-done { background: linear-gradient(135deg, #34A853, #2A8C43); }
 .aurora-station-rl.is-now { background: linear-gradient(100deg, #4285F4, #9B72CB, #D96570, #9B72CB, #4285F4); background-size: 200% auto; animation: station-rail 4s linear infinite; box-shadow: 0 6px 18px rgba(123,86,180,.4); }
 .aurora-station-rl.is-todo { background: rgba(255,255,255,.55); color: #6E6385; border: 1px solid rgba(120,90,170,.25); }
 .aurora-station-rl.is-todo b { color: var(--on-purple); }
 
-.aurora-station-phase { border-radius: 13px; padding: 8px 10px; margin-bottom: 6px; }
+.aurora-station-phase { border-radius: var(--st-r); padding: 9px 11px; margin-bottom: 7px; }
 .aurora-station-phase.p1 { background: linear-gradient(135deg, rgba(66,133,244,.16), rgba(66,133,244,.05)); border: 1px solid rgba(66,133,244,.28); }
 .aurora-station-phase.p2 { background: linear-gradient(135deg, rgba(155,114,203,.18), rgba(155,114,203,.05)); border: 1px solid rgba(155,114,203,.3); }
 .aurora-station-phase.p3 { background: linear-gradient(135deg, rgba(217,101,112,.15), rgba(217,101,112,.05)); border: 1px solid rgba(217,101,112,.28); }
@@ -1368,12 +1383,12 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-phase.p1 .aurora-station-phase-t { color: var(--on-blue-2); }
 .aurora-station-phase.p2 .aurora-station-phase-t { color: var(--on-purple-2); }
 .aurora-station-phase.p3 .aurora-station-phase-t { color: var(--on-rose); }
-.aurora-station-phase-n { margin-left: auto; font-family: var(--font-mono); font-size: 12.6px; font-weight: 600; color: var(--ink-3); }
+.aurora-station-phase-n { margin-left: auto; font-family: var(--font-mono); font-size: 12.6px; font-weight: 600; color: var(--ink-3); font-variant-numeric: tabular-nums; }
 .aurora-station-phase.p1 .aurora-station-phase-n { color: var(--on-blue-2); }
 .aurora-station-phase.p2 .aurora-station-phase-n { color: var(--on-purple-2); }
 .aurora-station-phase.p3 .aurora-station-phase-n { color: var(--on-rose); }
 
-.aurora-station-step { display: flex; gap: 8px; align-items: flex-start; text-align: left; width: 100%; background: none; border: none; cursor: pointer; font-size: 15px; padding: 5px 6px; border-radius: 9px; color: #3a3450; line-height: 1.4; transition: background .14s ease; }
+.aurora-station-step { display: flex; gap: 8px; align-items: flex-start; text-align: left; width: 100%; background: none; border: none; cursor: pointer; font-size: 15px; padding: 6px 7px; border-radius: var(--st-r-sm); color: #3a3450; line-height: 1.4; transition: background .16s var(--st-ease), color .16s var(--st-ease); }
 .aurora-station-step:hover { background: rgba(255,255,255,.45); }
 .aurora-station-step .bx { width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid rgba(90,75,122,.4); flex: none; margin-top: 1px; font-size: 13px; text-align: center; line-height: 17px; color: transparent; background: rgba(255,255,255,.6); }
 .aurora-station-step[data-ticked="true"] { color: var(--on-green-2); font-weight: 500; }
@@ -1398,15 +1413,22 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
 /* The consult thread is the only scrolling region on the right — the exam tray and
    composer stay pinned at the bottom so the chat box never drifts out of view. */
-.aurora-station-thread { display: flex; flex-direction: column; gap: 7px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
-.aurora-station-hint { text-align: center; padding: 24px 0; color: var(--ink-2); font-size: 15.6px; line-height: 1.5; }
-.aurora-station-bubble { border-radius: 13px; padding: 10px 14px; font-size: 16px; max-width: 86%; line-height: 1.5; animation: station-revealin .4s ease both; }
+.aurora-station-thread { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; scrollbar-width: thin; scrollbar-color: rgba(120,90,170,.32) transparent; }
+/* Empty-state hint sits centred in the pane (margin:auto) so an empty consult/EyeBot pane
+   reads composed, not top-heavy. Only rendered while the thread is empty. */
+.aurora-station-hint { margin: auto; max-width: 32ch; text-align: center; padding: 24px 0; color: var(--ink-2); font-size: 15.6px; line-height: 1.55; }
+/* Thin, quiet scrollbars on the station scroll panes (webkit; Firefox uses scrollbar-* props). */
+.aurora-station-clscroll::-webkit-scrollbar, .aurora-station-thread::-webkit-scrollbar { width: 9px; }
+.aurora-station-clscroll::-webkit-scrollbar-thumb, .aurora-station-thread::-webkit-scrollbar-thumb { background: rgba(120,90,170,.26); border-radius: 999px; border: 2.5px solid transparent; background-clip: padding-box; }
+.aurora-station-clscroll::-webkit-scrollbar-thumb:hover, .aurora-station-thread::-webkit-scrollbar-thumb:hover { background: rgba(120,90,170,.44); background-clip: padding-box; }
+.aurora-station-clscroll::-webkit-scrollbar-track, .aurora-station-thread::-webkit-scrollbar-track { background: transparent; }
+.aurora-station-bubble { border-radius: var(--st-r); padding: 11px 14px; font-size: 16px; max-width: 86%; line-height: 1.5; animation: station-revealin .4s var(--st-ease) both; box-shadow: 0 6px 16px -12px rgba(45,35,85,.5); }
 .aurora-station-bubble .who { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); display: block; margin-bottom: 2px; }
 .aurora-station-bubble.me { background: linear-gradient(135deg, #4285F4, #6A8EF0); color: #fff; align-self: flex-end; }
 .aurora-station-bubble.me .who { color: rgba(255,255,255,.82); }
 .aurora-station-bubble.pt { background: rgba(255,255,255,.78); border: 1px solid rgba(120,90,170,.18); color: var(--ink); align-self: flex-start; }
-.aurora-station-reveal { position: relative; overflow: hidden; border-radius: 13px; padding: 11px 14px; color: #fff; align-self: stretch;
-  background: linear-gradient(120deg, #34A853, #2C8E76, #4285F4); background-size: 180% auto; animation: station-revealin .5s ease both; box-shadow: 0 8px 22px rgba(45,140,90,.32); }
+.aurora-station-reveal { position: relative; overflow: hidden; border-radius: var(--st-r); padding: 12px 14px; color: #fff; align-self: stretch;
+  background: linear-gradient(120deg, #34A853, #2C8E76, #4285F4); background-size: 180% auto; animation: station-revealin .5s var(--st-ease) both; box-shadow: 0 12px 28px -12px rgba(45,140,90,.55), inset 0 1px 0 rgba(255,255,255,.28); }
 .aurora-station-reveal::after { content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%; z-index: 0; background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); animation: station-shimmer 2.8s ease-in-out infinite; }
 /* Keep the words ABOVE the sweeping shimmer and let them wrap, so a completed action
    never reads as washed-out or cut off (the shimmer used to paint over the label). */
@@ -1422,18 +1444,22 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-act.is-used { background: rgba(52,168,83,.16); color: var(--on-green-2); border: 1px solid rgba(52,168,83,.45); box-shadow: none; cursor: default; }
 
 .aurora-station-composer { display: flex; gap: 10px; align-items: flex-end; margin-top: 9px; }
-.aurora-station-composer-input { flex: 1; border: 1px solid rgba(120,90,170,.25); border-radius: 14px; padding: 11px 15px; color: var(--ink); font-size: 16.5px; font-family: var(--font-sans); background: rgba(255,255,255,.7); resize: none; outline: none; line-height: 1.5; }
+.aurora-station-composer-input { flex: 1; border: 1px solid rgba(120,90,170,.25); border-radius: var(--st-r); padding: 11px 15px; color: var(--ink); font-size: 16.5px; font-family: var(--font-sans); background: rgba(255,255,255,.7); resize: none; outline: none; line-height: 1.5; transition: border-color .18s var(--st-ease), box-shadow .18s var(--st-ease); }
 .aurora-station-composer-input:focus-visible { border-color: var(--g-blue); box-shadow: 0 0 0 3px rgba(66,133,244,.16); }
-.aurora-station-composer-send { width: 42px; height: 42px; flex: none; border: none; border-radius: 14px; display: grid; place-items: center; cursor: pointer; color: #fff; background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); }
-.aurora-station-composer-send:disabled { opacity: .45; cursor: not-allowed; }
+.aurora-station-composer-send { width: 44px; height: 44px; flex: none; border: none; border-radius: var(--st-r); display: grid; place-items: center; cursor: pointer; color: #fff; background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); box-shadow: 0 6px 16px -6px rgba(123,86,180,.6); transition: transform .16s var(--st-ease), filter .2s var(--st-ease), box-shadow .2s var(--st-ease); }
+.aurora-station-composer-send:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); box-shadow: 0 10px 22px -8px rgba(123,86,180,.7); }
+.aurora-station-composer-send:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
 .aurora-station-form { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,.6); border: 1px solid rgba(120,90,170,.2); }
 .aurora-station-form-hint { font-size: 14px; line-height: 1.45; color: var(--on-purple-2); background: rgba(155,114,203,.1); border-radius: 9px; padding: 8px 10px; margin: 0; }
 .aurora-station-warn { font-size: 15px; color: var(--on-rose); }
-.aurora-station-submit-toggle { margin-top: 10px; width: 100%; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+.aurora-station-submit-toggle { margin-top: 10px; width: 100%; padding: 12px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15px; font-weight: 700; letter-spacing: .04em; cursor: pointer; box-shadow: 0 8px 20px -8px rgba(123,86,180,.6); transition: transform .16s var(--st-ease), box-shadow .2s var(--st-ease), filter .2s var(--st-ease); }
+.aurora-station-submit-toggle:hover { transform: translateY(-1px); box-shadow: 0 13px 28px -10px rgba(123,86,180,.72); filter: brightness(1.03); }
+.aurora-station-submit-toggle:active { transform: translateY(0); box-shadow: 0 6px 16px -8px rgba(123,86,180,.6); }
 .aurora-station-stakes { margin-top: 8px; font-size: .8rem; color: var(--ink-3); text-align: center; line-height: 1.4; }
-.aurora-station-submit-go { margin-top: 4px; padding: 11px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15.6px; font-weight: 700; cursor: pointer; }
-.aurora-station-submit-go:disabled { opacity: .5; cursor: not-allowed; }
+.aurora-station-submit-go { margin-top: 4px; padding: 12px; border: none; border-radius: var(--radius); background: linear-gradient(135deg, #4285F4, #9B72CB, #D96570); color: #fff; font-size: 15.6px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px -8px rgba(123,86,180,.6); transition: transform .16s var(--st-ease), box-shadow .2s var(--st-ease), filter .2s var(--st-ease); }
+.aurora-station-submit-go:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 13px 28px -10px rgba(123,86,180,.72); filter: brightness(1.03); }
+.aurora-station-submit-go:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
 
 .aurora-station-result { margin-top: 14px; }
 .aurora-station-result-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
@@ -1520,9 +1546,9 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 .aurora-station-main { min-width: 0; }
 
 /* shared slim pane header */
-.aurora-pane-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(120,90,170,.16); }
-.aurora-pane-dot { width: 32px; height: 32px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.aurora-pane-dot svg { width: 18px; height: 18px; }
+.aurora-pane-head { display: flex; align-items: center; gap: 10px; min-height: 56px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--st-hair); }
+.aurora-pane-dot { width: 38px; height: 38px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -3px rgba(45,35,85,.30); }
+.aurora-pane-dot svg { width: 20px; height: 20px; }
 .aurora-pane-face { overflow: hidden; }
 .aurora-pane-face img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; border-radius: 50%; display: block; }
 .aurora-pane-nm { font-size: 16px; font-weight: 700; color: var(--ink); }
@@ -1532,8 +1558,8 @@ html[data-motion="reduce"] .aurora-station-pbar i { animation: none !important; 
 
 /* Real-time technique grade card (ricoe C6) — a graded verdict against the crafted
    model answer, not a "good job" bubble. Verdict tone colours the badge + rail. */
-.aurora-grade { align-self: stretch; border-radius: 13px; padding: 11px 13px; background: rgba(66,133,244,.06);
-  border: 1px solid rgba(66,133,244,.22); border-left-width: 4px; animation: station-revealin .34s ease both; }
+.aurora-grade { align-self: stretch; border-radius: var(--st-r); padding: 12px 13px; background: rgba(66,133,244,.06);
+  border: 1px solid rgba(66,133,244,.22); border-left-width: 4px; animation: station-revealin .34s var(--st-ease) both; box-shadow: 0 8px 20px -14px rgba(45,35,85,.5); }
 .aurora-grade[data-tone="great"] { border-left-color: #16a34a; background: rgba(22,163,74,.07); }
 .aurora-grade[data-tone="ok"] { border-left-color: #d98a00; background: rgba(217,138,0,.07); }
 .aurora-grade[data-tone="low"] { border-left-color: #e2603a; background: rgba(226,96,58,.07); }
@@ -3377,7 +3403,7 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 /* Only genuine hands-on procedures reach this tray now, so it rarely overflows; a
    roomier cap + bottom padding means a row is never sheared off halfway (ricoe C1). */
 .aurora-protray-chips { display:flex; flex-wrap:wrap; gap:6px; max-height:210px; overflow-y:auto; padding-bottom:2px; }
-.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.87rem; padding:5px 12px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:normal; text-align:left; transition:transform .12s, background .2s, border-color .2s; }
+.aurora-pchip { display:inline-flex; align-items:center; gap:5px; font-size:.87rem; padding:6px 13px; border-radius:999px; border:1px solid rgba(120,90,170,.22); background:rgba(255,255,255,.5); color:var(--ink-2); cursor:pointer; white-space:normal; text-align:left; transition:transform .14s var(--st-ease), background .2s var(--st-ease), border-color .2s var(--st-ease), box-shadow .2s var(--st-ease); }
 .aurora-pchip:hover:not(:disabled) { transform:translateY(-1px); border-color:rgba(155,114,203,.55); color:var(--ink); }
 .aurora-pchip .ic { font-weight:700; opacity:.55; }
 .aurora-pchip[data-quick="true"] .ic { opacity:.9; }
