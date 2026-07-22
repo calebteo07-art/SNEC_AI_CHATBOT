@@ -54,6 +54,18 @@ def _student_headers() -> dict:
     return _cookies("student")
 
 
+@pytest.fixture(autouse=True)
+def _stub_consent_seed():
+    """The add-student / add-staff endpoints call identity.seed_student_name, which reads
+    and writes student_consent. Default those DB calls to no-ops so endpoint tests never
+    touch the real database; tests that assert on the seed re-patch upsert_consent inside
+    their own `with` block."""
+    with patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.upsert_consent", new=AsyncMock()), \
+         patch("tools.shared.db.update_consent", new=AsyncMock()):
+        yield
+
+
 # ---------------------------------------------------------------------------
 # Auth enforcement — no token
 # ---------------------------------------------------------------------------
@@ -221,6 +233,52 @@ def test_admin_approve_trainer_provisions_supervisor():
     assert r.json()["ok"] is True
     mock_sup.assert_called_once_with("coach@test.com", role="trainer")
     mock_appr.assert_not_called()
+
+
+def test_admin_approve_staff_seeds_consent_name():
+    """The name typed when adding staff MUST be persisted to student_consent (the identity
+    of record). supervisors has no name column, so otherwise the name only reaches the
+    welcome email and the person renders as 'Student' on the leaderboard."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_supervisor", new=AsyncMock()), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.upsert_consent", new=AsyncMock()) as mock_consent, \
+         patch("tools.shared.gmail_sender.send_email", return_value=None), \
+         patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "coach@test.com", "full_name": "Coach Lee", "role": "trainer"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 200
+    mock_consent.assert_awaited_once()
+    _, kwargs = mock_consent.call_args
+    assert kwargs.get("student_name") == "Coach Lee"
+    assert kwargs.get("email") == "coach@test.com"
+
+
+def test_admin_approve_student_seeds_consent_name():
+    """Students too: the name is written to student_consent at add-time so it is
+    authoritative immediately (before first login), not only to approved_students."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()), \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()), \
+         patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.upsert_consent", new=AsyncMock()) as mock_consent, \
+         patch("tools.shared.gmail_sender.send_email", return_value=None), \
+         patch("tools.api.routers.admin.generate_password", return_value="TmpPass1!"):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "new@test.com", "full_name": "New User", "role": "OA"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 200
+    mock_consent.assert_awaited_once()
+    _, kwargs = mock_consent.call_args
+    assert kwargs.get("student_name") == "New User"
 
 
 def test_admin_approve_student_409_duplicate():
