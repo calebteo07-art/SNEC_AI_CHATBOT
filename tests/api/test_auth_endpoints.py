@@ -46,6 +46,42 @@ def test_login_success():
     assert data["is_new"] is False
 
 
+def test_login_links_student_id_to_approved():
+    """First login must link the identity back to approved_students.student_id, so the
+    admin roster's Active/Pending badge flips to Active on login — not only via
+    /api/onboard. Without this, a student who logs in but never onboards shows
+    'Pending' forever."""
+    auth_row = _make_auth_row("newstud@test.com", "password1")
+    approved_row = {"email": "newstud@test.com", "full_name": "New Stud", "role": "OA", "student_id": None}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.shared.db.update_approved", new=AsyncMock()) as mock_update, \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_777", "New Stud")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "newstud@test.com", "password": "password1"})
+    assert r.status_code == 200
+    mock_update.assert_awaited_once_with("newstud@test.com", student_id="stu_777")
+
+
+def test_login_does_not_relink_when_student_id_present():
+    """If the approved row is already linked, login must NOT re-write student_id
+    (no redundant DB write on every login)."""
+    auth_row = _make_auth_row("linked@test.com", "password1")
+    approved_row = {"email": "linked@test.com", "full_name": "Linked", "role": "OA", "student_id": "stu_existing"}
+
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=approved_row)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_auth", new=AsyncMock(return_value=auth_row)), \
+         patch("tools.shared.db.update_approved", new=AsyncMock()) as mock_update, \
+         patch("tools.api.routers.auth.get_or_create_student", return_value=("stu_existing", "Linked")), \
+         patch("tools.api.routers.auth.has_consented", return_value=True):
+        r = client.post("/api/auth/login", json={"email": "linked@test.com", "password": "password1"})
+    assert r.status_code == 200
+    mock_update.assert_not_awaited()
+
+
 def test_login_wrong_password():
     auth_row = _make_auth_row("bob@test.com", "realpass")
     approved_row = {"email": "bob@test.com", "full_name": "Bob", "role": "OT"}
