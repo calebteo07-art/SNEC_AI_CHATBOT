@@ -41,7 +41,7 @@ const ROUTES = [
   { path: "/cases", name: "osce-list", who: student },
   { path: "/flashcards", name: "flashcards", who: student },
   { path: "/leaderboard", name: "leaderboard", who: student },
-  { path: "/analytics", name: "analytics", who: admin },
+  { path: "/admin", name: "admin", who: admin },
 ];
 
 /* Documented exceptions to the 44x44 rule. An UNEXPLAINED exception is a bug, not a

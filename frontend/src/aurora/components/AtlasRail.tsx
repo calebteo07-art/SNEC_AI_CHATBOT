@@ -30,8 +30,8 @@ const STUDY: NavItem[] = [
   { href: "/cases", label: "Virtual Patients", short: "Patients", icon: "cases" },
   { href: "/leaderboard", label: "Leaderboard", short: "Ranks", icon: "leaderboard" },
 ];
-const ANALYTICS_NAV: NavItem[] = [
-  { href: "/analytics", label: "Analytics", short: "Stats", icon: "analytics" },
+const ADMIN_NAV: NavItem[] = [
+  { href: "/admin", label: "Admin", short: "Stats", icon: "admin" },
 ];
 
 export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onTogglePin?: () => void }) {
@@ -44,7 +44,7 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
   const role = user?.role ?? "student";
   // The nav chip is a student identity surface → their customised Eyecon (staff keep initials).
   const eyeconConfig = role === "student" ? avatar?.config : undefined;
-  const showAnalytics = role === "admin" || role === "trainer";
+  const showAdmin = role === "admin" || role === "trainer";
   const name = displayName(user?.fullName, "EyeBot");
   const initials = name
     .split(" ")
@@ -125,10 +125,10 @@ export function AtlasRail({ pinned, onTogglePin }: { pinned?: boolean; onToggleP
           <p className="aurora-rail-label">Study</p>
           {STUDY.map((i) => <Item key={i.href} {...i} />)}
         </section>
-        {showAnalytics && (
+        {showAdmin && (
           <section className="aurora-rail-section">
             <p className="aurora-rail-label">Insights</p>
-            {ANALYTICS_NAV.map((i) => <Item key={i.href} {...i} />)}
+            {ADMIN_NAV.map((i) => <Item key={i.href} {...i} />)}
           </section>
         )}
       </div>
@@ -186,5 +186,5 @@ const NAV_ICONS = {
   cases: (<svg {...ico}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="3" /></svg>),
   flashcards: (<svg {...ico}><rect x="3" y="6" width="14" height="10" rx="2" /><path d="M7 4h14a0 0 0 0 1 0 0v12" /></svg>),
   leaderboard: (<svg {...ico}><path d="M3 20h18" /><path d="M5 20v-6h4v6" /><path d="M10 20V8h4v12" /><path d="M15 20v-9h4v9" /></svg>),
-  analytics: (<svg {...ico}><path d="M3 3v18h18" /><rect x="7" y="12" width="3" height="6" /><rect x="12" y="8" width="3" height="10" /><rect x="17" y="4" width="3" height="14" /></svg>),
+  admin: (<svg {...ico}><path d="M3 3v18h18" /><rect x="7" y="12" width="3" height="6" /><rect x="12" y="8" width="3" height="10" /><rect x="17" y="4" width="3" height="14" /></svg>),
 } as const;

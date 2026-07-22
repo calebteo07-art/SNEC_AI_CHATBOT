@@ -796,10 +796,10 @@ console.log("PASS: reduced motion freezes the home mascot animation");
 //  frontend/tests/eyecon_assert.mjs, which drives the served build with customized:false /
 //  customized:true avatar mocks.)
 
-// staff analytics: /admin + /supervisor and the `supervisor` role no longer exist — the
-// console was deleted and replaced by ONE dark /analytics surface for trainer+admin, so the
+// staff dashboard: /admin + /supervisor and the `supervisor` role no longer exist — the
+// console was deleted and replaced by ONE dark /admin surface for trainer+admin, so the
 // two blocks that used to live here tested routes that 404 and roles the app never issues.
-// Retargeted at the surface that exists: AnalyticsGuard admits staff, the cohort tab renders
+// Retargeted at the surface that exists: AdminGuard admits staff, the cohort tab renders
 // KPIs off the (still-live) /api/supervisor/* endpoints, and the admin-only Accounts tab
 // stays hidden from a trainer. The student-rejection check is the one that matters most —
 // this surface exposes the whole cohort's data.
@@ -827,11 +827,11 @@ await trainerCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain
 await staffMocks(trainerCtx);
 await trainerCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(trainerUser)));
 const tp = await trainerCtx.newPage();
-await tp.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+await tp.goto(base + "/admin", { waitUntil: "domcontentloaded" });
 await tp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
-if (new URL(tp.url()).pathname !== "/analytics") { console.error(`FAIL: AnalyticsGuard bounced a trainer off /analytics (url=${tp.url()})`); process.exit(1); }
+if (new URL(tp.url()).pathname !== "/admin") { console.error(`FAIL: AdminGuard bounced a trainer off /admin (url=${tp.url()})`); process.exit(1); }
 const anH1 = await tp.locator("main h1").count();
-if (anH1 !== 1) { console.error(`FAIL: analytics main h1 count = ${anH1}`); process.exit(1); }
+if (anH1 !== 1) { console.error(`FAIL: admin main h1 count = ${anH1}`); process.exit(1); }
 // the KPIs read the payload rather than rendering placeholders: at_risk_count 3 → "At risk".
 const atRiskCard = tp.locator('[data-testid="stat-card"]:has(.aurora-statcard-label:text-is("At risk"))');
 if ((await atRiskCard.count()) !== 1) { console.error("FAIL: cohort tab missing the 'At risk' KPI card"); process.exit(1); }
@@ -840,7 +840,7 @@ if (atRiskVal !== "3") { console.error(`FAIL: 'At risk' KPI = '${atRiskVal}', ex
 if ((await tp.locator('[role="tab"]:has-text("Accounts")').count()) !== 0) {
   console.error("FAIL: the admin-only Accounts tab is exposed to a trainer"); process.exit(1);
 }
-console.log("PASS: Analytics — guard admits a trainer, cohort KPIs read the payload, no admin-only Accounts tab");
+console.log("PASS: Admin — guard admits a trainer, cohort KPIs read the payload, no admin-only Accounts tab");
 
 // an admin gets the same board PLUS the Accounts tab.
 const adminUser = { full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001", role: "admin", student_role: "", must_change: false };
@@ -857,22 +857,22 @@ await adminCtx.addCookies([{ name: "eyebot_token", value: "pw-harness", domain: 
 await staffMocks(adminCtx);
 await adminCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(adminUser)));
 const ap = await adminCtx.newPage();
-await ap.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+await ap.goto(base + "/admin", { waitUntil: "domcontentloaded" });
 await ap.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
 if ((await ap.locator('[role="tab"]:has-text("Accounts")').count()) !== 1) {
-  console.error("FAIL: admin is missing the Accounts tab on /analytics"); process.exit(1);
+  console.error("FAIL: admin is missing the Accounts tab on /admin"); process.exit(1);
 }
 await ap.locator('[role="tab"]:has-text("Students")').click();
 await ap.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
-console.log("PASS: Analytics — admin also gets the Accounts tab; the Students roster lists rows");
+console.log("PASS: Admin — admin also gets the Accounts tab; the Students roster lists rows");
 
 // a student must never reach the cohort-wide staff surface.
 const spg = await navCtx.newPage();
-await spg.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
-await spg.waitForFunction(() => location.pathname !== "/analytics", null, { timeout: 8000 }).catch(() => null);
-if (new URL(spg.url()).pathname === "/analytics") { console.error("FAIL: AnalyticsGuard let a student onto /analytics (cohort data leak)"); process.exit(1); }
-if ((await spg.locator('[data-testid="stat-card"]').count()) > 0) { console.error("FAIL: student saw cohort stat cards on /analytics"); process.exit(1); }
-console.log("PASS: Analytics — a student is bounced off the staff surface");
+await spg.goto(base + "/admin", { waitUntil: "domcontentloaded" });
+await spg.waitForFunction(() => location.pathname !== "/admin", null, { timeout: 8000 }).catch(() => null);
+if (new URL(spg.url()).pathname === "/admin") { console.error("FAIL: AdminGuard let a student onto /admin (cohort data leak)"); process.exit(1); }
+if ((await spg.locator('[data-testid="stat-card"]').count()) > 0) { console.error("FAIL: student saw cohort stat cards on /admin"); process.exit(1); }
+console.log("PASS: Admin — a student is bounced off the staff surface");
 await spg.close();
 
 // regression (prod incident 2026-06-27): a pre-MCQ deck ({front,back}, NO `options`)

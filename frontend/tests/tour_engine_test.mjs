@@ -9,20 +9,20 @@ let passed = 0;
 const it = (name, fn) => { fn(); passed++; console.log("  ✓", name); };
 
 // --- activeSteps(role) ---
-it("students get every stop except analytics, ending on the finale", () => {
+it("students get every stop except admin, ending on the finale", () => {
   const ids = activeSteps("student").map((s) => s.id);
-  assert.ok(!ids.includes("analytics"), "no analytics for students");
+  assert.ok(!ids.includes("admin"), "no admin for students");
   assert.equal(ids[0], "welcome");
   assert.equal(ids.at(-1), "finish");
   assert.equal(ids.length, TOUR_STEPS.length - 1);
 });
-it("trainers and admins get the analytics stop", () => {
-  assert.ok(activeSteps("trainer").some((s) => s.id === "analytics"));
-  assert.ok(activeSteps("admin").some((s) => s.id === "analytics"));
+it("trainers and admins get the admin stop", () => {
+  assert.ok(activeSteps("trainer").some((s) => s.id === "admin"));
+  assert.ok(activeSteps("admin").some((s) => s.id === "admin"));
   assert.equal(activeSteps("trainer").length, TOUR_STEPS.length);
 });
 it("undefined role is treated as non-staff", () => {
-  assert.ok(!activeSteps(undefined).some((s) => s.id === "analytics"));
+  assert.ok(!activeSteps(undefined).some((s) => s.id === "admin"));
 });
 it("every step has a route and non-empty copy", () => {
   for (const s of TOUR_STEPS) {

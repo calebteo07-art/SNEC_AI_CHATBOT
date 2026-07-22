@@ -48,19 +48,19 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "leaderboard", route: "/leaderboard", target: '[data-testid="podium"]', fallback: '[data-testid="leaderboard-root"]',
     title: "See where you stand \u{1F3C6}",
     body: "Climb the ranks, chase the podium, and compare within your own cohort." },
-  { id: "analytics", route: "/analytics", target: ".aurora-analytics",
+  { id: "admin", route: "/admin", target: ".aurora-admin",
     title: "Your cohort insights \u{1F4CA}",
-    body: "As a trainer you also get analytics here — track how your students are progressing." },
+    body: "As a trainer you also get the Admin dashboard here — track how your students are progressing." },
   { id: "finish", route: "/homepage", target: null, confetti: true,
     title: "Tour complete! \u{1F389}",
     body: "Two quick things and you're in: build your Eyecon, then light your first streak." },
 ];
 
-/** The steps shown for a given role. Students don't see the trainer/admin-only analytics
+/** The steps shown for a given role. Students don't see the trainer/admin-only Admin dashboard
     stop; everyone else does. Order is preserved. */
 export function activeSteps(role: string | undefined): TourStep[] {
   const staff = role === "trainer" || role === "admin";
-  return TOUR_STEPS.filter((s) => s.id !== "analytics" || staff);
+  return TOUR_STEPS.filter((s) => s.id !== "admin" || staff);
 }
 
 export interface TourGateInput {

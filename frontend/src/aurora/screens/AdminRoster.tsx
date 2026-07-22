@@ -1,12 +1,12 @@
 "use client";
-/* Analytics — roster. The cohort table: search + role/at-risk filter + paginate
+/* Admin — roster. The cohort table: search + role/at-risk filter + paginate
    (the AdminStudents controls, now hook-driven so it refreshes in real time).
    A row click opens the reused AdminStudentDetail drill-down. */
 import { useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { AdminStudentDetail } from "@/aurora/screens/AdminStudentDetail";
 import { displayName } from "@/aurora/lib/displayName";
-import { useRoster, useAtRisk, useTokenSummary, useStaff } from "@/hooks/useAnalytics";
+import { useRoster, useAtRisk, useTokenSummary, useStaff } from "@/hooks/useAdmin";
 
 const PAGE_SIZE = 20;
 const COLS = "2.2fr 2.4fr 84px 92px 78px 92px 112px";
@@ -20,7 +20,7 @@ function roleTone(role: string): "blue" | "purple" | "rose" | undefined {
   return undefined;
 }
 
-export function AnalyticsRoster() {
+export function AdminRoster() {
   const roster = useRoster();
   const atRiskQ = useAtRisk();
   const tokensQ = useTokenSummary();
@@ -63,7 +63,7 @@ export function AnalyticsRoster() {
       {roster.isLoading ? (
         <p className="aurora-unavail">Loading roster…</p>
       ) : (
-        <div className="aurora-table-wrap" data-testid="analytics-roster">
+        <div className="aurora-table-wrap" data-testid="admin-roster">
           <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: COLS }}>
             <span>Name</span><span>Email</span><span>Role</span><span>Sessions</span><span>Streak</span><span>Tokens</span><span>Last active</span>
           </div>
@@ -111,7 +111,7 @@ export function AnalyticsRoster() {
         ) : staff.length === 0 ? (
           <p className="aurora-tempty">No staff accounts yet.</p>
         ) : (
-          <div className="aurora-table-wrap" data-testid="analytics-staff">
+          <div className="aurora-table-wrap" data-testid="admin-staff">
             <div className="aurora-trow aurora-thead" style={{ gridTemplateColumns: STAFF_COLS }}>
               <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Sessions</span><span>Streak</span><span>Last active</span>
             </div>

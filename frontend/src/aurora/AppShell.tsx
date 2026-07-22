@@ -19,8 +19,8 @@ const STUDY: Destination[] = [
   { href: "/chat", label: "Tutor" },
   { href: "/cases", label: "Virtual Patients" },
 ];
-/* Trainers/admins get one extra palette destination — the Analytics page. */
-const ANALYTICS_DEST: Destination = { href: "/analytics", label: "Analytics" };
+/* Trainers/admins get one extra palette destination — the Admin page. */
+const ADMIN_DEST: Destination = { href: "/admin", label: "Admin" };
 
 export function AppShell({ children }: { children: ReactNode }) {
   useReducedMotion(); // AURORA owns html[data-motion] now that the legacy MotionProvider is gone
@@ -62,7 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const role = user?.role ?? "student";
   const destinations = useMemo<Destination[]>(() => {
-    if (role === "admin" || role === "trainer") return [...STUDY, ANALYTICS_DEST];
+    if (role === "admin" || role === "trainer") return [...STUDY, ADMIN_DEST];
     return STUDY;
   }, [role]);
 

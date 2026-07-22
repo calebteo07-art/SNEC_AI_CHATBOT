@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import type { ApprovedStudent } from "@/screens/adminShared";
 
-/* React-Query hooks for the dark Analytics dashboard. Thin wrappers over the
+/* React-Query hooks for the dark Admin dashboard. Thin wrappers over the
    EXISTING supervisor/admin read endpoints (re-gated to require_staff in the
    backend phase). "Real-time" = fresh-on-focus + a ~30s poll; every fetch
    degrades to a safe fallback (never throws) so the page renders before the two
-   additive migrations land. Namespaced under ["analytics", …] so the Refresh
+   additive migrations land. Namespaced under ["admin", …] so the Refresh
    control can invalidate the whole board in one call. */
 const LIVE = { refetchOnWindowFocus: true, refetchInterval: 30_000, staleTime: 15_000 } as const;
 
@@ -24,7 +25,7 @@ export interface Cohort {
 }
 export function useCohort() {
   return useQuery<Cohort>({
-    queryKey: ["analytics", "cohort"],
+    queryKey: ["admin", "cohort"],
     queryFn: () => getJSON<Cohort>("/api/supervisor/cohort",
       { total: 0, active_this_week: 0, at_risk_count: 0, weakest_topics: [], inactive_7_plus_days: [] }),
     ...LIVE,
@@ -37,7 +38,7 @@ export interface AtRiskRow {
 }
 export function useAtRisk() {
   return useQuery<AtRiskRow[]>({
-    queryKey: ["analytics", "at-risk"],
+    queryKey: ["admin", "at-risk"],
     queryFn: async () => {
       const d = await getJSON<{ students?: AtRiskRow[]; at_risk?: AtRiskRow[] }>("/api/supervisor/at-risk", {});
       return d.students ?? d.at_risk ?? [];
@@ -52,7 +53,7 @@ export interface RosterRow {
 }
 export function useRoster() {
   return useQuery<RosterRow[]>({
-    queryKey: ["analytics", "roster"],
+    queryKey: ["admin", "roster"],
     queryFn: async () => (await getJSON<{ students?: RosterRow[] }>("/api/admin/students", {})).students ?? [],
     ...LIVE,
   });
@@ -68,8 +69,20 @@ export interface StaffRow {
     staff (status "pending") — email + role only until their first login. */
 export function useStaff() {
   return useQuery<StaffRow[]>({
-    queryKey: ["analytics", "staff"],
+    queryKey: ["admin", "staff"],
     queryFn: async () => (await getJSON<{ staff?: StaffRow[] }>("/api/admin/staff", {})).staff ?? [],
+    ...LIVE,
+  });
+}
+
+/** Approved-students whitelist for the admin provisioning panel. React Query (not a
+    one-shot fetch) so it polls, is covered by the dashboard Refresh, and — critically —
+    a remove/add/promote invalidating ["admin"] makes the account list update at once.
+    A removed student vanishes here immediately (optimistic) and everywhere else on refetch. */
+export function useApproved() {
+  return useQuery<ApprovedStudent[]>({
+    queryKey: ["admin", "approved"],
+    queryFn: async () => (await getJSON<{ students?: ApprovedStudent[] }>("/api/admin/approved", {})).students ?? [],
     ...LIVE,
   });
 }
@@ -91,7 +104,7 @@ export interface StudentDetail {
 }
 export function useStudentDetail(id: string | null) {
   return useQuery<StudentDetail | null>({
-    queryKey: ["analytics", "student", id],
+    queryKey: ["admin", "student", id],
     enabled: !!id,
     queryFn: () => getJSON<StudentDetail | null>(`/api/admin/student/${id}/detail`, null),
     ...LIVE,
@@ -101,7 +114,7 @@ export function useStudentDetail(id: string | null) {
 export interface Benchmark { topic: string; avg_score: number; student_count: number; }
 export function useBenchmarks() {
   return useQuery<Benchmark[]>({
-    queryKey: ["analytics", "benchmarks"],
+    queryKey: ["admin", "benchmarks"],
     queryFn: async () => (await getJSON<{ topics?: Benchmark[] }>("/api/supervisor/benchmarks", {})).topics ?? [],
     ...LIVE,
   });
@@ -115,7 +128,7 @@ export interface FeedItem {
 }
 export function useActivity() {
   return useQuery<FeedItem[]>({
-    queryKey: ["analytics", "activity"],
+    queryKey: ["admin", "activity"],
     queryFn: async () => (await getJSON<{ feed?: FeedItem[] }>("/api/admin/activity", {})).feed ?? [],
     ...LIVE,
   });
@@ -124,7 +137,7 @@ export function useActivity() {
 export interface TokenSummary { total_tokens: number; by_student: { student_id: string; tokens: number }[]; }
 export function useTokenSummary() {
   return useQuery<TokenSummary>({
-    queryKey: ["analytics", "token-summary"],
+    queryKey: ["admin", "token-summary"],
     queryFn: () => getJSON<TokenSummary>("/api/admin/token-summary", { total_tokens: 0, by_student: [] }),
     ...LIVE,
   });
@@ -132,7 +145,7 @@ export function useTokenSummary() {
 
 export function useCohortInsight() {
   return useQuery<string>({
-    queryKey: ["analytics", "insight"],
+    queryKey: ["admin", "insight"],
     queryFn: async () => (await getJSON<{ narrative?: string }>("/api/supervisor/insights", {})).narrative ?? "",
     // The insight is a paid, rate-limited (10/min) Gemini call — do NOT poll it.
     // Fresh on manual Refresh + a 5-min stale window only. (Prod-cost invariant.)

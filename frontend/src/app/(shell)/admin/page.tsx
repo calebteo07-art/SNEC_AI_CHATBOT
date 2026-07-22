@@ -2,19 +2,19 @@
 
 import dynamic from "next/dynamic";
 
-const AnalyticsGuard = dynamic(
-  () => import("@/screens/AnalyticsGuard").then((m) => m.AnalyticsGuard),
+const AdminGuard = dynamic(
+  () => import("@/screens/AdminGuard").then((m) => m.AdminGuard),
   { ssr: false },
 );
-const Analytics = dynamic(
-  () => import("@/aurora/screens/Analytics").then((m) => m.Analytics),
+const Admin = dynamic(
+  () => import("@/aurora/screens/Admin").then((m) => m.Admin),
   { ssr: false },
 );
 
 export default function Page() {
   return (
-    <AnalyticsGuard>
-      <Analytics />
-    </AnalyticsGuard>
+    <AdminGuard>
+      <Admin />
+    </AdminGuard>
   );
 }

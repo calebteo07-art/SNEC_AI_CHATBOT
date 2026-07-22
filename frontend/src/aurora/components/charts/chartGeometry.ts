@@ -1,4 +1,4 @@
-/* Pure, dependency-free geometry helpers for the dark SVG analytics charts. No
+/* Pure, dependency-free geometry helpers for the dark SVG dashboard charts. No
    React/DOM imports so the Node harness can type-strip + unit-test them. */
 
 /** Round a max up to a readable axis ceiling (1 / 2 / 2.5 / 5 × 10ⁿ) so gridlines
