@@ -1,6 +1,7 @@
 """Case simulation endpoints."""
 import asyncio
 import json
+import os
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -27,6 +28,12 @@ from tools.cases.station_score import compute_station_score
 from tools.cases.observe_steps import observe
 from tools.cases.action_model_answer import grade_action
 from tools.kb.search import get_checklist_by_name
+
+# Bound the best-effort coaching call so a slow/hung Gemini response can't keep the
+# student waiting after the station is already graded — the deterministic fallback
+# (_fallback_coaching) fills in on timeout. The GRADE call is intentionally NOT bounded
+# here: it is the assessment itself and carries its own fallback.
+_COACH_TIMEOUT_S = float(os.getenv("OSCE_COACH_TIMEOUT_S", "30"))
 
 # The action panel grades the typed technique against the case's crafted model answer
 # in REAL TIME and deterministically (grade_action) — never a hardcoded "good job"
@@ -905,7 +912,8 @@ async def _persist_submit(
 
 
 @router.post("/api/cases/{case_id}/submit", response_model=CaseSubmitResponse)
-async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: BackgroundTasks, current_user: CurrentUser = Depends(get_current_user)):
+@limiter.limit("10/minute")
+async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, background_tasks: BackgroundTasks, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
     case = _case_cache.get(case_id)
     if case is None:
@@ -1065,7 +1073,7 @@ async def case_submit(case_id: str, body: CaseSubmitRequest, background_tasks: B
     # ── Coaching (best-effort): parse the structured JSON; never 500 the request.
     coaching = CoachingBlock()
     try:
-        raw_coach = (await coaching_task or "").strip()
+        raw_coach = (await asyncio.wait_for(coaching_task, _COACH_TIMEOUT_S) or "").strip()
         if raw_coach.startswith("```"):
             raw_coach = raw_coach.split("```")[1]
             if raw_coach.startswith("json"):
