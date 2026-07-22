@@ -46,6 +46,26 @@ async def get_or_create_student(name: str, email: str) -> tuple[str, str]:
     return student_id, name
 
 
+async def seed_student_name(email: str, full_name: str) -> None:
+    """Persist an admin-entered display name to the identity of record (student_consent)
+    at account-creation time, so it is authoritative immediately — before first login, and
+    even for staff, who have no approved_students row to seed a name from. Updates the
+    person's existing consent row (matched by email) or creates one keyed by a fresh id;
+    that row binds to the account at first login, which also matches by email (PDPA consent
+    is still recorded then). A blank name is a no-op — never clobber a stored name with
+    nothing. Caller passes an already-normalised (lower-cased, stripped) email."""
+    name = (full_name or "").strip()
+    if not name:
+        return
+    existing = await db.get_consent_by_email(email)
+    if existing:
+        await db.update_consent(existing["student_id"], student_name=name)
+    else:
+        await db.upsert_consent(str(uuid.uuid4()), student_name=name, email=email)
+    log("student_name_seeded", student_id=(existing or {}).get("student_id", ""),
+        feature="identity", detail="admin-entered name persisted to consent")
+
+
 async def sync_roster_name(student_id: str, stored_name: str, roster_name: str) -> str:
     """Reconcile the stored identity with the admin-entered roster name; return the
     name to use.

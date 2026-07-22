@@ -13,6 +13,7 @@ from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
 from tools.shared.gemini_client import MOCK_MODE, MODEL, ask
+from tools.shared.identity import seed_student_name
 from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 
 router = APIRouter()
@@ -78,6 +79,11 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
             added_by=admin_email,
             added_at=datetime.now(timezone.utc).isoformat(),
         )
+    # Persist the typed name to the identity of record (student_consent) so it is
+    # authoritative immediately — for staff (supervisors has no name column) and for
+    # students before their first login. Without this the name only reaches the welcome
+    # email and the person renders as "Student" on the leaderboard. Binds by email at login.
+    await seed_student_name(email, body.full_name)
     plain_pw = generate_password()
     pw_hash = await asyncio.to_thread(hash_password, plain_pw)
     try:
@@ -471,6 +477,7 @@ async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUs
             added_by=admin_email,
             added_at=datetime.now(timezone.utc).isoformat(),
         )
+        await seed_student_name(email, full_name)  # name authoritative before first login
         try:
             await db.upsert_auth(email, pw_hash, must_change=True)
         except Exception:
