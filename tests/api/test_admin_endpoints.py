@@ -403,3 +403,49 @@ def test_admin_promote_invalid_role():
         cookies=_admin_headers(),
     )
     assert r.status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# Removed students must vanish from every read surface (active-member filter)
+# ---------------------------------------------------------------------------
+
+def test_admin_activity_excludes_removed_student():
+    """A removed student's activity must not appear in the feed. The feed is filtered
+    to active members (active students + staff); a student no longer in
+    approved_students is dropped."""
+    sessions = [
+        {"student_id": "act1", "topic": "Chat", "created_at": "2026-07-20", "token_count": 10},
+        {"student_id": "rem1", "topic": "Chat", "created_at": "2026-07-19", "token_count": 5},
+    ]
+    consent = [
+        {"student_id": "act1", "student_name": "Active Ann"},
+        {"student_id": "rem1", "student_name": "Removed Rex"},
+    ]
+    active = [{"student_id": "act1", "role": "OA"}]  # rem1 is not an active member
+    with patch("tools.shared.db.get_all_sessions", new=AsyncMock(return_value=sessions)), \
+         patch("tools.shared.db.get_all_case_progress", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)), \
+         patch("tools.shared.db.get_active_leaderboard_profiles", new=AsyncMock(return_value=active)):
+        r = client.get("/api/admin/activity", cookies=_admin_headers())
+    assert r.status_code == 200
+    sids = {item["student_id"] for item in r.json()["feed"]}
+    assert "act1" in sids
+    assert "rem1" not in sids
+
+
+def test_admin_token_summary_excludes_removed_student():
+    """Token totals must exclude a removed student — their tokens drop out of the
+    grand total and the per-student breakdown."""
+    sessions = [
+        {"student_id": "act1", "token_count": 100},
+        {"student_id": "rem1", "token_count": 50},
+    ]
+    active = [{"student_id": "act1", "role": "OA"}]  # rem1 is not an active member
+    with patch("tools.shared.db.get_all_sessions", new=AsyncMock(return_value=sessions)), \
+         patch("tools.shared.db.get_active_leaderboard_profiles", new=AsyncMock(return_value=active)):
+        r = client.get("/api/admin/token-summary", cookies=_admin_headers())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total_tokens"] == 100
+    by_student = {row["student_id"]: row["tokens"] for row in body["by_student"]}
+    assert by_student == {"act1": 100}

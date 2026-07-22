@@ -121,6 +121,15 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     full_name = await sync_roster_name(student_id, stored_name, roster_name) or email
     is_new = not await has_consented(student_id)
 
+    # Link the identity back to the approved row on first login so the admin roster's
+    # Active/Pending badge flips to Active now — not only via /api/onboard. A student who
+    # logs in but never onboards would otherwise show "Pending" forever.
+    if approved_row is not None and not approved_row.get("student_id"):
+        try:
+            await db.update_approved(email, student_id=student_id)
+        except Exception:
+            pass
+
     # Settle the role. SUPER_ADMIN_EMAIL outranks an approved_students row: adding the
     # super-admin's own address to the roster — the natural way to give the account a
     # name — used to demote them to a student, and the promotion pass below cannot undo

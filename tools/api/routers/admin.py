@@ -165,12 +165,17 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
         sessions = await db.get_all_sessions(limit=50)
         cases = await db.get_all_case_progress()
         consent = await db.get_all_consent()
+        # Active members only (active students + staff) — a removed student's sessions
+        # and case attempts must not surface in the feed.
+        active_ids = {str(p.get("student_id")) for p in await db.get_active_leaderboard_profiles()}
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     name_map = {r["student_id"]: r.get("student_name", str(r["student_id"])[:8]) for r in consent}
     feed = []
     for s in sessions[:50]:
         sid = str(s.get("student_id", ""))
+        if sid not in active_ids:
+            continue
         feed.append({
             "type": "session",
             "student_id": sid,
@@ -181,6 +186,8 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
         })
     for c in cases[:50]:
         sid = str(c.get("student_id", ""))
+        if sid not in active_ids:
+            continue
         passed = bool(c.get("passed", False))
         feed.append({
             "type": "case",
@@ -406,12 +413,17 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 async def admin_token_summary(current_user: CurrentUser = Depends(require_staff)):
     try:
         all_sessions = await db.get_all_sessions()
+        # Active members only — a removed student's tokens must drop out of the
+        # grand total and the per-student breakdown.
+        active_ids = {str(p.get("student_id")) for p in await db.get_active_leaderboard_profiles()}
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
     total = 0
     by_student: dict[str, int] = {}
     for s in all_sessions:
         sid = s.get("student_id", "")
+        if str(sid) not in active_ids:
+            continue
         tc = int(s.get("token_count", 0) or 0)
         total += tc
         by_student[sid] = by_student.get(sid, 0) + tc
