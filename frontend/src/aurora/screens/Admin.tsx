@@ -1,20 +1,20 @@
 "use client";
-/* Analytics — the dark, PowerBI-style staff dashboard (trainer + admin). Renders
+/* Admin — the dark, PowerBI-style staff dashboard (trainer + admin). Renders
    inside the light student shell (rail stays light) but self-themes dark via the
-   scoped .aurora-analytics wrapper — the .aurora-chat pattern. Cohort band +
+   scoped .aurora-admin wrapper — the .aurora-chat pattern. Cohort band +
    roster/drill-down for both roles; the provisioning block only for admins (also
-   backend-enforced by require_admin). "Real-time" = the useAnalytics hooks
+   backend-enforced by require_admin). "Real-time" = the useAdmin hooks
    refetch on focus + poll ~30s; Refresh forces an immediate refetch of the board. */
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/screens/AuthContext";
-import { AnalyticsCohort } from "@/aurora/screens/AnalyticsCohort";
-import { AnalyticsRoster } from "@/aurora/screens/AnalyticsRoster";
-import { AnalyticsProvisioning } from "@/aurora/screens/AnalyticsProvisioning";
+import { AdminCohort } from "@/aurora/screens/AdminCohort";
+import { AdminRoster } from "@/aurora/screens/AdminRoster";
+import { AdminProvisioning } from "@/aurora/screens/AdminProvisioning";
 
 type Tab = "cohort" | "roster" | "accounts";
 
-export function Analytics() {
+export function Admin() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const isAdmin = user?.role === "admin";
@@ -23,19 +23,19 @@ export function Analytics() {
 
   const refresh = async () => {
     setRefreshing(true);
-    await qc.invalidateQueries({ queryKey: ["analytics"] });
+    await qc.invalidateQueries({ queryKey: ["admin"] });
     setTimeout(() => setRefreshing(false), 600);
   };
 
   return (
-    <main className="aurora-analytics">
-      <div className="aurora-analytics-head">
+    <main className="aurora-admin">
+      <div className="aurora-admin-head">
         <div className="console-section-head">
           <span className="console-tick" data-hue="blue" />
-          <h1 className="aurora-h1">Analytics</h1>
+          <h1 className="aurora-h1">Admin</h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <div className="console-segment" role="tablist" aria-label="Analytics view">
+          <div className="console-segment" role="tablist" aria-label="Admin view">
             <button type="button" role="tab" aria-selected={tab === "cohort"} data-active={tab === "cohort"} onClick={() => setTab("cohort")}>Cohort</button>
             <button type="button" role="tab" aria-selected={tab === "roster"} data-active={tab === "roster"} onClick={() => setTab("roster")}>Students</button>
             {isAdmin && <button type="button" role="tab" aria-selected={tab === "accounts"} data-active={tab === "accounts"} onClick={() => setTab("accounts")}>Accounts</button>}
@@ -48,12 +48,12 @@ export function Analytics() {
       </div>
 
       <p className="aurora-unavail" style={{ marginBottom: 18 }}>
-        Live cohort and per-student analytics. Data refreshes automatically on focus and every 30 seconds. Switch the content pool (OA · PSA / OT) from the home toggle to view a discipline’s cohort.
+        Live cohort and per-student insights. Data refreshes automatically on focus and every 30 seconds. Switch the content pool (OA · PSA / OT) from the home toggle to view a discipline’s cohort.
       </p>
 
-      {tab === "cohort" && <AnalyticsCohort />}
-      {tab === "roster" && <AnalyticsRoster />}
-      {tab === "accounts" && isAdmin && <AnalyticsProvisioning />}
+      {tab === "cohort" && <AdminCohort />}
+      {tab === "roster" && <AdminRoster />}
+      {tab === "accounts" && isAdmin && <AdminProvisioning />}
     </main>
   );
 }

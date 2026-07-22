@@ -1,8 +1,8 @@
-/* Pure unit test for the per-student analytics report export. Run with Node's type
+/* Pure unit test for the per-student report export. Run with Node's type
    stripping (studentReportExport.ts is dependency-free, mirrors session_export_logic.mjs):
      node --experimental-strip-types frontend/tests/student-report.test.mjs
 
-   buildStudentReportHtml turns already-loaded per-student analytics data into ONE
+   buildStudentReportHtml turns already-loaded per-student data into ONE
    self-contained, print-friendly, fully HTML-escaped document. */
 import assert from "node:assert";
 import { buildStudentReportHtml } from "../src/aurora/lib/studentReportExport.ts";

@@ -58,7 +58,7 @@ check(await page.locator(".tour-head .eyecon-wrap").count() === 1, "Eyecon narra
 check(((await page.locator(".tour-title").first().textContent()) ?? "").includes("Welcome"), "welcome copy is shown");
 check((await page.locator('[data-testid="tour-next"]').textContent()) === "Next →", "advance CTA reads 'Next →' (not the finale label)");
 
-// 2) Walk the whole student walkthrough (no analytics stop for a student).
+// 2) Walk the whole student walkthrough (no admin stop for a student).
 const steps = ["welcome", "modes", "streak", "badges", "account", "tutor", "cases", "flashcards", "leaderboard", "finish"];
 const routeOf = { tutor: "/chat", cases: "/cases", flashcards: "/flashcards", leaderboard: "/leaderboard", finish: "/homepage" };
 for (let i = 1; i < steps.length; i++) {

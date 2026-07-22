@@ -1,8 +1,8 @@
-/* Pure unit test for the analytics chart geometry (dependency-free, Node type-strip,
+/* Pure unit test for the chart geometry (dependency-free, Node type-strip,
    mirrors session_export_logic.mjs):
-     node --experimental-strip-types frontend/tests/analytics_charts_logic.mjs */
+     node --experimental-strip-types frontend/tests/charts_logic.mjs */
 import assert from "node:assert";
-import { niceCeil, points, linePath, areaPath, polar, arcPath } from "../src/aurora/components/analytics/chartGeometry.ts";
+import { niceCeil, points, linePath, areaPath, polar, arcPath } from "../src/aurora/components/charts/chartGeometry.ts";
 
 // niceCeil rounds up to a readable axis ceiling and floors at `min`.
 assert.strictEqual(niceCeil(0), 1);
@@ -35,4 +35,4 @@ assert.ok(Math.abs(tx - 50) < 1e-6 && Math.abs(ty - 40) < 1e-6, "0deg is straigh
 assert.ok(arcPath(50, 50, 20, 0, 90).includes("A20 20 0 0 1"), "quarter arc: small-arc, clockwise");
 assert.ok(arcPath(50, 50, 20, 0, 270).includes("A20 20 0 1 1"), "3/4 arc sets the large-arc flag");
 
-console.log("analytics_charts_logic: all assertions passed");
+console.log("charts_logic: all assertions passed");

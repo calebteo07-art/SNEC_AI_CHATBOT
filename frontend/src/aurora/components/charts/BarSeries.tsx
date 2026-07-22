@@ -2,7 +2,7 @@
 /* BarSeries — a dependency-free dark horizontal bar list. Each row: a label, a
    track, and one or more stacked segments (fractions of `max`, default 1). One
    segment reads as a plain bar; several stack left-to-right. Reuses the shared
-   .aurora-bar-* track styling (dark via the .aurora-analytics scope). */
+   .aurora-bar-* track styling (dark via the .aurora-admin scope). */
 type Tone = "blue" | "purple" | "green" | "rose";
 
 export interface BarRow {

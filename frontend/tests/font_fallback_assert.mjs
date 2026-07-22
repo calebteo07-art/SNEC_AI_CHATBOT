@@ -37,7 +37,7 @@ const b = await chromium.launch();
 const ROUTES = [
   ["/homepage", student], ["/chat", student], ["/cases", student],
   ["/cases/C001", student], ["/flashcards", student], ["/leaderboard", student],
-  ["/analytics", admin],
+  ["/admin", admin],
 ];
 
 for (const [path, who] of ROUTES) {

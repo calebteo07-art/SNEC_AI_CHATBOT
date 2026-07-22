@@ -1,15 +1,15 @@
 "use client";
-/* Analytics — cohort band. The top-of-page situational picture: KPI tiles, the
+/* Admin — cohort band. The top-of-page situational picture: KPI tiles, the
    AI cohort insight, an activity trend, weak-topic + cohort-benchmark bars, a
    topic-mastery heatmap, and the Tier-2 OSCE panels (safety-failure rate +
    most-missed steps) which light up once the OSCE-grade migration is applied. */
 import { StatCard } from "@/aurora/components/StatCard";
 import { Heatmap } from "@/aurora/components/Heatmap";
-import { TrendChart } from "@/aurora/components/analytics/TrendChart";
-import { DonutGauge } from "@/aurora/components/analytics/DonutGauge";
-import { BarSeries, type BarRow } from "@/aurora/components/analytics/BarSeries";
+import { TrendChart } from "@/aurora/components/charts/TrendChart";
+import { DonutGauge } from "@/aurora/components/charts/DonutGauge";
+import { BarSeries, type BarRow } from "@/aurora/components/charts/BarSeries";
 import { fmtTokens } from "@/screens/adminShared";
-import { useCohort, useAtRisk, useBenchmarks, useActivity, useTokenSummary, useCohortInsight } from "@/hooks/useAnalytics";
+import { useCohort, useAtRisk, useBenchmarks, useActivity, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
 
 /* Bucket activity-feed timestamps into a per-day count over the last `days`. */
 function dailyCounts(timestamps: string[], days = 21): number[] {
@@ -30,7 +30,7 @@ function parseCaseScore(detail: string): number | null {
   return m ? Number(m[1]) : null;
 }
 
-export function AnalyticsCohort() {
+export function AdminCohort() {
   const cohort = useCohort();
   const atRisk = useAtRisk();
   const benchmarks = useBenchmarks();
@@ -92,7 +92,7 @@ export function AnalyticsCohort() {
 
       {insight.data && <div className="aurora-insight"><p>“{insight.data}”</p></div>}
 
-      <div className="aurora-analytics-grid">
+      <div className="aurora-admin-grid">
         <section className="aurora-panel">
           <p className="aurora-panel-head">Activity · last 3 weeks</p>
           <TrendChart values={trend} tone="blue" />

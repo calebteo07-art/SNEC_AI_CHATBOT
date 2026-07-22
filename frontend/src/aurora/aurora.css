@@ -415,7 +415,7 @@ html[data-motion="reduce"] .aurora-rail-handle::after { animation: none; }
 /* ─────────────── The account sheet (phones) ───────────────
    `.aurora-rail-foot { display: none }` at <=860px hid the SNEC co-brand, the identity
    chip AND Sign out. The only other logout is EyeconMenu, rendered solely by
-   Dashboard.tsx — so on /chat, /cases, /flashcards, /leaderboard and /analytics a phone
+   Dashboard.tsx — so on /chat, /cases, /flashcards, /leaderboard and /admin a phone
    user had NO way to end their session. On a shared institutional device that is a real
    problem, not a cosmetic one.
 
@@ -1786,15 +1786,15 @@ html[data-motion="reduce"] .aurora-composer-send::after { animation: none !impor
   .aurora-shell-immersive .aurora-main-scroll { padding-bottom: 0; }
 }
 
-/* ─── Analytics (dark PowerBI-style surface inside the light shell) ────────────
-   A self-themed dark scope like .aurora-chat — a coherent dark analytics surface
+/* ─── Admin (dark PowerBI-style surface inside the light shell) ────────────
+   A self-themed dark scope like .aurora-chat — a coherent dark admin surface
    that keeps the light rail (NOT added to the immersive list). Phase 3 ships the
    base scope + routed stub; Phase 5 fills the tiles, charts, roster + drill-down. */
-.aurora-analytics { min-height: 100%; padding: clamp(20px, 3vw, 40px); background: #0e1117; color: #e6e8ee; }
-.aurora-analytics .aurora-eyebrow { color: #7b8494; }
-.aurora-analytics .aurora-h1 { color: #f3f5f9; }
-.aurora-analytics .aa-head { margin-bottom: 18px; }
-.aurora-analytics .aa-placeholder { color: #98a2b3; font-size: 14px; }
+.aurora-admin { min-height: 100%; padding: clamp(20px, 3vw, 40px); background: #0e1117; color: #e6e8ee; }
+.aurora-admin .aurora-eyebrow { color: #7b8494; }
+.aurora-admin .aurora-h1 { color: #f3f5f9; }
+.aurora-admin .aa-head { margin-bottom: 18px; }
+.aurora-admin .aa-placeholder { color: #98a2b3; font-size: 14px; }
 
 /* ─── Tutor greeting landing (ricoe A2) ───────────────────────────────────────
    The empty state of /chat: a hello + prompt + recent sessions, which cross-fades
@@ -2261,7 +2261,7 @@ html[data-motion="reduce"] .aurora-checkin-meter-fill::after { animation: none; 
   .aurora-acct-remove { width: 40px; height: 40px; }
   /* Clickable feed name → comfortable tap height. */
   .aurora-feed-name { display: inline-flex; align-items: center; min-height: 44px; }
-  /* Analytics view switcher + Refresh — measured 75x34 and 92x36 at every phone
+  /* Admin view switcher + Refresh — measured 75x34 and 92x36 at every phone
      viewport. Both are pills, so growing the box keeps the shape and the type. */
   .console-segment button, .aurora-refresh { min-height: 44px; }
 }
@@ -3488,14 +3488,14 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 }
 .rw-cta:active { transform: translateY(2px); box-shadow: none; }
 
-/* ═══════════════ Analytics — dark PowerBI-style surface ═══════════════
+/* ═══════════════ Admin — dark PowerBI-style surface ═══════════════
    Rendered INSIDE the light student shell (the .aurora-chat self-theming
    pattern). Re-declares the retired .console-dark slate tokens on the scope so
    trainers/admins read charts + tables on dark while the rail stays light. The
    global token-driven .console-* classes (segment/card-accent/disclosure/
    focus/split/risk-dot) inherit these tokens automatically. Students never
    mount this scope. */
-.aurora-analytics {
+.aurora-admin {
   --paper:   #14161F;
   --canvas:  #0E1016;
   --surface: #181B26;
@@ -3516,35 +3516,35 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
   padding: clamp(16px, 2.5vw, 30px);
 }
 /* RouteReveal wraps every page in .aurora-page-enter (height:auto), which severs
-   .aurora-analytics's min-height:100% chain — collapsing the dark surface to content
+   .aurora-admin's min-height:100% chain — collapsing the dark surface to content
    height and leaving the light shell showing below (same failure the station route
    documents). Make the wrapper a full-height flex column for this route so the dark
    board fills the viewport and still grows to scroll with the long roster. */
-.aurora-page-enter:has(.aurora-analytics) { display: flex; flex-direction: column; min-height: 100%; }
+.aurora-page-enter:has(.aurora-admin) { display: flex; flex-direction: column; min-height: 100%; }
 /* Re-apply the light-hardcoded patches that .console-dark scoped to itself. */
-.aurora-analytics .aurora-statcard-value { color: var(--ink); }
-.aurora-analytics .aurora-badge { background: rgba(255,255,255,0.07); }
-.aurora-analytics .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
-.aurora-analytics .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
-.aurora-analytics .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
-.aurora-analytics .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
-.aurora-analytics .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
-.aurora-analytics .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
-.aurora-analytics .aurora-bar-track, .aurora-analytics .aurora-progress { background: rgba(255,255,255,0.09); }
-.aurora-analytics .aurora-trow.is-clickable:hover { background: rgba(255,255,255,0.04); }
-.aurora-analytics .aurora-select { color-scheme: dark; }
-.aurora-analytics .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
-.aurora-analytics .aurora-insight { background: rgba(182,139,230,0.12); border-left-color: var(--g-purple); }
-.aurora-analytics .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
-.aurora-analytics .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(182,139,230,.22), rgba(240,122,134,.10), rgba(182,139,230,.22)); border-color: rgba(182,139,230,.32); }
-.aurora-analytics .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
-.aurora-analytics .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
-.aurora-analytics .aurora-modal-backdrop { background: rgba(0,0,0,0.55); }
-.aurora-analytics .aurora-modal-close:hover { background: rgba(255,255,255,0.06); }
+.aurora-admin .aurora-statcard-value { color: var(--ink); }
+.aurora-admin .aurora-badge { background: rgba(255,255,255,0.07); }
+.aurora-admin .aurora-badge[data-tone="blue"]   { color: var(--on-blue-2);   background: rgba(91,157,255,.12);  border-color: rgba(91,157,255,.26); }
+.aurora-admin .aurora-badge[data-tone="purple"] { color: var(--on-purple-2); background: rgba(182,139,230,.12); border-color: rgba(182,139,230,.26); }
+.aurora-admin .aurora-badge[data-tone="rose"]   { color: var(--on-rose);     background: rgba(240,122,134,.12); border-color: rgba(240,122,134,.26); }
+.aurora-admin .aurora-badge[data-tone="green"]  { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.28); }
+.aurora-admin .aurora-badge[data-tone="amber"]  { color: #F0C36B;            background: rgba(240,195,107,.12); border-color: rgba(240,195,107,.30); }
+.aurora-admin .aurora-badge[data-tone="ok"]     { color: var(--on-green-2);  background: rgba(67,199,107,.13);  border-color: rgba(67,199,107,.26); }
+.aurora-admin .aurora-bar-track, .aurora-admin .aurora-progress { background: rgba(255,255,255,0.09); }
+.aurora-admin .aurora-trow.is-clickable:hover { background: rgba(255,255,255,0.04); }
+.aurora-admin .aurora-select { color-scheme: dark; }
+.aurora-admin .aurora-btn { background: linear-gradient(100deg, var(--g-blue), var(--g-purple)); color: #0B0D13; font-weight: 700; }
+.aurora-admin .aurora-insight { background: rgba(182,139,230,0.12); border-left-color: var(--g-purple); }
+.aurora-admin .aurora-flow[data-variant="tint-blue"]   { background-image: linear-gradient(100deg, rgba(91,157,255,.20), rgba(182,139,230,.10), rgba(91,157,255,.20)); border-color: rgba(91,157,255,.32); }
+.aurora-admin .aurora-flow[data-variant="tint-purple"] { background-image: linear-gradient(100deg, rgba(182,139,230,.22), rgba(240,122,134,.10), rgba(182,139,230,.22)); border-color: rgba(182,139,230,.32); }
+.aurora-admin .aurora-flow[data-variant="tint-rose"]   { background-image: linear-gradient(100deg, rgba(240,122,134,.20), rgba(182,139,230,.10), rgba(240,122,134,.20)); border-color: rgba(240,122,134,.32); }
+.aurora-admin .aurora-flow[data-variant="tint-green"]  { background-image: linear-gradient(100deg, rgba(67,199,107,.20), rgba(91,157,255,.10), rgba(67,199,107,.20)); border-color: rgba(67,199,107,.32); }
+.aurora-admin .aurora-modal-backdrop { background: rgba(0,0,0,0.55); }
+.aurora-admin .aurora-modal-close:hover { background: rgba(255,255,255,0.06); }
 
-/* Analytics-specific chrome */
-.aurora-analytics-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
-.aurora-analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+/* Admin-specific chrome */
+.aurora-admin-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.aurora-admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .aurora-panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius-lg); padding: 16px 18px; }
 .aurora-panel-head { font-family: var(--font-mono); font-size: 12.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin: 0 0 12px; }
 .aurora-refresh { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink-2); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s; }
@@ -3555,4 +3555,4 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-gauge { display: grid; place-items: center; }
 .aurora-gauge-num { fill: var(--ink); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
-.aurora-analytics .aurora-bar-seg { height: 100%; display: block; }
+.aurora-admin .aurora-bar-seg { height: 100%; display: block; }

@@ -1,13 +1,14 @@
 "use client";
-/* Analytics — provisioning (ADMIN ONLY). Add one account (role: OA/OT/PSA/Trainer/
+/* Admin — provisioning (ADMIN ONLY). Add one account (role: OA/OT/PSA/Trainer/
    Admin), bulk-import a student CSV, remove an approved account, or promote an
    existing email to Trainer/Admin. Same endpoints as the retired AdminAccounts;
    staff roles (Trainer/Admin) are handled by the widened POST /api/admin/approved
    + /api/admin/promote. The parent gates render on role === "admin"; the backend
    also enforces require_admin on every write here. */
-import { useState, useRef, useEffect, type FormEvent, type CSSProperties } from "react";
-import { useAuth } from "@/screens/AuthContext";
+import { useState, useRef, type FormEvent, type CSSProperties } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { type ApprovedStudent, type Credential, getInitials } from "@/screens/adminShared";
+import { useApproved } from "@/hooks/useAdmin";
 import { Icon } from "@/aurora/icons";
 
 function roleTone(role: string): "blue" | "purple" | "rose" | undefined {
@@ -17,12 +18,9 @@ function roleTone(role: string): "blue" | "purple" | "rose" | undefined {
   return undefined;
 }
 
-export function AnalyticsProvisioning() {
-  const { user } = useAuth();
-  const adminId = user?.studentId ?? "";
-
-  const [approved, setApproved] = useState<ApprovedStudent[]>([]);
-  const [approvedLoading, setApprovedLoading] = useState(true);
+export function AdminProvisioning() {
+  const qc = useQueryClient();
+  const { data: approved = [], isLoading: approvedLoading } = useApproved();
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState("");
@@ -45,14 +43,6 @@ export function AnalyticsProvisioning() {
   const [accountSearch, setAccountSearch] = useState("");
   const [provMode, setProvMode] = useState<"one" | "csv">("one");
 
-  useEffect(() => {
-    fetch("/api/admin/approved", { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => setApproved(d.students ?? []))
-      .catch(() => {})
-      .finally(() => setApprovedLoading(false));
-  }, []);
-
   const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
     setAddError("");
@@ -71,8 +61,10 @@ export function AnalyticsProvisioning() {
         emailSent: !!data.email_sent,
         emailError: data.email_error ?? "",
       });
-      setApproved((prev) => [...prev, { email: newEmail.trim().toLowerCase(), full_name: newName.trim(), role: newRole, added_by: adminId, added_at: "", student_id: "" }]);
       setNewEmail(""); setNewName(""); setNewRole("");
+      // Refetch the account list + roster/cohort/staff so the new account shows at once
+      // (and a staff role lands in the Staff section, not the students list).
+      qc.invalidateQueries({ queryKey: ["admin"] });
     } catch { setAddError("Network error."); }
     setAdding(false);
   };
@@ -82,7 +74,10 @@ export function AnalyticsProvisioning() {
     try {
       const res = await fetch(`/api/admin/approved/${encodeURIComponent(email)}`, { method: "DELETE", credentials: "include" });
       if (!res.ok) { setRemoveError("Failed to remove."); setRemoving(null); return; }
-      setApproved((prev) => prev.filter((s) => s.email !== email));
+      // Instant disappearance (optimistic), then reconcile the whole board with the
+      // server so the removed student is gone from roster/cohort/staff too.
+      qc.setQueryData<ApprovedStudent[]>(["admin", "approved"], (old) => (old ?? []).filter((s) => s.email !== email));
+      qc.invalidateQueries({ queryKey: ["admin"] });
     } catch { setRemoveError("Network error."); }
     setRemoving(null);
   };
@@ -96,7 +91,7 @@ export function AnalyticsProvisioning() {
         body: JSON.stringify({ email: promoteEmail.trim().toLowerCase(), new_role: promoteRole }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); setPromoteMsg((d as { detail?: string }).detail ?? "Failed."); }
-      else { setPromoteMsg("Done."); setPromoteEmail(""); }
+      else { setPromoteMsg("Done."); setPromoteEmail(""); qc.invalidateQueries({ queryKey: ["admin"] }); }
     } catch { setPromoteMsg("Network error."); }
     setPromoting(false);
   };
@@ -124,6 +119,8 @@ export function AnalyticsProvisioning() {
       setCsvErrors(data.errors ?? []);
       setCsvCredentials(data.credentials ?? []);
       setCsvFile(null); setCsvPreview(null);
+      // Imported students must show in the account list + roster without a reload.
+      qc.invalidateQueries({ queryKey: ["admin"] });
     } catch {
       setCsvImportSummary({ imported: 0, skipped: 0 });
       setCsvErrors([{ row: 0, reason: "Network error — import failed." }]);
@@ -174,7 +171,7 @@ export function AnalyticsProvisioning() {
               <button type="submit" className="aurora-btn" disabled={adding}>{adding ? "Adding…" : "Add account"}</button>
             </form>
             <p className="aurora-unavail" style={{ marginTop: 8 }}>
-              Student roles (OA · OT · PSA) get a learner account. Trainer / Admin get staff access — Trainer sees Analytics; Admin also provisions accounts here.
+              Student roles (OA · OT · PSA) get a learner account. Trainer / Admin get staff access — Trainer sees the dashboard; Admin also provisions accounts here.
             </p>
             {addedCredential && (
               <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -268,7 +265,7 @@ export function AnalyticsProvisioning() {
         </summary>
         <div className="console-disclosure-body">
           <p className="aurora-unavail" style={{ margin: "8px 0 12px" }}>
-            Grant an existing account Trainer or Admin access. Trainer sees Analytics; Admin also provisions accounts.
+            Grant an existing account Trainer or Admin access. Trainer sees the dashboard; Admin also provisions accounts.
           </p>
           <form onSubmit={handlePromote} style={{ display: "flex", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
             <div style={{ flex: 1, minWidth: 200 }}>

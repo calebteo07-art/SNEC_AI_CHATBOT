@@ -1,5 +1,5 @@
 // frontend/src/aurora/lib/studentReportExport.ts
-/* Pure builder for the per-student analytics report (the Analytics drill-down's
+/* Pure builder for the per-student report (the Admin drill-down's
    "Download report" action). Clones sessionExport.ts: turns already-loaded per-student
    data into ONE self-contained, print-friendly (→ "Save as PDF"), fully HTML-escaped
    document — vitals, per-topic retention + flashcard accuracy vs cohort, OSCE results,

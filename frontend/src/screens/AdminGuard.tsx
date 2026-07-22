@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate } from "@/lib/nav";
 import { useAuth } from "./AuthContext";
 
-export function AnalyticsGuard({ children }: { children: React.ReactNode }) {
+export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, loading } = useAuth();
 
   if (loading) {

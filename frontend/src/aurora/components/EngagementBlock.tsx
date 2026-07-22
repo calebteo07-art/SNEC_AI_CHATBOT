@@ -2,7 +2,7 @@
 /* EngagementBlock — a student's activity-at-a-glance for staff drill-downs: a
    weekly recap line + a 5-week calendar heatmap keyed to REAL dates and weekday
    columns (Sun→Sat), built purely from session timestamps. Lives in the dark
-   analytics student drill-down. Lifted from the retired student Progress page,
+   admin student drill-down. Lifted from the retired student Progress page,
    then rebuilt as a proper dated calendar so the grid reads as a calendar, not
    scattered blocks. */
 import type { CSSProperties } from "react";

@@ -2,7 +2,7 @@
 
    `.aurora-rail-foot { display: none }` at <=860px hid the profile AND the sign-out, and
    the only other logout (EyeconMenu) is rendered solely by Dashboard.tsx — so a trainee on
-   /cases, /leaderboard or /analytics had NO way to end their session. On a shared
+   /cases, /leaderboard or /admin had NO way to end their session. On a shared
    institutional device that is a real problem, not a cosmetic one.
 
    /chat and /flashcards are deliberately EXCLUDED: they are immersive and rail-less on a
@@ -144,7 +144,7 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
 {
   const ctx = await seededContext(b, base, admin, { width: 390, height: 844 }, { hasTouch: true, isMobile: true });
   const p = await ctx.newPage();
-  await p.goto(base + "/analytics", { waitUntil: "domcontentloaded" });
+  await p.goto(base + "/admin", { waitUntil: "domcontentloaded" });
   await p.waitForTimeout(1600);
   const r = await p.evaluate(() => {
     const btn = document.querySelector(".aurora-rail-account");
@@ -152,8 +152,8 @@ for (const who of [{ u: student, n: "student" }, { u: admin, n: "admin" }]) {
     const b = btn.getBoundingClientRect();
     return { w: b.width, h: b.height };
   });
-  if (r.missing || r.w < 44 || r.h < 44) die(`admin /analytics: account button ${r.missing ? "absent" : `${r.w}x${r.h}`}`);
-  ok(`admin /analytics: account button ${r.w}x${r.h}`);
+  if (r.missing || r.w < 44 || r.h < 44) die(`admin /admin: account button ${r.missing ? "absent" : `${r.w}x${r.h}`}`);
+  ok(`admin /admin: account button ${r.w}x${r.h}`);
   await ctx.close();
 }
 
