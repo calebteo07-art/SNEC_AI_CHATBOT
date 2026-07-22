@@ -217,24 +217,21 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
         feedback = raw[:300]
     score = max(0, min(100, score))  # clamp to the 0-100 grading scale
 
-    # Persist SM-2 schedule update in background (non-critical — never blocks response)
+    # Persist the SM-2 schedule update in-request. This previously enqueued to Celery
+    # (process_review.delay) and only wrote synchronously if the enqueue RAISED — but no
+    # Celery worker is deployed, so the moment REDIS_URL is set the enqueue succeeds into
+    # an unconsumed queue and every review write is silently lost. The write is a single
+    # async Supabase upsert; do it inline. Non-critical: a failure must never break the
+    # score response the student is waiting on.
     if body.card_id:
         quality = round(score / 20)  # map 0-100 → 0-5 for SM-2
         try:
-            from tools.workers.tasks.sm2_review import process_review
-            process_review.delay(
-                body.card_id, quality,
-                body.repetitions, body.easiness, body.interval_days,
+            new_interval, new_ease, new_reps = next_review(
+                quality, body.repetitions, body.easiness, body.interval_days
             )
+            await update_card_sm2(body.card_id, new_interval, new_ease, new_reps, due_date(new_interval))
         except Exception:
-            # Celery unavailable — fall back to synchronous write
-            try:
-                new_interval, new_ease, new_reps = next_review(
-                    quality, body.repetitions, body.easiness, body.interval_days
-                )
-                await update_card_sm2(body.card_id, new_interval, new_ease, new_reps, due_date(new_interval))
-            except Exception:
-                pass
+            pass
 
     return FlashcardCheckResponse(feedback=feedback, score=score, mock_mode=MOCK_MODE)
 
