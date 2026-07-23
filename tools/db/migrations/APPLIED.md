@@ -11,4 +11,4 @@ SQL editor (see the `/db-migrate` command); this file records that it's done.
 - [x] 010_flashcard_attempts.sql — applied 2026-07-14 (per-card flashcard grading log for Analytics per-topic accuracy)
 - [x] 011_case_progress_grade.sql — applied 2026-07-14 (rich OSCE-grade columns on case_progress: score_100/safe/consult_technique/judgement_safety/missed_critical/coaching)
 - [ ] 012_weekly_leaderboard.sql — **PENDING APPLICATION** (`xp_week` + `xp_week_start` tally so the leaderboard ranks by XP earned this week and refreshes every Monday; the board falls back to lifetime-XP ranking and the tally write is a guarded no-op until applied)
-- [ ] 013_otp_attempts.sql — **PENDING APPLICATION** (`attempts` counter on `password_reset_otps` for per-email brute-force lockout; burns the code after 5 wrong guesses. The reset flow works and falls back to the per-IP throttle alone until applied — the increment is a guarded no-op and set_otp stores without the column)
+- [x] 013_otp_attempts.sql — applied 2026-07-23 (`attempts` counter on `password_reset_otps`; per-email OTP brute-force lockout, burns the code after 5 wrong guesses — now live)
