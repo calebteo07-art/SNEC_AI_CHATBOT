@@ -237,6 +237,22 @@ async def admin_demote(email: str, request: Request, current_user: CurrentUser =
     return {"ok": True}
 
 
+@router.get("/api/admin/audit")
+@limiter.limit("30/minute")
+async def admin_audit(request: Request, action: str | None = None, limit: int = 100,
+                      current_user: CurrentUser = Depends(require_admin)):
+    """Recent security/privilege audit events (audit_events, migration 014), newest first.
+    ADMIN-ONLY — this is sensitive data (actors, IPs, failed logins, privilege changes), so
+    trainers are excluded. Optional ?action= filter; ?limit= is clamped to [1, 500].
+    Degrades to an empty list (never 500) if the table is unavailable."""
+    limit = max(1, min(limit, 500))
+    try:
+        events = await db.get_recent_audit_events(limit=limit, action=action)
+    except Exception:
+        return {"events": []}
+    return {"events": events}
+
+
 def _build_student_findings(profile: dict, sessions: list[dict], cases: list[dict],
                             flashcard_acc: dict) -> list[dict]:
     """Deterministic, per-feature findings across ALL THREE learning features — real
