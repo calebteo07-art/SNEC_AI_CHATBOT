@@ -11,8 +11,9 @@ import { useAuth } from "@/screens/AuthContext";
 import { AdminCohort } from "@/aurora/screens/AdminCohort";
 import { AdminRoster } from "@/aurora/screens/AdminRoster";
 import { AdminProvisioning } from "@/aurora/screens/AdminProvisioning";
+import { AdminAudit } from "@/aurora/screens/AdminAudit";
 
-type Tab = "cohort" | "roster" | "accounts";
+type Tab = "cohort" | "roster" | "accounts" | "audit";
 
 export function Admin() {
   const { user } = useAuth();
@@ -39,6 +40,7 @@ export function Admin() {
             <button type="button" role="tab" aria-selected={tab === "cohort"} data-active={tab === "cohort"} onClick={() => setTab("cohort")}>Cohort</button>
             <button type="button" role="tab" aria-selected={tab === "roster"} data-active={tab === "roster"} onClick={() => setTab("roster")}>Students</button>
             {isAdmin && <button type="button" role="tab" aria-selected={tab === "accounts"} data-active={tab === "accounts"} onClick={() => setTab("accounts")}>Accounts</button>}
+            {isAdmin && <button type="button" role="tab" aria-selected={tab === "audit"} data-active={tab === "audit"} onClick={() => setTab("audit")}>Audit</button>}
           </div>
           <button type="button" className="aurora-refresh" onClick={refresh} disabled={refreshing}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M23 4v6h-6M1 20v-6h6" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
@@ -54,6 +56,7 @@ export function Admin() {
       {tab === "cohort" && <AdminCohort />}
       {tab === "roster" && <AdminRoster />}
       {tab === "accounts" && isAdmin && <AdminProvisioning />}
+      {tab === "audit" && isAdmin && <AdminAudit />}
     </main>
   );
 }
