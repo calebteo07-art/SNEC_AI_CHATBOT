@@ -457,3 +457,30 @@ async def test_insert_case_result_falls_back_to_base_when_columns_absent():
     assert len(calls) == 2
     assert calls[1][0][0] == {"student_id": "stu-001", "case_id": "case_x",
                               "total_score": 32, "passed": True}
+
+
+# ── audit_events (migration 014 — durable audit trail) ─────────────────────────
+
+@pytest.mark.asyncio
+async def test_insert_audit_event_writes_row():
+    """A durable audit event is inserted into audit_events with actor/action/target/ip."""
+    client = _make_client([])
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        await db.insert_audit_event(action="promote", actor="user_001",
+                                    target="coach@test.com", detail="role=trainer", ip="1.2.3.4")
+    client.table.assert_called_with("audit_events")
+    payload = client.table.return_value.insert.call_args[0][0]
+    assert payload["action"] == "promote"
+    assert payload["actor"] == "user_001"
+    assert payload["target"] == "coach@test.com"
+    assert payload["detail"] == "role=trainer"
+    assert payload["ip"] == "1.2.3.4"
+
+
+@pytest.mark.asyncio
+async def test_insert_audit_event_is_best_effort_and_never_raises():
+    """Audit is best-effort BY DESIGN: a DB failure (e.g. audit_events absent pre-migration
+    014) must be swallowed so an audit write can never break the request that triggered it."""
+    with patch("tools.shared.db._get_client",
+               new=AsyncMock(side_effect=Exception("relation audit_events does not exist"))):
+        await db.insert_audit_event(action="demote", actor="user_001")  # must NOT raise

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
-from tools.api.shared import limiter
+from tools.api.shared import limiter, _client_ip
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
@@ -55,7 +55,7 @@ async def admin_list_approved(current_user: CurrentUser = Depends(require_staff)
     return {"students": rows}
 
 @router.post("/api/admin/approved")
-async def admin_approve_student(body: ApproveStudentRequest, current_user: CurrentUser = Depends(require_admin)):
+async def admin_approve_student(body: ApproveStudentRequest, request: Request, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     if not email:
         raise HTTPException(status_code=400, detail="email is required")
@@ -108,13 +108,26 @@ async def admin_approve_student(body: ApproveStudentRequest, current_user: Curre
     except Exception as exc:
         email_error = str(exc)
 
+    # Durable audit: creating a trainer/admin is a privilege grant, distinct from
+    # whitelisting a student. Attributed to the acting admin (JWT sub), best-effort.
+    await db.insert_audit_event(
+        action="create_staff" if is_staff else "approve_student",
+        actor=current_user["sub"], target=email, detail=f"role={role}",
+        ip=_client_ip(request),
+    )
     return {"ok": True, "email_sent": email_sent, "email_error": email_error, "password": plain_pw}
 
 @router.delete("/api/admin/approved/{email}")
-async def admin_unapprove_student(email: str, current_user: CurrentUser = Depends(require_admin)):
+async def admin_unapprove_student(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     deleted = await db.delete_approved(email.lower())
     if not deleted:
         raise HTTPException(status_code=404, detail="Email not found in approved list")
+    # Durable audit: revoking access is a hard delete with no tombstone — the audit row
+    # is the only record of who removed whom (best-effort, after the 404 guard).
+    await db.insert_audit_event(
+        action="unapprove_student", actor=current_user["sub"],
+        target=email.lower(), ip=_client_ip(request),
+    )
     return {"ok": True}
 
 @router.get("/api/admin/students")
@@ -200,17 +213,27 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
     return {"feed": feed[:80]}
 
 @router.post("/api/admin/promote")
-async def admin_promote(body: PromoteRequest, current_user: CurrentUser = Depends(require_admin)):
+async def admin_promote(body: PromoteRequest, request: Request, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     new_role = body.new_role.strip().lower()
     if new_role not in ("trainer", "admin"):
         raise HTTPException(status_code=400, detail="new_role must be 'trainer' or 'admin'")
     await db.upsert_supervisor(email, role=new_role)
+    # Durable audit: privilege escalation is the #1 thing a compliance review checks.
+    await db.insert_audit_event(
+        action="promote", actor=current_user["sub"], target=email,
+        detail=f"role={new_role}", ip=_client_ip(request),
+    )
     return {"ok": True}
 
 @router.delete("/api/admin/promote/{email}")
-async def admin_demote(email: str, current_user: CurrentUser = Depends(require_admin)):
+async def admin_demote(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     await db.delete_supervisor(email.lower())
+    # Durable audit: revoking admin/trainer rights is a hard delete with no other record.
+    await db.insert_audit_event(
+        action="demote", actor=current_user["sub"],
+        target=email.lower(), ip=_client_ip(request),
+    )
     return {"ok": True}
 
 

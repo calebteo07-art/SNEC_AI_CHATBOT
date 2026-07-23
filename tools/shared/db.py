@@ -464,6 +464,39 @@ async def delete_approved(email: str) -> bool:
     return len(result.data) > 0
 
 
+# ── audit_events (migration 014 — durable audit trail) ──────────────────────────
+
+async def insert_audit_event(
+    action: str,
+    actor: str = "system",
+    target: str = "",
+    feature: str = "admin",
+    detail: str = "",
+    ip: str | None = None,
+) -> None:
+    """Append one durable audit event to audit_events (who did what to whom, when, from where).
+
+    BEST-EFFORT BY DESIGN: any failure — the table absent (pre-migration 014), the DB down,
+    creds unset — is swallowed so an audit write can NEVER break the request that triggered
+    it. This mirrors the philosophy of the legacy audit_log.py ("never crash a request
+    because of it"), but writes to a durable, queryable Supabase table instead of the
+    ephemeral, per-worker .tmp/audit_log.jsonl file."""
+    try:
+        client = await _get_client()
+        await client.table("audit_events").insert(
+            {
+                "actor": actor,
+                "action": action,
+                "target": target,
+                "feature": feature,
+                "detail": detail,
+                "ip": ip,
+            }
+        ).execute()
+    except Exception:
+        pass
+
+
 # ── student_consent ───────────────────────────────────────────────────────────
 
 async def get_consent_by_email(email: str) -> dict | None:
