@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 
-from tools.api.shared import limiter, SUPER_ADMIN_EMAIL
+from tools.api.shared import limiter, SUPER_ADMIN_EMAIL, _client_ip
 from tools.shared import db
 from tools.shared.auth import hash_password, verify_password, generate_password
 from tools.shared.gemini_client import MOCK_MODE
@@ -89,6 +89,8 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
         # Also allow super admin and promoted supervisors/admins
         sup_row = await db.get_supervisor(email)
         if not is_super_admin and not sup_row:
+            await db.insert_audit_event(action="login_denied", actor=email, feature="auth",
+                                        detail="not in approved list", ip=_client_ip(request))
             raise HTTPException(status_code=403, detail="Not in approved list. Contact your administrator.")
         approved_role = _normalise_staff_role(sup_row.get("role") if sup_row else "")
         approved_student_role = ""
@@ -104,11 +106,15 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     auth_row = await db.get_auth(email)
     stored_hash = auth_row.get("password_hash", "") if auth_row else ""
     if not stored_hash:
+        await db.insert_audit_event(action="login_denied", actor=email, feature="auth",
+                                    detail="no password set", ip=_client_ip(request))
         raise HTTPException(
             status_code=403,
             detail="No password is set for this account. Use 'Forgot password' to create one.",
         )
     if not await asyncio.to_thread(verify_password, body.password, stored_hash):
+        await db.insert_audit_event(action="login_failed", actor=email, feature="auth",
+                                    detail="wrong password", ip=_client_ip(request))
         raise HTTPException(status_code=401, detail="Incorrect password.")
     must_change = bool(auth_row.get("must_change", True))
 
@@ -149,6 +155,11 @@ async def auth_login(request: Request, body: LoginRequest, response: Response):
     token = create_access_token(student_id, final_role, approved_student_role)
     set_auth_cookie(response, token)
 
+    # Durable login baseline: who authenticated, as what role, from where. Inline async
+    # I/O interleaves on the event loop (unlike bcrypt above), so it doesn't serialise the
+    # 09:00 login stampede; best-effort so it never blocks a valid login.
+    await db.insert_audit_event(action="login_success", actor=email, feature="auth",
+                                detail=f"role={final_role}", ip=_client_ip(request))
     return LoginResponse(
         student_id=student_id,
         full_name=full_name,
@@ -192,7 +203,7 @@ async def auth_logout(response: Response):
 
 
 @router.post("/api/auth/change-password")
-async def auth_change_password(body: ChangePasswordRequest, current_user: CurrentUser = Depends(get_current_user)):
+async def auth_change_password(body: ChangePasswordRequest, request: Request, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]  # identity from JWT
     if len(body.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
@@ -213,6 +224,9 @@ async def auth_change_password(body: ChangePasswordRequest, current_user: Curren
 
     new_hash = await asyncio.to_thread(hash_password, body.new_password)
     await db.upsert_auth(email, new_hash, must_change=False)
+    # Durable audit: a password change is the classic account-takeover step — record it.
+    await db.insert_audit_event(action="password_change", actor=student_id, feature="auth",
+                                target=email, ip=_client_ip(request))
     return {"ok": True}
 
 
@@ -228,6 +242,11 @@ async def auth_request_reset(request: Request, body: RequestResetRequest):
 
     otp = "".join(str(secrets.randbelow(10)) for _ in range(6))
     await asyncio.to_thread(set_otp, email, otp)
+    # Durable audit: a reset request is a prime pre-takeover indicator. Only the known-
+    # account path reaches here (unknown emails returned above), so this never records
+    # enumeration noise.
+    await db.insert_audit_event(action="reset_requested", actor=email, feature="auth",
+                                detail="otp issued", ip=_client_ip(request))
 
     try:
         from tools.shared.gmail_sender import send_email as _send_email
@@ -253,6 +272,10 @@ async def auth_reset_password(request: Request, body: ResetPasswordRequest):
     otp = body.otp.strip()
 
     if not await asyncio.to_thread(verify_and_consume_otp, email, otp):
+        # Durable audit: wrong/expired OTP is the OTP-guessing signal (paired with the
+        # migration-013 lockout that burns the code after 5 misses).
+        await db.insert_audit_event(action="reset_failed", actor=email, feature="auth",
+                                    detail="incorrect or expired code", ip=_client_ip(request))
         raise HTTPException(status_code=400, detail="Incorrect or expired reset code.")
 
     if len(body.new_password) < 8:
@@ -260,6 +283,9 @@ async def auth_reset_password(request: Request, body: ResetPasswordRequest):
 
     new_hash = await asyncio.to_thread(hash_password, body.new_password)
     await db.upsert_auth(email, new_hash, must_change=False)
+    # Durable audit: a completed out-of-band credential reset — pin it for forensics.
+    await db.insert_audit_event(action="reset_completed", actor=email, feature="auth",
+                                ip=_client_ip(request))
     return {"ok": True}
 
 
