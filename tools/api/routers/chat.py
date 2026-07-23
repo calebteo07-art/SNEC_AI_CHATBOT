@@ -10,11 +10,12 @@ from pydantic import BaseModel, Field
 
 from tools.ai.guardrails.input_filter import filter_input
 from tools.ai.guardrails.output_validator import validate_output
-from tools.api.shared import limiter, tutor_system
+from tools.api.shared import limiter, tutor_system, _client_ip
 from tools.chatbot.log_session import log_session
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
 from tools.progress.get_progress import get_progress as _get_progress
+from tools.shared import db
 from tools.shared.audit_log import log as audit_log
 from tools.shared.gemini_client import stream_ask, MOCK_MODE, MODEL, get_or_create_context_cache
 from tools.shared.jwt_utils import get_current_user, CurrentUser
@@ -92,6 +93,11 @@ async def chat(request: Request, body: ChatRequest, current_user: CurrentUser = 
         if not guard["safe"]:
             audit_log("input_blocked", student_id=student_id, feature="guardrail",
                       detail=f"reason={guard['reason']} query={last_user_msg[:80]!r}")
+            # Durable twin of the ephemeral line above (survives redeploy, queryable). The
+            # durable detail carries only the reason — never the raw user query.
+            await db.insert_audit_event(action="input_blocked", actor=student_id,
+                                        feature="guardrail", detail=f"reason={guard['reason']}",
+                                        ip=_client_ip(request))
 
             def _blocked_stream():
                 msg = "I'm here to help with ophthalmology and eye care education. Please ask a clinical question."

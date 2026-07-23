@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from tools.ai.guardrails.input_filter import filter_input
-from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENALTY
+from tools.api.shared import limiter, _case_cache, PATIENT_SYSTEM, FORFEIT_PENALTY, _client_ip
 from tools.cases.evaluate_response import evaluate_case
 from tools.cases.get_case_progress import get_case_progress
 from tools.cases.load_case import load_case, list_available_cases
@@ -667,6 +667,9 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
         if not guard["safe"]:
             audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_action",
                       detail=f"reason={guard['reason']}")
+            await db.insert_audit_event(action="input_blocked", actor=current_user["sub"],
+                                        feature="guardrail_action", detail=f"reason={guard['reason']}",
+                                        ip=_client_ip(request))
             # Still return the deterministic grade — only the AI tip is suppressed.
             return ActionResponse(
                 coaching=grade["coaching"], verdict=grade["verdict"],
@@ -734,6 +737,9 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
         if not guard["safe"]:
             audit_log("input_blocked", student_id=current_user["sub"], feature="guardrail_case",
                       detail=f"reason={guard['reason']}")
+            await db.insert_audit_event(action="input_blocked", actor=current_user["sub"],
+                                        feature="guardrail_case", detail=f"reason={guard['reason']}",
+                                        ip=_client_ip(request))
 
             def _blocked():
                 yield f"data: {json.dumps({'text': 'Please keep the conversation focused on this clinical case.'})}\n\n"
