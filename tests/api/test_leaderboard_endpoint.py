@@ -38,7 +38,7 @@ def test_leaderboard_requires_auth():
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_leaderboard_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
     r = client.get("/api/leaderboard", cookies=_cookies("user_001"))
     assert r.status_code == 200
@@ -51,7 +51,7 @@ def test_leaderboard_ranks_everyone_excludes_hidden(mock_p, mock_c):
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_leaderboard_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_role_filter(mock_p, mock_c):
     r = client.get("/api/leaderboard?role=OA", cookies=_cookies("user_001"))
     body = r.json()
@@ -60,7 +60,7 @@ def test_leaderboard_role_filter(mock_p, mock_c):
 
 
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=CONSENT)
-@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=PROFILES)
+@patch("tools.shared.db.get_active_leaderboard_profiles", new_callable=AsyncMock, return_value=PROFILES)
 def test_leaderboard_reports_viewer_hidden_and_roles(mock_p, mock_c):
     r = client.get("/api/leaderboard", cookies=_cookies("user_003"))
     body = r.json()
@@ -156,7 +156,7 @@ WEEKLY_CONSENT = [
 
 @patch("tools.shared.clock.app_week_start", return_value=WEEK)
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock, return_value=WEEKLY_CONSENT)
-@patch("tools.shared.db.get_active_profiles", new_callable=AsyncMock, return_value=WEEKLY_PROFILES)
+@patch("tools.shared.db.get_active_leaderboard_profiles", new_callable=AsyncMock, return_value=WEEKLY_PROFILES)
 def test_leaderboard_ranks_by_weekly_xp_when_columns_present(mock_p, mock_c, mock_wk):
     """Once the xp_week columns exist, the board ranks by XP earned THIS week (not
     lifetime): the displayed score is weekly, but lifetime xp_total rides along for the

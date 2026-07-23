@@ -283,12 +283,31 @@ async def get_active_leaderboard_profiles() -> list[dict]:
     SUPER_ADMIN_EMAIL, which is staff without a supervisors row) — matched via their
     student_consent email. Kept separate from get_active_profiles so cohort / analytics
     / at-risk roll-ups keep excluding staff. Staff augmentation is best-effort: if the
-    supervisors/consent/profile reads fail, the board is just the students."""
-    students = await get_active_profiles()
+    supervisors read fails, the board is just the students.
+
+    This is the busiest read endpoint, so the base tables are scanned ONCE and reused for
+    both halves — the active-student filter (inlined from get_active_profiles) and the
+    staff join — rather than calling get_active_profiles (which re-reads profiles+consent)
+    and reading them again here."""
+    profiles = await get_all_profiles()
+    approved = await get_all_approved()
+    consent = await get_all_consent()
+    # Active students: consent email still present in approved_students (mirrors
+    # get_active_profiles exactly — revoked/unmatched profiles drop, fail closed).
+    approved_emails = {
+        (r.get("email") or "").strip().lower()
+        for r in approved
+        if (r.get("email") or "").strip()
+    }
+    active_ids = {
+        str(c.get("student_id"))
+        for c in consent
+        if c.get("student_id") is not None
+        and (c.get("email") or "").strip().lower() in approved_emails
+    }
+    students = [p for p in profiles if str(p.get("student_id")) in active_ids]
     try:
         supervisors = await get_all_supervisors()
-        consent = await get_all_consent()
-        profiles = await get_all_profiles()
     except Exception:
         return students
     staff_emails = {

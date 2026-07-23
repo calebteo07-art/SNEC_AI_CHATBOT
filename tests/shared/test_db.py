@@ -237,6 +237,66 @@ async def test_get_staff_roster_joins_profiles_and_flags_pending():
     assert by_email["super@test.com"]["status"] == "pending"
 
 
+# ── leaderboard read fan-out (hot path — dedup guarantee) ──────────────────────
+
+@pytest.mark.asyncio
+async def test_get_active_leaderboard_profiles_reads_each_table_once():
+    """The leaderboard is the busiest read endpoint; get_active_leaderboard_profiles must
+    not scan any base table twice. It historically called get_active_profiles (which reads
+    profiles+approved+consent) and THEN re-read profiles+consent for staff augmentation —
+    2x profiles, 2x consent per load. Assert each base read fires exactly once."""
+    profiles = AsyncMock(return_value=[{"student_id": "s1", "xp": 10}])
+    approved = AsyncMock(return_value=[{"email": "a@test.com"}])
+    consent = AsyncMock(return_value=[{"student_id": "s1", "email": "a@test.com", "student_name": "Ann"}])
+    supervisors = AsyncMock(return_value=[])
+    with patch("tools.shared.db.get_all_profiles", new=profiles), \
+         patch("tools.shared.db.get_all_approved", new=approved), \
+         patch("tools.shared.db.get_all_consent", new=consent), \
+         patch("tools.shared.db.get_all_supervisors", new=supervisors):
+        await db.get_active_leaderboard_profiles()
+    assert profiles.await_count == 1, f"profiles scanned {profiles.await_count}x"
+    assert consent.await_count == 1, f"consent scanned {consent.await_count}x"
+    assert approved.await_count == 1
+    assert supervisors.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_get_active_leaderboard_profiles_combines_active_students_and_staff():
+    """Output guard across the dedup refactor: active students (consent email still in
+    approved_students) PLUS staff (supervisors + super-admin, matched via consent email),
+    with a revoked student dropped and no double-count of a student who is also staff."""
+    profiles = [
+        {"student_id": "stu_1", "xp": 300},   # active student
+        {"student_id": "gone_1", "xp": 999},  # access revoked
+        {"student_id": "trn_1", "xp": 800},   # trainer (staff)
+    ]
+    approved = [{"email": "stu@test.com"}]     # only stu_1 approved
+    consent = [
+        {"student_id": "stu_1", "email": "stu@test.com", "student_name": "Sam"},
+        {"student_id": "gone_1", "email": "gone@test.com", "student_name": "Rick"},
+        {"student_id": "trn_1", "email": "trainer@test.com", "student_name": "Terry"},
+    ]
+    supervisors = [{"email": "trainer@test.com", "role": "trainer"}]
+    with patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=profiles)), \
+         patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=approved)), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=supervisors)):
+        result = await db.get_active_leaderboard_profiles()
+    assert {p["student_id"] for p in result} == {"stu_1", "trn_1"}  # gone_1 revoked, no dupes
+
+
+@pytest.mark.asyncio
+async def test_get_active_leaderboard_profiles_staff_read_is_best_effort():
+    """Core reads (profiles/approved/consent) give the active-student board; if only the
+    staff augmentation read (supervisors) fails, the students still come back — never a 500."""
+    with patch("tools.shared.db.get_all_profiles", new=AsyncMock(return_value=[{"student_id": "s1", "xp": 5}])), \
+         patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=[{"email": "a@test.com"}])), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=[{"student_id": "s1", "email": "a@test.com", "student_name": "Ann"}])), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(side_effect=Exception("supervisors table down"))):
+        result = await db.get_active_leaderboard_profiles()
+    assert {p["student_id"] for p in result} == {"s1"}
+
+
 # ── student_consent ────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
