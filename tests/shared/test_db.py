@@ -484,3 +484,31 @@ async def test_insert_audit_event_is_best_effort_and_never_raises():
     with patch("tools.shared.db._get_client",
                new=AsyncMock(side_effect=Exception("relation audit_events does not exist"))):
         await db.insert_audit_event(action="demote", actor="user_001")  # must NOT raise
+
+
+@pytest.mark.asyncio
+async def test_get_recent_audit_events_orders_newest_first_and_limits():
+    rows = [{"action": "promote", "actor": "a", "ts": "2026-07-23T10:00:00Z"}]
+    client = _make_client(rows)
+    resp = MagicMock(); resp.data = rows
+    client.table.return_value.select.return_value.order.return_value.limit.return_value.execute = \
+        AsyncMock(return_value=resp)
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.get_recent_audit_events(limit=50)
+    client.table.assert_called_with("audit_events")
+    client.table.return_value.select.return_value.order.assert_called_with("ts", desc=True)
+    client.table.return_value.select.return_value.order.return_value.limit.assert_called_with(50)
+    assert result == rows
+
+
+@pytest.mark.asyncio
+async def test_get_recent_audit_events_filters_by_action():
+    rows = [{"action": "login_failed", "actor": "x@y.com"}]
+    client = _make_client(rows)
+    resp = MagicMock(); resp.data = rows
+    client.table.return_value.select.return_value.eq.return_value.order.return_value.limit.return_value.execute = \
+        AsyncMock(return_value=resp)
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.get_recent_audit_events(limit=10, action="login_failed")
+    client.table.return_value.select.return_value.eq.assert_called_with("action", "login_failed")
+    assert result == rows

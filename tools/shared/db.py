@@ -497,6 +497,17 @@ async def insert_audit_event(
         pass
 
 
+async def get_recent_audit_events(limit: int = 100, action: str | None = None) -> list[dict]:
+    """Return the most recent audit_events (newest first), optionally filtered by action.
+    Raises if the table is missing (pre-migration 014) — the admin endpoint best-effort-catches."""
+    client = await _get_client()
+    query = client.table("audit_events").select("*")
+    if action:
+        query = query.eq("action", action)
+    result = await query.order("ts", desc=True).limit(limit).execute()
+    return result.data or []
+
+
 # ── student_consent ───────────────────────────────────────────────────────────
 
 async def get_consent_by_email(email: str) -> dict | None:
