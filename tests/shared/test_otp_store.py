@@ -188,3 +188,104 @@ def test_set_otp_twice_overwrites_first():
     assert mock_client.table.return_value.upsert.call_count == 2
     second_call_row = mock_client.table.return_value.upsert.call_args_list[1][0][0]
     assert second_call_row["otp_hash"] == _sha256("222222")
+
+
+# ---------------------------------------------------------------------------
+# Brute-force lockout — failed-attempt counter (migration 013)
+# ---------------------------------------------------------------------------
+# A 6-digit reset code has only 1e6 combinations; the per-IP endpoint throttle
+# (5/min) doesn't stop a botnet rotating IPs. A per-email attempt counter burns
+# the code after _MAX_ATTEMPTS wrong guesses, independent of source IP.
+
+_MAX = 5  # keep in sync with otp_store._MAX_ATTEMPTS
+
+
+def test_wrong_guess_increments_attempts_counter():
+    """A wrong guess below the cap bumps the persisted attempts counter and keeps the
+    code alive (does NOT delete it) — the legit user can still try again."""
+    row = {"email": "eve@test.com", "otp_hash": _sha256("correct"),
+           "expires_at": _future_iso(), "attempts": 1}
+    mock_client = _make_mock_client(select_data=[row])
+
+    with patch("tools.shared.otp_store.get_client", return_value=mock_client):
+        from tools.shared.otp_store import verify_and_consume_otp
+        result = verify_and_consume_otp("eve@test.com", "wrong")
+
+    assert result is False
+    assert mock_client.table.return_value.update.called, "wrong guess must bump attempts"
+    update_row = mock_client.table.return_value.update.call_args[0][0]
+    assert update_row == {"attempts": 2}
+    mock_client.table.return_value.delete.assert_not_called()
+
+
+def test_max_wrong_guesses_burns_the_code():
+    """On the _MAX-th wrong guess the OTP row is deleted, so no further guessing is
+    possible without a brand-new request-reset (which resets the counter)."""
+    row = {"email": "mallory@test.com", "otp_hash": _sha256("correct"),
+           "expires_at": _future_iso(), "attempts": _MAX - 1}
+    mock_client = _make_mock_client(select_data=[row])
+
+    with patch("tools.shared.otp_store.get_client", return_value=mock_client):
+        from tools.shared.otp_store import verify_and_consume_otp
+        result = verify_and_consume_otp("mallory@test.com", "wrong")
+
+    assert result is False
+    mock_client.table.return_value.delete.return_value.eq.assert_called_once_with(
+        "email", "mallory@test.com")
+
+
+def test_set_otp_resets_attempts_to_zero():
+    """A freshly issued code starts with a clean attempts budget (else a user who
+    exhausted a prior code could never recover via a new one)."""
+    mock_client = _make_mock_client()
+
+    with patch("tools.shared.otp_store.get_client", return_value=mock_client):
+        from tools.shared.otp_store import set_otp
+        set_otp("newcode@test.com", "424242")
+
+    row = mock_client.table.return_value.upsert.call_args[0][0]
+    assert row.get("attempts") == 0
+
+
+def test_set_otp_survives_missing_attempts_column():
+    """Graceful pre-migration: if the attempts column doesn't exist yet, the first
+    upsert fails, but set_otp retries WITHOUT attempts so a reset code is still issued —
+    the reset flow must never break just because migration 013 hasn't been applied."""
+    mock_client = _make_mock_client()
+    calls: list[dict] = []
+
+    def _upsert(row, **kwargs):
+        calls.append(dict(row))
+        exec_mock = MagicMock()
+        if "attempts" in row:
+            exec_mock.execute.side_effect = Exception('column "attempts" does not exist')
+        else:
+            exec_mock.execute.return_value = MagicMock(data=[])
+        return exec_mock
+
+    mock_client.table.return_value.upsert.side_effect = _upsert
+
+    with patch("tools.shared.otp_store.get_client", return_value=mock_client):
+        from tools.shared.otp_store import set_otp
+        set_otp("legacy@test.com", "555555")  # must NOT raise
+
+    assert len(calls) == 2, "must retry without attempts when the column is absent"
+    assert "attempts" in calls[0] and "attempts" not in calls[1]
+    assert calls[1]["otp_hash"] == _sha256("555555")
+
+
+def test_wrong_guess_survives_missing_attempts_column():
+    """Graceful pre-migration: the increment update fails (no column) but verify still
+    returns False without raising — falls back to the per-IP throttle alone."""
+    row = {"email": "legacy2@test.com", "otp_hash": _sha256("correct"),
+           "expires_at": _future_iso()}  # no attempts key → column absent
+    mock_client = _make_mock_client(select_data=[row])
+    mock_client.table.return_value.update.return_value.eq.return_value.execute.side_effect = \
+        Exception('column "attempts" does not exist')
+
+    with patch("tools.shared.otp_store.get_client", return_value=mock_client):
+        from tools.shared.otp_store import verify_and_consume_otp
+        result = verify_and_consume_otp("legacy2@test.com", "wrong")  # must NOT raise
+
+    assert result is False
+    mock_client.table.return_value.delete.assert_not_called()
