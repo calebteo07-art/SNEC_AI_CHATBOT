@@ -143,6 +143,21 @@ export function useTokenSummary() {
   });
 }
 
+export interface AuditEvent {
+  audit_id?: string; ts: string; actor: string; action: string;
+  target: string; feature: string; detail: string; ip?: string | null;
+}
+/** Durable security/privilege audit trail (audit_events, migration 014) — admin-only.
+    Newest first; the recent window is fetched once and filtered client-side. Degrades to
+    an empty list (never throws) so the tab renders even if the table is unavailable. */
+export function useAudit() {
+  return useQuery<AuditEvent[]>({
+    queryKey: ["admin", "audit"],
+    queryFn: async () => (await getJSON<{ events?: AuditEvent[] }>("/api/admin/audit?limit=200", {})).events ?? [],
+    ...LIVE,
+  });
+}
+
 export function useCohortInsight() {
   return useQuery<string>({
     queryKey: ["admin", "insight"],
