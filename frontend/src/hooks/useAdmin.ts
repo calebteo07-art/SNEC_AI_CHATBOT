@@ -123,8 +123,9 @@ export function useBenchmarks() {
 export interface FeedItem {
   type: string; student_id: string; name: string; detail: string; timestamp: string;
   token_count?: number;
-  // Tier-2 (Phase-2): the feed's case items carry safety + missed-critical once recorded.
-  safe?: boolean; missed_critical?: string[];
+  // Structured case fields — the cohort KPIs and OSCE panels read these, never `detail`.
+  case_id?: string; total_score?: number; passed?: boolean;
+  score_100?: number; safe?: boolean; missed_critical?: string[];
 }
 export function useActivity() {
   return useQuery<FeedItem[]>({

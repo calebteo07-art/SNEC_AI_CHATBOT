@@ -24,12 +24,6 @@ function dailyCounts(timestamps: string[], days = 21): number[] {
   return counts;
 }
 
-/* Parse "C123 ✓ · 32/40" (admin activity feed) → the /40 score, or null. */
-function parseCaseScore(detail: string): number | null {
-  const m = detail.match(/(\d+)\s*\/\s*40/);
-  return m ? Number(m[1]) : null;
-}
-
 export function AdminCohort() {
   const cohort = useCohort();
   const atRisk = useAtRisk();
@@ -50,9 +44,17 @@ export function AdminCohort() {
 
   const feed = activity.data ?? [];
   const caseItems = feed.filter((f) => f.type === "case");
-  const caseScores = caseItems.map((f) => parseCaseScore(f.detail)).filter((x): x is number => x !== null);
+  // Prefer the Tier-2 Station-100 score; fall back to the base /40 total. Both are real
+  // numeric fields from the feed — never parsed out of the display string.
+  const caseScores = caseItems
+    .map((f) =>
+      typeof f.score_100 === "number" ? f.score_100
+      : typeof f.total_score === "number" ? (f.total_score / 40) * 100
+      : null,
+    )
+    .filter((x): x is number => x !== null);
   const avgOsce = caseScores.length
-    ? Math.round((caseScores.reduce((a, b) => a + b, 0) / caseScores.length / 40) * 100)
+    ? Math.round(caseScores.reduce((a, b) => a + b, 0) / caseScores.length)
     : null;
 
   const trend = dailyCounts(feed.map((f) => f.timestamp));
@@ -124,7 +126,7 @@ export function AdminCohort() {
         <section className="aurora-panel">
           <p className="aurora-panel-head">OSCE safety-failure rate</p>
           {safetyRate === null ? (
-            <p className="aurora-unavail">Available once the OSCE-grade migration is applied — per-attempt safety isn’t recorded yet.</p>
+            <p className="aurora-unavail">No graded station attempts in the recent activity window yet.</p>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <DonutGauge value={safetyRate} label="unsafe" tone="rose" size={120} />
@@ -138,7 +140,7 @@ export function AdminCohort() {
           {mostMissed.length ? (
             <BarSeries max={missMax} rows={mostMissed.map(([step, n]) => ({ label: step, segments: [{ value: n, tone: "rose" }], readout: String(n), weak: true }))} />
           ) : (
-            <p className="aurora-unavail">Available once the OSCE-grade migration records missed-critical steps.</p>
+            <p className="aurora-unavail">No missed critical steps recorded in the recent activity window.</p>
           )}
         </section>
       </div>
