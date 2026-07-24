@@ -100,6 +100,24 @@ def test_get_avatar_customized_true_even_when_stored_is_corrupt(mock_get):
     assert body["customized"] is True
     assert body["config"] == DEFAULT_AVATAR
 
+@patch("tools.api.routers.avatar.insert_audit_event", new_callable=AsyncMock)
+@patch("tools.api.routers.avatar.get_profile", new_callable=AsyncMock)
+def test_get_avatar_fails_open_when_profile_read_errors(mock_get, mock_audit):
+    """A transient profile-read failure must NOT masquerade as "never customized" — that
+    reports customized=false and traps an established student in the mandatory first-run
+    Studio (the reported bug: the Studio re-pops for old users, sometimes). Identity is
+    stable, so an intermittent false is a swallowed read error. Fail OPEN: customized=true
+    (returning-user) with a safe default config the client repaints on the next good read;
+    a durable audit event records the fail-open so it is observable in prod."""
+    mock_get.side_effect = Exception("read timed out")
+    r = client.get("/api/avatar", cookies=_student_cookies())
+    assert r.status_code == 200
+    body = r.json()
+    assert body["customized"] is True          # returning-user path, NOT the Studio gate
+    assert body["config"] == DEFAULT_AVATAR
+    mock_audit.assert_awaited_once()           # durable signal fired (prod-observable)
+    assert mock_audit.await_args[1]["action"] == "avatar_read_error"
+
 @patch("tools.api.routers.avatar.upsert_profile", new_callable=AsyncMock)
 def test_put_avatar_persists_valid_config(mock_upsert):
     payload = {"bodyColor": "deep", "topper": "crown", "irisColor": "green"}

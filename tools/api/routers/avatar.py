@@ -12,9 +12,13 @@ from pydantic import BaseModel, ConfigDict
 
 from tools.api.shared import limiter
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, validate_config, InvalidAvatarConfig
-from tools.profile.get_profile import get_profile          # graceful read (never raises, ensures a row)
 from tools.shared.audit_log import log
-from tools.shared.db import upsert_profile                 # insert-or-update: a save can never silently no-op on a missing profile row
+# Raw DB read (returns None if absent, RAISES on a read error) — NOT the graceful
+# tools.profile.get_profile, which swallows a read error into a default profile with no
+# avatar_config. That swallow makes `customized` a false positive on any transient read blip,
+# trapping an established student in the mandatory first-run Studio. Here we must tell "never
+# customized" (None row) apart from "couldn't read" (exception) — see _resolve_config.
+from tools.shared.db import get_profile, upsert_profile, insert_audit_event
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -33,14 +37,29 @@ class AvatarUpdate(BaseModel):
 
 
 async def _resolve_config(student_id: str) -> tuple[dict, bool]:
-    """(config, customized) for the student, fail-closed.
+    """(config, customized) for the student.
 
-    A stored config that has gone stale (a retired option id) never 500s a read — it
-    falls back to the default and logs the drift for staff. ``customized`` is True the
-    moment a student has EVER saved a config (even a now-stale one), so the first-run
-    onboarding gate never re-nags someone who already built their Eyecon.
+    ``customized`` gates the MANDATORY first-run Eyecon Studio, so it must never be a false
+    positive. It is True the moment a student has EVER saved a config (even a now-stale one),
+    and — crucially — a transient profile-read FAILURE is read fail-OPEN (customized=True,
+    the returning-student path), NOT as "never customized". Identity is stable (one consent
+    row per email), so an *intermittent* first-run signal for someone who already built their
+    Eyecon can only be a swallowed read error; reporting False on it trapped established
+    students in the Studio ("it re-pops and I can't leave"). A genuinely absent row (a real
+    new student) still reads False. A stored config gone stale (a retired option id) never
+    500s a read — it falls back to the default and logs the drift for staff.
     """
-    profile = await get_profile(student_id) or {}
+    try:
+        profile = await get_profile(student_id) or {}
+    except Exception as e:
+        # Couldn't read the profile — do NOT claim first-run. Fail OPEN to returning-student;
+        # the client repaints the real Eyecon on the next good read. Durable audit (audit_events
+        # survives; the .tmp/audit_log.jsonl file is ephemeral per-worker on Render) so this
+        # fail-open is observable in prod — query action='avatar_read_error' to see it fire.
+        log("avatar_profile_read_error", student_id=student_id, feature="avatar", detail=str(e))
+        await insert_audit_event(action="avatar_read_error", actor=student_id,
+                                 feature="avatar", detail=str(e)[:200])
+        return dict(DEFAULT_AVATAR), True
     stored = profile.get("avatar_config")
     customized = bool(stored)
     try:
