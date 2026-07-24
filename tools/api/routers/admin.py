@@ -118,6 +118,7 @@ async def admin_approve_student(body: ApproveStudentRequest, request: Request, c
     return {"ok": True, "email_sent": email_sent, "email_error": email_error, "password": plain_pw}
 
 @router.delete("/api/admin/approved/{email}")
+@limiter.shared_limit("20/minute", scope="admin_unapprove_student")
 async def admin_unapprove_student(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     deleted = await db.delete_approved(email.lower())
     if not deleted:
@@ -227,6 +228,7 @@ async def admin_promote(body: PromoteRequest, request: Request, current_user: Cu
     return {"ok": True}
 
 @router.delete("/api/admin/promote/{email}")
+@limiter.shared_limit("20/minute", scope="admin_demote")
 async def admin_demote(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     await db.delete_supervisor(email.lower())
     # Durable audit: revoking admin/trainer rights is a hard delete with no other record.
