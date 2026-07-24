@@ -174,12 +174,15 @@ In `tools/api/routers/admin.py`, replace the `for c in cases[:50]:` block inside
             "passed": passed,
         }
         # Migration-011 rich grade columns. Omitted when absent so the frontend can tell
-        # "not graded under Tier-2" apart from "graded zero".
+        # "not graded under Tier-2" apart from "graded zero". Use `is not None`, never a
+        # truthy check: `safe = not missed_critical`, so every SAFE attempt has
+        # missed_critical == [] and a truthy check would drop the key for exactly those
+        # rows, making a safe graded attempt look ungraded on the wire.
         if c.get("score_100") is not None:
             item["score_100"] = int(c["score_100"])
         if c.get("safe") is not None:
             item["safe"] = bool(c["safe"])
-        if c.get("missed_critical"):
+        if c.get("missed_critical") is not None:
             item["missed_critical"] = [str(m) for m in c["missed_critical"]]
         feed.append(item)
 ```
