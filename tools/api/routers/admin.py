@@ -3,7 +3,7 @@ import asyncio
 import csv
 import io
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
@@ -228,6 +228,47 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
         feed.append(item)
     feed.sort(key=lambda x: x["timestamp"], reverse=True)
     return {"feed": feed[:80]}
+
+@router.get("/api/admin/activity-trend")
+@limiter.limit("60/minute")
+async def admin_activity_trend(request: Request, days: int = 21,
+                               current_user: CurrentUser = Depends(require_staff)):
+    """Per-day cohort activity counts across a real window.
+
+    Deliberately NOT derived from /api/admin/activity: that feed is capped at 80 items,
+    so a client-side 3-week bucket silently undercounted at cohort volume. Counted here
+    from windowed DB reads instead. `days` clamps to [1, 90]."""
+    days = max(1, min(days, 90))
+    start = datetime.now(timezone.utc).date() - timedelta(days=days - 1)
+    try:
+        sessions = await db.get_sessions_since(start.isoformat())
+        cases = await db.get_case_progress_since(start.isoformat())
+        # Active members only — same invariant as /activity and /token-summary.
+        active_ids = {str(p.get("student_id")) for p in await db.get_active_leaderboard_profiles()}
+    except Exception:
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+
+    buckets: dict[str, dict] = {
+        (start + timedelta(days=i)).isoformat(): {"sessions": 0, "cases": 0}
+        for i in range(days)
+    }
+
+    def _tally(rows: list[dict], ts_key: str, bucket_key: str) -> None:
+        for row in rows:
+            if str(row.get("student_id", "")) not in active_ids:
+                continue
+            day = str(row.get(ts_key) or "")[:10]
+            if day in buckets:
+                buckets[day][bucket_key] += 1
+
+    _tally(sessions, "created_at", "sessions")
+    _tally(cases, "completed_at", "cases")
+
+    return {"days": [
+        {"date": d, "sessions": v["sessions"], "cases": v["cases"],
+         "total": v["sessions"] + v["cases"]}
+        for d, v in sorted(buckets.items())
+    ]}
 
 @router.post("/api/admin/promote")
 async def admin_promote(body: PromoteRequest, request: Request, current_user: CurrentUser = Depends(require_admin)):
