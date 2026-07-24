@@ -63,8 +63,9 @@ export function AdminCohort() {
   // Bar length is the real student count, normalised to the largest. The previous
   // `0.9 - i * 0.12` derived length from list position — a fabricated magnitude.
   const weakTopics = c?.weakest_topics ?? [];
-  const weakMax = weakTopics.length ? Math.max(...weakTopics.map((w) => w.count)) : 1;
-  const weakRows: BarRow[] = weakTopics.slice(0, 6).map((w) => ({
+  const visible = weakTopics.slice(0, 6);
+  const weakMax = visible.length ? Math.max(...visible.map((w) => w.count)) : 1;
+  const weakRows: BarRow[] = visible.map((w) => ({
     label: w.topic.replace(/_/g, " "),
     segments: [{ value: w.count / weakMax, tone: "rose" }],
     readout: String(w.count),
