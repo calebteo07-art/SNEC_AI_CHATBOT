@@ -1386,11 +1386,24 @@ Replace them with the hook plus a note-seeding effect:
   const loading = detailQ.isLoading;
   const error = detailQ.isError;
 
-  // Seed the editable note once the record arrives (the textarea is local state).
+  // Seed the editable note ONCE per opened student — keyed on identity, NOT on `data`.
+  // useStudentDetail polls every 30s; keying the seed on `[data]` re-fires on every
+  // refetch and clobbers a supervisor's in-progress edit (reproduced regression). The
+  // ref guard reseeds only when the studentId changes.
+  const seededFor = useRef<string | null>(null);
   useEffect(() => {
-    if (data) setNote(data.supervisor_note ?? "");
-  }, [data]);
+    if (data && seededFor.current !== studentId) {
+      setNote(data.supervisor_note ?? "");
+      seededFor.current = studentId;
+    }
+  }, [data, studentId]);
 ```
+
+(Add `useRef` to the React import.) A committed regression test lives in
+`frontend/tests/aurora_assert.mjs` ("student-note draft survives a background poll
+refetch"): it types a draft, fast-forwards Playwright's clock past the poll interval,
+and asserts the draft is intact — install the fake clock BEFORE the modal mounts or the
+pre-scheduled timer never advances.
 
 Delete the now-duplicated local `DetailData`, `Session` and `CaseRow` interfaces and use the `StudentDetail` type exported by the hook. If any field the modal reads is missing from `StudentDetail` in `useAdmin.ts` (for example `cohort_retention`), add it there as an optional property rather than reintroducing a local type.
 
