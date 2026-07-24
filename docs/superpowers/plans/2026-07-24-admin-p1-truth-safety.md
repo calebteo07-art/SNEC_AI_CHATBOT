@@ -26,6 +26,10 @@ git rev-parse --short HEAD && git rev-parse --short origin/main
 
 **Known bug deliberately deferred to P2:** `db.get_all_sessions()` defaults to `limit=500`, so `/api/admin/token-summary` silently under-reports once a cohort exceeds 500 sessions. Real, but out of P1 scope. Do not fix it here.
 
+**Frontend test fixtures — reconcile on EVERY endpoint-shape change (learned in Task 4).** The CI-gated aurora harness mocks all `/api/*` calls from two files: `frontend/tests/aurora_assert.mjs` and `frontend/tests/_mocks.mjs`. `tsc`/`build` do NOT type-check these `.mjs` fixtures, so a stale mock shape passes typecheck+build and only fails at render time in the harness. Any task that changes an admin/supervisor endpoint's response shape, or adds a new endpoint, MUST update the corresponding mock in BOTH files to the new shape (realistic values, internally consistent — e.g. an OSCE `safe: true` item pairs with `missed_critical: []`). This applies to Tasks 6, 7 and 8 below. Verify with `bash scripts/start-harness.sh aurora`.
+
+**Stop the harness server before any build (project trap).** `scripts/start-harness.sh` leaves `node .next/standalone/server.js` running on :3000; it holds a lock on `.next/standalone` and the next `next build` dies with `EBUSY`. Always `bash scripts/start-harness.sh stop` (or kill the node PID) before building.
+
 ## File structure
 
 | File | Responsibility | Change |
