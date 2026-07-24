@@ -122,14 +122,17 @@ export async function mockApis(ctx, user) {
     status: 200, contentType: "text/event-stream",
     body: 'data: {"text":"A cataract is a clouding of the lens inside the eye, "}\n\ndata: {"text":"usually age-related. It causes gradual, painless blurring of vision "}\n\ndata: {"text":"and is treated with day surgery to replace the cloudy lens with a clear implant."}\n\ndata: [DONE]\n\n',
   }));
-  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: ["Glaucoma staging", "OCT interpretation"] })));
+  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
   await ctx.route("**/api/supervisor/insights", (r) => r.fulfill(J({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area this week." })));
   // Shape mirrors BenchmarkResponse: avg_score is 0–1 (see cohort_benchmarks.py)
   await ctx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(J({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
   await ctx.route("**/api/supervisor/at-risk", (r) => r.fulfill(J({ students: [{ student_id: "S009", last_active: new Date(Date.now() - 9 * 86400000).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 4 }] })));
   await ctx.route("**/api/admin/students", (r) => r.fulfill(J({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
-  await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [{ type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 }] })));
+  await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [
+    { type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 },
+    { type: "case", student_id: "S001", name: "Test Student", detail: "Completed Glaucoma station", timestamp: new Date().toISOString(), case_id: "C001", total_score: 31, passed: true, score_100: 78, safe: true, missed_critical: [] },
+  ] })));
   await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
 }
 
