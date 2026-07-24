@@ -133,6 +133,11 @@ export async function mockApis(ctx, user) {
     { type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 },
     { type: "case", student_id: "S001", name: "Test Student", detail: "Completed Glaucoma station", timestamp: new Date().toISOString(), case_id: "C001", total_score: 31, passed: true, score_100: 78, safe: true, missed_critical: [] },
   ] })));
+  await ctx.route("**/api/admin/activity-trend*", (r) => r.fulfill(J({ days: [
+    { date: "2026-07-04", sessions: 2, cases: 1, total: 3 },
+    { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
+    { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
+  ] })));
   await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
 }
 

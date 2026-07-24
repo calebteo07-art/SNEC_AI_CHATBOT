@@ -10,26 +10,14 @@ import { TrendChart } from "@/aurora/components/charts/TrendChart";
 import { DonutGauge } from "@/aurora/components/charts/DonutGauge";
 import { BarSeries, type BarRow } from "@/aurora/components/charts/BarSeries";
 import { fmtTokens } from "@/screens/adminShared";
-import { useCohort, useAtRisk, useBenchmarks, useActivity, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
-
-/* Bucket activity-feed timestamps into a per-day count over the last `days`. */
-function dailyCounts(timestamps: string[], days = 21): number[] {
-  const counts = Array(days).fill(0) as number[];
-  const now = Date.now();
-  for (const ts of timestamps) {
-    const t = new Date(ts).getTime();
-    if (Number.isNaN(t)) continue;
-    const diff = Math.floor((now - t) / 86_400_000);
-    if (diff >= 0 && diff < days) counts[days - 1 - diff]++;
-  }
-  return counts;
-}
+import { useCohort, useAtRisk, useBenchmarks, useActivity, useActivityTrend, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
 
 export function AdminCohort() {
   const cohort = useCohort();
   const atRisk = useAtRisk();
   const benchmarks = useBenchmarks();
   const activity = useActivity();
+  const trendQ = useActivityTrend(21);
   const tokens = useTokenSummary();
   const insight = useCohortInsight();
 
@@ -58,7 +46,7 @@ export function AdminCohort() {
     ? Math.round(caseScores.reduce((a, b) => a + b, 0) / caseScores.length)
     : null;
 
-  const trend = dailyCounts(feed.map((f) => f.timestamp));
+  const trend = (trendQ.data ?? []).map((d) => d.total);
 
   // Bar length is the real student count, normalised to the largest. The previous
   // `0.9 - i * 0.12` derived length from list position — a fabricated magnitude.
@@ -106,7 +94,9 @@ export function AdminCohort() {
           <p className="aurora-panel-head">Activity · last 3 weeks</p>
           <TrendChart values={trend} tone="blue" />
           <p className="aurora-unavail" style={{ marginTop: 8 }}>
-            {feed.length ? `${feed.length} recent activity events across the cohort.` : "No recent activity events."}
+            {trend.length
+              ? `${trend.reduce((a, b) => a + b, 0)} activity events across the cohort in the last 3 weeks.`
+              : "No activity events in the last 3 weeks."}
           </p>
         </section>
 
