@@ -60,9 +60,14 @@ export function AdminCohort() {
 
   const trend = dailyCounts(feed.map((f) => f.timestamp));
 
-  const weakRows: BarRow[] = (c?.weakest_topics ?? []).slice(0, 6).map((t, i) => ({
-    label: t.replace(/_/g, " "),
-    segments: [{ value: Math.max(0.2, 0.9 - i * 0.12), tone: "rose" }],
+  // Bar length is the real student count, normalised to the largest. The previous
+  // `0.9 - i * 0.12` derived length from list position — a fabricated magnitude.
+  const weakTopics = c?.weakest_topics ?? [];
+  const weakMax = weakTopics.length ? Math.max(...weakTopics.map((w) => w.count)) : 1;
+  const weakRows: BarRow[] = weakTopics.slice(0, 6).map((w) => ({
+    label: w.topic.replace(/_/g, " "),
+    segments: [{ value: w.count / weakMax, tone: "rose" }],
+    readout: String(w.count),
     weak: true,
   }));
   const benchRows: BarRow[] = [...bench].sort((a, b) => a.avg_score - b.avg_score).slice(0, 8).map((b) => ({
