@@ -511,12 +511,19 @@ async def get_recent_audit_events(limit: int = 100, action: str | None = None) -
 # ── student_consent ───────────────────────────────────────────────────────────
 
 async def get_consent_by_email(email: str) -> dict | None:
-    """Return the student_consent row for email, or None."""
+    """Return the student_consent row for email, or None.
+
+    Ordered by the unique student_id so that when duplicate rows exist for one email
+    (legacy data, or a first-login race before the UNIQUE(lower(email)) index) the pick is
+    DETERMINISTIC. Without an ORDER BY, .limit(1) returns an arbitrary row and the same
+    person's student_id can flip between logins — stranding their avatar_config/streak and
+    re-firing the mandatory Eyecon Studio. (The dedupe migration makes this the only row.)"""
     client = await _get_client()
     result = (
         await client.table("student_consent")
         .select("*")
         .eq("email", email)
+        .order("student_id")
         .limit(1)
         .execute()
     )

@@ -40,6 +40,38 @@ async def test_get_or_create_student_creates_new_row_when_missing():
 
 
 @pytest.mark.asyncio
+async def test_get_or_create_student_defers_to_winner_on_insert_conflict():
+    """Two concurrent first-logins race: both miss the email lookup and try to create.
+    Once UNIQUE(lower(email)) exists, the loser's insert raises — it must re-read by email
+    and return the WINNER's id, never a second uuid (which would strand the person's data
+    under a duplicate identity and re-fire onboarding)."""
+    from unittest.mock import AsyncMock
+    winner = {"student_id": "winner-id", "email": "race@test.com", "student_name": "Ray"}
+    get_mock = AsyncMock(side_effect=[None, winner])   # miss, then the winner on re-read
+    upsert_mock = AsyncMock(side_effect=Exception("duplicate key value violates unique constraint"))
+    with patch("tools.shared.db.get_consent_by_email", new=get_mock), \
+         patch("tools.shared.db.upsert_consent", new=upsert_mock):
+        from tools.shared.identity import get_or_create_student
+        student_id, name = await get_or_create_student("Ray", "race@test.com")
+    assert student_id == "winner-id"
+    assert name == "Ray"
+
+
+@pytest.mark.asyncio
+async def test_get_or_create_student_reraises_when_create_fails_with_no_winner():
+    """A genuine write failure (not a race) must not be swallowed into a bogus id: if the
+    insert fails AND no row appears on re-read, surface the error rather than mint a fresh
+    id that nothing else can find."""
+    get_mock = AsyncMock(side_effect=[None, None])
+    upsert_mock = AsyncMock(side_effect=Exception("connection reset"))
+    with patch("tools.shared.db.get_consent_by_email", new=get_mock), \
+         patch("tools.shared.db.upsert_consent", new=upsert_mock):
+        from tools.shared.identity import get_or_create_student
+        with pytest.raises(Exception):
+            await get_or_create_student("Nemo", "nemo@test.com")
+
+
+@pytest.mark.asyncio
 async def test_sync_roster_name_heals_a_stale_stored_name():
     """The admin owns the name — a correction in the roster must overwrite the snapshot
     taken at first login, or /api/auth/me keeps serving the old one forever."""

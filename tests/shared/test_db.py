@@ -315,6 +315,20 @@ async def test_get_consent_by_email_returns_none_when_not_found():
 
 
 @pytest.mark.asyncio
+async def test_get_consent_by_email_orders_deterministically():
+    """Duplicate consent rows for one email must resolve to a STABLE id. Without an
+    ORDER BY, .limit(1) returns an arbitrary row, so the same person's student_id can
+    flip between logins — stranding their avatar_config/streak and re-firing the
+    mandatory Eyecon Studio. Order by the unique student_id so the pick is deterministic."""
+    rows = [{"student_id": "id-aaa", "email": "dup@test.com", "student_name": "Dee"}]
+    client = _make_client(rows)
+    with patch("tools.shared.db._get_client", new=AsyncMock(return_value=client)):
+        result = await db.get_consent_by_email("dup@test.com")
+    client.table.return_value.select.return_value.eq.return_value.order.assert_called_with("student_id")
+    assert result["student_id"] == "id-aaa"
+
+
+@pytest.mark.asyncio
 async def test_get_consent_by_student_id_returns_row():
     row = {"student_id": "stu-001", "email": "a@test.com", "consent_date": "2026-01-01"}
     with patch("tools.shared.db._get_client", new=AsyncMock(return_value=_make_client([row]))):

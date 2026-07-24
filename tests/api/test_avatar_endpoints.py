@@ -100,20 +100,32 @@ def test_get_avatar_customized_true_even_when_stored_is_corrupt(mock_get):
     assert body["customized"] is True
     assert body["config"] == DEFAULT_AVATAR
 
-@patch("tools.api.routers.avatar.update_profile", new_callable=AsyncMock)
-def test_put_avatar_persists_valid_config(mock_update):
+@patch("tools.api.routers.avatar.upsert_profile", new_callable=AsyncMock)
+def test_put_avatar_persists_valid_config(mock_upsert):
     payload = {"bodyColor": "deep", "topper": "crown", "irisColor": "green"}
     r = client.put("/api/avatar", json=payload, cookies=_student_cookies("user_042"))
     assert r.status_code == 200
     clean = r.json()["config"]
     assert clean["bodyColor"] == "deep" and clean["irisColor"] == "green"
-    mock_update.assert_awaited_once()
-    args, kwargs = mock_update.call_args
+    mock_upsert.assert_awaited_once()
+    args, kwargs = mock_upsert.call_args
     assert args[0] == "user_042"                       # identity from JWT sub, not body
     assert kwargs["avatar_config"]["topper"] == "crown"
 
-@patch("tools.api.routers.avatar.update_profile", new_callable=AsyncMock)
-def test_put_avatar_rejects_unknown_option(mock_update):
+@patch("tools.api.routers.avatar.upsert_profile", new_callable=AsyncMock)
+def test_put_avatar_upserts_so_a_save_can_never_silently_noop(mock_upsert):
+    """The save is the ONLY exit from the mandatory first-run Studio. A blind
+    UPDATE ... WHERE student_id no-ops (no error) when the profile row is missing,
+    trapping the student ("I set it but can't leave"). Upsert so the write always lands
+    and `customized` flips true — even for an id that has no profile row yet."""
+    r = client.put("/api/avatar", json={"bodyColor": "deep"}, cookies=_student_cookies("row_less_user"))
+    assert r.status_code == 200
+    mock_upsert.assert_awaited_once()
+    assert mock_upsert.call_args[0][0] == "row_less_user"
+    assert "avatar_config" in mock_upsert.call_args[1]
+
+@patch("tools.api.routers.avatar.upsert_profile", new_callable=AsyncMock)
+def test_put_avatar_rejects_unknown_option(mock_upsert):
     r = client.put("/api/avatar", json={"bodyColor": "neon"}, cookies=_student_cookies())
     assert r.status_code == 422
-    mock_update.assert_not_awaited()
+    mock_upsert.assert_not_awaited()

@@ -14,7 +14,7 @@ from tools.api.shared import limiter
 from tools.avatar.parts import AVATAR_AXES, DEFAULT_AVATAR, validate_config, InvalidAvatarConfig
 from tools.profile.get_profile import get_profile          # graceful read (never raises, ensures a row)
 from tools.shared.audit_log import log
-from tools.shared.db import update_profile                 # generic column setter: update_profile(sub, **fields)
+from tools.shared.db import upsert_profile                 # insert-or-update: a save can never silently no-op on a missing profile row
 from tools.shared.jwt_utils import get_current_user, CurrentUser
 
 router = APIRouter()
@@ -72,5 +72,8 @@ async def put_avatar(
         clean = validate_config(body.model_dump())
     except InvalidAvatarConfig as e:
         raise HTTPException(status_code=422, detail=str(e))
-    await update_profile(student_id, avatar_config=clean)
+    # Upsert (not a blind UPDATE): the save is the only exit from the mandatory first-run
+    # Studio, and UPDATE ... WHERE student_id silently no-ops when the row is missing —
+    # trapping the student. Upsert guarantees the write lands and `customized` flips true.
+    await upsert_profile(student_id, avatar_config=clean)
     return {"config": clean}
