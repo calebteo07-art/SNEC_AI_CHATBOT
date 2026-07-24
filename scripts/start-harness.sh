@@ -78,7 +78,12 @@ case "$MODE" in
   # Leave-forfeit behavioural gate: every exit route from an active deck / station charges
   # the flat forfeit exactly once (incl. the Atlas Rail + ⌘K palette, the reported loophole).
   forfeit) run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs ;;
-  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs; run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs ;;
+  # Hover-pause: both drifting coverflows freeze under the cursor on the FRONT CARD only.
+  # A live rAF loop writes the drift straight to the DOM, so only a real browser can tell
+  # "held" from "still flowing" — and only this catches the zone quietly growing to the
+  # whole stage (which would stop the ring wherever the mouse rested).
+  hover)   run hover_pause_assert.mjs ;;
+  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs; run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs; run hover_pause_assert.mjs ;;
   serve)   echo "server ready at $BASE — stop with: scripts/start-harness.sh stop" ;;
-  *)       echo "usage: start-harness.sh [aurora|station|forfeit|all|serve|stop]" >&2; exit 2 ;;
+  *)       echo "usage: start-harness.sh [aurora|station|forfeit|hover|all|serve|stop]" >&2; exit 2 ;;
 esac

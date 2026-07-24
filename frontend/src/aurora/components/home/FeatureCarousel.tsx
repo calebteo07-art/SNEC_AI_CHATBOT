@@ -14,6 +14,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { inFrontCardZone } from "@/aurora/lib/hoverPause";
 import { Icon } from "./HomeIcons";
 
 const FEATURES = [
@@ -33,6 +34,7 @@ export function FeatureCarousel() {
   const cardsRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const focus = useRef(0);
   const vel = useRef(0);
+  const hover = useRef(false);
   const dragging = useRef(false);
   const moved = useRef(false);
   const lastX = useRef(0);
@@ -95,11 +97,13 @@ export function FeatureCarousel() {
     };
 
     // One continuous flow: constant base drift + a decaying nudge (from arrows/drag
-    // momentum). No snapping to whole cards, so nothing ever pops.
+    // momentum). No snapping to whole cards, so nothing ever pops. Hovering the FRONT
+    // CARD holds the drift so you can read (and click) it; a nudge already in flight
+    // still decays out, so the arrows keep working with the cursor parked mid-stage.
     let raf = 0;
     const tick = () => {
       if (!dragging.current) {
-        focus.current += BASE + vel.current;
+        focus.current += (hover.current ? 0 : BASE) + vel.current;
         vel.current *= 0.92;
         if (Math.abs(vel.current) < 1e-4) vel.current = 0;
       }
@@ -165,12 +169,28 @@ export function FeatureCarousel() {
     const onCancel = () => { dragging.current = false; moved.current = true; vel.current = 0; };
     const onResize = () => { metrics(); layout(); };
 
+    // Hover-pause, resolved by geometry for the same reason taps are: the cards are
+    // pointer-events:none, so a CSS :hover target would swallow the clicks the stage
+    // exists to catch. The zone is the FRONT CARD only — a box its laid-out size, centred
+    // on the stage — so the side cards and the arrows keep the flow going. Mouse only:
+    // touch has no hover, and a finger drag must never leave the ring frozen. Both
+    // listeners are on the stage, so they only fire while the cursor is over it.
+    const onHover = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      const card = cards[0];
+      hover.current = inFrontCardZone(
+        stage.getBoundingClientRect(), card.offsetWidth, card.offsetHeight, e.clientX, e.clientY);
+    };
+    const onHoverOut = () => { hover.current = false; };
+
     metrics();
     layout();
     if (!motionOff) raf = requestAnimationFrame(tick);
     prevRef.current?.addEventListener("click", onPrev);
     nextRef.current?.addEventListener("click", onNext);
     stage.addEventListener("pointerdown", onDown);
+    stage.addEventListener("pointermove", onHover);
+    stage.addEventListener("pointerleave", onHoverOut);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onCancel);
@@ -181,6 +201,8 @@ export function FeatureCarousel() {
       prevRef.current?.removeEventListener("click", onPrev);
       nextRef.current?.removeEventListener("click", onNext);
       stage.removeEventListener("pointerdown", onDown);
+      stage.removeEventListener("pointermove", onHover);
+      stage.removeEventListener("pointerleave", onHoverOut);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onCancel);

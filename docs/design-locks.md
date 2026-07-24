@@ -109,6 +109,20 @@ flip, spinner slows); WCAG-legible.
   topics from crushing into a slab and must never be removed. **ALWAYS verify the picker at the real ~26-topic scale, not the toy harness mock — the
   harness `flashcards/topics` mock is now the full 26-topic OA syllabus (27 cards) so a crush-at-scale
   regression fails CI.**
+  **Criterion added 2026-07-24 (user-directed — "hover pause in both spinning parts, but only hover
+  over a small region to pause"): HOVER-PAUSE.** The continuous drift **holds while the cursor rests on
+  the FRONT CARD**, and only there — a box the card's **laid-out** size (`offsetWidth/offsetHeight`,
+  never its 3D-projected client rect, which would breathe with the animation) centred on the stage,
+  shared with the home carousel as `inFrontCardZone` (`aurora/lib/hoverPause.ts`). **The zone must stay
+  the front card**: grown to the whole stage it would stop the ring wherever the mouse happened to rest,
+  which is the regression `hover_pause_assert` exists to catch. Only the **idle drift** is held — an
+  arrow nudge or a flick already in flight still eases home, so the arrows keep working with the cursor
+  parked mid-stage. Hover is resolved **by geometry at the stage**, never a CSS `:hover` target: the
+  cards are `pointer-events:none` and a real hover target would swallow the taps the stage exists to
+  catch (the same failure as the per-card `onClick` above). **Mouse only** (`pointerType === "mouse"`) —
+  touch has no hover and a finger drag must never leave the ring frozen. Reduced motion is unaffected
+  (already parked). Guarded by `hoverPause_logic.mjs` (the zone maths) + `hover_pause_assert.mjs` (the
+  live wiring, both surfaces), both in CI.
 - **Flat card face + enlarged cards + gold-title lede (refine 2026-07-12, user-directed)**: the topic
   card interior is now **completely flat** — the glassy inner treatment is gone (the `.fan-card-gloss`
   white-gloss overlay + the inner `inset` highlight/vignette box-shadows on `.fan-card-media`), leaving
@@ -335,6 +349,17 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
     `overflow-x:hidden` clips the oversized coverflow; measured 0px), coverflow **mechanics
     unchanged** (drift / tap-to-nearest / arrows / keyboard), reduced-motion freezes + all home
     testids intact, aurora harness green on a prod build.
+- **HOVER-PAUSE (criterion added 2026-07-24, user directive: "hover pause in both spinning parts, but
+  only hover over a small region to pause")**: the never-stopping drift (`BASE`, incl. the faster phone
+  tier) **holds while the cursor rests on the FRONT CARD** — a box the card's **laid-out** size
+  centred on `.hm-ring3d`, via the shared `inFrontCardZone` (`aurora/lib/hoverPause.ts`), the same rule
+  the flashcards coverflow uses. **The zone is the card, not the stage** — grown to the stage it would
+  stop the ring wherever the mouse rested, and the side cards + the `‹ ›` arrows must always keep it
+  flowing. Momentum is **not** frozen: an arrow nudge already in flight still decays out, so the arrows
+  work with the cursor parked mid-stage. Resolved **by geometry at the stage** (never CSS `:hover` — the
+  cards are `pointer-events:none`, so a hover target would swallow the tap-to-nearest clicks this
+  carousel was rebuilt to fix) and **mouse only**, so touch and the reduced-motion freeze are untouched.
+  Guarded by `hoverPause_logic.mjs` + `hover_pause_assert.mjs`, both in CI.
 - **Badge cards → dark "game vaults" (2026-07-13, user directive: "make the lumens and streak
   badge cards a dark, addicting game gradient — still matching the homepage, both different;
   the streak orange more vibrant; rename Badge collection → Daily streak vault")**: the two
