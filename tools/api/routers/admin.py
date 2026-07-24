@@ -348,12 +348,14 @@ async def _ai_insight_narrative(name: str, findings: list[dict]) -> str:
 
 
 @router.get("/api/admin/student/{student_id}/insights")
-@limiter.limit("20/minute")
+@limiter.shared_limit("20/minute", scope="admin_student_insights")
 async def admin_student_insights(student_id: str, request: Request, current_user: CurrentUser = Depends(require_staff)):
     """On-demand teaching insights for one student across all three features. Kept SEPARATE
     from /detail so the (paid) AI narrative only runs when a lecturer explicitly asks.
     Per-user rate limit so the paid Gemini call can't be hammered (quota/cost protection),
-    matching every other AI endpoint."""
+    matching every other AI endpoint. shared_limit (not limit) pins the bucket to a fixed
+    scope: slowapi defaults to key_style="url", so a plain limit would put {student_id} in
+    the bucket key and let a caller dodge the cap by looping over different ids."""
     try:
         profile = await get_profile(student_id) or {}
         sessions = await db.get_sessions(student_id, limit=30)
