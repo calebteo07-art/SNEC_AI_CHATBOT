@@ -67,6 +67,27 @@ def test_activity_feed_omits_grade_fields_when_ungraded():
     assert item["total_score"] == 28
 
 
+def test_activity_feed_keeps_missed_critical_empty_list_for_safe_attempt():
+    """A safe attempt has missed_critical == [] (safe = not missed_critical, see
+    station_score.py) — a truthy check on the value would silently drop the key for
+    exactly the rows where it's most informative, making a safe graded attempt
+    indistinguishable on the wire from a pre-migration ungraded row. The key must be
+    present (as an empty list) whenever the row was actually graded."""
+    cases = [{
+        "student_id": "act1", "case_id": "case_ot_003", "total_score": 38,
+        "passed": True, "completed_at": "2026-07-20T10:00:00Z",
+        "score_100": 95, "safe": True, "missed_critical": [],
+    }]
+    p1, p2, p3, p4 = _patches(cases)
+    with p1, p2, p3, p4:
+        r = client.get("/api/admin/activity", cookies=_admin_cookie())
+    assert r.status_code == 200
+    item = next(i for i in r.json()["feed"] if i["type"] == "case")
+    assert item["safe"] is True
+    assert "missed_critical" in item
+    assert item["missed_critical"] == []
+
+
 def test_activity_feed_keeps_display_detail_string():
     """`detail` still drives the human-readable feed row — additive change only."""
     cases = [{
