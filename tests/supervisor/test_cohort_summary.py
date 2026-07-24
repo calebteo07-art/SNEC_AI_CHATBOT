@@ -47,4 +47,4 @@ async def test_cohort_summary_weakest_topics():
         mock_date.fromisoformat = real_date.fromisoformat
         from tools.supervisor.cohort_summary import cohort_summary
         result = await cohort_summary()
-    assert result["weakest_topics"][0] == "glaucoma"  # appears in 2 profiles
+    assert result["weakest_topics"][0] == {"topic": "glaucoma", "count": 2}  # appears in 2 profiles

@@ -20,11 +20,15 @@ router = APIRouter()
 
 # ── Supervisor models ──────────────────────────────────────────────────────
 
+class WeakTopic(BaseModel):
+    topic: str
+    count: int
+
 class CohortSummaryResponse(BaseModel):
     total: int
     active_this_week: int
     inactive_7_plus_days: list[dict]
-    weakest_topics: list[str]
+    weakest_topics: list[WeakTopic]
     at_risk_count: int
 
 class AtRiskResponse(BaseModel):
@@ -205,7 +209,7 @@ async def supervisor_insights(request: Request, current_user: CurrentUser = Depe
         f"Cohort size: {cohort.get('total', 0)} students\n"
         f"Active this week: {cohort.get('active_this_week', 0)}\n"
         f"At-risk count: {cohort.get('at_risk_count', 0)}\n"
-        f"Weakest topics: {', '.join(cohort.get('weakest_topics', [])) or 'none recorded'}\n"
+        f"Weakest topics: {', '.join(t['topic'] for t in cohort.get('weakest_topics', [])) or 'none recorded'}\n"
         f"At-risk students: {len(at_risk)}"
     )
     from tools.shared.gemini_client import ask, MODEL
