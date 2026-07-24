@@ -55,6 +55,7 @@ async def admin_list_approved(current_user: CurrentUser = Depends(require_staff)
     return {"students": rows}
 
 @router.post("/api/admin/approved")
+@limiter.limit("20/minute")
 async def admin_approve_student(body: ApproveStudentRequest, request: Request, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     if not email:
@@ -118,6 +119,9 @@ async def admin_approve_student(body: ApproveStudentRequest, request: Request, c
     return {"ok": True, "email_sent": email_sent, "email_error": email_error, "password": plain_pw}
 
 @router.delete("/api/admin/approved/{email}")
+# shared_limit (fixed scope) not limit(): the path is templated by {email}, and slowapi's
+# default key_style="url" buckets per exact request path — plain @limiter.limit would let
+# a loop over many different target emails dodge the cap entirely (each gets its own bucket).
 @limiter.shared_limit("20/minute", scope="admin_unapprove_student")
 async def admin_unapprove_student(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     deleted = await db.delete_approved(email.lower())
@@ -271,6 +275,7 @@ async def admin_activity_trend(request: Request, days: int = 21,
     ]}
 
 @router.post("/api/admin/promote")
+@limiter.limit("20/minute")
 async def admin_promote(body: PromoteRequest, request: Request, current_user: CurrentUser = Depends(require_admin)):
     email = body.email.strip().lower()
     new_role = body.new_role.strip().lower()
@@ -285,6 +290,7 @@ async def admin_promote(body: PromoteRequest, request: Request, current_user: Cu
     return {"ok": True}
 
 @router.delete("/api/admin/promote/{email}")
+# shared_limit (fixed scope): same {email}-in-path rationale as admin_unapprove_student above.
 @limiter.shared_limit("20/minute", scope="admin_demote")
 async def admin_demote(email: str, request: Request, current_user: CurrentUser = Depends(require_admin)):
     await db.delete_supervisor(email.lower())
@@ -541,7 +547,8 @@ _VALID_ROLES = {"OA", "OT", "PSA"}
 
 
 @router.post("/api/admin/upload-csv")
-async def admin_upload_csv(file: UploadFile = File(...), current_user: CurrentUser = Depends(require_admin)):
+@limiter.limit("5/minute")
+async def admin_upload_csv(request: Request, file: UploadFile = File(...), current_user: CurrentUser = Depends(require_admin)):
     from tools.shared.gmail_sender import send_email as _send_email
 
     content = await file.read()
