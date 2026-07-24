@@ -187,13 +187,29 @@ async def supervisor_benchmarks(current_user: CurrentUser = Depends(require_staf
 
 @router.post("/api/supervisor/send-digest")
 async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser = Depends(require_staff)):
+    """Send the weekly cohort digest.
+
+    The recipient MUST be a known staff address. It previously came straight off the
+    request body, so any staff token could mail cohort data (names, activity, weak
+    topics) to an arbitrary external address. Fails closed: if the roster can't be
+    read, refuse rather than send."""
+    recipient = body.recipient.strip().lower()
     try:
-        await _send_digest(body.recipient)
+        staff = await db.get_staff_roster()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Recipient allow-list unavailable. Please try again.")
+    allowed = {(s.get("email") or "").strip().lower() for s in staff}
+    if recipient not in allowed:
+        # Non-enumerating: same message whether the address exists elsewhere or not.
+        raise HTTPException(status_code=400, detail="Recipient must be a registered staff address.")
+
+    try:
+        await _send_digest(recipient)
     except RuntimeError:
         raise HTTPException(status_code=503, detail="Operation failed. Please try again.")
     except Exception:
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
-    return {"ok": True, "sent_to": body.recipient}
+    return {"ok": True, "sent_to": recipient}
 
 
 @router.get("/api/supervisor/insights", response_model=SupervisorInsightsResponse)
