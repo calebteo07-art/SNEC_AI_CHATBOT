@@ -53,3 +53,19 @@ def test_digest_fails_closed_when_roster_unavailable():
                         cookies=_staff_cookie("stu_digest3"))
     assert r.status_code == 503
     mock_send.assert_not_called()
+
+
+def test_digest_rejects_blank_recipient_even_with_blank_email_roster_row():
+    """A blank-email roster row must never widen the allow-list to admit "".
+
+    The gate must pin this at the handler boundary, not rely on get_staff_roster()
+    upstream never returning a blank email.
+    """
+    roster_with_blank = [{"email": ""}, {"email": "coach@snec.com.sg"}]
+    with patch("tools.shared.db.get_staff_roster", new=AsyncMock(return_value=roster_with_blank)), \
+         patch("tools.api.routers.supervisor._send_digest", new=AsyncMock()) as mock_send:
+        r = client.post("/api/supervisor/send-digest",
+                        json={"recipient": ""},
+                        cookies=_staff_cookie("stu_digest4"))
+    assert r.status_code == 400
+    mock_send.assert_not_called()

@@ -194,11 +194,17 @@ async def supervisor_send_digest(body: DigestRequest, current_user: CurrentUser 
     topics) to an arbitrary external address. Fails closed: if the roster can't be
     read, refuse rather than send."""
     recipient = body.recipient.strip().lower()
+    if not recipient:
+        # Same message as the not-in-roster branch below — non-enumerating.
+        raise HTTPException(status_code=400, detail="Recipient must be a registered staff address.")
     try:
         staff = await db.get_staff_roster()
     except Exception:
         raise HTTPException(status_code=503, detail="Recipient allow-list unavailable. Please try again.")
-    allowed = {(s.get("email") or "").strip().lower() for s in staff}
+    # Exclude blank emails so a blank-email roster row can never widen the
+    # allow-list to admit a blank recipient — the gate must not depend on
+    # get_staff_roster() upstream never returning one.
+    allowed = {e for s in staff if (e := (s.get("email") or "").strip().lower())}
     if recipient not in allowed:
         # Non-enumerating: same message whether the address exists elsewhere or not.
         raise HTTPException(status_code=400, detail="Recipient must be a registered staff address.")
