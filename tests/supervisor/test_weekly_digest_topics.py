@@ -15,10 +15,12 @@ from tools.supervisor.weekly_digest import _weak_topics_section
 
 
 def _pill_texts(html: str) -> list[str]:
-    """Extract each pill's rendered inner text (between the style attribute
-    and its closing </span>) — avoids false positives from the bare digits
-    already present in the inline CSS (border-radius:20px, 1px solid, ...)."""
-    return re.findall(r'font-weight:500">([^<]+)</span>', html)
+    """Extract each pill's rendered inner text. Matches on element shape
+    (`<span ...>...</span>`), not a specific CSS value, so restyling the
+    pill (font-weight, property order, colour) can't silently break this
+    into a false failure — `_weak_topics_section`'s only <span>s are the
+    pills, and the wrapping <h3>/<p> never nest one."""
+    return re.findall(r'<span[^>]*>([^<]+)</span>', html)
 
 
 def test_renders_humanised_topic_names():
