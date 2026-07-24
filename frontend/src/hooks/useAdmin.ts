@@ -19,9 +19,10 @@ async function getJSON<T>(url: string, fallback: T): Promise<T> {
   }
 }
 
+export interface WeakTopic { topic: string; count: number }
 export interface Cohort {
   total: number; active_this_week: number; at_risk_count: number;
-  weakest_topics: string[]; inactive_7_plus_days: { student_id: string; days_inactive: number }[];
+  weakest_topics: WeakTopic[]; inactive_7_plus_days: { student_id: string; days_inactive: number }[];
 }
 export function useCohort() {
   return useQuery<Cohort>({
