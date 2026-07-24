@@ -223,7 +223,7 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
             item["score_100"] = int(c["score_100"])
         if c.get("safe") is not None:
             item["safe"] = bool(c["safe"])
-        if c.get("missed_critical"):
+        if c.get("missed_critical") is not None:
             item["missed_critical"] = [str(m) for m in c["missed_critical"]]
         feed.append(item)
     feed.sort(key=lambda x: x["timestamp"], reverse=True)
