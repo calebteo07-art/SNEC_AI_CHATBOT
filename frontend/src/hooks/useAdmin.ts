@@ -1,22 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ApprovedStudent } from "@/screens/adminShared";
 
-/* React-Query hooks for the dark Admin dashboard. Thin wrappers over the
-   EXISTING supervisor/admin read endpoints (re-gated to require_staff in the
-   backend phase). "Real-time" = fresh-on-focus + a ~30s poll; every fetch
-   degrades to a safe fallback (never throws) so the page renders before the two
-   additive migrations land. Namespaced under ["admin", …] so the Refresh
-   control can invalidate the whole board in one call. */
+/* React-Query hooks for the dark Admin dashboard. Thin wrappers over the supervisor/
+   admin read endpoints. "Real-time" = fresh-on-focus + a ~30s poll. Fetches THROW on a
+   non-ok response so React Query surfaces isError and the board can render a real error
+   state — returning a zero-valued fallback made a broken backend indistinguishable from
+   an empty cohort. Namespaced under ["admin", …] so Refresh invalidates the whole board. */
 const LIVE = { refetchOnWindowFocus: true, refetchInterval: 30_000, staleTime: 15_000 } as const;
 
-async function getJSON<T>(url: string, fallback: T): Promise<T> {
-  try {
-    const res = await fetch(url, { credentials: "include" });
-    if (!res.ok) return fallback;
-    return (await res.json()) as T;
-  } catch {
-    return fallback;
-  }
+async function getJSON<T>(url: string): Promise<T> {
+  const res = await fetch(url, { credentials: "include" });
+  if (!res.ok) throw new Error(`${url} → ${res.status}`);
+  return (await res.json()) as T;
 }
 
 export interface WeakTopic { topic: string; count: number }
@@ -27,8 +22,7 @@ export interface Cohort {
 export function useCohort() {
   return useQuery<Cohort>({
     queryKey: ["admin", "cohort"],
-    queryFn: () => getJSON<Cohort>("/api/supervisor/cohort",
-      { total: 0, active_this_week: 0, at_risk_count: 0, weakest_topics: [], inactive_7_plus_days: [] }),
+    queryFn: () => getJSON<Cohort>("/api/supervisor/cohort"),
     ...LIVE,
   });
 }
@@ -41,7 +35,7 @@ export function useAtRisk() {
   return useQuery<AtRiskRow[]>({
     queryKey: ["admin", "at-risk"],
     queryFn: async () => {
-      const d = await getJSON<{ students?: AtRiskRow[]; at_risk?: AtRiskRow[] }>("/api/supervisor/at-risk", {});
+      const d = await getJSON<{ students?: AtRiskRow[]; at_risk?: AtRiskRow[] }>("/api/supervisor/at-risk");
       return d.students ?? d.at_risk ?? [];
     },
     ...LIVE,
@@ -55,7 +49,7 @@ export interface RosterRow {
 export function useRoster() {
   return useQuery<RosterRow[]>({
     queryKey: ["admin", "roster"],
-    queryFn: async () => (await getJSON<{ students?: RosterRow[] }>("/api/admin/students", {})).students ?? [],
+    queryFn: async () => (await getJSON<{ students?: RosterRow[] }>("/api/admin/students")).students ?? [],
     ...LIVE,
   });
 }
@@ -71,7 +65,7 @@ export interface StaffRow {
 export function useStaff() {
   return useQuery<StaffRow[]>({
     queryKey: ["admin", "staff"],
-    queryFn: async () => (await getJSON<{ staff?: StaffRow[] }>("/api/admin/staff", {})).staff ?? [],
+    queryFn: async () => (await getJSON<{ staff?: StaffRow[] }>("/api/admin/staff")).staff ?? [],
     ...LIVE,
   });
 }
@@ -83,7 +77,7 @@ export function useStaff() {
 export function useApproved() {
   return useQuery<ApprovedStudent[]>({
     queryKey: ["admin", "approved"],
-    queryFn: async () => (await getJSON<{ students?: ApprovedStudent[] }>("/api/admin/approved", {})).students ?? [],
+    queryFn: async () => (await getJSON<{ students?: ApprovedStudent[] }>("/api/admin/approved")).students ?? [],
     ...LIVE,
   });
 }
@@ -107,7 +101,7 @@ export function useStudentDetail(id: string | null) {
   return useQuery<StudentDetail | null>({
     queryKey: ["admin", "student", id],
     enabled: !!id,
-    queryFn: () => getJSON<StudentDetail | null>(`/api/admin/student/${id}/detail`, null),
+    queryFn: () => getJSON<StudentDetail | null>(`/api/admin/student/${id}/detail`),
     ...LIVE,
   });
 }
@@ -116,7 +110,7 @@ export interface Benchmark { topic: string; avg_score: number; student_count: nu
 export function useBenchmarks() {
   return useQuery<Benchmark[]>({
     queryKey: ["admin", "benchmarks"],
-    queryFn: async () => (await getJSON<{ topics?: Benchmark[] }>("/api/supervisor/benchmarks", {})).topics ?? [],
+    queryFn: async () => (await getJSON<{ topics?: Benchmark[] }>("/api/supervisor/benchmarks")).topics ?? [],
     ...LIVE,
   });
 }
@@ -131,7 +125,7 @@ export interface FeedItem {
 export function useActivity() {
   return useQuery<FeedItem[]>({
     queryKey: ["admin", "activity"],
-    queryFn: async () => (await getJSON<{ feed?: FeedItem[] }>("/api/admin/activity", {})).feed ?? [],
+    queryFn: async () => (await getJSON<{ feed?: FeedItem[] }>("/api/admin/activity")).feed ?? [],
     ...LIVE,
   });
 }
@@ -143,7 +137,7 @@ export function useActivityTrend(days = 21) {
   return useQuery<TrendDay[]>({
     queryKey: ["admin", "activity-trend", days],
     queryFn: async () =>
-      (await getJSON<{ days?: TrendDay[] }>(`/api/admin/activity-trend?days=${days}`, {})).days ?? [],
+      (await getJSON<{ days?: TrendDay[] }>(`/api/admin/activity-trend?days=${days}`)).days ?? [],
     ...LIVE,
   });
 }
@@ -152,7 +146,7 @@ export interface TokenSummary { total_tokens: number; by_student: { student_id: 
 export function useTokenSummary() {
   return useQuery<TokenSummary>({
     queryKey: ["admin", "token-summary"],
-    queryFn: () => getJSON<TokenSummary>("/api/admin/token-summary", { total_tokens: 0, by_student: [] }),
+    queryFn: () => getJSON<TokenSummary>("/api/admin/token-summary"),
     ...LIVE,
   });
 }
@@ -162,12 +156,11 @@ export interface AuditEvent {
   target: string; feature: string; detail: string; ip?: string | null;
 }
 /** Durable security/privilege audit trail (audit_events, migration 014) — admin-only.
-    Newest first; the recent window is fetched once and filtered client-side. Degrades to
-    an empty list (never throws) so the tab renders even if the table is unavailable. */
+    Newest first; the recent window is fetched once and filtered client-side. */
 export function useAudit() {
   return useQuery<AuditEvent[]>({
     queryKey: ["admin", "audit"],
-    queryFn: async () => (await getJSON<{ events?: AuditEvent[] }>("/api/admin/audit?limit=200", {})).events ?? [],
+    queryFn: async () => (await getJSON<{ events?: AuditEvent[] }>("/api/admin/audit?limit=200")).events ?? [],
     ...LIVE,
   });
 }
@@ -175,7 +168,16 @@ export function useAudit() {
 export function useCohortInsight() {
   return useQuery<string>({
     queryKey: ["admin", "insight"],
-    queryFn: async () => (await getJSON<{ narrative?: string }>("/api/supervisor/insights", {})).narrative ?? "",
+    // Deliberately tolerant: a quota/AI failure is an absent narrative, not a board
+    // error. Every other hook throws; this one resolves to "" and the panel hides.
+    queryFn: async () => {
+      try {
+        const d = await getJSON<{ narrative?: string }>("/api/supervisor/insights");
+        return d.narrative ?? "";
+      } catch {
+        return "";
+      }
+    },
     // The insight is a paid, rate-limited (10/min) Gemini call — do NOT poll it.
     // Fresh on manual Refresh + a 5-min stale window only. (Prod-cost invariant.)
     refetchOnWindowFocus: false,

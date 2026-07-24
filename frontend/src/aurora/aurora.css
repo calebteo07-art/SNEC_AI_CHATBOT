@@ -3582,3 +3582,24 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-gauge-num { fill: var(--ink); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
 .aurora-admin .aurora-bar-seg { height: 100%; display: block; }
+
+.aurora-admin .aurora-skel { display: flex; flex-direction: column; gap: 8px; }
+.aurora-admin .aurora-skel-bar {
+  height: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.13), rgba(255,255,255,.06));
+  background-size: 200% 100%;
+  animation: aurora-skel-shimmer 1.4s ease-in-out infinite;
+}
+.aurora-admin .aurora-skel-bar:nth-child(2) { width: 82%; }
+.aurora-admin .aurora-skel-bar:nth-child(3) { width: 64%; }
+@keyframes aurora-skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.aurora-admin .aurora-panel-error {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-admin .aurora-skel-bar { animation: none; }
+}

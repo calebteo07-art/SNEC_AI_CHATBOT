@@ -11,6 +11,7 @@ import { DonutGauge } from "@/aurora/components/charts/DonutGauge";
 import { BarSeries, type BarRow } from "@/aurora/components/charts/BarSeries";
 import { fmtTokens } from "@/screens/adminShared";
 import { useCohort, useAtRisk, useBenchmarks, useActivity, useActivityTrend, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
+import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState";
 
 export function AdminCohort() {
   const cohort = useCohort();
@@ -76,15 +77,19 @@ export function AdminCohort() {
   const mostMissed = [...missCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const missMax = mostMissed.length ? mostMissed[0][1] : 1;
 
+  // A KPI must never render 0 while loading or failed — that reads as a real measurement.
+  const kpi = (q: { isLoading: boolean; isError: boolean }, v: string | number) =>
+    q.isLoading ? "…" : q.isError ? "—" : v;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div className="aurora-kpis">
-        <StatCard tone="blue" label="Total students" value={total} />
-        <StatCard tone="green" label="Active this week" value={active} />
-        <StatCard tone="rose" label="At risk" value={atRiskCount} />
-        <StatCard tone="purple" label="Avg mastery" value={avgMastery === null ? "—" : `${avgMastery}%`} />
-        <StatCard tone="blue" label="Avg OSCE" value={avgOsce === null ? "—" : `${avgOsce}%`} />
-        <StatCard tone="purple" label="AI tokens" value={fmtTokens(tokens.data?.total_tokens ?? 0)} />
+        <StatCard tone="blue" label="Total students" value={kpi(cohort, total)} />
+        <StatCard tone="green" label="Active this week" value={kpi(cohort, active)} />
+        <StatCard tone="rose" label="At risk" value={kpi(cohort, atRiskCount)} />
+        <StatCard tone="purple" label="Avg mastery" value={kpi(benchmarks, avgMastery === null ? "—" : `${avgMastery}%`)} />
+        <StatCard tone="blue" label="Avg OSCE" value={kpi(activity, avgOsce === null ? "—" : `${avgOsce}%`)} />
+        <StatCard tone="purple" label="AI tokens" value={kpi(tokens, fmtTokens(tokens.data?.total_tokens ?? 0))} />
       </div>
 
       {insight.data && <div className="aurora-insight"><p>“{insight.data}”</p></div>}
@@ -92,17 +97,29 @@ export function AdminCohort() {
       <div className="aurora-admin-grid">
         <section className="aurora-panel">
           <p className="aurora-panel-head">Activity · last 3 weeks</p>
-          <TrendChart values={trend} tone="blue" />
-          <p className="aurora-unavail" style={{ marginTop: 8 }}>
-            {trend.length
-              ? `${trend.reduce((a, b) => a + b, 0)} activity events across the cohort in the last 3 weeks.`
-              : "No activity events in the last 3 weeks."}
-          </p>
+          {trendQ.isLoading ? (
+            <PanelSkeleton />
+          ) : trendQ.isError ? (
+            <PanelError onRetry={() => trendQ.refetch()} />
+          ) : (
+            <>
+              <TrendChart values={trend} tone="blue" />
+              <p className="aurora-unavail" style={{ marginTop: 8 }}>
+                {trend.length
+                  ? `${trend.reduce((a, b) => a + b, 0)} activity events across the cohort in the last 3 weeks.`
+                  : "No activity events in the last 3 weeks."}
+              </p>
+            </>
+          )}
         </section>
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">Cohort mastery by topic</p>
-          {heat.length ? (
+          {benchmarks.isLoading ? (
+            <PanelSkeleton />
+          ) : benchmarks.isError ? (
+            <PanelError onRetry={() => benchmarks.refetch()} />
+          ) : heat.length ? (
             <>
               <Heatmap values={heat} columns={Math.min(10, heat.length)} />
               <p className="aurora-unavail" style={{ marginTop: 8 }}>{bench.length} topics benchmarked · avg {avgMastery}%.</p>
@@ -112,17 +129,33 @@ export function AdminCohort() {
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">Weakest topics (cohort)</p>
-          <BarSeries rows={weakRows} />
+          {cohort.isLoading ? (
+            <PanelSkeleton />
+          ) : cohort.isError ? (
+            <PanelError onRetry={() => cohort.refetch()} />
+          ) : (
+            <BarSeries rows={weakRows} />
+          )}
         </section>
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">Topic benchmarks (lowest first)</p>
-          <BarSeries rows={benchRows} />
+          {benchmarks.isLoading ? (
+            <PanelSkeleton />
+          ) : benchmarks.isError ? (
+            <PanelError onRetry={() => benchmarks.refetch()} />
+          ) : (
+            <BarSeries rows={benchRows} />
+          )}
         </section>
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">OSCE safety-failure rate</p>
-          {safetyRate === null ? (
+          {activity.isLoading ? (
+            <PanelSkeleton />
+          ) : activity.isError ? (
+            <PanelError onRetry={() => activity.refetch()} />
+          ) : safetyRate === null ? (
             <p className="aurora-unavail">No graded station attempts in the recent activity window yet.</p>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -134,7 +167,11 @@ export function AdminCohort() {
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">Most-missed OSCE steps</p>
-          {mostMissed.length ? (
+          {activity.isLoading ? (
+            <PanelSkeleton />
+          ) : activity.isError ? (
+            <PanelError onRetry={() => activity.refetch()} />
+          ) : mostMissed.length ? (
             <BarSeries max={missMax} rows={mostMissed.map(([step, n]) => ({ label: step, segments: [{ value: n, tone: "rose" }], readout: String(n), weak: true }))} />
           ) : (
             <p className="aurora-unavail">No missed critical steps recorded in the recent activity window.</p>
