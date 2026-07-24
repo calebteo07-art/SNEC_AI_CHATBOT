@@ -17,6 +17,7 @@
    first card (Mixed) facing front. The component API (cards / onPick / autoAdvanceMs) and every
    test hook (flash-fan, flash-pick, data-card-id, flash-prev/next) are unchanged. No numbers/dots. */
 import { useState, useEffect, useRef, useCallback } from "react";
+import { inFrontCardZone } from "@/aurora/lib/hoverPause";
 
 export interface FanCard {
   id: string;
@@ -95,6 +96,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
   const targetRef = useRef(0);         // eased target when nudging / after a flick
   const velRef = useRef(0);            // instantaneous drag velocity → flick momentum
   const draggingRef = useRef(false);
+  const hoverRef = useRef(false);      // cursor over the FRONT card → hold the idle drift
   const paintRef = useRef<() => void>(() => {});
   const total = cards.length;
   const [reduced, setReduced] = useState(false);
@@ -183,10 +185,12 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
           const d = targetRef.current - flowRef.current;
           if (Math.abs(d) > 0.001) {
             flowRef.current += d * 0.12;              // ease toward a nudged/flicked target
-          } else {
+          } else if (!hoverRef.current) {
             flowRef.current += dt * speed;            // idle drift around the ring
             targetRef.current = flowRef.current;
           }
+          // Hovering the FRONT card holds the idle drift (the branch above) so you can read
+          // and pick it; an arrow nudge or a flick already in flight still eases home first.
         }
         paint();
         raf = requestAnimationFrame(tick);
@@ -210,7 +214,19 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     d.lastX = e.clientX; d.lastT = performance.now(); d.startT = d.lastT;
     draggingRef.current = true;
   };
+  // Hover-pause is resolved here at the stage for the same reason picks are: the cards are
+  // pointer-events:none, so a CSS :hover target would swallow the taps. The zone is the FRONT
+  // CARD only — a box its laid-out size, centred on the stage — so the banked neighbours and
+  // the arrows keep the ring drifting. Mouse only: touch has no hover, and a finger drag must
+  // never leave the ring frozen.
+  const updateHover = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") return;
+    const card = containerRef.current?.querySelector<HTMLElement>(".fan-card");
+    hoverRef.current = !!card && inFrontCardZone(
+      e.currentTarget.getBoundingClientRect(), card.offsetWidth, card.offsetHeight, e.clientX, e.clientY);
+  };
   const onPointerMove = (e: React.PointerEvent) => {
+    updateHover(e);
     const d = drag.current;
     if (!d.down) return;
     const cw = measureCardWidth(containerRef.current);
@@ -236,6 +252,8 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
     if (reduced) { flowRef.current = targetRef.current; paintRef.current(); }
     velRef.current = 0;
   };
+  // Cursor off the stage: no hover, and any drag that wandered out settles.
+  const leaveStage = () => { hoverRef.current = false; endDrag(); };
   // Open the windowed, FRONT-FACING topic whose live on-screen centre is nearest the tap X —
   // independent of the drift/projection, and ignoring parked cards (outside the window), which
   // can project near the same centre X but are hidden.
@@ -278,7 +296,7 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
             card rects. .fan-ring is the 3D context the windowed cards are placed into. */}
         <div className="fan-layout" data-testid="flash-fan"
           onPointerDown={onPointerDown} onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp} onPointerCancel={endDrag} onPointerLeave={endDrag}>
+          onPointerUp={onPointerUp} onPointerCancel={endDrag} onPointerLeave={leaveStage}>
           <div ref={containerRef} className="fan-ring">
           {cards.map((card, i) => (
             <button key={card.id} type="button"
