@@ -136,6 +136,18 @@ export function useActivity() {
   });
 }
 
+export interface TrendDay { date: string; sessions: number; cases: number; total: number }
+/** Server-side per-day activity counts. Replaces bucketing the (80-item capped)
+    activity feed client-side, which silently undercounted at cohort volume. */
+export function useActivityTrend(days = 21) {
+  return useQuery<TrendDay[]>({
+    queryKey: ["admin", "activity-trend", days],
+    queryFn: async () =>
+      (await getJSON<{ days?: TrendDay[] }>(`/api/admin/activity-trend?days=${days}`, {})).days ?? [],
+    ...LIVE,
+  });
+}
+
 export interface TokenSummary { total_tokens: number; by_student: { student_id: string; tokens: number }[]; }
 export function useTokenSummary() {
   return useQuery<TokenSummary>({
