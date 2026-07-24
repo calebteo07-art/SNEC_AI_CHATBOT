@@ -50,7 +50,7 @@ def _weak_topics_section(topics: list[dict]) -> str:
         '<span style="display:inline-block;margin:0 6px 6px 0;padding:5px 14px;'
         'border-radius:20px;border:1px solid ' + C_RED + '40;'
         'background:' + C_RED + '0d;color:' + C_RED + ';font-size:12px;font-weight:500">'
-        + t["topic"].replace("_", " ") + ' · ' + str(t["count"]) + '</span>'
+        + t["topic"].replace("_", " ") + '</span>'
         for t in topics
     )
     return (
