@@ -19,7 +19,7 @@ async def cohort_summary() -> dict:
             "total": int,
             "active_this_week": int,
             "inactive_7_plus_days": list[dict],
-            "weakest_topics": list[str],
+            "weakest_topics": list[{"topic": str, "count": int}],
             "at_risk_count": int,
         }
     """
@@ -66,6 +66,8 @@ async def cohort_summary() -> dict:
         "total": len(profiles),
         "active_this_week": active_this_week,
         "inactive_7_plus_days": inactive_7_plus,
-        "weakest_topics": [t for t, _ in topic_counter.most_common(3)],
+        "weakest_topics": [
+            {"topic": t, "count": n} for t, n in topic_counter.most_common(8)
+        ],
         "at_risk_count": at_risk_count,
     }

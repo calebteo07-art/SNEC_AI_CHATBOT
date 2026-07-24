@@ -43,14 +43,14 @@ def _bar(score: float) -> str:
     )
 
 
-def _weak_topics_section(topics: list[str]) -> str:
+def _weak_topics_section(topics: list[dict]) -> str:
     if not topics:
         return ""
     pills = "".join(
         '<span style="display:inline-block;margin:0 6px 6px 0;padding:5px 14px;'
         'border-radius:20px;border:1px solid ' + C_RED + '40;'
         'background:' + C_RED + '0d;color:' + C_RED + ';font-size:12px;font-weight:500">'
-        + t.replace("_", " ") + '</span>'
+        + t["topic"].replace("_", " ") + ' · ' + str(t["count"]) + '</span>'
         for t in topics
     )
     return (
