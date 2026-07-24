@@ -32,3 +32,29 @@ def test_student_insights_is_rate_limited_per_user():
         ]
     assert statuses[0] == 200, statuses
     assert 429 in statuses, f"expected a 429 once the per-minute cap is exceeded, got {statuses}"
+
+
+def test_student_insights_cap_holds_across_different_student_ids():
+    """The cap must key on the CALLER, not the {student_id} in the URL.
+
+    slowapi's Limiter defaults to key_style="url", so a plain @limiter.limit puts the
+    request path into the bucket key. With {student_id} in the path, a caller who loops
+    over MANY different ids gets a fresh bucket per id and never trips the counter — yet
+    every one of those requests still fires the paid Gemini narrative. Hammering distinct
+    ids (not one repeated id, which the test above already covers) must still be refused
+    with a 429. @limiter.shared_limit pins the bucket to a fixed scope, restoring this.
+    """
+    cookie = {"eyebot_token": create_access_token("stu_insights_rl_multi", "admin", "OA")}
+    with patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value={"full_name": "Ann"})), \
+         patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})):
+        statuses = [
+            client.get(f"/api/admin/student/stu_{i}/insights", cookies=cookie).status_code
+            for i in range(22)
+        ]
+    assert statuses[0] == 200, statuses
+    assert 429 in statuses, (
+        "one caller looping over distinct student_ids must still hit the per-user cap; "
+        f"got {statuses}"
+    )
