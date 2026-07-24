@@ -42,6 +42,7 @@ export function AdminProvisioning() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [accountSearch, setAccountSearch] = useState("");
   const [provMode, setProvMode] = useState<"one" | "csv">("one");
+  const [confirmRemove, setConfirmRemove] = useState<ApprovedStudent | null>(null);
 
   const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
@@ -250,7 +251,7 @@ export function AdminProvisioning() {
               </div>
               <span className="aurora-badge" data-tone={roleTone(s.role)}>{s.role}</span>
               <span className="aurora-badge" data-tone={s.student_id ? "green" : "amber"}>{s.student_id ? "Active" : "Pending"}</span>
-              <button type="button" className="aurora-acct-remove" onClick={() => handleRemove(s.email)} disabled={removing === s.email} aria-label={`Remove ${s.full_name}`}>
+              <button type="button" className="aurora-acct-remove" onClick={() => setConfirmRemove(s)} disabled={removing === s.email} aria-label={`Remove ${s.full_name}`}>
                 <Icon.close size={14} />
               </button>
             </div>
@@ -284,6 +285,37 @@ export function AdminProvisioning() {
           {promoteMsg && <p className="aurora-note is-ok" style={{ marginTop: 10 }}>{promoteMsg}</p>}
         </div>
       </details>
+
+      {confirmRemove && (
+        <div className="aurora-modal-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmRemove(null); }}>
+          <div className="aurora-modal" role="alertdialog" aria-modal="true" aria-label="Confirm account removal" style={{ maxWidth: 460 }}>
+            <div className="aurora-modal-head">
+              <div>
+                <p className="aurora-modal-eyebrow">Remove access</p>
+                <p className="aurora-modal-title">{confirmRemove.full_name}</p>
+              </div>
+            </div>
+            <div className="aurora-modal-body">
+              <p className="aurora-note">
+                This revokes access for <strong>{confirmRemove.email}</strong>. They will no longer be
+                able to sign in, and they disappear from the roster and all cohort figures.
+                This cannot be undone.
+              </p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 4 }}>
+                <button
+                  type="button"
+                  className="aurora-btn"
+                  disabled={removing === confirmRemove.email}
+                  onClick={() => { const email = confirmRemove.email; setConfirmRemove(null); handleRemove(email); }}
+                >
+                  {removing === confirmRemove.email ? "Removing…" : "Remove access"}
+                </button>
+                <button type="button" className="aurora-btn-ghost" onClick={() => setConfirmRemove(null)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
