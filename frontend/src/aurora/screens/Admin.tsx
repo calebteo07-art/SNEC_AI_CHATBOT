@@ -50,7 +50,7 @@ export function Admin() {
       </div>
 
       <p className="aurora-unavail" style={{ marginBottom: 18 }}>
-        Live cohort and per-student insights. Data refreshes automatically on focus and every 30 seconds. Switch the content pool (OA · PSA / OT) from the home toggle to view a discipline’s cohort.
+        Live cohort and per-student insights. Data refreshes automatically on focus and every 30 seconds.
       </p>
 
       {tab === "cohort" && <AdminCohort />}

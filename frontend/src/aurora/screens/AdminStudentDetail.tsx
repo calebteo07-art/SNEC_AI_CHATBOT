@@ -3,36 +3,21 @@
    shows mini-stats + sessions/cases/topics sub-tabs + a lecturer note. */
 import { useEffect, useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
+import { useStudentDetail } from "@/hooks/useAdmin";
 import { Icon } from "@/aurora/icons";
 import { EngagementBlock } from "@/aurora/components/EngagementBlock";
 import { buildStudentReportHtml, type StudentReportData } from "@/aurora/lib/studentReportExport";
 
-interface Session { session_id: string; timestamp: string; topic: string; token_count: number; model: string; }
-interface CaseRow {
-  case_id: string; total_score: number; passed: boolean; completed_at: string;
-  // Tier-2 OSCE grade (Phase-2 migration) — optional so this renders before it lands.
-  score_100?: number; safe?: boolean; consult_technique?: number; judgement_safety?: number; missed_critical?: string[];
-}
-interface DetailData {
-  student_id: string; full_name: string; email: string; role: string;
-  session_count: number; streak: number; last_active: string; learning_velocity: string;
-  weak_topics: string[]; missed_findings: string[]; retention_scores: Record<string, number>;
-  supervisor_note: string; sessions: Session[]; cases: CaseRow[]; total_tokens: number;
-  // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
-  flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
-  cohort_retention?: Record<string, number>;  // per-topic cohort avg (0–1), graceful until provided
-  // Cross-feature findings (tutor + flashcards + virtual patients); narrative filled on demand.
-  insights?: { findings: { feature: string; text: string }[]; narrative: string };
-}
 type SubTab = "sessions" | "cases" | "topics";
 const SUBTAB_LABEL: Record<SubTab, string> = {
   sessions: "Sessions", cases: "Virtual patients", topics: "Topics & gaps",
 };
 
 export function AdminStudentDetail({ studentId, onClose }: { studentId: string; onClose: () => void }) {
-  const [data, setData] = useState<DetailData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const detailQ = useStudentDetail(studentId);
+  const data = detailQ.data ?? null;
+  const loading = detailQ.isLoading;
+  const error = detailQ.isError;
   const [subTab, setSubTab] = useState<SubTab>("sessions");
   const [note, setNote] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -51,13 +36,10 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     setNarrLoading(false);
   };
 
+  // Seed the editable note once the record arrives (the textarea is local state).
   useEffect(() => {
-    fetch(`/api/admin/student/${studentId}/detail`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((d) => { setData(d); setNote(d.supervisor_note ?? ""); })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [studentId]);
+    if (data) setNote(data.supervisor_note ?? "");
+  }, [data]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };

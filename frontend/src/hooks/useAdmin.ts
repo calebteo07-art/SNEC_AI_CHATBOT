@@ -96,6 +96,9 @@ export interface StudentDetail {
   cases: CaseResult[]; total_tokens: number;
   // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
   flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
+  cohort_retention?: Record<string, number>;  // per-topic cohort avg (0–1), graceful until provided
+  // Cross-feature findings (tutor + flashcards + virtual patients); narrative filled on demand.
+  insights?: { findings: { feature: string; text: string }[]; narrative: string };
 }
 export function useStudentDetail(id: string | null) {
   return useQuery<StudentDetail | null>({
