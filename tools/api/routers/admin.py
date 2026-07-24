@@ -203,13 +203,29 @@ async def admin_activity(current_user: CurrentUser = Depends(require_staff)):
         if sid not in active_ids:
             continue
         passed = bool(c.get("passed", False))
-        feed.append({
+        case_id = str(c.get("case_id", ""))
+        total_score = int(c.get("total_score") or 0)
+        item = {
             "type": "case",
             "student_id": sid,
             "name": name_map.get(sid, sid[:8]),
-            "detail": str(c.get("case_id", "")) + (" ✓" if passed else " ✗") + " · " + str(c.get("total_score", 0)) + "/40",
+            # Human-readable row text (unchanged) — the structured fields below are what
+            # the cohort KPIs and OSCE panels read. Never parse numbers back out of this.
+            "detail": case_id + (" ✓" if passed else " ✗") + " · " + str(total_score) + "/40",
             "timestamp": str(c.get("completed_at", "")),
-        })
+            "case_id": case_id,
+            "total_score": total_score,
+            "passed": passed,
+        }
+        # Migration-011 rich grade columns. Omitted when absent so the frontend can tell
+        # "not graded under Tier-2" apart from "graded zero".
+        if c.get("score_100") is not None:
+            item["score_100"] = int(c["score_100"])
+        if c.get("safe") is not None:
+            item["safe"] = bool(c["safe"])
+        if c.get("missed_critical"):
+            item["missed_critical"] = [str(m) for m in c["missed_critical"]]
+        feed.append(item)
     feed.sort(key=lambda x: x["timestamp"], reverse=True)
     return {"feed": feed[:80]}
 
