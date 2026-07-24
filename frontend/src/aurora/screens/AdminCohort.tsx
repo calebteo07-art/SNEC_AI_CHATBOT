@@ -2,7 +2,8 @@
 /* Admin — cohort band. The top-of-page situational picture: KPI tiles, the
    AI cohort insight, an activity trend, weak-topic + cohort-benchmark bars, a
    topic-mastery heatmap, and the Tier-2 OSCE panels (safety-failure rate +
-   most-missed steps) which light up once the OSCE-grade migration is applied. */
+   most-missed steps), populated from the feed's Tier-2 case-grade fields once
+   a station attempt has been graded. */
 import { StatCard } from "@/aurora/components/StatCard";
 import { Heatmap } from "@/aurora/components/Heatmap";
 import { TrendChart } from "@/aurora/components/charts/TrendChart";
