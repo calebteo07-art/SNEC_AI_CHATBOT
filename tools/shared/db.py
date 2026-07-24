@@ -411,6 +411,33 @@ async def get_all_case_progress() -> list[dict]:
     return result.data or []
 
 
+async def get_sessions_since(since_iso: str) -> list[dict]:
+    """Sessions created at/after `since_iso` (ISO date or timestamp), all students.
+
+    Windowed at the DB so the activity-trend endpoint never pulls the full table onto
+    the single prod worker. Selects only the two columns the trend needs."""
+    client = await _get_client()
+    result = (
+        await client.table("chat_sessions")
+        .select("student_id, created_at")
+        .gte("created_at", since_iso)
+        .execute()
+    )
+    return result.data or []
+
+
+async def get_case_progress_since(since_iso: str) -> list[dict]:
+    """Case completions at/after `since_iso`, all students. See get_sessions_since."""
+    client = await _get_client()
+    result = (
+        await client.table("case_progress")
+        .select("student_id, completed_at")
+        .gte("completed_at", since_iso)
+        .execute()
+    )
+    return result.data or []
+
+
 # ── approved_students ─────────────────────────────────────────────────────────
 
 async def get_approved(email: str) -> dict | None:
