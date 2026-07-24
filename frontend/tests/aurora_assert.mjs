@@ -874,6 +874,43 @@ await ap.locator('[role="tab"]:has-text("Students")').click();
 await ap.waitForSelector(".aurora-trow.is-clickable", { timeout: 8000 });
 console.log("PASS: Admin — admin also gets the Accounts tab; the Students roster lists rows");
 
+// regression: AdminStudentDetail seeds its editable note from useStudentDetail, which
+// polls every 30s. The seeding effect must key off studentId (once per opened student),
+// NOT `data` (every poll) — a background refetch resolving to a new object reference
+// (session_count/last_active drift, even with the same note) must never clobber a
+// supervisor's in-progress draft. Reproduced live pre-fix: type a draft, wait one real
+// poll, draft gone. Proven here with a FAKE clock so the assertion stays fast — the
+// clock must be installed BEFORE the query mounts (a timer scheduled via the real
+// setTimeout pre-install is never advanced by a later fastForward).
+let detailFetches = 0;
+await adminCtx.route("**/api/admin/student/*/detail", (r) => {
+  detailFetches++;
+  r.fulfill(JSON_OK({
+    student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA",
+    session_count: 18 + detailFetches, streak: 6, last_active: new Date(Date.now() + detailFetches).toISOString(),
+    learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
+    supervisor_note: detailFetches === 1 ? "Original supervisor note" : "SERVER NOTE FROM POLL — must never clobber a draft",
+    sessions: [], cases: [], total_tokens: 1000 + detailFetches,
+  }));
+});
+await ap.clock.install();
+await ap.locator(".aurora-trow.is-clickable").first().click();
+const noteBox = ap.locator(".aurora-modal textarea.aurora-checkin-textarea");
+await noteBox.waitFor({ state: "visible", timeout: 8000 });
+await ap.waitForFunction(() => {
+  const ta = document.querySelector(".aurora-modal textarea.aurora-checkin-textarea");
+  return ta && ta.value === "Original supervisor note";
+}, null, { timeout: 8000 });
+const draft = "DRAFT — do not lose me";
+await noteBox.fill(draft);
+await ap.clock.fastForward(31_000); // past staleTime (15s) and the 30s poll
+await ap.waitForTimeout(500); // let the mocked round-trip + re-render settle (real time)
+if (detailFetches < 2) { console.error(`FAIL: test setup never triggered a second /detail fetch (fetches=${detailFetches}) — assertion is not meaningful`); process.exit(1); }
+const survived = await noteBox.inputValue();
+if (survived !== draft) { console.error(`FAIL: supervisor-note draft was clobbered by a background poll refetch (got "${survived}")`); process.exit(1); }
+console.log(`PASS: Admin — student-note draft survives a background poll refetch (${detailFetches} detail fetches observed)`);
+await ap.close();
+
 // a student must never reach the cohort-wide staff surface.
 const spg = await navCtx.newPage();
 await spg.goto(base + "/admin", { waitUntil: "domcontentloaded" });

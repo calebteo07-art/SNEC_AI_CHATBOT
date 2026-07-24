@@ -1,7 +1,7 @@
 "use client";
 /* AURORA student-detail modal (admin). Loads /api/admin/student/:id/detail and
    shows mini-stats + sessions/cases/topics sub-tabs + a lecturer note. */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fmtTokens } from "@/screens/adminShared";
 import { useStudentDetail } from "@/hooks/useAdmin";
 import { Icon } from "@/aurora/icons";
@@ -36,10 +36,18 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
     setNarrLoading(false);
   };
 
-  // Seed the editable note once the record arrives (the textarea is local state).
+  // Seed the editable note once per opened student — NOT on every poll refetch.
+  // useStudentDetail polls every 30s; a background refetch can resolve to a new
+  // object reference (last_active/session_count/sessions drift) even when the
+  // note itself hasn't changed, and re-seeding on every `data` change would
+  // overwrite mid-edit supervisor input with the stale server value.
+  const seededFor = useRef<string | null>(null);
   useEffect(() => {
-    if (data) setNote(data.supervisor_note ?? "");
-  }, [data]);
+    if (data && seededFor.current !== studentId) {
+      setNote(data.supervisor_note ?? "");
+      seededFor.current = studentId;
+    }
+  }, [data, studentId]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
