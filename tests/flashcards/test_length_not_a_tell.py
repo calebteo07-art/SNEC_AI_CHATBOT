@@ -21,6 +21,9 @@ REBALANCED_TOPICS: set[str] = {
     "professional_ethics",
     "disorders_cornea_conjunctiva",
     "disorders_lens_cataract",
+    "disorders_uvea_retina",
+    "microbiology_infection",
+    "ocular_emergencies",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
