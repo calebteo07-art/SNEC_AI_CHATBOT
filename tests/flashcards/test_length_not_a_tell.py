@@ -30,6 +30,18 @@ REBALANCED_TOPICS: set[str] = {
     "disorders_eyelid_lacrimal_orbit",
     "eye_drops",
     "pupil_dilation",
+    "red_eye",
+    "triage",
+    "history_taking",
+    "distance_va",
+    "near_vision",
+    "pinhole",
+    "iop_nct",
+    "colour_vision",
+    "amsler_macula",
+    "fall_risk",
+    "perioperative",
+    "abbreviations",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
@@ -109,3 +121,29 @@ def test_naive_longest_picker_scores_near_chance_on_rebalanced():
     assert rate <= 0.40, (
         f"'always pick longest' scores {rate:.0%} across rebalanced cards "
         f"— length still leaks the answer")
+
+
+# A student can only act on a length difference they can actually see. Options
+# now sit within a few characters of each other, so we score the heuristic a
+# real person could run: pick the longest option, but only when it stands out;
+# otherwise you are guessing. This is the metric that matters, and it must land
+# at chance (25% on a 4-option card).
+VISIBLE_GAP = 5  # chars the longest must beat the runner-up by to be "obvious"
+
+
+def test_visibly_longest_option_is_no_better_than_guessing():
+    cards = [c for tk in REBALANCED_TOPICS for c in _single_cards(tk)]
+    assert cards
+    score = 0.0
+    for c in cards:
+        lens = [len(o) for o in c["options"]]
+        ranked = sorted(lens, reverse=True)
+        if ranked[0] - ranked[1] >= VISIBLE_GAP:
+            picks = [i for i, L in enumerate(lens) if L == ranked[0]]
+        else:
+            picks = list(range(len(lens)))  # no visible tell, so guess
+        score += (1.0 if c["correct"][0] in picks else 0.0) / len(picks)
+    rate = score / len(cards)
+    assert rate <= 0.30, (
+        f"picking the visibly-longest option scores {rate:.0%} (chance is 25%) "
+        f"— option length is still worth exploiting")
