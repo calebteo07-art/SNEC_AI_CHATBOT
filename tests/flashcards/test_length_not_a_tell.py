@@ -28,6 +28,8 @@ REBALANCED_TOPICS: set[str] = {
     "neuro_strabismus",
     "pharmacology",
     "disorders_eyelid_lacrimal_orbit",
+    "eye_drops",
+    "pupil_dilation",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
