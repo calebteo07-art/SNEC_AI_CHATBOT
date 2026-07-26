@@ -17,6 +17,7 @@ from tools.flashcards.static_cards import FLASHCARDS
 # Topics whose options have been length-balanced. Extend as each topic is done.
 REBALANCED_TOPICS: set[str] = {
     "systemic_disease",
+    "anatomy_physiology",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
