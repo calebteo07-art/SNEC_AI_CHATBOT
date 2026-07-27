@@ -9,7 +9,8 @@
    Scenarios:
      1. Pause → Switch deck → confirm            ⇒ 1 forfeit   (the reported loophole)
      2. Pause → Quit → confirm                   ⇒ 1 forfeit   (existing path, still once)
-     3. Answer the deck to completion → Home     ⇒ 0 forfeits  (finished round is free)
+     3. Answer the deck to completion → Home     ⇒ 0 forfeits  (finished round is free) --
+        also pins the real POST /api/flashcards/complete wire payload (topic_tag + score)
      4. Hard-navigate away mid-round (pagehide)  ⇒ 1 forfeit   (uncontrolled exit → beacon)
      5. ⌘K palette → Homepage → confirm          ⇒ 1 forfeit   (in-app nav now routes to the confirm)
      6. ⌘K palette → Homepage → Keep playing      ⇒ 0 forfeits  (cancel is free, stays in the round)
@@ -33,10 +34,18 @@ async function makeCtx() {
   // The shared mocks report the student as customized:true, so the mandatory first-login
   // gate never redirects off /flashcards (no local onboarding flag exists any more).
   let count = 0;
+  // Captured here, asserted in the scenario (not inline): a route handler in _mocks.mjs
+  // that throws is swallowed by Playwright as an unhandled rejection and the in-page
+  // fetch just hangs — it does NOT fail this script. Asserting in the scenario instead
+  // puts it on the awaited path, where scenario()'s try/catch actually observes a throw.
+  let completeBody = null;
   ctx.on("request", (req) => {
     if (req.method() === "POST" && req.url().includes("/api/flashcards/forfeit")) count += 1;
+    if (req.method() === "POST" && req.url().includes("/api/flashcards/complete")) {
+      try { completeBody = req.postDataJSON(); } catch { /* non-JSON body — leave null */ }
+    }
   });
-  return { ctx, count: () => count };
+  return { ctx, count: () => count, completeBody: () => completeBody };
 }
 
 async function enterRound(ctx) {
@@ -52,9 +61,9 @@ const waitForfeit = (page) =>
 
 let failures = 0;
 async function scenario(name, fn) {
-  const { ctx, count } = await makeCtx();
+  const { ctx, count, completeBody } = await makeCtx();
   try {
-    await fn(ctx, count);
+    await fn(ctx, count, completeBody);
     console.log(`  ✓ ${name}`);
   } catch (e) {
     failures += 1;
@@ -91,8 +100,11 @@ await scenario("Pause → Quit → confirm charges exactly one forfeit", async (
   assert.strictEqual(count(), 1, `expected 1 forfeit on Quit, saw ${count()}`);
 });
 
-// 3) Completing the deck then leaving is NOT a forfeit — the fairness contract.
-await scenario("Complete the deck → Home charges zero forfeits", async (ctx, count) => {
+// 3) Completing the deck then leaving is NOT a forfeit — the fairness contract. Also pins
+//    the REAL wire payload of POST /api/flashcards/complete (not just the frontend
+//    source): catches topic_tag: "", the wrong prop name, the field commented out with
+//    the identifier left dangling in a comment, or a second push site added elsewhere.
+await scenario("Complete the deck → Home charges zero forfeits", async (ctx, count, completeBody) => {
   const page = await enterRound(ctx);
   await page.click("[data-testid=flash-reveal]");                 // "Show answer" (free-text card)
   await page.waitForSelector(".flash-mark-got:not([disabled])", { timeout: 8000 });
@@ -101,6 +113,13 @@ await scenario("Complete the deck → Home charges zero forfeits", async (ctx, c
   await page.click("[data-testid=flash-exit]");                   // Home from the results screen
   await page.waitForTimeout(600);
   assert.strictEqual(count(), 0, `expected 0 forfeits after completing, saw ${count()}`);
+  const body = completeBody();
+  assert.ok(body && Array.isArray(body.results) && body.results.length > 0,
+    `expected POST /api/flashcards/complete to carry a results array, saw ${JSON.stringify(body)}`);
+  assert.strictEqual(body.results[0].topic_tag, "iop_nct",
+    `expected results[0].topic_tag "iop_nct" on the wire, saw ${JSON.stringify(body.results[0])}`);
+  assert.strictEqual(typeof body.results[0].score, "number",
+    `expected results[0].score to be a number, saw ${typeof body.results[0].score}`);
 });
 
 // 4) Uncontrolled exit: hard-navigate away mid-round ⇒ pagehide beacon forfeits.
