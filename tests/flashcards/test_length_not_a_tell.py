@@ -56,6 +56,11 @@ REBALANCED_TOPICS: set[str] = {
     "aberrometry",
     "lens_meter",
     "dr_grading",
+    "oct_rnfl",
+    "dayward_theatre",
+    "pam",
+    "hrt",
+    "retinal_imaging",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
