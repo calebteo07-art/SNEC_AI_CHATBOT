@@ -42,6 +42,20 @@ REBALANCED_TOPICS: set[str] = {
     "fall_risk",
     "perioperative",
     "abbreviations",
+    "oct_macula",
+    "hvf",
+    "gvf",
+    "ascan_biometry",
+    "optical_biometry",
+    "endothelial",
+    "asoct",
+    "flare",
+    "corneal_topography",
+    "orthoptics",
+    "auto_refraction",
+    "aberrometry",
+    "lens_meter",
+    "dr_grading",
 }
 
 # A well-balanced 4-option card has the correct answer as the unique longest
