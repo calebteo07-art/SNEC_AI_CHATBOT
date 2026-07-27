@@ -153,10 +153,6 @@ export function Flashcards() {
     setChecked(true);
 
     // Tally (skip double-counting on the free-text self-mark which calls onCheck once).
-    resultsRef.current.push({
-      card_id: card.card_id, correct,
-      repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
-    });
     const t = byTopicRef.current[card.tag] ?? { seen: 0, missed: 0 };
     t.seen += 1; if (!correct) t.missed += 1;
     byTopicRef.current[card.tag] = t;
@@ -180,6 +176,18 @@ export function Flashcards() {
       ? (correct ? cardBase(card.difficulty) : XP_ATTEMPT)
       : cardPoints(card.difficulty, correct, newCombo);
     xpRef.current += xp; addXP(xp); incrementTotalCards();
+    // Recorded here, AFTER xp exists, so the attempt carries its real points. topic_tag is
+    // what makes the row survive at all: /api/flashcards/complete drops every result
+    // without one, so before this the flashcard_attempts table stayed empty and per-topic
+    // retention never updated. Moving the push down is behaviour-neutral — nothing above
+    // reads resultsRef. `|| "general"` matches the column default (migration 010) and the
+    // generator's own fallback, so a tutor-seeded card with no topic still records an
+    // attempt instead of vanishing.
+    resultsRef.current.push({
+      card_id: card.card_id, correct,
+      repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
+      topic_tag: card.tag || "general", score: xp,
+    });
     if (correct && comboMultiplier(newCombo) >= 3) {
       grantAchievements(user?.studentId ?? "", ["combo_godlike"]).forEach(enqueue);
     }

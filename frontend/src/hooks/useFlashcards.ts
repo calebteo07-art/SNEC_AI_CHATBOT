@@ -26,6 +26,16 @@ export interface ReasonCheckResponse { score: number; feedback: string; mock_mod
 export interface CompleteCardResult {
   card_id?: string; correct: boolean;
   repetitions?: number; easiness?: number; interval_days?: number;
+  /** REQUIRED, not optional. POST /api/flashcards/complete keeps only results with a
+   *  truthy topic_tag (tools/api/routers/student.py:468) -- for BOTH the
+   *  flashcard_attempts insert and the per-topic retention write. Omitting it returned
+   *  200 and silently discarded every attempt, which is why the table held 0 rows in
+   *  production. Required so a regression is a `npm run typecheck` failure, not a
+   *  runtime one nobody sees. */
+  topic_tag: string;
+  /** Points banked for this card (analytics only) -- the `score` column on
+   *  flashcard_attempts, migration 010. */
+  score: number;
 }
 export interface CompletePayload { results: CompleteCardResult[]; xp_delta: number; }
 export interface CompleteResponse { xp: number; level: number; }
