@@ -151,11 +151,16 @@ export function Flashcards() {
   const onCheck = (correct: boolean, _selected: number[], _reasoning: string) => {
     if (checked || !card) return;
     setChecked(true);
+    // Single normalisation point: the DB default (migration 010) and the generator's own
+    // fallback are both "general", so a blank-tag card buckets the same way here as it
+    // does in flashcard_attempts, instead of a "" bucket on the ResultsScreen vs. a
+    // "general" row server-side.
+    const tag = card.tag || "general";
 
     // Tally (skip double-counting on the free-text self-mark which calls onCheck once).
-    const t = byTopicRef.current[card.tag] ?? { seen: 0, missed: 0 };
+    const t = byTopicRef.current[tag] ?? { seen: 0, missed: 0 };
     t.seen += 1; if (!correct) t.missed += 1;
-    byTopicRef.current[card.tag] = t;
+    byTopicRef.current[tag] = t;
     if (!correct) missedRef.current.push(card);
 
     // Combo: a correct card extends the streak and earns base × multiplier; the
@@ -175,19 +180,19 @@ export function Flashcards() {
     const xp = card.freeText
       ? (correct ? cardBase(card.difficulty) : XP_ATTEMPT)
       : cardPoints(card.difficulty, correct, newCombo);
-    xpRef.current += xp; addXP(xp); incrementTotalCards();
-    // Recorded here, AFTER xp exists, so the attempt carries its real points. topic_tag is
-    // what makes the row survive at all: /api/flashcards/complete drops every result
-    // without one, so before this the flashcard_attempts table stayed empty and per-topic
-    // retention never updated. Moving the push down is behaviour-neutral — nothing above
-    // reads resultsRef. `|| "general"` matches the column default (migration 010) and the
-    // generator's own fallback, so a tutor-seeded card with no topic still records an
-    // attempt instead of vanishing.
+    // Recorded here, BEFORE addXP: topic_tag is what makes the row survive /complete's
+    // filter at all (a result with no topic is dropped, which is how flashcard_attempts
+    // stayed at 0 rows in production), so the record must not be skippable by anything
+    // downstream. addXP -> getUserProgress/saveUserProgress touch localStorage with no
+    // try/catch (frontend/src/lib/legacy/gamification.ts:73-89) — a corrupt
+    // eyebot_progress, blocked storage, or a quota error throws, and a throw there must
+    // not cost us the attempt record.
     resultsRef.current.push({
       card_id: card.card_id, correct,
       repetitions: card.repetitions, easiness: card.easiness, interval_days: card.interval_days,
-      topic_tag: card.tag || "general", score: xp,
+      topic_tag: tag, score: xp,
     });
+    xpRef.current += xp; addXP(xp); incrementTotalCards();
     if (correct && comboMultiplier(newCombo) >= 3) {
       grantAchievements(user?.studentId ?? "", ["combo_godlike"]).forEach(enqueue);
     }

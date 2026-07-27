@@ -460,10 +460,16 @@ async def flashcards_complete(
     #    accuracy — the platform's highest-volume learning signal, discarded before this
     #    change. A missing table (pre-migration 010) is swallowed per task, so the study
     #    loop is never blocked.
+    # Same clamp idiom as xp_delta above, applied per-card: a single card can't
+    # legitimately score this much (hard difficulty x the max combo multiplier tops out
+    # at 24 -- CARD_BASE/comboMultiplier in frontend/.../flashcards/types.ts), so a bound
+    # stops a tampered per-card score from polluting flashcard_attempts, which every P2
+    # aggregation sums over. Clamped, not validated with a pydantic Field bound -- a
+    # hostile value is pinned instead of 422-ing (and losing) the whole deck submission.
     attempt_tasks = [
         db.insert_flashcard_attempt(
             student_id=student_id, card_id=r.card_id, topic_tag=r.topic_tag,
-            correct=bool(r.correct), score=int(r.score),
+            correct=bool(r.correct), score=max(0, min(int(r.score), 100)),
         )
         for r in body.results if r.topic_tag
     ]

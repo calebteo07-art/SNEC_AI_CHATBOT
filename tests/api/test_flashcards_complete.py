@@ -15,7 +15,10 @@ def _complete_card_result_fields() -> tuple[str, ...]:
     src = (_REPO / "frontend/src/hooks/useFlashcards.ts").read_text(encoding="utf-8")
     m = re.search(r"export interface CompleteCardResult\s*\{(.*?)\n\}", src, re.S)
     assert m, "CompleteCardResult interface not found in frontend/src/hooks/useFlashcards.ts"
-    return tuple(sorted(set(re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\??\s*:", m.group(1)))))
+    # Strip /** ... */ JSDoc blocks first -- otherwise an incidental "word.ext:line" inside
+    # an explanatory comment (e.g. a "student.py:468" reference) reads as a field name.
+    body = re.sub(r"/\*.*?\*/", "", m.group(1), flags=re.S)
+    return tuple(sorted(set(re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\??\s*:", body))))
 
 
 def _push_object_literal() -> str:
@@ -173,9 +176,11 @@ async def test_complete_persists_attempts_from_frontend_shaped_payload(monkeypat
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
         r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
     assert r.status_code == 200
-    assert len(attempts) >= 1
+    assert len(attempts) == 2
     assert attempts[0] == {"student_id": "stud-test", "card_id": "f1",
                            "topic_tag": "iop_nct", "correct": True, "score": 12}
+    assert attempts[1] == {"student_id": "stud-test", "card_id": "f2",
+                           "topic_tag": "iop_nct", "correct": False, "score": 2}
 
 
 @pytest.mark.asyncio
@@ -210,3 +215,34 @@ async def test_complete_without_topic_tag_writes_no_attempts(monkeypatch):
     assert r.status_code == 200
     assert attempts == []
     assert profile_updates == [{"xp_delta": 30}]
+
+
+@pytest.mark.asyncio
+async def test_complete_clamps_out_of_range_card_score(monkeypatch):
+    """score is client-supplied and every P2 aggregation sums it over flashcard_attempts --
+    same clamp idiom as xp_delta (student.py:444), applied per-card so a tampered value is
+    pinned to the range instead of 422-ing (and losing) the whole deck submission.
+    """
+    from tools.api.routers import student as mod
+    attempts = []
+
+    async def _sm2(cid, interval, ease, reps, due): pass
+    async def _profile(_sid): return {"xp": 0}
+    async def _update_profile(_sid, **k): pass
+    async def _attempt(**k): attempts.append(k)
+
+    monkeypatch.setattr(mod, "update_card_sm2", _sm2)
+    monkeypatch.setattr(mod, "get_profile", _profile)
+    monkeypatch.setattr(mod, "update_profile", _update_profile)
+    monkeypatch.setattr(mod.db, "insert_flashcard_attempt", _attempt)
+
+    body = {"xp_delta": 0, "results": [
+        {"card_id": "f1", "correct": True, "topic_tag": "iop_nct", "score": 999999},
+        {"card_id": "f2", "correct": True, "topic_tag": "iop_nct", "score": -50},
+    ]}
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://t") as ac:
+        r = await ac.post("/api/flashcards/complete", json=body, headers=auth_headers(role="OA"))
+    assert r.status_code == 200
+    assert len(attempts) == 2
+    assert attempts[0]["score"] == 100  # tampered payload clamped to the per-card ceiling
+    assert attempts[1]["score"] == 0    # negative clamped up to the floor
