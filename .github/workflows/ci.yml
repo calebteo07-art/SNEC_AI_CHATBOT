@@ -64,6 +64,7 @@ jobs:
           node --experimental-strip-types tests/flashcards_forfeit_logic.mjs
           node --experimental-strip-types tests/leave_guard_logic.mjs
           node --experimental-strip-types tests/hoverPause_logic.mjs
+          node --experimental-strip-types tests/cohort_panels_logic.mjs
       - name: Production build
         run: npm run build
 
