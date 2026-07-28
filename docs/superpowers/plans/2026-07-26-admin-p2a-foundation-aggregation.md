@@ -4843,9 +4843,13 @@ const payload = (over = {}) => ({
   totals: {
     students_in_pool: 0, students_with_osce_data: 0, students_with_flashcard_data: 0,
     osce_attempts: 0, osce_students: 0, unclassified_students: 0, unclassified_attempts: 0,
-    staff_excluded: 0,
+    staff_excluded: 0, unknown_tag_attempts: 0,
   },
   sources: { osce: "ok", flashcard: "ok" },
+  // `rubric` (see the Task 9 blocks) is deliberately absent: this view-model has no
+  // consumer for it. Add it here the moment one appears, and type it at the same time —
+  // a fixture that has drifted from the real payload is how Task 10 nearly shipped a
+  // panel built on fields the endpoint does not emit.
   ...over,
 });
 
@@ -5481,7 +5485,7 @@ Verified consumer list at `origin/main` (`cb8908c`). **If the grep surfaces a co
 | 5 | `AdminCohort.tsx:152-179` — the two OSCE panels gate loading/error on `activity` | **Re-pointed** at `analytics`. |
 | 6 | `frontend/src/hooks/useAdmin.ts:121-134` — `FeedItem` + `useActivity` | **Kept, annotated.** Nothing else in `frontend/src` imports either symbol, so this change orphans the hook; but `/api/admin/activity` is still live, `require_staff`-guarded and covered by `tests/api/test_admin_activity_fields.py` + `STAFF_READ_ENDPOINTS`. Retiring endpoint + hook together is a P3 call, not a drive-by deletion here. |
 | 7 | `tools/api/routers/admin.py:180-234` — the producer | **Unchanged.** No backend edit in this task. |
-| 8 | `frontend/tests/aurora_assert.mjs:814-817`, `frontend/tests/_mocks.mjs:132-135` — activity fixtures | **Kept.** The endpoint and hook still exist; deleting the mocks would only hide a future regression. |
+| 8 | `frontend/tests/aurora_assert.mjs:866-869`, `frontend/tests/_mocks.mjs:132-135` — activity fixtures | **Kept.** The endpoint and hook still exist; deleting the mocks would only hide a future regression. |
 
 `cohort_summary.weakest_topics`:
 
@@ -5493,7 +5497,7 @@ Verified consumer list at `origin/main` (`cb8908c`). **If the grep surfaces a co
 | 4 | `frontend/src/hooks/useAdmin.ts:17,20` — `WeakTopic` / `Cohort.weakest_topics` | **Stays.** `/api/supervisor/cohort` still returns the field and `Cohort` still backs three KPI tiles; the type must keep describing the wire truthfully. |
 | 5 | `AdminCohort.tsx:52-62,130-139` — `weakRows` + the panel | **Retired here.** The only UI consumer. |
 | 6 | `tests/supervisor/test_cohort_summary.py:50`, `tests/supervisor/test_cohort_summary_counts.py`, `tests/supervisor/test_weekly_digest_topics.py` | **Untouched** — must stay green, proving the backend field survived. |
-| 7 | `frontend/tests/aurora_assert.mjs:808`, `frontend/tests/_mocks.mjs:125` | **Kept** — the endpoint shape is unchanged. |
+| 7 | `frontend/tests/aurora_assert.mjs:860`, `frontend/tests/_mocks.mjs:125` | **Kept** — the endpoint shape is unchanged. |
 
 - [ ] **Step 1: Write the failing test**
 
