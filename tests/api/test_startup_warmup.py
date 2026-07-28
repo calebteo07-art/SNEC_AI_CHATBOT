@@ -36,3 +36,28 @@ def test_warmup_skips_gemini_in_mock_mode_and_is_fail_open():
         asyncio.run(server._warmup())
 
     ensure.assert_not_called()          # no key / mock mode → never touch the SDK
+
+
+def test_warmup_warms_the_case_index():
+    """The index is 155 blocking file reads; the first cohort-analytics request must not
+    pay them. Fail-open like the rest of _warmup — a bad case file cannot wedge startup."""
+    from tools.api import server
+    from tools.supervisor import case_index
+
+    warm = AsyncMock(return_value={})
+    with patch("tools.shared.db._get_client", AsyncMock()), \
+         patch.object(server, "MOCK_MODE", True), \
+         patch.object(case_index, "get_case_index", warm):
+        asyncio.run(server._warmup())
+
+    warm.assert_awaited_once()
+
+
+def test_warmup_survives_a_failing_case_index():
+    from tools.api import server
+    from tools.supervisor import case_index
+
+    with patch("tools.shared.db._get_client", AsyncMock()), \
+         patch.object(server, "MOCK_MODE", True), \
+         patch.object(case_index, "get_case_index", AsyncMock(side_effect=RuntimeError("bad case file"))):
+        asyncio.run(server._warmup())  # must NOT raise
