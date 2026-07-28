@@ -530,7 +530,8 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 
 
 @router.get("/api/admin/token-summary")
-async def admin_token_summary(current_user: CurrentUser = Depends(require_staff)):
+@limiter.limit("30/minute")
+async def admin_token_summary(request: Request, current_user: CurrentUser = Depends(require_staff)):
     try:
         # Paginated two-column read. The old get_all_sessions() defaulted to limit=500,
         # so this KPI silently under-reported past 500 sessions.
