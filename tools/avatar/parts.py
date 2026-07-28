@@ -32,7 +32,7 @@ AVATAR_AXES: dict[str, list[str]] = {
                    "antenna", "crown", "horns", "flame", "wizardHat", "propeller",
                    "trafficCone", "rubberDuck", "croissant", "vikingHelm", "pirateHat",
                    "cowboyHat", "chefToque", "discoBall", "catEars", "mushroom"],
-    "accessory":  ["none", "headphones", "earmuffs", "bandage", "sticker", "sparkles",
+    "accessory":  ["none", "headphones", "earmuffs", "bandage", "sticker", "fairyDust",
                    "snorkel", "bobaTea", "magicWand", "balloon", "goldChain", "mustache",
                    "fannyPack", "petSnail", "jetpack", "umbrella"],
     "outfit":     ["none", "scarf", "bowtie", "collar", "lanyard", "hoodie", "labcoat",
@@ -63,8 +63,13 @@ DEFAULT_AVATAR: dict[str, object] = {
 # tools/avatar/generate_tiles.py). The Eyecon Studio is a fixed LIBRARY: a student picks
 # ONE finished look and it becomes their avatar, stored as avatar_config["portrait"] =
 # "<category>/<id>" and rendered as a single image by <Eyecon>. Unlike the compositor axes,
-# categories here may be prop-only (glasses / lashes / mouth) with no layer art. Kept in
-# lockstep with the committed files by tests/avatar/test_portrait_tiles.py (fails on drift).
+# categories here may be prop-only (lashes / mouth) with no layer art. Kept in lockstep with
+# the committed files by tests/avatar/test_portrait_tiles.py (fails on drift).
+#
+# Culled 2026-07-28 (user directive): the whole `glasses` category, mouth/laugh, mouth/ooh, and
+# lashes/cyber|glam|natural are retired and their art deleted. `accessory/sparkles` is renamed
+# `fairyDust` — humanized it read "Sparkles" right next to eyeShape "Sparkle", two looks a
+# student couldn't tell apart in the roster.
 PORTRAIT_TILES: dict[str, list[str]] = {
     "outfit":    ["astronaut", "bananaSuit", "bowtie", "bubbleWrap", "cape", "chefApron",
                   "collar", "dinoOnesie", "hawaiian", "hoodie", "knightArmor", "labcoat",
@@ -73,17 +78,14 @@ PORTRAIT_TILES: dict[str, list[str]] = {
                   "cowboyHat", "croissant", "crown", "discoBall", "flame", "flower", "halo",
                   "horns", "mushroom", "pirateHat", "propeller", "rubberDuck", "sprout",
                   "trafficCone", "vikingHelm", "wizardHat"],
-    "glasses":   ["broken", "catEye", "cinema3d", "dealWithIt", "goggles", "heart",
-                  "magnifier", "monocle", "reading", "round", "ski", "square", "star",
-                  "steampunk", "visor"],
-    "mouth":     ["catSmile", "chomp", "evilGrin", "grin", "laugh", "ooh", "open", "pout",
+    "mouth":     ["catSmile", "chomp", "evilGrin", "grin", "open", "pout",
                   "shocked", "smile", "smirk", "soft", "tongue", "whistle"],
     "eyeShape":  ["almond", "dizzy", "heart", "laser", "pixel", "rainbow", "round", "sleepy",
                   "sparkle", "starry", "upturned", "wide"],
-    "lashes":    ["butterfly", "cyber", "feathery", "glam", "natural"],
-    "accessory": ["balloon", "bandage", "bobaTea", "earmuffs", "fannyPack", "goldChain",
-                  "headphones", "jetpack", "magicWand", "mustache", "petSnail", "snorkel",
-                  "sparkles", "sticker", "umbrella"],
+    "lashes":    ["butterfly", "feathery"],
+    "accessory": ["balloon", "bandage", "bobaTea", "earmuffs", "fairyDust", "fannyPack",
+                  "goldChain", "headphones", "jetpack", "magicWand", "mustache", "petSnail",
+                  "snorkel", "sticker", "umbrella"],
 }
 
 

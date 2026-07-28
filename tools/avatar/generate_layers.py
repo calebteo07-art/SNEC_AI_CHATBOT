@@ -356,7 +356,7 @@ def get_or_make_base(rebase: bool = False) -> tuple[Image.Image, bytes]:
 # from a genuinely-green prop (dino, sprout, crown gems all carry low-red green), but for
 # these specific ids ANY green-dominant pixel is keying residue, so we strip it whole-frame
 # (specks/arcs/slivers the conservative bottom-band pass can't reach). Verified no-green art.
-_GREEN_IS_RESIDUE = {"sparkles", "magicWand", "petSnail", "tuxedo", "knightArmor", "scarf"}
+_GREEN_IS_RESIDUE = {"fairyDust", "magicWand", "petSnail", "tuxedo", "knightArmor", "scarf"}
 
 
 def _isolate_and_save(axis: str, option_id: str, comp: Image.Image, base: Image.Image) -> None:

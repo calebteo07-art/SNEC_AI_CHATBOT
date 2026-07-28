@@ -631,6 +631,29 @@ the storage model, fail-closed validation, and mandatory first-run welcome gate 
   "Edit Eyecon" → `/studio`; save routes to `/homepage`; the first-run welcome gate + no-skip still
   hold; WCAG-legible, 390px-safe. Regression-tested in `frontend/tests/eyecon_assert.mjs` (A/B/C/D/F).
 
+### REFINE 2026-07-28 — roster cull + one rename (user directive)
+Refines **only the contents of the roster**; the Studio's presentation, storage model
+(`avatar_config.portrait`), fail-closed validation, and first-run welcome gate are **unchanged**.
+- **Criterion changed — "~103 tiles across outfit · topper · glasses · mouth · eyeShape · lashes ·
+  accessory"** → **83 tiles across outfit · topper · mouth · eyeShape · lashes · accessory**. The
+  whole **`glasses` category is retired** (all 15 spectacles), plus `mouth/laugh`, `mouth/ooh`, and
+  `lashes/cyber|glam|natural` (lashes keeps butterfly + feathery). The art is **deleted**, not
+  merely delisted, so a delisted look can never render.
+- **Criterion changed — no two roster labels read alike**: `accessory/sparkles` is renamed
+  **`accessory/fairyDust`** ("Fairy dust"). Humanized it sat beside `eyeShape/sparkle` ("Sparkle")
+  as two near-identical labels on two different characters. The rename runs through **both**
+  catalogs in `parts.py` (the compositor axis and the portrait tile), the prompt phrase in
+  `portrait.py`, and both art files (`tiles/` + `overlay/`) — `tests/avatar/test_tiles.py` couples
+  the axis ids to the tile filenames, so a half-rename fails the suite.
+- **Prop-only categories** are now `lashes`/`mouth` (was `glasses`/`lashes`/`mouth`).
+- **Stale saved picks**: a student holding a retired ref keeps `customized: true` and falls back to
+  the default mascot (`_resolve_config` logs `avatar_config_corrupt`) — never a broken tile. They
+  can re-pick anytime; the Studio is edit-anytime.
+- **Acceptance when refining**: the gallery still shows >50 cards; no spectacles, "Laugh", "Ooh",
+  "Cyber", "Glam" or "Natural" card anywhere; exactly one "Sparkle" label. Guarded by
+  `tests/avatar/test_portrait_tiles.py` (`test_retired_looks_are_gone`,
+  `test_sparkles_renamed_so_labels_are_distinguishable`, plus the catalog↔disk parity test).
+
 ## Selena preview renderer — raster-composite, LOCKED 2026-07-07 · SUPERSEDED 2026-07-08
 **Superseded 2026-07-08** by *Custom Selena surfaces* (below): client-side raster compositing
 was removed (`renderSelena.ts` deleted, seamless-custom spec) — a student's look is now ONE

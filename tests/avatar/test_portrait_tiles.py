@@ -28,10 +28,30 @@ def test_catalog_matches_committed_files():
     assert catalog == on_disk
 
 
+def test_retired_looks_are_gone():
+    """The 2026-07-28 roster cull (user directive). Retired picks must not creep back in via a
+    regenerated catalog — a stale saved ref falls back to the default mascot, which is fine,
+    but re-listing a look we deleted the art for would render a broken tile."""
+    assert "glasses" not in PORTRAIT_TILES              # the whole spectacles category
+    assert "laugh" not in PORTRAIT_TILES["mouth"]
+    assert "ooh" not in PORTRAIT_TILES["mouth"]
+    assert set(PORTRAIT_TILES["lashes"]) == {"butterfly", "feathery"}
+
+
+def test_sparkles_renamed_so_labels_are_distinguishable():
+    """`accessory/sparkles` and `eyeShape/sparkle` humanized to "Sparkles"/"Sparkle" — two
+    different characters a student could not tell apart in the roster. The accessory (floating
+    glitter, not a sparkly iris) is now `fairyDust` → "Fairy dust"."""
+    assert "sparkles" not in PORTRAIT_TILES["accessory"]
+    assert "fairyDust" in PORTRAIT_TILES["accessory"]
+    assert "sparkle" in PORTRAIT_TILES["eyeShape"]      # the sparkly-iris look keeps the name
+
+
 def test_is_valid_portrait_fails_closed():
     assert is_valid_portrait("outfit/cape")
-    assert is_valid_portrait("glasses/heart")
+    assert is_valid_portrait("accessory/fairyDust")
     assert not is_valid_portrait("outfit/nope")        # unknown id
+    assert not is_valid_portrait("glasses/heart")      # retired category
     assert not is_valid_portrait("unknownCat/round")   # unknown category
     assert not is_valid_portrait("outfit")             # no id
     assert not is_valid_portrait("a/b/c")              # extra slash
