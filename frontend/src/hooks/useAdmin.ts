@@ -125,6 +125,12 @@ export interface FeedItem {
   case_id?: string; total_score?: number; passed?: boolean;
   score_100?: number; safe?: boolean; missed_critical?: string[];
 }
+/** Raw admin activity feed. NOTE: nothing renders it as of P2 — AdminCohort was the last
+    consumer and its feed-derived cohort figures retired, because the endpoint caps the
+    feed at 80 items so every aggregate built on it under-reported. Kept because
+    /api/admin/activity is still live, require_staff-guarded and covered by
+    tests/api/test_admin_activity_fields.py; retiring endpoint + hook together is a P3
+    call. Do NOT wire a cohort aggregate back onto this hook — use useCohortAnalytics. */
 export function useActivity() {
   return useQuery<FeedItem[]>({
     queryKey: ["admin", "activity"],

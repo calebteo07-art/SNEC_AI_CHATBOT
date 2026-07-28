@@ -946,6 +946,38 @@ await tp.waitForFunction(() => {
 }, null, { timeout: 8000 });
 console.log("PASS: Admin — panel-local discipline switcher states its scope and re-queries the server with the new discipline");
 
+// P2 §5.5: the panels derived from /api/admin/activity are retired. That feed is capped
+// at 80 items server-side, so every cohort aggregate built on it described only the most
+// recent slice — and sat next to the uncapped cohort-analytics panel showing different
+// numbers. The activity fixture above carries ONE case attempt with safe:true and an empty
+// missed_critical, so the old code renders "0 of 1" and an empty most-missed panel; the
+// cohort-analytics fixture is 3 of 20 with the IOP step on top. That divergence is what
+// makes this a real assertion and not a tautology. AdminCohort pins discipline "all", so
+// the switcher sitting on OT above does not move these numbers.
+if ((await tp.locator('[data-testid="stat-card"]:has(.aurora-statcard-label:text-is("Avg OSCE"))').count()) !== 0) {
+  console.error("FAIL: the retired 'Avg OSCE' KPI (derived from the 80-item activity feed) is still rendered"); process.exit(1);
+}
+if ((await tp.locator('.aurora-panel-head:text-is("Weakest topics (cohort)")').count()) !== 0) {
+  console.error("FAIL: the retired 'Weakest topics (cohort)' panel is still rendered — it ranks cohort_summary counts against the new weakness_score ranking"); process.exit(1);
+}
+const safetyText = (await tp.locator('.aurora-panel:has(.aurora-panel-head:text-is("OSCE safety-failure rate"))').innerText()).replace(/\s+/g, " ");
+if (!safetyText.includes("3 of 20 graded attempt(s) missed a critical safety step")) {
+  console.error(`FAIL: the safety donut still reads the activity feed, not cohortAnalyticsView.safetyPanel over cohort-analytics (panel text: '${safetyText}')`); process.exit(1);
+}
+const missedText = (await tp.locator('.aurora-panel:has(.aurora-panel-head:text-is("Most-missed OSCE steps"))').innerText()).replace(/\s+/g, " ");
+if (!missedText.includes("Checked intraocular pressure before dilation")) {
+  console.error(`FAIL: most-missed bars are not reading cohort-analytics missed_top (panel text: '${missedText}')`); process.exit(1);
+}
+// missedPanel's own summary carries the per-group denominator ("4 of 9 students who
+// attempted …"); the caption adds the cohort-wide one, so neither figure is a bare count.
+if (!missedText.includes("4 of 9 students who attempted Intraocular Pressure")) {
+  console.error(`FAIL: most-missed panel dropped its per-group student denominator (panel text: '${missedText}')`); process.exit(1);
+}
+if (!missedText.includes("15 students have station data")) {
+  console.error(`FAIL: most-missed panel is missing its cohort-wide student denominator (panel text: '${missedText}')`); process.exit(1);
+}
+console.log("PASS: Admin — feed-derived cohort panels retired; safety + most-missed read /api/admin/cohort-analytics");
+
 // P1's core invariant, re-pinned for this panel: a FAILED read must never render as a
 // measurement. On a 500 the panel shows its error affordance and the in-scope count
 // degrades to a dash — "0 students in scope" beside a broken endpoint reads as a real,
