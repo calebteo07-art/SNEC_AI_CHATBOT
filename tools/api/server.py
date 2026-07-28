@@ -58,15 +58,15 @@ MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "2000000"))
 
 
 async def _warmup() -> None:
-    """Pre-touch the lazy Supabase + Gemini clients so the FIRST request after a
-    cold boot doesn't pay their init on its critical path.
+    """Pre-touch the lazy Supabase + Gemini clients and the analytics case index so the
+    FIRST request after a cold boot doesn't pay their init on its critical path.
 
     Render free spins the container down when idle; otherwise the first request
-    afterwards constructs the Supabase async client (+ httpx pool) and imports
-    google-genai inline. This builds them ahead of time. It makes NO live model
-    call (zero quota/cost — client construction only) and is fully best-effort:
-    any failure is logged and swallowed so a slow/missing dependency can never
-    wedge startup.
+    afterwards constructs the Supabase async client (+ httpx pool), imports
+    google-genai inline, and (for the admin console) reads 155 case files. This builds
+    them ahead of time. It makes NO live model call (zero quota/cost — client
+    construction only) and is fully best-effort: any failure is logged and swallowed so
+    a slow/missing dependency can never wedge startup.
     """
     try:
         from tools.shared import db
@@ -80,6 +80,15 @@ async def _warmup() -> None:
             await asyncio.to_thread(_ensure_sdk_clients)  # import + build, no generate
         except Exception as exc:
             _startup_log.info("warmup: gemini client not ready (%s)", exc)
+
+    # 155 blocking file reads, so the first /api/admin/cohort-analytics would otherwise
+    # pay them. get_case_index does the reading in a worker thread; import inside the
+    # function to match the rest of _warmup and keep startup import-light.
+    try:
+        from tools.supervisor.case_index import get_case_index
+        await get_case_index()
+    except Exception as exc:  # a bad case file must never wedge startup
+        _startup_log.info("warmup: case index not ready (%s)", exc)
 
 
 @asynccontextmanager
