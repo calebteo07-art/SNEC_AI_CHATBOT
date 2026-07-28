@@ -19,7 +19,7 @@ type PortraitCat = keyof typeof PORTRAIT_TILES;
 /** Preferred display order for the merged roster (there are NO visible category headers now —
  *  this only groups nicely as you scroll). Any PORTRAIT_TILES category not listed is appended
  *  so newly-added art never silently disappears. */
-const CATEGORY_ORDER: PortraitCat[] = ["outfit", "topper", "glasses", "mouth", "eyeShape", "lashes", "accessory"];
+const CATEGORY_ORDER: PortraitCat[] = ["outfit", "topper", "mouth", "eyeShape", "lashes", "accessory"];
 const CATEGORIES: PortraitCat[] = (() => {
   const known = new Set(CATEGORY_ORDER);
   const extras = (Object.keys(PORTRAIT_TILES) as PortraitCat[]).filter((k) => !known.has(k));

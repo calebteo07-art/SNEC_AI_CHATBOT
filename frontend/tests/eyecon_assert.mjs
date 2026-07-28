@@ -76,6 +76,32 @@ async function studentCtx(customized) {
   const cards = await p.locator(".lib-card").count();
   if (cards > 50) ok(`library — gallery renders the full pre-generated tile set (${cards} cards)`);
   else fail(`library — gallery too small (${cards} cards)`);
+
+  // C2) ROSTER CULL 2026-07-28 (design-locks REFINE): the retired looks must not render a card,
+  // and the renamed accessory must serve real art. Asserted on the real page rather than the
+  // catalog alone — a stale copy of PORTRAIT_TILES or a missed file rename shows up here as a
+  // ghost card or a 404 tile, neither of which the Python parity test can see.
+  const RETIRED = ["mouth/laugh", "mouth/ooh", "lashes/cyber", "lashes/glam", "lashes/natural",
+                   "accessory/sparkles"];
+  const ghosts = [];
+  for (const ref of RETIRED) {
+    if ((await p.locator(`.lib-card[data-ref="${ref}"]`).count()) > 0) ghosts.push(ref);
+  }
+  const spectacles = await p.locator('.lib-card[data-ref^="glasses/"]').count();
+  if (ghosts.length === 0 && spectacles === 0) ok("roster — retired looks (all spectacles, laugh, ooh, cyber, glam, natural) are gone");
+  else fail(`roster — retired looks still on the gallery (ghosts=${JSON.stringify(ghosts)} spectacles=${spectacles})`);
+
+  // The rename is only real if the label changed AND the art moved with it.
+  const labels = await p.locator(".lib-card-label").allInnerTexts();
+  const sparkly = labels.filter((t) => /^sparkles?$/i.test(t.trim()));
+  const fairy = await p.locator('.lib-card[data-ref="accessory/fairyDust"] .lib-card-label').innerText().catch(() => "");
+  const tileOk = (await p.request.get(`${BASE}/avatar/tiles/accessory/fairyDust.webp`)).status();
+  if (sparkly.length === 1 && /fairy dust/i.test(fairy) && tileOk === 200) {
+    ok(`roster — one unambiguous "Sparkle" label; the accessory reads "${fairy}" and its art serves 200`);
+  } else {
+    fail(`roster — sparkle/sparkles still ambiguous (sparkly=${JSON.stringify(sparkly)} fairy="${fairy}" tile=${tileOk})`);
+  }
+
   await p.locator('.lib-card[data-ref="outfit/cape"]').click();
   await p.waitForTimeout(300);
   const heroCape = await p.locator('.studio-hero .eyecon-layer[src="/avatar/tiles/outfit/cape.webp"]').count();
@@ -101,11 +127,13 @@ async function studentCtx(customized) {
   if (/\/studio/.test(p.url()) && cards > 50) ok(`edit-anytime — customized student re-opens /studio (library renders ${cards} cards, no bounce)`);
   else fail(`edit-anytime — customized student could NOT re-open /studio (url=${p.url()} cards=${cards})`);
 
-  // E) …and a customized student navigates the app normally (not gated).
+  // E) …and a customized student navigates the app normally (not gated). NB: /dashboard is
+  // itself an INTENTIONAL next.config redirect to /homepage (the home route rename), so landing
+  // there is the pass — the thing under test is that the Studio gate does NOT bounce them.
   await p.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
   await p.waitForTimeout(400);
-  if (/\/dashboard/.test(p.url())) ok("edit-anytime — customized student reaches /dashboard normally (not gated)");
-  else fail(`edit-anytime — customized student wrongly redirected off /dashboard (url=${p.url()})`);
+  if (new URL(p.url()).pathname === "/homepage") ok("edit-anytime — customized student reaches home normally (not gated)");
+  else fail(`edit-anytime — customized student wrongly redirected off home (url=${p.url()})`);
   await ctx.close();
 }
 

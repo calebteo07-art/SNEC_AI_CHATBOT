@@ -108,7 +108,7 @@ _TOPPER = {
 }
 _ACCESSORY = {
     "headphones": "big cool headphones", "earmuffs": "fluffy oversized earmuffs", "bandage": "a tiny cute bandage",
-    "sticker": "a shiny star sticker", "sparkles": "a flurry of floating magical sparkles",
+    "sticker": "a shiny star sticker", "fairyDust": "a flurry of floating magical sparkles",
     "snorkel": "a snorkel and mask pushed up ready for adventure",
     "bobaTea": "clutching a giant boba milk tea with both tiny arms",
     "magicWand": "holding a sparkling magic wand mid-spell",
