@@ -193,12 +193,21 @@ def test_cohort_analytics_flashcard_only_group_has_empty_osce_not_zeros():
     assert row["osce"]["by_difficulty"] == {"beginner": 0, "intermediate": 0, "advanced": 0}
     assert row["flashcard"]["n"] == 3          # s_oa x2 + s_psa x1; s_ot is out of pool
     assert row["flashcard"]["students"] == 2
+    # Built fresh per row, never a module-level singleton: every flashcard-only group in
+    # every pool takes this block, so one shared dict is the mutable-default bug waiting
+    # for the first caller that edits a row in place. Identity dies at the JSON boundary,
+    # so it can only be pinned on the builder itself.
+    assert admin_router._empty_osce() is not admin_router._empty_osce()
 
 
 def test_cohort_analytics_discipline_filter():
     """The two curricula are disjoint (D2), so a discipline view must not leak the other
     pool's groups — and `all` must return BOTH, each tagged with its own pool so the UI
-    can render two labelled sections rather than one meaningless blended ranking."""
+    can render two labelled sections rather than one meaningless blended ranking.
+
+    The totals block is scoped the same way. `students_with_flashcard_data` is the one that
+    reads plausibly wrong: s_ot has flashcard rows, so an unscoped count reports 3 studying
+    students under an oa_psa panel of 2 — a coverage figure larger than its own cohort."""
     oa = _get("?discipline=oa_psa&days=90").json()
     ot = _get("?discipline=ot&days=90").json()
     every = _get("?discipline=all&days=90").json()
@@ -207,11 +216,13 @@ def test_cohort_analytics_discipline_filter():
     assert {t["pool"] for t in oa["topics"]} == {"CLINICAL"}
     assert oa["totals"]["students_in_pool"] == 2
     assert oa["totals"]["osce_attempts"] == 3
+    assert oa["totals"]["students_with_flashcard_data"] == 2      # s_ot's rows are not here
 
     assert {t["topic_group"] for t in ot["topics"]} == {"oct_imaging", _KNOWLEDGE}
     assert {t["pool"] for t in ot["topics"]} == {"OT"}
     assert ot["totals"]["students_in_pool"] == 1
     assert ot["totals"]["osce_attempts"] == 1
+    assert ot["totals"]["students_with_flashcard_data"] == 1
 
     assert {t["pool"] for t in every["topics"]} == {"CLINICAL", "OT"}
     assert {(t["pool"], t["topic_group"]) for t in every["topics"]} == {
@@ -220,6 +231,7 @@ def test_cohort_analytics_discipline_filter():
     }
     assert every["totals"]["students_in_pool"] == 3
     assert every["totals"]["osce_attempts"] == 4
+    assert every["totals"]["students_with_flashcard_data"] == 3
     # Each pool's rows stay contiguous so the UI can slice two sections without re-sorting.
     pools_in_order = [t["pool"] for t in every["topics"]]
     assert pools_in_order == sorted(pools_in_order, key=["CLINICAL", "OT"].index)
@@ -322,6 +334,24 @@ def test_cohort_analytics_window_excludes_older_attempts():
     assert everything["totals"]["osce_attempts"] == 4
 
 
+def test_cohort_analytics_window_excludes_older_flashcard_attempts():
+    """The window has to bound BOTH sources, and this is the half that fails quietly. An
+    unwindowed flashcard read prints an all-time accuracy under a "last 90 days" heading —
+    no counter contradicts it, and a topic the cohort has since fixed keeps dragging its
+    own row down. Pinned on the accuracy, which moves 66.7 -> 50.0 the moment one 2020 row
+    leaks in."""
+    old = _FC_ROWS + [
+        {"student_id": "s_oa", "topic_tag": "anatomy_physiology", "correct": False,
+         "ts": "2020-01-01T00:00:00Z"},
+    ]
+    windowed = _get("?discipline=oa_psa&days=90", fc_rows=old).json()
+    row = next(t for t in windowed["topics"] if t["topic_group"] == _KNOWLEDGE)
+    assert row["flashcard"] == {"accuracy": 66.7, "n": 3, "students": 2}
+    everything = _get("?discipline=oa_psa&days=all", fc_rows=old).json()
+    all_time = next(t for t in everything["topics"] if t["topic_group"] == _KNOWLEDGE)
+    assert all_time["flashcard"] == {"accuracy": 50.0, "n": 4, "students": 2}
+
+
 def test_flashcard_unavailable_is_flagged_not_zero():
     """A flashcard read failure yields flashcard: null per group and sources.flashcard =
     'unavailable' — NEVER {accuracy: 0.0}, which renders as a 0% bar and sends trainers to
@@ -383,6 +413,31 @@ def test_cohort_analytics_counts_unclassified_without_hiding_them():
     assert body["totals"]["osce_students"] == 3
 
 
+def test_cohort_analytics_osce_student_counters_diverge_on_an_unindexed_case():
+    """The two student counters are not synonyms, and the ONLY thing separating them is the
+    `case_id in case_index` term: ..._with_osce_data counts students the console holds rows
+    for, osce_students counts the ones actually represented in a topic row above. They
+    differ exactly when a case_id is missing from the library index — a deleted or renamed
+    case file — and collapsing them either inflates the panel's coverage or hides a student
+    whose whole term of work the console cannot place.
+
+    The test above cannot see this: its orphan row belongs to s_oa, who also has an indexed
+    attempt, so both counters read 3 with or without the term. Here the divergence is real
+    — s_orphan has attempted nothing else."""
+    profiles = _PROFILES + [{"student_id": "s_orphan", "role": "OA"}]
+    rows = _CASE_ROWS + [
+        {"student_id": "s_orphan", "case_id": "case_deleted_99", "completed_at": _ts(2),
+         "score_100": 40, "safe": True, "passed": False, "total_score": 16},
+    ]
+    totals = _get("?discipline=oa_psa&days=90",
+                  case_rows=rows, profiles=profiles).json()["totals"]
+    assert totals["students_in_pool"] == 3
+    assert totals["students_with_osce_data"] == 3   # s_oa, s_psa, s_orphan — all have rows
+    assert totals["osce_students"] == 2             # s_orphan is in no topic row
+    assert totals["osce_attempts"] == 3             # nor is their attempt in any total
+    assert totals["unclassified_attempts"] == 1     # it is reported, not swallowed
+
+
 def test_cohort_analytics_counts_attempts_whose_topic_tag_matched_nothing():
     """`topic_tag` is client-supplied and unvalidated, and flashcard_group BUCKETS an
     unrecognised tag into the knowledge group rather than dropping it — so a stale frontend
@@ -440,6 +495,42 @@ def test_cohort_analytics_ttl_cache_serves_repeat_call():
     assert first.status_code == 200
     assert first.json() == second.json()
     assert other.json()["days"] == 30
+
+
+def test_cohort_analytics_ttl_cache_keys_on_discipline_too():
+    """The other half of the cache key, and the worse half to lose. A `days` collision only
+    mislabels a window; a `discipline` collision serves an OT trainer the CLINICAL panel —
+    other students, other topics, someone else's cohort entirely — for up to 45s after any
+    oa_psa request warms the entry, with the response still claiming discipline: "ot"."""
+    reader = AsyncMock(return_value=(_CASE_ROWS, True))
+    with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 60.0), \
+         patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=(_PROFILES, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=reader), \
+         patch("tools.shared.db.get_all_flashcard_attempts", new=AsyncMock(return_value=(_FC_ROWS, True))), \
+         patch("tools.api.routers.admin.get_case_index", new=AsyncMock(return_value=_CASE_INDEX)):
+        oa = client.get("/api/admin/cohort-analytics?discipline=oa_psa&days=90",
+                        cookies=_staff_cookie()).json()
+        ot = client.get("/api/admin/cohort-analytics?discipline=ot&days=90",
+                        cookies=_staff_cookie()).json()
+        assert reader.await_count == 2, "a different discipline must not hit the same entry"
+    assert ot["discipline"] == "ot"
+    assert {t["pool"] for t in ot["topics"]} == {"OT"}
+    assert oa != ot
+
+
+def test_cohort_analytics_is_rate_limited_per_user():
+    """The most expensive read on the console — three whole-table scans plus a 155-file
+    index build — behind a dashboard that polls. It carries the same 30/minute cap as its
+    heavy siblings (token-summary, audit), and nothing else in this file would notice the
+    decorator going missing, because no other test makes 31 calls."""
+    # Its own sub, so these 32 requests cannot spend the bucket every other test here uses.
+    cookie = {"eyebot_token": create_access_token("stu_cohort_analytics_rl", "admin", "OA")}
+    p1, p2, p3, p4 = _patches()
+    with p1, p2, p3, p4:
+        statuses = [client.get("/api/admin/cohort-analytics?discipline=all&days=90",
+                               cookies=cookie).status_code for _ in range(32)]
+    assert statuses[0] == 200, statuses
+    assert 429 in statuses, f"expected a 429 once the per-minute cap is exceeded, got {statuses}"
 
 
 def test_cohort_aggregator_returns_keyed_dict_reusable_by_student_detail():
