@@ -8,6 +8,7 @@ Usage:
     from tools.shared import db
     profile = await db.get_profile(student_id)
 """
+import asyncio
 import os
 from pathlib import Path
 
@@ -384,6 +385,53 @@ async def get_staff_roster() -> list[dict]:
     # Activated staff first, then pending; each alphabetical by name (falling back to email).
     result.sort(key=lambda r: (r["status"] != "active", (r["full_name"] or r["email"]).lower()))
     return result
+
+
+async def _fetch_all(table: str, columns: str, *, page: int = 1000,
+                     max_pages: int = 50, **filters) -> tuple[list[dict], bool]:
+    """Read a whole table in `page`-sized `.range()` pages → (rows, complete).
+
+    PostgREST caps rows server-side and a bare `.select()` cannot tell a complete result
+    from a truncated one, so every unpaginated bulk read is a silent under-report waiting
+    for the cohort to grow. `complete=False` means the page cap was reached and rows may
+    remain: the caller must present the figure as a floor, never as a total.
+
+    `**filters` are equality filters (`column=value` → `.eq`). Windowed reads keep their
+    own `.gte()` helpers — they are already bounded by the window.
+
+    No global ORDER BY: these are append-only event tables, and the only chat_sessions
+    index is (student_id, created_at) — a global sort would re-sort the whole table on
+    every page, on the single prod worker. Each page is wrapped in wait_for so a hung
+    PostgREST read can't pin an event-loop task indefinitely (invariant #1).
+    """
+    client = await _get_client()
+    rows: list[dict] = []
+    complete = False
+    for i in range(max_pages):
+        start = i * page
+        q = client.table(table).select(columns)
+        for column, value in filters.items():
+            q = q.eq(column, value)
+        result = await asyncio.wait_for(q.range(start, start + page - 1).execute(), timeout=20.0)
+        batch = result.data or []
+        rows.extend(batch)
+        # A short page is the only proof there is nothing left. A page that exactly fills
+        # is ambiguous, so a table sized at an exact multiple of `page` reports
+        # complete=False — deliberately under-claiming rather than over-claiming.
+        if len(batch) < page:
+            complete = True
+            break
+    return rows, complete
+
+
+async def get_all_session_tokens() -> tuple[list[dict], bool]:
+    """Every session's token count, paginated. Used by /api/admin/token-summary.
+
+    A sibling of get_all_sessions, NOT a widening of it: that read is shared with
+    /api/admin/activity and selects `*`, so uncapping it would pull every session's
+    free-text summary too. Two columns only.
+    """
+    return await _fetch_all("chat_sessions", "student_id, token_count")
 
 
 async def get_all_sessions(limit: int = 500) -> list[dict]:

@@ -529,7 +529,7 @@ def test_admin_token_summary_excludes_removed_student():
         {"student_id": "rem1", "token_count": 50},
     ]
     active = [{"student_id": "act1", "role": "OA"}]  # rem1 is not an active member
-    with patch("tools.shared.db.get_all_sessions", new=AsyncMock(return_value=sessions)), \
+    with patch("tools.shared.db.get_all_session_tokens", new=AsyncMock(return_value=(sessions, True))), \
          patch("tools.shared.db.get_active_leaderboard_profiles", new=AsyncMock(return_value=active)):
         r = client.get("/api/admin/token-summary", cookies=_admin_headers())
     assert r.status_code == 200

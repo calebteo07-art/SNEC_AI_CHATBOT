@@ -138,7 +138,7 @@ export async function mockApis(ctx, user) {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
-  await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, by_student: [{ student_id: "S001", tokens: 48213 }] })));
+  await ctx.route("**/api/admin/token-summary", (r) => r.fulfill(J({ total_tokens: 48213, complete: true, by_student: [{ student_id: "S001", tokens: 48213 }] })));
 }
 
 export async function seededContext(browser, base, user, viewport, extra = {}) {
