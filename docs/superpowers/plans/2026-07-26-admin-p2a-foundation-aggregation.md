@@ -1772,7 +1772,7 @@ Cohort aggregation has to scan two whole tables, and neither has a reader fit fo
 The existing readers stay byte-for-byte untouched: `get_all_case_progress` is shared with `/api/admin/activity` (`tools/api/routers/admin.py:195`), whose P1 feed reads `score_100`/`safe`/`missed_critical` out of that `select("*")`; and `get_case_progress_since` (`tools/shared/db.py:507-516`, used at `admin.py:260`) documents its two-column projection as the reason the activity trend never pulls the full table.
 
 **Files:**
-- Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 507** — i.e. above the `# ── approved_students ──` banner at **line 519**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's prose was written before Task 2 inserted `_fetch_all` and is ~78 lines low. Verified current anchors: `get_all_case_progress` **:480**, `get_case_progress_since` **:507**, banner **:519**, `get_active_profiles` **:256-279**, `get_active_leaderboard_profiles` **:282-336**, `get_all_supervisors` **:715**. Re-grep rather than trusting any line number here.
+- Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 516** — i.e. above the `# ── approved_students ──` banner at **line 528**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's PROSE was written before Task 2 inserted `_fetch_all` and is ~87 lines low. Anchors verified at commit `b81e68e`: `get_all_case_progress` **:489**, `get_case_progress_since` **:516**, banner **:528**, `get_active_profiles` **:256**, `get_all_supervisors` **:724**. **Re-grep rather than trusting any line number here** — this file has now shifted twice mid-plan.
 - Test: `tests/shared/test_db_analytics_reads.py` (**Create**)
 - Test: `tests/shared/test_active_student_profiles.py` (**Create** — see the amendment below)
 
@@ -2146,7 +2146,7 @@ Expected: FAIL — 3 failed, 1 passed. The three new-reader tests raise `Attribu
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `tools/shared/db.py`, insert both functions immediately after `get_case_progress_since` (which ends at line 438) and before the `# ── approved_students ──` banner at line 441. `_fetch_all` (Task 2) already bounds the whole paged read with a wall-clock `budget` and a per-page `asyncio.wait_for`, so these add no timeout of their own.
+In `tools/shared/db.py`, insert all three functions immediately after `get_case_progress_since` (which **starts at line 516**) and before the `# ── approved_students ──` banner at **line 528**. `_fetch_all` (Task 2) already bounds the whole paged read with a wall-clock `budget` and a per-page `asyncio.wait_for`, so these add no timeout of their own.
 
 **`order_by` is a REQUIRED keyword-only argument** — it was added during Task 2's code review. `.range()` compiles to `offset=N&limit=M`, and Postgres gives no ordering guarantee across LIMIT/OFFSET without an `ORDER BY`, so pages can silently overlap and skip rows. Pass each table's primary key: **`flashcard_attempts` → `attempt_id`** (`tools/db/migrations/010_flashcard_attempts.sql:11`), **`case_progress` → `id`** (a `bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY`; the base schema predates the migration ledger, so it is documented in `docs/superpowers/specs/2026-05-30-phase1-db-migration-cookies-design.md:70`, not in `tools/db/migrations/`). Task 2 also **removed the `**filters` parameter** — do not pass keyword filters:
 
