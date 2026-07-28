@@ -659,6 +659,20 @@ from pathlib import Path
 
 **3b.** In `tools/shared/db.py`, insert immediately ABOVE `async def get_all_sessions(...)` (currently line 389). `get_all_sessions` itself stays byte-for-byte unchanged:
 
+> **SUPERSEDED — read `tools/shared/db.py` for the shipped version.** Task 2's code review
+> changed this function after it landed, so the block below is the first draft, not what is
+> in the tree. Three differences matter to later tasks: **(1)** `order_by` is now a REQUIRED
+> keyword-only argument, applied as `.order(order_by)` before `.range()` — without an
+> `ORDER BY`, LIMIT/OFFSET pages can silently overlap and skip rows under a parallel seq
+> scan. **(2)** `**filters` was **removed** (no caller ever used it, and it silently turned
+> a mistyped knob like `max_page=` into an `.eq("max_page", …)` instead of a `TypeError`).
+> **(3)** A whole-operation `budget: float = 25.0` was added, with each page capped at
+> `min(10.0, remaining)`; the break guard is `if remaining <= 0 and rows` so that a budget
+> exhausted before *any* row was read raises and fails closed rather than returning
+> `([], False)`, which would render as "≥ 0" — a real measurement of zero for a read that
+> never happened. The comment below claiming an exact multiple of `page` reports
+> `complete=False` was also simply **wrong**: that case resolves via one extra empty page.
+
 ```python
 async def _fetch_all(table: str, columns: str, *, page: int = 1000,
                      max_pages: int = 50, **filters) -> tuple[list[dict], bool]:
@@ -1731,7 +1745,15 @@ class _Query:
     Records the table name and projection, serves `.range()` slices out of a seeded row
     list, and passes every other builder call (`.order`, `.gte`, `.eq`, ...) straight
     through via __getattr__ — so these tests pin the projection without coupling to how
-    `_fetch_all` encodes its keyword filters or orders its pages.
+    `_fetch_all` orders or windows its pages.
+
+    NOTE: Task 2's code review added a shared PostgREST fake at
+    `tests/support/postgrest_fake.py` (FakeQuery/FakeClient, including a `max_rows` knob
+    that models the server-side db-max-rows clamp). This local stand-in is kept
+    deliberately: it exists to assert the PROJECTION STRING these two new readers pass,
+    and its permissive __getattr__ passthrough is what makes it indifferent to the rest
+    of the builder chain. If you find yourself needing real pagination behaviour here,
+    import the shared fake instead of growing this one.
     """
 
     def __init__(self, table: str, rows: list, calls: dict, error: Exception | None):
@@ -1887,7 +1909,9 @@ Expected: FAIL — 3 failed, 1 passed. The three new-reader tests raise `Attribu
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `tools/shared/db.py`, insert both functions immediately after `get_case_progress_since` (which ends at line 438) and before the `# ── approved_students ──` banner at line 441. `_fetch_all` (Task 2) already wraps the paged read in `asyncio.wait_for`, so these add no timeout of their own:
+In `tools/shared/db.py`, insert both functions immediately after `get_case_progress_since` (which ends at line 438) and before the `# ── approved_students ──` banner at line 441. `_fetch_all` (Task 2) already bounds the whole paged read with a wall-clock `budget` and a per-page `asyncio.wait_for`, so these add no timeout of their own.
+
+**`order_by` is a REQUIRED keyword-only argument** — it was added during Task 2's code review. `.range()` compiles to `offset=N&limit=M`, and Postgres gives no ordering guarantee across LIMIT/OFFSET without an `ORDER BY`, so pages can silently overlap and skip rows. Pass each table's primary key: **`flashcard_attempts` → `attempt_id`** (`tools/db/migrations/010_flashcard_attempts.sql:11`), **`case_progress` → `id`** (a `bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY`; the base schema predates the migration ledger, so it is documented in `docs/superpowers/specs/2026-05-30-phase1-db-migration-cookies-design.md:70`, not in `tools/db/migrations/`). Task 2 also **removed the `**filters` parameter** — do not pass keyword filters:
 
 ```python
 async def get_all_flashcard_attempts() -> tuple[list[dict], bool]:
@@ -1901,7 +1925,8 @@ async def get_all_flashcard_attempts() -> tuple[list[dict], bool]:
     No PostgREST exception type is importable in this tree, so the CALLER must catch bare
     Exception and flag sources.flashcard = "unavailable" — never swallow the failure into
     ([], True) here, which would render an outage as a confident 0% cohort accuracy."""
-    return await _fetch_all("flashcard_attempts", "student_id, topic_tag, correct, ts")
+    return await _fetch_all("flashcard_attempts", "student_id, topic_tag, correct, ts",
+                            order_by="attempt_id")
 
 
 async def get_all_case_scores() -> tuple[list[dict], bool]:
@@ -1925,6 +1950,7 @@ async def get_all_case_scores() -> tuple[list[dict], bool]:
         "case_progress",
         "student_id, case_id, completed_at, score_100, safe, passed, total_score, "
         "missed_critical",
+        order_by="id",
     )
 ```
 
