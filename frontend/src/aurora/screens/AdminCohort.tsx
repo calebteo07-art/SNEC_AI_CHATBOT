@@ -1,27 +1,39 @@
 "use client";
-/* Admin — cohort band. The top-of-page situational picture: KPI tiles, the
-   AI cohort insight, an activity trend, weak-topic + cohort-benchmark bars, a
-   topic-mastery heatmap, and the Tier-2 OSCE panels (safety-failure rate +
-   most-missed steps), populated from the feed's Tier-2 case-grade fields once
-   a station attempt has been graded. */
+/* Admin — cohort band. The top-of-page situational picture: KPI tiles, the AI cohort
+   insight, an activity trend, cohort-benchmark bars, a topic-mastery heatmap, and the
+   two cohort-wide OSCE panels (safety-failure rate + most-missed steps).
+
+   Those two panels read /api/admin/cohort-analytics, NOT the /api/admin/activity feed:
+   that feed is capped at 80 items server-side (tools/api/routers/admin.py:234), so
+   anything derived from it describes only the most recent slice of the cohort and
+   contradicts the uncapped topic panel beside it. Pinned to discipline "all" — the KPI
+   row and these safety panels are cohort-wide; the panel-local switcher scopes the
+   topic panels only. The pooling itself lives in cohortAnalyticsView, which exports
+   safetyPanel/missedPanel for exactly this owner, so the console has ONE implementation
+   of the cohort safety rate rather than two that can drift apart. */
 import { StatCard } from "@/aurora/components/StatCard";
 import { Heatmap } from "@/aurora/components/Heatmap";
 import { TrendChart } from "@/aurora/components/charts/TrendChart";
 import { DonutGauge } from "@/aurora/components/charts/DonutGauge";
 import { BarSeries, type BarRow } from "@/aurora/components/charts/BarSeries";
 import { fmtTokens } from "@/screens/adminShared";
-import { useCohort, useAtRisk, useBenchmarks, useActivity, useActivityTrend, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
+import { useCohort, useAtRisk, useBenchmarks, useActivityTrend, useTokenSummary, useCohortInsight, useCohortAnalytics } from "@/hooks/useAdmin";
 import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState";
+import { safetyPanel, missedPanel } from "@/aurora/components/admin/cohortAnalyticsView";
 import { AdminTopicAnalytics } from "@/aurora/screens/AdminTopicAnalytics";
 
 export function AdminCohort() {
   const cohort = useCohort();
   const atRisk = useAtRisk();
   const benchmarks = useBenchmarks();
-  const activity = useActivity();
   const trendQ = useActivityTrend(21);
   const tokens = useTokenSummary();
   const insight = useCohortInsight();
+  // Dropping useActivity() also drops a 30s poll of /api/admin/activity, which does four
+  // unwindowed table reads per call on the single prod worker. "all" + the topic panel's
+  // 90-day default share the query key ["admin","cohort-analytics","all",90], so while the
+  // switcher sits on All this costs no extra request.
+  const analytics = useCohortAnalytics("all", 90);
 
   const c = cohort.data;
   const total = c?.total ?? 0;
@@ -33,34 +45,8 @@ export function AdminCohort() {
     ? Math.round((bench.reduce((s, b) => s + b.avg_score, 0) / bench.length) * 100)
     : null;
 
-  const feed = activity.data ?? [];
-  const caseItems = feed.filter((f) => f.type === "case");
-  // Prefer the Tier-2 Station-100 score; fall back to the base /40 total. Both are real
-  // numeric fields from the feed — never parsed out of the display string.
-  const caseScores = caseItems
-    .map((f) =>
-      typeof f.score_100 === "number" ? f.score_100
-      : typeof f.total_score === "number" ? (f.total_score / 40) * 100
-      : null,
-    )
-    .filter((x): x is number => x !== null);
-  const avgOsce = caseScores.length
-    ? Math.round(caseScores.reduce((a, b) => a + b, 0) / caseScores.length)
-    : null;
-
   const trend = (trendQ.data ?? []).map((d) => d.total);
 
-  // Bar length is the real student count, normalised to the largest. The previous
-  // `0.9 - i * 0.12` derived length from list position — a fabricated magnitude.
-  const weakTopics = c?.weakest_topics ?? [];
-  const visible = weakTopics.slice(0, 6);
-  const weakMax = visible.length ? Math.max(...visible.map((w) => w.count)) : 1;
-  const weakRows: BarRow[] = visible.map((w) => ({
-    label: w.topic.replace(/_/g, " "),
-    segments: [{ value: w.count / weakMax, tone: "rose" }],
-    readout: String(w.count),
-    weak: true,
-  }));
   const benchRows: BarRow[] = [...bench].sort((a, b) => a.avg_score - b.avg_score).slice(0, 8).map((b) => ({
     label: b.topic.replace(/_/g, " "),
     segments: [{ value: b.avg_score, tone: b.avg_score < 0.65 ? "rose" : "blue" }],
@@ -69,14 +55,16 @@ export function AdminCohort() {
   }));
   const heat = bench.map((b) => b.avg_score);
 
-  // Tier-2 OSCE — only compute from the extended grade fields if present.
-  const graded = caseItems.filter((f) => typeof f.safe === "boolean");
-  const unsafe = graded.filter((f) => f.safe === false).length;
-  const safetyRate = graded.length ? unsafe / graded.length : null;
-  const missCounts = new Map<string, number>();
-  for (const f of caseItems) for (const m of f.missed_critical ?? []) missCounts.set(m, (missCounts.get(m) ?? 0) + 1);
-  const mostMissed = [...missCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const missMax = mostMissed.length ? mostMissed[0][1] : 1;
+  // Cohort-wide OSCE safety + most-missed steps, over every topic group in the uncapped
+  // aggregate. safetyPanel pools fails over gradable attempts (the mean of per-group rates
+  // would weight a 2-attempt group like a 20-attempt one) and returns a null rate — never
+  // 0 — at a zero denominator; missedPanel keeps entries per group so each miss keeps the
+  // student denominator it was measured against. osce_students is the cohort-wide
+  // denominator for the ranking as a whole.
+  const groups = analytics.data?.topics ?? [];
+  const safety = safetyPanel(groups);
+  const missed = missedPanel(groups);
+  const osceStudents = analytics.data?.totals.osce_students ?? 0;
 
   // A KPI must never render 0 while loading or failed — that reads as a real measurement.
   const kpi = (q: { isLoading: boolean; isError: boolean }, v: string | number) =>
@@ -89,7 +77,6 @@ export function AdminCohort() {
         <StatCard tone="green" label="Active this week" value={kpi(cohort, active)} />
         <StatCard tone="rose" label="At risk" value={kpi(cohort, atRiskCount)} />
         <StatCard tone="purple" label="Avg mastery" value={kpi(benchmarks, avgMastery === null ? "—" : `${avgMastery}%`)} />
-        <StatCard tone="blue" label="Avg OSCE" value={kpi(activity, avgOsce === null ? "—" : `${avgOsce}%`)} />
         <StatCard tone="purple" label="AI tokens" value={kpi(tokens, `${tokens.data?.complete === false ? "≥ " : ""}${fmtTokens(tokens.data?.total_tokens ?? 0)}`)} />
       </div>
 
@@ -131,17 +118,6 @@ export function AdminCohort() {
         </section>
 
         <section className="aurora-panel">
-          <p className="aurora-panel-head">Weakest topics (cohort)</p>
-          {cohort.isLoading ? (
-            <PanelSkeleton />
-          ) : cohort.isError ? (
-            <PanelError onRetry={() => cohort.refetch()} />
-          ) : (
-            <BarSeries rows={weakRows} />
-          )}
-        </section>
-
-        <section className="aurora-panel">
           <p className="aurora-panel-head">Topic benchmarks (lowest first)</p>
           {benchmarks.isLoading ? (
             <PanelSkeleton />
@@ -154,30 +130,38 @@ export function AdminCohort() {
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">OSCE safety-failure rate</p>
-          {activity.isLoading ? (
+          {analytics.isLoading ? (
             <PanelSkeleton />
-          ) : activity.isError ? (
-            <PanelError onRetry={() => activity.refetch()} />
-          ) : safetyRate === null ? (
-            <p className="aurora-unavail">No graded station attempts in the recent activity window yet.</p>
+          ) : analytics.isError ? (
+            // A failed read is an error, never a 0% safety-failure rate — on a clinical
+            // dashboard that is the most dangerous wrong number this screen can show.
+            // /api/admin/cohort-analytics 500s when the OSCE read fails rather than
+            // degrading (admin.py:407-411), so isError is the whole outage story here.
+            <PanelError onRetry={() => analytics.refetch()} />
+          ) : safety.rate === null ? (
+            <p className="aurora-unavail">{safety.summary} This covers every discipline.</p>
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <DonutGauge value={safetyRate} label="unsafe" tone="rose" size={120} />
-              <p className="aurora-unavail">{unsafe} of {graded.length} recent attempts missed a critical safety step.</p>
+              <DonutGauge value={safety.rate} label="unsafe" tone="rose" size={120} />
+              <p className="aurora-unavail">{safety.summary} Cohort-wide across every discipline — only attempts on a checklist carrying a critical step count here.</p>
             </div>
           )}
         </section>
 
         <section className="aurora-panel">
           <p className="aurora-panel-head">Most-missed OSCE steps</p>
-          {activity.isLoading ? (
+          {analytics.isLoading ? (
             <PanelSkeleton />
-          ) : activity.isError ? (
-            <PanelError onRetry={() => activity.refetch()} />
-          ) : mostMissed.length ? (
-            <BarSeries max={missMax} rows={mostMissed.map(([step, n]) => ({ label: step, segments: [{ value: n, tone: "rose" }], readout: String(n), weak: true }))} />
+          ) : analytics.isError ? (
+            <PanelError onRetry={() => analytics.refetch()} />
           ) : (
-            <p className="aurora-unavail">No missed critical steps recorded in the recent activity window.</p>
+            <>
+              {/* An empty ranking renders its summary ALONE: an empty track under a heading
+                  reads as a measured zero. Same pairing rule as the topic panels (D3). */}
+              {missed.rows.length > 0 && <BarSeries max={missed.max} rows={missed.rows} />}
+              {/* One source line — JSX strips the newline+indent beside an expression. */}
+              <p className="aurora-unavail" style={{ marginTop: missed.rows.length ? 8 : 0 }}>{missed.summary} Across every discipline · {osceStudents} students have station data.</p>
+            </>
           )}
         </section>
       </div>
