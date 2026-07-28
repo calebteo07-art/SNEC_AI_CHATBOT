@@ -8,39 +8,74 @@
 # Usage:
 #   scripts/start-harness.sh [aurora|station|all|serve|stop]   (default: all)
 #   SKIP_BUILD=1 scripts/start-harness.sh aurora    # reuse existing .next build
+#   HARNESS_PORT=3999 scripts/start-harness.sh stop # drive a port other than 3000
 #
 # Notes:
 #   - `next start` is flaky under output:standalone — always serve the
 #     standalone bundle directly with node (see CLAUDE.md).
-#   - Reuses a server already answering on :3000 ONLY under SKIP_BUILD=1. A default run
-#     stops it and rebuilds, because reusing a server from an older build asserts green
-#     against code that was never loaded.
+#   - Reuses a server already answering on :3000 ONLY under SKIP_BUILD=1, and only when
+#     it serves this tree's BUILD_ID. A default run stops it and rebuilds, because
+#     reusing a server from an older build — or from another worktree, which answers
+#     :3000 just as happily — asserts green against code that was never loaded.
+#   - The PORT is the authority for "is a server up" and "stop it". A crashed run (or
+#     one that never wrote a pidfile) leaves an orphan owning :3000 that no pidfile
+#     describes; `stop` resolves the owner from the port itself and frees it.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FE="$ROOT/frontend"
 PIDFILE="$ROOT/.tmp/harness-server.pid"
 LOGFILE="$ROOT/.tmp/harness-server.log"
-BASE="http://127.0.0.1:3000"
+PORT="${HARNESS_PORT:-3000}"
+BASE="http://127.0.0.1:$PORT"
 MODE="${1:-all}"
 
 mkdir -p "$ROOT/.tmp"
 
+# Git Bash and Windows disagree about pids: `$!` and `kill` speak msys pids, netstat and
+# taskkill speak Windows pids (`ps -W` shows both for the same process). Never resolve a
+# pid through the wrong one — that is how you kill a stranger that recycled the number.
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) WINDOWS=1 ;; *) WINDOWS=0 ;; esac
+
 alive() { curl -s -o /dev/null --max-time 2 "$BASE/"; }
 
-# Never report success while something is still serving :3000. A `stop` that lies is
+# Who owns the port. netstat is the only listener→pid map Git Bash always has; lsof
+# elsewhere. No output means "could not resolve the owner", never "nobody is there".
+listener_pids() {
+  if [ "$WINDOWS" = 1 ]; then
+    netstat -ano | awk -v p=":$PORT" '$1=="TCP" && $4=="LISTENING" && $2 ~ p"$" {print $5}' | sort -u
+  else
+    command -v lsof >/dev/null 2>&1 && lsof -ti "tcp:$PORT" -sTCP:LISTEN || true
+  fi
+}
+
+kill_pid() {
+  if [ "$WINDOWS" = 1 ]; then
+    taskkill //F //PID "$1" >/dev/null 2>&1 || true
+  else
+    kill "$1" 2>/dev/null || kill -9 "$1" 2>/dev/null || true
+  fi
+}
+
+# Never report success while something is still serving the port. A `stop` that lies is
 # worse than one that fails: the next run takes the reuse branch below, asserts against
 # a STALE build, and reports a green harness for code that was never loaded.
+# The port names its own owner, so this also clears an orphan no pidfile describes.
 stop_server() {
-  if [ -f "$PIDFILE" ]; then
-    kill "$(cat "$PIDFILE")" 2>/dev/null || true
+  if ! alive; then
     rm -f "$PIDFILE"
+    echo "nothing listening on :$PORT"
+    return 0
   fi
+  local pids; pids="$(listener_pids)"
+  # Fall back to the pidfile only where it and `kill` share a pid namespace (see above).
+  if [ -z "$pids" ] && [ "$WINDOWS" = 0 ] && [ -s "$PIDFILE" ]; then pids="$(cat "$PIDFILE")"; fi
+  for pid in $pids; do kill_pid "$pid"; done
   for i in $(seq 1 10); do
-    alive || { echo "harness server stopped"; return 0; }
+    alive || { rm -f "$PIDFILE"; echo "harness server stopped (:$PORT${pids:+, pid $(echo $pids)})"; return 0; }
     sleep 1
   done
-  echo "STILL SERVING :3000 after kill — an orphan is squatting the port." >&2
+  echo "STILL SERVING :$PORT after kill — an orphan is squatting the port." >&2
   echo "Find and kill it before running the harness, or every assertion below is" >&2
   echo "running against whatever build that process loaded." >&2
   return 1
@@ -50,11 +85,21 @@ stop_server() {
 
 # Reuse is opt-in, via the same flag that opts out of the build. A default run must
 # never inherit a server someone left up from an older build — that is a false green,
-# not a speed-up. SKIP_BUILD=1 already means "I know the running bundle is my code".
-if [ "${SKIP_BUILD:-0}" = "1" ] && alive; then
-  echo "reusing server already answering on :3000 (SKIP_BUILD=1)"
+# not a speed-up. SKIP_BUILD=1 already means "I know the running bundle is my code";
+# BUILD_ID is what proves it, since a server from another worktree answers just as
+# happily and is the one case the flag cannot speak for.
+serving_this_build() {
+  [ -s "$FE/.next/BUILD_ID" ] || return 1
+  curl -sf -o /dev/null --max-time 5 "$BASE/_next/static/$(cat "$FE/.next/BUILD_ID")/_buildManifest.js"
+}
+
+if [ "${SKIP_BUILD:-0}" = "1" ] && alive && serving_this_build; then
+  echo "reusing server already answering on :$PORT (SKIP_BUILD=1, build $(cat "$FE/.next/BUILD_ID"))"
 else
-  alive && { echo "── stopping the server on :3000 so the harness runs against THIS build…"; stop_server; }
+  if alive; then
+    echo "── stopping the server on :$PORT so the harness runs against THIS build…"
+    stop_server || exit 1
+  fi
   if [ "${SKIP_BUILD:-0}" != "1" ]; then
     echo "── building (next build, standalone)…"
     (cd "$FE" && npm run build)
@@ -64,10 +109,10 @@ else
   cp -r "$FE/.next/static" "$FE/.next/standalone/.next/static"
   cp -r "$FE/public" "$FE/.next/standalone/public"
 
-  echo "── starting node .next/standalone/server.js on :3000…"
+  echo "── starting node .next/standalone/server.js on :$PORT…"
   # `exec` matters: without it `$!` is the pid of the subshell wrapping `cd && node`, not
   # node's, so `stop` killed the wrapper and left a nohup'd node serving the port forever.
-  (cd "$FE" && exec env PORT=3000 HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$LOGFILE" 2>&1) &
+  (cd "$FE" && exec env PORT="$PORT" HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$LOGFILE" 2>&1) &
   echo $! >"$PIDFILE"
 
   for i in $(seq 1 60); do
@@ -75,6 +120,10 @@ else
     [ "$i" = 60 ] && { echo "server never came up — see $LOGFILE" >&2; exit 1; }
     sleep 1
   done
+  # That `$!` is an msys pid under Git Bash; overwrite it with the pid the port itself
+  # reports, so the file agrees with netstat/Task Manager and with kill_pid.
+  real_pid="$(listener_pids | head -n1 || true)"
+  if [ -n "$real_pid" ]; then echo "$real_pid" >"$PIDFILE"; fi
   echo "── server up"
 fi
 

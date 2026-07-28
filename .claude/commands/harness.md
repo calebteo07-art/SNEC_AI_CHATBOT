@@ -18,7 +18,11 @@ out on the cold first hit).
    bash scripts/start-harness.sh ${ARGUMENTS:-all}
    ```
    - Frontend unchanged since the last build? Prefix with `SKIP_BUILD=1` to save ~3 minutes.
-   - `serve` leaves the server running for iteration; `stop` kills it (pidfile in `.tmp/`).
+   - A server already on :3000 is reused **only** under `SKIP_BUILD=1` and only when it
+     serves this tree's `.next/BUILD_ID`; otherwise it is evicted and rebuilt. Reusing
+     another worktree's server silently asserts someone else's bundle.
+   - `serve` leaves the server running for iteration; `stop` frees :3000 by killing whatever
+     owns the port (the pidfile is only a fallback) and fails loudly if the port survives.
 
 2. Report the result faithfully: the pass counts per harness, or the first failing
    assertion verbatim. If the server never came up, read `.tmp/harness-server.log`
