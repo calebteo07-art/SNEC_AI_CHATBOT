@@ -2227,14 +2227,14 @@ Four things this pins, each a way the panel could confidently lie:
    because an unsafe encounter is an event, not an attainment level.
 2. **Per-metric denominators (§5.3).** In production only 11 of 24 `case_progress`
    rows carry non-NULL `score_100`/`safe`, while `passed` is on every row since the
-   base insert (`tools/shared/db.py:152-157`). `scored_n`, `graded_n` and
+   base insert (`tools/shared/db.py:154-159`). `scored_n`, `graded_n` and
    `safety_gradable_n` are therefore three different numbers; one shared denominator
    would silently mis-state two metrics out of three.
 3. **Nulls, not zeros (D13).** A rate with a zero denominator is `None`. 0.0 would
    rank an untouched topic as the cohort's worst.
 4. **Fail closed.** An attempt whose case is not in the index, or whose student has
    no discipline, is EXCLUDED — never bucketed into a default group. `resolve_set`'s
-   `_DEFAULT` fallback (`tools/cases/topic_sets.py:192`) is exactly the silent
+   `_DEFAULT` fallback (`tools/cases/topic_sets.py:203`) is exactly the silent
    mis-grouping §4.1 exists to prevent.
 """
 from tools.supervisor.cohort_analytics import osce_by_group
@@ -2284,6 +2284,58 @@ def test_cohort_analytics_dedupes_retakes():
     assert g["pass_rate"] == 1.0
     assert g["graded_n"] == 1
     assert g["safety_gradable_n"] == 5
+
+
+def test_best_attempt_wins_even_when_the_retake_is_worse():
+    """BEST, not most-recent. Every other retake fixture here happens to climb, so
+    "keep the latest row" would satisfy them all — this is the one that separates the
+    high-water rule (D9) from last-write-wins. A student who aces a case and then
+    fumbles a casual replay has not un-learned it, and `passed` must travel with the
+    same winning row rather than being re-derived from the newest one."""
+    rows = [_row("s1", "case_oa_001", score_100=90, passed=True),
+            _row("s1", "case_oa_001", score_100=40, passed=False)]
+    g = osce_by_group(rows, INDEX, POOLS)["tonometry_iop"]
+    assert g["avg_score"] == 90.0
+    assert g["pass_rate"] == 1.0
+    assert g["scored_n"] == 1
+    assert g["attempts"] == 2
+
+
+def test_unscored_retake_pair_takes_the_passing_attempt():
+    """The high-water rule must hold on the `passed` axis too, because on most of
+    production that is the ONLY axis there is: over half of case_progress predates
+    Tier-2 and carries a NULL score_100, so both rows of such a pair tie on score.
+
+    If the rank ignores `passed`, the strict `>` never fires and the FIRST row wins —
+    and get_all_case_scores orders by `id`, oldest first. A student who failed before
+    Tier-2 and passed on retake would be reported as failed. Asserted in BOTH orders,
+    because "first wins" and "best wins" agree in one of them.
+    """
+    fail_then_pass = [_row("s1", "case_oa_001", passed=False),
+                      _row("s1", "case_oa_001", passed=True)]
+    pass_then_fail = [_row("s1", "case_oa_001", passed=True),
+                      _row("s1", "case_oa_001", passed=False)]
+    for rows in (fail_then_pass, pass_then_fail):
+        g = osce_by_group(rows, INDEX, POOLS)["tonometry_iop"]
+        assert g["pass_rate"] == 1.0
+        assert g["graded_n"] == 1
+        assert g["attempts"] == 2
+        # Still no attainment signal — winning the `passed` tie-break must not
+        # manufacture a score out of an unscored pair.
+        assert g["avg_score"] is None
+        assert g["scored_n"] == 0
+
+
+def test_score_outranks_passed_when_both_are_present():
+    """`passed` breaks ties only; it never outranks a real score. A safety-gated 90
+    beats a clean 40, because D9 defines attainment as the best score_100 and the
+    verdict travels with that row — otherwise a student could raise their reported
+    attainment by submitting a deliberately weak but "passing" replay."""
+    rows = [_row("s1", "case_oa_001", score_100=90, passed=False),
+            _row("s1", "case_oa_001", score_100=40, passed=True)]
+    g = osce_by_group(rows, INDEX, POOLS)["tonometry_iop"]
+    assert g["avg_score"] == 90.0
+    assert g["pass_rate"] == 0.0
 
 
 def test_best_is_per_case_not_per_student():
@@ -2484,7 +2536,7 @@ Two rules run through everything here:
 
 * **Per-metric denominators (§5.3).** In production only 11 of 24 `case_progress`
   rows carry non-NULL `score_100`/`safe`, while `passed` is written by the base
-  insert on every row (`tools/shared/db.py:152-157`). `scored_n`, `graded_n` and
+  insert on every row (`tools/shared/db.py:154-159`). `scored_n`, `graded_n` and
   `safety_gradable_n` are genuinely different numbers; one shared denominator would
   silently mis-state two metrics out of three.
 * **Nulls, not zeros (D13).** Every rate/mean is `float | None`, null when its own
@@ -2504,18 +2556,29 @@ _MISSED_STEP_MAXLEN = 80
 _MISSED_MIN_STUDENTS = 2
 
 
-def _score_rank(row: dict) -> tuple[int, int]:
-    """Sort key for "best attempt at this case". An unscored (pre-Tier-2) row ranks
-    below every scored one — it carries no attainment signal — but still holds the
-    pair's slot, so a pair with only unscored rows can still feed `pass_rate` via the
-    always-present `passed` column."""
+def _score_rank(row: dict) -> tuple[int, int, int]:
+    """Sort key for "best attempt at this case" — high-water on every axis available.
+
+    An unscored (pre-Tier-2) row ranks below every scored one: it carries no attainment
+    signal. It still holds the pair's slot, so a pair of unscored rows can feed
+    `pass_rate` through the always-present `passed` column.
+
+    `passed` is the LAST tie-break and it is load-bearing, not cosmetic. Over half of
+    production case_progress rows are unscored, so for those pairs the first two
+    components tie and `passed` is the ONLY thing separating a retake from its original.
+    Without it the strict `>` at the call site never fires and the FIRST row wins —
+    and get_all_case_scores orders by `id`, i.e. oldest first — so a student who failed
+    pre-Tier-2 and passed on retake would be reported as failed, on the majority of rows.
+    Score still dominates: a higher score_100 wins even if that attempt was safety-gated
+    to passed=False, because D9 defines attainment as the best score."""
     val = row.get("score_100")
+    passed = 1 if row.get("passed") else 0
     if val is None:
-        return (0, 0)
+        return (0, 0, passed)
     try:
-        return (1, int(val))
+        return (1, int(val), passed)
     except (TypeError, ValueError):
-        return (0, 0)
+        return (0, 0, passed)
 
 
 def _missed_top(missed: dict) -> list[dict]:
