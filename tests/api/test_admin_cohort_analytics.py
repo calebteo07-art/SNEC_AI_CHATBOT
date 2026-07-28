@@ -20,6 +20,7 @@ Guards, in order of how badly each one burned us before:
    shrunk composite whose safety term is diluted by construction. The drift counter and the
    rubric (caveat included) are the only things that make either visible.
 """
+import time
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
@@ -516,6 +517,27 @@ def test_cohort_analytics_ttl_cache_keys_on_discipline_too():
     assert ot["discipline"] == "ot"
     assert {t["pool"] for t in ot["topics"]} == {"OT"}
     assert oa != ot
+
+
+def test_cohort_analytics_ttl_cache_evicts_expired_entries_on_write():
+    """The dict must SHRINK, not merely ignore what it holds. An expired entry was skipped
+    on read and then left in place, so the cache retained every key it had ever been asked
+    for: ~1100 of them (3 disciplines x [1, 365] plus "all") at ~37 KB of payload each, on
+    the one 512 MB worker Render free gives us — reachable by a single staff account
+    walking the ?days= sizes. "A stale entry is not served" is a DIFFERENT rule, already
+    pinned above; only eviction bounds the memory, so this asserts on the dict itself.
+
+    Both halves of the predicate are pinned: a sweep that also took the live entry would
+    turn every write into a cache flush, which the timings above would never notice."""
+    stale = ("ot", "365")
+    fresh = ("all", "30")
+    # Seeded past the TTL — an entry the read path would already refuse to serve.
+    admin_router._cohort_cache[stale] = (time.monotonic() - 3600.0, {"seeded": "stale"})
+    admin_router._cohort_cache[fresh] = (time.monotonic(), {"seeded": "fresh"})
+    with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 60.0):
+        r = _get("?discipline=oa_psa&days=90")
+    assert r.status_code == 200
+    assert set(admin_router._cohort_cache) == {("oa_psa", "90"), fresh}
 
 
 def test_cohort_analytics_is_rate_limited_per_user():

@@ -316,9 +316,14 @@ _KNOWLEDGE_LABEL: dict[str, str] = {
 # of invariant #2, not a violation of it: no counters, no cross-request semantics, every
 # entry is a pure function of (discipline, window) over immutable past events, and a cold
 # worker just recomputes. It earns its keep because one call reads three whole tables and
-# buckets them in Python while the console polls. Bounded by construction — `discipline`
-# is validated to one of three values and `days` is clamped to [1, 365] or "all" before
-# the key is built. Tests patch _COHORT_TTL_SECONDS to 0, which disables read AND write.
+# buckets them in Python while the console polls. The key space is finite but NOT small:
+# `discipline` is one of three values and `days` is clamped to [1, 365] or "all", so ~1100
+# distinct keys, and at ~37 KB of payload each that is ~40 MB of JSON — several times that
+# as live objects — retained by one staff account walking the window sizes, on the single
+# 512 MB worker Render free gives us. What actually bounds this is the sweep on write at
+# the end of the handler: expired entries are DELETED, not merely skipped on read, so the
+# resident set is the distinct keys requested inside one TTL window (~23 at 30/min).
+# Tests patch _COHORT_TTL_SECONDS to 0, which disables read AND write.
 _COHORT_TTL_SECONDS = 45.0
 _cohort_cache: dict[tuple[str, str], tuple[float, dict]] = {}
 
@@ -534,8 +539,17 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
         "rubric": WEIGHT_RUBRIC,
     }
     if _COHORT_TTL_SECONDS > 0:
-        _cohort_cache[cache_key] = (time.monotonic(), payload)
+        now = time.monotonic()
+        # Evict, don't just skip. The read above passes over an expired entry but left it
+        # in the dict, so nothing ever shrank it — this sweep is what makes the bound
+        # described above real. Same predicate as the read, so an entry is dropped exactly
+        # when it stopped being servable: no live entry is lost, no dead one is served.
+        for stale in [k for k, (ts, _) in _cohort_cache.items()
+                      if now - ts >= _COHORT_TTL_SECONDS]:
+            del _cohort_cache[stale]
+        _cohort_cache[cache_key] = (now, payload)
     return payload
+
 
 @router.post("/api/admin/promote")
 @limiter.limit("20/minute")
