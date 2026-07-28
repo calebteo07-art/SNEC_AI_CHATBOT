@@ -12,7 +12,9 @@
 # Notes:
 #   - `next start` is flaky under output:standalone — always serve the
 #     standalone bundle directly with node (see CLAUDE.md).
-#   - Reuses a server already answering on :3000 instead of double-starting.
+#   - Reuses a server already answering on :3000 ONLY under SKIP_BUILD=1. A default run
+#     stops it and rebuilds, because reusing a server from an older build asserts green
+#     against code that was never loaded.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,23 +26,35 @@ MODE="${1:-all}"
 
 mkdir -p "$ROOT/.tmp"
 
+alive() { curl -s -o /dev/null --max-time 2 "$BASE/"; }
+
+# Never report success while something is still serving :3000. A `stop` that lies is
+# worse than one that fails: the next run takes the reuse branch below, asserts against
+# a STALE build, and reports a green harness for code that was never loaded.
 stop_server() {
   if [ -f "$PIDFILE" ]; then
     kill "$(cat "$PIDFILE")" 2>/dev/null || true
     rm -f "$PIDFILE"
-    echo "harness server stopped"
-  else
-    echo "no pidfile — nothing to stop"
   fi
+  for i in $(seq 1 10); do
+    alive || { echo "harness server stopped"; return 0; }
+    sleep 1
+  done
+  echo "STILL SERVING :3000 after kill — an orphan is squatting the port." >&2
+  echo "Find and kill it before running the harness, or every assertion below is" >&2
+  echo "running against whatever build that process loaded." >&2
+  return 1
 }
 
-[ "$MODE" = "stop" ] && { stop_server; exit 0; }
+[ "$MODE" = "stop" ] && { stop_server; exit $?; }
 
-alive() { curl -s -o /dev/null --max-time 2 "$BASE/"; }
-
-if alive; then
-  echo "reusing server already answering on :3000"
+# Reuse is opt-in, via the same flag that opts out of the build. A default run must
+# never inherit a server someone left up from an older build — that is a false green,
+# not a speed-up. SKIP_BUILD=1 already means "I know the running bundle is my code".
+if [ "${SKIP_BUILD:-0}" = "1" ] && alive; then
+  echo "reusing server already answering on :3000 (SKIP_BUILD=1)"
 else
+  alive && { echo "── stopping the server on :3000 so the harness runs against THIS build…"; stop_server; }
   if [ "${SKIP_BUILD:-0}" != "1" ]; then
     echo "── building (next build, standalone)…"
     (cd "$FE" && npm run build)
@@ -51,8 +65,10 @@ else
   cp -r "$FE/public" "$FE/.next/standalone/public"
 
   echo "── starting node .next/standalone/server.js on :3000…"
-  (cd "$FE" && PORT=3000 HOSTNAME=127.0.0.1 nohup node .next/standalone/server.js >"$LOGFILE" 2>&1 &
-   echo $! >"$PIDFILE")
+  # `exec` matters: without it `$!` is the pid of the subshell wrapping `cd && node`, not
+  # node's, so `stop` killed the wrapper and left a nohup'd node serving the port forever.
+  (cd "$FE" && exec env PORT=3000 HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$LOGFILE" 2>&1) &
+  echo $! >"$PIDFILE"
 
   for i in $(seq 1 60); do
     alive && break
