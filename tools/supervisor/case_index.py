@@ -12,6 +12,13 @@ lazily *partial* by construction (one case at a time, on demand) and is wiped at
 by `PATCH /api/profile/role` (tools/api/routers/student.py:154) — aliasing it would drop
 attempts out of the aggregate at random.
 
+Lifetime is deliberately redeploy-only. Nothing here watches `cases/` for changes, so a
+new or edited case JSON is invisible to analytics until the worker restarts — that is the
+intended tradeoff, not an oversight, because runtime invalidation is exactly what makes
+`tools.api.shared._case_cache` unusable for this purpose (see above). Locally,
+`uvicorn --reload` watches only `*.py`, so editing a case JSON will not rebuild the index
+until you restart the dev server by hand.
+
 Grouping precedence is production's, verbatim:
 `case.get("topic_set") or resolve_set(role, case.get("topic", ""))`
 (tools/api/routers/cases.py:334,397). Trainers must see the same groups students do.
@@ -28,12 +35,12 @@ wrong quietly.
 from __future__ import annotations
 
 import asyncio
+import logging
 
 from tools.cases.load_case import list_available_cases, load_case
-# `_RULES` is private, and imported deliberately: a copied rule table would drift from
-# production's grouping the first time a keyword is added, and matching production
-# exactly is this module's entire job.
-from tools.cases.topic_sets import _RULES, case_pool, label_for
+from tools.cases.topic_sets import case_pool, label_for, resolve_set_strict, sets_for
+
+_log = logging.getLogger("eyebot.case_index")
 
 # The roles a case may be authored for. Anything else — including a role-neutral "any" —
 # is unclassifiable here, because CLINICAL and OT resolve the same topic to different
@@ -49,22 +56,6 @@ _INDEX: dict[str, dict] | None = None
 _INDEX_LOCK = asyncio.Lock()
 
 
-def resolve_set_strict(role: str, topic: str) -> str | None:
-    """`topic_sets.resolve_set` without the `_DEFAULT` fallback.
-
-    `resolve_set` (topic_sets.py:185) never reports "no match": anything unmatched comes
-    back as `history_taking` (CLINICAL) or `screening` (OT) via `_DEFAULT` (:168). For a
-    student-facing list that is harmless — every case stays reachable. For analytics it is
-    a lie: an unrelated case would move a real group's cohort score. Return None instead.
-    """
-    pool = case_pool(role)
-    topic = (topic or "").lower()
-    for kw, key in _RULES.get(pool, []):
-        if kw in topic:
-            return key
-    return None
-
-
 def classify_case(case: dict) -> dict | None:
     """Group one case dict; None when it cannot be grouped (fail closed, never bucketed)."""
     case_id = str(case.get("case_id") or "").strip()
@@ -78,6 +69,11 @@ def classify_case(case: dict) -> dict | None:
     if not set_key:
         return None
     set_key = str(set_key)
+    # An explicit `topic_set` is trusted content, not a validated enum — a typo or a
+    # non-existent key must fail closed here, not sail through as a plausible-looking
+    # group (`label_for` will title-case anything, typo included, into a real-looking label).
+    if set_key not in {k for k, _ in sets_for(role)}:
+        return None
     return {
         "pool": case_pool(role),
         "set_key": set_key,
@@ -94,20 +90,37 @@ def _build_case_index() -> dict[str, dict]:
     `get_case_index()`, which runs it in a worker thread (invariant #1).
     """
     index: dict[str, dict] = {}
-    for case_id in list_available_cases():
+    ids = list_available_cases()
+    dropped = 0
+    for case_id in ids:
         try:
             case = load_case(case_id)
         except Exception:
+            dropped += 1
             continue  # one malformed/renamed file must not cost us the other 154
         entry = classify_case(case)
         if entry is None:
+            dropped += 1
             continue
-        index[str(case.get("case_id") or case_id)] = entry
+        # `classify_case` validated the STRIPPED case_id; key on that same canonical form
+        # so a JSON with padded whitespace can't slip in under a key `case_progress.case_id`
+        # (which is never padded) can never match.
+        index[str(case.get("case_id") or "").strip()] = entry
+    if dropped:
+        _log.warning("case index dropped %d of %d case files", dropped, len(ids))
     return index
 
 
 async def get_case_index() -> dict[str, dict]:
-    """The case index, built once per worker, off the event loop."""
+    """The case index, built once per worker, off the event loop.
+
+    On a `_BUILD_TIMEOUT_S` timeout, `wait_for` abandons the await and raises — but the
+    worker thread underneath `asyncio.to_thread` cannot be force-cancelled, so it keeps
+    running to completion in the background and its result is simply discarded when it
+    finally returns. Single-flight (the lock below) caps this at one orphaned thread per
+    timeout window: a concurrent caller blocks on the same lock instead of starting a
+    thread of its own.
+    """
     global _INDEX
     if _INDEX is not None:
         return _INDEX

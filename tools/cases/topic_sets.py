@@ -182,14 +182,25 @@ def case_visible(student_role: str, case_role: str) -> bool:
     return case_pool(case_role) == case_pool(student_role)
 
 
-def resolve_set(role: str, topic: str) -> str:
-    """Return the set_key for a case's topic, bucketed within the role's POOL."""
+def resolve_set_strict(role: str, topic: str) -> str | None:
+    """`resolve_set` without the `_DEFAULT` fallback: None when no rule matches.
+
+    For a student-facing list "no match" being harmless (everything stays reachable
+    via `_DEFAULT`) is the right call. Analytics callers need the opposite: filing an
+    unrelated case into a fallback set would move a real group's cohort score, so they
+    must be able to tell "no match" apart from "matched the fallback key on purpose."
+    """
     pool = case_pool(role)
     topic = (topic or "").lower()
     for kw, key in _RULES.get(pool, []):
         if kw in topic:
             return key
-    return _DEFAULT.get(pool, "history_taking")
+    return None
+
+
+def resolve_set(role: str, topic: str) -> str:
+    """Return the set_key for a case's topic, bucketed within the role's POOL."""
+    return resolve_set_strict(role, topic) or _DEFAULT.get(case_pool(role), "history_taking")
 
 
 def label_for(role: str, set_key: str) -> str:
