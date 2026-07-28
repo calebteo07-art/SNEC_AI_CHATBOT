@@ -20,6 +20,12 @@
 #   - The PORT is the authority for "is a server up" and "stop it". A crashed run (or
 #     one that never wrote a pidfile) leaves an orphan owning :3000 that no pidfile
 #     describes; `stop` resolves the owner from the port itself and frees it.
+#   - Never report a server "up" until the child we started is the one answering. An
+#     orphan already on the port makes node die of EADDRINUSE into the log — which
+#     nothing reads — while the poll below goes green off the SQUATTER's replies. Same
+#     trap as `stop` lying, from the other end, and worse: a stranger's build that is
+#     CLOSE to yours asserts as a false GREEN, and the one screen where it differs reads
+#     as a code regression. So the poll watches the child, not just the port.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -110,15 +116,34 @@ else
   cp -r "$FE/public" "$FE/.next/standalone/public"
 
   echo "── starting node .next/standalone/server.js on :$PORT…"
+  # The guard below reads this log as THIS launch's, so don't leave it to the subshell's
+  # own redirect to clear a previous run's EADDRINUSE out of it.
+  : >"$LOGFILE"
   # `exec` matters: without it `$!` is the pid of the subshell wrapping `cd && node`, not
   # node's, so `stop` killed the wrapper and left a nohup'd node serving the port forever.
   (cd "$FE" && exec env PORT="$PORT" HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$LOGFILE" 2>&1) &
-  echo $! >"$PIDFILE"
+  child=$!
+  echo "$child" >"$PIDFILE"
 
+  # `alive` only says SOMETHING answers the port, never that it is the child above — so
+  # check the child every pass (see the header note). The sleep leads: node must reach
+  # its bind() before the first verdict, or a squatter's reply wins the race.
   for i in $(seq 1 60); do
+    sleep 1
+    if grep -q EADDRINUSE "$LOGFILE" 2>/dev/null; then
+      echo "EADDRINUSE on :$PORT — an orphan owns the port and the server we just started" >&2
+      echo "is dead. Find and kill it before running the harness, or every assertion below" >&2
+      echo "is running against whatever build that process loaded." >&2
+      echo "  try: HARNESS_PORT=$PORT scripts/start-harness.sh stop" >&2
+      rm -f "$PIDFILE"; exit 1
+    fi
+    if ! kill -0 "$child" 2>/dev/null; then
+      echo "the server exited before it answered :$PORT — tail of $LOGFILE:" >&2
+      tail -n 20 "$LOGFILE" >&2
+      rm -f "$PIDFILE"; exit 1
+    fi
     alive && break
     [ "$i" = 60 ] && { echo "server never came up — see $LOGFILE" >&2; exit 1; }
-    sleep 1
   done
   # That `$!` is an msys pid under Git Bash; overwrite it with the pid the port itself
   # reports, so the file agrees with netstat/Task Manager and with kill_pid.
