@@ -1522,12 +1522,16 @@ git commit -m "feat(admin): build the analytics case index off the event loop"
 
 Spec §4.4. The obvious mapper is the trap: `case_pool(role)` is `"OT" if (role or "").upper() == "OT" else "CLINICAL"` (`tools/cases/topic_sets.py:171-174`), so `None`, `""`, `"trainer"`, `"admin"` and every typo return `"CLINICAL"`. Applied to a **student** role it would file staff and unclassifiable students into the `oa_psa` cohort, inflating the exact denominators P2 exists to make honest. This task adds an explicit map that excludes anything it does not recognise, so the endpoint can report those rows as `totals.unclassified_students` — and resolves a pool from the **student**, never the case, because `case_visible()` treats a case with `role: "any"` as visible to every pool (`topic_sets.py:177-182`; zero shipped cases use it today, so this is latent, not theoretical).
 
-The population it runs over is `db.get_active_profiles()`, whose docstring is explicit that staff are absent by construction — *"staff (trainers/admins, who live in supervisors not approved_students) are intentionally NOT here — the leaderboard uses get_active_leaderboard_profiles to add them back in"* (`tools/shared/db.py:260-262`). That is why D10 picks the student-only reader: `get_active_leaderboard_profiles()` deliberately re-adds staff (`db.py:280-286`), and a trainer's profile row has no discipline to belong to. The exclusion rule here is the second line of defence for the day a stale or staff-shaped row reaches the aggregator anyway.
+The population it runs over is `db.get_active_profiles()` — the student-only reader, per D10, because `get_active_leaderboard_profiles()` deliberately re-adds staff (`db.py:282-293`).
+
+> **CORRECTION (found by Task 5's spec review; the original plan text here was wrong).** An earlier draft claimed staff are "absent by construction" from `get_active_profiles()`, citing its own docstring, and framed this module as a "second line of defence" against staff. **Both claims are false and nothing in this task provides them.** `get_active_profiles()` filters on exactly one thing — `student_consent.email ∈ approved_students.email` (`db.py:265-279`) — with **no supervisors check anywhere in the path**. And `student_profiles.role` can only ever hold `"OA"`/`"OT"`/`"PSA"`: both writers validate against exactly that set (`auth.py:340-343`, `student.py:145-149`). `"trainer"`/`"admin"` are a *different vocabulary* — the JWT `role` claim and the `supervisors` table — and never reach this column. Worse, `PATCH /api/profile/role` is the **staff-only** content-pool toggle (`Depends(require_staff)`, `student.py:143`), so a staff-owned profile row is the row *most* likely to carry a genuine `"OA"`/`"OT"`, which `pool_for_student_role()` classifies as a student. Two concrete breach routes exist today: **promotion** (`admin_promote` calls `upsert_supervisor` only and leaves the `approved_students` row in place — `admin.py:288-301`), and the **super-admin** (`SUPER_ADMIN_EMAIL` is staff without a supervisors row, and `auth.py:139-143` calls adding their own address to the roster "the natural way to give the account a name").
+>
+> So this task pins the **no-default rule only**: an unrecognised role literal never inherits a pool. Real staff exclusion is a *membership* test (is this email a supervisor, or the super-admin?), not a *role* test — it is added in **Task 6** as `get_active_student_profiles()` and consumed in Task 9. Do not describe this module as excluding staff.
 
 **Files:**
 - Create: `tools/supervisor/discipline.py`
 - Test: `tests/supervisor/test_discipline.py`
-- Read-only reference (not modified): `tools/cases/topic_sets.py:171-182`, `tools/shared/db.py:254-262`
+- Read-only reference (not modified): `tools/cases/topic_sets.py:171-182`, `tools/shared/db.py:256-279`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1537,13 +1541,20 @@ The population it runs over is `db.get_active_profiles()`, whose docstring is ex
 
 `topic_sets.case_pool()` is the tempting mapper and it is the defect: it returns
 "CLINICAL" for None, "", "trainer", "admin" and every typo (topic_sets.py:171-174).
-Pointed at a STUDENT role it silently files staff and unclassifiable students into
-the oa_psa cohort — inflating exactly the denominators P2 exists to make honest.
+Pointed at a STUDENT role it silently files every unclassifiable student into the
+oa_psa cohort — inflating exactly the denominators P2 exists to make honest.
 
 These tests pin three things: the query literal -> pool map (with a raise, not a
 default, on an unknown literal so the endpoint can answer 400), the
-excluded-not-defaulted rule for unresolvable roles, and the guarantee that a staff
-role can never land in a student pool.
+excluded-not-defaulted rule for unresolvable roles, and the guarantee that an
+unrecognised role literal never inherits a default pool.
+
+They deliberately do NOT claim staff are excluded. `student_profiles.role` only ever
+holds "OA"/"OT"/"PSA" (auth.py:340-343, student.py:145-149), so the "trainer"/"admin"
+literals below are JWT/`supervisors` vocabulary that never actually reaches this
+column — and a staff member who used the staff-only pool toggle (student.py:143)
+carries a genuine "OA"/"OT" that this module classifies as a student. Staff exclusion
+is a supervisors-membership test owned by whoever assembles the population.
 """
 import pytest
 
@@ -1595,22 +1606,24 @@ def test_unknown_role_excluded_from_discipline_pools():
     assert len(profiles) - len(pools) == 5
 
 
-def test_staff_role_never_lands_in_a_student_pool():
+def test_unrecognised_role_literal_never_defaults_into_a_pool():
     # The precise defect this module exists to prevent: case_pool() answers
     # "CLINICAL" for all of these, so mapping a student's discipline through it
-    # would file trainers, admins and unset roles into oa_psa.
-    for staff_role in ("trainer", "admin", "supervisor", "student", ""):
-        assert case_pool(staff_role) == "CLINICAL"
-        assert pool_for_student_role(staff_role) is None
+    # would file every unset or unrecognised role into oa_psa.
+    for unknown_role in ("trainer", "admin", "supervisor", "student", ""):
+        assert case_pool(unknown_role) == "CLINICAL"
+        assert pool_for_student_role(unknown_role) is None
 
-    # Staff carry student_role "" (auth.py:96) and are already absent from
-    # db.get_active_profiles() by construction (db.py:260-262). This is the second
-    # line of defence for a stale or staff-shaped row that reaches us anyway.
-    staff = [
+    # These literals are JWT/`supervisors` vocabulary — they do NOT appear in
+    # student_profiles.role, whose writers accept only OA/OT/PSA. So this pins the
+    # no-default rule, NOT a staff guarantee: a real trainer's profile row carries a
+    # genuine "OA"/"OT" (the staff-only pool toggle, student.py:143) and IS classified
+    # here. Staff must be subtracted by supervisors membership before this runs.
+    unresolvable = [
         {"student_id": "sup1", "role": "trainer"},
         {"student_id": "sup2", "role": "admin"},
     ]
-    assert student_pools(staff) == {}
+    assert student_pools(unresolvable) == {}
 
     # ...and the real student roles still resolve, so the guard isn't over-broad.
     assert pool_for_student_role("OA") == "CLINICAL"
@@ -1633,12 +1646,16 @@ The admin console slices cohort analytics by DISCIPLINE: `oa_psa` | `ot` | `all`
 `topic_sets.case_pool()` looks like the mapper for that job and is exactly wrong
 here: it is `"OT" if (role or "").upper() == "OT" else "CLINICAL"`
 (topic_sets.py:171-174), so None, "", "trainer", "admin" and every typo answer
-"CLINICAL". Run over STUDENT roles it would file staff and unclassifiable
-students into the oa_psa cohort and inflate its denominators.
+"CLINICAL". Run over STUDENT roles it would file every unclassifiable student
+into the oa_psa cohort and inflate its denominators.
 
 So this module maps EXPLICITLY and fails closed: a role outside the known student
 sets is EXCLUDED, and the caller reports the dropped rows as
 `totals.unclassified_students` rather than defaulting them into a discipline.
+
+What this module does NOT do is exclude STAFF — see pool_for_student_role. Staff
+exclusion is a membership question (is this email a supervisor?), not a role
+question, and it belongs to whoever assembles the population.
 
 Pool is resolved from the STUDENT, never from the case: `case_visible()` treats a
 case authored `role: "any"` as visible to every pool (topic_sets.py:177-182), so
@@ -1671,9 +1688,22 @@ _OT_ROLES = frozenset({"OT"})
 def pool_for_student_role(role: str | None) -> str | None:
     """The case pool a STUDENT's role studies, or None when the role is unknown.
 
-    None covers staff ("trainer"/"admin"), a blank role (staff carry student_role
-    "" — auth.py:96), a missing column, and typos. Callers count those students as
+    None covers a blank or absent role and every typo. Callers count those rows as
     unclassified instead of defaulting them into a discipline.
+
+    It does NOT identify staff, despite the tempting reading. `student_profiles.role`
+    can only ever hold "OA"/"OT"/"PSA": both writers validate against exactly that set
+    (auth.py:340-343, student.py:145-149). "trainer"/"admin" belong to a different
+    vocabulary — the JWT `role` claim and the `supervisors` table — and never reach
+    this column. Worse, `PATCH /api/profile/role` is the staff-only content-pool
+    toggle (student.py:143), so a staff-owned profile row is the row MOST likely to
+    carry a genuine "OA"/"OT", which this function will classify as a student.
+
+    Excluding staff is therefore a membership test against `supervisors` (plus
+    SUPER_ADMIN_EMAIL, who is staff without a supervisors row), and it is the
+    caller's job. It matters because get_active_profiles() does not do it either:
+    it filters on approved_students membership alone (db.py:265-279), and promotion
+    leaves the promoted student's approved_students row in place (admin.py:288-301).
     """
     key = (role or "").strip().upper()
     if key in _OA_PSA_ROLES:
@@ -1718,7 +1748,7 @@ def student_pools(profiles: list[dict]) -> dict[str, str]:
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `python -m pytest tests/supervisor/test_discipline.py tests/cases/test_pool_visibility.py -v`
-Expected: PASS — the three new discipline tests, plus the four pre-existing `test_pool_visibility` cases proving `tools/cases/topic_sets.py` was read-only in this task (`case_pool` still returns `"CLINICAL"` for OA/PSA and `"OT"` for OT; the new module wraps it, it does not change it).
+Expected: PASS — 8 tests: the three new discipline tests, plus the five pre-existing `test_pool_visibility` cases proving `tools/cases/topic_sets.py` was read-only in this task (the fifth, `test_oa_and_psa_see_identical_case_ids`, is `async def`, so a bare `^def test_` grep undercounts the file as four) (`case_pool` still returns `"CLINICAL"` for OA/PSA and `"OT"` for OT; the new module wraps it, it does not change it).
 
 - [ ] **Step 5: Commit**
 
@@ -1736,8 +1766,160 @@ Cohort aggregation has to scan two whole tables, and neither has a reader fit fo
 The existing readers stay byte-for-byte untouched: `get_all_case_progress` is shared with `/api/admin/activity` (`tools/api/routers/admin.py:184`), whose P1 feed reads `score_100`/`safe`/`missed_critical` out of that `select("*")`; and `get_case_progress_since` (`tools/shared/db.py:429-438`, used at `admin.py:249`) documents its two-column projection as the reason the activity trend never pulls the full table.
 
 **Files:**
-- Modify: `tools/shared/db.py` (insert two functions after `get_case_progress_since`, which ends at line 438, i.e. above the `# ── approved_students ──` banner at line 441; `_fetch_all` from Task 2 already exists)
+- Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 507** — i.e. above the `# ── approved_students ──` banner at **line 519**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's prose was written before Task 2 inserted `_fetch_all` and is ~78 lines low. Verified current anchors: `get_all_case_progress` **:480**, `get_case_progress_since` **:507**, banner **:519**, `get_active_profiles` **:256-279**, `get_active_leaderboard_profiles` **:282-336**, `get_all_supervisors` **:715**. Re-grep rather than trusting any line number here.
 - Test: `tests/shared/test_db_analytics_reads.py` (**Create**)
+- Test: `tests/shared/test_active_student_profiles.py` (**Create** — see the amendment below)
+
+---
+
+#### AMENDMENT: a third reader, `get_active_student_profiles()` (added after Task 5's spec review)
+
+Task 5's review disproved a load-bearing assumption in this plan: that `db.get_active_profiles()` is staff-free. **It is not.** It filters on `student_consent.email ∈ approved_students.email` and nothing else (`db.py:265-279`) — there is no supervisors check in that path, despite its own docstring saying staff "are intentionally NOT here." Staff reach it two ways:
+
+1. **Promotion.** `admin_promote` calls `db.upsert_supervisor(...)` and *nothing else* (`admin.py:288-301`) — the promoted student's `approved_students` row stays. They remain in `get_active_profiles()` carrying the genuine `"OA"`/`"OT"` written at onboarding.
+2. **The super-admin.** `SUPER_ADMIN_EMAIL` is staff *without* a supervisors row, and `auth.py:139-143` describes adding that address to the roster as "the natural way to give the account a name."
+
+Neither is caught by Task 5's `pool_for_student_role()`, and it must not be described as if it were: `student_profiles.role` only ever holds `"OA"`/`"OT"`/`"PSA"` (`auth.py:340-343`, `student.py:145-149`), and `PATCH /api/profile/role` is the **staff-only** pool toggle (`student.py:143`), so a staff row is the row *most* likely to hold a genuine student role. A leaked trainer is counted as an OA student **indefinitely** — precisely the dishonest denominator P2 exists to remove.
+
+Staff exclusion is a **membership** test, so it belongs here with the other reads. `get_active_leaderboard_profiles` already computes exactly these sets to add staff *back in* (`db.py:311-330`); this is the same join used to subtract instead. It returns the excluded count so the endpoint can surface it rather than silently shrinking the cohort, and it **RAISES** on a supervisors-read failure — the same contract as `get_all_flashcard_attempts` above, so the caller flags the source unavailable instead of quietly reverting to inflated numbers.
+
+It composes `get_active_profiles()` rather than re-inlining the active-student filter a third time; the extra `student_consent` read is immaterial on an endpoint already doing full-table scans, and duplicating that filter again is the bigger risk.
+
+**Test (`tests/shared/test_active_student_profiles.py`), written first:**
+
+```python
+"""Staff must be subtracted from the analytics population by MEMBERSHIP, not role.
+
+get_active_profiles() filters on approved_students membership alone (db.py:265-279).
+A promoted trainer keeps their approved_students row (admin.py:288-301) and the
+genuine "OA"/"OT" that the staff-only pool toggle writes (student.py:143), so cohort
+denominators count them as a student forever. Task 5's pool_for_student_role() cannot
+see this — "trainer"/"admin" never appear in student_profiles.role.
+"""
+from contextlib import ExitStack, contextmanager
+from unittest.mock import AsyncMock, patch
+
+import pytest
+
+import tools.shared.db as db
+
+_PROFILES = [
+    {"student_id": "s1", "role": "OA"},
+    {"student_id": "s2", "role": "OT"},
+    {"student_id": "trainer1", "role": "OA"},   # promoted; still roster-approved
+    {"student_id": "boss", "role": "OT"},       # super-admin, no supervisors row
+]
+_CONSENT = [
+    {"student_id": "s1", "email": "a@x.edu"},
+    {"student_id": "s2", "email": "b@x.edu"},
+    {"student_id": "trainer1", "email": "  Trainer@X.edu  "},  # stray case/space
+    {"student_id": "boss", "email": "boss@x.edu"},
+]
+
+
+@contextmanager
+def _patched(*, supervisors=(), super_admin="", supervisors_error=None):
+    sup = (AsyncMock(side_effect=supervisors_error) if supervisors_error
+           else AsyncMock(return_value=list(supervisors)))
+    with ExitStack() as stack:
+        for name, mock in (
+            ("get_active_profiles", AsyncMock(return_value=list(_PROFILES))),
+            ("get_all_consent", AsyncMock(return_value=list(_CONSENT))),
+            ("get_all_supervisors", sup),
+            ("super_admin_email", lambda: super_admin),
+        ):
+            stack.enter_context(patch.object(db, name, new=mock))
+        yield
+
+
+@pytest.mark.asyncio
+async def test_promoted_trainer_is_subtracted_from_the_cohort():
+    with _patched(supervisors=[{"email": "trainer@x.edu", "role": "trainer"}]):
+        students, excluded = await db.get_active_student_profiles()
+    # trainer1's consent email is "  Trainer@X.edu  ": email folding must match how
+    # db.py compares emails everywhere else (.strip().lower()), or this row silently
+    # survives and the trainer is counted as an OA student forever.
+    assert [p["student_id"] for p in students] == ["s1", "s2", "boss"]
+    assert excluded == 1
+
+
+@pytest.mark.asyncio
+async def test_super_admin_is_subtracted_even_without_a_supervisors_row():
+    with _patched(supervisors=[], super_admin="boss@x.edu"):
+        students, excluded = await db.get_active_student_profiles()
+    assert [p["student_id"] for p in students] == ["s1", "s2", "trainer1"]
+    assert excluded == 1
+
+
+@pytest.mark.asyncio
+async def test_no_staff_means_nothing_is_dropped():
+    with _patched(supervisors=[], super_admin=""):
+        students, excluded = await db.get_active_student_profiles()
+    assert len(students) == 4
+    assert excluded == 0
+
+
+@pytest.mark.asyncio
+async def test_supervisors_read_failure_raises_rather_than_inflating():
+    """Failing OPEN here would silently restore the exact bug this function fixes —
+    an unfiltered cohort reported as if it were filtered. Same contract as
+    get_all_flashcard_attempts: RAISE, and let the endpoint flag the source."""
+    with _patched(supervisors_error=RuntimeError("supervisors read failed")):
+        with pytest.raises(RuntimeError, match="supervisors read failed"):
+            await db.get_active_student_profiles()
+```
+
+**Implementation**, inserted alongside the two readers below:
+
+```python
+async def get_active_student_profiles() -> tuple[list[dict], int]:
+    """Active profiles with STAFF subtracted: (students, staff_excluded).
+
+    get_active_profiles() is NOT staff-free despite its docstring: it filters on
+    approved_students membership alone (db.py:265-279), with no supervisors check.
+    Staff leak in two ways — admin_promote upserts a supervisors row but leaves the
+    promoted student's approved_students row in place (admin.py:288-301), and
+    SUPER_ADMIN_EMAIL is staff without a supervisors row whose address is routinely
+    added to the roster to give the account a name (auth.py:139-143). A leaked
+    trainer keeps the genuine "OA"/"OT" that the staff-only pool toggle writes
+    (student.py:143), so cohort denominators count them as a student indefinitely.
+
+    Staff is a MEMBERSHIP property, not a role: this is the same supervisors join
+    get_active_leaderboard_profiles uses to add staff back in (db.py:311-330),
+    applied in reverse.
+
+    RAISES if the supervisors read fails — failing open would silently restore the
+    inflated cohort this exists to fix. The caller flags the source unavailable.
+    Returns the excluded count so the endpoint can show it rather than just
+    shrinking."""
+    students = await get_active_profiles()
+    supervisors = await get_all_supervisors()
+    staff_emails = {
+        (s.get("email") or "").strip().lower()
+        for s in supervisors
+        if (s.get("email") or "").strip()
+    }
+    super_admin = super_admin_email()
+    if super_admin:
+        staff_emails.add(super_admin)
+    if not staff_emails:
+        return students, 0
+    consent = await get_all_consent()
+    staff_ids = {
+        str(c.get("student_id"))
+        for c in consent
+        if c.get("student_id") is not None
+        and (c.get("email") or "").strip().lower() in staff_emails
+    }
+    kept = [p for p in students if str(p.get("student_id")) not in staff_ids]
+    return kept, len(students) - len(kept)
+```
+
+Run: `python -m pytest tests/shared/test_active_student_profiles.py -v` — 4 passed.
+
+**Task 9 consumes this**, not `get_active_profiles()`, and reports the count as `totals.staff_excluded` alongside `totals.unclassified_students`.
+
+---
 
 - [ ] **Step 1: Write the failing test**
 
@@ -1988,8 +2170,8 @@ Expected: PASS — all four new tests green, and the pre-existing `tests/shared/
 - [ ] **Step 5: Commit**
 
 ```bash
-git add tools/shared/db.py tests/shared/test_db_analytics_reads.py
-git commit -m "feat(admin): add narrow paged bulk reads for cohort analytics"
+git add tools/shared/db.py tests/shared/test_db_analytics_reads.py tests/shared/test_active_student_profiles.py
+git commit -m "feat(admin): add narrow paged bulk reads and a staff-free cohort population"
 ```
 
 ---
