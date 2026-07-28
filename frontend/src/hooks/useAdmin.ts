@@ -168,6 +168,47 @@ export function useTokenSummary() {
   });
 }
 
+export type Discipline = "oa_psa" | "ot" | "all";
+export interface TopicGroupRow {
+  topic_group: string; label: string; pool: string;
+  osce: { attempts: number; students: number; avg_score: number | null; scored_n: number;
+          pass_rate: number | null; graded_n: number; safety_fail_rate: number | null;
+          safety_gradable_n: number; missed_top: { step: string; count: number; students: number }[];
+          by_difficulty: { beginner: number; intermediate: number; advanced: number } };
+  // null — not 0.0 — when the flashcard table has nothing for this group. flashcard_attempts
+  // only started filling on the P2 task-0.1 ship, so "thin or empty" is the normal case for
+  // months; a 0% bar would read as "the cohort answers everything wrong".
+  flashcard: { accuracy: number | null; n: number; students: number } | null;
+  weakness_score: number | null; low_confidence: boolean; signals_present: string[];
+}
+export interface CohortAnalytics {
+  discipline: Discipline; days: number | "all"; topics: TopicGroupRow[];
+  totals: { students_in_pool: number; students_with_osce_data: number;
+            students_with_flashcard_data: number; osce_attempts: number;
+            osce_students: number; unclassified_students: number; unclassified_attempts: number;
+            // Staff subtracted from the population by supervisors membership, not by role
+            // (a promoted trainer keeps a genuine "OA"). Reported so a shrunken cohort is
+            // explained rather than just smaller.
+            staff_excluded: number;
+            // Flashcard attempts whose topic_tag matched nothing in the crosswalk. Reports a
+            // confident 0 when the flashcard read failed, so it is only meaningful alongside
+            // sources.flashcard — never render it bare.
+            unknown_tag_attempts: number };
+  sources: { osce: "ok" | "unavailable"; flashcard: "ok" | "unavailable" };
+}
+/** Real per-topic-group cohort aggregation over case_progress + flashcard_attempts,
+    sliced by discipline. Every rate/mean is `number | null` — null at a zero denominator,
+    never 0 (D13). `discipline`/`days` are TRAILING key elements so the query stays under
+    the ["admin"] prefix that the board's Refresh invalidates. */
+export function useCohortAnalytics(discipline: Discipline, days: number) {
+  return useQuery<CohortAnalytics>({
+    queryKey: ["admin", "cohort-analytics", discipline, days],
+    queryFn: () =>
+      getJSON<CohortAnalytics>(`/api/admin/cohort-analytics?discipline=${discipline}&days=${days}`),
+    ...LIVE,
+  });
+}
+
 export interface AuditEvent {
   audit_id?: string; ts: string; actor: string; action: string;
   target: string; feature: string; detail: string; ip?: string | null;

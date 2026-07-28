@@ -12,6 +12,7 @@ import { BarSeries, type BarRow } from "@/aurora/components/charts/BarSeries";
 import { fmtTokens } from "@/screens/adminShared";
 import { useCohort, useAtRisk, useBenchmarks, useActivity, useActivityTrend, useTokenSummary, useCohortInsight } from "@/hooks/useAdmin";
 import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState";
+import { AdminTopicAnalytics } from "@/aurora/screens/AdminTopicAnalytics";
 
 export function AdminCohort() {
   const cohort = useCohort();
@@ -93,6 +94,8 @@ export function AdminCohort() {
       </div>
 
       {insight.data && <div className="aurora-insight"><p>“{insight.data}”</p></div>}
+
+      <AdminTopicAnalytics />
 
       <div className="aurora-admin-grid">
         <section className="aurora-panel">

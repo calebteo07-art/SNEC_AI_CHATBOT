@@ -122,7 +122,7 @@ export async function mockApis(ctx, user) {
     status: 200, contentType: "text/event-stream",
     body: 'data: {"text":"A cataract is a clouding of the lens inside the eye, "}\n\ndata: {"text":"usually age-related. It causes gradual, painless blurring of vision "}\n\ndata: {"text":"and is treated with day surgery to replace the cloudy lens with a clear implant."}\n\ndata: [DONE]\n\n',
   }));
-  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
+  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
   await ctx.route("**/api/supervisor/insights", (r) => r.fulfill(J({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area this week." })));
   // Shape mirrors BenchmarkResponse: avg_score is 0–1 (see cohort_benchmarks.py)
   await ctx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(J({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
@@ -138,28 +138,46 @@ export async function mockApis(ctx, user) {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
+  // P2 cohort aggregation. Trailing `*` — the hook always sends ?discipline=&days=, and a
+  // route without it never matches a query string. This is the static `all` slice of the
+  // SAME fixture aurora_assert.mjs builds from CA_CLINICAL/CA_OT/CA_TOTALS: same rows,
+  // same totals, so the two harnesses cannot disagree about the cohort. `accuracy` is
+  // 0-100 (db.get_topic_accuracy's `pct` convention), never a 0-1 rate.
   await ctx.route("**/api/admin/cohort-analytics*", (r) => r.fulfill(J({
     discipline: "all", days: 90,
     topics: [
       { topic_group: "tonometry_iop", label: "Intraocular Pressure", pool: "CLINICAL",
-        osce: { attempts: 9, students: 6, avg_score: 61.4, scored_n: 9, pass_rate: 0.44, graded_n: 9,
-                safety_fail_rate: 0.22, safety_gradable_n: 9,
-                missed_top: [{ step: "Disinfect the tonometer prism between patients", count: 4, students: 3 }],
-                by_difficulty: { beginner: 5, intermediate: 3, advanced: 1 } },
-        flashcard: { accuracy: 58.0, n: 42, students: 6 },
-        weakness_score: 0.71, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
-      // low_confidence pair: no safety-gradable attempt -> safety_fail_rate null (never 0),
-      // no flashcard rows -> flashcard null (never {accuracy: 0}), so no weakness score.
-      { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
-        osce: { attempts: 4, students: 2, avg_score: 78.0, scored_n: 4, pass_rate: 0.75, graded_n: 4,
+        osce: { attempts: 14, students: 9, avg_score: 62.4, scored_n: 12, pass_rate: 0.58, graded_n: 12,
+                safety_fail_rate: 0.25, safety_gradable_n: 12,
+                missed_top: [{ step: "Checked intraocular pressure before dilation", count: 5, students: 4 }],
+                by_difficulty: { beginner: 6, intermediate: 5, advanced: 3 } },
+        flashcard: { accuracy: 71.0, n: 180, students: 9 },
+        weakness_score: 0.68, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+      { topic_group: "triage_referral", label: "Triage & Referral", pool: "CLINICAL",
+        osce: { attempts: 4, students: 3, avg_score: 58.0, scored_n: 4, pass_rate: 0.5, graded_n: 4,
                 safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
-                by_difficulty: { beginner: 3, intermediate: 1, advanced: 0 } },
+                by_difficulty: { beginner: 2, intermediate: 2, advanced: 0 } },
+        flashcard: { accuracy: 55.0, n: 18, students: 3 },
+        weakness_score: 0.62, low_confidence: true, signals_present: ["osce_score", "flashcard"] },
+      { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
+        osce: { attempts: 9, students: 6, avg_score: 74.1, scored_n: 8, pass_rate: 0.75, graded_n: 8,
+                safety_fail_rate: 0.0, safety_gradable_n: 8,
+                missed_top: [{ step: "Confirmed patient identity and operative eye", count: 2, students: 2 }],
+                by_difficulty: { beginner: 4, intermediate: 3, advanced: 2 } },
+        flashcard: { accuracy: 72.0, n: 25, students: 3 },
+        weakness_score: 0.34, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+      // low_confidence row: no safety-gradable attempt -> safety_fail_rate null (never 0),
+      // no flashcard rows -> flashcard null (never {accuracy: 0}).
+      { topic_group: "visual_fields", label: "Visual Field Testing", pool: "OT",
+        osce: { attempts: 3, students: 2, avg_score: 49.0, scored_n: 3, pass_rate: 0.33, graded_n: 3,
+                safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+                by_difficulty: { beginner: 1, intermediate: 2, advanced: 0 } },
         flashcard: null,
-        weakness_score: null, low_confidence: true, signals_present: ["osce_score"] },
+        weakness_score: 0.71, low_confidence: true, signals_present: ["osce_score"] },
     ],
-    totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
-              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
-              staff_excluded: 0, unknown_tag_attempts: 0 },
+    totals: { students_in_pool: 22, students_with_osce_data: 15, students_with_flashcard_data: 9,
+              osce_attempts: 30, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1,
+              staff_excluded: 1, unknown_tag_attempts: 3 },
     sources: { osce: "ok", flashcard: "ok" },
     rubric: {
       version: 1,
