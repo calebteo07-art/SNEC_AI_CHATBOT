@@ -65,6 +65,17 @@ async def admin_approve_student(body: ApproveStudentRequest, request: Request, c
     existing = await db.get_approved(email)
     if existing:
         raise HTTPException(status_code=409, detail="Email already approved")
+    # Staff live in `supervisors`, never in `approved_students`, so the check above never
+    # fires for an existing trainer/admin — and the flow fell through to the upsert_auth()
+    # below, replacing the password they already use with a random one (must_change=True).
+    # That silently locked a real admin out of production. Role-independent on purpose: an
+    # existing staff address typed into the student form is the same clobber.
+    if await db.get_supervisor(email):
+        raise HTTPException(
+            status_code=409,
+            detail="This email already has a staff account. Use 'Forgot password' on the login "
+                   "page to reset their password, or Promote/Demote to change their role.",
+        )
     _consent = await db.get_consent_by_student_id(current_user["sub"])
     admin_email = _consent.get("email", "") if _consent else ""
     if is_staff:
@@ -556,6 +567,10 @@ async def admin_upload_csv(request: Request, file: UploadFile = File(...), curre
     reader = csv.DictReader(io.StringIO(text))
 
     existing = {r.get("email", "").strip().lower() for r in await db.get_all_approved()}
+    # Staff aren't in approved_students, so without this a trainer/admin address sitting in
+    # the roster CSV looks new and gets re-provisioned — overwriting the password they
+    # already use (the same clobber guarded in admin_approve_student).
+    staff_emails = {(s.get("email") or "").strip().lower() for s in await db.get_all_supervisors()}
     imported, skipped = 0, 0
     errors = []
     credentials = []
@@ -586,6 +601,10 @@ async def admin_upload_csv(request: Request, file: UploadFile = File(...), curre
             continue
         if email in existing:
             errors.append({"row": i, "reason": f"{email} already approved"})
+            skipped += 1
+            continue
+        if email in staff_emails:
+            errors.append({"row": i, "reason": f"{email} already has a staff account"})
             skipped += 1
             continue
 

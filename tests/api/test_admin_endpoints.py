@@ -55,14 +55,17 @@ def _student_headers() -> dict:
 
 
 @pytest.fixture(autouse=True)
-def _stub_consent_seed():
+def _stub_provisioning_db():
     """The add-student / add-staff endpoints call identity.seed_student_name, which reads
-    and writes student_consent. Default those DB calls to no-ops so endpoint tests never
-    touch the real database; tests that assert on the seed re-patch upsert_consent inside
-    their own `with` block."""
+    and writes student_consent, and read `supervisors` for the duplicate guard. Default
+    those DB calls to no-ops so endpoint tests never touch the real database; tests that
+    assert on the seed — or that need an EXISTING staff row — re-patch inside their own
+    `with` block."""
     with patch("tools.shared.db.get_consent_by_email", new=AsyncMock(return_value=None)), \
          patch("tools.shared.db.upsert_consent", new=AsyncMock()), \
-         patch("tools.shared.db.update_consent", new=AsyncMock()):
+         patch("tools.shared.db.update_consent", new=AsyncMock()), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=[])):
         yield
 
 
@@ -291,6 +294,91 @@ def test_admin_approve_student_409_duplicate():
             cookies=_admin_headers(),
         )
     assert r.status_code == 409
+
+
+# ---------------------------------------------------------------------------
+# Provisioning must never re-provision an existing account
+#
+# Real incident: an SNEC admin who had already set her own password was locked out
+# of production. Cause — "Add account" deduped ONLY against approved_students, where
+# staff never appear (they live in `supervisors`). Re-adding her therefore sailed past
+# the guard and called upsert_auth() with a fresh random password + must_change=True,
+# silently destroying the password she had chosen. Same hole in the CSV importer.
+# ---------------------------------------------------------------------------
+
+def test_admin_approve_existing_staff_409_duplicate():
+    """Staff live in `supervisors`, never in `approved_students`, so a duplicate guard
+    that reads only approved_students never fires for an existing trainer/admin."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value={"email": "claire@test.com", "role": "admin"})):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "claire@test.com", "full_name": "Claire Ong", "role": "admin"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 409
+
+
+def test_admin_approve_existing_staff_does_not_reset_their_password():
+    """THE regression: re-adding an existing staff member must not touch their
+    credential. upsert_auth() here would overwrite a password they already use."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value={"email": "claire@test.com", "role": "admin"})), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_supervisor", new=AsyncMock()) as mock_sup, \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_auth, \
+         patch("tools.shared.gmail_sender.send_email", return_value=None):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "claire@test.com", "full_name": "Claire Ong", "role": "admin"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 409
+    mock_auth.assert_not_called()
+    mock_sup.assert_not_called()
+
+
+def test_admin_approve_staff_email_as_student_does_not_reset_password():
+    """The guard is role-INDEPENDENT: mistyping an existing admin into the student
+    form must not re-provision them either (same clobber, different requested role)."""
+    with patch("tools.shared.db.get_approved", new=AsyncMock(return_value=None)), \
+         patch("tools.shared.db.get_supervisor", new=AsyncMock(return_value={"email": "claire@test.com", "role": "admin"})), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()) as mock_appr, \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_auth, \
+         patch("tools.shared.gmail_sender.send_email", return_value=None):
+        r = client.post(
+            "/api/admin/approved",
+            json={"email": "claire@test.com", "full_name": "Claire Ong", "role": "OA"},
+            cookies=_admin_headers(),
+        )
+    assert r.status_code == 409
+    mock_auth.assert_not_called()
+    mock_appr.assert_not_called()
+
+
+def test_admin_csv_skips_existing_staff_email():
+    """The CSV importer deduped only against approved_students too, so a staff address
+    sitting in a roster row re-provisioned them and wiped their password."""
+    csv_bytes = b"full_name,email,role\nClaire Ong,claire@test.com,OA\n"
+    token = create_access_token("csv_staff_guard", "admin", "")
+    with patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=[{"email": "claire@test.com", "role": "admin"}])), \
+         patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value={"email": "admin@test.com", "student_id": "csv_staff_guard"})), \
+         patch("tools.shared.db.upsert_approved", new=AsyncMock()) as mock_appr, \
+         patch("tools.shared.db.upsert_auth", new=AsyncMock()) as mock_auth, \
+         patch("tools.shared.gmail_sender.send_email", return_value=None):
+        r = client.post(
+            "/api/admin/upload-csv",
+            files={"file": ("roster.csv", csv_bytes, "text/csv")},
+            cookies={"eyebot_token": token},
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["imported"] == 0
+    assert body["skipped"] == 1
+    mock_auth.assert_not_called()
+    mock_appr.assert_not_called()
 
 
 def test_admin_approve_student_400_empty_email():
