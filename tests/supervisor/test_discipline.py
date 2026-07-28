@@ -10,12 +10,14 @@ default, on an unknown literal so the endpoint can answer 400), the
 excluded-not-defaulted rule for unresolvable roles, and the guarantee that an
 unrecognised role literal never inherits a default pool.
 
-They deliberately do NOT claim staff are excluded. `student_profiles.role` only ever
-holds "OA"/"OT"/"PSA" (auth.py:340-343, student.py:145-149), so the "trainer"/"admin"
-literals below are JWT/`supervisors` vocabulary that never actually reaches this
-column — and a staff member who used the staff-only pool toggle (student.py:143)
-carries a genuine "OA"/"OT" that this module classifies as a student. Staff exclusion
-is a supervisors-membership test owned by whoever assembles the population.
+They deliberately do NOT claim staff are excluded. `student_profiles.role` holds only
+"OA"/"OT"/"PSA" or "" — the two validated writers accept exactly that set
+(auth.py:340-343, student.py:145-149) and profile creation seeds it blank
+(tools/profile/get_profile.py:23-24,66) — so the "trainer"/"admin" literals below are
+JWT/`supervisors` vocabulary that never actually reaches this column. A staff member
+who used the staff-only pool toggle (student.py:143) carries a genuine "OA"/"OT" that
+this module classifies as a student. Staff exclusion is a supervisors-membership test
+owned by whoever assembles the population.
 """
 import pytest
 
@@ -23,8 +25,8 @@ from tools.cases.topic_sets import case_pool
 from tools.supervisor.discipline import (
     DISCIPLINES,
     discipline_to_pool,
+    pool_by_student,
     pool_for_student_role,
-    student_pools,
 )
 
 
@@ -48,7 +50,7 @@ def test_discipline_param_maps_to_pool():
             discipline_to_pool(bad)
 
 
-def test_unknown_role_excluded_from_discipline_pools():
+def test_unknown_role_excluded_from_pool_map():
     profiles = [
         {"student_id": "s_oa", "role": "OA"},
         {"student_id": "s_psa", "role": "psa"},       # stored lowercase
@@ -59,7 +61,7 @@ def test_unknown_role_excluded_from_discipline_pools():
         {"student_id": "s_typo", "role": "O A"},
         {"role": "OA"},                               # no student_id at all
     ]
-    pools = student_pools(profiles)
+    pools = pool_by_student(profiles)
     assert pools == {"s_oa": "CLINICAL", "s_psa": "CLINICAL", "s_ot": "OT"}
     # The five dropped rows become the endpoint's `totals.unclassified_students`.
     # They must be COUNTABLE by their absence, not absorbed into CLINICAL the way
@@ -76,7 +78,7 @@ def test_unrecognised_role_literal_never_defaults_into_a_pool():
         assert pool_for_student_role(unknown_role) is None
 
     # These literals are JWT/`supervisors` vocabulary — they do NOT appear in
-    # student_profiles.role, whose writers accept only OA/OT/PSA. So this pins the
+    # student_profiles.role, which holds only OA/OT/PSA or "". So this pins the
     # no-default rule, NOT a staff guarantee: a real trainer's profile row carries a
     # genuine "OA"/"OT" (the staff-only pool toggle, student.py:143) and IS classified
     # here. Staff must be subtracted by supervisors membership before this runs.
@@ -84,7 +86,7 @@ def test_unrecognised_role_literal_never_defaults_into_a_pool():
         {"student_id": "sup1", "role": "trainer"},
         {"student_id": "sup2", "role": "admin"},
     ]
-    assert student_pools(unresolvable) == {}
+    assert pool_by_student(unresolvable) == {}
 
     # ...and the real student roles still resolve, so the guard isn't over-broad.
     assert pool_for_student_role("OA") == "CLINICAL"
