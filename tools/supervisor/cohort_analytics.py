@@ -28,18 +28,29 @@ _MISSED_STEP_MAXLEN = 80
 _MISSED_MIN_STUDENTS = 2
 
 
-def _score_rank(row: dict) -> tuple[int, int]:
-    """Sort key for "best attempt at this case". An unscored (pre-Tier-2) row ranks
-    below every scored one — it carries no attainment signal — but still holds the
-    pair's slot, so a pair with only unscored rows can still feed `pass_rate` via the
-    always-present `passed` column."""
+def _score_rank(row: dict) -> tuple[int, int, int]:
+    """Sort key for "best attempt at this case" — high-water on every axis available.
+
+    An unscored (pre-Tier-2) row ranks below every scored one: it carries no attainment
+    signal. It still holds the pair's slot, so a pair of unscored rows can feed
+    `pass_rate` through the always-present `passed` column.
+
+    `passed` is the LAST tie-break and it is load-bearing, not cosmetic. Over half of
+    production case_progress rows are unscored, so for those pairs the first two
+    components tie and `passed` is the ONLY thing separating a retake from its original.
+    Without it the strict `>` at the call site never fires and the FIRST row wins —
+    and get_all_case_scores orders by `id`, i.e. oldest first — so a student who failed
+    pre-Tier-2 and passed on retake would be reported as failed, on the majority of rows.
+    Score still dominates: a higher score_100 wins even if that attempt was safety-gated
+    to passed=False, because D9 defines attainment as the best score."""
     val = row.get("score_100")
+    passed = 1 if row.get("passed") else 0
     if val is None:
-        return (0, 0)
+        return (0, 0, passed)
     try:
-        return (1, int(val))
+        return (1, int(val), passed)
     except (TypeError, ValueError):
-        return (0, 0)
+        return (0, 0, passed)
 
 
 def _missed_top(missed: dict) -> list[dict]:

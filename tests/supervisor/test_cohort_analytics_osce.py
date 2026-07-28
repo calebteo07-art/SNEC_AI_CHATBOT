@@ -82,6 +82,43 @@ def test_best_attempt_wins_even_when_the_retake_is_worse():
     assert g["attempts"] == 2
 
 
+def test_unscored_retake_pair_takes_the_passing_attempt():
+    """The high-water rule must hold on the `passed` axis too, because on most of
+    production that is the ONLY axis there is: over half of case_progress predates
+    Tier-2 and carries a NULL score_100, so both rows of such a pair tie on score.
+
+    If the rank ignores `passed`, the strict `>` never fires and the FIRST row wins —
+    and get_all_case_scores orders by `id`, oldest first. A student who failed before
+    Tier-2 and passed on retake would be reported as failed. Asserted in BOTH orders,
+    because "first wins" and "best wins" agree in one of them.
+    """
+    fail_then_pass = [_row("s1", "case_oa_001", passed=False),
+                      _row("s1", "case_oa_001", passed=True)]
+    pass_then_fail = [_row("s1", "case_oa_001", passed=True),
+                      _row("s1", "case_oa_001", passed=False)]
+    for rows in (fail_then_pass, pass_then_fail):
+        g = osce_by_group(rows, INDEX, POOLS)["tonometry_iop"]
+        assert g["pass_rate"] == 1.0
+        assert g["graded_n"] == 1
+        assert g["attempts"] == 2
+        # Still no attainment signal — winning the `passed` tie-break must not
+        # manufacture a score out of an unscored pair.
+        assert g["avg_score"] is None
+        assert g["scored_n"] == 0
+
+
+def test_score_outranks_passed_when_both_are_present():
+    """`passed` breaks ties only; it never outranks a real score. A safety-gated 90
+    beats a clean 40, because D9 defines attainment as the best score_100 and the
+    verdict travels with that row — otherwise a student could raise their reported
+    attainment by submitting a deliberately weak but "passing" replay."""
+    rows = [_row("s1", "case_oa_001", score_100=90, passed=False),
+            _row("s1", "case_oa_001", score_100=40, passed=True)]
+    g = osce_by_group(rows, INDEX, POOLS)["tonometry_iop"]
+    assert g["avg_score"] == 90.0
+    assert g["pass_rate"] == 0.0
+
+
 def test_best_is_per_case_not_per_student():
     """Dedupe keys on (student, case), not student — a student's two DIFFERENT cases
     in one group are two attainment points, so one aced case cannot mask a weak one."""
