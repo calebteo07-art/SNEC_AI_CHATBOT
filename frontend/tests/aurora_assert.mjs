@@ -803,6 +803,58 @@ console.log("PASS: reduced motion freezes the home mascot animation");
 // KPIs off the (still-live) /api/supervisor/* endpoints, and the admin-only Accounts tab
 // stays hidden from a trainer. The student-rejection check is the one that matters most —
 // this surface exposes the whole cohort's data.
+// P2 cohort-analytics fixture. The two pools are disjoint curricula (D2), so slicing by
+// discipline must change the ROW SET, not just a label — that is what proves the switcher
+// re-queries rather than filtering a cached payload client-side. set_keys/labels are the
+// real ones from tools/cases/topic_sets.py.
+const CA_CLINICAL = [
+  { topic_group: "tonometry_iop", label: "Intraocular Pressure", pool: "CLINICAL",
+    osce: { attempts: 14, students: 9, avg_score: 62.4, scored_n: 12, pass_rate: 0.58, graded_n: 12,
+            safety_fail_rate: 0.25, safety_gradable_n: 12,
+            missed_top: [{ step: "Checked intraocular pressure before dilation", count: 5, students: 4 }],
+            by_difficulty: { beginner: 6, intermediate: 5, advanced: 3 } },
+    flashcard: { accuracy: 71.0, n: 180, students: 9 },
+    weakness_score: 0.68, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+  { topic_group: "triage_referral", label: "Triage & Referral", pool: "CLINICAL",
+    osce: { attempts: 4, students: 3, avg_score: 58.0, scored_n: 4, pass_rate: 0.5, graded_n: 4,
+            safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+            by_difficulty: { beginner: 2, intermediate: 2, advanced: 0 } },
+    flashcard: { accuracy: 55.0, n: 18, students: 3 },
+    weakness_score: 0.62, low_confidence: true, signals_present: ["osce_score", "flashcard"] },
+];
+const CA_OT = [
+  { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
+    osce: { attempts: 9, students: 6, avg_score: 74.1, scored_n: 8, pass_rate: 0.75, graded_n: 8,
+            safety_fail_rate: 0.0, safety_gradable_n: 8,
+            missed_top: [{ step: "Confirmed patient identity and operative eye", count: 2, students: 2 }],
+            by_difficulty: { beginner: 4, intermediate: 3, advanced: 2 } },
+    flashcard: { accuracy: 72.0, n: 25, students: 3 },
+    weakness_score: 0.34, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+  { topic_group: "visual_fields", label: "Visual Field Testing", pool: "OT",
+    osce: { attempts: 3, students: 2, avg_score: 49.0, scored_n: 3, pass_rate: 0.33, graded_n: 3,
+            safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+            by_difficulty: { beginner: 1, intermediate: 2, advanced: 0 } },
+    flashcard: null,
+    weakness_score: 0.71, low_confidence: true, signals_present: ["osce_score"] },
+];
+// unclassified_students and staff_excluded are population-wide diagnostics, so they read
+// the same in every discipline view — only the in-pool figures move. unknown_tag_attempts
+// IS view-scoped (it counts only in-view students' unmatched tags), so it moves too.
+const CA_TOTALS = {
+  all:    { students_in_pool: 22, students_with_osce_data: 15, students_with_flashcard_data: 9, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1, unknown_tag_attempts: 3 },
+  oa_psa: { students_in_pool: 14, students_with_osce_data: 9,  students_with_flashcard_data: 9, osce_students: 9,  unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1, unknown_tag_attempts: 2 },
+  ot:     { students_in_pool: 8,  students_with_osce_data: 6,  students_with_flashcard_data: 3, osce_students: 6,  unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1, unknown_tag_attempts: 1 },
+};
+// The scoring rubric travels with the scores (tools/supervisor/cohort_analytics.py::
+// WEIGHT_RUBRIC) — static in every slice, so it is hoisted out of the handler below to
+// leave only the discipline-varying parts inline.
+const CA_RUBRIC = {
+  version: 1,
+  weights: { osce_score: 0.4, osce_pass: 0.25, safety: 0.2, flashcard: 0.15 },
+  scales: { osce_score: 100.0, osce_pass: 1.0, safety: 1.0, flashcard: 100.0 },
+  confidence: { min_students: 3, min_attempts: 5, shrinkage_k: 5 },
+  caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
+};
 const staffMocks = async (c) => {
   await c.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
   await c.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
@@ -820,37 +872,21 @@ const staffMocks = async (c) => {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
-  await c.route("**/api/admin/cohort-analytics*", (r) => r.fulfill(JSON_OK({
-    discipline: "all", days: 90,
-    topics: [
-      { topic_group: "tonometry_iop", label: "Intraocular Pressure", pool: "CLINICAL",
-        osce: { attempts: 9, students: 6, avg_score: 61.4, scored_n: 9, pass_rate: 0.44, graded_n: 9,
-                safety_fail_rate: 0.22, safety_gradable_n: 9,
-                missed_top: [{ step: "Disinfect the tonometer prism between patients", count: 4, students: 3 }],
-                by_difficulty: { beginner: 5, intermediate: 3, advanced: 1 } },
-        flashcard: { accuracy: 58.0, n: 42, students: 6 },
-        weakness_score: 0.71, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
-      // low_confidence pair: no safety-gradable attempt -> safety_fail_rate null (never 0),
-      // no flashcard rows -> flashcard null (never {accuracy: 0}), so no weakness score.
-      { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
-        osce: { attempts: 4, students: 2, avg_score: 78.0, scored_n: 4, pass_rate: 0.75, graded_n: 4,
-                safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
-                by_difficulty: { beginner: 3, intermediate: 1, advanced: 0 } },
-        flashcard: null,
-        weakness_score: null, low_confidence: true, signals_present: ["osce_score"] },
-    ],
-    totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
-              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
-              staff_excluded: 0, unknown_tag_attempts: 0 },
-    sources: { osce: "ok", flashcard: "ok" },
-    rubric: {
-      version: 1,
-      weights: { osce_score: 0.4, osce_pass: 0.25, safety: 0.2, flashcard: 0.15 },
-      scales: { osce_score: 100.0, osce_pass: 1.0, safety: 1.0, flashcard: 100.0 },
-      confidence: { min_students: 3, min_attempts: 5, shrinkage_k: 5 },
-      caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
-    },
-  })));
+  // Trailing `*` is mandatory — the hook always sends ?discipline=&days=, and a route
+  // without it never matches a query string. Answers from the request so a discipline
+  // switch is served a genuinely different ROW SET, the way the endpoint does.
+  await c.route("**/api/admin/cohort-analytics*", (r) => {
+    const url = new URL(r.request().url());
+    const discipline = url.searchParams.get("discipline") ?? "all";
+    const topics = discipline === "ot" ? CA_OT : discipline === "oa_psa" ? CA_CLINICAL : [...CA_CLINICAL, ...CA_OT];
+    const totals = CA_TOTALS[discipline] ?? CA_TOTALS.all;
+    return r.fulfill(JSON_OK({
+      discipline, days: Number(url.searchParams.get("days") ?? 90), topics,
+      totals: { ...totals, osce_attempts: topics.reduce((s, t) => s + t.osce.attempts, 0) },
+      sources: { osce: "ok", flashcard: "ok" },
+      rubric: CA_RUBRIC,
+    }));
+  });
 };
 const trainerUser = { full_name: "Cohort Trainer", email: "trainer@snec.com.sg", student_id: "T001", role: "trainer", student_role: "", must_change: false };
 const trainerCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
@@ -880,6 +916,49 @@ if ((await tp.locator('[role="tab"]:has-text("Accounts")').count()) !== 0) {
   console.error("FAIL: the admin-only Accounts tab is exposed to a trainer"); process.exit(1);
 }
 console.log("PASS: Admin — guard admits a trainer, cohort KPIs read the payload, no admin-only Accounts tab");
+
+// P2 §5.4 / D11: the discipline switcher is PANEL-LOCAL, and the caption is the only thing
+// telling a trainer that the KPI tiles and token usage ABOVE it are not filtered. Without
+// it the control silently re-promises console-wide scoping — the false promise P1 deleted
+// from the Admin shell. Pinned verbatim so a well-meaning copy edit can't quietly drop the
+// scope clause.
+const discCaption = tp.locator('[data-testid="cohort-discipline-caption"]');
+if ((await discCaption.count()) !== 1) { console.error("FAIL: cohort-analytics panel is missing the discipline-scope caption (D11)"); process.exit(1); }
+const discText = (await discCaption.innerText()).trim();
+const DISC_CAPTION = "Discipline: All · OA & PSA · OT — filters the topic panels below; cohort totals and token usage cover all disciplines.";
+if (discText !== DISC_CAPTION) { console.error(`FAIL: discipline caption drifted from the spec\n  got:  '${discText}'\n  want: '${DISC_CAPTION}'`); process.exit(1); }
+// The panel must be reading the endpoint, not the activity feed: 2 CLINICAL + 2 OT groups.
+await tp.waitForSelector('[data-testid="cohort-topics-summary"]', { timeout: 15000 });
+const caAll = (await tp.locator('[data-testid="cohort-topics-summary"]').innerText()).trim();
+if (!caAll.startsWith("4 topic groups")) { console.error(`FAIL: cohort-analytics summary did not render the payload's 4 topic groups (got '${caAll}')`); process.exit(1); }
+// Switching discipline must issue a NEW server request carrying the new param. A purely
+// client-side filter would leave OT trainers looking at OA/PSA numbers, and the curricula
+// are disjoint — there is no correct client-side subset. Arm the wait BEFORE the click.
+const caOtReq = tp.waitForRequest(
+  (r) => r.url().includes("/api/admin/cohort-analytics") && new URL(r.url()).searchParams.get("discipline") === "ot",
+  { timeout: 8000 },
+).catch(() => null);
+await tp.locator('[data-testid="cohort-discipline"] button[data-discipline="ot"]').click();
+if (!(await caOtReq)) { console.error("FAIL: switching the discipline switcher issued no /api/admin/cohort-analytics request with discipline=ot"); process.exit(1); }
+await tp.waitForFunction(() => {
+  const el = document.querySelector('[data-testid="cohort-topics-summary"]');
+  return !!el && el.textContent.trim().startsWith("2 topic groups");
+}, null, { timeout: 8000 });
+console.log("PASS: Admin — panel-local discipline switcher states its scope and re-queries the server with the new discipline");
+
+// P1's core invariant, re-pinned for this panel: a FAILED read must never render as a
+// measurement. On a 500 the panel shows its error affordance and the in-scope count
+// degrades to a dash — "0 students in scope" beside a broken endpoint reads as a real,
+// measured, empty cohort, which is the defect class this whole phase exists to kill.
+// (tp is not used after this block, so leaving the route broken is safe.)
+const caPanel = tp.locator('section.aurora-panel:has([data-testid="cohort-discipline-caption"])');
+await trainerCtx.route("**/api/admin/cohort-analytics*", (r) => r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ detail: "Operation failed. Please try again." }) }));
+await tp.locator('[data-testid="cohort-discipline"] button[data-discipline="oa_psa"]').click();
+await caPanel.locator(".aurora-panel-error").waitFor({ state: "visible", timeout: 15000 });
+const scopeText = (await caPanel.locator("span.aurora-unavail").first().innerText()).trim();
+if (/^\d/.test(scopeText)) { console.error(`FAIL: a failed cohort-analytics read rendered a number ('${scopeText}') instead of a no-data marker`); process.exit(1); }
+if ((await caPanel.locator('[data-testid="cohort-topics-summary"]').count()) !== 0) { console.error("FAIL: the topic summary survived a failed cohort-analytics read"); process.exit(1); }
+console.log("PASS: Admin — a failed cohort-analytics read renders as an error, never as a zero measurement");
 
 // an admin gets the same board PLUS the Accounts tab.
 const adminUser = { full_name: "Site Admin", email: "admin@snec.com.sg", student_id: "A001", role: "admin", student_role: "", must_change: false };
