@@ -1,15 +1,27 @@
-"""Regression tests for `scripts/start-harness.sh stop`.
+"""Regression tests for `scripts/start-harness.sh` — both ways it can report a
+green harness against a build it never loaded.
 
-Observed twice in one session (2026-07-28): `.tmp/harness-server.pid` held 5884
-while the node.exe listening on :3000 was 19200, so `stop` printed "harness
-server stopped", exited 0 — and left the server serving. The next run then took
-the "reusing server already answering on :3000" branch and asserted a STALE
-build. Root cause: under Git Bash the `$!` captured after `(cd … && nohup node
-… &)` is the msys subshell, not the node.exe that owns the port; on Linux the
-exec chain collapses into one pid, which is why CI never saw it.
+`stop`, observed twice in one session (2026-07-28): `.tmp/harness-server.pid`
+held 5884 while the node.exe listening on :3000 was 19200, so `stop` printed
+"harness server stopped", exited 0 — and left the server serving. The next run
+then took the "reusing server already answering on :3000" branch and asserted a
+STALE build. Root cause: under Git Bash the `$!` captured after `(cd … && nohup
+node … &)` is the msys subshell, not the node.exe that owns the port; on Linux
+the exec chain collapses into one pid, which is why CI never saw it.
 
-Contract locked here: when `stop` exits 0 the port is free — whatever started
-the server, and whatever the pidfile claims.
+`start`, observed the same day: an orphaned node (its parent already dead) was
+LISTENING on :3000 serving a build from before the /dashboard → /homepage
+rename. It answered too slowly for the gate's 2s probe, so the script skipped
+the stop and took the start branch; its own node then died of EADDRINUSE into
+.tmp/harness-server.log, which nothing reads, and the 60-iteration poll went
+green off the SQUATTER's replies. "── server up", then aurora_assert.mjs failed
+on a missing "Homepage" navitem — which reads as a code regression, not an
+environment problem. Worse than the `stop` trap: a stranger's build that is
+close to yours produces a false GREEN, not a red.
+
+Contract locked here: when `stop` exits 0 the port is free, and when `start`
+says "server up" the process answering the port is the child it just launched —
+whatever the pidfile claims, in either direction.
 
 Driven on a private HARNESS_PORT so a real harness on :3000 is never killed.
 """
@@ -28,12 +40,28 @@ PIDFILE = ROOT / ".tmp" / "harness-server.pid"
 
 NODE = shutil.which("node")
 pytestmark = pytest.mark.skipif(
-    shutil.which("bash") is None or NODE is None,
-    reason="needs bash + node to drive scripts/start-harness.sh",
+    shutil.which("bash") is None or NODE is None or shutil.which("curl") is None,
+    reason="needs bash + node + curl to drive scripts/start-harness.sh",
 )
 
 # Stands in for the standalone server: all `stop` cares about is who owns the port.
 LISTENER = "require('http').createServer((_, r) => r.end('ok')).listen(+process.argv[1], '127.0.0.1');"
+
+# Stands in for .next/standalone/server.js, so the start branch costs `node -e`, not a
+# `next build`. Left to crash on its own 'error' event — node's uncaught EADDRINUSE is
+# exactly what the real bundle writes to the log.
+STANDALONE = "require('http').createServer((_, r) => r.end('ok')).listen(+process.env.PORT, '127.0.0.1');\n"
+
+# The orphan that fooled the poll. Cold for the gate's two probes (both curls give up at
+# --max-time 2, so the script never stops it and takes the START branch), warm by the
+# time the post-launch poll asks — the sequence that turned a squatter into "server up".
+SQUATTER = (
+    "let seen = 0;"
+    "require('http').createServer((_, r) => {"
+    "  if (++seen <= 2) { setTimeout(() => r.end('stale'), 30000); return; }"
+    "  r.end('stale');"
+    "}).listen(+process.argv[1], '127.0.0.1');"
+)
 
 
 def _free_port() -> int:
@@ -64,15 +92,22 @@ def _dead_pid() -> int:
     return proc.pid
 
 
-def _stop(port: int) -> subprocess.CompletedProcess:
+def _harness(root: Path, mode: str, port: int, **env) -> subprocess.CompletedProcess:
+    """The script drives itself off its own location, so `root` picks which tree it runs."""
     return subprocess.run(
-        ["bash", str(SCRIPT), "stop"],
-        cwd=ROOT,
-        env={**os.environ, "HARNESS_PORT": str(port)},
+        ["bash", str(root / "scripts" / "start-harness.sh"), mode],
+        cwd=root,
+        env={**os.environ, "HARNESS_PORT": str(port), **env},
         capture_output=True,
         text=True,
+        encoding="utf-8",  # the script's box-drawing prefixes are UTF-8, the console is not
+        errors="replace",
         timeout=180,
     )
+
+
+def _stop(port: int) -> subprocess.CompletedProcess:
+    return _harness(ROOT, "stop", port)
 
 
 @pytest.fixture
@@ -130,3 +165,72 @@ def test_stop_reports_the_port_not_the_pidfile_when_nothing_is_listening(pidfile
 
     assert res.returncode == 0, res.stderr
     assert "nothing listening" in res.stdout.lower(), res.stdout
+
+
+@pytest.fixture
+def sandbox(tmp_path):
+    """The script in a throwaway tree with a fake standalone bundle.
+
+    SKIP_BUILD=1 skips `next build`, but the start branch still copies static/ and
+    public/ into the bundle and runs it — so drive it against a two-line server.js
+    instead of the real one, and never touch the worktree's own .next.
+    """
+    (tmp_path / "scripts").mkdir()
+    shutil.copy(SCRIPT, tmp_path / "scripts" / SCRIPT.name)
+    fe = tmp_path / "frontend"
+    (fe / "public").mkdir(parents=True)
+    (fe / ".next" / "static").mkdir(parents=True)
+    (fe / ".next" / "standalone" / ".next").mkdir(parents=True)
+    (fe / ".next" / "BUILD_ID").write_text("sandbox\n")
+    (fe / ".next" / "standalone" / "server.js").write_text(STANDALONE)
+    return tmp_path
+
+
+@pytest.fixture
+def squatter():
+    """An orphan on the port that the gate's 2s probe cannot see (see module docstring)."""
+    port = _free_port()
+    proc = subprocess.Popen(
+        [NODE, "-e", SQUATTER, str(port)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+    assert _wait_until(lambda: _listening(port)), "test squatter never came up"
+    yield port
+    proc.kill()
+    proc.wait(timeout=30)
+
+
+def test_start_refuses_to_call_a_squatters_replies_its_own_server(sandbox, squatter):
+    """The reported case: node dies of EADDRINUSE, the poll goes green off the orphan."""
+    res = _harness(sandbox, "serve", squatter, SKIP_BUILD="1")
+    out = res.stdout + res.stderr
+
+    assert res.returncode != 0, f"start reported success against a stranger's build:\n{out}"
+    assert "server up" not in res.stdout, res.stdout
+    assert "EADDRINUSE" in out, out
+    assert _listening(squatter), "the squatter is not ours to kill — only to refuse"
+
+
+def test_start_reports_up_only_after_its_own_child_answers(sandbox):
+    """The guard must not cry wolf on the happy path — a live child owning a free port."""
+    port = _free_port()
+    try:
+        res = _harness(sandbox, "serve", port, SKIP_BUILD="1")
+
+        assert res.returncode == 0, res.stdout + res.stderr
+        assert "server up" in res.stdout, res.stdout
+        assert _listening(port), "start said it was up but nothing is serving"
+    finally:
+        _harness(sandbox, "stop", port)
+
+
+def test_start_surfaces_the_log_when_its_child_dies_for_any_other_reason(sandbox):
+    """A crashing bundle used to poll for 60s and print only 'see $LOGFILE'."""
+    (sandbox / "frontend" / ".next" / "standalone" / "server.js").write_text(
+        "throw new Error('bundle is broken');\n"
+    )
+
+    res = _harness(sandbox, "serve", _free_port(), SKIP_BUILD="1")
+    out = res.stdout + res.stderr
+
+    assert res.returncode != 0, out
+    assert "bundle is broken" in out, f"the log tail never reached the operator:\n{out}"
