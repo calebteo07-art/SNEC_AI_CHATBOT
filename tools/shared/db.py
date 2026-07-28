@@ -525,6 +525,95 @@ async def get_case_progress_since(since_iso: str) -> list[dict]:
     return result.data or []
 
 
+async def get_all_flashcard_attempts() -> tuple[list[dict], bool]:
+    """Every flashcard attempt across all students, paged: (rows, complete).
+
+    Projects only the four columns cohort analytics reads. `select("*")` here would pull
+    card_id + score for every row on the product's highest-volume table onto the single
+    prod worker, and no aggregator reads either. Ordered by attempt_id, the table's
+    primary key (migration 010), for a stable pagination order.
+
+    RAISES on a missing table (pre-migration 010), exactly like get_flashcard_attempts.
+    No PostgREST exception type is importable in this tree, so the CALLER must catch bare
+    Exception and flag sources.flashcard = "unavailable" — never swallow the failure into
+    ([], True) here, which would render an outage as a confident 0% cohort accuracy."""
+    return await _fetch_all("flashcard_attempts", "student_id, topic_tag, correct, ts",
+                            order_by="attempt_id")
+
+
+async def get_all_case_scores() -> tuple[list[dict], bool]:
+    """Graded case attempts across all students, paged: (rows, complete).
+
+    A SIBLING of get_all_case_progress, not a replacement: that one selects "*" and is
+    shared with /api/admin/activity, whose feed emits score_100/safe/missed_critical from
+    it — narrowing it there would blank fields on a shipped endpoint. This projection
+    omits the `coaching` JSONB (a per-row feedback blob) and the two sub-domain scores,
+    none of which cohort aggregation reads; per-row JSONB is what makes a full-table
+    analytics scan expensive. Ordered by case_progress' `id` primary key for a stable
+    pagination order.
+
+    Grade columns stay NULL on pre-Tier-2 rows (over half of production today) — pass
+    them through untouched so the aggregator can hold each metric to its own denominator
+    instead of averaging invented zeros.
+
+    `missed_critical` is in the projection because it is the ONLY source for
+    osce_by_group's `missed_top` — without it that panel is permanently empty. It is a
+    short list of step labels, not the `coaching` blob."""
+    return await _fetch_all(
+        "case_progress",
+        "student_id, case_id, completed_at, score_100, safe, passed, total_score, "
+        "missed_critical",
+        order_by="id",
+    )
+
+
+async def get_active_student_profiles() -> tuple[list[dict], int]:
+    """Active profiles with STAFF subtracted: (students, staff_excluded).
+
+    get_active_profiles() is NOT staff-free despite what its docstring used to claim: it
+    filters on approved_students membership alone, with no supervisors check. Staff leak
+    in two ways — admin_promote upserts a supervisors row but leaves the promoted
+    student's approved_students row in place, and SUPER_ADMIN_EMAIL is staff without a
+    supervisors row whose address is routinely added to the roster to give the account a
+    name (see the role-settling comment in auth.py's login). A leaked trainer keeps the
+    genuine "OA"/"OT" that the staff-only pool toggle (PATCH /api/profile/role) writes,
+    so cohort denominators count them as a student indefinitely.
+
+    Staff is a MEMBERSHIP property, not a role: this is the same supervisors join
+    get_active_leaderboard_profiles uses to add staff back in, applied in reverse.
+    Composes get_active_profiles rather than inlining that filter a third time — the
+    extra student_consent read is immaterial on an endpoint already doing full-table
+    scans, and a hand-copy that drifts is the bigger risk (get_active_leaderboard_profiles
+    inlines it deliberately for the opposite reason: it is the busiest read in the app).
+
+    RAISES if the supervisors read fails, which 500s the cohort endpoint: its population
+    read has no per-source degrade. Deliberate — failing open would silently restore the
+    inflated cohort this exists to fix, reported as if it were filtered, and an inflated
+    denominator that looks correct is worse than a visible outage. Returns the excluded
+    count so the endpoint can show it rather than just shrinking."""
+    students = await get_active_profiles()
+    supervisors = await get_all_supervisors()
+    staff_emails = {
+        (s.get("email") or "").strip().lower()
+        for s in supervisors
+        if (s.get("email") or "").strip()
+    }
+    super_admin = super_admin_email()
+    if super_admin:
+        staff_emails.add(super_admin)
+    if not staff_emails:
+        return students, 0
+    consent = await get_all_consent()
+    staff_ids = {
+        str(c.get("student_id"))
+        for c in consent
+        if c.get("student_id") is not None
+        and (c.get("email") or "").strip().lower() in staff_emails
+    }
+    kept = [p for p in students if str(p.get("student_id")) not in staff_ids]
+    return kept, len(students) - len(kept)
+
+
 # ── approved_students ─────────────────────────────────────────────────────────
 
 async def get_approved(email: str) -> dict | None:
