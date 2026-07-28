@@ -5,6 +5,9 @@ Two guard tiers:
   • require_staff  → read-only analytics: admin + trainer allowed, student 403.
   • require_admin  → add/remove/CSV/promote: admin only, trainer + student 403.
 """
+import sys
+from contextlib import ExitStack
+
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
@@ -69,6 +72,91 @@ def _stub_provisioning_db():
         yield
 
 
+@pytest.fixture(autouse=True)
+def _stub_admin_db():
+    """Neutral defaults for every db call the admin endpoints make.
+
+    Complements `_stub_provisioning_db` (which covers the add-account write path) by
+    covering the read surface behind STAFF_READ_ENDPOINTS, plus the audit write every
+    mutating endpoint emits. Without these, `test_staff_read_endpoint_allows_trainer_token`
+    ran the handlers for real: two whole-table scans of live production Supabase per
+    pytest run, and audit rows written into the production `audit_events` table.
+
+    Empty/neutral on purpose — the guard tests only assert the caller got past
+    require_staff, so the payload is irrelevant. Tests that assert on *content*
+    re-patch the specific reader inside their own `with` block, which nests over
+    this one and restores it on exit.
+
+    Built fresh per test rather than as a module constant: an AsyncMock hands the
+    same object back on every call, so one shared `[]` would leak mutations between
+    tests. Adding a read endpoint means adding one line here.
+    """
+    defaults = {
+        # GET /api/admin/approved
+        "tools.shared.db.get_all_approved": [],
+        # GET /api/admin/students (also reads get_all_approved)
+        "tools.shared.db.get_all_profiles": [],
+        "tools.shared.db.get_all_consent": [],
+        # GET /api/admin/staff — composite over supervisors/consent/profiles, but
+        # stubbed directly so the test doesn't depend on that composition holding.
+        "tools.shared.db.get_staff_roster": [],
+        # GET /api/admin/activity
+        "tools.shared.db.get_all_sessions": [],
+        "tools.shared.db.get_all_case_progress": [],
+        "tools.shared.db.get_active_leaderboard_profiles": [],
+        # GET /api/admin/student/{id}/detail — get_profile is imported into the
+        # router's namespace, so it patches there, not on tools.profile.
+        "tools.api.routers.admin.get_profile": {},
+        "tools.shared.db.get_consent_by_student_id": None,
+        "tools.shared.db.get_sessions": [],
+        "tools.shared.db.get_case_results": [],
+        "tools.shared.db.get_topic_accuracy": {},
+        # GET /api/admin/token-summary — (rows, complete) pagination tuple
+        "tools.shared.db.get_all_session_tokens": ([], True),
+        # Every mutating admin endpoint logs one of these.
+        "tools.shared.db.insert_audit_event": None,
+    }
+    with ExitStack() as stack:
+        for target, value in defaults.items():
+            stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
+        yield
+
+
+@pytest.fixture(autouse=True)
+def _forbid_real_supabase():
+    """No test in this file may reach production Supabase.
+
+    ``tools/shared/db.py`` calls ``load_dotenv()`` and builds its client from
+    SUPABASE_SERVICE_ROLE_KEY, so on any machine with a populated ``.env`` a db call
+    left unstubbed reads (or writes) the **live production database** on every pytest
+    run. Every db function funnels through ``db._get_client``, so blocking that one
+    seam catches all of them.
+
+    The assertion has to happen *after* the request: the endpoints wrap their reads in
+    ``except Exception -> 500``, so raising alone is swallowed and the guard tests
+    (which accept any non-401/403) would still pass. Recording the attempt and failing
+    on the way out is what makes an unstubbed read impossible to miss — and it works
+    identically with or without credentials present, so CI and a fresh worktree
+    enforce the same rule the maintainer's box does.
+    """
+    attempted = []
+
+    async def _blocked(*_args, **_kwargs):
+        # The caller one frame up is the db.py function that went unstubbed — name it,
+        # so the failure says what to patch instead of just that something leaked.
+        attempted.append(sys._getframe(1).f_code.co_name)
+        raise AssertionError("real Supabase client requested")
+
+    with patch("tools.shared.db._get_client", new=_blocked):
+        yield
+
+    assert not attempted, (
+        "these db calls reached production Supabase: "
+        + ", ".join(sorted(set(attempted)))
+        + " - stub them in _stub_admin_db"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Auth enforcement — no token
 # ---------------------------------------------------------------------------
@@ -104,8 +192,10 @@ def test_admin_only_endpoint_rejects_trainer_token(method, path):
 def test_staff_read_endpoint_allows_trainer_token(method, path):
     """Trainer must pass the require_staff guard on read-only analytics endpoints.
 
-    The DB reads aren't mocked here, so a 500 is acceptable — the point is the
-    guard let the trainer through rather than returning 401/403.
+    The point is the guard let the trainer through rather than returning 401/403, so
+    the assertion stays deliberately loose about *which* success/error code comes back.
+    The reads themselves are stubbed by `_stub_admin_db` — running these handlers
+    unstubbed scanned live production Supabase on every pytest run.
     """
     r = client.request(method, path, cookies=_trainer_headers())
     assert r.status_code not in (401, 403), f"{method} {path} → {r.status_code}"
