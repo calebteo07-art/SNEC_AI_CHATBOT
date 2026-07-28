@@ -46,6 +46,15 @@ def _reset_shared_api_state() -> None:
     except Exception:
         pass
 
+    # And again for the cohort aggregate, memoised for 45s per (discipline, days). Any
+    # admin test that touches /api/admin/cohort-analytics warms a live entry, and the next
+    # test asking for the same view is served THAT payload instead of its own patched mocks.
+    try:
+        from tools.api.routers.admin import _cohort_cache
+        _cohort_cache.clear()
+    except Exception:
+        pass
+
 
 @pytest.fixture(autouse=True)
 def isolate_shared_api_state():
