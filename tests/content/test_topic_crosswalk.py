@@ -78,12 +78,13 @@ def test_no_stale_crosswalk_entries():
 def test_foundations_topics_map_to_their_own_distinct_knowledge_group():
     """The property the per-topic knowledge split exists for: these 12 domains
     are 600 cards (26.7% of the 2250-card bank) alone, 650 (28.9%) counting
-    `abbreviations`, which stays in the shared bucket below. Collapsed into
-    one row, a genuine pharmacology weakness averages out against anatomy,
-    ethics, systemic disease, etc. and can never surface in a ranking. Each
-    FOUNDATIONS topic is instead identity-mapped to its own "knowledge_<topic>"
-    group — asserting they are pairwise DISTINCT (not just knowledge_-prefixed)
-    is the actual new guarantee here."""
+    `abbreviations` below — which, like these 12, used to share one collapsed
+    bucket and now gets its own group too. Collapsed into one row, a genuine
+    pharmacology weakness averages out against anatomy, ethics, systemic
+    disease, etc. and can never surface in a ranking. Each FOUNDATIONS topic
+    is instead identity-mapped to its own "knowledge_<topic>" group —
+    asserting they are pairwise DISTINCT (not just knowledge_-prefixed) is
+    the actual new guarantee here."""
     foundations = [tk for tk, _label in FLASHCARD_TOPICS["FOUNDATIONS"]]
     groups = {tk: flashcard_group(tk) for tk in foundations}
     assert len(set(groups.values())) == len(foundations), f"collision: {groups}"
@@ -93,23 +94,31 @@ def test_foundations_topics_map_to_their_own_distinct_knowledge_group():
 
 
 def test_non_taxonomy_tags_share_the_general_knowledge_group():
-    """`abbreviations` (cross-cutting CLINICAL notation) and `general` (the DB
-    column's legacy default) are not FOUNDATIONS domains and carry no
-    standalone content of their own — unlike FOUNDATIONS topics, they still
-    collapse into the single catch-all bucket."""
-    for tk in ("abbreviations", "general"):
-        assert flashcard_group(tk) == KNOWLEDGE_GROUP, f"{tk} escaped the shared knowledge group"
+    """`general` (the DB column's legacy default, and the target of
+    flashcard_group's own unknown-tag fallback) is the ONLY tag that lands in
+    KNOWLEDGE_GROUP. Every other flashcard topic — including `abbreviations`,
+    a real 50-card authored deck — gets its own knowledge_<topic> group, so a
+    drift event inflating this row can never be mistaken for genuine content
+    accuracy on some specific topic."""
+    assert flashcard_group("general") == KNOWLEDGE_GROUP, "general escaped the shared knowledge group"
 
 
 def test_ocular_emergencies_is_pool_dependent():
     """`ocular_emergencies` is the only one of the 21 case set keys with no
-    flashcard topic mapped to it by default — and the largest CLINICAL set in
-    the live case library (13 cases: chemical/alkali injury, penetrating
-    injury, corneal foreign body, hyphaema, acute angle-closure glaucoma,
-    CRAO, flash-burn, and red-flag/pain-assessment triage variants), the
+    flashcard topic mapped to it by default — and joint-largest CLINICAL set
+    in the live case library (10 cases, tied with six others: chemical/alkali
+    injury, penetrating injury, corneal foreign body, hyphaema, acute
+    angle-closure glaucoma, and red-flag/pain-assessment triage), the
     platform's highest-stakes clinical topic. Its FOUNDATIONS deck is studied
     by every role, but only OA/PSA sit a station for it — OT has none. So the
     same tag must resolve differently depending on which pool is asking.
+
+    (The count is production's `c.get("topic_set") or resolve_set(...)`
+    precedence, not bare resolve_set — 3 cases carry an explicit topic_set
+    that overrides their topic string: two route to triage_referral (the CRAO
+    and flash-burn triage cases) and one to history_taking (the AACG
+    pain-assessment case), so bare resolve_set overcounts this set by 3 and
+    also miscounts pupil_dilation's tie at 10 as 11.)
 
     (This replaces an earlier version of this test whose docstring claimed
     resolving to the CLINICAL set key here would "inject OT accuracy into a
@@ -145,11 +154,13 @@ def test_pool_overrides_never_target_the_other_pools_set_keys():
 
 def test_procedural_topics_stay_inside_their_own_pool():
     """A cross-pool mis-bucket is invisible in the totals but silently blends an OT
-    cohort's accuracy into a CLINICAL group (or vice versa)."""
+    cohort's accuracy into a CLINICAL group (or vice versa). A knowledge-shaped
+    escape (e.g. `abbreviations` -> its own knowledge_abbreviations group) is
+    fine — only landing in the OTHER pool's real set keys would be a bug."""
     for pool, allowed in (("CLINICAL", CLINICAL_SET_KEYS), ("OT", OT_SET_KEYS)):
         for tk, _label in FLASHCARD_TOPICS[pool]:
             grp = flashcard_group(tk)
-            assert grp in allowed or grp == KNOWLEDGE_GROUP, \
+            assert grp in allowed or is_knowledge_group(grp), \
                 f"{pool} topic {tk!r} -> {grp!r}, which is not a {pool} set key"
 
 
@@ -196,7 +207,7 @@ def test_crosswalk_beats_resolve_set_on_the_real_failure_cases():
     assert resolve_set("OA", "anatomy_physiology") == "history_taking"
     assert flashcard_group("anatomy_physiology") == "knowledge_anatomy_physiology"
     assert resolve_set("OA", "abbreviations") == "history_taking"
-    assert flashcard_group("abbreviations") == KNOWLEDGE_GROUP
+    assert flashcard_group("abbreviations") == "knowledge_abbreviations"
     assert resolve_set("OT", "hrt") == "screening"
     assert flashcard_group("hrt") == "oct_imaging"
 

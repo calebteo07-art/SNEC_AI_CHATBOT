@@ -29,10 +29,14 @@ from tools.flashcards.flashcard_sets import DIFFICULTIES
 # group apart from a flashcard-only one without hand-syncing a membership set.
 KNOWLEDGE_PREFIX: str = "knowledge_"
 
-# The shared catch-all under that namespace: cross-cutting tags that don't carry
-# enough standalone content to deserve their own group (the DB's legacy column
-# default, notation drilled across every role). Named rather than inlined so the
-# fallback contract in flashcard_group() reads clearly at the call site.
+# The pure fallback under that namespace: the DB column's legacy default
+# ("general") and the sink for any `topic_tag` that isn't a real key in
+# FLASHCARD_TO_SET below. Deliberately NOT shared by any real content deck —
+# `abbreviations` is a genuine 50-card authored topic and gets its own group
+# below, precisely so a drift event landing in this fallback can't be mistaken
+# for real abbreviations-teaching signal in the trainer-facing panel. Named
+# rather than inlined so the fallback contract in flashcard_group() reads
+# clearly at the call site.
 KNOWLEDGE_GROUP: str = "knowledge_general"
 
 # flashcard topic_key -> case set_key | "knowledge_*" group.
@@ -46,15 +50,19 @@ FLASHCARD_TO_SET: dict[str, str] = {
     # anatomy, ethics, systemic disease and the rest of that bucket, and a
     # 13-topic mean structurally regresses toward the cohort average, so the
     # largest slice of the bank could never surface in a "weakest topics"
-    # ranking. Each FOUNDATIONS topic is instead identity-mapped to its own
-    # "knowledge_<topic>" group (`abbreviations` still shares the general
-    # bucket below — it's notation, not a knowledge domain).
-    # `ocular_emergencies` additionally gets a pool override below: it is the
-    # largest CLINICAL set in the live case library (13 cases — chemical/
-    # penetrating injury, hyphaema, acute angle-closure glaucoma, CRAO, and
-    # red-flag triage variants) and the only one of the 21 set keys with no
-    # flashcard topic mapped to it by default; OA/PSA sit a real station for
-    # it, OT does not.
+    # ranking. Each FOUNDATIONS topic (and `abbreviations`, below) is instead
+    # identity-mapped to its own "knowledge_<topic>" group.
+    # `ocular_emergencies` additionally gets a pool override below: it is
+    # joint-largest CLINICAL set in the live case library (10 cases, tied with
+    # six others — chemical/alkali injury, penetrating injury, corneal foreign
+    # body, hyphaema, acute angle-closure glaucoma, and red-flag/pain-assessment
+    # triage) and the only one of the 21 set keys with no flashcard topic mapped
+    # to it by default; OA/PSA sit a real station for it, OT does not. Counted
+    # via production's `c.get("topic_set") or resolve_set(...)` precedence
+    # (tools/api/routers/cases.py:334,397), not bare resolve_set — 3 cases carry
+    # an explicit topic_set that overrides what their topic string would
+    # otherwise resolve to (two route to triage_referral, one to history_taking),
+    # so bare resolve_set overcounts this set by 3.
     "anatomy_physiology": "knowledge_anatomy_physiology",
     "microbiology_infection": "knowledge_microbiology_infection",
     "pharmacology": "knowledge_pharmacology",
@@ -82,8 +90,12 @@ FLASHCARD_TO_SET: dict[str, str] = {
     "amsler_macula": "colour_macular",
     "fall_risk": "fall_risk",
     "perioperative": "perioperative",
-    # Cross-cutting notation drilled for every role; no station examines it.
-    "abbreviations": KNOWLEDGE_GROUP,
+    # Cross-cutting notation drilled for every role; no station examines it, so
+    # (like FOUNDATIONS above) there's no OSCE set to point at. But it's still a
+    # real 50-card authored deck, the same size as every FOUNDATIONS topic — it
+    # gets its own group rather than sharing KNOWLEDGE_GROUP with the DB's
+    # legacy default and the unrecognised-tag sink (see KNOWLEDGE_GROUP above).
+    "abbreviations": "knowledge_abbreviations",
 
     # --- OT (19) -> OT set keys -------------------------------------------------
     "oct_macula": "oct_imaging",
