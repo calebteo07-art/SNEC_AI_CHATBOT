@@ -3294,6 +3294,48 @@ Every cohort figure on the console still aggregates denormalized profile snapsho
 - Modify: `frontend/tests/aurora_assert.mjs` (`staffMocks`, insert after the `activity-trend*` route at 818–822)
 - Modify: `frontend/tests/_mocks.mjs` (insert after the `activity-trend*` route at 136–140)
 - Test: `tests/api/test_admin_cohort_analytics.py` (**Create**)
+- Modify: `tools/supervisor/cohort_analytics.py` (one addition — `WEIGHT_RUBRIC["caveats"]`, see below)
+
+---
+
+#### AMENDMENT: two things this plan promised and never specified (added after Task 8's review)
+
+Earlier sections of this plan commit Task 9 to emitting two pieces of information, and the endpoint as drafted emits neither. Both are honesty signals — the panel is wrong in a way that looks right without them.
+
+**(1) The unknown-tag drift counter.** Task 3's block says `is_known_tag(topic_tag)` is exported "so the endpoint can count attempts whose tag matched nothing… Surface that count in Task 9's `totals` alongside `unclassified_students`." Nothing does. `topic_tag` is client-supplied and unvalidated (`tools/api/routers/student.py` writes whatever the payload carries), and `flashcard_by_group` routes an unrecognised tag into the knowledge bucket rather than dropping it — so a stale frontend build or a topic rename silently produces a complete, plausible, entirely wrong panel. Count it in the same pass that filters the flashcard rows:
+
+```python
+    unknown_tag_attempts = sum(
+        1 for r in fc_rows
+        if str(r.get("student_id", "")) in in_view
+        and not is_known_tag(str(r.get("topic_tag") or ""))
+    )
+```
+
+Import `is_known_tag` from `tools.supervisor.topic_crosswalk` alongside the existing crosswalk import.
+
+**(2) The rubric, including the safety caveat.** §5.3 and Task 7's `osce_by_group` docstring both say the safety denominator caveat "must be stated in the rubric block" — but no rubric block ever reaches the client, so as drafted the caveat ships nowhere at all. The same omission leaves `weakness_score` unexplainable: it is a weighted, shrunk, clamped composite, and the console would render a bare number a trainer is expected to act on. That also conflicts with this project's standing rule to explain things in-UI.
+
+`WEIGHT_RUBRIC` already carries `version`, `weights`, `scales` and `confidence`. Add one key to it in `tools/supervisor/cohort_analytics.py` — one source of truth, not a string duplicated in the router:
+
+```python
+    # Stated ON THE WIRE because a diluted rate reads as good news. §5.3.
+    "caveats": {
+        "safety": (
+            "safe = not missed_critical, and missed_critical only fills for steps "
+            "flagged critical — so an attempt on a checklist with NO critical step "
+            "counts as safe while carrying no safety signal. safety_fail_rate is "
+            "therefore diluted downward on those groups; read it with "
+            "safety_gradable_n."
+        ),
+    },
+```
+
+`test_weight_rubric_is_the_single_source_of_the_constants` asserts on `weights`, `scales` and `confidence` only, so this addition does not disturb it. Extend it to assert `caveats["safety"]` is non-empty, and add an endpoint test asserting `payload["rubric"]["caveats"]["safety"]` survives to the client — a caveat that exists only in a docstring is the same as no caveat.
+
+Both fields appear in the payload block in Step 3. Task 10's TypeScript types and Task 11's panels must carry them too.
+
+---
 
 - [ ] **Step 1: Write the failing test**
 
@@ -3912,10 +3954,22 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
             # Surfaced, not swallowed: a cohort that quietly shrank is the same class of
             # dishonesty as one that was quietly inflated.
             "staff_excluded": staff_excluded,
+            # Flashcard attempts whose topic_tag matched NOTHING in the crosswalk. The
+            # tag is client-supplied and unvalidated, so a stale frontend build or a
+            # rename routes every attempt into the knowledge bucket and renders a
+            # plausible, entirely wrong panel. Counted, so the drift is visible the day
+            # it starts rather than after a term of bad teaching decisions.
+            "unknown_tag_attempts": unknown_tag_attempts,
         },
         # osce is always "ok" here — a failed OSCE read raised a 500 above rather than
         # degrading, which is the whole point of the split.
         "sources": {"osce": "ok", "flashcard": flashcard_source},
+        # The scoring rubric travels WITH the scores. weakness_score is a weighted,
+        # shrunk composite; without the weights, the confidence floors and the safety
+        # caveat on the wire, the console can only show a number a trainer has to take
+        # on faith — and the caveat in particular has no other home (Task 8's rubric
+        # block is where §5.3 says it must live, and nothing else reaches the client).
+        "rubric": WEIGHT_RUBRIC,
     }
     if _COHORT_TTL_SECONDS > 0:
         _cohort_cache[cache_key] = (time.monotonic(), payload)
