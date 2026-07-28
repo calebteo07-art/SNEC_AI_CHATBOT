@@ -988,9 +988,9 @@ Expected: FAIL — collection error, `E   ModuleNotFoundError: No module named '
 > regresses toward the cohort average so it could never surface in a ranking either.
 > **(2)** `flashcard_group` gained an optional `pool` argument plus `POOL_OVERRIDES`, so
 > `ocular_emergencies` — the only one of the 21 set keys with no flashcard partner, and the
-> largest CLINICAL set in the case library — pairs with its station for OA/PSA while staying
-> a knowledge group for OT, who never sit it. **(3)** `is_knowledge_group` and `is_known_tag`
-> are exported. Note also that the draft test's rationale for pinning the
+> joint-largest CLINICAL set (10 cases, tied with six others) — pairs with its station for
+> OA/PSA while staying a knowledge group for OT, who never sit it. **(3)** `is_knowledge_group`
+> and `is_known_tag` are exported. Note also that the draft test's rationale for pinning the
 > `ocular_emergencies` collision was **factually wrong** — it claimed a CLINICAL mapping
 > would inject OT accuracy into a CLINICAL station, but `flashcard_by_group` already filters
 > by student pool, so that was never possible.
@@ -1355,6 +1355,15 @@ attempts out of the aggregate at random.
 Grouping precedence is production's, verbatim:
 `case.get("topic_set") or resolve_set(role, case.get("topic", ""))`
 (tools/api/routers/cases.py:334,397). Trainers must see the same groups students do.
+
+This is not a theoretical hazard: while implementing Task 3, bare `resolve_set` was used
+to count a set's cases and reported 13 instead of 10, because three cases carry an
+explicit `topic_set` that overrides the substring rules —
+case_oa_048_history_pain_assessment_aacg (history_taking),
+case_psa_035_triage_sudden_painless_vision_loss_crao and
+case_psa_036_triage_welder_flash_burn (both triage_referral). Any count, grouping, or
+membership list derived without the precedence is wrong in exactly this way, and it is
+wrong quietly.
 """
 from __future__ import annotations
 
@@ -2847,7 +2856,7 @@ def flashcard_by_group(rows: list[dict], student_pools: dict,
         #
         # The STUDENT's pool is passed to flashcard_group (Task 3 added the parameter): a
         # deck studied by every role but examined in only one pool — `ocular_emergencies`,
-        # the largest CLINICAL set in the case library — pairs with that station for OA/PSA
+        # the joint-largest CLINICAL set (10 cases) — pairs with that station for OA/PSA
         # while staying a knowledge group for OT, who never sit it. Pool comes from the
         # student, never from the topic.
         group = flashcard_group(str(r.get("topic_tag") or "general"), student_pool)
