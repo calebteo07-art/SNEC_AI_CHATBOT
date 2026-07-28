@@ -82,6 +82,7 @@ def test_upload_csv_is_rate_limited_per_user():
     """Tightest cap (5/min): each row bcrypt-hashes and sends an email."""
     csv_bytes = b"full_name,email,role\n"
     with patch("tools.shared.db.get_all_approved", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=[])), \
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=None)):
         statuses = [
             client.post(

@@ -25,6 +25,7 @@ def _approve_stubs():
     return patch.multiple(
         "tools.shared.db",
         get_approved=AsyncMock(return_value=None),
+        get_supervisor=AsyncMock(return_value=None),  # duplicate guard: no existing staff row
         get_consent_by_student_id=AsyncMock(return_value={"email": "admin@test.com", "student_id": "user_001"}),
         upsert_approved=AsyncMock(),
         upsert_supervisor=AsyncMock(),
