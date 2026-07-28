@@ -2768,7 +2768,7 @@ trainer's "teach this next" list:
 
 1. Scale mixing. Inputs arrive on three scales — score_100 (0-100), pass/fail rates
    (0-1) and flashcard accuracy (0-100, the db.get_topic_accuracy `pct` convention,
-   db.py:239-241). A naive weighted sum lets the OSCE score dominate the rates 100x.
+   db.py:240-243). A naive weighted sum lets the OSCE score dominate the rates 100x.
 2. Zero-filling an absent signal. Treating a missing avg_score as 0 makes the group with
    the LEAST data look maximally weak, so the ranking sends trainers to the emptiest
    topics rather than the worst (D13: nulls, not zeros).
@@ -2788,12 +2788,20 @@ from tools.supervisor.cohort_analytics import (
     flashcard_by_group,
     weakness_scores,
 )
-from tools.supervisor.topic_crosswalk import KNOWLEDGE_GROUP, flashcard_group
+from tools.supervisor.topic_crosswalk import (
+    KNOWLEDGE_GROUP,
+    flashcard_group,
+    is_knowledge_group,
+)
 
 # Resolve group keys THROUGH the crosswalk rather than hardcoding them, so this file
 # tests the bucketing path and not a private copy of Task 3's map.
 RED = flashcard_group("red_eye")
 OCT = flashcard_group("oct_macula")
+# Task 3's code review split the 12 FOUNDATIONS topics out of the single knowledge
+# bucket, so this is `knowledge_anatomy_physiology` and NOT the KNOWLEDGE_GROUP
+# fallback — asserting against KNOWLEDGE_GROUP here would pin the pre-split contract.
+ANATOMY = flashcard_group("anatomy_physiology")
 
 POOLS = {"cl1": "CLINICAL", "cl2": "CLINICAL", "ot1": "OT"}
 
@@ -2831,7 +2839,10 @@ def test_flashcard_by_group_buckets_through_the_crosswalk():
     out = flashcard_by_group(rows, POOLS)
     assert out[RED] == {"accuracy": 66.7, "n": 3, "students": 2}
     # 0.0 here is a MEASURED zero (one attempt, wrong), not a stand-in for missing data.
-    assert out[KNOWLEDGE_GROUP] == {"accuracy": 0.0, "n": 1, "students": 1}
+    assert out[ANATOMY] == {"accuracy": 0.0, "n": 1, "students": 1}
+    # And a FOUNDATIONS topic keeps its OWN knowledge group rather than collapsing into
+    # the shared fallback bucket, which held 28.9% of the card bank in one unactionable row.
+    assert is_knowledge_group(ANATOMY) and ANATOMY != KNOWLEDGE_GROUP
 
 
 def test_flashcard_by_group_filters_to_the_requested_pool():
@@ -2841,6 +2852,20 @@ def test_flashcard_by_group_filters_to_the_requested_pool():
     assert set(flashcard_by_group(rows, POOLS, pool="OT")) == {OCT}
     assert set(flashcard_by_group(rows, POOLS, pool="CLINICAL")) == {RED}
     assert set(flashcard_by_group(rows, POOLS)) == {RED, OCT}
+
+
+def test_flashcard_by_group_resolves_the_group_from_the_students_pool():
+    """The pool handed to the crosswalk is load-bearing, not decoration. A deck studied by
+    every role but examined by a station in only ONE pool (`ocular_emergencies`, the
+    joint-largest CLINICAL set) is an OSCE-backed set_key for OA/PSA and a knowledge group
+    for OT, who never sit it. Calling flashcard_group() without the student's pool
+    collapses both into the knowledge bucket and silently empties a real station's group —
+    the pool-filter test above cannot see that, because it only checks WHICH rows survive."""
+    rows = [_row("cl1", "ocular_emergencies", True), _row("ot1", "ocular_emergencies", False)]
+    clinical = flashcard_group("ocular_emergencies", "CLINICAL")
+    ot = flashcard_group("ocular_emergencies", "OT")
+    assert not is_knowledge_group(clinical) and is_knowledge_group(ot)
+    assert set(flashcard_by_group(rows, POOLS)) == {clinical, ot}
 
 
 def test_flashcard_by_group_excludes_students_with_no_discipline():
@@ -2921,6 +2946,54 @@ def test_weakness_score_ignores_absent_signals():
     assert out["osce_only"]["weakness_score"] == 0.0889
     assert out["flash_only"]["weakness_score"] == out["osce_only"]["weakness_score"]
     assert out["osce_only"]["low_confidence"] is False
+    # The flashcard side too, and it is the load-bearing one. Every knowledge_* group is
+    # flashcard-ONLY by construction (a knowledge prefix can never be a case set_key), so
+    # its confidence rests entirely on this component's `students`. Read that as 0 and all
+    # 14 of them are permanently low_confidence, sorting below every OSCE group under the
+    # endpoint's (low_confidence, -weakness_score) key — silently burying the very rows
+    # Task 3's FOUNDATIONS split existed to surface. Without this line, hardcoding the
+    # flashcard component's students to 0 passes the entire suite.
+    assert out["flash_only"]["low_confidence"] is False
+
+
+def test_weakness_score_one_strong_signal_is_enough_for_confidence():
+    """`confident = ANY contributing signal clears BOTH floors` — not all of them.
+    Every other multi-signal fixture in this file has its components on the same side of
+    both floors, so `any` -> `all` passes the whole suite: a group with deep OSCE
+    evidence would be marked low_confidence merely because two people also happened to
+    try two of its flashcards, i.e. adding evidence would REDUCE stated confidence."""
+    out = weakness_scores(
+        {"g": _osce(attempts=10, students=5, avg_score=50.0, scored_n=10)},
+        {"g": {"accuracy": 50.0, "n": 2, "students": 1}},
+    )["g"]
+    assert out["low_confidence"] is False
+
+
+def test_confidence_floors_are_the_agreed_values():
+    """Pin the floors to literals. Every other reference is self-referential — the
+    fixtures are built FROM MIN_ATTEMPTS/MIN_STUDENTS and the rubric test asserts the
+    rubric echoes the same constants — so both track any value silently. Raising
+    MIN_ATTEMPTS to 20 flags nearly every group low_confidence at production volume
+    (~24 OSCE attempts across 21 groups), which is the blank panel the constants' own
+    comment warns about."""
+    assert (MIN_STUDENTS, MIN_ATTEMPTS) == (3, 5)
+
+
+def test_weakness_score_lists_signals_in_rubric_order():
+    """signals_present is what the UI reads back to a trainer to justify a score, so it
+    must come out in rubric order — attainment first, recall last — every time, not in
+    dict-insertion or alphabetical order. Every other assertion on signals_present in this
+    file is a one-element list or a membership check, neither of which can see an order
+    change; only a group carrying all four signals discriminates."""
+    out = weakness_scores(
+        {"g": _osce(attempts=9, students=4, avg_score=50.0, scored_n=9, pass_rate=0.5,
+                    graded_n=9, safety_fail_rate=0.1, safety_gradable_n=9)},
+        {"g": {"accuracy": 50.0, "n": 9, "students": 4}},
+    )["g"]
+    assert out["signals_present"] == list(WEIGHT_RUBRIC["weights"])
+    # Guards the assertion above from going blind if the rubric is ever reordered into
+    # alphabetical order, at which point `sorted(comps)` would satisfy it by accident.
+    assert out["signals_present"] != sorted(out["signals_present"])
 
 
 def test_weakness_score_excludes_safety_term_when_ungradable():
@@ -2946,7 +3019,7 @@ def test_weakness_score_excludes_safety_term_when_ungradable():
 
 def test_weakness_score_small_n_does_not_top_ranking():
     """One catastrophic attempt must not outrank a well-sampled mediocre topic.
-    Undamped, `thin` scores 0.8769 vs `deep` 0.4261 and tops the list off n=1."""
+    Undamped, `thin` scores 0.8769 vs `deep` 0.4262 and tops the list off n=1."""
     osce = {
         "thin": _osce(attempts=1, students=1, avg_score=20.0, scored_n=1,
                       pass_rate=0.0, graded_n=1),
@@ -3128,7 +3201,7 @@ def flashcard_by_group(rows: list[dict], pools_by_student: dict,
             continue
         if pool is not None and student_pool != pool:
             continue
-        # Same `or "general"` fallback as db.get_topic_accuracy (db.py:233), and the
+        # Same `or "general"` fallback as db.get_topic_accuracy (db.py:235), and the
         # crosswalk routes "general" to the knowledge group — so an untagged attempt lands
         # in the same bucket here as on the student's own topic breakdown.
         #
@@ -3146,7 +3219,7 @@ def flashcard_by_group(rows: list[dict], pools_by_student: dict,
     return {
         g: {
             # 0-100 at 1dp — exactly db.get_topic_accuracy's `pct` convention
-            # (db.py:239-241), so a cohort figure and a student's own breakdown are
+            # (db.py:240-243), so a cohort figure and a student's own breakdown are
             # directly comparable. weakness_scores divides by WEIGHT_RUBRIC["scales"].
             "accuracy": round(100 * b["correct"] / b["n"], 1),
             "n": b["n"],
