@@ -133,6 +133,11 @@ def test_weight_rubric_is_the_single_source_of_the_constants():
         "min_attempts": MIN_ATTEMPTS,
         "shrinkage_k": SHRINKAGE_K,
     }
+    # §5.3 requires the safety-denominator dilution to be stated in the rubric block:
+    # `safe` fills only where a checklist flags a critical step, so safety_fail_rate is
+    # biased downward on the rest. A caveat that lives only in a docstring ships nowhere.
+    assert WEIGHT_RUBRIC["caveats"]["safety"].strip()
+    assert "safety_gradable_n" in WEIGHT_RUBRIC["caveats"]["safety"]
 
 
 # ── weakness_scores ───────────────────────────────────────────────────────────

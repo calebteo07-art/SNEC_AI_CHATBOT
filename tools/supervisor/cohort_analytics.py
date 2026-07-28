@@ -232,6 +232,16 @@ WEIGHT_RUBRIC: dict = {
         "min_attempts": MIN_ATTEMPTS,
         "shrinkage_k": SHRINKAGE_K,
     },
+    # Stated ON THE WIRE because a diluted rate reads as good news. §5.3.
+    "caveats": {
+        "safety": (
+            "safe = not missed_critical, and missed_critical only fills for steps "
+            "flagged critical — so an attempt on a checklist with NO critical step "
+            "counts as safe while carrying no safety signal. safety_fail_rate is "
+            "therefore diluted downward on those groups; read it with "
+            "safety_gradable_n."
+        ),
+    },
 }
 
 

@@ -3,18 +3,31 @@ import asyncio
 import csv
 import io
 import re
+import time
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, _client_ip
+from tools.cases.topic_sets import SET_LABELS
+from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
+from tools.shared.clock import app_today
 from tools.shared.gemini_client import MOCK_MODE, MODEL, ask
 from tools.shared.identity import seed_student_name
 from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
+from tools.supervisor.case_index import get_case_index
+from tools.supervisor.cohort_analytics import (
+    WEIGHT_RUBRIC,
+    flashcard_by_group,
+    osce_by_group,
+    weakness_scores,
+)
+from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
+from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 
 router = APIRouter()
 
@@ -284,6 +297,245 @@ async def admin_activity_trend(request: Request, days: int = 21,
          "total": v["sessions"] + v["cases"]}
         for d, v in sorted(buckets.items())
     ]}
+
+# ── Cohort analytics (P2) ──────────────────────────────────────────────────
+
+# Display labels per (pool, set_key). The case index carries a label per CASE, but the
+# endpoint also has to label a group with zero attempts in the window, and neither that
+# nor a flashcard-only knowledge_* group appears there.
+_SET_LABEL: dict[str, dict[str, str]] = {p: dict(rows) for p, rows in SET_LABELS.items()}
+
+# knowledge_<flashcard_topic_key> -> the deck's own label, so a cohort row reads exactly
+# like the topic the student studied. Title-casing the group key instead would render
+# "Knowledge Anatomy Physiology" for a deck the app calls "Ocular Anatomy & Physiology".
+_KNOWLEDGE_LABEL: dict[str, str] = {
+    key: label for rows in FLASHCARD_TOPICS.values() for key, label in rows
+}
+
+# Per-worker TTL cache over the DERIVED aggregate only. This is the read-cache carve-out
+# of invariant #2, not a violation of it: no counters, no cross-request semantics, every
+# entry is a pure function of (discipline, window) over immutable past events, and a cold
+# worker just recomputes. It earns its keep because one call reads three whole tables and
+# buckets them in Python while the console polls. Bounded by construction — `discipline`
+# is validated to one of three values and `days` is clamped to [1, 365] or "all" before
+# the key is built. Tests patch _COHORT_TTL_SECONDS to 0, which disables read AND write.
+_COHORT_TTL_SECONDS = 45.0
+_cohort_cache: dict[tuple[str, str], tuple[float, dict]] = {}
+
+# Used when weakness_scores has no entry for a group. Honest rather than defensive: "no
+# confident score" is a real state, and it must never surface as a number.
+_NO_WEAKNESS = {"weakness_score": None, "low_confidence": True, "signals_present": []}
+
+
+def _group_label(pool: str, group: str) -> str:
+    if is_knowledge_group(group):
+        topic = group[len(KNOWLEDGE_PREFIX):]
+        return _KNOWLEDGE_LABEL.get(topic, topic.replace("_", " ").title())
+    return _SET_LABEL.get(pool, {}).get(group, group.replace("_", " ").title())
+
+
+def _empty_osce() -> dict:
+    """The OSCE block for a group with flashcard data but zero OSCE attempts in the window.
+
+    Counts are 0 — that is the literal truth. Every rate/mean stays None (D13): a
+    denominator of 0 has no average, and 0.0 would render as "this cohort scores zero
+    here". Rebuilt per call so no two rows can alias one mutable dict."""
+    return {"attempts": 0, "students": 0, "avg_score": None, "scored_n": 0,
+            "pass_rate": None, "graded_n": 0, "safety_fail_rate": None,
+            "safety_gradable_n": 0, "missed_top": [],
+            "by_difficulty": {"beginner": 0, "intermediate": 0, "advanced": 0}}
+
+
+@router.get("/api/admin/cohort-analytics")
+# Plain limit(), NOT shared_limit: slowapi's default key_style="url" buckets on the ASGI
+# *path*, and query strings are not part of it — ?discipline= / ?days= cannot split this
+# endpoint's bucket, so there is nothing to pin. shared_limit(scope=...) is only needed
+# where a {path_param} would mint a fresh bucket per value (see admin_unapprove_student).
+@limiter.limit("30/minute")
+async def admin_cohort_analytics(request: Request, discipline: str = "all", days: str = "90",
+                                 current_user: CurrentUser = Depends(require_staff)):
+    """Cohort performance per topic group, aggregated from real OSCE + flashcard events.
+
+    Replaces the profile-snapshot proxies: every figure traces to a case_progress or
+    flashcard_attempts row. `discipline` filters on the STUDENT's role pool, never the
+    case's, so a role-neutral case counts in whichever pool its student belongs to.
+    `discipline=all` returns BOTH pools' groups, each tagged with its own `pool` — the two
+    curricula are disjoint, so one blended ranking would be meaningless (D2)."""
+    try:
+        pool = discipline_to_pool(discipline)
+    except ValueError:
+        raise HTTPException(status_code=400,
+                            detail="discipline must be one of " + ", ".join(DISCIPLINES))
+
+    # `days` is a str, not an int, so the explicit "all" sentinel is a 400-able value
+    # rather than FastAPI's 422 on a failed int coercion.
+    raw_days = days.strip().lower()
+    if raw_days == "all":
+        window_days: int | None = None
+        days_echo: int | str = "all"
+    else:
+        try:
+            window_days = max(1, min(int(raw_days), 365))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="days must be an integer or 'all'")
+        days_echo = window_days
+
+    cache_key = (discipline, str(days_echo))
+    cached = _cohort_cache.get(cache_key)
+    if _COHORT_TTL_SECONDS > 0 and cached and (time.monotonic() - cached[0]) < _COHORT_TTL_SECONDS:
+        return cached[1]
+
+    try:
+        # D10: students only, by MEMBERSHIP. get_active_profiles() is NOT staff-free — a
+        # promoted student keeps their approved_students row (admin_promote below) and the
+        # super-admin's address is routinely on the roster — and
+        # get_active_leaderboard_profiles() adds trainers/admins on purpose. A lecturer's
+        # demo run inside a cohort mean is a lie that never expires. This RAISES if the
+        # supervisors read fails (Task 6): a 500 below is the intended outcome, because
+        # failing open would restore an inflated denominator that LOOKS correct.
+        profiles, staff_excluded = await db.get_active_student_profiles()
+        # `complete` is unpacked and deliberately not surfaced: the response shape has no
+        # completeness field, and _fetch_all caps at 50 x 1000 rows — ~2000x the current
+        # table. The read that truncates TODAY is token-summary's (capped at 500), which
+        # §5.6 fixes separately.
+        case_rows, _case_complete = await db.get_all_case_scores()
+    except Exception:
+        # A failed OSCE/profile read is a REAL failure. Never fall through to a plausible
+        # empty cohort: "the DB is down" and "nobody has attempted anything" must not
+        # render identically. This is the defect class P1 exists to kill.
+        raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
+
+    # Flashcards degrade instead of failing. flashcard_attempts only started receiving rows
+    # in P2, so a thin or unavailable table is the NORMAL case — it renders as "no data",
+    # never as {accuracy: 0.0}, which would send trainers to remediate an unstudied topic.
+    flashcard_source = "ok"
+    try:
+        fc_rows, _fc_complete = await db.get_all_flashcard_attempts()
+    except Exception:
+        fc_rows, flashcard_source = [], "unavailable"
+
+    # After the DB reads on purpose: the index build globs 155 case files, and an outage
+    # should 500 without paying for it.
+    case_index = await get_case_index()
+
+    since = ""
+    if window_days is not None:
+        # SGT day boundary (tools.shared.clock) — the product defines a day in SGT and
+        # completed_at is written that way; a UTC edge shifts the window by 8 hours.
+        since = (app_today() - timedelta(days=window_days - 1)).isoformat()
+
+    def _in_window(row: dict, ts_key: str) -> bool:
+        # ISO-8601 dates order correctly as plain strings; [:10] is the date part.
+        return not since or str(row.get(ts_key) or "")[:10] >= since
+
+    case_rows = [r for r in case_rows if _in_window(r, "completed_at")]
+    fc_rows = [r for r in fc_rows if _in_window(r, "ts")]
+
+    pools_by_student = pool_by_student(profiles)
+
+    # Data-health diagnostics, deliberately NOT scoped to the current filter — they answer
+    # "what could this console not place at all?", which is the same question in every
+    # view. A student whose role maps to no pool is excluded rather than defaulted into
+    # CLINICAL (§4.4 — case_pool() returns CLINICAL for "", None and typos), and an attempt
+    # on a case missing from the library index is excluded from its group. Staff appear in
+    # neither count: they are not in the population, so they are not "unclassified".
+    unclassified_students = sum(
+        1 for p in profiles if str(p.get("student_id", "")) not in pools_by_student
+    )
+    unclassified_attempts = sum(
+        1 for r in case_rows
+        if str(r.get("student_id", "")) in pools_by_student
+        and str(r.get("case_id", "")) not in case_index
+    )
+
+    view_pools = [pool] if pool else ["CLINICAL", "OT"]
+    in_view = {sid for sid, p in pools_by_student.items() if p in view_pools}
+
+    # Flashcard attempts whose topic_tag matched NOTHING in the crosswalk. The tag is
+    # client-supplied and unvalidated, and flashcard_group BUCKETS an unrecognised one into
+    # the knowledge group rather than dropping it — so a stale frontend build or a rename
+    # renders a complete, plausible, entirely wrong panel. Counted in the same pass that
+    # filters the rows, so the drift is visible the day it starts rather than after a term
+    # of bad teaching decisions.
+    unknown_tag_attempts = sum(
+        1 for r in fc_rows
+        if str(r.get("student_id", "")) in in_view
+        and not is_known_tag(str(r.get("topic_tag") or ""))
+    )
+
+    topics: list[dict] = []
+    osce_attempts = 0
+    for p in view_pools:
+        osce = osce_by_group(case_rows, case_index, pools_by_student, pool=p)
+        flashcard = (flashcard_by_group(fc_rows, pools_by_student, pool=p)
+                     if flashcard_source == "ok" else {})
+        weak = weakness_scores(osce, flashcard)
+        section: list[dict] = []
+        for group in set(osce) | set(flashcard):
+            w = weak.get(group) or _NO_WEAKNESS
+            section.append({
+                "topic_group": group,
+                "label": _group_label(p, group),
+                # Code-literal pool ("CLINICAL"/"OT"), the same namespace pool_by_student()
+                # and the case index use. The UI maps it to a section heading; a third
+                # set of literals here would be one translation too many.
+                "pool": p,
+                "osce": osce.get(group) or _empty_osce(),
+                "flashcard": flashcard.get(group) if flashcard_source == "ok" else None,
+                "weakness_score": w["weakness_score"],
+                "low_confidence": w["low_confidence"],
+                "signals_present": list(w["signals_present"]),
+            })
+        # Confident groups first, then weakest first, unscored last. Small-n groups must
+        # never top the ranking (§5.3) — a single bad attempt is not a cohort weakness.
+        section.sort(key=lambda r: (r["low_confidence"], r["weakness_score"] is None,
+                                    -(r["weakness_score"] or 0.0), r["label"]))
+        topics.extend(section)
+        # Summed from the aggregator (groups are disjoint) so the header total can never
+        # disagree with the rows beneath it.
+        osce_attempts += sum(g["attempts"] for g in osce.values())
+
+    payload = {
+        "discipline": discipline,
+        "days": days_echo,
+        "topics": topics,
+        "totals": {
+            "students_in_pool": len(in_view),
+            # ..._with_osce_data counts students with ANY attempt in the window;
+            # osce_students counts those actually represented in the rows above. They
+            # differ exactly when a case_id is missing from the library index.
+            "students_with_osce_data": len({
+                str(r.get("student_id", "")) for r in case_rows
+                if str(r.get("student_id", "")) in in_view}),
+            "students_with_flashcard_data": len({
+                str(r.get("student_id", "")) for r in fc_rows
+                if str(r.get("student_id", "")) in in_view}),
+            "osce_attempts": osce_attempts,
+            "osce_students": len({
+                str(r.get("student_id", "")) for r in case_rows
+                if str(r.get("student_id", "")) in in_view
+                and str(r.get("case_id", "")) in case_index}),
+            "unclassified_students": unclassified_students,
+            "unclassified_attempts": unclassified_attempts,
+            # Staff removed from the population by supervisors membership (Task 6).
+            # Surfaced, not swallowed: a cohort that quietly shrank is the same class of
+            # dishonesty as one that was quietly inflated.
+            "staff_excluded": staff_excluded,
+            "unknown_tag_attempts": unknown_tag_attempts,
+        },
+        # osce is always "ok" here — a failed OSCE read raised a 500 above rather than
+        # degrading, which is the whole point of the split.
+        "sources": {"osce": "ok", "flashcard": flashcard_source},
+        # The scoring rubric travels WITH the scores. weakness_score is a weighted,
+        # shrunk composite; without the weights, the confidence floors and the safety
+        # caveat on the wire, the console can only show a number a trainer has to take
+        # on faith — and the caveat in particular has no other home (Task 8's rubric
+        # block is where §5.3 says it must live, and nothing else reaches the client).
+        "rubric": WEIGHT_RUBRIC,
+    }
+    if _COHORT_TTL_SECONDS > 0:
+        _cohort_cache[cache_key] = (time.monotonic(), payload)
+    return payload
 
 @router.post("/api/admin/promote")
 @limiter.limit("20/minute")

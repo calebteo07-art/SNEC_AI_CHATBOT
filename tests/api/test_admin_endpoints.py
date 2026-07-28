@@ -26,6 +26,7 @@ STAFF_READ_ENDPOINTS = [
     ("GET", "/api/admin/activity"),
     ("GET", "/api/admin/student/stu_x/detail"),
     ("GET", "/api/admin/token-summary"),
+    ("GET", "/api/admin/cohort-analytics"),
 ]
 
 # Mutating endpoints — require_admin (admin only)
@@ -113,6 +114,14 @@ def _stub_admin_db():
         "tools.shared.db.get_topic_accuracy": {},
         # GET /api/admin/token-summary — (rows, complete) pagination tuple
         "tools.shared.db.get_all_session_tokens": ([], True),
+        # GET /api/admin/cohort-analytics — the two bulk readers are whole-table
+        # paged scans of case_progress and flashcard_attempts, i.e. the most
+        # expensive thing in this file to leave unstubbed. get_active_student_profiles
+        # is stubbed directly (same reasoning as get_staff_roster above) and returns
+        # the (students, staff_excluded) tuple its callers unpack.
+        "tools.shared.db.get_active_student_profiles": ([], 0),
+        "tools.shared.db.get_all_case_scores": ([], True),
+        "tools.shared.db.get_all_flashcard_attempts": ([], True),
         # Every mutating admin endpoint logs one of these.
         "tools.shared.db.insert_audit_event": None,
     }

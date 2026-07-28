@@ -820,6 +820,37 @@ const staffMocks = async (c) => {
     { date: "2026-07-05", sessions: 4, cases: 0, total: 4 },
     { date: "2026-07-06", sessions: 1, cases: 2, total: 3 },
   ] })));
+  await c.route("**/api/admin/cohort-analytics*", (r) => r.fulfill(JSON_OK({
+    discipline: "all", days: 90,
+    topics: [
+      { topic_group: "tonometry_iop", label: "Intraocular Pressure", pool: "CLINICAL",
+        osce: { attempts: 9, students: 6, avg_score: 61.4, scored_n: 9, pass_rate: 0.44, graded_n: 9,
+                safety_fail_rate: 0.22, safety_gradable_n: 9,
+                missed_top: [{ step: "Disinfect the tonometer prism between patients", count: 4, students: 3 }],
+                by_difficulty: { beginner: 5, intermediate: 3, advanced: 1 } },
+        flashcard: { accuracy: 58.0, n: 42, students: 6 },
+        weakness_score: 0.71, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+      // low_confidence pair: no safety-gradable attempt -> safety_fail_rate null (never 0),
+      // no flashcard rows -> flashcard null (never {accuracy: 0}), so no weakness score.
+      { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
+        osce: { attempts: 4, students: 2, avg_score: 78.0, scored_n: 4, pass_rate: 0.75, graded_n: 4,
+                safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
+                by_difficulty: { beginner: 3, intermediate: 1, advanced: 0 } },
+        flashcard: null,
+        weakness_score: null, low_confidence: true, signals_present: ["osce_score"] },
+    ],
+    totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
+              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
+              staff_excluded: 0, unknown_tag_attempts: 0 },
+    sources: { osce: "ok", flashcard: "ok" },
+    rubric: {
+      version: 1,
+      weights: { osce_score: 0.4, osce_pass: 0.25, safety: 0.2, flashcard: 0.15 },
+      scales: { osce_score: 100.0, osce_pass: 1.0, safety: 1.0, flashcard: 100.0 },
+      confidence: { min_students: 3, min_attempts: 5, shrinkage_k: 5 },
+      caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
+    },
+  })));
 };
 const trainerUser = { full_name: "Cohort Trainer", email: "trainer@snec.com.sg", student_id: "T001", role: "trainer", student_role: "", must_change: false };
 const trainerCtx = await b.newContext({ viewport: { width: 1440, height: 900 } });
