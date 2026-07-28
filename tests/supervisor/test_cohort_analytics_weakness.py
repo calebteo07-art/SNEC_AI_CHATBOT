@@ -183,6 +183,37 @@ def test_weakness_score_ignores_absent_signals():
     assert out["osce_only"]["weakness_score"] == 0.0889
     assert out["flash_only"]["weakness_score"] == out["osce_only"]["weakness_score"]
     assert out["osce_only"]["low_confidence"] is False
+    # The flashcard side too, and it is the load-bearing one. Every knowledge_* group is
+    # flashcard-ONLY by construction (a knowledge prefix can never be a case set_key), so
+    # its confidence rests entirely on this component's `students`. Read that as 0 and all
+    # 14 of them are permanently low_confidence, sorting below every OSCE group under the
+    # endpoint's (low_confidence, -weakness_score) key — silently burying the very rows
+    # Task 3's FOUNDATIONS split existed to surface. Without this line, hardcoding the
+    # flashcard component's students to 0 passes the entire suite.
+    assert out["flash_only"]["low_confidence"] is False
+
+
+def test_weakness_score_one_strong_signal_is_enough_for_confidence():
+    """`confident = ANY contributing signal clears BOTH floors` — not all of them.
+    Every other multi-signal fixture in this file has its components on the same side of
+    both floors, so `any` -> `all` passes the whole suite: a group with deep OSCE
+    evidence would be marked low_confidence merely because two people also happened to
+    try two of its flashcards, i.e. adding evidence would REDUCE stated confidence."""
+    out = weakness_scores(
+        {"g": _osce(attempts=10, students=5, avg_score=50.0, scored_n=10)},
+        {"g": {"accuracy": 50.0, "n": 2, "students": 1}},
+    )["g"]
+    assert out["low_confidence"] is False
+
+
+def test_confidence_floors_are_the_agreed_values():
+    """Pin the floors to literals. Every other reference is self-referential — the
+    fixtures are built FROM MIN_ATTEMPTS/MIN_STUDENTS and the rubric test asserts the
+    rubric echoes the same constants — so both track any value silently. Raising
+    MIN_ATTEMPTS to 20 flags nearly every group low_confidence at production volume
+    (~24 OSCE attempts across 21 groups), which is the blank panel the constants' own
+    comment warns about."""
+    assert (MIN_STUDENTS, MIN_ATTEMPTS) == (3, 5)
 
 
 def test_weakness_score_lists_signals_in_rubric_order():
@@ -225,7 +256,7 @@ def test_weakness_score_excludes_safety_term_when_ungradable():
 
 def test_weakness_score_small_n_does_not_top_ranking():
     """One catastrophic attempt must not outrank a well-sampled mediocre topic.
-    Undamped, `thin` scores 0.8769 vs `deep` 0.4261 and tops the list off n=1."""
+    Undamped, `thin` scores 0.8769 vs `deep` 0.4262 and tops the list off n=1."""
     osce = {
         "thin": _osce(attempts=1, students=1, avg_score=20.0, scored_n=1,
                       pass_rate=0.0, graded_n=1),
