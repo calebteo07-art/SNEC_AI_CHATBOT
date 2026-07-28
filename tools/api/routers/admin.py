@@ -532,7 +532,9 @@ async def admin_student_detail(student_id: str, current_user: CurrentUser = Depe
 @router.get("/api/admin/token-summary")
 async def admin_token_summary(current_user: CurrentUser = Depends(require_staff)):
     try:
-        all_sessions = await db.get_all_sessions()
+        # Paginated two-column read. The old get_all_sessions() defaulted to limit=500,
+        # so this KPI silently under-reported past 500 sessions.
+        all_sessions, complete = await db.get_all_session_tokens()
         # Active members only — a removed student's tokens must drop out of the
         # grand total and the per-student breakdown.
         active_ids = {str(p.get("student_id")) for p in await db.get_active_leaderboard_profiles()}
@@ -549,6 +551,9 @@ async def admin_token_summary(current_user: CurrentUser = Depends(require_staff)
         by_student[sid] = by_student.get(sid, 0) + tc
     return {
         "total_tokens": total,
+        # False when the paginator hit its page cap: total_tokens is then a FLOOR, and the
+        # UI must render "≥". A number the backend knows is short has to say so on the wire.
+        "complete": complete,
         "by_student": [{"student_id": k, "tokens": v} for k, v in by_student.items()],
     }
 

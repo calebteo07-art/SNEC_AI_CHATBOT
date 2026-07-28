@@ -145,12 +145,26 @@ export function useActivityTrend(days = 21) {
   });
 }
 
-export interface TokenSummary { total_tokens: number; by_student: { student_id: string; tokens: number }[]; }
+export interface TokenSummary {
+  total_tokens: number;
+  by_student: { student_id: string; tokens: number }[];
+  // False when the server's paginated read hit its page cap — total_tokens is then a
+  // FLOOR, not a total. Optional so a response persisted under the previous shape
+  // (admin queries live in IndexedDB for 24h) reads as "unknown", never as "incomplete";
+  // that is also why this needs no PERSIST_SCHEMA_VERSION bump.
+  complete?: boolean;
+}
+/** Token totals scan every chat_sessions row (paginated server-side), making this the
+    most expensive read on the board — so it is deliberately OFF the 30s poll that LIVE
+    applies to everything else. Usage totals move slowly, and a 30s poll from every open
+    staff tab multiplied that full scan on the single prod worker. Fresh on focus plus a
+    5-min stale window; the manual Refresh still invalidates ["admin"] and refetches it. */
 export function useTokenSummary() {
   return useQuery<TokenSummary>({
     queryKey: ["admin", "token-summary"],
     queryFn: () => getJSON<TokenSummary>("/api/admin/token-summary"),
-    ...LIVE,
+    refetchOnWindowFocus: true,
+    staleTime: 5 * 60_000,
   });
 }
 

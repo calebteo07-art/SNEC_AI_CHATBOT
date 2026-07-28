@@ -89,7 +89,7 @@ export function AdminCohort() {
         <StatCard tone="rose" label="At risk" value={kpi(cohort, atRiskCount)} />
         <StatCard tone="purple" label="Avg mastery" value={kpi(benchmarks, avgMastery === null ? "—" : `${avgMastery}%`)} />
         <StatCard tone="blue" label="Avg OSCE" value={kpi(activity, avgOsce === null ? "—" : `${avgOsce}%`)} />
-        <StatCard tone="purple" label="AI tokens" value={kpi(tokens, fmtTokens(tokens.data?.total_tokens ?? 0))} />
+        <StatCard tone="purple" label="AI tokens" value={kpi(tokens, `${tokens.data?.complete === false ? "≥ " : ""}${fmtTokens(tokens.data?.total_tokens ?? 0)}`)} />
       </div>
 
       {insight.data && <div className="aurora-insight"><p>“{insight.data}”</p></div>}
