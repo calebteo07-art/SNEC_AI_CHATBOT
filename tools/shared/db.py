@@ -10,6 +10,7 @@ Usage:
 """
 import asyncio
 import os
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -387,37 +388,61 @@ async def get_staff_roster() -> list[dict]:
     return result
 
 
-async def _fetch_all(table: str, columns: str, *, page: int = 1000,
-                     max_pages: int = 50, **filters) -> tuple[list[dict], bool]:
-    """Read a whole table in `page`-sized `.range()` pages → (rows, complete).
+async def _fetch_all(table: str, columns: str, *, order_by: str, page: int = 1000,
+                     max_pages: int = 50, budget: float = 25.0) -> tuple[list[dict], bool]:
+    """Read a whole table in `page`-sized `.order().range()` pages → (rows, complete).
 
     PostgREST caps rows server-side and a bare `.select()` cannot tell a complete result
     from a truncated one, so every unpaginated bulk read is a silent under-report waiting
-    for the cohort to grow. `complete=False` means the page cap was reached and rows may
-    remain: the caller must present the figure as a floor, never as a total.
+    for the cohort to grow. A short page (fewer rows than `page`) is the only proof
+    nothing remains, so that sets complete=True. Exhausting `max_pages`, or the time
+    `budget`, without ever seeing a short page means rows may remain: complete=False, and
+    the caller must present the figure as a floor, never as a total.
 
-    `**filters` are equality filters (`column=value` → `.eq`). Windowed reads keep their
-    own `.gte()` helpers — they are already bounded by the window.
+    `order_by` is REQUIRED and keyword-only. `.range()` compiles to `offset=N&limit=M`,
+    and Postgres gives no ordering guarantee across LIMIT/OFFSET without an ORDER BY — a
+    plan flip to a parallel seq scan can return worker-interleaved order that changes
+    between executions, so pages silently overlap and skip rows and the total is wrong in
+    BOTH directions, with complete=True still reported. Pass the table's primary key.
 
-    No global ORDER BY: these are append-only event tables, and the only chat_sessions
-    index is (student_id, created_at) — a global sort would re-sort the whole table on
-    every page, on the single prod worker. Each page is wrapped in wait_for so a hung
-    PostgREST read can't pin an event-loop task indefinitely (invariant #1).
+    `page` must not exceed the PostgREST deployment's `db-max-rows` setting. If it does,
+    the server clamps every response below the requested page size, every page comes back
+    short, and complete reports True on a read that is actually truncated — precisely the
+    failure this function exists to prevent. This is a deployment-config invariant the
+    function cannot detect from the response alone, so keep `page` at or below
+    `db-max-rows` (test_bulk_read_flags_incomplete_when_server_clamps_page_size in
+    tests/shared/test_db_bulk_reads.py pins this failure mode).
+
+    `budget` bounds the WHOLE operation in wall-clock seconds, not one page — 50 pages at
+    a fixed per-page timeout would have no outer bound, and prod is one uvicorn worker.
+    Each page's own wait is capped at min(10s, remaining budget) — a 1000-row two-column
+    read is sub-second in the healthy case, so 10s is already 10x headroom. If the budget
+    is already gone before any row was read, the first page still gets its floor 1s and,
+    if that itself can't complete, the exception propagates so the caller fails closed —
+    degrading to `([], False)` instead would render as "≥ 0", a real measurement of zero
+    for a read that never actually happened.
     """
     client = await _get_client()
     rows: list[dict] = []
     complete = False
+    deadline = time.monotonic() + budget
     for i in range(max_pages):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 and rows:
+            break
         start = i * page
-        q = client.table(table).select(columns)
-        for column, value in filters.items():
-            q = q.eq(column, value)
-        result = await asyncio.wait_for(q.range(start, start + page - 1).execute(), timeout=20.0)
+        result = await asyncio.wait_for(
+            client.table(table).select(columns).order(order_by)
+            .range(start, start + page - 1).execute(),
+            timeout=min(10.0, max(remaining, 1.0)),
+        )
         batch = result.data or []
         rows.extend(batch)
-        # A short page is the only proof there is nothing left. A page that exactly fills
-        # is ambiguous, so a table sized at an exact multiple of `page` reports
-        # complete=False — deliberately under-claiming rather than over-claiming.
+        # A short page (including an empty one) is the only proof there is nothing left.
+        # A table sized at an exact multiple of `page` still resolves correctly: the next
+        # page comes back empty (0 < page), so complete=True — one extra request, never
+        # ambiguous. complete only stays False if max_pages or budget runs out first,
+        # without ever seeing a short page.
         if len(batch) < page:
             complete = True
             break
@@ -429,9 +454,14 @@ async def get_all_session_tokens() -> tuple[list[dict], bool]:
 
     A sibling of get_all_sessions, NOT a widening of it: that read is shared with
     /api/admin/activity and selects `*`, so uncapping it would pull every session's
-    free-text summary too. Two columns only.
+    free-text summary too. Two columns only, ordered by chat_sessions' primary key
+    (session_id — see tools/api/routers/admin.py's admin_student_detail, which already
+    projects `s.get("session_id")` off a `select("*")` read of this same table; no base
+    CREATE TABLE for chat_sessions lives in tools/db/migrations/ to check directly, since
+    that directory is incremental migrations only and the base schema predates it) for a
+    stable pagination order.
     """
-    return await _fetch_all("chat_sessions", "student_id, token_count")
+    return await _fetch_all("chat_sessions", "student_id, token_count", order_by="session_id")
 
 
 async def get_all_sessions(limit: int = 500) -> list[dict]:
