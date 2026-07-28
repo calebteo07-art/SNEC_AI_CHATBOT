@@ -979,6 +979,22 @@ Expected: FAIL — collection error, `E   ModuleNotFoundError: No module named '
 
 - [ ] **Step 3: Write minimal implementation**
 
+> **SUPERSEDED — read `tools/supervisor/topic_crosswalk.py` for the shipped version.** The
+> draft below is what landed first; its code review then changed the contract. Every
+> *mapping* below was verified clinically correct against all 155 case JSONs and survives
+> unchanged — the changes are structural. **(1)** The 12 FOUNDATIONS topics no longer share
+> one bucket: each maps to its own `knowledge_<topic>` group. One 14-topic bucket held 28.9%
+> of the card bank in a row that could not tell a trainer what to teach, and a 13-domain mean
+> regresses toward the cohort average so it could never surface in a ranking either.
+> **(2)** `flashcard_group` gained an optional `pool` argument plus `POOL_OVERRIDES`, so
+> `ocular_emergencies` — the only one of the 21 set keys with no flashcard partner, and the
+> largest CLINICAL set in the case library — pairs with its station for OA/PSA while staying
+> a knowledge group for OT, who never sit it. **(3)** `is_knowledge_group` and `is_known_tag`
+> are exported. Note also that the draft test's rationale for pinning the
+> `ocular_emergencies` collision was **factually wrong** — it claimed a CLINICAL mapping
+> would inject OT accuracy into a CLINICAL station, but `flashcard_by_group` already filters
+> by student pool, so that was never possible.
+
 ```python
 # tools/supervisor/topic_crosswalk.py
 """Flashcard `topic_tag` -> case set-key group. Pure data + one function, no I/O.
@@ -2432,6 +2448,22 @@ git commit -m "feat(admin): aggregate OSCE cohort metrics from real case grades"
 
 ## Task 8: Flashcard aggregation and a weakness score that cannot be gamed by noise
 
+> **Task 3's crosswalk contract changed during its code review — read
+> `tools/supervisor/topic_crosswalk.py` before writing this task.** Three differences:
+> **(1)** `flashcard_group(topic_tag, pool=None)` now takes the STUDENT's pool as an
+> optional second argument; the call site below passes it. **(2)** Knowledge topics are no
+> longer one bucket. The 12 FOUNDATIONS topics each map to their own `knowledge_<topic>`
+> group, because a single 14-topic bucket held 28.9% of the card bank in one row that could
+> never tell a trainer what to teach — and, being a 13-domain mean, could never surface in a
+> ranking either. Use the exported `is_knowledge_group(group)` prefix check wherever this
+> task needs to tell a flashcard-only knowledge group from an OSCE-backed set key; do not
+> compare against a single constant. `KNOWLEDGE_GROUP` still exists but now means only the
+> `knowledge_general` fallback bucket. **(3)** `is_known_tag(topic_tag)` is exported so the
+> endpoint can count attempts whose tag matched nothing — `topic_tag` is client-supplied and
+> unvalidated, so a stale frontend build or a rename would silently route every attempt into
+> the knowledge bucket and render a plausible, entirely wrong panel. Surface that count in
+> Task 9's `totals` alongside `unclassified_students`.
+
 `cohort_summary()` ranks "weakest topics" with a bare `Counter` over each profile's `weak_topics` list — a proxy with no performance signal behind it. This task adds the real replacement: `flashcard_by_group` (bucketed through Task 3's crosswalk) and `weakness_scores`, which blends OSCE and flashcard evidence on a single normalised scale. Both are pure functions in `tools/supervisor/cohort_analytics.py` (created in Task 7 with `osce_by_group`), so the endpoint stays a thin projection and D4's SQL-swap seam holds. At production volume — ~24 OSCE attempts across 21 topic groups, and 6 of 21 groups with ≤5 cases in the library — an undamped score lets one 20/100 attempt top the "weakest topic" list and drive a real teaching decision, so the confidence floor and shrinkage are load-bearing, not polish.
 
 **Files:**
@@ -2812,7 +2844,13 @@ def flashcard_by_group(rows: list[dict], student_pools: dict,
         # Same `or "general"` fallback as db.get_topic_accuracy (db.py:233), and the
         # crosswalk routes "general" to the knowledge group — so an untagged attempt lands
         # in the same bucket here as on the student's own topic breakdown.
-        group = flashcard_group(str(r.get("topic_tag") or "general"))
+        #
+        # The STUDENT's pool is passed to flashcard_group (Task 3 added the parameter): a
+        # deck studied by every role but examined in only one pool — `ocular_emergencies`,
+        # the largest CLINICAL set in the case library — pairs with that station for OA/PSA
+        # while staying a knowledge group for OT, who never sit it. Pool comes from the
+        # student, never from the topic.
+        group = flashcard_group(str(r.get("topic_tag") or "general"), student_pool)
         bucket = agg.setdefault(group, {"correct": 0, "n": 0, "students": set()})
         bucket["n"] += 1
         bucket["students"].add(sid)
