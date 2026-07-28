@@ -112,10 +112,17 @@ async def test_get_all_flashcard_attempts_projection_and_completeness():
 
     # The cap flag is the caller's honesty signal ("≥ 48.2k", not a wrong total), so it
     # must be forwarded verbatim from the paginator — never dropped or re-derived.
-    with patch.object(db, "_fetch_all", new=AsyncMock(return_value=(rows, False))):
+    with patch.object(db, "_fetch_all", new=AsyncMock(return_value=(rows, False))) as fetch:
         capped_rows, capped_complete = await db.get_all_flashcard_attempts()
     assert capped_rows == rows
     assert capped_complete is False
+    # Pin the ORDER KEY, not just that some ordering happened. `.range()` compiles to
+    # offset/limit, and Postgres gives no ordering guarantee across LIMIT/OFFSET without
+    # an ORDER BY on a UNIQUE column — order by `ts` (or any non-unique column) and pages
+    # silently overlap and skip rows while `complete=True` still reports success. The
+    # builder fake passes `.order()` through unrecorded, so without this assertion a
+    # wrong order key is invisible to the whole suite.
+    assert fetch.await_args.kwargs["order_by"] == "attempt_id"
 
 
 @pytest.mark.asyncio
@@ -161,6 +168,14 @@ async def test_get_all_case_scores_excludes_coaching_blob():
     # Ungraded pre-Tier-2 rows come back as NULLs, not zeros — per-metric denominators
     # (D13) depend on the aggregator being able to tell them apart.
     assert result[1]["score_100"] is None
+
+    # Pin the ORDER KEY (see the flashcard test for why a wrong one corrupts silently).
+    # `id` is the monotonic identity PK: ordering case_progress by `completed_at` would
+    # be BOTH non-unique and unstable, and it is the plausible wrong guess here because
+    # the two shipped readers next door both order by it.
+    with patch.object(db, "_fetch_all", new=AsyncMock(return_value=([], True))) as fetch:
+        await db.get_all_case_scores()
+    assert fetch.await_args.kwargs["order_by"] == "id"
 
 
 @pytest.mark.asyncio

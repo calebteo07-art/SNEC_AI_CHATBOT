@@ -46,11 +46,14 @@ def _patched(*, supervisors=(), super_admin="", supervisors_error=None):
 
 @pytest.mark.asyncio
 async def test_promoted_trainer_is_subtracted_from_the_cohort():
-    with _patched(supervisors=[{"email": "trainer@x.edu", "role": "trainer"}]) as active_read:
+    # BOTH sides of the join carry stray case/whitespace on purpose: the supervisors row
+    # here and trainer1's consent email ("  Trainer@X.edu  "). A canonical fixture on
+    # either side would let that side's fold be deleted with the suite still green.
+    with _patched(supervisors=[{"email": " TRAINER@X.edu ", "role": "trainer"}]) as active_read:
         students, excluded = await db.get_active_student_profiles()
-    # trainer1's consent email is "  Trainer@X.edu  ": email folding must match how
-    # db.py compares emails everywhere else (.strip().lower()), or this row silently
-    # survives and the trainer is counted as an OA student forever.
+    # Email folding must match how db.py compares emails everywhere else
+    # (.strip().lower()), or this row silently survives and the trainer is counted as an
+    # OA student forever.
     assert [p["student_id"] for p in students] == ["s1", "s2", "boss"]
     assert excluded == 1
     # The stated design is COMPOSE, don't inline (see the amendment). Without this the
