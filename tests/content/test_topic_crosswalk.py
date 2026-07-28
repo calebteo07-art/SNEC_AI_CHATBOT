@@ -123,7 +123,7 @@ def test_ocular_emergencies_is_pool_dependent():
     (This replaces an earlier version of this test whose docstring claimed
     resolving to the CLINICAL set key here would "inject OT accuracy into a
     station OT never sits". That was false: Task 8's flashcard_by_group(rows,
-    student_pools, *, pool=...) filters attempt rows by the STUDENT's pool
+    pool_by_student, *, pool=...) filters attempt rows by the STUDENT's pool
     BEFORE this function is ever called, so an OT row cannot reach a CLINICAL
     view regardless of what flashcard_group returns. The pool argument here
     narrows the OUTPUT group; the caller already narrowed the INPUT rows.)"""

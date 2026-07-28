@@ -33,7 +33,7 @@ git fetch origin && git rev-parse --short HEAD && git rev-parse --short origin/m
 **Three rules that govern every aggregation in this plan.** Breaking any one of them produces numbers that look right and are wrong:
 
 1. **Retakes (D9).** Attainment metrics — `avg_score`, `pass_rate`, mastery, `weakness_score` — use the **best `score_100` per `(student_id, case_id)`**. Volume counts use **all raw attempts**. `safety_fail_rate` is over **raw attempts**: a safety fail is an event, not an attainment level.
-2. **Population (D10).** Aggregation reads **`db.get_active_profiles()`** (student-only). **Never `get_active_leaderboard_profiles()`** — it deliberately adds trainers and admins, and its own docstring says it is kept separate *so that* cohort roll-ups exclude staff. Compounding the hazard, `case_pool()` maps `trainer`/`admin`/`""` to `CLINICAL`, so a mistake here files staff into the OA/PSA cohort silently.
+2. **Population (D10).** Aggregation reads **`db.get_active_student_profiles()`** (added in Task 6), which subtracts staff by `supervisors` membership and returns `(students, staff_excluded)`. **`get_active_profiles()` is NOT staff-free**, despite what its old docstring and earlier drafts of this plan claimed: it filters on `approved_students` membership alone (`db.py:265-279`), with no supervisors check. Two kinds of staff sit in its result carrying a genuine `"OA"`/`"OT"` — a **promoted student** (`admin_promote` adds a supervisors row and leaves the `approved_students` row in place, `admin.py:288-301`) and the **super-admin** (`SUPER_ADMIN_EMAIL` is staff without a supervisors row, and its address is routinely added to the roster to give the account a name). **Never `get_active_leaderboard_profiles()`** either — it adds trainers and admins on purpose. Compounding the hazard, `case_pool()` maps `trainer`/`admin`/`""` to `CLINICAL`, so a mistake here files staff into the OA/PSA cohort silently.
 3. **Nulls, not zeros (D13).** Every rate and mean is `float | None`, null when its denominator is zero. P1 legitimately zero-fills *counts* on the activity trend; copying that to a *mean* is wrong — a day with no attempts has no average, and a `0.0` renders as catastrophic failure.
 
 **The flashcard table is empty, and that is a bug this plan fixes first.** `flashcard_attempts` has received zero rows since it shipped: the backend writer filters `for r in body.results if r.topic_tag` (`tools/api/routers/student.py:468`) and the frontend never sends `topic_tag`. The same filter also kills the per-topic `retention_scores` write (`student.py:479`). Task 1 repairs it. **Data accrues only from that ship date**, so every flashcard surface in this plan must degrade on a *thin or empty* table — `flashcard: null` and "no flashcard data yet", never `{accuracy: 0.0}` or a 0% bar.
@@ -1522,9 +1522,9 @@ git commit -m "feat(admin): build the analytics case index off the event loop"
 
 Spec §4.4. The obvious mapper is the trap: `case_pool(role)` is `"OT" if (role or "").upper() == "OT" else "CLINICAL"` (`tools/cases/topic_sets.py:171-174`), so `None`, `""`, `"trainer"`, `"admin"` and every typo return `"CLINICAL"`. Applied to a **student** role it would file staff and unclassifiable students into the `oa_psa` cohort, inflating the exact denominators P2 exists to make honest. This task adds an explicit map that excludes anything it does not recognise, so the endpoint can report those rows as `totals.unclassified_students` — and resolves a pool from the **student**, never the case, because `case_visible()` treats a case with `role: "any"` as visible to every pool (`topic_sets.py:177-182`; zero shipped cases use it today, so this is latent, not theoretical).
 
-The population it runs over is `db.get_active_profiles()` — the student-only reader, per D10, because `get_active_leaderboard_profiles()` deliberately re-adds staff (`db.py:282-293`).
+The population it runs over is `db.get_active_student_profiles()` (Task 6), per D10 — **not** `get_active_profiles()`, which is not staff-free (see the correction below), and never `get_active_leaderboard_profiles()`, which re-adds staff deliberately (`db.py:282-293`).
 
-> **CORRECTION (found by Task 5's spec review; the original plan text here was wrong).** An earlier draft claimed staff are "absent by construction" from `get_active_profiles()`, citing its own docstring, and framed this module as a "second line of defence" against staff. **Both claims are false and nothing in this task provides them.** `get_active_profiles()` filters on exactly one thing — `student_consent.email ∈ approved_students.email` (`db.py:265-279`) — with **no supervisors check anywhere in the path**. And `student_profiles.role` can only ever hold `"OA"`/`"OT"`/`"PSA"`: both writers validate against exactly that set (`auth.py:340-343`, `student.py:145-149`). `"trainer"`/`"admin"` are a *different vocabulary* — the JWT `role` claim and the `supervisors` table — and never reach this column. Worse, `PATCH /api/profile/role` is the **staff-only** content-pool toggle (`Depends(require_staff)`, `student.py:143`), so a staff-owned profile row is the row *most* likely to carry a genuine `"OA"`/`"OT"`, which `pool_for_student_role()` classifies as a student. Two concrete breach routes exist today: **promotion** (`admin_promote` calls `upsert_supervisor` only and leaves the `approved_students` row in place — `admin.py:288-301`), and the **super-admin** (`SUPER_ADMIN_EMAIL` is staff without a supervisors row, and `auth.py:139-143` calls adding their own address to the roster "the natural way to give the account a name").
+> **CORRECTION (found by Task 5's spec review; the original plan text here was wrong).** An earlier draft claimed staff are "absent by construction" from `get_active_profiles()`, citing its own docstring, and framed this module as a "second line of defence" against staff. **Both claims are false and nothing in this task provides them.** `get_active_profiles()` filters on exactly one thing — `student_consent.email ∈ approved_students.email` (`db.py:265-279`) — with **no supervisors check anywhere in the path**. And `student_profiles.role` only ever holds `"OA"`/`"OT"`/`"PSA"` **or `""`**: the two validated writers accept exactly that set (`auth.py:340-343`, `student.py:145-149`), and profile creation seeds it blank (`tools/profile/get_profile.py:23-24,66`). `"trainer"`/`"admin"` are a *different vocabulary* — the JWT `role` claim and the `supervisors` table — and never reach this column. Worse, `PATCH /api/profile/role` is the **staff-only** content-pool toggle (`Depends(require_staff)`, `student.py:143`), so a staff-owned profile row is the row *most* likely to carry a genuine `"OA"`/`"OT"`, which `pool_for_student_role()` classifies as a student. Two concrete breach routes exist today: **promotion** (`admin_promote` calls `upsert_supervisor` only and leaves the `approved_students` row in place — `admin.py:288-301`), and the **super-admin** (`SUPER_ADMIN_EMAIL` is staff without a supervisors row, and `auth.py:139-143` calls adding their own address to the roster "the natural way to give the account a name").
 >
 > So this task pins the **no-default rule only**: an unrecognised role literal never inherits a pool. Real staff exclusion is a *membership* test (is this email a supervisor, or the super-admin?), not a *role* test — it is added in **Task 6** as `get_active_student_profiles()` and consumed in Task 9. Do not describe this module as excluding staff.
 
@@ -1550,7 +1550,8 @@ excluded-not-defaulted rule for unresolvable roles, and the guarantee that an
 unrecognised role literal never inherits a default pool.
 
 They deliberately do NOT claim staff are excluded. `student_profiles.role` only ever
-holds "OA"/"OT"/"PSA" (auth.py:340-343, student.py:145-149), so the "trainer"/"admin"
+holds "OA"/"OT"/"PSA" or "" (auth.py:340-343, student.py:145-149; profile creation
+seeds it blank, get_profile.py:23-24,66), so the "trainer"/"admin"
 literals below are JWT/`supervisors` vocabulary that never actually reaches this
 column — and a staff member who used the staff-only pool toggle (student.py:143)
 carries a genuine "OA"/"OT" that this module classifies as a student. Staff exclusion
@@ -1562,8 +1563,8 @@ from tools.cases.topic_sets import case_pool
 from tools.supervisor.discipline import (
     DISCIPLINES,
     discipline_to_pool,
+    pool_by_student,
     pool_for_student_role,
-    student_pools,
 )
 
 
@@ -1587,7 +1588,7 @@ def test_discipline_param_maps_to_pool():
             discipline_to_pool(bad)
 
 
-def test_unknown_role_excluded_from_discipline_pools():
+def test_unknown_role_excluded_from_pool_map():
     profiles = [
         {"student_id": "s_oa", "role": "OA"},
         {"student_id": "s_psa", "role": "psa"},       # stored lowercase
@@ -1598,7 +1599,7 @@ def test_unknown_role_excluded_from_discipline_pools():
         {"student_id": "s_typo", "role": "O A"},
         {"role": "OA"},                               # no student_id at all
     ]
-    pools = student_pools(profiles)
+    pools = pool_by_student(profiles)
     assert pools == {"s_oa": "CLINICAL", "s_psa": "CLINICAL", "s_ot": "OT"}
     # The five dropped rows become the endpoint's `totals.unclassified_students`.
     # They must be COUNTABLE by their absence, not absorbed into CLINICAL the way
@@ -1623,7 +1624,7 @@ def test_unrecognised_role_literal_never_defaults_into_a_pool():
         {"student_id": "sup1", "role": "trainer"},
         {"student_id": "sup2", "role": "admin"},
     ]
-    assert student_pools(unresolvable) == {}
+    assert pool_by_student(unresolvable) == {}
 
     # ...and the real student roles still resolve, so the guard isn't over-broad.
     assert pool_for_student_role("OA") == "CLINICAL"
@@ -1688,12 +1689,14 @@ _OT_ROLES = frozenset({"OT"})
 def pool_for_student_role(role: str | None) -> str | None:
     """The case pool a STUDENT's role studies, or None when the role is unknown.
 
-    None covers a blank or absent role and every typo. Callers count those rows as
-    unclassified instead of defaulting them into a discipline.
+    None covers a blank or absent role (the value profile creation seeds) and every
+    typo. Callers count those rows as unclassified instead of defaulting them into a
+    discipline.
 
     It does NOT identify staff, despite the tempting reading. `student_profiles.role`
-    can only ever hold "OA"/"OT"/"PSA": both writers validate against exactly that set
-    (auth.py:340-343, student.py:145-149). "trainer"/"admin" belong to a different
+    holds only "OA"/"OT"/"PSA" or "": the two validated writers accept exactly that set
+    (auth.py:340-343, student.py:145-149), and profile creation seeds it blank
+    (tools/profile/get_profile.py:23-24,66). "trainer"/"admin" belong to a different
     vocabulary — the JWT `role` claim and the `supervisors` table — and never reach
     this column. Worse, `PATCH /api/profile/role` is the staff-only content-pool
     toggle (student.py:143), so a staff-owned profile row is the row MOST likely to
@@ -1725,13 +1728,16 @@ def discipline_to_pool(discipline: str) -> str | None:
     return _POOL_BY_DISCIPLINE[key]
 
 
-def student_pools(profiles: list[dict]) -> dict[str, str]:
-    """student_id -> pool over `db.get_active_profiles()` rows (D10: student-only,
-    never get_active_leaderboard_profiles, which deliberately re-adds staff).
+def pool_by_student(profiles: list[dict]) -> dict[str, str]:
+    """student_id -> pool, over an already-assembled population of profile rows.
 
     Rows whose role does not resolve are OMITTED — their count is the caller's
     `totals.unclassified_students`. A row with no student_id is skipped too: it
-    can be neither aggregated nor reported against.
+    can be neither aggregated nor reported against. Keys are `str()`-normalised to
+    match how db.py compares the same column.
+
+    Pass a STAFF-FREE population (see the module docstring); this function cannot
+    tell a trainer from a student.
     """
     pools: dict[str, str] = {}
     for p in profiles:
@@ -1763,7 +1769,7 @@ git commit -m "feat(admin): map discipline to case pool, failing closed on unkno
 
 Cohort aggregation has to scan two whole tables, and neither has a reader fit for it: there is no all-student flashcard read at all, and `get_all_case_progress` (`tools/shared/db.py:402-411`) is `select("*")` with no `.range()` — it drags the multi-KB `coaching` JSONB on every row onto the single prod worker, and past PostgREST's row cap it silently drops the **oldest** rows (it orders `completed_at DESC`). This task adds two **siblings** through Task 2's `_fetch_all`, projecting only the columns the aggregators read and returning `(rows, complete)` so a capped read can be labelled "≥ N" rather than reported as a confident wrong number (spec §4.3).
 
-The existing readers stay byte-for-byte untouched: `get_all_case_progress` is shared with `/api/admin/activity` (`tools/api/routers/admin.py:184`), whose P1 feed reads `score_100`/`safe`/`missed_critical` out of that `select("*")`; and `get_case_progress_since` (`tools/shared/db.py:429-438`, used at `admin.py:249`) documents its two-column projection as the reason the activity trend never pulls the full table.
+The existing readers stay byte-for-byte untouched: `get_all_case_progress` is shared with `/api/admin/activity` (`tools/api/routers/admin.py:195`), whose P1 feed reads `score_100`/`safe`/`missed_critical` out of that `select("*")`; and `get_case_progress_since` (`tools/shared/db.py:507-516`, used at `admin.py:260`) documents its two-column projection as the reason the activity trend never pulls the full table.
 
 **Files:**
 - Modify: `tools/shared/db.py` (insert the new functions after `get_case_progress_since` — which now **starts at line 507** — i.e. above the `# ── approved_students ──` banner at **line 519**; `_fetch_all` from Task 2 already exists). **NOTE:** every `db.py` line number in this task's prose was written before Task 2 inserted `_fetch_all` and is ~78 lines low. Verified current anchors: `get_all_case_progress` **:480**, `get_case_progress_since` **:507**, banner **:519**, `get_active_profiles` **:256-279**, `get_active_leaderboard_profiles` **:282-336**, `get_all_supervisors` **:715**. Re-grep rather than trusting any line number here.
@@ -1779,11 +1785,13 @@ Task 5's review disproved a load-bearing assumption in this plan: that `db.get_a
 1. **Promotion.** `admin_promote` calls `db.upsert_supervisor(...)` and *nothing else* (`admin.py:288-301`) — the promoted student's `approved_students` row stays. They remain in `get_active_profiles()` carrying the genuine `"OA"`/`"OT"` written at onboarding.
 2. **The super-admin.** `SUPER_ADMIN_EMAIL` is staff *without* a supervisors row, and `auth.py:139-143` describes adding that address to the roster as "the natural way to give the account a name."
 
-Neither is caught by Task 5's `pool_for_student_role()`, and it must not be described as if it were: `student_profiles.role` only ever holds `"OA"`/`"OT"`/`"PSA"` (`auth.py:340-343`, `student.py:145-149`), and `PATCH /api/profile/role` is the **staff-only** pool toggle (`student.py:143`), so a staff row is the row *most* likely to hold a genuine student role. A leaked trainer is counted as an OA student **indefinitely** — precisely the dishonest denominator P2 exists to remove.
+Neither is caught by Task 5's `pool_for_student_role()`, and it must not be described as if it were: `student_profiles.role` only ever holds `"OA"`/`"OT"`/`"PSA"` or `""` (`auth.py:340-343`, `student.py:145-149`; profile creation seeds it blank, `tools/profile/get_profile.py:23-24,66`), and `PATCH /api/profile/role` is the **staff-only** pool toggle (`student.py:143`), so a staff row is the row *most* likely to hold a genuine student role. A leaked trainer is counted as an OA student **indefinitely** — precisely the dishonest denominator P2 exists to remove.
 
-Staff exclusion is a **membership** test, so it belongs here with the other reads. `get_active_leaderboard_profiles` already computes exactly these sets to add staff *back in* (`db.py:311-330`); this is the same join used to subtract instead. It returns the excluded count so the endpoint can surface it rather than silently shrinking the cohort, and it **RAISES** on a supervisors-read failure — the same contract as `get_all_flashcard_attempts` above, so the caller flags the source unavailable instead of quietly reverting to inflated numbers.
+Staff exclusion is a **membership** test, so it belongs here with the other reads. `get_active_leaderboard_profiles` already computes exactly these sets to add staff *back in* (`db.py:311-330`); this is the same join used to subtract instead. It returns the excluded count so the endpoint can surface it rather than silently shrinking the cohort, and it **RAISES** on a supervisors-read failure.
 
-It composes `get_active_profiles()` rather than re-inlining the active-student filter a third time; the extra `student_consent` read is immaterial on an endpoint already doing full-table scans, and duplicating that filter again is the bigger risk.
+Be plain about what that raise costs, because the plan previously promised something it does not deliver: **Task 9 has no per-source degrade for the population read.** Its profile read sits inside a bare `except Exception: raise HTTPException(500, ...)`, so a supervisors fault **500s the whole cohort endpoint** — there is no `sources` entry for it and none is being added. That is the deliberate choice. Failing open would hand a trainer an *inflated* denominator that looks perfectly correct, which is the exact defect class P2 exists to remove; a 500 is legible, a quietly-unfiltered cohort is not.
+
+It composes `get_active_profiles()` rather than re-inlining the active-student filter a third time; the extra `student_consent` read is immaterial on an endpoint already doing full-table scans, and duplicating that filter again is the bigger risk. Note this inverts the precedent next door: `get_active_leaderboard_profiles` documents scanning the base tables once "rather than calling get_active_profiles" (`db.py:290-293`) because it is the busiest read endpoint in the app. The cohort endpoint is staff-only and low-QPS, so the trade flips — a third hand-copy of the active-student filter is the greater risk here, not the extra read. The strictly better shape, a shared `_active_student_ids(...)` helper both functions call, is deferred: it would edit two shipped hot functions for no behavioural gain in this plan.
 
 **Test (`tests/shared/test_active_student_profiles.py`), written first:**
 
@@ -1819,28 +1827,34 @@ _CONSENT = [
 
 @contextmanager
 def _patched(*, supervisors=(), super_admin="", supervisors_error=None):
+    """Yields the get_active_profiles mock so a test can prove it was COMPOSED."""
     sup = (AsyncMock(side_effect=supervisors_error) if supervisors_error
            else AsyncMock(return_value=list(supervisors)))
+    active = AsyncMock(return_value=list(_PROFILES))
     with ExitStack() as stack:
         for name, mock in (
-            ("get_active_profiles", AsyncMock(return_value=list(_PROFILES))),
+            ("get_active_profiles", active),
             ("get_all_consent", AsyncMock(return_value=list(_CONSENT))),
             ("get_all_supervisors", sup),
             ("super_admin_email", lambda: super_admin),
         ):
             stack.enter_context(patch.object(db, name, new=mock))
-        yield
+        yield active
 
 
 @pytest.mark.asyncio
 async def test_promoted_trainer_is_subtracted_from_the_cohort():
-    with _patched(supervisors=[{"email": "trainer@x.edu", "role": "trainer"}]):
+    with _patched(supervisors=[{"email": "trainer@x.edu", "role": "trainer"}]) as active_read:
         students, excluded = await db.get_active_student_profiles()
     # trainer1's consent email is "  Trainer@X.edu  ": email folding must match how
     # db.py compares emails everywhere else (.strip().lower()), or this row silently
     # survives and the trainer is counted as an OA student forever.
     assert [p["student_id"] for p in students] == ["s1", "s2", "boss"]
     assert excluded == 1
+    # The stated design is COMPOSE, don't inline (see the amendment). Without this the
+    # whole suite passes over a hand-copied fourth active-student filter that drifts
+    # from get_active_profiles the first time the roster rule changes.
+    assert active_read.await_count == 1
 
 
 @pytest.mark.asyncio
@@ -1860,10 +1874,23 @@ async def test_no_staff_means_nothing_is_dropped():
 
 
 @pytest.mark.asyncio
+async def test_supervisors_that_match_no_consent_row_drop_nobody():
+    """The KEEP side of the email fold. test_no_staff_means_nothing_is_dropped exits at
+    the `if not staff_emails` short-circuit and never reaches the consent join, so it
+    cannot catch a folding regression that over-matches. Here supervisors exist, so the
+    join actually runs — and must subtract nobody."""
+    with _patched(supervisors=[{"email": "nobody@x.edu", "role": "trainer"}]):
+        students, excluded = await db.get_active_student_profiles()
+    assert [p["student_id"] for p in students] == ["s1", "s2", "trainer1", "boss"]
+    assert excluded == 0
+
+
+@pytest.mark.asyncio
 async def test_supervisors_read_failure_raises_rather_than_inflating():
     """Failing OPEN here would silently restore the exact bug this function fixes —
-    an unfiltered cohort reported as if it were filtered. Same contract as
-    get_all_flashcard_attempts: RAISE, and let the endpoint flag the source."""
+    an unfiltered cohort reported as if it were filtered. So it RAISES, and the cohort
+    endpoint 500s on it: Task 9's population read has no per-source degrade, by
+    decision. A legible 500 beats an inflated denominator that looks correct."""
     with _patched(supervisors_error=RuntimeError("supervisors read failed")):
         with pytest.raises(RuntimeError, match="supervisors read failed"):
             await db.get_active_student_profiles()
@@ -1888,10 +1915,12 @@ async def get_active_student_profiles() -> tuple[list[dict], int]:
     get_active_leaderboard_profiles uses to add staff back in (db.py:311-330),
     applied in reverse.
 
-    RAISES if the supervisors read fails — failing open would silently restore the
-    inflated cohort this exists to fix. The caller flags the source unavailable.
-    Returns the excluded count so the endpoint can show it rather than just
-    shrinking."""
+    RAISES if the supervisors read fails, which 500s the cohort endpoint: its
+    population read has no per-source degrade (bare except -> HTTPException 500).
+    Deliberate — failing open would silently restore the inflated cohort this exists
+    to fix, reported as if it were filtered, and an inflated denominator that looks
+    correct is worse than a visible outage. Returns the excluded count so the endpoint
+    can show it rather than just shrinking."""
     students = await get_active_profiles()
     supervisors = await get_all_supervisors()
     staff_emails = {
@@ -1915,7 +1944,7 @@ async def get_active_student_profiles() -> tuple[list[dict], int]:
     return kept, len(students) - len(kept)
 ```
 
-Run: `python -m pytest tests/shared/test_active_student_profiles.py -v` — 4 passed.
+Run: `python -m pytest tests/shared/test_active_student_profiles.py -v` — 5 passed.
 
 **Task 9 consumes this**, not `get_active_profiles()`, and reports the count as `totals.staff_excluded` alongside `totals.unclassified_students`.
 
@@ -2093,9 +2122,9 @@ async def test_get_all_case_scores_excludes_coaching_blob():
 @pytest.mark.asyncio
 async def test_existing_case_progress_reads_are_untouched():
     """The two live readers this task must NOT touch. get_all_case_progress feeds
-    /api/admin/activity (admin.py:184), whose P1 feed emits score_100/safe/
+    /api/admin/activity (admin.py:195), whose P1 feed emits score_100/safe/
     missed_critical straight out of `select("*")` — narrowing it would blank three
-    fields on a shipped endpoint. get_case_progress_since (admin.py:249) is windowed
+    fields on a shipped endpoint. get_case_progress_since (admin.py:260) is windowed
     at the DB on purpose. Both must stay exactly as they are."""
     calls: dict = {}
     with _patch_client([], calls):
@@ -2221,8 +2250,9 @@ INDEX = {
                     "label": "OCT Imaging", "difficulty": "intermediate"},
 }
 
-# student_id -> pool, from discipline.student_pools(). Staff and unknown roles are
-# ABSENT by construction, never defaulted to CLINICAL.
+# student_id -> pool, from discipline.pool_by_student(). Unknown roles are ABSENT,
+# never defaulted to CLINICAL; staff were already subtracted from the population by
+# db.get_active_student_profiles() (Task 6), not by the role map.
 POOLS = {"s1": "CLINICAL", "s2": "CLINICAL", "s3": "OT"}
 
 # A checklist `action` string longer than the 80-char wire cap.
@@ -2392,9 +2422,10 @@ def test_unknown_case_excluded():
 
 
 def test_student_without_a_pool_is_excluded():
-    """Staff and unknown-role accounts have no student_pools entry (§4.4) — never call
-    case_pool() on them, it returns CLINICAL for trainer/admin/None/typos alike, which
-    would drop staff practice runs straight into the OA & PSA cohort."""
+    """An account with no pool_by_student entry is excluded (§4.4) — never call
+    case_pool() on one, it returns CLINICAL for trainer/admin/None/typos alike, which
+    would drop practice runs straight into the OA & PSA cohort. (Staff never reach
+    here: db.get_active_student_profiles() subtracts them upstream, by membership.)"""
     rows = [
         _row("s1", "case_oa_001", score_100=80, passed=True),
         _row("trainer_x", "case_oa_001", score_100=100, passed=True),
@@ -2513,7 +2544,7 @@ def _missed_top(missed: dict) -> list[dict]:
 def osce_by_group(
     rows: list[dict],
     case_index: dict,
-    student_pools: dict,
+    pools_by_student: dict,
     *,
     pool: str | None = None,
 ) -> dict[str, dict]:
@@ -2526,8 +2557,9 @@ def osce_by_group(
             projection MUST include `missed_critical` or `missed_top` is always empty
             — it is the one field here with no fallback.
         case_index: case_id -> {"pool", "set_key", "label", "difficulty"}.
-        student_pools: student_id -> "CLINICAL" | "OT". Students with an unknown role
-            are absent by construction (§4.4) and their attempts are excluded.
+        pools_by_student: student_id -> "CLINICAL" | "OT", from
+            discipline.pool_by_student(). Students with an unknown role are absent
+            (§4.4) and their attempts are excluded.
         pool: when set, keep only attempts by students in that pool. Resolved from the
             STUDENT, never the case, so a future role:"any" case counts in both
             disciplines.
@@ -2560,7 +2592,7 @@ def osce_by_group(
         sid = str(r.get("student_id") or "")
         case_id = str(r.get("case_id") or "")
         meta = case_index.get(case_id)
-        spool = student_pools.get(sid)
+        spool = pools_by_student.get(sid)
         # Fail closed on both axes. An attempt we cannot place in a topic group, or
         # whose student has no discipline, is EXCLUDED and counted by the endpoint as
         # totals.unclassified_*. Bucketing it anyway is exactly what resolve_set's
@@ -3009,12 +3041,12 @@ def _weakness_components(osce_row: dict | None, flashcard_row: dict | None) -> d
     return comps
 
 
-def flashcard_by_group(rows: list[dict], student_pools: dict,
+def flashcard_by_group(rows: list[dict], pools_by_student: dict,
                        *, pool: str | None = None) -> dict[str, dict]:
     """Flashcard accuracy per topic group, from raw flashcard_attempts rows
     ({student_id, topic_tag, correct, ts}).
 
-    `student_pools` maps student_id -> "CLINICAL" | "OT"; `pool` filters to one of those
+    `pools_by_student` maps student_id -> "CLINICAL" | "OT"; `pool` filters to one of those
     code literals (None = every discipline). A group only materialises when a row lands in
     it, so `accuracy` is always a float here — absence is the no-data signal, and the
     endpoint projects a missing key to `flashcard: null`. That is the `| None` in the
@@ -3023,7 +3055,7 @@ def flashcard_by_group(rows: list[dict], student_pools: dict,
     agg: dict[str, dict] = {}
     for r in rows:
         sid = str(r.get("student_id") or "")
-        student_pool = student_pools.get(sid)
+        student_pool = pools_by_student.get(sid)
         # Fail closed. A student whose role didn't resolve has no discipline and is
         # dropped from every view, `all` included — the endpoint surfaces them under
         # totals.unclassified_students rather than folding staff and typo'd roles into
@@ -3121,7 +3153,7 @@ git commit -m "feat(admin): score topic weakness from real performance, damped f
 Every cohort figure on the console still aggregates denormalized profile snapshots — `cohort_summary()` ranks "weakest topics" with a bare `Counter` over each profile's `weak_topics` list, with no performance signal behind it. This task wires the pure aggregators from Tasks 5–8 behind `GET /api/admin/cohort-analytics`, so the ranking finally reads `case_progress` and `flashcard_attempts` rows. It is the first surface where a *flashcard* outage must degrade to "no data" while an *OSCE* outage must 500 — P1's defect class was exactly the inverse (`getJSON` swallowing a failure into `0`).
 
 **Files:**
-- Modify: `tools/api/routers/admin.py` (imports at 1–17; new constants + endpoint inserted after `admin_activity_trend`, which ends at line 275)
+- Modify: `tools/api/routers/admin.py` (imports at 1–17; new constants + endpoint inserted after `admin_activity_trend`, which ends at line 286)
 - Modify: `tests/api/test_admin_endpoints.py` (`STAFF_READ_ENDPOINTS`, lines 19–26)
 - Modify: `frontend/tests/aurora_assert.mjs` (`staffMocks`, insert after the `activity-trend*` route at 818–822)
 - Modify: `frontend/tests/_mocks.mjs` (insert after the `activity-trend*` route at 136–140)
@@ -3135,9 +3167,11 @@ Every cohort figure on the console still aggregates denormalized profile snapsho
 
 Guards, in order of how badly each one burned us before:
 
-1. STAFF ARE NOT STUDENTS. The population is db.get_active_profiles() (D10), which is
-   student-only; get_active_leaderboard_profiles() deliberately adds trainers/admins and
-   would fold a lecturer's demo run into the cohort mean.
+1. STAFF ARE NOT STUDENTS. The population is db.get_active_student_profiles() (D10), which
+   subtracts supervisors membership. db.get_active_profiles() is NOT staff-free — a promoted
+   student keeps their approved_students row (admin.py:288-301) and the super-admin's address
+   is routinely on the roster — and get_active_leaderboard_profiles() adds trainers/admins on
+   purpose. Either one folds a lecturer's demo run into the cohort mean, forever.
 2. A FLASHCARD OUTAGE IS NOT 0%. flashcard_attempts only started receiving rows in P2, so
    an empty/failing read is the NORMAL case and must render as "no data" — never a 0% bar.
 3. AN OSCE OUTAGE IS NOT AN EMPTY COHORT. The opposite call: a failed case/profile read is
@@ -3157,7 +3191,7 @@ from tools.api.routers import admin as admin_router
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 from tools.supervisor.cohort_analytics import osce_by_group
-from tools.supervisor.discipline import student_pools
+from tools.supervisor.discipline import pool_by_student
 
 client = TestClient(app)
 
@@ -3174,12 +3208,20 @@ def _staff_cookie():
     return {"eyebot_token": create_access_token("stu_cohort_analytics", "admin", "OA")}
 
 
-# Two OA/PSA students and one OT student. Roles map through discipline.student_pools:
+# Two OA/PSA students and one OT student. Roles map through discipline.pool_by_student:
 # {OA, PSA} -> CLINICAL, {OT} -> OT.
 _PROFILES = [
     {"student_id": "s_oa", "role": "OA"},
     {"student_id": "s_psa", "role": "PSA"},
     {"student_id": "s_ot", "role": "OT"},
+]
+
+# student_consent, needed only when the real db.get_active_student_profiles() runs (the
+# staff test below). It joins supervisors -> consent.email -> student_id to subtract staff.
+_CONSENT = [
+    {"student_id": "s_oa", "email": "oa@x.edu"},
+    {"student_id": "s_psa", "email": "psa@x.edu"},
+    {"student_id": "s_ot", "email": "ot@x.edu"},
 ]
 
 # A stand-in case index (the real one globs 155 case files). Same shape classify_case
@@ -3226,10 +3268,15 @@ def _no_cohort_cache():
     admin_router._cohort_cache.clear()
 
 
-def _patches(case_rows=None, fc_rows=None, profiles=None):
+def _patches(case_rows=None, fc_rows=None, profiles=None, staff_excluded=0):
+    # The population read is stubbed WHOLE here — db.get_active_student_profiles() returns
+    # (students, staff_excluded) — so these tests assert over an already-clean cohort. The
+    # subtraction itself is exercised end-to-end by test_cohort_analytics_excludes_staff
+    # below, which stubs the function's INPUTS instead and lets the real join run.
     return (
-        patch("tools.shared.db.get_active_profiles",
-              new=AsyncMock(return_value=_PROFILES if profiles is None else profiles)),
+        patch("tools.shared.db.get_active_student_profiles",
+              new=AsyncMock(return_value=(_PROFILES if profiles is None else profiles,
+                                          staff_excluded))),
         patch("tools.shared.db.get_all_case_scores",
               new=AsyncMock(return_value=(_CASE_ROWS if case_rows is None else case_rows, True))),
         patch("tools.shared.db.get_all_flashcard_attempts",
@@ -3242,6 +3289,19 @@ def _patches(case_rows=None, fc_rows=None, profiles=None):
 def _get(query="", **kw):
     p1, p2, p3, p4 = _patches(**kw)
     with p1, p2, p3, p4:
+        return client.get("/api/admin/cohort-analytics" + query, cookies=_staff_cookie())
+
+
+def _get_real_population(query, *, profiles, consent, supervisors, case_rows):
+    """Same request, but with the REAL db.get_active_student_profiles() in the path — only
+    its four reads are stubbed. Every one of them must be: an unstubbed db.* call in an
+    endpoint test reads live production Supabase."""
+    _p1, p2, p3, p4 = _patches(case_rows=case_rows)
+    with p2, p3, p4, \
+         patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=profiles)), \
+         patch("tools.shared.db.get_all_consent", new=AsyncMock(return_value=consent)), \
+         patch("tools.shared.db.get_all_supervisors", new=AsyncMock(return_value=supervisors)), \
+         patch("tools.shared.db.super_admin_email", new=lambda: ""):
         return client.get("/api/admin/cohort-analytics" + query, cookies=_staff_cookie())
 
 
@@ -3313,10 +3373,23 @@ def test_cohort_analytics_discipline_filter():
 
 
 def test_cohort_analytics_excludes_staff():
-    """A trainer runs a demo station. get_active_profiles() is student-only, so that row
-    must move NOT ONE NUMBER in any of the three views — including the unclassified
-    diagnostics, which count *students* the role map rejected, not non-students."""
-    with_trainer = _CASE_ROWS + [
+    """A promoted trainer sits INSIDE the population and must be subtracted by membership.
+
+    This is the shape of the real defect: admin_promote adds a supervisors row and leaves
+    the approved_students row in place (admin.py:288-301), so get_active_profiles() still
+    returns t_trainer carrying the genuine "OA" the staff-only pool toggle wrote. Only the
+    supervisors join removes them — pool_for_student_role() cannot, and a fixture that
+    simply omits the trainer would pass with or without the fix, proving nothing.
+
+    Their two flawless demo runs must move NOT ONE NUMBER in any of the three views — no
+    denominator, no mean, and not the unclassified diagnostics, which count *students* the
+    role map rejected, not non-students. And the drop must be REPORTED as
+    totals.staff_excluded, never absorbed silently."""
+    staff_profiles = _PROFILES + [{"student_id": "t_trainer", "role": "OA"}]
+    # Stray case/whitespace on the consent email: the join must fold it the way db.py folds
+    # emails everywhere else (.strip().lower()), or the trainer survives as an OA student.
+    staff_consent = _CONSENT + [{"student_id": "t_trainer", "email": "  Trainer@X.edu  "}]
+    staff_rows = _CASE_ROWS + [
         {"student_id": "t_trainer", "case_id": "case_oa_iop_01", "completed_at": _ts(1),
          "score_100": 100, "safe": True, "passed": True, "total_score": 40},
         {"student_id": "t_trainer", "case_id": "case_ot_oct_01", "completed_at": _ts(1),
@@ -3324,7 +3397,15 @@ def test_cohort_analytics_excludes_staff():
     ]
     for discipline in ("oa_psa", "ot", "all"):
         clean = _get(f"?discipline={discipline}&days=90").json()
-        dirty = _get(f"?discipline={discipline}&days=90", case_rows=with_trainer).json()
+        dirty = _get_real_population(
+            f"?discipline={discipline}&days=90",
+            profiles=staff_profiles, consent=staff_consent,
+            supervisors=[{"email": "trainer@x.edu", "role": "trainer"}],
+            case_rows=staff_rows,
+        ).json()
+        # Popped first: this is the ONE field that is allowed to differ, and it must.
+        assert dirty["totals"].pop("staff_excluded") == 1, "the drop was not reported"
+        assert clean["totals"].pop("staff_excluded") == 0
         assert clean == dirty, f"a trainer's attempts changed the {discipline} cohort"
 
 
@@ -3380,18 +3461,21 @@ def test_cohort_analytics_500s_on_db_failure():
     """The mirror image of the test above: an OSCE or profile read failure is a REAL 500.
     Returning a plausible empty cohort would render "0 attempts, no weak topics" — an
     outage that reads as good news."""
-    _p1, _p2, p3, p4 = _patches()
-    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=_PROFILES)), \
+    p1, _p2, p3, p4 = _patches()
+    with p1, \
          patch("tools.shared.db.get_all_case_scores", new=AsyncMock(side_effect=RuntimeError("boom"))), \
          p3, p4:
         r = client.get("/api/admin/cohort-analytics?discipline=all", cookies=_staff_cookie())
     assert r.status_code == 500
 
-    with patch("tools.shared.db.get_active_profiles", new=AsyncMock(side_effect=RuntimeError("boom"))), \
+    with patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(side_effect=RuntimeError("boom"))), \
          patch("tools.shared.db.get_all_case_scores", new=AsyncMock(return_value=(_CASE_ROWS, True))), \
          p3, p4:
         r = client.get("/api/admin/cohort-analytics?discipline=all", cookies=_staff_cookie())
     assert r.status_code == 500
+    # Covers the supervisors-read fault too: get_active_student_profiles RAISES on it by
+    # design (Task 6), and the population read has no per-source degrade — a 500 is the
+    # intended outcome, because an inflated denominator that looks correct is worse.
 
 
 def test_cohort_analytics_counts_unclassified_without_hiding_them():
@@ -3418,7 +3502,7 @@ def test_cohort_analytics_ttl_cache_serves_repeat_call():
     tables and buckets them in Python, and the console polls."""
     reader = AsyncMock(return_value=(_CASE_ROWS, True))
     with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 60.0), \
-         patch("tools.shared.db.get_active_profiles", new=AsyncMock(return_value=_PROFILES)), \
+         patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=(_PROFILES, 0))), \
          patch("tools.shared.db.get_all_case_scores", new=reader), \
          patch("tools.shared.db.get_all_flashcard_attempts", new=AsyncMock(return_value=(_FC_ROWS, True))), \
          patch("tools.api.routers.admin.get_case_index", new=AsyncMock(return_value=_CASE_INDEX)):
@@ -3436,7 +3520,7 @@ def test_cohort_aggregator_returns_keyed_dict_reusable_by_student_detail():
     one consumer. osce_by_group returns dict[topic_group, {...}] and the endpoint is a THIN
     projection over it, so Plan B's mastery cohort_avg can read the same dict filtered to
     one student's pool instead of growing a second, divergent aggregation path."""
-    pools = student_pools(_PROFILES)
+    pools = pool_by_student(_PROFILES)
     grouped = osce_by_group(_CASE_ROWS, _CASE_INDEX, pools, pool="CLINICAL")
     assert isinstance(grouped, dict)
     assert set(grouped) == {"tonometry_iop"}
@@ -3482,11 +3566,11 @@ from tools.shared.identity import seed_student_name
 from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 from tools.supervisor.case_index import get_case_index
 from tools.supervisor.cohort_analytics import flashcard_by_group, osce_by_group, weakness_scores
-from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, student_pools
+from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_GROUP
 ```
 
-Then insert the following immediately after `admin_activity_trend` (which ends at line 275) and before `@router.post("/api/admin/promote")`:
+Then insert the following immediately after `admin_activity_trend` (which ends at line 286) and before `@router.post("/api/admin/promote")`:
 
 ```python
 # ── Cohort analytics (P2) ──────────────────────────────────────────────────
@@ -3569,9 +3653,14 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
         return cached[1]
 
     try:
-        # D10: student-only. get_active_leaderboard_profiles() deliberately adds
-        # trainers/admins — a lecturer's demo run inside a cohort mean is a lie.
-        profiles = await db.get_active_profiles()
+        # D10: students only, by MEMBERSHIP. get_active_profiles() is NOT staff-free — a
+        # promoted student keeps their approved_students row (admin.py:288-301) and the
+        # super-admin's address is routinely on the roster — and
+        # get_active_leaderboard_profiles() adds trainers/admins on purpose. A lecturer's
+        # demo run inside a cohort mean is a lie that never expires. This RAISES if the
+        # supervisors read fails (Task 6): a 500 below is the intended outcome, because
+        # failing open would restore an inflated denominator that LOOKS correct.
+        profiles, staff_excluded = await db.get_active_student_profiles()
         # `complete` is unpacked and deliberately not surfaced: the response shape has no
         # completeness field, and _fetch_all caps at 50 x 1000 rows — ~2000x the current
         # table. The read that truncates TODAY is token-summary's (capped at 500), which
@@ -3609,7 +3698,7 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
     case_rows = [r for r in case_rows if _in_window(r, "completed_at")]
     fc_rows = [r for r in fc_rows if _in_window(r, "ts")]
 
-    pools_by_student = student_pools(profiles)
+    pools_by_student = pool_by_student(profiles)
 
     # Data-health diagnostics, deliberately NOT scoped to the current filter — they answer
     # "what could this console not place at all?", which is the same question in every
@@ -3642,7 +3731,7 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
             section.append({
                 "topic_group": group,
                 "label": _group_label(p, group),
-                # Code-literal pool ("CLINICAL"/"OT"), the same namespace student_pools()
+                # Code-literal pool ("CLINICAL"/"OT"), the same namespace pool_by_student()
                 # and the case index use. The UI maps it to a section heading; a third
                 # set of literals here would be one translation too many.
                 "pool": p,
@@ -3683,6 +3772,10 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
                 and str(r.get("case_id", "")) in case_index}),
             "unclassified_students": unclassified_students,
             "unclassified_attempts": unclassified_attempts,
+            # Staff removed from the population by supervisors membership (Task 6).
+            # Surfaced, not swallowed: a cohort that quietly shrank is the same class of
+            # dishonesty as one that was quietly inflated.
+            "staff_excluded": staff_excluded,
         },
         # osce is always "ok" here — a failed OSCE read raised a 500 above rather than
         # degrading, which is the whole point of the split.
@@ -3733,7 +3826,8 @@ In `frontend/tests/_mocks.mjs`, insert after the `activity-trend*` route (ends l
         weakness_score: null, low_confidence: true, signals_present: ["osce_score"] },
     ],
     totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
-              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0 },
+              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
+              staff_excluded: 0 },
     sources: { osce: "ok", flashcard: "ok" },
   })));
 ```
@@ -3761,7 +3855,8 @@ In `frontend/tests/aurora_assert.mjs`, insert the same fixture into `staffMocks`
         weakness_score: null, low_confidence: true, signals_present: ["osce_score"] },
     ],
     totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
-              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0 },
+              osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
+              staff_excluded: 0 },
     sources: { osce: "ok", flashcard: "ok" },
   })));
 ```
@@ -3846,7 +3941,8 @@ Then, in the same file, **replace** the `**/api/admin/cohort-analytics*` route T
         weakness_score: 0.71, low_confidence: true, signals_present: ["osce_score"] },
     ],
     totals: { students_in_pool: 22, students_with_osce_data: 15, students_with_flashcard_data: 9,
-              osce_attempts: 30, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1 },
+              osce_attempts: 30, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1,
+              staff_excluded: 1 },
     sources: { osce: "ok", flashcard: "ok" },
   })));
 ```
@@ -3888,10 +3984,12 @@ const CA_OT = [
     flashcard: null,
     weakness_score: 0.71, low_confidence: true, signals_present: ["osce_score"] },
 ];
+// unclassified_students and staff_excluded are population-wide diagnostics, so they read
+// the same in every discipline view — only the in-pool figures move.
 const CA_TOTALS = {
-  all:    { students_in_pool: 22, students_with_osce_data: 15, students_with_flashcard_data: 9, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1 },
-  oa_psa: { students_in_pool: 14, students_with_osce_data: 9,  students_with_flashcard_data: 9, osce_students: 9,  unclassified_students: 2, unclassified_attempts: 1 },
-  ot:     { students_in_pool: 8,  students_with_osce_data: 6,  students_with_flashcard_data: 3, osce_students: 6,  unclassified_students: 2, unclassified_attempts: 1 },
+  all:    { students_in_pool: 22, students_with_osce_data: 15, students_with_flashcard_data: 9, osce_students: 15, unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1 },
+  oa_psa: { students_in_pool: 14, students_with_osce_data: 9,  students_with_flashcard_data: 9, osce_students: 9,  unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1 },
+  ot:     { students_in_pool: 8,  students_with_osce_data: 6,  students_with_flashcard_data: 3, osce_students: 6,  unclassified_students: 2, unclassified_attempts: 1, staff_excluded: 1 },
 };
 ```
 
@@ -3976,7 +4074,11 @@ export interface CohortAnalytics {
   discipline: Discipline; days: number | "all"; topics: TopicGroupRow[];
   totals: { students_in_pool: number; students_with_osce_data: number;
             students_with_flashcard_data: number; osce_attempts: number;
-            osce_students: number; unclassified_students: number; unclassified_attempts: number };
+            osce_students: number; unclassified_students: number; unclassified_attempts: number;
+            // Staff subtracted from the population by supervisors membership, not by role
+            // (a promoted trainer keeps a genuine "OA"). Reported so a shrunken cohort is
+            // explained rather than just smaller.
+            staff_excluded: number };
   sources: { osce: "ok" | "unavailable"; flashcard: "ok" | "unavailable" };
 }
 /** Real per-topic-group cohort aggregation over case_progress + flashcard_attempts,
@@ -4072,6 +4174,9 @@ export function AdminTopicAnalytics() {
           )}
           {!!totals?.unclassified_students && (
             <p className="aurora-unavail">{totals.unclassified_students} student{totals.unclassified_students === 1 ? "" : "s"} sit outside OA/PSA/OT and are excluded from every discipline view.</p>
+          )}
+          {!!totals?.staff_excluded && (
+            <p className="aurora-unavail">{totals.staff_excluded} staff account{totals.staff_excluded === 1 ? "" : "s"} on the student roster {totals.staff_excluded === 1 ? "is" : "are"} excluded from every figure here — a trainer’s demo run is not cohort performance.</p>
           )}
         </>
       )}
@@ -4194,6 +4299,7 @@ const payload = (over = {}) => ({
   totals: {
     students_in_pool: 0, students_with_osce_data: 0, students_with_flashcard_data: 0,
     osce_attempts: 0, osce_students: 0, unclassified_students: 0, unclassified_attempts: 0,
+    staff_excluded: 0,
   },
   sources: { osce: "ok", flashcard: "ok" },
   ...over,
@@ -4756,12 +4862,18 @@ and replace:
           {!!totals?.unclassified_students && (
             <p className="aurora-unavail">{totals.unclassified_students} student{totals.unclassified_students === 1 ? "" : "s"} sit outside OA/PSA/OT and are excluded from every discipline view.</p>
           )}
+          {!!totals?.staff_excluded && (
+            <p className="aurora-unavail">{totals.staff_excluded} staff account{totals.staff_excluded === 1 ? "" : "s"} on the student roster {totals.staff_excluded === 1 ? "is" : "are"} excluded from every figure here — a trainer’s demo run is not cohort performance.</p>
+          )}
         </>
 ```
 with:
 ```tsx
           {!!totals?.unclassified_students && (
             <p className="aurora-unavail">{totals.unclassified_students} student{totals.unclassified_students === 1 ? "" : "s"} sit outside OA/PSA/OT and are excluded from every discipline view.</p>
+          )}
+          {!!totals?.staff_excluded && (
+            <p className="aurora-unavail">{totals.staff_excluded} staff account{totals.staff_excluded === 1 ? "" : "s"} on the student roster {totals.staff_excluded === 1 ? "is" : "are"} excluded from every figure here — a trainer’s demo run is not cohort performance.</p>
           )}
           {/* The charts live one level down and are purely presentational: this panel
               owns the query, the window and the switcher (D11), so there is exactly ONE

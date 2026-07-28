@@ -259,9 +259,18 @@ async def get_active_profiles() -> list[dict]:
     get_all_profiles) so revoking access — deleting a student's approved_students
     row — drops them from cohort counts and at-risk lists immediately, matching the
     admin roster (which already filters this way). A profile whose email can't be
-    matched to an approved row is excluded (fail closed). NOTE: staff (trainers/admins,
-    who live in supervisors not approved_students) are intentionally NOT here — the
-    leaderboard uses get_active_leaderboard_profiles to add them back in."""
+    matched to an approved row is excluded (fail closed).
+
+    WARNING — this is NOT staff-free, despite what this docstring used to claim. The
+    only filter is approved_students membership; there is no supervisors check here.
+    Natively-created staff never get an approved_students row (admin_approve_student
+    refuses one for TRAINER/ADMIN), but two kinds of staff DO land in this result:
+    a PROMOTED student (admin_promote adds a supervisors row and leaves the roster row
+    in place) and the SUPER_ADMIN_EMAIL account (staff without a supervisors row, whose
+    address is routinely added to the roster to give the account a name). Both keep a
+    genuine "OA"/"OT" in student_profiles.role, so a cohort roll-up built on this counts
+    them as students. Use get_active_student_profiles() when staff must be excluded;
+    get_active_leaderboard_profiles adds staff back in deliberately."""
     profiles = await get_all_profiles()
     approved = await get_all_approved()
     consent = await get_all_consent()
