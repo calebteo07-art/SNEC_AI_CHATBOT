@@ -1013,36 +1013,68 @@ handed to it is silently absorbed:
 Whole knowledge families would then be ranked as weak *procedural* sets. Hence an
 EXPLICIT map, never a derived one. tests/content/test_topic_crosswalk.py iterates
 every key in both taxonomies, so new content fails CI rather than vanishing.
+
+To add a new topic: resolve it against the live case library, not its name —
+check which set_key's OSCE cases (tools/cases/topic_sets.py SET_LABELS, cases/
+JSON) actually cover the content, and map to that. If it spans multiple pools
+or no station examines it, map it to its own "knowledge_<topic>" group instead.
 """
 from __future__ import annotations
 
 from tools.flashcards.flashcard_sets import DIFFICULTIES
 
-# Pseudo-group for flashcard topics with no OSCE counterpart. Not a case set key,
-# so a group carrying it renders flashcard-only (osce attempts = 0).
-KNOWLEDGE_GROUP: str = "knowledge_foundations"
+# Namespace prefix for every flashcard-only group (no OSCE counterpart). No real
+# case set_key may start with it — test_no_real_set_key_uses_the_knowledge_prefix
+# pins that — so a plain prefix check (is_knowledge_group) tells an OSCE-backed
+# group apart from a flashcard-only one without hand-syncing a membership set.
+KNOWLEDGE_PREFIX: str = "knowledge_"
 
-# flashcard topic_key -> case set_key | KNOWLEDGE_GROUP.
+# The pure fallback under that namespace: the DB column's legacy default
+# ("general") and the sink for any `topic_tag` that isn't a real key in
+# FLASHCARD_TO_SET below. Deliberately NOT shared by any real content deck —
+# `abbreviations` is a genuine 50-card authored topic and gets its own group
+# below, precisely so a drift event landing in this fallback can't be mistaken
+# for real abbreviations-teaching signal in the trainer-facing panel. Named
+# rather than inlined so the fallback contract in flashcard_group() reads
+# clearly at the call site.
+KNOWLEDGE_GROUP: str = "knowledge_general"
+
+# flashcard topic_key -> case set_key | "knowledge_*" group.
 FLASHCARD_TO_SET: dict[str, str] = {
-    # --- FOUNDATIONS (12) ------------------------------------------------------
-    # Shared knowledge layer studied by EVERY role (flashcard_sets.py:88-90). No
-    # case set is a counterpart: the case library is split into two disjoint
-    # procedural pools, so pointing a shared knowledge deck at a CLINICAL set key
-    # would fold OT students' accuracy into a station they never sit — and the
-    # reverse for OT. `ocular_emergencies` and `glaucoma` collide by NAME with
-    # clinical concepts; that is not a counterpart, it is a collision.
-    "anatomy_physiology": KNOWLEDGE_GROUP,
-    "microbiology_infection": KNOWLEDGE_GROUP,
-    "pharmacology": KNOWLEDGE_GROUP,
-    "ocular_emergencies": KNOWLEDGE_GROUP,
-    "professional_ethics": KNOWLEDGE_GROUP,
-    "disorders_eyelid_lacrimal_orbit": KNOWLEDGE_GROUP,
-    "disorders_cornea_conjunctiva": KNOWLEDGE_GROUP,
-    "disorders_lens_cataract": KNOWLEDGE_GROUP,
-    "disorders_uvea_retina": KNOWLEDGE_GROUP,
-    "glaucoma": KNOWLEDGE_GROUP,
-    "neuro_strabismus": KNOWLEDGE_GROUP,
-    "systemic_disease": KNOWLEDGE_GROUP,
+    # --- FOUNDATIONS (12) -> one knowledge group per topic ----------------------
+    # Shared knowledge layer studied by EVERY role (flashcard_sets.py:88-90), with
+    # no single-pool OSCE counterpart to point at. Before this split, these 12
+    # topics plus `abbreviations` (below) all shared one bucket: 650 cards, 28.9%
+    # of the whole 2250-card flashcard bank, behind a single unactionable row —
+    # e.g. a genuine pharmacology weakness was invisible once averaged against
+    # anatomy, ethics, systemic disease and the rest of that bucket, and a
+    # 13-topic mean structurally regresses toward the cohort average, so the
+    # largest slice of the bank could never surface in a "weakest topics"
+    # ranking. Each FOUNDATIONS topic (and `abbreviations`, below) is instead
+    # identity-mapped to its own "knowledge_<topic>" group.
+    # `ocular_emergencies` additionally gets a pool override below: it is
+    # joint-largest CLINICAL set in the live case library (10 cases, tied with
+    # six others — chemical/alkali injury, penetrating injury, corneal foreign
+    # body, hyphaema, acute angle-closure glaucoma, and red-flag/pain-assessment
+    # triage) and the only one of the 21 set keys with no flashcard topic mapped
+    # to it by default; OA/PSA sit a real station for it, OT does not. Counted
+    # via production's `c.get("topic_set") or resolve_set(...)` precedence
+    # (tools/api/routers/cases.py:334,397), not bare resolve_set — 3 cases carry
+    # an explicit topic_set that overrides what their topic string would
+    # otherwise resolve to (two route to triage_referral, one to history_taking),
+    # so bare resolve_set overcounts this set by 3.
+    "anatomy_physiology": "knowledge_anatomy_physiology",
+    "microbiology_infection": "knowledge_microbiology_infection",
+    "pharmacology": "knowledge_pharmacology",
+    "ocular_emergencies": "knowledge_ocular_emergencies",
+    "professional_ethics": "knowledge_professional_ethics",
+    "disorders_eyelid_lacrimal_orbit": "knowledge_disorders_eyelid_lacrimal_orbit",
+    "disorders_cornea_conjunctiva": "knowledge_disorders_cornea_conjunctiva",
+    "disorders_lens_cataract": "knowledge_disorders_lens_cataract",
+    "disorders_uvea_retina": "knowledge_disorders_uvea_retina",
+    "glaucoma": "knowledge_glaucoma",
+    "neuro_strabismus": "knowledge_neuro_strabismus",
+    "systemic_disease": "knowledge_systemic_disease",
 
     # --- CLINICAL (14) -> CLINICAL set keys ------------------------------------
     "red_eye": "red_eye",
@@ -1058,10 +1090,14 @@ FLASHCARD_TO_SET: dict[str, str] = {
     "amsler_macula": "colour_macular",
     "fall_risk": "fall_risk",
     "perioperative": "perioperative",
-    # Cross-cutting notation drilled for every role; no station examines it.
-    "abbreviations": KNOWLEDGE_GROUP,
+    # Cross-cutting notation drilled for every role; no station examines it, so
+    # (like FOUNDATIONS above) there's no OSCE set to point at. But it's still a
+    # real 50-card authored deck, the same size as every FOUNDATIONS topic — it
+    # gets its own group rather than sharing KNOWLEDGE_GROUP with the DB's
+    # legacy default and the unrecognised-tag sink (see KNOWLEDGE_GROUP above).
+    "abbreviations": "knowledge_abbreviations",
 
-    # --- OT (19) -> OT set keys ------------------------------------------------
+    # --- OT (19) -> OT set keys -------------------------------------------------
     "oct_macula": "oct_imaging",
     "oct_rnfl": "oct_imaging",
     "hvf": "visual_fields",
@@ -1092,27 +1128,82 @@ FLASHCARD_TO_SET: dict[str, str] = {
     "general": KNOWLEDGE_GROUP,
 }
 
+# (pool, flashcard_topic_key) -> case set_key, consulted after suffix-stripping
+# and before FLASHCARD_TO_SET. Exists for a deck studied by EVERY role (so
+# FLASHCARD_TO_SET routes it to a knowledge group by default) that nonetheless
+# has a real OSCE station in exactly ONE pool. Only takes effect when the
+# caller passes that pool explicitly — the pool-less lookup (pool=None) always
+# uses the knowledge default, since it has no way to know which pool's answer
+# would be correct.
+POOL_OVERRIDES: dict[tuple[str, str], str] = {
+    ("CLINICAL", "ocular_emergencies"): "ocular_emergencies",
+}
+
 _DIFFICULTIES: frozenset[str] = frozenset(DIFFICULTIES)
 
 
-def flashcard_group(topic_tag: str) -> str:
-    """Bucket one `flashcard_attempts.topic_tag` into a topic group.
+def is_knowledge_group(group: str) -> bool:
+    """True when `group` is a flashcard-only knowledge bucket, never a real case
+    set_key. Downstream needs to tell OSCE-backed groups apart from
+    knowledge-only ones (e.g. to skip an OSCE-accuracy column that has no data
+    by construction) — a prefix check beats a membership set that would need
+    hand-syncing against FLASHCARD_TO_SET on every edit."""
+    return group.startswith(KNOWLEDGE_PREFIX)
 
-    Strips a trailing "__<difficulty>" first: flashcards build set keys as
-    "<topic>__<difficulty>" (flashcard_sets.py:93) and either form can reach the
-    column. Only a KNOWN difficulty is stripped, and `split_set_key` is
-    deliberately not reused — its bare `rpartition("__")` returns ("", "", tag)
-    for a plain topic key, which would blank every unsuffixed tag.
 
-    Unknown tags fall back to KNOWLEDGE_GROUP, never to an OSCE-backed set: a
-    stray tag must not be able to move a procedural group's accuracy. Every real
-    topic is an explicit key above, enforced by tests/content/test_topic_crosswalk.py.
-    """
+def _strip_difficulty(topic_tag: str) -> str:
+    """Normalise one `topic_tag`, stripping a trailing "__<difficulty>" if
+    present. Flashcards build set keys as "<topic>__<difficulty>"
+    (flashcard_sets.py:93) and either form can reach the column. Only a KNOWN
+    difficulty is stripped, and `split_set_key` is deliberately not reused —
+    its bare `rpartition("__")` returns ("", "", tag) for a plain topic key,
+    which would blank every unsuffixed tag."""
     tag = (topic_tag or "").strip().lower()
     head, sep, tail = tag.rpartition("__")
     if sep and head and tail in _DIFFICULTIES:
-        tag = head
+        return head
+    return tag
+
+
+def flashcard_group(topic_tag: str, pool: str | None = None) -> str:
+    """Bucket one `flashcard_attempts.topic_tag` into a topic group.
+
+    `pool` is the case-pool namespace ("CLINICAL" or "OT" — i.e.
+    `case_pool(role)` from tools/cases/topic_sets.py) that the caller is
+    rendering a view for. It is optional and defaults to None (the "all
+    disciplines" view): a handful of FOUNDATIONS decks are studied by every
+    role but examined by a station in only ONE pool (see POOL_OVERRIDES, e.g.
+    `ocular_emergencies`), so the tag can only resolve to that station's
+    set_key once the caller says which pool it's asking on behalf of. Callers
+    with no single pool in scope get the safe default — the knowledge group.
+
+    Unknown tags fall back to KNOWLEDGE_GROUP, never to an OSCE-backed set: a
+    stray tag must not be able to move a procedural group's accuracy. Every
+    real topic is an explicit key in FLASHCARD_TO_SET, enforced by
+    tests/content/test_topic_crosswalk.py.
+    """
+    tag = _strip_difficulty(topic_tag)
+    if pool is not None:
+        override = POOL_OVERRIDES.get((pool, tag))
+        if override is not None:
+            return override
     return FLASHCARD_TO_SET.get(tag, KNOWLEDGE_GROUP)
+
+
+def is_known_tag(topic_tag: str) -> bool:
+    """True when `topic_tag`, after stripping a difficulty suffix, is an
+    explicit key in FLASHCARD_TO_SET.
+
+    `topic_tag` is client-supplied and unvalidated, and flashcard_attempts only
+    started accruing rows when Task 1 shipped, so there is no historical
+    baseline to diff against. A stale frontend build, a topic rename, or a
+    refactor that starts sending `set_key` instead would silently route every
+    attempt into the knowledge bucket — the panel would still render, just
+    plausibly and entirely wrong. Task 8 counts `is_known_tag() is False` hits
+    alongside the totals it already reports so that drift is observable
+    instead of silent.
+    """
+    return _strip_difficulty(topic_tag) in FLASHCARD_TO_SET
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
@@ -3340,7 +3431,6 @@ Both fields appear in the payload block in Step 3. Task 10's TypeScript types an
 - [ ] **Step 1: Write the failing test**
 
 ```python
-# tests/api/test_admin_cohort_analytics.py
 """GET /api/admin/cohort-analytics — cohort performance from real OSCE + flashcard events.
 
 Guards, in order of how badly each one burned us before:
@@ -3358,6 +3448,10 @@ Guards, in order of how badly each one burned us before:
 4. THE AGGREGATOR SEAM SURVIVES. Every aggregator returns dict[topic_group, {...}] and the
    endpoint is a thin projection over it, so Plan B's /student/{id}/detail cohort_avg can
    read the same dict. Enforced here, before Plan B exists (D4).
+5. THE HONESTY SIGNALS REACH THE CLIENT. An unrecognised topic_tag is bucketed, not dropped,
+   so drift renders as a complete and plausible panel; and weakness_score is a weighted,
+   shrunk composite whose safety term is diluted by construction. The drift counter and the
+   rubric (caveat included) are the only things that make either visible.
 """
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
@@ -3368,12 +3462,19 @@ from fastapi.testclient import TestClient
 from tools.api.routers import admin as admin_router
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
-from tools.supervisor.cohort_analytics import osce_by_group
+from tools.supervisor.cohort_analytics import WEIGHT_RUBRIC, osce_by_group
 from tools.supervisor.discipline import pool_by_student
+from tools.supervisor.topic_crosswalk import flashcard_group
 
 client = TestClient(app)
 
 _NOW = datetime.now(timezone.utc)
+
+# Resolved THROUGH the crosswalk, not hardcoded, so this file tests the bucketing path
+# rather than a private copy of Task 3's map. Task 3's review split the 12 FOUNDATIONS
+# topics out of one shared bucket, so this is `knowledge_anatomy_physiology` — there is no
+# `knowledge_foundations` group any more.
+_KNOWLEDGE = flashcard_group("anatomy_physiology")
 
 
 def _ts(days_ago: int) -> str:
@@ -3411,6 +3512,12 @@ _CASE_INDEX = {
                        "label": "Intraocular Pressure", "difficulty": "intermediate"},
     "case_ot_oct_01": {"pool": "OT", "set_key": "oct_imaging",
                        "label": "OCT Imaging", "difficulty": "beginner"},
+    # Only the ranking test below puts attempts on these two; a group materialises from
+    # ROWS, not from the index, so they are inert everywhere else.
+    "case_oa_drops_01": {"pool": "CLINICAL", "set_key": "eye_drops",
+                         "label": "Eye Drop Instillation", "difficulty": "beginner"},
+    "case_oa_fall_01": {"pool": "CLINICAL", "set_key": "fall_risk",
+                        "label": "Fall Risk & Assessment", "difficulty": "beginner"},
 }
 
 _CASE_ROWS = [
@@ -3424,8 +3531,8 @@ _CASE_ROWS = [
      "score_100": 90, "safe": True, "passed": True, "total_score": 36},
 ]
 
-# anatomy_physiology is a FOUNDATIONS topic, which §4.2 routes to the knowledge_foundations
-# pseudo-group for every role; iop_nct is a CLINICAL procedural topic.
+# anatomy_physiology is a FOUNDATIONS topic, which §4.2 routes to a knowledge_* pseudo-group
+# for every role; iop_nct is a CLINICAL procedural topic that pairs with a real station.
 _FC_ROWS = [
     {"student_id": "s_oa", "topic_tag": "anatomy_physiology", "correct": True, "ts": _ts(2)},
     {"student_id": "s_oa", "topic_tag": "anatomy_physiology", "correct": False, "ts": _ts(2)},
@@ -3505,12 +3612,13 @@ def test_cohort_analytics_returns_topic_rows_per_pool():
 
 
 def test_cohort_analytics_flashcard_only_group_has_empty_osce_not_zeros():
-    """knowledge_foundations has no OSCE cases at all. Its counts are 0 (true: no attempts)
+    """A knowledge_* group has no OSCE cases at all. Its counts are 0 (true: no attempts)
     but every rate stays None — D13. A 0.0 pass rate would read as "this cohort fails
-    foundations", which is the exact lie P1 was about."""
+    foundations", which is the exact lie P1 was about. The label comes from the flashcard
+    deck the student actually studied, not from a title-cased group key."""
     r = _get("?discipline=oa_psa&days=90")
-    row = next(t for t in r.json()["topics"] if t["topic_group"] == "knowledge_foundations")
-    assert row["label"] == "Knowledge Foundations"
+    row = next(t for t in r.json()["topics"] if t["topic_group"] == _KNOWLEDGE)
+    assert row["label"] == "Ocular Anatomy & Physiology"
     assert row["osce"]["attempts"] == 0
     assert row["osce"]["avg_score"] is None
     assert row["osce"]["pass_rate"] is None
@@ -3518,36 +3626,81 @@ def test_cohort_analytics_flashcard_only_group_has_empty_osce_not_zeros():
     assert row["osce"]["by_difficulty"] == {"beginner": 0, "intermediate": 0, "advanced": 0}
     assert row["flashcard"]["n"] == 3          # s_oa x2 + s_psa x1; s_ot is out of pool
     assert row["flashcard"]["students"] == 2
+    # Built fresh per row, never a module-level singleton: every flashcard-only group in
+    # every pool takes this block, so one shared dict is the mutable-default bug waiting
+    # for the first caller that edits a row in place. Identity dies at the JSON boundary,
+    # so it can only be pinned on the builder itself.
+    assert admin_router._empty_osce() is not admin_router._empty_osce()
 
 
 def test_cohort_analytics_discipline_filter():
     """The two curricula are disjoint (D2), so a discipline view must not leak the other
     pool's groups — and `all` must return BOTH, each tagged with its own pool so the UI
-    can render two labelled sections rather than one meaningless blended ranking."""
+    can render two labelled sections rather than one meaningless blended ranking.
+
+    The totals block is scoped the same way. `students_with_flashcard_data` is the one that
+    reads plausibly wrong: s_ot has flashcard rows, so an unscoped count reports 3 studying
+    students under an oa_psa panel of 2 — a coverage figure larger than its own cohort."""
     oa = _get("?discipline=oa_psa&days=90").json()
     ot = _get("?discipline=ot&days=90").json()
     every = _get("?discipline=all&days=90").json()
 
-    assert {t["topic_group"] for t in oa["topics"]} == {"tonometry_iop", "knowledge_foundations"}
+    assert {t["topic_group"] for t in oa["topics"]} == {"tonometry_iop", _KNOWLEDGE}
     assert {t["pool"] for t in oa["topics"]} == {"CLINICAL"}
     assert oa["totals"]["students_in_pool"] == 2
     assert oa["totals"]["osce_attempts"] == 3
+    assert oa["totals"]["students_with_flashcard_data"] == 2      # s_ot's rows are not here
 
-    assert {t["topic_group"] for t in ot["topics"]} == {"oct_imaging", "knowledge_foundations"}
+    assert {t["topic_group"] for t in ot["topics"]} == {"oct_imaging", _KNOWLEDGE}
     assert {t["pool"] for t in ot["topics"]} == {"OT"}
     assert ot["totals"]["students_in_pool"] == 1
     assert ot["totals"]["osce_attempts"] == 1
+    assert ot["totals"]["students_with_flashcard_data"] == 1
 
     assert {t["pool"] for t in every["topics"]} == {"CLINICAL", "OT"}
     assert {(t["pool"], t["topic_group"]) for t in every["topics"]} == {
-        ("CLINICAL", "tonometry_iop"), ("CLINICAL", "knowledge_foundations"),
-        ("OT", "oct_imaging"), ("OT", "knowledge_foundations"),
+        ("CLINICAL", "tonometry_iop"), ("CLINICAL", _KNOWLEDGE),
+        ("OT", "oct_imaging"), ("OT", _KNOWLEDGE),
     }
     assert every["totals"]["students_in_pool"] == 3
     assert every["totals"]["osce_attempts"] == 4
+    assert every["totals"]["students_with_flashcard_data"] == 3
     # Each pool's rows stay contiguous so the UI can slice two sections without re-sorting.
     pools_in_order = [t["pool"] for t in every["topics"]]
     assert pools_in_order == sorted(pools_in_order, key=["CLINICAL", "OT"].index)
+
+
+# Three CLINICAL groups built so the ranking rule and the raw score DISAGREE:
+#   tonometry_iop — 5 students x 1 good attempt: confident, weakness ~0.024
+#   eye_drops     — 1 student x 1 terrible attempt: thin, weakness ~0.120
+#   fall_risk     — 1 ungraded attempt: no signal at all, weakness None
+# Sorting on the score alone would put eye_drops on top; sorting on confidence alone
+# would leave fall_risk mid-list. Only the full key gives iop -> drops -> fall.
+_RANK_PROFILES = [{"student_id": f"s_c{i}", "role": "OA"} for i in range(1, 6)]
+_RANK_ROWS = (
+    [{"student_id": f"s_c{i}", "case_id": "case_oa_iop_01", "completed_at": _ts(1),
+      "score_100": 90, "safe": True, "passed": True} for i in range(1, 6)]
+    + [{"student_id": "s_c1", "case_id": "case_oa_drops_01", "completed_at": _ts(1),
+        "score_100": 10, "safe": True, "passed": False},
+       {"student_id": "s_c5", "case_id": "case_oa_fall_01", "completed_at": _ts(1),
+        "score_100": None, "safe": None, "passed": None}]
+)
+
+
+def test_cohort_analytics_ranks_confident_groups_above_thin_ones():
+    """Small-n groups must never top the ranking (§5.3): one catastrophic attempt is not a
+    cohort weakness, and a group with no grade at all is not a strong one. Pinned on the
+    ROW ORDER the UI renders — the score alone would invert the first two."""
+    body = _get("?discipline=oa_psa&days=90",
+                profiles=_RANK_PROFILES, case_rows=_RANK_ROWS, fc_rows=[]).json()
+    assert [t["topic_group"] for t in body["topics"]] == [
+        "tonometry_iop", "eye_drops", "fall_risk"]
+    by_group = {t["topic_group"]: t for t in body["topics"]}
+    assert by_group["tonometry_iop"]["low_confidence"] is False
+    assert by_group["eye_drops"]["low_confidence"] is True
+    # The trap: the thin group really does score WORSE, and still must rank below.
+    assert by_group["eye_drops"]["weakness_score"] > by_group["tonometry_iop"]["weakness_score"]
+    assert by_group["fall_risk"]["weakness_score"] is None
 
 
 def test_cohort_analytics_excludes_staff():
@@ -3614,6 +3767,24 @@ def test_cohort_analytics_window_excludes_older_attempts():
     assert everything["totals"]["osce_attempts"] == 4
 
 
+def test_cohort_analytics_window_excludes_older_flashcard_attempts():
+    """The window has to bound BOTH sources, and this is the half that fails quietly. An
+    unwindowed flashcard read prints an all-time accuracy under a "last 90 days" heading —
+    no counter contradicts it, and a topic the cohort has since fixed keeps dragging its
+    own row down. Pinned on the accuracy, which moves 66.7 -> 50.0 the moment one 2020 row
+    leaks in."""
+    old = _FC_ROWS + [
+        {"student_id": "s_oa", "topic_tag": "anatomy_physiology", "correct": False,
+         "ts": "2020-01-01T00:00:00Z"},
+    ]
+    windowed = _get("?discipline=oa_psa&days=90", fc_rows=old).json()
+    row = next(t for t in windowed["topics"] if t["topic_group"] == _KNOWLEDGE)
+    assert row["flashcard"] == {"accuracy": 66.7, "n": 3, "students": 2}
+    everything = _get("?discipline=oa_psa&days=all", fc_rows=old).json()
+    all_time = next(t for t in everything["topics"] if t["topic_group"] == _KNOWLEDGE)
+    assert all_time["flashcard"] == {"accuracy": 50.0, "n": 4, "students": 2}
+
+
 def test_flashcard_unavailable_is_flagged_not_zero():
     """A flashcard read failure yields flashcard: null per group and sources.flashcard =
     'unavailable' — NEVER {accuracy: 0.0}, which renders as a 0% bar and sends trainers to
@@ -3675,6 +3846,66 @@ def test_cohort_analytics_counts_unclassified_without_hiding_them():
     assert body["totals"]["osce_students"] == 3
 
 
+def test_cohort_analytics_osce_student_counters_diverge_on_an_unindexed_case():
+    """The two student counters are not synonyms, and the ONLY thing separating them is the
+    `case_id in case_index` term: ..._with_osce_data counts students the console holds rows
+    for, osce_students counts the ones actually represented in a topic row above. They
+    differ exactly when a case_id is missing from the library index — a deleted or renamed
+    case file — and collapsing them either inflates the panel's coverage or hides a student
+    whose whole term of work the console cannot place.
+
+    The test above cannot see this: its orphan row belongs to s_oa, who also has an indexed
+    attempt, so both counters read 3 with or without the term. Here the divergence is real
+    — s_orphan has attempted nothing else."""
+    profiles = _PROFILES + [{"student_id": "s_orphan", "role": "OA"}]
+    rows = _CASE_ROWS + [
+        {"student_id": "s_orphan", "case_id": "case_deleted_99", "completed_at": _ts(2),
+         "score_100": 40, "safe": True, "passed": False, "total_score": 16},
+    ]
+    totals = _get("?discipline=oa_psa&days=90",
+                  case_rows=rows, profiles=profiles).json()["totals"]
+    assert totals["students_in_pool"] == 3
+    assert totals["students_with_osce_data"] == 3   # s_oa, s_psa, s_orphan — all have rows
+    assert totals["osce_students"] == 2             # s_orphan is in no topic row
+    assert totals["osce_attempts"] == 3             # nor is their attempt in any total
+    assert totals["unclassified_attempts"] == 1     # it is reported, not swallowed
+
+
+def test_cohort_analytics_counts_attempts_whose_topic_tag_matched_nothing():
+    """`topic_tag` is client-supplied and unvalidated, and flashcard_group BUCKETS an
+    unrecognised tag into the knowledge group rather than dropping it — so a stale frontend
+    build, a rename, or a refactor that starts sending `set_key` renders a complete,
+    plausible, entirely wrong panel. This counter is the only thing that makes the drift
+    visible on the day it starts."""
+    drifted = _FC_ROWS + [
+        # A case set_key, not a flashcard topic key — the exact refactor-drift shape.
+        {"student_id": "s_oa", "topic_tag": "tonometry_iop", "correct": True, "ts": _ts(1)},
+        # Real tag carrying a difficulty suffix and stray case: KNOWN, must not be counted.
+        {"student_id": "s_psa", "topic_tag": "IOP_NCT__hard", "correct": True, "ts": _ts(1)},
+        # Drift in the OTHER pool. Scoped like every other total, so the oa_psa panel does
+        # not report a defect the OT panel owns.
+        {"student_id": "s_ot", "topic_tag": "hrt__nonsense", "correct": True, "ts": _ts(1)},
+    ]
+    assert _get("?discipline=oa_psa&days=90",
+                fc_rows=drifted).json()["totals"]["unknown_tag_attempts"] == 1
+    assert _get("?discipline=all&days=90",
+                fc_rows=drifted).json()["totals"]["unknown_tag_attempts"] == 2
+    assert _get("?discipline=oa_psa&days=90").json()["totals"]["unknown_tag_attempts"] == 0
+
+
+def test_cohort_analytics_ships_the_rubric_and_its_safety_caveat():
+    """weakness_score is a weighted, shrunk, clamped composite; a bare number a trainer is
+    expected to act on is unexplainable without the weights that produced it. And the
+    safety caveat (§5.3) has no other home — `safe = not missed_critical` fills only for
+    checklists that flag a critical step, so safety_fail_rate is diluted downward on the
+    rest. A caveat that lives only in a docstring is the same as no caveat."""
+    body = _get("?discipline=all&days=90").json()
+    assert body["rubric"] == WEIGHT_RUBRIC, "the rubric must travel verbatim, not re-derived"
+    caveat = body["rubric"]["caveats"]["safety"]
+    assert caveat.strip(), "the safety caveat reached the client empty"
+    assert "safety_gradable_n" in caveat, "the caveat must name the field that qualifies it"
+
+
 def test_cohort_analytics_ttl_cache_serves_repeat_call():
     """Per-worker TTL cache over the DERIVED aggregate only — one call reads three whole
     tables and buckets them in Python, and the console polls."""
@@ -3688,9 +3919,51 @@ def test_cohort_analytics_ttl_cache_serves_repeat_call():
                            cookies=_staff_cookie())
         second = client.get("/api/admin/cohort-analytics?discipline=oa_psa&days=90",
                             cookies=_staff_cookie())
+        assert reader.await_count == 1, "the second call must be served from the TTL cache"
+        # A different window is a different key: the cache must not serve one view's
+        # numbers under another's label.
+        other = client.get("/api/admin/cohort-analytics?discipline=oa_psa&days=30",
+                           cookies=_staff_cookie())
+        assert reader.await_count == 2, "a different window must not hit the same entry"
     assert first.status_code == 200
     assert first.json() == second.json()
-    assert reader.await_count == 1, "the second call must be served from the TTL cache"
+    assert other.json()["days"] == 30
+
+
+def test_cohort_analytics_ttl_cache_keys_on_discipline_too():
+    """The other half of the cache key, and the worse half to lose. A `days` collision only
+    mislabels a window; a `discipline` collision serves an OT trainer the CLINICAL panel —
+    other students, other topics, someone else's cohort entirely — for up to 45s after any
+    oa_psa request warms the entry, with the response still claiming discipline: "ot"."""
+    reader = AsyncMock(return_value=(_CASE_ROWS, True))
+    with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 60.0), \
+         patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=(_PROFILES, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=reader), \
+         patch("tools.shared.db.get_all_flashcard_attempts", new=AsyncMock(return_value=(_FC_ROWS, True))), \
+         patch("tools.api.routers.admin.get_case_index", new=AsyncMock(return_value=_CASE_INDEX)):
+        oa = client.get("/api/admin/cohort-analytics?discipline=oa_psa&days=90",
+                        cookies=_staff_cookie()).json()
+        ot = client.get("/api/admin/cohort-analytics?discipline=ot&days=90",
+                        cookies=_staff_cookie()).json()
+        assert reader.await_count == 2, "a different discipline must not hit the same entry"
+    assert ot["discipline"] == "ot"
+    assert {t["pool"] for t in ot["topics"]} == {"OT"}
+    assert oa != ot
+
+
+def test_cohort_analytics_is_rate_limited_per_user():
+    """The most expensive read on the console — three whole-table scans plus a 155-file
+    index build — behind a dashboard that polls. It carries the same 30/minute cap as its
+    heavy siblings (token-summary, audit), and nothing else in this file would notice the
+    decorator going missing, because no other test makes 31 calls."""
+    # Its own sub, so these 32 requests cannot spend the bucket every other test here uses.
+    cookie = {"eyebot_token": create_access_token("stu_cohort_analytics_rl", "admin", "OA")}
+    p1, p2, p3, p4 = _patches()
+    with p1, p2, p3, p4:
+        statuses = [client.get("/api/admin/cohort-analytics?discipline=all&days=90",
+                               cookies=cookie).status_code for _ in range(32)]
+    assert statuses[0] == 200, statuses
+    assert 429 in statuses, f"expected a 429 once the per-minute cap is exceeded, got {statuses}"
 
 
 def test_cohort_aggregator_returns_keyed_dict_reusable_by_student_detail():
@@ -3713,7 +3986,7 @@ def test_cohort_aggregator_returns_keyed_dict_reusable_by_student_detail():
 - [ ] **Step 2: Run test to verify it fails**
 
 Run: `python -m pytest tests/api/test_admin_cohort_analytics.py -v`
-Expected: FAIL — 12 ERRORs, one per test, all raised during `_no_cohort_cache` fixture setup:
+Expected: FAIL — one ERROR per test, all raised during `_no_cohort_cache` fixture setup:
 `AttributeError: module 'tools.api.routers.admin' has no attribute '_cohort_cache'`.
 (After the two module-level constants exist but before the route does, the same run reports `assert 404 == 200` on every test — FastAPI has no `/api/admin/cohort-analytics` route yet.)
 
@@ -3735,6 +4008,7 @@ from pydantic import BaseModel
 
 from tools.api.shared import limiter, _client_ip
 from tools.cases.topic_sets import SET_LABELS
+from tools.flashcards.flashcard_sets import FLASHCARD_TOPICS
 from tools.profile.get_profile import get_profile
 from tools.shared import db
 from tools.shared.auth import generate_password, hash_password
@@ -3743,9 +4017,14 @@ from tools.shared.gemini_client import MOCK_MODE, MODEL, ask
 from tools.shared.identity import seed_student_name
 from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 from tools.supervisor.case_index import get_case_index
-from tools.supervisor.cohort_analytics import flashcard_by_group, osce_by_group, weakness_scores
+from tools.supervisor.cohort_analytics import (
+    WEIGHT_RUBRIC,
+    flashcard_by_group,
+    osce_by_group,
+    weakness_scores,
+)
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
-from tools.supervisor.topic_crosswalk import KNOWLEDGE_GROUP
+from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
 ```
 
 Then insert the following immediately after `admin_activity_trend` (which ends at line 286) and before `@router.post("/api/admin/promote")`:
@@ -3754,9 +4033,16 @@ Then insert the following immediately after `admin_activity_trend` (which ends a
 # ── Cohort analytics (P2) ──────────────────────────────────────────────────
 
 # Display labels per (pool, set_key). The case index carries a label per CASE, but the
-# endpoint also has to label a group with zero attempts in the window and the
-# flashcard-only knowledge_foundations pseudo-group, neither of which appears there.
+# endpoint also has to label a group with zero attempts in the window, and neither that
+# nor a flashcard-only knowledge_* group appears there.
 _SET_LABEL: dict[str, dict[str, str]] = {p: dict(rows) for p, rows in SET_LABELS.items()}
+
+# knowledge_<flashcard_topic_key> -> the deck's own label, so a cohort row reads exactly
+# like the topic the student studied. Title-casing the group key instead would render
+# "Knowledge Anatomy Physiology" for a deck the app calls "Ocular Anatomy & Physiology".
+_KNOWLEDGE_LABEL: dict[str, str] = {
+    key: label for rows in FLASHCARD_TOPICS.values() for key, label in rows
+}
 
 # Per-worker TTL cache over the DERIVED aggregate only. This is the read-cache carve-out
 # of invariant #2, not a violation of it: no counters, no cross-request semantics, every
@@ -3774,8 +4060,9 @@ _NO_WEAKNESS = {"weakness_score": None, "low_confidence": True, "signals_present
 
 
 def _group_label(pool: str, group: str) -> str:
-    if group == KNOWLEDGE_GROUP:
-        return "Knowledge Foundations"
+    if is_knowledge_group(group):
+        topic = group[len(KNOWLEDGE_PREFIX):]
+        return _KNOWLEDGE_LABEL.get(topic, topic.replace("_", " ").title())
     return _SET_LABEL.get(pool, {}).get(group, group.replace("_", " ").title())
 
 
@@ -3832,7 +4119,7 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
 
     try:
         # D10: students only, by MEMBERSHIP. get_active_profiles() is NOT staff-free — a
-        # promoted student keeps their approved_students row (admin.py:288-301) and the
+        # promoted student keeps their approved_students row (admin_promote below) and the
         # super-admin's address is routinely on the roster — and
         # get_active_leaderboard_profiles() adds trainers/admins on purpose. A lecturer's
         # demo run inside a cohort mean is a lie that never expires. This RAISES if the
@@ -3896,6 +4183,18 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
     view_pools = [pool] if pool else ["CLINICAL", "OT"]
     in_view = {sid for sid, p in pools_by_student.items() if p in view_pools}
 
+    # Flashcard attempts whose topic_tag matched NOTHING in the crosswalk. The tag is
+    # client-supplied and unvalidated, and flashcard_group BUCKETS an unrecognised one into
+    # the knowledge group rather than dropping it — so a stale frontend build or a rename
+    # renders a complete, plausible, entirely wrong panel. Counted in the same pass that
+    # filters the rows, so the drift is visible the day it starts rather than after a term
+    # of bad teaching decisions.
+    unknown_tag_attempts = sum(
+        1 for r in fc_rows
+        if str(r.get("student_id", "")) in in_view
+        and not is_known_tag(str(r.get("topic_tag") or ""))
+    )
+
     topics: list[dict] = []
     osce_attempts = 0
     for p in view_pools:
@@ -3954,11 +4253,6 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
             # Surfaced, not swallowed: a cohort that quietly shrank is the same class of
             # dishonesty as one that was quietly inflated.
             "staff_excluded": staff_excluded,
-            # Flashcard attempts whose topic_tag matched NOTHING in the crosswalk. The
-            # tag is client-supplied and unvalidated, so a stale frontend build or a
-            # rename routes every attempt into the knowledge bucket and renders a
-            # plausible, entirely wrong panel. Counted, so the drift is visible the day
-            # it starts rather than after a term of bad teaching decisions.
             "unknown_tag_attempts": unknown_tag_attempts,
         },
         # osce is always "ok" here — a failed OSCE read raised a 500 above rather than
@@ -3979,7 +4273,6 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
 In `tests/api/test_admin_endpoints.py`, append the route to `STAFF_READ_ENDPOINTS` (lines 19–26) so it inherits the four guard-tier tests:
 
 ```python
-# Read-only analytics endpoints — require_staff (admin + trainer)
 STAFF_READ_ENDPOINTS = [
     ("GET", "/api/admin/approved"),
     ("GET", "/api/admin/students"),
@@ -3989,6 +4282,20 @@ STAFF_READ_ENDPOINTS = [
     ("GET", "/api/admin/token-summary"),
     ("GET", "/api/admin/cohort-analytics"),
 ]
+
+```
+
+…and add the three cohort readers to the `_stub_admin_db` autouse fixture's `defaults` dict, beside the `token-summary` entry. That fixture (and its sibling `_forbid_real_supabase`, which fails any test that reaches a real client) landed separately; it is what keeps the two whole-table scans off production Supabase on every pytest run, so patch there rather than inline in the guard test:
+
+```python
+        # GET /api/admin/cohort-analytics — the two bulk readers are whole-table
+        # paged scans of case_progress and flashcard_attempts, i.e. the most
+        # expensive thing in this file to leave unstubbed. get_active_student_profiles
+        # is stubbed directly (same reasoning as get_staff_roster above) and returns
+        # the (students, staff_excluded) tuple its callers unpack.
+        "tools.shared.db.get_active_student_profiles": ([], 0),
+        "tools.shared.db.get_all_case_scores": ([], True),
+        "tools.shared.db.get_all_flashcard_attempts": ([], True),
 ```
 
 In `frontend/tests/_mocks.mjs`, insert after the `activity-trend*` route (ends line 140), before the `token-summary` route on line 141. The trailing `*` is mandatory — the route takes `?discipline=&days=`, and a pattern without it never matches:
@@ -4017,8 +4324,15 @@ In `frontend/tests/_mocks.mjs`, insert after the `activity-trend*` route (ends l
     ],
     totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
               osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
-              staff_excluded: 0 },
+              staff_excluded: 0, unknown_tag_attempts: 0 },
     sources: { osce: "ok", flashcard: "ok" },
+    rubric: {
+      version: 1,
+      weights: { osce_score: 0.4, osce_pass: 0.25, safety: 0.2, flashcard: 0.15 },
+      scales: { osce_score: 100.0, osce_pass: 1.0, safety: 1.0, flashcard: 100.0 },
+      confidence: { min_students: 3, min_attempts: 5, shrinkage_k: 5 },
+      caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
+    },
   })));
 ```
 
@@ -4037,6 +4351,8 @@ In `frontend/tests/aurora_assert.mjs`, insert the same fixture into `staffMocks`
                 by_difficulty: { beginner: 5, intermediate: 3, advanced: 1 } },
         flashcard: { accuracy: 58.0, n: 42, students: 6 },
         weakness_score: 0.71, low_confidence: false, signals_present: ["osce_score", "osce_pass", "safety", "flashcard"] },
+      // low_confidence pair: no safety-gradable attempt -> safety_fail_rate null (never 0),
+      // no flashcard rows -> flashcard null (never {accuracy: 0}), so no weakness score.
       { topic_group: "oct_imaging", label: "OCT Imaging", pool: "OT",
         osce: { attempts: 4, students: 2, avg_score: 78.0, scored_n: 4, pass_rate: 0.75, graded_n: 4,
                 safety_fail_rate: null, safety_gradable_n: 0, missed_top: [],
@@ -4046,15 +4362,22 @@ In `frontend/tests/aurora_assert.mjs`, insert the same fixture into `staffMocks`
     ],
     totals: { students_in_pool: 10, students_with_osce_data: 7, students_with_flashcard_data: 6,
               osce_attempts: 13, osce_students: 7, unclassified_students: 0, unclassified_attempts: 0,
-              staff_excluded: 0 },
+              staff_excluded: 0, unknown_tag_attempts: 0 },
     sources: { osce: "ok", flashcard: "ok" },
+    rubric: {
+      version: 1,
+      weights: { osce_score: 0.4, osce_pass: 0.25, safety: 0.2, flashcard: 0.15 },
+      scales: { osce_score: 100.0, osce_pass: 1.0, safety: 1.0, flashcard: 100.0 },
+      confidence: { min_students: 3, min_attempts: 5, shrinkage_k: 5 },
+      caveats: { safety: "safe = not missed_critical, and missed_critical only fills for steps flagged critical — so an attempt on a checklist with NO critical step counts as safe while carrying no safety signal. safety_fail_rate is therefore diluted downward on those groups; read it with safety_gradable_n." },
+    },
   })));
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `python -m pytest tests/api/test_admin_cohort_analytics.py tests/api/test_admin_endpoints.py tests/api/test_admin_activity_trend.py tests/supervisor -q`
-Expected: PASS — all 12 new tests, plus `test_admin_endpoints.py`'s four guard-tier parametrisations now covering `/api/admin/cohort-analytics` (unauthenticated → 401/403, student → 403, trainer → not 401/403), and the Task 5–8 aggregator suites still green.
+Expected: PASS — every new test in the file above, plus `test_admin_endpoints.py`'s four guard-tier parametrisations now covering `/api/admin/cohort-analytics` (unauthenticated → 401/403, student → 403, trainer → not 401/403), and the Task 5–8 aggregator suites still green. **Shipped: 143 passed** on this command, full suite 1161.
 
 - [ ] **Step 5: Commit**
 
@@ -4063,18 +4386,49 @@ git add tools/api/routers/admin.py tests/api/test_admin_cohort_analytics.py test
 git commit -m "feat(admin): add cohort-analytics endpoint over real OSCE and flashcard events"
 ```
 
+> **AMENDMENT — post-review, this is what shipped.** Every code block in Task 9 above (and
+> Task 3's `topic_crosswalk.py`) has been replaced with the **delivered** file, byte for byte,
+> rather than the text I originally wrote. Tasks 10-12 build against the payload the endpoint
+> actually emits, so read the blocks above as fact, not as intent.
+>
+> **The plan defect worth remembering.** Task 9's `_group_label` special-cased `KNOWLEDGE_GROUP`
+> as the FOUNDATIONS bucket. Task 3's *review* had already redefined that constant to
+> `knowledge_general` — the **unrecognised-tag sink** — but Task 3's plan body was never
+> re-synced, so Task 9 inherited the stale reading and would have labelled the tag-drift bucket
+> "Knowledge Foundations" (making drift look like a curriculum area) while rendering all 13 real
+> knowledge groups as title-cased keys. Both plan bodies are now synced to the shipped modules.
+> The general lesson: **a review that changes a shared constant must be propagated into every
+> downstream task's body, not just the reviewed task's code.**
+>
+> **Known and accepted, carry forward into Tasks 10-12:**
+> - `knowledge_general` has no deck label and falls through to `"General"`. Defensible — it is
+>   the legacy `topic_tag='general'` bucket plus drift, and drift has its own
+>   `unknown_tag_attempts` counter — but it is unlabelled by accident, not by decision.
+> - **Payload scoping is mixed.** `unclassified_students`, `unclassified_attempts` and
+>   `staff_excluded` are population-wide; `unknown_tag_attempts`, `students_in_pool`,
+>   `students_with_osce_data` and `students_with_flashcard_data` are view-scoped. Task 11's copy
+>   must not imply all of `totals` shares one scope.
+> - **On a flashcard outage `unknown_tag_attempts` reports a confident `0`** — the same
+>   "0 that means no-data" class this phase exists to kill, mitigated only by `sources.flashcard`
+>   sitting in the same payload. **Task 11 must render it against `sources`, never bare.**
+> - `osce_students` vs `students_with_osce_data` differ exactly when a `case_id` is missing from
+>   the index; both are now pinned by a test where a student's *only* attempts are unindexed.
+
 ---
 
 ## Task 10: Cohort-analytics hook and the panel-local discipline switcher
 
-The `/api/admin/cohort-analytics` endpoint has no consumer: `useAdmin.ts` ends at `useCohortInsight` (`frontend/src/hooks/useAdmin.ts:171-189`) with no cohort-analytics hook, and `AdminCohort.tsx` still derives every topic figure from the 80-item-capped activity feed. This task adds the typed data layer plus the panel shell that owns the discipline dimension — **panel-local** per D11, because `cohort-analytics` is the only endpoint in the console that accepts `discipline`; a console-top control would re-scope one panel of eleven and leave the KPI tiles and token usage frozen, resurrecting the exact false promise P1 deleted from `Admin.tsx`.
+The `/api/admin/cohort-analytics` endpoint has no consumer: `useAdmin.ts` ends at `useCohortInsight` (`frontend/src/hooks/useAdmin.ts:185-203`) with no cohort-analytics hook, and `AdminCohort.tsx` still derives every topic figure from the 80-item-capped activity feed. This task adds the typed data layer plus the panel shell that owns the discipline dimension — **panel-local** per D11, because `cohort-analytics` is the only endpoint in the console that accepts `discipline`; a console-top control would re-scope one panel of eleven and leave the KPI tiles and token usage frozen, resurrecting the exact false promise P1 deleted from `Admin.tsx`.
 
 **Files:**
-- Modify: `frontend/src/hooks/useAdmin.ts` (append after `useTokenSummary`, ~line 155)
+- Modify: `frontend/src/hooks/useAdmin.ts` (`useTokenSummary` is :162-183; append after it)
 - Create: `frontend/src/aurora/screens/AdminTopicAnalytics.tsx`
 - Modify: `frontend/src/aurora/screens/AdminCohort.tsx` (import block :7-14, render tree :95-97)
-- Test: `frontend/tests/aurora_assert.mjs` (fixture in `staffMocks` :806-823; assertions after :851)
-- Test: `frontend/tests/_mocks.mjs` (fixture in `mockApis` :125, :141)
+- Test: `frontend/tests/aurora_assert.mjs` (`staffMocks` is :806-854, and Task 9 already put the
+  `cohort-analytics*` fixture in it at :823-853 — **edit that one, do not add a second**; the
+  trainer `/admin` assertions run after `await staffMocks(trainerCtx)` on :866)
+- Test: `frontend/tests/_mocks.mjs` (`mockApis` is :65-173; Task 9's `cohort-analytics*` fixture
+  is at :141-171 — same rule, edit it in place)
 
 - [ ] **Step 1: Write the failing test**
 
