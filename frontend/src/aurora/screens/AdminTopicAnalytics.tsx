@@ -10,6 +10,8 @@
 import { useState } from "react";
 import { useCohortAnalytics, type Discipline } from "@/hooks/useAdmin";
 import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState";
+import { CohortAnalyticsPanels } from "@/aurora/components/admin/CohortAnalyticsPanels";
+import { driftNote } from "@/aurora/components/admin/cohortAnalyticsView";
 
 const DISCIPLINES: { key: Discipline; label: string }[] = [
   { key: "all", label: "All" },
@@ -28,6 +30,8 @@ export function AdminTopicAnalytics() {
   const topics = q.data?.topics ?? [];
   const totals = q.data?.totals;
   const flashcardGroups = topics.filter((t) => t.flashcard !== null && t.flashcard.n > 0).length;
+  // Null unless the flashcard read succeeded AND drift was actually seen — see driftNote.
+  const drift = q.data ? driftNote(q.data) : null;
 
   // Same guard as the cohort KPI tiles: a figure must never render 0 while loading or
   // failed — a 0 there is indistinguishable from a real measurement of an empty cohort.
@@ -78,6 +82,18 @@ export function AdminTopicAnalytics() {
           {!!totals?.staff_excluded && (
             <p className="aurora-unavail">{totals.staff_excluded} staff account{totals.staff_excluded === 1 ? "" : "s"} on the student roster {totals.staff_excluded === 1 ? "is" : "are"} excluded from every figure here — a trainer’s demo run is not cohort performance.</p>
           )}
+          {/* Tag drift, and ONLY when the flashcard read succeeded: the counter is
+              tallied during that read, so a failure reports a confident 0 and a bare
+              render would put "no drift" on screen for a read that never happened.
+              driftNote() owns that gate (and the view-vs-population scope wording) so
+              the rule is pinned by the logic harness rather than by this JSX. */}
+          {drift && <p className="aurora-unavail">{drift}</p>}
+          {/* The charts live one level down and are purely presentational: this panel
+              owns the query, the window and the switcher (D11), so there is exactly ONE
+              fetch behind them. isLoading/isError are false by construction here — this
+              branch only runs on resolved data — but they stay on the props so the
+              component never grows a second load/error affordance. */}
+          <CohortAnalyticsPanels data={q.data} isLoading={false} isError={false} onRetry={() => q.refetch()} />
         </>
       )}
     </section>
