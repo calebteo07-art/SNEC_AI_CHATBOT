@@ -18,6 +18,8 @@ Two rules run through everything here:
 """
 from __future__ import annotations
 
+from tools.supervisor.topic_crosswalk import flashcard_group
+
 # The three stored tier names (project-locked; never renamed). An unrecognised
 # difficulty is DROPPED rather than folded into "beginner" — a mis-tiered case must
 # surface as by_difficulty summing below `attempts`, not as a fabricated tier count.
@@ -187,5 +189,196 @@ def osce_by_group(
             "safety_gradable_n": gradable,
             "missed_top": _missed_top(g["missed"]),
             "by_difficulty": g["by_difficulty"],
+        }
+    return out
+
+
+# ── Weakness scoring ──────────────────────────────────────────────────────────
+
+# Confidence floor. A component below EITHER floor still contributes (shrunk), but flags
+# the group low_confidence so the endpoint ranks it below confident groups. Dropping
+# below-floor components outright would null all 21 groups at today's ~24 attempts and
+# leave the panel permanently blank — the flag is the mechanism, not exclusion.
+MIN_STUDENTS: int = 3
+MIN_ATTEMPTS: int = 5
+# Shrinkage toward the no-evidence prior (deficit 0): w = n / (n + K). K=5 means a single
+# attempt keeps ~17% of its deficit and 30 attempts keep ~86%.
+SHRINKAGE_K: int = 5
+
+# The ONE place any weighting number lives — Plan B's at-risk model reuses `scales` and
+# `confidence` verbatim and declares its own weight block beside them, so the three
+# sub-dicts are kept independent: neither model has to fork the normalisation policy to
+# change its own weights. Never inline these numbers at a call site.
+WEIGHT_RUBRIC: dict = {
+    "version": 1,
+    # Sum to 1.0, then renormalised over the signals actually present.
+    "weights": {
+        "osce_score": 0.40,   # graded attainment — the richest signal
+        "osce_pass": 0.25,    # pass/fail is coarser than the score, so it weighs less
+        "safety": 0.20,       # a safety fail matters out of proportion to its frequency
+        "flashcard": 0.15,    # recall, not performance — the weakest evidence of the four
+    },
+    # Divisor that maps each raw input onto 0-1. score_100 and flashcard accuracy arrive
+    # on 0-100; pass_rate and safety_fail_rate are already rates. Without this the OSCE
+    # score outweighs the rates 100x in the sum.
+    "scales": {
+        "osce_score": 100.0,
+        "osce_pass": 1.0,
+        "safety": 1.0,
+        "flashcard": 100.0,
+    },
+    "confidence": {
+        "min_students": MIN_STUDENTS,
+        "min_attempts": MIN_ATTEMPTS,
+        "shrinkage_k": SHRINKAGE_K,
+    },
+}
+
+
+def _unit(value: float) -> float:
+    """Clamp to 0-1. A malformed row (score_100 of 140) would otherwise contribute a
+    negative deficit and spend more than its share of the renormalised weight budget."""
+    return min(1.0, max(0.0, value))
+
+
+def _weakness_components(osce_row: dict | None, flashcard_row: dict | None) -> dict[str, dict]:
+    """Present signals only, as {name: {"deficit": 0-1, "n": int, "students": int}}.
+
+    A signal is present only when its own metric is non-null AND its own denominator is
+    positive — each metric carries its own n, and 54% of production case_progress rows
+    have NULL grades, so a group can easily have attempts but no score. An absent signal
+    is simply missing from this dict; it is never zero-filled, which would score the
+    emptiest group as the weakest.
+    """
+    scales = WEIGHT_RUBRIC["scales"]
+    comps: dict[str, dict] = {}
+    o = osce_row or {}
+    # osce["students"] is the group's distinct-student count, an upper bound on the
+    # per-metric one (which the pinned osce_by_group shape does not carry). The attempt
+    # floor is the tight one; this keeps the student floor honest without a shape change.
+    o_students = int(o.get("students") or 0)
+
+    if o.get("avg_score") is not None and int(o.get("scored_n") or 0) > 0:
+        comps["osce_score"] = {
+            "deficit": _unit(1.0 - float(o["avg_score"]) / scales["osce_score"]),
+            "n": int(o["scored_n"]),
+            "students": o_students,
+        }
+    if o.get("pass_rate") is not None and int(o.get("graded_n") or 0) > 0:
+        comps["osce_pass"] = {
+            "deficit": _unit(1.0 - float(o["pass_rate"]) / scales["osce_pass"]),
+            "n": int(o["graded_n"]),
+            "students": o_students,
+        }
+    # Excluded, never zeroed, when nothing was gradable: safe = not missed_critical, so an
+    # attempt on a checklist with no critical step yields safe=True carrying no safety
+    # signal at all. A zero here would read as a clean safety record.
+    if o.get("safety_fail_rate") is not None and int(o.get("safety_gradable_n") or 0) > 0:
+        comps["safety"] = {
+            # The only signal where higher is worse, so it is not inverted.
+            "deficit": _unit(float(o["safety_fail_rate"]) / scales["safety"]),
+            "n": int(o["safety_gradable_n"]),
+            "students": o_students,
+        }
+
+    f = flashcard_row or {}
+    if f.get("accuracy") is not None and int(f.get("n") or 0) > 0:
+        comps["flashcard"] = {
+            "deficit": _unit(1.0 - float(f["accuracy"]) / scales["flashcard"]),
+            "n": int(f["n"]),
+            "students": int(f.get("students") or 0),
+        }
+    return comps
+
+
+def flashcard_by_group(rows: list[dict], pools_by_student: dict,
+                       *, pool: str | None = None) -> dict[str, dict]:
+    """Flashcard accuracy per topic group, from raw flashcard_attempts rows
+    ({student_id, topic_tag, correct, ts}).
+
+    `pools_by_student` maps student_id -> "CLINICAL" | "OT"; `pool` filters to one of those
+    code literals (None = every discipline). A group only materialises when a row lands in
+    it, so `accuracy` is always a float here — absence is the no-data signal, and the
+    endpoint projects a missing key to `flashcard: null`. That is the `| None` in the
+    contract; it must never appear as an accuracy of 0.0.
+    """
+    agg: dict[str, dict] = {}
+    for r in rows:
+        sid = str(r.get("student_id") or "")
+        student_pool = pools_by_student.get(sid)
+        # Fail closed. A student whose role didn't resolve has no discipline and is
+        # dropped from every view, `all` included — the endpoint surfaces them under
+        # totals.unclassified_students rather than folding staff and typo'd roles into
+        # oa_psa. Pool comes from the STUDENT, not the topic, so a future role-neutral
+        # item still counts in the right place.
+        if student_pool is None:
+            continue
+        if pool is not None and student_pool != pool:
+            continue
+        # Same `or "general"` fallback as db.get_topic_accuracy (db.py:235), and the
+        # crosswalk routes "general" to the knowledge group — so an untagged attempt lands
+        # in the same bucket here as on the student's own topic breakdown.
+        #
+        # The STUDENT's pool is passed to flashcard_group (Task 3 added the parameter): a
+        # deck studied by every role but examined in only one pool — `ocular_emergencies`,
+        # the joint-largest CLINICAL set (10 cases) — pairs with that station for OA/PSA
+        # while staying a knowledge group for OT, who never sit it. Pool comes from the
+        # student, never from the topic.
+        group = flashcard_group(str(r.get("topic_tag") or "general"), student_pool)
+        bucket = agg.setdefault(group, {"correct": 0, "n": 0, "students": set()})
+        bucket["n"] += 1
+        bucket["students"].add(sid)
+        if r.get("correct"):
+            bucket["correct"] += 1
+    return {
+        g: {
+            # 0-100 at 1dp — exactly db.get_topic_accuracy's `pct` convention
+            # (db.py:240-243), so a cohort figure and a student's own breakdown are
+            # directly comparable. weakness_scores divides by WEIGHT_RUBRIC["scales"].
+            "accuracy": round(100 * b["correct"] / b["n"], 1),
+            "n": b["n"],
+            "students": len(b["students"]),
+        }
+        for g, b in agg.items()
+    }
+
+
+def weakness_scores(osce: dict, flashcard: dict) -> dict[str, dict]:
+    """Rank-ready weakness per topic group: 0-1, higher = needs teaching attention.
+
+    Replaces cohort_summary's Counter over self-reported weak_topics with real
+    performance. Three rules make the ranking trustworthy at SNEC's volume:
+
+    - Weights renormalise over the signals PRESENT, so a group is judged only on the
+      evidence it has and a missing metric can't push it up or down the list.
+    - Each component is shrunk toward the no-evidence prior by n / (n + SHRINKAGE_K), so
+      one catastrophic attempt cannot outrank a well-sampled mediocre topic.
+    - `low_confidence` is set unless at least one contributing signal clears BOTH floors;
+      the endpoint sorts on (low_confidence, -weakness_score).
+
+    Per-component denominators are not repeated here — the osce/flashcard blocks on the
+    same row already carry scored_n / graded_n / safety_gradable_n / n.
+    """
+    weights = WEIGHT_RUBRIC["weights"]
+    out: dict[str, dict] = {}
+    for group in sorted(set(osce) | set(flashcard)):
+        comps = _weakness_components(osce.get(group), flashcard.get(group))
+        if not comps:
+            # No signal at all. None, never 0.0 — a zero renders as a perfect topic (D13).
+            out[group] = {"weakness_score": None, "low_confidence": True, "signals_present": []}
+            continue
+        total_w = sum(weights[name] for name in comps)
+        score = 0.0
+        for name, c in comps.items():
+            shrink = c["n"] / (c["n"] + SHRINKAGE_K)
+            score += (weights[name] / total_w) * c["deficit"] * shrink
+        confident = any(
+            c["students"] >= MIN_STUDENTS and c["n"] >= MIN_ATTEMPTS for c in comps.values()
+        )
+        out[group] = {
+            "weakness_score": round(score, 4),
+            "low_confidence": not confident,
+            # Rubric order, so the UI's explanation of a score reads the same every time.
+            "signals_present": [name for name in weights if name in comps],
         }
     return out
