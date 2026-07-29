@@ -1,9 +1,17 @@
 // frontend/src/aurora/lib/stationHelp.ts
-/* Help + coach-mark content for Virtual Patients. Pure data — no React, no DOM.
+/* Help + briefing content for Virtual Patients. Pure data + one pure predicate — no React,
+   no DOM.
 
-   Students reported the whole feature was confusing (2026-07-29). The `?` modal and the
-   first-run coach-mark both read from here, so the system can never be described two
-   different ways. Copy lives in one file for the same reason tourSteps.ts does.
+   Students reported the whole feature was confusing (2026-07-29). The `?` card and the
+   pre-flight briefing both read from here, so the system can never be described two
+   different ways.
+
+   BREVITY RULE (user, 2026-07-29: "too long winded and no one is gonna read all that"):
+   the `?` card is FOUR one-line facts per surface — a five-second read, not a document.
+   It used to be seven ~45-word sections and students skipped it wholesale. The real
+   teaching now lives in the briefing, which plays on every station open; `?` is the
+   at-a-glance reminder and the way to replay it. station_help_logic.mjs pins the
+   character ceilings, because prose is what grows back.
 
    ANTI-SPOILER RULE: this explains MECHANICS (which pane, how steps tick, how scoring
    works). It never names a clinical action — that is the student's to recall. */
@@ -15,33 +23,27 @@ export const HELP: Record<"cases" | "station", HelpContent> = {
   cases: {
     title: "How Virtual Patients works",
     sections: [
-      { heading: "What this is",
-        body: "Each virtual patient is a full OSCE station. You take a history, run the checks you'd really run, then write a handover — and get a scored debrief with specific feedback." },
-      { heading: "Choosing a patient",
-        body: "Filter by clicking a region of the eye, or by picking a topic chip. One lens at a time — choosing a topic clears the eye region, and vice-versa." },
-      { heading: "The three tiers",
-        body: "Foundational, Developing and Advanced. Work through a topic's Foundational patients to unlock the harder ones in that topic." },
-      { heading: "What it costs",
-        body: "Nothing to start. But once you're in a station, leaving before you submit your handover forfeits Lumens — so start one when you have time to finish it." },
+      { heading: "Each patient is a full station",
+        body: "Take a history, run your checks, write a handover, get a scored debrief." },
+      { heading: "Filter by eye or by topic",
+        body: "Click a region of the eye or pick a topic chip — one lens at a time, never both." },
+      { heading: "Three tiers",
+        body: "Clear a topic's Foundational patients to unlock its Developing and Advanced ones." },
+      { heading: "Finish what you start",
+        body: "Free to begin, but leaving before you submit your handover forfeits Lumens." },
     ],
   },
   station: {
     title: "How to use this station",
     sections: [
-      { heading: "The checklist tracks you — you don't tick it",
-        body: "Steps tick themselves as you work: talk to the patient and the examiner marks off what you genuinely covered; perform a procedure in the EyeBot panel and it ticks there. Upcoming steps stay hidden on purpose, so you recall what to ask instead of reading it off a list." },
-      { heading: "Whose turn is it",
-        body: "The live pane is highlighted and says so. When it's the patient's turn, talk to them. When a hands-on procedure is next, the patient composer locks and you work in the EyeBot panel instead." },
-      { heading: "Talking to the patient",
-        body: "Ask like you would in clinic — one thing at a time. They answer only what you ask, in their own words. If you're sure you covered a step and it hasn't ticked, use “Examiner didn't catch that?” under the composer." },
-      { heading: "Hands-on procedures",
-        body: "Pick a procedure chip, then type how you'd actually perform it. EyeBot returns the reading and grades your technique against the model answer straight away. A few mechanical steps just tick on one click." },
-      { heading: "Time",
-        body: "Each case shows a countdown from its expected length. It turns amber near the end and red when it runs out, but it never cuts you off — it's there to build exam pace." },
-      { heading: "The handover",
-        body: "Write what you found and what you'd do next, within your role — you don't diagnose or prescribe. If nothing is urgent, say so: “routine, patient follows appointment time” is a complete answer." },
-      { heading: "How you're scored",
-        body: "Two schemes out of 50: Consultation & Technique, and Clinical Judgement & Safety. The debrief shows the sub-scores behind each one and why. Missing a critical safety step caps the judgement half." },
+      { heading: "The checklist ticks itself",
+        body: "Do the work and rows tick themselves. Upcoming steps stay hidden so you recall them." },
+      { heading: "One pane is live at a time",
+        body: "The highlighted pane is where you act. When a procedure is next, the composer locks." },
+      { heading: "Type how you'd do it",
+        body: "Procedures are graded on the technique you describe, and answered straight away." },
+      { heading: "The handover is the grade",
+        body: "Two schemes out of 50. Missing a critical safety step caps the judgement half." },
     ],
   },
 };
@@ -51,7 +53,7 @@ export function helpFor(surface: string): HelpContent {
   return HELP[surface as "cases" | "station"] ?? HELP.station;
 }
 
-export interface CoachBeat {
+export interface BriefingBeat {
   id: string;
   /** CSS selector to spotlight. */
   target: string;
@@ -61,16 +63,44 @@ export interface CoachBeat {
   requiresEyebot?: boolean;
 }
 
-/** First-run coach-mark: three beats, one per pane. More than three is a tour, not a
-    coach-mark — and the account-level grand tour already exists (tourSteps.ts). */
-export const COACH_BEATS: CoachBeat[] = [
+/** The pre-flight briefing: one beat per pane, plus the handover. Four is the ceiling —
+    beyond that it stops being a cold open and becomes the grand tour, which already exists
+    (tourSteps.ts). The handover beat earns its place because the `?` card no longer carries
+    it and students kept missing that the handover is the thing being scored. */
+export const BRIEFING_BEATS: BriefingBeat[] = [
   { id: "checklist", target: ".aurora-station-clscroll",
-    title: "This tracks itself",
-    body: "You can't tick these — do the work and they tick. Steps you haven't reached stay hidden so you recall them yourself." },
+    title: "It ticks itself",
+    body: "Do the work — rows tick on their own. Never tap them; upcoming steps stay hidden on purpose." },
   { id: "patient", target: '[data-testid="patient-pane"]',
-    title: "Talk to your patient here",
-    body: "History, consent, explanations — ask one thing at a time, like you would in clinic." },
+    title: "Talk to your patient",
+    body: "History, consent, explanations — one question at a time, like you would in clinic." },
   { id: "eyebot", target: '[data-testid="eyebot-pane"]', requiresEyebot: true,
-    title: "Hands-on procedures happen here",
-    body: "When a procedure is next, this panel lights up. Pick it, then type how you'd perform it." },
+    title: "Hands-on happens here",
+    body: "When a procedure is next this panel lights up. Type how you'd actually perform it." },
+  { id: "handover", target: ".aurora-station-submit-toggle",
+    title: "This is what's graded",
+    body: "Your handover carries the score — two schemes out of 50. Everything else is practice." },
 ];
+
+/** How long a beat holds before the briefing advances itself. Long enough to read one line,
+    short enough that a student on their tenth station isn't held hostage. */
+export const BEAT_MS = 2600;
+
+export interface AutoAdvanceInput {
+  /** OS/app reduced-motion preference. */
+  reduceMotion: boolean;
+  /** pointer is over the briefing card. */
+  hovered: boolean;
+  /** the student took manual control (a click or a key) — sticky for the rest of the run. */
+  manual: boolean;
+  /** the tab/window has focus. */
+  focused: boolean;
+}
+
+/** Whether the briefing may advance itself right now. The briefing plays on EVERY station
+    open, so it self-advances by default — but any one of these reasons stops it outright,
+    which is what keeps an auto-advancing dialog accessible (WCAG 2.2.2 pause/stop/hide).
+    Reduced motion downgrades it to a plain manual walkthrough rather than removing it. */
+export function shouldAutoAdvance(i: AutoAdvanceInput): boolean {
+  return !i.reduceMotion && !i.hovered && !i.manual && i.focused;
+}

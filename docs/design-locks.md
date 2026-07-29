@@ -505,6 +505,29 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   not a leak); a student can never dead-end when /observe misses a step; 390px no-overflow
   preserved; station + rotate-gate + aurora asserts green. **Out of scope**: gating order, the
   triptych structure, the warm/cool identity, the handover flow, the two-scheme grade.
+- **Help density & briefing frequency (2026-07-29, user-directed: the `?` popup "is too long
+  winded and no one is gonna read all that"; the walkthrough "must be on every session and
+  look way better and intriguing and aesthetic")** — criteria changed: *(1) help density —
+  the `?` card is FOUR one-line facts per surface, not a document; (2) walkthrough frequency
+  — feature-first-run becomes every-open; (3) walkthrough register — a page dialog becomes a
+  cinematic stage.* The old `?` ran seven ~45-word sections (~330 words) and the coach-mark
+  fired once ever behind `eyebot_station_coach_seen`. Now `StationCoach` → **`StationBriefing`**
+  with **no storage key at all**, four beats (checklist · patient · EyeBot · handover) that
+  **auto-advance every `BEAT_MS`** over a near-black stage while the spotlit pane stays lit;
+  `?` becomes a five-second glance whose primary action is **"Replay the walkthrough"**.
+  Playing every time is paid for with escapes: hover pauses, any click/key hands over control
+  permanently, a blurred tab holds, reduced motion drops auto-advance to manual, and
+  Skip/Escape/clicking the stage leaves in one action (WCAG 2.2.2). `shouldAutoAdvance()` in
+  `stationHelp.ts` owns that rule and is unit-tested. **Acceptance when refining**: no
+  "seen"-flag may gate the briefing (station_assert reloads and expects it back); every help
+  body ≤110 chars and ≤400 per surface; exactly four sections per surface and four beats; the
+  card never overlaps its own spotlight and never leaves the viewport (placement is
+  below → above → **beside**, since full-height panes fit neither above nor below); the stage
+  dim measures ≥0.75 alpha while the anchored scrim stays transparent — both are
+  load-order-fragile (`tour.css` ships after `aurora.css`, so station spotlight overrides
+  need doubled selectors); the anti-spoiler rule still holds — no help text or beat names a
+  clinical action. **Out of scope**: the grand tour (`tourSteps.ts`), the `/cases` surface's
+  own walkthrough (it has none — `?` only), gating order, the two-scheme grade.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
