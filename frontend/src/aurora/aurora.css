@@ -1410,6 +1410,18 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 .aurora-station-cl-legend { margin: 8px 2px 2px; font-size: 12.5px; line-height: 1.45; color: var(--ink-3); }
 .aurora-station-cl-legend .au { font-size: 11.5px; color: var(--on-green-2); font-weight: 700; }
 
+/* Read-only checklist (2026-07-29): rows are <li>, so reset the list chrome the old
+   <button> never needed. No cursor, no hover, no focus ring — there is nothing to click. */
+.aurora-station-steps { list-style: none; margin: 0; padding: 0; }
+.aurora-station-step { cursor: default; }
+/* Masked (not-yet-earned) step: the glyph run stands in for the action text so the row
+   keeps its rhythm without leaking the words the student should be recalling. */
+.aurora-station-step[data-display="masked"] .mask {
+  letter-spacing: .06em; color: var(--ink-3); opacity: .45; user-select: none;
+}
+/* Self-marked via the stuck-valve — deliberately NOT a ✓, so the record stays honest. */
+.aurora-station-step[data-display="self"] .bx { color: var(--ink-3); font-weight: 700; }
+
 .aurora-station-main { display: flex; flex-direction: column; min-width: 0; height: 100%; min-height: 0; overflow: hidden; }
 /* The consult thread is the only scrolling region on the right — the exam tray and
    composer stay pinned at the bottom so the chat box never drifts out of view. */
@@ -3394,6 +3406,60 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 /* Patient composer lock — replaces the composer while the next step is a hands-on
    procedure (perform it in the action panel, not by chatting). */
 .aurora-station-locknote { margin:9px 6px 2px; padding:10px 12px; border-radius:12px; font-size:.9rem; color:var(--ink-2); background:rgba(155,114,203,.14); border:1px solid var(--hairline); text-align:center; }
+
+/* ── Turn-spotlight (2026-07-29) ──────────────────────────────────────────────
+   Students couldn't tell where to act. `data-turn` on the grid says which pane is live;
+   the inactive one recedes. Pure CSS off one attribute, so it needs no measurement and
+   works unchanged in the stacked (<=880px) and landscape-phone tiers. Dimmed, never
+   hidden: the inactive pane's text stays legible so its scrollback is still readable. */
+.aurora-station-grid[data-turn="patient"] .aurora-eyebot,
+.aurora-station-grid[data-turn="eyebot"] .aurora-patient {
+  opacity: .72; filter: saturate(.6);
+}
+.aurora-station-grid[data-turn] .aurora-patient,
+.aurora-station-grid[data-turn] .aurora-eyebot {
+  transition: opacity .28s var(--st-ease, ease), filter .28s var(--st-ease, ease),
+              box-shadow .28s var(--st-ease, ease);
+}
+.aurora-station-grid[data-turn="patient"] .aurora-patient {
+  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 20px 40px -22px rgba(45,35,85,.32),
+              inset 0 1px 0 rgba(255,255,255,.72), 0 0 0 2px rgba(217,101,112,.55);
+}
+.aurora-station-grid[data-turn="eyebot"] .aurora-eyebot {
+  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 20px 40px -22px rgba(45,35,85,.32),
+              inset 0 1px 0 rgba(255,255,255,.72), 0 0 0 2px rgba(44,107,224,.55);
+}
+/* "All steps done" — the handover button takes the emphasis instead of either pane. */
+.aurora-station-grid[data-turn="handover"] .aurora-station-submit-toggle {
+  box-shadow: 0 0 0 2px rgba(96,214,115,.6);
+}
+.aurora-pane-turn {
+  margin-left: auto; align-self: center; white-space: nowrap;
+  font-size: 12px; font-weight: 700; letter-spacing: .01em;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(31,31,31,.06); color: var(--ink-2);
+}
+.aurora-patient .aurora-pane-turn { background: rgba(217,101,112,.14); color: #8c3a43; }
+.aurora-eyebot .aurora-pane-turn { background: rgba(44,107,224,.13); color: #1f4fa8; }
+/* Landscape phone: the badge is the first thing to cost a line — keep it, shrink it. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .aurora-pane-turn { font-size: 11px; padding: 3px 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-station-grid[data-turn] .aurora-patient,
+  .aurora-station-grid[data-turn] .aurora-eyebot { transition: none; }
+}
+
+/* Stuck-valve — deliberately quiet. It is the recovery path when the examiner misses a
+   step, not a shortcut, so it never competes with the composer for attention. */
+.aurora-station-unstick {
+  display: block; margin: 8px auto 0; padding: 5px 12px; border-radius: 999px;
+  border: 1px dashed var(--hairline); background: none;
+  color: var(--ink-3); font-size: 12.5px; cursor: pointer;
+  transition: color .15s var(--st-ease, ease), background .15s var(--st-ease, ease);
+}
+.aurora-station-unstick:hover:not(:disabled) { color: var(--ink-2); background: rgba(31,31,31,.04); }
+.aurora-station-unstick:disabled { opacity: .6; cursor: default; }
 
 /* ── Manual-procedures tray ──────────────────────────────────────────
    A quiet strip that blends into the composer cluster. (Renamed off

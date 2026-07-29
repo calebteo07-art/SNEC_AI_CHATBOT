@@ -16,6 +16,11 @@ export function PatientChat({
   isStreaming,
   hasResult,
   locked,
+  active,
+  turnBadge,
+  canUnstick,
+  unsticking,
+  onUnstick,
   endRef,
   onInputChange,
   onSend,
@@ -31,6 +36,14 @@ export function PatientChat({
   /** The next checklist step is a hands-on procedure → the patient composer is locked so
       the student performs it in the EyeBot action panel (not by chatting). */
   locked: boolean;
+  /** This pane is where the student must act right now. */
+  active: boolean;
+  /** Badge copy — names the CHANNEL, never the clinical step. Empty when not active. */
+  turnBadge: string;
+  /** Three messages on the same step with no tick — offer the stuck-valve. */
+  canUnstick: boolean;
+  unsticking: boolean;
+  onUnstick: () => void;
   endRef: RefObject<HTMLDivElement | null>;
   onInputChange: (value: string) => void;
   onSend: () => void;
@@ -54,6 +67,9 @@ export function PatientChat({
           <div className="aurora-pane-nm">{patientName}</div>
           <div className="aurora-pane-mt">Patient · talk to take a history</div>
         </div>
+        {active && turnBadge && (
+          <span className="aurora-pane-turn" data-testid="turn-badge">{turnBadge}</span>
+        )}
       </div>
 
       <div className="aurora-station-thread">
@@ -77,6 +93,18 @@ export function PatientChat({
         <div className="aurora-station-locknote" data-testid="patient-lock">
           🔒 Next step is a hands-on procedure — perform it in the EyeBot panel.
         </div>
+      )}
+
+      {!hasResult && !locked && canUnstick && (
+        <button
+          type="button"
+          className="aurora-station-unstick"
+          data-testid="station-unstick"
+          onClick={onUnstick}
+          disabled={unsticking}
+        >
+          {unsticking ? "Re-checking your consult…" : "Examiner didn't catch that?"}
+        </button>
       )}
 
       {!hasResult && !locked && (

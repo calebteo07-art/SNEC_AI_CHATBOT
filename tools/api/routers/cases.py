@@ -163,6 +163,9 @@ class CaseSubmitRequest(BaseModel):
     findings: str
     recommendation: str
     performed_steps: list[int] = []
+    # Subset of performed_steps advanced by the station's stuck-valve, NOT examiner-verified.
+    # Included in performed_steps (student's favour) but named to the debrief coach.
+    self_advanced: list[int] = []
 
 class DomainScore(BaseModel):
     history_score: int
@@ -269,6 +272,8 @@ class StationResponse(BaseModel):
 class ObserveRequest(BaseModel):
     messages: list[ChatMessage] = Field(max_length=100)
     already_ticked: list[int] = []
+    # Stuck-valve: the student claims they already did this step — re-check it leniently.
+    focus_step: int | None = None
 
 class ObserveResponse(BaseModel):
     newly_satisfied: list[int]
@@ -628,7 +633,7 @@ async def observe_case(case_id: str, request: Request, body: ObserveRequest,
         if a.get("kind") == "manual" for n in a.get("satisfies_steps", [])
     }
     newly = await asyncio.to_thread(
-        observe, cl["steps"], messages, body.already_ticked, manual_steps
+        observe, cl["steps"], messages, body.already_ticked, manual_steps, body.focus_step
     )
     return ObserveResponse(newly_satisfied=newly)
 
@@ -967,6 +972,11 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
     except Exception:
         _coach_ctx = ""
     missed_actions = [c.action for c in checklist_comparison if not c.performed]
+    # Steps the student self-marked when the examiner missed them (station stuck-valve). They
+    # count for the grade — after 3 genuine attempts the likeliest truth is that the examiner
+    # missed it — but the coach is told, so the debrief never claims verification it lacks.
+    _self_set = set(body.self_advanced)
+    self_named = [c.action for c in checklist_comparison if c.step_number in _self_set]
     # Feed BOTH the patient consultation AND the action-panel procedures (decoded from the
     # embedded markers) so the coach can comment on what was actually said and done — the
     # source of real, specific feedback (ricoe C7).
@@ -993,7 +1003,9 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
             f"Case: {case['title']}\n"
             f"Findings submitted: {body.findings}\n"
             f"Recommendation submitted: {body.recommendation}\n"
-            f"Checklist steps NOT performed: {', '.join(missed_actions) or 'none'}\n\n"
+            f"Checklist steps NOT performed: {', '.join(missed_actions) or 'none'}\n"
+            f"Steps the student SELF-MARKED (not examiner-verified — if the transcript does not "
+            f"support them, say so): {', '.join(self_named) or 'none'}\n\n"
             "PATIENT CONSULTATION:\n" + ("\n".join(consult_patient) or "(no conversation)") + "\n\n"
             "ACTION PANEL — procedures performed and examiner grades:\n"
             + ("\n".join(consult_actions) or "(no manual procedures performed)")

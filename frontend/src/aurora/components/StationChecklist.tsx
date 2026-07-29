@@ -1,11 +1,15 @@
 "use client";
 /* StationChecklist — the auto-tracked OSCE checklist for the Guided OSCE Station.
-   Each checklist step is its own clean, tickable row, grouped under its phase. A
-   row ticks live (auto, from the consult) or by a tap. Nothing is merged or hidden,
-   so every action reads as one discrete, scannable line — clearest for students.
-   A 3-segment phase rail and per-phase counters show progress at a glance.
-   Presentational — all tick state is owned by the parent. */
+   READ-ONLY by design (2026-07-29): steps tick from the consult (/observe) or the action
+   panel, never from a tap. Two things drove that — students were ticking rows instead of
+   doing the work, and a fully-visible list is a script they read off instead of recalling
+   their own history-taking questions (Branda). So rows are <li>, not <button>, and only
+   earned text is printed: done + current are readable, everything ahead is masked
+   (stationMask.ts). A 3-segment phase rail and per-phase counters keep progress legible —
+   the student always knows HOW FAR they are, just not WHAT'S NEXT.
+   Presentational — all state is owned by the parent. */
 import { useEffect, useRef } from "react";
+import { stepDisplay, isRevealed, maskFor } from "@/aurora/lib/stationMask";
 
 export interface StationStep {
   step_number: number;
@@ -27,21 +31,22 @@ export function StationChecklist({
   phases,
   ticked,
   autoSteps,
+  selfMarked,
   current,
-  onToggle,
 }: {
   procedureName: string;
   phases: StationPhase[];
   totalSteps: number; // kept for call-site compatibility
   ticked: Set<number>;
   autoSteps: Set<number>;
+  /** Ticked via the stuck-valve, not examiner-verified — rendered distinctly, never as ✓. */
+  selfMarked: Set<number>;
   current: number | null;
-  onToggle: (stepNumber: number) => void;
 }) {
   // Keep the step you're on in view as the gate advances (ricoe C8). `block:"nearest"`
   // scrolls only the checklist's scroll container, minimally, and does nothing if the
   // current step is already visible — so no distracting jump on every auto-tick.
-  const curRef = useRef<HTMLButtonElement>(null);
+  const curRef = useRef<HTMLLIElement>(null);
   useEffect(() => { curRef.current?.scrollIntoView({ block: "nearest" }); }, [current]);
 
   const doneCounts = phases.map((p) => p.steps.filter((s) => ticked.has(s.step_number)).length);
@@ -50,6 +55,7 @@ export function StationChecklist({
   // "current" phase = first phase not yet fully complete; -1 once all are done.
   const currentIdx = doneCounts.findIndex((done, i) => done < phases[i].steps.length);
   const anyAuto = phases.some((p) => p.steps.some((s) => autoSteps.has(s.step_number)));
+  const anySelf = selfMarked.size > 0;
 
   return (
     <div>
@@ -70,7 +76,9 @@ export function StationChecklist({
       <p className="aurora-station-cl-label" title={procedureName}>
         Checklist · {doneTotal} of {totalSteps} done
       </p>
-      <p className="aurora-station-cl-help">Steps unlock in order — complete the current step to continue.</p>
+      <p className="aurora-station-cl-help">
+        Steps tick themselves as you work — talk to the patient, or use the EyeBot panel.
+      </p>
 
       {phases.map((p, i) => {
         const done = doneCounts[i] === p.steps.length;
@@ -82,40 +90,48 @@ export function StationChecklist({
               <span className="aurora-station-phase-t">{p.name}</span>
               <span className="aurora-station-phase-n" aria-hidden>{doneCounts[i]}/{p.steps.length}</span>
             </div>
-            {p.steps.map((s) => {
-              const isDone = ticked.has(s.step_number);
-              const isAuto = isDone && autoSteps.has(s.step_number);
-              const isCurrent = !isDone && s.step_number === current;
-              const isLocked = !isDone && !isCurrent;
-              return (
-                <button
-                  key={s.step_number}
-                  ref={isCurrent ? curRef : undefined}
-                  type="button"
-                  className="aurora-station-step"
-                  data-ticked={isDone ? "true" : "false"}
-                  data-current={isCurrent ? "true" : "false"}
-                  data-locked={isLocked ? "true" : "false"}
-                  disabled={isLocked}
-                  onClick={() => onToggle(s.step_number)}
-                  aria-pressed={isDone}
-                  aria-current={isCurrent ? "step" : undefined}
-                  title={isLocked ? "Unlocks after the step above" : undefined}
-                >
-                  <span className="bx" aria-hidden>{isDone ? "✓" : isLocked ? "🔒" : ""}</span>
-                  <span>{s.action}</span>
-                  {s.critical && <span className="crit">CRIT</span>}
-                  {isAuto && <span className="au" title="Auto-detected from your consult" aria-label="auto-detected">✦</span>}
-                </button>
-              );
-            })}
+            <ul className="aurora-station-steps">
+              {p.steps.map((s) => {
+                const display = stepDisplay(s.step_number, ticked, selfMarked, current);
+                const revealed = isRevealed(display);
+                const glyph = display === "done" ? "✓" : display === "self" ? "—" : display === "masked" ? "🔒" : "";
+                return (
+                  <li
+                    key={s.step_number}
+                    ref={display === "current" ? curRef : undefined}
+                    className="aurora-station-step"
+                    data-display={display}
+                    data-ticked={display === "done" || display === "self" ? "true" : "false"}
+                    data-current={display === "current" ? "true" : "false"}
+                    data-locked={display === "masked" ? "true" : "false"}
+                    aria-current={display === "current" ? "step" : undefined}
+                    title={display === "masked" ? "Unlocks as you complete the steps above" : undefined}
+                  >
+                    <span className="bx" aria-hidden>{glyph}</span>
+                    {revealed ? (
+                      <span>{s.action}</span>
+                    ) : (
+                      <>
+                        <span className="mask" aria-hidden>{maskFor(s.action)}</span>
+                        <span className="sr-only">Upcoming step, hidden until it is your turn</span>
+                      </>
+                    )}
+                    {revealed && s.critical && <span className="crit">CRIT</span>}
+                    {display === "done" && autoSteps.has(s.step_number) && (
+                      <span className="au" title="Auto-detected from your consult" aria-label="auto-detected">✦</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         );
       })}
 
       <p className="aurora-station-cl-legend">
         {anyAuto ? <><span className="au">✦</span> ticked automatically from your conversation · </> : null}
-        tap the highlighted step to tick it yourself
+        {anySelf ? <>— self-marked (not examiner-verified) · </> : null}
+        upcoming steps stay hidden so you recall them yourself
       </p>
     </div>
   );

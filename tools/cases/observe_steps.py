@@ -40,12 +40,16 @@ def _schema() -> dict:
 
 
 def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: list[int],
-            exclude_steps=None) -> list[int]:
+            exclude_steps=None, focus_step: int | None = None) -> list[int]:
     """Return newly-satisfied step numbers (excluding already-ticked and excluded steps).
 
     exclude_steps: step numbers the conversational examiner must never tick — the case's
     hands-on (manual) procedures, which tick only via the action panel. They are hidden
     from the model AND filtered from its output, so the consult can never auto-tick them.
+
+    focus_step: the student has explicitly claimed they already did this step (the station's
+    stuck-valve). Ask for one lenient re-read of THAT step only — strictness everywhere else
+    is unchanged, so this can't become a way to tick the whole list.
     """
     if MOCK_MODE:
         return []
@@ -66,10 +70,18 @@ def observe(checklist_steps: list[dict], messages: list[dict], already_ticked: l
         f"{'Student' if m.get('role') == 'user' else 'Patient'}: {m.get('content', '')}"
         for m in recent
     )
+    focus_note = ""
+    if focus_step is not None and int(focus_step) in {int(s.get("step_number", 0)) for s in remaining}:
+        focus_note = (
+            f"\n\nNOTE: the student believes they have already completed step {int(focus_step)}. "
+            "Re-read the WHOLE transcript for that step specifically and include it if their own "
+            "words reasonably cover it, even if indirectly. Your strictness for every OTHER step "
+            "is unchanged."
+        )
     prompt = (
         f"## Remaining checklist steps\n{steps_block}\n\n"
         f"## Recent transcript\n{convo}\n\n"
-        f"Which step numbers has the student now satisfied? JSON array only."
+        f"Which step numbers has the student now satisfied? JSON array only.{focus_note}"
     )
 
     try:
