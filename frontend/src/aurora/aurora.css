@@ -3553,10 +3553,21 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
   transition: background .15s var(--st-ease, ease), color .15s var(--st-ease, ease);
 }
 .aurora-help-btn:hover { background: rgba(155,114,203,.12); color: var(--ink); }
-.aurora-help-card { max-width: 620px; text-align: left; }
-.aurora-help-list { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 13px; }
-.aurora-help-list dt { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 2px; }
-.aurora-help-list dd { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+/* Narrower than it was (620px) on purpose: four one-liners in a wide card look like a
+   document with the text deleted. The tighter measure is what makes it read as a glance. */
+.aurora-help-card { max-width: 440px; text-align: left; }
+.aurora-help-list { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 11px; }
+.aurora-help-list dt { font-weight: 700; font-size: 14.5px; color: var(--ink); margin-bottom: 1px; }
+.aurora-help-list dd { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+/* Replay is the primary action on the station — the briefing is the actual explanation. */
+.aurora-help-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.aurora-help-replay {
+  border: 1px solid rgba(120, 110, 255, .32); background: rgba(120, 110, 255, .09);
+  color: var(--ink); font-family: var(--font-sans); font-size: 13.5px; font-weight: 700;
+  padding: 9px 15px; border-radius: 999px; cursor: pointer;
+  transition: background .15s var(--st-ease, ease);
+}
+.aurora-help-replay:hover { background: rgba(120, 110, 255, .17); }
 
 /* ── Manual-procedures tray ──────────────────────────────────────────
    A quiet strip that blends into the composer cluster. (Renamed off
@@ -3767,8 +3778,80 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
   .aurora-admin .aurora-skel-bar { animation: none; }
 }
 
-/* Coach-mark card — the tour's card material at station scale. */
-.aurora-coach-card { width: 320px; }
+/* ── Pre-flight briefing ─────────────────────────────────────────────────────
+   The station's cold open, replayed on every station entry. Deliberately NOT the tour's
+   light page-dialog material: the stage goes near-black and each pane ignites out of it,
+   so a walkthrough seen for the tenth time still reads as a title sequence rather than a
+   nag. Builds on .tour-scrim / .tour-spot (tour.css) for the spotlight geometry. */
+/* Doubled selectors (.tour-spot.sbrief-spot) are load-order insurance, not style: tour.css
+   ships AFTER aurora.css, so a lone .sbrief-spot loses to .tour-spot at equal specificity
+   and the stage silently reverts to the grand tour's lighter dim.
+   The scrim itself stays TRANSPARENT while anchored — a background here would sit over the
+   spotlight hole and dim the very pane that is supposed to be lit. Only the un-anchored
+   (centred) case carries its own dim, mirroring .tour-scrim--center. */
+.sbrief.sbrief--center { background: rgba(8, 9, 17, .82); }
+/* Deeper than the grand tour's .62: the pane inside the hole should look LIT, not merely
+   un-dimmed. This is the whole "dark stage, panes ignite" effect. */
+.tour-spot.sbrief-spot { box-shadow: 0 0 0 9999px rgba(8, 9, 17, .82); }
+.tour-spot.sbrief-spot::after { filter: drop-shadow(0 0 14px rgba(140, 130, 255, .65)); animation: sbrief-ignite .5s ease-out; }
+@keyframes sbrief-ignite {
+  from { opacity: .2; filter: drop-shadow(0 0 2px rgba(140, 130, 255, .2)); }
+  to   { opacity: 1;  filter: drop-shadow(0 0 14px rgba(140, 130, 255, .65)); }
+}
+
+.sbrief-card {
+  position: fixed; z-index: 103; width: 340px; max-width: calc(100vw - 32px);
+  padding: 16px 18px 14px; border-radius: 18px; outline: none;
+  background: linear-gradient(158deg, rgba(30, 32, 52, .97), rgba(17, 18, 32, .97));
+  border: 1px solid rgba(255, 255, 255, .13);
+  box-shadow: 0 26px 64px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .07);
+  color: #fff;
+}
+.sbrief-card:focus-visible { box-shadow: 0 26px 64px rgba(0,0,0,.5), 0 0 0 3px rgba(140, 130, 255, .7); }
+.sbrief-num {
+  font: 800 30px/1 var(--font-mono, monospace); letter-spacing: -.03em;
+  background: var(--tour-accent); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sbrief-title { margin: 6px 0 0; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #fff; }
+.sbrief-body { margin: 6px 0 0; font-size: 14.5px; line-height: 1.5; color: rgba(255, 255, 255, .76); }
+.sbrief-foot { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+
+/* The rail IS the timer: the active segment fills over one beat, so the countdown is
+   visible rather than sprung on the student. Paused states hold it solid, not half-drawn. */
+.sbrief-rail { display: flex; gap: 4px; flex: 1; }
+.sbrief-rail i { flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .16); overflow: hidden; }
+.sbrief-rail i::after {
+  content: ""; display: block; height: 100%; width: 100%;
+  background: var(--tour-accent); transform: scaleX(0); transform-origin: left;
+}
+.sbrief-rail i.done::after, .sbrief-rail i.on::after { transform: scaleX(1); }
+.sbrief[data-running="true"] .sbrief-rail i.on::after { animation: sbrief-fill var(--beat-ms, 2600ms) linear forwards; }
+@keyframes sbrief-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.sbrief-skip {
+  border: 0; background: none; cursor: pointer; font-family: var(--font-sans);
+  font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .5); padding: 6px 4px;
+}
+.sbrief-skip:hover { color: rgba(255, 255, 255, .85); }
+.sbrief-next {
+  border: 0; cursor: pointer; font-family: var(--font-sans); font-weight: 700; font-size: 13.5px;
+  color: #fff; padding: 9px 18px; border-radius: 999px; background: var(--tour-accent);
+  box-shadow: 0 6px 16px rgba(120, 90, 255, .4);
+}
+
+/* Reduced motion: the briefing still plays, it just stops moving on its own (the component
+   also disables the timer, so the rail must not pretend to be counting). */
+html[data-motion="reduce"] .tour-spot.sbrief-spot::after,
+html[data-motion="reduce"] .sbrief-rail i.on::after { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot.sbrief-spot::after, .sbrief-rail i.on::after { animation: none; }
+}
+/* Landscape phones (the station's only phone orientation) — keep the card off the edges. */
+@media (max-height: 460px) {
+  .sbrief-card { width: 300px; padding: 12px 14px 11px; }
+  .sbrief-num { font-size: 24px; }
+  .sbrief-foot { margin-top: 12px; }
+}
 
 /* Case clock — OSCE pace, never a guillotine. Counts down from the case's own
    estimated_minutes; at zero it turns red and prompts, but never force-submits. */

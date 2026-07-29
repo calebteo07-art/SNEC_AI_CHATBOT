@@ -15,7 +15,7 @@ import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
 import { HelpButton } from "@/aurora/components/HelpButton";
-import { StationCoach, STATION_COACH_KEY } from "@/aurora/components/StationCoach";
+import { StationBriefing } from "@/aurora/components/StationBriefing";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
@@ -123,13 +123,11 @@ export function CaseSession() {
   // Messages sent since the gate last moved. Three with no tick ⇒ offer the stuck-valve.
   const [sinceAdvance, setSinceAdvance] = useState(0);
   const [unsticking, setUnsticking] = useState(false);
-  // First station ever → the 3-beat coach-mark. Its own key: the grand tour is
-  // account-first-run, this is feature-first-run, and neither may gate the other.
-  const [showCoach, setShowCoach] = useState(false);
-  const dismissCoach = useCallback(() => {
-    setShowCoach(false);
-    try { localStorage.setItem(STATION_COACH_KEY, "true"); } catch { /* private mode */ }
-  }, []);
+  // The pre-flight briefing runs on EVERY station open (user, 2026-07-29) — no storage key,
+  // no "seen" flag. `?` re-opens it mid-case, which is the only other way in.
+  const [showBriefing, setShowBriefing] = useState(false);
+  const dismissBriefing = useCallback(() => setShowBriefing(false), []);
+  const replayBriefing = useCallback(() => setShowBriefing(true), []);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -195,10 +193,10 @@ export function CaseSession() {
       .catch(() => setLoadError(`Patient "${caseId}" not found.`));
   }, [caseId]);
 
-  // Fire the coach-mark once the station has painted, so its anchors exist to spotlight.
+  // Fire the briefing once the station has painted, so its anchors exist to spotlight.
   useEffect(() => {
     if (!station) return;
-    try { if (!localStorage.getItem(STATION_COACH_KEY)) setShowCoach(true); } catch { /* private mode */ }
+    setShowBriefing(true);
   }, [station]);
 
   // Auto-scroll the patient thread only when the patient conversation changes — EyeBot
@@ -652,7 +650,7 @@ export function CaseSession() {
             <span className="bar" aria-hidden><i style={{ width: `${(1 - clock.progress) * 100}%` }} /></span>
           </div>
         )}
-        <HelpButton surface="station" />
+        <HelpButton surface="station" onReplay={replayBriefing} />
       </header>
 
       <div className="aurora-station-grid" data-eyebot={hasEyebot ? "true" : "false"} data-turn={turn ?? "none"}>
@@ -786,8 +784,8 @@ export function CaseSession() {
         </div>
       )}
 
-      {showCoach && station && !result && (
-        <StationCoach hasEyebot={hasEyebot} onDone={dismissCoach} />
+      {showBriefing && station && !result && (
+        <StationBriefing hasEyebot={hasEyebot} onDone={dismissBriefing} />
       )}
     </div>
   );

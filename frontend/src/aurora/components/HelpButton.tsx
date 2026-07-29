@@ -1,11 +1,17 @@
 "use client";
-/* HelpButton — the "?" affordance and its modal. One component, two surfaces (/cases and
+/* HelpButton — the "?" affordance and its card. One component, two surfaces (/cases and
    the station), content from stationHelp.ts so the vocabulary can never drift.
-   Reuses the station overlay scrim/card so it lands inside the locked visual language. */
+   Reuses the station overlay scrim/card so it lands inside the locked visual language.
+
+   The card is deliberately four one-liners: it is a reminder, not the teaching. On the
+   station it also carries `onReplay`, which re-opens the pre-flight briefing — that is
+   where the real walkthrough lives, so "?" is mostly a launcher. */
 import { useEffect, useRef, useState } from "react";
 import { helpFor } from "@/aurora/lib/stationHelp";
 
-export function HelpButton({ surface, label = "How this works" }: { surface: "cases" | "station"; label?: string }) {
+export function HelpButton({
+  surface, label = "How this works", onReplay,
+}: { surface: "cases" | "station"; label?: string; onReplay?: () => void }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -52,7 +58,19 @@ export function HelpButton({ surface, label = "How this works" }: { surface: "ca
                 </div>
               ))}
             </dl>
-            <button type="button" className="aurora-station-submit-go" onClick={close}>Got it</button>
+            <div className="aurora-help-actions">
+              {onReplay && (
+                <button
+                  type="button"
+                  className="aurora-help-replay"
+                  data-testid="help-replay"
+                  onClick={() => { setOpen(false); onReplay(); }}
+                >
+                  ▸ Replay the walkthrough
+                </button>
+              )}
+              <button type="button" className="aurora-station-submit-go" onClick={close}>Got it</button>
+            </div>
           </div>
         </div>
       )}

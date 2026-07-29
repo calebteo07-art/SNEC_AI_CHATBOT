@@ -118,14 +118,95 @@ p.on("console", (m) => { if (m.type() === "error" && !/webpack-hmr|WebSocket/.te
 await p.goto(base + "/cases/C001", { waitUntil: "domcontentloaded" });
 await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
 
-// 0. The first-run coach-mark is up on a fresh profile — walk it, which also proves it
-//    renders and completes. Everything after this needs the scrim gone.
-await p.waitForSelector('[data-testid="station-coach"]', { timeout: 8000 });
-for (let i = 0; i < 4 && (await p.locator('[data-testid="coach-next"]').count()); i++) {
-  await p.locator('[data-testid="coach-next"]').click();
+// 0. The pre-flight briefing. It plays on EVERY station open (no storage key), advances
+//    itself, and leaves in one action. Everything after this needs the scrim gone.
+await p.waitForSelector('[data-testid="station-briefing"]', { timeout: 8000 });
+const firstBeat = await p.locator('[data-testid="station-briefing"]').getAttribute("data-beat");
+if (firstBeat !== "checklist") die(`briefing must open on the checklist beat, got "${firstBeat}"`);
+
+// It auto-advances with no input at all — that is the cinematic behaviour, so prove it
+// rather than trusting the timer. BEAT_MS is 2600; 4200 is one beat plus slack.
+await p.waitForFunction(
+  () => document.querySelector('[data-testid="station-briefing"]')?.getAttribute("data-beat") !== "checklist",
+  { timeout: 4200 },
+).catch(() => die("briefing must advance itself without a click"));
+ok("briefing opens on the checklist beat and auto-advances");
+
+// The stage must actually be dark, and the spotlit pane must actually be lit. Both broke
+// once already: tour.css loads AFTER aurora.css, so an equal-specificity .sbrief-spot lost
+// to .tour-spot and reverted to the lighter tour dim; and a background on the scrim sits
+// over the spotlight HOLE, dimming the pane it is meant to ignite. Measured, not eyeballed.
+const stage = await p.evaluate(() => {
+  const spot = document.querySelector(".sbrief-spot");
+  const scrim = document.querySelector(".sbrief");
+  const alpha = (s) => Number((/rgba?\([\d\s,.]*?([\d.]+)\)/.exec(s) || [])[1] ?? (/rgb\(/.test(s) ? 1 : 0));
+  return {
+    dim: alpha(getComputedStyle(spot).boxShadow),
+    scrimBg: getComputedStyle(scrim).backgroundColor,
+  };
+});
+if (!(stage.dim >= 0.75)) die(`the briefing stage must go dark (spot dim alpha ${stage.dim}, want >= 0.75)`);
+if (!/rgba\(0, 0, 0, 0\)|transparent/.test(stage.scrimBg)) {
+  die(`an anchored briefing scrim must be transparent or it dims the spotlit pane, got "${stage.scrimBg}"`);
 }
-if (await p.locator('[data-testid="station-coach"]').count()) die("coach-mark did not dismiss");
-ok("first-run coach-mark renders and completes");
+ok(`briefing stage dims to ${stage.dim} with the spotlit pane left lit`);
+
+// Hovering the card pauses it: the rail stops and the beat holds. Without this an
+// auto-advancing dialog is unusable for a slow reader (WCAG 2.2.2).
+await p.locator(".sbrief-card").hover();
+if ((await p.locator('[data-testid="station-briefing"]').getAttribute("data-running")) !== "false") {
+  die("hovering the briefing card must pause the auto-advance");
+}
+const held = await p.locator('[data-testid="station-briefing"]').getAttribute("data-beat");
+await p.waitForTimeout(3400);
+if ((await p.locator('[data-testid="station-briefing"]').getAttribute("data-beat")) !== held) {
+  die("a hovered briefing must not advance");
+}
+ok("hovering the briefing pauses the auto-advance");
+
+// Skip leaves in one click, from any beat.
+await p.locator('[data-testid="briefing-skip"]').click();
+await p.waitForTimeout(200);
+if (await p.locator('[data-testid="station-briefing"]').count()) die("Skip must dismiss the briefing");
+ok("Skip dismisses the briefing in one click");
+
+// 0b. EVERY session (user, 2026-07-29). The briefing used to set eyebot_station_coach_seen
+//     and never return. A reload keeps localStorage, so if any "seen" gate creeps back this
+//     is what catches it — the whole point of the change lives in this assertion.
+await p.reload({ waitUntil: "domcontentloaded" });
+await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
+await p.waitForSelector('[data-testid="station-briefing"]', { timeout: 8000 })
+  .catch(() => die("the briefing must replay on EVERY station open — no seen-flag may gate it"));
+ok("the briefing replays on a second station open (no seen-flag)");
+
+// 0c. The card must never cover the pane it is pointing at. The station's panes are
+//     full-height columns, so "below" and "above" both miss and the card used to clamp
+//     straight over the spotlight — beat 2 hid the patient's name and turn badge. Hover
+//     first so the walk is deterministic rather than racing the auto-advance.
+await p.locator(".sbrief-card").hover();
+for (let i = 0; i < 4; i++) {
+  const beat = await p.locator('[data-testid="station-briefing"]').getAttribute("data-beat");
+  await p.waitForTimeout(350);
+  const box = await p.evaluate(() => {
+    const c = document.querySelector(".sbrief-card")?.getBoundingClientRect();
+    const s = document.querySelector(".sbrief-spot")?.getBoundingClientRect();
+    if (!c || !s) return null;
+    const overlap = Math.max(0, Math.min(c.right, s.right) - Math.max(c.left, s.left))
+                  * Math.max(0, Math.min(c.bottom, s.bottom) - Math.max(c.top, s.top));
+    return { overlap, card: { w: c.width, h: c.height, top: c.top, left: c.left }, vw: innerWidth, vh: innerHeight };
+  });
+  if (!box) die(`beat "${beat}" lost its card or spotlight`);
+  if (box.overlap > 0) die(`beat "${beat}": the card overlaps its own spotlight by ${Math.round(box.overlap)}px²`);
+  if (box.card.top < 0 || box.card.left < 0
+      || box.card.top + box.card.h > box.vh || box.card.left + box.card.w > box.vw) {
+    die(`beat "${beat}": card is off-screen at ${JSON.stringify(box.card)}`);
+  }
+  if (i < 3) { await p.locator('[data-testid="briefing-next"]').click(); await p.waitForTimeout(400); }
+}
+ok("every beat's card stays on-screen and clear of its own spotlight");
+
+await p.locator('[data-testid="briefing-skip"]').click();
+await p.waitForTimeout(200);
 
 // 1. exactly one h1
 if ((await p.locator("main h1, h1").count()) !== 1) die("station must render exactly one h1");
@@ -299,10 +380,31 @@ await p.locator('[data-testid="help-station"]').click();
 await p.waitForSelector('[data-testid="help-modal"]', { timeout: 4000 });
 const helpText = await p.locator('[data-testid="help-modal"]').innerText();
 if (!/tick/i.test(helpText)) die("station help must explain that the checklist ticks itself");
+// User, 2026-07-29: "too long winded and no one is gonna read all that". It was ~330 words
+// across seven sections. The ceiling is the fix — prose is what grows back.
+const helpWords = helpText.trim().split(/\s+/).length;
+if (helpWords > 90) die(`"?" help is ${helpWords} words — it is a document again, not a glance`);
+if ((await p.locator('[data-testid="help-modal"] .aurora-help-list > div').count()) !== 4) {
+  die('"?" help must be exactly four lines');
+}
+ok(`'?' help is a ${helpWords}-word glance, explains the checklist`);
+
+// Replay is the card's real job: it hands the student back to the briefing.
+await p.locator('[data-testid="help-replay"]').click();
+await p.waitForSelector('[data-testid="station-briefing"]', { timeout: 4000 })
+  .catch(() => die('"Replay the walkthrough" must re-open the briefing'));
+if (await p.locator('[data-testid="help-modal"]').count()) die("replaying must close the help card");
+await p.locator('[data-testid="briefing-skip"]').click();
+await p.waitForTimeout(200);
+ok("'?' replays the briefing");
+
+// And it still closes on Escape.
+await p.locator('[data-testid="help-station"]').click();
+await p.waitForSelector('[data-testid="help-modal"]', { timeout: 4000 });
 await p.keyboard.press("Escape");
 await p.waitForTimeout(150);
 if (await p.locator('[data-testid="help-modal"]').count()) die("Escape must close the help modal");
-ok("'?' help opens, explains the checklist, closes on Escape");
+ok("'?' help closes on Escape");
 
 // 5a. clicking a manual chip opens procedure mode → typing technique + confirm logs
 //     the technique, reveals the finding, ticks the step, and marks the chip done.
