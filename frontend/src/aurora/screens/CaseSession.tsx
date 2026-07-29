@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
+import { HelpButton } from "@/aurora/components/HelpButton";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
@@ -592,6 +593,7 @@ export function CaseSession() {
             </div>
           )}
         </div>
+        <HelpButton surface="station" />
       </header>
 
       <div className="aurora-station-grid" data-eyebot={hasEyebot ? "true" : "false"} data-turn={turn ?? "none"}>

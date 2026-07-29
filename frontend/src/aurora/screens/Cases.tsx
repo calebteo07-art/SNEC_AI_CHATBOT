@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtlasMap, caseInRegion, REGIONS } from "@/aurora/components/AtlasMap";
+import { HelpButton } from "@/aurora/components/HelpButton";
 import { CaseCard, type CaseInfo } from "@/aurora/components/CaseCard";
 import {
   ALL_LENS, toggleTopic, toggleRegion, filterCases, topicChips,
@@ -89,6 +90,7 @@ export function Cases() {
           <p className="aurora-eyebrow">Virtual patients · the living eye</p>
           <h1 className="aurora-h1">Explore the eye, <em>meet your patient</em></h1>
         </div>
+        <HelpButton surface="cases" />
       </header>
 
       <div className="aurora-cases-body">
