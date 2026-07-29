@@ -3405,50 +3405,127 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 
 /* Patient composer lock — replaces the composer while the next step is a hands-on
    procedure (perform it in the action panel, not by chatting). */
-.aurora-station-locknote { margin:9px 6px 2px; padding:10px 12px; border-radius:12px; font-size:.9rem; color:var(--ink-2); background:rgba(155,114,203,.14); border:1px solid var(--hairline); text-align:center; }
+/* Contrast is deliberately high: this note lives INSIDE the pane the spotlight dims, and
+   opacity is inherited — a child can never out-shine its parent. Punching up its own colour
+   and weight is the only way it survives the .5 multiplier and stays readable. */
+.aurora-station-locknote { margin:9px 6px 2px; padding:10px 12px; border-radius:12px; font-size:.9rem; font-weight:600; color:var(--ink); background:rgba(155,114,203,.22); border:1px solid rgba(155,114,203,.45); text-align:center; }
 
-/* ── Turn-spotlight (2026-07-29) ──────────────────────────────────────────────
+/* ── Turn-spotlight (2026-07-29, intensified 2026-07-29) ──────────────────────
    Students couldn't tell where to act. `data-turn` on the grid says which pane is live;
-   the inactive one recedes. Pure CSS off one attribute, so it needs no measurement and
-   works unchanged in the stacked (<=880px) and landscape-phone tiers. Dimmed, never
-   hidden: the inactive pane's text stays legible so its scrollback is still readable. */
+   the inactive one RECEDES HARD and the live one pulses. Pure CSS off one attribute, so it
+   needs no measurement and works unchanged in the stacked (<=880px) and landscape-phone
+   tiers. The drama is loaded onto the ACTIVE pane (a pulsing halo costs no legibility
+   anywhere) rather than onto crushing the inactive one — that one is dimmed and drained of
+   colour, but never blurred or hidden: its scrollback must stay readable at a glance. */
 .aurora-station-grid[data-turn="patient"] .aurora-eyebot,
 .aurora-station-grid[data-turn="eyebot"] .aurora-patient {
-  opacity: .72; filter: saturate(.6);
+  opacity: .5; filter: saturate(.15);
+}
+/* Drain the inactive pane's warm/cool identity too — the colour split is the loudest
+   signal on the screen, so muting it is most of what makes the live pane pop. */
+.aurora-station-grid[data-turn="patient"] .aurora-eyebot .aurora-pane-dot,
+.aurora-station-grid[data-turn="eyebot"] .aurora-patient .aurora-pane-dot {
+  box-shadow: none; filter: grayscale(.7);
 }
 .aurora-station-grid[data-turn] .aurora-patient,
 .aurora-station-grid[data-turn] .aurora-eyebot {
-  transition: opacity .28s var(--st-ease, ease), filter .28s var(--st-ease, ease),
-              box-shadow .28s var(--st-ease, ease);
+  transition: opacity .3s var(--st-ease, ease), filter .3s var(--st-ease, ease),
+              box-shadow .3s var(--st-ease, ease);
 }
+/* Live pane: a thick accent ring plus a wide coloured halo that breathes. */
 .aurora-station-grid[data-turn="patient"] .aurora-patient {
-  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 20px 40px -22px rgba(45,35,85,.32),
-              inset 0 1px 0 rgba(255,255,255,.72), 0 0 0 2px rgba(217,101,112,.55);
+  --turn-accent: 217, 101, 112;
+  animation: station-turnglow 2.4s var(--st-ease, ease) infinite;
 }
 .aurora-station-grid[data-turn="eyebot"] .aurora-eyebot {
-  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 20px 40px -22px rgba(45,35,85,.32),
-              inset 0 1px 0 rgba(255,255,255,.72), 0 0 0 2px rgba(44,107,224,.55);
+  --turn-accent: 44, 107, 224;
+  animation: station-turnglow 2.4s var(--st-ease, ease) infinite;
+}
+@keyframes station-turnglow {
+  0%, 100% {
+    box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 22px 44px -22px rgba(45,35,85,.34),
+                inset 0 1px 0 rgba(255,255,255,.72),
+                0 0 0 3px rgba(var(--turn-accent), .9),
+                0 0 0 10px rgba(var(--turn-accent), .16);
+  }
+  50% {
+    box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 22px 44px -22px rgba(45,35,85,.34),
+                inset 0 1px 0 rgba(255,255,255,.72),
+                0 0 0 3px rgba(var(--turn-accent), 1),
+                0 0 0 20px rgba(var(--turn-accent), 0);
+  }
+}
+/* The live pane's gradient hairline becomes a solid accent edge (identity, amplified). */
+.aurora-station-grid[data-turn="patient"] .aurora-patient::before,
+.aurora-station-grid[data-turn="eyebot"] .aurora-eyebot::before {
+  padding: 2px; background: rgba(var(--turn-accent), .55);
 }
 /* "All steps done" — the handover button takes the emphasis instead of either pane. */
 .aurora-station-grid[data-turn="handover"] .aurora-station-submit-toggle {
-  box-shadow: 0 0 0 2px rgba(96,214,115,.6);
+  --turn-accent: 60, 160, 90;
+  animation: station-turnglow 2.4s var(--st-ease, ease) infinite;
 }
+
+/* The badge shouts: solid accent fill, caps, and a live dot. */
 .aurora-pane-turn {
   margin-left: auto; align-self: center; white-space: nowrap;
-  font-size: 12px; font-weight: 700; letter-spacing: .01em;
-  padding: 5px 10px; border-radius: 999px;
-  background: rgba(31,31,31,.06); color: var(--ink-2);
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  padding: 7px 13px; border-radius: 999px;
+  background: var(--ink-2); color: #fff;
+  box-shadow: 0 6px 16px -8px rgba(45,35,85,.6);
 }
-.aurora-patient .aurora-pane-turn { background: rgba(217,101,112,.14); color: #8c3a43; }
-.aurora-eyebot .aurora-pane-turn { background: rgba(44,107,224,.13); color: #1f4fa8; }
+.aurora-pane-turn::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%; flex: none;
+  background: currentColor; animation: station-turndot 1.3s ease-in-out infinite;
+}
+@keyframes station-turndot { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.aurora-patient .aurora-pane-turn { background: #c04a55; }
+.aurora-eyebot .aurora-pane-turn { background: #2c6be0; }
+/* The badge steals width from the name block, which would wrap the meta line onto a second
+   row and leave the triptych tops ragged — the "pane-heads aligned" criterion of the
+   2026-07-22 lock. Let the name block shrink and ellipsis the meta instead. */
+.aurora-pane-head:has(.aurora-pane-turn) > div { min-width: 0; }
+.aurora-pane-head:has(.aurora-pane-turn) .aurora-pane-mt {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 /* Landscape phone: the badge is the first thing to cost a line — keep it, shrink it. */
 @media (max-height: 480px) and (pointer: coarse) {
-  .aurora-pane-turn { font-size: 11px; padding: 3px 7px; }
+  .aurora-pane-turn { font-size: 10.5px; padding: 4px 9px; letter-spacing: .05em; }
+}
+/* Narrow/stacked: the head wraps, so let the badge take its own full-width line rather
+   than squeezing the patient's name to nothing. */
+@media (max-width: 880px) and (min-height: 481px) {
+  .aurora-pane-head { flex-wrap: wrap; }
+  .aurora-pane-turn { margin-left: 0; width: 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) {
   .aurora-station-grid[data-turn] .aurora-patient,
   .aurora-station-grid[data-turn] .aurora-eyebot { transition: none; }
+  /* Keep the ring and the dim — drop only the breathing. */
+  .aurora-station-grid[data-turn="patient"] .aurora-patient,
+  .aurora-station-grid[data-turn="eyebot"] .aurora-eyebot,
+  .aurora-station-grid[data-turn="handover"] .aurora-station-submit-toggle {
+    animation: none;
+    box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 22px 44px -22px rgba(45,35,85,.34),
+                inset 0 1px 0 rgba(255,255,255,.72),
+                0 0 0 3px rgba(var(--turn-accent), .9),
+                0 0 0 10px rgba(var(--turn-accent), .16);
+  }
+  .aurora-pane-turn::before { animation: none; }
 }
+/* Same, for the in-app motion toggle (html[data-motion="reduce"]) the rest of the station
+   already honours — the OS preference is not the only way a student turns motion off. */
+html[data-motion="reduce"] .aurora-station-grid[data-turn="patient"] .aurora-patient,
+html[data-motion="reduce"] .aurora-station-grid[data-turn="eyebot"] .aurora-eyebot,
+html[data-motion="reduce"] .aurora-station-grid[data-turn="handover"] .aurora-station-submit-toggle {
+  animation: none !important;
+  box-shadow: 0 1px 1px rgba(45,35,85,.05), 0 22px 44px -22px rgba(45,35,85,.34),
+              inset 0 1px 0 rgba(255,255,255,.72),
+              0 0 0 3px rgba(var(--turn-accent), .9),
+              0 0 0 10px rgba(var(--turn-accent), .16);
+}
+html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !important; }
 
 /* Stuck-valve — deliberately quiet. It is the recovery path when the examiner misses a
    step, not a shortcut, so it never competes with the composer for attention. */

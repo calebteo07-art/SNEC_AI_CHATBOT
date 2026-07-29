@@ -250,16 +250,23 @@ ok("patient chat locks on manual steps (composer hidden — action panel only)")
 const turnNow = await p.getAttribute(".aurora-station-grid", "data-turn");
 if (turnNow !== "eyebot") die(`data-turn should be "eyebot" on a manual gate step, got "${turnNow}"`);
 const badge = await p.locator('[data-testid="turn-badge"]').innerText();
-if (!/EyeBot/.test(badge)) die(`turn badge must name the pane, got "${badge}"`);
+// Case-insensitive: the badge is rendered uppercase via text-transform, and the invariant
+// is that it NAMES the pane — its casing is a styling decision, not a contract.
+if (!/eyebot/i.test(badge)) die(`turn badge must name the pane, got "${badge}"`);
 if (/\d/.test(badge)) die(`turn badge must not leak a step number: "${badge}"`);
 // waitForFunction, not a bare read: data-turn has just flipped, so opacity is mid-TRANSITION
 // and getComputedStyle returns the interpolating value (starting at 1). Asserting the settled
 // state is the real invariant; a one-shot read here fails on a working spotlight.
+// Threshold tracks the INTENSIFIED treatment (opacity .5) — a regression back to a polite
+// .72 should fail here, because "students can't tell where to act" was the whole complaint.
 await p.waitForFunction(
-  () => Number(getComputedStyle(document.querySelector(".aurora-patient")).opacity) < 0.85,
+  () => Number(getComputedStyle(document.querySelector(".aurora-patient")).opacity) <= 0.55,
   null,
   { timeout: 4000 },
-).catch(() => die("inactive pane never dimmed"));
+).catch(() => die("inactive pane never dimmed hard enough"));
+// ...and the live pane must actually carry the accent ring, not just be undimmed.
+const ring = await p.evaluate(() => getComputedStyle(document.querySelector(".aurora-eyebot")).boxShadow);
+if (!/rgba?\(\s*44,\s*107,\s*224/.test(ring)) die(`live pane missing its accent ring: ${ring.slice(0, 120)}`);
 ok("turn-spotlight: data-turn set, badge names the channel, inactive pane dimmed");
 
 // 5o. The case TOPIC must not appear in the station's METADATA — on many cases it IS the
