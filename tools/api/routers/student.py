@@ -7,13 +7,17 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter, _case_cache, FORFEIT_PENALTY
-from tools.flashcards.flashcard_store import count_due_cards, get_due_cards, get_served_static_fronts, insert_cards, update_card_sm2
+from tools.flashcards.flashcard_store import (
+    count_due_cards, get_due_cards, get_served_static_card_ids,
+    get_served_static_fronts, insert_cards, update_card_sm2,
+)
 from tools.flashcards.sm2 import next_review, due_date
 from tools.flashcards.static_cards import (
     get_set_cards, get_all_cards, set_card_counts, mark_typed_cards, card_by_stem,
-    get_topic_cards, topic_card_counts, shuffle_card_options,
+    topic_card_counts, shuffle_card_options,
 )
 from tools.flashcards.flashcard_sets import sets_for, split_set_key, topic_sets_for
+from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 from tools.gamification.leaderboard import rank_entries
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -76,6 +80,10 @@ class FlashcardOut(BaseModel):
     repetitions: int = 0
     easiness: float = 2.5
     interval_days: int = 0
+    # Which rung of the topic ladder this card was served from (0 = not a ladder
+    # deck). The client echoes it back on /complete, so the SERVER decides which
+    # deck was played and a stale client can't mis-record progress.
+    deck_level: int = 0
 
 class StudySuggestionResponse(BaseModel):
     suggestion: str
@@ -238,13 +246,24 @@ async def flashcard_check(request: Request, body: FlashcardCheckRequest, current
 
 # ── Flashcard topic + difficulty picker ────────────────────────────────────
 
+async def _completed_levels(student_id: str, topic_key: str) -> set[int]:
+    """Deck levels the student has cleared for one topic. A missing table
+    (pre-migration 015) reads as no progress: deck 1 and full earning, never a
+    lockout."""
+    try:
+        return (await db.get_completed_deck_levels(student_id)).get(topic_key, set())
+    except Exception:
+        return set()
+
+
 class FlashcardSetInfo(BaseModel):
     set_key: str
     topic_key: str
     label: str
     difficulty: str
     total: int
-    completed: int
+    decks_completed: int                # rungs cleared on this topic's ladder
+    deck_count: int = DECK_COUNT
 
 class FlashcardTopicsResponse(BaseModel):
     sets: list[FlashcardSetInfo]
@@ -252,9 +271,9 @@ class FlashcardTopicsResponse(BaseModel):
 
 @router.get("/api/flashcards/topics", response_model=FlashcardTopicsResponse)
 async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user)):
-    """One selectable deck per topic for the caller's role (difficulty collapsed —
-    each topic mixes all tiers into a single set keyed by topic_key), with how many
-    cards the topic holds and how many the student has already seen."""
+    """One selectable topic per entry for the caller's role, with how many cards the
+    topic holds and how many of its DECK_COUNT curated decks the student has cleared —
+    the "3/5" the picker shows."""
     student_id = current_user["sub"]
     role = ""
     try:
@@ -263,9 +282,9 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
         pass
 
     counts = topic_card_counts(role)
-    served_fronts: set[str] = set()
+    cleared: dict[str, set[int]] = {}
     try:
-        served_fronts = await get_served_static_fronts(student_id)
+        cleared = await db.get_completed_deck_levels(student_id)
     except Exception:
         pass
 
@@ -274,12 +293,10 @@ async def flashcards_topics(current_user: CurrentUser = Depends(get_current_user
         total = counts.get(s["topic_key"], 0)
         if total == 0:
             continue  # topic not yet authored — don't show an empty deck
-        topic_cards = get_topic_cards(role, s["topic_key"])
-        completed = sum(1 for c in topic_cards if c["stem"] in served_fronts)
         sets.append(FlashcardSetInfo(
             set_key=s["set_key"], topic_key=s["topic_key"], label=s["label"],
             difficulty="mixed", total=total,
-            completed=completed,
+            decks_completed=len(cleared.get(s["topic_key"], set())),
         ))
     return FlashcardTopicsResponse(sets=sets)
 
@@ -293,6 +310,7 @@ async def flashcards_generate(
     topic: str | None = None,
     difficulty: str | None = None,
     set_key: str | None = None,
+    level: int | None = None,
     n: int = 10,
     current_user: CurrentUser = Depends(get_current_user),
 ):
@@ -343,17 +361,32 @@ async def flashcards_generate(
         saved = await insert_cards(student_id, rows)
         return [_to_out(pc, sv["card_id"]) for pc, sv in zip(pool_cards, saved)]
 
-    # A topic-level deck (no difficulty) → mix every tier of that topic, no-repeat.
+    # A topic deck → the difficulty ladder: DECK_COUNT rungs of DECK_SIZE cards, deck 1
+    # easiest. Which cards make up a rung is fixed by the level (no per-user rotation —
+    # the curated ramp is the point), so only their order within the deck varies.
+    # An explicit level is the replay picker a student gets once the topic is cleared;
+    # without one they get the next rung, capped at the top.
     if topic and not difficulty:
-        pool = get_topic_cards(role, topic)
+        cleared = await _completed_levels(student_id, topic)
+        lvl = (min(max(level, 1), DECK_COUNT) if level
+               else min(len(cleared) + 1, DECK_COUNT))
+        pool = list(get_deck_cards(role, topic, lvl))
         if not pool:
             return []
-        served = await get_served_static_fronts(student_id)
-        served_idx = {i for i, c in enumerate(pool) if c["stem"] in served}
-        picks = pick_next_unseen(student_id, len(pool), f"flash_topic_{topic}",
-                                 served_idx, n=min(n, len(pool)))
-        out = await _persist([pool[i] for i in picks])
-        return mark_typed_cards(out, n)
+        rng.shuffle(pool)
+        # Replay is a designed flow here, so a card keeps ONE flashcards row for life:
+        # re-inserting on every replay would fork its SM-2 schedule and let the review
+        # deck serve the same stem twice. Only genuinely new cards are inserted.
+        known = await get_served_static_card_ids(student_id)
+        fresh = [c for c in pool if c["stem"] not in known]
+        if fresh:
+            rows = [{"front": c["stem"], "back": c["explanation"],
+                     "topic_tag": c.get("topic_tag", "general"), "source": "static"}
+                    for c in fresh]
+            saved = await insert_cards(student_id, rows)
+            known.update({c["stem"]: sv["card_id"] for c, sv in zip(fresh, saved)})
+        out = [{**_to_out(c, known[c["stem"]]), "deck_level": lvl} for c in pool]
+        return mark_typed_cards(out, len(out))
 
     # A specific (topic, difficulty) set → serve that set with no-repeat rotation.
     if topic and difficulty:
@@ -423,6 +456,8 @@ class CompleteCardResult(BaseModel):
 class FlashcardCompleteRequest(BaseModel):
     results: list[CompleteCardResult] = []
     xp_delta: int = 0
+    topic_key: str | None = None        # ladder topic (absent for the Mixed deck)
+    level: int | None = None            # which rung, 1..DECK_COUNT
 
 class FlashcardCompleteResponse(BaseModel):
     xp: int
@@ -442,6 +477,18 @@ async def flashcards_complete(
     # tampered payload inflating the balance. This is a per-REQUEST anti-abuse ceiling,
     # never a daily cap (there is no daily cap).
     xp_delta = max(0, min(body.xp_delta, 1000))
+    # ── The ladder's Lumens cap. A topic pays out for its DECK_COUNT curated decks and
+    #    no more; past that it stays fully playable as unpaid practice. Evaluated on the
+    #    state BEFORE this submission, so clearing the final deck is itself paid and only
+    #    the replay after it is free. Server-owned: the client sends an amount but never
+    #    decides whether it counts. The Mixed deck sends no topic_key and is never capped.
+    if body.topic_key and len(await _completed_levels(student_id, body.topic_key)) >= DECK_COUNT:
+        xp_delta = 0
+    if body.topic_key and body.level:
+        try:
+            await db.mark_deck_complete(student_id, body.topic_key, body.level)
+        except Exception:
+            pass  # pre-migration 015 — the deck still grades, progress just doesn't stick
     # Deterministic SM-2 quality: correct -> 5, missed -> 2 (<3 triggers relearn).
     # Schedule all cards concurrently — a deck can be 20 cards, and sequential awaits
     # would hold the (single) worker for 20 Supabase round-trips at deck end.

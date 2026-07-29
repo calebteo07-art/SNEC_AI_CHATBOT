@@ -82,3 +82,8 @@ frontend/*.png
 /.session-handoff-auto.md
 /.awwwards_state.md
 /.tmpuvicorn.log
+
+# Flashcard difficulty-ranking audit trail: ~2.8k generated lines, derived entirely
+# from the committed card_levels.json. Regenerate for free (no AI calls) with:
+#   python -m tools.flashcards.rank_card_difficulty --review-only
+tools/flashcards/card_levels_review.md
