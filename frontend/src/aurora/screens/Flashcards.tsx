@@ -24,6 +24,7 @@ import { FlashShell } from "@/aurora/components/flashcards/FlashShell";
 import { PauseMenu } from "@/aurora/components/flashcards/PauseMenu";
 import { createRoundForfeit, FORFEIT_LUMENS } from "@/aurora/lib/forfeitGuard";
 import { leaveGuard } from "@/aurora/lib/leaveGuard";
+import { nextLevel } from "@/aurora/lib/deckLadder";
 import { useReward } from "@/aurora/rewards/RewardProvider";
 import { grantAchievements } from "@/aurora/rewards/achieve";
 import { useAuth } from "@/screens/AuthContext";
@@ -51,8 +52,11 @@ export function Flashcards() {
   // ricoe B5: after a fan pick, show a topic name+description intro card before Q1.
   // Only fan picks get an intro — tutor-handoff and ?mode=review flows skip straight in.
   const [intro, setIntro] = useState(false);
+  // An explicitly chosen ladder rung. null = let the server serve the next uncleared
+  // one; only the replay picker (shown once a topic is fully cleared) sets it.
+  const [level, setLevel] = useState<number | null>(null);
 
-  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength);
+  const { data: apiCardsRaw, isLoading: apiLoading } = useFlashcards(setKey, !fromSession && pickerDone, sessionLength, level);
   const reasonCheck = useReasonCheck();
   const { mutate: complete } = useFlashcardComplete();
   const qc = useQueryClient();
@@ -110,6 +114,22 @@ export function Flashcards() {
   }, [topicSets]);
   const labelForTag = (tag: string) =>
     topicLabels[tag] ?? tag.replace(/_/g, " ").replace(/\b\w/g, (ch) => ch.toUpperCase());
+
+  // ── The topic's 5-deck ladder. The SERVER decides which rung it served
+  //    (deck_level on the cards); the client only echoes it back on /complete, so a
+  //    stale topics cache can never file progress against the wrong deck. Until the
+  //    deck arrives we show the rung we expect, which keeps the intro from flickering
+  //    "Ready" → "Deck 3 of 5".
+  const topicInfo = useMemo(
+    () => (setKey ? (topicSets ?? []).find((s) => s.topic_key === setKey) : undefined),
+    [topicSets, setKey]);
+  const deckCount = topicInfo?.deck_count ?? 5;
+  const decksCompleted = topicInfo?.decks_completed ?? 0;
+  const servedLevel = Array.isArray(apiCardsRaw) && apiCardsRaw.length > 0
+    ? (apiCardsRaw[0].deck_level ?? 0) : 0;
+  const shownLevel = setKey
+    ? (level ?? (servedLevel || nextLevel(decksCompleted, deckCount)))
+    : 0;
 
   const card = deck[idx];
   const total = deck.length;
@@ -234,7 +254,13 @@ export function Flashcards() {
     const isDrill = drill.length > 0;
     const ids = ["first_deck", ...(allCorrect && !isDrill ? ["perfect_deck"] : [])];
     grantAchievements(user?.studentId ?? "", ids).forEach(enqueue);
-    complete({ results: resultsRef.current, xp_delta: earned });
+    // Report which rung was cleared so the server can advance the ladder. Sent only
+    // for a real ladder deck — the Mixed deck spans topics and has no rung, and
+    // sending one would retire a topic the student never chose.
+    complete({
+      results: resultsRef.current, xp_delta: earned,
+      ...(setKey && servedLevel ? { topic_key: setKey, level: servedLevel } : {}),
+    });
   };
 
   const startDrill = () => {
@@ -267,14 +293,14 @@ export function Flashcards() {
     xpRef.current = 0; comboRef.current = 0; setCombo(0); setBurst(null);
     setScoreShown(0);
     setDrill([]); setIdx(0); setChecked(false); setDone(false);
-    setSetKey(null); setPickerDone(false); setIntro(false);
+    setSetKey(null); setPickerDone(false); setIntro(false); setLevel(null);
   };
   const exit = () => router.push("/homepage");
   // From the pre-deck intro, the top-left control steps BACK to the topic fan (not Home) —
   // the intro is a "which topic?" beat, so its natural back is the picker. No forfeit: the
   // intro isn't an active round. In-place reset of the selection state (nothing answered yet,
   // so no accumulators to clear).
-  const backToTopics = () => { setSetKey(null); setPickerDone(false); setIntro(false); };
+  const backToTopics = () => { setSetKey(null); setPickerDone(false); setIntro(false); setLevel(null); };
   // Controlled exits from an active round. sendBeacon (not fetch) so the forfeit survives an
   // immediate unload — Switch deck on a tutor/review deck hard-reloads the page, which would
   // abort an in-flight fetch. guard.spend() keeps it to a single charge even if an
@@ -315,7 +341,9 @@ export function Flashcards() {
     return (
       <FlashShell onExit={backToTopics} exitLabel="Topics" topicHue={topicHue(introKey)} engraved>
         <TopicIntro label={introLabel} topicKey={introKey}
-          count={baseCards.length} onBegin={() => setIntro(false)} />
+          count={baseCards.length} level={shownLevel} deckCount={deckCount}
+          decksCompleted={decksCompleted} onPickLevel={setLevel}
+          onBegin={() => setIntro(false)} />
       </FlashShell>
     );
   }

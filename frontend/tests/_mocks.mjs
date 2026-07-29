@@ -136,8 +136,8 @@ export async function mockApis(ctx, user) {
   await ctx.route("**/api/flashcards/complete", (r) => r.fulfill(J({ xp: 140, level: 1 })));
   await ctx.route("**/api/flashcards/forfeit", (r) => r.fulfill(J({ xp: 120, level: 1 })));
   await ctx.route("**/api/flashcards/topics", (r) => r.fulfill(J({ sets: [
-    { set_key: "triage__easy", topic_key: "triage", label: "Triage", difficulty: "easy", total: 12, completed: 2 },
-    { set_key: "triage__hard", topic_key: "triage", label: "Triage", difficulty: "hard", total: 12, completed: 0 },
+    { set_key: "triage", topic_key: "triage", label: "Triage", difficulty: "mixed", total: 50, decks_completed: 2, deck_count: 5 },
+    { set_key: "glaucoma", topic_key: "glaucoma", label: "Glaucoma", difficulty: "mixed", total: 50, decks_completed: 0, deck_count: 5 },
   ] })));
   await ctx.route("**/api/study-suggestion", (r) => r.fulfill(J({ suggestion: "Review glaucoma staging before your next case.", topic: "Glaucoma" })));
   await ctx.route("**/api/chat", (r) => r.fulfill({

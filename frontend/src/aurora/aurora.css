@@ -3252,6 +3252,17 @@ html[data-motion="reduce"] .liq-bar { animation: none; transform: scaleY(.62); }
   text-shadow: 0 2px 22px hsl(var(--flash-topic-hue) 88% 55% / .45); }
 .flash-intro-blurb { font: 500 clamp(15px, 2vw, 19px)/1.55 var(--font-sans); color: #c7cdd6; margin: 16px 0 0; max-width: 42ch; }
 .flash-intro-meta { font: 800 12px var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: #8f97a2; margin: 18px 0 0; }
+/* Cleared-topic replay: the "no more Lumens" explainer + the 1-5 deck picker. */
+.flash-intro-note { font: 500 clamp(14px, 1.7vw, 16px)/1.5 var(--font-sans); color: #9aa3ae;
+  margin: 18px 0 0; max-width: 44ch; }
+.flash-intro-ladder { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; }
+.flash-intro-rung { min-width: 46px; padding: 10px 14px; border-radius: 12px; cursor: pointer;
+  font: 800 15px var(--font-sans); color: #c7cdd6; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.14); transition: background .18s, color .18s, border-color .18s; }
+.flash-intro-rung:hover { background: rgba(255,255,255,.1); color: #fff; }
+.flash-intro-rung.is-on { color: #06090f; border-color: transparent;
+  background: hsl(var(--topic-hue, 210) 92% 72%); }
+.flash-intro-rung:focus-visible { outline: 2px solid hsl(var(--topic-hue, 210) 92% 78%); outline-offset: 2px; }
 .flash-intro-go { margin-top: 28px; align-self: stretch; }
 @keyframes flash-intro-in { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
 

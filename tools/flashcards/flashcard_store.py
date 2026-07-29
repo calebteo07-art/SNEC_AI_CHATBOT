@@ -52,6 +52,23 @@ async def get_served_static_fronts(student_id: str) -> set[str]:
     return {r["front"] for r in (result.data or [])}
 
 
+async def get_served_static_card_ids(student_id: str) -> dict[str, str]:
+    """front -> card_id for this student's static cards.
+
+    Lets a replayed deck reuse the rows it already has instead of inserting a second
+    copy per card: duplicates would fork the card's SM-2 schedule and let the review
+    deck serve the same stem twice. Newest row wins if a student somehow has two."""
+    client = await _get_client()
+    result = (
+        await client.table("flashcards")
+        .select("card_id, front")
+        .eq("student_id", student_id)
+        .eq("source", "static")
+        .execute()
+    )
+    return {r["front"]: r["card_id"] for r in (result.data or [])}
+
+
 async def get_due_cards(student_id: str, limit: int = 10) -> list[dict]:
     """Return up to `limit` cards due today or earlier for `student_id`."""
     client = await _get_client()

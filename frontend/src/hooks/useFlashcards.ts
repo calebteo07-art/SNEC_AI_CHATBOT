@@ -14,6 +14,9 @@ export interface FlashcardItem {
   repetitions: number;
   easiness: number;
   interval_days: number;
+  /** Which rung of the topic's 5-deck ladder this came from (0 = Mixed/review).
+   *  The server decides it; the client only echoes it back on /complete. */
+  deck_level: number;
 }
 
 export interface ReasonCheckPayload {
@@ -37,7 +40,15 @@ export interface CompleteCardResult {
    *  flashcard_attempts, migration 010. */
   score: number;
 }
-export interface CompletePayload { results: CompleteCardResult[]; xp_delta: number; }
+export interface CompletePayload {
+  results: CompleteCardResult[];
+  xp_delta: number;
+  /** The ladder rung just cleared. Both are needed to record progress — without
+   *  them the server treats the deck as unplaced (the Mixed deck) and files no
+   *  progress, which is correct for Mixed and a bug anywhere else. */
+  topic_key?: string;
+  level?: number;
+}
 export interface CompleteResponse { xp: number; level: number; }
 
 export interface FlashcardSetInfo {
@@ -46,7 +57,9 @@ export interface FlashcardSetInfo {
   label: string;
   difficulty: string;
   total: number;
-  completed: number;
+  /** Rungs cleared on this topic's ladder, and how many there are (the "3/5"). */
+  decks_completed: number;
+  deck_count: number;
 }
 
 /** The selectable sets (topics x difficulties) for the student's role. */
@@ -63,15 +76,18 @@ export function useFlashcardTopics() {
   });
 }
 
-/** Load a study deck. Pass a setKey (a topic_key) to study that topic — one deck
- *  mixing all difficulty tiers — or null for the mixed/review no-repeat rotation
- *  across the whole role pool. `n` is the fixed deck length (default 10). */
-export function useFlashcards(setKey: string | null, enabled = true, n = 10) {
+/** Load a study deck. Pass a setKey (a topic_key) to study that topic — one rung of
+ *  its 5-deck difficulty ladder — or null for the mixed/review no-repeat rotation
+ *  across the whole role pool. `n` is the fixed deck length (default 10).
+ *  `level` picks an explicit rung (the replay picker); omit it and the server serves
+ *  the next uncleared one. */
+export function useFlashcards(setKey: string | null, enabled = true, n = 10, level: number | null = null) {
   return useQuery<FlashcardItem[]>({
-    queryKey: ["flashcards", setKey ?? "mixed", n],
+    queryKey: ["flashcards", setKey ?? "mixed", n, level ?? "next"],
     queryFn: async () => {
       const params = new URLSearchParams({ n: String(n) });
       if (setKey) params.set("set_key", setKey);
+      if (level) params.set("level", String(level));
       const res = await fetch(`/api/flashcards/generate?${params}`, { credentials: "include" });
       if (!res.ok) throw new Error("Failed to load flashcards");
       return res.json();
@@ -128,6 +144,9 @@ export function useFlashcardComplete() {
       qc.invalidateQueries({ queryKey: ["flashcards"] });
       qc.invalidateQueries({ queryKey: ["flashcard-due-count"] });
       qc.invalidateQueries({ queryKey: ["progress"] });
+      // The rung just cleared moves the topic's x/5 counter — without this the
+      // picker keeps showing the pre-deck count until the 10-minute staleTime.
+      qc.invalidateQueries({ queryKey: ["flashcard-topics"] });
     },
   });
 }

@@ -225,6 +225,35 @@ async def get_flashcard_attempts(student_id: str) -> list[dict]:
     return result.data or []
 
 
+# ── flashcard_deck_progress (migration 015 — the per-topic 5-deck ladder) ─────
+
+async def get_completed_deck_levels(student_id: str) -> dict[str, set[int]]:
+    """{topic_key: {cleared deck levels}} for a student. Raises if the table is
+    missing (pre-migration 015) — callers treat that as no progress, so the ladder
+    degrades to deck 1 and full earning rather than locking anyone out."""
+    client = await _get_client()
+    result = (
+        await client.table("flashcard_deck_progress")
+        .select("topic_key, level")
+        .eq("student_id", student_id)
+        .execute()
+    )
+    out: dict[str, set[int]] = {}
+    for row in (result.data or []):
+        out.setdefault(row["topic_key"], set()).add(int(row["level"]))
+    return out
+
+
+async def mark_deck_complete(student_id: str, topic_key: str, level: int) -> None:
+    """Record a cleared deck. Idempotent on the composite PK, so replaying a level
+    keeps its original completed_at instead of double-counting progress."""
+    client = await _get_client()
+    await client.table("flashcard_deck_progress").upsert(
+        {"student_id": student_id, "topic_key": topic_key, "level": level},
+        ignore_duplicates=True,
+    ).execute()
+
+
 async def get_topic_accuracy(student_id: str) -> dict[str, dict]:
     """Per-topic flashcard accuracy for a student:
     {topic_tag: {"correct": int, "total": int, "pct": float}}. Built from the raw

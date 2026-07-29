@@ -360,7 +360,10 @@ await navCtx.route("**/api/flashcards/topics", (r) => r.fulfill(JSON_OK({ sets: 
   ["pupil_dilation", "Pupil Dilation"], ["colour_vision", "Colour Vision (Ishihara)"],
   ["amsler_macula", "Amsler & Macula"], ["fall_risk", "Fall Risk"],
   ["perioperative", "Pre & Post-Operative Care"], ["abbreviations", "Ophthalmic Abbreviations"],
-].map(([topic_key, label]) => ({ set_key: topic_key, topic_key, label, difficulty: "mixed", total: 20, completed: 0 })) })));
+// decks_completed cycles 0..5 across the topics so the fan caption renders all three
+// ladder states (untouched / part-way / all 5 cleared), not just one.
+].map(([topic_key, label], i) => ({ set_key: topic_key, topic_key, label, difficulty: "mixed",
+  total: 50, decks_completed: i % 6, deck_count: 5 })) })));
 
 await np.goto(base + "/flashcards", { waitUntil: "domcontentloaded" });
 await np.waitForSelector('[data-testid="flash-setup"]', { timeout: 15000 });
@@ -410,6 +413,22 @@ if ((await np.locator('.fan-dot').count()) !== 0) { console.error("FAIL: topic s
 const setupTitle = (await np.locator('.flash-setup-title').innerText()).toLowerCase();
 if (/grand prix|mario/.test(setupTitle)) { console.error(`FAIL: selection still uses racing/Mario copy (got '${setupTitle}')`); process.exit(1); }
 console.log("PASS: flashcards — selection de-Mario'd (no numbers, no dots, no 'Grand Prix')");
+// The 5-deck ladder (2026-07-29): each topic card is captioned with how far up its own
+// ladder the student has climbed. This REPLACED a "Foundations"/"Skills" pool label, which
+// told a student nothing they could act on. The mock cycles decks_completed 0..5, so every
+// caption state must appear — an untouched topic, a part-way one, and a cleared one.
+const fanSubs = (await np.locator('[data-testid="flash-pick"] .fan-card-sub').allInnerTexts())
+  .join(" | ").toLowerCase();
+if (/foundations|skills/.test(fanSubs)) {
+  console.error(`FAIL: topic cards still carry the Foundations/Skills pool label (got '${fanSubs}')`); process.exit(1);
+}
+if (!/\d\/5 decks/.test(fanSubs)) {
+  console.error(`FAIL: topic cards must show the x/5 deck counter (got '${fanSubs}')`); process.exit(1);
+}
+if (!/all 5 decks done/.test(fanSubs)) {
+  console.error(`FAIL: a fully-cleared topic must read as done, not '5/5' (got '${fanSubs}')`); process.exit(1);
+}
+console.log("PASS: flashcards — topic cards show the x/5 ladder counter (Foundations/Skills label gone)");
 // Topic pick under FULL MOTION — the real user path. The fan auto-rolls ("river") and
 // each card is a moving, 3D-projected target; a stationary tap must still start a deck.
 // Regression guard for the swallowed-click bug (2026-07-11): cards are pointer-events:
@@ -447,6 +466,18 @@ if (!/question/.test(introMeta) || /\blap/.test(introMeta)) { console.error(`FAI
 const introCta = (await np.locator('[data-testid="flash-intro-begin"]').innerText()).toLowerCase();
 if (/engine/.test(introCta)) { console.error(`FAIL: intro CTA still 'start your engines' (got '${introCta}')`); process.exit(1); }
 console.log("PASS: flashcards — arcade intro copy (no grid / laps / engines)");
+// The intro names WHICH rung is about to be played, so "10 questions" is never mistaken
+// for the whole topic. The fan auto-rolls, so whichever card the click landed on decides
+// what's expected: a topic is on the ladder, Mixed is not.
+const introTitle = (await np.locator(".flash-intro-title").innerText()).trim().toLowerCase();
+const introDeck = (await np.locator('[data-testid="flash-intro-deck"]').innerText()).toLowerCase();
+if (introTitle !== "mixed" && !/deck \d of 5/.test(introDeck)) {
+  console.error(`FAIL: the intro must name the ladder rung for topic '${introTitle}' (got '${introDeck}')`); process.exit(1);
+}
+if (introTitle === "mixed" && /deck \d of 5/.test(introDeck)) {
+  console.error("FAIL: the Mixed deck spans topics — it has no rung and must not claim one"); process.exit(1);
+}
+console.log(`PASS: flashcards — the intro names which of the 5 decks is next ('${introDeck}')`);
 if ((await np.locator('[data-testid="study-stage"]').count()) > 0) {
   console.error("FAIL: study stage shown before the intro's Begin (intro was skipped)"); process.exit(1);
 }
