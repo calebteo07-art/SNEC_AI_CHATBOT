@@ -49,6 +49,8 @@ export function EyeBotPanel({
   procText,
   coaching,
   showActions,
+  active,
+  turnBadge,
   busy,
   onPerform,
   onProcText,
@@ -63,6 +65,10 @@ export function EyeBotPanel({
   procText: string;
   coaching: boolean;
   showActions: boolean;
+  /** This pane is where the student must act right now. */
+  active: boolean;
+  /** Badge copy — names the CHANNEL, never the clinical step. Empty when not active. */
+  turnBadge: string;
   busy: boolean;
   onPerform: (action: ExamAction) => void;
   onProcText: (value: string) => void;
@@ -94,6 +100,9 @@ export function EyeBotPanel({
           <div className="aurora-pane-nm">EyeBot</div>
           <div className="aurora-pane-mt">Manual procedures · examiner</div>
         </div>
+        {active && turnBadge && (
+          <span className="aurora-pane-turn" data-testid="turn-badge">{turnBadge}</span>
+        )}
       </div>
 
       <div className="aurora-station-thread aurora-eyebot-thread" ref={threadRef}>

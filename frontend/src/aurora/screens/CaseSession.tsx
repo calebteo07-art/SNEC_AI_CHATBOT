@@ -18,6 +18,7 @@ import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
+import { stationTurn } from "@/aurora/lib/stationTurn";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
 import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
@@ -109,6 +110,11 @@ export function CaseSession() {
 
   const [ticked, setTicked] = useState<Set<number>>(new Set());
   const [autoSteps, setAutoSteps] = useState<Set<number>>(new Set());
+  // Steps advanced by the stuck-valve rather than examiner-verified (see unstick()).
+  const [selfMarked, setSelfMarked] = useState<Set<number>>(new Set());
+  // Messages sent since the gate last moved. Three with no tick ⇒ offer the stuck-valve.
+  const [sinceAdvance, setSinceAdvance] = useState(0);
+  const [unsticking, setUnsticking] = useState(false);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -282,27 +288,36 @@ export function CaseSession() {
     observeTimer.current = setTimeout(() => void runObserve(0), 450);
   }, [caseId, runObserve]);
 
-  // Manual control under strict gating: tapping the CURRENT row completes it (the
-  // escape hatch when the examiner misses a step); tapping the most-recent done row
-  // steps back one (recover a mis-tap). Locked / earlier-done rows are no-ops.
-  const toggleStep = (n: number) => {
-    // Decide against the latest QUEUED ticked set (the updater's `prev`), not the
-    // render-lagged tickedRef, so a manual tap can't race an in-flight auto-tick.
-    setTicked((prev) => {
-      const order = orderRef.current;
-      const gi = gateIndex(order, prev);
-      const cur = gi < order.length ? order[gi] : null;
-      const lastDone = gi > 0 ? order[gi - 1] : null;
-      if (n === cur) {
-        const x = new Set(prev); x.add(n); return x;
-      }
-      if (n === lastDone && prev.has(n)) {
-        setAutoSteps((a) => { const b = new Set(a); b.delete(n); return b; });
-        const x = new Set(prev); x.delete(n); return x;
-      }
-      return prev; // locked / earlier-done → no-op (same ref, no re-render)
-    });
-  };
+  // Stuck-valve. Removing the manual tap made /observe load-bearing: a step it never
+  // recognises would freeze the gate and leave every later manual chip locked forever.
+  // One press, two stages — ask the examiner to re-read THIS step leniently, and only
+  // self-mark if that still finds nothing. Self-marks are recorded, never hidden.
+  const unstick = useCallback(async () => {
+    const step = currentStep(orderRef.current, tickedRef.current);
+    if (step === null || unsticking) return;
+    setUnsticking(true);
+    try {
+      const res = await fetch(`/api/cases/${caseId}/observe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          messages: toApi(messagesRef.current.slice(-100)),
+          already_ticked: Array.from(tickedRef.current),
+          focus_step: step,
+        }),
+      });
+      const data = res.ok ? ((await res.json()) as { newly_satisfied?: number[] }) : { newly_satisfied: [] };
+      if (data.newly_satisfied?.length) { addAuto(data.newly_satisfied); return; }
+    } catch {
+      /* fall through to the self-mark — the valve must never fail closed */
+    } finally {
+      setUnsticking(false);
+    }
+    // Stage 2: the examiner still can't see it. Advance, and record that we did.
+    setTicked((prev) => { const x = new Set(prev); x.add(step); return x; });
+    setSelfMarked((prev) => { const x = new Set(prev); x.add(step); return x; });
+  }, [caseId, unsticking, addAuto]);
 
   const sendMessage = async (textArg?: string) => {
     const content = (textArg ?? input).trim();
@@ -375,6 +390,7 @@ export function CaseSession() {
     } finally {
       setSending(false);
       setIsStreaming(false);
+      setSinceAdvance((n) => n + 1); // three of these with no tick ⇒ offer the stuck-valve
       // Skip the follow-up examiner pass when the stream was aborted (component unmounted),
       // otherwise we'd schedule an observe fetch after unmount.
       if (!chatAbort.current?.signal.aborted) scheduleObserve(); // run the examiner after the reply completes
@@ -459,7 +475,7 @@ export function CaseSession() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked) }),
+        body: JSON.stringify({ messages: toApi(messages), findings: findings.trim(), recommendation: recommendation.trim(), performed_steps: Array.from(ticked), self_advanced: Array.from(selfMarked) }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = (await res.json()) as { result: DomainResult; coaching?: Coaching; lumens_awarded?: number };
@@ -524,6 +540,9 @@ export function CaseSession() {
   const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
   const gateStep = currentStep(allSteps.map((s) => s.step_number), ticked); // current unlockable step, or null
 
+  // The gate moved (or the station loaded) → the student isn't stuck any more.
+  useEffect(() => { setSinceAdvance(0); }, [gateStep]);
+
   const patientMessages = messages.filter((m) => m.channel === "patient").map(({ role, content }) => ({ role, content }));
   const eyebotMessages = messages.filter((m) => m.channel === "eyebot").map(({ role, content }) => ({ role, content }));
   const manualActions = (station?.examination_actions ?? []).filter((a) => a.kind === "manual");
@@ -532,7 +551,12 @@ export function CaseSession() {
   // student performs it in the action panel (not by talking). Conversation-only cases (no
   // manual actions) never lock.
   const manualStepNumbers = new Set(manualActions.flatMap((a) => a.satisfies_steps));
-  const patientLocked = gateStep !== null && manualStepNumbers.has(gateStep);
+  // One source of truth for "where do I act now" — drives the pane spotlight, the badges
+  // and the patient-composer lock that used to be computed separately here.
+  const { turn, badge } = stationTurn(gateStep, manualStepNumbers, {
+    loaded: !!station, hasResult: !!result, hasEyebot,
+  });
+  const patientLocked = turn === "eyebot";
 
   if (loadError) {
     return (
@@ -567,7 +591,7 @@ export function CaseSession() {
         </div>
       </header>
 
-      <div className="aurora-station-grid" data-eyebot={hasEyebot ? "true" : "false"}>
+      <div className="aurora-station-grid" data-eyebot={hasEyebot ? "true" : "false"} data-turn={turn ?? "none"}>
         {/* Left — patient + auto-tracked checklist (unchanged) */}
         <aside className="aurora-station-card aurora-station-aside">
           {caseInfo && (
@@ -590,8 +614,8 @@ export function CaseSession() {
                 totalSteps={station.checklist.total_steps}
                 ticked={ticked}
                 autoSteps={autoSteps}
+                selfMarked={selfMarked}
                 current={gateStep}
-                onToggle={toggleStep}
               />
             </div>
           )}
@@ -615,6 +639,11 @@ export function CaseSession() {
           isStreaming={isStreaming}
           hasResult={!!result}
           locked={patientLocked}
+          active={turn === "patient"}
+          turnBadge={turn === "patient" ? badge : ""}
+          canUnstick={turn === "patient" && sinceAdvance >= 3 && !result}
+          unsticking={unsticking}
+          onUnstick={() => void unstick()}
           endRef={endRef}
           onInputChange={setInput}
           onSend={() => sendMessage()}
@@ -632,6 +661,8 @@ export function CaseSession() {
             procText={procText}
             coaching={coachingCount > 0}
             showActions={!result}
+            active={turn === "eyebot"}
+            turnBadge={turn === "eyebot" ? badge : ""}
             busy={sending || isStreaming}
             onPerform={performAction}
             onProcText={setProcText}
