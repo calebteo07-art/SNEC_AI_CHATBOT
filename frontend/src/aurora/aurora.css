@@ -3684,3 +3684,6 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 @media (prefers-reduced-motion: reduce) {
   .aurora-admin .aurora-skel-bar { animation: none; }
 }
+
+/* Coach-mark card — the tour's card material at station scale. */
+.aurora-coach-card { width: 320px; }
