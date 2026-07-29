@@ -15,6 +15,7 @@ import { PLATE } from "@/aurora/media";
 import { useCountUp } from "@/hooks/useCountUp";
 import { StationChecklist, type StationPhase, type StationStep } from "@/aurora/components/StationChecklist";
 import { HelpButton } from "@/aurora/components/HelpButton";
+import { StationCoach, STATION_COACH_KEY } from "@/aurora/components/StationCoach";
 import { type ExamAction, type ActionGrade, EXAM_PREFIX, GRADE_PREFIX } from "@/aurora/components/ActionPalette";
 import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
@@ -116,6 +117,13 @@ export function CaseSession() {
   // Messages sent since the gate last moved. Three with no tick ⇒ offer the stuck-valve.
   const [sinceAdvance, setSinceAdvance] = useState(0);
   const [unsticking, setUnsticking] = useState(false);
+  // First station ever → the 3-beat coach-mark. Its own key: the grand tour is
+  // account-first-run, this is feature-first-run, and neither may gate the other.
+  const [showCoach, setShowCoach] = useState(false);
+  const dismissCoach = useCallback(() => {
+    setShowCoach(false);
+    try { localStorage.setItem(STATION_COACH_KEY, "true"); } catch { /* private mode */ }
+  }, []);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -174,6 +182,12 @@ export function CaseSession() {
       .then((d) => { setStation(d); setCaseInfo(d.case); })
       .catch(() => setLoadError(`Patient "${caseId}" not found.`));
   }, [caseId]);
+
+  // Fire the coach-mark once the station has painted, so its anchors exist to spotlight.
+  useEffect(() => {
+    if (!station) return;
+    try { if (!localStorage.getItem(STATION_COACH_KEY)) setShowCoach(true); } catch { /* private mode */ }
+  }, [station]);
 
   // Auto-scroll the patient thread only when the patient conversation changes — EyeBot
   // appends must not yank the patient pane to the bottom.
@@ -719,6 +733,10 @@ export function CaseSession() {
             </div>
           </div>
         </div>
+      )}
+
+      {showCoach && station && !result && (
+        <StationCoach hasEyebot={hasEyebot} onDone={dismissCoach} />
       )}
     </div>
   );
