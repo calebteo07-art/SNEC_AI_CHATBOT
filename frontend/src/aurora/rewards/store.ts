@@ -1,11 +1,17 @@
 /* Per-student reward memory (localStorage), split into two keys:
-   - tier high-water mark (level / streak tier / lumen tier) — the watcher's baseline
+   - tier high-water mark (level / lumen tier) — the watcher's baseline
    - achievements set — moment-based one-time unlocks
    Keyed by studentId so accounts never bleed on a shared device. */
 
-export interface TierMark { level: number; streakTier: number; lumenTier: number; }
+export interface TierMark { level: number; lumenTier: number; }
 
-const tierKey = (sid: string) => `eyebot_rw_tiers_${sid || "anon"}`;
+/* BUMP THIS whenever a badge ladder changes shape. The mark stores tier INDICES, so a
+   mark written against an old ladder is meaningless against a new one — v1 (6 Lumens
+   tiers + a streak ladder) read against the 20-tier ladder would have replayed several
+   "newly unlocked" banners at once for every existing student. A new key reads as
+   unseeded, so the watcher re-baselines silently at the student's real tier. */
+const TIER_SCHEMA = "v2";
+const tierKey = (sid: string) => `eyebot_rw_tiers_${TIER_SCHEMA}_${sid || "anon"}`;
 const achKey = (sid: string) => `eyebot_rw_ach_${sid || "anon"}`;
 
 /** Returns null when unseeded on this device (so the watcher baselines silently). */

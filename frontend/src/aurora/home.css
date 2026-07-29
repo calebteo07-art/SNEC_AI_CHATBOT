@@ -190,8 +190,6 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-sh { display:flex; align-items:center; justify-content:space-between; }
 .hm-sh .hm-t { font-family:var(--font-home); font-weight:700; font-size:16.5px; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.28); display:flex; align-items:center; gap:8px; }
 .hm-sh .hm-t .ico { width:18px; height:18px; color:#fff; }
-.hm-sh .hm-goalring { position:relative; width:48px; height:48px; }
-.hm-sh .hm-goalring .hm-rc { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.4); }
 .hm-big { position:relative; display:flex; align-items:center; gap:15px; margin:14px 0 4px; }
 /* pulsing heat-glow behind the flame — Mario-Kart warmth, never menace */
 .hm-big::before { content:""; position:absolute; left:4px; top:50%; width:104px; height:104px; transform:translateY(-50%); border-radius:50%; z-index:0; pointer-events:none;
@@ -210,18 +208,33 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 @keyframes hm-flame-core { 0%,100% { opacity:.9; transform:translateY(0) scaleY(1); } 50% { opacity:1; transform:translateY(-1px) scaleY(1.08); } }
 .hm-snum { position:relative; z-index:1; font-family:var(--font-home); font-weight:800; font-size:70px; line-height:.8; letter-spacing:-.03em; color:#fff; text-shadow:0 2px 8px rgba(120,40,0,.38); }
 .hm-slbl { font-weight:700; font-size:14px; letter-spacing:.02em; color:rgba(255,255,255,.92); text-transform:uppercase; margin-top:3px; }
-.hm-week { display:flex; gap:8px; margin-top:16px; list-style:none; padding:0; }
-.hm-wd { flex:1; display:flex; flex-direction:column; align-items:center; gap:7px; }
-.hm-wdot { position:relative; overflow:hidden; width:100%; aspect-ratio:1; max-width:38px; border-radius:13px; display:flex; align-items:center; justify-content:center;
-  background:rgba(255,255,255,.16); color:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.30); box-shadow:inset 0 -2px 4px rgba(120,40,0,.12); animation:hm-dot-pop .5s var(--spring) backwards; }
-.hm-wdot::before { content:""; position:absolute; inset:0; background:var(--sheen); opacity:.6; pointer-events:none; }
-.hm-wdot .ico { position:relative; width:17px; height:17px; stroke-width:2.6; }
+/* ── month calendar (replaced the seven jewel week-dots 2026-07-29) ──
+   The whole month on the orange card: seven columns, every cell keeps its DATE NUMBER
+   and the state is carried by the fill, so it still reads as a calendar you can find a
+   date on. Done = solid white chip w/ orange numeral (the old .hm-wd.on treatment,
+   inherited so the card's material language is unchanged); today = white ring; weekend
+   rest days sit quieter; upcoming is barely there. */
+.hm-cal { margin-top:14px; }
+.hm-calhead { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:8px; }
+.hm-calmonth { font-family:var(--font-home); font-weight:700; font-size:14.5px; color:#fff; text-shadow:0 1px 2px rgba(120,40,0,.3); }
+.hm-caldone { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:rgba(255,255,255,.82); }
+.hm-caldows, .hm-calgrid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; list-style:none; margin:0; padding:0; }
+.hm-caldows { margin-bottom:4px; }
+.hm-caldows li { text-align:center; font-size:10px; font-weight:700; letter-spacing:.06em; color:rgba(255,255,255,.72); }
+.hm-calday { display:flex; justify-content:center; }
+.hm-caldot { width:100%; aspect-ratio:1; max-width:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;
+  background:rgba(255,255,255,.14); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.22);
+  animation:hm-dot-pop .5s var(--spring) backwards; }
 @keyframes hm-dot-pop { from { transform:scale(0) rotate(-12deg); opacity:0; } }
-.hm-wd.on .hm-wdot { background:#fff; color:#E4530B; border:none; box-shadow:inset 0 1px 1px rgba(255,255,255,.7), 0 6px 13px -3px rgba(120,40,0,.4); }
-.hm-wd.today .hm-wdot { background:rgba(255,255,255,.20); color:#fff; border:2px solid #fff; box-shadow:0 0 0 4px rgba(255,255,255,.22);
-  animation:hm-dot-pop .5s var(--spring) backwards, hm-today-pulse 1.9s ease-in-out infinite; }
-@keyframes hm-today-pulse { 0%,100% { box-shadow:0 0 0 4px rgba(255,255,255,.22); } 50% { box-shadow:0 0 0 7px rgba(255,255,255,.34); } }
-.hm-wd .hm-wl { font-size:11px; font-weight:700; color:rgba(255,255,255,.82); letter-spacing:.05em; }
+.hm-calday[data-state="done"] .hm-caldot, .hm-calday[data-state="rest-done"] .hm-caldot {
+  background:#fff; color:#E4530B; border-color:transparent; box-shadow:inset 0 1px 1px rgba(255,255,255,.7), 0 4px 9px -3px rgba(120,40,0,.4); }
+.hm-calday[data-state="today"] .hm-caldot { background:rgba(255,255,255,.22); color:#fff; border:2px solid #fff;
+  box-shadow:0 0 0 3px rgba(255,255,255,.22); animation:hm-dot-pop .5s var(--spring) backwards, hm-today-pulse 1.9s ease-in-out infinite; }
+@keyframes hm-today-pulse { 0%,100% { box-shadow:0 0 0 3px rgba(255,255,255,.22); } 50% { box-shadow:0 0 0 6px rgba(255,255,255,.34); } }
+.hm-calday[data-state="missed"] .hm-caldot { background:rgba(255,255,255,.07); color:rgba(255,255,255,.5); border-style:dashed; }
+.hm-calday[data-state="rest"] .hm-caldot { background:transparent; color:rgba(255,255,255,.46); border-color:rgba(255,255,255,.14); }
+.hm-calday[data-state="upcoming"] .hm-caldot { background:rgba(255,255,255,.09); color:rgba(255,255,255,.58); }
 .hm-nexttier { margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,.30); display:flex; align-items:center; justify-content:space-between; }
 .hm-nexttier .hm-nl { font-size:15px; color:rgba(255,255,255,.9); } .hm-nexttier .hm-nl b { color:#fff; font-weight:700; }
 .hm-nexttier .hm-tag { position:relative; overflow:hidden; font-size:12px; font-weight:800; color:#fff; border-radius:999px; padding:6px 13px; letter-spacing:.01em;
@@ -279,24 +292,15 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-carbtn { pointer-events:auto; width:46px; height:46px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--hink); font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:var(--sh); cursor:pointer; padding-bottom:3px; transition:transform .15s, background .15s; }
 .hm-carbtn:hover { background:#fff; transform:scale(1.06); }
 
-/* ── lower bento (the two badge shelves) — EQUAL width (was 1.55fr / 1fr) so the streak
-   and Lumens badge cards are the same size. ── */
-.hm-lower { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+/* ── lower bento — ONE full-width vault (the daily-streak vault was retired 2026-07-29;
+   the Lumens vault is the app's only badge collection). ── */
+.hm-lower { display:grid; grid-template-columns:1fr; gap:16px; }
 .hm-panel { position:relative; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
-/* dark collectible VAULTS (were light tints) — two glowing "display cases" that read as
-   addicting game cards, each a saturated glow over a dark base drawn from the homepage
-   palette: streak = molten ORANGE fire, Lumens = GOLD treasure over royal violet. Both
-   dark, distinct in hue, tied to the warm page by the shared radius/underline/seal. The
-   hot glow blooms from below (behind the opaque medallions) so the header band stays dark
-   and every label keeps WCAG-legible white; a slow inset glow breathes for game-feel. */
-.hm-panel--streakbadge {
-  background:
-    radial-gradient(122% 100% at 50% 118%, #FF7E1E 0%, #E23A0E 30%, rgba(226,58,14,0) 62%),
-    radial-gradient(80% 74% at 90% 4%, rgba(255,158,60,.20), transparent 60%),
-    linear-gradient(158deg, #35150A 0%, #230F08 55%, #180B06 100%);
-  border-color:#7C3216;
-  animation:hm-vault-fire 6.5s ease-in-out infinite;
-}
+/* the dark collectible VAULT (was a light tint) — a glowing "display case" that reads as
+   an addicting game card: GOLD treasure over royal violet, tied to the warm page by the
+   shared radius/underline/seal. The hot glow blooms from below (behind the opaque
+   medallions) so the header band stays dark and every label keeps WCAG-legible white;
+   a slow inset glow breathes for game-feel. */
 .hm-panel--lumen {
   background:
     radial-gradient(122% 100% at 50% 118%, #FFC63A 0%, #C67A18 30%, rgba(198,122,24,0) 62%),
@@ -305,35 +309,24 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   border-color:#3E2C6A;
   animation:hm-vault-lumen 7s ease-in-out infinite;
 }
-@keyframes hm-vault-fire {
-  0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.07), inset 0 -46px 62px -36px rgba(255,90,18,.45), var(--sh-lg); }
-  50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.07), inset 0 -52px 76px -30px rgba(255,120,32,.78), var(--sh-lg); }
-}
 @keyframes hm-vault-lumen {
   0%,100% { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -44px 60px -36px rgba(251,191,36,.32), inset 0 42px 62px -40px rgba(139,101,232,.42), var(--sh-lg); }
   50%     { box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -52px 74px -30px rgba(251,191,36,.55), inset 0 48px 70px -36px rgba(139,101,232,.62), var(--sh-lg); }
 }
 /* dark-vault legibility: lift every label to warm white + a soft shadow so it reads over
    the glow (the small count / note / meta sit above the brightest patch, hence the shadow). */
-.hm-panel--streakbadge, .hm-panel--lumen { color:#F6EEE4; }
-.hm-panel--streakbadge .hm-ph, .hm-panel--lumen .hm-ph { color:#FFF6EC; border-bottom-color:rgba(255,255,255,.15); }
-.hm-panel--streakbadge .hm-ph .hm-c, .hm-panel--lumen .hm-ph .hm-c { color:rgba(255,246,236,.74); text-shadow:0 1px 4px rgba(0,0,0,.55); }
-.hm-panel--streakbadge .hm-vault-note, .hm-panel--lumen .hm-vault-note { color:rgba(255,246,236,.66); text-shadow:0 1px 4px rgba(0,0,0,.5); }
-.hm-panel--streakbadge .hm-badge-name, .hm-panel--lumen .hm-badge-name { color:#FCF5EC; text-shadow:0 1px 5px rgba(0,0,0,.55); }
-.hm-panel--streakbadge .hm-badge-meta, .hm-panel--lumen .hm-badge-meta { color:rgba(255,246,236,.7); text-shadow:0 1px 4px rgba(0,0,0,.5); }
-.hm-panel--streakbadge .hm-badge[data-state="locked"] .hm-badge-name,
+.hm-panel--lumen { color:#F6EEE4; }
+.hm-panel--lumen .hm-ph { color:#FFF6EC; border-bottom-color:rgba(255,255,255,.15); }
+.hm-panel--lumen .hm-ph .hm-c { color:rgba(255,246,236,.74); text-shadow:0 1px 4px rgba(0,0,0,.55); }
+.hm-panel--lumen .hm-vault-note { color:rgba(255,246,236,.66); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+.hm-panel--lumen .hm-badge-name { color:#FCF5EC; text-shadow:0 1px 5px rgba(0,0,0,.55); }
+.hm-panel--lumen .hm-badge-meta { color:rgba(255,246,236,.7); text-shadow:0 1px 4px rgba(0,0,0,.5); }
 .hm-panel--lumen .hm-badge[data-state="locked"] .hm-badge-name { color:rgba(255,246,236,.55); }
-/* next-tier meta + call-to-action ring: retint per vault (the global violet-d text is
-   unreadable on dark, and a violet ring clashes on the fire/gold cards). The tinted
+/* next-tier meta + call-to-action ring: retinted gold for this vault (the global violet-d
+   text is unreadable on dark, and a violet ring clashes on the gold card). The tinted
    pulse still freezes under reduced motion via the shared `.hm-badge-art` freeze. */
-.hm-panel--streakbadge .hm-badge[data-state="next"] .hm-badge-meta { color:#FFB878; }
 .hm-panel--lumen .hm-badge[data-state="next"] .hm-badge-meta { color:#D7B8FF; }
-.hm-panel--streakbadge .hm-badge[data-state="next"] .hm-badge-art { animation:badge-pulse-fire 1.9s ease-in-out infinite; }
 .hm-panel--lumen .hm-badge[data-state="next"] .hm-badge-art { animation:badge-pulse-gold 1.9s ease-in-out infinite; }
-@keyframes badge-pulse-fire {
-  0%,100% { box-shadow:0 0 0 3px rgba(255,140,40,.32),0 6px 16px -5px rgba(255,88,20,.55); }
-  50%     { box-shadow:0 0 0 6px rgba(255,150,50,.44),0 6px 20px -5px rgba(255,110,30,.7); }
-}
 @keyframes badge-pulse-gold {
   0%,100% { box-shadow:0 0 0 3px rgba(251,191,36,.32),0 6px 16px -5px rgba(226,160,44,.55); }
   50%     { box-shadow:0 0 0 6px rgba(253,206,66,.46),0 6px 20px -5px rgba(240,180,52,.7); }
@@ -342,12 +335,25 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-ph::after { content:""; position:absolute; left:0; bottom:-1px; width:52px; height:2px; border-radius:2px; background:linear-gradient(90deg,#8B5CF6,#EC4899 60%,#FB923C); }
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
 .hm-vault-note { margin:-10px 0 16px; font-size:12.5px; color:var(--hink3); line-height:1.4; }
-/* ── streak badge collection — generated collectible medallions (Nano Banana flash) ── */
-/* enlarged medallions + text (was 76px / 13.5px) now the shelves are equal-width and
-   there's room — kills the excessive white space the small badges left behind. */
-.hm-badges { position:relative; display:grid; grid-template-columns:repeat(3,1fr); gap:18px 12px; list-style:none; margin:0; padding:2px 0 0; }
-.hm-badges::after { content:""; position:absolute; left:6%; right:6%; bottom:-6px; height:10px; border-radius:50%; background:radial-gradient(ellipse at center, rgba(120,60,30,.10), transparent 72%); }
-.hm-badge { display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
+/* ── the vault shelf — generated collectible medallions (Nano Banana flash) ── */
+/* HORIZONTAL scroll shelf (was a 3-col wrapping grid): twenty medallions wrap into a
+   seven-row tower at 390px, so the shelf scrolls sideways at every size instead and
+   LumenLadder lands it on the student's "next" badge. The scroll lives inside this
+   box — the page itself must still measure 0px horizontal overflow.
+   `overflow-x:auto` forces overflow-y to compute to auto too (CSS can't have one axis
+   visible and the other not), so the vertical padding here is load-bearing: without it
+   the ★ seal at top:-6px, the 5px collected float, and the rarity glow are all clipped. */
+.hm-badges { position:relative; display:flex; gap:14px; list-style:none; margin:0; padding:10px 2px 14px;
+  overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x proximity;
+  scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.28) transparent;
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+  mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%); }
+.hm-badges::-webkit-scrollbar { height:6px; }
+.hm-badges::-webkit-scrollbar-thumb { background:rgba(255,255,255,.26); border-radius:999px; }
+.hm-badges:focus-visible { outline:2px solid rgba(255,255,255,.8); outline-offset:3px; border-radius:12px; }
+/* flex-shrink:0 keeps every medallion at full size — without it 20 children divide the
+   shelf width and the shelf never overflows, so it never scrolls. */
+.hm-badge { flex:0 0 auto; width:104px; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
 .hm-badge-medal { position:relative; width:98px; height:98px; }
 .hm-badge-art { width:98px; height:98px; object-fit:cover; border-radius:22px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
 .hm-badge-name { font-weight:700; font-size:15.5px; color:var(--hink); line-height:1.15; }
@@ -388,7 +394,6 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 @media (max-width:900px) {
   .aurora-home { padding:16px 16px 28px; }
   .hm-hero { grid-template-columns:1fr; }
-  .hm-lower { grid-template-columns:1fr; }
   .hm-greet h1 { font-size:46px; max-width:none; }
   .hm-sub { font-size:20px; }
   .hm-iriswrap { width:170px; height:150px; right:-8px; }
@@ -421,7 +426,8 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lvl { max-width:62%; margin-top:20px; }
   .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
   .hm-lb { margin-top:16px; font-size:15px; padding:11px 17px 11px 13px; }
-  .hm-badges { gap:14px 10px; }
+  .hm-badges { gap:12px; }
+  .hm-badge { width:86px; }
   .hm-badge-medal, .hm-badge-art { width:80px; height:80px; }
 }
 
@@ -511,7 +517,7 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 @media (max-height:480px) and (pointer:coarse) {
   .aurora-home { padding:12px 16px 20px; gap:12px; --fcw:min(46vw,340px); --fch:219px; }
   .hm-hero { grid-template-columns:1.7fr 1fr; gap:12px; }
-  .hm-lower { grid-template-columns:1fr 1fr; gap:12px; }
+  .hm-lower { gap:12px; }
 
   .hm-top { flex-wrap:wrap; gap:8px 10px; }
   .hm-topr { min-width:0; gap:10px; }
@@ -540,7 +546,13 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-snum { font-size:44px; }
   .aurora-home .hm-flame { width:54px; height:54px; }
   .hm-big { margin:10px 0 2px; gap:11px; }
-  .hm-week { gap:6px; margin-top:11px; }
+  /* landscape phones are WIDE + SHORT: the month grid is the tallest thing on this card,
+     so trim the cells rather than let it push the hero past a 430px viewport. */
+  .hm-cal { margin-top:10px; }
+  .hm-calhead { margin-bottom:5px; }
+  .hm-calmonth { font-size:13px; } .hm-caldone { font-size:10.5px; }
+  .hm-caldows, .hm-calgrid { gap:3px; }
+  .hm-caldot { max-width:26px; border-radius:8px; font-size:10px; }
   .hm-nexttier { margin-top:11px; padding-top:10px; }
 
   .hm-carousel { height:242px; }
@@ -554,7 +566,8 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 
   .hm-panel { padding:14px 14px; }
   .hm-ph { font-size:16.5px; margin-bottom:12px; padding-bottom:9px; }
-  .hm-badges { gap:12px 8px; }
+  .hm-badges { gap:10px; padding:8px 2px 12px; }
+  .hm-badge { width:78px; }
   .hm-badge-medal, .hm-badge-art { width:72px; height:72px; }
   .hm-badge-name { font-size:13.5px; } .hm-badge-meta { font-size:11.5px; }
 }
@@ -572,8 +585,8 @@ html[data-motion="reduce"] .hm-badge-medal::after { animation:none !important; }
   .aurora-home .hm-iris, .aurora-home .hm-eyecon, .aurora-home .hm-eyecon-img, .aurora-home .hm-eyecon-halo,
   .aurora-home .hm-iriswrap::before, .aurora-home .hm-flame, .hm-flame .core, .hm-streak::before,
   .aurora-home .hm-lvbar > span::after, .aurora-home .hm-big::before,
-  .aurora-home .hm-panel--streakbadge, .aurora-home .hm-panel--lumen,
-  .aurora-home .hm-wdot, .aurora-home .hm-wd.today .hm-wdot { animation:none !important; }
+  .aurora-home .hm-panel--lumen,
+  .aurora-home .hm-caldot, .aurora-home .hm-calday[data-state="today"] .hm-caldot { animation:none !important; }
 }
 html[data-motion="reduce"] .aurora-home .hm-iris,
 html[data-motion="reduce"] .aurora-home .hm-eyecon,
@@ -585,7 +598,6 @@ html[data-motion="reduce"] .hm-flame .core,
 html[data-motion="reduce"] .hm-streak::before,
 html[data-motion="reduce"] .aurora-home .hm-lvbar > span::after,
 html[data-motion="reduce"] .aurora-home .hm-big::before,
-html[data-motion="reduce"] .aurora-home .hm-panel--streakbadge,
 html[data-motion="reduce"] .aurora-home .hm-panel--lumen,
-html[data-motion="reduce"] .aurora-home .hm-wdot,
-html[data-motion="reduce"] .aurora-home .hm-wd.today .hm-wdot { animation:none !important; }
+html[data-motion="reduce"] .aurora-home .hm-caldot,
+html[data-motion="reduce"] .aurora-home .hm-calday[data-state="today"] .hm-caldot { animation:none !important; }

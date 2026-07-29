@@ -14,6 +14,10 @@ export interface StreakDetail {
   freezes: number;
   done_today: boolean;
   week: StreakDay[];
+  /* Every day of the current calendar month, 1st → last (the Home streak card's
+     calendar). Optional: a response persisted before this field shipped must render a
+     missing calendar, never a broken one. */
+  month?: StreakDay[];
   tier: string;
   next_tier: string | null;
   to_next: number;

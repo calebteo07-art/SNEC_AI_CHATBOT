@@ -12,7 +12,6 @@ import type { Reward } from "./types";
 
 const LABEL: Record<Reward["kind"], string> = {
   "achievement": "Achievement Unlocked",
-  "streak-badge": "New Streak Badge",
   "lumen-badge": "New Lumens Badge",
   "level-up": "Level Up",
 };

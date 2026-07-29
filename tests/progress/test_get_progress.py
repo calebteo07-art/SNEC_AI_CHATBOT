@@ -44,6 +44,11 @@ async def test_progress_includes_streak_detail():
     assert sd["freezes"] == 1
     assert sd["done_today"] is True       # 2026-05-05 is in checkin_history
     assert sd["tier"] == "Clear View"     # 7 >= 5
+    # The Home streak card renders a full month calendar, not just the week.
+    assert len(sd["month"]) == 31         # May 2026
+    assert sd["month"][0]["date"] == "2026-05-01"
+    # 5 May is today AND checked in, so it reads "done" (same rule as the week strip).
+    assert sd["month"][4]["state"] == "done"
 
 
 @pytest.mark.asyncio

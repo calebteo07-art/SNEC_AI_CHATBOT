@@ -34,7 +34,7 @@ await ctx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
 await ctx.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: {}, axes: {}, customized: false })));
 await ctx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
   xp: 1240, level: 7, streak: 4, daily_goal: 100, xp_today: 60,
-  streak_detail: { current: 4, best: 9, tier: "First Light", next_tier: "Clear View", to_next: 1, done_today: false, week: [] },
+  streak_detail: { current: 4, best: 9, tier: "First Light", next_tier: "Clear View", to_next: 1, done_today: false, week: [], month: [] },
 })));
 await ctx.route("**/api/cases", (r) => r.fulfill(JSON_OK({ cases: [
   { case_id: "C001", title: "Red eye", difficulty: "beginner", topic: "Glaucoma", estimated_minutes: 10,
@@ -112,7 +112,7 @@ await ctx2.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
 await ctx2.route("**/api/avatar", (r) => r.fulfill(JSON_OK({ config: {}, axes: {}, customized: false })));
 await ctx2.route("**/api/progress", (r) => r.fulfill(JSON_OK({
   xp: 1240, level: 7, streak: 4, daily_goal: 100, xp_today: 60,
-  streak_detail: { current: 4, best: 9, tier: "First Light", next_tier: "Clear View", to_next: 1, done_today: false, week: [] },
+  streak_detail: { current: 4, best: 9, tier: "First Light", next_tier: "Clear View", to_next: 1, done_today: false, week: [], month: [] },
 })));
 
 const page2 = await ctx2.newPage();
