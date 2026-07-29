@@ -402,6 +402,44 @@ WeekStats retired, see the Task 24 amendment below). Old dark dashboard
   drift speed. **Desktop/tablet (fine pointer) untouched**; the Veo asset is **preserved** (still
   played on desktop); the aurora harness runs at 1440px fine-pointer, so `.hm-iriswrap` /
   `eyecon-logo` stay visible and the greeting assertions are unaffected.
+- **ONE vault + month calendar (2026-07-29, user directive: "remove streak badges and vault in
+  the app, only lumens vault and badges but lumens badge names change to something like current
+  streak badge names (eye-centric and fun) … i want total 20 badges … also remove percentage ring
+  in streak card in homepage and show the entire month calendar in the card")**: spec
+  `docs/superpowers/specs/2026-07-29-single-lumens-vault-and-month-calendar-design.md`.
+  - **Criterion changed (a) — two vaults → ONE.** SUPERSEDES the "Badge cards → dark game vaults"
+    two-shelf criterion and the Task-24 "`.hm-lower` right slot" criterion. `MilestoneLadder`,
+    `EyeconBadge.tsx`, `streakBadges.ts` and `.hm-panel--streakbadge` are **deleted**; `.hm-lower`
+    collapses to a **single full-width column** holding `LumenLadder` alone. The molten-orange
+    vault gradient goes with it; `.hm-panel--lumen` (royal-violet → gold) is the only vault skin.
+  - **Criterion changed (b) — Lumens badge theme + count.** SUPERSEDES "tiers Spark → Supernova"
+    (6, light/wealth themed). The vault is now **20** tiers themed on **vision/acuity** — the
+    aesthetic of the retired streak medallions — First Blink → Eye of Eternity, on lifetime
+    `coins_earned` (100 → 52,000), rarity spread 4/4/4/3/3/2 so the per-rarity glow CSS is
+    unchanged. All 20 medallions are **generated fresh** (Nano-Banana flash, `reference=True`,
+    anchored to iris.png, opaque jpg); both retired sets (`brand/badges/*.jpg`,
+    the old `brand/lumen-badges/*.jpg`) are **deleted**. This further SUPERSEDES the
+    come-alive "badge medallions preserved" hard constraint.
+  - **Criterion changed (c) — the vault is a HORIZONTAL SHELF.** 20 medallions in a wrapping grid
+    is a 7-row tower at 390px. `.hm-badges` becomes one row, `overflow-x:auto` + `scroll-snap-type:x`
+    + edge fade masks, at **every** viewport; on mount it scrolls the **"next"** badge into view
+    (instant under reduced motion) so a student lands on their target, not on rung 1. The page
+    itself must still measure **0px horizontal overflow** — the shelf scrolls inside its own box.
+  - **Criterion changed (d) — streak card: no goal ring, month not week.** SUPERSEDES the
+    "jewel week-dots" and white-goal-ring criteria of the toybox + orange-card refines.
+    `.hm-goalring` / `.hm-rc` / `.hm-week` / `.hm-wd*` are **deleted with no replacement** (daily-goal
+    % is gone from Home entirely). In their place a **full month calendar**: 7 columns, `M T W T F S S`
+    header, leading blanks so the 1st sits under its real weekday, one cell per day carrying the
+    existing state vocabulary (done ✓ / today ring / missed / weekend rest moon / upcoming), plus a
+    month label and an "N days this month" count. Flame, big numeral and next-tier nudge are kept.
+    Needs `streak_detail.month` — new pure `current_month_states()` in `tools/gamification/streak.py`,
+    sharing one `_day_state` helper with `current_week_states` so the two cannot drift. The leading
+    offset is derived from the cell's own `day` NAME, never from `new Date(iso)` (that reintroduces
+    the UTC/SGT off-by-one).
+  - **Acceptance preserved**: WCAG-AA on every surface; **390px-safe with 0px page overflow**;
+    all motion (rarity glows, next-pulse, flame, ember, vault breathe, shelf auto-scroll) freezes
+    under `prefers-reduced-motion` / `data-motion=reduce`; `streak-tile` + `lumen-ladder` testids
+    and the collected/next/locked badge states unchanged; aurora harness green on a prod build.
 
 ## Tutor Chat — LOCKED 2026-06-22 (greeting landing added 2026-07-04)
 "Mono + Electric / Live Wire": ivory + charcoal + electric indigo `#5B5BFF`, layout
