@@ -11,13 +11,16 @@ export interface SessionExportData {
   meta: {
     caseId: string; caseTitle: string; patientName: string; patientAge: number | string;
     topic: string; difficulty: string; studentName: string; dateStr: string;
+    /** Wall-clock time the student took, "m:ss". Empty when the case had no estimate. */
+    timeTaken?: string;
   };
   score: {
     score100: number; verdict: string; safe: boolean; missedCritical: string[];
     consult: number; consultMax: number; judgement: number; judgementMax: number;
   };
   summary: { highlights: string[]; didWrong: string[]; missed: string[]; focus: string };
-  checklist: { phase: string; action: string; critical: boolean; done: boolean }[];
+  /** `selfMarked` = advanced via the station's stuck-valve, never examiner-verified. */
+  checklist: { phase: string; action: string; critical: boolean; done: boolean; selfMarked?: boolean }[];
   patientTranscript: { who: string; text: string }[];
   actionTranscript: { who: string; text: string }[];
 }
@@ -56,8 +59,10 @@ export function buildSessionHtml(data: SessionExportData): string {
     .map(
       (s) =>
         `<tr>
-          <td class="mark ${s.done ? "ok" : "no"}">${s.done ? "✓" : "✗"}</td>
-          <td>${esc(s.action)}${s.critical ? ' <span class="crit">CRITICAL</span>' : ""}</td>
+          <td class="mark ${s.done ? "ok" : "no"}">${s.done ? (s.selfMarked ? "—" : "✓") : "✗"}</td>
+          <td>${esc(s.action)}${s.critical ? ' <span class="crit">CRITICAL</span>' : ""}${
+            s.done && s.selfMarked ? ' <span class="muted">(self-marked — not examiner-verified)</span>' : ""
+          }</td>
           <td class="ph">${esc(s.phase)}</td>
         </tr>`,
     )
@@ -112,7 +117,7 @@ export function buildSessionHtml(data: SessionExportData): string {
   <div class="band">
     <h1><small>EyeBot · Virtual-patient session</small>${esc(meta.caseTitle)}</h1>
     <div class="meta"><b>${esc(meta.patientName)}</b>, ${esc(meta.patientAge)} · ${esc(meta.topic)} · ${esc(meta.difficulty)}</div>
-    <div class="meta">Student: ${esc(meta.studentName)} · ${esc(meta.dateStr)} · Case ${esc(meta.caseId)}</div>
+    <div class="meta">Student: ${esc(meta.studentName)} · ${esc(meta.dateStr)}${meta.timeTaken ? ` · took ${esc(meta.timeTaken)}` : ""} · Case ${esc(meta.caseId)}</div>
   </div>
 
   <h2>Final grade</h2>
