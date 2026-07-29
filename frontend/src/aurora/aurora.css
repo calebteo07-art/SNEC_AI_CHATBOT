@@ -3687,3 +3687,14 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 
 /* Coach-mark card — the tour's card material at station scale. */
 .aurora-coach-card { width: 320px; }
+
+/* Case clock — OSCE pace, never a guillotine. Counts down from the case's own
+   estimated_minutes; at zero it turns red and prompts, but never force-submits. */
+.aurora-station-clock { font-variant-numeric: tabular-nums; font-weight: 700; }
+.aurora-station-clock[data-tone="warn"] { color: #b26a00; }
+.aurora-station-clock[data-tone="over"] { color: #b3261e; }
+.aurora-station-overtime {
+  margin: 6px 0 0; padding: 8px 12px; border-radius: 12px; text-align: center;
+  font-size: 13.5px; color: #b3261e; background: rgba(179,38,30,.08);
+  border: 1px solid rgba(179,38,30,.2);
+}

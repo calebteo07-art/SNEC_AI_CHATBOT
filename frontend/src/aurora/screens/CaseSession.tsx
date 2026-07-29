@@ -21,6 +21,7 @@ import { PatientChat } from "@/aurora/components/PatientChat";
 import { EyeBotPanel } from "@/aurora/components/EyeBotPanel";
 import { advance, gateIndex, currentStep, observeCanTick } from "@/aurora/lib/stationGate";
 import { stationTurn } from "@/aurora/lib/stationTurn";
+import { timerState, formatClock } from "@/aurora/lib/stationTimer";
 import { buildSessionHtml, type SessionExportData } from "@/aurora/lib/sessionExport";
 import { tierLabel } from "@/aurora/lib/tiers";
 import { useAuth } from "@/screens/AuthContext";
@@ -150,6 +151,12 @@ export function CaseSession() {
   // Once saved (or once they leave the debrief) the ephemeral session can't be saved again.
   const [saved, setSaved] = useState(false);
 
+  // Case clock (Branda: cases had no time limit). startedAt is a ref — a re-render must
+  // never restart it; `nowMs` ticks once a second only while the station is live, so a
+  // graded station stops costing renders.
+  const startedAt = useRef<number>(Date.now());
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+
   const endRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
   const tickedRef = useRef<Set<number>>(new Set());
@@ -192,6 +199,13 @@ export function CaseSession() {
   // Auto-scroll the patient thread only when the patient conversation changes — EyeBot
   // appends must not yank the patient pane to the bottom.
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.filter((m) => m.channel === "patient").length, sending]);
+
+  // Tick the case clock while the station is live; stop the moment it's graded.
+  useEffect(() => {
+    if (!station || result) return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [station, result]);
 
   // Cleanup pending observe work on unmount.
   useEffect(() => () => { if (observeTimer.current) clearTimeout(observeTimer.current); observeAbort.current?.abort(); chatAbort.current?.abort(); }, []);
@@ -513,7 +527,10 @@ export function CaseSession() {
   const handleSave = () => {
     if (saved || !result || !caseInfo || !station) return;
     const checklist = station.checklist.phases.flatMap((p) =>
-      p.steps.map((s) => ({ phase: p.name, action: s.action, critical: s.critical, done: ticked.has(s.step_number) })),
+      p.steps.map((s) => ({
+        phase: p.name, action: s.action, critical: s.critical,
+        done: ticked.has(s.step_number), selfMarked: selfMarked.has(s.step_number),
+      })),
     );
     const patientTranscript = messages
       .filter((m) => m.channel === "patient")
@@ -524,6 +541,7 @@ export function CaseSession() {
         caseId, caseTitle: caseInfo.title, patientName: caseInfo.patient.name,
         patientAge: caseInfo.patient.age, topic: caseInfo.topic, difficulty: tierLabel(caseInfo.difficulty),
         studentName: displayName(user?.fullName, "Student"), dateStr: new Date().toLocaleString(),
+        timeTaken: formatClock(clock.elapsedMs),
       },
       score: {
         score100: result.score_100, verdict: result.verdict, safe: result.safe,
@@ -554,6 +572,7 @@ export function CaseSession() {
   const criticalSteps = allSteps.filter((s) => s.critical);
   const uncheckedCritical = criticalSteps.filter((s) => !ticked.has(s.step_number));
   const gateStep = currentStep(allSteps.map((s) => s.step_number), ticked); // current unlockable step, or null
+  const clock = timerState(startedAt.current, nowMs, caseInfo?.estimated_minutes ?? 0);
 
   // The gate moved (or the station loaded) → the student isn't stuck any more.
   useEffect(() => { setSinceAdvance(0); }, [gateStep]);
@@ -604,6 +623,14 @@ export function CaseSession() {
               <span>{station?.checklist.procedure_name ?? "OSCE station"}</span>
               <span className="aurora-station-hud-sep">·</span>
               <span className="aurora-station-tier">{tierLabel(caseInfo.difficulty)}</span>
+              {clock.tone !== "none" && !result && (
+                <>
+                  <span className="aurora-station-hud-sep">·</span>
+                  <span className="aurora-station-clock" data-tone={clock.tone} data-testid="station-clock">
+                    {clock.tone === "over" ? "Time's up" : clock.label}
+                  </span>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -690,6 +717,12 @@ export function CaseSession() {
           />
         )}
       </div>
+
+      {clock.tone === "over" && !result && (
+        <p className="aurora-station-overtime" data-testid="station-overtime">
+          Time's up — write your handover now. Nothing is lost; the clock is for pace only.
+        </p>
+      )}
 
       {(showSubmit || result) && (
         <div className="aurora-station-overlay" role="dialog" aria-modal="true">
