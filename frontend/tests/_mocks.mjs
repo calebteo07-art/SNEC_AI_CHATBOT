@@ -24,18 +24,40 @@ export const avatarConfig = {
   mouth: "smile", blush: "peach", glasses: "none", topper: "none", accessory: "none",
   outfit: "none", background: "mist",
 };
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/** Build a month fixture the way `streak.current_month_states` does: one cell per real day,
+ *  day names from the true weekday, states relative to `todayIso`. Deliberately July 2026 —
+ *  it starts on a WEDNESDAY, so the calendar's leading-blank alignment is actually
+ *  exercised (a Monday-start month pads zero cells and proves nothing). */
+export function monthCells(year, month, todayIso, doneIso = []) {
+  const days = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const done = new Set(doneIso);
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date(Date.UTC(year, month - 1, i + 1));
+    const date = d.toISOString().slice(0, 10);
+    const dow = (d.getUTCDay() + 6) % 7;                 // Mon = 0
+    const state = dow >= 5 ? (done.has(date) ? "rest-done" : "rest")
+      : done.has(date) ? "done"
+      : date === todayIso ? "today"
+      : date < todayIso ? "missed" : "upcoming";
+    return { day: DAY_NAMES[dow], date, state };
+  });
+}
+
 export const streakDetail = {
   current: 6, best: 9, freezes: 1, done_today: false,
   tier: "Clear View", next_tier: "20/20 Vision", to_next: 4,
   week: [
-    { day: "Mon", date: "2026-06-22", state: "done" },
-    { day: "Tue", date: "2026-06-23", state: "done" },
-    { day: "Wed", date: "2026-06-24", state: "today" },
-    { day: "Thu", date: "2026-06-25", state: "upcoming" },
-    { day: "Fri", date: "2026-06-26", state: "upcoming" },
-    { day: "Sat", date: "2026-06-27", state: "rest" },
-    { day: "Sun", date: "2026-06-28", state: "rest" },
+    { day: "Mon", date: "2026-07-20", state: "done" },
+    { day: "Tue", date: "2026-07-21", state: "done" },
+    { day: "Wed", date: "2026-07-22", state: "today" },
+    { day: "Thu", date: "2026-07-23", state: "upcoming" },
+    { day: "Fri", date: "2026-07-24", state: "upcoming" },
+    { day: "Sat", date: "2026-07-25", state: "rest" },
+    { day: "Sun", date: "2026-07-26", state: "rest" },
   ],
+  month: monthCells(2026, 7, "2026-07-22", ["2026-07-20", "2026-07-21"]),
 };
 export const progress = {
   xp: 1240, xp_today: 60, daily_goal: 100, hearts: 4, level: 7, streak: 6, session_count: 18,

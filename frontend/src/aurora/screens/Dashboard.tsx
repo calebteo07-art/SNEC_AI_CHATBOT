@@ -1,8 +1,8 @@
 "use client";
 /* AURORA Home — the warm-premium student dashboard. A bento of: the greeting hero
-   (ever-changing teasing line + level-up XP bar + Iris mascot), the daily-streak
-   tile, a 3D coverflow of the three entry points, a milestone ladder, and real-data
-   stat tiles. All numbers read from one synced source (useProgress). */
+   (ever-changing teasing line + level-up XP bar + Iris mascot), the daily-streak tile
+   with its month calendar, a 3D coverflow of the three entry points, and the Lumens
+   vault. All numbers read from one synced source (useProgress). */
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/screens/AuthContext";
@@ -16,7 +16,6 @@ import { Logo } from "@/aurora/Logo";
 import { GreetingHero } from "@/aurora/components/home/GreetingHero";
 import { StreakTile } from "@/aurora/components/home/StreakTile";
 import { FeatureCarousel } from "@/aurora/components/home/FeatureCarousel";
-import { MilestoneLadder } from "@/aurora/components/home/MilestoneLadder";
 import { LumenLadder } from "@/aurora/components/home/LumenLadder";
 import { EyeconMenu } from "@/aurora/components/home/EyeconMenu";
 import { PoolToggle } from "@/aurora/components/home/PoolToggleSwitch";
@@ -107,13 +106,12 @@ export function Dashboard() {
           xpInLevel={xpInLevel}
           xpToNext={xpToNext}
         />
-        <StreakTile detail={detail} xpToday={xpToday} dailyGoal={dailyGoal} />
+        <StreakTile detail={detail} />
       </div>
 
       <FeatureCarousel />
 
       <div className="hm-lower">
-        <MilestoneLadder detail={detail} />
         <LumenLadder current={coinsEarned} />
       </div>
     </div>

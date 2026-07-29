@@ -1,4 +1,4 @@
-export type RewardKind = "achievement" | "streak-badge" | "lumen-badge" | "level-up";
+export type RewardKind = "achievement" | "lumen-badge" | "level-up";
 
 export interface Reward {
   id: string;        // stable unique unlock id — dedupes the queue

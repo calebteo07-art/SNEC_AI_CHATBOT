@@ -8,6 +8,7 @@ from datetime import date
 
 from tools.gamification.streak import (
     advance_streak,
+    current_month_states,
     current_week_states,
     is_weekday,
     missed_weekdays,
@@ -180,6 +181,53 @@ def test_week_states_marks_missed_weekday():
     assert by_day["Tue"] == "missed"
     assert by_day["Wed"] == "missed"
     assert by_day["Thu"] == "today"
+
+
+# ── current_month_states (the Home streak card's month calendar) ────────────
+
+def test_month_states_covers_the_whole_month():
+    # May 2026 has 31 days; the cells run 1st → 31st in order.
+    cells = current_month_states(WED, [])
+    assert len(cells) == 31
+    assert cells[0]["date"] == "2026-05-01"
+    assert cells[-1]["date"] == "2026-05-31"
+
+
+def test_month_states_length_tracks_short_months():
+    assert len(current_month_states(date(2026, 4, 15), [])) == 30   # April
+    assert len(current_month_states(date(2026, 2, 10), [])) == 28   # Feb, common year
+    assert len(current_month_states(date(2028, 2, 10), [])) == 29   # Feb, leap year
+
+
+def test_month_states_day_name_matches_the_real_weekday():
+    # 2026-05-01 is a Friday — the leading offset the calendar grid derives from
+    # this name is only safe if the name is the real weekday.
+    cells = current_month_states(WED, [])
+    assert cells[0]["day"] == "Fri"
+    assert cells[3]["day"] == "Mon"      # 4 May 2026
+
+
+def test_month_states_uses_the_same_state_vocabulary_as_the_week():
+    # Today is Wednesday 6 May; Mon + Tue done, Sat 2 May was a rest-day check-in.
+    history = [MON.isoformat(), TUE.isoformat(), "2026-05-02"]
+    by_date = {c["date"]: c["state"] for c in current_month_states(WED, history)}
+    assert by_date["2026-05-04"] == "done"
+    assert by_date["2026-05-05"] == "done"
+    assert by_date["2026-05-06"] == "today"
+    assert by_date["2026-05-07"] == "upcoming"
+    assert by_date["2026-05-01"] == "missed"     # a weekday earlier in the month
+    assert by_date["2026-05-02"] == "rest-done"  # Saturday, checked in anyway
+    assert by_date["2026-05-09"] == "rest"       # a later Saturday
+    assert by_date["2026-05-31"] == "rest"       # Sunday, still upcoming but a rest day
+
+
+def test_month_states_agrees_with_week_states_on_shared_days():
+    # The two views share one day-state rule; they must never drift.
+    history = [MON.isoformat(), TUE.isoformat()]
+    week = {c["date"]: c["state"] for c in current_week_states(THU, history)}
+    month = {c["date"]: c["state"] for c in current_month_states(THU, history)}
+    for iso, state in week.items():
+        assert month[iso] == state, iso
 
 
 # ── tier_for ────────────────────────────────────────────────────────────────

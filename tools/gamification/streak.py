@@ -8,6 +8,7 @@ Reaching every 5th weekday banks one freeze (capped at one).
 All functions take dates explicitly so they're deterministic; call sites supply
 `today` from `tools.shared.clock.app_today()` (Singapore time).
 """
+from calendar import monthrange
 from datetime import date, timedelta
 
 FREEZE_CAP = 1          # at most one freeze banked at a time
@@ -145,28 +146,42 @@ def streak_alive(last_checkin: date | None, today: date, freezes: int) -> bool:
     return missed_weekdays(last_checkin, today) <= tolerance
 
 
+def _day_state(d: date, today: date, done: set) -> str:
+    """One calendar day's state: done | today | missed | upcoming | rest | rest-done.
+    The single rule behind BOTH the week strip and the month calendar — they must
+    never disagree about a day they share."""
+    iso = d.isoformat()
+    if d.weekday() >= 5:
+        return "rest-done" if iso in done else "rest"
+    if iso in done:
+        return "done"
+    if d == today:
+        return "today"
+    return "missed" if d < today else "upcoming"
+
+
+def _cell(d: date, today: date, done: set) -> dict:
+    return {"day": _DAY_NAMES[d.weekday()], "date": d.isoformat(),
+            "state": _day_state(d, today, done)}
+
+
 def current_week_states(today: date, history) -> list[dict]:
     """Seven cells (Mon..Sun) for the week containing `today`, each
     {day, date, state} with state in done | today | missed | upcoming | rest."""
     done = set(history or [])
     monday = today - timedelta(days=today.weekday())
-    cells: list[dict] = []
-    for i in range(7):
-        d = monday + timedelta(days=i)
-        iso = d.isoformat()
-        is_weekend = d.weekday() >= 5
-        if is_weekend:
-            state = "rest-done" if iso in done else "rest"
-        elif iso in done:
-            state = "done"
-        elif d == today:
-            state = "today"
-        elif d < today:
-            state = "missed"
-        else:
-            state = "upcoming"
-        cells.append({"day": _DAY_NAMES[i], "date": iso, "state": state})
-    return cells
+    return [_cell(monday + timedelta(days=i), today, done) for i in range(7)]
+
+
+def current_month_states(today: date, history) -> list[dict]:
+    """One cell per day of the calendar month containing `today`, 1st → last, each
+    {day, date, state}. Feeds the Home streak card's month calendar; the grid derives
+    its leading blank offset from the first cell's `day` NAME (never by re-parsing the
+    ISO date client-side, which would reintroduce a UTC/SGT off-by-one)."""
+    done = set(history or [])
+    days = monthrange(today.year, today.month)[1]
+    first = today.replace(day=1)
+    return [_cell(first + timedelta(days=i), today, done) for i in range(days)]
 
 
 def tier_for(streak: int) -> dict:

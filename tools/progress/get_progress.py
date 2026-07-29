@@ -24,7 +24,8 @@ def _parse_date(value):
 
 def _streak_detail(profile: dict) -> dict:
     """The data the dashboard streak band renders: current/best/freezes, whether
-    today is done, and the Mon..Sun week with weekend rest days. The streak is
+    today is done, the Mon..Sun week, and the full calendar month the Home streak
+    card draws as a grid (both share one day-state rule). The streak is
     resolved from checkin_history (the durable source of truth) so a stored column
     that never persisted still reads back the real streak."""
     today = app_today()
@@ -43,6 +44,7 @@ def _streak_detail(profile: dict) -> dict:
         "freezes": freezes,
         "done_today": done_today,
         "week": streak_engine.current_week_states(today, history),
+        "month": streak_engine.current_month_states(today, history),
         "tier": tier["tier"],
         "next_tier": tier["next"],
         "to_next": tier["to_next"],

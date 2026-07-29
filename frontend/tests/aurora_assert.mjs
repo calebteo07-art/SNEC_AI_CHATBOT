@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import { monthCells } from "./_mocks.mjs";
 const base = process.argv[2] ?? "http://127.0.0.1:3000";
 const b = await chromium.launch();
 
@@ -23,18 +24,20 @@ await navCtx.route("**/api/auth/me", (r) => r.fulfill(JSON_OK(studentUser)));
 await navCtx.route("**/api/progress", (r) => r.fulfill(JSON_OK({
   xp: 1240, xp_today: 60, daily_goal: 100, hearts: 3, level: 7, streak: 4, session_count: 18,
   learning_velocity: "improving",
+  coins_earned: 1800,   // 5 of the 20 Lumens tiers collected; "Keen Eye" (2200) is next
   streak_detail: {
     current: 4, best: 9, freezes: 1, done_today: false,
     tier: "First Light", next_tier: "Clear View", to_next: 1,
     week: [
-      { day: "Mon", date: "2026-06-22", state: "done" },
-      { day: "Tue", date: "2026-06-23", state: "done" },
-      { day: "Wed", date: "2026-06-24", state: "today" },
-      { day: "Thu", date: "2026-06-25", state: "upcoming" },
-      { day: "Fri", date: "2026-06-26", state: "upcoming" },
-      { day: "Sat", date: "2026-06-27", state: "rest" },
-      { day: "Sun", date: "2026-06-28", state: "rest" },
+      { day: "Mon", date: "2026-07-20", state: "done" },
+      { day: "Tue", date: "2026-07-21", state: "done" },
+      { day: "Wed", date: "2026-07-22", state: "today" },
+      { day: "Thu", date: "2026-07-23", state: "upcoming" },
+      { day: "Fri", date: "2026-07-24", state: "upcoming" },
+      { day: "Sat", date: "2026-07-25", state: "rest" },
+      { day: "Sun", date: "2026-07-26", state: "rest" },
     ],
+    month: monthCells(2026, 7, "2026-07-22", ["2026-07-20", "2026-07-21"]),
   },
   weak_topics: ["Glaucoma staging", "Cataract grading"],
   topic_performance: [
@@ -136,26 +139,57 @@ await np.waitForSelector('[data-testid="home-root"]', { timeout: 15000 });
 const h1count = await np.locator("main h1").count();
 if (h1count !== 1) { console.error(`FAIL: dashboard main h1 count = ${h1count}`); process.exit(1); }
 if ((await np.locator('[data-testid="streak-tile"]').count()) !== 1) { console.error("FAIL: streak tile missing"); process.exit(1); }
-if ((await np.locator('[data-testid="milestone-ladder"]').count()) !== 1) { console.error("FAIL: milestone ladder missing"); process.exit(1); }
+if ((await np.locator('[data-testid="milestone-ladder"]').count()) !== 0) { console.error("FAIL: the streak vault was removed 2026-07-29 but still renders"); process.exit(1); }
 if ((await np.locator('[data-testid="lumen-ladder"]').count()) !== 1) { console.error("FAIL: Lumens vault ladder missing"); process.exit(1); }
 if ((await np.locator('[data-testid="feature-card"]').count()) !== 3) { console.error("FAIL: expected 3 feature cards"); process.exit(1); }
 const greetText = (await np.locator('[data-testid="greeting"]').innerText()).trim();
 if (!greetText) { console.error("FAIL: greeting h1 is empty"); process.exit(1); }
-console.log("PASS: warm home (greeting h1, streak tile, milestone ladder, Lumens vault, 3 feature cards)");
+console.log("PASS: warm home (greeting h1, streak tile, ONE Lumens vault, 3 feature cards)");
 
-// Streak badge collection (Eyecon everywhere): the milestone ladder is a shelf of generated
-// collectible medallions. With streak=4, First Light is collected, Clear View is next, the
-// other four are locked. Verifies the state mapping AND that the generated art asset is served.
-const ladder = '[data-testid="milestone-ladder"]';
-if ((await np.locator(`${ladder} .hm-badge`).count()) !== 6) { console.error("FAIL: expected 6 streak badges"); process.exit(1); }
-if ((await np.locator(`${ladder} .hm-badge-art`).count()) !== 6) { console.error("FAIL: streak badges missing medallion art"); process.exit(1); }
+// The Lumens vault is the app's only badge collection: a horizontal shelf of 20 generated
+// medallions. With coins_earned=1800, five tiers are collected, "Keen Eye" (2200) is next
+// and the other fourteen are locked. Verifies the state mapping AND that the art is served.
+const ladder = '[data-testid="lumen-ladder"]';
+if ((await np.locator(`${ladder} .hm-badge`).count()) !== 20) { console.error("FAIL: expected 20 Lumens badges"); process.exit(1); }
+if ((await np.locator(`${ladder} .hm-badge-art`).count()) !== 20) { console.error("FAIL: Lumens badges missing medallion art"); process.exit(1); }
 const bCollected = await np.locator(`${ladder} .hm-badge[data-state="collected"]`).count();
 const bNext = await np.locator(`${ladder} .hm-badge[data-state="next"]`).count();
 const bLocked = await np.locator(`${ladder} .hm-badge[data-state="locked"]`).count();
-if (bCollected !== 1 || bNext !== 1 || bLocked !== 4) { console.error(`FAIL: badge states (collected=${bCollected} next=${bNext} locked=${bLocked})`); process.exit(1); }
-const badgeServed = await np.evaluate(async () => (await fetch("/brand/badges/first-light.jpg")).ok);
-if (!badgeServed) { console.error("FAIL: badge art /brand/badges/first-light.jpg not served"); process.exit(1); }
-console.log("PASS: Eyecon everywhere — streak badge collection (6 generated medallions; collected/next/locked; art served)");
+if (bCollected !== 5 || bNext !== 1 || bLocked !== 14) { console.error(`FAIL: badge states (collected=${bCollected} next=${bNext} locked=${bLocked})`); process.exit(1); }
+const badgeServed = await np.evaluate(async () => (await fetch("/brand/lumen-badges/first-blink.jpg")).ok);
+if (!badgeServed) { console.error("FAIL: badge art /brand/lumen-badges/first-blink.jpg not served"); process.exit(1); }
+
+// The shelf must actually SCROLL (20 medallions never fit) and must have landed on the
+// student's NEXT badge rather than parked at rung 1 — the whole point of the shelf.
+const shelf = await np.evaluate(() => {
+  const el = document.querySelector('[data-testid="lumen-ladder"] .hm-badges');
+  const next = el?.querySelector('[data-state="next"]');
+  if (!el || !next) return null;
+  return { overflows: el.scrollWidth > el.clientWidth + 4, scrollLeft: el.scrollLeft,
+    nextCentred: Math.abs((next.offsetLeft + next.offsetWidth / 2) - (el.scrollLeft + el.clientWidth / 2)) < 60 };
+});
+if (!shelf?.overflows) { console.error("FAIL: the vault shelf does not overflow — it cannot scroll"); process.exit(1); }
+if (!shelf.nextCentred) { console.error(`FAIL: shelf did not scroll to the next badge (scrollLeft=${shelf?.scrollLeft})`); process.exit(1); }
+console.log("PASS: Lumens vault — 20 medallions on a horizontal shelf, states correct, art served, auto-scrolled to 'next'");
+
+// Streak card: the daily-goal % ring is GONE and the whole month renders. July 2026 starts
+// on a Wednesday, so the grid must pad exactly 2 leading cells before the 31 day cells.
+if ((await np.locator('.hm-streak .hm-goalring').count()) !== 0) { console.error("FAIL: the daily-goal % ring was removed 2026-07-29 but still renders"); process.exit(1); }
+if ((await np.locator('.hm-streak .hm-week').count()) !== 0) { console.error("FAIL: the week strip was replaced by the month calendar but still renders"); process.exit(1); }
+const cal = await np.evaluate(() => {
+  const el = document.querySelector('[data-testid="month-calendar"]');
+  if (!el) return null;
+  return { pads: el.querySelectorAll(".hm-calpad").length, days: el.querySelectorAll(".hm-calday").length,
+    month: el.querySelector(".hm-calmonth")?.textContent?.trim(),
+    today: el.querySelectorAll('.hm-calday[data-state="today"]').length,
+    done: el.querySelectorAll('.hm-calday[data-state="done"]').length };
+});
+if (!cal) { console.error("FAIL: month calendar missing from the streak card"); process.exit(1); }
+if (cal.days !== 31) { console.error(`FAIL: expected 31 July cells, got ${cal.days}`); process.exit(1); }
+if (cal.pads !== 2) { console.error(`FAIL: 1 July 2026 is a Wednesday — expected 2 leading blanks, got ${cal.pads}`); process.exit(1); }
+if (cal.month !== "July 2026") { console.error(`FAIL: month label = ${cal.month}`); process.exit(1); }
+if (cal.today !== 1 || cal.done !== 2) { console.error(`FAIL: calendar states (today=${cal.today} done=${cal.done})`); process.exit(1); }
+console.log("PASS: streak card — no goal ring, full month calendar (31 cells, 2 leading blanks, correct states)");
 
 // feature cards must NAVIGATE on tap (ricoe D3): the perpetual drift + 3D projection
 // used to swallow the click and leave the user stuck on the dashboard. A tap on the

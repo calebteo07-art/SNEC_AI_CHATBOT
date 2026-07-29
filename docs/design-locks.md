@@ -254,8 +254,9 @@ flip, spinner slows); WCAG-legible.
 ## Home / Dashboard — LOCKED 2026-07-01 · refined "come alive" 2026-07-10
 Warm-premium bento `.aurora-home` (Bricolage Grotesque): GreetingHero with the
 ever-changing greeting engine + **Iris** mascot, StreakTile, FeatureCarousel (3D
-coverflow, back-card fade), MilestoneLadder, LumenLadder (lifetime-Lumens vault —
-WeekStats retired, see the Task 24 amendment below). Old dark dashboard
+coverflow, back-card fade), ~~MilestoneLadder~~, LumenLadder (lifetime-Lumens vault —
+WeekStats retired, see the Task 24 amendment below; the streak vault itself is retired,
+see the ONE-vault amendment at the end of this section). Old dark dashboard
 (StreakBand/GradientHero/GoalRing) is retired; do not revive.
 - **"Come alive" refine (2026-07-10, spec `2026-07-10-homepage-come-alive-design.md`)**:
   enlarged type scale on every card (bigger *and* clearer — darkened a few low-contrast
