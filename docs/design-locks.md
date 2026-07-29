@@ -487,6 +487,24 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   + rotate-gate + aurora asserts green. **Out of scope**: checklist gating/order, the two-pane
   structure, the handover form / debrief flow & copy, the warm/cool colour split, adding/removing
   any animation, backend/API.
+- **Clarity, recall & transparency (2026-07-29, user-directed + Branda feedback)** — criteria
+  changed: *(1) checklist interactivity — tap-to-tick REMOVED, the checklist is a read-only
+  instrument; (2) information disclosure — upcoming steps and the case topic are progressively
+  revealed rather than shown at load; (3) attentional state — panes carry an explicit
+  active/inactive treatment driven by `data-turn`.* Drivers: students were ticking rows
+  instead of doing the work and could not tell where to act; Branda reported the sidebar
+  revealed the diagnosis and the tick-boxes replaced recall. The organising split is
+  MECHANICS made LOUD (turn spotlight + badge, `?` help on both surfaces, 3-beat first-run
+  coach-mark, stuck-valve) vs CLINICAL CONTENT made EARNED (masked future steps, topic hidden
+  until the debrief). Turn badges name the CHANNEL only, never a step. New pure modules
+  `stationMask.ts` / `stationTurn.ts` / `stationHelp.ts` (unit-tested in CI) own the rules.
+  **Acceptance when refining**: checklist rows are never interactive; no future step's action
+  text appears in the DOM; `data-turn` matches the gate step; turn badges never contain a step
+  number or clinical action; the case `topic` never renders in `.aurora-station-hud` or
+  `.aurora-station-mt` before the debrief (the patient's own words may mention it — that is
+  not a leak); a student can never dead-end when /observe misses a step; 390px no-overflow
+  preserved; station + rotate-gate + aurora asserts green. **Out of scope**: gating order, the
+  triptych structure, the warm/cool identity, the handover flow, the two-scheme grade.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
