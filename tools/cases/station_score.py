@@ -10,6 +10,8 @@ checklist is NOT part of the grade (coverage awards no points):
 A missed CRITICAL step still raises the safety flag and caps Judgement & Safety at
 SAFETY_CAP (real OSCE "critical fail", softened for a learning tool). Pure + deterministic.
 The legacy /40 (total_score) is kept for difficulty progression and staff dashboards.
+`breakdown` explains both schemes to the student — the sub-scores behind each total and the
+safety cap when it fires — so every number in the debrief is traceable to an input.
 """
 
 SAFETY_CAP = 0.6
@@ -76,6 +78,31 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed,
 
     score_100 = max(0, min(100, consult_technique + judgement_safety))
 
+    # The explanation of the two schemes, emitted HERE because this function owns the
+    # formula — a duplicate in the frontend would drift the first time weighting changed.
+    # Branda (2026-07-29): students couldn't tell why each domain scored what it did.
+    consult_parts = [{"label": "History-taking", "pts": hist, "max": 10}]
+    if has_manual:
+        consult_parts.append({"label": "Examination technique", "pts": inv, "max": 10})
+    cap_reason = (
+        f"×{SAFETY_CAP} safety cap — critical step missed: {missed_critical[0]}"
+        if missed_critical else ""
+    )
+    breakdown = {
+        "consult": {
+            "parts": consult_parts, "total": consult_technique, "max": 50,
+            "capped": False, "cap_reason": "",
+        },
+        "judgement": {
+            "parts": [
+                {"label": "Recognition", "pts": dia, "max": 10},
+                {"label": "Handover & escalation", "pts": mng, "max": 10},
+            ],
+            "total": judgement_safety, "max": 50,
+            "capped": not safe, "cap_reason": cap_reason,
+        },
+    }
+
     return {
         "score_100": score_100,
         "consult_technique": consult_technique,
@@ -88,4 +115,5 @@ def compute_station_score(domain_scores: dict, steps: list[dict], performed,
         "total_score": round(score_100 * 0.4),
         "critical_hit": crit_done,
         "critical_total": crit_total,
+        "breakdown": breakdown,
     }
