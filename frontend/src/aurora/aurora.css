@@ -3461,6 +3461,21 @@ html[data-motion="reduce"] .flash-spinner { animation-duration: 1.8s; }
 .aurora-station-unstick:hover:not(:disabled) { color: var(--ink-2); background: rgba(31,31,31,.04); }
 .aurora-station-unstick:disabled { opacity: .6; cursor: default; }
 
+/* "?" help — quiet until wanted, reachable from both Virtual Patients surfaces. Both head
+   rows are already flex, so margin-left:auto is all it takes to sit them on the right. */
+.aurora-help-btn {
+  margin-left: auto; flex: none; align-self: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--hairline); background: var(--paper);
+  color: var(--ink-2); font-size: 15px; font-weight: 700; cursor: pointer; line-height: 1;
+  transition: background .15s var(--st-ease, ease), color .15s var(--st-ease, ease);
+}
+.aurora-help-btn:hover { background: rgba(155,114,203,.12); color: var(--ink); }
+.aurora-help-card { max-width: 620px; text-align: left; }
+.aurora-help-list { margin: 10px 0 18px; display: flex; flex-direction: column; gap: 13px; }
+.aurora-help-list dt { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 2px; }
+.aurora-help-list dd { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+
 /* ── Manual-procedures tray ──────────────────────────────────────────
    A quiet strip that blends into the composer cluster. (Renamed off
    `.aurora-palette` so it no longer inherits the command-palette modal box.) */
