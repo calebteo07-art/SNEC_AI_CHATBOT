@@ -19,7 +19,10 @@ const J = (body) => ({ status: 200, contentType: "application/json", body: JSON.
 await ctx.route("**/api/**", (r) => r.fulfill(J({})));
 await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
 await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
-  case: { case_id: "C001", title: "Routine glaucoma follow-up", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12,
+  // The title is deliberately OBLIQUE, like the real ones ("The Bright Red Eye That Looked
+  // Worse Than It Was"). A title that names its own diagnosis is a case-content bug, not
+  // something the UI should mask.
+  case: { case_id: "C001", title: "Routine pressure check follow-up", difficulty: "intermediate", topic: "Glaucoma", estimated_minutes: 12,
           patient: { name: "Mr Rajasekaran", age: 55, presenting_complaint: "Here for my 6-month glaucoma review.", face: "/patients/indian_male_middle.webp" } },
   checklist: {
     procedure_name: "Non-Contact Tonometry", source: "checklist", total_steps: 6, critical_count: 2,
@@ -44,7 +47,16 @@ await ctx.route("**/api/cases/C001/station", (r) => r.fulfill(J({
     { key: "s6", label: "Advise on follow-up", reveal_text: "", satisfies_steps: [6], mode: "do", prompt_text: "", phase: 3, critical: false, step_number: 6, kind: "verbal" },
   ],
 })));
-await ctx.route("**/api/cases/C001/observe", (r) => r.fulfill(J({ newly_satisfied: [1] })));
+// The examiner ticks the next VERBAL step on each pass (3-5 are manual/action-panel only).
+// Progressive, because the read-only checklist means /observe is now the only way steps 1-2
+// can advance — clicking rows is gone (2026-07-29).
+const VERBAL_ORDER = [1, 2, 6];
+await ctx.route("**/api/cases/C001/observe", async (r) => {
+  const body = JSON.parse(r.request().postData() || "{}");
+  const ticked = new Set(body.already_ticked || []);
+  const next = VERBAL_ORDER.find((n) => !ticked.has(n));
+  await r.fulfill(J({ newly_satisfied: next === undefined ? [] : [next] }));
+});
 await ctx.route("**/api/cases/C001/chat", (r) => r.fulfill({
   status: 200, contentType: "text/event-stream",
   body: 'data: {"text":"Good morning, "}\n\ndata: {"text":"doctor."}\n\ndata: [DONE]\n\n',
@@ -102,6 +114,15 @@ p.on("console", (m) => { if (m.type() === "error" && !/webpack-hmr|WebSocket/.te
 await p.goto(base + "/cases/C001", { waitUntil: "domcontentloaded" });
 await p.waitForSelector('[data-testid="station"]', { timeout: 15000 });
 
+// 0. The first-run coach-mark is up on a fresh profile — walk it, which also proves it
+//    renders and completes. Everything after this needs the scrim gone.
+await p.waitForSelector('[data-testid="station-coach"]', { timeout: 8000 });
+for (let i = 0; i < 4 && (await p.locator('[data-testid="coach-next"]').count()); i++) {
+  await p.locator('[data-testid="coach-next"]').click();
+}
+if (await p.locator('[data-testid="station-coach"]').count()) die("coach-mark did not dismiss");
+ok("first-run coach-mark renders and completes");
+
 // 1. exactly one h1
 if ((await p.locator("main h1, h1").count()) !== 1) die("station must render exactly one h1");
 ok("one h1");
@@ -121,15 +142,14 @@ const steps = await p.locator(".aurora-station-step").count();
 if (steps !== 6) die(`expected 6 one-per-step checklist rows, got ${steps}`);
 ok("six steps render as six discrete rows");
 
-// 4a. every original action is present — nothing dropped.
-const checklistText = (await p.locator(".aurora-station-clscroll").innerText());
-for (const action of [
-  "Identify patient", "Explain purpose & procedure", "Measure IOP",
-  "Measure distance visual acuity", "Record readings in EMR", "Advise on follow-up",
-]) {
-  if (!checklistText.includes(action)) die(`merge dropped a step action: "${action}"`);
-}
-ok("merged rows preserve every original step action");
+// 4a. Every step still has its OWN row — nothing dropped or merged. Their action text is
+//     progressively revealed (see 5i), so presence is asserted by row count + display
+//     state, not by reading the words: at load exactly one row is current and the rest
+//     are masked.
+if ((await p.locator('.aurora-station-step[data-display="current"]').count()) !== 1) die("exactly one row must be current at load");
+if ((await p.locator('.aurora-station-step[data-display="masked"]').count()) !== 5) die("the other five rows must be masked at load");
+if (!(await p.locator('.aurora-station-step[data-display="masked"] .mask').first().count())) die("a masked row must render the mask glyph run");
+ok("six discrete rows: one current, five masked");
 
 // 4b. independent scroll: the station root must fill the scroll viewport so the
 //     checklist + consult panes scroll inside their own bounds — not the whole
@@ -175,7 +195,7 @@ ok("patient face pfp (img) + static hand on the action pane (ricoe §8)");
 
 // 5g. Gating: at load nothing is ticked → gate is step 1. Later steps + their chips
 //     must be locked, and the in-order help caption present.
-if (!(await p.locator('.aurora-station-cl-help:has-text("unlock in order")').count())) die("missing the in-order help caption");
+if (!(await p.locator('.aurora-station-cl-help:has-text("tick themselves")').count())) die("missing the auto-tick help caption");
 if (!(await p.locator('.aurora-pchip[data-locked="true"]:has-text("Measure IOP")').count())) die("Measure IOP chip must be locked before its turn");
 if (await p.locator('.aurora-pchip:has-text("Measure IOP")').first().isEnabled()) die("locked Measure IOP chip must be disabled");
 const lockedRows = await p.locator('.aurora-station-step[data-locked="true"]').count();
@@ -183,20 +203,82 @@ if (lockedRows < 4) die(`expected later rows locked at load, got ${lockedRows}`)
 if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Identify patient")').count())) die("step 1 must be the current step at load");
 ok("gating: later steps + chips locked, step 1 current, help caption present");
 
-// 5h. Manual fallback advances the gate one step at a time, in order, and unlocks
-//     the next chip once its predecessors are done.
-await p.locator('.aurora-station-step[data-current="true"]').click(); // tick step 1
-if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Explain purpose")').count())) die("gate did not advance to step 2 after current-row tap");
-await p.locator('.aurora-station-step[data-current="true"]').click(); // tick step 2
-if (!(await p.locator('.aurora-station-step[data-current="true"]:has-text("Measure IOP")').count())) die("gate did not advance to step 3");
+// 5h. The checklist is READ-ONLY (2026-07-29): rows are not buttons and clicking one does
+//     nothing. This is a state invariant — students were ticking rows instead of doing the
+//     work, so the affordance must never come back.
+const firstRow = p.locator('.aurora-station-step').first();
+if ((await firstRow.evaluate((el) => el.tagName)) !== "LI") die("checklist rows must not be buttons");
+const beforeClick = await p.locator('.aurora-station-step[data-ticked="true"]').count();
+await firstRow.click({ force: true });
+await p.waitForTimeout(150);
+if ((await p.locator('.aurora-station-step[data-ticked="true"]').count()) !== beforeClick) {
+  die("clicking a checklist row must not tick it");
+}
+ok("checklist is read-only — clicking a row does nothing");
+
+// 5i. Progressive reveal: future steps are masked, and their action text is NOWHERE in the
+//     DOM. Branda's point — a fully-visible list is a script students read off instead of
+//     recalling their own history-taking questions.
+if (!(await p.locator('.aurora-station-step[data-display="masked"]').count())) die("future steps must be masked");
+const clText = await p.locator(".aurora-station-clscroll").innerText();
+if (clText.includes("Advise on follow-up")) die("a future step's action text leaked into the DOM");
+if (!clText.includes("Identify patient")) die("the current step must still be named");
+ok("future steps masked, current step named");
+
+// 5j. Talking advances the gate — the only path now for verbal steps.
+await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
+await p.locator(".aurora-station-composer-send").click();
+await p.waitForFunction(() => document.querySelector(".aurora-station-thread")?.textContent?.includes("Good morning, doctor."), null, { timeout: 8000 });
+await p.waitForSelector('.aurora-station-step[data-current="true"]:has-text("Explain purpose")', { timeout: 8000 });
+await p.locator(".aurora-station-composer-input").fill("I'll explain what the test involves before we start.");
+await p.locator(".aurora-station-composer-send").click();
+await p.waitForSelector('.aurora-station-step[data-current="true"]:has-text("Measure IOP")', { timeout: 8000 });
 if (await p.locator('.aurora-pchip[data-locked="true"]:has-text("Measure IOP")').count()) die("Measure IOP must unlock once steps 1-2 are done");
-ok("gating: current-row tap advances the gate in order and unlocks the next chip");
+ok("consult advances the gate in order and unlocks the next chip");
 
 // 5m. The patient chat LOCKS while the next step is a hands-on procedure (gate is now the
 //     manual Measure IOP) — the student must use the action panel, not chat.
 if (!(await p.locator('[data-testid="patient-lock"]').count())) die("patient chat must lock when the next step is manual");
 if (await p.locator('[data-testid="patient-pane"] .aurora-station-composer-input').count()) die("patient composer must be hidden while a manual step is the gate");
 ok("patient chat locks on manual steps (composer hidden — action panel only)");
+
+// 5n. Turn-spotlight: the grid names the live pane, and the badge names the CHANNEL only.
+const turnNow = await p.getAttribute(".aurora-station-grid", "data-turn");
+if (turnNow !== "eyebot") die(`data-turn should be "eyebot" on a manual gate step, got "${turnNow}"`);
+const badge = await p.locator('[data-testid="turn-badge"]').innerText();
+if (!/EyeBot/.test(badge)) die(`turn badge must name the pane, got "${badge}"`);
+if (/\d/.test(badge)) die(`turn badge must not leak a step number: "${badge}"`);
+// waitForFunction, not a bare read: data-turn has just flipped, so opacity is mid-TRANSITION
+// and getComputedStyle returns the interpolating value (starting at 1). Asserting the settled
+// state is the real invariant; a one-shot read here fails on a working spotlight.
+await p.waitForFunction(
+  () => Number(getComputedStyle(document.querySelector(".aurora-patient")).opacity) < 0.85,
+  null,
+  { timeout: 4000 },
+).catch(() => die("inactive pane never dimmed"));
+ok("turn-spotlight: data-turn set, badge names the channel, inactive pane dimmed");
+
+// 5o. The case TOPIC must not appear in the station's METADATA — on many cases it IS the
+//     diagnosis (case_oa_009 → topic "subconjunctival_haemorrhage"), and it used to print in
+//     both the HUD and the aside before a single question was asked. Scoped to those two
+//     places on purpose: the patient saying "I'm here for my glaucoma review" is their own
+//     words, not a metadata leak, and must stay.
+const hudText = await p.locator(".aurora-station-hud").innerText();
+const asideMeta = await p.locator(".aurora-station-mt").innerText();
+if (/glaucoma/i.test(hudText)) die(`case topic leaked into the station HUD: "${hudText}"`);
+if (/glaucoma/i.test(asideMeta)) die(`case topic leaked into the aside: "${asideMeta}"`);
+if (!/tonometry/i.test(hudText)) die(`HUD should name the procedure instead of the topic, got "${hudText}"`);
+ok("case topic absent from the station chrome (procedure shown instead)");
+
+// 5p2. "?" help opens, is labelled, and closes.
+await p.locator('[data-testid="help-station"]').click();
+await p.waitForSelector('[data-testid="help-modal"]', { timeout: 4000 });
+const helpText = await p.locator('[data-testid="help-modal"]').innerText();
+if (!/tick/i.test(helpText)) die("station help must explain that the checklist ticks itself");
+await p.keyboard.press("Escape");
+await p.waitForTimeout(150);
+if (await p.locator('[data-testid="help-modal"]').count()) die("Escape must close the help modal");
+ok("'?' help opens, explains the checklist, closes on Escape");
 
 // 5a. clicking a manual chip opens procedure mode → typing technique + confirm logs
 //     the technique, reveals the finding, ticks the step, and marks the chip done.
