@@ -159,18 +159,38 @@ if (bCollected !== 5 || bNext !== 1 || bLocked !== 14) { console.error(`FAIL: ba
 const badgeServed = await np.evaluate(async () => (await fetch("/brand/lumen-badges/first-blink.jpg")).ok);
 if (!badgeServed) { console.error("FAIL: badge art /brand/lumen-badges/first-blink.jpg not served"); process.exit(1); }
 
-// The shelf must actually SCROLL (20 medallions never fit) and must have landed on the
-// student's NEXT badge rather than parked at rung 1 — the whole point of the shelf.
-const shelf = await np.evaluate(() => {
+// The frame shows EXACTLY five at a time (20 medallions = 4 pages) and opens on the page
+// holding the student's next badge. With coins_earned=1800 that badge is #6 (Keen Eye),
+// so the frame must open on page 2 — not parked at rung 1.
+const framed = () => np.evaluate(() => {
   const el = document.querySelector('[data-testid="lumen-ladder"] .hm-badges');
-  const next = el?.querySelector('[data-state="next"]');
-  if (!el || !next) return null;
-  return { overflows: el.scrollWidth > el.clientWidth + 4, scrollLeft: el.scrollLeft,
-    nextCentred: Math.abs((next.offsetLeft + next.offsetWidth / 2) - (el.scrollLeft + el.clientWidth / 2)) < 60 };
+  if (!el) return null;
+  const kids = [...el.children];
+  const stride = kids[5].offsetLeft - kids[0].offsetLeft;
+  const left = el.scrollLeft, right = left + el.clientWidth;
+  // a badge counts as "on show" only if it sits wholly inside the frame
+  const shown = kids.filter((k) => k.offsetLeft >= left - 2 && k.offsetLeft + k.offsetWidth <= right + 2);
+  return { shown: shown.length, first: shown[0]?.querySelector(".hm-badge-name")?.textContent?.trim(),
+    scrollable: el.scrollWidth > el.clientWidth + 4, page: Math.round(left / stride),
+    label: document.querySelector('[data-testid="vault-page"]')?.textContent?.trim() };
 });
-if (!shelf?.overflows) { console.error("FAIL: the vault shelf does not overflow — it cannot scroll"); process.exit(1); }
-if (!shelf.nextCentred) { console.error(`FAIL: shelf did not scroll to the next badge (scrollLeft=${shelf?.scrollLeft})`); process.exit(1); }
-console.log("PASS: Lumens vault — 20 medallions on a horizontal shelf, states correct, art served, auto-scrolled to 'next'");
+let fr = await framed();
+if (!fr?.scrollable) { console.error("FAIL: the vault frame does not overflow — it cannot page"); process.exit(1); }
+if (fr.shown !== 5) { console.error(`FAIL: expected exactly 5 badges framed, got ${fr.shown}`); process.exit(1); }
+if (fr.page !== 1) { console.error(`FAIL: frame should open on the page holding 'next' (page 2 of 4), got page ${fr.page + 1}`); process.exit(1); }
+if (fr.label !== "2 / 4") { console.error(`FAIL: pager readout = ${fr.label}, expected "2 / 4"`); process.exit(1); }
+
+// ‹ › step exactly one page, and clamp at both ends rather than running off.
+await np.locator('[data-testid="vault-prev"]').click();
+await np.waitForTimeout(650);
+fr = await framed();
+if (fr.page !== 0 || fr.first !== "First Blink") { console.error(`FAIL: ‹ did not step back to page 1 (page=${fr.page + 1} first=${fr.first})`); process.exit(1); }
+if (!(await np.locator('[data-testid="vault-prev"]').isDisabled())) { console.error("FAIL: ‹ must be disabled on the first page"); process.exit(1); }
+for (let i = 0; i < 3; i++) { await np.locator('[data-testid="vault-next"]').click(); await np.waitForTimeout(650); }
+fr = await framed();
+if (fr.page !== 3 || fr.shown !== 5) { console.error(`FAIL: › did not reach the last page (page=${fr.page + 1} shown=${fr.shown})`); process.exit(1); }
+if (!(await np.locator('[data-testid="vault-next"]').isDisabled())) { console.error("FAIL: › must be disabled on the last page"); process.exit(1); }
+console.log("PASS: Lumens vault — 20 medallions, 5 framed per page, ‹ › page and clamp, opens on the 'next' page, art served");
 
 // Streak card: the daily-goal % ring is GONE and the whole month renders. July 2026 starts
 // on a Wednesday, so the grid must pad exactly 2 leading cells before the 31 day cells.
@@ -413,22 +433,51 @@ if ((await np.locator('.fan-dot').count()) !== 0) { console.error("FAIL: topic s
 const setupTitle = (await np.locator('.flash-setup-title').innerText()).toLowerCase();
 if (/grand prix|mario/.test(setupTitle)) { console.error(`FAIL: selection still uses racing/Mario copy (got '${setupTitle}')`); process.exit(1); }
 console.log("PASS: flashcards — selection de-Mario'd (no numbers, no dots, no 'Grand Prix')");
-// The 5-deck ladder (2026-07-29): each topic card is captioned with how far up its own
-// ladder the student has climbed. This REPLACED a "Foundations"/"Skills" pool label, which
-// told a student nothing they could act on. The mock cycles decks_completed 0..5, so every
-// caption state must appear — an untouched topic, a part-way one, and a cleared one.
+// The 5-deck ladder STICKER (2026-07-29): how far up its own ladder the student has climbed
+// rides on a die-cut sticker peeled onto each topic card's TOP-RIGHT corner — it used to be
+// the caption line, and before that a "Foundations"/"Skills" pool label that told a student
+// nothing they could act on. The mock cycles decks_completed 0..5, so all three sticker
+// states must appear. The count must be stated ONCE: never in the caption as well.
+const stickers = await np.evaluate(() => [...document.querySelectorAll('[data-testid="flash-pick"]')]
+  .map((card) => {
+    const s = card.querySelector('[data-testid="fan-sticker"]');
+    const media = card.querySelector(".fan-card-media");
+    if (!s || !media) return null;
+    const r = s.getBoundingClientRect(), m = media.getBoundingClientRect();
+    return { text: s.querySelector(".fan-sticker-num")?.textContent?.trim(),
+      cap: s.querySelector(".fan-sticker-cap")?.textContent?.trim(),
+      state: s.getAttribute("data-state"),
+      // a sticker sits on the card's TOP-RIGHT corner and OVERHANGS it. Only meaningful
+      // on the FRONT card: the neighbours are banked 54° away, so their projected rects
+      // compress and would make this geometry a flaky, meaningless comparison.
+      w: m.width,
+      topRight: r.top < m.top + m.height * 0.25 && r.right > m.left + m.width * 0.75,
+      overhangs: r.right > m.right + 2 && r.top < m.top - 2 };
+  }).filter(Boolean));
 const fanSubs = (await np.locator('[data-testid="flash-pick"] .fan-card-sub').allInnerTexts())
   .join(" | ").toLowerCase();
 if (/foundations|skills/.test(fanSubs)) {
   console.error(`FAIL: topic cards still carry the Foundations/Skills pool label (got '${fanSubs}')`); process.exit(1);
 }
-if (!/\d\/5 decks/.test(fanSubs)) {
-  console.error(`FAIL: topic cards must show the x/5 deck counter (got '${fanSubs}')`); process.exit(1);
+if (/\d\s*\/\s*5|decks/.test(fanSubs)) {
+  console.error(`FAIL: the ladder count must live ONLY on the sticker, not the caption too (got '${fanSubs}')`); process.exit(1);
 }
-if (!/all 5 decks done/.test(fanSubs)) {
-  console.error(`FAIL: a fully-cleared topic must read as done, not '5/5' (got '${fanSubs}')`); process.exit(1);
+if (stickers.length < 20) { console.error(`FAIL: only ${stickers.length} topic cards carry a deck sticker`); process.exit(1); }
+const front = stickers.reduce((a, b) => (b.w > a.w ? b : a));   // the upright, forward card
+if (!front.topRight || !front.overhangs) {
+  console.error(`FAIL: the deck sticker must overhang the card's top-right corner (got ${JSON.stringify(front)})`); process.exit(1);
 }
-console.log("PASS: flashcards — topic cards show the x/5 ladder counter (Foundations/Skills label gone)");
+if (!stickers.every((s) => /^\d\/5$/.test(s.text) && s.cap === "decks")) {
+  console.error(`FAIL: every sticker must read 'n/5' over a 'decks' label (got ${JSON.stringify(stickers.slice(0, 3))})`); process.exit(1);
+}
+for (const [state, want] of [["fresh", "0/5"], ["climbing", null], ["cleared", "5/5"]]) {
+  const hit = stickers.filter((s) => s.state === state);
+  if (!hit.length) { console.error(`FAIL: no topic card rendered the '${state}' sticker state`); process.exit(1); }
+  if (want && hit.some((s) => s.text !== want)) {
+    console.error(`FAIL: '${state}' stickers must read ${want} (got ${JSON.stringify(hit.map((s) => s.text))})`); process.exit(1);
+  }
+}
+console.log(`PASS: flashcards — ${stickers.length} topic cards wear the n/5 deck sticker on the top-right corner (fresh/climbing/cleared, caption no longer duplicates it)`);
 // Topic pick under FULL MOTION — the real user path. The fan auto-rolls ("river") and
 // each card is a moving, 3D-projected target; a stationary tap must still start a deck.
 // Regression guard for the swallowed-click bug (2026-07-11): cards are pointer-events:

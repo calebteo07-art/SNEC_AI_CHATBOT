@@ -1,28 +1,67 @@
 "use client";
 /* LumenLadder — the Lumens VAULT, the app's one badge collection. Twenty vision tiers
    unlock as lifetime Lumens (coins_earned) climb: collected → next (glowing) → locked.
-   Twenty medallions never fit a wrapping grid (seven rows at 390px), so the shelf scrolls
-   HORIZONTALLY at every size and lands on the student's NEXT badge instead of on rung 1. */
-import { useEffect, useRef } from "react";
+   The shelf is a PAGED FRAME: exactly five medallions are on show at a time and the
+   ‹ › buttons step a page (20 / 5 = four clean pages). It opens on the page holding the
+   student's NEXT badge, not on rung 1. Swiping still works — the frame is a real scroll
+   container, so the buttons and a touch drag drive the same thing. */
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useReducedMotion } from "@/aurora/motion";
 import { LUMEN_BADGES } from "./lumenBadges";
 import { LumenBadge } from "./LumenBadge";
 import type { BadgeState } from "./lumenBadges";
 
+const PER_FRAME = 5;
+const PAGES = Math.ceil(LUMEN_BADGES.length / PER_FRAME);
+
 export function LumenLadder({ current = 0 }: { current?: number }) {
   const nextAt = LUMEN_BADGES.find((b) => current < b.at)?.at ?? null;
   const collected = LUMEN_BADGES.filter((b) => current >= b.at).length;
-  const shelfRef = useRef<HTMLOListElement>(null);
+  const nextIdx = nextAt === null ? -1 : LUMEN_BADGES.findIndex((b) => b.at === nextAt);
 
-  /* Centre the next badge in the shelf. Deliberately NOT scrollIntoView: the vault sits
-     below the fold on load, and any block-axis scrolling would yank the whole page down
-     to it. Assigning scrollLeft moves the shelf and nothing else, and it's instant, so
-     there's no motion to freeze under prefers-reduced-motion. */
+  const shelfRef = useRef<HTMLOListElement>(null);
+  const [page, setPage] = useState(0);
+  const reduce = useReducedMotion();
+
+  /* One page's scroll distance, measured off the DOM rather than computed from
+     clientWidth: five slots plus the five gaps between them. Deriving it from the box
+     width instead drifts by one gap per page and the frame ends up half a badge off. */
+  const stride = useCallback(() => {
+    const el = shelfRef.current;
+    if (!el) return 0;
+    const kids = el.children;
+    return kids.length > PER_FRAME
+      ? (kids[PER_FRAME] as HTMLElement).offsetLeft - (kids[0] as HTMLElement).offsetLeft
+      : el.clientWidth;
+  }, []);
+
+  /* Open on the page holding the next badge. Assigning scrollLeft (never scrollIntoView)
+     keeps this inside the frame — the vault sits below the fold on load, and any
+     block-axis scrolling would yank the whole page down to it. */
   useEffect(() => {
-    const shelf = shelfRef.current;
-    const target = shelf?.querySelector<HTMLElement>('[data-state="next"]');
-    if (!shelf || !target) return;
-    shelf.scrollLeft = Math.max(0, target.offsetLeft - (shelf.clientWidth - target.offsetWidth) / 2);
-  }, [nextAt]);
+    const el = shelfRef.current;
+    if (!el) return;
+    const p = nextIdx >= 0 ? Math.floor(nextIdx / PER_FRAME) : 0;
+    el.scrollLeft = p * stride();
+    setPage(p);
+  }, [nextIdx, stride]);
+
+  const go = (dir: -1 | 1) => {
+    const el = shelfRef.current;
+    if (!el) return;
+    const p = Math.min(PAGES - 1, Math.max(0, page + dir));
+    el.scrollTo({ left: p * stride(), behavior: reduce ? "auto" : "smooth" });
+    setPage(p);
+  };
+
+  /* Keep the readout honest when the frame is swiped rather than paged. */
+  const onScroll = () => {
+    const el = shelfRef.current;
+    const s = stride();
+    if (!el || !s) return;
+    const p = Math.min(PAGES - 1, Math.max(0, Math.round(el.scrollLeft / s)));
+    setPage((prev) => (prev === p ? prev : p));
+  };
 
   return (
     <section className="hm-panel hm-panel--lumen" data-testid="lumen-ladder" aria-label="Lumens vault">
@@ -30,8 +69,19 @@ export function LumenLadder({ current = 0 }: { current?: number }) {
         Lumens vault
         <span className="hm-c">{collected} of {LUMEN_BADGES.length} collected</span>
       </p>
-      <p className="hm-vault-note">Total Lumens ever earned - keep levelling up to collect all {LUMEN_BADGES.length} badges. Scroll the shelf to see what's ahead.</p>
-      <ol className="hm-badges" ref={shelfRef} tabIndex={0} aria-label="Badge shelf">
+
+      <div className="hm-vaultbar">
+        <p className="hm-vault-note">Total Lumens ever earned - keep levelling up to collect all {LUMEN_BADGES.length} badges.</p>
+        <div className="hm-vaultpager">
+          <button type="button" className="hm-vaultbtn" onClick={() => go(-1)} disabled={page === 0}
+            aria-label="Previous badges" data-testid="vault-prev">‹</button>
+          <span className="hm-vaultpage" data-testid="vault-page" aria-live="polite">{page + 1} / {PAGES}</span>
+          <button type="button" className="hm-vaultbtn" onClick={() => go(1)} disabled={page === PAGES - 1}
+            aria-label="Next badges" data-testid="vault-next">›</button>
+        </div>
+      </div>
+
+      <ol className="hm-badges" ref={shelfRef} onScroll={onScroll} tabIndex={0} aria-label="Badge shelf">
         {LUMEN_BADGES.map((b) => {
           const state: BadgeState = current >= b.at ? "collected" : nextAt === b.at ? "next" : "locked";
           return <LumenBadge key={b.at} badge={b} state={state} toNext={b.at - current} />;
