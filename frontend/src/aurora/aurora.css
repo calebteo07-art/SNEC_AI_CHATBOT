@@ -1426,6 +1426,11 @@ html[data-motion="reduce"] .rotate-gate-mesh { animation: none; }
 /* The consult thread is the only scrolling region on the right — the exam tray and
    composer stay pinned at the bottom so the chat box never drifts out of view. */
 .aurora-station-thread { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; scrollbar-width: thin; scrollbar-color: rgba(120,90,170,.32) transparent; }
+/* Nothing in the thread may SHRINK — it scrolls instead. `.aurora-station-reveal` is
+   `overflow: hidden`, which zeroes a flex item's automatic minimum size, so once the thread
+   overflowed the reveal cards were crushed to a sliver and clipped their own label
+   mid-glyph. `flex: none` on every child fixes it and immunises future cards. */
+.aurora-station-thread > * { flex: none; }
 /* Empty-state hint sits centred in the pane (margin:auto) so an empty consult/EyeBot pane
    reads composed, not top-heavy. Only rendered while the thread is empty. */
 .aurora-station-hint { margin: auto; max-width: 32ch; text-align: center; padding: 24px 0; color: var(--ink-2); font-size: 15.6px; line-height: 1.55; }
@@ -3767,9 +3772,39 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 
 /* Case clock — OSCE pace, never a guillotine. Counts down from the case's own
    estimated_minutes; at zero it turns red and prompts, but never force-submits. */
-.aurora-station-clock { font-variant-numeric: tabular-nums; font-weight: 700; }
-.aurora-station-clock[data-tone="warn"] { color: #b26a00; }
-.aurora-station-clock[data-tone="over"] { color: #b3261e; }
+/* Case clock — a header pill loud enough to read from across the room. It was a 15px word
+   in the metadata row and students never noticed the pace. Tone escalates calm → warn (≤2
+   min) → over; the over state keeps counting UP and never auto-submits. */
+.aurora-station-clockpill {
+  margin-left: auto; align-self: center; flex: none; text-align: center; min-width: 138px;
+  padding: 8px 18px 10px; border-radius: 17px;
+  border: 1px solid rgba(120,90,170,.28); background: rgba(255,255,255,.82);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 22px -12px rgba(45,35,85,.5);
+  transition: background .35s var(--st-ease), border-color .35s var(--st-ease), box-shadow .35s var(--st-ease);
+}
+/* When the clock is present it owns the header's free space, so "?" just sits beside it. */
+.aurora-station-clockpill + .aurora-help-btn { margin-left: 12px; }
+.aurora-station-clockpill .lb { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.aurora-station-clock { display: block; font-family: var(--font-mono, ui-monospace, monospace); font-size: 35px; line-height: 1.04; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--ink); }
+.aurora-station-clockpill .bar { display: block; height: 4px; margin-top: 6px; border-radius: 999px; background: rgba(120,90,170,.2); overflow: hidden; }
+.aurora-station-clockpill .bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #4285F4, #9B72CB); transition: width 1s linear; }
+.aurora-station-clockpill[data-tone="warn"] { border-color: rgba(217,138,0,.55); background: linear-gradient(135deg, #F5A623, #DF8500); box-shadow: 0 14px 28px -12px rgba(217,138,0,.75); animation: station-clockpulse 1.7s ease-in-out infinite; }
+.aurora-station-clockpill[data-tone="over"] { border-color: rgba(179,38,30,.6); background: linear-gradient(135deg, #E2603A, #C42B1C); box-shadow: 0 14px 28px -12px rgba(196,43,28,.8); animation: station-clockpulse 1.15s ease-in-out infinite; }
+.aurora-station-clockpill[data-tone="warn"] .lb, .aurora-station-clockpill[data-tone="over"] .lb { color: rgba(255,255,255,.92); }
+.aurora-station-clockpill[data-tone="warn"] .aurora-station-clock, .aurora-station-clockpill[data-tone="over"] .aurora-station-clock { color: #fff; }
+.aurora-station-clockpill[data-tone="warn"] .bar, .aurora-station-clockpill[data-tone="over"] .bar { background: rgba(255,255,255,.32); }
+.aurora-station-clockpill[data-tone="warn"] .bar i, .aurora-station-clockpill[data-tone="over"] .bar i { background: #fff; }
+@keyframes station-clockpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
+/* Landscape phone — height is the scarce axis, so trim the pill instead of the header. */
+@media (max-height: 480px) and (pointer: coarse) {
+  .aurora-station-clockpill { min-width: 92px; padding: 3px 11px 5px; border-radius: 12px; }
+  .aurora-station-clockpill .lb { font-size: 8.5px; letter-spacing: .1em; }
+  .aurora-station-clock { font-size: 23px; }
+  .aurora-station-clockpill .bar { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .aurora-station-clockpill { animation: none !important; } }
+html[data-motion="reduce"] .aurora-station-clockpill { animation: none !important; }
 .aurora-station-overtime {
   margin: 6px 0 0; padding: 8px 12px; border-radius: 12px; text-align: center;
   font-size: 13.5px; color: #b3261e; background: rgba(179,38,30,.08);
