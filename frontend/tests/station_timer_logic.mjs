@@ -25,6 +25,14 @@ assert.strictEqual(at(13 * MIN).remainingMs, -3 * MIN);
 // Elapsed is what the debrief and the export record.
 assert.strictEqual(at(4 * MIN).elapsedMs, 4 * MIN);
 
+// `progress` drives the draining bar in the header clock: fraction of the estimate spent,
+// clamped at 1 so an over-run never paints a bar wider than its track.
+assert.strictEqual(at(0).progress, 0, "fresh start is empty");
+assert.strictEqual(at(5 * MIN).progress, 0.5, "half the estimate spent");
+assert.strictEqual(at(10 * MIN).progress, 1, "exactly spent");
+assert.strictEqual(at(30 * MIN).progress, 1, "over-run clamps at full");
+assert.strictEqual(timerState(0, 5 * MIN, 0).progress, 0, "no estimate → no bar");
+
 // A missing/zero estimate must not produce a timer that is instantly "over".
 assert.strictEqual(timerState(0, 5 * MIN, 0).tone, "none", "no estimate → no timer");
 assert.strictEqual(timerState(0, 5 * MIN, 0).label, "", "no estimate → no label");

@@ -15,6 +15,9 @@ export interface TimerState {
   remainingMs: number;
   tone: TimerTone;
   label: string;
+  /** 0→1 fraction of the estimate SPENT, clamped. The header bar renders its complement,
+      so the bar drains to match the "Time left" it sits under. */
+  progress: number;
 }
 
 const WARN_MS = 2 * 60_000;
@@ -23,11 +26,12 @@ export function timerState(startedAtMs: number, nowMs: number, estimatedMinutes:
   const elapsedMs = Math.max(0, nowMs - startedAtMs);
   // No estimate ⇒ no timer at all, rather than one that reads "over" from the first second.
   if (!estimatedMinutes || estimatedMinutes <= 0) {
-    return { elapsedMs, remainingMs: 0, tone: "none", label: "" };
+    return { elapsedMs, remainingMs: 0, tone: "none", label: "", progress: 0 };
   }
-  const remainingMs = estimatedMinutes * 60_000 - elapsedMs;
+  const totalMs = estimatedMinutes * 60_000;
+  const remainingMs = totalMs - elapsedMs;
   const tone: TimerTone = remainingMs <= 0 ? "over" : remainingMs <= WARN_MS ? "warn" : "calm";
-  return { elapsedMs, remainingMs, tone, label: formatClock(remainingMs) };
+  return { elapsedMs, remainingMs, tone, label: formatClock(remainingMs), progress: Math.min(1, elapsedMs / totalMs) };
 }
 
 /** m:ss, negative when over-run ("-1:30"). */

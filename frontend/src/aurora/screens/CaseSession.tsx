@@ -636,17 +636,22 @@ export function CaseSession() {
               <span>{station?.checklist.procedure_name ?? "OSCE station"}</span>
               <span className="aurora-station-hud-sep">·</span>
               <span className="aurora-station-tier">{tierLabel(caseInfo.difficulty)}</span>
-              {clock.tone !== "none" && !result && (
-                <>
-                  <span className="aurora-station-hud-sep">·</span>
-                  <span className="aurora-station-clock" data-tone={clock.tone} data-testid="station-clock">
-                    {clock.tone === "over" ? "Time's up" : clock.label}
-                  </span>
-                </>
-              )}
             </div>
           )}
         </div>
+        {/* The clock is its own header pill, not a word in the metadata row — students were
+            missing the pace entirely. Still soft: it goes negative and keeps counting, and
+            nothing auto-submits (Branda: "no time limit for completing each case"). */}
+        {clock.tone !== "none" && !result && (
+          <div className="aurora-station-clockpill" data-tone={clock.tone} data-testid="station-clockpill"
+               role="timer" aria-label={clock.tone === "over" ? `Over the ${caseInfo?.estimated_minutes}-minute guide by ${clock.label.replace("-", "")}` : `${clock.label} left of the ${caseInfo?.estimated_minutes}-minute guide`}>
+            <span className="lb">{clock.tone === "over" ? "Over by" : "Time left"}</span>
+            <span className="aurora-station-clock" data-testid="station-clock">
+              {clock.tone === "over" ? clock.label.replace("-", "") : clock.label}
+            </span>
+            <span className="bar" aria-hidden><i style={{ width: `${(1 - clock.progress) * 100}%` }} /></span>
+          </div>
+        )}
         <HelpButton surface="station" />
       </header>
 

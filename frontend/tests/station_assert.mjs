@@ -281,11 +281,18 @@ if (/glaucoma/i.test(asideMeta)) die(`case topic leaked into the aside: "${aside
 if (!/tonometry/i.test(hudText)) die(`HUD should name the procedure instead of the topic, got "${hudText}"`);
 ok("case topic absent from the station chrome (procedure shown instead)");
 
-// 5t. The case clock renders and counts down from the case's own estimated_minutes (12).
+// 5t. The case clock renders and counts down from the case's own estimated_minutes (12) —
+//     and it is IMPOSSIBLE to miss. It used to be a 15px word wedged into the metadata row
+//     between the procedure and the tier, where students never saw it; it now owns a
+//     labelled header pill. The size floor is the guard against it quietly shrinking back.
 const clock = await p.locator('[data-testid="station-clock"]').innerText();
 if (!/^\d+:\d{2}$/.test(clock.trim())) die(`case clock should read m:ss, got "${clock}"`);
 if (Number(clock.split(":")[0]) > 12) die(`clock should count DOWN from 12 min, got "${clock}"`);
-ok("case clock renders and counts down from the case estimate");
+const clockPx = await p.locator('[data-testid="station-clock"]').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+if (clockPx < 28) die(`case clock must be prominent (>=28px), got ${clockPx}px`);
+if (!(await p.locator('.aurora-station-clockpill:has-text("Time left")').count())) die("clock must be labelled 'Time left'");
+if (await p.locator('.aurora-station-hud [data-testid="station-clock"]').count()) die("clock must not be buried back in the metadata row");
+ok("case clock counts down from the case estimate in a prominent header pill");
 
 // 5p2. "?" help opens, is labelled, and closes.
 await p.locator('[data-testid="help-station"]').click();
@@ -330,6 +337,30 @@ await p.locator('.aurora-pchip[data-quick="true"]:has-text("Document results")')
 if (await p.locator(".aurora-station-proc").count()) die("quick chip must NOT open the procedure composer");
 await p.waitForSelector('.aurora-pchip[data-done="true"]:has-text("Document results")', { timeout: 5000 });
 ok("quick procedure ticks on one click — no typed explanation (ricoe C5)");
+
+// 5r. Regression (2026-07-29): the reveal cards are `overflow: hidden`, which zeroes a flex
+//     item's automatic minimum size — so inside the flex-column thread they were SQUASHED to
+//     a sliver the moment the thread overflowed, clipping "Examination performed · …"
+//     mid-glyph. Nothing in a scrolling thread may shrink. Measured at a SHORT viewport on
+//     purpose: a roomy one never overflows and would report a false green.
+await p.setViewportSize({ width: 1440, height: 620 });
+await p.waitForTimeout(300);
+const squash = await p.evaluate(() => {
+  const thread = document.querySelector(".aurora-eyebot-thread");
+  if (!thread) return { missing: true };
+  return {
+    overflowing: thread.scrollHeight > thread.clientHeight + 1,
+    clipped: [...thread.children]
+      .filter((el) => el.scrollHeight > el.clientHeight + 1)
+      .map((el) => `${el.className} (${el.clientHeight}px of ${el.scrollHeight}px)`),
+  };
+});
+if (squash.missing) die("EyeBot thread not found");
+if (!squash.overflowing) die("thread must overflow at 620px height, else this check is a false green");
+if (squash.clipped.length) die(`thread children clipped their own content: ${squash.clipped.join(" | ")}`);
+await p.setViewportSize({ width: 1440, height: 900 });
+await p.waitForTimeout(200);
+ok("reveal cards never squash/clip in the scrolling thread");
 
 // 6. sending a message streams a patient reply
 await p.locator(".aurora-station-composer-input").fill("Good morning, can I confirm your name and NRIC?");
