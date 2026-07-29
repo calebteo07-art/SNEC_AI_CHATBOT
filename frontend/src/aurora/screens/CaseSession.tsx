@@ -583,7 +583,10 @@ export function CaseSession() {
             <div className="aurora-station-hud">
               <span>{caseInfo.patient.age} yr</span>
               <span className="aurora-station-hud-sep">·</span>
-              <span>{caseInfo.topic}</span>
+              {/* The case TOPIC is the diagnosis on many cases (e.g. subconjunctival_haemorrhage)
+                  — showing it here hands the student the answer before they start (Branda,
+                  2026-07-29). The procedure is the honest label; the topic returns in the debrief. */}
+              <span>{station?.checklist.procedure_name ?? "OSCE station"}</span>
               <span className="aurora-station-hud-sep">·</span>
               <span className="aurora-station-tier">{tierLabel(caseInfo.difficulty)}</span>
             </div>
@@ -600,7 +603,7 @@ export function CaseSession() {
                 <div className="aurora-station-ring"><img className="aurora-station-av" src={caseInfo.patient.face ?? PLATE.caseSession} alt="" aria-hidden onError={(e) => { (e.target as HTMLImageElement).style.visibility = "hidden"; }} /></div>
                 <div>
                   <div className="aurora-station-nm">{caseInfo.patient.name}</div>
-                  <div className="aurora-station-mt">{caseInfo.patient.age} years · {caseInfo.topic}</div>
+                  <div className="aurora-station-mt">{caseInfo.patient.age} years</div>
                 </div>
               </div>
               <div className="aurora-station-cc">"{caseInfo.patient.presenting_complaint}"</div>
@@ -694,7 +697,7 @@ export function CaseSession() {
                 </button>
               </div>
             ) : (
-              <StationResult result={result} coaching={coaching} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/homepage")} />
+              <StationResult result={result} coaching={coaching} topic={caseInfo?.topic ?? ""} saved={saved} onSave={handleSave} onMore={() => router.push("/cases")} onDash={() => router.push("/homepage")} />
             )}
           </div>
         </div>
@@ -725,8 +728,8 @@ export function CaseSession() {
 const VERDICT_TONE: Record<string, string> = {
   "Exam-ready": "great", "Solid": "good", "Developing": "ok", "Keep practising": "low",
 };
-function StationResult({ result, coaching, saved, onSave, onMore, onDash }: {
-  result: DomainResult; coaching: Coaching | null; saved: boolean;
+function StationResult({ result, coaching, topic, saved, onSave, onMore, onDash }: {
+  result: DomainResult; coaching: Coaching | null; topic: string; saved: boolean;
   onSave: () => void; onMore: () => void; onDash: () => void;
 }) {
   const { ref, display } = useCountUp<HTMLSpanElement>(result.score_100, { format: (n) => String(Math.round(n)) });
@@ -742,7 +745,9 @@ function StationResult({ result, coaching, saved, onSave, onMore, onDash }: {
     <div className="aurora-station-result" data-tone={tone}>
       <div className="aurora-s100-head">
         <div>
-          <p className="aurora-eyebrow">Station complete</p>
+          {/* Safe to name the topic now the station is over — it was hidden throughout so
+              the student had to reach the impression themselves. */}
+          <p className="aurora-eyebrow">Station complete{topic ? ` · ${topic.replace(/_/g, " ")}` : ""}</p>
           <span className="aurora-s100-verdict">{result.verdict}</span>
         </div>
         <span className="aurora-s100-score"><span ref={ref}>{display}</span><small>/100</small></span>
