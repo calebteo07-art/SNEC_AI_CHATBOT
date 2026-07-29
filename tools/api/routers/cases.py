@@ -167,6 +167,25 @@ class CaseSubmitRequest(BaseModel):
     # Included in performed_steps (student's favour) but named to the debrief coach.
     self_advanced: list[int] = []
 
+class ScorePart(BaseModel):
+    label: str
+    pts: int
+    max: int
+
+
+class SchemeBreakdown(BaseModel):
+    parts: list[ScorePart] = []
+    total: int = 0
+    max: int = 50
+    capped: bool = False
+    cap_reason: str = ""
+
+
+class ScoreBreakdown(BaseModel):
+    consult: SchemeBreakdown = SchemeBreakdown()
+    judgement: SchemeBreakdown = SchemeBreakdown()
+
+
 class DomainScore(BaseModel):
     history_score: int
     investigations_score: int
@@ -189,6 +208,9 @@ class DomainScore(BaseModel):
     judgement_safety_max: int = 50
     safe: bool = True
     missed_critical: list[str] = []
+    # Why each scheme scored what it did — sub-scores + the safety cap. Additive with a
+    # default, so an older frontend during a deploy window simply ignores it.
+    breakdown: ScoreBreakdown = ScoreBreakdown()
 
 class CoachingBlock(BaseModel):
     highlights: list[str] = []   # what the student genuinely did well
@@ -1152,6 +1174,9 @@ async def case_submit(request: Request, case_id: str, body: CaseSubmitRequest, b
         "missed_critical": score["missed_critical"],
         "critical_hit": score["critical_hit"],
         "critical_total": score["critical_total"],
+        # .get, not [] — breakdown is additive and the DomainScore field already defaults,
+        # so a scorer that predates it degrades to an empty explanation, never a 500.
+        "breakdown": score.get("breakdown", {}),
     })
     return CaseSubmitResponse(
         result=DomainScore(**domain_fields),

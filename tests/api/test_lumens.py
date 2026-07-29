@@ -97,6 +97,14 @@ _OSCE_SCORE = {
     "consult_technique": 40, "consult_technique_max": 50,
     "judgement_safety": 40, "judgement_safety_max": 50, "safe": True,
     "missed_critical": [], "critical_hit": 0, "critical_total": 0,
+    # Mirrors what compute_station_score really returns (tests/test_station_score_breakdown.py);
+    # kept in the fixture so a stale mock can't hide a shape change from the submit route.
+    "breakdown": {
+        "consult": {"parts": [{"label": "History-taking", "pts": 8, "max": 10}],
+                    "total": 40, "max": 50, "capped": False, "cap_reason": ""},
+        "judgement": {"parts": [{"label": "Recognition", "pts": 8, "max": 10}],
+                      "total": 40, "max": 50, "capped": False, "cap_reason": ""},
+    },
 }
 
 
