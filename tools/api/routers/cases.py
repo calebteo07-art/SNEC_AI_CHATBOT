@@ -759,8 +759,9 @@ async def case_chat(case_id: str, request: Request, body: CaseChatRequest, curre
             for chunk in stream_ask(
                 system_prompt=patient_prompt,
                 messages=messages,
-                # A patient turn is a few lay-language sentences — 1536 is a safe ceiling.
-                max_tokens=1536,
+                # A patient turn is one or two short sentences (PATIENT_SYSTEM). 320 is a
+                # STRUCTURAL backstop: prompt drift alone must not bring the essay back.
+                max_tokens=320,
                 feature="case",
                 model=MODEL,
                 # becky §2: patient roleplay is conversational — MINIMAL thinking.
