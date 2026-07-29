@@ -42,6 +42,9 @@ interface StationData {
 }
 type Channel = "patient" | "eyebot";
 interface ChatMessage { role: "user" | "assistant"; content: string; channel: Channel }
+interface ScorePart { label: string; pts: number; max: number }
+interface SchemeBreakdown { parts: ScorePart[]; total: number; max: number; capped: boolean; cap_reason: string }
+interface ScoreBreakdown { consult: SchemeBreakdown; judgement: SchemeBreakdown }
 interface DomainResult {
   history_score: number; investigations_score: number; diagnosis_score: number; management_score: number;
   history_feedback: string; investigations_feedback: string; diagnosis_feedback: string; management_feedback: string;
@@ -50,6 +53,8 @@ interface DomainResult {
   consult_technique: number; consult_technique_max: number;
   judgement_safety: number; judgement_safety_max: number;
   safe: boolean; missed_critical: string[];
+  /** Optional: an older backend during a deploy window simply omits it. */
+  breakdown?: ScoreBreakdown;
 }
 interface Coaching { highlights: string[]; did_wrong: string[]; missed: string[]; focus: string }
 
@@ -377,7 +382,11 @@ export function CaseSession() {
         body: JSON.stringify({ messages: patientHistory }),
         signal: ctrl.signal,
       });
-      if (!res.ok || !res.body) throw new Error("Stream unavailable");
+      // Branda (2026-07-29): "after multiple queries the AI is unable to continue". Every
+      // non-OK response used to collapse into one dead string, so a rate-limit was
+      // indistinguishable from a crash and the consult looked broken. Name the cause.
+      if (res.status === 429) throw new Error("rate");
+      if (!res.ok || !res.body) throw new Error("down");
       setMessages((prev) => [...prev, { role: "assistant", content: "", channel: "patient" }]);
       setSending(false);
       setIsStreaming(true);
@@ -408,10 +417,14 @@ export function CaseSession() {
           } catch { /* skip */ }
         }
       }
-    } catch {
+    } catch (err) {
+      // The thread stays alive and the composer stays enabled in every case — a consult
+      // that can't be continued is exactly the failure this is fixing.
+      const fb = (err as Error)?.message === "rate"
+        ? "(You're sending faster than the patient can answer — give it a moment, then carry on.)"
+        : "(I'm having trouble reaching the service right now.)";
       setMessages((prev) => {
         const last = prev[prev.length - 1];
-        const fb = "(I'm having trouble reaching the service right now.)";
         if (last && last.role === "assistant" && last.channel === "patient")
           return [...prev.slice(0, -1), { ...last, content: fb }];
         return [...prev, { role: "assistant", content: fb, channel: "patient" }];
@@ -732,14 +745,14 @@ export function CaseSession() {
               <div className="aurora-station-form">
                 <button type="button" className="aurora-station-overlay-x" onClick={() => setShowSubmit(false)} aria-label="Close">✕</button>
                 <p className="aurora-eyebrow">Handover</p>
-                <p className="aurora-station-form-hint">You're documenting a handover — what you found and what you recommend, within your role. You don't make a medical diagnosis or prescribe treatment; that's for the doctor.</p>
+                <p className="aurora-station-form-hint">You're documenting a handover — what you found and what you recommend, within your role. You don't make a medical diagnosis or prescribe treatment; that's for the doctor. Not every case needs escalation: if nothing is urgent, say so — &ldquo;routine, patient follows appointment time&rdquo; is a complete answer.</p>
                 {uncheckedCritical.length > 0 && (
                   <p className="aurora-station-warn">⚠ {uncheckedCritical.length} critical step{uncheckedCritical.length !== 1 ? "s" : ""} not yet done</p>
                 )}
                 <label className="aurora-eyebrow">Findings</label>
                 <textarea className="aurora-input" data-field="findings" value={findings} onChange={(e) => setFindings(e.target.value)} placeholder="What you found and recognised — key history, test results, red-flag check…" rows={3} />
                 <label className="aurora-eyebrow">Next steps</label>
-                <textarea className="aurora-input" data-field="recommendation" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} placeholder="Triage/urgency, who you'd escalate or refer to, and what you'd advise the patient…" rows={3} />
+                <textarea className="aurora-input" data-field="recommendation" value={recommendation} onChange={(e) => setRecommendation(e.target.value)} placeholder="What happens next — continue as routine, or escalate/refer (say who, and how urgently), plus what you'd advise the patient…" rows={3} />
                 {submitError && <p className="aurora-station-warn">{submitError}</p>}
                 <button type="button" className="aurora-station-submit-go" disabled={submitting || !findings.trim() || !recommendation.trim()} onClick={handleSubmit}>
                   {submitting ? "Evaluating…" : "Submit handover →"}
@@ -790,9 +803,25 @@ function StationResult({ result, coaching, topic, saved, onSave, onMore, onDash 
   const missedOne = result.missed_critical[0];
 
   // The grade is exactly two AI schemes, each /50 — the checklist is no longer scored.
-  const comps: { label: string; pts: number; max: number; sub: string }[] = [
-    { label: "Consultation & Technique", pts: result.consult_technique, max: result.consult_technique_max, sub: "History-taking and how well you performed the examination(s)" },
-    { label: "Clinical Judgement & Safety", pts: result.judgement_safety, max: result.judgement_safety_max, sub: "Spotting the problem, triage, escalation & handover" },
+  // Branda (2026-07-29): students couldn't tell why each scheme scored what it did. The
+  // sub-scores come from the backend (it owns the formula) and the per-domain feedback has
+  // been on the wire all along — the UI simply never rendered it.
+  const comps: { label: string; pts: number; max: number; sub: string;
+                 breakdown?: SchemeBreakdown; notes: string[] }[] = [
+    {
+      label: "Consultation & Technique",
+      pts: result.consult_technique, max: result.consult_technique_max,
+      sub: "History-taking and how well you performed the examination(s)",
+      breakdown: result.breakdown?.consult,
+      notes: [result.history_feedback, result.investigations_feedback].filter(Boolean),
+    },
+    {
+      label: "Clinical Judgement & Safety",
+      pts: result.judgement_safety, max: result.judgement_safety_max,
+      sub: "Spotting the problem, triage, escalation & handover",
+      breakdown: result.breakdown?.judgement,
+      notes: [result.diagnosis_feedback, result.management_feedback].filter(Boolean),
+    },
   ];
   return (
     <div className="aurora-station-result" data-tone={tone}>
@@ -825,6 +854,17 @@ function StationResult({ result, coaching, topic, saved, onSave, onMore, onDash 
             <div className="aurora-s100-comp-top"><span>{c.label}</span><b>{c.pts}<small>/{c.max}</small></b></div>
             <div className="aurora-s100-bar"><div style={{ width: `${c.max ? (c.pts / c.max) * 100 : 0}%` }} /></div>
             <span className="aurora-s100-comp-sub">{c.sub}</span>
+            {c.breakdown && c.breakdown.parts.length > 0 && (
+              <p className="aurora-s100-maths" data-testid="score-maths">
+                {c.breakdown.parts.map((part) => `${part.label} ${part.pts}/${part.max}`).join(" · ")}
+                {" → "}
+                <b>{c.breakdown.total}/{c.breakdown.max}</b>
+              </p>
+            )}
+            {c.breakdown?.capped && c.breakdown.cap_reason && (
+              <p className="aurora-s100-cap" data-testid="score-cap">⚠ {c.breakdown.cap_reason}</p>
+            )}
+            {c.notes.map((n, i) => <p key={i} className="aurora-s100-why">{n}</p>)}
           </div>
         ))}
       </div>

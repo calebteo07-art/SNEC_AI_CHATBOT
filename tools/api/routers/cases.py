@@ -732,7 +732,9 @@ async def case_action(case_id: str, request: Request, body: ActionRequest,
 
 
 @router.post("/api/cases/{case_id}/chat")
-@limiter.limit("30/minute")
+# /observe fires on every turn too, so a real consult costs two calls per message — 30 was
+# tighter than it looked and read to students as "the AI stopped working" (Branda 2026-07-29).
+@limiter.limit("60/minute")
 async def case_chat(case_id: str, request: Request, body: CaseChatRequest, current_user: CurrentUser = Depends(get_current_user)):
     # Try in-memory cache first (AI-generated cases), then fall back to file
     case = _case_cache.get(case_id)

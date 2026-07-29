@@ -70,6 +70,10 @@ await ctx.route("**/api/cases/C001/submit", (r) => r.fulfill(J({
     consult_technique: 38, consult_technique_max: 50,
     judgement_safety: 40, judgement_safety_max: 50,
     safe: true, missed_critical: [],
+    breakdown: {
+      consult: { parts: [{ label: "History-taking", pts: 8, max: 10 }, { label: "Examination technique", pts: 7, max: 10 }], total: 38, max: 50, capped: false, cap_reason: "" },
+      judgement: { parts: [{ label: "Recognition", pts: 9, max: 10 }, { label: "Handover & escalation", pts: 6, max: 10 }], total: 40, max: 50, capped: false, cap_reason: "" },
+    },
   },
   cards: [], mock_mode: false,
   coaching: {
@@ -270,6 +274,12 @@ if (/glaucoma/i.test(asideMeta)) die(`case topic leaked into the aside: "${aside
 if (!/tonometry/i.test(hudText)) die(`HUD should name the procedure instead of the topic, got "${hudText}"`);
 ok("case topic absent from the station chrome (procedure shown instead)");
 
+// 5t. The case clock renders and counts down from the case's own estimated_minutes (12).
+const clock = await p.locator('[data-testid="station-clock"]').innerText();
+if (!/^\d+:\d{2}$/.test(clock.trim())) die(`case clock should read m:ss, got "${clock}"`);
+if (Number(clock.split(":")[0]) > 12) die(`clock should count DOWN from 12 min, got "${clock}"`);
+ok("case clock renders and counts down from the case estimate");
+
 // 5p2. "?" help opens, is labelled, and closes.
 await p.locator('[data-testid="help-station"]').click();
 await p.waitForSelector('[data-testid="help-modal"]', { timeout: 4000 });
@@ -342,6 +352,20 @@ if (!(await p.locator('.aurora-s100-col.is-good li').count())) die("result must 
 if (!(await p.locator('.aurora-s100-col.is-watch li').count())) die("result must list what was done wrong/partially");
 if (!(await p.locator('.aurora-s100-col.is-miss li').count())) die("result must list what was missed/lacking");
 ok("debrief: 2 scheme cards /50, safety badge, point-form AI summary (wrong + missed)");
+
+// 7d. The debrief explains itself: the arithmetic behind each scheme plus the grader's own
+//     per-domain words, which the API has always sent and the UI used to throw away.
+if ((await p.locator('[data-testid="score-maths"]').count()) !== 2) die("both schemes must show their sub-scores");
+const maths = await p.locator('[data-testid="score-maths"]').first().innerText();
+if (!/\d+\/10/.test(maths)) die(`score maths must show sub-scores out of 10, got "${maths}"`);
+const debriefText = await p.locator(".aurora-station-result").innerText();
+if (!debriefText.includes("Thorough.")) die("per-domain feedback (history) not rendered");
+if (!debriefText.includes("Reasonable.")) die("per-domain feedback (management) not rendered");
+ok("debrief shows the scoring rationale + per-domain feedback");
+
+// 7e. The topic was hidden all station; the debrief is where it is finally safe to name.
+if (!/glaucoma/i.test(debriefText)) die("the debrief should finally name the topic");
+ok("topic revealed in the debrief");
 
 // 7a. One-time session save: the button downloads the record, then is spent (disabled, and
 //     visibly says so). The spent LABEL is asserted as "it changed", not as exact copy —
