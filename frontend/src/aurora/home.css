@@ -295,7 +295,10 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 /* ── lower bento — ONE full-width vault (the daily-streak vault was retired 2026-07-29;
    the Lumens vault is the app's only badge collection). ── */
 .hm-lower { display:grid; grid-template-columns:1fr; gap:16px; }
-.hm-panel { position:relative; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
+/* min-width:0 is load-bearing, not tidiness: a grid item defaults to min-width:auto, so
+   the panel would GROW to the ~2350px of the 20-medallion shelf instead of letting the
+   shelf scroll inside it. */
+.hm-panel { position:relative; min-width:0; border-radius:var(--hr); background:linear-gradient(180deg,#FFFDF9,var(--card)); border:1px solid var(--line); box-shadow:var(--sh); padding:22px 24px; }
 /* the dark collectible VAULT (was a light tint) — a glowing "display case" that reads as
    an addicting game card: GOLD treasure over royal violet, tied to the warm page by the
    shared radius/underline/seal. The hot glow blooms from below (behind the opaque
@@ -357,7 +360,10 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-badge-medal { position:relative; width:98px; height:98px; }
 .hm-badge-art { width:98px; height:98px; object-fit:cover; border-radius:22px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
 .hm-badge-name { font-weight:700; font-size:15.5px; color:var(--hink); line-height:1.15; }
-.hm-badge-meta { font-size:12.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--hink3); }
+/* margin-top:auto pins the meta to the bottom of the (row-stretched) badge, so a name that
+   wraps to two lines — "Wide Awake", "Eye of Eternity" — doesn't push its own meta below
+   the ragged baseline of its neighbours' */
+.hm-badge-meta { margin-top:auto; font-size:12.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--hink3); }
 .hm-badge-seal { position:absolute; top:-6px; right:-6px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:14px; color:#fff; background:linear-gradient(150deg,#FBBF24,#FB7185); box-shadow:0 3px 8px -2px rgba(251,113,133,.7); border:2px solid var(--card); }
 .hm-badge-lock { position:absolute; inset:0; display:grid; place-items:center; font-size:29px; }
 
