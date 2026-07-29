@@ -138,6 +138,31 @@ flip, spinner slows); WCAG-legible.
   (larger), *lede type/colour* (title white→gold, both lines enlarged; sub stays gray). Every other
   Selection invariant is preserved (coverflow depth/windowing, stage-resolved pick, no numbers/dots,
   neutral glass arrows, reduced-motion freeze).
+- **Deck-ladder STICKER on the topic card (refine 2026-07-29, user-directed — "show the 1/5
+  decks at the top right corner of the topic card with a slick sticker on top of the card")**:
+  the per-topic 5-deck ladder is now read off a **die-cut sticker peeled onto the card's
+  top-right corner** instead of the caption line. **Criterion amended**: "topic cards carry no
+  numbers/dots" still bans **race numbers** and **pagination dots** — it never banned meaning;
+  exactly ONE numeric sticker (`n/5` + a `DECKS` microlabel) is now permitted, and nothing else
+  numeric may join it. The sticker is a **disc** that **overhangs** the corner, is tilted ~7°,
+  wears a near-white **die-cut edge** + drop shadow (so it reads as a sticker, not a HUD chip),
+  and is **lifted off the card face in 3D** (`translateZ`) so it parallaxes as the card banks —
+  a sticker sits *on top of* the photo, it isn't printed into it. Its edge is a **conic-gradient
+  progress sweep** of the cleared fraction. Three states: **fresh** `0/5` (neutral, no sweep) →
+  **climbing** `n/5` (topic-hue sweep) → **cleared** `5/5` (**coin-gold** ring + glow — the
+  arcade "cleared" read, and the visual echo of the topic retiring from Lumens). Rules:
+  - It must live **outside `.fan-card-media`** — that box is `overflow:hidden` and would clip
+    the overhang, which is the whole sticker read.
+  - **No sticker** on the Mixed card (no ladder) or a locked "coming soon" topic (nothing to
+    climb) — a `0/5` there is noise.
+  - The **caption sub no longer duplicates the counter**. `deckProgress`'s prose stays for the
+    caption contract but the fan now passes no ladder sub, so the sticker is the single place
+    progress is stated. Never render both — that was the redundancy this refine removed.
+  - Progress numerals come from the pure `deckSticker()` in `deckLadder.ts` (clamped, and
+    `null` on a missing/zero `deck_count`), guarded by `flashcards_deckladder_logic.mjs`; the
+    live wiring + all three states are asserted in `aurora_assert.mjs`.
+  Every other Selection invariant is preserved (coverflow depth/windowing, stage-resolved pick,
+  flat card face, neutral glass arrows, hover-pause, reduced-motion freeze).
 - **Study**: instant-tap MCQ on the dark card — persistent HUD (**score + streak**) above the flip,
   a **dark question header** with a glowing topic eyebrow, **neutral option buttons** (✓ green / ✗
   red on lock), **power meter** at the base. Reveal = **Charge → Roll + Flip → Payoff** (power-meter
@@ -421,11 +446,24 @@ see the ONE-vault amendment at the end of this section). Old dark dashboard
     anchored to iris.png, opaque jpg); both retired sets (`brand/badges/*.jpg`,
     the old `brand/lumen-badges/*.jpg`) are **deleted**. This further SUPERSEDES the
     come-alive "badge medallions preserved" hard constraint.
-  - **Criterion changed (c) — the vault is a HORIZONTAL SHELF.** 20 medallions in a wrapping grid
-    is a 7-row tower at 390px. `.hm-badges` becomes one row, `overflow-x:auto` + `scroll-snap-type:x`
-    + edge fade masks, at **every** viewport; on mount it scrolls the **"next"** badge into view
-    (instant under reduced motion) so a student lands on their target, not on rung 1. The page
-    itself must still measure **0px horizontal overflow** — the shelf scrolls inside its own box.
+  - **Criterion changed (c) — the vault is a PAGED FRAME OF FIVE.** 20 medallions in a wrapping
+    grid is a 7-row tower at 390px. `.hm-badges` becomes one row, `overflow-x:auto` +
+    `scroll-snap-type:x`, at **every** viewport; on mount it scrolls the **"next"** badge into
+    view (instant under reduced motion) so a student lands on their target, not on rung 1. The
+    page itself must still measure **0px horizontal overflow** — the frame scrolls inside its box.
+    - **Refined same day (user directive: "show only 5 badges in 1 frame and allow user to click
+      left and right buttons to see next/previous badges")**: the criterion changed is
+      *free-scrolling shelf → **paged frame***. **Exactly five** medallions are on show at a time
+      (`.hm-badge` flex-basis `calc((100% - 4*var(--bgap)) / 5)`), and `‹ ›` buttons
+      (`vault-prev`/`vault-next`, with a `vault-page` "n / 4" readout) step **one page**; 20/5 = 4
+      clean pages. Buttons **clamp** (disabled at each end), never wrap. It still opens on the page
+      holding the next badge. It stays a real scroll container so a **touch swipe and the buttons
+      drive the same thing**, and the readout re-syncs from `scrollLeft` after a swipe.
+      **Page stride is measured off the DOM** (`children[5].offsetLeft - children[0].offsetLeft`),
+      never from `clientWidth` — the latter drifts by one gap per page and the frame ends up half a
+      badge off. The **edge fade mask is removed** (with five exactly filling the frame it dimmed
+      badges actually on show), and the medallion now **fills its slot** (`width:100%`,
+      `max-width:150px`) instead of a fixed 98px, so a full-width vault shows the art bigger.
   - **Criterion changed (d) — streak card: no goal ring, month not week.** SUPERSEDES the
     "jewel week-dots" and white-goal-ring criteria of the toybox + orange-card refines.
     `.hm-goalring` / `.hm-rc` / `.hm-week` / `.hm-wd*` are **deleted with no replacement** (daily-goal

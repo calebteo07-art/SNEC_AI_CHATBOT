@@ -339,26 +339,44 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 .hm-ph .hm-c { font-family:var(--font-sans); font-weight:600; font-size:12px; letter-spacing:.05em; color:var(--hink3); text-transform:uppercase; }
 .hm-vault-note { margin:-10px 0 16px; font-size:12.5px; color:var(--hink3); line-height:1.4; }
 /* ── the vault shelf — generated collectible medallions (Nano Banana flash) ── */
-/* HORIZONTAL scroll shelf (was a 3-col wrapping grid): twenty medallions wrap into a
-   seven-row tower at 390px, so the shelf scrolls sideways at every size instead and
-   LumenLadder lands it on the student's "next" badge. The scroll lives inside this
-   box — the page itself must still measure 0px horizontal overflow.
+/* A PAGED FRAME of exactly five (was a 3-col wrapping grid, then a free-scrolling shelf):
+   twenty medallions wrap into a seven-row tower at 390px, and a free shelf gave no sense
+   of position, so five are framed at a time and the ‹ › buttons step one page (20/5 = 4).
+   It stays a real scroll container so a touch swipe and the buttons drive the same thing;
+   the scroll lives inside this box — the page itself must still measure 0px horizontal
+   overflow. NO edge mask here: with exactly five filling the frame, a fade would dim the
+   first and last badge actually on show.
    `overflow-x:auto` forces overflow-y to compute to auto too (CSS can't have one axis
-   visible and the other not), so the vertical padding here is load-bearing: without it
-   the ★ seal at top:-6px, the 5px collected float, and the rarity glow are all clipped. */
-.hm-badges { position:relative; display:flex; gap:14px; list-style:none; margin:0; padding:10px 2px 14px;
+   visible and the other not), so the vertical padding is load-bearing: without it the
+   ★ seal at top:-6px, the 5px collected float, and the rarity glow are all clipped. */
+.hm-badges { --bgap:14px;
+  position:relative; display:flex; gap:var(--bgap); list-style:none; margin:0; padding:10px 0 6px;
   overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x proximity;
-  scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.28) transparent;
-  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
-  mask-image:linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%); }
-.hm-badges::-webkit-scrollbar { height:6px; }
-.hm-badges::-webkit-scrollbar-thumb { background:rgba(255,255,255,.26); border-radius:999px; }
+  scrollbar-width:none; }
+.hm-badges::-webkit-scrollbar { display:none; }
 .hm-badges:focus-visible { outline:2px solid rgba(255,255,255,.8); outline-offset:3px; border-radius:12px; }
-/* flex-shrink:0 keeps every medallion at full size — without it 20 children divide the
-   shelf width and the shelf never overflows, so it never scrolls. */
-.hm-badge { flex:0 0 auto; width:104px; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
-.hm-badge-medal { position:relative; width:98px; height:98px; }
-.hm-badge-art { width:98px; height:98px; object-fit:cover; border-radius:22px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
+/* Exactly five slots span the frame: five widths + the four gaps between them. flex-shrink:0
+   is still required — without it the other fifteen children would compress the row to fit
+   and the frame would never scroll. */
+.hm-badge { flex:0 0 calc((100% - 4 * var(--bgap)) / 5); scroll-snap-align:start;
+  display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; }
+
+/* pager — sits on the note row so it costs no extra height */
+.hm-vaultbar { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+.hm-vaultpager { display:flex; align-items:center; gap:6px; flex-shrink:0; margin:-4px 0 14px; }
+.hm-vaultbtn { width:40px; height:40px; flex-shrink:0; border-radius:50%; display:grid; place-items:center;
+  font-size:22px; line-height:1; font-weight:700; cursor:pointer;
+  color:#FFF6EC; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28);
+  box-shadow:0 3px 10px -4px rgba(0,0,0,.5); transition:background .18s, transform .18s, opacity .18s; }
+.hm-vaultbtn:hover:not(:disabled) { background:rgba(255,255,255,.22); transform:translateY(-1px); }
+.hm-vaultbtn:active:not(:disabled) { transform:translateY(0) scale(.94); }
+.hm-vaultbtn:disabled { opacity:.32; cursor:default; }
+.hm-vaultpage { min-width:44px; text-align:center; font-size:12.5px; font-weight:700; letter-spacing:.04em;
+  font-variant-numeric:tabular-nums; color:rgba(255,246,236,.82); text-shadow:0 1px 4px rgba(0,0,0,.5); }
+/* the medallion FILLS its fifth of the frame (capped) instead of sitting at a fixed 98px —
+   five across a full-width vault leaves a ~215px slot, and the art is the reward */
+.hm-badge-medal { position:relative; width:100%; max-width:150px; aspect-ratio:1; }
+.hm-badge-art { width:100%; height:100%; object-fit:cover; border-radius:22px; display:block; box-shadow:0 4px 12px -4px rgba(31,31,60,.3); }
 .hm-badge-name { font-weight:700; font-size:15.5px; color:var(--hink); line-height:1.15; }
 /* margin-top:auto pins the meta to the bottom of the (row-stretched) badge, so a name that
    wraps to two lines — "Wide Awake", "Eye of Eternity" — doesn't push its own meta below
@@ -432,9 +450,16 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
   .hm-lvl { max-width:62%; margin-top:20px; }
   .hm-lvl .hm-lr { flex-direction:column; align-items:flex-start; gap:3px; margin-bottom:9px; }
   .hm-lb { margin-top:16px; font-size:15px; padding:11px 17px 11px 13px; }
-  .hm-badges { gap:12px; }
-  .hm-badge { width:86px; }
-  .hm-badge-medal, .hm-badge-art { width:80px; height:80px; }
+  /* five-across on a phone leaves a ~58px slot, so the gap and the label ramp come down
+     with it — the frame keeps showing five, which is the point of the pager */
+  .hm-badges { --bgap:8px; }
+  .hm-badge { gap:6px; }
+  .hm-badge-art { border-radius:16px; }
+  .hm-badge-name { font-size:11px; line-height:1.1; }
+  .hm-badge-meta { font-size:9px; letter-spacing:0; }
+  .hm-badge-seal { width:19px; height:19px; font-size:10px; top:-4px; right:-4px; border-width:1.5px; }
+  .hm-badge-lock { font-size:21px; }
+  .hm-vaultbtn { width:44px; height:44px; }
 }
 
 /* ══════════════════ PHONE TIERS (see aurora/breakpoints.css) ══════════════════
@@ -572,10 +597,11 @@ html[data-motion="reduce"] .hm-lb:hover, html[data-motion="reduce"] .hm-lb:hover
 
   .hm-panel { padding:14px 14px; }
   .hm-ph { font-size:16.5px; margin-bottom:12px; padding-bottom:9px; }
-  .hm-badges { gap:10px; padding:8px 2px 12px; }
-  .hm-badge { width:78px; }
-  .hm-badge-medal, .hm-badge-art { width:72px; height:72px; }
-  .hm-badge-name { font-size:13.5px; } .hm-badge-meta { font-size:11.5px; }
+  .hm-badges { --bgap:10px; padding:8px 0 4px; }
+  .hm-badge-medal { max-width:104px; }
+  .hm-badge-name { font-size:12px; } .hm-badge-meta { font-size:10px; }
+  .hm-vaultbtn { width:44px; height:44px; font-size:20px; }
+  .hm-vaultpager { margin:-2px 0 8px; }
 }
 
 /* reduced motion — freeze the badge float / shine / pulse / legendary glow */
