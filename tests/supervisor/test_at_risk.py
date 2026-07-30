@@ -1,4 +1,5 @@
 """At-risk wiring: population, clock, failure propagation, banding (spec §6.1, D10, D12)."""
+import time
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -151,3 +152,76 @@ async def test_unparseable_last_active_is_treated_as_unknown_not_as_today():
     result = await _run(profiles, cases=cases)
     assert result and result[0]["days_inactive"] is None
     assert "inactivity" not in [r["factor"] for r in result[0]["reasons"]]
+
+
+@pytest.mark.asyncio
+async def test_future_last_active_is_clamped_not_emitted_negative():
+    # Clock skew or an imported row can date last_active ahead of today. weekly_digest
+    # renders this key verbatim, so an unclamped -10 mails "-10d inactive" to trainers.
+    profiles = [_profile("s1", [], "2026-05-20", streak=0)]
+    cases = [_case("s1", f"c{i}", score_100=10, passed=False) for i in range(20)]
+    result = await _run(profiles, cases=cases)
+    assert result[0]["days_inactive"] == 0
+
+
+@pytest.mark.asyncio
+async def test_a_flashcard_outage_degrades_instead_of_500ing():
+    # get_all_flashcard_attempts documents that the CALLER must catch (db.py:565-568) and
+    # the sibling cohort endpoint degrades it (admin.py:413-420) — a thin or missing
+    # flashcard_attempts table is the NORMAL case. The other 82% of the rubric must still
+    # score. Population and OSCE stay fail-closed; only this read degrades.
+    profiles = [_profile("s1", ["a", "b", "c", "d", "e"], "2026-04-20", streak=0)]
+    from datetime import date as _date
+    with patch("tools.shared.db.get_active_student_profiles",
+               new=AsyncMock(return_value=(profiles, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=AsyncMock(return_value=([], True))), \
+         patch("tools.shared.db.get_all_flashcard_attempts",
+               new=AsyncMock(side_effect=RuntimeError("relation does not exist"))), \
+         patch.object(mod, "_CACHE_TTL_S", 0), \
+         patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
+        result = await mod.get_at_risk()
+    assert [r["student_id"] for r in result] == ["s1"]
+    assert "flashcard" not in [r["factor"] for r in result[0]["reasons"]]
+
+
+# ── The read cache ───────────────────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_a_second_call_inside_the_ttl_does_not_rescan():
+    # Two whole-table paginated reads on a 30s console poll, on Render's SINGLE worker.
+    # Without this the cache could be deleted and no assertion would notice.
+    profiles = [_profile("s1", ["a", "b", "c", "d", "e"], "2026-04-20", streak=0)]
+    from datetime import date as _date
+    cases_read = AsyncMock(return_value=([], True))
+    with patch("tools.shared.db.get_active_student_profiles",
+               new=AsyncMock(return_value=(profiles, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=cases_read), \
+         patch("tools.shared.db.get_all_flashcard_attempts",
+               new=AsyncMock(return_value=([], True))), \
+         patch.object(mod, "_CACHE_TTL_S", 45.0), \
+         patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
+        first = await mod.get_at_risk()
+        second = await mod.get_at_risk()
+    assert cases_read.await_count == 1
+    assert [r["student_id"] for r in second] == ["s1"]
+    assert second is not first, "a shared list lets one consumer's sort poison the TTL"
+
+
+@pytest.mark.asyncio
+async def test_an_entry_older_than_the_ttl_is_not_served():
+    # Age is checked on READ. Seed a stale entry rather than moving the clock, so the
+    # asyncio timer heap keeps its real time.monotonic.
+    profiles = [_profile("s1", ["a", "b", "c", "d", "e"], "2026-04-20", streak=0)]
+    from datetime import date as _date
+    mod._cache["all"] = (time.monotonic() - 46.0, [])
+    cases_read = AsyncMock(return_value=([], True))
+    with patch("tools.shared.db.get_active_student_profiles",
+               new=AsyncMock(return_value=(profiles, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=cases_read), \
+         patch("tools.shared.db.get_all_flashcard_attempts",
+               new=AsyncMock(return_value=([], True))), \
+         patch.object(mod, "_CACHE_TTL_S", 45.0), \
+         patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
+        result = await mod.get_at_risk()
+    assert cases_read.await_count == 1, "a stale entry must not be served"
+    assert [r["student_id"] for r in result] == ["s1"]

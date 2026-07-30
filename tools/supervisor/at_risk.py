@@ -20,10 +20,18 @@ Three deliberate departures from the old implementation:
 * **SGT clock.** `last_active` is written in SGT and the product defines a day that
   way; `date.today()` on a UTC host can return `days_inactive == -1`.
 
+The flashcard read is the one exception to "failures propagate":
+`get_all_flashcard_attempts` documents that the CALLER must catch (`db.py:565-568`), and
+the sibling cohort endpoint degrades it the same way (`admin.py:413-420`) because a thin
+or absent `flashcard_attempts` table is the NORMAL case. `risk_model` renormalises the
+missing signal away, so the other 82% of the rubric still scores. Population and OSCE
+stay fail-closed — an empty cohort is a lie, not a degraded reading.
+
 Only `band in {high, medium}` is returned (D12). `low` and `no_data` are computed and
-dropped, so all four consumers keep reading "the students to act on" — and the row is
-a strict SUPERSET of the old shape, because `weekly_digest._risk_section` indexes
-`days_inactive` and `weak_topics` directly.
+dropped, so every consumer keeps reading "the students to act on" — and the row is a
+strict SUPERSET of the old shape, so no consumer loses a key it indexes. Notably
+`weekly_digest._risk_section` indexes `days_inactive` and `weak_topics` directly; Task 4
+fixes how it *renders* a None.
 """
 import sys
 import time
@@ -45,7 +53,10 @@ FLAGGED_BANDS = ("high", "medium")
 # /api/supervisor/at-risk sits on the console's 30s poll, so an open console would
 # otherwise scan both tables twice a minute on Render's SINGLE uvicorn worker. This is
 # the idempotent-read-cache carve-out of production invariant #2: derived output only,
-# no counters, no cross-request semantics. Tests patch _CACHE_TTL_S to 0.
+# no counters, no cross-request semantics. Shaped exactly like admin.py's _cohort_cache
+# (age checked on read) so tests/conftest.py can reset it the same way. Tests patch
+# _CACHE_TTL_S to 0. There is one view, so the key is constant — add a dimension here the
+# day the endpoint takes a filter, or a filtered request is served the unfiltered list.
 _CACHE_TTL_S: float = 45.0
 _cache: dict[str, tuple[float, list[dict]]] = {}
 
@@ -55,11 +66,15 @@ def _days_inactive(last_active_raw) -> int | None:
 
     None means "unknown", which `risk_model` drops as a missing signal. Returning 0
     would read as "active today" and hide a genuinely stale account behind bad data.
+
+    Clamped at 0: a future `last_active` (clock skew, imported rows) means the student
+    HAS been active, and an unclamped negative reaches the weekly digest as the literal
+    text "-10d inactive" — the same wire-level bug the SGT switch above exists to fix.
     """
     if not last_active_raw:
         return None
     try:
-        return (app_today() - date.fromisoformat(str(last_active_raw))).days
+        return max(0, (app_today() - date.fromisoformat(str(last_active_raw))).days)
     except (ValueError, TypeError):
         return None
 
@@ -75,18 +90,23 @@ async def get_at_risk() -> list[dict]:
     empty list.
     """
     now = time.monotonic()
-    if _CACHE_TTL_S > 0:
-        # Evict on write rather than only skipping stale entries, so a long-running
-        # worker cannot accumulate them.
-        for key in [k for k, (ts, _) in _cache.items() if now - ts >= _CACHE_TTL_S]:
-            _cache.pop(key, None)
-        hit = _cache.get("all")
-        if hit is not None:
-            return hit[1]
+    hit = _cache.get("all")
+    if _CACHE_TTL_S > 0 and hit and (now - hit[0]) < _CACHE_TTL_S:
+        # A copy: a consumer that sorts or pops the returned list would otherwise poison
+        # every hit for the rest of the TTL.
+        return list(hit[1])
 
+    # `complete` is unpacked and deliberately dropped on both scans: the response shape
+    # has no completeness field and _fetch_all caps at 50 x 1000 rows, ~2000x the current
+    # volume. Same call as admin.py:402-406.
     profiles, _staff_excluded = await db.get_active_student_profiles()
     case_rows, _cases_complete = await db.get_all_case_scores()
-    card_rows, _cards_complete = await db.get_all_flashcard_attempts()
+    try:
+        card_rows, _cards_complete = await db.get_all_flashcard_attempts()
+    except Exception:
+        # Degrade, don't 500 — see the module docstring. risk_model drops the absent
+        # signal and renormalises over the remaining 82% of the rubric.
+        card_rows = []
 
     osce = osce_by_student(case_rows)
     flashcard = flashcard_by_student(card_rows)
