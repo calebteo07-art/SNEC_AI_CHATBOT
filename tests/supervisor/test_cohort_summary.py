@@ -93,13 +93,19 @@ async def test_db_failure_propagates_instead_of_an_all_zero_cohort():
             await cohort_summary()
 
 
+# Both fixtures below are the EXACT output of score_student for the student described
+# above them, not hand-picked numbers. A one-reason row's weight must equal its score,
+# because contributions sum to the score (risk_model.py:229,244) — inventing 72 with a
+# single weight of 40.0 encodes a state the wire cannot produce.
+
 def test_digest_risk_row_survives_a_null_days_inactive():
     # The new model can flag a student on OSCE failure alone, so days_inactive is
     # None and the old renderer produced "Noned inactive" in a production email.
+    # Never started, failed 9 of 12 graded attempts.
     from tools.supervisor.weekly_digest import _risk_section
     html = _risk_section([{
-        "student_id": "stu_abcdef123456", "risk_score": 72, "band": "high",
-        "reasons": [{"factor": "osce_failure", "weight": 40.0,
+        "student_id": "stu_abcdef123456", "risk_score": 53, "band": "high",
+        "reasons": [{"factor": "osce_failure", "weight": 52.9,
                      "detail": "Failed 9 of 12 graded OSCE attempts"}],
         "last_active": "", "days_inactive": None, "weak_topics": [], "weak_count": 0,
     }])
@@ -108,13 +114,26 @@ def test_digest_risk_row_survives_a_null_days_inactive():
 
 
 def test_digest_risk_row_shows_the_band_and_score():
-    from tools.supervisor.weekly_digest import _risk_section
+    # 14 days idle, streak broken, 5 weak topics, but a clean OSCE record -> medium.
+    # The medium branch is half the flagged population and renders in its own colour,
+    # so it needs coverage of its own rather than riding on the `high` fixture.
+    from tools.supervisor.weekly_digest import C_MUTED, _risk_section
     html = _risk_section([{
-        "student_id": "stu_abcdef123456", "risk_score": 72, "band": "high",
-        "reasons": [{"factor": "inactivity", "weight": 25.0, "detail": "No activity for 20 days"}],
-        "last_active": "2026-04-20", "days_inactive": 20, "weak_topics": ["a"], "weak_count": 1,
+        "student_id": "stu_abcdef123456", "risk_score": 37, "band": "medium",
+        "reasons": [
+            {"factor": "inactivity", "weight": 22.0, "detail": "No activity for 14 days"},
+            {"factor": "streak_broken", "weight": 7.3, "detail": "Check-in streak is broken"},
+            {"factor": "weak_breadth", "weight": 7.3, "detail": "5 weak topics recorded"},
+        ],
+        "last_active": "2026-04-26", "days_inactive": 14, "weak_topics": ["a"], "weak_count": 5,
     }])
-    assert "72" in html and "high" in html.lower()
+    assert "37" in html and "Medium" in html
+    # The highest-weighted reason, not an arbitrary one (risk_model sorts before returning).
+    assert "No activity for 14 days" in html
+    # C_MUTED on C_BG is 2.6:1 — the medium row must not render in the same colour as
+    # the de-emphasised reason column and the table headers. `;font-weight:600` is what
+    # makes this specific to the risk cell (C_MUTED is used elsewhere, without it).
+    assert C_MUTED + ";font-weight:600" not in html
 
 
 # ── The KPIs cohort_summary owns itself (pre-existing coverage, kept) ──────────

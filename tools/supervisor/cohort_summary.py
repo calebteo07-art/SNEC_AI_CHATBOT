@@ -66,7 +66,16 @@ async def cohort_summary() -> dict:
         # A second copy of the rule here is what made the count contradict the list —
         # and AdminCohort.tsx:41 prefers this number over the list's own length, while
         # supervisor_insights feeds both into a single AI prompt.
-        # get_at_risk has its own 45s read cache, so the console's paired
-        # /cohort + /at-risk polls do not double the table scans.
+        #
+        # Counted over the STAFF-FREE population (get_at_risk reads
+        # get_active_student_profiles), while `total` above is staff-inclusive. A
+        # promoted trainer keeps their approved_students row, so they stay in `total`
+        # and drop out of this count — deliberate, since flagging a colleague at risk
+        # and emailing it to trainers is the defect D10 exists to prevent.
+        #
+        # Costs two whole-table scans, deduplicated per worker by get_at_risk's 45s
+        # cache and its single-flight lock — the console polls /cohort and /at-risk
+        # concurrently on the same 30s interval, so without that lock both would miss
+        # and both would scan.
         "at_risk_count": len(await get_at_risk()),
     }

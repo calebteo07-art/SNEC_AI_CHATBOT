@@ -79,8 +79,11 @@ def _risk_section(at_risk: list[dict]) -> str:
         'font-family:monospace;font-size:12px;color:' + C_DARK + '">'
         + s["student_id"][:12] + '…</td>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
-        'color:' + (C_RED if s.get("band") == "high" else C_MUTED) + ';font-weight:600">'
-        + str(s.get("risk_score") or 0) + ' · ' + str(s.get("band") or "") + '</td>'
+        # C_GOLD, not C_MUTED, for medium: muted on C_BG is 2.6:1 — below WCAG AA, and
+        # the same colour as the de-emphasised reason column and the headers, so the
+        # whole medium band read as decoration rather than as a flag.
+        'color:' + (C_RED if s.get("band") == "high" else C_GOLD) + ';font-weight:600">'
+        + str(s.get("risk_score") or 0) + ' · ' + str(s.get("band") or "").title() + '</td>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
         'color:' + C_MUTED + ';font-size:12px">'
         # The top reason, not the raw day count: days_inactive is None for a student
