@@ -1,8 +1,9 @@
 """Pure cohort aggregation over raw performance events (P2a, spec §5.1).
 
-No I/O: every function takes already-fetched rows plus the case index and the
-student->pool map, so the endpoint stays a thin ranking/projection and P4 can swap
-a body for a SQL/RPC pushdown behind the same `dict[topic_group, {...}]` contract (D4).
+No I/O: every function takes already-fetched rows; the `by_group` functions also
+take the case index and the student->pool map, so the endpoint stays a thin
+ranking/projection and P4 can swap a body for a SQL/RPC pushdown behind the same
+`dict[key, {...}]` contract (D4).
 
 Two rules run through everything here:
 
@@ -392,3 +393,96 @@ def weakness_scores(osce: dict, flashcard: dict) -> dict[str, dict]:
             "signals_present": [name for name in weights if name in comps],
         }
     return out
+
+
+# ── Per-student aggregation (Plan B: at-risk + mastery) ───────────────────────
+#
+# The by_group functions above answer "which TOPIC needs teaching". These answer
+# "which STUDENT needs help" over the same rows, and deliberately live here rather
+# than in at_risk.py so `_score_rank` — and the D9 high-water rule it encodes — has
+# exactly one implementation. There is no `case_index` or `pool` parameter: a
+# per-student figure needs no case->topic mapping, and a student must never be
+# filtered out of their own row.
+
+
+def osce_by_student(rows: list[dict]) -> dict[str, dict]:
+    """Per-student OSCE metrics from raw `case_progress` rows.
+
+    Same denominator and retake discipline as `osce_by_group`: attainment
+    (`avg_score`, `pass_rate`) is the BEST attempt per (student, case) via
+    `_score_rank`, `attempts` counts every raw row, and `safety_fail_rate` is over
+    raw attempts because an unsafe encounter is an event, not an attainment level —
+    a student must not be able to erase one by retaking the case safely.
+
+    Returns dict[student_id, metrics]; a student with no rows is ABSENT, never a
+    zero-filled entry, so the caller can pass None and have the signal dropped.
+    """
+    acc: dict[str, dict] = {}
+    for r in rows:
+        sid = str(r.get("student_id") or "")
+        case_id = str(r.get("case_id") or "")
+        if not sid:
+            continue
+        g = acc.setdefault(sid, {
+            "attempts": 0, "best": {}, "safety_fails": 0, "safety_gradable_n": 0,
+        })
+        g["attempts"] += 1
+
+        safe = r.get("safe")
+        if safe is not None:
+            g["safety_gradable_n"] += 1
+            if not safe:
+                g["safety_fails"] += 1
+
+        # case_id is NOT NULL from db.insert_case_result, the only writer
+        # (tools/shared/db.py:154-159). Unlike osce_by_group, there is no case_index
+        # here for a blank case_id to miss against — the `or ""` above would MERGE
+        # every blank-case_id row into one dedupe slot instead of dropping it. Left
+        # unguarded: no error handling for an impossible case.
+        key = (sid, case_id)
+        current = g["best"].get(key)
+        if current is None or _score_rank(r) > _score_rank(current):
+            g["best"][key] = r
+
+    out: dict[str, dict] = {}
+    for sid, g in acc.items():
+        best = list(g["best"].values())
+        scores = [int(b["score_100"]) for b in best if b.get("score_100") is not None]
+        graded = [bool(b["passed"]) for b in best if b.get("passed") is not None]
+        gradable = g["safety_gradable_n"]
+        out[sid] = {
+            "attempts": g["attempts"],
+            "avg_score": round(sum(scores) / len(scores), 1) if scores else None,
+            "scored_n": len(scores),
+            "pass_rate": round(sum(graded) / len(graded), 3) if graded else None,
+            "graded_n": len(graded),
+            "safety_fail_rate": round(g["safety_fails"] / gradable, 3) if gradable else None,
+            "safety_gradable_n": gradable,
+        }
+    return out
+
+
+def flashcard_by_student(rows: list[dict]) -> dict[str, dict]:
+    """Per-student flashcard accuracy (0-100, 1dp) from raw `flashcard_attempts` rows.
+
+    No topic bucketing and no pool filter — this is the student's whole-bank recall
+    rate. 0-100 at 1dp is `db.get_topic_accuracy`'s `pct` convention (db.py:240-243),
+    so this figure and the student's own per-topic breakdown are directly comparable.
+
+    A student with no attempts is ABSENT, not `{"accuracy": 0.0}` — the table only
+    started accruing rows when Plan A's Task 1 shipped, so a thin table is the norm
+    and a 0.0 would read as total recall failure.
+    """
+    agg: dict[str, dict] = {}
+    for r in rows:
+        sid = str(r.get("student_id") or "")
+        if not sid:
+            continue
+        bucket = agg.setdefault(sid, {"correct": 0, "n": 0})
+        bucket["n"] += 1
+        if r.get("correct"):
+            bucket["correct"] += 1
+    return {
+        sid: {"accuracy": round(100 * b["correct"] / b["n"], 1), "n": b["n"]}
+        for sid, b in agg.items()
+    }
