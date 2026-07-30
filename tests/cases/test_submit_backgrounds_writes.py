@@ -8,13 +8,35 @@ their round-trips to the student's wait after they've already finished the stati
 They must be scheduled on FastAPI BackgroundTasks (run after the response is sent),
 funnelled through one `_persist_submit` helper.
 """
+from contextlib import ExitStack
 from unittest.mock import patch, AsyncMock
 
+import pytest
 from fastapi import BackgroundTasks
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
+
+
+@pytest.fixture(autouse=True)
+def _stub_submit_db():
+    """The reads /submit makes INLINE, before the backgrounded writes.
+
+    Stubbing BackgroundTasks.add_task stops the persistence writes from running, but these
+    two run inline on the request path regardless — and hit production Supabase: the
+    content-pool profile lookup (a miss also made `tools.profile.get_profile` CREATE the
+    row) and the prior-attempt scan behind the Lumens award. See `_forbid_real_supabase`
+    in tests/conftest.py.
+    """
+    defaults = {
+        "tools.shared.db.get_profile": {"role": "OA"},
+        "tools.shared.db.get_case_results": [],
+    }
+    with ExitStack() as stack:
+        for target, value in defaults.items():
+            stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
+        yield
 
 _CASE = {
     "case_id": "case_bg",

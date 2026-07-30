@@ -1,33 +1,9 @@
-import sys
-from unittest.mock import patch
-
 import pytest
 from httpx import AsyncClient, ASGITransport
 from tools.api.server import app
 from tests.api.conftest import auth_headers
 from tools.flashcards.flashcard_sets import topics_for
 from tools.flashcards.static_cards import topic_card_counts
-
-
-@pytest.fixture(autouse=True)
-def _forbid_real_supabase():
-    """No test in this file may reach production Supabase — every db function
-    funnels through db._get_client, so blocking that one seam catches all of them.
-    The endpoint swallows read failures, so the assertion has to happen after the
-    request or a leak would pass silently."""
-    attempted = []
-
-    async def _blocked(*_args, **_kwargs):
-        attempted.append(sys._getframe(1).f_code.co_name)
-        raise AssertionError("real Supabase client requested")
-
-    with patch("tools.shared.db._get_client", new=_blocked):
-        yield
-
-    assert not attempted, (
-        "these db calls reached production Supabase: "
-        + ", ".join(sorted(set(attempted))) + " - stub them"
-    )
 
 
 @pytest.mark.asyncio

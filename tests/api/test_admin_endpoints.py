@@ -5,7 +5,6 @@ Two guard tiers:
   • require_staff  → read-only analytics: admin + trainer allowed, student 403.
   • require_admin  → add/remove/CSV/promote: admin only, trainer + student 403.
 """
-import sys
 from contextlib import ExitStack
 
 import pytest
@@ -129,41 +128,6 @@ def _stub_admin_db():
         for target, value in defaults.items():
             stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
         yield
-
-
-@pytest.fixture(autouse=True)
-def _forbid_real_supabase():
-    """No test in this file may reach production Supabase.
-
-    ``tools/shared/db.py`` calls ``load_dotenv()`` and builds its client from
-    SUPABASE_SERVICE_ROLE_KEY, so on any machine with a populated ``.env`` a db call
-    left unstubbed reads (or writes) the **live production database** on every pytest
-    run. Every db function funnels through ``db._get_client``, so blocking that one
-    seam catches all of them.
-
-    The assertion has to happen *after* the request: the endpoints wrap their reads in
-    ``except Exception -> 500``, so raising alone is swallowed and the guard tests
-    (which accept any non-401/403) would still pass. Recording the attempt and failing
-    on the way out is what makes an unstubbed read impossible to miss — and it works
-    identically with or without credentials present, so CI and a fresh worktree
-    enforce the same rule the maintainer's box does.
-    """
-    attempted = []
-
-    async def _blocked(*_args, **_kwargs):
-        # The caller one frame up is the db.py function that went unstubbed — name it,
-        # so the failure says what to patch instead of just that something leaked.
-        attempted.append(sys._getframe(1).f_code.co_name)
-        raise AssertionError("real Supabase client requested")
-
-    with patch("tools.shared.db._get_client", new=_blocked):
-        yield
-
-    assert not attempted, (
-        "these db calls reached production Supabase: "
-        + ", ".join(sorted(set(attempted)))
-        + " - stub them in _stub_admin_db"
-    )
 
 
 # ---------------------------------------------------------------------------

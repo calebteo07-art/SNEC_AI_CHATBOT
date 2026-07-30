@@ -11,10 +11,24 @@ import time
 from contextlib import ExitStack
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
+
+
+@pytest.fixture(autouse=True)
+def _stub_profile_read():
+    """/submit resolves the student's content pool from their profile.
+
+    The test pins every other db call but not this one, so it read production Supabase for
+    a `stu_coach` id that isn't there — and a miss makes `tools.profile.get_profile` CREATE
+    the row (db.upsert_profile), so it wrote too. The subject is the coaching timeout,
+    which this doesn't touch. See `_forbid_real_supabase` in tests/conftest.py.
+    """
+    with patch("tools.shared.db.get_profile", new=AsyncMock(return_value={"role": "OA"})):
+        yield
 
 _CASE = {
     "case_id": "case_coach",
