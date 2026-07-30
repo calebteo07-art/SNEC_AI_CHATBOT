@@ -38,8 +38,8 @@ def _reset_shared_api_state() -> None:
     _case_cache.clear()
 
     # Same class of per-process cache: the daily check-in question is memoised per
-    # student_id. No test exercises /api/checkin/question yet, but reset it too so a
-    # future test can't inherit a stale question from an earlier one.
+    # student_id, so without this a test that pins the clock would be served the
+    # question an earlier test warmed under a different date.
     try:
         from tools.api.routers.checkin import _question_cache
         _question_cache.clear()
