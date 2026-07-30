@@ -1,10 +1,11 @@
 """Check-in endpoints — daily multiple-choice "brain icebreaker".
 
-Each day a student is served one easy MCQ, rotated through the role pool with no
-repeat until the pool is exhausted (pick_by_day_count). Options are shuffled
-deterministically per student/day so the correct answer is not always in the same
-position. Grading is fully deterministic (selected option text == correct option
-text) — no AI marks the check-in.
+Each day a student is served one easy flashcard from their own bank — the easiest
+tier of every topic in the role's scope — rotated with no repeat until the pool is
+exhausted (pick_by_day_count). Options are shuffled deterministically per
+student/day so the correct answer is not always in the same position. Grading is
+fully deterministic (selected option text == correct option text) — no AI marks
+the check-in.
 """
 import random as _random
 
@@ -12,7 +13,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from tools.api.shared import limiter
-from tools.checkin.static_questions import CHECKIN_QUESTION_POOL
+from tools.checkin.question_pool import checkin_pool, find_card, question_id
+from tools.flashcards.flashcard_sets import label_for
 from tools.gamification import streak as streak_engine
 from tools.profile.get_profile import get_profile
 from tools.profile.update_profile import update_profile
@@ -56,18 +58,6 @@ def _shuffle_options(options: list[str], seed: str) -> list[str]:
     opts = list(options)
     _random.Random(seed).shuffle(opts)
     return opts
-
-
-def _lookup(question_id: str) -> dict | None:
-    """Resolve a question_id ('ROLE-idx') back to its canonical pool entry."""
-    try:
-        role, idx = question_id.rsplit("-", 1)
-        pool = CHECKIN_QUESTION_POOL.get(role.upper())
-        if pool is None:
-            return None
-        return pool[int(idx)]
-    except (ValueError, IndexError, KeyError):
-        return None
 
 
 # ── Check-in endpoints ─────────────────────────────────────────────────────
@@ -117,17 +107,16 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
     except Exception:
         role = "OA"
 
-    pool = CHECKIN_QUESTION_POOL.get(role) or CHECKIN_QUESTION_POOL["OA"]
-    idx = pick_by_day_count(student_id, len(pool), "checkin", today=app_today())
-    entry = pool[idx]
-    question_id = f"{role}-{idx}"
-    options = _shuffle_options(entry["options"], f"{student_id}:{question_id}:{today}")
+    pool = checkin_pool(role)
+    card = pool[pick_by_day_count(student_id, len(pool), "checkin", today=app_today())]
+    qid = question_id(card["stem"])
+    options = _shuffle_options(card["options"], f"{student_id}:{qid}:{today}")
 
     result = CheckinQuestionResponse(
-        question=entry["question"],
-        topic=entry["topic"],
+        question=card["stem"],
+        topic=label_for(role, card["topic_tag"]),
         options=options,
-        question_id=question_id,
+        question_id=qid,
     )
     _question_cache[student_id] = (today, result)
     return result
@@ -137,11 +126,11 @@ async def checkin_question(request: Request, current_user: CurrentUser = Depends
 @limiter.limit("20/minute")
 async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_user: CurrentUser = Depends(get_current_user)):
     student_id = current_user["sub"]
-    entry = _lookup(body.question_id)
-    if entry is None:
+    card = find_card(body.question_id)
+    if card is None:
         raise HTTPException(status_code=400, detail="Unknown question.")
 
-    correct_text = entry["options"][entry["answer"]]
+    correct_text = card["options"][card["correct"][0]]
     is_correct = body.answer.strip() == correct_text.strip()
 
     # Completing the check-in marks it done (keeps the streak alive) regardless of score.
@@ -152,6 +141,6 @@ async def checkin_answer(request: Request, body: CheckinAnswerRequest, current_u
 
     return CheckinAnswerResponse(
         correct=is_correct,
-        feedback=entry.get("explanation", ""),
+        feedback=card.get("explanation", ""),
         correct_answer=correct_text,
     )
