@@ -15,9 +15,12 @@
    at the STAGE (cards are pointer-events:none) so the drift + 3D projection can't swallow the
    click. Keyboard Enter still picks via the button. Reduced motion freezes it, parked with the
    first card (Mixed) facing front. The component API (cards / onPick / autoAdvanceMs) and every
-   test hook (flash-fan, flash-pick, data-card-id, flash-prev/next) are unchanged. No numbers/dots. */
+   test hook (flash-fan, flash-pick, data-card-id, flash-prev/next) are unchanged. No race
+   numbers, no pagination dots — the ONE number on a card is the deck-ladder sticker peeled onto
+   its top-right corner (n/5), which overhangs the corner and rides above the face in 3D. */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { inFrontCardZone } from "@/aurora/lib/hoverPause";
+import { deckSticker } from "@/aurora/lib/deckLadder";
 
 export interface FanCard {
   id: string;
@@ -26,6 +29,9 @@ export interface FanCard {
   sub?: string;
   hue: number;
   startable?: boolean;
+  /** The topic's 5-deck ladder → the corner sticker. Omitted (Mixed) ⇒ no sticker. */
+  deckDone?: number;
+  deckOf?: number;
 }
 
 interface CardFanCarouselProps {
@@ -298,12 +304,17 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
           onPointerDown={onPointerDown} onPointerMove={onPointerMove}
           onPointerUp={onPointerUp} onPointerCancel={endDrag} onPointerLeave={leaveStage}>
           <div ref={containerRef} className="fan-ring">
-          {cards.map((card, i) => (
+          {cards.map((card, i) => {
+            // A "coming soon" topic has no ladder to climb, so a 0/5 there is just noise.
+            const sticker = card.startable === false
+              ? null : deckSticker(card.deckDone as number, card.deckOf as number);
+            return (
             <button key={card.id} type="button"
               className={`fan-card${card.startable === false ? " is-locked" : ""}`}
               data-testid="flash-pick" data-card-id={card.id}
               disabled={card.startable === false}
-              aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}`}
+              aria-label={`${card.label}${card.sub ? ", " + card.sub : ""}${
+                sticker ? `, ${sticker.done} of ${sticker.of} decks cleared` : ""}`}
               // Cards are pointer-events:none, so this fires only for keyboard (Enter/Space)
               // on a focused card; mouse/touch taps are resolved at the stage (onPointerUp).
               onClick={() => { if (card.startable !== false) onPick(card); }}>
@@ -312,12 +323,28 @@ export function CardFanCarousel({ cards, onPick, autoAdvanceMs = 2600 }: CardFan
                   fetchPriority={i === 0 ? "high" : "low"}
                   onError={(e) => { e.currentTarget.closest(".fan-card")?.classList.add("is-placeholder"); }} />
               </span>
+              {/* The deck-ladder sticker is a SIBLING of .fan-card-media on purpose: that box is
+                  overflow:hidden, so nesting it there would clip the corner overhang that makes
+                  it read as a sticker rather than a printed-on badge. aria-hidden — the count is
+                  already in the card's aria-label above, so a screen reader hears it once. */}
+              {sticker && (
+                <span className={`fan-sticker is-${sticker.state}`} aria-hidden="true"
+                  data-testid="fan-sticker" data-state={sticker.state}
+                  style={{ "--fan-hue": card.hue,
+                    "--sticker-pct": sticker.done / sticker.of } as React.CSSProperties}>
+                  <span className="fan-sticker-in">
+                    <span className="fan-sticker-num">{sticker.text}</span>
+                    <span className="fan-sticker-cap">decks</span>
+                  </span>
+                </span>
+              )}
               <span className="fan-card-cap">
                 <span className="fan-card-label">{card.label}</span>
                 {card.sub && <span className="fan-card-sub">{card.sub}</span>}
               </span>
             </button>
-          ))}
+            );
+          })}
           </div>
         </div>
       </div>
