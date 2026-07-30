@@ -613,6 +613,16 @@ Recommendation & escalation — OA/OT/PSA do not diagnose or prescribe).
   need doubled selectors); the anti-spoiler rule still holds — no help text or beat names a
   clinical action. **Out of scope**: the grand tour (`tourSteps.ts`), the `/cases` surface's
   own walkthrough (it has none — `?` only), gating order, the two-scheme grade.
+- **Beat cadence (2026-07-30, user-directed: the walkthrough is "too short, flash by before i
+  can read finish")** — criterion changed: *`BEAT_MS` 2600 → 5200.* Nothing else moves: still
+  four beats, still every-open, still the same escapes. 2600ms was set to keep a veteran from
+  being held hostage, and it did — but it priced a beat at "read one line" when a beat is a
+  title *plus* a line (~19 words) and the eye must also travel to the spotlit pane and back.
+  A veteran now leaves via Next → / Escape (one action, already required above) instead of the
+  timer being tuned for them. **Acceptance when refining**: `BEAT_MS` stays in 4.5s–7s
+  (`station_help_logic.mjs`); the rail's CSS fallback `var(--beat-ms, …)` and
+  `station_assert.mjs`'s auto-advance timeout (one beat + slack) both track the constant —
+  a stale fallback silently desyncs the rail from the timer it is meant to read out.
 
 ## Branding / Selena surfacing — LOCKED 2026-07-06 (ricoe §6.6)
 **Amended 2026-07-11 (Mono-logo lock)**: the EyeBot **mark** in this lockup (and in
