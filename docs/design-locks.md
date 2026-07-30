@@ -146,18 +146,26 @@ flip, spinner slows); WCAG-legible.
   exactly ONE numeric sticker (`n/5` + a `DECKS` microlabel) is now permitted, and nothing else
   numeric may join it. The sticker is a **disc** that **overhangs** the corner, is tilted ~7°,
   wears a near-white **die-cut edge** + drop shadow (so it reads as a sticker, not a HUD chip),
-  and is **lifted off the card face in 3D** (`translateZ`) so it parallaxes as the card banks —
-  a sticker sits *on top of* the photo, it isn't printed into it. Its edge is a **conic-gradient
-  progress sweep** of the cleared fraction. Three states: **fresh** `0/5` (neutral, no sweep) →
-  **climbing** `n/5` (topic-hue sweep) → **cleared** `5/5` (**coin-gold** ring + glow — the
-  arcade "cleared" read, and the visual echo of the topic retiring from Lumens). Rules:
+  and casts a drop shadow onto the photo — a sticker sits *on top of* the image, it isn't
+  printed into it. Its edge is a **conic-gradient progress sweep** of the cleared fraction.
+  Three states: **fresh** `0/5` (neutral, no sweep) → **climbing** `n/5` (topic-hue sweep) →
+  **cleared** `5/5` (**coin-gold** ring + glow — the arcade "cleared" read, and the visual echo
+  of the topic retiring from Lumens). Rules:
   - It must live **outside `.fan-card-media`** — that box is `overflow:hidden` and would clip
     the overhang, which is the whole sticker read.
+  - **⚠ NO `translateZ`.** Lifting the sticker off the card face inside `.fan-card`'s
+    `preserve-3d` was tried first and looked great on the upright front card — and broke every
+    neighbour: at a 54° bank a +12px Z offset projects into a large X/Y shift, so the side
+    stickers **detached** from their corners and floated as orbs across the front card. Keep
+    the sticker **coplanar** with the face; it then banks with its own card and the deeper ones
+    sort correctly behind. The "on top" read comes from the die-cut edge, shadow, tilt and
+    overhang, not from depth. Left-side neighbours legitimately occlude their own sticker (their
+    top-right corner is rotated away) — that is honest 3D, not a bug to chase.
   - **No sticker** on the Mixed card (no ladder) or a locked "coming soon" topic (nothing to
     climb) — a `0/5` there is noise.
-  - The **caption sub no longer duplicates the counter**. `deckProgress`'s prose stays for the
-    caption contract but the fan now passes no ladder sub, so the sticker is the single place
-    progress is stated. Never render both — that was the redundancy this refine removed.
+  - The **caption sub no longer states the counter**. The sticker is the single place progress
+    is stated; never render both — that redundancy is what this refine removed. The old prose
+    helper `deckProgress()` was deleted with its caller rather than left as dead code.
   - Progress numerals come from the pure `deckSticker()` in `deckLadder.ts` (clamped, and
     `null` on a missing/zero `deck_count`), guarded by `flashcards_deckladder_logic.mjs`; the
     live wiring + all three states are asserted in `aurora_assert.mjs`.

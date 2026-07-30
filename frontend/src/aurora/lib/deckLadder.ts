@@ -1,18 +1,22 @@
-/* The per-topic 5-deck difficulty ladder — the pure bits, shared by the topic fan
-   caption and the pre-deck intro. Dependency-free (no React) so frontend/tests can
-   run it directly under node --experimental-strip-types.
+/* The per-topic 5-deck difficulty ladder — the pure bits, shared by the topic card's
+   corner sticker and the pre-deck intro. Dependency-free (no React) so frontend/tests
+   can run it directly under node --experimental-strip-types.
 
    Every function tolerates a missing count: an older server, or a persisted query
-   cache from before the ladder shipped, hands back `undefined` here, and a caption
-   reading "undefined/undefined decks" is worse than no caption at all. */
+   cache from before the ladder shipped, hands back `undefined` here, and a sticker
+   reading "undefined/undefined" is worse than no sticker at all. */
 
-/** Fan-card caption: how far up its ladder the student has climbed. */
-export function deckProgress(done: number, of: number): string {
-  if (!Number.isFinite(of) || of <= 0) return "";
+/** The corner sticker on a topic card: the same progress as numerals, because a disc
+ *  has room for a count and not a sentence. `state` drives its colour — neutral while
+ *  untouched, a topic-hue sweep while climbing, coin-gold once the ladder is cleared.
+ *  `null` means "draw no sticker" (Mixed, a zero-deck topic, a pre-ladder cache). */
+export function deckSticker(done: number, of: number): {
+  text: string; done: number; of: number; state: "fresh" | "climbing" | "cleared";
+} | null {
+  if (!Number.isFinite(of) || of <= 0) return null;
   const cleared = Number.isFinite(done) ? Math.max(0, Math.min(done, of)) : 0;
-  if (cleared <= 0) return `${of} decks`;
-  if (cleared >= of) return `all ${of} decks done`;
-  return `${cleared}/${of} decks`;
+  const state = cleared >= of ? "cleared" : cleared > 0 ? "climbing" : "fresh";
+  return { text: `${cleared}/${of}`, done: cleared, of, state };
 }
 
 /** What a rung feels like, so "Deck 3 of 5" reads as a difficulty step rather than
