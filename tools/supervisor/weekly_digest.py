@@ -61,6 +61,15 @@ def _weak_topics_section(topics: list[dict]) -> str:
     )
 
 
+def _top_reason(row: dict) -> str:
+    """The highest-weighted reason as plain text, for the one surface with no drill-down."""
+    reasons = row.get("reasons") or []
+    if reasons:
+        return str(reasons[0].get("detail") or "")
+    weak = row.get("weak_topics") or []
+    return ", ".join(weak[:3]).replace("_", " ")
+
+
 def _risk_section(at_risk: list[dict]) -> str:
     if not at_risk:
         return '<p style="color:' + C_GREEN + ';margin-bottom:32px">✓ No students flagged at risk this week.</p>'
@@ -70,10 +79,13 @@ def _risk_section(at_risk: list[dict]) -> str:
         'font-family:monospace;font-size:12px;color:' + C_DARK + '">'
         + s["student_id"][:12] + '…</td>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
-        'color:' + C_RED + ';font-weight:600">' + str(s["days_inactive"]) + 'd inactive</td>'
+        'color:' + (C_RED if s.get("band") == "high" else C_MUTED) + ';font-weight:600">'
+        + str(s.get("risk_score") or 0) + ' · ' + str(s.get("band") or "") + '</td>'
         '<td style="padding:10px 12px;border-bottom:1px solid ' + C_BORDER + ';'
         'color:' + C_MUTED + ';font-size:12px">'
-        + ", ".join(s["weak_topics"][:3]).replace("_", " ") + '</td>'
+        # The top reason, not the raw day count: days_inactive is None for a student
+        # flagged on OSCE failure alone, and str(None) rendered "Noned inactive".
+        + _top_reason(s) + '</td>'
         '</tr>'
         for s in at_risk[:10]
     )
@@ -89,8 +101,10 @@ def _risk_section(at_risk: list[dict]) -> str:
         '<table style="width:100%;border-collapse:collapse;margin-bottom:32px">'
         '<thead><tr>'
         '<th style="' + header_style + '">ID</th>'
-        '<th style="' + header_style + '">Status</th>'
-        '<th style="' + header_style + '">Weak topics</th>'
+        # Relabelled with the columns: this row is now "score · band" and the top
+        # scored reason, not "Nd inactive" and a weak-topic list.
+        '<th style="' + header_style + '">Risk</th>'
+        '<th style="' + header_style + '">Top reason</th>'
         '</tr></thead>'
         '<tbody>' + rows + '</tbody>'
         '</table>'
