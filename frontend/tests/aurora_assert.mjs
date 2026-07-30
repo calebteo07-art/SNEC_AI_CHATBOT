@@ -971,8 +971,30 @@ const CA_RUBRIC = {
 };
 const staffMocks = async (c) => {
   await c.route("**/api/**", (r) => r.fulfill(JSON_OK({})));
-  await c.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
-  await c.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [{ student_id: "S009ABCDEF", last_active: new Date(Date.now() - 9 * 864e5).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 }] })));
+  // at_risk_count is now literally len(get_at_risk()) (cohort_summary.py), so it MUST
+  // equal the number of rows in the at-risk fixture below. It said 3 beside a 1-row list.
+  await c.route("**/api/supervisor/cohort", (r) => r.fulfill(JSON_OK({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 2, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
+  // Both rows are the EXACT output of score_student for the student described, not
+  // hand-picked numbers: reason weights are renormalised contributions that sum to the
+  // score (risk_model.py:229,244), so 66 cannot come with reasons totalling 51.
+  // Row 1: 20 days idle, streak broken, 2 weak topics, 9 of 12 attempts failed unsafely.
+  // Row 2: never started, so days_inactive is null — the state that rendered
+  // "Noned inactive" in the digest, and the one a fixture has to cover.
+  await c.route("**/api/supervisor/at-risk", (r) => r.fulfill(JSON_OK({ students: [
+    { student_id: "S009ABCDEF", risk_score: 66, band: "high",
+      reasons: [
+        { factor: "inactivity", weight: 22.0, detail: "No activity for 20 days" },
+        { factor: "osce_failure", weight: 19.4, detail: "Failed 9 of 12 graded OSCE attempts" },
+        { factor: "safety", weight: 14.2, detail: "Safety fail on 9 of 12 gradable attempts" },
+        { factor: "streak_broken", weight: 7.3, detail: "Check-in streak is broken" },
+        { factor: "weak_breadth", weight: 2.9, detail: "2 weak topics recorded" },
+      ],
+      last_active: new Date(Date.now() - 20 * 864e5).toISOString(), days_inactive: 20,
+      weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 },
+    { student_id: "S014BCDEFA", risk_score: 41, band: "medium",
+      reasons: [{ factor: "flashcard", weight: 40.9, detail: "Flashcard accuracy 57% over 88 answers" }],
+      last_active: "", days_inactive: null, weak_topics: [], weak_count: 0 },
+  ] })));
   await c.route("**/api/supervisor/insights", (r) => r.fulfill(JSON_OK({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area." })));
   await c.route("**/api/supervisor/benchmarks", (r) => r.fulfill(JSON_OK({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
   await c.route("**/api/admin/token-summary", (r) => r.fulfill(JSON_OK({ total_tokens: 48213, complete: true, by_student: [{ student_id: "S001", tokens: 48213 }] })));
@@ -1021,11 +1043,41 @@ await tp.waitForSelector('[data-testid="stat-card"]', { timeout: 15000 });
 if (new URL(tp.url()).pathname !== "/admin") { console.error(`FAIL: AdminGuard bounced a trainer off /admin (url=${tp.url()})`); process.exit(1); }
 const anH1 = await tp.locator("main h1").count();
 if (anH1 !== 1) { console.error(`FAIL: admin main h1 count = ${anH1}`); process.exit(1); }
-// the KPIs read the payload rather than rendering placeholders: at_risk_count 3 → "At risk".
+// the KPIs read the payload rather than rendering placeholders: at_risk_count 2 → "At risk".
 const atRiskCard = tp.locator('[data-testid="stat-card"]:has(.aurora-statcard-label:text-is("At risk"))');
 if ((await atRiskCard.count()) !== 1) { console.error("FAIL: cohort tab missing the 'At risk' KPI card"); process.exit(1); }
 const atRiskVal = (await atRiskCard.locator(".aurora-statcard-value").innerText()).trim();
-if (atRiskVal !== "3") { console.error(`FAIL: 'At risk' KPI = '${atRiskVal}', expected the payload's 3`); process.exit(1); }
+if (atRiskVal !== "2") { console.error(`FAIL: 'At risk' KPI = '${atRiskVal}', expected the payload's 2`); process.exit(1); }
+// P2b: at_risk_count IS len(get_at_risk()) (cohort_summary.py), so the KPI and the list
+// beneath it can no longer disagree. AdminCohort.tsx:42 PREFERS the count, so a drift
+// would show the wrong number above a correct list, on one screen.
+const riskRowCount = await tp.locator('[data-testid="risk-band"]').count();
+if (String(riskRowCount) !== atRiskVal) {
+  console.error(`FAIL: 'At risk' KPI = ${atRiskVal} but the list beneath it has ${riskRowCount} rows`); process.exit(1);
+}
+// D7: the row must say WHY. A coloured band with no explanation is the old binary flag
+// wearing a pill, and the digest/console are the only places a trainer sees this.
+const riskReason = await tp.locator('[data-testid="risk-reason"]').first().textContent();
+if (!riskReason?.includes("No activity for 20 days")) {
+  console.error(`FAIL: at-risk row does not explain WHY the student is flagged (got ${riskReason})`); process.exit(1);
+}
+if ((await tp.locator('[data-testid="risk-band"][data-band="high"]').count()) !== 1) {
+  console.error("FAIL: at-risk high-band pill missing"); process.exit(1);
+}
+// The medium row carries days_inactive: null — the state that rendered "Noned inactive"
+// in the digest. It must still show a score and a reason, not a blank or a "0".
+if ((await tp.locator('[data-testid="risk-band"][data-band="medium"]').count()) !== 1) {
+  console.error("FAIL: at-risk medium-band pill missing"); process.exit(1);
+}
+const riskScores = (await tp.locator('[data-testid="risk-score"]').allInnerTexts()).join(" ");
+if (!riskScores.includes("66") || !riskScores.includes("41")) {
+  console.error(`FAIL: at-risk scores not rendered from the payload (got ${riskScores})`); process.exit(1);
+}
+// Truncated to the 3 heaviest: row 1 carries 5 reasons, row 2 carries 1.
+const reasonCount = await tp.locator('[data-testid="risk-reason"]').count();
+if (reasonCount !== 4) {
+  console.error(`FAIL: expected 4 reason chips (3 capped + 1), got ${reasonCount}`); process.exit(1);
+}
 if ((await tp.locator('[role="tab"]:has-text("Accounts")').count()) !== 0) {
   console.error("FAIL: the admin-only Accounts tab is exposed to a trainer"); process.exit(1);
 }

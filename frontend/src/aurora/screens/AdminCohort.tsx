@@ -20,6 +20,7 @@ import { fmtTokens } from "@/screens/adminShared";
 import { useCohort, useAtRisk, useBenchmarks, useActivityTrend, useTokenSummary, useCohortInsight, useCohortAnalytics } from "@/hooks/useAdmin";
 import { PanelSkeleton, PanelError } from "@/aurora/components/admin/PanelState";
 import { safetyPanel, missedPanel } from "@/aurora/components/admin/cohortAnalyticsView";
+import { riskRows } from "@/aurora/components/admin/riskRowView";
 import { AdminTopicAnalytics } from "@/aurora/screens/AdminTopicAnalytics";
 
 export function AdminCohort() {
@@ -66,6 +67,10 @@ export function AdminCohort() {
   const missed = missedPanel(groups);
   const osceStudents = analytics.data?.totals.osce_students ?? 0;
 
+  // P2b/D7: the flagged rows, projected through the pure view-model so band ordering,
+  // score clamping and reason truncation are unit-testable outside a browser.
+  const risks = riskRows(atRisk.data);
+
   // A KPI must never render 0 while loading or failed — that reads as a real measurement.
   const kpi = (q: { isLoading: boolean; isError: boolean }, v: string | number) =>
     q.isLoading ? "…" : q.isError ? "—" : v;
@@ -81,6 +86,55 @@ export function AdminCohort() {
       </div>
 
       {insight.data && <div className="aurora-insight"><p>“{insight.data}”</p></div>}
+
+      {/* Needs attention (D7). The only panel on this board that names individual
+          students, and the whole point of P2b: the KPI above says HOW MANY, this says
+          WHO and WHY. Until now the at-risk read only drove that count and a red dot in
+          the roster, so a trainer could see a number and never the reasoning behind it.
+          A failed read renders an error, never an empty list — useAdmin's getJSON throws
+          (useAdmin.ts:11-15), and "nobody is at risk" is the most dangerous way this
+          particular feature can fail. */}
+      <section className="aurora-panel" data-testid="admin-at-risk">
+        <p className="aurora-panel-head">Needs attention · at-risk students</p>
+        <p className="aurora-unavail" style={{ marginBottom: 12 }}>
+          Risk is scored 0–100 from inactivity, OSCE results, safety fails, flashcard accuracy,
+          streak and weak-topic breadth. Signals a student has no data for are excluded, not
+          counted as zero, so the remaining ones carry the full weight.
+        </p>
+        {atRisk.isLoading ? (
+          <PanelSkeleton />
+        ) : atRisk.isError ? (
+          <PanelError onRetry={() => atRisk.refetch()} />
+        ) : risks.length === 0 ? (
+          <p className="aurora-unavail">No students are flagged right now.</p>
+        ) : (
+          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+            {risks.map((r, i) => (
+              <li
+                key={r.studentId}
+                style={{
+                  display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                  paddingBottom: 10,
+                  borderBottom: i < risks.length - 1 ? "1px solid var(--hairline)" : "none",
+                }}
+              >
+                {/* data-band carries the raw band for the harness and for styling hooks;
+                    data-tone picks the console hue (rose = high, amber = medium). */}
+                <span className="aurora-badge" data-testid="risk-band" data-band={r.band} data-tone={r.band === "high" ? "rose" : "amber"}>{r.band}</span>
+                <code className="aurora-tcell is-mono">{r.idLabel}</code>
+                <span className="aurora-tcell is-mono" data-testid="risk-score">{r.scoreLabel}<small style={{ color: "var(--ink-3)" }}>/100</small></span>
+                {/* The reasons ARE the feature — a coloured band with no explanation is
+                    the old binary flag wearing a pill. */}
+                <ul className="aurora-unavail" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {r.reasons.map((x) => (
+                    <li key={x.factor} data-testid="risk-reason" style={{ border: "1px solid var(--hairline)", borderRadius: 999, padding: "2px 9px" }}>{x.detail}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <AdminTopicAnalytics />
 
