@@ -514,7 +514,7 @@ def score_student(
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `python -m pytest tests/supervisor/test_risk_model.py -q`
-Expected: PASS — 15 passed.
+Expected: PASS — **20 passed**. (15 `def test_…` functions, but the band-boundary `parametrize` expands to 6 items, so pytest collects 20.)
 
 If `test_flashcard_accuracy_is_scaled_off_100_not_summed_raw` or either shrinkage test is off by 1, print the intermediate: `round(0.60 * (100/105) * 100)` is 57 and `round(1.0 * (1/6) * 100)` is 17. A mismatch means the shrinkage term or the renormalised denominator is wrong, not the assertion — fix the implementation.
 
@@ -527,7 +527,7 @@ Confirm the suite can actually fail for its own invariants:
    Expected: `test_absent_signal_is_dropped_from_the_denominator` FAILS (score drops below 100). Revert.
 2. Shrink the profile facts — change `_SAMPLED` to include `"inactivity"`.
    Run: `python -m pytest tests/supervisor/test_risk_model.py -q`
-   Expected: `test_profile_facts_are_not_shrunk` FAILS (100 → 29: inactivity carries `n=0`, so a shrink factor of `0/(0+5)` zeroes its whole contribution). Revert.
+   Expected: `test_profile_facts_are_not_shrunk` FAILS (100 → 25: inactivity carries `n=0`, so a shrink factor of `0/(0+5)` zeroes its whole contribution, leaving only `weak_breadth` at `0.06/0.24`). Revert.
 
 Both must fail. If either passes, the test is not pinning what it claims and must be strengthened before moving on.
 
@@ -1426,9 +1426,7 @@ check("band order is high then medium", BAND_ORDER.indexOf("high") < BAND_ORDER.
 const [r] = riskRows([row()]);
 check("caps reasons at three", r.reasons.length === 3);
 check("keeps the heaviest reason first", r.reasons[0].detail.startsWith("No activity"));
-check("drops a zero-weight reason", riskRows([row({
-  reasons: [{ factor: "streak_broken", weight: 0, detail: "Check-in streak of 9 days" }],
-})])[0].reasons.length === 0);
+check("preserves the producer's reason order", r.reasons[1].factor === "osce_failure");
 
 // --- defensive ------------------------------------------------------------
 check("survives a missing reasons array", riskRows([row({ reasons: undefined })])[0].reasons.length === 0);
@@ -1493,11 +1491,12 @@ export function riskRows(rows: AtRiskStudent[] | null | undefined): RiskRowView[
         band: String(r.band ?? ""),
         scoreLabel: score === null ? "—" : String(score),
         scorePct: Math.max(0, Math.min(100, score ?? 0)),
-        reasons: (Array.isArray(r.reasons) ? r.reasons : [])
-          // A zero-weight signal contributed nothing to the score, so showing it as a
-          // "reason" would be a lie — a healthy 9-day streak is not why anyone is flagged.
-          .filter((x) => (x?.weight ?? 0) > 0)
-          .slice(0, MAX_REASONS),
+        // Zero-weight signals are already excluded by the PRODUCER (Task 1's
+        // risk_model decided this once, so the three consumers don't each re-decide
+        // it) — a healthy 9-day streak is not a reason anyone is flagged. The
+        // isArray guard is for a pre-P2b persisted payload, which has no `reasons`
+        // key at all; it cannot carry zero-weight entries, so no filter here.
+        reasons: (Array.isArray(r.reasons) ? r.reasons : []).slice(0, MAX_REASONS),
       };
     })
     .sort((a, b) => {
