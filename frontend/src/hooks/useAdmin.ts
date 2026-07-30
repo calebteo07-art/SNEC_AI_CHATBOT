@@ -27,9 +27,22 @@ export function useCohort() {
   });
 }
 
+export interface RiskReason { factor: string; detail: string; weight: number; }
+/** One flagged student, as tools/supervisor/at_risk.py:159-169 projects it. */
 export interface AtRiskRow {
-  student_id: string; name?: string; days_inactive: number;
-  weak_count?: number; weak_topic_count?: number; weak_topics?: string[];
+  student_id: string;
+  // P2b: scored model. risk_score is null only for bands the endpoint does not return.
+  risk_score: number | null;
+  band: "high" | "medium" | "low" | "no_data";
+  reasons: RiskReason[];
+  // Back-compat superset kept by D12. days_inactive is null when last_active is
+  // absent or unparseable — a student can now be flagged on OSCE failure alone
+  // (at_risk.py:73-88), and typing it `number` made that state invisible to tsc:
+  // this is an untyped JSON boundary, so the widening is the only guard there is.
+  last_active: string;
+  days_inactive: number | null;
+  weak_topics: string[];
+  weak_count: number;
 }
 export function useAtRisk() {
   return useQuery<AtRiskRow[]>({

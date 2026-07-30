@@ -144,11 +144,28 @@ export async function mockApis(ctx, user) {
     status: 200, contentType: "text/event-stream",
     body: 'data: {"text":"A cataract is a clouding of the lens inside the eye, "}\n\ndata: {"text":"usually age-related. It causes gradual, painless blurring of vision "}\n\ndata: {"text":"and is treated with day surgery to replace the cloudy lens with a clear implant."}\n\ndata: [DONE]\n\n',
   }));
-  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 3, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
+  // at_risk_count is now literally len(get_at_risk()) (cohort_summary.py), so it MUST
+  // equal the number of rows in the at-risk fixture below. It said 3 beside a 1-row list.
+  await ctx.route("**/api/supervisor/cohort", (r) => r.fulfill(J({ total_students: 24, total: 24, active_this_week: 17, at_risk_count: 2, weakest_topics: [{ topic: "Glaucoma staging", count: 14 }, { topic: "OCT interpretation", count: 9 }] })));
   await ctx.route("**/api/supervisor/insights", (r) => r.fulfill(J({ narrative: "Cohort momentum is improving; glaucoma staging remains the weakest area this week." })));
   // Shape mirrors BenchmarkResponse: avg_score is 0–1 (see cohort_benchmarks.py)
   await ctx.route("**/api/supervisor/benchmarks", (r) => r.fulfill(J({ topics: [{ topic: "Glaucoma staging", avg_score: 0.42, student_count: 14 }, { topic: "OCT interpretation", avg_score: 0.61, student_count: 12 }] })));
-  await ctx.route("**/api/supervisor/at-risk", (r) => r.fulfill(J({ students: [{ student_id: "S009", last_active: new Date(Date.now() - 9 * 86400000).toISOString(), days_inactive: 9, weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 4 }] })));
+  // Producer-real rows (see the same fixture in aurora_assert.mjs for the derivation).
+  await ctx.route("**/api/supervisor/at-risk", (r) => r.fulfill(J({ students: [
+    { student_id: "S009ABCDEF", risk_score: 66, band: "high",
+      reasons: [
+        { factor: "inactivity", weight: 22.0, detail: "No activity for 20 days" },
+        { factor: "osce_failure", weight: 19.4, detail: "Failed 9 of 12 graded OSCE attempts" },
+        { factor: "safety", weight: 14.2, detail: "Safety fail on 9 of 12 gradable attempts" },
+        { factor: "streak_broken", weight: 7.3, detail: "Check-in streak is broken" },
+        { factor: "weak_breadth", weight: 2.9, detail: "2 weak topics recorded" },
+      ],
+      last_active: new Date(Date.now() - 20 * 86400000).toISOString(), days_inactive: 20,
+      weak_topics: ["Glaucoma staging", "OCT interpretation"], weak_count: 2 },
+    { student_id: "S014BCDEFA", risk_score: 41, band: "medium",
+      reasons: [{ factor: "flashcard", weight: 40.9, detail: "Flashcard accuracy 57% over 88 answers" }],
+      last_active: "", days_inactive: null, weak_topics: [], weak_count: 0 },
+  ] })));
   await ctx.route("**/api/admin/students", (r) => r.fulfill(J({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
   await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [
