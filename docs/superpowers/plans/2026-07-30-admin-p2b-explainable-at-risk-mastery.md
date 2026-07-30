@@ -1107,7 +1107,7 @@ In `tests/api/test_admin_endpoints.py`, inside `_stub_admin_db`'s `defaults` dic
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `python -m pytest tests/supervisor/test_at_risk.py tests/api/test_admin_endpoints.py -q`
-Expected: PASS — 10 at-risk tests plus the whole guard suite.
+Expected: PASS — the 9 at-risk tests of Step 1 plus the whole guard suite.
 
 Then the full backend suite, because three consumers import this module:
 Run: `python -m pytest -q`

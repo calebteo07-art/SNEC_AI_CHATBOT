@@ -55,6 +55,15 @@ def _reset_shared_api_state() -> None:
     except Exception:
         pass
 
+    # And the at-risk roll-up, memoised for 45s under a single key. It has no per-request
+    # dimension at all, so ONE test that reaches get_at_risk() without patching
+    # _CACHE_TTL_S serves its own stubbed rows to every later test in the process.
+    try:
+        from tools.supervisor.at_risk import _cache as _at_risk_cache
+        _at_risk_cache.clear()
+    except Exception:
+        pass
+
 
 @pytest.fixture(autouse=True)
 def isolate_shared_api_state():
