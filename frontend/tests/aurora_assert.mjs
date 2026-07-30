@@ -1051,6 +1051,10 @@ if (atRiskVal !== "2") { console.error(`FAIL: 'At risk' KPI = '${atRiskVal}', ex
 // P2b: at_risk_count IS len(get_at_risk()) (cohort_summary.py), so the KPI and the list
 // beneath it can no longer disagree. AdminCohort.tsx:42 PREFERS the count, so a drift
 // would show the wrong number above a correct list, on one screen.
+// Wait FIRST: useAtRisk is a separate fetch from useCohort, and locator.count() does not
+// auto-wait. Counting straight after the KPI assertion reads 0 off the still-mounted
+// PanelSkeleton whenever at-risk resolves a tick later, i.e. a red CI run on correct code.
+await tp.waitForSelector('[data-testid="risk-band"]', { timeout: 15000 });
 const riskRowCount = await tp.locator('[data-testid="risk-band"]').count();
 if (String(riskRowCount) !== atRiskVal) {
   console.error(`FAIL: 'At risk' KPI = ${atRiskVal} but the list beneath it has ${riskRowCount} rows`); process.exit(1);

@@ -1,10 +1,14 @@
 /** Pure view-model for the at-risk list — no React, so it is Node-testable
     (mirrors cohortAnalyticsView.ts; the type import is erased before Node resolves it).
 
-    The endpoint returns only `high`/`medium` bands (D12) already sorted worst-first
-    (tools/supervisor/at_risk.py:172), but this re-sorts defensively: the list is polled
-    every 30s (useAdmin.ts:9) and a tie that reorders between polls makes rows jump
-    under the cursor. */
+    Ordering here does NOT add a guarantee the wire lacks: at_risk.py:172 already sorts by
+    `(-risk_score, student_id)`, a full order with no ties, and since bands are pure score
+    thresholds, band-then-score is equivalent to score-desc on every payload the endpoint
+    can emit. What it adds is INDEPENDENCE — the panel states its own ordering instead of
+    inheriting one, so a future endpoint change cannot silently reorder the UI.
+
+    The reason sort below is different: that one IS load-bearing, because this module
+    truncates. */
 import type { AtRiskRow, RiskReason } from "@/hooks/useAdmin";
 
 export const BAND_ORDER = ["high", "medium", "low", "no_data"] as const;
@@ -19,7 +23,9 @@ export interface RiskRowView {
   band: string;
   /** null risk_score renders "—", never "0" — a 0 reads as "lowest risk in the cohort". */
   scoreLabel: string;
-  scorePct: number;
+  /** Sort key only — nothing renders this. A null score sorts last within its band,
+   *  which is right: "we know nothing" is not "worst". */
+  sortScore: number;
   reasons: RiskReason[];
 }
 
@@ -36,17 +42,22 @@ export function riskRows(rows: AtRiskRow[] | null | undefined): RiskRowView[] {
         idLabel: id.length > 12 ? `${id.slice(0, 12)}…` : id,
         band: String(r.band ?? ""),
         scoreLabel: score === null ? "—" : String(score),
-        scorePct: Math.max(0, Math.min(100, score ?? 0)),
+        sortScore: Math.max(0, Math.min(100, score ?? 0)),
         reasons: (Array.isArray(r.reasons) ? r.reasons : [])
           // A zero-weight signal contributed nothing to the score, so showing it as a
           // "reason" would be a lie — a healthy 9-day streak is not why anyone is flagged.
           .filter((x) => (x?.weight ?? 0) > 0)
+          // Sort before truncating. risk_model.py:242 already returns these heaviest-first,
+          // but slicing trusted wire order is the one destructive decision this module
+          // makes: reorder upstream and a trainer silently loses the safety fail and keeps
+          // three trivia.
+          .sort((a, b) => (b?.weight ?? 0) - (a?.weight ?? 0))
           .slice(0, MAX_REASONS),
       };
     })
     .sort((a, b) => {
       const band = bandRank(a.band) - bandRank(b.band);
-      return band !== 0 ? band : b.scorePct - a.scorePct;
+      return band !== 0 ? band : b.sortScore - a.sortScore;
     });
 }
 
