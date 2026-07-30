@@ -36,11 +36,32 @@ const row = (over = {}) => ({
 const mixed = riskRows([row({ student_id: "m", band: "medium", risk_score: 40 }), row()]);
 check("high sorts above medium", mixed[0].band === "high");
 check("band order is high then medium", BAND_ORDER.indexOf("high") < BAND_ORDER.indexOf("medium"));
+// The panel's core ordering promise: worst first WITHIN a band, not just across bands.
+const sameBand = riskRows([
+  row({ student_id: "mild", risk_score: 55 }),
+  row({ student_id: "worst", risk_score: 91 }),
+  row({ student_id: "mid", risk_score: 70 }),
+]);
+check("worst sorts first within a band", sameBand.map((x) => x.studentId).join() === "worst,mid,mild");
+// A null score sorts last within its band — "we know nothing" is not "worst".
+check("a null score does not outrank a real one", riskRows([
+  row({ student_id: "unknown", risk_score: null }), row({ student_id: "known", risk_score: 30 }),
+]).map((x) => x.studentId).join() === "known,unknown");
 
 // --- reasons --------------------------------------------------------------
 const [r] = riskRows([row()]);
 check("caps reasons at three", r.reasons.length === 3);
 check("keeps the heaviest reason first", r.reasons[0].detail.startsWith("No activity"));
+// Truncation is this module's one destructive act. If it slices in wire order, an
+// upstream reorder silently drops the safety fail and leaves three trivia on screen.
+const unsorted = riskRows([row({ reasons: [
+  { factor: "weak_breadth", weight: 0.1, detail: "TINY" },
+  { factor: "streak_broken", weight: 2, detail: "SMALL" },
+  { factor: "inactivity", weight: 3, detail: "MID" },
+  { factor: "safety", weight: 40, detail: "HEAVIEST" },
+] })])[0].reasons;
+check("sorts by weight before truncating", unsorted[0].detail === "HEAVIEST");
+check("drops the lightest, not the heaviest", unsorted.map((x) => x.detail).join() === "HEAVIEST,MID,SMALL");
 check("drops a zero-weight reason", riskRows([row({
   reasons: [{ factor: "streak_broken", weight: 0, detail: "Check-in streak of 9 days" }],
 })])[0].reasons.length === 0);
@@ -48,7 +69,7 @@ check("drops a zero-weight reason", riskRows([row({
 // --- defensive ------------------------------------------------------------
 check("survives a missing reasons array", riskRows([row({ reasons: undefined })])[0].reasons.length === 0);
 check("survives a null risk_score", riskRows([row({ risk_score: null })])[0].scoreLabel === "—");
-check("clamps an out-of-range score", riskRows([row({ risk_score: 140 })])[0].scorePct === 100);
+check("clamps an out-of-range sort key", riskRows([row({ risk_score: 140 })])[0].sortScore === 100);
 check("ignores an unknown band instead of throwing", riskRows([row({ band: "weird" })]).length === 1);
 check("empty input is an empty list", riskRows([]).length === 0);
 check("survives a null payload", riskRows(null).length === 0);

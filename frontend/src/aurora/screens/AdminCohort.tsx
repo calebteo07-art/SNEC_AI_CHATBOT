@@ -120,7 +120,10 @@ export function AdminCohort() {
               >
                 {/* data-band carries the raw band for the harness and for styling hooks;
                     data-tone picks the console hue (rose = high, amber = medium). */}
-                <span className="aurora-badge" data-testid="risk-band" data-band={r.band} data-tone={r.band === "high" ? "rose" : "amber"}>{r.band}</span>
+                {/* Only the two bands the endpoint returns get an alarm tone. A `low` row
+                    is unreachable under D12, but tinting it amber would put an alarm pill
+                    reading "LOW" under a heading that says "Needs attention". */}
+                <span className="aurora-badge" data-testid="risk-band" data-band={r.band} data-tone={r.band === "high" ? "rose" : r.band === "medium" ? "amber" : undefined}>{r.band}</span>
                 <code className="aurora-tcell is-mono">{r.idLabel}</code>
                 <span className="aurora-tcell is-mono" data-testid="risk-score">{r.scoreLabel}<small style={{ color: "var(--ink-3)" }}>/100</small></span>
                 {/* The reasons ARE the feature — a coloured band with no explanation is
