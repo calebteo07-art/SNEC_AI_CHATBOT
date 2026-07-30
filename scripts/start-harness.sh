@@ -10,6 +10,10 @@
 #   SKIP_BUILD=1 scripts/start-harness.sh aurora    # reuse existing .next build
 #   HARNESS_PORT=3999 scripts/start-harness.sh stop # drive a port other than 3000
 #
+#   One run at a time per tree+port, via .tmp/harness-<port>.lock. A lock whose holder is
+#   dead is reclaimed automatically, so you should never need to clear it by hand; if you
+#   do, `rm -rf .tmp/harness-<port>.lock` — but check nothing is mid-run first.
+#
 # Notes:
 #   - `next start` is flaky under output:standalone — always serve the
 #     standalone bundle directly with node (see CLAUDE.md).
@@ -26,6 +30,21 @@
 #     trap as `stop` lying, from the other end, and worse: a stranger's build that is
 #     CLOSE to yours asserts as a false GREEN, and the one screen where it differs reads
 #     as a code regression. So the poll watches the child, not just the port.
+#
+# OWNERSHIP — who is responsible for the server process, and for how long.
+#   An assert run OWNS the server it starts and reaps it on EXIT (normal, failed, or
+#   Ctrl-C). It never reaps a server it merely reused. `serve` is the one mode that hands
+#   ownership to you: it deliberately outlives the script, and `stop` is how you end it.
+#   This exists because the script used to start node, exit, and leave an ORPHAN nobody
+#   owned — which the next SKIP_BUILD=1 run happily reused. When something later reaped
+#   that orphan (a parent shell exiting, a terminal closing, another run's `stop`) it died
+#   MID-SUITE, and the harness in flight failed on whatever it happened to be waiting for:
+#   a different scenario each run, against an unchanged bundle. Worse, a server that dies
+#   after the HTML but before the /_next chunks leaves the app stranded on BrandSplash, so
+#   the failure surfaces as a UI wait timing out rather than as "the server is gone".
+#   The single-run lock below is the other half: two concurrent runs in this tree would
+#   `rm -rf .next/standalone/.next/static` out from under each other's live server, which
+#   produces that same phantom-UI-regression failure.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -35,6 +54,15 @@ LOGFILE="$ROOT/.tmp/harness-server.log"
 PORT="${HARNESS_PORT:-3000}"
 BASE="http://127.0.0.1:$PORT"
 MODE="${1:-all}"
+LOCKDIR="$ROOT/.tmp/harness-$PORT.lock"
+
+# Ownership bookkeeping (see the header). OWN_SERVER flips to 1 only when THIS run starts
+# node — reusing someone else's server must never make us its executioner.
+OWN_SERVER=0
+KEEP_SERVER=0
+LOCK_HELD=0
+CHILD_PID=""
+if [ "$MODE" = "serve" ]; then KEEP_SERVER=1; fi
 
 mkdir -p "$ROOT/.tmp"
 
@@ -87,7 +115,68 @@ stop_server() {
   return 1
 }
 
-[ "$MODE" = "stop" ] && { stop_server; exit $?; }
+# The pid of the run holding the lock, if it is still alive. Both this and $$ are msys
+# pids from the same Bash, so `kill -0` is the right liveness test here — unlike the
+# netstat/taskkill pids above, which live in the other namespace.
+lock_holder() {
+  [ -s "$LOCKDIR/pid" ] || return 1
+  local h; h="$(cat "$LOCKDIR/pid" 2>/dev/null || true)"
+  [ -n "$h" ] && kill -0 "$h" 2>/dev/null && { echo "$h"; return 0; }
+  return 1
+}
+
+# `stop` stays unconditional — it is the escape hatch for a wedged server, so it must work
+# even while another run holds the lock. But say so, because stopping the port out from
+# under a live run is exactly the mid-suite death described in the header.
+if [ "$MODE" = "stop" ]; then
+  if holder="$(lock_holder)"; then
+    echo "warning: harness run (pid $holder) is live on :$PORT — stopping its server will" >&2
+    echo "make its remaining assertions fail against a dead port." >&2
+  fi
+  stop_server; exit $?
+fi
+
+# One harness run per tree+port. Two concurrent runs would race the static wipe below and
+# fight over the port. mkdir is the atomic primitive available everywhere; a lock whose
+# holder is gone is stale and gets reclaimed, so a hard-killed run can never brick the next.
+if ! mkdir "$LOCKDIR" 2>/dev/null; then
+  if holder="$(lock_holder)"; then
+    echo "another harness run (pid $holder) already owns :$PORT in this tree." >&2
+    echo "Wait for it, or stop it — running both wipes .next/standalone/static out from" >&2
+    echo "under the live server and every assertion after that is meaningless." >&2
+    exit 1
+  fi
+  echo "── clearing a stale lock from a run that died without releasing it"
+fi
+echo "$$" >"$LOCKDIR/pid"
+LOCK_HELD=1
+
+# The whole ownership contract, in one place: release the lock always, and end the server
+# iff we started it and are not handing it to the user. Runs on failure and Ctrl-C too —
+# the leaked-server-on-interrupt case is what seeded the orphans in the first place.
+#
+# Two levels, and the distinction matters: stop_server resolves its target FROM THE PORT,
+# so it is only safe once the poll has proved our child is the one answering (OWN_SERVER).
+# Before that — an interrupt mid-poll, or our child dead of EADDRINUSE — the port may
+# belong to a squatter, and a squatter is not ours to kill, only to refuse. There we kill
+# CHILD_PID and nothing else.
+cleanup() {
+  local rc=$?
+  if [ "$KEEP_SERVER" = 0 ]; then
+    if [ "$OWN_SERVER" = 1 ]; then
+      echo "── stopping the server this run started (:$PORT)"
+      stop_server >/dev/null 2>&1 || true
+    elif [ -n "$CHILD_PID" ] && kill -0 "$CHILD_PID" 2>/dev/null; then
+      kill "$CHILD_PID" 2>/dev/null || true
+      rm -f "$PIDFILE"
+    fi
+  fi
+  if [ "$LOCK_HELD" = 1 ]; then rm -rf "$LOCKDIR"; fi
+  exit $rc
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 # Reuse is opt-in, via the same flag that opts out of the build. A default run must
 # never inherit a server someone left up from an older build — that is a false green,
@@ -123,6 +212,9 @@ else
   # node's, so `stop` killed the wrapper and left a nohup'd node serving the port forever.
   (cd "$FE" && exec env PORT="$PORT" HOSTNAME=127.0.0.1 node .next/standalone/server.js >"$LOGFILE" 2>&1) &
   child=$!
+  # Ours from this instant, so an interrupt mid-poll kills OUR process rather than leaking
+  # it. Port-level ownership is only claimed once the poll below proves the port is ours.
+  CHILD_PID="$child"
   echo "$child" >"$PIDFILE"
 
   # `alive` only says SOMETHING answers the port, never that it is the child above — so
@@ -149,6 +241,15 @@ else
   # reports, so the file agrees with netstat/Task Manager and with kill_pid.
   real_pid="$(listener_pids | head -n1 || true)"
   if [ -n "$real_pid" ]; then echo "$real_pid" >"$PIDFILE"; fi
+  # Only NOW is it safe to drop it from the job table, and only for `serve` — the poll
+  # above needs `kill -0 "$child"` to mean "still running", and a disowned child the shell
+  # no longer reaps lingers as a zombie that `kill -0` reports as alive, which would turn
+  # "the server exited before it answered" into a silent 60s timeout. `serve` hands the
+  # process to the user, so it must not take a SIGHUP when this shell exits.
+  if [ "$KEEP_SERVER" = 1 ]; then disown "$child" 2>/dev/null || true; fi
+  # The poll has proved OUR child is the one answering :$PORT, so from here the port itself
+  # is ours to free on the way out — which is what makes an assert run leave nothing behind.
+  OWN_SERVER=1
   echo "── server up"
 fi
 
@@ -161,7 +262,18 @@ for route in / /checkin /homepage /chat /flashcards /leaderboard /studio /analyt
   curl -s -o /dev/null --max-time 45 -H "Cookie: eyebot_token=pw-harness" "$BASE$route" || true
 done
 
-run() { echo "── $1"; node "$FE/tests/$1" "$BASE"; }
+# A harness only means something if the server was there for all of it. Check before each
+# one so a mid-suite death is named at the point it happened, instead of cascading into the
+# next harness as a phantom UI failure (the app strands on BrandSplash when its chunks 404).
+require_alive() {
+  if alive; then return 0; fi
+  echo "" >&2
+  echo "the harness server on :$PORT is GONE (before $1) — it died mid-suite, so every" >&2
+  echo "assertion from here on would be meaningless. Tail of $LOGFILE:" >&2
+  tail -n 20 "$LOGFILE" >&2
+  exit 1
+}
+run() { require_alive "$1"; echo "── $1"; node "$FE/tests/$1" "$BASE"; }
 case "$MODE" in
   aurora)  run aurora_assert.mjs ;;
   station) run station_assert.mjs; run rotate_gate_assert.mjs ;;
@@ -174,6 +286,8 @@ case "$MODE" in
   # whole stage (which would stop the ring wherever the mouse rested).
   hover)   run hover_pause_assert.mjs ;;
   all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs; run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs; run hover_pause_assert.mjs ;;
-  serve)   echo "server ready at $BASE — stop with: scripts/start-harness.sh stop" ;;
+  # The one mode that hands the server over: it outlives this script on purpose, so YOU
+  # own it now and `stop` is how it ends. Every other mode reaps what it started.
+  serve)   echo "server ready at $BASE — it is yours until: scripts/start-harness.sh stop" ;;
   *)       echo "usage: start-harness.sh [aurora|station|forfeit|hover|all|serve|stop]" >&2; exit 2 ;;
 esac
