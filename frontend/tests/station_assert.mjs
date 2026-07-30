@@ -125,10 +125,10 @@ const firstBeat = await p.locator('[data-testid="station-briefing"]').getAttribu
 if (firstBeat !== "checklist") die(`briefing must open on the checklist beat, got "${firstBeat}"`);
 
 // It auto-advances with no input at all — that is the cinematic behaviour, so prove it
-// rather than trusting the timer. BEAT_MS is 2600; 4200 is one beat plus slack.
+// rather than trusting the timer. BEAT_MS is 5200; 7000 is one beat plus slack.
 await p.waitForFunction(
   () => document.querySelector('[data-testid="station-briefing"]')?.getAttribute("data-beat") !== "checklist",
-  { timeout: 4200 },
+  { timeout: 7000 },
 ).catch(() => die("briefing must advance itself without a click"));
 ok("briefing opens on the checklist beat and auto-advances");
 

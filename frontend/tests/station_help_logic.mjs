@@ -85,7 +85,10 @@ assert.strictEqual(shouldAutoAdvance({ ...RUNNING, focused: false }), false, "a 
 // Any one reason is enough on its own — they must not need to combine.
 assert.strictEqual(shouldAutoAdvance({ reduceMotion: true, hovered: true, manual: true, focused: false }), false);
 
-// Long enough to read one line, short enough that a veteran isn't held hostage.
-assert.ok(BEAT_MS >= 2000 && BEAT_MS <= 4000, `BEAT_MS ${BEAT_MS} should sit between 2s and 4s`);
+// Long enough to read the beat AND look at the pane it points at, short enough that a
+// veteran isn't held hostage. Raised from 2s-4s (user, 2026-07-30: the beats "flash by
+// before i can read finish") — a title + one line is ~19 words, and the eye also has to
+// travel to the spotlight and back, so the floor is 4.5s, not 2s.
+assert.ok(BEAT_MS >= 4500 && BEAT_MS <= 7000, `BEAT_MS ${BEAT_MS} should sit between 4.5s and 7s`);
 
 console.log("station_help_logic: all assertions passed");

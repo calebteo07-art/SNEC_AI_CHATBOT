@@ -3889,7 +3889,7 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
   background: var(--tour-accent); transform: scaleX(0); transform-origin: left;
 }
 .sbrief-rail i.done::after, .sbrief-rail i.on::after { transform: scaleX(1); }
-.sbrief[data-running="true"] .sbrief-rail i.on::after { animation: sbrief-fill var(--beat-ms, 2600ms) linear forwards; }
+.sbrief[data-running="true"] .sbrief-rail i.on::after { animation: sbrief-fill var(--beat-ms, 5200ms) linear forwards; }
 @keyframes sbrief-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 .sbrief-skip {

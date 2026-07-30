@@ -82,9 +82,13 @@ export const BRIEFING_BEATS: BriefingBeat[] = [
     body: "Your handover carries the score — two schemes out of 50. Everything else is practice." },
 ];
 
-/** How long a beat holds before the briefing advances itself. Long enough to read one line,
-    short enough that a student on their tenth station isn't held hostage. */
-export const BEAT_MS = 2600;
+/** How long a beat holds before the briefing advances itself. Long enough to read the beat
+    AND look at the pane it spotlights, short enough that a student on their tenth station
+    isn't held hostage. 2600 was the latter but not the former — the beats "flash by before
+    i can read finish" (user, 2026-07-30). A beat is a title plus one line (~19 words) and
+    the eye still has to travel to the spotlight and back, so it holds for ~5s; a veteran
+    passes on it with Next → / Escape rather than waiting it out. */
+export const BEAT_MS = 5200;
 
 export interface AutoAdvanceInput {
   /** OS/app reduced-motion preference. */
