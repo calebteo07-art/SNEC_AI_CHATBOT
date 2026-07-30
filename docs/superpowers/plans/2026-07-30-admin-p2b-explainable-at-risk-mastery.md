@@ -1149,11 +1149,14 @@ Two more fixes in the same commit:
 **Files:**
 - Modify: `tools/supervisor/cohort_summary.py`
 - Modify: `tools/supervisor/weekly_digest.py` (`_risk_section`, lines 64-79)
-- Test: `tests/supervisor/test_cohort_summary.py` (create)
+- Test: **append to** `tests/supervisor/test_cohort_summary.py` — it already exists with two tracked tests (`test_cohort_summary_active_count`, `test_cohort_summary_weakest_topics`). **Keep both**; they only need their clock hook rewired, because they patch `tools.supervisor.cohort_summary.date` and step 3b replaces `date.today()` with `app_today()`, which silently strips the patch and lets them run against the real clock.
+- Modify: `tests/supervisor/test_cohort_summary_counts.py` — its three tests stub **only** `get_active_profiles`. The moment `at_risk_count` calls `get_at_risk()` they reach `get_active_student_profiles`, `get_all_case_scores` and `get_all_flashcard_attempts` unstubbed, i.e. **live production Supabase**. Extend every `with` block.
+
+> Corrected after dispatch: this section originally said to *create* the first file and did not mention the second at all. Both already existed; the precondition sweep missed them.
 
 - [ ] **Step 1: Write the failing test**
 
-Create `tests/supervisor/test_cohort_summary.py`:
+Append to `tests/supervisor/test_cohort_summary.py`:
 
 ```python
 """The at-risk KPI must equal the list beneath it (spec §6.1)."""
