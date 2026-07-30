@@ -9,7 +9,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from tools.shared import db
-from tools.shared.audit_log import log
+from tools.shared.clock import app_today
+from tools.supervisor.at_risk import get_at_risk
 
 
 async def cohort_summary() -> dict:
@@ -23,24 +24,20 @@ async def cohort_summary() -> dict:
             "at_risk_count": int,
         }
     """
-    try:
-        profiles = await db.get_active_profiles()
-    except Exception as exc:
-        log("cohort_summary_error", feature="supervisor", detail=str(exc))
-        return {
-            "total": 0, "active_this_week": 0,
-            "inactive_7_plus_days": [], "weakest_topics": [], "at_risk_count": 0,
-        }
+    # Failures propagate: supervisor.py:74-75 turns them into a 500. The old
+    # all-zeros return made that guard unreachable and rendered an outage as a
+    # perfectly healthy cohort of 0 students.
+    profiles = await db.get_active_profiles()
 
-    today = date.today()
+    # SGT, not date.today(): last_active is written in SGT, so a UTC host can read an
+    # evening check-in as tomorrow and report days_inactive == -1.
+    today = app_today()
     active_this_week = 0
     inactive_7_plus = []
     topic_counter: Counter = Counter()
-    at_risk_count = 0
 
     for p in profiles:
         last_active_raw = p.get("last_active")
-        days_inactive = None
         if last_active_raw:
             try:
                 last = date.fromisoformat(str(last_active_raw))
@@ -56,11 +53,7 @@ async def cohort_summary() -> dict:
             except (ValueError, TypeError):
                 pass
 
-        weak = p.get("weak_topics") or []
-        topic_counter.update(weak)
-
-        if days_inactive is not None and days_inactive >= 5 and len(weak) >= 2:
-            at_risk_count += 1
+        topic_counter.update(p.get("weak_topics") or [])
 
     return {
         "total": len(profiles),
@@ -69,5 +62,11 @@ async def cohort_summary() -> dict:
         "weakest_topics": [
             {"topic": t, "count": n} for t, n in topic_counter.most_common(8)
         ],
-        "at_risk_count": at_risk_count,
+        # ONE definition of "at risk", shared with the list this KPI sits above.
+        # A second copy of the rule here is what made the count contradict the list —
+        # and AdminCohort.tsx:41 prefers this number over the list's own length, while
+        # supervisor_insights feeds both into a single AI prompt.
+        # get_at_risk has its own 45s read cache, so the console's paired
+        # /cohort + /at-risk polls do not double the table scans.
+        "at_risk_count": len(await get_at_risk()),
     }
