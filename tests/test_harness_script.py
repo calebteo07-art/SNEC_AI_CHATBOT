@@ -23,6 +23,19 @@ Contract locked here: when `stop` exits 0 the port is free, and when `start`
 says "server up" the process answering the port is the child it just launched —
 whatever the pidfile claims, in either direction.
 
+OWNERSHIP, added 2026-07-30 after a third variant of the same false signal: the
+script used to start node, exit, and leave an ORPHAN nobody owned, which the
+next SKIP_BUILD=1 run happily reused. Whatever later reaped that orphan killed
+it MID-SUITE, and the harness in flight failed on whichever wait it happened to
+be in — a different scenario each run, against an unchanged bundle. A server
+that dies after the HTML but before the /_next chunks strands the app on
+BrandSplash, so it surfaced as a UI wait timing out, not as "the server is
+gone". Contract locked here: an assert run reaps the server it started, on the
+red path as well as the green one; `serve` alone hands it to the operator; a
+second concurrent run in the same tree is refused rather than allowed to
+`rm -rf` static out from under a live server; and a lock whose holder is dead
+is reclaimed, so a hard-killed run can never brick the next one.
+
 Driven on a private HARNESS_PORT so a real harness on :3000 is never killed.
 """
 import os
@@ -234,3 +247,109 @@ def test_start_surfaces_the_log_when_its_child_dies_for_any_other_reason(sandbox
 
     assert res.returncode != 0, out
     assert "bundle is broken" in out, f"the log tail never reached the operator:\n{out}"
+
+
+# ── ownership (see the module docstring) ───────────────────────────────────────
+
+
+def _fake_assert(sandbox: Path, exit_code: int) -> None:
+    """A stand-in for aurora_assert.mjs, so an assert run costs a `node -e`, not a browser."""
+    tests = sandbox / "frontend" / "tests"
+    tests.mkdir(parents=True, exist_ok=True)
+    (tests / "aurora_assert.mjs").write_text(f"process.exit({exit_code});\n")
+
+
+def _bash_written_pid(target: Path, alive: bool):
+    """A pid in the namespace the script's `kill -0` reads.
+
+    Git Bash msys pids and the Windows pids Python sees are different numbers for the
+    same process, so a pid captured from subprocess would be judged dead (or, worse,
+    collide with a live stranger). Letting bash write its own `$$` is the only way to
+    put a truthful pid in the lockfile from here. Returns the holder to kill, or None.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    script = f'echo $$ > "{target.as_posix()}"'
+    if not alive:
+        subprocess.run(["bash", "-c", script], check=True, timeout=60)
+        return None  # that bash has exited, so the pid it wrote is dead
+    holder = subprocess.Popen(
+        ["bash", "-c", f"{script}; sleep 120"],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    assert _wait_until(lambda: target.exists() and target.read_text().strip() != ""), (
+        "the lock holder never wrote its pid"
+    )
+    return holder
+
+
+def test_an_assert_run_leaves_no_server_behind(sandbox):
+    """The orphan at its source: a green run must not leave a server for the next to reuse."""
+    _fake_assert(sandbox, 0)
+    port = _free_port()
+    try:
+        res = _harness(sandbox, "aurora", port, SKIP_BUILD="1")
+
+        assert res.returncode == 0, res.stdout + res.stderr
+        assert "server up" in res.stdout, res.stdout
+        assert _wait_until(lambda: not _listening(port)), (
+            f"the run exited but :{port} is still serving — that orphan is what the next "
+            f"SKIP_BUILD=1 run silently reuses, and what dies mid-suite"
+        )
+    finally:
+        _harness(sandbox, "stop", port)
+
+
+def test_a_failing_assert_run_still_reaps_its_server(sandbox):
+    """Red runs leaked hardest: you rerun immediately, straight onto the orphan."""
+    _fake_assert(sandbox, 1)
+    port = _free_port()
+    try:
+        res = _harness(sandbox, "aurora", port, SKIP_BUILD="1")
+
+        assert res.returncode != 0, res.stdout
+        assert _wait_until(lambda: not _listening(port)), f":{port} leaked after a failed run"
+    finally:
+        _harness(sandbox, "stop", port)
+
+
+def test_serve_hands_the_server_over_instead_of_reaping_it(sandbox):
+    """`serve` is the one mode whose server must OUTLIVE the script — the escape hatch."""
+    port = _free_port()
+    try:
+        res = _harness(sandbox, "serve", port, SKIP_BUILD="1")
+
+        assert res.returncode == 0, res.stdout + res.stderr
+        assert _listening(port), "serve reaped the server it was supposed to hand over"
+    finally:
+        _harness(sandbox, "stop", port)
+
+
+def test_a_second_concurrent_run_in_the_same_tree_is_refused(sandbox):
+    """Two runs race `rm -rf .next/standalone/static` out from under each other's server."""
+    port = _free_port()
+    holder = _bash_written_pid(sandbox / ".tmp" / f"harness-{port}.lock" / "pid", alive=True)
+    try:
+        res = _harness(sandbox, "serve", port, SKIP_BUILD="1")
+        out = res.stdout + res.stderr
+
+        assert res.returncode != 0, out
+        assert "already owns" in out, out
+        assert not _listening(port), "a refused run must not have started a server"
+    finally:
+        if holder is not None:
+            holder.kill()
+            holder.wait(timeout=30)
+
+
+def test_a_stale_lock_never_bricks_the_next_run(sandbox):
+    """A hard-killed run leaves the lock dir behind; reclaiming it must be automatic."""
+    port = _free_port()
+    _bash_written_pid(sandbox / ".tmp" / f"harness-{port}.lock" / "pid", alive=False)
+    try:
+        res = _harness(sandbox, "serve", port, SKIP_BUILD="1")
+
+        assert res.returncode == 0, res.stdout + res.stderr
+        assert "stale lock" in res.stdout, res.stdout
+        assert _listening(port), "the reclaiming run never came up"
+    finally:
+        _harness(sandbox, "stop", port)
