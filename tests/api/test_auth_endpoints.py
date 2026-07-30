@@ -1,6 +1,8 @@
 # tests/api/test_auth_endpoints.py
 import importlib.util
 import os
+from contextlib import ExitStack
+
 import pytest
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
@@ -8,6 +10,36 @@ from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _stub_auth_db():
+    """Neutral defaults for the db calls the auth surface makes *besides* the ones each
+    test patches for itself.
+
+    Every test here patches the reads its own scenario turns on (get_approved / get_auth /
+    get_supervisor / get_consent_by_student_id), but the handlers also emit calls no test
+    names — and those ran for real: `insert_audit_event` WROTE an audit_events row to
+    production Supabase on nearly every login, password-change and reset test, and the
+    login path's `update_approved` WROTE to approved_students. See `_forbid_real_supabase`
+    in tests/conftest.py for why an unstubbed db call reaches prod at all.
+
+    Neutral on purpose — no assertion here depends on the payload. Tests that assert on
+    these calls (e.g. `test_login_links_student_id_to_approved` on update_approved)
+    re-patch inside their own `with`, which nests over this one and restores it on exit.
+    """
+    defaults = {
+        # Written by login (success/failed/denied), change-password and both reset routes.
+        "tools.shared.db.insert_audit_event": None,
+        # Login links approved_students.student_id back on first login.
+        "tools.shared.db.update_approved": None,
+        # GET /api/admin/student/{id}/detail → db.get_topic_accuracy aggregates these.
+        "tools.shared.db.get_flashcard_attempts": [],
+    }
+    with ExitStack() as stack:
+        for target, value in defaults.items():
+            stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
+        yield
 
 
 def _auth_cookie(student_id: str, role: str = "student", student_role: str = "OA") -> dict:

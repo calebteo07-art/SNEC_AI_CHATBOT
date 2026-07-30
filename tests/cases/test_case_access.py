@@ -19,6 +19,20 @@ from tools.shared.jwt_utils import create_access_token
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def _stub_profile_read():
+    """GET /api/cases resolves the student's content pool from their profile.
+
+    The two case-list tests never patched that read, so it hit production Supabase for a
+    `stu_test` id that isn't there — and a miss makes `tools.profile.get_profile` CREATE
+    the row (db.upsert_profile), so it wrote too. "OA" is what the real read already
+    resolved to via the route's `or "OA"` fallback, so the lock assertions are unchanged.
+    See `_forbid_real_supabase` in tests/conftest.py.
+    """
+    with patch("tools.shared.db.get_profile", new=AsyncMock(return_value={"role": "OA"})):
+        yield
+
+
 def _auth_cookie(student_id: str = "stu_test") -> dict:
     return {"eyebot_token": create_access_token(student_id, "student", "OA")}
 

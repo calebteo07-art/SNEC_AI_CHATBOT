@@ -1,8 +1,31 @@
+from contextlib import ExitStack
 from unittest.mock import patch, AsyncMock
+
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
+
+
+@pytest.fixture(autouse=True)
+def _stub_submit_db():
+    """The two reads /submit makes that this test doesn't pin itself.
+
+    Both ran against production Supabase: the content-pool profile lookup (a miss also
+    made `tools.profile.get_profile` CREATE the row, so it wrote) and the prior-attempt
+    scan behind the Lumens high-water mark. The assertion here is on what reaches
+    log_case_completion, which neither affects. See `_forbid_real_supabase` in
+    tests/conftest.py.
+    """
+    defaults = {
+        "tools.shared.db.get_profile": {"role": "OA"},
+        "tools.shared.db.get_case_results": [],
+    }
+    with ExitStack() as stack:
+        for target, value in defaults.items():
+            stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
+        yield
 
 _CASE = {
     "case_id": "case_grade",

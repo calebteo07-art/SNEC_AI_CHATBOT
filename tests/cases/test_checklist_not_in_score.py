@@ -10,14 +10,38 @@ now grades two AI schemes only). This is the /submit-boundary regression:
 It locks the invariant at the endpoint, not just the pure unit, so coverage can never
 silently start counting again.
 """
+from contextlib import ExitStack
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _stub_submit_db():
+    """Neutral defaults for the db calls /submit makes outside the scoring path.
+
+    These tests pin the grading inputs but let the post-grade persistence run, and it was
+    unstubbed end to end: two WRITES to production Supabase per submit — the case_progress
+    row (insert_case_result) and the XP/profile update (update_profile) — plus the profile
+    and prior-attempt reads. Nothing here asserts on them; the subject is the score.
+    See `_forbid_real_supabase` in tests/conftest.py.
+    """
+    defaults = {
+        "tools.shared.db.get_profile": {"role": "OA"},   # route's content-pool lookup
+        "tools.shared.db.get_case_results": [],          # prior attempts → first-pass award
+        "tools.shared.db.insert_case_result": None,      # write: case_progress row
+        "tools.shared.db.update_profile": None,          # write: XP / profile update
+    }
+    with ExitStack() as stack:
+        for target, value in defaults.items():
+            stack.enter_context(patch(target, new=AsyncMock(return_value=value)))
+        yield
 
 CASE = {
     "case_id": "case_c7",

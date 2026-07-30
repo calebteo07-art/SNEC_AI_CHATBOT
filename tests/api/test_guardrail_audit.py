@@ -9,6 +9,7 @@ ephemeral log keeps for debugging).
 """
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
@@ -17,6 +18,20 @@ from tools.shared.jwt_utils import create_access_token
 client = TestClient(app)
 
 _UNSAFE = {"safe": False, "reason": "prompt_injection"}
+
+
+@pytest.fixture(autouse=True)
+def _stub_profile_read():
+    """/api/chat loads the student's profile to build the tutor context.
+
+    Unstubbed, that read hit production Supabase for a `stu_*` id that doesn't exist
+    there — and a miss makes `tools.profile.get_profile` CREATE the row (db.upsert_profile),
+    so it wrote too. Returning a row keeps it a pure read. Non-empty `role` only so the
+    profile looks real; nothing here asserts on it. See `_forbid_real_supabase` in
+    tests/conftest.py.
+    """
+    with patch("tools.shared.db.get_profile", new=AsyncMock(return_value={"role": "OA"})):
+        yield
 
 CASE = {
     "case_id": "case_test_station",

@@ -3,13 +3,10 @@
 Each topic is 5 decks of 10, easiest first. A student walks the ladder one deck
 at a time; once all 5 are done the topic still plays but stops paying Lumens.
 
-Every test here stubs the DB. `_forbid_real_supabase` is the backstop: an
-unstubbed db call on a box with a populated .env would read/write PRODUCTION
-Supabase on every pytest run.
+Every test here stubs the DB. `_forbid_real_supabase` (tests/conftest.py) is the
+backstop: an unstubbed db call on a box with a populated .env would read/write
+PRODUCTION Supabase on every pytest run.
 """
-import sys
-from unittest.mock import patch
-
 import pytest
 from httpx import AsyncClient, ASGITransport
 
@@ -18,27 +15,6 @@ from tools.api.server import app
 from tools.flashcards.card_levels import DECK_COUNT, DECK_SIZE, get_deck_cards
 
 TOPIC = "triage"
-
-
-@pytest.fixture(autouse=True)
-def _forbid_real_supabase():
-    """No test in this file may reach production Supabase. Every db function
-    funnels through db._get_client, so blocking that one seam catches all of
-    them. Assert after the request: the endpoints swallow exceptions, so
-    raising alone would go unnoticed."""
-    attempted = []
-
-    async def _blocked(*_args, **_kwargs):
-        attempted.append(sys._getframe(1).f_code.co_name)
-        raise AssertionError("real Supabase client requested")
-
-    with patch("tools.shared.db._get_client", new=_blocked):
-        yield
-
-    assert not attempted, (
-        "these db calls reached production Supabase: "
-        + ", ".join(sorted(set(attempted))) + " - stub them"
-    )
 
 
 def _stub(monkeypatch, *, completed_levels=None, profile_calls=None):
