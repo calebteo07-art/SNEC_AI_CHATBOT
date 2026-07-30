@@ -8,12 +8,25 @@ writes an audit_events row via best-effort db.insert_audit_event. These assert t
 """
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _stub_auth_db():
+    """The login path links approved_students.student_id back on a successful login.
+
+    No test here asserts on that write, so none patched it — and it therefore WROTE to
+    production approved_students on every `test_login_success_audits` run. See
+    `_forbid_real_supabase` in tests/conftest.py.
+    """
+    with patch("tools.shared.db.update_approved", new=AsyncMock()):
+        yield
 
 
 def _auth_cookie(student_id: str, role: str = "student", student_role: str = "OA") -> dict:

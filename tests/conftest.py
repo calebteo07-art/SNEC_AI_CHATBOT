@@ -14,10 +14,59 @@ cached case shadowing the one a test patched in). Reset both singletons before
 *and* after every test so each one starts and ends from a clean, deterministic
 baseline regardless of collection order.
 
-This is pure test-harness hygiene — it touches no product code path and weakens
-no production invariant (the singletons still behave normally at runtime).
+The other job here is the opposite direction: ``_forbid_real_supabase`` stops the
+suite from reaching *out* to the live production database. Both are pure
+test-harness hygiene — they touch no product code path and weaken no production
+invariant (the singletons still behave normally at runtime).
 """
+import sys
+from unittest.mock import patch
+
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def _forbid_real_supabase():
+    """No test in this suite may reach production Supabase.
+
+    ``tools/shared/db.py`` calls ``load_dotenv()`` and builds its client from
+    SUPABASE_SERVICE_ROLE_KEY, so on any machine with a populated ``.env`` a db call
+    left unstubbed reads — or WRITES — the **live production database** on every pytest
+    run. Every db function funnels through ``db._get_client``, so blocking that one seam
+    catches all of them.
+
+    The assertion has to happen *after* the test: handlers wrap their reads in
+    ``except Exception -> 500`` and the auth-guard tests accept any non-401/403, so
+    raising alone is swallowed and a leaking test still passes. Recording the attempt and
+    failing on the way out is what makes an unstubbed call impossible to miss — and it
+    works identically with or without credentials present, so CI and a fresh worktree
+    enforce the same rule the maintainer's box does.
+
+    This lived in five individual test FILES and so protected nothing else: a sweep on
+    2026-07-30 found 42 tests across 12 other files still reaching the real client,
+    including ``insert_audit_event`` / ``insert_case_result`` / ``update_profile`` /
+    ``update_approved`` — writes into production tables on every local and CI run. Global
+    is the only scope at which this class of bug stops coming back.
+
+    New test leaking? Stub the named db function in that file's own autouse fixture —
+    see ``_stub_admin_db`` in tests/api/test_admin_endpoints.py for the house pattern.
+    """
+    attempted = []
+
+    async def _blocked(*_args, **_kwargs):
+        # The caller one frame up is the db.py function that went unstubbed — name it,
+        # so the failure says what to patch instead of just that something leaked.
+        attempted.append(sys._getframe(1).f_code.co_name)
+        raise AssertionError("real Supabase client requested")
+
+    with patch("tools.shared.db._get_client", new=_blocked):
+        yield
+
+    assert not attempted, (
+        "these db calls reached production Supabase: "
+        + ", ".join(sorted(set(attempted)))
+        + " - stub them in this file's autouse fixture"
+    )
 
 
 def _reset_shared_api_state() -> None:

@@ -68,12 +68,18 @@ def test_leaderboard_reports_viewer_hidden_and_roles(mock_p, mock_c):
     assert set(body["roles"]) == {"OA", "OT"}
 
 
+@patch("tools.shared.db.get_all_supervisors", new_callable=AsyncMock, return_value=[])
 @patch("tools.shared.db.get_all_consent", new_callable=AsyncMock)
 @patch("tools.shared.db.get_all_approved", new_callable=AsyncMock)
 @patch("tools.shared.db.get_all_profiles", new_callable=AsyncMock)
-def test_leaderboard_hides_accounts_whose_access_was_revoked(mock_p, mock_appr, mock_cons):
+def test_leaderboard_hides_accounts_whose_access_was_revoked(mock_p, mock_appr, mock_cons, mock_sup):
     """End-to-end regression: a student whose approved_students row was deleted no longer
-    appears on the board, even with a higher XP — the real get_active_profiles filter runs."""
+    appears on the board, even with a higher XP — the real get_active_profiles filter runs.
+
+    get_active_leaderboard_profiles also unions in the staff roster, so `get_all_supervisors`
+    is stubbed empty like the sibling test below — left unstubbed it read the live production
+    supervisors table (see `_forbid_real_supabase` in tests/conftest.py). Empty keeps this
+    test's subject the revoked-student filter alone."""
     mock_p.return_value = [
         {"student_id": "user_001", "xp": 300, "role": "OA"},
         {"student_id": "user_002", "xp": 900, "role": "OT"},   # access removed → must be gone

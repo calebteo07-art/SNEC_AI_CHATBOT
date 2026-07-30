@@ -111,7 +111,11 @@ _OSCE_SCORE = {
 def _submit_case(prior_results):
     """Drive a full /submit for the pinned beginner case (score_100=80), with the
     student's prior case rows controlled via db.get_case_results. Returns
-    (applied_xp_deltas, response_json)."""
+    (applied_xp_deltas, response_json).
+
+    db.get_profile is stubbed only to keep the route's role lookup off production
+    Supabase (see `_forbid_real_supabase` in tests/conftest.py); the award maths
+    reads nothing from it."""
     applied = []
 
     async def _update_profile(_sid, **k):
@@ -123,6 +127,7 @@ def _submit_case(prior_results):
          patch("tools.api.routers.cases.load_case", return_value=_OSCE_CASE), \
          patch("tools.api.routers.cases.get_case_progress", new=AsyncMock(return_value={})), \
          patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=prior_results)), \
+         patch("tools.shared.db.get_profile", new=AsyncMock(return_value={"role": "OA"})), \
          patch("tools.api.routers.cases._station_checklist",
                return_value={"procedure_name": "Non-Contact Tonometry", "steps": [], "source": "checklist"}), \
          patch("tools.api.routers.cases.evaluate_case", return_value=_OSCE_DOMAINS), \
