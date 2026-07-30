@@ -208,6 +208,35 @@ async def test_a_second_call_inside_the_ttl_does_not_rescan():
 
 
 @pytest.mark.asyncio
+async def test_concurrent_callers_scan_once_not_twice():
+    # The console mounts useCohort and useAtRisk on the SAME 30s refetchInterval
+    # (useAdmin.ts:9,22,34) and cohort_summary now awaits get_at_risk too, so the two
+    # requests arrive together. A bare check-then-fill cache has an await between the
+    # check and the fill, so BOTH miss and BOTH scan: 2 whole-table scans a minute on
+    # Render's single worker, where /at-risk alone cost 1.
+    import asyncio
+    profiles = [_profile("s1", ["a", "b", "c", "d", "e"], "2026-04-20", streak=0)]
+    from datetime import date as _date
+
+    async def _slow_scan(*_a, **_k):
+        await asyncio.sleep(0)  # yield, so a naive cache lets the second caller through
+        return ([], True)
+
+    cases_read = AsyncMock(side_effect=_slow_scan)
+    with patch("tools.shared.db.get_active_student_profiles",
+               new=AsyncMock(return_value=(profiles, 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=cases_read), \
+         patch("tools.shared.db.get_all_flashcard_attempts",
+               new=AsyncMock(side_effect=_slow_scan)), \
+         patch.object(mod, "_CACHE_TTL_S", 45.0), \
+         patch.object(mod, "app_today", return_value=_date(2026, 5, 10)):
+        both = await asyncio.gather(mod.get_at_risk(), mod.get_at_risk())
+    assert cases_read.await_count == 1, "concurrent callers must not both scan"
+    assert [r["student_id"] for r in both[0]] == ["s1"]
+    assert [r["student_id"] for r in both[1]] == ["s1"]
+
+
+@pytest.mark.asyncio
 async def test_an_entry_older_than_the_ttl_is_not_served():
     # Age is checked on READ. Seed a stale entry rather than moving the clock, so the
     # asyncio timer heap keeps its real time.monotonic.

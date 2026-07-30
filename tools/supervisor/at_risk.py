@@ -33,6 +33,7 @@ strict SUPERSET of the old shape, so no consumer loses a key it indexes. Notably
 `weekly_digest._risk_section` indexes `days_inactive` and `weak_topics` directly; Task 4
 fixes how it *renders* a None.
 """
+import asyncio
 import sys
 import time
 from datetime import date
@@ -60,6 +61,14 @@ FLAGGED_BANDS = ("high", "medium")
 _CACHE_TTL_S: float = 45.0
 _cache: dict[str, tuple[float, list[dict]]] = {}
 
+# Single-flight. The cache alone is check-then-fill with two table scans awaited in
+# between, and the console mounts useCohort and useAtRisk with the SAME 30s
+# refetchInterval (useAdmin.ts:9,22,34) — two concurrent requests, both missing a cold
+# cache, both scanning. That is 2 scans/minute where /at-risk alone cost 1. Serialising
+# the miss path means the second caller waits for the first's result instead of
+# duplicating it. Per-worker, like the cache it guards.
+_refresh_lock = asyncio.Lock()
+
 
 def _days_inactive(last_active_raw) -> int | None:
     """Whole days since `last_active` in SGT, or None when it is absent or unparseable.
@@ -79,6 +88,18 @@ def _days_inactive(last_active_raw) -> int | None:
         return None
 
 
+def _fresh() -> list[dict] | None:
+    """The cached rows if they are still inside the TTL, else None.
+
+    Returns a COPY: a consumer that sorts or pops the returned list would otherwise
+    poison every hit for the rest of the TTL.
+    """
+    hit = _cache.get("all")
+    if _CACHE_TTL_S > 0 and hit and (time.monotonic() - hit[0]) < _CACHE_TTL_S:
+        return list(hit[1])
+    return None
+
+
 async def get_at_risk() -> list[dict]:
     """Flagged students, worst first.
 
@@ -89,61 +110,66 @@ async def get_at_risk() -> list[dict]:
     Raises on a read failure — the caller's 500 guard is the correct response, not an
     empty list.
     """
-    now = time.monotonic()
-    hit = _cache.get("all")
-    if _CACHE_TTL_S > 0 and hit and (now - hit[0]) < _CACHE_TTL_S:
-        # A copy: a consumer that sorts or pops the returned list would otherwise poison
-        # every hit for the rest of the TTL.
-        return list(hit[1])
+    cached = _fresh()
+    if cached is not None:
+        return cached
 
-    # `complete` is unpacked and deliberately dropped on both scans: the response shape
-    # has no completeness field and _fetch_all caps at 50 x 1000 rows, ~2000x the current
-    # volume. Same call as admin.py:402-406.
-    profiles, _staff_excluded = await db.get_active_student_profiles()
-    case_rows, _cases_complete = await db.get_all_case_scores()
-    try:
-        card_rows, _cards_complete = await db.get_all_flashcard_attempts()
-    except Exception:
-        # Degrade, don't 500 — see the module docstring. risk_model drops the absent
-        # signal and renormalises over the remaining 82% of the rubric.
-        card_rows = []
+    async with _refresh_lock:
+        # Re-check under the lock: a concurrent caller may have filled the cache while
+        # we queued, which is exactly the /cohort + /at-risk poll pair.
+        cached = _fresh()
+        if cached is not None:
+            return cached
 
-    osce = osce_by_student(case_rows)
-    flashcard = flashcard_by_student(card_rows)
+        now = time.monotonic()
+        # `complete` is unpacked and deliberately dropped on both scans: the response
+        # shape has no completeness field and _fetch_all caps at 50 x 1000 rows, ~2000x
+        # the current volume. Same call as admin.py:402-406.
+        profiles, _staff_excluded = await db.get_active_student_profiles()
+        case_rows, _cases_complete = await db.get_all_case_scores()
+        try:
+            card_rows, _cards_complete = await db.get_all_flashcard_attempts()
+        except Exception:
+            # Degrade, don't 500 — see the module docstring. risk_model drops the absent
+            # signal and renormalises over the remaining 82% of the rubric.
+            card_rows = []
 
-    flagged: list[dict] = []
-    for p in profiles:
-        sid = str(p.get("student_id") or "")
-        if not sid:
-            continue
-        weak = p.get("weak_topics") or []
-        last_active_raw = p.get("last_active")
-        days = _days_inactive(last_active_raw)
-        streak = p.get("streak")
+        osce = osce_by_student(case_rows)
+        flashcard = flashcard_by_student(card_rows)
 
-        scored = score_student(
-            days_inactive=days,
-            streak=int(streak) if streak is not None else None,
-            weak_count=len(weak),
-            osce=osce.get(sid),
-            flashcard=flashcard.get(sid),
-        )
-        if scored["band"] not in FLAGGED_BANDS:
-            continue
-        flagged.append({
-            "student_id": sid,
-            "risk_score": scored["risk_score"],
-            "band": scored["band"],
-            "reasons": scored["reasons"],
-            # Back-compat superset — weekly_digest indexes these directly.
-            "last_active": str(last_active_raw) if last_active_raw else "",
-            "days_inactive": days,
-            "weak_topics": weak,
-            "weak_count": len(weak),
-        })
+        flagged: list[dict] = []
+        for p in profiles:
+            sid = str(p.get("student_id") or "")
+            if not sid:
+                continue
+            weak = p.get("weak_topics") or []
+            last_active_raw = p.get("last_active")
+            days = _days_inactive(last_active_raw)
+            streak = p.get("streak")
 
-    # Fully ordered: worst first, then id, so a tie does not reorder between polls.
-    flagged.sort(key=lambda r: (-(r["risk_score"] or 0), r["student_id"]))
-    if _CACHE_TTL_S > 0:
-        _cache["all"] = (now, flagged)
-    return flagged
+            scored = score_student(
+                days_inactive=days,
+                streak=int(streak) if streak is not None else None,
+                weak_count=len(weak),
+                osce=osce.get(sid),
+                flashcard=flashcard.get(sid),
+            )
+            if scored["band"] not in FLAGGED_BANDS:
+                continue
+            flagged.append({
+                "student_id": sid,
+                "risk_score": scored["risk_score"],
+                "band": scored["band"],
+                "reasons": scored["reasons"],
+                # Back-compat superset — weekly_digest indexes these directly.
+                "last_active": str(last_active_raw) if last_active_raw else "",
+                "days_inactive": days,
+                "weak_topics": weak,
+                "weak_count": len(weak),
+            })
+
+        # Fully ordered: worst first, then id, so a tie does not reorder between polls.
+        flagged.sort(key=lambda r: (-(r["risk_score"] or 0), r["student_id"]))
+        if _CACHE_TTL_S > 0:
+            _cache["all"] = (now, flagged)
+        return flagged
