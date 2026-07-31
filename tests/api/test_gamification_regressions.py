@@ -43,7 +43,10 @@ def test_sync_gamification_zeroes_a_lapsed_streak():
          patch("tools.api.routers.student.get_profile", new=AsyncMock(return_value=profile)):
         r = client.post(
             "/api/gamification/sync",
-            json={"xp_delta": 0, "hearts_used": 0, "topic": "t", "score": 0},
+            # A real flashcard topic and an in-range score: the body has to survive
+            # validation for the handler to run at all (see
+            # tests/api/test_gamification_sync_validation.py).
+            json={"xp_delta": 0, "hearts_used": 0, "topic": "glaucoma", "score": 0},
             cookies=_cookie(),
         )
     assert r.status_code == 200
