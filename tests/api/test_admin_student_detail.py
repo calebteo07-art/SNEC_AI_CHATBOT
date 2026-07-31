@@ -68,7 +68,14 @@ def _detail_patches():
         patch("tools.shared.db.get_consent_by_student_id",
               new=AsyncMock(return_value={"student_name": "A B", "email": "a@b.c"})),
         patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])),
-        patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])),
+        # s1's OWN attempt. The handler now sources their own OSCE figure from this read
+        # — the same list that renders `cases` — rather than from the cohort scan, so the
+        # fixture has to carry it. Deliberately the same 90 that _CASES gives s1, so every
+        # assertion below is unchanged by the re-sourcing.
+        patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[
+            {"student_id": "s1", "case_id": "c1", "score_100": 90,
+             "passed": True, "safe": True},
+        ])),
         patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={})),
         patch("tools.shared.db.get_active_student_profiles",
               new=AsyncMock(return_value=(_PROFILES, 0))),
@@ -188,3 +195,61 @@ def test_a_student_outside_the_cohort_is_not_scored_against_it():
     assert body["mastery"] is None
     # ...and the rest of the page still renders, exactly as on a failed read.
     assert "sessions" in body and "cases" in body
+
+
+# ── the student's own values come from the student's own reads ───────────────
+
+def test_a_new_attempt_moves_the_cases_list_and_the_mastery_value_together():
+    """The contradiction that made the obvious fix wrong.
+
+    The cohort scan is cached for 45s; db.get_case_results is not. Sourcing the student's
+    OWN figure from the scan meant a just-finished station appeared in `cases` while
+    `osce_mastery.value` still showed the pre-attempt number — one page disagreeing with
+    itself, which is worse than a page that is uniformly stale.
+
+    Here the cohort scan still has only s1's original 90 (_CASES), while their own read has
+    since gained a 40. Both panels must reflect the 40.
+    """
+    extra = [patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[
+        {"student_id": "s1", "case_id": "c1", "score_100": 90, "passed": True, "safe": True},
+        {"student_id": "s1", "case_id": "c2", "score_100": 40, "passed": False, "safe": True},
+    ]))]
+    body = _get(extra=extra).json()
+    assert [c["case_id"] for c in body["cases"]] == ["c1", "c2"]
+    # (90 + 40) / 2. Sourced from the cohort scan this would still read 90.0.
+    assert body["mastery"]["osce_mastery"]["value"] == 65.0
+    # ...and the peer mean is untouched by the student's own movement.
+    assert body["mastery"]["osce_mastery"]["cohort_avg"] == 45.0
+
+
+def test_the_flashcard_value_matches_the_accuracy_panel_on_the_same_page():
+    # Same contract for the second scale: flashcard_accuracy renders from
+    # db.get_topic_accuracy, so the mastery value must come from that read too.
+    extra = [patch("tools.shared.db.get_topic_accuracy", new=AsyncMock(return_value={
+        "red_eye": {"correct": 3, "total": 4, "pct": 75.0},
+        "glaucoma": {"correct": 1, "total": 6, "pct": 16.7},
+    }))]
+    body = _get(extra=extra).json()
+    assert body["flashcard_accuracy"]["red_eye"]["correct"] == 3
+    # 4 of 10 attempts — the whole bank behind the panel above, not the cohort scan, which
+    # has no flashcard rows for s1 at all.
+    assert body["mastery"]["flashcard_mastery"]["value"] == 40.0
+
+
+def test_the_retention_value_matches_the_retention_panel_on_the_same_page():
+    # And the third: retention_scores renders from get_profile, so the value follows it.
+    extra = [patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value={
+        "student_id": "s1", "role": "OA", "retention_scores": {"red_eye": 0.2},
+    }))]
+    body = _get(extra=extra).json()
+    assert body["retention_scores"] == {"red_eye": 0.2}
+    # 20.0 from the profile on this page, not 80.0 from s1's row in the cohort scan.
+    assert body["mastery"]["retention_mastery"]["value"] == 20.0
+
+
+def test_the_student_is_not_counted_among_their_own_peers():
+    # s1 is in the cohort profiles, so they must gate IN — but their cached row must not
+    # reach the peer average. Peers are s2 (60) and s3 (30); s1's own 90 must not appear.
+    body = _get().json()
+    assert body["mastery"]["osce_mastery"]["cohort_avg"] == 45.0
+    assert body["mastery"]["osce_mastery"]["peers_n"] == 2

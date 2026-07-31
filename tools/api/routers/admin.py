@@ -23,6 +23,7 @@ from tools.shared.jwt_utils import CurrentUser, require_admin, require_staff
 from tools.supervisor.case_index import get_case_index
 from tools.supervisor.cohort_analytics import (
     WEIGHT_RUBRIC,
+    flashcard_accuracy,
     flashcard_by_group,
     flashcard_by_student,
     osce_by_group,
@@ -755,14 +756,39 @@ async def admin_student_detail(student_id: str, request: Request,
         # shared try would let that expected failure null the OSCE and retention scales
         # too, both of which are fully computable without it.
         reads = await get_cohort_reads()
+
+        # This student's own three figures come from the per-student reads ALREADY on this
+        # page — the same `case_rows` that renders `cases`, the same `flashcard_acc` that
+        # renders `flashcard_accuracy`, the same `profile` that renders `retention_scores`.
+        # None of them is cached, so the number that moves when a student acts moves
+        # together with the panel beside it. Sourcing them from the cohort scan instead
+        # made the scan's 45s TTL visible as a page disagreeing with itself: a
+        # just-finished station listed under `cases` with the pre-attempt mastery figure
+        # above it. Only the peer baseline lags now, which is what a baseline is for.
+        own = {
+            "osce": (osce_by_student(case_rows).get(student_id) or {}).get("avg_score"),
+            "flashcard": flashcard_accuracy(flashcard_acc),
+            "retention": retention_mastery(profile.get("retention_scores"),
+                                           role=str(profile.get("role") or "")),
+        }
+
+        # The cohort scan is now used for two things only: the peer aggregate, and the
+        # membership gate below.
         osce_per_student = osce_by_student(reads.case_rows)
         cards_per_student = flashcard_by_student(reads.card_rows)
-        per_student = {}
+        peers: dict[str, dict] = {}
+        in_cohort = False
         for p in reads.profiles:
             sid = str(p.get("student_id") or "")
             if not sid:
                 continue
-            per_student[sid] = {
+            if sid == student_id:
+                # Their own row is the GATE, never an input. Feeding it in would put a
+                # cached copy of this student's own numbers into the average they are
+                # measured against — and a stale one, now that `own` is read fresh.
+                in_cohort = True
+                continue
+            peers[sid] = {
                 "osce": (osce_per_student.get(sid) or {}).get("avg_score"),
                 "flashcard": (cards_per_student.get(sid) or {}).get("accuracy"),
                 "retention": retention_mastery(p.get("retention_scores"),
@@ -771,10 +797,14 @@ async def admin_student_detail(student_id: str, request: Request,
         # Only compare a student against a cohort they are IN. /api/admin/students is not
         # staff-free (db.py:293), so a promoted trainer is on the roster and clickable
         # while get_active_student_profiles correctly excludes them here. Scoring them
-        # anyway renders "— vs cohort 60 (3 peers)" two panels above their own OSCE
-        # score: "no data" is not what is true, "not in this population" is.
-        if student_id in per_student:
-            mastery = mastery_block(student_id, per_student)
+        # anyway renders "— vs cohort 60 (3 peers)" two panels above their own OSCE score:
+        # "no data" is not what is true, "not in this population" is.
+        #
+        # The population read is cached for up to 45s, so a student approved seconds ago
+        # is briefly absent and gets `mastery: null` until the entry rolls. Self-healing,
+        # and they have no data to compare yet.
+        if in_cohort:
+            mastery = mastery_block(own, peers)
     except Exception as exc:
         # Broad on purpose — narrowing it would let a bug in the pure scorers blank the
         # page this block is only decorating. But an unlogged swallow means a permanent
