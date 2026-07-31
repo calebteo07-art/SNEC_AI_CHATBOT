@@ -496,10 +496,16 @@ def test_student_detail_returns_shape():
     }
     consent_row = {"student_id": "stu_001", "student_name": "Alice", "email": "alice@test.com"}
 
+    # The last three back the mastery block. Unstubbed they are three whole-table scans
+    # of live production Supabase on every pytest run — the handler degrades them to
+    # `mastery: null`, so the shape assertions below would still pass while leaking.
     with patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value=profile_data)), \
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
          patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
-         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])):
+         patch("tools.shared.db.get_case_results", new=AsyncMock(return_value=[])), \
+         patch("tools.shared.db.get_active_student_profiles", new=AsyncMock(return_value=([], 0))), \
+         patch("tools.shared.db.get_all_case_scores", new=AsyncMock(return_value=([], True))), \
+         patch("tools.shared.db.get_all_flashcard_attempts", new=AsyncMock(return_value=([], True))):
         r = client.get("/api/admin/student/stu_001/detail",
                        cookies=_auth_cookie("admin-uuid", "admin", ""))
     assert r.status_code == 200
