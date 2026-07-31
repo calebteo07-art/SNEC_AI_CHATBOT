@@ -30,6 +30,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import { student, admin, seededContext } from "./_mocks.mjs";
 import { VIEWPORTS, DESKTOP } from "./_viewports.mjs";
+import { installReachability } from "./_layout.mjs";
 
 const base = process.argv[2]?.startsWith("http") ? process.argv[2] : "http://127.0.0.1:3100";
 const wantShots = process.argv.includes("--shots");
@@ -106,6 +107,9 @@ function probe({ allow, touch }) {
     const r = el.getBoundingClientRect();
     if (!notParked(r)) continue;                    // parked off-canvas, by design
     if (r.right <= vw + 1 && r.left >= -1) continue; // fully inside
+    // Inside a horizontal scroller that itself fits, the user scrolls to it. See
+    // _layout.mjs — this is what made the home badge shelf read as broken everywhere.
+    if (window.__reachableByScrolling(el)) continue;
     const text = ownText(el);
     const interactive = el.matches(INTERACTIVE);
     if (!text && !interactive) continue;            // decorative bleed — clipped, unseen
@@ -206,6 +210,7 @@ for (const v of [...VIEWPORTS, DESKTOP]) {
       { width: v.width, height: v.height },
       v.touch ? { hasTouch: true, isMobile: true } : {},
     );
+    await installReachability(ctx);
     const p = await ctx.newPage();
     let res, loadError = null;
     try {

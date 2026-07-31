@@ -16,6 +16,7 @@
 import { chromium } from "playwright";
 import { student, seededContext } from "./_mocks.mjs";
 import { VIEWPORTS, DESKTOP } from "./_viewports.mjs";
+import { installReachability } from "./_layout.mjs";
 
 const base = process.argv[2] ?? "http://127.0.0.1:3100";
 let failed = 0;
@@ -26,6 +27,7 @@ const b = await chromium.launch();
 for (const v of [...VIEWPORTS, DESKTOP]) {
   const ctx = await seededContext(b, base, student, { width: v.width, height: v.height },
     v.touch ? { hasTouch: true, isMobile: true } : {});
+  await installReachability(ctx);
   const p = await ctx.newPage();
   await p.goto(base + "/homepage", { waitUntil: "domcontentloaded" });
   await p.waitForSelector(".hm-greet", { timeout: 15000 });
@@ -45,7 +47,10 @@ for (const v of [...VIEWPORTS, DESKTOP]) {
       const r = e.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return false;
       if (e.closest(".hm-fcard")) return false;
-      return r.left < -1 || r.right > window.innerWidth + 1;
+      if (r.left >= -1 && r.right <= window.innerWidth + 1) return false;
+      // Past the edge inside a horizontal scroller is not clipped, it is scrolled to —
+      // the badge shelf holds twenty badges in a five-wide frame. See _layout.mjs.
+      return !window.__reachableByScrolling(e);
     }).map((e) => ({
       sel: e.tagName.toLowerCase() + (typeof e.className === "string" && e.className ? "." + e.className.trim().split(/\s+/)[0] : ""),
       l: Math.round(e.getBoundingClientRect().left), r: Math.round(e.getBoundingClientRect().right),
