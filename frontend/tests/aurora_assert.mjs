@@ -1203,6 +1203,17 @@ await adminCtx.route("**/api/admin/student/*/detail", (r) => {
     learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
     supervisor_note: detailFetches === 1 ? "Original supervisor note" : "SERVER NOTE FROM POLL — must never clobber a draft",
     sessions: [], cases: [], total_tokens: 1000 + detailFetches,
+    // P2b mastery_block (tools/supervisor/mastery.py). Every scale obeys the producer's
+    // arithmetic: peers_n === cohort_n - 1 when `value` is set and === cohort_n when it is
+    // null; cohort_avg/delta are null iff peers_n === 0; delta === value - cohort_avg.
+    // The three rows cover the three states the UI must not confuse: a real comparison, a
+    // scale this student has NO data for (must render "—", never 0), and a solo cohort
+    // (must say so, never render a 0 delta that reads as "exactly average").
+    mastery: {
+      osce_mastery:      { value: 78,   cohort_avg: 61,   delta: 17,   cohort_n: 8, peers_n: 7 },
+      flashcard_mastery: { value: null, cohort_avg: 72,   delta: null, cohort_n: 3, peers_n: 3 },
+      retention_mastery: { value: 64,   cohort_avg: null, delta: null, cohort_n: 1, peers_n: 0 },
+    },
   }));
 });
 await ap.clock.install();
@@ -1221,6 +1232,36 @@ if (detailFetches < 2) { console.error(`FAIL: test setup never triggered a secon
 const survived = await noteBox.inputValue();
 if (survived !== draft) { console.error(`FAIL: supervisor-note draft was clobbered by a background poll refetch (got "${survived}")`); process.exit(1); }
 console.log(`PASS: Admin — student-note draft survives a background poll refetch (${detailFetches} detail fetches observed)`);
+
+// P2b §6.2: the drill-down compares the student to a LEAVE-ONE-OUT cohort on three named
+// scales. This replaces `cohort_retention`, a per-topic field the frontend read for a year
+// and no backend version ever sent — so the report's "vs cohort" column printed dashes.
+// The modal opened above is still on screen; the fixture is the same one that fetch served.
+// Wait FIRST: locator.count() does not auto-wait, and a count taken before the panel
+// renders reads 0 and hard-fails CI on correct code.
+await ap.waitForSelector('[data-testid="mastery-row"]', { timeout: 15000 });
+if ((await ap.locator('[data-testid="mastery-row"]').count()) !== 3) {
+  console.error("FAIL: expected 3 named mastery scales"); process.exit(1);
+}
+const osceDelta = await ap.locator('[data-testid="mastery-row"][data-scale="osce_mastery"] [data-testid="mastery-delta"]').textContent();
+if (osceDelta?.trim() !== "+17") {
+  console.error(`FAIL: mastery delta vs cohort = ${osceDelta}, expected +17`); process.exit(1);
+}
+const fcValue = await ap.locator('[data-testid="mastery-row"][data-scale="flashcard_mastery"] [data-testid="mastery-value"]').textContent();
+if (fcValue?.trim() !== "—") {
+  console.error(`FAIL: a scale with no student data must render an em dash, not ${fcValue}`); process.exit(1);
+}
+const retCohort = await ap.locator('[data-testid="mastery-row"][data-scale="retention_mastery"] [data-testid="mastery-cohort"]').textContent();
+if (!retCohort?.includes("No cohort")) {
+  console.error(`FAIL: a solo cohort must say so, not render a zero delta (got ${retCohort})`); process.exit(1);
+}
+// peers_n, not cohort_n. cohort_n is 8 here and counts this student; the average is over 7.
+// "8 peers" beside a mean of 7 students is the exact misread peers_n was added to prevent.
+const osceCohort = await ap.locator('[data-testid="mastery-row"][data-scale="osce_mastery"] [data-testid="mastery-cohort"]').textContent();
+if (!osceCohort?.includes("7 peer")) {
+  console.error(`FAIL: the cohort caption must name peers_n (7), not cohort_n (8) — got ${osceCohort}`); process.exit(1);
+}
+console.log("PASS: Admin — mastery vs a leave-one-out cohort renders three named scales, dashes for no data, and the peer count");
 await ap.close();
 
 // a student must never reach the cohort-wide staff surface.

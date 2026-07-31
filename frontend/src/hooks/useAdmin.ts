@@ -95,6 +95,27 @@ export function useApproved() {
   });
 }
 
+/** One scale of tools/supervisor/mastery.py::mastery_block. The two counts answer
+    different questions and must not be swapped when rendering. */
+export interface MasteryScale {
+  /** 0–100, or null when this student has no data for the scale. Never 0 for "no data". */
+  value: number | null;
+  /** Leave-one-out cohort mean — null when NO other student has the scale. */
+  cohort_avg: number | null;
+  /** value − cohort_avg; null unless both sides exist. A delta against nothing is not a zero. */
+  delta: number | null;
+  /** How many students HAVE the scale, INCLUDING this one. A data-density figure. */
+  cohort_n: number;
+  /** How many OTHER students cohort_avg is the mean of — the divisor, and the only
+      count a trainer should be shown. Differs from cohort_n exactly when `value` is set. */
+  peers_n: number;
+}
+export interface Mastery {
+  osce_mastery: MasteryScale;
+  flashcard_mastery: MasteryScale;
+  retention_mastery: MasteryScale;
+}
+
 export interface CaseResult {
   case_id: string; total_score: number; passed: boolean; completed_at: string;
   // Tier-2 OSCE grade (Phase-2 migration) — optional so the drill-down renders before it lands.
@@ -109,7 +130,12 @@ export interface StudentDetail {
   cases: CaseResult[]; total_tokens: number;
   // Tier-2 flashcard accuracy (Phase-2 migration) — optional.
   flashcard_accuracy?: Record<string, { correct: number; total: number; pct: number }>;
-  cohort_retention?: Record<string, number>;  // per-topic cohort avg (0–1), graceful until provided
+  // P2b: three named scales vs a leave-one-out cohort. Null when the mastery reads failed
+  // OR when this student is not in the cohort population at all (a promoted trainer is on
+  // the roster and clickable but excluded from get_active_student_profiles) — the rest of
+  // the page still renders either way. Optional so a persisted pre-P2b payload does not
+  // break the type. REPLACES `cohort_retention`, a per-topic field no backend ever sent.
+  mastery?: Mastery | null;
   // Cross-feature findings (tutor + flashcards + virtual patients); narrative filled on demand.
   insights?: { findings: { feature: string; text: string }[]; narrative: string };
 }

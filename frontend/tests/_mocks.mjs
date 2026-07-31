@@ -167,6 +167,25 @@ export async function mockApis(ctx, user) {
       last_active: "", days_inactive: null, weak_topics: [], weak_count: 0 },
   ] })));
   await ctx.route("**/api/admin/students", (r) => r.fulfill(J({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
+  // Admin drill-down. `mastery` is the P2b block (tools/supervisor/mastery.py) and is the
+  // SAME fixture aurora_assert.mjs serves, so the two harnesses cannot disagree about what
+  // the modal shows. Every scale obeys the producer's arithmetic: peers_n === cohort_n - 1
+  // when `value` is set and === cohort_n when it is null; cohort_avg/delta are null iff
+  // peers_n === 0; delta === value - cohort_avg. The three rows are the three states the UI
+  // must not confuse — a real comparison, a scale with no student data ("—", never 0), and
+  // a solo cohort (says so, never a 0 delta). There is no `cohort_retention`: no backend
+  // version ever emitted it.
+  await ctx.route("**/api/admin/student/*/detail", (r) => r.fulfill(J({
+    student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA",
+    session_count: 18, streak: 6, last_active: new Date().toISOString(),
+    learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
+    supervisor_note: "", sessions: [], cases: [], total_tokens: 1000,
+    mastery: {
+      osce_mastery:      { value: 78,   cohort_avg: 61,   delta: 17,   cohort_n: 8, peers_n: 7 },
+      flashcard_mastery: { value: null, cohort_avg: 72,   delta: null, cohort_n: 3, peers_n: 3 },
+      retention_mastery: { value: 64,   cohort_avg: null, delta: null, cohort_n: 1, peers_n: 0 },
+    },
+  })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
   await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [
     { type: "chat", student_id: "S001", name: "Test Student", detail: "Asked about gonioscopy", timestamp: new Date().toISOString(), token_count: 412 },
