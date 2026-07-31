@@ -17,9 +17,13 @@ export interface StudentReportData {
     cases: number; tokens: string;
   };
   topics: {
-    topic: string; retentionPct: number;
-    flashcardPct: number | null; cohortPct: number | null;
+    topic: string; retentionPct: number; flashcardPct: number | null;
   }[];
+  /** Per-SCALE comparison (masteryView.masteryRows), the only cohort comparison the API
+      makes. There was a per-TOPIC "cohort avg" column here fed by `cohort_retention`, a
+      field no backend version ever sent — it printed a column of dashes for a year. A
+      per-scale average must never be repeated down a per-topic table to fill it. */
+  mastery: { label: string; valueLabel: string; deltaLabel: string; cohortLabel: string }[];
   osce: {
     caseId: string; totalScore: number; scoreMax: number; passed: boolean;
     score100: number | null; safe: boolean | null; missedCritical: string[]; dateStr: string;
@@ -54,15 +58,33 @@ function topicRows(topics: StudentReportData["topics"]): string {
   return topics
     .map((t) => {
       const fc = t.flashcardPct == null ? "—" : `${esc(t.flashcardPct)}%`;
-      const co = t.cohortPct == null ? "—" : `${esc(t.cohortPct)}%`;
       return `<tr>
         <td>${esc(t.topic.replace(/_/g, " "))}</td>
         <td class="num ${t.retentionPct < 65 ? "weak" : ""}">${esc(t.retentionPct)}%</td>
         <td class="num">${fc}</td>
-        <td class="num muted">${co}</td>
       </tr>`;
     })
     .join("");
+}
+
+/** The three named scales vs a leave-one-out cohort. Absent (not an empty table) when the
+    student is outside the cohort population or the reads failed — the same treatment the
+    on-screen panel gives it, because an empty grid under a heading reads as three zeros. */
+function masteryBlock(mastery: StudentReportData["mastery"]): string {
+  const rows = mastery ?? [];
+  if (!rows.length) return "";
+  return `<h2>Mastery vs cohort</h2>
+  <p class="muted">Three separate scales, never blended. The cohort average excludes this student,
+  so a delta of 0 means level with peers — not that there are no peers.</p>
+  <table>
+    <tr><th>Scale</th><th class="num">Student</th><th class="num">vs cohort</th><th>Cohort</th></tr>
+    ${rows.map((m) => `<tr>
+      <td>${esc(m.label)}</td>
+      <td class="num">${esc(m.valueLabel)}</td>
+      <td class="num">${esc(m.deltaLabel)}</td>
+      <td class="ph">${esc(m.cohortLabel)}</td>
+    </tr>`).join("")}
+  </table>`;
 }
 
 function osceRows(osce: StudentReportData["osce"]): string {
@@ -105,7 +127,7 @@ function findingsBlock(findings: StudentReportData["findings"], narrative: strin
 }
 
 export function buildStudentReportHtml(data: StudentReportData): string {
-  const { meta, vitals, topics, osce, weakTopics, missedFindings, note, activity, findings, narrative } = data;
+  const { meta, vitals, topics, osce, weakTopics, missedFindings, note, activity, findings, narrative, mastery } = data;
 
   // session_count over-counts (spec §8.4) — label it "activity events", not "sessions".
   const vitalTiles = [
@@ -169,9 +191,11 @@ export function buildStudentReportHtml(data: StudentReportData): string {
   <h2>Findings &amp; insights · all features</h2>
   ${findingsBlock(findings, narrative)}
 
+  ${masteryBlock(mastery)}
+
   <h2>Per-topic retention &amp; flashcard accuracy</h2>
   <table>
-    <tr><th>Topic</th><th class="num">Retention</th><th class="num">Flashcards</th><th class="num">Cohort avg</th></tr>
+    <tr><th>Topic</th><th class="num">Retention</th><th class="num">Flashcards</th></tr>
     ${topicRows(topics)}
   </table>
 

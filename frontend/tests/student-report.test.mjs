@@ -17,8 +17,15 @@ const data = {
     cases: 3, tokens: "12.4k",
   },
   topics: [
-    { topic: "glaucoma", retentionPct: 82, flashcardPct: 74, cohortPct: 68 },
-    { topic: "refraction", retentionPct: 55, flashcardPct: null, cohortPct: null },
+    { topic: "glaucoma", retentionPct: 82, flashcardPct: 74 },
+    { topic: "refraction", retentionPct: 55, flashcardPct: null },
+  ],
+  // Per-SCALE (masteryView.masteryRows), not per-topic. The per-topic "cohort avg" column
+  // this replaces was fed by `cohort_retention`, a field no backend ever sent.
+  mastery: [
+    { label: "OSCE attainment", valueLabel: "78", deltaLabel: "+17", cohortLabel: "Cohort 61 (7 peers)" },
+    { label: "Flashcard recall", valueLabel: "—", deltaLabel: "—", cohortLabel: "Cohort 72 (3 peers)" },
+    { label: "Topic retention", valueLabel: "64", deltaLabel: "—", cohortLabel: "No cohort to compare yet" },
   ],
   osce: [
     { caseId: "C001", totalScore: 32, scoreMax: 40, passed: true, score100: 80, safe: true, missedCritical: [], dateStr: "2026-07-10" },
@@ -64,6 +71,18 @@ for (const bit of ["Findings &amp; insights", "AI Tutor", "Flashcards", "Virtual
   assert.ok(html.includes(bit), `insights content missing: ${bit}`);
 }
 assert.ok(!html.includes("OSCE results"), "must rename OSCE → Virtual-patient results");
+
+// 4c) Mastery vs cohort renders per SCALE, and the retired per-TOPIC cohort column is gone.
+// That column was fed by `cohort_retention` — never emitted by any backend — so it printed
+// a row of dashes; a per-scale average repeated down a per-topic table would be worse.
+for (const bit of ["Mastery vs cohort", "OSCE attainment", "+17", "Cohort 61 (7 peers)",
+                   "No cohort to compare yet"]) {
+  assert.ok(html.includes(bit), `mastery content missing: ${bit}`);
+}
+assert.ok(!html.includes("Cohort avg"), "the per-topic cohort column must be gone, not rendered empty");
+// Absent, not an empty table: an empty grid under a heading reads as three zeros.
+assert.ok(!buildStudentReportHtml({ ...data, mastery: [] }).includes("Mastery vs cohort"),
+  "a student with no mastery block must not get an empty mastery table");
 
 // 5) HTML-escaping: injected markup in the free-text note must be neutralised.
 const hostile = buildStudentReportHtml({ ...data, note: "<script>alert(1)</script> & <b>x</b>" });

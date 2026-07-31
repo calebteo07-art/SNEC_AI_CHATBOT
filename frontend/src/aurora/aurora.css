@@ -3821,6 +3821,32 @@ html[data-motion="reduce"] .aurora-pane-turn::before { animation: none !importan
 .aurora-gauge-cap { fill: var(--ink-3); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
 .aurora-admin .aurora-bar-seg { height: 100%; display: block; }
 
+/* Mastery vs cohort (P2b) — the student drill-down's three scales. The DivergingBar
+   anchors at the 50% centre line and grows RIGHT for above-cohort, LEFT for below;
+   .aurora-bar-* is a single stacked track that clamps negatives, so it cannot draw a
+   signed delta. The bar is aria-hidden — the value, the signed delta and the peer
+   count sit beside it as text (D3; the a11y pass is P5). */
+.aurora-admin .aurora-mastery-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.aurora-admin .aurora-mastery-list li {
+  display: grid; align-items: center; gap: 3px 12px;
+  grid-template-columns: 10rem 2.6rem minmax(0, 1fr) 3rem;
+  grid-template-areas: "label value bar delta" "cohort cohort cohort cohort";
+}
+.aurora-admin .aurora-mastery-label { grid-area: label; min-width: 0; font-size: 13.4px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aurora-admin .aurora-mastery-value { grid-area: value; font-family: var(--font-mono); font-size: 15.2px; font-weight: 700; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.aurora-admin .aurora-mastery-delta { grid-area: delta; font-family: var(--font-mono); font-size: 13.4px; color: var(--ink-3); text-align: right; font-variant-numeric: tabular-nums; }
+.aurora-admin .aurora-mastery-delta[data-tone="above"] { color: var(--on-green-2); }
+.aurora-admin .aurora-mastery-delta[data-tone="below"] { color: var(--on-rose); }
+.aurora-admin .aurora-mastery-cohort { grid-area: cohort; font-size: 12.2px; color: var(--ink-3); }
+.aurora-admin .aurora-diverge { grid-area: bar; position: relative; min-width: 0; height: 7px; border-radius: 999px; background: rgba(255,255,255,0.09); }
+.aurora-admin .aurora-diverge-axis { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,0.3); }
+.aurora-admin .aurora-diverge-fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; }
+.aurora-admin .aurora-diverge-above { left: 50%; background-image: linear-gradient(90deg, var(--g-green), var(--g-blue)); }
+.aurora-admin .aurora-diverge-below { right: 50%; background-image: linear-gradient(270deg, var(--g-rose), var(--g-purple)); }
+/* A 0-wide fill is not a measurement: "level" and "no comparison" are read off the
+   delta text, not off an invisible sliver at the axis. */
+.aurora-admin .aurora-diverge-level, .aurora-admin .aurora-diverge-none { display: none; }
+
 .aurora-admin .aurora-skel { display: flex; flex-direction: column; gap: 8px; }
 .aurora-admin .aurora-skel-bar {
   height: 12px; border-radius: 6px;

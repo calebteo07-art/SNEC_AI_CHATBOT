@@ -6,6 +6,8 @@ import { fmtTokens } from "@/screens/adminShared";
 import { useStudentDetail } from "@/hooks/useAdmin";
 import { Icon } from "@/aurora/icons";
 import { EngagementBlock } from "@/aurora/components/EngagementBlock";
+import { DivergingBar } from "@/aurora/components/admin/DivergingBar";
+import { masteryRows } from "@/aurora/components/admin/masteryView";
 import { buildStudentReportHtml, type StudentReportData } from "@/aurora/lib/studentReportExport";
 
 type SubTab = "sessions" | "cases" | "topics";
@@ -25,6 +27,9 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
   // AI teaching narrative — fetched on demand (a paid call) so it never runs unasked.
   const [narrative, setNarrative] = useState("");
   const [narrLoading, setNarrLoading] = useState(false);
+
+  // Computed once: the report export and the panel below must describe the same scales.
+  const mastery = masteryRows(data?.mastery);
 
   const loadNarrative = async () => {
     setNarrLoading(true);
@@ -85,14 +90,19 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
       },
       topics: Object.entries(data.retention_scores).map(([topic, score]) => {
         const fc = data.flashcard_accuracy?.[topic];   // {correct,total,pct}; pct already 0–100
-        const co = data.cohort_retention?.[topic];      // 0–1 fraction, like retention_scores
         return {
           topic,
           retentionPct: Math.round(score * 100),
           flashcardPct: fc ? Math.round(fc.pct) : null,
-          cohortPct: co != null ? Math.round(co * 100) : null,
         };
       }),
+      // Per-SCALE, not per-topic. The report used to carry a per-topic "cohort avg" column
+      // fed by `cohort_retention` — a field no backend version ever sent, so it printed a
+      // column of dashes. There is no honest per-topic cohort figure to put there; these
+      // three scales are the comparison the API can actually make.
+      mastery: mastery.map((r) => ({
+        label: r.label, valueLabel: r.valueLabel, deltaLabel: r.deltaLabel, cohortLabel: r.cohortLabel,
+      })),
       osce: data.cases.map((c) => ({
         caseId: c.case_id, totalScore: c.total_score, scoreMax: 40, passed: c.passed,
         score100: c.score_100 ?? null, safe: c.safe ?? null,
@@ -158,6 +168,32 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
               </div>
 
               <EngagementBlock sessions={data.sessions} />
+
+              {/* Omitted entirely when `mastery` is null — the mastery reads failed, or this
+                  student is not in the cohort population (a promoted trainer is on the
+                  roster but excluded from it). Neither is "scored 0 against their peers". */}
+              {mastery.length > 0 && (
+                <section className="aurora-panel">
+                  <p className="aurora-panel-head">Mastery vs cohort</p>
+                  <p className="aurora-unavail" style={{ marginBottom: 12 }}>
+                    Three separate scales — they measure different things and are never blended. The
+                    cohort average excludes this student, so a delta of 0 means &ldquo;level with peers&rdquo;,
+                    not &ldquo;no peers to compare&rdquo;.
+                  </p>
+                  <ul className="aurora-mastery-list">
+                    {mastery.map((r) => (
+                      <li key={r.key} data-testid="mastery-row" data-scale={r.key}>
+                        <span className="aurora-mastery-label">{r.label}</span>
+                        <span className="aurora-mastery-value" data-testid="mastery-value">{r.valueLabel}</span>
+                        <DivergingBar pct={r.deltaPct} tone={r.tone} />
+                        <span className="aurora-mastery-delta" data-testid="mastery-delta"
+                              data-tone={r.tone}>{r.deltaLabel}</span>
+                        <small className="aurora-mastery-cohort" data-testid="mastery-cohort">{r.cohortLabel}</small>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
 
               {data.insights && data.insights.findings.length > 0 && (
                 <div className="aurora-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 8 }}>
