@@ -80,6 +80,23 @@ for (const bit of ["Mastery vs cohort", "OSCE attainment", "+17", "Cohort 61 (7 
   assert.ok(html.includes(bit), `mastery content missing: ${bit}`);
 }
 assert.ok(!html.includes("Cohort avg"), "the per-topic cohort column must be gone, not rendered empty");
+// Header-string checks cannot see a skewed table: drop the <th> and keep the <td> and every
+// assertion above still passes while every topic row is shifted one column left. Count them.
+for (const [name, table] of Object.entries({
+  topics: html.split("<h2>Per-topic retention &amp; flashcard accuracy</h2>")[1]?.split("</table>")[0] ?? "",
+  mastery: html.split("<h2>Mastery vs cohort</h2>")[1]?.split("</table>")[0] ?? "",
+})) {
+  const heads = (table.match(/<th[ >]/g) || []).length;
+  assert.ok(heads > 0, `${name} table has no headers — the split anchor is stale`);
+  // Per ROW, not a total modulo: 2 headers and 2 rows of 3 cells divides evenly and would
+  // sail through while every row is shifted a column.
+  const rows = table.split(/<tr[ >]/).slice(1).filter((r) => r.includes("<td"));
+  assert.ok(rows.length > 0, `${name} table has no data rows — the fixture is empty`);
+  for (const [i, row] of rows.entries()) {
+    assert.strictEqual((row.match(/<td[ >]/g) || []).length, heads,
+      `${name} table row ${i} has the wrong cell count for ${heads} columns`);
+  }
+}
 // Absent, not an empty table: an empty grid under a heading reads as three zeros.
 assert.ok(!buildStudentReportHtml({ ...data, mastery: [] }).includes("Mastery vs cohort"),
   "a student with no mastery block must not get an empty mastery table");

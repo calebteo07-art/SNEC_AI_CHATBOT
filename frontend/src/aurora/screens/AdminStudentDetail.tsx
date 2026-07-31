@@ -28,7 +28,9 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
   const [narrative, setNarrative] = useState("");
   const [narrLoading, setNarrLoading] = useState(false);
 
-  // Computed once: the report export and the panel below must describe the same scales.
+  // One call site, not one execution — this re-runs on every render, which costs nothing
+  // for three rows. The point is that the downloaded report and the panel below cannot
+  // describe the same student differently.
   const mastery = masteryRows(data?.mastery);
 
   const loadNarrative = async () => {
@@ -173,7 +175,7 @@ export function AdminStudentDetail({ studentId, onClose }: { studentId: string; 
                   student is not in the cohort population (a promoted trainer is on the
                   roster but excluded from it). Neither is "scored 0 against their peers". */}
               {mastery.length > 0 && (
-                <section className="aurora-panel">
+                <section className="aurora-panel" data-testid="mastery-panel">
                   <p className="aurora-panel-head">Mastery vs cohort</p>
                   <p className="aurora-unavail" style={{ marginBottom: 12 }}>
                     Three separate scales — they measure different things and are never blended. The

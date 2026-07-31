@@ -84,6 +84,20 @@ export const cases = { cases: [
   mkCase("C003", "Flashes and floaters", "advanced", "Retina", "Ms Wong", 55, "New floaters since yesterday"),
 ] };
 
+/* The P2b mastery block (tools/supervisor/mastery.py). Exported so aurora_assert.mjs
+   serves the identical object rather than a second literal that can drift from this one.
+   Every scale obeys the producer's arithmetic: peers_n === cohort_n - 1 when `value` is
+   set and === cohort_n when it is null; cohort_avg/delta are null iff peers_n === 0;
+   delta === value - cohort_avg. The three rows are the three states the UI must not
+   confuse — a real comparison, a scale with no student data ("—", never 0), and a solo
+   cohort (which says so, rather than showing a 0 delta). cohort_n and peers_n are
+   deliberately DIFFERENT on the osce row, so swapping them fails the assertions. */
+export const MASTERY = {
+  osce_mastery:      { value: 78,   cohort_avg: 61,   delta: 17,   cohort_n: 8, peers_n: 7 },
+  flashcard_mastery: { value: null, cohort_avg: 72,   delta: null, cohort_n: 3, peers_n: 3 },
+  retention_mastery: { value: 64,   cohort_avg: null, delta: null, cohort_n: 1, peers_n: 0 },
+};
+
 export async function mockApis(ctx, user) {
   await ctx.route("**/api/**", (r) => r.fulfill(J({ error: "not mocked" }, 404)));
   await ctx.route("**/api/auth/me", (r) => r.fulfill(J(user)));
@@ -167,24 +181,14 @@ export async function mockApis(ctx, user) {
       last_active: "", days_inactive: null, weak_topics: [], weak_count: 0 },
   ] })));
   await ctx.route("**/api/admin/students", (r) => r.fulfill(J({ students: [{ student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA", session_count: 18, streak: 6, last_active: new Date().toISOString(), learning_velocity: "improving" }] })));
-  // Admin drill-down. `mastery` is the P2b block (tools/supervisor/mastery.py) and is the
-  // SAME fixture aurora_assert.mjs serves, so the two harnesses cannot disagree about what
-  // the modal shows. Every scale obeys the producer's arithmetic: peers_n === cohort_n - 1
-  // when `value` is set and === cohort_n when it is null; cohort_avg/delta are null iff
-  // peers_n === 0; delta === value - cohort_avg. The three rows are the three states the UI
-  // must not confuse — a real comparison, a scale with no student data ("—", never 0), and
-  // a solo cohort (says so, never a 0 delta). There is no `cohort_retention`: no backend
-  // version ever emitted it.
+  // Admin drill-down. Serves MASTERY (exported below) — the same object aurora_assert.mjs
+  // imports, so the two harnesses cannot disagree about what the modal shows.
   await ctx.route("**/api/admin/student/*/detail", (r) => r.fulfill(J({
     student_id: "S001", full_name: "Test Student", email: "student@snec.com.sg", role: "OA",
     session_count: 18, streak: 6, last_active: new Date().toISOString(),
     learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
     supervisor_note: "", sessions: [], cases: [], total_tokens: 1000,
-    mastery: {
-      osce_mastery:      { value: 78,   cohort_avg: 61,   delta: 17,   cohort_n: 8, peers_n: 7 },
-      flashcard_mastery: { value: null, cohort_avg: 72,   delta: null, cohort_n: 3, peers_n: 3 },
-      retention_mastery: { value: 64,   cohort_avg: null, delta: null, cohort_n: 1, peers_n: 0 },
-    },
+    mastery: MASTERY,
   })));
   await ctx.route("**/api/admin/approved", (r) => r.fulfill(J({ students: [{ email: "student@snec.com.sg", full_name: "Test Student", role: "OA", added_by: "admin", added_at: new Date().toISOString(), student_id: "S001" }] })));
   await ctx.route("**/api/admin/activity", (r) => r.fulfill(J({ feed: [

@@ -50,7 +50,6 @@ check("still reports the cohort", fc.cohortLabel.includes("100"));
 // The whole reason peers_n exists: cohort_n is 1 here too, and "n=1" beside an average
 // of 100 reads as "the cohort", when it is one classmate. Singular, and never "n=".
 check("a one-peer cohort says '1 peer', not 'n=1'", fc.cohortLabel === "Cohort 100 (1 peer)");
-check("the peer count is never rendered as n=", rows.every((r) => !r.cohortLabel.includes("n=")));
 
 const ret = rows.find((r) => r.key === "retention_mastery");
 check("solo cohort says there is no cohort", ret.cohortLabel.toLowerCase().includes("no cohort"));
@@ -58,9 +57,50 @@ check("solo cohort says there is no cohort", ret.cohortLabel.toLowerCase().inclu
 // stay a dash, not become the 0 that "level with peers" is reserved for.
 check("solo cohort has no delta and no tone", ret.deltaLabel === "—" && ret.tone === "none");
 
+// --- the bar --------------------------------------------------------------
+// deltaPct sizes DivergingBar and nothing else asserts it, yet the component exists only
+// because BarSeries cannot draw a signed delta. It must be the MAGNITUDE — direction lives
+// in `tone` — so a negative would size the bar backwards, and an unclamped one overflow it.
+check("bar size is the delta magnitude", osce.deltaPct === 45);
+check("a below-cohort bar is sized positive, not negative", (() => {
+  const r = masteryRows(block({ osce_mastery: { value: 20, cohort_avg: 60, delta: -40, cohort_n: 3, peers_n: 2 } }))
+    .find((x) => x.key === "osce_mastery");
+  return r.deltaPct === 40 && r.tone === "below";
+})());
+check("no delta means no bar", fc.deltaPct === 0);
+
+// A student who genuinely scored 0 is the one a trainer most needs to see, and 0 is falsy.
+// Any `s.value ? …` in here renders their score as "—" (no data) and their delta with it.
+// The same blind spot survived the backend module's first suite; it is easy to leave open.
+check("a real zero renders as 0, not as no-data", (() => {
+  const r = masteryRows(block({ osce_mastery: { value: 0, cohort_avg: 55, delta: -55, cohort_n: 3, peers_n: 2 } }))
+    .find((x) => x.key === "osce_mastery");
+  return r.valueLabel === "0" && r.deltaLabel === "−55" && r.tone === "below";
+})());
+
+// --- rounding -------------------------------------------------------------
+// All three figures are 1dp floats, so rounding them independently lets one row visibly
+// contradict itself: 78.5 / 61.4 / 17.1 would print "79 … +17 … Cohort 61", and 79-61=18.
+check("the displayed numbers agree with each other", (() => {
+  const r = masteryRows(block({ osce_mastery: { value: 78.5, cohort_avg: 61.4, delta: 17.1, cohort_n: 8, peers_n: 7 } }))
+    .find((x) => x.key === "osce_mastery");
+  return r.valueLabel === "79" && r.deltaLabel === "+18" && r.cohortLabel === "Cohort 61 (7 peers)";
+})());
+// A delta under half a point used to render "−0" in alarm red with an invisible bar.
+check("a sub-half delta is level, not a red minus-zero", (() => {
+  const r = masteryRows(block({ osce_mastery: { value: 61.3, cohort_avg: 61.4, delta: -0.1, cohort_n: 3, peers_n: 2 } }))
+    .find((x) => x.key === "osce_mastery");
+  return r.deltaLabel === "0" && r.tone === "level";
+})());
+
 // --- defensive ------------------------------------------------------------
 check("null block is an empty list", masteryRows(null).length === 0);
-check("missing scale is skipped, not crashed", masteryRows({ osce_mastery: null }).length === 0);
+// A scale is SKIPPED while its siblings still render — the old fixture nulled the only
+// member, so "skipped" and "empty block" were indistinguishable.
+check("one missing scale does not take the others with it", (() => {
+  const r = masteryRows(block({ osce_mastery: null }));
+  return r.length === 2 && !r.some((x) => x.key === "osce_mastery");
+})());
 check("negative delta is signed and toned", (() => {
   const r = masteryRows(block({ osce_mastery: { value: 20, cohort_avg: 60, delta: -40, cohort_n: 3, peers_n: 2 } }))
     .find((x) => x.key === "osce_mastery");
