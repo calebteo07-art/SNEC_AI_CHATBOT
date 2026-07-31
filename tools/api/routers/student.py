@@ -4,7 +4,7 @@ import json
 import random
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 from tools.api.shared import limiter, _case_cache, FORFEIT_PENALTY
 from tools.flashcards.flashcard_store import (
@@ -25,6 +25,7 @@ from tools.shared.gemini_client import ask, MOCK_MODE, MODEL, MODEL_SMALL
 from tools.shared.jwt_utils import get_current_user, require_staff, CurrentUser
 from tools.shared.static_pools import pick_next_unseen
 from tools.shared import db
+from tools.supervisor.topic_crosswalk import is_known_tag
 
 router = APIRouter()
 
@@ -95,8 +96,26 @@ class StudySuggestionResponse(BaseModel):
 class GamificationSyncRequest(BaseModel):
     xp_delta: int = 0
     hearts_used: int = 0
+    # `topic`/`score` land in student_profiles.retention_scores, which every staff-facing
+    # reader treats as a 0-1 fraction under a real topic key. Unlike xp_delta below — a
+    # legitimate client value that just needs a ceiling — no production caller sends
+    # either field (the live sender is the tutor chat, posting xp_delta/hearts_used
+    # alone), so anything outside those bounds is a tampered payload and is REJECTED
+    # rather than quietly rounded into range. update_profile still clamps the score, for
+    # the two callers that legitimately carry one.
     topic: str | None = None
-    score: float | None = None
+    score: float | None = Field(default=None, ge=0, le=1)
+
+    @field_validator("topic")
+    @classmethod
+    def _known_topic(cls, value: str | None) -> str | None:
+        # An unrecognised key is PERMANENT: it becomes a retention_scores entry, and
+        # under WEAK_THRESHOLD a weak_topics entry rendered to a trainer. Constrain the
+        # client to the flashcard namespace — the only closed one of the two this column
+        # mixes (the other, raw case topics, is written server-side by cases.py).
+        if value is not None and not is_known_tag(value):
+            raise ValueError("unknown topic")
+        return value
 
 @router.post("/api/gamification/sync")
 @limiter.limit("30/minute")
