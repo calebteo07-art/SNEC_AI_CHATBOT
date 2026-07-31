@@ -109,30 +109,6 @@ export function syncHeartsFromBackend(backendHearts: number): void {
   setStoredHearts(backendHearts);
 }
 
-export async function syncGamificationToBackend(
-  xpDelta: number,
-  heartsUsed: number,
-  topic?: string,
-  score?: number,
-): Promise<{ xp: number; hearts: number; level: number; streak: number } | null> {
-  try {
-    const res = await fetch("/api/gamification/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ xp_delta: xpDelta, hearts_used: heartsUsed, topic, score }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const progress = getUserProgress();
-    saveUserProgress({ ...progress, xp: data.xp, level: data.level, streak: data.streak });
-    setStoredHearts(data.hearts);
-    return data;
-  } catch {
-    return null;
-  }
-}
-
 export function addXP(amount: number): { newXP: number; leveledUp: boolean; newLevel: number } {
   const progress = getUserProgress();
   const oldLevel = progress.level;

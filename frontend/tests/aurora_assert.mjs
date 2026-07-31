@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { monthCells } from "./_mocks.mjs";
+import { monthCells, MASTERY } from "./_mocks.mjs";
 const base = process.argv[2] ?? "http://127.0.0.1:3000";
 const b = await chromium.launch();
 
@@ -1195,6 +1195,11 @@ console.log("PASS: Admin — admin also gets the Accounts tab; the Students rost
 // clock must be installed BEFORE the query mounts (a timer scheduled via the real
 // setTimeout pre-install is never advanced by a later fastForward).
 let detailFetches = 0;
+// Flipped after the populated assertions to prove the panel is OMITTED, not zero-filled,
+// when the API sends no block. admin.py emits `mastery: null` for a student outside the
+// staff-free cohort (a promoted trainer is on the roster and clickable) as well as on a
+// failed read — so this is a routine state, not an error path.
+let masteryNull = false;
 await adminCtx.route("**/api/admin/student/*/detail", (r) => {
   detailFetches++;
   r.fulfill(JSON_OK({
@@ -1203,6 +1208,9 @@ await adminCtx.route("**/api/admin/student/*/detail", (r) => {
     learning_velocity: "improving", weak_topics: [], missed_findings: [], retention_scores: {},
     supervisor_note: detailFetches === 1 ? "Original supervisor note" : "SERVER NOTE FROM POLL — must never clobber a draft",
     sessions: [], cases: [], total_tokens: 1000 + detailFetches,
+    // Imported, not a second literal — see the MASTERY comment in _mocks.mjs for what each
+    // row encodes. `masteryNull` below flips this to the off-cohort state.
+    mastery: masteryNull ? null : MASTERY,
   }));
 });
 await ap.clock.install();
@@ -1221,6 +1229,58 @@ if (detailFetches < 2) { console.error(`FAIL: test setup never triggered a secon
 const survived = await noteBox.inputValue();
 if (survived !== draft) { console.error(`FAIL: supervisor-note draft was clobbered by a background poll refetch (got "${survived}")`); process.exit(1); }
 console.log(`PASS: Admin — student-note draft survives a background poll refetch (${detailFetches} detail fetches observed)`);
+
+// P2b §6.2: the drill-down compares the student to a LEAVE-ONE-OUT cohort on three named
+// scales. This replaces `cohort_retention`, a per-topic field the frontend read from
+// 2026-07-14 and no backend version ever sent — so the report's "vs cohort" column
+// printed a column of dashes for the seventeen days it existed.
+// The modal opened above is still on screen; the fixture is the same one that fetch served.
+// Wait FIRST: locator.count() does not auto-wait, and a count taken before the panel
+// renders reads 0 and hard-fails CI on correct code.
+await ap.waitForSelector('[data-testid="mastery-row"]', { timeout: 15000 });
+if ((await ap.locator('[data-testid="mastery-row"]').count()) !== 3) {
+  console.error("FAIL: expected 3 named mastery scales"); process.exit(1);
+}
+const osceDelta = await ap.locator('[data-testid="mastery-row"][data-scale="osce_mastery"] [data-testid="mastery-delta"]').textContent();
+if (osceDelta?.trim() !== "+17") {
+  console.error(`FAIL: mastery delta vs cohort = ${osceDelta}, expected +17`); process.exit(1);
+}
+const fcValue = await ap.locator('[data-testid="mastery-row"][data-scale="flashcard_mastery"] [data-testid="mastery-value"]').textContent();
+if (fcValue?.trim() !== "—") {
+  console.error(`FAIL: a scale with no student data must render an em dash, not ${fcValue}`); process.exit(1);
+}
+const retCohort = await ap.locator('[data-testid="mastery-row"][data-scale="retention_mastery"] [data-testid="mastery-cohort"]').textContent();
+if (!retCohort?.includes("No cohort")) {
+  console.error(`FAIL: a solo cohort must say so, not render a zero delta (got ${retCohort})`); process.exit(1);
+}
+// peers_n, not cohort_n. cohort_n is 8 here and counts this student; the average is over 7.
+// "8 peers" beside a mean of 7 students is the exact misread peers_n was added to prevent.
+const osceCohort = await ap.locator('[data-testid="mastery-row"][data-scale="osce_mastery"] [data-testid="mastery-cohort"]').textContent();
+if (!osceCohort?.includes("7 peer")) {
+  console.error(`FAIL: the cohort caption must name peers_n (7), not cohort_n (8) — got ${osceCohort}`); process.exit(1);
+}
+console.log("PASS: Admin — mastery vs a leave-one-out cohort renders three named scales, dashes for no data, and the peer count");
+
+// The block must VANISH when the API sends none — not render three dashed rows, which
+// would read as "measured, and this student scored nothing". `mastery: null` is routine:
+// admin.py emits it for any student outside the staff-free cohort, and a promoted trainer
+// is on the roster and clickable. Only the pure masteryRows(null) case was covered; the
+// JSX guard that hides the section was not, so dropping it passed every gate.
+// Assert on the PANEL, not the rows: with the `mastery.length > 0` guard removed the
+// section still renders its heading and help text with an empty list, so a row count of
+// zero passes while a trainer is looking at a "Mastery vs cohort" panel that measures
+// nothing. The section's own absence is the property worth pinning.
+masteryNull = true;
+await ap.clock.fastForward(31_000);
+await ap.waitForFunction(
+  () => !document.querySelector('[data-testid="mastery-panel"]'),
+  null, { timeout: 8000 },
+);
+// ...and only that section goes. The note box is the rest of the modal still standing.
+if (!(await noteBox.isVisible())) {
+  console.error("FAIL: a null mastery block took the whole drill-down with it"); process.exit(1);
+}
+console.log("PASS: Admin — a null mastery block omits the panel and leaves the rest of the drill-down intact");
 await ap.close();
 
 // a student must never reach the cohort-wide staff surface.
