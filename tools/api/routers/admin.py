@@ -746,22 +746,19 @@ async def admin_student_detail(student_id: str, request: Request,
     # its opposite.
     mastery = None
     try:
-        # `complete` is dropped on both: _fetch_all caps at 50 x 1000 rows, ~2000x the
-        # current tables, and the block has no completeness field to surface it through.
-        cohort_profiles, _staff_excluded = await db.get_active_student_profiles()
-        cohort_cases, _cases_complete = await db.get_all_case_scores()
-        try:
-            cohort_cards, _cards_complete = await db.get_all_flashcard_attempts()
-        except Exception:
-            # Isolated on purpose: get_all_flashcard_attempts RAISES by design on a
-            # missing table (db.py:566), which is the NORMAL pre-migration-010 state. A
-            # shared try would let that expected failure null the OSCE and retention
-            # scales too, both of which are fully computable without it.
-            cohort_cards = []
-        osce_per_student = osce_by_student(cohort_cases)
-        cards_per_student = flashcard_by_student(cohort_cards)
+        # One shared read across /at-risk, /cohort-analytics and every student a trainer
+        # opens (cohort_reads). This endpoint was the uncached one, and its query
+        # background-refetches, so a review session cost a full scan of the three tables
+        # per student per poll. The flashcard degrade that used to be inlined here lives
+        # in that module now, for the same reason: get_all_flashcard_attempts RAISES by
+        # design on a missing table (db.py:566), the NORMAL pre-migration-010 state, and a
+        # shared try would let that expected failure null the OSCE and retention scales
+        # too, both of which are fully computable without it.
+        reads = await get_cohort_reads()
+        osce_per_student = osce_by_student(reads.case_rows)
+        cards_per_student = flashcard_by_student(reads.card_rows)
         per_student = {}
-        for p in cohort_profiles:
+        for p in reads.profiles:
             sid = str(p.get("student_id") or "")
             if not sid:
                 continue

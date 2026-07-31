@@ -2,12 +2,24 @@
 import contextlib
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tools.api.server import app
 from tools.shared.jwt_utils import create_access_token
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def _no_shared_read_cache():
+    """Disable the cohort READ cache for this file, so each test's stubs are what the
+    handler actually sees. Read-sharing is pinned in tests/api/test_admin_read_sharing.py,
+    where it is the subject rather than a confound — here it would only mask a stub."""
+    from tools.supervisor import cohort_reads
+
+    with patch.object(cohort_reads, "_READ_TTL_S", 0):
+        yield
 
 _PROFILES = [
     {"student_id": "s1", "role": "OA", "retention_scores": {"red_eye": 0.8}},
