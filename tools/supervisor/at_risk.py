@@ -20,9 +20,9 @@ Three deliberate departures from the old implementation:
 * **SGT clock.** `last_active` is written in SGT and the product defines a day that
   way; `date.today()` on a UTC host can return `days_inactive == -1`.
 
-The flashcard read is the one exception to "failures propagate":
-`get_all_flashcard_attempts` documents that the CALLER must catch (`db.py:565-568`), and
-the sibling cohort endpoint degrades it the same way (`admin.py:413-420`) because a thin
+The flashcard read is the one exception to "failures propagate", and that split now lives
+in `cohort_reads`: `get_all_flashcard_attempts` documents that the CALLER must catch
+(`db.py:565-568`), and the sibling cohort endpoint degrades it the same way, because a thin
 or absent `flashcard_attempts` table is the NORMAL case. `risk_model` renormalises the
 missing signal away, so the other 82% of the rubric still scores. Population and OSCE
 stay fail-closed — an empty cohort is a lie, not a degraded reading.
@@ -42,9 +42,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from tools.shared import db
 from tools.shared.clock import app_today
 from tools.supervisor.cohort_analytics import flashcard_by_student, osce_by_student
+from tools.supervisor.cohort_reads import get_cohort_reads
 from tools.supervisor.risk_model import score_student
 
 # Bands worth a trainer's attention. `low`/`no_data` are computed, then dropped (D12).
@@ -61,12 +61,10 @@ FLAGGED_BANDS = ("high", "medium")
 _CACHE_TTL_S: float = 45.0
 _cache: dict[str, tuple[float, list[dict]]] = {}
 
-# Single-flight. The cache alone is check-then-fill with two table scans awaited in
-# between, and the console mounts useCohort and useAtRisk with the SAME 30s
-# refetchInterval (useAdmin.ts:9,22,34) — two concurrent requests, both missing a cold
-# cache, both scanning. That is 2 scans/minute where /at-risk alone cost 1. Serialising
-# the miss path means the second caller waits for the first's result instead of
-# duplicating it. Per-worker, like the cache it guards.
+# Single-flight over the DERIVED recompute. The reads below are already single-flighted by
+# cohort_reads, so this no longer prevents duplicate scans — it stops two concurrent
+# callers that both miss this cache from bucketing the same rows twice, and makes the
+# second one wait for the first's list instead. Per-worker, like the cache it guards.
 _refresh_lock = asyncio.Lock()
 
 
@@ -122,23 +120,19 @@ async def get_at_risk() -> list[dict]:
             return cached
 
         now = time.monotonic()
-        # `complete` is unpacked and deliberately dropped on both scans: the response
-        # shape has no completeness field and _fetch_all caps at 50 x 1000 rows, ~2000x
-        # the current volume. Same call as admin.py:402-406.
-        profiles, _staff_excluded = await db.get_active_student_profiles()
-        case_rows, _cases_complete = await db.get_all_case_scores()
-        try:
-            card_rows, _cards_complete = await db.get_all_flashcard_attempts()
-        except Exception:
-            # Degrade, don't 500 — see the module docstring. risk_model drops the absent
-            # signal and renormalises over the remaining 82% of the rubric.
-            card_rows = []
+        # One shared read of the three cohort tables, so /at-risk, /cohort-analytics and
+        # every student-detail page pay for at most one scan of each per 45s. The failure
+        # split is unchanged and now lives in that module: population and OSCE raise (the
+        # caller's 500 guard is the correct response), flashcards degrade to [] so
+        # risk_model renormalises the missing signal away and the other 82% of the rubric
+        # still scores.
+        reads = await get_cohort_reads()
 
-        osce = osce_by_student(case_rows)
-        flashcard = flashcard_by_student(card_rows)
+        osce = osce_by_student(reads.case_rows)
+        flashcard = flashcard_by_student(reads.card_rows)
 
         flagged: list[dict] = []
-        for p in profiles:
+        for p in reads.profiles:
             sid = str(p.get("student_id") or "")
             if not sid:
                 continue
