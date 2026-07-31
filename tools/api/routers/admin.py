@@ -29,6 +29,7 @@ from tools.supervisor.cohort_analytics import (
     osce_by_student,
     weakness_scores,
 )
+from tools.supervisor.cohort_reads import get_cohort_reads
 from tools.supervisor.discipline import DISCIPLINES, discipline_to_pool, pool_by_student
 from tools.supervisor.mastery import mastery_block, retention_mastery
 from tools.supervisor.topic_crosswalk import KNOWLEDGE_PREFIX, is_known_tag, is_knowledge_group
@@ -399,29 +400,25 @@ async def admin_cohort_analytics(request: Request, discipline: str = "all", days
         # promoted student keeps their approved_students row (admin_promote below) and the
         # super-admin's address is routinely on the roster — and
         # get_active_leaderboard_profiles() adds trainers/admins on purpose. A lecturer's
-        # demo run inside a cohort mean is a lie that never expires. This RAISES if the
-        # supervisors read fails (Task 6): a 500 below is the intended outcome, because
-        # failing open would restore an inflated denominator that LOOKS correct.
-        profiles, staff_excluded = await db.get_active_student_profiles()
-        # `complete` is unpacked and deliberately not surfaced: the response shape has no
-        # completeness field, and _fetch_all caps at 50 x 1000 rows — ~2000x the current
-        # table. The read that truncates TODAY is token-summary's (capped at 500), which
-        # §5.6 fixes separately.
-        case_rows, _case_complete = await db.get_all_case_scores()
+        # demo run inside a cohort mean is a lie that never expires.
+        #
+        # One shared read across /at-risk, this endpoint and every student-detail page
+        # (cohort_reads). It RAISES if the population or OSCE read fails: a 500 below is
+        # the intended outcome, because failing open would restore an inflated denominator
+        # that LOOKS correct. Never fall through to a plausible empty cohort — "the DB is
+        # down" and "nobody has attempted anything" must not render identically. This is
+        # the defect class P1 exists to kill.
+        reads = await get_cohort_reads()
     except Exception:
-        # A failed OSCE/profile read is a REAL failure. Never fall through to a plausible
-        # empty cohort: "the DB is down" and "nobody has attempted anything" must not
-        # render identically. This is the defect class P1 exists to kill.
         raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
 
+    profiles, staff_excluded = reads.profiles, reads.staff_excluded
+    case_rows = reads.case_rows
     # Flashcards degrade instead of failing. flashcard_attempts only started receiving rows
     # in P2, so a thin or unavailable table is the NORMAL case — it renders as "no data",
     # never as {accuracy: 0.0}, which would send trainers to remediate an unstudied topic.
-    flashcard_source = "ok"
-    try:
-        fc_rows, _fc_complete = await db.get_all_flashcard_attempts()
-    except Exception:
-        fc_rows, flashcard_source = [], "unavailable"
+    fc_rows = reads.card_rows
+    flashcard_source = "ok" if reads.flashcard_ok else "unavailable"
 
     # After the DB reads on purpose: the index build globs 155 case files, and an outage
     # should 500 without paying for it.

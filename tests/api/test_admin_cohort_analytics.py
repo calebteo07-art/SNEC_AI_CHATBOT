@@ -112,11 +112,24 @@ _FC_ROWS = [
 
 @pytest.fixture(autouse=True)
 def _no_cohort_cache():
-    """The endpoint keeps a per-worker TTL cache keyed on (discipline, days). Without this
-    every test after the first would assert against the FIRST test's payload — patched
-    DB mocks and all. TTL=0 disables both the read and the write."""
+    """Disable BOTH caches in this file's path.
+
+    The endpoint keeps a per-worker TTL cache keyed on (discipline, days) — without
+    clearing it every test after the first would assert against the FIRST test's payload,
+    patched DB mocks and all. TTL=0 disables its read and its write.
+
+    The shared cohort READ cache underneath is disabled for the same reason and one more:
+    several tests here issue multiple requests under DIFFERENT stubbed rows, and a live
+    read cache would serve the first request's tables to all of them. It also decouples
+    `await_count` from "the derived cache was missed", which is exactly what two tests
+    below use it to measure. Read-sharing across endpoints is pinned in
+    tests/api/test_admin_read_sharing.py, where it is the subject rather than a confound.
+    """
+    from tools.supervisor import cohort_reads
+
     admin_router._cohort_cache.clear()
-    with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 0.0):
+    with patch("tools.api.routers.admin._COHORT_TTL_SECONDS", 0.0), \
+         patch.object(cohort_reads, "_READ_TTL_S", 0):
         yield
     admin_router._cohort_cache.clear()
 
