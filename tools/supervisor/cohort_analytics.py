@@ -486,3 +486,30 @@ def flashcard_by_student(rows: list[dict]) -> dict[str, dict]:
         sid: {"accuracy": round(100 * b["correct"] / b["n"], 1), "n": b["n"]}
         for sid, b in agg.items()
     }
+
+
+def flashcard_accuracy(topic_accuracy: dict) -> float | None:
+    """One student's whole-bank flashcard accuracy (0-100, 1dp) from
+    `db.get_topic_accuracy`'s `{topic_tag: {"correct", "total", "pct"}}`.
+
+    The per-student twin of `flashcard_by_student` above, and deliberately adjacent to it:
+    both are `100 * correct / attempts` at 1dp over EVERY attempt with no topic bucketing,
+    so a student's own figure and the peers they are compared against are ONE definition.
+    Split across two files they would drift, and the delta between them is exactly what a
+    trainer reads.
+
+    Re-aggregated from the per-topic counts rather than averaging the stored `pct`, which
+    would weight a 2-card topic like a 200-card one.
+
+    Exists so the detail page can source a student's own value from the per-student read it
+    already performs, instead of from a cached cohort scan — the scan is up to 45s stale
+    while `db.get_topic_accuracy` is not, and the same page renders both.
+
+    None — never 0.0 — at a zero denominator. An empty dict is "no attempts logged", the
+    normal state on a thin flashcard_attempts table; a 0.0 reads as total recall failure.
+    """
+    total = sum(int(b.get("total") or 0) for b in topic_accuracy.values())
+    if total <= 0:
+        return None
+    correct = sum(int(b.get("correct") or 0) for b in topic_accuracy.values())
+    return round(100 * correct / total, 1)
