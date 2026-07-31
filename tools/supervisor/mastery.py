@@ -11,15 +11,29 @@ average incomparable quantities and hide which one a trainer should act on.
 **The cohort mean is leave-one-out.** Including the student makes a solo student's
 delta exactly 0.0, which renders as "exactly at the cohort average" when the truth is
 "there is no cohort" — the common case at ~10 students, and the most misleading
-possible answer. `cohort_avg` and `delta` are null when fewer than 2 OTHER students
-have the scale.
+possible answer. `cohort_avg` and `delta` are null when NO other student has the scale.
+
+A cohort of one other student is thin, not invalid, so it is reported rather than
+suppressed — but only because every scale also carries `peers_n`, the count actually
+divided by. Rendering the average without that count is what turns "one classmate
+scored 95" into "the cohort scored 95".
 """
 from __future__ import annotations
 
 from tools.cases.topic_sets import case_pool, resolve_set_strict
-from tools.supervisor.topic_crosswalk import flashcard_group
+from tools.supervisor.topic_crosswalk import KNOWLEDGE_GROUP, flashcard_group, is_known_tag
 
 SCALES = ("osce", "flashcard", "retention")
+
+
+def _peers_n(n: int, value: float | None) -> int:
+    """How many OTHER students back a cohort figure — the divisor `leave_one_out` uses.
+
+    `n` counts everyone with the scale; this student is inside that count only when they
+    have a value of their own. Shared by both callers so the number a trainer is shown as
+    the peer count cannot drift from the number actually divided by.
+    """
+    return n - (1 if value is not None else 0)
 
 
 def leave_one_out(total: float, n: int, value: float | None) -> float | None:
@@ -28,22 +42,33 @@ def leave_one_out(total: float, n: int, value: float | None) -> float | None:
     `total`/`n` cover every student with the scale, `value` is this student's own
     contribution (None when they are not in the total).
     """
-    others_n = n - (1 if value is not None else 0)
+    others_n = _peers_n(n, value)
     if others_n < 1:
         return None
-    others_total = total - (value or 0.0)
+    # `is not None`, not `or`: a student who genuinely scored 0.0 is present in the
+    # total and must subtract 0.0, which is also what an absent student subtracts. The
+    # two coincide here but for opposite reasons, so spell out which one is meant.
+    others_total = total - (value if value is not None else 0.0)
     return round(others_total / others_n, 1)
 
 
 def retention_mastery(scores: dict | None, *, role: str) -> float | None:
     """Mean retention as 0-100, bucketed across both key namespaces first.
 
-    `retention_scores` is written with BOTH raw case-topic keys and flashcard tags, so
-    the same underlying topic can appear twice and double-count. Keys are resolved to
-    topic groups — case keys via `resolve_set_strict` (None on no match, unlike
-    `resolve_set`, which silently files an unrelated topic into `_DEFAULT`) and the
-    rest via the flashcard crosswalk — and the GROUP means are averaged, so a finely
+    `retention_scores` is written with BOTH raw case-topic keys (`cases.py`, from
+    `case["topic"]`) and flashcard tags (`student.py`, from `results[].topic_tag`), so
+    the same underlying topic can appear twice and double-count. Each key is resolved to
+    a topic group by its OWN namespace, and the GROUP means are averaged, so a finely
     subdivided namespace cannot outvote the other.
+
+    Route by namespace, never by "did the case matcher miss". `resolve_set_strict` is a
+    first-match-wins SUBSTRING matcher over case topics, so it silently swallows real
+    flashcard tags: `anatomy_phys(iol)ogy` and `microb(iol)ogy_infection` both hit the
+    `"iol"` biometry rule, and `conju(nct)iva` hits the `"nct"` tonometry rule. Six OT
+    tags and four OA tags land in a procedural set that way, merging FOUNDATIONS
+    knowledge into a station's score — precisely the absorption `topic_crosswalk`'s
+    module docstring exists to forbid. So a known flashcard tag goes through the
+    crosswalk, and only a non-tag is offered to the case matcher.
 
     Values are stored 0-1 and returned 0-100 to match the other two scales.
     """
@@ -58,8 +83,17 @@ def retention_mastery(scores: dict | None, *, role: str) -> float | None:
             # A malformed value is skipped, never coerced to 0.0 — a 0 reads as total
             # failure on that topic.
             continue
-        group = resolve_set_strict(role, str(key)) or flashcard_group(str(key), pool)
-        groups.setdefault(group, []).append(value)
+        name = str(key)
+        if is_known_tag(name):
+            group = flashcard_group(name, pool)
+        else:
+            group = resolve_set_strict(role, name) or KNOWLEDGE_GROUP
+        # Clamp: `retention_scores` is fed by a client-supplied `score` on
+        # POST /api/gamification/sync, which — unlike the `xp_delta` clamped beside it —
+        # is unbounded (student.py:99, update_profile.py:105). This is the first reader
+        # that multiplies by 100, so an unclamped 100.0 would put "10000" in front of a
+        # trainer as a mastery figure.
+        groups.setdefault(group, []).append(min(1.0, max(0.0, value)))
     if not groups:
         return None
     means = [sum(v) / len(v) for v in groups.values()]
@@ -76,18 +110,22 @@ def mastery_block(student_id: str, per_student: dict[str, dict]) -> dict:
             carry None for it, NOT 0.0 — a zero would join that scale's denominator
             and drag the cohort average down, flattering everyone against it.
 
-    Returns `{"<scale>_mastery": {"value", "cohort_avg", "delta", "cohort_n"}}`. Every
-    figure is `float | None`.
+    Returns `{"<scale>_mastery": {"value", "cohort_avg", "delta", "cohort_n",
+    "peers_n"}}`. Every figure is `float | None` except the two counts.
 
-    `cohort_n` is the number of students who HAVE that scale, **including this student
-    themself** — it is the size of the population the scale was measured over, not the
-    divisor of `cohort_avg`. `cohort_avg` is leave-one-out, so it is the mean of the
-    OTHER `cohort_n - 1` students (or of all `cohort_n` when this student lacks the
-    scale and is therefore not in the total). The two are deliberately not the same
-    count: `cohort_n` stays a stable "how much data backs this scale" figure that does
-    not change shape depending on whether the student has a value. A caller rendering
-    it must not label it as the number of peers compared against — "vs 3 peers" beside
-    an average of 2 is the mislabeling this note exists to prevent.
+    The two counts answer different questions and a caller must not swap them:
+
+    - `cohort_n` — how many students HAVE the scale, **including this student**. A
+      data-density figure: "how much evidence backs this comparison at all".
+    - `peers_n` — how many OTHER students `cohort_avg` is the mean of. This is the
+      divisor, and it is the one to put in front of a trainer. Rendering `cohort_n`
+      as the peer count reads "vs 3 peers" beside an average of 2.
+
+    `peers_n` is also the thinness signal. It is 1 far more often than the design
+    suggests at ~10 students, and a `cohort_avg` of 95 drawn from a single classmate
+    who happened to take one easy case is not a benchmark. The number is still
+    reported — suppressing real data is its own distortion — but only because
+    `peers_n` travels with it.
     """
     mine = per_student.get(student_id) or {}
     out: dict[str, dict] = {}
@@ -107,5 +145,6 @@ def mastery_block(student_id: str, per_student: dict[str, dict]) -> dict:
             "delta": round(value - cohort_avg, 1)
             if value is not None and cohort_avg is not None else None,
             "cohort_n": len(present),
+            "peers_n": _peers_n(len(present), value),
         }
     return out
