@@ -496,9 +496,11 @@ def test_student_detail_returns_shape():
     }
     consent_row = {"student_id": "stu_001", "student_name": "Alice", "email": "alice@test.com"}
 
-    # The last three back the mastery block. Unstubbed they are three whole-table scans
-    # of live production Supabase on every pytest run — the handler degrades them to
-    # `mastery: null`, so the shape assertions below would still pass while leaking.
+    # The last three back the mastery block. Unstubbed, conftest's global
+    # `_forbid_real_supabase` blocks them at `db._get_client`, so nothing reaches
+    # production — but the handler degrades the resulting failure to `mastery: null`,
+    # so the shape assertions below still pass and the only symptom is the guard's
+    # teardown error naming a call this test never meant to make.
     with patch("tools.api.routers.admin.get_profile", new=AsyncMock(return_value=profile_data)), \
          patch("tools.shared.db.get_consent_by_student_id", new=AsyncMock(return_value=consent_row)), \
          patch("tools.shared.db.get_sessions", new=AsyncMock(return_value=[])), \
