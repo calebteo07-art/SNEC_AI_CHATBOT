@@ -49,27 +49,11 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Logic harnesses (type-stripped unit tests)
-        # Pure-logic unit harnesses over greeting + leaderboard math + the first-login
-        # order; no server/browser. The onboarding/tour pair pins the order a new student
-        # meets the gates in — without them here, a reorder regresses silently (neither
-        # suite was reachable from CI or scripts/start-harness.sh before).
-        run: |
-          node --experimental-strip-types tests/greeting_assert.mjs
-          node --experimental-strip-types tests/tutor_greeting_assert.mjs
-          node --experimental-strip-types tests/leaderboard_logic.mjs
-          node --experimental-strip-types tests/onboarding_order_test.mjs
-          node --experimental-strip-types tests/tour_engine_test.mjs
-          node --experimental-strip-types tests/display_name_assert.mjs
-          node --experimental-strip-types tests/station_gate_logic.mjs
-          node --experimental-strip-types tests/station_mask_logic.mjs
-          node --experimental-strip-types tests/station_turn_logic.mjs
-          node --experimental-strip-types tests/station_help_logic.mjs
-          node --experimental-strip-types tests/flashcards_forfeit_logic.mjs
-          node --experimental-strip-types tests/leave_guard_logic.mjs
-          node --experimental-strip-types tests/hoverPause_logic.mjs
-          node --experimental-strip-types tests/cohort_panels_logic.mjs
-          node --experimental-strip-types tests/risk_rows_logic.mjs
-          node --experimental-strip-types tests/mastery_view_logic.mjs
+        # Every pure-logic harness in frontend/tests, discovered rather than hand-listed.
+        # The explicit list this replaces had drifted to 16 of 29 — thirteen harnesses
+        # that existed, passed, and gated nothing. Browser harnesses exclude themselves
+        # by their playwright import and run further down. See tests/_run_logic.mjs.
+        run: npm run test:logic
       - name: Production build
         run: npm run build
 
