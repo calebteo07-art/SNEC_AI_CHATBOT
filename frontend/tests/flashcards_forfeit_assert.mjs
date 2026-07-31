@@ -126,8 +126,22 @@ async function enterRound(ctx, count) {
   return page;
 }
 
-const waitForfeit = (page) =>
-  page.waitForRequest((r) => r.method() === "POST" && r.url().includes("/api/flashcards/forfeit"), { timeout: 8000 });
+/* Wait until the context-level counter has seen `n` forfeit POSTs. See the twin comment in
+ * station_forfeit_assert.mjs: page.waitForRequest does not reliably observe a
+ * navigator.sendBeacon whose document is being torn down by the router.push right after it,
+ * and having the WAIT watch a different channel from the ASSERTION lets the two disagree —
+ * which reports a working app as broken. It also removes the dangling-promise crash that
+ * killed the node process (and, under `set -e`, silently skipped every later harness)
+ * whenever a scenario threw between creating the wait and awaiting it. */
+const waitForfeit = async (count, n = 1, timeout = 8000) => {
+  const deadline = Date.now() + timeout;
+  while (count() < n) {
+    if (Date.now() > deadline) {
+      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit POST(s), saw ${count()}`);
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+};
 
 /* Every scenario has two halves. The POSITIVE half is condition-based — waitForfeit resolves
    on the real POST, so it never sleeps longer than the app takes. The short waitForTimeout
@@ -158,9 +172,8 @@ await scenario("Pause → Switch deck → confirm charges exactly one forfeit", 
   const page = await enterRound(ctx, count);
   await page.click("[data-testid=flash-pause]");
   await page.click("[data-testid=flash-switch]");
-  const seen = waitForfeit(page);
   await page.click("[data-testid=flash-switch-confirm]");
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(400);
   assert.strictEqual(count(), 1, `expected 1 forfeit on Switch deck, saw ${count()}`);
 });
@@ -170,9 +183,8 @@ await scenario("Pause → Quit → confirm charges exactly one forfeit", async (
   const page = await enterRound(ctx, count);
   await page.click("[data-testid=flash-pause]");
   await page.click("[data-testid=flash-quit]");
-  const seen = waitForfeit(page);
   await page.click("[data-testid=flash-quit-confirm]");
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(400);
   assert.strictEqual(count(), 1, `expected 1 forfeit on Quit, saw ${count()}`);
 });
@@ -206,9 +218,8 @@ await scenario("Complete the deck → Home charges zero forfeits", async (ctx, c
 // 4) Uncontrolled exit: hard-navigate away mid-round ⇒ pagehide beacon forfeits.
 await scenario("Hard nav away mid-round charges one forfeit (pagehide beacon)", async (ctx, count) => {
   const page = await enterRound(ctx, count);
-  const seen = waitForfeit(page);
   await page.goto(base + "/homepage");                          // full navigation ⇒ pagehide on /flashcards
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
 });
@@ -224,9 +235,8 @@ await scenario("⌘K → Homepage mid-round → confirm charges exactly one forf
   await page.click("button.aurora-palette-item:has-text('Homepage')");
   await page.waitForSelector("[data-testid=flash-leave-overlay]", { timeout: 5000 });
   assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
-  const seen = waitForfeit(page);
   await page.click("[data-testid=flash-leave-confirm]");
-  await seen;
+  await waitForfeit(count);
   await page.waitForFunction(() => !location.pathname.startsWith("/flashcards"), null, { timeout: 5000 });
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit after confirming, saw ${count()}`);
