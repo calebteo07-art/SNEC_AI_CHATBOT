@@ -2,8 +2,11 @@
 /* Pure builder for the per-student report (the Admin drill-down's
    "Download report" action). Clones sessionExport.ts: turns already-loaded per-student
    data into ONE self-contained, print-friendly (→ "Save as PDF"), fully HTML-escaped
-   document — vitals, per-topic retention + flashcard accuracy vs cohort, OSCE results,
-   weak topics, missed findings, the lecturer note, and a recent-activity summary.
+   document — vitals, mastery vs cohort, per-topic retention + flashcard accuracy,
+   virtual-patient results, weak topics, missed findings, the lecturer note, and a
+   recent-activity summary. The per-topic table carries NO cohort column: the only
+   cohort comparison the API makes is per-scale, and repeating a per-scale average
+   down a per-topic table would invent a comparison that was never computed.
    Dependency-free so it runs under Node's type-stripping in the test harness and never
    touches React/DOM. The caller (AdminStudentDetail) maps its live data into this plain
    model; this module only renders it. */
@@ -21,8 +24,9 @@ export interface StudentReportData {
   }[];
   /** Per-SCALE comparison (masteryView.masteryRows), the only cohort comparison the API
       makes. There was a per-TOPIC "cohort avg" column here fed by `cohort_retention`, a
-      field no backend version ever sent — it printed a column of dashes for a year. A
-      per-scale average must never be repeated down a per-topic table to fill it. */
+      field no backend version ever sent (`git log -S` over `*.py` returns nothing), so
+      it printed a column of dashes from 2026-07-14 until it was removed on 2026-07-31.
+      A per-scale average must never be repeated down a per-topic table to fill it. */
   mastery: { label: string; valueLabel: string; deltaLabel: string; cohortLabel: string }[];
   osce: {
     caseId: string; totalScore: number; scoreMax: number; passed: boolean;
