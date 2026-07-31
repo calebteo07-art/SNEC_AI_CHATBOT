@@ -1,120 +1,105 @@
-"""Three mastery scales against a leave-one-out cohort (spec §6.2, D13)."""
+"""Three mastery scales against an explicit peer set (spec §6.2, D13)."""
 
-from tools.supervisor.mastery import leave_one_out, mastery_block, retention_mastery
-
-
-# ── leave-one-out ────────────────────────────────────────────────────────────
-
-def test_leave_one_out_excludes_the_student():
-    # Three students at 90/60/30. For the 90, the cohort is (60+30)/2 = 45.
-    assert leave_one_out(total=180.0, n=3, value=90.0) == 45.0
-
-
-def test_solo_student_has_no_cohort():
-    # Including the student makes delta exactly 0.0, which renders as "exactly at the
-    # cohort average" when the truth is "there is no cohort" — the common case at
-    # SNEC's volume, and the reason this must be null.
-    assert leave_one_out(total=90.0, n=1, value=90.0) is None
-
-
-def test_zero_cohort_is_none_not_zero():
-    assert leave_one_out(total=0.0, n=0, value=None) is None
-
-
-def test_a_real_zero_is_a_score_not_a_missing_student():
-    # 0.0 is producible (score_100 == 0; an all-wrong deck) and is falsy. Any truthiness
-    # test in here silently re-files the weakest student in the cohort as "no data", so
-    # their peer average is computed over the wrong denominator and flatters them.
-    assert leave_one_out(total=50.0, n=2, value=0.0) == 50.0
+from tools.supervisor.mastery import mastery_block, retention_mastery
 
 
 # ── the three scales ─────────────────────────────────────────────────────────
 
-def _per_student():
+def _own(osce=90.0, flashcard=80.0, retention=70.0):
+    return {"osce": osce, "flashcard": flashcard, "retention": retention}
+
+
+def _peers():
+    """Two peers with every scale, one with only retention. The viewed student is NEVER
+    in here — the caller drops them before calling."""
     return {
-        "s1": {"osce": 90.0, "flashcard": 40.0, "retention": None},
-        "s2": {"osce": 60.0, "flashcard": 80.0, "retention": 50.0},
-        "s3": {"osce": 30.0, "flashcard": None, "retention": 70.0},
+        "s2": {"osce": 60.0, "flashcard": 40.0, "retention": 50.0},
+        "s3": {"osce": 30.0, "flashcard": 60.0, "retention": 70.0},
+        "s4": {"retention": 60.0},
     }
 
 
-def test_three_named_scales_are_never_blended():
-    out = mastery_block("s1", _per_student())
+def test_returns_three_separately_named_scales():
+    # Never one blended number: OSCE attainment, flashcard recall and retention measure
+    # different things, and averaging them would hide which one to act on.
+    out = mastery_block(_own(), _peers())
     assert set(out) == {"osce_mastery", "flashcard_mastery", "retention_mastery"}
+
+
+def test_the_cohort_average_is_the_mean_of_the_peers_only():
+    out = mastery_block(_own(), _peers())
+    assert out["osce_mastery"]["cohort_avg"] == 45.0     # (60 + 30) / 2
+    assert out["osce_mastery"]["peers_n"] == 2
+    assert out["retention_mastery"]["cohort_avg"] == 60.0  # (50 + 70 + 60) / 3
+    assert out["retention_mastery"]["peers_n"] == 3
+
+
+def test_delta_is_against_the_peer_mean():
+    out = mastery_block(_own(), _peers())
     assert out["osce_mastery"]["value"] == 90.0
-    assert out["flashcard_mastery"]["value"] == 40.0
-
-
-def test_delta_is_against_the_leave_one_out_mean():
-    out = mastery_block("s1", _per_student())
-    assert out["osce_mastery"]["cohort_avg"] == 45.0     # (60+30)/2
     assert out["osce_mastery"]["delta"] == 45.0          # 90 - 45
-    # cohort_n counts every student WITH the scale, s1 included — deliberately not
-    # the divisor of cohort_avg, which is the mean over the other 2. See the
-    # mastery_block docstring: a UI rendering this as "vs 3 peers" is wrong.
-    assert out["osce_mastery"]["cohort_n"] == 3
 
 
-def test_a_scale_the_student_lacks_is_null_but_still_reports_the_cohort():
-    # s1 has no retention data. Their own value is null — but a trainer still needs
-    # to see what the cohort managed, so cohort_avg is populated and delta is null.
-    out = mastery_block("s1", _per_student())
-    assert out["retention_mastery"]["value"] is None
-    assert out["retention_mastery"]["delta"] is None
-    assert out["retention_mastery"]["cohort_avg"] == 60.0   # (50+70)/2
-    assert out["retention_mastery"]["cohort_n"] == 2
+def test_the_student_is_never_in_their_own_peer_average():
+    # The reason this takes `peers` instead of the whole cohort. Including the student
+    # makes a solo student's delta exactly 0.0 — "exactly at the cohort average" when the
+    # truth is "there is no cohort" — and it is the caller who knows which id to drop.
+    peers = _peers()
+    solo = mastery_block(_own(), {})
+    assert solo["osce_mastery"]["cohort_avg"] is None
+    assert solo["osce_mastery"]["delta"] is None
+    assert solo["osce_mastery"]["peers_n"] == 0
+    # ...and a peer set that is missing this student gives a mean untouched by their score.
+    assert mastery_block(_own(osce=0.0), peers)["osce_mastery"]["cohort_avg"] == 45.0
 
 
-def test_students_without_the_scale_are_out_of_its_denominator():
-    # s3 has no flashcard data, so the flashcard cohort is 2, not 3. Counting them as
-    # a 0 would drag the cohort average down and flatter everyone against it.
-    out = mastery_block("s1", _per_student())
-    assert out["flashcard_mastery"]["cohort_n"] == 2
-    assert out["flashcard_mastery"]["cohort_avg"] == 80.0   # s2 only
+def test_a_fresh_own_value_does_not_move_the_peer_mean():
+    # The whole point of dropping leave_one_out. The own value is read fresh while the
+    # peer rows come from a cache up to 45s old, so a peer mean derived by SUBTRACTING the
+    # own value from a total that includes them is computed from two different moments:
+    # a student cached at 60 who has since scored 80 yielded (180-80)/2 = 50 instead of 60.
+    peers = {"s2": {"osce": 60.0}, "s3": {"osce": 60.0}}
+    assert mastery_block({"osce": 60.0}, peers)["osce_mastery"]["cohort_avg"] == 60.0
+    assert mastery_block({"osce": 80.0}, peers)["osce_mastery"]["cohort_avg"] == 60.0
+    assert mastery_block({"osce": None}, peers)["osce_mastery"]["cohort_avg"] == 60.0
 
 
-def test_peers_n_is_the_divisor_cohort_n_is_the_population():
-    # The two counts differ exactly when the student has the scale, and that is the case
-    # a UI gets wrong: osce is 3 students but an average over 2, flashcard is 2 students
-    # but an average over 1. peers_n is the one to render.
-    out = mastery_block("s1", _per_student())
+def test_cohort_n_counts_the_student_in_only_when_they_have_the_scale():
+    # cohort_n is a data-density figure ("how much evidence backs this comparison"),
+    # peers_n is the divisor. A UI rendering cohort_n as the peer count reads "vs 3 peers"
+    # beside an average of 2.
+    out = mastery_block(_own(flashcard=None), _peers())
     assert (out["osce_mastery"]["cohort_n"], out["osce_mastery"]["peers_n"]) == (3, 2)
-    assert (out["flashcard_mastery"]["cohort_n"], out["flashcard_mastery"]["peers_n"]) == (2, 1)
-    # When the student lacks the scale they are not in the total, so the two agree.
-    assert (out["retention_mastery"]["cohort_n"], out["retention_mastery"]["peers_n"]) == (2, 2)
+    assert (out["flashcard_mastery"]["cohort_n"], out["flashcard_mastery"]["peers_n"]) == (2, 2)
 
 
-def test_a_zero_scoring_student_keeps_their_value_and_their_place():
-    # The failing student is the one a trainer most needs to see. A truthiness test on
-    # `value` would render their 0 as "—" (no data) or drop them from the denominator.
-    out = mastery_block("s1", {"s1": {"osce": 0.0}, "s2": {"osce": 50.0}})
-    assert out["osce_mastery"] == {
-        "value": 0.0, "cohort_avg": 50.0, "delta": -50.0, "cohort_n": 2, "peers_n": 1,
-    }
+def test_a_scale_the_student_lacks_is_null_with_the_cohort_still_shown():
+    out = mastery_block(_own(retention=None), _peers())
+    assert out["retention_mastery"]["value"] is None
+    assert out["retention_mastery"]["delta"] is None, "a delta against nothing is not a zero"
+    assert out["retention_mastery"]["cohort_avg"] == 60.0
 
 
-def test_a_solo_student_has_a_null_delta_not_a_zero_one():
-    # The headline invariant of the whole module, and the one the docstring calls "the
-    # most misleading possible answer": a delta of 0.0 renders as "exactly at the cohort
-    # average" when the truth is that there is no cohort at all.
-    out = mastery_block("s1", {"s1": {"osce": 90.0}})
-    assert out["osce_mastery"]["delta"] is None
-    assert out["osce_mastery"]["cohort_avg"] is None
-    assert out["osce_mastery"]["peers_n"] == 0
+def test_a_genuine_zero_is_a_value_not_missing_data():
+    out = mastery_block({"osce": 0.0}, {"s2": {"osce": 50.0}})
+    assert out["osce_mastery"]["value"] == 0.0
+    assert out["osce_mastery"]["delta"] == -50.0
+    assert out["osce_mastery"]["cohort_n"] == 2, "a real 0.0 counts toward the density"
 
 
-def test_unknown_student_gets_nulls_not_a_crash():
-    out = mastery_block("nobody", _per_student())
-    assert out["osce_mastery"]["value"] is None
-    assert out["osce_mastery"]["delta"] is None
+def test_a_peer_missing_a_scale_is_excluded_not_zero_filled():
+    # A zero would join the denominator and drag the average down, flattering everyone
+    # measured against it.
+    out = mastery_block({"osce": 90.0}, {"s2": {"osce": 60.0}, "s3": {"osce": None}})
+    assert out["osce_mastery"]["cohort_avg"] == 60.0
+    assert out["osce_mastery"]["peers_n"] == 1
 
 
-def test_empty_cohort_is_all_nulls():
-    out = mastery_block("s1", {})
-    for scale in out.values():
-        assert scale["value"] is None and scale["cohort_avg"] is None
-        assert scale["delta"] is None
-        assert scale["cohort_n"] == 0 and scale["peers_n"] == 0
+def test_no_peers_and_no_own_value_is_all_nulls():
+    out = mastery_block({}, {})
+    for scale in ("osce_mastery", "flashcard_mastery", "retention_mastery"):
+        assert out[scale] == {"value": None, "cohort_avg": None, "delta": None,
+                              "cohort_n": 0, "peers_n": 0}
 
 
 # ── retention bucketing ──────────────────────────────────────────────────────
