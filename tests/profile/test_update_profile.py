@@ -222,6 +222,45 @@ async def test_update_profile_updates_retention_scores():
     assert scores["glaucoma"] == 0.8
 
 
+# ── retention_scores stays a 0-1 fraction ──────────────────────────────────
+# Every consumer reads this column as a fraction (mastery multiplies by 100,
+# weak_topics compares against WEAK_THRESHOLD, the cohort/report/progress readers
+# average it raw). `score` arrives client-supplied on the /api/gamification/sync
+# path, so the bound belongs here — the one write all three callers funnel
+# through — not in each reader.
+
+@pytest.mark.asyncio
+async def test_update_profile_clamps_a_score_above_one():
+    mock_update = await _run(_profile(), TUE, topic="glaucoma", score=100.0)
+    assert _main_update_kwargs(mock_update)["retention_scores"]["glaucoma"] == 1.0
+
+
+@pytest.mark.asyncio
+async def test_update_profile_clamps_a_negative_score():
+    # A negative score also silently marks the topic weak (s < WEAK_THRESHOLD).
+    mock_update = await _run(_profile(), TUE, topic="glaucoma", score=-5.0)
+    assert _main_update_kwargs(mock_update)["retention_scores"]["glaucoma"] == 0.0
+
+
+@pytest.mark.asyncio
+async def test_update_profile_clamps_the_score_before_blending():
+    # The clamp lands on the incoming score, not on the blended result: clamping
+    # afterwards would store a flat 1.0 and erase the 0.8 of stored history.
+    profile = _profile(retention_scores={"glaucoma": 0.8})
+    mock_update = await _run(profile, TUE, topic="glaucoma", score=100.0)
+    assert _main_update_kwargs(mock_update)["retention_scores"]["glaucoma"] == 0.86  # .3*1.0 + .7*0.8
+
+
+@pytest.mark.asyncio
+async def test_update_profile_heals_an_out_of_range_stored_score():
+    # A row poisoned before the clamp existed is blended back into range rather
+    # than carried forward — bounding only the incoming score would still write
+    # 0.3*0.9 + 0.7*30.56 = 21.66 out of a legitimate call.
+    profile = _profile(retention_scores={"glaucoma": 30.56})
+    mock_update = await _run(profile, TUE, topic="glaucoma", score=0.9)
+    assert _main_update_kwargs(mock_update)["retention_scores"]["glaucoma"] == 0.97  # .3*0.9 + .7*1.0
+
+
 @pytest.mark.asyncio
 async def test_update_profile_marks_weak_topics():
     profile = _profile(retention_scores={"glaucoma": 0.8, "retina": 0.4})
