@@ -96,8 +96,35 @@ async function enterStation(ctx) {
   return page;
 }
 
-const waitForfeit = (page) =>
-  page.waitForRequest((r) => r.method() === "POST" && r.url().includes("/forfeit"), { timeout: 8000 });
+/* Wait until the context-level counter has seen `n` forfeit POSTs.
+ *
+ * NOT page.waitForRequest. The charge is a navigator.sendBeacon fired immediately before
+ * router.push, and a page-scoped request wait does not reliably observe a beacon whose
+ * document is being torn down by that navigation — while ctx.on("request") above always
+ * does. Scenario 7 (⌘K palette) hit exactly that: the beacon fired, count() reached 1 and
+ * the app navigated correctly, but waitForRequest timed out anyway. CI was red for 28
+ * hours on a product that was working.
+ *
+ * The deeper bug was that the WAIT and the ASSERTION watched different channels, so they
+ * could disagree — and when they did, the harness reported the app broken. Polling the
+ * counter the assertion itself uses makes that disagreement impossible.
+ *
+ * It also removes a false-GREEN generator. `const seen = waitForfeit(page)` was created
+ * before the click and awaited after, so any throw in between left it dangling; it later
+ * rejected with nobody awaiting, which under node's default --unhandled-rejections=throw
+ * killed the process instead of printing ✗. `start-harness.sh` runs under `set -e`, so
+ * that aborted the whole suite and every harness after this one was silently skipped.
+ * Nothing sleeps here that the app has not earned: the counter is monotonic from context
+ * creation, so an already-delivered beacon returns on the first poll. */
+const waitForfeit = async (count, n = 1, timeout = 8000) => {
+  const deadline = Date.now() + timeout;
+  while (count() < n) {
+    if (Date.now() > deadline) {
+      throw new Error(`timed out after ${timeout}ms waiting for ${n} forfeit POST(s), saw ${count()}`);
+    }
+    await new Promise((r) => setTimeout(r, 50));
+  }
+};
 
 let failures = 0;
 async function scenario(name, fn) {
@@ -120,9 +147,8 @@ await scenario("← Patients → confirm charges exactly one forfeit", async (ct
   const page = await enterStation(ctx);
   await page.click('[data-testid="station-leave"]');
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
-  const seen = waitForfeit(page);
   await page.click('[data-testid="station-leave-confirm"]');
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(400);
   assert.strictEqual(count(), 1, `expected 1 forfeit on confirmed leave, saw ${count()}`);
 });
@@ -141,9 +167,8 @@ await scenario("← Patients → Stay charges zero forfeits", async (ctx, count)
 // 3) Uncontrolled exit: hard-navigate away mid-station ⇒ pagehide beacon forfeits once.
 await scenario("Hard nav away mid-station charges one forfeit (pagehide beacon)", async (ctx, count) => {
   const page = await enterStation(ctx);
-  const seen = waitForfeit(page);
   await page.goto(base + "/homepage");
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit on hard nav, saw ${count()}`);
 });
@@ -171,9 +196,8 @@ await scenario("Atlas Rail nav mid-station → confirm charges exactly one forfe
   await page.click('.aurora-navitem[aria-label="Homepage"]');     // try to leave via the sidebar
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
   assert.strictEqual(count(), 0, `no charge until confirmed, saw ${count()}`);
-  const seen = waitForfeit(page);
   await page.click('[data-testid="station-leave-confirm"]');
-  await seen;
+  await waitForfeit(count);
   await page.waitForFunction(() => !location.pathname.startsWith("/cases/"), { timeout: 5000 });
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit after confirming rail leave, saw ${count()}`);
@@ -198,9 +222,8 @@ await scenario("⌘K palette nav mid-station → confirm charges exactly one for
   await page.waitForSelector(".aurora-palette-input", { timeout: 6000 });
   await page.click("button.aurora-palette-item:has-text('Homepage')");
   await page.waitForSelector('[data-testid="station-leave-overlay"]', { timeout: 5000 });
-  const seen = waitForfeit(page);
   await page.click('[data-testid="station-leave-confirm"]');
-  await seen;
+  await waitForfeit(count);
   await page.waitForTimeout(300);
   assert.strictEqual(count(), 1, `expected 1 forfeit after confirming palette leave, saw ${count()}`);
 });
