@@ -28,6 +28,18 @@ WEAK_THRESHOLD = 0.65
 CHECKIN_BONUS = 50
 
 
+def _fraction(value) -> float:
+    """Bound a retention score to the 0-1 fraction every consumer assumes.
+
+    `retention_scores` is read as a fraction everywhere — mastery multiplies it by 100,
+    weak_topics compares it against WEAK_THRESHOLD, and the cohort/report/progress
+    readers average it raw — but one writer's `score` is client-supplied
+    (POST /api/gamification/sync). Bounding it at the single write keeps every reader
+    honest without each having to re-clamp.
+    """
+    return min(1.0, max(0.0, float(value)))
+
+
 def _calc_velocity(old_scores: dict, new_scores: dict) -> str:
     if not old_scores or not new_scores:
         return "stable"
@@ -102,8 +114,13 @@ async def update_profile(
     old_retention = dict(retention)
 
     if topic and score is not None:
-        old = float(retention.get(topic, score))
-        retention[topic] = round(0.3 * float(score) + 0.7 * old, 3)
+        # Both operands are bounded, so the blend is a 0-1 fraction by construction.
+        # Clamping the STORED value too heals a row poisoned before this guard existed —
+        # bounding only the incoming score would still blend 0.7 of an out-of-range
+        # history forward on an otherwise legitimate write.
+        value = _fraction(score)
+        old = _fraction(retention.get(topic, value))
+        retention[topic] = round(0.3 * value + 0.7 * old, 3)
 
     # Weak topics
     weak_topics = [t for t, s in retention.items() if s < WEAK_THRESHOLD]
