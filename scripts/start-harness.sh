@@ -6,9 +6,10 @@
 #   → warm dynamic routes (cold first-hit >15s breaks Playwright waits) → assert.
 #
 # Usage:
-#   scripts/start-harness.sh [aurora|station|all|serve|stop]   (default: all)
+#   scripts/start-harness.sh [aurora|station|forfeit|hover|all|list|serve|stop]  (default: all)
 #   SKIP_BUILD=1 scripts/start-harness.sh aurora    # reuse existing .next build
 #   HARNESS_PORT=3999 scripts/start-harness.sh stop # drive a port other than 3000
+#   scripts/start-harness.sh list                   # what `all` would run (no build/server)
 #
 #   One run at a time per tree+port, via .tmp/harness-<port>.lock. A lock whose holder is
 #   dead is reclaimed automatically, so you should never need to clear it by hand; if you
@@ -63,6 +64,49 @@ KEEP_SERVER=0
 LOCK_HELD=0
 CHILD_PID=""
 if [ "$MODE" = "serve" ]; then KEEP_SERVER=1; fi
+
+# Which harnesses `all` runs, DISCOVERED rather than listed. The old `all` named six of
+# twenty; the other fourteen existed and eleven of them passed — they simply gated nothing.
+# Same drift that had ci.yml running 16 of 29 logic harnesses, and a hand list has no way
+# to notice what it left out. A browser harness is exactly a tests/*.mjs that imports
+# playwright, so the set cannot go stale.
+#
+# The exclusions are opt-OUT on purpose: a new harness is gated the moment it lands, and
+# forgetting to exclude a non-gate fails loudly here instead of being skipped in silence.
+#   visual_sweep       — a screenshot sweep with no exit code; it can never fail, so
+#                        gating it would only add minutes and a false sense of cover.
+#   home_mobile_assert \_ RED, both on the same false positive: the home badge shelf is an
+#   mobile_audit       /  overflow-x:auto scroller whose content legitimately sits past the
+#                        viewport, and neither harness knows what a scroll container is.
+#                        Re-gated the moment they do — do not let this list grow instead.
+NOT_GATED="visual_sweep.mjs home_mobile_assert.mjs mobile_audit.mjs"
+
+# A filter that selects nothing would run nothing and exit 0 — the same false green the
+# logic runner guards. Not a target: lower it only when harnesses are genuinely removed.
+MIN_HARNESSES=15
+
+gated_harnesses() {
+  local f base found=0
+  for f in "$FE"/tests/*.mjs; do
+    base="$(basename "$f")"
+    # `_` prefix means fixture or runner, never a harness — the same convention
+    # tests/_run_logic.mjs applies. It is not optional here: _run_logic.mjs contains the
+    # string 'from "playwright"' inside its OWN filter, so a grep alone adopts it.
+    case "$base" in _*) continue ;; esac
+    grep -q 'from "playwright"' "$f" || continue
+    case " $NOT_GATED " in *" $base "*) continue ;; esac
+    echo "$base"
+    found=$((found + 1))
+  done
+  if [ "$found" -lt "$MIN_HARNESSES" ]; then
+    echo "discovered $found browser harnesses, expected at least $MIN_HARNESSES —" >&2
+    echo "running none of them exits 0 and reads as a green suite." >&2
+    return 1
+  fi
+}
+
+# Before the lock, the build and the server: `list` is a question about the tree, not a run.
+if [ "$MODE" = "list" ]; then gated_harnesses; exit 0; fi
 
 mkdir -p "$ROOT/.tmp"
 
@@ -285,9 +329,11 @@ case "$MODE" in
   # "held" from "still flowing" — and only this catches the zone quietly growing to the
   # whole stage (which would stop the ring wherever the mouse rested).
   hover)   run hover_pause_assert.mjs ;;
-  all)     run aurora_assert.mjs; run station_assert.mjs; run rotate_gate_assert.mjs; run station_forfeit_assert.mjs; run flashcards_forfeit_assert.mjs; run hover_pause_assert.mjs ;;
+  # Everything that gates, discovered — see gated_harnesses() near the top for why this is
+  # not a list. The named modes above stay as fast targeted subsets.
+  all)     for h in $(gated_harnesses); do run "$h"; done ;;
   # The one mode that hands the server over: it outlives this script on purpose, so YOU
   # own it now and `stop` is how it ends. Every other mode reaps what it started.
   serve)   echo "server ready at $BASE — it is yours until: scripts/start-harness.sh stop" ;;
-  *)       echo "usage: start-harness.sh [aurora|station|forfeit|hover|all|serve|stop]" >&2; exit 2 ;;
+  *)       echo "usage: start-harness.sh [aurora|station|forfeit|hover|all|list|serve|stop]" >&2; exit 2 ;;
 esac
