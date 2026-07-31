@@ -75,13 +75,10 @@ if [ "$MODE" = "serve" ]; then KEEP_SERVER=1; fi
 # forgetting to exclude a non-gate fails loudly here instead of being skipped in silence.
 #   visual_sweep       — a screenshot sweep with no exit code; it can never fail, so
 #                        gating it would only add minutes and a false sense of cover.
-#   mobile_audit       — RED on three REAL defects it is the only thing that catches: a
-#                        32x32 "?" button on /cases at every touch tier (44x44 minimum),
-#                        and two elements hanging off the right edge of /admin at 360.
-#                        Gate it the moment those are fixed; it is not a false positive.
-# home_mobile_assert came off this list once both harnesses learned what a scroll container
-# is (_layout.mjs) — every one of its failures was the home badge shelf.
-NOT_GATED="visual_sweep.mjs mobile_audit.mjs"
+# That is the whole list. home_mobile_assert and mobile_audit both came off it: the first
+# once the harnesses learned what a scroll container is (_layout.mjs), the second once the
+# three real defects it had been reporting all along were actually fixed.
+NOT_GATED="visual_sweep.mjs"
 
 # A filter that selects nothing would run nothing and exit 0 — the same false green the
 # logic runner guards. Not a target: lower it only when harnesses are genuinely removed.

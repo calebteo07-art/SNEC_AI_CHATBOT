@@ -29,12 +29,9 @@ pytestmark = pytest.mark.skipif(BASH is None, reason="needs bash to drive start-
 # script — the duplication is the point, not an accident.
 EXPECTED_NOT_GATED = {
     # A screenshot sweep with no exit code: it cannot fail, so gating it buys CI minutes
-    # and a false sense of cover.
+    # and a false sense of cover. This is the only justified exclusion — every other
+    # browser harness runs. Do not grow this list; fix the harness or fix the defect.
     "visual_sweep.mjs",
-    # RED on three REAL defects it is the only thing that catches — a 32x32 "?" button on
-    # /cases at every touch tier, and two elements off the right edge of /admin at 360.
-    # Gate it when those are fixed; do not grow this list instead.
-    "mobile_audit.mjs",
 }
 
 
