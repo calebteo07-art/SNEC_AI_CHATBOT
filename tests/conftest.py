@@ -113,6 +113,16 @@ def _reset_shared_api_state() -> None:
     except Exception:
         pass
 
+    # And the shared cohort READ cache underneath all three of the above. It holds the raw
+    # rows every admin roll-up reads, under a single key with no per-request dimension, so
+    # one test that reaches it without patching _READ_TTL_S would serve its own stubbed
+    # tables to every later test in the process.
+    try:
+        from tools.supervisor.cohort_reads import _cache as _cohort_reads_cache
+        _cohort_reads_cache.clear()
+    except Exception:
+        pass
+
 
 @pytest.fixture(autouse=True)
 def isolate_shared_api_state():
